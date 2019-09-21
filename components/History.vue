@@ -16,13 +16,13 @@ el-table(:data="history", row-key="block_num'" style='width: 100%')
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ShortToken from '~/components/elements/ShortToken'
 
 import config from '~/config'
 import { calculatePrice, parseAsset } from '~/utils'
 
-import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -32,7 +32,7 @@ export default {
 
   data() {
     return {
-      history: [],
+      history: []
     }
   },
 
@@ -50,7 +50,7 @@ export default {
       let upper_bound
       this.history = []
 
-      while(true) {
+      while (true) {
         // fetch all history
         let r
 
@@ -65,8 +65,8 @@ export default {
           })
 
           // Prepare history objects
-          r.rows.map(h => {
-            let t = new Date(h.time * 1000).toLocaleString().split(':')
+          r.rows.map((h) => {
+            const t = new Date(h.time * 1000).toLocaleString().split(':')
             h.time = t[0] + ':' + t[1] + ':' + t[2]
 
             h.sell = parseAsset(h.sell)
@@ -82,15 +82,14 @@ export default {
             ...this.history,
             ...r.rows
           ]
-
-        } catch(e) {
+        } catch (e) {
           this.$notify({ title: 'Load history', message: e.message, type: 'error' })
           break
         } finally {
           this.loading = false
         }
 
-        if(r.rows.length > 1) {
+        if (r.rows.length > 1) {
           upper_bound = r.rows[r.rows.length - 1].id - 1
           if (upper_bound < 0) break
         } else {

@@ -27,22 +27,17 @@ div
 
                   span.ml-2(v-else).lead {{ scope.row.token.symbol.name }}@{{ scope.row.token.contract }}
 
-                  //TokenImage(:src="$tokenLogo(scope.row.sell.quantity.split(' ')[1], scope.row.sell.contract)" height="25")
-                  //span.ml-2(v-if="scope.row.sell.symbol == 'EOS' && scope.row.sell.contract != 'eosio.token'")
-                    el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
-                      el-tag(type="danger") {{ scope.row.sell.quantity }}@{{ scope.row.sell.contract }}
-
             el-table-column(label="Price (EOS)" width="200")
               template(slot-scope='scope')
                 span.text-mutted Soon..
 
-            el-table-column(label="Volume" width="200")
+            // el-table-column(label="Volume" width="200") TODO
               template(slot-scope='scope')
                 span.text-mutted Soon..
 
     el-tab-pane(label='Rules & Information')
-      h2.lead.ml-3.mt-3 With EOSSWAP you can exchange any EOS.IO tokens, for any other EOS.IO tokens, 
-           | atomically, without the participation of third parties! The tokens should comply with the 
+      h2.lead.ml-3.mt-3 With EOSSWAP you can exchange any EOS.IO tokens, for any other EOS.IO tokens,
+           | atomically, without the participation of third parties! The tokens should comply with the
            | standard eosio.token of the contract.
 
       h4.ml-3.mt-3 Properties:
@@ -60,10 +55,10 @@ div
 
       h4.ml-3 Audit:
         ul.mt-1
-          li.lead Exchange contract: 
+          li.lead Exchange contract:
             a(:href="'wwweosswapio' | monitorAccount" target="_blank") wwweosswapio
 
-          li.lead Comission account: 
+          li.lead Comission account:
             a(:href="'eosswapdivs1' | monitorAccount" target="_blank") eosswapdivs1
 
     el-tab-pane(label='Partners').p-3
@@ -83,17 +78,15 @@ div
 <script>
 import { captureException } from '@sentry/browser'
 
-import ShortToken from '~/components/elements/ShortToken' // TODO Refactor with this
+import { mapGetters } from 'vuex'
 import NewOrderForm from '~/components/NewOrderForm.vue'
 import History from '~/components/History.vue'
 import TokenImage from '~/components/elements/TokenImage'
 
-import axios from 'axios'
 
 import config from '~/config'
-import { mapGetters } from 'vuex'
 import { transfer } from '~/store/chain.js'
-import { parseAsset, parseExtendedAsset, calculatePrice } from '~/utils'
+import { parseExtendedAsset } from '~/utils'
 
 
 export default {
@@ -115,7 +108,7 @@ export default {
         to: ''
       },
 
-      loading: true,
+      loading: true
     }
   },
 
@@ -124,23 +117,49 @@ export default {
     ...mapGetters('chain', ['rpc']),
 
     filteredItems() {
-      return this.markets.filter(i => {
-        if(i.token.toString().toLowerCase().indexOf(this.search.toLowerCase()) > -1)
+      return this.markets.filter((i) => {
+        if (i.token.toString().toLowerCase().includes(this.search.toLowerCase()))
           return true
 
-        if(i.token.toString().toLowerCase().indexOf(this.search.toLowerCase()) > -1)
+        if (i.token.toString().toLowerCase().includes(this.search.toLowerCase()))
           return true
-      });
+      })
     }
   },
 
-  created() {
-    this.fetch()
+  async created() {
+    await this.fetch()
+    this.fetchMarketStatistics()
   },
 
   methods: {
-    async clickOrder(a) {
-      this.$router.push({name: 'trade-id', params: {id: a.id }})
+    async fetchMarketStatistics() {
+      // for (let market in this.markets) {
+      //  Promise.all([
+      //    this.rpc.get_table_rows({code: config.contract, scope: this.market_id, table: 'buyorder', limit: 1000 }),
+      //    this.rpc.get_table_rows({ code: config.contract, scope: this.market_id, table: 'sellorder', limit: 1000 }),
+      //  ])
+      // }
+
+      //  //let { rows: bids } = await this.rpc.get_table_rows({
+      //  let { rows: bids } = await this.rpc.get_table_rows({
+      //    code: config.contract,
+      //    scope: this.market_id,
+      //    table: 'buyorder',
+      //    limit: 1000
+      //  })
+
+      //  let { rows: asks } = await this.rpc.get_table_rows({
+      //    code: config.contract,
+      //    scope: this.market_id,
+      //    table: 'sellorder',
+      //    limit: 1000
+      //  })
+      // })
+    },
+
+    clickOrder(a) {
+      this.$router.push({name: 'trade-id', params: { id: a.id }})
     },
 
     async buy({ id, buy }) {
@@ -148,11 +167,11 @@ export default {
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       try {
-        await tranfer(buy.contract, this.user.name, buy.quantity, `fill|${id}`)
+        await transfer(buy.contract, this.user.name, buy.quantity, `fill|${id}`)
 
         this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
         this.fetch()
@@ -168,11 +187,11 @@ export default {
     async newOrder({ buy, sell }) {
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       try {
-        let r = await transfer(sell.contract, this.user.name, sell.quantity, `place|${buy.quantity}`)
+        const r = await transfer(sell.contract, this.user.name, sell.quantity, `place|${buy.quantity}`)
 
         this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
         this.fetch()
@@ -181,7 +200,7 @@ export default {
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
-        loading.close();
+        loading.close()
       }
     },
 
@@ -190,11 +209,11 @@ export default {
       this.loading = true
       this.markets = []
 
-      let upper_bound = undefined
+      let upper_bound
 
-      while(true) {
+      while (true) {
         // fetch all orders
-        let rows = [];
+        let rows = []
         try {
           rows = (await this.rpc.get_table_rows({
             code: config.contract,
@@ -205,25 +224,28 @@ export default {
             upper_bound
           })).rows
 
-          rows.map(r => r.token = parseExtendedAsset(r.token))
+          rows.map((r) => {
+            r.token = parseExtendedAsset(r.token)
+            r.price = 0
+          })
 
           this.markets = [...this.markets, ...rows]
-        } catch(e) {
+        } catch (e) {
           captureException(e)
-          this.$notify({ title: 'Load orders', message: e.message, type: 'error' })
+          this.$notify({ title: 'Load markets', message: e.message, type: 'error' })
           break
         } finally {
           this.loading = false
         }
 
-        if(rows.length > 1) {
+        if (rows.length > 1) {
           upper_bound = rows[rows.length - 1].id - 1
           if (upper_bound < 0) break
         } else {
           break
         }
       }
-    },
+    }
   }
 }
 </script>

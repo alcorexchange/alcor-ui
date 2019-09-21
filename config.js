@@ -10,19 +10,19 @@ const networks = {
     port: 8888,
     protocol: 'http',
     monitor: 'https://jungle.eosx.io',
-    lightapi: 'https://lightapi.eosgeneva.io',
+    lightapi: 'https://lightapi.eosgeneva.io'
   },
 
   jungle: {
     name: 'jungle',
-    contract: 'avralsjungle',
+    contract: 'wwweoslessio',
 
     chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
     host: 'https://api.jungle.alohaeos.com',
     port: 443,
     protocol: 'https',
     monitor: 'https://jungle.eosx.io',
-    lightapi: 'https://lightapi.eosgeneva.io',
+    lightapi: 'https://lightapi.eosgeneva.io'
   },
 
   eos: {
@@ -35,7 +35,7 @@ const networks = {
     port: 443,
     protocol: 'https',
     monitor: 'https://eosx.io',
-    lightapi: 'https://api.light.xeos.me',
+    lightapi: 'https://api.light.xeos.me'
   }
 }
 

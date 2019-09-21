@@ -5,7 +5,7 @@ div
     span
       slot
 
-  el-dialog(v-if="user" title="Create new order", :visible.sync="visible" width="50%")
+  el-dialog(v-if="user" title="Open new market or create new order for exists market", :visible.sync="visible" width="50%")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       // TODO Bit symbol and amount here
       h1.leader Sell
@@ -19,7 +19,7 @@ div
 
       el-form-item(v-if="tokenSelect" label="Token amount")
         el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
-          
+
 
         //el-input-number(v-model="form.buy.amount" :precision="4" :step="1").mt-2.w-100
 
@@ -64,11 +64,10 @@ div
 <script>
 import { captureException } from '@sentry/browser'
 
+import { mapGetters } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
-import config from '~/config'
 import { calculatePrice } from '~/utils'
 
-import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -97,7 +96,7 @@ export default {
       },
 
       rules: {
-        "buy.contract": {
+        'buy.contract': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
             try {
@@ -106,13 +105,13 @@ export default {
             } catch (e) {
               callback(new Error('Account not exists'))
             }
-          },
+          }
         },
 
-        "buy.symbol": {
+        'buy.symbol': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
-            let r = await this.rpc.get_currency_stats(this.form.buy.contract, value)
+            const r = await this.rpc.get_currency_stats(this.form.buy.contract, value)
 
             if (value in r) {
               callback()
@@ -120,7 +119,7 @@ export default {
             } else {
               callback(new Error(`No ${value} symbol in ${this.form.buy.contract} contract`))
             }
-          },
+          }
         }
       },
 
@@ -154,13 +153,13 @@ export default {
     },
 
     async setBuyToken(token) {
-      let precision = 4;
+      let precision = 4
 
       try {
-        let { rows: [ stat ] } = await this.rpc.get_table_rows({
+        const { rows: [ stat ] } = await this.rpc.get_table_rows({
           code: token.contract,
           scope: token.symbol,
-          table: 'stat',
+          table: 'stat'
         })
         precision = stat.max_supply.split(' ')[0].split('.')[1].length
       } catch (e) {
@@ -186,20 +185,20 @@ export default {
 
     fetchTokens() {
       // TODO Refactor, bar code here
-      let efSocket = new WebSocket('wss://api-v1.eosflare.io/socket.io/?EIO=3&transport=websocket')
+      const efSocket = new WebSocket('wss://api-v1.eosflare.io/socket.io/?EIO=3&transport=websocket')
 
-      efSocket.addEventListener('open', event => {
-        efSocket.addEventListener('message', event => {
-          let code = event.data.substr(0, 2)
+      efSocket.addEventListener('open', (event) => {
+        efSocket.addEventListener('message', (event) => {
+          const code = event.data.substr(0, 2)
 
           if (code == 42) {
             this.tokens = JSON.parse(JSON.parse(event.data.substr(2))[1]).tokens
 
             this.tokens.sort((a, b) => {
-                if(a.symbol < b.symbol) { return -1; }
-                if(a.symbol > b.symbol) { return 1; }
+                if (a.symbol < b.symbol) { return -1 }
+                if (a.symbol > b.symbol) { return 1 }
 
-                return 0;
+                return 0
             })
 
             this.tokens.map(b => b.id = b.symbol + '@' + b.contract)
@@ -211,22 +210,22 @@ export default {
     },
 
     submit() {
-      let form = { ...this.form } // Copy the reactive object
+      const form = { ...this.form } // Copy the reactive object
 
-      form.sell.quantity = `${form.sell.amount.toFixed(form.sell.precision)} ${form.sell.symbol}` 
+      form.sell.quantity = `${form.sell.amount.toFixed(form.sell.precision)} ${form.sell.symbol}`
       form.buy.quantity = `${form.buy.amount.toFixed(form.buy.precision)} ${form.buy.symbol}@${form.buy.contract}`
 
       this.$confirm(`Are you sure to sell ${form.sell.quantity} for ${form.buy.quantity}`, 'Sell', {
         confirmButtonText: 'Sell',
         cancelButtonText: 'Cancel',
         type: 'warning'
-      }).then(async () => {
+      }).then(() => {
           this.$emit('submit', form)
           this.visible = false
         }).catch(() => {
       })
     }
-  },
+  }
 }
 </script>
 

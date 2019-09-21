@@ -10,7 +10,7 @@
 
       el-form-item(label="Amount")
         el-input(type="number" clearable v-model="eos_amount" @change="update")
-          span(slot="suffix").mr-1 EOS 
+          span(slot="suffix").mr-1 EOS
 
       //el-form-item TODO
         el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -29,7 +29,7 @@
 
       el-form-item(label="Amount")
         el-input(type="number" v-model="token_amount" clearable @change="update")
-          span(slot="suffix").mr-1 {{ market.token.symbol.name }} 
+          span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
       //el-form-item TODO
         el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -42,8 +42,8 @@
 <script>
 // TODO Короче еще сделать для маркеттрейда размер в EOS сумировать по ордерам
 import { captureException } from '@sentry/browser'
-import { transfer } from '~/store/chain.js'
 import { mapGetters } from 'vuex'
+import { transfer } from '~/store/chain.js'
 
 import config from '~/config'
 
@@ -61,10 +61,10 @@ export default {
       eos_amount: 0.0,
       token_amount: 0.0
     }
-  }, 
+  },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
 
   methods: {
@@ -80,28 +80,28 @@ export default {
         type: 'info'
       })
 
-      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' });
+      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
         await this.$store.dispatch('chain/login')
 
       try {
-        let r = await transfer(
+        const r = await transfer(
           'eosio.token',
           this.user.name,
 
           `${this.eos_amount} EOS`,
-          `${Number(0).toFixed(this.market.token.symbol.precision)} ${this.market.token.str}`,
+          `${Number(0).toFixed(this.market.token.symbol.precision)} ${this.market.token.str}`
         )
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
-          callback: action => {
+          callback: (action) => {
             this.$emit('update')
-            //this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
-        });
+        })
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -118,13 +118,13 @@ export default {
         type: 'info'
       })
 
-      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' });
+      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
         await this.$store.dispatch('chain/login')
 
       try {
-        let r = await transfer(
+        const r = await transfer(
           this.market.token.contract,
           this.user.name,
 
@@ -135,11 +135,11 @@ export default {
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
-          callback: action => {
+          callback: (action) => {
             this.$emit('update')
-            //this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
-        });
+        })
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })

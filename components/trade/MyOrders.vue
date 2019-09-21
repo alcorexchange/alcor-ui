@@ -34,17 +34,14 @@ div
 import moment from 'moment'
 
 import { captureException } from '@sentry/browser'
-import { transfer } from '~/store/chain.js'
 import { mapGetters } from 'vuex'
-
 import { cancelorder } from '~/store/chain.js'
 
-import config from '~/config'
 
 
 export default {
   props: {
-    market_id: {
+    marketId: {
       type: Number,
       default: 0
     },
@@ -68,7 +65,7 @@ export default {
     orders() {
       if (!this.user) return []
 
-      return [...this.asks, ...this.bids].filter(a => a.account = this.user.name).map(o => {
+      return [...this.asks, ...this.bids].filter(a => a.account == this.user.name).map((o) => {
         o.date = moment(o.timestamp).format('DD-MM HH:mm')
         o.type = o.bid.symbol.symbol == 'EOS' ? 'bid' : 'ask'
 
@@ -81,7 +78,7 @@ export default {
     async cancel(order) {
       if (!this.user) return this.$notify({ title: 'Authorization', message: 'Pleace login first', type: 'info' })
 
-      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' });
+      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
 
       try {
         await cancelorder(this.user.name, this.market_id, order.type, order.id)

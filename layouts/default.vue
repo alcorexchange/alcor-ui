@@ -3,7 +3,7 @@
   .row
     .col-lg.m-auto
       .d-flex
-        //nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;") EOS Swap: 
+        //nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;") EOS Swap:
         nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
           h1.display-3 EOS LESS
           //img(src="~/assets/logo.png").logo
@@ -29,7 +29,7 @@
               img(src="telegram.png" height="40").ml-2
 
       el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
-        span.ml-1 Unlock or install  
+        span.ml-1 Unlock or install
         a(href="https://get-scatter.com/" target="_blank") Scatter
         i(@click="scatterConnect" size="mini").el-alert__closebtn Update
 
@@ -46,20 +46,22 @@
       //.row.mt-3
         .col.text-mutted
           small
-            span.text-muted App version: 
-              a(href="https://github.com/avral/eosswap" target="_blank").text-secondary {{ lastCommit.sha }} 
+            span.text-muted App version:
+              a(href="https://github.com/avral/eosswap" target="_blank").text-secondary {{ lastCommit.sha }}
                 span(v-if="lastCommit.commit") ({{ lastCommit.commit.message }})
 
   footer
     .row
       .col.d-flex
         span.ml-auto Created by
-          b  
+          b
             a(href="https://avral.pro" target="_blank")  #Avral
 </template>
 
 <script>
+import { captureException } from '@sentry/browser'
 import axios from 'axios'
+
 import { mapGetters } from 'vuex'
 
 
@@ -72,7 +74,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
 
   async created() {
@@ -80,7 +82,7 @@ export default {
 
     try {
       await this.$store.getters['chain/rpc'].get_info()
-    } catch(e) {
+    } catch (e) {
       this.netError = true
       console.log('Net error', e)
     }
@@ -92,15 +94,15 @@ export default {
     },
 
     async login() {
-      if(this.$store.state.chain.scatterConnected) {
+      if (this.$store.state.chain.scatterConnected) {
         const loading = this.$loading({
           lock: true,
-          text: 'Wait for Scatter',
-        });
+          text: 'Wait for Scatter'
+        })
 
         try {
           await this.$store.dispatch('chain/login')
-        } catch(e) {
+        } catch (e) {
           captureException(e)
           this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
         } finally {
@@ -115,10 +117,9 @@ export default {
       try {
         await this.$store.dispatch('chain/scatterConnect')
 
-        if(this.$store.state.chain.scatterConnected)
+        if (this.$store.state.chain.scatterConnected)
           this.$notify({ title: 'Scatter', message: 'Scatter connected', type: 'success' })
-          
-      } catch(e) {
+      } catch (e) {
         this.$notify({ title: 'Scatter error', message: e.message, type: 'error' })
       }
     },

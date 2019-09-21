@@ -22,16 +22,16 @@ module.exports = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: desc },
       { name: 'msapplication-TileColor', content: '#da532c' },
-      { name: 'theme-color', content: '#ffffff' },
+      { name: 'theme-color', content: '#ffffff' }
     ],
 
     link: [{ rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
-    link: [{ rel: 'icon',  type: "image/png", sizes: '32x32', href: '/favicon-32x32.png' }],
+    link: [{ rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
     link: [{ rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
     link: [{ rel: 'manifest', href: '/site.webmanifest' }],
-    link: [{ rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' }],
+    link: [{ rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' }]
 
-    //link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    // link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
 
   /*
@@ -46,7 +46,7 @@ module.exports = {
     'element-ui/lib/theme-chalk/index.css',
     'bootstrap-utilities/bootstrap-utilities.css',
     'bootstrap/dist/css/bootstrap.min.css',
-    '~/assets/main.css',
+    '~/assets/main.css'
 
   ],
 
@@ -57,7 +57,7 @@ module.exports = {
   '@/plugins/element-ui',
   '@/plugins/filters',
 
-  {ssr: false, src: '~/plugins/startapp.js'},
+  {ssr: false, src: '~/plugins/startapp.js'}
 ],
 
   /*
@@ -67,7 +67,7 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
-    'vue-github-buttons/nuxt',
+    'vue-github-buttons/nuxt'
   ],
   /*
   ** Axios module configuration
@@ -110,6 +110,6 @@ module.exports = {
 
   router: {
     mode: isSPA ? 'hash' : 'history',
-    linkActiveClass: 'active',
+    linkActiveClass: 'active'
   },
 }

@@ -18,7 +18,7 @@ div
 
         el-form-item(label="Amount")
           el-input(type="number" v-model="amount" @change="update" clearable)
-            span(slot="suffix").mr-1 {{ market.token.symbol.name }} 
+            span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
         el-form-item
           el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -37,12 +37,12 @@ div
       el-form(ref="form" :rules="rules" label-width="60px")
         el-form-item(label="Price")
           // FIXME Падает апп когда печатаешь сюда буквы
-          el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="update") 
+          el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="update")
             span(slot="suffix").mr-1.ml-2 EOS
 
         el-form-item(label="Amount")
           el-input(type="number" v-model="amount" clearable @change="update")
-            span(slot="suffix").mr-1 {{ market.token.symbol.name }} 
+            span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
         el-form-item
           el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -58,8 +58,8 @@ div
 
  <script>
 import { captureException } from '@sentry/browser'
-import { transfer } from '~/store/chain.js'
 import { mapGetters } from 'vuex'
+import { transfer } from '~/store/chain.js'
 
 import config from '~/config'
 
@@ -77,10 +77,10 @@ export default {
       eos_amount: 0.0,
       token_amount: 0.0
     }
-  }, 
+  },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
 
    methods: {
@@ -93,14 +93,14 @@ export default {
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
         await this.$store.dispatch('chain/login')
 
       try {
-        let r = await transfer(
+        const r = await transfer(
           this.market.token.contract,
           this.user.name,
           `${this.amount} ${this.market.token.symbol.name}`,
@@ -110,13 +110,13 @@ export default {
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
-          callback: action => {
+          callback: (action) => {
             this.fetchOrders()
 
-            //this.$router.push({ name: 'index' })
-            //this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+            // this.$router.push({ name: 'index' })
+            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
-        });
+        })
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -135,30 +135,30 @@ export default {
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
         await this.$store.dispatch('chain/login')
 
       try {
-        let r = await transfer(
+        const r = await transfer(
           'eosio.token',
           this.user.name,
 
           `${this.totalEos} EOS`,
-          `${this.amount} ${this.market.token.str}`,
+          `${this.amount} ${this.market.token.str}`
         )
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
-          callback: action => {
+          callback: (action) => {
             this.fetchOrders()
-            //this.$router.push({ name: 'index' })
-            //this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+            // this.$router.push({ name: 'index' })
+            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
-        });
+        })
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -166,7 +166,7 @@ export default {
       } finally {
         loading.close()
       }
-    },
+    }
   }
 }
 

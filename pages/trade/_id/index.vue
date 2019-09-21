@@ -9,7 +9,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
         TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.symbol.name)" height="45").mr-2.ml-1
       .el-col.d-flex.align-items-center
         h1.display-4 Trade {{ market.token.symbol.name }}@
-          a(:href="market.token.symbol.contract | monitorAccount" target="_blank") {{ market.token.contract }} 
+          a(:href="market.token.symbol.contract | monitorAccount" target="_blank") {{ market.token.contract }}
 
           span  for EOS
 
@@ -73,7 +73,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 
                   el-form-item(label="Amount")
                     el-input(type="number" v-model="amount" @change="update" clearable)
-                      span(slot="suffix").mr-1 {{ market.token.symbol.name }} 
+                      span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
                   el-form-item
                     el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -92,12 +92,12 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                 el-form(ref="form" :rules="rules" label-width="60px")
                   el-form-item(label="Price")
                     // FIXME Падает апп когда печатаешь сюда буквы
-                    el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="update") 
+                    el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="update")
                       span(slot="suffix").mr-1.ml-2 EOS
 
                   el-form-item(label="Amount")
                     el-input(type="number" v-model="amount" clearable @change="update")
-                      span(slot="suffix").mr-1 {{ market.token.symbol.name }} 
+                      span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
                   el-form-item
                     el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -120,7 +120,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   //div
     div(v-if="user")
       el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
-      el-button(v-else type="primary" @click="buy").w-100 Buy  
+      el-button(v-else type="primary" @click="buy").w-100 Buy
         |  {{ order.sell.quantity }}@{{ order.sell.contract }}
     div(v-else)
       el-button(@click="login").w-100 Pleace login
@@ -130,32 +130,29 @@ el-card(v-else).box-card.mt-3
   .clearfix(slot='header')
     span Market: {{ market.id }}
     el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
-  .text.item.text-center 
+  .text.item.text-center
     h1.display-4 Order {{ market.id }} not found or finished
 </template>
 
 
 <script>
+import { captureException } from '@sentry/browser'
+import { mapGetters } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import AssetImput from '~/components/elements/AssetInput'
 
 import MarketTrade from '~/components/trade/MarketTrade'
 import MyOrders from '~/components/trade/MyOrders'
 
-import { captureException } from '@sentry/browser'
 
 
 import config from '~/config'
 import { transfer, cancelorder } from '~/store/chain.js'
-import { parseAsset, parseExtendedAsset, assetToAmount, amountToFloat } from '~/utils'
-
-import { mapGetters } from 'vuex'
+import { parseAsset, parseExtendedAsset, assetToAmount } from '~/utils'
 
 
-let sort_by_price = (a,b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
-const priceValidate = (data) => console.log(data)
-
+const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
 export default {
   head() {
@@ -191,7 +188,7 @@ export default {
               callback(new Error('Order amount must be more then 0.01 EOS'))
             }
           }
-        }],
+        }]
       }
     }
   },
@@ -205,9 +202,9 @@ export default {
     },
 
     wrongPrice() {
-      if (this.totalEos == 0.0) return false;
+      if (this.totalEos == 0.0) return false
 
-      return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE != 0;
+      return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE != 0
     },
 
     sorted_asks() {
@@ -219,65 +216,50 @@ export default {
     },
 
     totalEos() {
-      //bid_eos.amount * PRICE_SCALE / ask.amount
-      //0.00510035
-      //142.5000 TKT
-      //0.7268 EOS
-      //console.log(assetToAmount(0.00510035, 8), assetToAmount("0.00510035", 8))
-      //console.log(assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) / PRICE_SCALE)
-      //console.log("TOTAL EOS ", assetToAmount(this.price, 8) / (assetToAmount(this.amount, 4)))
+      // bid_eos.amount * PRICE_SCALE / ask.amount
+      // 0.00510035
+      // 142.5000 TKT
+      // 0.7268 EOS
+      // console.log(assetToAmount(0.00510035, 8), assetToAmount("0.00510035", 8))
+      // console.log(assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) / PRICE_SCALE)
+      // console.log("TOTAL EOS ", assetToAmount(this.price, 8) / (assetToAmount(this.amount, 4)))
       console.log()
 
 
-      ///console.log((this.amount * this.price).toFixed(4))
+      /// console.log((this.amount * this.price).toFixed(4))
       return (this.amount * this.price).toFixed(4)
-    },
-  },
-
-  mounted() {
-    // FIXME не работает скролинг чето
-    let bids = this.$refs.bids
-    setTimeout(() => {
-      bids.scrollTop = bids.scrollHeight;
-    }, 1000)
-  },
-
-  async created() {
-    this.update()
-    this.fetchOrders()
+    }
   },
 
   async asyncData({ store, error, params }) {
     const rpc = store.getters['chain/rpc']
 
-    console.log(params.id)
+    // const [token, contract] = params.id.split('@')
 
-    //const [token, contract] = params.id.split('@')
+    // let i128_key = Buffer.from(contract).contoString('hex') + Buffer.from("symbol").toString('hex');
 
-    //let i128_key = Buffer.from(contract).contoString('hex') + Buffer.from("symbol").toString('hex');
+    // let b = Buffer.alloc(128)
 
-    //let b = Buffer.alloc(128)
+    // let i128_key = '0x' + b.concat([Buffer.from(contract), Buffer.from("symbol")]).toString('hex');
 
-    //let i128_key = '0x' + b.concat([Buffer.from(contract), Buffer.from("symbol")]).toString('hex');
-
-    //console.log(i128_key)
+    // console.log(i128_key)
 
     try {
-      let r = await rpc.get_table_rows({
+      const r = await rpc.get_table_rows({
         code: config.contract,
         scope: config.contract,
         table: 'markets',
-        //key_type: 'i128',
-        //encode_type: 'hex',
-        //index_position: '2',
-        //lower_bound: i128_key,
+        // key_type: 'i128',
+        // encode_type: 'hex',
+        // index_position: '2',
+        // lower_bound: i128_key,
         lower_bound: params.id, // FIXME Сделать короче по uint128 поиск
         limit: 1
       })
 
       r.rows.map(r => r.token = parseExtendedAsset(r.token))
 
-      let market = r.rows[0]
+      const market = r.rows[0]
 
       if (market && market.id == params.id) {
         return { market, loading: false }
@@ -285,11 +267,23 @@ export default {
         // TODO Redirect if order in history
         error({ message: `Market with id ${params.id} not found or closed :(`, statusCode: 404 })
       }
-
     } catch (e) {
       captureException(e)
       return error({ message: 'Error fetching order: ' + e, statusCode: 500 })
     }
+  },
+
+  mounted() {
+    // FIXME не работает скролинг чето
+    const bids = this.$refs.bids
+    setTimeout(() => {
+      bids.scrollTop = bids.scrollHeight
+    }, 1000)
+  },
+
+  created() {
+    this.update()
+    this.fetchOrders()
   },
 
   methods: {
@@ -300,42 +294,40 @@ export default {
         then with increasing accuracy of quantity or price,
         the price can be a floating point period. At the moment,
         this price format is not supported. We are sorry :( `,
-        
+
         'About calculation of price', {
           closeOnClickModal: true,
-          confirmButtonText: 'Ok then..',
-      });
+          confirmButtonText: 'Ok then..'
+      })
     },
 
     async fetchOrders() {
-      let { rows: bids } = await this.rpc.get_table_rows({
+      const { rows: bids } = await this.rpc.get_table_rows({
         code: config.contract,
         scope: this.market_id,
         table: 'buyorder',
         limit: 1000
       })
 
-      let { rows: asks } = await this.rpc.get_table_rows({
+      const { rows: asks } = await this.rpc.get_table_rows({
         code: config.contract,
         scope: this.market_id,
         table: 'sellorder',
         limit: 1000
       })
 
-      this.bids = bids.map(b => {
+      this.bids = bids.map((b) => {
         b.ask = parseAsset(b.ask)
         b.bid = parseAsset(b.bid)
 
         return b
       })
 
-      this.asks = asks.map(b => {
+      this.asks = asks.map((b) => {
         b.ask = parseAsset(b.ask)
         b.bid = parseAsset(b.bid)
         return b
       })
-
-      console.log(asks, bids)
     },
 
     setBid(ask) {
@@ -381,11 +373,11 @@ export default {
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       try {
-        let order = this.order;
+        const order = this.order
 
         await cancelorder(order.maker, order.id)
 
@@ -412,14 +404,14 @@ export default {
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
         await this.$store.dispatch('chain/login')
 
       try {
-        let r = await transfer(
+        const r = await transfer(
           this.market.token.contract,
           this.user.name,
           `${this.amount} ${this.market.token.symbol.name}`,
@@ -429,13 +421,13 @@ export default {
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
-          callback: action => {
+          callback: (action) => {
             this.fetchOrders()
 
-            //this.$router.push({ name: 'index' })
-            //this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+            // this.$router.push({ name: 'index' })
+            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
-        });
+        })
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -454,30 +446,30 @@ export default {
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
-      });
+        text: 'Wait for Scatter'
+      })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
         await this.$store.dispatch('chain/login')
 
       try {
-        let r = await transfer(
+        const r = await transfer(
           'eosio.token',
           this.user.name,
 
           `${this.totalEos} EOS`,
-          `${this.amount} ${this.market.token.str}`,
+          `${this.amount} ${this.market.token.str}`
         )
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
-          callback: action => {
+          callback: (action) => {
             this.fetchOrders()
-            //this.$router.push({ name: 'index' })
-            //this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+            // this.$router.push({ name: 'index' })
+            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
-        });
+        })
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -485,10 +477,10 @@ export default {
       } finally {
         loading.close()
       }
-    },
-  },
+    }
+  }
 }
-</script> 
+</script>
 
 <style>
 .bordered {
@@ -503,10 +495,10 @@ export default {
   margin-bottom: 0px;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .overflowbox {

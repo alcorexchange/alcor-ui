@@ -7,7 +7,7 @@ Vue.filter('monitorAccount', function (account) {
 })
 
 
-Vue.filter('humanFloat', function(amount, PRICE_DIGITS=config.PRICE_DIGITS) {
+Vue.filter('humanFloat', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
     return (amount / config.PRICE_SCALE).toFixed(PRICE_DIGITS)
 })
 
