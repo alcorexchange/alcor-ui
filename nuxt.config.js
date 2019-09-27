@@ -57,8 +57,8 @@ module.exports = {
   */
   plugins: [
   '@/plugins/element-ui',
-  '@/plugins/filters',
   '@/plugins/mixins',
+  '@/plugins/filters',
 
   {ssr: false, src: '~/plugins/startapp.js'}
 ],

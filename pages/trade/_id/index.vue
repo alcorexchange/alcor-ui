@@ -78,10 +78,10 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-input(type="number" v-model="amount" @change="update" clearable)
                       span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
-                  //el-form-item TODO
-                    el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+                  el-form-item
+                    el-slider(:step="25" @input="changeBuySlider" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
-                  el-form-item(label="Total" prop="total" :inline-message="true").mt-3
+                  el-form-item(label="Total" prop="total" :inline-message="true").mt-5
                     el-input(type="number" v-model="totalEos" @change="setTotalBuy")
                       span(slot="suffix").mr-1 EOS
 
@@ -104,10 +104,10 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-input(type="number" v-model="amount" clearable @change="update")
                       span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
-                  // el-form-item TODO
-                    el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+                  el-form-item
+                    el-slider(:step="25" @input="changeSellSlider" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
-                  el-form-item(label="Total" prop="total" :inline-message="true").mt-3
+                  el-form-item(label="Total" prop="total" :inline-message="true").mt-5
                     el-input(type="number" v-model="totalEos" @change="setTotalSell")
                       span(slot="suffix").mr-1 EOS
 
@@ -116,7 +116,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-button(type="danger" @click="sell").w-100 Sell {{ market.token.str }}
 
           el-tab-pane(label="Market trade")
-            market-trade(:market="market" @update="fetchOrders")
+            market-trade(:market="market" @update="fetchOrders" :eos-balance="eosBalance" :token-balance="tokenBalance")
     hr
     .el-row
       .el-col
@@ -153,6 +153,8 @@ import MyOrders from '~/components/trade/MyOrders'
 import config from '~/config'
 import { transfer, cancelorder } from '~/store/chain.js'
 import { parseAsset, parseExtendedAsset, assetToAmount, sort_by_price} from '~/utils'
+import { getSellOrders, getBuyOrders } from '~/api'
+
 
 
 export default {
@@ -299,26 +301,38 @@ export default {
     }, 1000)
   },
 
-  created() {
+  async created() {
     this.update()
-    this.fetchOrders()
+    await this.fetchOrders()
+    this.setDefaultPrice()
   },
 
   methods: {
-    async fetchOrders() {
-      const { rows: bids } = await this.rpc.get_table_rows({
-        code: config.contract,
-        scope: this.market_id,
-        table: 'buyorder',
-        limit: 1000
-      })
+    setDefaultPrice() {
+      // Set default price
+      if (this.bids.length) {
+        this.price = this.$options.filters.humanFloat(this.sorted_bids[0].unit_price)
+      } else if (this.asks.length) {
+        this.price = this.$options.filters.humanFloat(this.sorted_asks[this.sorted_asks.length - 1].unit_price)
+      }
+    },
 
-      const { rows: asks } = await this.rpc.get_table_rows({
-        code: config.contract,
-        scope: this.market_id,
-        table: 'sellorder',
-        limit: 1000
-      })
+    changeBuySlider(p) {
+      if (this.price == 0) return
+
+      this.amount = Math.round(parseFloat(this.eosBalance) / 100 * p) / this.price
+      this.update()
+    },
+
+    changeSellSlider(p) {
+      if (this.price == 0) return
+
+      this.amount = Math.round(parseFloat(this.tokenBalance) / 100 * p)
+      this.update()
+    },
+
+    async fetchOrders() {
+      const [bids, asks] = await Promise.all([getBuyOrders(this.market.id), getSellOrders(this.market.id)])
 
       this.bids = bids.map((b) => {
         b.ask = parseAsset(b.ask)

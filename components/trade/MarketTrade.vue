@@ -1,7 +1,9 @@
 <template lang="pug">
 .row.p-2
   .col
-    .label.text-success.mb-3 Buy {{ market.token.symbol.name }}
+    .d-flex.label.mb-3
+      span.text-success Buy {{ market.token.symbol.name }}
+      span.text-mutted.small.align-self-end.ml-auto balance: {{ eosBalance }}
 
     el-form(ref="form" label-width="60px")
       el-form-item(label="Price")
@@ -20,7 +22,9 @@
         el-button(type="success" @click="buy").w-100 Buy {{ market.token.str }}
 
   .col
-    .label.text-danger.mb-3 Sell {{ market.token.symbol.name }}
+    .d-flex.label.mb-3
+      span.text-danger Sell {{ market.token.symbol.name }}
+      span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
 
     el-form(ref="form" label-width="60px")
       el-form-item(label="Price")
@@ -52,6 +56,16 @@ export default {
   props: {
     market: {
       type: Object,
+      default: () => {}
+    },
+
+    eosBalance: {
+      type: String,
+      default: () => {}
+    },
+
+    tokenBalance: {
+      type: String,
       default: () => {}
     }
   },
