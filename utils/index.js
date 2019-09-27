@@ -1,6 +1,9 @@
 import { Serialize } from 'eosjs'
 import Big from 'big.js'
 
+import config from '~/config'
+
+export const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
 export function amountToFloat(amount, precision) {
   const scale = new Big(10).pow(precision)
@@ -13,7 +16,7 @@ export function amountToFloat(amount, precision) {
 export function assetToAmount(amount, precision) {
   const scale = new Big(10).pow(precision)
 
-  return parseInt(new Big(amount).times(scale))
+  return parseInt(new Big(Number(amount)).times(scale))
 }
 
 export function calculatePrice(sell, buy) {
@@ -24,10 +27,9 @@ export function calculatePrice(sell, buy) {
     // EOS main token as main in price
     [first, second] = [second, first]
 
-  const k = 1 / first.amount
-  const first_price = (second.amount * k).toFixed(4)
+    const price = (first.amount / second.amount).toFixed(config.PRICE_DIGITS)
 
-  return `1 ${first.symbol} / ${first_price} ${second.symbol}`
+  return `${price} EOS`
 }
 
 export function parseExtendedAsset(asset) {

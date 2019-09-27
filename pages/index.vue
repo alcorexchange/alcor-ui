@@ -6,7 +6,7 @@ div
       .el-row
         .el-col
           .d-flex
-            new-order-form(@submit="newOrder" v-if="user").mr-2 Open new market
+            new-order-form(@submit="newMarket" v-if="user").mr-2 Open new market
 
             el-input(size="small" v-model="search" placeholder="Filter by token").ml-2.mr-4
       .el-row
@@ -29,14 +29,14 @@ div
 
             el-table-column(label="Price (EOS)" width="200")
               template(slot-scope='scope')
-                span.text-mutted Soon..
+                span.text-mutted {{ scope.row.price }}
 
             // el-table-column(label="Volume" width="200") TODO
               template(slot-scope='scope')
                 span.text-mutted Soon..
 
     el-tab-pane(label='Rules & Information')
-      h2.lead.ml-3.mt-3 With EOSSWAP you can exchange any EOS.IO tokens, for any other EOS.IO tokens,
+      h2.lead.ml-3.mt-3 With EOS Tokens you can exchange any EOS.IO tokens, for any other EOS.IO tokens,
            | atomically, without the participation of third parties! The tokens should comply with the
            | standard eosio.token of the contract.
 
@@ -56,9 +56,9 @@ div
       h4.ml-3 Audit:
         ul.mt-1
           li.lead Exchange contract:
-            a(:href="'wwweosswapio' | monitorAccount" target="_blank") wwweosswapio
+            a(:href="'eostokensdex' | monitorAccount" target="_blank") wwweosswapio
 
-          li.lead Comission account:
+          //li.lead Comission account:
             a(:href="'eosswapdivs1' | monitorAccount" target="_blank") eosswapdivs1
 
     el-tab-pane(label='Partners').p-3
@@ -82,11 +82,11 @@ import { mapGetters } from 'vuex'
 import NewOrderForm from '~/components/NewOrderForm.vue'
 import History from '~/components/History.vue'
 import TokenImage from '~/components/elements/TokenImage'
-
+import { getSellOrders, getBuyOrders } from '~/api'
 
 import config from '~/config'
 import { transfer } from '~/store/chain.js'
-import { parseExtendedAsset } from '~/utils'
+import { parseExtendedAsset, sort_by_price } from '~/utils'
 
 
 export default {
@@ -133,68 +133,36 @@ export default {
   },
 
   methods: {
-    async fetchMarketStatistics() {
-      // for (let market in this.markets) {
-      //  Promise.all([
-      //    this.rpc.get_table_rows({code: config.contract, scope: this.market_id, table: 'buyorder', limit: 1000 }),
-      //    this.rpc.get_table_rows({ code: config.contract, scope: this.market_id, table: 'sellorder', limit: 1000 }),
-      //  ])
-      // }
+    fetchMarketStatistics() {
+      for (let market of this.markets) {
+        Promise.all([getBuyOrders(market.id), getSellOrders(market.id)]).then(([buyOrders, sellOrders]) => {
+          if (buyOrders.length)
+            market.price = buyOrders.sort(sort_by_price)[0].unit_price
+          else if (sellOrders.length)
+            market.price = sellOrders.sort(sort_by_price)[sellOrders.length - 1].unit_price
+          else
+            return
 
-      //  //let { rows: bids } = await this.rpc.get_table_rows({
-      //  let { rows: bids } = await this.rpc.get_table_rows({
-      //    code: config.contract,
-      //    scope: this.market_id,
-      //    table: 'buyorder',
-      //    limit: 1000
-      //  })
-
-      //  let { rows: asks } = await this.rpc.get_table_rows({
-      //    code: config.contract,
-      //    scope: this.market_id,
-      //    table: 'sellorder',
-      //    limit: 1000
-      //  })
-      // })
+          market.price = this.$options.filters.humanFloat(market.price) + ' EOS'
+        })
+      }
     },
 
     clickOrder(a) {
       this.$router.push({name: 'trade-id', params: { id: a.id }})
     },
 
-    async buy({ id, buy }) {
-      if (!this.user) return this.$notify({ title: 'Authorization', message: 'Pleace login first', type: 'info' })
-
+    async newMarket({ buy, sell }) {
       const loading = this.$loading({
         lock: true,
         text: 'Wait for Scatter'
       })
 
       try {
-        await transfer(buy.contract, this.user.name, buy.quantity, `fill|${id}`)
+        const r = await transfer(sell.contract, this.user.name, sell.quantity, `${buy.quantity}`)
 
-        this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
         this.fetch()
-      } catch (e) {
-        captureException(e, {extra: {buy, id}})
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
-        console.log(e)
-      } finally {
-        loading.close()
-      }
-    },
-
-    async newOrder({ buy, sell }) {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for Scatter'
-      })
-
-      try {
-        const r = await transfer(sell.contract, this.user.name, sell.quantity, `place|${buy.quantity}`)
-
         this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
-        this.fetch()
       } catch (e) {
         captureException(e, {extra: {buy, sell}})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -226,7 +194,7 @@ export default {
 
           rows.map((r) => {
             r.token = parseExtendedAsset(r.token)
-            r.price = 0
+            r.price = '0.0000 EOS'
           })
 
           this.markets = [...this.markets, ...rows]

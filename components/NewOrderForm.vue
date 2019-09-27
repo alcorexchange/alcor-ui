@@ -6,67 +6,60 @@ div
       slot
 
   el-dialog(v-if="user" title="Open new market or create new order for exists market", :visible.sync="visible" width="50%")
-    el-form(ref="form" :model="form" label-position="left" :rules="rules")
+    span It is free, just make the first order. Market will be created automatically.
+    .text-mutted If market already exists, order will be processed as regular sell order.
+
+    el-form(ref="form" :model="form" label-position="left" :rules="rules").mt-2
       // TODO Bit symbol and amount here
       h1.leader Sell
 
       el-form-item(label="Sell token")
         el-select(v-model="tokenSelect", value-key="id" filterable clearable placeholder='Sell token' @change="sellSellToken").w-100
-          el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+          el-option(v-for="b in sellTokens" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
             TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
             span.ml-3 {{ b.id }}
             span.float-right {{ `${b.amount} ${b.currency}` }}
 
-      el-form-item(v-if="tokenSelect" label="Token amount")
+      el-form-item(v-if="tokenSelect").mt-2
+        el-form-item
+          slot(name="label")
+            TokenImage(:src="$tokenLogo(this.form.sell.symbol, this.form.sell.contract)" height="50")
+            span.ml-2 Token Amount
+
         el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
-
-
-        //el-input-number(v-model="form.buy.amount" :precision="4" :step="1").mt-2.w-100
 
       div(v-if="form.sell.amount > 0")
         hr
-
         h1.leader Buy
+        hr
 
-        el-tabs
-          el-tab-pane(label="Auto select")
-            el-select(v-model='sellSelect' value-key="id" filterable placeholder='Select' clearable @change="setBuyToken").w-100
-              el-option(label="EOS@eosio.token", :value="{symbol: 'EOS', contract: 'eosio.token', precision: 4}")
-                TokenImage(:src="$tokenLogo('EOS', 'eosio.token')" height="25")
-                span.ml-3 EOS@eosio.token
+        el-form-item
+          slot(name="label")
+            TokenImage(:src="$tokenLogo('EOS', 'eosio.token')" height="50")
+            span EOS Amount
 
-              el-option(
-                v-for="t in tokens",
-                :key="t.id",
-                :label="t.id",
-                :value="t"
-              )
-                TokenImage(:src="$tokenLogo(t.symbol, t.contract)" height="25")
-                span.ml-3 {{ t.symbol + '@' + t.contract }}
+          //el-input(type="number" v-model="form.buy.amount" min="0.0001" pattern="\d{4}" :step="0.1" clearable).mt-1
+          el-input-number(v-model="form.buy.amount" :precision="4" :step="1").mt-2.w-100
+            span(slot="suffix").mr-1 EOS
 
-          el-tab-pane(label="Manually")
-            el-form-item(label="Token contract" prop="buy.contract")
-              el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.buy.contract")
-
-            el-form-item(v-if="form.buy.contract" label="Token symbol" prop="buy.symbol")
-              // TODO Uppercase
-              el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.buy.symbol").upperinput
-
-        el-form-item(v-if="form.buy.symbol" label="Token amount")
-          //el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
-          el-input-number(v-model="form.buy.amount" :precision="form.buy.precision" :step="1").mt-2.w-100
           .lead.mt-2 Price: {{ price }}
 
+        el-alert(title="Amounts does't match unit price!", v-show="wrongPrice" type='info', show-icon :closable="false").mb-2
+          | Please change price or amount.
+          a(href="#", @click="unitPriceInfo").ml-1  WTF ?
+
         span.dialog-footer
-          el-button(type='primary' v-if="form.buy.amount > 0" @click="submit").w-100 Create order
+          el-button(type='primary' v-if="form.buy.amount > 0" @click="submit" :disabled="wrongPrice").w-100 Create order
 </template>
 
 <script>
 import { captureException } from '@sentry/browser'
 
 import { mapGetters } from 'vuex'
+
+import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
-import { calculatePrice } from '~/utils'
+import { calculatePrice, assetToAmount } from '~/utils'
 
 
 export default {
@@ -91,7 +84,7 @@ export default {
         buy: {
           symbol: '',
           contract: '',
-          amount: 0.0
+          amount: 1.0
         }
       },
 
@@ -131,6 +124,19 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
+
+    wrongPrice() {
+      if (this.form.sell.amount == 0.0 || this.form.buy.amount == 0.0) return false
+
+      return assetToAmount(this.form.buy.amount, 4) * config.PRICE_SCALE %
+        assetToAmount(this.form.sell.amount, this.form.sell.precision) !== 0
+    },
+
+    sellTokens() {
+      if (!this.user.balances) return
+
+      return this.user.balances.filter(b => b.currency !== 'EOS')
+    },
 
     price() {
       return calculatePrice(this.form.sell, this.form.buy)
@@ -213,7 +219,7 @@ export default {
       const form = { ...this.form } // Copy the reactive object
 
       form.sell.quantity = `${form.sell.amount.toFixed(form.sell.precision)} ${form.sell.symbol}`
-      form.buy.quantity = `${form.buy.amount.toFixed(form.buy.precision)} ${form.buy.symbol}@${form.buy.contract}`
+      form.buy.quantity = `${form.buy.amount.toFixed(4)} EOS@eosio.token`
 
       this.$confirm(`Are you sure to sell ${form.sell.quantity} for ${form.buy.quantity}`, 'Sell', {
         confirmButtonText: 'Sell',

@@ -23,6 +23,10 @@ module.exports = {
     "no-return-await": 0,
     "no-return-assign": 0,
     "eqeqeq": 0,
-    "prefer-const": 0
+    "prefer-const": 0,
+    "standard/object-curly-even-spacing": 0,
+    "spaced-comment": 0,
+    "no-unused-vars": 1,
+    "no-unreachable": 1
   }
 }

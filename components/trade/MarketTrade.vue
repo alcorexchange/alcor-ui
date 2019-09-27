@@ -131,12 +131,12 @@ export default {
           `${this.token_amount} ${this.market.token.symbol.name}`,
           '0.0000 EOS@eosio.token'
         )
+        this.$emit('update')
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {
-            this.$emit('update')
             // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
         })

@@ -1,4 +1,5 @@
 <template lang="pug">
+// TODO Отображать мой баланс по токену
 
 el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .clearfix(slot='header')
@@ -60,11 +61,13 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
               .col
                 el-alert(title="Amounts does't match unit price!", v-show="wrongPrice" type='info', show-icon :closable="false")
                   | Please change price or amount.
-                  a(href="#", @click="wtf").ml-1  WTF ?
+                  a(href="#", @click="unitPriceInfo").ml-1  WTF ?
             .row.p-2
 
               .col
-                .label.text-success.mb-3 Buy {{ market.token.symbol.name }}
+                .d-flex.label.mb-3
+                  span.text-success Buy {{ market.token.symbol.name }}
+                  span.text-mutted.small.align-self-end.ml-auto balance: {{ eosBalance }}
 
                 el-form(ref="form" :rules="rules" label-width="60px")
                   el-form-item(label="Price")
@@ -75,10 +78,10 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-input(type="number" v-model="amount" @change="update" clearable)
                       span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
-                  el-form-item
+                  //el-form-item TODO
                     el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
-                  el-form-item(label="Total" prop="total" :inline-message="true").mt-5
+                  el-form-item(label="Total" prop="total" :inline-message="true").mt-3
                     el-input(type="number" v-model="totalEos" @change="setTotalBuy")
                       span(slot="suffix").mr-1 EOS
 
@@ -87,7 +90,9 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-button(type="success" @click="buy").w-100 Buy {{ market.token.str }}
 
               .col
-                .label.text-danger.mb-3 Sell {{ market.token.symbol.name }}
+                .d-flex.label.mb-3
+                  span.text-danger Sell {{ market.token.symbol.name }}
+                  span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
 
                 el-form(ref="form" :rules="rules" label-width="60px")
                   el-form-item(label="Price")
@@ -99,10 +104,10 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-input(type="number" v-model="amount" clearable @change="update")
                       span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
-                  el-form-item
+                  // el-form-item TODO
                     el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
-                  el-form-item(label="Total" prop="total" :inline-message="true").mt-5
+                  el-form-item(label="Total" prop="total" :inline-message="true").mt-3
                     el-input(type="number" v-model="totalEos" @change="setTotalSell")
                       span(slot="suffix").mr-1 EOS
 
@@ -145,19 +150,20 @@ import MarketTrade from '~/components/trade/MarketTrade'
 import MyOrders from '~/components/trade/MyOrders'
 
 
-
 import config from '~/config'
 import { transfer, cancelorder } from '~/store/chain.js'
-import { parseAsset, parseExtendedAsset, assetToAmount } from '~/utils'
+import { parseAsset, parseExtendedAsset, assetToAmount, sort_by_price} from '~/utils'
 
-
-
-const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
 export default {
   head() {
     return {
-      title: `EOSLESS | Market ${this.market.token.toString()}`
+      title: `EOS Tokens | Market ${this.market.token.str}`,
+
+      meta: [
+        // hid is used as unique identifier. Do not use `vmid` for it as it will not work
+        { hid: 'description', name: 'description', content: `Trade ${this.market.token.symbol.name} token for EOS` }
+      ]
     }
   },
 
@@ -197,12 +203,34 @@ export default {
     ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapGetters(['user']),
 
+    eosBalance() {
+      if (!this.user || !this.user.balances) return '0.0000'
+
+      const balance = this.user.balances.filter(b => b.currency == 'EOS')[0]
+
+      return `${balance.amount} ${balance.currency}`
+    },
+
+    tokenBalance() {
+      if (!this.user || !this.user.balances) return '0.0000'
+
+      const balance = this.user.balances.filter((b) => {
+        return b.currency == this.market.token.symbol.name &&
+               b.contract == this.market.token.contract
+      })[0]
+
+      if (balance)
+        return `${balance.amount} ${balance.currency}`
+      else
+        return Number(0).toFixed(this.market.token.symbol.precision) + ` ${this.market.token.symbol.name}`
+    },
+
     market_id() {
       return parseInt(this.$route.params.id)
     },
 
     wrongPrice() {
-      if (this.totalEos == 0.0) return false
+      if (this.totalEos == 0.0 || !this.amount || !this.price) return false
 
       return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE != 0
     },
@@ -216,23 +244,13 @@ export default {
     },
 
     totalEos() {
-      // bid_eos.amount * PRICE_SCALE / ask.amount
-      // 0.00510035
-      // 142.5000 TKT
-      // 0.7268 EOS
-      // console.log(assetToAmount(0.00510035, 8), assetToAmount("0.00510035", 8))
-      // console.log(assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) / PRICE_SCALE)
-      // console.log("TOTAL EOS ", assetToAmount(this.price, 8) / (assetToAmount(this.amount, 4)))
-      console.log()
-
-
-      /// console.log((this.amount * this.price).toFixed(4))
       return (this.amount * this.price).toFixed(4)
     }
   },
 
   async asyncData({ store, error, params }) {
     const rpc = store.getters['chain/rpc']
+    // TODO Читабельные урл
 
     // const [token, contract] = params.id.split('@')
 
@@ -287,20 +305,6 @@ export default {
   },
 
   methods: {
-    wtf() {
-      // TODO Move from here
-      this.$alert(
-        `Since the price calculation is calculated using int64 value,
-        then with increasing accuracy of quantity or price,
-        the price can be a floating point period. At the moment,
-        this price format is not supported. We are sorry :( `,
-
-        'About calculation of price', {
-          closeOnClickModal: true,
-          confirmButtonText: 'Ok then..'
-      })
-    },
-
     async fetchOrders() {
       const { rows: bids } = await this.rpc.get_table_rows({
         code: config.contract,
@@ -349,9 +353,14 @@ export default {
     },
 
     update(amount) {
+      if (!this.amount) {
+        this.price = parseFloat(this.price).toFixed(config.PRICE_DIGITS)
+        this.amount = Number(0).toFixed(this.market.token.symbol.precision)
+
+        return
+      }
+
       this.price = parseFloat(this.price).toFixed(config.PRICE_DIGITS)
-
-
       this.amount = parseFloat(this.amount).toFixed(this.market.token.symbol.precision)
     },
 

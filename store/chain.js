@@ -20,7 +20,7 @@ export const state = () => ({
 export const actions = {
   async init({ state, commit, dispatch }) {
     console.log('Connect scatter..')
-    await ScatterJS.connect('EOSLESS', { network }).then(v =>
+    await ScatterJS.connect(config.APP_NAME, { network }).then(v =>
       commit('setScatterConnected', v)
     )
 

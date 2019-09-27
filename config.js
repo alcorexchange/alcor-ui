@@ -15,7 +15,7 @@ const networks = {
 
   jungle: {
     name: 'jungle',
-    contract: 'wwweoslessio',
+    contract: 'eostokensdex',
 
     chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
     host: 'https://api.jungle.alohaeos.com',
@@ -40,6 +40,7 @@ const networks = {
 }
 
 export default {
+  APP_NAME: 'EOS Tokens',
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
 
