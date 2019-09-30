@@ -1,24 +1,37 @@
 <template lang="pug">
 .container.mb-5
   .row
+    .col
+      .d-flex.span.pr-3.pt-3
+        .d-flex.align-items-center.ml-auto
+          gh-btns-star(slug="avral/eosswap" show-count)
+
+          el-tooltip(content="Join us on Telegram!" placement="top" effect="light")
+            a(href="https://t.me/eosswapio" target="_blank")
+              img(src="/telegram.png" height="40").ml-2
+  .row
     .col-lg.m-auto
       .d-flex
         //nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;") EOS Swap:
         nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
           h1.display-3 {{ app_name }}
           //img(src="~/assets/logo.png").logo
+          //img(src="https://fontmeme.com/temporary/3e87c21c0d621c68d8bce26dc94429af.png").logo
+
 
         h1.align-self-center.ml-5.lead.mt-2
           span EOS flexible, listing free, decentralized exchange.
           br
-          span Trade any eosio token with any eosio token without listing
+          span Create markets in one click, trade whatewer you want.
+          br
+          span Forget about any regulation.
 
         .d-flex.align-items-center.span.ml-auto.pr-3.pt-3
           span(v-if="user")
             a(:href="'https://jungle.eosx.io/account/' + user.name" target="_blank") {{ $store.state.user.name }}
             el-button(v-if="user" size="small" type="info" plain @click="logout").ml-3 logout
 
-          el-button(@click="login" type="primary" size="small" v-if="!user").ml-auto Sign In via Scatter
+          el-button(@click="login" type="primary" size="medium" v-if="!user").ml-auto Sign In via Scatter
           // TODO Кнопка с тестком как ссылка на профиль
 
       el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
@@ -134,7 +147,7 @@ export default {
 }
 
 .container {
-  margin-top: 100px;
+  margin-top: 10px;
 }
 
 footer {

@@ -19,13 +19,13 @@ div
 
             el-table-column(label="Token")
               template(slot-scope="scope")
-                .name-wrapper(slot="reference")
+                .name-wrapper(slot="reference").market-row
                   TokenImage(:src="$tokenLogo(scope.row.token.symbol, scope.row.token.contract)" height="50")
                   span.ml-2(v-if="scope.row.token.symbol == 'EOS' && scope.row.token.contract != 'eosio.token'")
                     el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
                       el-tag(type="danger") {{ scope.row.token.quantity }}@{{ scope.row.token.contract }}
 
-                  span.ml-2(v-else).lead {{ scope.row.token.symbol.name }}@{{ scope.row.token.contract }}
+                  span.ml-2(v-else).display-4 {{ scope.row.token.symbol.name }}@{{ scope.row.token.contract }}
 
             el-table-column(label="Price (EOS)" width="200")
               template(slot-scope='scope')
@@ -36,16 +36,20 @@ div
                 span.text-mutted Soon..
 
     el-tab-pane(label='Rules & Information')
-      h2.lead.ml-3.mt-3 With EOS Tokens you can exchange any EOS.IO tokens, for any other EOS.IO tokens,
+      h2.lead.ml-3.mt-3 With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,
            | atomically, without the participation of third parties! The tokens should comply with the
            | standard eosio.token of the contract.
 
       h4.ml-3.mt-3 Properties:
         ul.mt-1
-          li.lead All the logic of order storage and exchange takes place in the contract, without any additional centralized solutions.
-          li.lead The exchange works automatically, without the possibility of third parties to influence the work of the contract.
+          li.lead Fully onchain matching for limit/market trades.
+          li.lead All the logic of order storage and matching takes place in the contract's ram, without any additional centralized solutions.
+          //li.lead The exchange works automatically, without the possibility of third parties to influence the work of the contract.
           li.lead This application works without centralized back-end and uses only the public EOS node.
-          li.lead Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged.
+          li.lead
+            b No commission at all
+            |  for beta testing time.
+          //li.lead Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged.
 
       h4.ml-3 Roadmap:
         ul.mt-1
@@ -118,10 +122,7 @@ export default {
 
     filteredItems() {
       return this.markets.filter((i) => {
-        if (i.token.toString().toLowerCase().includes(this.search.toLowerCase()))
-          return true
-
-        if (i.token.toString().toLowerCase().includes(this.search.toLowerCase()))
+        if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
           return true
       })
     }
@@ -223,5 +224,10 @@ export default {
 <style>
 .order-row {
   cursor: pointer;
+}
+
+.market-row {
+  display: flex;
+  align-items: center;
 }
 </style>

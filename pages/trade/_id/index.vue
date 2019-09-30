@@ -1,5 +1,5 @@
 <template lang="pug">
-// TODO Отображать мой баланс по токену
+// TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
 el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .clearfix(slot='header')
@@ -160,11 +160,11 @@ import { getSellOrders, getBuyOrders } from '~/api'
 export default {
   head() {
     return {
-      title: `EOS Tokens | Market ${this.market.token.str}`,
+      title: `EOS Tokens | Market ${this.market.token.symbol.name}`,
 
       meta: [
         // hid is used as unique identifier. Do not use `vmid` for it as it will not work
-        { hid: 'description', name: 'description', content: `Trade ${this.market.token.symbol.name} token for EOS` }
+        { hid: 'description', name: 'description', content: `Trade ${this.market.token.str} token for EOS` }
       ]
     }
   },
@@ -441,12 +441,12 @@ export default {
           `${this.totalEos} EOS@eosio.token`
         )
 
+        this.fetchOrders()
+
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {
-            this.fetchOrders()
-
             // this.$router.push({ name: 'index' })
             // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
@@ -484,11 +484,11 @@ export default {
           `${this.amount} ${this.market.token.str}`
         )
 
+        this.fetchOrders()
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {
-            this.fetchOrders()
             // this.$router.push({ name: 'index' })
             // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
           }
