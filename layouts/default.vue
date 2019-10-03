@@ -4,7 +4,7 @@
     .col
       .d-flex.span.pr-3.pt-3
         .d-flex.align-items-center.ml-auto
-          gh-btns-star(slug="avral/eosswap" show-count)
+          //gh-btns-star(slug="avral/eosswap" show-count)
 
           el-tooltip(content="Join us on Telegram!" placement="top" effect="light")
             a(href="https://t.me/eosswapio" target="_blank")
