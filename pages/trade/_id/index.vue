@@ -122,6 +122,36 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
       .el-col
         my-orders(:market_id="market_id" :asks="asks" :bids="bids" @update="fetchOrders")
 
+    //hr
+    //.el-row
+      .el-col
+        .lead History:
+        el-table(:data='orders', style='width: 101%')
+          el-table-column(label='Type', width='181')
+            template(slot-scope='scope')
+              span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type }}
+              span.text-danger(v-else) {{ scope.row.type }}
+
+          el-table-column(label='Date', width='180')
+            template(slot-scope='scope')
+              i.el-icon-time
+              span(style='margin-left: 10px') {{ scope.row.date }}
+
+          el-table-column(label='Ask', width='180')
+            template(slot-scope='scope')
+              span {{ scope.row.ask.quantity }}
+
+          el-table-column(label='Bid', width='180')
+            template(slot-scope='scope')
+              span {{ scope.row.bid.quantity }}
+
+          el-table-column(label='Price', width='180')
+            template(slot-scope='scope')
+              span {{ scope.row.unit_price | humanFloat }}
+
+          el-table-column(label='Operations' align="right")
+            template(slot-scope='scope')
+              el-button(size='mini', type='danger', @click='cancel(scope.row)') Cancel
   //div
     div(v-if="user")
       el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
