@@ -335,6 +335,9 @@ export default {
     this.update()
     await this.fetchOrders()
     this.setDefaultPrice()
+
+    // Auto update orders
+    setInterval(this.fetchOrders, 5000)
   },
 
   methods: {
@@ -592,9 +595,6 @@ input[type=number]::-webkit-outer-spin-button {
 
 .blist .ltd span:first-child {
   text-align: left;
-}
-
-.no-bottom-border {
 }
 
 .display-4 {
