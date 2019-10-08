@@ -26,14 +26,14 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
           .blist
             .ltd.d-flex.justify-content-around
               span Price (EOS)
-              span Amt({{ market.token.symbol.name }})
+              span Amount({{ market.token.symbol.name }})
               span Total (EOS)
 
         .overflowbox
           .blist.text-danger(ref="bids")
             .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
               span {{ ask.unit_price | humanFloat }}
-              span {{ ask.bid.quantity }}
+              span {{ ask.bid.quantity.split(' ')[0] }}
               span {{ ask.ask.quantity }}
 
             .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
@@ -47,7 +47,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
           .blist.text-success
             .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)")
               span {{ bid.unit_price | humanFloat }}
-              span {{ bid.ask.quantity }}
+              span {{ bid.ask.quantity.split(' ')[0] }}
               span {{ bid.bid.quantity }}
 
             .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
