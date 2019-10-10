@@ -119,7 +119,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
     hr
     .el-row
       .el-col
-        my-orders(:market_id="market_id" :asks="asks" :bids="bids" @update="update")
+        my-orders(:market="market_id" :asks="asks" :bids="bids" @update="update")
 
     //hr
     //.el-row

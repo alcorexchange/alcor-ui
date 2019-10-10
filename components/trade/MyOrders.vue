@@ -41,9 +41,9 @@ import { cancelorder } from '~/store/chain.js'
 
 export default {
   props: {
-    marketId: {
+    market: {
       type: Number,
-      default: 0
+      required: true
     },
 
     bids: {
@@ -81,7 +81,7 @@ export default {
       const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
 
       try {
-        await cancelorder(this.user.name, this.market_id, order.type, order.id)
+        await cancelorder(this.user.name, this.market, order.type, order.id)
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$emit('update')
