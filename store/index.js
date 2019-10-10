@@ -12,6 +12,10 @@ export const mutations = {
 
 
 export const actions = {
+  update({ dispatch }) {
+    dispatch('loadUserBalances')
+  },
+
   loadUserBalances({ rootState, state, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг

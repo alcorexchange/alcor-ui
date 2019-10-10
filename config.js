@@ -9,7 +9,7 @@ const networks = {
     host: 'http://localhost:8888',
     port: 8888,
     protocol: 'http',
-    monitor: 'https://jungle.eosx.io',
+    monitor: 'http://jungle.bloks.io',
     lightapi: 'https://lightapi.eosgeneva.io'
   },
 
@@ -21,7 +21,7 @@ const networks = {
     host: 'https://api.jungle.alohaeos.com',
     port: 443,
     protocol: 'https',
-    monitor: 'https://jungle.eosx.io',
+    monitor: 'http://jungle.bloks.io',
     lightapi: 'https://lightapi.eosgeneva.io'
   },
 
@@ -34,7 +34,7 @@ const networks = {
     host: 'https://api.main.alohaeos.com:443',
     port: 443,
     protocol: 'https',
-    monitor: 'https://eosx.io',
+    monitor: 'http://bloks.io',
     lightapi: 'https://api.light.xeos.me'
   }
 }

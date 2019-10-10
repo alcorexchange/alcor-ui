@@ -29,8 +29,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
               span Amount({{ market.token.symbol.name }})
               span Total (EOS)
 
-        .overflowbox
-          .blist.text-danger(ref="bids")
+          .orders-list.blist.text-danger(ref="bids")
             .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
               span {{ ask.unit_price | humanFloat }}
               span {{ ask.bid.quantity.split(' ')[0] }}
@@ -44,7 +43,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
           .bg-light.text-center.p-1
             b.text-success(v-if="bids.length") {{ sorted_bids[0].price }}
 
-          .blist.text-success
+          .orders-list.blist.text-success
             .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)")
               span {{ bid.unit_price | humanFloat }}
               span {{ bid.ask.quantity.split(' ')[0] }}
@@ -71,11 +70,11 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 
                 el-form(ref="form" :rules="rules" label-width="60px")
                   el-form-item(label="Price")
-                    el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="update")
+                    el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="calcPrice")
                       span(slot="suffix").mr-1 EOS
 
                   el-form-item(label="Amount")
-                    el-input(type="number" v-model="amount" @change="update" clearable)
+                    el-input(type="number" v-model="amount" @change="calcPrice" clearable)
                       span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
                   el-form-item
@@ -97,11 +96,11 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                 el-form(ref="form" :rules="rules" label-width="60px")
                   el-form-item(label="Price")
                     // FIXME Падает апп когда печатаешь сюда буквы
-                    el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="update")
+                    el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="calcPrice")
                       span(slot="suffix").mr-1.ml-2 EOS
 
                   el-form-item(label="Amount")
-                    el-input(type="number" v-model="amount" clearable @change="update")
+                    el-input(type="number" v-model="amount" clearable @change="calcPrice")
                       span(slot="suffix").mr-1 {{ market.token.symbol.name }}
 
                   el-form-item
@@ -116,11 +115,11 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-button(type="danger" @click="sell").w-100 Sell {{ market.token.str }}
 
           el-tab-pane(label="Market trade")
-            market-trade(:market="market" @update="fetchOrders" :eos-balance="eosBalance" :token-balance="tokenBalance")
+            market-trade(:market="market" @update="update" :eos-balance="eosBalance" :token-balance="tokenBalance")
     hr
     .el-row
       .el-col
-        my-orders(:market_id="market_id" :asks="asks" :bids="bids" @update="fetchOrders")
+        my-orders(:market_id="market_id" :asks="asks" :bids="bids" @update="update")
 
     //hr
     //.el-row
@@ -236,11 +235,12 @@ export default {
     ...mapGetters(['user']),
 
     eosBalance() {
-      if (!this.user || !this.user.balances) return '0.0000'
+      if (!this.user || !this.user.balances) return '0.0000 EOS'
 
       const balance = this.user.balances.filter(b => b.currency == 'EOS')[0]
+      if (!balance) return '0.0000 EOS'
 
-      return `${balance.amount} ${balance.currency}`
+      return `${balance.amount} ${balance.currency} EOS`
     },
 
     tokenBalance() {
@@ -332,12 +332,11 @@ export default {
   },
 
   async created() {
-    this.update()
-    await this.fetchOrders()
+    await this.update()
     this.setDefaultPrice()
 
     // Auto update orders
-    setInterval(this.fetchOrders, 5000)
+    setInterval(this.update, 5000)
   },
 
   methods: {
@@ -399,7 +398,16 @@ export default {
 
     },
 
-    update(amount) {
+    refresh() {
+      this.calcPrice()
+    },
+
+    async update(amount) {
+      this.$store.dispatch('update')
+      await this.fetchOrders()
+    },
+
+    calcPrice(amount) {
       if (!this.amount) {
         this.price = parseFloat(this.price).toFixed(config.PRICE_DIGITS)
         this.amount = Number(0).toFixed(this.market.token.symbol.precision)
@@ -474,8 +482,7 @@ export default {
           `${this.totalEos} EOS@eosio.token`
         )
 
-        this.fetchOrders()
-
+        this.update()
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
@@ -494,6 +501,7 @@ export default {
     },
 
     async buy() {
+      // TODO Обновляем баланс после каждой сделки
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
         message: 'Pleace connect Scatter',
@@ -517,7 +525,7 @@ export default {
           `${this.amount} ${this.market.token.str}`
         )
 
-        this.fetchOrders()
+        this.update()
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
@@ -583,7 +591,7 @@ input[type=number]::-webkit-outer-spin-button {
   overflow: hidden;
 }
 
-.blist .ltd:hover {
+.orders-list.blist .ltd:hover {
   cursor: pointer;
   font-weight: bold;
 }
