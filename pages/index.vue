@@ -20,7 +20,7 @@ div
             el-table-column(label="Token")
               template(slot-scope="scope")
                 .name-wrapper(slot="reference").market-row
-                  TokenImage(:src="$tokenLogo(scope.row.token.symbol, scope.row.token.contract)" height="50")
+                  TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="50")
                   span.ml-2(v-if="scope.row.token.symbol == 'EOS' && scope.row.token.contract != 'eosio.token'")
                     el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
                       el-tag(type="danger") {{ scope.row.token.quantity }}@{{ scope.row.token.contract }}

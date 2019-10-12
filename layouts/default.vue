@@ -49,11 +49,11 @@
 
       nuxt
 
-      //.row.mt-3
+      .row.mt-3
         .col.text-mutted
           small
-            span.text-muted App version:
-              a(href="https://github.com/avral/eosswap" target="_blank").text-secondary {{ lastCommit.sha }}
+            span.text-muted App version: Alpha 0.1
+              //a(href="https://github.com/avral/eosswap" target="_blank").text-secondary {{ lastCommit.sha }}
                 span(v-if="lastCommit.commit") ({{ lastCommit.commit.message }})
 
   footer

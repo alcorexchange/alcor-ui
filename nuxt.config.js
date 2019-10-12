@@ -5,7 +5,7 @@ const isSPA = process.argv.includes('--spa')
 const isDev = process.env.npm_lifecycle_event == 'dev'
 
 
-const desc = 'With ' + config.APP_NAME + ' you can exchange any EOS.IO tokens, for any other EOS.IO tokens, atomically, without the participation of third parties!'
+const desc = 'With ' + config.APP_NAME + ' you can trade any EOS.IO tokens for EOS system token, onchain, without the participation of third parties!'
 
 module.exports = {
   env: {
