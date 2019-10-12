@@ -60,7 +60,7 @@ div
       h4.ml-3 Audit:
         ul.mt-1
           li.lead Exchange contract:
-            a(:href="'eostokensdex' | monitorAccount" target="_blank") wwweosswapio
+            a(:href="'eostokensdex' | monitorAccount" target="_blank") eostokensdex
 
           //li.lead Comission account:
             a(:href="'eosswapdivs1' | monitorAccount" target="_blank") eosswapdivs1
