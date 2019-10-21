@@ -10,7 +10,8 @@ const networks = {
     port: 8888,
     protocol: 'http',
     monitor: 'http://jungle.bloks.io',
-    lightapi: 'https://lightapi.eosgeneva.io'
+    lightapi: 'https://lightapi.eosgeneva.io',
+    hyperion: 'https://api.eossweden.org/v2/'
   },
 
   jungle: {
@@ -22,7 +23,8 @@ const networks = {
     port: 443,
     protocol: 'https',
     monitor: 'http://jungle.bloks.io',
-    lightapi: 'https://lightapi.eosgeneva.io'
+    lightapi: 'https://lightapi.eosgeneva.io',
+    hyperion: 'http://api.jungle.hyperion.greeneosio.com/v2/'
   },
 
   eos: {
@@ -35,7 +37,8 @@ const networks = {
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
-    lightapi: 'https://api.light.xeos.me'
+    lightapi: 'https://api.light.xeos.me',
+    hyperion: 'https://api.eossweden.org/v2/'
   }
 }
 
