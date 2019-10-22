@@ -83,7 +83,7 @@ module.exports = {
   ** Sentry module configuration
   */
   sentry: {
-    dsn: process.env.SENTRY_DSN || 'https://a2a78e2d93f6406ab3bea315676f5517@sentry.io/1411799',
+    dsn: process.env.SENTRY_DSN || 'https://a0486e29af0f4630a29b820ee4226fa8@sentry.io/1792380',
     disabled: isDev
   },
 
