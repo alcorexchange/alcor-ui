@@ -1,0 +1,48 @@
+{
+  "name": "EOSSWAP-UI",
+  "version": "1.0.0",
+  "description": "Exchange for eosio tokens",
+  "author": "avral",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "devmainnet": "nuxt --mainnet",
+    "build": "nuxt build",
+    "build-mainnet": "nuxt build --spa --mainnet",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
+    "precommit": "npm run lint"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.0.0",
+    "@nuxtjs/sentry": "^2.3.1",
+    "@scatterjs/core": "^2.7.44",
+    "@scatterjs/eosjs2": "^1.5.26",
+    "axios": "^0.19.0",
+    "axios-cache-adapter": "^2.3.3",
+    "big.js": "^5.2.2",
+    "bootstrap": "^4.3.1",
+    "bootstrap-utilities": "^4.1.3",
+    "cross-env": "^5.2.0",
+    "element-ui": "^2.11.1",
+    "eosjs": "20.0.0",
+    "esm": "^3.2.25",
+    "js-yaml": "^3.13.1",
+    "moment": "^2.24.0",
+    "node-fetch": "^2.6.0",
+    "nuxt": "^2.0.0",
+    "vue-github-buttons": "^3.1.0",
+    "webpack-bundle-analyzer": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^5.0.1",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-html": "^5.0.0",
+    "eslint-plugin-vue": "^4.0.0",
+    "nodemon": "^1.11.0",
+    "pug": "^2.0.3",
+    "pug-plain-loader": "^1.0.0"
+  }
+}
