@@ -119,7 +119,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
     hr
     .el-row
       .el-col
-        my-orders(:market="market_id" :asks="asks" :bids="bids" @update="update")
+        my-orders(:market="market_id" :asks="asks" :bids="bids" @update="update" v-if="user")
 
     //hr
     //.el-row
@@ -176,7 +176,6 @@ import TokenImage from '~/components/elements/TokenImage'
 import AssetImput from '~/components/elements/AssetInput'
 
 import MarketTrade from '~/components/trade/MarketTrade'
-import MyOrders from '~/components/trade/MyOrders'
 
 
 import config from '~/config'
@@ -201,8 +200,7 @@ export default {
   components: {
     TokenImage,
     AssetImput,
-    MarketTrade,
-    MyOrders
+    MarketTrade
   },
 
   data() {
