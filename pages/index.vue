@@ -75,6 +75,11 @@ div
             img(src="https://www.eosnameswaps.com/images/ens_logo.jpg" height="80").mr-3
             .lead A decentralized EOS account exchange.
 
+      hr
+      .d-flex.align-items-center.span
+        .lead The design of the original app logo:
+          a(href="https://t.me/yusaymon" target="_blank")  @yusaymon
+
 
 
 </template>
