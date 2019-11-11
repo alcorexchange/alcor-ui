@@ -2,9 +2,9 @@
 .container.mb-5
   .row
     .col
-      .d-flex.span.pr-3.pt-3
+      .d-flex.span.pr-3.pt-3.mb-4
         .d-flex.align-items-center.ml-auto
-          //gh-btns-star(slug="avral/eosswap" show-count)
+          gh-btns-star(slug="avral/eostokens-ui" show-count)
 
           el-tooltip(content="OTC Trustless swaps" placement="top" effect="light")
             a(href="https://swap.eostokens.io" target="_blank")
