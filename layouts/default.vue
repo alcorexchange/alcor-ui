@@ -35,7 +35,7 @@
 
         .d-flex.align-items-center.span.ml-auto.pr-3.pt-3
           span(v-if="user")
-            a(:href="'https://jungle.eosx.io/account/' + user.name" target="_blank") {{ $store.state.user.name }}
+            a(:href="user.name | monitorAccount" target="_blank") {{ $store.state.user.name }}
             el-button(v-if="user" size="small" type="info" plain @click="logout").ml-3 logout
 
           el-button(@click="login" type="primary" size="medium" v-if="!user").ml-auto Sign In via Scatter
@@ -59,8 +59,8 @@
       .row.mt-3
         .col.text-mutted
           small
-            span.text-muted App version: Alpha 0.1
-              //a(href="https://github.com/avral/eosswap" target="_blank").text-secondary {{ lastCommit.sha }}
+            span.text-muted App version:
+              a(href="https://github.com/avral/eostokens-ui" target="_blank").text-secondary  {{ lastCommit.sha }}
                 span(v-if="lastCommit.commit") ({{ lastCommit.commit.message }})
 
   footer

@@ -10,7 +10,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
         TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="45").mr-2.ml-1
       .el-col.d-flex.align-items-center
         h1.display-4 Trade {{ market.token.symbol.name }}@
-          a(:href="market.token.symbol.contract | monitorAccount" target="_blank") {{ market.token.contract }}
+          a(:href="market.token.contract | monitorAccount" target="_blank") {{ market.token.contract }}
 
           span  for EOS
 
