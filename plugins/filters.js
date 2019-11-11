@@ -17,6 +17,8 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
     return 'https://pixeos.io/ico/apple-touch-icon-57-precomposed.png'
   if (symbol == 'TKT' && contract == 'eossanguotkt')
     return require('@/assets/tokens/tkt_eossanguotkt.png')
+  if (symbol == 'BBT' && contract == 'blockbasetkn')
+    return require('@/assets/tokens/bbt-blockbasetkn.png')
 
   return `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${contract}/${symbol}.png`
 }
