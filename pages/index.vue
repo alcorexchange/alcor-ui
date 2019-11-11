@@ -78,7 +78,7 @@ div
       hr
       .d-flex.align-items-center.span
         .lead The design of the original app logo:
-          a(href="https://t.me/yusaymon" target="_blank")  @yusaymon
+          a(href="https://yusaymon.portfoliobox.net" target="_blank")  @yusaymon
 
 
 
