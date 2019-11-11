@@ -21,17 +21,17 @@
       .d-flex
         //nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;") EOS Swap:
         nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
-          h1.display-3 {{ app_name }}
-          //img(src="~/assets/logo.png").logo
+          //h1.display-3 {{ app_name }}
+          img(src="~/assets/logo.svg").logo
           //img(src="https://fontmeme.com/temporary/3e87c21c0d621c68d8bce26dc94429af.png").logo
 
 
-        h1.align-self-center.ml-5.lead.mt-2
+        h1.align-self-center.ml-4.lead.mt-2
           span EOS flexible, listing free, decentralized exchange.
           br
-          span Create markets in one click, trade whatewer you want.
-          br
           span Forget about any regulation.
+          br
+          span Create markets in one click, trade whatewer you want.
 
         .d-flex.align-items-center.span.ml-auto.pr-3.pt-3
           span(v-if="user")
@@ -149,8 +149,7 @@ export default {
 
 <style>
 .logo {
-  width: 100%;
-  max-width: 300px;
+  height: 80px;
 }
 
 .container {
