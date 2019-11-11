@@ -1,11 +1,9 @@
-## [EOSSWAP.IO](https://eosswap.io)
-> EOS trustless OTC trading  
+## [EOS Tokens](https://eostokens.io)
+> EOS trustless onchain limit/market trading  
 
-![EOSSWAP](https://a.imge.to/2019/07/09/TlwaR.png)
+![EosTokens](https://i.imgur.com/8q3VZ6L.png)
 
-With EOS Tokens you can exchange any EOS.IO tokens, for any other EOS.IO tokens, 
-atomically, without the participation of third parties! The tokens should comply with the 
-standard eosio.token of the contract.
+With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
 
 ## Build Setup
 
