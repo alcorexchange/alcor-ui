@@ -29,9 +29,9 @@
         h1.align-self-center.ml-4.lead.mt-2
           span EOS flexible, listing free, decentralized exchange.
           br
-          span Forget about any regulation.
-          br
           span Create markets in one click, trade whatewer you want.
+          span  Forget about any regulation.
+          a(:href="'eostokensdex' | monitorAccount" target="_blank").text-success.strong.ml-2  IT WORK ONCHAIN
 
         .d-flex.align-items-center.span.ml-auto.pr-3.pt-3
           span(v-if="user")
@@ -141,7 +141,7 @@ export default {
     },
 
     async getVersion() {
-      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/eosswap/commits/master')).data
+      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/eostokens-ui/commits/master')).data
     }
   }
 }
