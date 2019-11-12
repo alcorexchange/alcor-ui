@@ -13,12 +13,9 @@ Vue.filter('humanFloat', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
 
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {
-  if (symbol == 'PIXEOS' && contract == 'pixeos1token')
-    return 'https://pixeos.io/ico/apple-touch-icon-57-precomposed.png'
-  if (symbol == 'TKT' && contract == 'eossanguotkt')
-    return require('@/assets/tokens/tkt_eossanguotkt.png')
-  if (symbol == 'BBT' && contract == 'blockbasetkn')
-    return require('@/assets/tokens/bbt-blockbasetkn.png')
-
-  return `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${contract}/${symbol}.png`
+  try {
+    return require(`@/assets/tokens/${symbol.toLowerCase()}_${contract}.png`)
+  } catch {
+    return `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${contract}/${symbol}.png`
+  }
 }
