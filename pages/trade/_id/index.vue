@@ -120,8 +120,8 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
           el-tab-pane(label="Market trade")
             market-trade(:market="market" @update="update" :eos-balance="eosBalance" :token-balance="tokenBalance")
     hr
-    .el-row
-      .el-col
+    .row
+      .col
         my-orders(:market="market_id" :asks="asks" :bids="bids" @update="update" v-if="user")
 
     //hr
@@ -468,6 +468,7 @@ export default {
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
         message: 'Pleace connect Scatter',
+        duration: 10,
         type: 'info'
       })
 
@@ -491,6 +492,8 @@ export default {
 
         this.$notify({ title: 'Place order',
           message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          dangerouslyUseHTMLString: true,
+          duration: 10,
           type: 'success'
         })
 
@@ -539,6 +542,7 @@ export default {
         this.update()
         this.$notify({ title: 'Place order',
           message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          dangerouslyUseHTMLString: true,
           type: 'success'
         })
         // TODO Mobile modal
