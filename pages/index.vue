@@ -158,17 +158,20 @@ export default {
       this.$router.push({name: 'trade-id', params: { id: a.id }})
     },
 
-    async newMarket({ buy, sell }) {
+    //async newMarket({ buy, sell }) {
+    newMarket({ buy, sell }) {
       const loading = this.$loading({
         lock: true,
         text: 'Wait for Scatter'
       })
 
       try {
-        const r = await transfer(sell.contract, this.user.name, sell.quantity, `${buy.quantity}`)
+        //const r = await transfer(sell.contract, this.user.name, sell.quantity, `${buy.quantity}`)
+        transfer(sell.contract, this.user.name, sell.quantity, `${buy.quantity}`).then(e => console.log(e)).catch(e =>
+          console.log(e))
 
         this.fetch()
-        this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
+        //this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
       } catch (e) {
         captureException(e, {extra: {buy, sell}})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })

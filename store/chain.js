@@ -2,10 +2,14 @@ import ScatterJS from '@scatterjs/core'
 import ScatterEOS from '@scatterjs/eosjs2'
 import { configureScope } from '@sentry/browser'
 
-import { rpc, eos } from '../api'
+import { Api } from 'eosjs'
+
+import { rpc, eos as eoss } from '../api'
 import config from '../config'
 
 ScatterJS.plugins(new ScatterEOS())
+
+let eos = eoss
 
 export const network = ScatterJS.Network.fromJson({
   blockchain: 'eos',
@@ -61,6 +65,8 @@ export const actions = {
 
     try {
       const r = await ScatterJS.login()
+
+      eos = ScatterJS.eos(network, Api, { rpc })
 
       configureScope(scope => scope.setUser({ username: r.accounts[0].name }))
       commit('setUser', r.accounts[0], { root: true })

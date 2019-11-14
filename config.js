@@ -6,7 +6,7 @@ const networks = {
     contract: 'eostokensdex',
 
     chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
-    host: 'http://localhost:8888',
+    host: 'localhost',
     port: 8888,
     protocol: 'http',
     monitor: 'http://jungle.bloks.io',
@@ -19,7 +19,7 @@ const networks = {
     contract: 'eostokensdex',
 
     chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
-    host: 'https://api.jungle.alohaeos.com',
+    host: 'api.jungle.alohaeos.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://jungle.bloks.io',
@@ -33,7 +33,7 @@ const networks = {
 
     chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
 
-    host: 'https://api.main.alohaeos.com:443',
+    host: 'api.main.alohaeos.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
