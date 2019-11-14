@@ -357,14 +357,14 @@ export default {
     changeBuySlider(p) {
       if (this.price == 0) return
 
-      this.amount = Math.round(parseFloat(this.eosBalance) / 100 * p) / this.price
+      this.amount = (Math.round(parseFloat(this.eosBalance) / 100 * p) / this.price).toFixed(this.market.token.symbol.precision)
       this.update()
     },
 
     changeSellSlider(p) {
       if (this.price == 0) return
 
-      this.amount = Math.round(parseFloat(this.tokenBalance) / 100 * p)
+      this.amount = (Math.round(parseFloat(this.tokenBalance) / 100 * p)).toFixed(this.market.token.symbol.precision)
       this.update()
     },
 
@@ -488,14 +488,20 @@ export default {
         )
 
         this.update()
-        this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: (action) => {
-            // this.$router.push({ name: 'index' })
-            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
-          }
+
+        this.$notify({ title: 'Place order',
+          message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          type: 'success'
         })
+
+        //this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+        //  dangerouslyUseHTMLString: true,
+        //  confirmButtonText: 'OK',
+        //  callback: (action) => {
+        //    // this.$router.push({ name: 'index' })
+        //    // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+        //  }
+        //})
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -531,14 +537,20 @@ export default {
         )
 
         this.update()
-        this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: (action) => {
-            // this.$router.push({ name: 'index' })
-            // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
-          }
+        this.$notify({ title: 'Place order',
+          message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          type: 'success'
         })
+        // TODO Mobile modal
+
+        //this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+        //  dangerouslyUseHTMLString: true,
+        //  confirmButtonText: 'OK',
+        //  callback: (action) => {
+        //    // this.$router.push({ name: 'index' })
+        //    // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+        //  }
+        //})
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
