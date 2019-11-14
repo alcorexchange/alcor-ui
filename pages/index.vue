@@ -22,7 +22,7 @@
       el-table(:data="filteredItems" @row-click="clickOrder" row-class-name="order-row").d-none.d-lg-block
         el-table-column(label="Token")
           template(slot-scope="scope")
-            .market-row(slot="reference")
+            div(slot="reference")
               TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="50")
               span.ml-2(v-if="scope.row.token.symbol == 'EOS' && scope.row.token.contract != 'eosio.token'")
                 el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
