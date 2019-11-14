@@ -1,8 +1,44 @@
 <template lang="pug">
 div
   .lead My orders:
-  el-table(:data='orders', style='width: 100%')
-    el-table-column(label='Type', width='180')
+
+  //.overflowbox.d-lg-none
+    .blist
+      .ltd.d-flex.justify-content-around
+        span Ask
+        span Bid
+        span Price
+        span Cancel
+
+  .mobile-markets.d-lg-none.mt-3
+    .row.market-row(v-for="order in orders")
+      .col.d-flex
+        div(v-if="order.type == 'bid'")
+          strong.text-success {{ order.type }}
+          strong.ml-3 {{ order.bid.quantity }}
+
+        div(v-else)
+          strong.text-danger {{ order.type }}
+          strong.ml-3 {{ order.bid.quantity }}
+
+        el-button(size='mini', type='danger', @click='cancel(order)').ml-auto Cancel
+
+      //.col-2
+      //  span.text-success(v-if="order.type == 'bid'") {{ order.type }}
+      //  span.text-danger(v-else) {{ order.type }}
+      //.col-2
+      //  span {{ order.ask.quantity }}
+      //.col-2
+      //  span {{ order.bid.quantity }}
+      //.col-2
+      //  span {{ order.id }}
+      //.col-2
+      //  span {{ order.unit_price | humanFloat }}
+      //.col-2
+      //  el-button(size='mini', type='danger', @click='cancel(order)').mt-3 Cancel
+
+  el-table(:data='orders', style='width: 100%').d-none.d-lg-block
+    el-table-column(label='Type', width='80')
       template(slot-scope='scope')
         span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type }}
         span.text-danger(v-else) {{ scope.row.type }}
@@ -20,7 +56,7 @@ div
       template(slot-scope='scope')
         span {{ scope.row.bid.quantity }}
 
-    el-table-column(label='Price', width='180')
+    el-table-column(label='Price', width='120')
       template(slot-scope='scope')
         span {{ scope.row.unit_price | humanFloat }}
 
@@ -97,3 +133,9 @@ export default {
 }
 
 </script>
+
+<style>
+.market-row span {
+  font-size: 1em;
+}
+</style>
