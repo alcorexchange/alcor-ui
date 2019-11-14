@@ -62,9 +62,9 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
           el-tab-pane(label="Limit trade")
             .row
               .col
-                el-alert(title="Amounts does't match unit price!", v-show="wrongPrice" type='info', show-icon :closable="false")
-                  | Please change price or amount.
-                  a(href="#", @click="unitPriceInfo").ml-1  WTF ?
+                el-alert(title="Price can not be a floating point number!", v-show="wrongPrice" type='info', show-icon :closable="false")
+                  | Please change price or amount. Price = Base amount / quoute amount
+                  a(href="#", @click.prevent="unitPriceInfo").ml-1  WTF ?
             .row.p-2
               .col-lg-6
                 .d-flex.label.mb-3
@@ -357,15 +357,23 @@ export default {
     changeBuySlider(p) {
       if (this.price == 0) return
 
-      this.amount = (Math.round(parseFloat(this.eosBalance) / 100 * p) / this.price).toFixed(this.market.token.symbol.precision)
-      this.update()
+      if (p === 100) {
+        this.amount = parseFloat(this.eosBalance).toFixed(4)
+      } else {
+        this.amount = (Math.round(parseFloat(this.eosBalance) / 100 * p) / this.price).toFixed(4)
+        this.update()
+      }
     },
 
     changeSellSlider(p) {
       if (this.price == 0) return
 
-      this.amount = (Math.round(parseFloat(this.tokenBalance) / 100 * p)).toFixed(this.market.token.symbol.precision)
-      this.update()
+      if (p === 100) {
+        this.amount = parseFloat(this.tokenBalance).toFixed(this.market.token.symbol.precision)
+      } else {
+        this.amount = (Math.round(parseFloat(this.tokenBalance) / 100 * p)).toFixed(this.market.token.symbol.precision)
+        this.update()
+      }
     },
 
     async fetchOrders() {
@@ -468,7 +476,7 @@ export default {
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
         message: 'Pleace connect Scatter',
-        duration: 10,
+        duration: 0,
         type: 'info'
       })
 
@@ -493,21 +501,12 @@ export default {
         this.$notify({ title: 'Place order',
           message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
           dangerouslyUseHTMLString: true,
-          duration: 10,
+          duration: 0,
           type: 'success'
         })
-
-        //this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-        //  dangerouslyUseHTMLString: true,
-        //  confirmButtonText: 'OK',
-        //  callback: (action) => {
-        //    // this.$router.push({ name: 'index' })
-        //    // this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
-        //  }
-        //})
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({ title: 'Place order', message: e.message, type: 'error', duration: 0 })
         console.log(e)
       } finally {
         loading.close()
@@ -543,9 +542,9 @@ export default {
         this.$notify({ title: 'Place order',
           message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
           dangerouslyUseHTMLString: true,
+          duration: 0,
           type: 'success'
         })
-        // TODO Mobile modal
 
         //this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
         //  dangerouslyUseHTMLString: true,
@@ -557,7 +556,7 @@ export default {
         //})
       } catch (e) {
         captureException(e, {extra: { order: this.order }})
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({ title: 'Place order', message: e.message, type: 'error', duration: 0 })
         console.log(e)
       } finally {
         loading.close()

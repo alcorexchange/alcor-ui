@@ -178,7 +178,8 @@ footer {
 }
 
 @media only screen and (max-width: 600px) {
-  .market-row {
+  .el-dialog, .el-message-box, .el-notification {
+    width: 95%;
   }
 }
 </style>

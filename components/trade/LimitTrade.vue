@@ -5,7 +5,7 @@ div
     .col
       el-alert(title="Amounts does't match unit price!", v-show="wrongPrice" type='info', show-icon :closable="false")
         | Please change price or amount.
-        a(href="#", @click="wtf").ml-1  WTF ?
+        a(href="#", @click.prevent="wtf").ml-1  WTF ?
   .row.p-2
 
     .col

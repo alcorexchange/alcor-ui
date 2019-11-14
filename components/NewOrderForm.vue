@@ -6,7 +6,11 @@ div
     span
       slot
 
-  el-dialog(v-if="user" title="Open new market or create new order for exists market", :visible.sync="visible" width="50%")
+  el-dialog(
+    v-if="user"
+    title="Open new market or create new order for exists market"
+    :visible.sync="visible"
+  )
     span It is free, just make the first order. Market will be created automatically.
     .text-mutted If market already exists, order will be processed as regular sell order.
 
@@ -47,7 +51,7 @@ div
 
         el-alert(title="Amounts does't match unit price!", v-show="wrongPrice" type='info', show-icon :closable="false").mb-2
           | Please change price or amount.
-          a(href="#", @click="unitPriceInfo").ml-1  WTF ?
+          a(href="#", @click.prevent="unitPriceInfo").ml-1  WTF ?
 
         span.dialog-footer
           el-button(type='primary' v-if="form.buy.amount > 0" @click="submit" :disabled="wrongPrice").w-100 Create order
@@ -244,7 +248,14 @@ export default {
 .upperinput {
     text-transform: uppercase;
 }
+
 .upperinput:placeholder-shown {
     text-transform: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .el-form {
+    padding: 0px;
+  }
 }
 </style>
