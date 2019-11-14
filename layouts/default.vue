@@ -31,7 +31,7 @@
           a(:href="user.name | monitorAccount" target="_blank").mr-3 {{ $store.state.user.name }}
           el-button(v-if="user" size="small" type="info" plain @click="logout") logout
 
-        el-button(@click="login" type="primary" size="medium" v-if="!user") Sign In via Scatter
+        el-button(@click="login" type="primary" size="medium" v-else) Sign In via Scatter
         // TODO Кнопка с тестком как ссылка на профиль
   .row
     el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
@@ -47,7 +47,8 @@
     el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
       span.ml-1 Network is unreacheble pleace check your internet connection.
   .row
-    nuxt
+    .col
+      nuxt
 
   .row.mt-3
     .col.text-mutted
@@ -167,4 +168,17 @@ footer {
   }
 }
 
+.market-row {
+  display: flex;
+  align-items: center;
+
+  padding: 7px 10px;
+  border-top: outset;
+  border-width: thin;
+}
+
+@media only screen and (max-width: 600px) {
+  .market-row {
+  }
+}
 </style>

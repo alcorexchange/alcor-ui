@@ -1,5 +1,6 @@
 <template lang="pug">
 // TODO Refactor with walidators for form
+// TODO Mobile version
 div
   el-button(size="medium" type="primary" @click="open").ml-auto
     span
