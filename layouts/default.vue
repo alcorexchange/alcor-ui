@@ -1,67 +1,63 @@
 <template lang="pug">
-.container.mb-5
+.container.mb-5.mt-4
+  .row
+    .col-lg-4
+      nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
+        //h1.display-3 {{ app_name }}
+        img(src="~/assets/logo.svg").logo
+    .col
+      .row.d-flex.flex-lg-row-reverse.align-items-center.p-4
+        gh-btns-star(slug="avral/eostokens-ui" show-count).ml-3
+
+        el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
+          a(href="https://swap.eostokens.io" target="_blank")
+            img(src="/eosswap_logo.png" height="40").ml-2
+
+        el-tooltip(content="Join us on Telegram!" placement="top" effect="light")
+          a(href="https://t.me/eostokensdex" target="_blank")
+            img(src="/telegram.png" height="40").ml-2
+
+  .row
+    .col-lg-9.col-md-12
+      h1.align-self-center.lead.mt-3
+        span EOS flexible, listing free, decentralized exchange.
+        br
+        span Create markets in one click, trade whatewer you want.
+        br
+        span Forget about any regulation.
+        a(:href="'eostokensdex' | monitorAccount" target="_blank").text-success.strong.ml-2  IT WORK ONCHAIN
+
+    .col-lg-3.d-flex
+      .align-items-center.pr-3.pt-3.mt-3.ml-lg-auto
+        span(v-if="user")
+          a(:href="user.name | monitorAccount" target="_blank").mr-3 {{ $store.state.user.name }}
+          el-button(v-if="user" size="small" type="info" plain @click="logout") logout
+
+        el-button(@click="login" type="primary" size="medium" v-if="!user") Sign In via Scatter
+        // TODO Кнопка с тестком как ссылка на профиль
+  .row
+    el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
+      span.ml-1 Unlock or install
+      a(href="https://get-scatter.com/" target="_blank") Scatter
+      i(@click="scatterConnect" size="mini").el-alert__closebtn Update
+
+    el-alert(:closable="false" show-icon type="error" v-if="$store.state.chain.oldScatter").mt-4
+      span.ml-1  You are using an old version of Scatter! So the app may not work correctly.
+
+      a(href="https://get-scatter.com/" target="_blank")  Update Scatter
+
+    el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
+      span.ml-1 Network is unreacheble pleace check your internet connection.
   .row
     .col
-      .d-flex.span.pr-3.pt-3.mb-4
-        .d-flex.align-items-center.ml-auto
-          gh-btns-star(slug="avral/eostokens-ui" show-count)
-
-          el-tooltip(content="OTC Trustless swaps" placement="top" effect="light")
-            a(href="https://swap.eostokens.io" target="_blank")
-              img(src="/eosswap_logo.png" height="40").ml-2
-
-          el-divider(direction="vertical")
-
-          el-tooltip(content="Join us on Telegram!" placement="top" effect="light")
-            a(href="https://t.me/eostokensdex" target="_blank")
-              img(src="/telegram.png" height="40").ml-2
-
-  .row
-    .col-lg.m-auto
-      .d-flex
-        //nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;") EOS Swap:
-        nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
-          //h1.display-3 {{ app_name }}
-          img(src="~/assets/logo.svg").logo
-          //img(src="https://fontmeme.com/temporary/3e87c21c0d621c68d8bce26dc94429af.png").logo
-
-
-        h1.align-self-center.ml-4.lead.mt-2
-          span EOS flexible, listing free, decentralized exchange.
-          br
-          span Create markets in one click, trade whatewer you want.
-          span  Forget about any regulation.
-          a(:href="'eostokensdex' | monitorAccount" target="_blank").text-success.strong.ml-2  IT WORK ONCHAIN
-
-        .d-flex.align-items-center.span.ml-auto.pr-3.pt-3
-          span(v-if="user")
-            a(:href="user.name | monitorAccount" target="_blank") {{ $store.state.user.name }}
-            el-button(v-if="user" size="small" type="info" plain @click="logout").ml-3 logout
-
-          el-button(@click="login" type="primary" size="medium" v-if="!user").ml-auto Sign In via Scatter
-          // TODO Кнопка с тестком как ссылка на профиль
-
-      el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
-        span.ml-1 Unlock or install
-        a(href="https://get-scatter.com/" target="_blank") Scatter
-        i(@click="scatterConnect" size="mini").el-alert__closebtn Update
-
-      el-alert(:closable="false" show-icon type="error" v-if="$store.state.chain.oldScatter").mt-4
-        span.ml-1  You are using an old version of Scatter! So the app may not work correctly.
-
-        a(href="https://get-scatter.com/" target="_blank")  Update Scatter
-
-      el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
-        span.ml-1 Network is unreacheble pleace check your internet connection.
-
       nuxt
 
-      .row.mt-3
-        .col.text-mutted
-          small
-            span.text-muted App version:
-              a(href="https://github.com/avral/eostokens-ui" target="_blank").text-secondary  {{ lastCommit.sha }}
-                span(v-if="lastCommit.commit") ({{ lastCommit.commit.message }})
+  .row.mt-3
+    .col.text-mutted
+      small
+        span.text-muted App version:
+          a(href="https://github.com/avral/eostokens-ui" target="_blank").text-secondary  {{ lastCommit.sha }}
+            span(v-if="lastCommit.commit") ({{ lastCommit.commit.message }})
 
   footer
     .row
@@ -152,6 +148,10 @@ export default {
   height: 80px;
 }
 
+h1.lead {
+  font-size: 1.1rem;
+}
+
 .container {
   margin-top: 10px;
 }
@@ -163,4 +163,11 @@ footer {
     left: 0;
     padding-right: 5px;
 }
+
+@media only screen and (max-width: 600px) {
+  .logo {
+    height: 60px;
+  }
+}
+
 </style>
