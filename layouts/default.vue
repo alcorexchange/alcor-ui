@@ -47,8 +47,7 @@
     el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
       span.ml-1 Network is unreacheble pleace check your internet connection.
   .row
-    .col
-      nuxt
+    nuxt
 
   .row.mt-3
     .col.text-mutted

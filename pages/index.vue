@@ -1,6 +1,6 @@
 <template lang="pug">
 // TODO App need decomposition
-div
+.w-100
   el-tabs(type='border-card').mt-4
     el-tab-pane(label="Markets" v-loading="loading")
       .el-row
