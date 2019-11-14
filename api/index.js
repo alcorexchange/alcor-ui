@@ -1,6 +1,7 @@
 import ScatterJS from '@scatterjs/core'
 import ScatterEOS from '@scatterjs/eosjs2'
 import { Api, JsonRpc } from 'eosjs'
+import fetch from 'node-fetch'
 
 import config from '~/config'
 import { parseAsset } from '~/utils'
@@ -12,7 +13,8 @@ export const network = ScatterJS.Network.fromJson({
   ...config
 })
 
-export const rpc = new JsonRpc(network.fullhost())
+//export const rpc = new JsonRpc(network.fullhost())
+export const rpc = new JsonRpc(config.protocol + '://' + config.host + ':' + config.port, { fetch })
 export const eos = ScatterJS.eos(network, Api, { rpc })
 
 async function getOrders(market_id, side, kwargs) {
