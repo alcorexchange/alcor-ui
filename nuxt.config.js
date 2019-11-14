@@ -23,7 +23,8 @@ module.exports = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: desc },
       { name: 'msapplication-TileColor', content: '#da532c' },
-      { name: 'theme-colo,r', content: '#ffffff' },
+      { name: 'theme-color', content: '#ffffff' },
+      //{ name: 'viewport', content: 'user-scalable = yes' }
     ],
 
     // TODO Что хза хуйня

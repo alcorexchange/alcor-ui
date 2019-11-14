@@ -5,23 +5,27 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .clearfix(slot='header')
     el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
 
+    // Mobile
     .row
-      .el-col.ml-2
-        TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="45").mr-2.ml-1
-      .el-col.d-flex.align-items-center
+      .col-lg-1
+        TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="40").mr-2.ml-1
+
+      .col.d-none.d-lg-block
         h1.display-4 Trade {{ market.token.symbol.name }}@
           a(:href="market.token.contract | monitorAccount" target="_blank") {{ market.token.contract }}
 
           span  for EOS
 
-    //a(:href="order.maker | monitorAccount" target="_blank") {{ order.maker }}
 
 
-  //.text.item(v-if="order.maker")
+  .lead.d-lg-none.mb-2 Trade {{ market.token.symbol.name }}@
+    a(:href="market.token.contract | monitorAccount" target="_blank") {{ market.token.contract }}
+
+    span  for EOS
+
   .text.item
     .row.trade-window
-      .col-5
-
+      .col-lg-5
         .overflowbox.no-bottom-border
           .blist
             .ltd.d-flex.justify-content-around
@@ -53,7 +57,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
               span
               span No bids
               span
-      .col-7
+      .col-lg-7
         el-tabs.h-100
           el-tab-pane(label="Limit trade")
             .row
@@ -62,8 +66,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                   | Please change price or amount.
                   a(href="#", @click="unitPriceInfo").ml-1  WTF ?
             .row.p-2
-
-              .col
+              .col-lg-6
                 .d-flex.label.mb-3
                   span.text-success Buy {{ market.token.symbol.name }}
                   span.text-mutted.small.align-self-end.ml-auto balance: {{ eosBalance }}
@@ -86,9 +89,9 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 
                   el-form-item.mt-2
                     // TODO разработать компонент которой чекает залогинен ли
-                    el-button(type="success" @click="buy").w-100 Buy {{ market.token.str }}
+                    el-button(size="small" type="success" @click="buy").w-100 Buy {{ market.token.str }}
 
-              .col
+              .col-lg-6
                 .d-flex.label.mb-3
                   span.text-danger Sell {{ market.token.symbol.name }}
                   span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
@@ -112,7 +115,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 
                   el-form-item.mt-2
                     // TODO разработать компонент которой чекает залогинен ли
-                    el-button(type="danger" @click="sell").w-100 Sell {{ market.token.str }}
+                    el-button(size="small" type="danger" @click="sell").w-100 Sell {{ market.token.str }}
 
           el-tab-pane(label="Market trade")
             market-trade(:market="market" @update="update" :eos-balance="eosBalance" :token-balance="tokenBalance")
@@ -194,6 +197,8 @@ export default {
       meta: [
         // hid is used as unique identifier. Do not use `vmid` for it as it will not work
         { hid: 'description', name: 'description', content: `Trade ${this.market.token.str} token for EOS` }
+        //{ name: 'viewport', content: 'user-scalable = yes' }
+
       ]
     }
   },
@@ -609,6 +614,16 @@ input[type=number]::-webkit-outer-spin-button {
   font-size: 2.5rem;
   font-weight: 230;
   line-height: 1;
+}
+
+@media only screen and (max-width: 420px) {
+  .blist .ltd span {
+    font-size: 10px;
+  }
+
+  .display-4 {
+    font-size: 1em;
+  }
 }
 
 </style>

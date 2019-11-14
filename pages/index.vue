@@ -9,31 +9,31 @@ div
             new-order-form(@submit="newMarket" v-if="user").mr-2 Open new market
 
             el-input(size="small" v-model="search" placeholder="Filter by token").ml-2.mr-4
-      .el-row
-        .el-col
-          el-table(:data="filteredItems" @row-click="clickOrder" row-class-name="order-row")
-            el-table-column(label="ID" width="70")
-              template(slot-scope='scope')
-                //i.el-icon-time
-                nuxt-link(:to="{name: 'trade-id', params: {id: scope.row.id }}" style='margin-left: 10px') {{ scope.row.id }}
 
-            el-table-column(label="Token")
-              template(slot-scope="scope")
-                .name-wrapper(slot="reference").market-row
-                  TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="50")
-                  span.ml-2(v-if="scope.row.token.symbol == 'EOS' && scope.row.token.contract != 'eosio.token'")
-                    el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
-                      el-tag(type="danger") {{ scope.row.token.quantity }}@{{ scope.row.token.contract }}
+      .mobile-markets.d-lg-none.mt-3
+        .row.market-row(v-for="market in filteredItems" @click="clickOrder(market)")
+          .col-sm-8
+            TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="25")
+            span.ml-2 {{ market.token.symbol.name }}@{{ market.token.contract }}
+          .col-sm-4
+            .text-success {{ market.price }}
 
-                  span.ml-2(v-else).display-4 {{ scope.row.token.symbol.name }}@{{ scope.row.token.contract }}
 
-            el-table-column(label="Price (EOS)" width="200")
-              template(slot-scope='scope')
-                span.text-mutted {{ scope.row.price }}
+      el-table(:data="filteredItems" @row-click="clickOrder" row-class-name="order-row").d-none.d-lg-block
+        el-table-column(label="Token")
+          template(slot-scope="scope")
+            .market-row(slot="reference")
+              TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="50")
+              span.ml-2(v-if="scope.row.token.symbol == 'EOS' && scope.row.token.contract != 'eosio.token'")
+                el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
+                  el-tag(type="danger") {{ scope.row.token.quantity }}@{{ scope.row.token.contract }}
 
-            // el-table-column(label="Volume" width="200") TODO
-              template(slot-scope='scope')
-                span.text-mutted Soon..
+              span.ml-2(v-else).display-4 {{ scope.row.token.symbol.name }}@{{ scope.row.token.contract }}
+
+        el-table-column(label="Price (EOS)" width="200" resizable)
+          template(slot-scope='scope')
+            .price-row
+              span.text-mutted {{ scope.row.price }}
 
     el-tab-pane(label='Rules & Information')
       h2.lead.ml-3.mt-3 With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,
@@ -226,7 +226,11 @@ export default {
 
 
 
-<style>
+<style scoped>
+.display-4 {
+  font-size: 2.5rem;
+}
+
 .order-row {
   cursor: pointer;
 }
@@ -234,5 +238,13 @@ export default {
 .market-row {
   display: flex;
   align-items: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .market-row {
+    padding: 7px 10px;
+    border-top: outset;
+    border-width: thin;
+  }
 }
 </style>

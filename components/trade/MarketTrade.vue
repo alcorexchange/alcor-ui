@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.p-2
-  .col
+  .col-lg-6
     .d-flex.label.mb-3
       span.text-success Buy {{ market.token.symbol.name }}
       span.text-mutted.small.align-self-end.ml-auto balance: {{ eosBalance }}
@@ -17,11 +17,11 @@
       //el-form-item TODO
         el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
-      el-form-item.mt-5
+      el-form-item.mt-1
         // TODO разработать компонент которой чекает залогинен ли
-        el-button(type="success" @click="buy").w-100 Buy {{ market.token.str }}
+        el-button(type="success" size="small" @click="buy").w-100 Buy {{ market.token.str }}
 
-  .col
+  .col-lg-6
     .d-flex.label.mb-3
       span.text-danger Sell {{ market.token.symbol.name }}
       span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
@@ -38,9 +38,9 @@
       //el-form-item TODO
         el-slider(:step="25" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
-      el-form-item.mt-5
+      el-form-item.mt-1
         // TODO разработать компонент которой чекает залогинен ли
-        el-button(type="danger" @click="sell").w-100 Sell {{ market.token.str }}
+        el-button(type="danger" size="small" @click="sell").w-100 Sell {{ market.token.str }}
 </template>
 
 <script>
