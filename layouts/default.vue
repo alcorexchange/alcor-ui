@@ -21,7 +21,7 @@
     .col-lg-9.col-md-12
       h1.align-self-center.lead.mt-3
         span EOS flexible, listing free, decentralized exchange.
-        span  Create markets in one click, trade whatewer you want.
+        span  Create markets in one click, trade whatever you want.
         span Forget about any regulation.
         a(:href="'eostokensdex' | monitorAccount" target="_blank").text-success.strong.ml-2  IT WORK ONCHAIN
 
