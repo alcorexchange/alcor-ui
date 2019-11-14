@@ -1050,10 +1050,10 @@
     mustache "^2.3.0"
     stack-trace "0.0.10"
 
-"@scatterjs/core@^2.7.44":
-  version "2.7.44"
-  resolved "https://registry.yarnpkg.com/@scatterjs/core/-/core-2.7.44.tgz#da6db19fd02fdae37dc251864f28ab11844bf223"
-  integrity sha512-pvSo6stDkSTD/rByi5QoWJW9GKbp2y5vGlwKhxENzluy3ozUKXNjzpqDhQJJgUhsGesIQQTJkM2XBV3Yup/4Ng==
+"@scatterjs/core@^2.7.47":
+  version "2.7.47"
+  resolved "https://registry.yarnpkg.com/@scatterjs/core/-/core-2.7.47.tgz#ea86a7c72039f03fef956ecd05bb8eb4774c6f2a"
+  integrity sha512-txPYHTvOXL5mBgnxZksGcmzMwkXQ8+qxkmw6orGwi8yfs6xnLdEHN2fGfczdRR+uetj9PYArEBmLs2KlNACV5Q==
   dependencies:
     create-hash "^1.2.0"
     device-uuid "^1.0.4"
@@ -1062,12 +1062,12 @@
     isomorphic-ws "^4.0.1"
     ws "^6.1.0"
 
-"@scatterjs/eosjs2@^1.5.26":
-  version "1.5.26"
-  resolved "https://registry.yarnpkg.com/@scatterjs/eosjs2/-/eosjs2-1.5.26.tgz#1d0dc10864caeb11d6ca1bcc8528d9b4c7084672"
-  integrity sha512-QLomEuiB1E56ARBXqiAclW5mYVUtpyxz3mgcF27QF7xawWBfhoB3WUOnxL8ksMtKJpCTHj05zGHVmtBn6rZNeg==
+"@scatterjs/eosjs2@^1.5.29":
+  version "1.5.29"
+  resolved "https://registry.yarnpkg.com/@scatterjs/eosjs2/-/eosjs2-1.5.29.tgz#2e66f37f00b793c297849f5c4abdccc7d2145948"
+  integrity sha512-UJAeazjIUhYf8a8+A57BGoLZzmkpHHXnTSOOuRqs0/hZB8gaJO4E6x0wb/Z/Fs2usN6Mh3ijrYAHwn+27ZyFWA==
   dependencies:
-    "@scatterjs/core" "^2.7.44"
+    "@scatterjs/core" "^2.7.47"
 
 "@sentry/browser@^4.6.6":
   version "4.6.6"
