@@ -228,7 +228,6 @@ export default {
 </script>
 
 
-
 <style scoped>
 .display-4 {
   font-size: 2.5rem;
@@ -238,16 +237,4 @@ export default {
   cursor: pointer;
 }
 
-.market-row {
-  display: flex;
-  align-items: center;
-}
-
-@media only screen and (max-width: 600px) {
-  .market-row {
-    padding: 7px 10px;
-    border-top: outset;
-    border-width: thin;
-  }
-}
 </style>
