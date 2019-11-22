@@ -3,10 +3,12 @@ import ScatterEOS from '@scatterjs/eosjs2'
 import { Api, JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
 import axios from 'axios'
+import axiosRetry from 'axios-retry'
 
 import config from '~/config'
 import { parseAsset } from '~/utils'
 
+axiosRetry(axios, { retries: 10 })
 ScatterJS.plugins(new ScatterEOS())
 
 export const network = ScatterJS.Network.fromJson({
