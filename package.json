@@ -30,10 +30,10 @@
     "eosjs": "^20.0.0",
     "esm": "^3.2.25",
     "js-yaml": "^3.13.1",
-    "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "nuxt": "^2.0.0",
     "vue-github-buttons": "^3.1.0",
+    "vue-moment": "^4.0.0",
     "webpack-bundle-analyzer": "^3.3.2"
   },
   "devDependencies": {
@@ -41,9 +41,12 @@
     "@nuxtjs/eslint-module": "^1.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^6.1.0",
+    "eslint-loader": "^3.0.2",
     "eslint-plugin-nuxt": ">=0.4.2",
+    "eslint-plugin-vue": "^6.0.1",
     "nodemon": "^1.11.0",
     "pug": "^2.0.3",
-    "pug-plain-loader": "^1.0.0"
+    "pug-plain-loader": "^1.0.0",
+    "vue-functional-data-merge": "^3.1.0"
   }
 }

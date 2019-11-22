@@ -23,18 +23,17 @@ export function calculatePrice(sell, buy) {
   let first = parseAsset(buy)
   let second = parseAsset(sell)
 
-  if (second.symbol == 'EOS' && sell.contract == 'eosio.token')
+  if (second.symbol === 'EOS' && sell.contract === 'eosio.token')
     // EOS main token as main in price
     [first, second] = [second, first]
 
-    const price = (first.amount / second.amount).toFixed(config.PRICE_DIGITS)
+  const price = (first.amount / second.amount).toFixed(config.PRICE_DIGITS)
 
   return `${price} EOS`
 }
 
 export function parseExtendedAsset(asset) {
   const symbol = Serialize.stringToSymbol(asset.symbol)
-
 
   return {
     contract: asset.contract,
@@ -46,7 +45,7 @@ export function parseExtendedAsset(asset) {
 
 
 export function parseAsset(asset) {
-  if (asset.hasOwnProperty('symbol')) return asset
+  if (Object.prototype.hasOwnProperty.call(asset, 'symbol')) return asset
 
   let [amount, symbol] = asset.split(' ')
   const precision = amount.split('.')[1] ? amount.split('.')[1].length : 0
@@ -63,11 +62,16 @@ export function parseAsset(asset) {
     amount,
 
     get prefix () {
-        return amountToFloat(this.amount, this.symbol.precision)
+      return amountToFloat(this.amount, this.symbol.precision)
     },
 
     get quantity () {
-        return this.prefix + ' ' + this.symbol.symbol
+      return this.prefix + ' ' + this.symbol.symbol
     }
   }
+}
+
+export function prepareOrder(order) {
+  order.ask = parseAsset(order.ask)
+  order.bid = parseAsset(order.bid)
 }

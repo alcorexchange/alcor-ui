@@ -34,7 +34,7 @@ div
     el-table-column(label='Date', width='180')
       template(slot-scope='scope')
         i.el-icon-time
-        span(style='margin-left: 10px') {{ scope.row.date }}
+        span(style='margin-left: 10px') {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
 
     el-table-column(label='Ask', width='180')
       template(slot-scope='scope')
@@ -55,42 +55,20 @@ div
 </template>
 
 <script>
-import moment from 'moment'
-
 import { captureException } from '@sentry/browser'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { cancelorder } from '~/store/chain.js'
 
-
-
 export default {
-  props: {
-    market: {
-      type: Number,
-      required: true
-    },
-
-    bids: {
-      type: Array,
-      default: () => []
-    },
-
-    asks: {
-      type: Array,
-      default: () => []
-    }
-  },
-
   computed: {
     ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
-
+    ...mapState('market', ['asks', 'bids']),
 
     orders() {
       if (!this.user) return []
 
       return [...this.asks, ...this.bids].filter(a => a.account == this.user.name).map((o) => {
-        o.date = moment(o.timestamp).format('DD-MM HH:mm')
         o.type = o.bid.symbol.symbol == 'EOS' ? 'bid' : 'ask'
 
         return o

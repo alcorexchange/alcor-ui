@@ -1,9 +1,9 @@
 import axios from 'axios'
 import config from '~/config'
 
+// I like this
+export const strict = false
 
-
-asdf
 export const state = () => ({
   user: null,
 })

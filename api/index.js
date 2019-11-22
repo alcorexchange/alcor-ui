@@ -2,6 +2,7 @@ import ScatterJS from '@scatterjs/core'
 import ScatterEOS from '@scatterjs/eosjs2'
 import { Api, JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
+import axios from 'axios'
 
 import config from '~/config'
 import { parseAsset } from '~/utils'
@@ -16,6 +17,10 @@ export const network = ScatterJS.Network.fromJson({
 //export const rpc = new JsonRpc(network.fullhost())
 export const rpc = new JsonRpc(config.protocol + '://' + config.host + ':' + config.port, { fetch })
 export const eos = ScatterJS.eos(network, Api, { rpc })
+export const hyperion = axios.create({
+  baseURL: config.hyperion,
+  timeout: 10000
+})
 
 async function getOrders(market_id, side, kwargs) {
   // Set default options
@@ -43,3 +48,5 @@ export async function getSellOrders(market_id, kwargs) {
 export async function getBuyOrders(market_id, kwargs) {
   return await getOrders(market_id, 'buy', kwargs)
 }
+
+

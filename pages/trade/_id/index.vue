@@ -85,7 +85,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-slider(:step="25" @input="changeBuySlider" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
                   el-form-item(label="Total" prop="total" :inline-message="true").mt-5
-                    el-input(type="number" v-model="totalEos" @change="setTotalBuy")
+                    el-input(type="number" v-model="totalEos")
                       span(slot="suffix").mr-1 EOS
 
                   el-form-item.mt-2
@@ -111,7 +111,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
                     el-slider(:step="25" @input="changeSellSlider" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
                   el-form-item(label="Total" prop="total" :inline-message="true").mt-5
-                    el-input(type="number" v-model="totalEos" @change="setTotalSell")
+                    el-input(type="number" v-model="totalEos")
                       span(slot="suffix").mr-1 EOS
 
                   el-form-item.mt-2
@@ -122,8 +122,8 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
             market-trade(:market="market" @update="update" :eos-balance="eosBalance" :token-balance="tokenBalance")
     hr
     .row
-      .col-6
-        my-orders(:market="market_id" :asks="asks" :bids="bids" @update="update" v-if="user")
+      .col
+        my-orders(@update="update" v-if="user")
 
     //hr
     //.el-row
@@ -175,7 +175,7 @@ el-card(v-else).box-card.mt-3
 
 <script>
 import { captureException } from '@sentry/browser'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import AssetImput from '~/components/elements/AssetInput'
 
@@ -187,7 +187,6 @@ import config from '~/config'
 import { transfer, cancelorder } from '~/store/chain.js'
 import { parseAsset, parseExtendedAsset, assetToAmount, sort_by_price} from '~/utils'
 import { getSellOrders, getBuyOrders } from '~/api'
-
 
 
 export default {
@@ -215,9 +214,6 @@ export default {
     return {
       market: {},
 
-      bids: [],
-      asks: [],
-
       price: 0.0,
       amount: 0.0,
 
@@ -238,9 +234,11 @@ export default {
 
   computed: {
     ...mapGetters('chain', ['rpc', 'scatter']),
+    ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapGetters(['user']),
 
     eosBalance() {
+      // TODO В стейт
       if (!this.user || !this.user.balances) return '0.0000 EOS'
 
       const balance = this.user.balances.filter(b => b.currency == 'EOS')[0]
@@ -250,6 +248,7 @@ export default {
     },
 
     tokenBalance() {
+      // TODO В стейт
       if (!this.user || !this.user.balances) return '0.0000'
 
       const balance = this.user.balances.filter((b) => {
@@ -271,14 +270,6 @@ export default {
       if (this.totalEos == 0.0 || !this.amount || !this.price) return false
 
       return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE != 0
-    },
-
-    sorted_asks() {
-      return this.asks.slice().sort(sort_by_price)
-    },
-
-    sorted_bids() {
-      return this.bids.slice().sort(sort_by_price)
     },
 
     totalEos() {
@@ -347,12 +338,9 @@ export default {
 
   methods: {
     setDefaultPrice() {
-      // Set default price
-      if (this.bids.length) {
-        this.price = this.$options.filters.humanFloat(this.sorted_bids[0].unit_price)
-      } else if (this.asks.length) {
-        this.price = this.$options.filters.humanFloat(this.sorted_asks[this.sorted_asks.length - 1].unit_price)
-      }
+      this.price = this.$options.filters.humanFloat(
+        this.$store.getters['market/price']
+      )
     },
 
     changeBuySlider(p) {
@@ -377,23 +365,6 @@ export default {
       }
     },
 
-    async fetchOrders() {
-      const [bids, asks] = await Promise.all([getBuyOrders(this.market.id), getSellOrders(this.market.id)])
-
-      this.bids = bids.map((b) => {
-        b.ask = parseAsset(b.ask)
-        b.bid = parseAsset(b.bid)
-
-        return b
-      })
-
-      this.asks = asks.map((b) => {
-        b.ask = parseAsset(b.ask)
-        b.bid = parseAsset(b.bid)
-        return b
-      })
-    },
-
     setBid(ask) {
       this.price = this.$options.filters.humanFloat(ask.unit_price)
       this.amount = ask.bid.prefix
@@ -404,21 +375,13 @@ export default {
       this.amount = bid.ask.prefix
     },
 
-    setTotalBuy() {
-      // TODO Remove this methods
-    },
-
-    setTotalSell() {
-
-    },
-
     refresh() {
       this.calcPrice()
     },
 
     async update(amount) {
       this.$store.dispatch('update')
-      await this.fetchOrders()
+      this.$store.dispatch('market/fetchMarket')
     },
 
     calcPrice(amount) {
@@ -468,9 +431,6 @@ export default {
       } finally {
         loading.close()
       }
-    },
-
-    async fetchOrder() {
     },
 
     async sell() {
