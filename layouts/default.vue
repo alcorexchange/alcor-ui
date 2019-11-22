@@ -24,6 +24,7 @@
         span  Create markets in one click, trade whatever you want.
         span Forget about any regulation.
         a(:href="'eostokensdex' | monitorAccount" target="_blank").text-success.strong.ml-2  IT WORK ONCHAIN
+        a(:href="'eostokensdex' | monitorAccount" target="_blank").text-primary.strong.ml-2  NO COMISSIONS!
 
     .col-lg-3.d-flex
       .align-items-center.pr-3.pt-3.mt-3.ml-lg-auto
