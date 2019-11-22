@@ -12,6 +12,7 @@ export const state = () => ({
 })
 
 export const mutations = {
+  setId: (state, id) => state.id = id,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setHistory: (state, history) => state.history = history

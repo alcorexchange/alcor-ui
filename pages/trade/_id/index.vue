@@ -329,8 +329,10 @@ export default {
   },
 
   async created() {
+    this.$store.commit('market/setId', this.market_id)
     await this.update()
-    this.setDefaultPrice()
+
+    setTimeout(() => this.setDefaultPrice(), 2000);
 
     // Auto update orders
     setInterval(this.update, 5000)
@@ -381,7 +383,7 @@ export default {
 
     async update(amount) {
       this.$store.dispatch('update')
-      this.$store.dispatch('market/fetchMarket')
+      await this.$store.dispatch('market/fetchMarket')
     },
 
     calcPrice(amount) {
