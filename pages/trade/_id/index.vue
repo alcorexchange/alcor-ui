@@ -45,7 +45,8 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
               span
 
           .bg-light.text-center.p-1
-            b.text-success(v-if="bids.length") {{ sorted_bids[0].price }}
+            //b.text-success(v-if="bids.length") {{ sorted_bids[0].price }}
+            b.text-success {{ market.price }}
 
           .orders-list.blist.text-success
             .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)")
@@ -121,7 +122,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
             market-trade(:market="market" @update="update" :eos-balance="eosBalance" :token-balance="tokenBalance")
     hr
     .row
-      .col
+      .col-6
         my-orders(:market="market_id" :asks="asks" :bids="bids" @update="update" v-if="user")
 
     //hr

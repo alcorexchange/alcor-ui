@@ -2,8 +2,10 @@ import axios from 'axios'
 import config from '~/config'
 
 
+
+asdf
 export const state = () => ({
-  user: null
+  user: null,
 })
 
 export const mutations = {

@@ -1,32 +1,68 @@
 module.exports = {
   root: true,
-  env: {
-    browser: true,
-    node: true
-  },
+
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: 'babel-eslint',
+    sourceType: 'module'
   },
+
+  env: {
+    browser: true
+  },
+
   extends: [
-    '@nuxtjs',
-    'plugin:nuxt/recommended'
+    // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+    // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+    'plugin:vue/essential',
+    '@vue/standard'
   ],
+
+  // required to lint *.vue files
+  plugins: [
+    'vue'
+  ],
+
+  globals: {
+    'ga': true, // Google Analytics
+    'cordova': true,
+    '__statics': true,
+    'process': true,
+    'Capacitor': true
+  },
+
   // add your custom rules here
   rules: {
-    "no-multiple-empty-lines": 0,
-    "curly": 0,
-    "object-curly-spacing": 0,
-    "space-before-function-paren": 0,
-    "camelcase": 0,
-    "template-curly-spacing" : 0,
-    "indent" : 0,
-    "no-return-await": 0,
-    "no-return-assign": 0,
-    "eqeqeq": 0,
-    "prefer-const": 0,
-    "standard/object-curly-even-spacing": 0,
-    "spaced-comment": 0,
-    "no-unused-vars": 1,
-    "no-unreachable": 1
+    // allow async-await
+    'generator-star-spacing': 'off',
+    // allow paren-less arrow functions
+    'arrow-parens': 'off',
+    'one-var': 'off',
+
+    'import/first': 'off',
+    'import/named': 'error',
+    'import/namespace': 'error',
+    'import/default': 'error',
+    'import/export': 'error',
+    'import/extensions': 'off',
+    'import/no-unresolved': 'off',
+    'import/no-extraneous-dependencies': 'off',
+    'prefer-promise-reject-errors': 'off',
+
+    // allow console.log during development only
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    // allow debugger during development only
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'camelcase': 'off',
+    'no-return-await': 'off',
+    'curly': 'off',
+    'no-unreachable': 1,
+    'no-return-assign': 0,
+    'no-multiple-empty-lines': 1,
+    'spaced-comment': 1,
+    'no-unused-vars': 1,
+    'spaced-comment': 0,
+    'padded-blocks': 1,
+    'space-before-function-paren': 0,
+    'comma-dangle': 1
   }
 }
