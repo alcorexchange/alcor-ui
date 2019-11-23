@@ -15,7 +15,6 @@
 <script>
 import NotFound from '~/components/errors/NotFound.vue'
 
-
 export default {
   components: {
     NotFound

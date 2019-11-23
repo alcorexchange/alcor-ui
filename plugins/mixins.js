@@ -1,6 +1,5 @@
 import Vue from 'vue'
 
-
 Vue.mixin({
   methods: {
     unitPriceInfo() {
@@ -15,7 +14,8 @@ Vue.mixin({
         'The price is floating point number', {
           closeOnClickModal: true,
           confirmButtonText: 'Ok!'
-      })
+        }
+      )
     }
   }
 })

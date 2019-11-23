@@ -9,7 +9,6 @@ el-popover(placement="top-start" trigger="hover")
 
 </template>
 
-
 <script>
 import TokenImage from '~/components/elements/TokenImage'
 

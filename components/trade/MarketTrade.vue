@@ -51,7 +51,6 @@ import { transfer } from '~/store/chain.js'
 
 import config from '~/config'
 
-
 export default {
   props: {
     market: {
@@ -117,7 +116,7 @@ export default {
           }
         })
       } catch (e) {
-        captureException(e, {extra: { order: this.order }})
+        captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
@@ -155,7 +154,7 @@ export default {
           }
         })
       } catch (e) {
-        captureException(e, {extra: { order: this.order }})
+        captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {

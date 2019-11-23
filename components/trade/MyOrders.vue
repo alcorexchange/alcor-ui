@@ -68,8 +68,8 @@ export default {
     orders() {
       if (!this.user) return []
 
-      return [...this.asks, ...this.bids].filter(a => a.account == this.user.name).map((o) => {
-        o.type = o.bid.symbol.symbol == 'EOS' ? 'bid' : 'ask'
+      return [...this.asks, ...this.bids].filter(a => a.account === this.user.name).map((o) => {
+        o.type = o.bid.symbol.symbol === 'EOS' ? 'bid' : 'ask'
 
         return o
       })
@@ -88,7 +88,7 @@ export default {
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$emit('update')
       } catch (e) {
-        captureException(e, {extra: { order, market_id: this.market_id }})
+        captureException(e, { extra: { order, market_id: this.market_id } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {

@@ -18,7 +18,6 @@
           .col-sm-4
             .text-success {{ market.price }}
 
-
       el-table(:data="filteredItems" @row-click="clickOrder" row-class-name="order-row").d-none.d-lg-block
         el-table-column(label="Token")
           template(slot-scope="scope")
@@ -80,8 +79,6 @@
         .lead The design of the original app logo:
           a(href="https://yusaymon.portfoliobox.net" target="_blank")  @yusaymon
 
-
-
 </template>
 
 <script>
@@ -96,7 +93,6 @@ import { getSellOrders, getBuyOrders } from '~/api'
 import config from '~/config'
 import { transfer } from '~/store/chain.js'
 import { parseExtendedAsset, sort_by_price } from '~/utils'
-
 
 export default {
   components: {
@@ -140,7 +136,7 @@ export default {
 
   methods: {
     fetchMarketStatistics() {
-      for (let market of this.markets) {
+      for (const market of this.markets) {
         Promise.all([getBuyOrders(market.id), getSellOrders(market.id)]).then(([buyOrders, sellOrders]) => {
           if (buyOrders.length)
             market.price = buyOrders.sort(sort_by_price)[0].unit_price
@@ -155,7 +151,7 @@ export default {
     },
 
     clickOrder(a) {
-      this.$router.push({name: 'trade-id', params: { id: a.id }})
+      this.$router.push({ name: 'trade-id', params: { id: a.id } })
     },
 
     //async newMarket({ buy, sell }) {
@@ -173,7 +169,7 @@ export default {
         this.fetch()
         //this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
       } catch (e) {
-        captureException(e, {extra: {buy, sell}})
+        captureException(e, { extra: { buy, sell } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
@@ -226,7 +222,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 .display-4 {

@@ -67,5 +67,5 @@ export const getters = {
 
   sorted_bids(state) {
     return state.bids.slice().sort(sort_by_price)
-  },
+  }
 }

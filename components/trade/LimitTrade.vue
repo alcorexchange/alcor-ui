@@ -56,13 +56,12 @@ div
           el-button(type="danger" @click="sell").w-100 Sell {{ market.token.str }}
 </template>
 
- <script>
+<script>
 import { captureException } from '@sentry/browser'
 import { mapGetters } from 'vuex'
 import { transfer } from '~/store/chain.js'
 
 import config from '~/config'
-
 
 export default {
   props: {
@@ -83,7 +82,7 @@ export default {
     ...mapGetters(['user'])
   },
 
-   methods: {
+  methods: {
     async sell() {
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
@@ -118,7 +117,7 @@ export default {
           }
         })
       } catch (e) {
-        captureException(e, {extra: { order: this.order }})
+        captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
@@ -160,7 +159,7 @@ export default {
           }
         })
       } catch (e) {
-        captureException(e, {extra: { order: this.order }})
+        captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
@@ -170,4 +169,4 @@ export default {
   }
 }
 
- </script>
+</script>

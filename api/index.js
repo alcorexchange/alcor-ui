@@ -26,7 +26,7 @@ export const hyperion = axios.create({
 
 async function getOrders(market_id, side, kwargs) {
   // Set default options
-  kwargs = {limit: 1000, ...kwargs}
+  kwargs = { limit: 1000, ...kwargs }
 
   const { rows } = await rpc.get_table_rows({
     code: config.contract,
@@ -50,5 +50,3 @@ export async function getSellOrders(market_id, kwargs) {
 export async function getBuyOrders(market_id, kwargs) {
   return await getOrders(market_id, 'buy', kwargs)
 }
-
-

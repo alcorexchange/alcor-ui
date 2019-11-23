@@ -23,7 +23,6 @@ import ShortToken from '~/components/elements/ShortToken'
 import config from '~/config'
 import { calculatePrice, parseAsset } from '~/utils'
 
-
 export default {
   components: {
     TokenImage,

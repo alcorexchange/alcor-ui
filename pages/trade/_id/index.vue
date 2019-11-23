@@ -16,8 +16,6 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 
           span  for EOS
 
-
-
   .lead.d-lg-none.mb-2 Trade {{ market.token.symbol.name }}@
     a(:href="market.token.contract | monitorAccount" target="_blank") {{ market.token.contract }}
 
@@ -163,7 +161,6 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
     div(v-else)
       el-button(@click="login").w-100 Pleace login
 
-
 el-card(v-else).box-card.mt-3
   .clearfix(slot='header')
     span Market: {{ market.id }}
@@ -171,7 +168,6 @@ el-card(v-else).box-card.mt-3
   .text.item.text-center
     h1.display-4 Order {{ market.id }} not found or finished
 </template>
-
 
 <script>
 import { captureException } from '@sentry/browser'
@@ -182,26 +178,12 @@ import AssetImput from '~/components/elements/AssetInput'
 import MarketTrade from '~/components/trade/MarketTrade'
 import MyOrders from '~/components/trade/MyOrders'
 
-
 import config from '~/config'
 import { transfer, cancelorder } from '~/store/chain.js'
-import { parseAsset, parseExtendedAsset, assetToAmount, sort_by_price} from '~/utils'
+import { parseAsset, parseExtendedAsset, assetToAmount, sort_by_price } from '~/utils'
 import { getSellOrders, getBuyOrders } from '~/api'
 
-
 export default {
-  head() {
-    return {
-      title: `EOS Tokens | Market ${this.market.token.symbol.name}`,
-
-      meta: [
-        // hid is used as unique identifier. Do not use `vmid` for it as it will not work
-        { hid: 'description', name: 'description', content: `Trade ${this.market.token.str} token for EOS` }
-        //{ name: 'viewport', content: 'user-scalable = yes' }
-
-      ]
-    }
-  },
 
   components: {
     TokenImage,
@@ -221,7 +203,8 @@ export default {
       loading: true,
 
       rules: {
-        total: [{ trigger: 'change',
+        total: [{
+          trigger: 'change',
           validator: (rule, value, callback) => {
             if (this.totalEos < 0.0005) {
               callback(new Error('Order amount must be more then 0.01 EOS'))
@@ -229,6 +212,18 @@ export default {
           }
         }]
       }
+    }
+  },
+  head() {
+    return {
+      title: `EOS Tokens | Market ${this.market.token.symbol.name}`,
+
+      meta: [
+        // hid is used as unique identifier. Do not use `vmid` for it as it will not work
+        { hid: 'description', name: 'description', content: `Trade ${this.market.token.str} token for EOS` }
+        //{ name: 'viewport', content: 'user-scalable = yes' }
+
+      ]
     }
   },
 
@@ -241,7 +236,7 @@ export default {
       // TODO В стейт
       if (!this.user || !this.user.balances) return '0.0000 EOS'
 
-      const balance = this.user.balances.filter(b => b.currency == 'EOS')[0]
+      const balance = this.user.balances.filter(b => b.currency === 'EOS')[0]
       if (!balance) return '0.0000 EOS'
 
       return `${balance.amount} ${balance.currency} EOS`
@@ -252,8 +247,8 @@ export default {
       if (!this.user || !this.user.balances) return '0.0000'
 
       const balance = this.user.balances.filter((b) => {
-        return b.currency == this.market.token.symbol.name &&
-               b.contract == this.market.token.contract
+        return b.currency === this.market.token.symbol.name &&
+               b.contract === this.market.token.contract
       })[0]
 
       if (balance)
@@ -267,9 +262,9 @@ export default {
     },
 
     wrongPrice() {
-      if (this.totalEos == 0.0 || !this.amount || !this.price) return false
+      if (this.totalEos === 0.0 || !this.amount || !this.price) return false
 
-      return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE != 0
+      return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE !== 0
     },
 
     totalEos() {
@@ -308,7 +303,7 @@ export default {
 
       const market = r.rows[0]
 
-      if (market && market.id == params.id) {
+      if (market && market.id === params.id) {
         return { market, loading: false }
       } else {
         // TODO Redirect if order in history
@@ -332,7 +327,7 @@ export default {
     this.$store.commit('market/setId', this.market_id)
     await this.update()
 
-    setTimeout(() => this.setDefaultPrice(), 2000);
+    setTimeout(() => this.setDefaultPrice(), 2000)
 
     // Auto update orders
     setInterval(this.update, 5000)
@@ -346,7 +341,7 @@ export default {
     },
 
     changeBuySlider(p) {
-      if (this.price == 0) return
+      if (this.price === 0) return
 
       if (p === 100) {
         this.amount = parseFloat(this.eosBalance).toFixed(4)
@@ -357,7 +352,7 @@ export default {
     },
 
     changeSellSlider(p) {
-      if (this.price == 0) return
+      if (this.price === 0) return
 
       if (p === 100) {
         this.amount = parseFloat(this.tokenBalance).toFixed(this.market.token.symbol.precision)
@@ -427,7 +422,7 @@ export default {
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$router.push({ name: 'index' })
       } catch (e) {
-        captureException(e, {extra: { order }})
+        captureException(e, { extra: { order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
@@ -461,14 +456,15 @@ export default {
 
         this.update()
 
-        this.$notify({ title: 'Place order',
+        this.$notify({
+          title: 'Place order',
           message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
           dangerouslyUseHTMLString: true,
           duration: 0,
           type: 'success'
         })
       } catch (e) {
-        captureException(e, {extra: { order: this.order }})
+        captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error', duration: 0 })
         console.log(e)
       } finally {
@@ -502,7 +498,8 @@ export default {
         )
 
         this.update()
-        this.$notify({ title: 'Place order',
+        this.$notify({
+          title: 'Place order',
           message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
           dangerouslyUseHTMLString: true,
           duration: 0,
@@ -518,7 +515,7 @@ export default {
         //  }
         //})
       } catch (e) {
-        captureException(e, {extra: { order: this.order }})
+        captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error', duration: 0 })
         console.log(e)
       } finally {
@@ -559,7 +556,6 @@ input[type=number]::-webkit-outer-spin-button {
   padding: 5px 15px;
   text-align: right;
 }
-
 
 .blist .ltd {
   position: relative;

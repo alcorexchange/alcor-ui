@@ -12,7 +12,6 @@ export function amountToFloat(amount, precision) {
   return Number.parseFloat(prefix).toFixed(precision)
 }
 
-
 export function assetToAmount(amount, precision) {
   const scale = new Big(10).pow(precision)
 
@@ -43,15 +42,13 @@ export function parseExtendedAsset(asset) {
   }
 }
 
-
 export function parseAsset(asset) {
   if (Object.prototype.hasOwnProperty.call(asset, 'symbol')) return asset
 
-  let [amount, symbol] = asset.split(' ')
+  const [amount, symbol] = asset.split(' ')
   const precision = amount.split('.')[1] ? amount.split('.')[1].length : 0
 
   const scale = new Big(10).pow(precision)
-  amount = parseInt(new Big(amount).times(scale))
 
   return {
     symbol: {
@@ -59,7 +56,7 @@ export function parseAsset(asset) {
       precision
     },
 
-    amount,
+    amount: parseInt(new Big(amount).times(scale)),
 
     get prefix () {
       return amountToFloat(this.amount, this.symbol.precision)

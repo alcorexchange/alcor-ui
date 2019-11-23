@@ -66,7 +66,6 @@ import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
 import { calculatePrice, assetToAmount } from '~/utils'
 
-
 export default {
   components: {
     TokenImage
@@ -113,7 +112,7 @@ export default {
 
             if (value in r) {
               callback()
-              this.setBuyToken({contract: this.form.buy.contract, symbol: value})
+              this.setBuyToken({ contract: this.form.buy.contract, symbol: value })
             } else {
               callback(new Error(`No ${value} symbol in ${this.form.buy.contract} contract`))
             }
@@ -131,7 +130,7 @@ export default {
     ...mapGetters('chain', ['rpc']),
 
     wrongPrice() {
-      if (this.form.sell.amount == 0.0 || this.form.buy.amount == 0.0) return false
+      if (this.form.sell.amount === 0.0 || this.form.buy.amount == 0.0) return false
 
       return assetToAmount(this.form.buy.amount, 4) * config.PRICE_SCALE %
         assetToAmount(this.form.sell.amount, this.form.sell.precision) !== 0
@@ -167,14 +166,14 @@ export default {
       let precision = 4
 
       try {
-        const { rows: [ stat ] } = await this.rpc.get_table_rows({
+        const { rows: [stat] } = await this.rpc.get_table_rows({
           code: token.contract,
           scope: token.symbol,
           table: 'stat'
         })
         precision = stat.max_supply.split(' ')[0].split('.')[1].length
       } catch (e) {
-        captureException(e, {extra: { token }})
+        captureException(e, { extra: { token } })
         this.$notify({ title: 'Fetch token', message: e.message, type: 'warning' })
         console.log(e)
       }
@@ -206,10 +205,10 @@ export default {
             this.tokens = JSON.parse(JSON.parse(event.data.substr(2))[1]).tokens
 
             this.tokens.sort((a, b) => {
-                if (a.symbol < b.symbol) { return -1 }
-                if (a.symbol > b.symbol) { return 1 }
+              if (a.symbol < b.symbol) { return -1 }
+              if (a.symbol > b.symbol) { return 1 }
 
-                return 0
+              return 0
             })
 
             this.tokens.map(b => b.id = b.symbol + '@' + b.contract)
@@ -231,9 +230,9 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-          this.$emit('submit', form)
-          this.visible = false
-        }).catch(() => {
+        this.$emit('submit', form)
+        this.visible = false
+      }).catch(() => {
       })
     }
   }
