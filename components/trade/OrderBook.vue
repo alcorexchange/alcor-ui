@@ -6,7 +6,7 @@
       span Amount({{ token.symbol.name }})
       span Total (EOS)
 
-  .orders-list.blist.text-danger(ref="bids")
+  .orders-list.blist.asks.text-danger(ref="bids")
     .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
       span {{ ask.unit_price | humanFloat }}
       span {{ ask.bid.quantity.split(' ')[0] }}
@@ -45,6 +45,17 @@ export default {
     })
   },
 
+  watch: {
+    bids() {}
+  },
+
+  mounted() {
+    const bids = this.$refs.bids
+    setTimeout(() => {
+      bids.scrollTop = bids.scrollHeight
+    }, 1000)
+  },
+
   methods: {
     setBid(ask) {
       const price = this.$options.filters.humanFloat(ask.unit_price)
@@ -68,13 +79,18 @@ export default {
 }
 
 .blist {
-  max-height: 200px;
+  flex: 1;
+  display: flex;
   overflow: auto;
+  flex-direction: column;
+  max-height: 345px;
   padding: 5px 15px;
   text-align: right;
 }
 
 .blist .ltd {
+  width: 100%;
+  min-height: min-content;
   position: relative;
   display: -ms-flexbox;
   display: flex;
@@ -85,6 +101,11 @@ export default {
   height: 20.6px;
   line-height: 20.6px;
   overflow: hidden;
+}
+
+
+.orders-list.asks {
+  max-height: 200px;
 }
 
 .orders-list.blist .ltd:hover {

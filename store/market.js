@@ -50,25 +50,6 @@ export const actions = {
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
     })
-
-    hyperion.get('/history/get_actions', {
-      params: {
-        account: config.contract,
-        sort: '1',
-        limit: '1000'
-      }
-    }).then(r => {
-      const history = r.data.actions.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name)).map(m => {
-        const data = m.act.data.record
-        data.type = m.act.name
-        data.ask = parseAsset(data.ask)
-        data.bid = parseAsset(data.bid)
-
-        return data
-      })
-
-      commit('setHistory', history)
-    })
   }
 }
 
@@ -82,6 +63,23 @@ export const getters = {
 
     //return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE !== 0
     return 'todo'
+  },
+
+  history(state, getters, rootState) {
+    return rootState.history.filter(h => parseInt(h.market.id) == parseInt(state.id))
+  },
+
+  volume24(state, getters, rootState) {
+    const oneday = 60 * 60 * 24 * 1000
+
+    let result = 0
+    getters.history.filter(h => {
+      return Date.now() - oneday < h.time.getTime()
+    }).map(m => {
+      m.type == 'buymatch' ? result += parseFloat(m.bid.quantity) : result += parseFloat(m.ask.quantity)
+    })
+
+    return result.toFixed(4) + ' EOS'
   },
 
   price(state) {

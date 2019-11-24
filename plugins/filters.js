@@ -9,6 +9,10 @@ Vue.filter('monitorAccount', function (account) {
   return `${config.monitor}/account/${account}`
 })
 
+Vue.filter('monitorTx', function (tx) {
+  return `${config.monitor}/transaction/${tx}`
+})
+
 Vue.filter('humanFloat', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
   return (amount / config.PRICE_SCALE).toFixed(PRICE_DIGITS)
 })

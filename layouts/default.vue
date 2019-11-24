@@ -147,7 +147,7 @@ export default {
 }
 
 h1.lead {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .container {

@@ -1,20 +1,7 @@
 <template lang="pug">
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
-el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
-  .clearfix(slot='header')
-    el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
-
-    .row
-      .col-lg-1
-        TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
-
-      .col.d-none.d-lg-block
-        h1.display-4 Trade {{ token.symbol.name }}@
-          a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
-
-          span  for EOS
-
+.box-card.mt-3(v-if="!no_found" v-loading="loading")
   .lead.d-lg-none.mb-2 Trade {{ token.symbol.name }}@
     a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
 
@@ -23,7 +10,26 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .text.item
     .row.trade-window
       .col-lg-5
+        .row.d-none.d-lg-block.mb-3
+          .col
+            .lead
+              TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
+
+              | Trade {{ token.symbol.name }}@
+              a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
+
+              span  for EOS
+
+            .text.item
+              | Volume 24:
+              span.text-success  {{ volume24 }}
+
+
         order-book
+
+        .row
+          .col
+            LatestDeals.mt-2
       .col-lg-7
         el-tabs.h-100
           el-tab-pane(label="Limit trade")
@@ -31,6 +37,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 
           el-tab-pane(label="Market trade")
             market-trade
+
     hr
     .row
       .col
@@ -74,7 +81,8 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
     div(v-else)
       el-button(@click="login").w-100 Pleace login
 
-el-card(v-else).box-card.mt-3
+//el-card(v-else).box-card.mt-3
+.box-card(v-else).mt-3
   .clearfix(slot='header')
     span Market: {{ market.id }}
     el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
@@ -92,6 +100,7 @@ import MarketTrade from '~/components/trade/MarketTrade'
 import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
 import OrderBook from '~/components/trade/OrderBook'
+import LatestDeals from '~/components/trade/LatestDeals'
 
 import config from '~/config'
 import { transfer } from '~/store/chain.js'
@@ -103,7 +112,8 @@ export default {
     MarketTrade,
     MyOrders,
     LimitTrade,
-    OrderBook
+    OrderBook,
+    LatestDeals
   },
 
   async fetch({ store, error, params }) {
@@ -132,14 +142,8 @@ export default {
   computed: {
     ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['token']),
-    ...mapGetters(['user'])
-  },
-
-  mounted() {
-    const bids = this.$refs.bids
-    setTimeout(() => {
-      bids.scrollTop = bids.scrollHeight
-    }, 1000)
+    ...mapGetters(['user']),
+    ...mapGetters('market', ['volume24'])
   },
 
   created() {
@@ -248,7 +252,7 @@ export default {
 }
 
 .trade-window {
-  min-height: 400px;
+  min-height: 650px;
 }
 
 .el-form-item {

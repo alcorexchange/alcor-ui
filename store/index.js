@@ -1,20 +1,54 @@
 import axios from 'axios'
 import config from '~/config'
+import { parseAsset } from '~/utils'
+import { hyperion } from '~/api'
 
-// I like this
+
 export const strict = false
 
 export const state = () => ({
-  user: null
+  user: null,
+  history: []
 })
 
 export const mutations = {
-  setUser: (state, user) => state.user = user
+  setUser: (state, user) => state.user = user,
+  setHistory: (state, history) => state.history = history
 }
 
 export const actions = {
+  init({ dispatch }) {
+    dispatch('loadHistory')
+  },
+
   update({ dispatch }) {
     dispatch('loadUserBalances')
+    dispatch('loadHistory')
+  },
+
+  loadHistory({ commit }) {
+    hyperion.get('/history/get_actions', {
+      params: {
+        account: config.contract,
+        //sort: '1',
+        limit: '10000'
+      }
+    }).then(r => {
+      const history = r.data.actions.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name)).map(m => {
+        const data = m.act.data.record
+        data.trx_id = m.trx_id
+        data.type = m.act.name
+        data.ask = parseAsset(data.ask)
+        data.bid = parseAsset(data.bid)
+
+        // FIXME Fix afret fix contract timestamp
+        data.time = new Date(m['@timestamp'])
+
+        return data
+      })
+
+      commit('setHistory', history)
+    })
   },
 
   loadUserBalances({ rootState, state, commit }) {
@@ -63,5 +97,5 @@ export const getters = {
       return `${balance.amount} ${balance.currency}`
     else
       return Number(0).toFixed(state.market.token.symbol.precision) + ` ${state.market.token.symbol.name}`
-  },
+  }
 }
