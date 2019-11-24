@@ -63,7 +63,7 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
-    ...mapState('market', ['asks', 'bids']),
+    ...mapState('market', ['asks', 'bids', 'id']),
 
     orders() {
       if (!this.user) return []
@@ -83,12 +83,12 @@ export default {
       const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
 
       try {
-        await cancelorder(this.user.name, this.market, order.type, order.id)
+        await cancelorder(this.user.name, this.id, order.type, order.id)
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$emit('update')
       } catch (e) {
-        captureException(e, { extra: { order, market_id: this.market_id } })
+        captureException(e, { extra: { order, market_id: this.id } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
