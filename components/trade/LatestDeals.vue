@@ -27,7 +27,6 @@ export default {
       //return Array.from(this.history).sort((a, b) => a.timestamp - b.timestamp).map(h => {
       return Array.from(this.history)
         .sort((a, b) => b.time - a.time).map(h => {
-          console.log(h)
           if (h.type == 'buymatch') {
             h.cls = 'text-success'
             h.amount = h.bid.quantity

@@ -10,7 +10,7 @@ Vue.filter('monitorAccount', function (account) {
 })
 
 Vue.filter('monitorTx', function (tx) {
-  return `${config.monitor}/transaction/${tx}`
+  return `${config.monitor}/transaction/${tx}?tab=traces`
 })
 
 Vue.filter('humanFloat', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
