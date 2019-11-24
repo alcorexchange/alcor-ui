@@ -6,6 +6,8 @@ import config from '~/config'
 export const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
 export function amountToFloat(amount, precision) {
+  amount = Math.abs(amount)
+
   const scale = new Big(10).pow(precision)
   const prefix = Big(amount).div(scale)
 

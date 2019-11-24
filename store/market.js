@@ -1,9 +1,10 @@
 import config from '~/config'
 import { hyperion, getSellOrders, getBuyOrders } from '~/api'
-import { sort_by_price, parseAsset, prepareOrder } from '~/utils'
+import { sort_by_price, parseAsset, prepareOrder, parseExtendedAsset } from '~/utils'
 
 export const state = () => ({
-  id: 0,
+  id: null,
+  token: {},
 
   bids: [],
   asks: [],
@@ -15,11 +16,33 @@ export const mutations = {
   setId: (state, id) => state.id = id,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
-  setHistory: (state, history) => state.history = history
+  setHistory: (state, history) => state.history = history,
+  setToken: (state, token) => state.token = token
 }
 
 export const actions = {
-  fetchMarket({ rootState, state, commit }) {
+  async fetchMarket({ rootState, state, commit, rootGetters }) {
+    const rpc = rootGetters['chain/rpc']
+
+    const { rows: [market] } = await rpc.get_table_rows({
+      code: config.contract,
+      scope: config.contract,
+      table: 'markets',
+      // key_type: 'i128',
+      // encode_type: 'hex',
+      // index_position: '2',
+      // lower_bound: i128_key,
+      lower_bound: state.id, // FIXME Сделать короче по uint128 поиск
+      limit: 1
+    })
+
+    if (market.id != state.id) {
+      throw new Error(`Market with id ${market.id} not found or closed :(`)
+    }
+
+    commit('setToken', parseExtendedAsset(market.token))
+    commit('setId', market.id)
+
     Promise.all([getBuyOrders(state.id), getSellOrders(state.id)]).then(([buyOrders, sellOrders]) => {
       buyOrders.map(o => prepareOrder(o))
       sellOrders.map(o => prepareOrder(o))
@@ -50,6 +73,17 @@ export const actions = {
 }
 
 export const getters = {
+  token (state) {
+    return state.token || {}
+  },
+
+  wrongPrice() {
+    //if (this.totalEos === 0.0 || !this.amount || !this.price) return false
+
+    //return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE !== 0
+    return 'todo'
+  },
+
   price(state) {
     let price = 0
 

@@ -40,5 +40,28 @@ export const actions = {
 export const getters = {
   user(state) {
     return state.user
-  }
+  },
+
+  eosBalance(state) {
+    // TODO В стейт
+    if (!state.user || !state.user.balances) return '0.0000 EOS'
+
+    const balance = state.user.balances.filter(b => b.currency === 'EOS')[0]
+    if (!balance) return '0.0000 EOS'
+
+    return `${balance.amount} ${balance.currency}`
+  },
+
+  tokenBalance(state) {
+    if (!state.user || !state.user.balances || !state.market.token.symbol) return '0.0000'
+    const balance = state.user.balances.filter((b) => {
+      return b.currency === state.market.token.symbol.name &&
+             b.contract === state.market.token.contract
+    })[0]
+
+    if (balance)
+      return `${balance.amount} ${balance.currency}`
+    else
+      return Number(0).toFixed(state.market.token.symbol.precision) + ` ${state.market.token.symbol.name}`
+  },
 }
