@@ -24,6 +24,11 @@ export const hyperion = axios.create({
   timeout: 10000
 })
 
+export const backEnd = axios.create({
+  baseURL: config.backEnd,
+  timeout: 10000
+})
+
 async function getOrders(market_id, side, kwargs) {
   // Set default options
   kwargs = { limit: 1000, ...kwargs }

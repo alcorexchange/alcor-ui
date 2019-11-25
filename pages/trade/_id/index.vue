@@ -2,7 +2,18 @@
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
 .box-card.mt-3(v-if="!no_found" v-loading="loading")
-  .lead.d-lg-none.mb-2 Trade {{ token.symbol.name }}@
+  .row.mb-3
+    .col-4
+      .lead
+        TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
+        | {{ token.symbol.name }}@
+        a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
+    .col-8.d-flex.align-items-center
+      .text.item
+        span Volume 24H:
+        span.text-success  {{ volume24 }}
+
+  //.lead.d-lg-none.mb-2 Trade {{ token.symbol.name }}@
     a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
 
     span  for EOS
@@ -10,7 +21,7 @@
   .text.item
     .row.trade-window
       .col-lg-5
-        .row.d-none.d-lg-block.mb-3
+        //.row.d-none.d-lg-block.mb-3
           .col
             .lead
               TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
@@ -31,13 +42,18 @@
           .col
             LatestDeals.mt-2
       .col-lg-7
-        el-tabs.h-100
-          el-tab-pane(label="Limit trade")
-            LimitTrade
+        .row
+          .col
+            Kline
 
-          el-tab-pane(label="Market trade")
-            market-trade
+        .row
+          .col
+            el-tabs.h-100
+              el-tab-pane(label="Limit trade")
+                LimitTrade
 
+              el-tab-pane(label="Market trade")
+                market-trade
     hr
     .row
       .col
@@ -101,6 +117,7 @@ import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
 import OrderBook from '~/components/trade/OrderBook'
 import LatestDeals from '~/components/trade/LatestDeals'
+import Kline from '~/components/trade/Kline'
 
 import config from '~/config'
 import { transfer } from '~/store/chain.js'
@@ -113,7 +130,8 @@ export default {
     MyOrders,
     LimitTrade,
     OrderBook,
-    LatestDeals
+    LatestDeals,
+    Kline
   },
 
   async fetch({ store, error, params }) {

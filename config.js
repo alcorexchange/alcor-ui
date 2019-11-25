@@ -11,7 +11,8 @@ const networks = {
     protocol: 'http',
     monitor: 'http://jungle.bloks.io',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'https://api.eossweden.org/v2/'
+    hyperion: 'https://api.eossweden.org/v2/',
+    backEnd: 'http://localhost:8000/api/'
   },
 
   jungle: {
@@ -24,7 +25,8 @@ const networks = {
     protocol: 'https',
     monitor: 'http://jungle.bloks.io',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'http://api.jungle.hyperion.greeneosio.com/v2/'
+    hyperion: 'http://api.jungle.hyperion.greeneosio.com/v2/',
+    backEnd: 'http://localhost:8000/api/'
   },
 
   eos: {
@@ -38,7 +40,8 @@ const networks = {
     protocol: 'https',
     monitor: 'http://bloks.io',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://api.eossweden.org/v2/'
+    hyperion: 'https://api.eossweden.org/v2/',
+    backEnd: 'http://localhost:8000/api/'
   }
 }
 
