@@ -1,10 +1,5 @@
 <template lang="pug">
 div(ref="chart")
-  //trading-vue(:data='chart' :width='width' :height='height'
-      :color-back='colors.colorBack'
-      color-grid='colors.colorGrid'
-      :color-text='colors.colorText')
-
 </template>
 
 <script>
@@ -12,37 +7,8 @@ import { mapGetters } from 'vuex'
 import { backEnd } from '~/api'
 
 export default {
-  data() {
-    return {
-      history: [],
-      //width: '100%',
-      width: 600,
-      height: 300,
-      colors: {
-        colorBack: '#fff',
-        colorGrid: '#eee',
-        colorText: '#333'
-      }
-    }
-  },
-
   computed: {
     ...mapGetters('market', ['token']),
-
-    chart () {
-      return {
-        ohlcv: this.history.map(h => {
-          return [
-            h[0],
-            parseFloat(this.$options.filters.humanFloat(h[1])),
-            parseFloat(this.$options.filters.humanFloat(h[2])),
-            parseFloat(this.$options.filters.humanFloat(h[3])),
-            parseFloat(this.$options.filters.humanFloat(h[4])),
-            h[5]
-          ]
-        })
-      }
-    },
   },
 
   mounted() {
@@ -51,7 +17,7 @@ export default {
     const elem = this.$refs.chart
     const chart = LightweightCharts.createChart(elem, {
       width: elem.offsetWidth,
-      height: 400,
+      height: 200,
       //layout: {
       //  backgroundColor: '#000000',
       //  textColor: 'rgba(255, 255, 255, 0.9)',
@@ -84,18 +50,19 @@ export default {
       //wickUpColor: 'rgba(255, 144, 0, 1)',
     })
 
-    const volumeSeries = chart.addHistogramSeries({
-      color: '#26a69a',
-      lineWidth: 2,
-      priceFormat: {
-        type: 'volume'
-      },
-      overlay: true,
-      scaleMargins: {
-        top: 0.8,
-        bottom: 0
-      }
-    })
+    // TODO Add volume
+    //const volumeSeries = chart.addHistogramSeries({
+    //  color: '#26a69a',
+    //  lineWidth: 2,
+    //  priceFormat: {
+    //    type: 'volume'
+    //  },
+    //  overlay: true,
+    //  scaleMargins: {
+    //    top: 0.8,
+    //    bottom: 0
+    //  }
+    //})
 
     candleSeries.applyOptions({
       priceFormat: {

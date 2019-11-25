@@ -41,7 +41,7 @@ const networks = {
     monitor: 'http://bloks.io',
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://api.eossweden.org/v2/',
-    backEnd: 'http://localhost:8000/api/'
+    backEnd: 'https://eostokens.io/api/'
   }
 }
 

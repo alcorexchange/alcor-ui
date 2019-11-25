@@ -31,7 +31,7 @@ export const actions = {
       params: {
         account: config.contract,
         //sort: '1',
-        limit: '10000'
+        limit: '1000'
       }
     }).then(r => {
       const history = r.data.actions.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name)).map(m => {
