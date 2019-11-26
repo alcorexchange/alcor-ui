@@ -1,29 +1,60 @@
 import axios from 'axios'
-import config from '~/config'
-import { parseAsset } from '~/utils'
-import { hyperion } from '~/api'
 
+import config from '~/config'
+import { hyperion, backEnd } from '~/api'
+import { parseAsset, parseExtendedAsset } from '~/utils'
 
 export const strict = false
 
 export const state = () => ({
   user: null,
-  history: []
+  history: [],
+  markets: []
 })
 
 export const mutations = {
   setUser: (state, user) => state.user = user,
-  setHistory: (state, history) => state.history = history
+  setHistory: (state, history) => state.history = history,
+  setMarkets: (state, markets) => state.markets = markets
 }
 
 export const actions = {
-  init({ dispatch }) {
+  init({ dispatch, state }) {
     dispatch('loadHistory')
   },
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
     dispatch('loadHistory')
+  },
+
+  async loadMarkets({ state, commit, rootGetters }) {
+    const { rows } = await rootGetters['chain/rpc'].get_table_rows({
+      code: config.contract,
+      scope: config.contract,
+      table: 'markets',
+      reverse: true,
+      limit: 1000
+    })
+
+    rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
+
+    try {
+      const { data } = await backEnd.get(`markets`)
+
+      rows.map(r => {
+        const m = data.filter(d => d.market_id == r.id)[0]
+        if (m) {
+          r.price = m.last_price
+        } else {
+          r.price = 0
+        }
+      })
+    } catch {
+      rows.map(r => r.price = 0)
+    }
+
+    commit('setMarkets', rows)
   },
 
   loadHistory({ commit }) {

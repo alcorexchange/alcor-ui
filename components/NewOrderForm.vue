@@ -2,9 +2,8 @@
 // TODO Refactor with walidators for form
 // TODO Mobile version
 div
-  el-button(size="medium" type="primary" @click="open").ml-auto
-    span
-      slot
+  el-button(icon="el-icon-plus" size="medium" type="primary" @click="open")
+    slot
 
   el-dialog(
     v-if="user"

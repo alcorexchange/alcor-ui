@@ -3,39 +3,19 @@
 
 .box-card.mt-3(v-if="!no_found" v-loading="loading")
   .row.mb-3
-    .col-4
+    .col-md-4
       .lead
         TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
         | {{ token.symbol.name }}@
         a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
-    .col-8.d-flex.align-items-center
+    .col-md-8.d-flex.align-items-center
       .text.item
         span Volume 24H:
         span.text-success  {{ volume24 }}
 
-  //.lead.d-lg-none.mb-2 Trade {{ token.symbol.name }}@
-    a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
-
-    span  for EOS
-
   .text.item
     .row.trade-window
       .col-lg-5
-        //.row.d-none.d-lg-block.mb-3
-          .col
-            .lead
-              TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
-
-              | Trade {{ token.symbol.name }}@
-              a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
-
-              span  for EOS
-
-            .text.item
-              | Volume 24:
-              span.text-success  {{ volume24 }}
-
-
         order-book
 
         .row

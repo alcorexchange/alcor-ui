@@ -1,45 +1,32 @@
 <template lang="pug">
 // TODO App need decomposition
-.w-100
-  el-tabs(type='border-card').mt-4
-    el-tab-pane(label="Markets" v-loading="loading")
-      .el-row
-        .el-col
-          .d-flex
-            new-order-form(@submit="newMarket" v-if="user").mr-2 Open new market
+.row
+  .col
+    .row
+      .col-md-8
+        .display-4.mt-3 Markets:
+      .col-md-4.d-flex
+        el-input(v-model="search" placeholder="Filter by token").align-self-end.ml-auto.d-none.d-lg-block
 
-            el-input(size="small" v-model="search" placeholder="Filter by token").ml-2.mr-4
+    #markets.d-flex.mt-4
+      .market-new
+        new-order-form(@submit="newMarket" v-if="user" size="big").new-market-btn Open new market
 
-      .mobile-markets.d-lg-none.mt-3
-        .row.market-row(v-for="market in filteredItems" @click="clickOrder(market)")
-          .col-sm-8
-            TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="25")
-            span.ml-2 {{ market.token.symbol.name }}@{{ market.token.contract }}
-          .col-sm-4
-            .text-success {{ market.price }}
+      pre.market(v-for="market in filteredItems" @click="clickOrder(market)")
+        span
+        TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
+        span.ml-2
+          | {{ market.token.symbol.name }}@{{ market.token.contract }}
+          .text-success {{ market.price | humanFloat }}
 
-      el-table(:data="filteredItems" @row-click="clickOrder" row-class-name="order-row").d-none.d-lg-block
-        el-table-column(label="Token")
-          template(slot-scope="scope")
-            div(slot="reference")
-              TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="50")
-              span.ml-2(v-if="scope.row.token.symbol == 'EOS' && scope.row.token.contract != 'eosio.token'")
-                el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
-                  el-tag(type="danger") {{ scope.row.token.quantity }}@{{ scope.row.token.contract }}
 
-              span.ml-2(v-else).display-4 {{ scope.row.token.symbol.name }}@{{ scope.row.token.contract }}
-
-        el-table-column(label="Price (EOS)" width="200" resizable)
-          template(slot-scope='scope')
-            .price-row
-              span.text-mutted {{ scope.row.price }}
-
-    el-tab-pane(label='Rules & Information')
-      h2.lead.ml-3.mt-3 With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,
+    .display-4 Rules:
+    .ml-3.mt-3
+      h2.lead With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,
            | atomically, without the participation of third parties! The tokens should comply with the
            | standard eosio.token of the contract.
 
-      h4.ml-3.mt-3 Properties:
+      h4 Properties:
         ul.mt-1
           li.lead Fully onchain matching for limit/market trades.
           li.lead All the logic of order storage and matching takes place in the contract's ram, without any additional centralized solutions.
@@ -50,22 +37,25 @@
             |  for beta testing time.
           //li.lead Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged.
 
-      h4.ml-3 Roadmap:
-        ul.mt-1
-          li.lead Global redesign of the application.
-          li.lead The web application will be published in open source. And contract later.
-          li.lead Development of additional services for easy search, sorting and working with orders.
+    h4.ml-3 Roadmap:
+      ul.mt-1
+        li.lead Global redesign of the application.
+        li.lead The web application will be published in open source. And contract later.
+        li.lead Development of additional services for easy search, sorting and working with orders.
 
-      h4.ml-3 Audit:
-        ul.mt-1
-          li.lead Exchange contract:
-            a(:href="'eostokensdex' | monitorAccount" target="_blank") eostokensdex
+    h4.ml-3 Audit:
+      ul.mt-1
+        li.lead Exchange contract:
+          a(:href="'eostokensdex' | monitorAccount" target="_blank") eostokensdex
 
-          //li.lead Comission account:
-            a(:href="'eosswapdivs1' | monitorAccount" target="_blank") eosswapdivs1
+        //li.lead Comission account:
+          a(:href="'eosswapdivs1' | monitorAccount" target="_blank") eosswapdivs1
 
-    el-tab-pane(label='Partners').p-3
-      .lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to telegram chat!
+    .display-4 Partners
+    .ml-3.mt-3
+      p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to telegram
+        a(href="https://t.me/eostokensdex" target="_blank")  chat!
+
 
       hr
       .d-flex
@@ -78,21 +68,19 @@
       .d-flex.align-items-center.span
         .lead The design of the original app logo:
           a(href="https://yusaymon.portfoliobox.net" target="_blank")  @yusaymon
-
 </template>
 
 <script>
 import { captureException } from '@sentry/browser'
 
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import NewOrderForm from '~/components/NewOrderForm.vue'
 import History from '~/components/History.vue'
 import TokenImage from '~/components/elements/TokenImage'
-import { getSellOrders, getBuyOrders } from '~/api'
 
-import config from '~/config'
+import { sort_by_price } from '~/utils'
+import { getSellOrders, getBuyOrders } from '~/api'
 import { transfer } from '~/store/chain.js'
-import { parseExtendedAsset, sort_by_price } from '~/utils'
 
 export default {
   components: {
@@ -101,9 +89,17 @@ export default {
     TokenImage
   },
 
+  async fetch({ store, error }) {
+    try {
+      await store.dispatch('loadMarkets')
+    } catch (e) {
+      captureException(e)
+      return error({ message: e, statusCode: 500 })
+    }
+  },
+
   data() {
     return {
-      markets: [],
       search: '',
 
       to_assets: [],
@@ -118,38 +114,20 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'markets']),
     ...mapGetters('chain', ['rpc']),
+    ...mapState({
+      markets: state => state.markets
+    }),
 
     filteredItems() {
       return this.markets.filter((i) => {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
           return true
-      })
+      }).reverse()
     }
   },
-
-  async created() {
-    await this.fetch()
-    this.fetchMarketStatistics()
-  },
-
   methods: {
-    fetchMarketStatistics() {
-      for (const market of this.markets) {
-        Promise.all([getBuyOrders(market.id), getSellOrders(market.id)]).then(([buyOrders, sellOrders]) => {
-          if (buyOrders.length)
-            market.price = buyOrders.sort(sort_by_price)[0].unit_price
-          else if (sellOrders.length)
-            market.price = sellOrders.sort(sort_by_price)[sellOrders.length - 1].unit_price
-          else
-            return
-
-          market.price = this.$options.filters.humanFloat(market.price) + ' EOS'
-        })
-      }
-    },
-
     clickOrder(a) {
       this.$router.push({ name: 'trade-id', params: { id: a.id } })
     },
@@ -175,55 +153,43 @@ export default {
       } finally {
         loading.close()
       }
-    },
-
-    async fetch() {
-      // TODO Подгрузка с прокруткой
-      this.loading = true
-      this.markets = []
-
-      let upper_bound
-
-      while (true) {
-        // fetch all orders
-        let rows = []
-        try {
-          rows = (await this.rpc.get_table_rows({
-            code: config.contract,
-            scope: config.contract,
-            table: 'markets',
-            reverse: true,
-
-            upper_bound
-          })).rows
-
-          rows.map((r) => {
-            r.token = parseExtendedAsset(r.token)
-            r.price = '0.0000 EOS'
-          })
-
-          this.markets = [...this.markets, ...rows]
-        } catch (e) {
-          captureException(e)
-          this.$notify({ title: 'Load markets', message: e.message, type: 'error' })
-          break
-        } finally {
-          this.loading = false
-        }
-
-        if (rows.length > 1) {
-          upper_bound = rows[rows.length - 1].id - 1
-          if (upper_bound < 0) break
-        } else {
-          break
-        }
-      }
     }
   }
 }
 </script>
 
 <style scoped>
+.search-input {
+  width: 100px;
+}
+
+#markets {
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.new-market {
+  width: 260px;
+  padding: 16px;
+}
+
+
+.market, .market-new {
+  width: 260px;
+  padding: 0px 10px;
+  height: 75px;
+}
+
+.market:hover {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.market:hover img {
+  height: 35px;
+}
+
 .display-4 {
   font-size: 2.5rem;
 }

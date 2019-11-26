@@ -20,14 +20,15 @@
   .row
     .col-lg-9.col-md-12
       h1.align-self-center.lead.mt-3
-        span EOS flexible, listing free, decentralized exchange.
-        span  Create markets in one click, trade whatever you want.
-        span Forget about any regulation.
-        a(:href="'eostokensdex' | monitorAccount" target="_blank").text-success.strong.ml-2  IT WORK ONCHAIN
-        a(:href="'eostokensdex' | monitorAccount" target="_blank").text-primary.strong.ml-2  NO COMISSIONS!
+        span No commissions
+        a(:href="'eostokensdex' | monitorAccount" target="_blank").text-primary.strong  FULLY-ONCHAIN
+
+        span  exchange.
+        br
+        span  Create markets in one click, list your token for free, trade whatever you want.
 
     .col-lg-3.d-flex
-      .align-items-center.pr-3.pt-3.mt-3.ml-lg-auto
+      .align-items-center.mt-3.ml-lg-auto
         span(v-if="user")
           a(:href="user.name | monitorAccount" target="_blank").mr-3 {{ $store.state.user.name }}
           el-button(v-if="user" size="small" type="info" plain @click="logout") logout
@@ -35,21 +36,21 @@
         el-button(@click="login" type="primary" size="medium" v-else) Sign In via Scatter
         // TODO Кнопка с тестком как ссылка на профиль
   .row
-    el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
-      span.ml-1 Unlock or install
-      a(href="https://get-scatter.com/" target="_blank") Scatter
-      i(@click="scatterConnect" size="mini").el-alert__closebtn Update
-
-    el-alert(:closable="false" show-icon type="error" v-if="$store.state.chain.oldScatter").mt-4
-      span.ml-1  You are using an old version of Scatter! So the app may not work correctly.
-
-      a(href="https://get-scatter.com/" target="_blank")  Update Scatter
-
-    el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
-      span.ml-1 Network is unreacheble pleace check your internet connection.
-  .row
     .col
-      nuxt
+      el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
+        span.ml-1 Unlock or install
+        a(href="https://get-scatter.com/" target="_blank") Scatter
+        i(@click="scatterConnect" size="mini").el-alert__closebtn Update
+
+      el-alert(:closable="false" show-icon type="error" v-if="$store.state.chain.oldScatter").mt-4
+        span.ml-1  You are using an old version of Scatter! So the app may not work correctly.
+
+        a(href="https://get-scatter.com/" target="_blank")  Update Scatter
+
+      el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
+        span.ml-1 Network is unreacheble pleace check your internet connection.
+
+  nuxt
 
   .row.mt-3
     .col.text-mutted
@@ -147,7 +148,7 @@ export default {
 }
 
 h1.lead {
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .container {
