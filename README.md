@@ -1,7 +1,7 @@
 ## [EOS Tokens](https://eostokens.io)
 > EOS trustless onchain limit/market trading  
 
-![EosTokens](https://i.imgur.com/8q3VZ6L.png)
+![EosTokens](http://i.imgur.com/AWp7IzW.png)
 
 With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
 
