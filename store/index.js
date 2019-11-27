@@ -62,23 +62,30 @@ export const actions = {
       params: {
         account: config.contract,
         //sort: '1',
-        limit: '1000'
+        limit: '1'
       }
     }).then(r => {
-      const history = r.data.actions.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name)).map(m => {
-        const data = m.act.data.record
-        data.trx_id = m.trx_id
-        data.type = m.act.name
-        data.ask = parseAsset(data.ask)
-        data.bid = parseAsset(data.bid)
+      // FIXME Really not safe code
+      const times = Math.ceil(r.data.total.value / 1000)
+      let offset = 0
+      const requests = []
 
-        // FIXME Fix afret fix contract timestamp
-        data.time = new Date(m['@timestamp'])
+      for (let i = 0; i < times; i++) {
+        requests.push(
+          hyperion.get('/history/get_actions', {
+            params: {
+              account: config.contract,
+              skip: offset,
+              limit: '1000'
+            }
+          })
+        )
+        offset += 1000
+      }
 
-        return data
+      Promise.all(requests).then(data => {
+        commit('setHistory', [].concat(...data.map(d => d.data.actions)))
       })
-
-      commit('setHistory', history)
     })
   },
 

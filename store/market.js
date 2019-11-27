@@ -66,7 +66,22 @@ export const getters = {
   },
 
   history(state, getters, rootState) {
-    return rootState.history.filter(h => parseInt(h.market.id) == parseInt(state.id))
+    return rootState.history
+      .filter(m => ['sellmatch', 'buymatch'].includes(m.act.name))
+      .map(m => {
+        const data = m.act.data.record
+
+        data.trx_id = m.trx_id
+        data.type = m.act.name
+        data.ask = parseAsset(data.ask)
+        data.bid = parseAsset(data.bid)
+
+        // FIXME Fix afret fix contract timestamp
+        data.time = new Date(m['@timestamp'])
+
+        return data
+      })
+      .filter(h => parseInt(h.market.id) == parseInt(state.id))
   },
 
   volume24(state, getters, rootState) {
