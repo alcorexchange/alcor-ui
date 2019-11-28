@@ -75,17 +75,13 @@ import { captureException } from '@sentry/browser'
 
 import { mapGetters, mapState } from 'vuex'
 import NewOrderForm from '~/components/NewOrderForm.vue'
-import History from '~/components/History.vue'
 import TokenImage from '~/components/elements/TokenImage'
 
-import { sort_by_price } from '~/utils'
-import { getSellOrders, getBuyOrders } from '~/api'
 import { transfer } from '~/store/chain.js'
 
 export default {
   components: {
     NewOrderForm,
-    History,
     TokenImage
   },
 
@@ -140,12 +136,15 @@ export default {
       })
 
       try {
-        //const r = await transfer(sell.contract, this.user.name, sell.quantity, `${buy.quantity}`)
-        transfer(sell.contract, this.user.name, sell.quantity, `${buy.quantity}`).then(e => console.log(e)).catch(e =>
-          console.log(e))
-
-        this.fetch()
-        //this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
+        this.$store.dispatch('chain/transfer', {
+          contract: sell.contract,
+          actor: this.user.name,
+          quantity: sell.quantity,
+          memo: `${buy.quantity}`
+        }).then(e => {
+          console.log(e)
+          this.fetch()
+        }).catch(e => console.log(e))
       } catch (e) {
         captureException(e, { extra: { buy, sell } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })

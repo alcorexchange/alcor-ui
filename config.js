@@ -10,6 +10,7 @@ const networks = {
     port: 8888,
     protocol: 'http',
     monitor: 'http://jungle.bloks.io',
+    monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
     hyperion: 'https://api.eossweden.org/v2/',
     backEnd: 'http://localhost:8000/api/'
@@ -24,6 +25,7 @@ const networks = {
     port: 443,
     protocol: 'https',
     monitor: 'http://jungle.bloks.io',
+    monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
     hyperion: 'http://api.jungle.hyperion.greeneosio.com/v2/',
     backEnd: 'http://localhost:8000/api/'
@@ -39,8 +41,25 @@ const networks = {
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
+    monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://api.eossweden.org/v2/',
+    backEnd: 'https://eostokens.io/api/'
+  },
+
+  coffe: {
+    name: 'coffe',
+    contract: 'eostokensdex',
+
+    chainId: '1ca925bc8fbc1cec262dedd10fd19d9357a1cc8de0bd92e5b61577740af9a3f2',
+
+    host: 'offe.io',
+    port: 8888,
+    protocol: 'https',
+    monitor: 'http://local.bloks.io',
+    monitor_params: 'coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
+    lightapi: 'https://api.light.xeos.me',
+    hyperion: 'https://resurces.com:17555/v2/',
     backEnd: 'https://eostokens.io/api/'
   }
 }
@@ -50,5 +69,5 @@ export default {
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
 
-  ...networks[process.env.NETWORK] || networks.local
+  networks
 }

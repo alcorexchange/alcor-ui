@@ -92,7 +92,7 @@ export default {
     this.getVersion()
 
     try {
-      await this.$store.getters['chain/rpc'].get_info()
+      await this.$store.getters['api/rpc'].get_info()
     } catch (e) {
       this.netError = true
       console.log('Net error', e)

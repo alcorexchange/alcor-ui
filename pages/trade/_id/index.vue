@@ -39,45 +39,6 @@
       .col
         my-orders(v-if="user")
 
-    //hr
-    //.el-row
-      .el-col
-        .lead History:
-        el-table(:data='orders', style='width: 101%')
-          el-table-column(label='Type', width='181')
-            template(slot-scope='scope')
-              span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type }}
-              span.text-danger(v-else) {{ scope.row.type }}
-
-          el-table-column(label='Date', width='180')
-            template(slot-scope='scope')
-              i.el-icon-time
-              span(style='margin-left: 10px') {{ scope.row.date }}
-
-          el-table-column(label='Ask', width='180')
-            template(slot-scope='scope')
-              span {{ scope.row.ask.quantity }}
-
-          el-table-column(label='Bid', width='180')
-            template(slot-scope='scope')
-              span {{ scope.row.bid.quantity }}
-
-          el-table-column(label='Price', width='180')
-            template(slot-scope='scope')
-              span {{ scope.row.unit_price | humanFloat }}
-
-          el-table-column(label='Operations' align="right")
-            template(slot-scope='scope')
-              el-button(size='mini', type='danger', @click='cancel(scope.row)') Cancel
-  //div
-    div(v-if="user")
-      el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
-      el-button(v-else type="primary" @click="buy").w-100 Buy
-        |  {{ order.sell.quantity }}@{{ order.sell.contract }}
-    div(v-else)
-      el-button(@click="login").w-100 Pleace login
-
-//el-card(v-else).box-card.mt-3
 .box-card(v-else).mt-3
   .clearfix(slot='header')
     span Market: {{ market.id }}
@@ -100,7 +61,6 @@ import LatestDeals from '~/components/trade/LatestDeals'
 import Kline from '~/components/trade/Kline'
 
 import config from '~/config'
-import { transfer } from '~/store/chain.js'
 
 export default {
   components: {
@@ -147,86 +107,6 @@ export default {
   created() {
     // Auto update orders
     setInterval(() => { this.$store.dispatch('market/fetchMarket') }, 5000)
-  },
-
-  methods: {
-    async sell() {
-      if (!this.$store.state.chain.scatterConnected) return this.$notify({
-        title: 'Authorization',
-        message: 'Pleace connect Scatter',
-        duration: 0,
-        type: 'info'
-      })
-
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for Scatter'
-      })
-
-      try {
-        const r = await transfer(
-          this.token.contract,
-          this.user.name,
-          `${this.amount} ${this.token.symbol.name}`,
-          `${this.totalEos} EOS@eosio.token`
-        )
-
-        this.$store.dispatch('market/fetchMarket')
-
-        this.$notify({
-          title: 'Place order',
-          message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
-          dangerouslyUseHTMLString: true,
-          duration: 0,
-          type: 'success'
-        })
-      } catch (e) {
-        captureException(e, { extra: { order: this.order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error', duration: 0 })
-        console.log(e)
-      } finally {
-        loading.close()
-      }
-    },
-
-    async buy() {
-      // TODO Обновляем баланс после каждой сделки
-      if (!this.$store.state.chain.scatterConnected) return this.$notify({
-        title: 'Authorization',
-        message: 'Pleace connect Scatter',
-        type: 'info'
-      })
-
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for Scatter'
-      })
-
-      try {
-        const r = await transfer(
-          'eosio.token',
-          this.user.name,
-
-          `${this.totalEos} EOS`,
-          `${this.amount} ${this.token.str}`
-        )
-
-        this.$store.dispatch('market/fetchMarket')
-        this.$notify({
-          title: 'Place order',
-          message: `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
-          dangerouslyUseHTMLString: true,
-          duration: 0,
-          type: 'success'
-        })
-      } catch (e) {
-        captureException(e, { extra: { order: this.order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error', duration: 0 })
-        console.log(e)
-      } finally {
-        loading.close()
-      }
-    }
   },
 
   head() {

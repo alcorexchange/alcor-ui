@@ -2,19 +2,9 @@ import ScatterJS from '@scatterjs/core'
 import ScatterEOS from '@scatterjs/eosjs2'
 import { configureScope } from '@sentry/browser'
 
-import { Api } from 'eosjs'
-
-import { rpc, eos as eoss } from '../api'
 import config from '../config'
 
 ScatterJS.plugins(new ScatterEOS())
-
-let eos = eoss
-
-export const network = ScatterJS.Network.fromJson({
-  blockchain: 'eos',
-  ...config
-})
 
 export const state = () => ({
   scatterConnected: true,
@@ -22,9 +12,9 @@ export const state = () => ({
 })
 
 export const actions = {
-  async init({ state, commit, dispatch }) {
+  async init({ state, commit, dispatch, rootGetters }) {
     console.log('Connect scatter..')
-    await ScatterJS.connect(config.APP_NAME, { network }).then(v =>
+    await ScatterJS.connect(config.APP_NAME, { network: rootGetters['api/network'] }).then(v =>
       commit('setScatterConnected', v)
     )
 
@@ -66,7 +56,8 @@ export const actions = {
     try {
       const r = await ScatterJS.login()
 
-      eos = ScatterJS.eos(network, Api, { rpc })
+      // TODO Проверить будет ли работать на мобилках
+      //eos = ScatterJS.eos(network, Api, { rpc })
 
       configureScope(scope => scope.setUser({ username: r.accounts[0].name }))
       commit('setUser', r.accounts[0], { root: true })
@@ -76,10 +67,57 @@ export const actions = {
     }
   },
 
-  async scatterConnect({ commit }) {
+  async scatterConnect({ commit, rootGetters }) {
     commit(
       'setScatterConnected',
-      await ScatterJS.connect('Ordersbook', { network })
+      await ScatterJS.connect('Ordersbook', { network: rootGetters['api/network'] })
+    )
+  },
+
+  transfer({ rootGetters, rootState }, { contract, actor, quantity, memo }) {
+    return rootGetters['api/eos'].transact(
+      {
+        actions: [
+          {
+            account: contract,
+            name: 'transfer',
+            authorization: [
+              {
+                actor,
+                permission: 'active'
+              }
+            ],
+            data: {
+              from: actor,
+              to: rootState.network.contract,
+              quantity,
+              memo
+            }
+          }
+        ]
+      },
+      { blocksBehind: 3, expireSeconds: 3 * 60 }
+    )
+  },
+
+  cancelorder({ rootGetters, rootState }, { account, market_id, type, order_id }) {
+    return rootGetters['api/eos'].transact(
+      {
+        actions: [
+          {
+            account: rootState.network.contract,
+            name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
+            authorization: [
+              {
+                actor: account,
+                permission: 'active'
+              }
+            ],
+            data: { executor: account, market_id, order_id }
+          }
+        ]
+      },
+      { blocksBehind: 3, expireSeconds: 3 * 60 }
     )
   }
 }
@@ -94,88 +132,4 @@ export const mutations = {
   setOldScatter: (state, value) => {
     state.oldScatter = value
   }
-}
-
-export const getters = {
-  rpc: () => rpc,
-  eos: () => eos,
-  scatter: () => ScatterJS.scatter
-}
-
-export function transfer(contract, actor, quantity, memo) {
-  return eos.transact(
-    {
-      actions: [
-        {
-          account: contract,
-          name: 'transfer',
-          authorization: [
-            {
-              actor,
-              permission: 'active'
-            }
-          ],
-          data: {
-            from: actor,
-            to: config.contract,
-            quantity,
-            memo
-          }
-        }
-      ]
-    },
-    { blocksBehind: 3, expireSeconds: 3 * 60 }
-  )
-}
-
-export function cancelorder(account, market_id, type, order_id) {
-  return eos.transact(
-    {
-      actions: [
-        {
-          account: config.contract,
-          name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
-          authorization: [
-            {
-              actor: account,
-              permission: 'active'
-            }
-          ],
-          data: { executor: account, market_id, order_id }
-        }
-      ]
-    },
-    { blocksBehind: 3, expireSeconds: 3 * 60 }
-  )
-}
-
-// FIXME Patch JsonRpc https://github.com/EOSIO/eosjs/issues/324 not redy for production
-rpc.get_table_rows = async function({
-  json = true,
-  code,
-  scope,
-  table,
-  table_key = '',
-  lower_bound = '',
-  upper_bound = '',
-  index_position = 1,
-  key_type = '',
-  limit = 10,
-  reverse = false,
-  show_payer = false
-}) {
-  return await this.fetch('/v1/chain/get_table_rows', {
-    json,
-    code,
-    scope,
-    table,
-    table_key,
-    lower_bound,
-    upper_bound,
-    index_position,
-    key_type,
-    limit,
-    reverse,
-    show_payer
-  })
 }

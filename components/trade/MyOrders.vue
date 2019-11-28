@@ -57,7 +57,6 @@ div
 <script>
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
-import { cancelorder } from '~/store/chain.js'
 
 export default {
   computed: {
@@ -83,7 +82,12 @@ export default {
       const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
 
       try {
-        await cancelorder(this.user.name, this.id, order.type, order.id)
+        await this.$store.dispatch('chain/cancelorder', {
+          account: this.user.name,
+          market_id: this.id,
+          type: order.type,
+          order_id: order.id
+        })
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$emit('update')

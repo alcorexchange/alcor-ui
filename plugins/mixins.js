@@ -4,7 +4,6 @@ import Vue from 'vue'
 import { EventBus } from '~/utils/event-bus'
 import config from '~/config'
 import { assetToAmount, amountToFloat } from '~/utils'
-import { transfer } from '~/store/chain.js'
 
 function correct_price(price, _from, _for) {
   const diff_precision = Math.abs(_from - _for)
@@ -234,13 +233,13 @@ export const tradeMixin = {
           `${this.total} EOS`,
           `${this.amount} ${this.token.str}`
         )
-        const r = await transfer(
-          'eosio.token',
-          this.user.name,
 
-          `${this.total} EOS`,
-          `${this.amount} ${this.token.str}`
-        )
+        const r = await this.$store.dispatch('chain/transfer', {
+          contract: 'eosio.token',
+          actor: this.user.name,
+          quantity: `${this.total} EOS`,
+          memo: `${this.amount} ${this.token.str}`
+        })
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
@@ -276,12 +275,12 @@ export const tradeMixin = {
         await this.$store.dispatch('chain/login')
 
       try {
-        const r = await transfer(
-          this.token.contract,
-          this.user.name,
-          `${this.amount} ${this.token.symbol.name}`,
-          `${this.total} EOS@eosio.token`
-        )
+        const r = await this.$store.dispatch('chain/transfer', {
+          contract: this.token.contract,
+          actor: this.user.name,
+          quantity: `${this.amount} ${this.token.symbol.name}`,
+          memo: `${this.total} EOS@eosio.token`
+        })
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,

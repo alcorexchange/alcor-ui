@@ -1,18 +1,20 @@
 import axios from 'axios'
 
 import config from '~/config'
-import { hyperion, backEnd } from '~/api'
-import { parseAsset, parseExtendedAsset } from '~/utils'
+import { parseExtendedAsset } from '~/utils'
 
 export const strict = false
 
 export const state = () => ({
   user: null,
   history: [],
-  markets: []
+  markets: [],
+  network: {}
 })
 
 export const mutations = {
+  setNetwork: (state, network) => state.network = network,
+
   setUser: (state, user) => state.user = user,
   setHistory: (state, history) => state.history = history,
   setMarkets: (state, markets) => state.markets = markets
@@ -23,15 +25,25 @@ export const actions = {
     dispatch('loadHistory')
   },
 
+  nuxtServerInit ({ commit }, { req }) {
+    const subdomain = req.headers.host.split('.')
+
+    if (subdomain.length == 1) {
+      commit('setNetwork', config.networks.eos)
+    } else {
+      commit('setNetwork', config.networks[subdomain[0]])
+    }
+  },
+
   update({ dispatch }) {
     dispatch('loadUserBalances')
     dispatch('loadHistory')
   },
 
-  async loadMarkets({ state, commit, rootGetters }) {
-    const { rows } = await rootGetters['chain/rpc'].get_table_rows({
-      code: config.contract,
-      scope: config.contract,
+  async loadMarkets({ state, commit, getters }) {
+    const { rows } = await getters['api/rpc'].get_table_rows({
+      code: state.network.contract,
+      scope: state.network.contract,
       table: 'markets',
       reverse: true,
       limit: 1000
@@ -40,7 +52,7 @@ export const actions = {
     rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
 
     try {
-      const { data } = await backEnd.get(`markets`)
+      const { data } = await getters['api/backEnd'].get(`markets`)
 
       rows.map(r => {
         const m = data.filter(d => d.market_id == r.id)[0]
@@ -57,11 +69,10 @@ export const actions = {
     commit('setMarkets', rows)
   },
 
-  loadHistory({ commit }) {
-    hyperion.get('/history/get_actions', {
+  loadHistory({ state, commit, getters }) {
+    getters['api/hyperion'].get('/history/get_actions', {
       params: {
-        account: config.contract,
-        //sort: '1',
+        account: state.network.contract,
         limit: '1'
       }
     }).then(r => {
@@ -72,9 +83,9 @@ export const actions = {
 
       for (let i = 0; i < times; i++) {
         requests.push(
-          hyperion.get('/history/get_actions', {
+          getters['api/hyperion'].get('/history/get_actions', {
             params: {
-              account: config.contract,
+              account: state.network.contract,
               skip: offset,
               limit: '1000'
             }
@@ -92,7 +103,7 @@ export const actions = {
   loadUserBalances({ rootState, state, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
-      axios.get(`${config.lightapi}/api/account/${config.name}/${rootState.user.name}`).then((r) => {
+      axios.get(`${state.network.lightapi}/api/account/${state.network.name}/${rootState.user.name}`).then((r) => {
         const balances = r.data.balances
         balances.sort((a, b) => {
           if (a.currency < b.currency) { return -1 }

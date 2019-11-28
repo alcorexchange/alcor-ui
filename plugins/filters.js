@@ -6,11 +6,12 @@ import config from '~/config'
 Vue.use(moment)
 
 Vue.filter('monitorAccount', function (account) {
-  return `${config.monitor}/account/${account}`
+  return `${config.monitor}/account/${account}?${config.monitor_params}`
 })
 
 Vue.filter('monitorTx', function (tx) {
-  return `${config.monitor}/transaction/${tx}?tab=traces`
+  console.log(Vue)
+  return `${config.monitor}/transaction/${tx}?tab=traces&${config.monitor_params}`
 })
 
 Vue.filter('humanFloat', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {

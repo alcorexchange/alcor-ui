@@ -1,5 +1,3 @@
-import config from '~/config'
-import { hyperion, getSellOrders, getBuyOrders } from '~/api'
 import { sort_by_price, parseAsset, prepareOrder, parseExtendedAsset } from '~/utils'
 
 export const state = () => ({
@@ -21,12 +19,12 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetchMarket({ rootState, state, commit, rootGetters }) {
-    const rpc = rootGetters['chain/rpc']
+  async fetchMarket({ rootState, state, commit, rootGetters, dispatch }) {
+    const rpc = rootGetters['api/rpc']
 
     const { rows: [market] } = await rpc.get_table_rows({
-      code: config.contract,
-      scope: config.contract,
+      code: rootState.network.contract,
+      scope: rootState.network.contract,
       table: 'markets',
       // key_type: 'i128',
       // encode_type: 'hex',
@@ -43,7 +41,10 @@ export const actions = {
     commit('setToken', parseExtendedAsset(market.token))
     commit('setId', market.id)
 
-    Promise.all([getBuyOrders(state.id), getSellOrders(state.id)]).then(([buyOrders, sellOrders]) => {
+    Promise.all([
+      dispatch('api/getBuyOrders', { market_id: state.id }, { root: true }),
+      dispatch('api/getSellOrders', { market_id: state.id }, { root: true })
+    ]).then(([buyOrders, sellOrders]) => {
       buyOrders.map(o => prepareOrder(o))
       sellOrders.map(o => prepareOrder(o))
 
@@ -65,9 +66,55 @@ export const getters = {
     return 'todo'
   },
 
+  charts(state, getters, rootState) {
+    // It not handle clean action
+    const DEX_ACTIONS = ['sellreceipt', 'buyreceipt', 'sellmatch', 'buymatch', 'cancelbuy', 'cancelsell']
+
+    const actions = rootState.history.filter(a => {
+      //return DEX_ACTIONS.includes(a.act.name) && parseInt(a.act.data.record.market.id) == parseInt(state.id)
+      return []
+    })
+
+    //DEX_ACTIONS = ['sellreceipt', 'buyreceipt', 'sellmatch',
+    //'buymatch', 'cancelbuy', 'cancelsell', 'clean']
+    //time: d.time,
+    //open: p(d.open),
+    //high: p(d.high),
+    //low: p(d.low),
+    //close: p(d.close)
+
+    //return rootState.history
+    //  .filter(m => DEX_ACTIONS.includes(m.act.name))
+    //  .filter(h => parseInt(h.act.data.record.market.id) == parseInt(state.id))
+    //  .map(m => {
+    //    const data = m.act.data.record
+
+    //    data.trx_id = m.trx_id
+    //    data.type = m.act.name
+    //    data.ask = parseAsset(data.ask)
+    //    data.bid = parseAsset(data.bid)
+
+    //    // FIXME Fix afret fix contract timestamp
+    //    data.time = new Date(m['@timestamp'])
+
+    //    return data
+    //  })
+
+    return actions
+
+    //DEX_ACTIONS = ['sellreceipt', 'buyreceipt', 'sellmatch',
+    //'buymatch', 'cancelbuy', 'cancelsell', 'clean']
+    //time: d.time,
+    //open: p(d.open),
+    //high: p(d.high),
+    //low: p(d.low),
+    //close: p(d.close)
+  },
+
   history(state, getters, rootState) {
     return rootState.history
       .filter(m => ['sellmatch', 'buymatch'].includes(m.act.name))
+      .filter(h => parseInt(h.act.data.record.market.id) == parseInt(state.id))
       .map(m => {
         const data = m.act.data.record
 
@@ -81,7 +128,6 @@ export const getters = {
 
         return data
       })
-      .filter(h => parseInt(h.market.id) == parseInt(state.id))
   },
 
   volume24(state, getters, rootState) {

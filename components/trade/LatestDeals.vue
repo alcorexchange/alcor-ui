@@ -8,7 +8,7 @@
 
   .orders-list.blist
     //.ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
-    a(v-for="deal in deals" :href="deal.trx_id | monitorTx" target="_blank")
+    a(v-for="deal in deals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
         span(:class="deal.cls")  {{ deal.unit_price | humanFloat }}
         span {{ deal.amount }}
@@ -17,11 +17,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   computed: {
     ...mapGetters('market', ['history']),
+    ...mapState(['network']),
 
     deals() {
       //return Array.from(this.history).sort((a, b) => a.timestamp - b.timestamp).map(h => {
@@ -39,6 +40,12 @@ export default {
         })
     }
   },
+
+  methods: {
+    monitorTx(tx) {
+      return `${this.network.monitor}/transaction/${tx}?tab=traces&${this.network.monitor_params}`
+    }
+  }
 }
 </script>
 

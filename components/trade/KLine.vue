@@ -4,11 +4,11 @@ div(ref="chart")
 
 <script>
 import { mapGetters } from 'vuex'
-import { backEnd } from '~/api'
 
 export default {
   computed: {
-    ...mapGetters('market', ['token']),
+    ...mapGetters('market', ['token', 'charts']),
+    ...mapGetters('api', ['backEnd'])
   },
 
   mounted() {
@@ -74,7 +74,7 @@ export default {
 
     const p = p => parseFloat(this.$options.filters.humanFloat(p))
 
-    backEnd.get(`charts?quote=${this.token.symbol.name}&base=EOS`).then(r => {
+    this.backEnd.get(`charts?quote=${this.token.symbol.name}&base=EOS`).then(r => {
       //candleSeries.setData(r.data.slice(1).map(d => {
       candleSeries.setData(r.data.map(d => {
         return {
