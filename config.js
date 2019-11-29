@@ -43,7 +43,8 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://api.eossweden.org/v2/',
+    //hyperion: 'https://api.eossweden.org/v2/',
+    hyperion: 'https://mainnet.eosn.io/v2/',
     backEnd: 'https://eostokens.io/api/'
   },
 
@@ -53,7 +54,7 @@ const networks = {
 
     chainId: '1ca925bc8fbc1cec262dedd10fd19d9357a1cc8de0bd92e5b61577740af9a3f2',
 
-    host: 'offe.io',
+    host: 'coffe.io',
     port: 8888,
     protocol: 'https',
     monitor: 'http://local.bloks.io',

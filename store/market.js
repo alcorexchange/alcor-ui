@@ -1,4 +1,5 @@
 import { sort_by_price, parseAsset, prepareOrder, parseExtendedAsset } from '~/utils'
+import { dayChart } from '~/utils/charts'
 
 export const state = () => ({
   id: null,
@@ -68,47 +69,21 @@ export const getters = {
 
   charts(state, getters, rootState) {
     // It not handle clean action
-    const DEX_ACTIONS = ['sellreceipt', 'buyreceipt', 'sellmatch', 'buymatch', 'cancelbuy', 'cancelsell']
-
     const actions = rootState.history.filter(a => {
-      //return DEX_ACTIONS.includes(a.act.name) && parseInt(a.act.data.record.market.id) == parseInt(state.id)
-      return []
+      const action_name = a.act.name
+
+      if (['cancelbuy', 'cancelsell'].includes(action_name)) {
+        return parseInt(a.act.data.market_id) == parseInt(state.id)
+      } else if (action_name == 'sellreceipt') {
+        return a.act.data.sell_order.bid.split(' ')[1] == state.token.symbol.name
+      } else if (action_name == 'buyreceipt') {
+        return a.act.data.buy_order.ask.split(' ')[1] == state.token.symbol.name
+      } else {
+        return parseInt(a.act.data.record.market.id) == parseInt(state.id)
+      }
     })
 
-    //DEX_ACTIONS = ['sellreceipt', 'buyreceipt', 'sellmatch',
-    //'buymatch', 'cancelbuy', 'cancelsell', 'clean']
-    //time: d.time,
-    //open: p(d.open),
-    //high: p(d.high),
-    //low: p(d.low),
-    //close: p(d.close)
-
-    //return rootState.history
-    //  .filter(m => DEX_ACTIONS.includes(m.act.name))
-    //  .filter(h => parseInt(h.act.data.record.market.id) == parseInt(state.id))
-    //  .map(m => {
-    //    const data = m.act.data.record
-
-    //    data.trx_id = m.trx_id
-    //    data.type = m.act.name
-    //    data.ask = parseAsset(data.ask)
-    //    data.bid = parseAsset(data.bid)
-
-    //    // FIXME Fix afret fix contract timestamp
-    //    data.time = new Date(m['@timestamp'])
-
-    //    return data
-    //  })
-
     return actions
-
-    //DEX_ACTIONS = ['sellreceipt', 'buyreceipt', 'sellmatch',
-    //'buymatch', 'cancelbuy', 'cancelsell', 'clean']
-    //time: d.time,
-    //open: p(d.open),
-    //high: p(d.high),
-    //low: p(d.low),
-    //close: p(d.close)
   },
 
   history(state, getters, rootState) {

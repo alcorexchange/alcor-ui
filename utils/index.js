@@ -5,6 +5,16 @@ import config from '~/config'
 
 export const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
+
+export function quantityToAmount(asset) {
+  const amount = asset.split(' ')[0]
+  const precision = amount.split('.')[1] ? amount.split('.')[1].length : 0
+
+  const scale = new Big(10).pow(precision)
+
+  return parseInt(new Big(amount).times(scale))
+}
+
 export function amountToFloat(amount, precision) {
   amount = Math.abs(amount)
 

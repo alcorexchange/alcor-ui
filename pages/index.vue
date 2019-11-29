@@ -128,7 +128,6 @@ export default {
       this.$router.push({ name: 'trade-id', params: { id: a.id } })
     },
 
-    //async newMarket({ buy, sell }) {
     newMarket({ buy, sell }) {
       const loading = this.$loading({
         lock: true,

@@ -37,7 +37,7 @@ export const actions = {
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
-    dispatch('loadHistory')
+    //dispatch('loadHistory') TODO Может в будущем обновлять
   },
 
   async loadMarkets({ state, commit, getters }) {
@@ -95,7 +95,9 @@ export const actions = {
       }
 
       Promise.all(requests).then(data => {
-        commit('setHistory', [].concat(...data.map(d => d.data.actions)))
+        commit('setHistory', [].concat(...data.map(d => d.data.actions)).filter(a => {
+          return ['sellreceipt', 'buyreceipt', 'sellmatch', 'buymatch', 'cancelbuy', 'cancelsell'].includes(a.act.name)
+        }))
       })
     })
   },
