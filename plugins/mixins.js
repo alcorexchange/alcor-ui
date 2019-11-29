@@ -17,12 +17,6 @@ function correct_price(price, _from, _for) {
   return price
 }
 
-// HACK
-const baseToken = {
-  precision: 4,
-  symbol: 'EOS'
-}
-
 export const tradeChangeEvents = {
   created() {
     EventBus.$on('setPrice', price => {
@@ -57,7 +51,7 @@ export const tradeMixin = {
           trigger: 'change',
           validator: (rule, value, callback) => {
             if (this.totalEos < 0.0005) {
-              callback(new Error('Order amount must be more then 0.01 EOS'))
+              callback(new Error(`Order amount must be more then 0.01 ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`))
             }
           }
         }]
@@ -77,7 +71,7 @@ export const tradeMixin = {
         this.total = balance
         this.totalChange(true)
       } else {
-        this.total = (balance / 100 * v).toFixed(baseToken.precision)
+        this.total = (balance / 100 * v).toFixed(this.network.baseToken.precision)
         this.totalChange()
       }
     },
@@ -101,7 +95,7 @@ export const tradeMixin = {
 
   methods: {
     getValidAmount(amount_str, desc = false) {
-      const bp = baseToken.precision
+      const bp = this.network.baseToken.precision
       const qp = this.token.symbol.precision
 
       let amount = assetToAmount(amount_str, qp) || 1
@@ -208,7 +202,7 @@ export const tradeMixin = {
     },
 
     async buy() {
-      this.amount = parseFloat(this.amount).toFixed(baseToken.precision)
+      this.amount = parseFloat(this.amount).toFixed(this.network.baseToken.precision)
       this.total = parseFloat(this.total).toFixed(this.token.symbol.precision)
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
@@ -226,18 +220,10 @@ export const tradeMixin = {
         await this.$store.dispatch('chain/login')
 
       try {
-        console.log(
-          'eosio.token',
-          this.user.name,
-
-          `${this.total} EOS`,
-          `${this.amount} ${this.token.str}`
-        )
-
         const r = await this.$store.dispatch('chain/transfer', {
-          contract: 'eosio.token',
+          contract: this.network.baseToken.contract,
           actor: this.user.name,
-          quantity: `${this.total} EOS`,
+          quantity: `${this.total} ${this.network.baseToken.symbol}`,
           memo: `${this.amount} ${this.token.str}`
         })
 
@@ -258,7 +244,7 @@ export const tradeMixin = {
 
     async sell() {
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-      this.total = parseFloat(this.total).toFixed(baseToken.precision)
+      this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
@@ -279,7 +265,7 @@ export const tradeMixin = {
           contract: this.token.contract,
           actor: this.user.name,
           quantity: `${this.amount} ${this.token.symbol.name}`,
-          memo: `${this.total} EOS@eosio.token`
+          memo: `${this.total} ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`
         })
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {

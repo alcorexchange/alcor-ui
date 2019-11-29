@@ -8,11 +8,11 @@
     el-form(ref="form" label-width="60px")
       el-form-item(label="Price")
         el-input(type="number" disabled placeholder="Buy at best price")
-          span(slot="suffix").mr-1 EOS
+          span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
       el-form-item(label="Amount")
         el-input(type="number" clearable v-model="total")
-          span(slot="suffix").mr-1 EOS
+          span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
       el-form-item
         el-slider(:step="25" v-model="eosPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
@@ -29,7 +29,7 @@
     el-form(ref="form" label-width="60px")
       el-form-item(label="Price")
         el-input(type="number" disabled placeholder="Buy at best price")
-          span(slot="suffix").mr-1.ml-2 EOS
+          span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
 
       el-form-item(label="Amount")
         el-input(type="number" v-model="amount" clearable)
@@ -58,6 +58,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapState('market', ['token']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapGetters(['user', 'tokenBalance', 'eosBalance'])

@@ -106,7 +106,7 @@ export default {
 
   created() {
     // Auto update orders
-    setInterval(() => { this.$store.dispatch('market/fetchMarket') }, 10000)
+    setInterval(() => { this.$store.dispatch('market/fetchMarket') }, 15000)
   },
 
   head() {

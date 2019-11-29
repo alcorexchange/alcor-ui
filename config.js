@@ -5,6 +5,12 @@ const networks = {
     name: 'local',
     contract: 'eostokensdex',
 
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'EOS',
+      precision: 4
+    },
+
     chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
     host: 'localhost',
     port: 8888,
@@ -20,6 +26,12 @@ const networks = {
     name: 'jungle',
     contract: 'eostokensdex',
 
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'EOS',
+      precision: 4
+    },
+
     chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
     host: 'api.jungle.alohaeos.com',
     port: 443,
@@ -34,6 +46,12 @@ const networks = {
   eos: {
     name: 'eos',
     contract: 'eostokensdex',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'CFF',
+      precision: 4
+    },
 
     chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
 
@@ -52,6 +70,12 @@ const networks = {
     name: 'coffe',
     contract: 'eostokensdex',
 
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'CFF',
+      precision: 4
+    },
+
     chainId: '1ca925bc8fbc1cec262dedd10fd19d9357a1cc8de0bd92e5b61577740af9a3f2',
 
     host: 'coffe.io',
@@ -59,7 +83,7 @@ const networks = {
     protocol: 'https',
     monitor: 'http://local.bloks.io',
     monitor_params: 'coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
-    lightapi: 'https://api.light.xeos.me',
+    lightapi: 'http://coffe.io:5001',
     hyperion: 'https://resurces.com:17555/v2/',
     backEnd: 'https://eostokens.io/api/'
   }

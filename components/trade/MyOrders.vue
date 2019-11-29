@@ -60,6 +60,7 @@ import { mapGetters, mapState } from 'vuex'
 
 export default {
   computed: {
+    ...mapState(['network']),
     ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
     ...mapState('market', ['asks', 'bids', 'id']),
@@ -68,7 +69,7 @@ export default {
       if (!this.user) return []
 
       return [...this.asks, ...this.bids].filter(a => a.account === this.user.name).map((o) => {
-        o.type = o.bid.symbol.symbol === 'EOS' ? 'bid' : 'ask'
+        o.type = o.bid.symbol.symbol === this.network.baseToken.symbol ? 'bid' : 'ask'
 
         return o
       })

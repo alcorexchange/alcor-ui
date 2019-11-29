@@ -2,9 +2,9 @@
 .overflowbox.no-bottom-border
   .blist
     .ltd.d-flex.justify-content-around
-      span Price (EOS)
+      span Price ({{ network.baseToken.symbol }})
       span Amount({{ token.symbol.name }})
-      span Total (EOS)
+      span Total ({{ network.baseToken.symbol }})
 
   .orders-list.blist.asks.text-danger(ref="bids")
     .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
@@ -33,11 +33,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { EventBus } from '~/utils/event-bus'
 
 export default {
   computed: {
+    ...mapState(['network']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'token']),
 
     ...mapGetters({

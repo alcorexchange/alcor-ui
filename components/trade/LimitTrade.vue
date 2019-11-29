@@ -14,7 +14,7 @@ div
       el-form(ref="form" :rules="rules" label-width="60px")
         el-form-item(label="Price")
           el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="priceChange()")
-            span(slot="suffix").mr-1 EOS
+            span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
         el-form-item(label="Amount")
           el-input(type="number" v-model="amount" @change="amountChange()" clearable)
@@ -25,7 +25,7 @@ div
 
         el-form-item(label="Total" prop="total" :inline-message="true").mt-5
           el-input(type="number" v-model="total" @change="totalChange()")
-            span(slot="suffix").mr-1 EOS
+            span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
         el-form-item.mt-2
           // TODO разработать компонент которой чекает залогинен ли
@@ -39,7 +39,7 @@ div
       el-form(ref="form" :rules="rules" label-width="60px")
         el-form-item(label="Price")
           el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="priceChange()")
-            span(slot="suffix").mr-1.ml-2 EOS
+            span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
 
         el-form-item(label="Amount")
           el-input(type="number" v-model="amount" clearable @change="priceChange()")
@@ -50,7 +50,7 @@ div
 
         el-form-item(label="Total" prop="total" :inline-message="true").mt-5
           el-input(type="number" v-model="total" @change="totalChange()")
-            span(slot="suffix").mr-1 EOS
+            span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
         el-form-item.mt-2
           // TODO разработать компонент которой чекает залогинен ли
@@ -66,6 +66,7 @@ export default {
 
   // TODO Перенести может в миксин тоже
   computed: {
+    ...mapState(['network']),
     ...mapState('market', ['token']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapGetters(['user', 'tokenBalance', 'eosBalance']),
