@@ -278,6 +278,10 @@ export const tradeMixin = {
 
 Vue.mixin({
   methods: {
+    monitorAccount(account) {
+      return `${this.$store.state.network.monitor}/account/${account}?${this.$store.state.network.monitor_params}`
+    },
+
     unitPriceInfo() {
       this.$alert(
         `Since the price calculation is calculated using int64 value,

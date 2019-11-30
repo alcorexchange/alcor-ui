@@ -21,7 +21,7 @@
     .col-lg-9.col-md-12
       h1.align-self-center.lead.mt-3
         span No commissions
-        a(:href="'eostokensdex' | monitorAccount" target="_blank").text-primary.strong  FULLY-ONCHAIN
+        a(:href="monitorAccount('eostokensdex')" target="_blank").text-primary.strong  FULLY-ONCHAIN
 
         span  exchange.
         br
@@ -30,7 +30,7 @@
     .col-lg-3.d-flex
       .align-items-center.mt-3.ml-lg-auto
         span(v-if="user")
-          a(:href="user.name | monitorAccount" target="_blank").mr-3 {{ $store.state.user.name }}
+          a(:href="monitorAccount(user.name)" target="_blank").mr-3 {{ $store.state.user.name }}
           el-button(v-if="user" size="small" type="info" plain @click="logout") logout
 
         el-button(@click="login" type="primary" size="medium" v-else) Sign In via Scatter

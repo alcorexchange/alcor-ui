@@ -5,12 +5,7 @@ import config from '~/config'
 
 Vue.use(moment)
 
-Vue.filter('monitorAccount', function (account) {
-  return `${config.monitor}/account/${account}?${config.monitor_params}`
-})
-
 Vue.filter('monitorTx', function (tx) {
-  console.log(Vue)
   return `${config.monitor}/transaction/${tx}?tab=traces&${config.monitor_params}`
 })
 

@@ -7,7 +7,7 @@
       .lead
         TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
         | {{ token.symbol.name }}@
-        a(:href="token.contract | monitorAccount" target="_blank") {{ token.contract }}
+        a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
     .col-md-8.d-flex.align-items-center
       .text.item
         span Volume 24H:
