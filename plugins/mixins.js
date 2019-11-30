@@ -61,9 +61,9 @@ export const tradeMixin = {
 
   watch: {
     eosPercent(v) {
-      if (!this.eosBalance) return
+      if (!this.baseBalance) return
 
-      const balance = parseFloat(this.eosBalance.split(' ')[0])
+      const balance = parseFloat(this.baseBalance.split(' ')[0])
 
       if (balance == 0) return
 
@@ -214,6 +214,8 @@ export const tradeMixin = {
           memo: `${this.amount} ${this.token.str}`
         })
 
+        this.$store.dispatch('market/fetchMarket')
+
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
@@ -254,6 +256,8 @@ export const tradeMixin = {
           quantity: `${this.amount} ${this.token.symbol.name}`,
           memo: `${this.total} ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`
         })
+
+        this.$store.dispatch('market/fetchMarket')
 
         this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,

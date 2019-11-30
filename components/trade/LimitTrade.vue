@@ -9,7 +9,7 @@ div
     .col-lg-6
       .d-flex.label.mb-3
         span.text-success Buy {{ token.symbol.name }}
-        span.text-mutted.small.align-self-end.ml-auto balance: {{ eosBalance }}
+        span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
 
       el-form(ref="form" :rules="rules" label-width="60px")
         el-form-item(label="Price")
@@ -69,7 +69,7 @@ export default {
     ...mapState(['network']),
     ...mapState('market', ['token']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
-    ...mapGetters(['user', 'tokenBalance', 'eosBalance']),
+    ...mapGetters(['user', 'tokenBalance', 'baseBalance']),
     ...mapGetters({ current_price: 'market/price' })
   },
 

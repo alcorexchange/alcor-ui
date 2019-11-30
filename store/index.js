@@ -40,7 +40,7 @@ export const actions = {
     //dispatch('loadHistory') TODO Может в будущем обновлять
   },
 
-  async loadMarkets({ state, commit, getters }) {
+  async loadMarkets({ state, commit, getters, dispatch }) {
     const { rows } = await getters['api/rpc'].get_table_rows({
       code: state.network.contract,
       scope: state.network.contract,
@@ -52,21 +52,33 @@ export const actions = {
     rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
 
     try {
-      const { data } = await getters['api/backEnd'].get(`markets`)
-
-      rows.map(r => {
-        const m = data.filter(d => d.market_id == r.id)[0]
-        if (m) {
-          r.price = m.last_price
-        } else {
-          r.price = 0
-        }
+      const requests = rows.map(d => {
+        return { market: d, p: dispatch('api/getBuyOrders', { market_id: d.id, index_position: 2, key_type: 'i64', limit: 1 }) }
       })
-    } catch {
-      rows.map(r => r.price = 0)
-    }
 
-    commit('setMarkets', rows)
+      await Promise.all(requests.map(r => r.p))
+
+      const markets = []
+      for (const req of requests) {
+        const { market, p } = req
+
+        const [order] = await p
+
+        if (order) {
+          market.last_price = order.unit_price
+        } else {
+          market.last_price = 0
+        }
+
+        markets.push(market)
+      }
+
+      commit('setMarkets', markets)
+    } catch (e) {
+      console.log(e)
+      rows.map(r => r.last_price = '0.' + '0'.repeat(state.network.baseToken.precision) + ' ' + state.network.baseToken.symbol)
+      commit('setMarkets', rows)
+    }
   },
 
   loadHistory({ state, commit, getters }) {
@@ -127,12 +139,11 @@ export const getters = {
     return state.user
   },
 
-  eosBalance(state) {
-    // TODO В стейт
-    if (!state.user || !state.user.balances) return '0.0000 EOS'
+  baseBalance(state) {
+    if (!state.user || !state.user.balances) return '0.0000 ' + state.network.baseToken.symbol
 
-    const balance = state.user.balances.filter(b => b.currency === 'EOS')[0]
-    if (!balance) return '0.0000 EOS'
+    const balance = state.user.balances.filter(b => b.currency === state.network.baseToken.symbol)[0]
+    if (!balance) return '0.0000 ' + state.network.baseToken.symbol
 
     return `${balance.amount} ${balance.currency}`
   },

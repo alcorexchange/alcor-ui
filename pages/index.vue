@@ -19,7 +19,7 @@
         TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
         span.ml-2
           | {{ market.token.symbol.name }}@{{ market.token.contract }}
-          .text-success {{ market.price | humanFloat }}
+          .text-success {{ market.last_price | humanFloat }}
 
 
     .display-4 Rules:

@@ -51,7 +51,7 @@ const networks = {
 
     baseToken: {
       contract: 'eosio.token',
-      symbol: 'CFF',
+      symbol: 'EOS',
       precision: 4
     },
     marketCreationFee: '3.0000 EOS',
