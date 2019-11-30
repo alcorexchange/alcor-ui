@@ -11,7 +11,7 @@
 
         el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
           a(href="https://swap.eostokens.io" target="_blank")
-            img(src="/eosswap_logo.png" height="40").ml-2
+            img(src="~/assets/logos/tokenswap.svg" height="50").ml-2
 
         el-tooltip(content="Join us on Telegram!" placement="top" effect="light")
           a(href="https://t.me/eostokensdex" target="_blank")
