@@ -25,7 +25,7 @@
 
         span  exchange.
         br
-        span  Create markets in one click, list your token for free, trade whatever you want.
+        span  Create markets in one click, list your dapp token for one click, trade whatever you want.
 
     .col-lg-3.d-flex
       .align-items-center.mt-3.ml-lg-auto

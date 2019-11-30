@@ -1,5 +1,5 @@
 <template lang="pug">
-div(ref="chart")
+  div(ref="chart" v-loading="loading")
 </template>
 
 <script>
@@ -11,7 +11,8 @@ export default {
     return {
       chart: null,
       candleSeries: null,
-      charts_list: []
+      charts_list: [],
+      loading: true
     }
   },
 
@@ -22,7 +23,6 @@ export default {
   watch: {
     charts() {
       if (this.charts_list.length == this.charts.length) return
-
       this.charts_list = this.charts // Stor react this
 
       const p = p => parseFloat(this.$options.filters.humanFloat(p))
@@ -36,6 +36,8 @@ export default {
           close: p(i.close)
         }
       }))
+
+      this.loading = false
     }
   },
 
