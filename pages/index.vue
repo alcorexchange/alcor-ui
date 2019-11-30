@@ -10,7 +10,9 @@
 
     #markets.d-flex.mt-4
       .market-new
-        new-order-form(@submit="newMarket" v-if="user" size="big").new-market-btn Open new market
+        nuxt-link(to="new_market")
+          //.new-market-btn
+          el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
 
       pre.market(v-for="market in filteredItems" @click="clickOrder(market)")
         span
@@ -74,14 +76,10 @@
 import { captureException } from '@sentry/browser'
 
 import { mapGetters, mapState } from 'vuex'
-import NewOrderForm from '~/components/NewOrderForm.vue'
 import TokenImage from '~/components/elements/TokenImage'
-
-import { transfer } from '~/store/chain.js'
 
 export default {
   components: {
-    NewOrderForm,
     TokenImage
   },
 
@@ -127,31 +125,6 @@ export default {
     clickOrder(a) {
       this.$router.push({ name: 'trade-id', params: { id: a.id } })
     },
-
-    newMarket({ buy, sell }) {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for Scatter'
-      })
-
-      try {
-        this.$store.dispatch('chain/transfer', {
-          contract: sell.contract,
-          actor: this.user.name,
-          quantity: sell.quantity,
-          memo: `${buy.quantity}`
-        }).then(e => {
-          console.log(e)
-          this.fetch()
-        }).catch(e => console.log(e))
-      } catch (e) {
-        captureException(e, { extra: { buy, sell } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
-        console.log(e)
-      } finally {
-        loading.close()
-      }
-    }
   }
 }
 </script>
