@@ -17,27 +17,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('market', ['token', 'charts']),
+    ...mapGetters('market', ['token', 'charts'])
   },
 
   watch: {
     charts() {
       if (this.charts_list.length == this.charts.length) return
-      this.charts_list = this.charts // Stor react this
 
-      const p = p => parseFloat(this.$options.filters.humanFloat(p))
-
-      this.candleSeries.setData(dayChart(this.charts_list).map(i => {
-        return {
-          time: i.time,
-          open: p(i.open),
-          high: p(i.high),
-          low: p(i.low),
-          close: p(i.close)
-        }
-      }))
-
-      this.loading = false
+      this.makeCharts()
     }
   },
 
@@ -101,6 +88,30 @@ export default {
         minMove: 0.0000001
       }
     })
+
+    this.makeCharts()
+  },
+
+  methods: {
+    makeCharts() {
+      try {
+        this.charts_list = this.charts // Stor react this
+        const p = p => parseFloat(this.$options.filters.humanFloat(p))
+        this.candleSeries.setData(dayChart(this.charts_list).map(i => {
+          return {
+            time: i.time,
+            open: p(i.open),
+            high: p(i.high),
+            low: p(i.low),
+            close: p(i.close)
+          }
+        }))
+      } catch (e) {
+        console.log('loading graph error')
+      } finally {
+        this.loading = false
+      }
+    }
   }
 }
 </script>
