@@ -28,7 +28,7 @@ export const actions = {
   nuxtServerInit ({ commit }, { req }) {
     const subdomain = req.headers.host.split('.')
 
-    if (subdomain.length == 1) {
+    if (subdomain.length <= 2) {
       commit('setNetwork', config.networks.eos)
     } else {
       commit('setNetwork', config.networks[subdomain[0]])

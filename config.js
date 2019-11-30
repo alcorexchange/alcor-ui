@@ -86,7 +86,7 @@ const networks = {
     port: 8888,
     protocol: 'https',
     monitor: 'http://local.bloks.io',
-    monitor_params: 'coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
+    monitor_params: 'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
     lightapi: 'http://coffe.io:5001',
     hyperion: 'https://resurces.com:17555/v2/',
     backEnd: 'https://eostokens.io/api/'
