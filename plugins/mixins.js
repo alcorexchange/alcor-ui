@@ -151,19 +151,6 @@ export const tradeMixin = {
       return [amountToFloat(amount, qp), amountToFloat(total, bp)]
     },
 
-    //amountInput(amount) {
-    //  let [int, digit] = amount.split('.')
-
-    //  console.log('ss', String(parseInt(digit)))
-    //  if (digit && String(parseInt(digit)).length > 4) {
-    //    this.amount_ = this.amount
-    //    return
-    //  }
-
-    //  this.amount_ = amount
-    //  this.amount = amount
-    //},
-
     fixedAmount (digits) {
       this.amount = this.amount.toFixed(this.quoteToken.precision)
     },
@@ -173,7 +160,7 @@ export const tradeMixin = {
     },
 
     priceChange () {
-      const price = Math.max(parseFloat(this.price), 1 / 10 ** config.PRICE_DIGITS)
+      const price = Math.max(parseFloat(this.price) || 1, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
       this.total = (this.price * this.amount)
       this.amountChange()
