@@ -58,9 +58,7 @@ import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
 import OrderBook from '~/components/trade/OrderBook'
 import LatestDeals from '~/components/trade/LatestDeals'
-import Kline from '~/components/trade/Kline'
-
-import config from '~/config'
+import Chart from '~/components/trade/Chart'
 
 export default {
   components: {
@@ -71,7 +69,7 @@ export default {
     LimitTrade,
     OrderBook,
     LatestDeals,
-    Kline
+    Chart
   },
 
   async fetch({ store, error, params }) {
