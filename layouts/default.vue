@@ -116,7 +116,10 @@ export default {
     },
 
     changeChain() {
-      window.location = `https://${this.current_chain}.eostokens.io?` + this.current_chain
+      if (this.current_chain == 'eos') {
+        window.location = `https://eostokens.io`
+      }
+      window.location = `https://${this.current_chain}.eostokens.io`
     },
 
     async login() {
