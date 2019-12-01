@@ -17,6 +17,12 @@
           a(href="https://t.me/eostokensdex" target="_blank")
             img(src="/telegram.png" height="40").ml-2
 
+        el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain")
+          el-option(v-for='network in networks', :key='network.name', :value='network.name')
+            img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+            span.ml-2 {{ network.desc }}
+        img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+
   .row
     .col-lg-9.col-md-12
       h1.align-self-center.lead.mt-3
@@ -80,6 +86,9 @@ export default {
       netError: false,
       lastCommit: {},
 
+      networks: [],
+      current_chain: '',
+
       app_name: config.APP_NAME
     }
   },
@@ -89,6 +98,8 @@ export default {
   },
 
   async created() {
+    this.networks = Object.values(config.networks)
+    this.current_chain = this.$store.state.network.name
     this.getVersion()
 
     try {
@@ -102,6 +113,10 @@ export default {
   methods: {
     async logout() {
       await this.$store.dispatch('chain/logout')
+    },
+
+    changeChain() {
+      window.location = `https://${this.current_chain}.eostokens.io?` + this.current_chain
     },
 
     async login() {

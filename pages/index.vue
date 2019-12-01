@@ -6,7 +6,7 @@
       .col-md-8
         .display-4.mt-3 Markets:
       .col-md-4.d-flex
-        el-input(v-model="search" placeholder="Filter by token").align-self-end.ml-auto.d-none.d-lg-block
+        el-input(size="small" v-model="search" placeholder="Filter by token").align-self-end.ml-auto.d-none.d-lg-block
 
     #markets.d-flex.mt-4
       .market-new

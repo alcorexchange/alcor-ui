@@ -3,6 +3,7 @@ const PRICE_SCALE = 100000000
 const networks = {
   local: {
     name: 'local',
+    desc: 'Local network',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -25,6 +26,7 @@ const networks = {
 
   jungle: {
     name: 'jungle',
+    desc: 'Jungle testnet',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -47,6 +49,7 @@ const networks = {
 
   eos: {
     name: 'eos',
+    desc: 'EOS mainnet',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -70,6 +73,7 @@ const networks = {
 
   coffe: {
     name: 'coffe',
+    desc: 'COFFE mainnet',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -93,6 +97,7 @@ const networks = {
 
   telos: {
     name: 'telos',
+    desc: 'Telos mainnet',
     contract: 'eostokensdex',
 
     baseToken: {
