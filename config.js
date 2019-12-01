@@ -64,7 +64,6 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    //hyperion: 'https://api.eossweden.org/v2/',
     hyperion: 'https://mainnet.eosn.io/v2/',
     backEnd: 'https://eostokens.io/api/'
   },
@@ -89,6 +88,29 @@ const networks = {
     monitor_params: 'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
     lightapi: 'http://coffe.io:5001',
     hyperion: 'https://resurces.com:17555/v2/',
+    backEnd: 'https://eostokens.io/api/'
+  },
+
+  telos: {
+    name: 'telos',
+    contract: 'eostokensdex',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'TLOS',
+      precision: 4
+    },
+    marketCreationFee: '100.0000 TLOS',
+
+    chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
+
+    host: 'api.telos.alohaeos.com',
+    port: 443,
+    protocol: 'https',
+    monitor: 'http://telos.bloks.io',
+    monitor_params: '',
+    lightapi: 'https://api.light.xeos.me',
+    hyperion: 'https://mainnet.telosusa.io/v2/',
     backEnd: 'https://eostokens.io/api/'
   }
 }
