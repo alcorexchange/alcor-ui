@@ -24,7 +24,7 @@
       .col-lg-7
         .row
           .col
-            Kline
+            chart
 
         .row
           .col
