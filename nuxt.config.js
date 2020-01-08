@@ -91,6 +91,12 @@ module.exports = {
     disabled: isDev
   },
 
+  buildModules: [
+    ['@nuxtjs/google-analytics', {
+      id: 'UA-155720239-1'
+    }]
+  ],
+
   /*
   ** Build configuration
   */
