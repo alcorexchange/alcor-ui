@@ -2,7 +2,10 @@
 .row
   .col
     el-card.box-card.mt-3
-      el-form(ref="form" :model="form" label-position="left" :rules="rules").mt-2
+      el-alert(:closable="false" show-icon type="info" v-if="!user").mt-4
+        | Please login with scatter
+
+      el-form(v-else ref="form" :model="form" label-position="left" :rules="rules").mt-2
         .lead Auto market creation
         small You need around 300 buyes of free RAM for new market
 
