@@ -109,7 +109,7 @@ export default {
 
   head() {
     return {
-      title: `EOS Tokens | Market ${this.token.symbol.name}`,
+      title: `Alcor Exchange | Market ${this.token.symbol.name}`,
 
       meta: [
         // hid is used as unique identifier. Do not use `vmid` for it as it will not work

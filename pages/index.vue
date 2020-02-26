@@ -24,7 +24,7 @@
 
     .display-4 Rules:
     .ml-3.mt-3
-      h2.lead With EOS Tokens you can trade any EOS.IO tokens for system EOS tokens,
+      h2.lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
            | atomically, without the participation of third parties! The tokens should comply with the
            | standard eosio.token of the contract.
 
