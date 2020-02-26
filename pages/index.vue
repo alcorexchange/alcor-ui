@@ -25,7 +25,7 @@
     p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to
       a(href="https://t.me/eostokensdex" target="_blank")  telegram chat!
 
-    .row
+    .row.px-4
       .col-md-4.p-2
         a(href="https://zenblocks.io" target="_blank")
           img(src="~/assets/logos/zenblocks.png" height=70)
@@ -85,7 +85,7 @@
       .col
         .display-4.mt-4 Technologies:
 
-    .row
+    .row.px-4
       .col-md-4
         a(href="https://github.com/eosrio/Hyperion-History-API" target="_blank").img
           img(src="~/assets/logos/hyperion.png")
