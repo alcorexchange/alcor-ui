@@ -21,6 +21,36 @@
           | {{ market.token.symbol.name }}@{{ market.token.contract }}
           .text-success {{ market.last_price | humanFloat }}
 
+    .display-4.mt-4 Partners
+    p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to
+      a(href="https://t.me/eostokensdex" target="_blank")  telegram chat!
+
+    .row
+      .col-md-4.p-2
+        a(href="https://zenblocks.io" target="_blank")
+          img(src="~/assets/logos/zenblocks.png" height=70)
+
+        .lead Direct partners.
+
+      .col-md-4.p-2
+        a(href="https://eosnameswaps.com" target="_blank")
+          img(src="https://www.eosnameswaps.com/images/ens_logo.jpg" height=70)
+        .lead A decentralized EOS account exchange.
+
+      .col-md-4.p-2
+        a(href="https://coffe.io" target="_blank")
+          img(src="~/assets/logos/coffe.svg" height=70)
+
+        .lead First integrated eosio chain.
+
+      .col-md-4.p-2
+        a(href="https://yusaymon.portfoliobox.net" target="_blank")
+          el-avatar(:size="70" src="https://empty")
+            img(src="~/assets/logos/yusaymon.jpeg")
+
+        a(href="https://yusaymon.portfoliobox.net" target="_blank")
+        .lead The design of the original app logo: @yusaymon
+
 
     .display-4 Rules:
     .ml-3.mt-3
@@ -80,29 +110,6 @@
           | Is very useful eosio chains explorer.
           br
           | It uses for show all deals history and token contracts.
-
-    .display-4.mt-4 Partners
-    p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to
-      a(href="https://t.me/eostokensdex" target="_blank")  telegram chat!
-    .row
-      .col-md-4
-        a(href="https://eosnameswaps.com" target="_blank")
-          img(src="https://www.eosnameswaps.com/images/ens_logo.jpg" height="80")
-        .lead A decentralized EOS account exchange.
-
-      .col-md-4
-        a(href="https://coffe.io" target="_blank")
-          img(src="~/assets/logos/coffe.svg" height=80)
-
-        .lead First integrated eosio chain.
-
-      .col-md-4
-        a(href="https://yusaymon.portfoliobox.net" target="_blank")
-          el-avatar(:size="70" src="https://empty")
-            img(src="~/assets/logos/yusaymon.jpeg")
-
-        a(href="https://yusaymon.portfoliobox.net" target="_blank")
-        .lead The design of the original app logo: @yusaymon
 
 
 </template>
