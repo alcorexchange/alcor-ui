@@ -53,7 +53,7 @@
           a(:href="monitorAccount('eostokensdex')" target="_blank") eostokensdex
     .row.mb-3
       .col
-        .display-4.mt-4 Tecnologies:
+        .display-4.mt-4 Technologies:
 
     .row
       .col-md-4
