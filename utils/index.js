@@ -43,7 +43,10 @@ export function calculatePrice(sell, buy) {
 }
 
 export function parseExtendedAsset(asset) {
-  const symbol = Serialize.stringToSymbol(asset.symbol)
+  // New cdt 1.7.0 braking change
+  const sym = asset.symbol != undefined ? asset.symbol : asset.sym
+
+  const symbol = Serialize.stringToSymbol(sym)
 
   return {
     contract: asset.contract,

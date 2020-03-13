@@ -28,7 +28,9 @@ export const actions = {
   nuxtServerInit ({ commit }, { req }) {
     const subdomain = req.headers.host.split('.')
 
-    if (subdomain.length <= 2) {
+    if (process.env.NETWORK) {
+      commit('setNetwork', config.networks[process.env.NETWORK])
+    } else if (subdomain.length <= 2) {
       commit('setNetwork', config.networks.eos)
     } else {
       commit('setNetwork', config.networks[subdomain[0]])
@@ -57,6 +59,7 @@ export const actions = {
       })
 
       await Promise.all(requests.map(r => r.p))
+      console.log(2)
 
       const markets = []
       for (const req of requests) {
@@ -75,7 +78,6 @@ export const actions = {
 
       commit('setMarkets', markets)
     } catch (e) {
-      console.log(e)
       rows.map(r => r.last_price = '0.' + '0'.repeat(state.network.baseToken.precision) + ' ' + state.network.baseToken.symbol)
       commit('setMarkets', rows)
     }

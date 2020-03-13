@@ -4,7 +4,7 @@ const networks = {
   local: {
     name: 'local',
     desc: 'Local network',
-    contract: 'eostokensdex',
+    contract: 'dex',
 
     baseToken: {
       contract: 'eosio.token',

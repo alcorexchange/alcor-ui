@@ -75,7 +75,7 @@
 
 <script>
 import { captureException } from '@sentry/browser'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import axios from 'axios'
 
 import config from '~/config'
@@ -94,7 +94,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+    //...mapState({
+    //  current_chain: state => state.network.name
+    //})
+
   },
 
   async created() {
