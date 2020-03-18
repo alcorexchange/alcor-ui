@@ -183,5 +183,18 @@ export function dayChart(actions) {
     })
   }
 
+  for (let i = 0; i < results.length; i++) {
+    const curr = results[i]
+    const next = results[i + 1]
+
+    if (!next) {
+      break
+    }
+
+    if (curr.close != next.open) {
+      curr.close = next.open
+    }
+  }
+
   return results
 }
