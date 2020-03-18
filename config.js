@@ -119,30 +119,30 @@ const networks = {
     backEnd: 'https://eostokens.io/api/'
   },
 
-  //wax: {
-  //  name: 'wax',
-  //  desc: 'Wax mainnet',
-  //  contract: '', // TODO
+  wax: {
+    name: 'wax',
+    desc: 'Wax mainnet',
+    contract: 'alcordexmain', // TODO
 
-  //  baseToken: {
-  //    contract: 'eosio.token',
-  //    symbol: 'WAX',
-  //    precision: 8
-  //  },
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'WAX',
+      precision: 8
+    },
 
-  //  marketCreationFee: '400.0000 WAX',
+    marketCreationFee: '300.0000 WAX',
 
-  //  chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
+    chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
-  //  host: 'chain.wax.io',
-  //  port: 443,
-  //  protocol: 'https',
-  //  monitor: 'http://wax.bloks.io',
-  //  monitor_params: '',
-  //  lightapi: 'https://lightapi.eosamsterdam.net',
-  //  hyperion: 'https://api.waxsweden.org/v2/',
-  //  backEnd: 'https://eostokens.io/api/'
-  //}
+    host: 'chain.wax.io',
+    port: 443,
+    protocol: 'https',
+    monitor: 'http://wax.bloks.io',
+    monitor_params: '',
+    lightapi: 'https://lightapi.eosamsterdam.net',
+    hyperion: 'https://api.waxsweden.org/v2/',
+    backEnd: 'https://eostokens.io/api/'
+  }
 }
 
 export default {
