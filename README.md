@@ -1,4 +1,4 @@
-## [Alcor Exchange](https://eostokens.io)
+## [Alcor Exchange](https://alcor.exchange)
 > EOS trustless onchain limit/market trading  
 
 ![Alcor](http://i.imgur.com/AWp7IzW.png)

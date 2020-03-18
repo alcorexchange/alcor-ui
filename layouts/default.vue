@@ -120,10 +120,11 @@ export default {
     },
 
     changeChain() {
+      // TODO Move to config: APP_DOMAIN
       if (this.current_chain == 'eos') {
-        window.location = `https://eostokens.io`
+        window.location = `https://alcor.exchange`
       }
-      window.location = `https://${this.current_chain}.eostokens.io`
+      window.location = `https://${this.current_chain}.alcor.exchange`
     },
 
     async login() {
