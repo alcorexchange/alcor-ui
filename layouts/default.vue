@@ -1,10 +1,10 @@
 <template lang="pug">
 .container.mb-5.mt-4
   .row
-    .col-lg-4
+    .col-lg-4.d-flex.align-self-center
       nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
-        //h1.display-3 {{ app_name }}
-        img(src="~/assets/logo.svg").logo
+        h1.display-4 {{ app_name }}
+        //img(src="~/assets/logo.svg").logo
     .col
       .row.d-flex.flex-lg-row-reverse.align-items-center.p-4
         gh-btns-star(slug="avral/eostokens-ui" show-count).ml-3
