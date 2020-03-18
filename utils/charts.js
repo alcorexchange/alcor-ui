@@ -19,9 +19,13 @@ function save_price_history(list, db, time) {
     const price = parseInt(db().order('price').last().price)
 
     list.push({ price, time })
+  } else {
+    console.log('no orders for history')
   }
 }
 
+// FIXME Такое ощущение что некоторые экшены просто пропали из чейна, хз как это понимать нужно подумать что делать с
+// этим
 export function dayChart(actions) {
   const result = []
   const buyOrders = taffy()
@@ -33,16 +37,17 @@ export function dayChart(actions) {
 
     return a.act
   }).reverse()) {
-    //console.log(act.block_num)
     const data = act.data
 
     if (act.name == 'cancelbuy') {
+      console.log('cancelbuy: ', data.order_id)
       buyOrders({ account: data.executor, order_id: parseInt(data.order_id) }).remove()
 
       save_price_history(result, buyOrders, act.timestamp)
     }
 
     if (act.name == 'cancelsell') {
+      console.log('cancelsell: ', data.order_id)
       sellOrders({ account: data.executor, order_id: parseInt(data.order_id) }).remove()
 
       save_price_history(result, buyOrders, act.timestamp)
@@ -51,9 +56,17 @@ export function dayChart(actions) {
     if (act.name == 'sellmatch') {
       const record = data.record
 
+      console.log('sellmatch: ', record.unit_price, '; bid: ', record.bid.amount, '; ask: ', record.ask.amount)
+
       const order = buyOrders({ price: record.unit_price }).order('block_num').first()
+      //const order = buyOrders().order('price').first()
+      //const order2 = buyOrders().order('price').last()
+      //const order = buyOrders().order('price').last()
+
       order.ask -= record.bid.amount
       order.bid -= record.ask.amount
+
+      console.log('after', order.ask, order.bid)
 
       buyOrders({ order_id: order.order_id, account: order.account }).remove()
 
@@ -64,10 +77,14 @@ export function dayChart(actions) {
       save_price_history(result, buyOrders, act.timestamp)
     }
 
+    // TODO По несколько раз они же тоже не метчатся, несколько ордеров не сжирают, нужно и это учесть
     if (act.name == 'buymatch') {
       const record = data.record
 
+      console.log('buymatch: ', record.unit_price, '; bid: ', record.bid.amount, '; ask: ', record.ask.amount)
+
       const order = sellOrders({ price: record.unit_price }).order('block_num').first()
+      //const order = sellOrders().order('price').first()
       order.ask -= record.bid.amount
       order.bid -= record.ask.amount
 
@@ -83,8 +100,11 @@ export function dayChart(actions) {
     if (act.name == 'sellreceipt') {
       const order = data.sell_order
 
+
       const bid = quantityToAmount(order.bid)
       const ask = quantityToAmount(order.ask)
+
+      console.log(`sellreceipt(${order.id}): `, order.unit_price, '; bid: ', bid, '; ask: ', ask, 'time: ', act.timestamp)
 
       sellOrders.insert({
         account: order.account,
@@ -104,6 +124,8 @@ export function dayChart(actions) {
 
       const bid = quantityToAmount(order.bid)
       const ask = quantityToAmount(order.ask)
+
+      console.log(`buyreceipt(${order.id}): `, order.unit_price, '; bid: ', bid, '; ask: ', ask, 'time: ', act.timestamp)
 
       buyOrders.insert({
         account: order.account,
@@ -141,6 +163,7 @@ export function dayChart(actions) {
   }
 
   for (const [key, values] of Object.entries(new_result)) {
+    // TODO Сделать норм свечи что бы новая не начиналась с разрывом
     if (values.length == 0) {
       const last_item = results[results.length - 1]
 

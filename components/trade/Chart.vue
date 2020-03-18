@@ -1,5 +1,6 @@
 <template lang="pug">
-  div(ref="chart" v-loading="loading")
+  div(v-loading="loading")
+    div(ref="chart")
 </template>
 
 <script>
@@ -106,8 +107,9 @@ export default {
             close: p(i.close)
           }
         }))
+        this.loading = false
       } catch (e) {
-        console.log('loading graph error')
+        this.$notify({ title: 'Graph', message: 'graph fetch error', type: 'warning' })
       } finally {
         this.loading = false
       }

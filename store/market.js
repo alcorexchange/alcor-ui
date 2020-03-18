@@ -8,7 +8,8 @@ export const state = () => ({
   bids: [],
   asks: [],
 
-  history: []
+  history: [],
+  orderLoading: false
 })
 
 export const mutations = {
@@ -16,7 +17,8 @@ export const mutations = {
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setHistory: (state, history) => state.history = history,
-  setToken: (state, token) => state.token = token
+  setToken: (state, token) => state.token = token,
+  setOrderLoading: (state, orderLoading) => state.orderLoading = orderLoading
 }
 
 export const actions = {
@@ -42,7 +44,7 @@ export const actions = {
     commit('setToken', parseExtendedAsset(market.token))
     commit('setId', market.id)
 
-    Promise.all([
+    await Promise.all([
       dispatch('api/getBuyOrders', { market_id: state.id }, { root: true }),
       dispatch('api/getSellOrders', { market_id: state.id }, { root: true })
     ]).then(([buyOrders, sellOrders]) => {

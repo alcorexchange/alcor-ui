@@ -1,7 +1,7 @@
 <template lang="pug">
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
-.box-card.mt-3(v-if="!no_found" v-loading="loading")
+.box-card.mt-3(v-if="!no_found")
   .row.mb-3
     .col-md-4
       .lead
@@ -16,7 +16,7 @@
   .text.item
     .row.trade-window
       .col-lg-5
-        order-book
+        order-book(v-loading="loading")
 
         .row
           .col
@@ -37,7 +37,7 @@
     hr
     .row
       .col
-        my-orders(v-if="user")
+        my-orders(v-if="user" v-loading="loading")
 
 .box-card(v-else).mt-3
   .clearfix(slot='header')
@@ -75,11 +75,15 @@ export default {
   async fetch({ store, error, params }) {
     store.commit('market/setId', params.id)
 
+    this.loading = true
     try {
       await store.dispatch('market/fetchMarket')
     } catch (e) {
       captureException(e)
       return error({ message: e, statusCode: 500 })
+    } finally {
+      console.log('stop fetch')
+      this.loading = false
     }
   },
 

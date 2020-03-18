@@ -151,14 +151,6 @@ export const tradeMixin = {
       return [amountToFloat(amount, qp), amountToFloat(total, bp)]
     },
 
-    fixedAmount (digits) {
-      this.amount = this.amount.toFixed(this.quoteToken.precision)
-    },
-
-    fixedTotal (digits) {
-      this.total = this.total.toFixed(this.token.symbol.precision)
-    },
-
     priceChange () {
       const price = Math.max(parseFloat(this.price) || 1, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
@@ -189,8 +181,8 @@ export const tradeMixin = {
     },
 
     async buy() {
-      this.amount = parseFloat(this.amount).toFixed(this.network.baseToken.precision)
-      this.total = parseFloat(this.total).toFixed(this.token.symbol.precision)
+      this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
+      this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
