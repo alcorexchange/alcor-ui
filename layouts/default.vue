@@ -3,7 +3,8 @@
   .row
     .col-lg-4.d-flex.align-self-center
       nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
-        h1.display-4 {{ app_name }}
+        //span.display-4 {{ app_name }}
+        span.logo-text {{ app_name }}
         //img(src="~/assets/logo.svg").logo
     .col
       .row.d-flex.flex-lg-row-reverse.align-items-center.p-4
@@ -168,6 +169,12 @@ export default {
 <style>
 .logo {
   height: 80px;
+}
+
+.logo-text {
+  font-size: 3em;
+  font-family: sans-serif;
+  font-weight: 100;
 }
 
 h1.lead {

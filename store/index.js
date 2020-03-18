@@ -59,7 +59,6 @@ export const actions = {
       })
 
       await Promise.all(requests.map(r => r.p))
-      console.log(2)
 
       const markets = []
       for (const req of requests) {
