@@ -30,6 +30,8 @@ export const actions = {
 
     if (process.env.NETWORK) {
       commit('setNetwork', config.networks[process.env.NETWORK])
+    } else if (req.headers.host == '127.0.0.1:3000') {
+      commit('setNetwork', config.networks.eos)
     } else if (subdomain.length <= 2) {
       commit('setNetwork', config.networks.eos)
     } else {
