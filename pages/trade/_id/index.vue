@@ -82,7 +82,6 @@ export default {
       captureException(e)
       return error({ message: e, statusCode: 500 })
     } finally {
-      console.log('stop fetch')
       this.loading = false
     }
   },

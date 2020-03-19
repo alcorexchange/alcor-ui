@@ -156,7 +156,7 @@ export default {
         this.$router.push({ name: 'index' })
       } catch (e) {
         captureException(e, { extra: { contract, symbol, precision } })
-        this.$notify({ title: 'Market creation', message: e.message, type: 'error' })
+        this.$notify({ title: 'Market creation', message: e, type: 'error' })
         console.log(e)
       } finally {
         loading.close()

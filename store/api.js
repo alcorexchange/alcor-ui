@@ -1,6 +1,11 @@
-import ScatterJS from '@scatterjs/core'
-import ScatterEOS from '@scatterjs/eosjs2'
-import { Api, JsonRpc } from 'eosjs'
+//import ScatterJS from '@scatterjs/core'
+//import ScatterEOS from '@scatterjs/eosjs2'
+import ScatterJS from 'scatterjs-core'
+import ScatterEOS from 'scatterjs-plugin-eosjs'
+import * as Eos_legacy from 'eosjs_legacy'
+
+import { JsonRpc } from 'eosjs'
+
 import fetch from 'node-fetch'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -9,6 +14,7 @@ import { parseAsset } from '~/utils'
 
 axiosRetry(axios, { retries: 10 })
 ScatterJS.plugins(new ScatterEOS())
+
 
 export const state = () => ({
   //rpc: null,
@@ -52,7 +58,7 @@ export const getters = {
   },
 
   eos(state, getters, rootState) {
-    return ScatterJS.eos(rootState.network, Api, { rpc: getters.rpc })
+    return ScatterJS.eos(rootState.network, Eos_legacy)
   },
 
   hyperion(state, getters, rootState) {

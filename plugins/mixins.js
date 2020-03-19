@@ -216,7 +216,7 @@ export const tradeMixin = {
         })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({ title: 'Place order', message: e, type: 'error' })
         console.log(e)
       } finally {
         loading.close()
@@ -259,7 +259,7 @@ export const tradeMixin = {
         })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({ title: 'Place order', message: e, type: 'error' })
         console.log(e)
       } finally {
         loading.close()

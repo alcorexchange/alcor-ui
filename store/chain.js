@@ -1,10 +1,20 @@
-import ScatterJS from '@scatterjs/core'
-import ScatterEOS from '@scatterjs/eosjs2'
+//import ScatterJS from '@scatterjs/core'
+//import ScatterEOS from '@scatterjs/eosjs2'
 import { configureScope } from '@sentry/browser'
+
+import ScatterJS from 'scatterjs-core'
+import ScatterEOS from 'scatterjs-plugin-eosjs'
+
+//import ScatterJS from 'scatterjs-core';
+//import ScatterEOS from 'scatterjs-plugin-eosjs';
+//import * as Eos from 'eosjs';
+
+
 
 import config from '../config'
 
 ScatterJS.plugins(new ScatterEOS())
+
 
 export const state = () => ({
   scatterConnected: true,
@@ -13,7 +23,8 @@ export const state = () => ({
 
 export const actions = {
   async init({ state, commit, dispatch, rootGetters }) {
-    console.log('Connect scatter..')
+    console.log('Connect scatter..', ScatterJS)
+
     await ScatterJS.connect(config.APP_NAME, { network: rootGetters['api/network'] }).then(v =>
       commit('setScatterConnected', v)
     )
@@ -34,6 +45,7 @@ export const actions = {
         )
       }
     } else {
+      await new Promise(resolve => setTimeout(resolve, 3000))
       await dispatch('init')
     }
 
@@ -56,9 +68,6 @@ export const actions = {
     try {
       const r = await ScatterJS.login()
 
-      // TODO Проверить будет ли работать на мобилках
-      //eos = ScatterJS.eos(network, Api, { rpc })
-
       configureScope(scope => scope.setUser({ username: r.accounts[0].name }))
       commit('setUser', r.accounts[0], { root: true })
       dispatch('loadUserBalances', {}, { root: true })
@@ -74,51 +83,75 @@ export const actions = {
     )
   },
 
-  transfer({ rootGetters, rootState }, { contract, actor, quantity, memo }) {
-    return rootGetters['api/eos'].transact(
+  async transfer({ rootGetters, rootState }, { contract, actor, quantity, memo }) {
+    const token = await rootGetters['api/eos'].contract(contract)
+
+    return await token.transfer(
       {
-        actions: [
-          {
-            account: contract,
-            name: 'transfer',
-            authorization: [
-              {
-                actor,
-                permission: 'active'
-              }
-            ],
-            data: {
-              from: actor,
-              to: rootState.network.contract,
-              quantity,
-              memo
-            }
-          }
-        ]
+        from: actor,
+        to: rootState.network.contract,
+        quantity,
+        memo
       },
-      { blocksBehind: 3, expireSeconds: 3 * 60 }
+      { authorization: [actor] }
     )
+
+    // NEW eosjs-scatter versions
+    //return rootGetters['api/eos'].transact(
+    //  {
+    //    actions: [
+    //      {
+    //        account: contract,
+    //        name: 'transfer',
+    //        authorization: [
+    //          {
+    //            actor,
+    //            permission: 'active'
+    //          }
+    //        ],
+    //        data: {
+    //          from: actor,
+    //          to: rootState.network.contract,
+    //          quantity,
+    //          memo
+    //        }
+    //      }
+    //    ]
+    //  },
+    //  { blocksBehind: 3, expireSeconds: 3 * 60 }
+    //)
   },
 
-  cancelorder({ rootGetters, rootState }, { account, market_id, type, order_id }) {
-    return rootGetters['api/eos'].transact(
-      {
-        actions: [
-          {
-            account: rootState.network.contract,
-            name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
-            authorization: [
-              {
-                actor: account,
-                permission: 'active'
-              }
-            ],
-            data: { executor: account, market_id, order_id }
-          }
-        ]
-      },
-      { blocksBehind: 3, expireSeconds: 3 * 60 }
+  async cancelorder({ rootGetters, rootState }, { account, market_id, type, order_id }) {
+    const contract = await rootGetters['api/eos'].contract(rootState.network.contract)
+
+    return await contract[type === 'bid' ? 'cancelbuy' : 'cancelsell'](
+      { executor: account, market_id, order_id },
+      { authorization: [account] }
     )
+
+    //const options = { authorization: [`${account}@active`] }
+    //return eos.transfer(account.name, 'safetransfer', '0.0001 EOS', account.name, options)
+
+    // New version of eoss-scatter
+    //return rootGetters['api/eos'].transact(
+    //  {
+    //    actions: [
+    //      {
+    //        account: rootState.network.contract,
+    //        name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
+    //        authorization: [
+    //          {
+    //            actor: account,
+    //            permission: 'active'
+    //          }
+    //        ],
+    //        data: { executor: account, market_id, order_id }
+    //      }
+    //    ]
+    //  },
+    //  { blocksBehind: 3, expireSeconds: 3 * 60 }
+    //)
   }
 }
 

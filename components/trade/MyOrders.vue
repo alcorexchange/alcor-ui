@@ -94,7 +94,7 @@ export default {
         this.$emit('update')
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({ title: 'Place order', message: e, type: 'error' })
         console.log(e)
       } finally {
         loading.close()
