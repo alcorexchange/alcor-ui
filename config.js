@@ -130,7 +130,7 @@ const networks = {
       precision: 8
     },
 
-    marketCreationFee: '300.0000 WAX',
+    marketCreationFee: '300.00000000 WAX',
 
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
