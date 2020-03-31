@@ -4,8 +4,8 @@
     .col-lg-4.d-flex.align-self-center
       nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
         //span.display-4 {{ app_name }}
-        span.logo-text {{ app_name }}
-        //img(src="~/assets/logo.svg").logo
+        //span.logo-text {{ app_name }}
+        img(src="~/assets/logos/alcor_logo.svg").logo
     .col
       .row.d-flex.flex-lg-row-reverse.align-items-center.p-4
         gh-btns-star(slug="avral/eostokens-ui" show-count).ml-3
@@ -168,7 +168,7 @@ export default {
 
 <style>
 .logo {
-  height: 80px;
+  height: 3.5em;
 }
 
 .logo-text {
