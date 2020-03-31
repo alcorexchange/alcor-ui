@@ -8,21 +8,19 @@
         img(src="~/assets/logos/alcor_logo.svg").logo
     .col
       .row.d-flex.flex-lg-row-reverse.align-items-center.p-4
-        gh-btns-star(slug="avral/eostokens-ui" show-count).ml-3
-
-        el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
-          a(href="https://swap.eostokens.io" target="_blank")
-            img(src="~/assets/logos/tokenswap.svg" height="50").ml-2
-
-        el-tooltip(content="Join us on Telegram!" placement="top" effect="light")
-          a(href="https://t.me/eostokensdex" target="_blank")
-            img(src="/telegram.png" height="40").ml-2
-
         el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain")
           el-option(v-for='network in networks', :key='network.name', :value='network.name')
             img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
             span.ml-2 {{ network.desc }}
         img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+
+        //el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
+          a(href="https://swap.eostokens.io" target="_blank")
+            img(src="~/assets/logos/tokenswap.svg" height="50").ml-2
+
+        el-tooltip(content="Join us on Telegram!" placement="top" effect="light").mr-2
+          a(href="https://t.me/eostokensdex" target="_blank")
+            img(src="/telegram.png" height="40").ml-2
 
   .row
     .col-lg-9.col-md-12
@@ -63,7 +61,7 @@
     .col.text-mutted
       small
         span.text-muted App version:
-          a(href="https://github.com/avral/eostokens-ui" target="_blank").text-secondary
+          a(href="https://github.com/avral/alcor-ui" target="_blank").text-secondary
             span(v-if="lastCommit.commit")  {{ lastCommit.commit.message }}
 
   footer
