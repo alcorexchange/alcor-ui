@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     clickOrder(a, b, event) {
-      if (event.target.tagName.toLowerCase() === 'a') return
+      if (event && event.target.tagName.toLowerCase() === 'a') return
 
       this.$router.push({ name: 'trade-id', params: { id: a.id } })
     }
