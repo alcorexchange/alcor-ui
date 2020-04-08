@@ -1,50 +1,52 @@
 <template lang="pug">
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
-.box-card.mt-3(v-if="!no_found")
-  .row.mb-3
-    .col-md-4
-      .lead
-        TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
-        | {{ token.symbol.name }}@
-        a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-    .col-md-8.d-flex.align-items-center
+.row
+  .col
+    .box-card.mt-3(v-if="!no_found")
+      .row.mb-3
+        .col-md-4
+          .lead
+            TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40").mr-2.ml-1
+            | {{ token.symbol.name }}@
+            a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
+        .col-md-8.d-flex.align-items-center
+          .text.item
+            span Volume 24H:
+            span.text-success  {{ volume24 }}
+
       .text.item
-        span Volume 24H:
-        span.text-success  {{ volume24 }}
+        .row.trade-window
+          .col-lg-5
+            order-book(v-loading="loading")
 
-  .text.item
-    .row.trade-window
-      .col-lg-5
-        order-book(v-loading="loading")
+            .row
+              .col
+                LatestDeals.mt-2
+          .col-lg-7
+            .row
+              .col
+                chart
 
+            .row
+              .col
+                el-tabs.h-100
+                  el-tab-pane(label="Limit trade")
+                    LimitTrade
+
+                  el-tab-pane(label="Market trade")
+                    market-trade
+        hr
         .row
           .col
-            LatestDeals.mt-2
-      .col-lg-7
-        .row
-          .col
-            chart
+            my-orders(v-if="user" v-loading="loading")
 
-        .row
-          .col
-            el-tabs.h-100
-              el-tab-pane(label="Limit trade")
-                LimitTrade
-
-              el-tab-pane(label="Market trade")
-                market-trade
-    hr
-    .row
-      .col
-        my-orders(v-if="user" v-loading="loading")
-
-.box-card(v-else).mt-3
-  .clearfix(slot='header')
-    span Market: {{ market.id }}
-    el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
-  .text.item.text-center
-    h1.display-4 Order {{ market.id }} not found or finished
+    .box-card(v-else).mt-3
+      .clearfix(slot='header')
+        span Market: {{ market.id }}
+        el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
+      .text.item.text-center
+        h1.display-4 Order {{ market.id }} not found or finished
 </template>
 
 <script>

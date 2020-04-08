@@ -1,28 +1,40 @@
 <template lang="pug">
-.container.mb-5.mt-4
-  .row
-    .col-lg-4.d-flex.align-self-center
-      nuxt-link(tag="span" :to="{name: 'index'}" style="cursor: pointer;")
-        //span.display-4 {{ app_name }}
-        //span.logo-text {{ app_name }}
-        img(src="~/assets/logos/alcor_logo.svg").logo
+.container.mb-5.mt-1
+  .row.mb-2
     .col
-      .row.d-flex.flex-lg-row-reverse.align-items-center.p-4
-        el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain")
-          el-option(v-for='network in networks', :key='network.name', :value='network.name')
-            img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-            span.ml-2 {{ network.desc }}
-        img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+      el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal')
+        el-menu-item(index="/")
+          img(src="~/assets/logos/alcor_logo.svg").logo
 
-        //el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
-          a(href="https://swap.eostokens.io" target="_blank")
-            img(src="~/assets/logos/tokenswap.svg" height="50").ml-2
+        el-menu-item(index="/markets") Markets
 
-        el-tooltip(content="Join us on Telegram!" placement="top" effect="light").mr-2
-          a(href="https://t.me/eostokensdex" target="_blank")
-            img(src="/telegram.png" height="40").ml-2
+        el-menu-item(index="/about") About
 
-  .row
+        li.el-menu-item
+          img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+
+          el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
+            el-option(v-for='network in networks', :key='network.name', :value='network.name')
+              img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+              span.ml-2 {{ network.desc }}
+
+        li.el-menu-item
+          el-tooltip(content="Join us on Telegram!" placement="top" effect="light").mr-2
+            a(href="https://t.me/alcorexchange" target="_blank")
+              img(src="/telegram.png" height="40")
+
+        li.el-menu-item.scatter-button
+          span(v-if="user")
+            a(:href="monitorAccount(user.name)" target="_blank").mr-3 {{ $store.state.user.name }}
+            el-button(v-if="user" size="small" type="info" plain @click="logout") logout
+
+          el-button(@click="login" type="primary" size="small" v-else) Sign In via Scatter
+
+      //el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
+        a(href="https://swap.eostokens.io" target="_blank")
+          img(src="~/assets/logos/tokenswap.svg" height="50").ml-2
+
+  //.row
     .col-lg-9.col-md-12
       h1.align-self-center.lead.mt-3
         span No commissions
@@ -40,20 +52,6 @@
 
         el-button(@click="login" type="primary" size="medium" v-else) Sign In via Scatter
         // TODO Кнопка с тестком как ссылка на профиль
-  .row
-    .col
-      el-alert(title="Scatter is not connected:" :closable="false" show-icon type="info" v-if="!$store.state.chain.scatterConnected").mt-2
-        span.ml-1 Unlock or install
-        a(href="https://get-scatter.com/" target="_blank") Scatter
-        i(@click="scatterConnect" size="mini").el-alert__closebtn Update
-
-      el-alert(:closable="false" show-icon type="error" v-if="$store.state.chain.oldScatter").mt-4
-        span.ml-1  You are using an old version of Scatter! So the app may not work correctly.
-
-        a(href="https://get-scatter.com/" target="_blank")  Update Scatter
-
-      el-alert(title="Node is not connected:" :closable="false"  show-icon type="error" v-if="netError").mt-2
-        span.ml-1 Network is unreacheble pleace check your internet connection.
 
   nuxt
 
@@ -88,7 +86,9 @@ export default {
       networks: [],
       current_chain: '',
 
-      app_name: config.APP_NAME
+      app_name: config.APP_NAME,
+
+      activeLink: null
     }
   },
 
@@ -98,6 +98,17 @@ export default {
     //  current_chain: state => state.network.name
     //})
 
+  },
+
+  watch: {
+    $route (to, from) {
+      this.activeLink = to.path
+    }
+  },
+
+  mounted() {
+    this.activeLink = this.$route.path
+    console.log(this.activeLink)
   },
 
   async created() {
@@ -166,7 +177,16 @@ export default {
 
 <style>
 .logo {
-  height: 3.5em;
+  height: 2.5em;
+}
+
+.chain-select {
+  width: 90px;
+}
+
+.scatter-button {
+  position: absolute;
+  right: 0;
 }
 
 .logo-text {
@@ -175,12 +195,16 @@ export default {
   font-weight: 100;
 }
 
-h1.lead {
-  font-size: 1.2rem;
+.el-menu-item:first-child {
+  padding-left: 0px;
 }
 
-.container {
-  margin-top: 10px;
+.el-menu-item:last-child {
+  padding-right: 0px;
+}
+
+h1.lead {
+  font-size: 1.2rem;
 }
 
 footer {
@@ -193,7 +217,7 @@ footer {
 
 @media only screen and (max-width: 600px) {
   .logo {
-    height: 60px;
+    height: 30px;
   }
 }
 
