@@ -10,6 +10,8 @@
 
         el-menu-item(index="/about") About
 
+        a.el-menu-item(href="https://swap.eostokens.io" target="_blank") OTC Exchange
+
         li.el-menu-item
           img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
 
@@ -218,6 +220,10 @@ footer {
 @media only screen and (max-width: 600px) {
   .logo {
     height: 30px;
+  }
+
+  .el-menu-item {
+    float: none !important;
   }
 }
 

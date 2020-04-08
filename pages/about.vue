@@ -1,7 +1,11 @@
 <template lang="pug">
   .row
     .col
-      .display-4.mt-3 Rules:
+      .row
+        .col
+          .display-4 Rules:
+
+        gh-btns-star(slug="avral/alcor-ui" show-count).ml-auto
       .ml-3.mt-3
         h2.lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
              | atomically, without the participation of third parties! The tokens should comply with the
@@ -10,7 +14,7 @@
         h4 Properties:
           ul.mt-1
             li.lead Fully
-              a(:href="monitorAccount('eostokensdex')" target="_blank")  onchain
+              a(:href="monitorAccount($store.state.network.contract)" target="_blank")  onchain
               |  matching for limit/market trades.
             li.lead All the logic of order storage and matching takes place in the contract's ram, without any additional centralized solutions.
             //li.lead The exchange works automatically, without the possibility of third parties to influence the work of the contract.
@@ -29,7 +33,7 @@
       h4.ml-3 Audit:
         ul.mt-1
           li.lead Exchange contract:
-            a(:href="monitorAccount('eostokensdex')" target="_blank") eostokensdex
+            a(:href="monitorAccount($store.state.network.contract)" target="_blank") {{ $store.state.network.contract }}
       .row.mb-3
         .col
           .display-4.mt-4 Technologies:

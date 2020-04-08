@@ -21,7 +21,7 @@
 
       el-tab-pane(label="List" name="second")
         el-table(:data='filteredItems', style='width: 100%' @row-click="clickOrder")
-          el-table-column(label='Pair', prop='date')
+          el-table-column(label='Pair', prop='date' width="300")
             template(slot-scope="scope")
               TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
               span.ml-2
@@ -73,7 +73,7 @@ export default {
       },
 
       loading: true,
-      activeName: 'second'
+      activeName: 'first'
     }
   },
 
