@@ -16,7 +16,7 @@
             span.text-success  {{ volume24 }}
 
       .text.item
-        .row.trade-window
+        .row.trade-window(v-if="!isMobile")
           .col-lg-5
             order-book(v-loading="loading")
 
@@ -36,6 +36,9 @@
 
                   el-tab-pane(label="Market trade")
                     market-trade
+        // Mobile verion
+        .text.item
+          MobileTrade
         hr
         .row
           .col
@@ -61,6 +64,7 @@ import MyOrders from '~/components/trade/MyOrders'
 import OrderBook from '~/components/trade/OrderBook'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
+import MobileTrade from '~/components/trade/MobileTrade'
 
 export default {
   components: {
@@ -71,7 +75,8 @@ export default {
     LimitTrade,
     OrderBook,
     LatestDeals,
-    Chart
+    Chart,
+    MobileTrade
   },
 
   async fetch({ store, error, params }) {

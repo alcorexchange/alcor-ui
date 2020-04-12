@@ -123,7 +123,7 @@ export default {
   text-align: left;
 }
 
-@media only screen and (max-width: 420px) {
+@media only screen and (max-width: 700px) {
   .blist .ltd span {
     font-size: 10px;
   }
