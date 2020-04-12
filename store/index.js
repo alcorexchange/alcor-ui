@@ -11,7 +11,9 @@ export const state = () => ({
   user: null,
   history: [],
   markets: [],
-  network: {}
+  network: {},
+
+  isMobile: false
 })
 
 export const mutations = {
@@ -19,12 +21,21 @@ export const mutations = {
 
   setUser: (state, user) => state.user = user,
   setHistory: (state, history) => state.history = history,
-  setMarkets: (state, markets) => state.markets = markets
+  setMarkets: (state, markets) => state.markets = markets,
+
+  setIsMobile: (state, mobile) => state.isMobile = mobile
 }
 
 export const actions = {
   init({ dispatch, state }) {
+    // Init on client
     dispatch('loadHistory')
+
+    window.addEventListener('resize', () => dispatch('checkIsMobile'))
+  },
+
+  checkIsMobile ({ commit }) {
+    commit('setIsMobile', window.innerWidth <= 700)
   },
 
   nuxtServerInit ({ commit }, { req }) {

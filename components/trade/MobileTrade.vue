@@ -94,7 +94,7 @@
 
             el-button(type="danger" size="small" @click="sell").w-100 Sell
 
-  .col
+  .col-7
     OrderBook
 
 </template>

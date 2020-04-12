@@ -39,7 +39,7 @@
     "js-yaml": "^3.13.1",
     "lightweight-charts": "^1.1.0",
     "node-fetch": "^2.6.0",
-    "nuxt": "^2.0.0",
+    "nuxt": "^2.10.1",
     "taffy": "^2.6.2",
     "trading-vue-js": "^0.4.2",
     "vue-github-buttons": "^3.1.0",

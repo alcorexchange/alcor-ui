@@ -110,7 +110,7 @@ export default {
 
   mounted() {
     this.activeLink = this.$route.path
-    console.log(this.activeLink)
+    this.$store.dispatch('checkIsMobile')
   },
 
   async created() {

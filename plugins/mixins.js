@@ -271,7 +271,7 @@ export const tradeMixin = {
 Vue.mixin({
   computed: {
     isMobile() {
-      return process.server ? false : window.innerWidth <= 700
+      return this.$store.state.isMobile
     }
   },
 

@@ -37,8 +37,11 @@
                   el-tab-pane(label="Market trade")
                     market-trade
         // Mobile verion
-        .text.item
-          MobileTrade
+        .trade-window(v-else)
+          chart
+
+          .text.item
+            MobileTrade
         hr
         .row
           .col
