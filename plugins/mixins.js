@@ -269,6 +269,12 @@ export const tradeMixin = {
 }
 
 Vue.mixin({
+  computed: {
+    isMobile() {
+      return process.server ? false : window.innerWidth <= 700
+    }
+  },
+
   methods: {
     monitorAccount(account) {
       return `${this.$store.state.network.monitor}/account/${account}?${this.$store.state.network.monitor_params}`
