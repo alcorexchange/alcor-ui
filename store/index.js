@@ -5,6 +5,8 @@ import { parseExtendedAsset } from '~/utils'
 
 export const strict = false
 
+const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
+
 export const state = () => ({
   user: null,
   history: [],
@@ -30,7 +32,7 @@ export const actions = {
 
     if (process.env.NETWORK) {
       commit('setNetwork', config.networks[process.env.NETWORK])
-    } else if (req.headers.host == '127.0.0.1:3000') {
+    } else if (IP_REGEX.test(req.headers.host)) {
       commit('setNetwork', config.networks.eos)
     } else if (subdomain.length <= 2) {
       commit('setNetwork', config.networks.eos)
