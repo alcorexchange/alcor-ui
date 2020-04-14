@@ -145,7 +145,7 @@ const networks = {
   }
 }
 
-export default {
+module.exports = {
   APP_NAME: 'Alcor Exchange',
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,

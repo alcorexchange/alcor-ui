@@ -1,4 +1,4 @@
-const config = require('./config').default
+const config = require('./config')
 const pkg = require('./package')
 
 const isSPA = process.argv.includes('--spa')
