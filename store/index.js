@@ -17,7 +17,9 @@ export const state = () => ({
 })
 
 export const mutations = {
-  setNetwork: (state, network) => state.network = network,
+  setNetwork: (state, network) => {
+    state.network = network
+  },
 
   setUser: (state, user) => state.user = user,
   setHistory: (state, history) => state.history = history,
@@ -58,6 +60,7 @@ export const actions = {
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
+    // TODO Add server route for that, not during SSR!!
     const { rows } = await getters['api/rpc'].get_table_rows({
       code: state.network.contract,
       scope: state.network.contract,
@@ -65,6 +68,7 @@ export const actions = {
       reverse: true,
       limit: 1000
     })
+
 
     rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
 
@@ -86,6 +90,7 @@ export const actions = {
         } else {
           market.last_price = 0
         }
+
 
         markets.push(market)
       }

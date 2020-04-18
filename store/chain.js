@@ -1,41 +1,43 @@
-//import ScatterJS from '@scatterjs/core'
-//import ScatterEOS from '@scatterjs/eosjs2'
 import { configureScope } from '@sentry/browser'
-
-import ScatterJS from 'scatterjs-core'
-import ScatterEOS from 'scatterjs-plugin-eosjs'
-
-//import ScatterJS from 'scatterjs-core';
-//import ScatterEOS from 'scatterjs-plugin-eosjs';
-//import * as Eos from 'eosjs';
-
-
-
 import config from '../config'
-
-ScatterJS.plugins(new ScatterEOS())
-
 
 export const state = () => ({
   scatterConnected: true,
-  oldScatter: false
+  oldScatter: false,
+  wallet: {}
 })
 
 export const actions = {
-  async init({ state, commit, dispatch, rootGetters }) {
-    console.log('Connect scatter..', ScatterJS)
+  async init({ state, commit, dispatch, rootState, rootGetters }) {
+    const initAccessContext = require('eos-transit').initAccessContext
+    const scatter = require('eos-transit-scatter-provider').default
+    console.log('Connect scatter..')
 
-    await ScatterJS.connect(config.APP_NAME, { network: rootGetters['api/network'] }).then(v =>
-      commit('setScatterConnected', v)
-    )
+    const accessContext = initAccessContext({
+      appName: config.APP_NAME,
+      network: rootState.network,
+      walletProviders: [
+        scatter()
+      ]
+    })
+
+    const walletProviders = accessContext.getWalletProviders()
+    const selectedProvider = walletProviders[0]
+    const wallet = accessContext.initWallet(selectedProvider)
+
+    commit('setWallet', wallet)
+
+    await wallet.connect()
+    console.log(wallet)
+    commit('setScatterConnected', wallet.connected)
 
     if (state.scatterConnected) {
-      window.scatterConnected = true
       let scatterVersion
       await dispatch('login')
 
       try {
-        scatterVersion = await ScatterJS.scatter.getVersion()
+        scatterVersion = await window.ScatterJS.scatter.getVersion()
+        console.log('scatterVersion', scatterVersion)
       } catch (e) {
         commit('setOldScatter', true)
         scatterVersion = 'Scatter as browser extention (Unmainteined)'
@@ -52,8 +54,8 @@ export const actions = {
     console.log('App starting..')
   },
 
-  async logout({ commit }) {
-    await ScatterJS.logout()
+  async logout({ state, commit }) {
+    await state.wallet.logout()
     commit('setUser', null, { root: true })
   },
 
@@ -66,102 +68,74 @@ export const actions = {
       })
 
     try {
-      const r = await ScatterJS.login()
+      await state.wallet.login()
 
-      configureScope(scope => scope.setUser({ username: r.accounts[0].name }))
-      commit('setUser', r.accounts[0], { root: true })
+      configureScope(scope => scope.setUser({ username: state.wallet.accountInfo.account_name }))
+      commit('setUser', { ...state.wallet.accountInfo, name: state.wallet.accountInfo.account_name }, { root: true })
       dispatch('loadUserBalances', {}, { root: true })
     } catch (e) {
       this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })
     }
   },
 
-  async scatterConnect({ commit, rootGetters }) {
-    commit(
-      'setScatterConnected',
-      await ScatterJS.connect('Ordersbook', { network: rootGetters['api/network'] })
-    )
-  },
-
-  async transfer({ rootGetters, rootState }, { contract, actor, quantity, memo }) {
-    const token = await rootGetters['api/eos'].contract(contract)
-
-    return await token.transfer(
-      {
-        from: actor,
-        to: rootState.network.contract,
-        quantity,
-        memo
-      },
-      { authorization: [actor] }
-    )
-
+  transfer({ state, rootState }, { contract, actor, quantity, memo }) {
     // NEW eosjs-scatter versions
-    //return rootGetters['api/eos'].transact(
-    //  {
-    //    actions: [
-    //      {
-    //        account: contract,
-    //        name: 'transfer',
-    //        authorization: [
-    //          {
-    //            actor,
-    //            permission: 'active'
-    //          }
-    //        ],
-    //        data: {
-    //          from: actor,
-    //          to: rootState.network.contract,
-    //          quantity,
-    //          memo
-    //        }
-    //      }
-    //    ]
-    //  },
-    //  { blocksBehind: 3, expireSeconds: 3 * 60 }
-    //)
+    return state.wallet.eosApi.transact(
+      {
+        actions: [
+          {
+            account: contract,
+            name: 'transfer',
+            authorization: [
+              {
+                actor,
+                permission: 'active'
+              }
+            ],
+            data: {
+              from: actor,
+              to: rootState.network.contract,
+              quantity,
+              memo
+            }
+          }
+        ]
+      },
+      { blocksBehind: 3, expireSeconds: 3 * 60 }
+    )
   },
 
-  async cancelorder({ rootGetters, rootState }, { account, market_id, type, order_id }) {
-    const contract = await rootGetters['api/eos'].contract(rootState.network.contract)
-
-    return await contract[type === 'bid' ? 'cancelbuy' : 'cancelsell'](
-      { executor: account, market_id, order_id },
-      { authorization: [account] }
+  cancelorder({ state, rootState }, { account, market_id, type, order_id }) {
+    return state.wallet.eosApi.transact(
+      {
+        actions: [
+          {
+            account: rootState.network.contract,
+            name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
+            authorization: [
+              {
+                actor: account,
+                permission: 'active'
+              }
+            ],
+            data: { executor: account, market_id, order_id }
+          }
+        ]
+      },
+      { blocksBehind: 3, expireSeconds: 3 * 60 }
     )
-
-    //const options = { authorization: [`${account}@active`] }
-    //return eos.transfer(account.name, 'safetransfer', '0.0001 EOS', account.name, options)
-
-    // New version of eoss-scatter
-    //return rootGetters['api/eos'].transact(
-    //  {
-    //    actions: [
-    //      {
-    //        account: rootState.network.contract,
-    //        name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
-    //        authorization: [
-    //          {
-    //            actor: account,
-    //            permission: 'active'
-    //          }
-    //        ],
-    //        data: { executor: account, market_id, order_id }
-    //      }
-    //    ]
-    //  },
-    //  { blocksBehind: 3, expireSeconds: 3 * 60 }
-    //)
   }
 }
 
 export const mutations = {
-  setUser: (state, user) => {
-    state.user = user
+  setWallet: (state, wallet) => {
+    state.wallet = wallet
   },
+
   setScatterConnected: (state, value) => {
     state.scatterConnected = value
   },
+
   setOldScatter: (state, value) => {
     state.oldScatter = value
   }

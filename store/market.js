@@ -53,7 +53,7 @@ export const actions = {
 
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
-    })
+    }).catch(e => console.log(e))
   }
 }
 
