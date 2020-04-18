@@ -1,11 +1,41 @@
 import { configureScope } from '@sentry/browser'
+import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces'
+
 import config from '../config'
+
+const transactionHeader = {
+  blocksBehind: 3,
+  expireSeconds: 60 * 3
+}
 
 export const state = () => ({
   scatterConnected: true,
   oldScatter: false,
-  wallet: {}
+  wallet: {},
+  payForUser: false
 })
+
+async function serverSign(transaction, txHeaders) {
+  const rawResponse = await fetch('/api/ign', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ tx: transaction, txHeaders })
+  })
+
+  const content = await rawResponse.json()
+  if (content.error) throw new Error(content.error)
+
+  const pushTransactionArgs = {
+    ...content,
+    serializedTransaction: Buffer.from(content.serializedTransaction, `hex`)
+  }
+
+  return pushTransactionArgs
+}
+
 
 export const actions = {
   async init({ state, commit, dispatch, rootState, rootGetters }) {
@@ -78,56 +108,103 @@ export const actions = {
     }
   },
 
-  transfer({ state, rootState }, { contract, actor, quantity, memo }) {
-    // NEW eosjs-scatter versions
-    return state.wallet.eosApi.transact(
-      {
-        actions: [
-          {
-            account: contract,
-            name: 'transfer',
-            authorization: [
-              {
-                actor,
-                permission: 'active'
-              }
-            ],
-            data: {
-              from: actor,
-              to: rootState.network.contract,
-              quantity,
-              memo
+  transfer({ dispatch, rootState }, { contract, actor, quantity, memo }) {
+    return dispatch('sendTransaction',
+      [
+        {
+          account: contract,
+          name: 'transfer',
+          authorization: [
+            {
+              actor,
+              permission: 'active'
             }
+          ],
+          data: {
+            from: actor,
+            to: rootState.network.contract,
+            quantity,
+            memo
           }
-        ]
-      },
-      { blocksBehind: 3, expireSeconds: 3 * 60 }
+        }
+      ]
     )
   },
 
-  cancelorder({ state, rootState }, { account, market_id, type, order_id }) {
-    return state.wallet.eosApi.transact(
-      {
-        actions: [
-          {
-            account: rootState.network.contract,
-            name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
-            authorization: [
-              {
-                actor: account,
-                permission: 'active'
-              }
-            ],
-            data: { executor: account, market_id, order_id }
-          }
-        ]
-      },
-      { blocksBehind: 3, expireSeconds: 3 * 60 }
+  cancelorder({ dispatch, rootState }, { account, market_id, type, order_id }) {
+    return dispatch('sendTransaction',
+      [
+        {
+          account: rootState.network.contract,
+          name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
+          authorization: [
+            {
+              actor: account,
+              permission: 'active'
+            }
+          ],
+          data: { executor: account, market_id, order_id }
+        }
+      ]
     )
+  },
+
+  async sendTransaction({ state, rootState }, actions) {
+    const tx = {
+      actions
+    }
+
+    let pushTransactionArgs = PushTransactionArgs
+    let serverTransactionPushArgs = PushTransactionArgs | undefined
+
+    if (state.payForUser) {
+      try {
+        serverTransactionPushArgs = await serverSign(tx, transactionHeader)
+      } catch (error) {
+        console.error(`Error when requesting server signature: `, error.message)
+      }
+    }
+
+    if (state.payForUser && serverTransactionPushArgs) {
+      // just to initialize the ABIs and other structures on api
+      // https://github.com/EOSIO/eosjs/blob/master/src/eosjs-api.ts#L214-L254
+      await state.wallet.eosApi.transact(tx, {
+        ...transactionHeader,
+        sign: false,
+        broadcast: false
+      })
+
+      // fake requiredKeys to only be user's keys
+      const requiredKeys = await state.wallet.eosApi.signatureProvider.getAvailableKeys()
+      // must use server tx here because blocksBehind header might lead to different TAPOS tx header
+      const serializedTx = serverTransactionPushArgs.serializedTransaction
+      const signArgs = {
+        chainId: state.wallet.eosApi.chainId,
+        requiredKeys,
+        serializedTransaction: serializedTx,
+        abis: []
+      }
+      pushTransactionArgs = await state.wallet.eosApi.signatureProvider.sign(signArgs)
+      // add server signature
+      pushTransactionArgs.signatures.unshift(
+        serverTransactionPushArgs.signatures[0]
+      )
+    } else {
+      // no server response => sign original tx
+      pushTransactionArgs = await state.wallet.eosApi.transact(tx, {
+        ...transactionHeader,
+        sign: true,
+        broadcast: false
+      })
+    }
+
+    return state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
   }
 }
 
 export const mutations = {
+  setPayForUser: (state, value) => state.payForUser = value,
+
   setWallet: (state, wallet) => {
     state.wallet = wallet
   },

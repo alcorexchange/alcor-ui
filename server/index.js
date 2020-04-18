@@ -21,7 +21,7 @@ async function start () {
   }
 
   // Server routes
-  app.get('/hello', (req, res) => res.send('hello from server'))
+  app.get('/api/sign', (req, res) => res.send('hello from server'))
 
   // Give nuxt middleware to express | client routes
   app.use(nuxt.render)
