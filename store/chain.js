@@ -172,7 +172,7 @@ export const actions = {
       }
     }
 
-    if (state.payForUser && serverTransactionPushArgs) {
+    if (state.payForUser && serverTransactionPushArgs && rootState.network.name == 'eos') {
       // just to initialize the ABIs and other structures on api
       // https://github.com/EOSIO/eosjs/blob/master/src/eosjs-api.ts#L214-L254
       await state.wallet.eosApi.transact(tx, {

@@ -214,10 +214,6 @@ export default {
   height: 2.5em;
 }
 
-.el-dropdown {
-  z-index: 999;
-}
-
 .chain-select {
   width: 90px;
 }
@@ -225,6 +221,7 @@ export default {
 .scatter-button {
   position: absolute;
   right: 0;
+  z-index: 999;
 }
 
 .logo-text {
