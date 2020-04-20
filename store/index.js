@@ -37,7 +37,7 @@ export const actions = {
   },
 
   checkIsMobile ({ commit }) {
-    commit('setIsMobile', window.innerWidth <= 700)
+    commit('setIsMobile', window.innerWidth <= 1000)
   },
 
   nuxtServerInit ({ commit }, { req }) {

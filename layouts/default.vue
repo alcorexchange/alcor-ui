@@ -1,7 +1,7 @@
 <template lang="pug">
 .container.mb-5.mt-1
   .row.mb-2
-    .col
+    .col(v-if="!isMobile")
       el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal')
         el-menu-item(index="/")
           img(src="~/assets/logos/alcor_logo.svg").logo
@@ -37,40 +37,45 @@
               el-dropdown-item
                 el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-        //el-submenu(v-if="user" index='2').scatter-button
-          template(slot='title') {{ $store.state.user.name }}
-          el-menu-item
-            el-switch(v-model='value1', active-text='asdfasf', inactive-text='asdf')
-
-          el-menu-item(index='2-2')
-            el-button(size="mini" type="info" plain @click="logout").w-100 logout
-
         li.el-menu-item.scatter-button(v-else)
           el-button(@click="login" type="primary" size="small") Sign In via Scatter
 
-      //el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
-        a(href="https://swap.eostokens.io" target="_blank")
-          img(src="~/assets/logos/tokenswap.svg" height="50").ml-2
+    .col(v-else)
+      .row
+        .col
+          nuxt-link(to="/")
+            img(src="~/assets/logos/alcor_logo.svg").logo
+        .col
+          .scatter-button.mr-1
+            div(v-if="user")
+              el-dropdown(size='mini', split-button='' :hide-on-click="false" trigger="click")
+                //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+                | {{ $store.state.user.name }}
+                el-dropdown-menu(slot='dropdown')
+                  el-dropdown-item
+                    el-switch(v-model='payForUser' inactive-text='Free CPU')
+                    hr
 
-  //.row
-    .col-lg-9.col-md-12
-      h1.align-self-center.lead.mt-3
-        span No commissions
-        a(:href="monitorAccount('eostokensdex')" target="_blank").text-primary.strong  FULLY-ONCHAIN
+                  el-dropdown-item
+                    img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
 
-        span  exchange.
-        br
-        span  Create markets in one click, list your dapp token for one click, trade whatever you want.
+                    el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
+                      el-option(v-for='network in networks', :key='network.name', :value='network.name')
+                        img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+                        span.ml-2 {{ network.desc }}
+                    hr
+                  el-dropdown-item
+                    el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-    .col-lg-3.d-flex
-      .align-items-center.mt-3.ml-lg-auto
-        span(v-if="user")
-          a(:href="monitorAccount(user.name)" target="_blank").mr-3 {{ $store.state.user.name }}
-          el-button(v-if="user" size="small" type="info" plain @click="logout") logout
+            el-button(@click="login" type="primary" size="small" v-else) Sign In via Scatter
+      .row
+        .col
+          el-menu(router, :default-active="activeLink", mode='horizontal')
+            el-menu-item(index="/markets") Markets
 
-        el-button(@click="login" type="primary" size="medium" v-else) Sign In via Scatter
-        // TODO Кнопка с тестком как ссылка на профиль
+            el-menu-item(index="/about") About
 
+            a.el-menu-item(href="https://swap.eostokens.io" target="_blank") OTC Exchange
   nuxt
 
   .row.mt-3
@@ -209,6 +214,10 @@ export default {
   height: 2.5em;
 }
 
+.el-dropdown {
+  z-index: 999;
+}
+
 .chain-select {
   width: 90px;
 }
@@ -246,11 +255,7 @@ footer {
 
 @media only screen and (max-width: 600px) {
   .logo {
-    height: 30px;
-  }
-
-  .el-menu-item {
-    float: none !important;
+    height: 20px;
   }
 }
 
