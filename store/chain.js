@@ -9,14 +9,14 @@ const transactionHeader = {
 }
 
 export const state = () => ({
-  scatterConnected: true,
+  scatterConnected: false,
   oldScatter: false,
   wallet: {},
-  payForUser: false
+  payForUser: true
 })
 
 async function serverSign(transaction, txHeaders) {
-  const rawResponse = await fetch('/api/ign', {
+  const rawResponse = await fetch('/api/sign', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -41,11 +41,15 @@ export const actions = {
   async init({ state, commit, dispatch, rootState, rootGetters }) {
     const initAccessContext = require('eos-transit').initAccessContext
     const scatter = require('eos-transit-scatter-provider').default
-    console.log('Connect scatter..')
 
     const accessContext = initAccessContext({
       appName: config.APP_NAME,
-      network: rootState.network,
+      network: {
+        host: rootState.network.host,
+        port: rootState.network.port,
+        protocol: rootState.network.protocol,
+        chainId: rootState.network.chainId
+      },
       walletProviders: [
         scatter()
       ]
@@ -57,28 +61,30 @@ export const actions = {
 
     commit('setWallet', wallet)
 
-    await wallet.connect()
-    console.log(wallet)
+    try {
+      await wallet.connect()
+    } catch (e) {
+      console.log('scatter err', e)
+      console.log('scatter not connected, retry..')
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      return await dispatch('init')
+    }
+
     commit('setScatterConnected', wallet.connected)
 
-    if (state.scatterConnected) {
-      let scatterVersion
-      await dispatch('login')
+    let scatterVersion
+    await dispatch('login')
 
-      try {
-        scatterVersion = await window.ScatterJS.scatter.getVersion()
-        console.log('scatterVersion', scatterVersion)
-      } catch (e) {
-        commit('setOldScatter', true)
-        scatterVersion = 'Scatter as browser extention (Unmainteined)'
-      } finally {
-        configureScope(scope =>
-          scope.setTag('scatter.version', scatterVersion)
-        )
-      }
-    } else {
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      await dispatch('init')
+    try {
+      scatterVersion = await window.ScatterJS.scatter.getVersion()
+      console.log('scatterVersion', scatterVersion)
+    } catch (e) {
+      commit('setOldScatter', true)
+      scatterVersion = 'Scatter as browser extention (Unmainteined)'
+    } finally {
+      configureScope(scope =>
+        scope.setTag('scatter.version', scatterVersion)
+      )
     }
 
     console.log('App starting..')
@@ -160,6 +166,7 @@ export const actions = {
     if (state.payForUser) {
       try {
         serverTransactionPushArgs = await serverSign(tx, transactionHeader)
+        console.log('serverTransactionPushArgs ', serverTransactionPushArgs)
       } catch (error) {
         console.error(`Error when requesting server signature: `, error.message)
       }
@@ -176,6 +183,7 @@ export const actions = {
 
       // fake requiredKeys to only be user's keys
       const requiredKeys = await state.wallet.eosApi.signatureProvider.getAvailableKeys()
+      console.log('lolo0', requiredKeys)
       // must use server tx here because blocksBehind header might lead to different TAPOS tx header
       const serializedTx = serverTransactionPushArgs.serializedTransaction
       const signArgs = {
@@ -184,7 +192,10 @@ export const actions = {
         serializedTransaction: serializedTx,
         abis: []
       }
+      console.log('lolo1', signArgs)
       pushTransactionArgs = await state.wallet.eosApi.signatureProvider.sign(signArgs)
+      // TODO тут тупит что то
+      console.log('lolo2', pushTransactionArgs)
       // add server signature
       pushTransactionArgs.signatures.unshift(
         serverTransactionPushArgs.signatures[0]
@@ -198,6 +209,7 @@ export const actions = {
       })
     }
 
+    console.log('lolo3', pushTransactionArgs)
     return state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
   }
 }

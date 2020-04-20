@@ -1,10 +1,14 @@
 const express = require('express')
 const consola = require('consola')
+const bodyParser = require('body-parser')
+
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
 
-// Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
+const sign = require('./sign.js')
+
+// Import and Set Nuxt.js options
 config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
@@ -20,8 +24,9 @@ async function start () {
     await builder.build()
   }
 
+  app.use(bodyParser.json())
   // Server routes
-  app.get('/api/sign', (req, res) => res.send('hello from server'))
+  app.post('/api/sign', sign)
 
   // Give nuxt middleware to express | client routes
   app.use(nuxt.render)
