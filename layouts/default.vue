@@ -25,12 +25,28 @@
             a(href="https://t.me/alcorexchange" target="_blank")
               img(src="/telegram.png" height="40")
 
-        li.el-menu-item.scatter-button
-          span(v-if="user")
-            a(:href="monitorAccount(user.name)" target="_blank").mr-3 {{ $store.state.user.name }}
-            el-button(v-if="user" size="small" type="info" plain @click="logout") logout
 
-          el-button(@click="login" type="primary" size="small" v-else) Sign In via Scatter
+        li.el-menu-item(v-if="user").scatter-button
+          el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
+            //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+            | {{ $store.state.user.name }}
+            el-dropdown-menu(slot='dropdown')
+              el-dropdown-item
+                el-switch(v-model='payForUser' inactive-text='Free CPU')
+                hr
+              el-dropdown-item
+                el-button(size="mini" type="info" plain @click="logout").w-100 logout
+
+        //el-submenu(v-if="user" index='2').scatter-button
+          template(slot='title') {{ $store.state.user.name }}
+          el-menu-item
+            el-switch(v-model='value1', active-text='asdfasf', inactive-text='asdf')
+
+          el-menu-item(index='2-2')
+            el-button(size="mini" type="info" plain @click="logout").w-100 logout
+
+        li.el-menu-item.scatter-button(v-else)
+          el-button(@click="login" type="primary" size="small") Sign In via Scatter
 
       //el-tooltip(content="OTC Trustless swaps" placement="top" effect="light").ml-2
         a(href="https://swap.eostokens.io" target="_blank")
@@ -74,7 +90,7 @@
 
 <script>
 import { captureException } from '@sentry/browser'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import axios from 'axios'
 
 import config from '~/config'
@@ -96,6 +112,17 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
+
+    payForUser: {
+      get () {
+        return this.$store.state.chain.payForUser
+      },
+
+      set (value) {
+        this.$store.commit('chain/setPayForUser', value)
+      }
+    }
+
     //...mapState({
     //  current_chain: state => state.network.name
     //})

@@ -12,7 +12,7 @@ export const state = () => ({
   scatterConnected: false,
   oldScatter: false,
   wallet: {},
-  payForUser: true
+  payForUser: false
 })
 
 async function serverSign(transaction, txHeaders) {
