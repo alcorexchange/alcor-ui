@@ -64,7 +64,8 @@ module.exports = {
     '@/plugins/filters',
 
     { ssr: false, src: '~/plugins/startapp.js' },
-    { ssr: false, src: '~/plugins/TradingVue.js' }
+    { ssr: false, src: '~/plugins/TradingVue.js' },
+    { ssr: false, src: '~/plugins/localStorage.js' }
   ],
 
   /*

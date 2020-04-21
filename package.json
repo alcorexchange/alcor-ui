@@ -37,6 +37,7 @@
     "trading-vue-js": "^0.4.2",
     "vue-github-buttons": "^3.1.0",
     "vue-moment": "^4.0.0",
+    "vuex-persistedstate": "^3.0.1",
     "webpack-bundle-analyzer": "^3.3.2"
   },
   "devDependencies": {
