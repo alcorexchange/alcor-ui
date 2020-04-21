@@ -1,11 +1,18 @@
-<img src="https://alcor.exchange/_nuxt/img/c401c99.svg" height=70>
+[<img src="https://alcor.exchange/_nuxt/img/c401c99.svg" height=70>](https://alcor.exchange)
 
-## [Alcor Exchange](https://alcor.exchange)
-The first listing free decentralized exchange  
+The first listing free decentralized exchange.
 
 ![Alcor](https://dashboard-assets.dappradar.com/document/2266/alcorexchange-dapp-exchanges-eos-image1_489e7542e92ad711abb1bf5bc277f35c.png)
 
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
+
+Props:
+1. Fully-onchain.
+2. NO FEES!
+3. Free CPU program.
+4. Open Source.
+
+[Join our telegram!](https://t.me/alcorexchange)
 
 ## Chains:
 1. EOS Mainnet
@@ -34,3 +41,6 @@ $ yarn start
 # generate static project
 $ yarn run generate
 ```
+
+## Created:
+[Avral's digital lab](https://avral.pro)
