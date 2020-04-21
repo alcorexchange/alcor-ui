@@ -1,9 +1,22 @@
+<img src="https://alcor.exchange/_nuxt/img/c401c99.svg" height=70>
+
 ## [Alcor Exchange](https://alcor.exchange)
-> EOS trustless onchain limit/market trading  
+The first listing free decentralized exchange  
 
-![Alcor](http://i.imgur.com/AWp7IzW.png)
+![Alcor](https://dashboard-assets.dappradar.com/document/2266/alcorexchange-dapp-exchanges-eos-image1_489e7542e92ad711abb1bf5bc277f35c.png)
 
-With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens,atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
+With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
+
+## Chains:
+1. EOS Mainnet
+2. WAX
+3. Telos
+4. Coffee
+
+## Technologies:
+1. [Hyperion](https://github.com/eosrio/Hyperion-History-API)
+2. [EOSIO Light API](https://github.com/cc32d9/eosio_light_api)
+3. [Bloks.io](https://bloks.io/)
 
 ## Build Setup
 
