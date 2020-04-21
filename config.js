@@ -1,4 +1,5 @@
 const PRICE_SCALE = 100000000
+const CONTRACT_ACTIONS = ['sellmatch', 'buymatch', 'cancelbuy', 'cancelsell', 'sellreceipt', 'buyreceipt']
 
 const networks = {
   local: {
@@ -149,6 +150,7 @@ module.exports = {
   APP_NAME: 'Alcor Exchange',
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
+  CONTRACT_ACTIONS,
 
   networks
 }

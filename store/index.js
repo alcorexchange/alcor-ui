@@ -103,10 +103,14 @@ export const actions = {
   },
 
   loadHistory({ state, commit, getters }) {
+    const contract = state.network.contract
+    const formatActionFilter = action => `${contract}:${action}`
+
     getters['api/hyperion'].get('/history/get_actions', {
       params: {
-        account: state.network.contract,
-        limit: '1'
+        account: contract,
+        limit: '1',
+        filter: config.CONTRACT_ACTIONS.map(formatActionFilter).join(',')
       }
     }).then(r => {
       // FIXME Really not safe code
@@ -120,6 +124,7 @@ export const actions = {
             params: {
               account: state.network.contract,
               skip: offset,
+              filter: config.CONTRACT_ACTIONS.map(formatActionFilter).join(','),
               limit: '1000'
             }
           })
