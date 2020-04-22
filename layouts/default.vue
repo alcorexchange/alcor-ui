@@ -163,10 +163,11 @@ export default {
       await this.$store.dispatch('chain/logout')
     },
 
-    changeChain() {
+    changeChain(v) {
       // TODO Move to config: APP_DOMAIN
       if (this.current_chain == 'eos') {
         window.location = `https://alcor.exchange`
+        return
       }
       window.location = `https://${this.current_chain}.alcor.exchange`
     },
