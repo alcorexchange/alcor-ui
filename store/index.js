@@ -13,7 +13,8 @@ export const state = () => ({
   markets: [],
   network: {},
 
-  isMobile: false
+  isMobile: false,
+  baseUrl: ''
 })
 
 export const mutations = {
@@ -25,7 +26,8 @@ export const mutations = {
   setHistory: (state, history) => state.history = history,
   setMarkets: (state, markets) => state.markets = markets,
 
-  setIsMobile: (state, mobile) => state.isMobile = mobile
+  setIsMobile: (state, mobile) => state.isMobile = mobile,
+  setBaseUrl: (state, url) => state.baseUrl = url
 }
 
 export const actions = {
@@ -40,7 +42,9 @@ export const actions = {
     commit('setIsMobile', window.innerWidth <= 1000)
   },
 
-  nuxtServerInit ({ commit }, { req }) {
+  nuxtServerInit ({ commit, rootState }, { req }) {
+    commit('setBaseUrl', `${req.protocol}://${req.headers.host}`)
+
     const subdomain = req.headers.host.split('.')
 
     if (process.env.NETWORK) {
@@ -60,46 +64,8 @@ export const actions = {
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
-    // TODO Add server route for that, not during SSR!!
-    const { rows } = await getters['api/rpc'].get_table_rows({
-      code: state.network.contract,
-      scope: state.network.contract,
-      table: 'markets',
-      reverse: true,
-      limit: 1000
-    })
-
-
-    rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
-
-    try {
-      const requests = rows.map(d => {
-        return { market: d, p: dispatch('api/getBuyOrders', { market_id: d.id, index_position: 2, key_type: 'i64', limit: 1 }) }
-      })
-
-      await Promise.all(requests.map(r => r.p))
-
-      const markets = []
-      for (const req of requests) {
-        const { market, p } = req
-
-        const [order] = await p
-
-        if (order) {
-          market.last_price = order.unit_price
-        } else {
-          market.last_price = 0
-        }
-
-
-        markets.push(market)
-      }
-
-      commit('setMarkets', markets)
-    } catch (e) {
-      rows.map(r => r.last_price = '0.' + '0'.repeat(state.network.baseToken.precision) + ' ' + state.network.baseToken.symbol)
-      commit('setMarkets', rows)
-    }
+    const { data } = await getters['api/backEnd'].get('/api/markets')
+    commit('setMarkets', data)
   },
 
   loadHistory({ state, commit, getters }) {

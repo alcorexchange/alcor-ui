@@ -6,8 +6,7 @@ import axiosRetry from 'axios-retry'
 
 import { parseAsset } from '~/utils'
 
-axiosRetry(axios, { retries: 10 })
-
+axiosRetry(axios, { retries: 3 })
 
 export const state = () => ({
   //rpc: null,
@@ -60,7 +59,7 @@ export const getters = {
 
   backEnd(state, getters, rootState) {
     return axios.create({
-      baseURL: rootState.network.backEnd,
+      baseURL: rootState.baseUrl,
       timeout: 10000
     })
   }

@@ -1,5 +1,6 @@
 const PRICE_SCALE = 100000000
 const CONTRACT_ACTIONS = ['sellmatch', 'buymatch', 'cancelbuy', 'cancelsell', 'sellreceipt', 'buyreceipt']
+const MARKET_STATS_CACHE_TIME = 60 * 1
 
 const networks = {
   local: {
@@ -151,6 +152,7 @@ module.exports = {
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
   CONTRACT_ACTIONS,
+  MARKET_STATS_CACHE_TIME,
 
   networks
 }

@@ -1,7 +1,7 @@
 import { Serialize } from 'eosjs'
 import Big from 'big.js'
 
-import config from '~/config'
+import config from '../config'
 
 export const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
 
