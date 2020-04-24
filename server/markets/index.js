@@ -28,16 +28,18 @@ async function getOrders (rpc, contract, market_id, side, kwargs) {
   })
 }
 
-async function getMarketStats(rpc, contract, market_id) {
-  const stats = cache.get(`market_${market_id}_stats`) || {}
+async function getMarketStats(network, market_id) {
+  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
+
+  const stats = cache.get(`${network.name}_market_${market_id}_stats`) || {}
 
   if ('last_price' in stats) {
     return stats
   }
 
   const [[first_buy_order], [first_sell_order]] = await Promise.all([
-    getOrders(rpc, contract, market_id, 'buy', { index_position: 2, key_type: 'i64', limit: 1 }),
-    getOrders(rpc, contract, market_id, 'sell', { index_position: 2, key_type: 'i64', limit: 1 })
+    getOrders(rpc, network.contract, market_id, 'buy', { index_position: 2, key_type: 'i64', limit: 1 }),
+    getOrders(rpc, network.contract, market_id, 'sell', { index_position: 2, key_type: 'i64', limit: 1 })
   ])
 
   if (first_buy_order) {
@@ -49,7 +51,7 @@ async function getMarketStats(rpc, contract, market_id) {
   }
 
   // One minute cache
-  cache.set(`market_${market_id}_stats`, stats, config.MARKET_STATS_CACHE_TIME)
+  cache.set(`${network.name}_market_${market_id}_stats`, stats, config.MARKET_STATS_CACHE_TIME)
 
   return stats
 }
@@ -73,7 +75,7 @@ markets.get('/', async (req, res) => {
 
   try {
     const requests = rows.map(d => {
-      return { market: d, stats: getMarketStats(rpc, network.contract, d.id) }
+      return { market: d, stats: getMarketStats(network, d.id) }
     })
 
     await Promise.all(requests.map(r => r.stats))
