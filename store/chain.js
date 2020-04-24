@@ -1,5 +1,6 @@
-import { configureScope } from '@sentry/browser'
+import { configureScope, captureException } from '@sentry/browser'
 import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces'
+
 
 import config from '../config'
 
@@ -83,6 +84,8 @@ export const actions = {
       console.log('scatter err', e)
       console.log('scatter not connected, retry width provider', state.provider)
       dispatch('nextProvider', walletProviders)
+      captureException(e)
+
       await new Promise(resolve => setTimeout(resolve, 1000))
       return await dispatch('init')
     }
