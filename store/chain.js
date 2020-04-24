@@ -183,19 +183,19 @@ export const actions = {
 
       // fake requiredKeys to only be user's keys
       const requiredKeys = await state.wallet.eosApi.signatureProvider.getAvailableKeys()
-      console.log('lolo0', requiredKeys)
       // must use server tx here because blocksBehind header might lead to different TAPOS tx header
+
+      const abis = actions.map(x => ({ accountName: x.account }))
+      abis.push({ accountName: 'eostokensdex' })
+
       const serializedTx = serverTransactionPushArgs.serializedTransaction
       const signArgs = {
         chainId: state.wallet.eosApi.chainId,
         requiredKeys,
         serializedTransaction: serializedTx,
-        abis: []
+        abis
       }
-      console.log('lolo1', signArgs)
       pushTransactionArgs = await state.wallet.eosApi.signatureProvider.sign(signArgs)
-      // TODO тут тупит что то
-      console.log('lolo2', pushTransactionArgs)
       // add server signature
       pushTransactionArgs.signatures.unshift(
         serverTransactionPushArgs.signatures[0]
