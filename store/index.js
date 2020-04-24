@@ -44,7 +44,7 @@ export const actions = {
 
   nuxtServerInit ({ commit, rootState }, { req }) {
     const protocol = process.env.isDev ? 'http' : 'https'
-    commit('setBaseUrl', `${req.protocol}://${protocol}`)
+    commit('setBaseUrl', `${protocol}://${req.headers.host}`)
 
     const subdomain = req.headers.host.split('.')
 
