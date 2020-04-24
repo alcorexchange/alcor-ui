@@ -25,7 +25,7 @@
           a(href="https://zenblocks.io" target="_blank")
             img(src="~/assets/logos/zenblocks.png" height=70)
 
-          .lead UI/UX recomendations/suggestions
+          .lead UI/UX recomendations
 
         .col-md-4.p-2
           a(href="https://eosnameswaps.com" target="_blank")

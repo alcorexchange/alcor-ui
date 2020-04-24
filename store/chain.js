@@ -12,7 +12,9 @@ export const state = () => ({
   scatterConnected: false,
   oldScatter: false,
   wallet: {},
-  payForUser: false
+  payForUser: false,
+
+  provider: 0
 })
 
 async function serverSign(transaction, txHeaders) {
@@ -38,9 +40,20 @@ async function serverSign(transaction, txHeaders) {
 
 
 export const actions = {
+  nextProvider({ state, commit }, providers) {
+    const next = state.provider + 1
+
+    if (next == providers.length) {
+      commit('setProvider', 0)
+    } else {
+      commit('setProvider', next)
+    }
+  },
+
   async init({ state, commit, dispatch, rootState, rootGetters }) {
     const initAccessContext = require('eos-transit').initAccessContext
     const scatter = require('eos-transit-scatter-provider').default
+    const tokenpocket = require('eos-transit-tokenpocket-provider').default
 
     const accessContext = initAccessContext({
       appName: config.APP_NAME,
@@ -51,12 +64,15 @@ export const actions = {
         chainId: rootState.network.chainId
       },
       walletProviders: [
+        tokenpocket(),
         scatter()
       ]
     })
 
+    console.log('change provider:', state.provider)
+
     const walletProviders = accessContext.getWalletProviders()
-    const selectedProvider = walletProviders[0]
+    const selectedProvider = walletProviders[state.provider]
     const wallet = accessContext.initWallet(selectedProvider)
 
     commit('setWallet', wallet)
@@ -65,8 +81,9 @@ export const actions = {
       await wallet.connect()
     } catch (e) {
       console.log('scatter err', e)
-      console.log('scatter not connected, retry..')
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      console.log('scatter not connected, retry width provider', state.provider)
+      dispatch('nextProvider', walletProviders)
+      await new Promise(resolve => setTimeout(resolve, 1000))
       return await dispatch('init')
     }
 
@@ -227,5 +244,9 @@ export const mutations = {
 
   setOldScatter: (state, value) => {
     state.oldScatter = value
-  }
+  },
+
+  setProvider: (state, value) => {
+    state.provider = value
+  },
 }

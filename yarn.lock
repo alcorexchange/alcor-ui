@@ -3519,6 +3519,14 @@ eos-transit-scatter-provider@^4.0.5:
     scatterjs-core "2.7.18"
     scatterjs-plugin-eosjs2 "1.5.0"
 
+eos-transit-tokenpocket-provider@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/eos-transit-tokenpocket-provider/-/eos-transit-tokenpocket-provider-4.0.5.tgz#cec4ffd78e334c8d19fabf3d91e55909ea9ca96b"
+  integrity sha512-15/Aa0vU8i4fyd7+uOGaeQkIs4SwG5KfCOGTOJWBZZwF3phafR31sQQbLN/t1NBjfJDj9uQTsI3de0X8Y7jasA==
+  dependencies:
+    eos-transit "^4.0.5"
+    eosjs "^20.0.0"
+
 eos-transit@^4.0.5:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/eos-transit/-/eos-transit-4.0.5.tgz#68f578077a54451145d32702d40f5625be6d1a55"

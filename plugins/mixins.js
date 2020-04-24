@@ -186,13 +186,13 @@ export const tradeMixin = {
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
-        message: 'Pleace connect Scatter',
+        message: 'Pleace connect wallet',
         type: 'info'
       })
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter'
+        text: 'Wait for wallet'
       })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
@@ -229,13 +229,13 @@ export const tradeMixin = {
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
-        message: 'Pleace connect Scatter',
+        message: 'Pleace connect wallet',
         type: 'info'
       })
 
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter'
+        text: 'Wait for wallet'
       })
 
       if (this.$store.state.chain.scatterConnected && !this.$store.state.user)

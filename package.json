@@ -26,6 +26,7 @@
     "element-ui": "^2.11.1",
     "eos-transit": "^4.0.5",
     "eos-transit-scatter-provider": "^4.0.5",
+    "eos-transit-tokenpocket-provider": "^4.0.5",
     "eosjs": "^21.0.1-rc2",
     "esm": "^3.2.25",
     "http-status-codes": "^1.4.0",

@@ -140,7 +140,7 @@ export default {
     async submit() {
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter'
+        text: 'Wait for wallet'
       })
 
       const { contract, symbol, precision } = this.form.token

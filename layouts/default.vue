@@ -38,7 +38,7 @@
                 el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
         li.el-menu-item.scatter-button(v-else)
-          el-button(@click="login" type="primary" size="small") Sign In via Scatter
+          el-button(@click="login" type="primary" size="small") Connect wallet
 
     .col(v-else)
       .row
@@ -67,7 +67,7 @@
                   el-dropdown-item
                     el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-            el-button(@click="login" type="primary" size="small" v-else) Sign In via Scatter
+            el-button(@click="login" type="primary" size="small" v-else) Connect wallet
       .row
         .col
           el-menu(router, :default-active="activeLink", mode='horizontal')
@@ -176,7 +176,7 @@ export default {
       if (this.$store.state.chain.scatterConnected) {
         const loading = this.$loading({
           lock: true,
-          text: 'Wait for Scatter'
+          text: 'Wait for wallet'
         })
 
         try {
