@@ -8,7 +8,7 @@
 
   .orders-list.blist
     //.ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
-    a(v-for="deal in deals" :href="monitorTx(deal.trx_id)" target="_blank")
+    a(v-for="deal in coloredDeals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
         span(:class="deal.cls")  {{ deal.unit_price | humanFloat }}
         span {{ deal.amount }}
@@ -17,16 +17,15 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   computed: {
-    ...mapGetters('market', ['history']),
+    ...mapState('market', ['deals']),
     ...mapState(['network']),
 
-    deals() {
-      //return Array.from(this.history).sort((a, b) => a.timestamp - b.timestamp).map(h => {
-      return Array.from(this.history)
+    coloredDeals() {
+      return Array.from(this.deals)
         .sort((a, b) => b.time - a.time).map(h => {
           if (h.type == 'buymatch') {
             h.cls = 'text-success'
@@ -39,6 +38,10 @@ export default {
           return h
         })
     }
+  },
+
+  async fetch() {
+    await this.$store.dispatch('market/fetchDeals')
   },
 
   methods: {

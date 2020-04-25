@@ -4,8 +4,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { dayChart } from '~/utils/charts'
+import { mapState } from 'vuex'
 
 export default {
   data() {
@@ -18,7 +17,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('market', ['token', 'charts'])
+    ...mapState('market', ['token', 'charts'])
   },
 
   watch: {
@@ -94,11 +93,12 @@ export default {
   },
 
   methods: {
-    makeCharts() {
+    async makeCharts() {
       try {
+        await this.$store.dispatch('market/fetchCharts')
         this.charts_list = this.charts // Stor react this
         const p = p => parseFloat(this.$options.filters.humanFloat(p))
-        this.candleSeries.setData(dayChart(this.charts_list).map(i => {
+        this.candleSeries.setData(this.charts_list.map(i => {
           return {
             time: i.time,
             open: p(i.open),
@@ -109,6 +109,7 @@ export default {
         }))
         this.loading = false
       } catch (e) {
+        // TODO Обработка оишбки
         this.$notify({ title: 'Graph', message: 'graph fetch error', type: 'warning' })
       } finally {
         this.loading = false

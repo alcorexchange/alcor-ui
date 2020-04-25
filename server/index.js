@@ -1,6 +1,7 @@
 import express from 'express'
 import consola from 'consola'
 import bodyParser from 'body-parser'
+import NodeCache from 'node-cache'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -8,10 +9,10 @@ import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 import { Nuxt, Builder } from 'nuxt'
 
-import config from './nuxt.config.js'
-import sign from './server/sign'
-import markets from './server/markets'
-import { serverInit } from './server/utils'
+import config from '../nuxt.config.js'
+import sign from './sign'
+import markets from './markets'
+import { serverInit } from './utils'
 
 const app = express()
 
@@ -48,3 +49,5 @@ async function start () {
   })
 }
 start()
+
+export const cache = new NodeCache()

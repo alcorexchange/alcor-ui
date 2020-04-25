@@ -13,7 +13,7 @@
         .col-md-8.d-flex.align-items-center
           .text.item
             span Volume 24H:
-            span.text-success  {{ volume24 }}
+            span.text-success  {{ market.volume24 }}
 
       .text.item
         .row.trade-window(v-if="!isMobile")
@@ -87,7 +87,10 @@ export default {
 
     this.loading = true
     try {
-      await store.dispatch('market/fetchMarket')
+      await Promise.all([
+        store.dispatch('market/fetchMarket'),
+        store.dispatch('market/fetchDeals')
+      ])
     } catch (e) {
       captureException(e)
       return error({ message: e, statusCode: 500 })
@@ -111,13 +114,12 @@ export default {
   computed: {
     ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['token']),
-    ...mapGetters(['user']),
-    ...mapGetters('market', ['volume24'])
+    ...mapGetters(['user'])
   },
 
   created() {
     // Auto update orders
-    setInterval(() => { this.$store.dispatch('market/fetchMarket') }, 15000)
+    setInterval(() => { this.$store.dispatch('market/fetchMarket') }, 5000)
   },
 
   head() {

@@ -53,14 +53,14 @@ export const getters = {
     // FIXME If delete state from here, then rootState.network is undefined
     return axios.create({
       baseURL: rootState.network.hyperion,
-      timeout: 10000
+      timeout: 30000
     })
   },
 
   backEnd(state, getters, rootState) {
     return axios.create({
       baseURL: rootState.baseUrl,
-      timeout: 10000
+      timeout: 30000
     })
   }
 }
