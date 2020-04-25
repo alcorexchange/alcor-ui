@@ -1,39 +1,49 @@
 <template lang="pug">
-  .row
+  .row.mt-3
     .col
+      .row.mt-2
+        .col
+          h2.lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
+               | atomically, without the participation of third parties! The tokens should comply with the
+               | standard eosio.token of the contract.
+        gh-btns-star(slug="avral/alcor-ui" show-count).ml-auto
+
       .row
         .col
-          .display-4 Rules:
+          .mt-3
+            h4 Properties:
+              ul.mt-1
+                li.lead Fully
+                  a(:href="monitorAccount($store.state.network.contract)" target="_blank")  onchain
+                  |  matching for limit/market trades.
+                li.lead All the logic of order storage and matching takes place in the contract's ram, without any additional centralized solutions.
+                li.lead This application works without centralized back-end and uses only the public EOS node and public api serivices.
+                li.lead
+                  b No commission at all
+                  |  for beta testing time.
+      .row.mt-3
+        .col
+          h1 FAQ
+          el-collapse(v-model='activeNames', @change='handleChange')
+            el-collapse-item(title='How to add icon for my token ?', name='1')
+              p.lead You can add token, options:
 
-        gh-btns-star(slug="avral/alcor-ui" show-count).ml-auto
-      .ml-3.mt-3
-        h2.lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
-             | atomically, without the participation of third parties! The tokens should comply with the
-             | standard eosio.token of the contract.
+              ul
+                li.lead Add icon to Eos token collection
+                  a(href="https://github.com/BlockABC/eos-tokens" target="_blank")  https://github.com/BlockABC/eos-tokens
+                li.lead All icon on alcor
+                  a(href="https://github.com/avral/alcor-ui/tree/master/assets/tokens" target="_blank")  github page folder
+                  |  name format: symbol-contract.png
+                li.lead If you cant do any of that,
+                  a(href="https://t.me/avral" target="_blank")  send me .png to dm.
 
-        h4 Properties:
-          ul.mt-1
-            li.lead Fully
-              a(:href="monitorAccount($store.state.network.contract)" target="_blank")  onchain
-              |  matching for limit/market trades.
-            li.lead All the logic of order storage and matching takes place in the contract's ram, without any additional centralized solutions.
-            //li.lead The exchange works automatically, without the possibility of third parties to influence the work of the contract.
-            li.lead This application works without centralized back-end and uses only the public EOS node and public api serivices.
-            li.lead
-              b No commission at all
-              |  for beta testing time.
-            //li.lead Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged.
 
-      h4.ml-3 Roadmap:
-        ul.mt-1
-          li.lead Global redesign of the application.
-          li.lead The web application will be published in open source. And contract later.
-          li.lead Development of additional services for easy search, sorting and working with orders.
+            el-collapse-item(title='Audit? How it works?', name='2')
+              .lead Exchange contract:
+                a(:href="monitorAccount($store.state.network.contract)" target="_blank") {{ $store.state.network.contract }}
 
-      h4.ml-3 Audit:
-        ul.mt-1
-          li.lead Exchange contract:
-            a(:href="monitorAccount($store.state.network.contract)" target="_blank") {{ $store.state.network.contract }}
+
+
       .row.mb-3
         .col
           .display-4.mt-4 Technologies:
