@@ -7,7 +7,7 @@
 
       el-form(v-else ref="form" :model="form" label-position="left" :rules="rules").mt-2
         .lead Auto market creation
-        small You need around 300 buyes of free RAM for new market
+        small You need around 300 bytes of free RAM for new market
 
         el-tabs(@tab-click="tokenSelect = ''")
           el-tab-pane(label="Auto select")
