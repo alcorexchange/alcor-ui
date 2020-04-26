@@ -155,7 +155,6 @@ export function dayChart(actions) {
   }
 
   for (const [key, values] of Object.entries(new_result)) {
-    // TODO Сделать норм свечи что бы новая не начиналась с разрывом
     if (values.length == 0) {
       const last_item = results[results.length - 1]
 

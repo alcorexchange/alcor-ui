@@ -32,7 +32,8 @@
             template(slot-scope="scope")
               .text-success {{ scope.row.last_price | humanFloat }}
           el-table-column(label='24H Volume', prop='name')
-            span.text-mutted Available soon
+            template(slot-scope="scope")
+              span.text-mutted {{ scope.row.volume24 }}
           el-table-column(label='24H Change %', prop='name')
             span.text-mutted Available soon
           el-table-column(align='right')

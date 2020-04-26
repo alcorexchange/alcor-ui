@@ -13,7 +13,7 @@
         .col-md-8.d-flex.align-items-center
           .text.item
             span Volume 24H:
-            span.text-success  {{ market.volume24 }}
+            span.text-success  {{ stats.volume24 }}
 
       .text.item
         .row.trade-window(v-if="!isMobile")
@@ -49,10 +49,10 @@
 
     .box-card(v-else).mt-3
       .clearfix(slot='header')
-        span Market: {{ market.id }}
+        span Market: {{ id }}
         el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
       .text.item.text-center
-        h1.display-4 Order {{ market.id }} not found or finished
+        h1.display-4 Order {{ id }} not found or finished
 </template>
 
 <script>
@@ -101,8 +101,6 @@ export default {
 
   data() {
     return {
-      market: {},
-
       price: 0.0,
       amount: 0.0,
 
@@ -113,7 +111,7 @@ export default {
 
   computed: {
     ...mapGetters('chain', ['rpc', 'scatter']),
-    ...mapState('market', ['token']),
+    ...mapState('market', ['token', 'id', 'stats']),
     ...mapGetters(['user'])
   },
 
@@ -127,10 +125,7 @@ export default {
       title: `Alcor Exchange | Market ${this.token.symbol.name}`,
 
       meta: [
-        // hid is used as unique identifier. Do not use `vmid` for it as it will not work
         { hid: 'description', name: 'description', content: `Trade ${this.token.str} token for EOS` }
-        //{ name: 'viewport', content: 'user-scalable = yes' }
-
       ]
     }
   }

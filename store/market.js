@@ -3,6 +3,7 @@ import { sort_by_price, prepareOrder } from '~/utils'
 export const state = () => ({
   id: null,
   token: {},
+  stats: {},
 
   bids: [],
   asks: [],
@@ -20,6 +21,7 @@ export const mutations = {
   setCharts: (state, charts) => state.charts = charts,
   setDeals: (state, deals) => state.deals = deals,
   setToken: (state, token) => state.token = token,
+  setStats: (state, stats) => state.stats = stats,
   setOrderLoading: (state, orderLoading) => state.orderLoading = orderLoading
 }
 
@@ -42,6 +44,7 @@ export const actions = {
     }
 
     commit('setToken', market.token)
+    commit('setStats', market)
     commit('setId', market.id)
 
     // TODO Move to client side

@@ -13,7 +13,6 @@ updater('eos', 1000 * 20)
 updater('telos', 1000 * 20)
 updater('wax', 1000 * 20)
 
-
 async function getMarket(network, market_id) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
