@@ -240,7 +240,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .el-form {
   padding: 10px 70px;
 }

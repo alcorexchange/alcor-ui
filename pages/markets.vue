@@ -12,7 +12,7 @@
               //.new-market-btn
               el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
 
-          pre.market(v-for="market in filteredItems" @click="clickOrder(market)")
+          nuxt-link(:to="{ name: 'trade-id', params: { id: market.id } }").market(:key="market.id" v-for="market in filteredItems")
             span
             TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
             span.ml-2
@@ -137,10 +137,21 @@ export default {
   height: 75px;
 }
 
+.market {
+  color:inherit;
+  text-decoration: none;
+
+  display: block;
+  font-size: 87.5%;
+  color: #212529;
+}
+
 .market:hover {
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
+  color:inherit;
+  text-decoration: none;
 }
 
 .market:hover img {
