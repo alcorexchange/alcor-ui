@@ -21,7 +21,7 @@
         a(href="https://t.me/alcorexchange" target="_blank")  telegram chat!
 
       .row.px-4
-        .col-md-4.p-2
+        //.col-md-4.p-2
           a(href="https://zenblocks.io" target="_blank")
             img(src="~/assets/logos/zenblocks.png" height=70)
 
