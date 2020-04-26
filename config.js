@@ -23,7 +23,12 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
     hyperion: 'https://api.eossweden.org/v2/',
-    backEnd: 'http://localhost:8000/api/'
+    backEnd: 'http://localhost:8000/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1',
+    }
   },
 
   jungle: {
@@ -46,7 +51,12 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
     hyperion: 'http://api.jungle.hyperion.greeneosio.com/v2/',
-    backEnd: 'http://localhost:8000/api/'
+    backEnd: 'http://localhost:8000/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1',
+    }
   },
 
   eos: {
@@ -70,7 +80,12 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://api.eossweden.org/v2/',
-    backEnd: 'https://eostokens.io/api/'
+    backEnd: 'https://eostokens.io/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1',
+    }
   },
 
   coffe: {
@@ -94,7 +109,12 @@ const networks = {
     monitor_params: 'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
     lightapi: 'http://coffe.io:5001',
     hyperion: 'https://resurces.com:17555/v2/',
-    backEnd: 'https://eostokens.io/api/'
+    backEnd: 'https://eostokens.io/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1',
+    }
   },
 
   telos: {
@@ -118,7 +138,12 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://mainnet.telosusa.io/v2/',
-    backEnd: 'https://eostokens.io/api/'
+    backEnd: 'https://eostokens.io/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1',
+    }
   },
 
   wax: {
@@ -143,7 +168,12 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
     hyperion: 'https://api.waxsweden.org/v2/',
-    backEnd: 'https://eostokens.io/api/'
+    backEnd: 'https://eostokens.io/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1',
+    }
   }
 }
 

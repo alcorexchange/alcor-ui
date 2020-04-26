@@ -17,18 +17,21 @@ const buffer2hex = (buffer) =>
   Array.from(buffer, (x) => ('00' + x.toString(16)).slice(-2)).join('')
 
 // we allow actions on this contract
-const ALLOWED_CONTRACT = `eostokensdex`
+const ALLOWED_CONTRACTS = ['wwweosswapio', 'eostokensdex']
+
 const checkAction = (action) => {
   switch (action.account) {
     case `eosio.token`: {
-      if (action.data.to !== ALLOWED_CONTRACT) {
+      if (!ALLOWED_CONTRACTS.includes(action.data.to)) {
         throw new Error(
           `Free CPU for transfers to other contracts is not granted.`
         )
       }
       return
     }
-    case ALLOWED_CONTRACT: {
+
+    // TODO Refactor
+    case ALLOWED_CONTRACTS[0]: {
       // any internal action except payforcpu is fine
       // we don't want someone to DDOS by sending only payforcpu actions
       if (action.name === `payforcpu`) {
@@ -36,8 +39,17 @@ const checkAction = (action) => {
       }
       return
     }
+    case ALLOWED_CONTRACTS[1]: {
+      // any internal action except payforcpu is fine
+      // we don't want someone to DDOS by sending only payforcpu actions
+      if (action.name === `payforcpu`) {
+        throw new Error(`Don't include duplicate payforcpu actions.`)
+      }
+      return
+    }
+
     default: {
-      if (action.name == 'transfer' && action.data.to == ALLOWED_CONTRACT) return
+      if (action.name == 'transfer' && ALLOWED_CONTRACTS.includes(action.data.to)) return
 
       throw new Error(
         `Free CPU for actions on ${action.account} is not granted.`
@@ -63,11 +75,11 @@ async function sign (req, res) {
 
     // insert cpu payer's payforcpu action as first action to trigger ONLY_BILL_FIRST_AUTHORIZER
     tx.actions.unshift({
-      account: ALLOWED_CONTRACT,
+      account: ALLOWED_CONTRACTS[1],
       name: 'payforcpu',
       authorization: [
         {
-          actor: ALLOWED_CONTRACT,
+          actor: ALLOWED_CONTRACTS[1],
           permission: `payforcpu`
         }
       ],

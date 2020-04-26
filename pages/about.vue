@@ -24,7 +24,7 @@
       .row.mt-3
         .col
           h1 FAQ
-          el-collapse(v-model='activeNames', @change='handleChange')
+          el-collapse
             el-collapse-item(title='How to add icon for my token ?', name='1')
               p.lead You can add token, options:
 

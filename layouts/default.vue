@@ -8,9 +8,9 @@
 
         el-menu-item(index="/markets") Markets
 
-        el-menu-item(index="/about") About
+        el-menu-item(index="/otc") OTC Exchange
 
-        a.el-menu-item(href="https://swap.eostokens.io" target="_blank") OTC Exchange
+        el-menu-item(index="/about") About
 
         li.el-menu-item
           img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1

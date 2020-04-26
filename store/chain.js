@@ -134,7 +134,7 @@ export const actions = {
     }
   },
 
-  transfer({ dispatch, rootState }, { contract, actor, quantity, memo }) {
+  transfer({ dispatch, rootState }, { contract, actor, quantity, memo, to }) {
     return dispatch('sendTransaction',
       [
         {
@@ -148,7 +148,7 @@ export const actions = {
           ],
           data: {
             from: actor,
-            to: rootState.network.contract,
+            to: to || rootState.network.contract,
             quantity,
             memo
           }
@@ -157,11 +157,11 @@ export const actions = {
     )
   },
 
-  cancelorder({ dispatch, rootState }, { account, market_id, type, order_id }) {
+  cancelorder({ dispatch, rootState }, { contract, account, market_id, type, order_id }) {
     return dispatch('sendTransaction',
       [
         {
-          account: rootState.network.contract,
+          account: contract || rootState.network.contract,
           name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
           authorization: [
             {
