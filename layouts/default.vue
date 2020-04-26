@@ -72,10 +72,8 @@
         .col
           el-menu(router, :default-active="activeLink", mode='horizontal')
             el-menu-item(index="/markets") Markets
-
+            el-menu-item(index="/otc") OTC Exchange
             el-menu-item(index="/about") About
-
-            a.el-menu-item(href="https://swap.eostokens.io" target="_blank") OTC Exchange
   nuxt
 
   .row.mt-3
