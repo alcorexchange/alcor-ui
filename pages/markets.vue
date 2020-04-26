@@ -1,7 +1,7 @@
 <template lang="pug">
 .row
   .col
-    el-tabs(type="border-card" v-model="activeName")
+    el-tabs(type="border-card" v-model="activeTab")
       el-tab-pane(label="Tile" name="first")
         .p-2
           el-input(size="small" v-model="search" placeholder="Filter by token").align-self-end.ml-auto.d-none.d-lg-block
@@ -74,7 +74,6 @@ export default {
       },
 
       loading: true,
-      activeName: 'first'
     }
   },
 
@@ -90,7 +89,18 @@ export default {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
           return true
       }).reverse()
+    },
+
+    activeTab: {
+      get () {
+        return this.$store.state.market.activeTab
+      },
+
+      set (value) {
+        this.$store.commit('market/setActiveTab', value)
+      }
     }
+
   },
   methods: {
     clickOrder(a, b, event) {
