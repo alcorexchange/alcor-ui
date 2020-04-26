@@ -12,7 +12,7 @@
               //.new-market-btn
               el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
 
-          nuxt-link(:to="{ name: 'trade-id', params: { id: market.id } }").market(:key="market.id" v-for="market in filteredItems")
+          nuxt-link(:to="{ name: 'markets-id', params: { id: market.id } }").market(:key="market.id" v-for="market in filteredItems")
             span
             TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
             span.ml-2
@@ -106,7 +106,7 @@ export default {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
-      this.$router.push({ name: 'trade-id', params: { id: a.id } })
+      this.$router.push({ name: 'markets-id', params: { id: a.id } })
     }
   }
 }
