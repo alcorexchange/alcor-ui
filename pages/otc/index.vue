@@ -251,6 +251,16 @@ export default {
         this.loading = false
       }
     }
+  },
+
+  head() {
+    return {
+      title: `Alcor OTC Exchange | Trustless tokens swaps`,
+
+      meta: [
+        { hid: 'description', name: 'description', content: `Atomic exchange of any token amount for any other token.` }
+      ]
+    }
   }
 }
 </script>

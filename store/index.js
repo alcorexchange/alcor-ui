@@ -9,7 +9,6 @@ const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3
 
 export const state = () => ({
   user: null,
-  history: [],
   markets: [],
   network: {},
 
@@ -23,7 +22,6 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
-  setHistory: (state, history) => state.history = history,
   setMarkets: (state, markets) => state.markets = markets,
 
   setIsMobile: (state, mobile) => state.isMobile = mobile,
@@ -32,9 +30,6 @@ export const mutations = {
 
 export const actions = {
   init({ dispatch, state }) {
-    // Init on client
-    dispatch('loadHistory')
-
     window.addEventListener('resize', () => dispatch('checkIsMobile'))
   },
 
@@ -67,44 +62,6 @@ export const actions = {
   async loadMarkets({ state, commit, getters, dispatch }) {
     const { data } = await getters['api/backEnd'].get('/api/markets')
     commit('setMarkets', data)
-  },
-
-  loadHistory({ state, commit, getters }) {
-    const contract = state.network.contract
-    const formatActionFilter = action => `${contract}:${action}`
-
-    getters['api/hyperion'].get('/history/get_actions', {
-      params: {
-        account: contract,
-        limit: '1',
-        filter: config.CONTRACT_ACTIONS.map(formatActionFilter).join(',')
-      }
-    }).then(r => {
-      // FIXME Really not safe code
-      const times = Math.ceil(r.data.total.value / 1000)
-      let offset = 0
-      const requests = []
-
-      for (let i = 0; i < times; i++) {
-        requests.push(
-          getters['api/hyperion'].get('/history/get_actions', {
-            params: {
-              account: state.network.contract,
-              skip: offset,
-              filter: config.CONTRACT_ACTIONS.map(formatActionFilter).join(','),
-              limit: '1000'
-            }
-          })
-        )
-        offset += 1000
-      }
-
-      Promise.all(requests).then(data => {
-        commit('setHistory', [].concat(...data.map(d => d.data.actions)).filter(a => {
-          return ['sellreceipt', 'buyreceipt', 'sellmatch', 'buymatch', 'cancelbuy', 'cancelsell'].includes(a.act.name)
-        }))
-      })
-    })
   },
 
   loadUserBalances({ rootState, state, commit }) {
