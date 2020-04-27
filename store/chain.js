@@ -84,7 +84,6 @@ export const actions = {
       console.log('scatter err', e)
       console.log('scatter not connected, retry width provider', state.provider)
       dispatch('nextProvider', walletProviders)
-      captureException(e)
 
       await new Promise(resolve => setTimeout(resolve, 1000))
       return await dispatch('init')
@@ -130,6 +129,7 @@ export const actions = {
       commit('setUser', { ...state.wallet.accountInfo, name: state.wallet.accountInfo.account_name }, { root: true })
       dispatch('loadUserBalances', {}, { root: true })
     } catch (e) {
+      captureException(e)
       this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })
     }
   },
