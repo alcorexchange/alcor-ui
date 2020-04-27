@@ -12,7 +12,7 @@
               //.new-market-btn
               el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
 
-          nuxt-link(:to="{ name: 'markets-id', params: { id: market.id } }").market(:key="market.id" v-for="market in filteredItems")
+          nuxt-link.market(:to="{ name: 'markets-id', params: { id: market.id } }" :key="market.id" v-for="market in filteredItems")
             span
             TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
             span.ml-2

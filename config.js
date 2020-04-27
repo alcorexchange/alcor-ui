@@ -73,7 +73,7 @@ const networks = {
 
     chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
 
-    host: 'api.main.alohaeos.com',
+    host: 'eosbp.atticlab.net',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
@@ -131,13 +131,15 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    host: 'api.telos.alohaeos.com',
+    //host: 'api.telos.alohaeos.com',
+    host: 'telos.caleos.io',
     port: 443,
     protocol: 'https',
     monitor: 'http://telos.bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://mainnet.telosusa.io/v2/',
+    //hyperion: 'https://mainnet.telosusa.io/v2/',
+    hyperion: 'https://telos.eosphere.io/v2/',
     backEnd: 'https://eostokens.io/api/',
 
     otc: {
