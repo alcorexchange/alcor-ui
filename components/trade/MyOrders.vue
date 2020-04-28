@@ -91,7 +91,7 @@ export default {
         })
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
-        this.$emit('update')
+        this.$emit('update') // FIXME Update not working
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })

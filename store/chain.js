@@ -175,7 +175,7 @@ export const actions = {
     )
   },
 
-  async sendTransaction({ state, rootState }, actions) {
+  async sendTransaction({ state, rootState, dispatch }, actions) {
     const tx = {
       actions
     }
@@ -229,8 +229,12 @@ export const actions = {
       })
     }
 
-    console.log('lolo3', pushTransactionArgs)
-    return state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
+    const result = await state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
+
+    // Update user state
+    setTimeout(() => dispatch('update', {}, { root: true }), 2000)
+
+    return result
   }
 }
 
