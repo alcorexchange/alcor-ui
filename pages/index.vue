@@ -33,6 +33,11 @@
           .lead A decentralized EOS account exchange.
 
         .col-md-4.p-2
+          a(href="https://mywish.io/eos-token" target="_blank")
+            img(src="~/assets/logos/mywish.svg" height=61)
+          .lead.mt-2 Create your own EOS token.
+
+        .col-md-4.p-2
           a(href="https://coffe.io" target="_blank")
             img(src="~/assets/logos/coffe.svg" height=70)
 
