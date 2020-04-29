@@ -26,6 +26,10 @@
                             span.text-success  {{ stats.volume24 }}
                       .col-md-4(v-if="isPeg")
                         withdraw
+                    .row(v-if="isPeg")
+                      .col
+                        .p-2
+                          .text {{ this.network.pegs[this.token.str].desc }}
               .row.mt-2
                 .col
                   order-book(v-loading="loading")

@@ -89,7 +89,6 @@ export default {
         text: 'Wait for wallet'
       })
 
-      console.log(this.token.symbol)
       const quantity = this.amount.toFixed(this.token.symbol.precision) + ' ' + this.token.symbol.name
 
       try {
