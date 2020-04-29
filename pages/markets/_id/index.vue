@@ -3,26 +3,6 @@
 
 .row
   .col
-    //.row
-      .col
-        //.mt-2.overflowbox.p-1
-        el-button(icon="el-icon-arrow-left" size="small") Back
-        TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="30").ml-3
-        //el-page-header(@back="goBack")
-          template(slot="content")
-            TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="30")
-
-          span Order created by
-          //.col-4
-        //TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
-        //| {{ token.symbol.name }}@
-        //a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-        //.col-8.d-flex.align-items-center
-        //.col-8.d-flex.align-items-center
-          .text.item
-            span Volume 24H:
-            span.text-success  {{ stats.volume24 }}
-
     .row.mt-2
       .col
         .text.item
@@ -32,10 +12,10 @@
                 .col
                   .overflowbox.box-card.p-2
                     .row
-                      .col-2.p-1.pl-4
+                      .col-md-2.p-1.pl-4
                         TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
 
-                      .col-10
+                      .col-md-6
                         .row
                           .col
                             b {{ token.symbol.name }}@
@@ -44,6 +24,8 @@
                           .col
                             span Volume 24H:
                             span.text-success  {{ stats.volume24 }}
+                      .col-md-4(v-if="isPeg")
+                        withdraw
               .row.mt-2
                 .col
                   order-book(v-loading="loading")
@@ -91,13 +73,6 @@
           .row
             .col
               my-orders(v-if="user" v-loading="loading")
-
-    //.box-card(v-else).mt-3
-      .clearfix(slot='header')
-        span Market: {{ id }}
-        el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
-      .text.item.text-center
-        h1.display-4 Order {{ id }} not found or finished
 </template>
 
 <script>
@@ -113,6 +88,7 @@ import OrderBook from '~/components/trade/OrderBook'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
 import MobileTrade from '~/components/trade/MobileTrade'
+import Withdraw from '~/components/pegs/Withdraw'
 
 export default {
   components: {
@@ -124,7 +100,8 @@ export default {
     OrderBook,
     LatestDeals,
     Chart,
-    MobileTrade
+    MobileTrade,
+    Withdraw
   },
 
   async fetch({ store, error, params }) {
@@ -155,9 +132,14 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['token', 'id', 'stats']),
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+
+    isPeg() {
+      return Object.keys(this.network.pegs).includes(this.token.str)
+    }
   },
 
   created() {

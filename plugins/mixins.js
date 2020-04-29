@@ -208,7 +208,7 @@ export const tradeMixin = {
 
         this.$store.dispatch('market/fetchMarket')
 
-        this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+        this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {
@@ -251,7 +251,7 @@ export const tradeMixin = {
 
         this.$store.dispatch('market/fetchMarket')
 
-        this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+        this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {

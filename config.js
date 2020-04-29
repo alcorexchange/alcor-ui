@@ -28,7 +28,9 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
-    }
+    },
+
+    pegs: {},
   },
 
   jungle: {
@@ -56,7 +58,9 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
-    }
+    },
+
+    pegs: {}
   },
 
   eos: {
@@ -85,6 +89,17 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
+    },
+
+    pegs: {
+      'TLOSP@steemenginex': {
+        desc: 'Telos peged token. You can buy it for EOS and withdrow to Telos 1:1',
+        network: {
+          name: 'Telos',
+          symbol: 'TLOS'
+        },
+        withdrowMemo: 'TLOS {account}'
+      }
     }
   },
 
@@ -114,7 +129,9 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
-    }
+    },
+
+    pegs: {}
   },
 
   telos: {
@@ -145,7 +162,15 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
-    }
+    },
+
+    pegs: {},
+    //pegs: {
+    //  'EOSP@steemenginex': {
+    //    desc: 'EOS peged token. You can buy it for TLOS and withdrow to EOS 1:1',
+    //    withdrowMemo: account => `TLOS ${account}`
+    //  }
+    //}
   },
 
   wax: {
@@ -175,7 +200,9 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
-    }
+    },
+
+    pegs: {}
   }
 }
 

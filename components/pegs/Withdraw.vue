@@ -1,0 +1,135 @@
+<template lang="pug">
+// TODO Refactor with walidators for form
+div
+  el-button(type="primary" icon="el-icon-wallet" size="mini" @click="open").ml-auto Withdraw
+
+  el-dialog(title="Withdraw using Steem-Engine", :visible.sync="visible" width="25%" v-if="user")
+    el-form(ref="form" label-position="left")
+      .row
+        .col-2
+          TokenImage(:src="$tokenLogo(this.token.symbol.name, this.token.contract)" height="50")
+
+        .col-10
+          .row
+            .col
+              b Network: {{ peg.network.name }}
+          .row
+            .col
+              b Symbol: {{ peg.network.symbol }}
+          .row
+            .col
+              b Balance: {{ tokenBalance }}
+
+      .row.mt-3
+        .col
+          .label {{ peg.desc }}
+
+
+      el-form-item.mt-2
+        template(slot="label")
+          b Withdraw amount:
+        el-input-number(v-model="amount" :precision="token.symbol.precision" :step="1").w-100
+
+      el-form-item.mt-1
+        template(slot="label")
+          b Account in {{ peg.network.name }}:
+        el-input(v-model="account" placeholder="account name..").w-100
+
+
+    span.dialog-footer
+      el-button(type='primary' @click="submit").w-100 Withdraw
+</template>
+
+<script>
+import { captureException } from '@sentry/browser'
+import { mapGetters, mapState } from 'vuex'
+
+import TokenImage from '~/components/elements/TokenImage'
+
+export default {
+  components: {
+    TokenImage
+  },
+
+  data() {
+    return {
+      visible: false,
+
+      account: '',
+      amount: 0.0
+    }
+  },
+
+  computed: {
+    ...mapState(['user', 'network']),
+    ...mapState('market', ['token']),
+    ...mapGetters(['tokenBalance']),
+
+    peg() {
+      return this.network.pegs[this.token.str]
+    }
+  },
+
+  created() {
+    console.log(this.token)
+  },
+
+  methods: {
+    open() {
+      if (this.user)
+        this.visible = true
+      else
+        this.$notify({ title: 'Login', message: 'Pleace login first', type: 'info' })
+    },
+
+    async submit() {
+      console.log(this.peg)
+      const loading = this.$loading({
+        lock: true,
+        text: 'Wait for wallet'
+      })
+
+      console.log(this.token.symbol)
+      const quantity = this.amount.toFixed(this.token.symbol.precision) + ' ' + this.token.symbol.name
+
+      try {
+        const r = await this.$store.dispatch('chain/transfer', {
+          to: 'steemenginex',
+          contract: this.token.contract,
+          actor: this.user.name,
+          quantity,
+          memo: this.peg.withdrowMemo.replace('{account}', this.account)
+        })
+
+        this.$notify({ title: 'Withdraw in process', type: 'success' })
+
+        this.visible = false
+
+        this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: 'OK',
+          callback: (action) => {
+          }
+        })
+
+        //this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
+      } catch (e) {
+        captureException(e)
+        this.$notify({ title: 'Withdraw error', message: e.message, type: 'error' })
+        console.log(e)
+      } finally {
+        loading.close()
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.upperinput {
+    text-transform: uppercase;
+}
+.upperinput:placeholder-shown {
+    text-transform: none;
+}
+</style>
