@@ -31,6 +31,8 @@ export const mutations = {
 export const actions = {
   init({ dispatch, state }) {
     window.addEventListener('resize', () => dispatch('checkIsMobile'))
+
+    setInterval(() => dispatch('update'), 5000)
   },
 
   checkIsMobile ({ commit }) {
