@@ -188,6 +188,8 @@ export const actions = {
         serverTransactionPushArgs = await serverSign(tx, transactionHeader)
         console.log('serverTransactionPushArgs ', serverTransactionPushArgs)
       } catch (error) {
+        this._vm.$notify({ title: 'Free CPU', message: error.message, type: 'warning' })
+
         console.error(`Error when requesting server signature: `, error.message)
       }
     }
