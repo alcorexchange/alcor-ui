@@ -32,8 +32,9 @@ div
 
       el-form-item.mt-1
         template(slot="label")
-          b Account in {{ peg.network.name }}:
-        el-input(v-model="account" placeholder="account name..").w-100
+          b {{ peg.network.name }} address:
+          .text-info No walidation of address yet, be careful!
+        el-input(v-model="account" placeholder="address..").w-100
 
 
     span.dialog-footer
@@ -97,7 +98,7 @@ export default {
           contract: this.token.contract,
           actor: this.user.name,
           quantity,
-          memo: this.peg.withdrowMemo.replace('{account}', this.account)
+          memo: this.peg.withdrawMemo.replace('{account}', this.account)
         })
 
         this.$notify({ title: 'Withdraw in process', type: 'success' })

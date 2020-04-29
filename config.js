@@ -93,13 +93,22 @@ const networks = {
 
     pegs: {
       'TLOSP@steemenginex': {
-        desc: 'Telos peged token. You can buy it for EOS and withdrow to Telos 1:1',
+        desc: 'Telos peged token. You can buy it for EOS and withdraw to Telos 1:1',
         network: {
           name: 'Telos',
           symbol: 'TLOS'
         },
-        withdrowMemo: 'TLOS {account}'
-      }
+        withdrawMemo: 'TLOS {account}'
+      },
+
+      'BTCP@steemenginex': {
+        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address 1:1',
+        network: {
+          name: 'Bitcoin',
+          symbol: 'BTC'
+        },
+        withdrawMemo: 'BTC {account}'
+      },
     }
   },
 
@@ -167,8 +176,8 @@ const networks = {
     pegs: {},
     //pegs: {
     //  'EOSP@steemenginex': {
-    //    desc: 'EOS peged token. You can buy it for TLOS and withdrow to EOS 1:1',
-    //    withdrowMemo: account => `TLOS ${account}`
+    //    desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1',
+    //    withdrawMemo: account => `TLOS ${account}`
     //  }
     //}
   },
