@@ -51,7 +51,9 @@ market_id: 32
 order_id: 3
 ```
 [Cancelbuy](https://bloks.io/account/eostokensdex?loadContract=true&tab=Actions&table=markets&account=eostokensdex&scope=eostokensdex&limit=100&action=cancelbuy)
+
 [Cancelsell](https://bloks.io/account/eostokensdex?loadContract=true&tab=Actions&table=markets&account=eostokensdex&scope=eostokensdex&limit=100&action=buyreceipt)
+
 [Orders and markets possible to see at contact tables](https://bloks.io/account/eostokensdex?loadContract=true&tab=Tables&table=markets&account=eostokensdex&scope=eostokensdex&limit=100)
 
 ## Build Setup
