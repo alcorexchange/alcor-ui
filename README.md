@@ -27,7 +27,7 @@ Props:
 
 ## Instructions for manual use.
 #### Open new market:
-Send 3.0000 EOS to *eostokensdex* with memo: "new_market|0.token_precision token_symbol@token_contract"
+Send 3.0000 EOS to **eostokensdex** with memo: "new_market|0.token_precision token_symbol@token_contract"
 
 Example memo: ```"new_market|0.00000000 WEED@weedcashnt"```
 
