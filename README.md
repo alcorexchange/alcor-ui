@@ -39,7 +39,7 @@ Memo format(ask token): ```token_amount token_symbol@token_contract```
 Example: ```transfer "0.7000 EOS" to eostokensdex with memo "1000.0000 TKT@eossanguotkt"```
 
 #### Order cancelation
-Call action ```cancelsell``` with parameters:
+Call action ```cancelsell``` or ```cancelbuy``` with parameters:
 executor: order owner
 market_id:
 order_id:
@@ -50,7 +50,12 @@ executor: avral.pro
 market_id: 32
 order_id: 3
 ```
-Orders and markets possible to see at contact tables: https://bloks.io/account/eostokensdex?loadContract=true&tab=Tables&table=markets&account=eostokensdex&scope=eostokensdex&limit=100
+[Cancelbuy](https://bloks.io/account/eostokensdex?loadContract=true&tab=Actions&table=markets&account=eostokensdex&scope=eostokensdex&limit=100&action=cancelbuy)
+
+[Cancelsell](https://bloks.io/account/eostokensdex?loadContract=true&tab=Actions&table=markets&account=eostokensdex&scope=eostokensdex&limit=100&action=buyreceipt)
+
+
+[Orders and markets possible to see at contact tables](https://bloks.io/account/eostokensdex?loadContract=true&tab=Tables&table=markets&account=eostokensdex&scope=eostokensdex&limit=100)
 
 ## Build Setup
 
