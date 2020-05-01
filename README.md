@@ -25,6 +25,33 @@ Props:
 2. [EOSIO Light API](https://github.com/cc32d9/eosio_light_api)
 3. [Bloks.io](https://bloks.io/)
 
+## Instructions for manual use.
+#### Open new market:
+Send 3.0000 EOS to *eostokensdex* with memo: "new_market|0.token_precision token_symbol@token_contract"
+
+Example memo: ```"new_market|0.00000000 WEED@weedcashnt"```
+
+
+#### Submit order:
+Send the amount you want to sell, and specify the amount you want to get in the memo, the price and market will be automatically determined in the contract.
+Memo format(ask token): ```token_amount token_symbol@token_contract```
+
+Example: ```transfer "0.7000 EOS" to eostokensdex with memo "1000.0000 TKT@eossanguotkt"```
+
+#### Order cancelation
+Call action ```cancelsell``` with parameters:
+executor: order owner
+market_id:
+order_id:
+
+Example
+```
+executor: avral.pro
+market_id: 32
+order_id: 3
+```
+Orders and markets possible to see at contact tables: https://bloks.io/account/eostokensdex?loadContract=true&tab=Tables&table=markets&account=eostokensdex&scope=eostokensdex&limit=100
+
 ## Build Setup
 
 ``` bash
