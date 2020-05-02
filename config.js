@@ -80,7 +80,7 @@ const networks = {
     //host: 'eosbp.atticlab.net',
     //host: 'eos.greymass.com',
     //host: 'eos.greymass.com',
-    host: 'api.eoseoul.io',
+    host: 'api.main.alohaeos.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
@@ -188,7 +188,7 @@ const networks = {
   wax: {
     name: 'wax',
     desc: 'Wax mainnet',
-    contract: 'alcordexmain', // TODO
+    contract: 'alcordexmain',
 
     baseToken: {
       contract: 'eosio.token',
