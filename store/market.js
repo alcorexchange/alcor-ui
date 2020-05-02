@@ -38,6 +38,19 @@ export const actions = {
     commit('setDeals', deals)
   },
 
+  async fetchOrders({ state, commit, dispatch }) {
+    await Promise.all([
+      dispatch('api/getBuyOrders', { market_id: state.id }, { root: true }),
+      dispatch('api/getSellOrders', { market_id: state.id }, { root: true })
+    ]).then(([buyOrders, sellOrders]) => {
+      buyOrders.map(o => prepareOrder(o))
+      sellOrders.map(o => prepareOrder(o))
+
+      commit('setBids', buyOrders)
+      commit('setAsks', sellOrders)
+    }).catch(e => console.log(e))
+  },
+
   async fetchMarket({ state, commit, rootGetters, dispatch }) {
     const { data: market } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}`)
 
@@ -50,16 +63,6 @@ export const actions = {
     commit('setId', market.id)
 
     // TODO Move to client side
-    await Promise.all([
-      dispatch('api/getBuyOrders', { market_id: state.id }, { root: true }),
-      dispatch('api/getSellOrders', { market_id: state.id }, { root: true })
-    ]).then(([buyOrders, sellOrders]) => {
-      buyOrders.map(o => prepareOrder(o))
-      sellOrders.map(o => prepareOrder(o))
-
-      commit('setBids', buyOrders)
-      commit('setAsks', sellOrders)
-    }).catch(e => console.log(e))
   }
 }
 

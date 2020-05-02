@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import { Name, SymbolCode } from 'eos-common'
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
@@ -109,7 +110,39 @@ export default {
   },
 
   async fetch({ store, error, params }) {
-    store.commit('market/setId', params.id)
+    const [symbol, contract] = params.id.split('-')
+
+    let market_id
+
+    if (contract && symbol) {
+      // If it's slug
+
+      //if (c_market) {
+      //  market_id = c_market.id
+      //} else {
+      const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
+
+      const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
+        code: store.state.network.contract,
+        scope: store.state.network.contract,
+        table: 'markets',
+        lower_bound: `0x${i128_id}`,
+        key_type: 'i128',
+        index_position: 2,
+        limit: 1
+      })
+
+      if (!market) {
+        error(`Market ${symbol}@${contract} not found!`)
+      }
+
+      market_id = market.id
+      //}
+    } else {
+      market_id = params.id
+    }
+
+    store.commit('market/setId', market_id)
 
     this.loading = true
     try {
@@ -148,7 +181,7 @@ export default {
 
   created() {
     // Auto update orders
-    setInterval(() => { this.$store.dispatch('market/fetchMarket') }, 5000)
+    setInterval(() => { this.$store.dispatch('market/fetchOrders') }, 5000)
   },
 
   head() {

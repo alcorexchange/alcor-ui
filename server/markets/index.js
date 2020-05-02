@@ -186,7 +186,7 @@ markets.get('/', async (req, res) => {
     res.json(markets)
   } catch (e) {
     console.log(e)
-    rows.map(r => r.last_price = '0.' + '0'.repeat(network.baseToken.precision) + ' ' + network.baseToken.symbol)
+    rows.map(r => r.last_price = 0)
     res.json(rows)
   }
 })

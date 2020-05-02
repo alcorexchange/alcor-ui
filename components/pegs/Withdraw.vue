@@ -71,10 +71,6 @@ export default {
     }
   },
 
-  created() {
-    console.log(this.token)
-  },
-
   methods: {
     open() {
       if (this.user)
@@ -84,7 +80,6 @@ export default {
     },
 
     async submit() {
-      console.log(this.peg)
       const loading = this.$loading({
         lock: true,
         text: 'Wait for wallet'

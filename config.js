@@ -77,7 +77,10 @@ const networks = {
 
     chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
 
-    host: 'eosbp.atticlab.net',
+    //host: 'eosbp.atticlab.net',
+    //host: 'eos.greymass.com',
+    //host: 'eos.greymass.com',
+    host: 'api.eoseoul.io',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
