@@ -101,7 +101,8 @@ export default {
       title: `Alcor Exchange | Market ${this.token.symbol.name}`,
 
       meta: [
-        { hid: 'description', name: 'description', content: `Trade ${this.token.str} token for EOS` }
+        { hid: 'description', name: 'description', content: `Trade ${this.token.str}/EOS onchain, with no fee` },
+        { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.token.symbol.name, this.token.contract) }
       ]
     }
   }

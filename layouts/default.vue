@@ -204,6 +204,14 @@ export default {
     async getVersion() {
       this.lastCommit = (await axios.get('https://api.github.com/repos/avral/eostokens-ui/commits/master')).data
     }
+  },
+
+  head () {
+    return {
+      meta: [
+        { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' }
+      ]
+    }
   }
 }
 </script>
