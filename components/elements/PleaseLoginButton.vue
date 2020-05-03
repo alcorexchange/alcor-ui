@@ -2,7 +2,7 @@
     div(v-if="user")
       slot
     div(v-else)
-      el-button(@click="login").w-100 Pleace login to continue
+      el-button(@click="login").w-100 Please login to continue
 
 </template>
 

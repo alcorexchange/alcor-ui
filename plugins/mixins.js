@@ -186,7 +186,7 @@ export const tradeMixin = {
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
-        message: 'Pleace connect wallet',
+        message: 'Please connect wallet',
         type: 'info'
       })
 
@@ -229,7 +229,7 @@ export const tradeMixin = {
 
       if (!this.$store.state.chain.scatterConnected) return this.$notify({
         title: 'Authorization',
-        message: 'Pleace connect wallet',
+        message: 'Please connect wallet',
         type: 'info'
       })
 
