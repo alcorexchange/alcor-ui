@@ -3,13 +3,21 @@
 .row
   .col
     .jumbotron.mt-2
-      h1.display-4 The first listing free decentralized exchange
-      p.lead
-        span No commissions and
-        // TODO courretn contract name show from confing
+      h1.display-4 The first self-listing decentralized exchange
+
+      .lead
         a(:href="monitorAccount($store.state.network.contract)" target="_blank").text-primary.strong  FULLY-ONCHAIN
+        |  limit/market trading.
+
+      h2.lead.mt-1 No withdraw or deposit.
+
+      p.lead
+        span
+          b No trading fee.
       p
-        span  Create markets in one click, list your dapp token for one click, trade whatever you want.
+        span  Open the market for your token or any token you want.
+        |  Forget about the listing request form, waiting, third-party dependency, and any regulations.
+        //span  Create markets in one click, list your dapp token for one click, trade whatever you want.
       p.lead
         nuxt-link(to="markets")
           el-button(tag="el-button" type="primary" size="big") Trade now

@@ -2,48 +2,56 @@
 .row
   .col
     el-card.box-card.mt-3
-      el-alert(:closable="false" show-icon type="info" v-if="!user").mt-4
-        | Please login with scatter
+      .el-form
+        .lead.font-weight-bold  This is not a verification or request listing form!
 
-      el-form(v-else ref="form" :model="form" label-position="left" :rules="rules").mt-2
-        .lead Auto market creation
-        small You need around 300 bytes of free RAM for new market
+        br
 
-        el-tabs(@tab-click="tokenSelect = ''")
-          el-tab-pane(label="Auto select")
-            el-alert(v-if="user && !user.balances" type="warning")
-              .lead Unable to fetch user tokens.. use manually method
+        p By selecting a token from the list below, you will be offered to sign a transaction
+          |  that instantly opens a new market that will immediately be ready for placing orders.
+          br
+          | This happens on smart contract, without the participation of third parties.
 
-            el-select(v-model='tokenSelect' v-if="user && user.balances"
-   value-key="id" filterable placeholder='Select' clearable @change="selectToken")
-              el-option(
-                v-for="t in user.balances",
-                :key="t.id",
-                :label="t.id",
-                :value="t"
-              )
-                TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
-                span.ml-3 {{ t.currency + '@' + t.contract }}
+        pre *You will need around 300 bytes of free RAM for new market
 
-          el-tab-pane(label="Manually")
-            el-form-item(label="Token contract" prop="token.contract")
-              el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.token.contract")
+      PleaseLoginButton
+        el-form(ref="form" :model="form" label-position="left" :rules="rules")
+          el-tabs(@tab-click="tokenSelect = ''" type="border-card")
+            el-tab-pane(label="Auto select")
+              el-alert(v-if="user && !user.balances" type="warning")
+                .lead Unable to fetch user tokens.. use manually method
 
-            el-form-item(v-if="form.token.contract" label="Token symbol" prop="token.symbol")
-              el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.token.symbol").upperinput
+              el-form-item(label="Select token for new market" prop="token.contract")
+                el-select(v-model='tokenSelect' v-if="user && user.balances"
+       value-key="id" filterable placeholder='Select' clearable @change="selectToken")
+                  el-option(
+                    v-for="t in user.balances",
+                    :key="t.id",
+                    :label="t.id",
+                    :value="t"
+                  )
+                    TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
+                    span.ml-3 {{ t.currency + '@' + t.contract }}
 
-        .row(v-if="form.token.contract && form.token.symbol").mt-3
-          .col
-            .lead
-              TokenImage(:src="$tokenLogo(form.token.symbol, form.token.contract)" height="40")
-              span  {{ form.token.symbol }}@{{ form.token.contract }}
-            small.text-mutted.ml-1.mt-2   Creation new market fee is:
-            b  {{ network.marketCreationFee }}
+            el-tab-pane(label="Manually")
+              el-form-item(label="Token contract" prop="token.contract")
+                el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.token.contract")
 
-        .row.mt-3
-          .col
-            span.dialog-footer
-              el-button(type='primary' v-if="form.token.symbol" @click="submit").w-100 Create market
+              el-form-item(v-if="form.token.contract" label="Token symbol" prop="token.symbol")
+                el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.token.symbol").upperinput
+
+            .row(v-if="form.token.contract && form.token.symbol").mt-3
+              .col
+                .lead
+                  TokenImage(:src="$tokenLogo(form.token.symbol, form.token.contract)" height="40")
+                  span  {{ form.token.symbol }}@{{ form.token.contract }}
+                small.text-mutted.ml-1.mt-2   Creation new market fee is:
+                b  {{ network.marketCreationFee }}
+
+            .row.mt-3
+              .col
+                span.dialog-footer
+                  el-button(type='primary' v-if="form.token.symbol" @click="submit").w-100 Create market
 
 </template>
 
@@ -53,10 +61,12 @@ import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
+import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
+    PleaseLoginButton
   },
 
   data() {
