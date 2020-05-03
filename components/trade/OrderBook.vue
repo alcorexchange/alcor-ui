@@ -85,7 +85,7 @@ export default {
   overflow: auto;
   flex-direction: column;
   max-height: 345px;
-  padding: 5px 15px;
+  padding: 5px 10px;
   text-align: right;
 }
 
@@ -116,7 +116,7 @@ export default {
 
 .blist .ltd span {
   width: 40%;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .blist .ltd span:first-child {

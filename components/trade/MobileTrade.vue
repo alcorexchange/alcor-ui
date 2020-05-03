@@ -1,113 +1,142 @@
 <template lang="pug">
+
 .row
-  .col-5.left-bar
+  .col
     .row
       .col
-        el-radio-group(v-model="side" size="small")
-          el-radio-button(label='buy') Buy
-          el-radio-button(label='sell') Sell
+        .overflowbox.box-card.p-2
+          .row
+            .col-2.p-1.pl-4
+              TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
+
+            .col-10
+              .row
+                .col
+                  b {{ token.symbol.name }}@
+                  a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
+              .row
+                .col
+                  span Volume 24H:
+                  span.text-success  {{ stats.volume24 }}
+    chart
+
+    //.text.item
+      MobileTrade
 
     .row
-      .col
-        el-select(v-model='trade', placeholder='Trade' size="small").left-bar
-          el-option(label='Limit Trade', value='limit')
-          el-option(label='Market Trade', value='market')
+      .col-5.left-bar
+        .row
+          .col
+            el-radio-group(v-model="side" size="small")
+              el-radio-button(label='buy') Buy
+              el-radio-button(label='sell') Sell
 
-    .row.mt-2
-      .col
-        div(v-if="trade == 'limit'")
-          div(v-if="side == 'buy'")
-            span.text-success Buy {{ token.symbol.name }}
-            br
-            span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
-            br
+        .row
+          .col
+            el-select(v-model='trade', placeholder='Trade' size="small").left-bar
+              el-option(label='Limit Trade', value='limit')
+              el-option(label='Market Trade', value='market')
 
-            label.small Price
-            el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="priceChange()")
-              span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+        .row.mt-2
+          .col
+            div(v-if="trade == 'limit'")
+              div(v-if="side == 'buy'")
+                span.text-success Buy {{ token.symbol.name }}
+                br
+                span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
+                br
 
-            label.small Amount
-            el-input(type="number" v-model="amount" @change="amountChange()" clearable)
-              span(slot="suffix").mr-1 {{ token.symbol.name }}
+                label.small Price
+                el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="priceChange()")
+                  span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-            el-slider(:step="25" v-model="eosPercent" show-stops)
+                label.small Amount
+                el-input(type="number" v-model="amount" @change="amountChange()" clearable)
+                  span(slot="suffix").mr-1 {{ token.symbol.name }}
 
-            label.small Total
-            el-input(type="number" v-model="total" @change="totalChange()")
-              span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+                el-slider(:step="25" v-model="eosPercent" show-stops)
 
-            el-button(size="small" type="success" @click="buy").w-100.mt-2 Buy
+                label.small Total
+                el-input(type="number" v-model="total" @change="totalChange()")
+                  span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-          div(v-else)
-            span.text-danger Sell {{ token.symbol.name }}
-            br
-            span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
-            br
+                el-button(size="small" type="success" @click="buy").w-100.mt-2 Buy
 
-            label.small Price
-            el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="priceChange()")
-              span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
+              div(v-else)
+                span.text-danger Sell {{ token.symbol.name }}
+                br
+                span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
+                br
 
-            label.small Amount
-            el-input(type="number" v-model="amount" clearable @change="priceChange()")
-              span(slot="suffix").mr-1 {{ token.symbol.name }}
+                label.small Price
+                el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="priceChange()")
+                  span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
 
-            el-slider(:step="25" v-model="tokenPercent" show-stops)
+                label.small Amount
+                el-input(type="number" v-model="amount" clearable @change="priceChange()")
+                  span(slot="suffix").mr-1 {{ token.symbol.name }}
 
-            label.small Total
-            el-input(type="number" v-model="total" @change="totalChange()")
-              span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+                el-slider(:step="25" v-model="tokenPercent" show-stops)
 
-            el-button(size="small" type="danger" @click="sell").w-100.mt-2 Sel
+                label.small Total
+                el-input(type="number" v-model="total" @change="totalChange()")
+                  span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-        div(v-else)
-          div(v-if="side == 'buy'")
-            span.text-success Buy {{ token.symbol.name }}
-            br
-            span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
-            br
+                el-button(size="small" type="danger" @click="sell").w-100.mt-2 Sel
 
-            label.small Price
-            el-input(type="number" disabled placeholder="Buy at best price")
+            div(v-else)
+              div(v-if="side == 'buy'")
+                span.text-success Buy {{ token.symbol.name }}
+                br
+                span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
+                br
 
-            label.small Total
-            el-input(type="number" clearable v-model="total")
-              span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+                label.small Price
+                el-input(type="number" disabled placeholder="Buy at best price")
 
-            el-slider(:step="25" v-model="eosPercent" show-stops)
+                label.small Total
+                el-input(type="number" clearable v-model="total")
+                  span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-            el-button(type="success" size="small" @click="buy").w-100 Buy
-          div(v-else)
-            span.text-danger Sell {{ token.symbol.name }}
-            br
-            span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
-            br
+                el-slider(:step="25" v-model="eosPercent" show-stops)
 
-            label.small Amount
-            el-input(type="number" disabled placeholder="Buy at best price")
+                el-button(type="success" size="small" @click="buy").w-100 Buy
+              div(v-else)
+                span.text-danger Sell {{ token.symbol.name }}
+                br
+                span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
+                br
 
-            label.small Amount
-            el-input(type="number" v-model="amount" clearable)
-              span(slot="suffix").mr-1 {{ token.symbol.name }}
+                label.small Amount
+                el-input(type="number" disabled placeholder="Buy at best price")
 
-            el-slider(:step="25" v-model="tokenPercent" show-stops)
+                label.small Amount
+                el-input(type="number" v-model="amount" clearable)
+                  span(slot="suffix").mr-1 {{ token.symbol.name }}
 
-            el-button(type="danger" size="small" @click="sell").w-100 Sell
+                el-slider(:step="25" v-model="tokenPercent" show-stops)
 
-  .col-7
-    OrderBook
+                el-button(type="danger" size="small" @click="sell").w-100 Sell
+
+      .col-7
+        OrderBook
 
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-import OrderBook from '~/components/trade/OrderBook'
 import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
+
+import OrderBook from '~/components/trade/OrderBook'
+import Chart from '~/components/trade/Chart'
+import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
-    OrderBook
+    OrderBook,
+    Chart,
+    TokenImage
   },
 
   mixins: [tradeMixin, tradeChangeEvents],
@@ -121,7 +150,7 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapState('market', ['token']),
+    ...mapState('market', ['token', 'id', 'stats']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapGetters(['user', 'tokenBalance', 'baseBalance'])
   }

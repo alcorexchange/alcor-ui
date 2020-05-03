@@ -6,3 +6,30 @@ button:focus {
   outline: 0;
   outline: 0;
 }
+
+.el-table__row {
+  cursor: pointer;
+}
+
+@media (min-width: 1200px) {
+    .container{
+        max-width: 1260px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .container{
+        max-width: 100%;
+    }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
