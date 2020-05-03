@@ -109,7 +109,9 @@ export default {
 
   watch: {
     'form.token.symbol'() {
-      this.form.token.symbol = this.form.token.symbol.toUpperCase()
+      if (this.form.token.symbol) {
+        this.form.token.symbol = this.form.token.symbol.toUpperCase()
+      }
     }
   },
 
@@ -117,16 +119,26 @@ export default {
     async selectToken(token) {
       let precision = 4
 
+      if (!token) return
+
       try {
         const { rows: [stat] } = await this.rpc.get_table_rows({
           code: token.contract,
           scope: token.currency,
           table: 'stat'
         })
+
+        const { rows } = await this.rpc.get_table_rows({
+          code: token.contract,
+          scope: token.currency,
+          table: 'stat'
+        })
+
+        console.log(rows, stat)
         precision = stat.max_supply.split(' ')[0].split('.')[1].length
       } catch (e) {
         captureException(e, { extra: { token } })
-        this.$notify({ title: 'Fetch token', message: e.message, type: 'warning' })
+        this.$notify({ title: 'Fetch token precision', message: e.message + ' \n Set precision ' + precision, type: 'warning' })
         console.log(e)
       }
 

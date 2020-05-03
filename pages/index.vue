@@ -13,6 +13,8 @@
       p.lead
         nuxt-link(to="markets")
           el-button(tag="el-button" type="primary" size="big") Trade now
+        nuxt-link(to="new_market").ml-2
+          el-button(tag="el-button" size="big" icon="el-icon-circle-plus-outline" plain) Open new market
 
       hr.my-4
 
