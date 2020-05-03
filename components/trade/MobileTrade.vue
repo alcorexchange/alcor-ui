@@ -120,6 +120,9 @@
 
       .col-7
         OrderBook
+    .row.mt-3
+      .col
+        MyOrders
 
 </template>
 
@@ -131,12 +134,14 @@ import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
 import OrderBook from '~/components/trade/OrderBook'
 import Chart from '~/components/trade/Chart'
 import TokenImage from '~/components/elements/TokenImage'
+import MyOrders from '~/components/trade/MyOrders'
 
 export default {
   components: {
     OrderBook,
     Chart,
-    TokenImage
+    TokenImage,
+    MyOrders
   },
 
   mixins: [tradeMixin, tradeChangeEvents],
