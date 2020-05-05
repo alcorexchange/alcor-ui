@@ -6,7 +6,7 @@
       span Amount({{ token.symbol.name }})
       span Total ({{ network.baseToken.symbol }})
 
-  .orders-list.blist.asks.text-danger(ref="bids")
+  .orders-list.blist.asks.text-danger(ref="asks")
     .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
       span {{ ask.unit_price | humanFloat }}
       span {{ ask.bid.prefix }}
@@ -37,6 +37,12 @@ import { mapGetters, mapState } from 'vuex'
 import { EventBus } from '~/utils/event-bus'
 
 export default {
+  data() {
+    return {
+      asksL: 0
+    }
+  },
+
   computed: {
     ...mapState(['network']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'token']),
@@ -47,14 +53,16 @@ export default {
   },
 
   watch: {
-    bids() {}
-  },
+    sorted_asks() {
+      // Scroll asks after update
+      const asks = this.$refs.asks
 
-  mounted() {
-    const bids = this.$refs.bids
-    setTimeout(() => {
-      bids.scrollTop = bids.scrollHeight
-    }, 1000)
+      console.log(this.sorted_asks.length, this.asksL)
+      if (this.sorted_asks.length != this.asksL) {
+        setTimeout(() => asks.scrollTop = asks.scrollHeight, 100)
+        this.asksL = this.sorted_asks.length
+      }
+    }
   },
 
   methods: {
