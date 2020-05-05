@@ -3,8 +3,13 @@
   .blist
     .ltd.d-flex.justify-content-around
       span
-      span Latest Deals
+      span.text-muted Latest Deals
       span
+
+    .ltd.d-flex.justify-content-around.mt-1
+      span Price ({{ token.symbol.name }})
+      span Amount ({{ network.baseToken.symbol }})
+      span Time
 
   .orders-list.blist
     //.ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
@@ -21,7 +26,7 @@ import { mapState } from 'vuex'
 
 export default {
   computed: {
-    ...mapState('market', ['deals']),
+    ...mapState('market', ['deals', 'token']),
     ...mapState(['network']),
 
     coloredDeals() {
@@ -29,10 +34,10 @@ export default {
         .sort((a, b) => b.time - a.time).map(h => {
           if (h.type == 'buymatch') {
             h.cls = 'text-success'
-            h.amount = h.bid.quantity
+            h.amount = h.bid.prefix
           } else {
             h.cls = 'text-danger'
-            h.amount = h.ask.quantity
+            h.amount = h.ask.prefix
           }
 
           return h
