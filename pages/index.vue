@@ -18,11 +18,13 @@
         span  Open the market for your token or any token you want.
         |  Forget about the listing request form, waiting, third-party dependency, and any regulations.
         //span  Create markets in one click, list your dapp token for one click, trade whatever you want.
-      p.lead
-        nuxt-link(to="markets")
-          el-button(tag="el-button" type="primary" size="big") Trade now
-        nuxt-link(to="new_market").ml-2
-          el-button(tag="el-button" size="big" icon="el-icon-circle-plus-outline" plain) Open new market
+      .row
+        .col-auto.pr-0.py-1
+          nuxt-link(to="markets")
+            el-button(tag="el-button" type="primary" size="big") Trade now
+        .col.py-1
+          nuxt-link(to="new_market")
+            el-button(tag="el-button" size="big" icon="el-icon-circle-plus-outline" plain) Open new market
 
       hr.my-4
 
