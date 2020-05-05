@@ -53,26 +53,16 @@ export default {
   },
 
   methods: {
-    async setMarket(market) {
-      this.$store.commit('market/setId', market.id)
-
-
+    setMarket(market) {
       const loading = this.$loading({
         lock: true
       })
 
-      try {
-        await Promise.all([
-          this.$store.dispatch('market/fetchMarket'),
-          this.$store.dispatch('market/fetchDeals'),
-          this.$store.dispatch('market/fetchOrders'),
-          this.$store.dispatch('market/fetchCharts')
-        ])
-      } catch (e) {
-        this.$notify({ title: 'Place order', message: e, type: 'error' })
-      } finally {
-        loading.close()
-      }
+      this.$router.push(
+        { name: 'markets-id', params: { id: `${market.token.symbol.name}-${market.token.contract}` } },
+        () => loading.close(),
+        () => loading.close()
+      )
     },
 
     activeRowClassName({ row }) {
