@@ -26,7 +26,11 @@
           nuxt-link(to="new_market")
             el-button(tag="el-button" size="big" icon="el-icon-circle-plus-outline" plain) Open new market
 
-      hr.my-4
+      hr.my-2
+
+      Recommended(:markets="recomendedMarkets")
+
+      hr.mt-3
 
       .display-4.mt-4 Partners
       p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to
@@ -63,6 +67,32 @@
           a(href="https://yusaymon.portfoliobox.net" target="_blank")
           .lead The design of the original app logo: @yusaymon
 </template>
+
+<script>
+import Recommended from '~/components/trade/Recommended'
+
+export default {
+  components: {
+    Recommended
+  },
+
+  async fetch({ store, error }) {
+    if (store.state.markets.length == 0) {
+      try {
+        await store.dispatch('loadMarkets')
+      } catch (e) {
+      }
+    }
+  },
+
+  computed: {
+    recomendedMarkets() {
+      return this.$store.state.markets.filter(m => this.$store.state.network.RECOMMENDED_MARKETS.includes(m.token.str))
+    }
+  }
+}
+</script>
+
 <style scoped>
 .display-4 {
   font-size: 2.5rem;

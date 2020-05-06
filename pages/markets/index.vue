@@ -53,11 +53,13 @@ export default {
   },
 
   async fetch({ store, error }) {
-    try {
-      await store.dispatch('loadMarkets')
-    } catch (e) {
-      captureException(e)
-      return error({ message: e, statusCode: 500 })
+    if (store.state.markets.length == 0) {
+      try {
+        await store.dispatch('loadMarkets')
+      } catch (e) {
+        captureException(e)
+        return error({ message: e, statusCode: 500 })
+      }
     }
   },
 

@@ -30,7 +30,8 @@ const networks = {
       divs: 'eosswapdivs1'
     },
 
-    pegs: {}
+    pegs: {},
+    RECOMMENDED_MARKETS: []
   },
 
   jungle: {
@@ -60,7 +61,8 @@ const networks = {
       divs: 'eosswapdivs1',
     },
 
-    pegs: {}
+    pegs: {},
+    RECOMMENDED_MARKETS: []
   },
 
   eos: {
@@ -112,7 +114,9 @@ const networks = {
         },
         withdrawMemo: 'BTC {account}'
       },
-    }
+    },
+
+    RECOMMENDED_MARKETS: ['SAND@sandiegocoin']
   },
 
   coffe: {
@@ -143,7 +147,8 @@ const networks = {
       divs: 'eosswapdivs1',
     },
 
-    pegs: {}
+    pegs: {},
+    RECOMMENDED_MARKETS: []
   },
 
   telos: {
@@ -177,6 +182,7 @@ const networks = {
     },
 
     pegs: {},
+    RECOMMENDED_MARKETS: []
     //pegs: {
     //  'EOSP@steemenginex': {
     //    desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1',
@@ -214,7 +220,8 @@ const networks = {
       divs: 'eosswapdivs1',
     },
 
-    pegs: {}
+    pegs: {},
+    RECOMMENDED_MARKETS: []
   }
 }
 

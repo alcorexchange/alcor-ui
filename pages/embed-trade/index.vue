@@ -97,10 +97,6 @@ export default {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
       this.$router.push({ name: 'embed-trade-id', params: { id: this.marketSlug(a) } })
-    },
-
-    marketSlug(market) {
-      return market.token.str.replace('@', '-')
     }
   }
 }

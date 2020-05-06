@@ -276,6 +276,10 @@ Vue.mixin({
   },
 
   methods: {
+    marketSlug(market) {
+      return market.token.str.replace('@', '-')
+    },
+
     monitorAccount(account) {
       return `${this.$store.state.network.monitor}/account/${account}?${this.$store.state.network.monitor_params}`
     },

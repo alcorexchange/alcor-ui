@@ -1,0 +1,48 @@
+<template lang="pug">
+.row
+  .col
+    .row.mb-2
+      .col
+        .badge.badge-primary.text-wrap Recommended tokens
+    .row
+      .col-2
+        nuxt-link(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }" :key="market.id" v-for="market in markets")
+          el-card(shadow="hover")
+            TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
+            span.ml-2
+              | {{ market.token.symbol.name }}
+              .text-success {{ market.last_price | humanFloat }}
+</template>
+
+<script>
+import TokenImage from '~/components/elements/TokenImage'
+
+export default {
+  components: {
+    TokenImage
+  },
+
+  props: {
+    markets: {
+      type: Array,
+      default: () => []
+    }
+  },
+}
+</script>
+
+<style scoped>
+a {
+  text-decoration: none;
+}
+
+.item {
+  cursor: pointer;
+  margin-right: .5%;
+  width: 17%;
+  padding: 20px 8px 20px 10px;
+  background: #fff;
+}
+
+
+</style>
