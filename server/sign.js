@@ -17,7 +17,7 @@ const buffer2hex = (buffer) =>
   Array.from(buffer, (x) => ('00' + x.toString(16)).slice(-2)).join('')
 
 // we allow actions on this contract
-const ALLOWED_CONTRACTS = ['wwweosswapio', 'eostokensdex']
+const ALLOWED_CONTRACTS = ['alcorotcswap', 'eostokensdex']
 
 const checkAction = (action) => {
   switch (action.account) {

@@ -11,6 +11,12 @@
       .col
         el-tabs(type='border-card')
           el-tab-pane(label="Orders" v-loading="loading")
+            .row.mb-3(v-if="$store.state.network.name == 'eos'")
+              .col
+                el-alert(title="The OTC contract was changed(updated)!" type="warning")
+                  span Old orders can be found and canceled(recommended) here:
+                    a(href="https://eosswap.io" target="_blank")  EOSSWAP
+
             .row
               .col
                 .d-flex
@@ -98,10 +104,10 @@
             h4.ml-3 Audit:
               ul.mt-1
                 li.lead Exchange contract:
-                  a(:href="monitorAccount(contract)" target="_blank") wwweosswapio
+                  a(:href="monitorAccount(contract)" target="_blank")  {{ contract }}
 
                 li.lead Comission account:
-                  a(:href="monitorAccount(divContract)" target="_blank") eosswapdivs1
+                  a(:href="monitorAccount(divContract)" target="_blank")  {{ divContract }}
 
           el-tab-pane(label='Partners').p-3
             .lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to telegram chat!

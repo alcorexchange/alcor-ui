@@ -1,6 +1,5 @@
 <template lang="pug">
-//el-table(:data="history", :prop="{prop: 'block_num', order: 'ascending'}" style='width: 100%')
-el-table(:data="history", row-key="block_num'" style='width: 100%')
+el-table(:data="history", row-key="block_num'" style='width: 100%' v-loading="loading")
     el-table-column(prop='maker', label='Seller', width='125')
     el-table-column(prop='buyer', label='Buyer', width='125')
     el-table-column(label='Sell' width='200')
@@ -31,13 +30,14 @@ export default {
 
   data() {
     return {
-      history: []
+      history: [],
+      loading: true
     }
   },
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc'])
+    ...mapGetters('api', ['hyperion'])
   },
 
   created() {
@@ -48,18 +48,21 @@ export default {
     async fetch() {
       this.history = []
 
-      try {
-        const r = await this.rpc.get_table_rows({
-          code: this.$store.state.network.otc.contract,
-          scope: this.$store.state.network.otc.contract,
-          table: 'results',
-          reverse: true,
+      const contract = this.$store.state.network.otc.contract
 
-          limit: 1000
+      try {
+        const { data: { actions } } = await this.hyperion.get('history/get_actions', {
+          params: {
+            account: contract,
+            limit: 1000,
+            filter: `${contract}:matchrecord`
+          }
         })
 
-        r.rows.map(h => {
-          const t = new Date(h.time * 1000).toLocaleString().split(':')
+        const history = actions.map(a => {
+          return { time: a['@timestamp'], ...a.act.data.record }
+        }).map(h => {
+          const t = new Date(h.time).toLocaleString().split(':')
           h.time = t[0] + ':' + t[1] + ':' + t[2]
 
           h.sell = parseOtcAsset(h.sell)
@@ -69,12 +72,11 @@ export default {
 
           h.buy.amount /= 0.9975
           h.sell.amount /= 0.9975
+
+          return h
         })
 
-        this.history = [
-          ...this.history,
-          ...r.rows
-        ]
+        this.history = history
       } catch (e) {
         this.$notify({ title: 'Load history', message: e.message, type: 'error' })
       } finally {

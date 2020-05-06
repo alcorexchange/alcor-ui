@@ -15,7 +15,7 @@
         span
           b No trading fee.
       p
-        span  Open the market for your token or any token you want.
+        span  Immediately open the market for your token or any token you want.
         |  Forget about the listing request form, waiting, third-party dependency, and any regulations.
         //span  Create markets in one click, list your dapp token for one click, trade whatever you want.
       .row
