@@ -30,9 +30,10 @@ div
         el-tabs
           el-tab-pane(label="Auto select")
             el-select(v-model='sellSelect' value-key="id" filterable placeholder='Select' clearable @change="setBuyToken").w-100
-              el-option(label="EOS@eosio.token", :value="{symbol: 'EOS', contract: 'eosio.token', precision: 4}")
-                TokenImage(:src="$tokenLogo('EOS', 'eosio.token')" height="25")
-                span.ml-3 EOS@eosio.token
+              el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
+                        :value="{symbol: baseToken.symbol, contract: baseToken.contract, precision: baseToken.precision}")
+                TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
+                span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
               el-option(
                 v-for="t in tokens",
@@ -133,6 +134,11 @@ export default {
 
     price() {
       return calculatePrice(this.form.sell, this.form.buy)
+    },
+
+    baseToken() {
+      console.log('baseToken', this.$store.state.network.baseToken)
+      return this.$store.state.network.baseToken
     }
   },
 

@@ -57,7 +57,6 @@ export default {
       // Scroll asks after update
       const asks = this.$refs.asks
 
-      console.log(this.sorted_asks.length, this.asksL)
       if (this.sorted_asks.length != this.asksL) {
         setTimeout(() => asks.scrollTop = asks.scrollHeight, 100)
         this.asksL = this.sorted_asks.length
