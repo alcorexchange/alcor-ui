@@ -175,7 +175,8 @@ export default {
           memo: `new_market|${Number(0).toFixed(precision)} ${symbol}@${contract}`
         })
         this.$notify({ title: 'Market creation', message: 'Market was created successfully', type: 'info' })
-        this.$router.push({ name: 'index' })
+        this.$router.push({ name: 'markets-id', params: { id: `${symbol}-${contract}` } })
+        this.$store.dispatch('loadMarkets')
       } catch (e) {
         captureException(e, { extra: { contract, symbol, precision } })
         this.$notify({ title: 'Market creation', message: e, type: 'error' })
