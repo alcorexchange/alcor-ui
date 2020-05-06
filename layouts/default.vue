@@ -1,5 +1,5 @@
 <template lang="pug">
-.container.mb-5.mt-1
+.container.mb-5.mt-2
   .row.mb-2
     .col(v-if="!isMobile")
       el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal')
