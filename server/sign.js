@@ -7,8 +7,8 @@ const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig')
 
 const network = require('../config.js').networks.eos
 
-const defaultPrivateKey = process.env.PAYFORCPUPK
-const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+const keys = process.env.PAYFORCPUPK ? [process.env.PAYFORCPUPK] : []
+const signatureProvider = new JsSignatureProvider(keys)
 
 const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() })
