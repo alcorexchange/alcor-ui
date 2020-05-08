@@ -276,6 +276,10 @@ Vue.mixin({
   },
 
   methods: {
+    toFixed(value, precision) {
+      return parseFloat(value).toFixed(precision)
+    },
+
     marketSlug(market) {
       return market.token.str.replace('@', '-')
     },

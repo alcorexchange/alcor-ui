@@ -30,6 +30,10 @@ const networks = {
       divs: 'eosswapdivs1'
     },
 
+    pools: {
+      contract: 'lp'
+    },
+
     pegs: {},
     RECOMMENDED_MARKETS: []
   },
@@ -59,6 +63,10 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
+    },
+
+    pools: {
+      contract: 'lp'
     },
 
     pegs: {},
@@ -94,6 +102,10 @@ const networks = {
     otc: {
       contract: 'alcorotcswap',
       divs: 'avral.pro',
+    },
+
+    pools: {
+      contract: 'lp'
     },
 
     pegs: {
@@ -147,6 +159,10 @@ const networks = {
       divs: 'eosswapdivs1',
     },
 
+    pools: {
+      contract: 'lp'
+    },
+
     pegs: {},
     RECOMMENDED_MARKETS: []
   },
@@ -179,6 +195,10 @@ const networks = {
     otc: {
       contract: 'alcorotcswap',
       divs: 'alcordexdivs'
+    },
+
+    pools: {
+      contract: 'lp'
     },
 
     pegs: {},
@@ -218,6 +238,10 @@ const networks = {
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1',
+    },
+
+    pools: {
+      contract: 'lp'
     },
 
     pegs: {},

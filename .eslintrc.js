@@ -65,6 +65,7 @@ module.exports = {
     'padded-blocks': 1,
     'space-before-function-paren': 0,
     'comma-dangle': 1,
-    'eqeqeq': 0
+    'eqeqeq': 0,
+    'prefer-const': 1
   }
 }

@@ -33,3 +33,9 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.pools-bage sup {
+  top: 10px !important;
+  z-index: 99999;
+}
+

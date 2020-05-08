@@ -32,6 +32,8 @@ export const actions = {
   init({ dispatch, state }) {
     window.addEventListener('resize', () => dispatch('checkIsMobile'))
 
+    console.log('state.network.name', state.network.name)
+    if (state.network.name == 'local') return
     setInterval(() => dispatch('update'), 5000)
   },
 

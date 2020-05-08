@@ -234,7 +234,7 @@ export const actions = {
     const result = await state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
 
     // Update user state
-    setTimeout(() => dispatch('update', {}, { root: true }), 2000)
+    dispatch('update', {}, { root: true })
 
     return result
   }

@@ -2,13 +2,16 @@
 .container.mb-5.mt-2
   .row.mb-2
     .col(v-if="!isMobile")
-      el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal')
+      el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal' theme="dark")
         el-menu-item(index="/")
           img(src="~/assets/logos/alcor_logo.svg").logo
 
         el-menu-item(index="/markets") Markets
 
-        el-menu-item(index="/otc") OTC Exchange
+        el-menu-item(index="/pools" v-if="$store.state.network.name == 'local'")
+          el-badge(value="new" class="pools-bage") Liquidity pools
+
+        el-menu-item(index="/otc") OTC Swaps
 
         el-menu-item(index="/about") About
 
@@ -108,8 +111,6 @@ export default {
       current_chain: '',
 
       app_name: config.APP_NAME,
-
-      activeLink: null
     }
   },
 
@@ -124,17 +125,18 @@ export default {
       set (value) {
         this.$store.commit('chain/setPayForUser', value)
       }
-    }
+    },
 
-    //...mapState({
-    //  current_chain: state => state.network.name
-    //})
+    activeLink () {
+      if (!this.$route) return
 
-  },
+      const paths = this.$route.path.split('/')
 
-  watch: {
-    $route (to, from) {
-      this.activeLink = to.path
+      if (paths.length > 2) {
+        return '/' + paths[1]
+      } else {
+        return this.$route.path
+      }
     }
   },
 
@@ -216,7 +218,8 @@ export default {
 }
 </script>
 
-<style>
+
+<style scoped>
 .logo {
   height: 2.5em;
 }
