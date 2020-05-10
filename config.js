@@ -92,7 +92,7 @@ const networks = {
     //host: 'eos.greymass.com',
     //host: 'api.main.alohaeos.com',
     //host: 'mainnet.meet.one',
-    host: 'node.eosflare.io',
+    host: 'mainnet.eosamsterdam.net',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
