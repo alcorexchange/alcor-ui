@@ -1,6 +1,6 @@
 const PRICE_SCALE = 100000000
 const CONTRACT_ACTIONS = ['sellmatch', 'buymatch', 'cancelbuy', 'cancelsell', 'sellreceipt', 'buyreceipt']
-const MARKET_STATS_CACHE_TIME = 60 * 1
+const MARKET_STATS_CACHE_TIME = 60 * 30
 
 const networks = {
   local: {

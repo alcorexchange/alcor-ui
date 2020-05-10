@@ -32,8 +32,8 @@ async function getMarket(network, market_id) {
     market.token = parseExtendedAsset(market.token)
   }
 
-  // 24H Cache for market
-  cache.set(`${network.name}_market_${market_id}`, market, 60 * 60 * 24)
+  // 10 Day Cache for market
+  cache.set(`${network.name}_market_${market_id}`, market, 60 * 60 * 24 * 10)
 
   return market
 }
@@ -91,7 +91,6 @@ async function getMarketStats(network, market_id) {
 
   stats.volume24 = volume24.toFixed(4) + ` ${network.baseToken.symbol}`
 
-  // One minute cache
   cache.set(`${network.name}_market_${market_id}_stats`, stats, config.MARKET_STATS_CACHE_TIME)
 
   return stats
@@ -156,6 +155,13 @@ markets.get('/:market_id', async (req, res) => {
 markets.get('/', async (req, res) => {
   const network = req.app.get('network')
 
+  const c_markets = cache.get(`${network.name}_markets`)
+
+  if (c_markets) {
+    res.json(markets)
+    return
+  }
+
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
   const { rows } = await rpc.get_table_rows({
@@ -182,6 +188,8 @@ markets.get('/', async (req, res) => {
 
       markets.push({ ...market, ...stats })
     }
+
+    cache.set(`${network.name}_markets`, markets, 3)
 
     res.json(markets)
   } catch (e) {
