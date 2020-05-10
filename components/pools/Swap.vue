@@ -180,42 +180,13 @@ export default {
         r.set_amount(Math.abs(inputToOutput(a, p1, p2, this.current.fee)))
         this.amount2 = r.to_string().split(' ')[0]
       } else {
-        // FIXME Not working yet
-        //const fee = a.multiply(-1).multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000)
+        // FIXME Не считает для пресижина
 
-        //let incr = 0
-        //for (let i = 100; ; i--) {
-        //  if (i === 0) {
-        //    this.$notify({ title: 'Calculation error', message: 'Cannout calculate output for such amount', type: 'error' })
-        //    break
-        //  }
-
-        //  //result = Math.abs(result)
-        //  // Amount that contract can give out
-        //  const check = Math.abs(inputToOutput(result.minus(incr), p2, p1, this.current.fee))
-        //  console.log('result: ', result, 'check: ', check, inputValue, 'incr: ', incr)
-        //  incr += 1
-
-        //  if (check < inputValue) {
-        //    //if (result > 0) {
-        //    //  result = result.minus(1)
-        //    //} else {
-        //    //  result = result.plus(1)
-        //    //}
-        //    console.log('correct result: ', result, 'check: ', check, inputValue)
-        //  } else {
-        //    break
-        //  }
-        //}
-
-
-        // Код выше - говно
-
-        const fee = a.multiply(this.current.fee).plus(9999).divide(10000) // вроде вот этот варик округляет но как раз в нужную сторону!! ))
+        const fee = a.multiply(this.current.fee).plus(9999).divide(10000)
         a = a.minus(fee)
         const div = p1.plus(a)
         const result = a.multiply(p2).multiply(-1).divide(div).abs()
-        const r = number_to_asset(0, this.poolOne.quantity.symbol)
+        const r = number_to_asset(0, this.current.pool1.quantity.symbol)
         r.set_amount(result)
         //console.log('result', r.amount, 'will receive: ', check)
         this.amount2 = r.to_string().split(' ')[0]
@@ -241,6 +212,7 @@ export default {
       })
 
       this.pools = []
+
       rows.reverse().map(async r => {
         const { rows: [pool] } = await this.rpc.get_table_rows({
           code: this.network.pools.contract,
@@ -257,6 +229,7 @@ export default {
 
         this.pools.push(pool)
       })
+      console.log('fetch, new pools: ', this.pools)
     },
 
     amountChange() {
@@ -284,8 +257,6 @@ export default {
         amount1 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
         amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
       }
-
-      console.log(input, amount1, amount2)
 
       const actions = [
         {
@@ -359,7 +330,7 @@ export default {
       this.loading = true
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
-        console.log(r)
+        this.$notify({ title: 'Exchange', message: 'Success', type: 'success' })
       } catch (e) {
         this.$notify({ title: 'Place order', message: e, type: 'error' })
       } finally {

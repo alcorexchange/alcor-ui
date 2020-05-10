@@ -90,7 +90,15 @@ export default {
     },
 
     quoteReceive() {
-      return 0
+      if (!this.amount) {
+        return number_to_asset(0, this.current.supply.symbol)
+      } else {
+        let amount = asset(this.amount + ' ' + this.current.supply.symbol.code().to_string()).amount
+
+        amount = amount.multiply(this.current.pool2.quantity.amount).divide(this.current.supply.amount)
+
+        return asset(amount, this.current.pool2.quantity.symbol)
+      }
     },
 
     poolOne() {
@@ -115,7 +123,7 @@ export default {
     async fetchBalance() {
       const { rows: [row] } = await this.rpc.get_table_rows({
         code: this.network.pools.contract,
-        scope: 'bobs',
+        scope: this.user.name,
         table: 'accounts',
         limit: 1
       })
@@ -134,26 +142,64 @@ export default {
     async withdraw() {
       const authorization = [{ actor: this.user.name, permission: 'active' }]
 
-      const amount1 = asset(`${this.amount1} ${this.current.pool1.quantity.symbol.code().to_string()}`).to_string()
-      const amount2 = asset(`${this.amount2} ${this.current.pool2.quantity.symbol.code().to_string()}`).to_string()
-
-      const actions = [{
-        account: this.network.pools.contract,
-        name: 'remliquidity',
-        authorization,
-        data: {
-          user: this.user.name,
-          to_sell: this.tokenReceive,
-          min_ext_asset1: { contract: this.poolOne.contract, quantity: amount1 },
-          min_ext_asset2: { contract: this.poolTwo.contract, quantity: amount2 }
+      const actions = [
+        {
+          account: this.network.pools.contract,
+          name: 'openext',
+          authorization,
+          data: {
+            user: this.user.name,
+            payer: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: this.current.pool1.quantity.symbol.toString() }
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'openext',
+          authorization,
+          data: {
+            user: this.user.name,
+            payer: this.user.name,
+            ext_symbol: { contract: this.current.pool2.contract, sym: this.current.pool2.quantity.symbol.toString() }
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'remliquidity',
+          authorization,
+          data: {
+            user: this.user.name,
+            to_sell: this.amount + ' ' + this.current.supply.symbol.code().to_string(),
+            min_ext_asset1: { contract: this.poolOne.contract, quantity: this.baseReceive.to_string() },
+            min_ext_asset2: { contract: this.poolTwo.contract, quantity: this.quoteReceive.to_string() }
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: `${this.current.pool1.quantity.symbol.toString()}` },
+            to: this.user.name,
+            memo: ''
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.current.pool2.contract, sym: `${this.current.pool2.quantity.symbol.toString()}` },
+            to: this.user.name,
+            memo: ''
+          }
         }
-      }]
+      ]
 
       this.loading = true
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        this.visible = false
         this.$emit('update')
-        //this.visible = false
+        this.$notify({ title: 'Withdraw', message: 'Success', type: 'success' })
         console.log(r)
       } catch (e) {
         console.log(e)

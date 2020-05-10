@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  el-button(size="medium" @click="open" icon="el-icon-money").ml-auto Provide liquidity
+  el-button(size="medium" @click="open" icon="el-icon-money" type="primary").ml-auto Provide liquidity
 
   el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user")
     .row
