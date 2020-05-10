@@ -13,7 +13,12 @@ updater('eos', 1000 * 20)
 updater('telos', 1000 * 20)
 updater('wax', 1000 * 20)
 
+// TODO Обновлять маркеты в бекграунде
+// раздавать из кеша
+
 async function getMarket(network, market_id) {
+  // TODO В кеше создать список с маркетами и при запросе маркета брать оттуда либо если его нет
+  // фетчить и добавлять новый
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
   const c_market = cache.get(`${network.name}_market_${market_id}`)
