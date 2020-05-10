@@ -34,7 +34,9 @@ export const actions = {
 
     console.log('state.network.name', state.network.name)
     if (state.network.name == 'local') return
-    setInterval(() => dispatch('update'), 5000)
+
+    setInterval(() => dispatch('update'), 10000)
+    setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
   },
 
   checkIsMobile ({ commit }) {

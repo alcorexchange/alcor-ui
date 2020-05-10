@@ -160,11 +160,6 @@ export default {
     }
   },
 
-  created() {
-    // Auto update orders
-    setInterval(() => { this.$store.dispatch('market/fetchOrders') }, 5000)
-  },
-
   head() {
     return {
       title: `Alcor Exchange | Market ${this.token.symbol.name}`,
