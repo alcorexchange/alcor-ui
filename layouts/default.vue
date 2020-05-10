@@ -141,7 +141,6 @@ export default {
   },
 
   mounted() {
-    this.activeLink = this.$route.path
     this.$store.dispatch('checkIsMobile')
   },
 
