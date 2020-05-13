@@ -33,10 +33,11 @@ export const actions = {
     window.addEventListener('resize', () => dispatch('checkIsMobile'))
 
     console.log('state.network.name', state.network.name)
+    setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
+
     if (state.network.name == 'local') return
 
     setInterval(() => dispatch('update'), 10000)
-    setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
   },
 
   checkIsMobile ({ commit }) {
