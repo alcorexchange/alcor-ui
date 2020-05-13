@@ -90,9 +90,9 @@ const networks = {
     //host: 'eosbp.atticlab.net',
     //host: 'eos.greymass.com',
     //host: 'eos.greymass.com',
-    //host: 'api.main.alohaeos.com',
+    host: 'api.main.alohaeos.com',
     //host: 'mainnet.meet.one',
-    host: 'mainnet.eosamsterdam.net',
+    //host: 'node.eosflare.io',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
@@ -228,7 +228,7 @@ const networks = {
 
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
-    host: 'chain.wax.io',
+    host: 'wax.eu.eosamsterdam.net',
     port: 443,
     protocol: 'https',
     monitor: 'http://wax.bloks.io',
