@@ -238,8 +238,8 @@ const networks = {
     backEnd: 'https://eostokens.io/api/',
 
     otc: {
-      contract: 'wwweosswapio',
-      divs: 'eosswapdivs1',
+      contract: 'alcorotcswap',
+      divs: 'aw.aq.waa',
     },
 
     pools: {

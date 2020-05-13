@@ -74,7 +74,7 @@ export default {
         to: ''
       },
 
-      loading: true,
+      loading: true
     }
   },
 

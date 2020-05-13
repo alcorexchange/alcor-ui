@@ -158,16 +158,6 @@ export default {
     isPeg() {
       return Object.keys(this.network.pegs).includes(this.token.str)
     }
-  },
-
-  head() {
-    return {
-      title: `Alcor Exchange | Market ${this.token.symbol.name}`,
-
-      meta: [
-        { hid: 'description', name: 'description', content: `Trade ${this.token.str} token for EOS` }
-      ]
-    }
   }
 }
 </script>
