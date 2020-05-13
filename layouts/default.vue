@@ -41,7 +41,7 @@
                 el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
         li.el-menu-item.scatter-button(v-else)
-          el-button(@click="login" type="primary" size="small") Connect wallet
+          Login
 
     .col(v-else)
       .row
@@ -95,13 +95,19 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { captureException } from '@sentry/browser'
 import { mapGetters } from 'vuex'
-import axios from 'axios'
+
+import Login from '~/components/modals/Login'
 
 import config from '~/config'
 
 export default {
+  components: {
+    Login
+  },
+
   data() {
     return {
       netError: false,
@@ -110,7 +116,7 @@ export default {
       networks: [],
       current_chain: '',
 
-      app_name: config.APP_NAME,
+      app_name: config.APP_NAME
     }
   },
 
@@ -172,37 +178,6 @@ export default {
       window.location = `https://${this.current_chain}.alcor.exchange`
     },
 
-    async login() {
-      if (this.$store.state.chain.scatterConnected) {
-        const loading = this.$loading({
-          lock: true,
-          text: 'Wait for wallet'
-        })
-
-        try {
-          await this.$store.dispatch('chain/login')
-        } catch (e) {
-          captureException(e)
-          this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
-        } finally {
-          loading.close()
-        }
-      } else {
-        this.$notify({ title: 'Scatter not found', message: 'Pleace install or unlock Scatter', type: 'info' })
-      }
-    },
-
-    async scatterConnect() {
-      try {
-        await this.$store.dispatch('chain/scatterConnect')
-
-        if (this.$store.state.chain.scatterConnected)
-          this.$notify({ title: 'Scatter', message: 'Scatter connected', type: 'success' })
-      } catch (e) {
-        this.$notify({ title: 'Scatter error', message: e.message, type: 'error' })
-      }
-    },
-
     async getVersion() {
       this.lastCommit = (await axios.get('https://api.github.com/repos/avral/eostokens-ui/commits/master')).data
     }
@@ -217,7 +192,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 .logo {
