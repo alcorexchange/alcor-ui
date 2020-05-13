@@ -249,14 +249,24 @@ export default {
 
       const input = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
 
+      //if (this.input == 'pool1') {
+      //  amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+      //  amount2 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+      //} else {
+      //  amount1 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+      //  amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+      //}
+
       if (this.input == 'pool1') {
         amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
-        amount2 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+        amount2 = '-' + number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
       } else {
-        //amount1 = '-0.9000 EOS'
-        amount1 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+        amount1 = '-' + number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
         amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
       }
+
+      //console.log(amount1, this.amount2)
+      //return
 
       const actions = [
         {
