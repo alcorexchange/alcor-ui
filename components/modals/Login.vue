@@ -2,7 +2,7 @@
 div
   el-button(@click="open" type="primary" size="small") Connect wallet
 
-  el-dialog(title="Select Wallet", :visible.sync="visible" width="50%")
+  el-dialog(title="Select Wallet", :visible.sync="visible" width="50%" :append-to-body="true")
     el-button(size="large" @click="scatter")
       img(src="~/assets/logos/scatter.svg" height="30").mr-2
       span Scatter
@@ -15,6 +15,8 @@ div
 <script>
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
+
+// FIXME Исправить отображение на модалке
 
 export default {
   data() {

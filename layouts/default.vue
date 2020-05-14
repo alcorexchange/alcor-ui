@@ -69,7 +69,7 @@
                   el-dropdown-item
                     el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-            el-button(@click="login" type="primary" size="small" v-else) Connect wallet
+            Login
       .row
         .col
           el-menu(router, :default-active="activeLink", mode='horizontal')
@@ -193,6 +193,9 @@ export default {
 </script>
 
 <style scoped>
+.el-menu, .el-menu--horizontal {
+}
+
 .logo {
   height: 2.5em;
 }
@@ -202,6 +205,7 @@ export default {
 }
 
 .scatter-button {
+  z-index: 1;
   position: absolute;
   right: 0;
 }
