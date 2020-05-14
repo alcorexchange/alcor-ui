@@ -60,6 +60,7 @@ export default {
     try {
       await Promise.all([
         store.dispatch('market/fetchMarket'),
+        store.dispatch('market/fetchOrders'),
         store.dispatch('market/fetchDeals')
       ])
     } catch (e) {
