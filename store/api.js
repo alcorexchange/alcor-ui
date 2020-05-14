@@ -1,10 +1,13 @@
 import { JsonRpc } from 'eosjs'
 
+import { asset } from 'eos-common'
+
 import fetch from 'node-fetch'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 
 import { parseAsset } from '~/utils'
+
 
 axiosRetry(axios, { retries: 3 })
 
@@ -41,6 +44,19 @@ export const actions = {
 
   async getBuyOrders({ dispatch }, { market_id, ...kwargs }) {
     return await dispatch('getOrders', { market_id, side: 'buy', kwargs })
+  },
+
+  async getToken({ getters }, { code, symbol }) {
+    const { rows: [stat] } = await getters.rpc.get_table_rows({
+      code,
+      scope: symbol,
+      table: 'stat'
+    })
+
+    stat.supply = asset(stat.supply)
+    //stat.max_supply = asset(stat.max_supply)
+
+    return stat
   }
 }
 

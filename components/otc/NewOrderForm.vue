@@ -161,12 +161,9 @@ export default {
       let precision = 4
 
       try {
-        const { rows: [stat] } = await this.rpc.get_table_rows({
-          code: token.contract,
-          scope: token.symbol,
-          table: 'stat'
-        })
-        precision = stat.max_supply.split(' ')[0].split('.')[1].length
+        const stat = await this.$store.dispatch('api/getToken', { code: token.contract, symbol: token.symbol })
+        precision = stat.supply.symbol.precision()
+        console.log(precision)
       } catch (e) {
         captureException(e, { extra: { token } })
         this.$notify({ title: 'Fetch token', message: e.message, type: 'warning' })

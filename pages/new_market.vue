@@ -132,20 +132,8 @@ export default {
       if (!token) return
 
       try {
-        const { rows: [stat] } = await this.rpc.get_table_rows({
-          code: token.contract,
-          scope: token.currency,
-          table: 'stat'
-        })
-
-        const { rows } = await this.rpc.get_table_rows({
-          code: token.contract,
-          scope: token.currency,
-          table: 'stat'
-        })
-
-        console.log(stat.max_supply.split(' ')[0].split('.'))
-        precision = stat.max_supply.split(' ')[0].split('.')[1].length
+        const stat = await this.$store.dispatch('api/getToken', { code: token.contract, symbol: token.currency })
+        precision = stat.supply.symbol.precision()
       } catch (e) {
         captureException(e, { extra: { token } })
         this.$notify({ title: 'Fetch token precision', message: e.message + ' \n Set precision ' + precision, type: 'warning' })
