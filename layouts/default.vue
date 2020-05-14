@@ -44,38 +44,48 @@
 
     .col(v-else)
       .row
-        .col
+        .col-md-5.mb-1
           nuxt-link(to="/")
             img(src="~/assets/logos/alcor_logo.svg").logo
-        .col
-          .scatter-button.mr-1
-            div(v-if="user")
-              el-dropdown(size='mini', split-button='' :hide-on-click="false" trigger="click")
-                //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
-                | {{ $store.state.user.name }}
-                el-dropdown-menu(slot='dropdown')
-                  el-dropdown-item(v-if="network.name == 'eos'")
-                    el-switch(v-model='payForUser' inactive-text='Free CPU')
-                    hr
+        .col-sm-5.d-flex.align-items-center
+          img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
 
-                  el-dropdown-item
-                    img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+          el-select(v-model='current_chain', placeholder='Select', size="mini" @change="changeChain").chain-select
+            el-option(v-for='network in networks', :key='network.name', :value='network.name')
+              img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+              span.ml-2 {{ network.desc }}
 
-                    el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
-                      el-option(v-for='network in networks', :key='network.name', :value='network.name')
-                        img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-                        span.ml-2 {{ network.desc }}
-                    hr
-                  el-dropdown-item
-                    el-button(size="mini" type="info" plain @click="logout").w-100 logout
+        .scatter-button.mr-1
+          div(v-if="user")
+            el-dropdown(size='mini', split-button='' :hide-on-click="false" trigger="click")
+              //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+              | {{ $store.state.user.name }}
+              el-dropdown-menu(slot='dropdown')
+                el-dropdown-item(v-if="network.name == 'eos'")
+                  el-switch(v-model='payForUser' inactive-text='Free CPU')
+                  hr
 
-            Login(v-else)
+                //el-dropdown-item
+                  img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+
+                  el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
+                    el-option(v-for='network in networks', :key='network.name', :value='network.name')
+                      img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+                      span.ml-2 {{ network.desc }}
+                  hr
+                el-dropdown-item
+                  el-button(size="mini" type="info" plain @click="logout").w-100 logout
+
+          Login(v-else)
       .row
         .col
-          el-menu(router, :default-active="activeLink", mode='horizontal')
-            el-menu-item(index="/markets") Markets
-            el-menu-item(index="/otc") OTC Exchange
-            el-menu-item(index="/about") About
+          .row
+            .col
+              el-menu(router, :default-active="activeLink", mode='horizontal')
+                el-menu-item(index="/markets") Markets
+                el-menu-item(index="/otc") OTC Exchange
+                el-menu-item(index="/about") About
+
   nuxt
 
   .row.mt-3
@@ -254,6 +264,11 @@ footer {
 @media only screen and (max-width: 600px) {
   .el-dialog, .el-message-box, .el-notification {
     width: 95%;
+  }
+
+  .el-menu--horizontal .el-menu-item {
+    height: 40px;
+    line-height: 40px;
   }
 }
 </style>
