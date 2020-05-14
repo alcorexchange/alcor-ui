@@ -22,6 +22,7 @@ export default {
   },
 
   async fetch({ store, error, params }) {
+    // TODO проверать совпал ли макрет если нет то ошибку
     const [symbol, contract] = params.id.split('-')
 
     let market_id

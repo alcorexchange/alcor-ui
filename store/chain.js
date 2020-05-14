@@ -16,7 +16,8 @@ export const state = () => ({
   wallet: {},
   payForUser: false,
 
-  provider: 0
+  provider: 0,
+  currentWallet: 'scatter'
 })
 
 async function serverSign(transaction, txHeaders) {
@@ -52,7 +53,8 @@ export const actions = {
   },
 
   async init({ state, commit, dispatch, rootState, rootGetters }) {
-    if (rootState.user) return
+    // TODO Refactor handle different wallets working
+    if (rootState.user || (state.wallet.wax && state.wallet.wax.api)) return
     if (rootState.network.name == 'wax') {
       // Check for wax auto login
       const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
@@ -60,6 +62,7 @@ export const actions = {
 
       const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
       if (isAutoLoginAvailable) {
+        commit('setCurrentWallet', 'wax')
         commit('setUser', { name: wax.userAccount }, { root: true })
         return
       }
@@ -90,10 +93,9 @@ export const actions = {
     const selectedProvider = walletProviders[state.provider]
     const wallet = accessContext.initWallet(selectedProvider)
 
-    commit('setWallet', { ...state.wallet, scatter: wallet })
-
     try {
       await wallet.connect()
+      commit('setWallet', { ...state.wallet, scatter: wallet })
     } catch (e) {
       console.log('scatter err', e)
       console.log('scatter not connected, retry width provider', state.provider)
@@ -124,7 +126,7 @@ export const actions = {
   },
 
   async logout({ state, commit, getters }) {
-    switch (getters.provider) {
+    switch (state.currentWallet) {
       case 'scatter':
         commit('setUser', null, { root: true })
         await state.wallet.scatter.logout()
@@ -144,6 +146,7 @@ export const actions = {
         configureScope(scope => scope.setUser({ username: state.wallet.scatter.accountInfo.account_name }))
         commit('setUser', { ...state.wallet.scatter.accountInfo, name: state.wallet.scatter.accountInfo.account_name }, { root: true })
         dispatch('loadUserBalances', {}, { root: true })
+        commit('setCurrentWallet', 'scatter')
       } catch (e) {
         dispatch('loadUserBalances', {}, { root: true })
         captureException(e)
@@ -152,6 +155,7 @@ export const actions = {
     } else if (provider == 'wax') {
       const userAccount = await state.wallet.wax.login()
       commit('setUser', { name: userAccount }, { root: true })
+      commit('setCurrentWallet', 'wax')
     }
   },
 
@@ -196,13 +200,14 @@ export const actions = {
     )
   },
 
-  async sendTransaction({ state, rootState, dispatch, getters }, actions) {
+  async sendTransaction({ state, rootState, dispatch }, actions) {
     if (!rootState.user) return this.$notify({ title: 'Authorization', message: 'Please connect wallet', type: 'info' })
 
     const tx = { actions }
 
     let result
-    if (getters.provider == 'wax') {
+    if (state.currentWallet == 'wax') {
+      console.log(state.wallet.wax)
       result = await state.wallet.wax.api.transact(tx, transactionHeader)
     } else {
       let pushTransactionArgs = PushTransactionArgs
@@ -266,6 +271,7 @@ export const actions = {
 
 export const mutations = {
   setPayForUser: (state, value) => state.payForUser = value,
+  setCurrentWallet: (state, value) => state.currentWallet = value,
 
   setWallet: (state, wallet) => {
     state.wallet = wallet
@@ -285,7 +291,4 @@ export const mutations = {
 }
 
 export const getters = {
-  provider(state) {
-    return 'wax' in state.wallet ? 'wax' : 'scatter'
-  }
 }
