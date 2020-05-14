@@ -127,7 +127,7 @@ export const actions = {
     switch (getters.provider) {
       case 'scatter':
         commit('setUser', null, { root: true })
-        await state.wallet.logout()
+        await state.wallet.scatter.logout()
         break
       default:
         commit('setUser', null, { root: true })
@@ -139,10 +139,10 @@ export const actions = {
       if (!state.scatterConnected) return this._vm.$notify({ title: 'Login', message: 'Scatter is not connected', type: 'error' })
 
       try {
-        await state.wallet.login()
+        await state.wallet.scatter.login()
 
-        configureScope(scope => scope.setUser({ username: state.wallet.accountInfo.account_name }))
-        commit('setUser', { ...state.wallet.accountInfo, name: state.wallet.accountInfo.account_name }, { root: true })
+        configureScope(scope => scope.setUser({ username: state.wallet.scatter.accountInfo.account_name }))
+        commit('setUser', { ...state.wallet.scatter.accountInfo, name: state.wallet.scatter.accountInfo.account_name }, { root: true })
         dispatch('loadUserBalances', {}, { root: true })
       } catch (e) {
         dispatch('loadUserBalances', {}, { root: true })
@@ -222,14 +222,14 @@ export const actions = {
       if (state.payForUser && serverTransactionPushArgs && rootState.network.name == 'eos') {
         // just to initialize the ABIs and other structures on api
         // https://github.com/EOSIO/eosjs/blob/master/src/eosjs-api.ts#L214-L254
-        await state.wallet.eosApi.transact(tx, {
+        await state.wallet.scatter.eosApi.transact(tx, {
           ...transactionHeader,
           sign: false,
           broadcast: false
         })
 
         // fake requiredKeys to only be user's keys
-        const requiredKeys = await state.wallet.eosApi.signatureProvider.getAvailableKeys()
+        const requiredKeys = await state.wallet.scatter.eosApi.signatureProvider.getAvailableKeys()
         // must use server tx here because blocksBehind header might lead to different TAPOS tx header
 
         const abis = actions.map(x => ({ accountName: x.account }))
@@ -237,26 +237,26 @@ export const actions = {
 
         const serializedTx = serverTransactionPushArgs.serializedTransaction
         const signArgs = {
-          chainId: state.wallet.eosApi.chainId,
+          chainId: state.wallet.scatter.eosApi.chainId,
           requiredKeys,
           serializedTransaction: serializedTx,
           abis
         }
-        pushTransactionArgs = await state.wallet.eosApi.signatureProvider.sign(signArgs)
+        pushTransactionArgs = await state.wallet.scatter.eosApi.signatureProvider.sign(signArgs)
         // add server signature
         pushTransactionArgs.signatures.unshift(
           serverTransactionPushArgs.signatures[0]
         )
       } else {
         // no server response => sign original tx
-        pushTransactionArgs = await state.wallet.eosApi.transact(tx, {
+        pushTransactionArgs = await state.wallet.scatter.eosApi.transact(tx, {
           ...transactionHeader,
           sign: true,
           broadcast: false
         })
       }
 
-      result = await state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
+      result = await state.wallet.scatter.eosApi.pushSignedTransaction(pushTransactionArgs)
     }
 
     dispatch('update', {}, { root: true })

@@ -33,7 +33,7 @@
             //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
             | {{ $store.state.user.name }}
             el-dropdown-menu(slot='dropdown')
-              el-dropdown-item
+              el-dropdown-item(v-if="network.name == 'eos'")
                 el-switch(v-model='payForUser' inactive-text='Free CPU')
                 hr
               el-dropdown-item
@@ -54,7 +54,7 @@
                 //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
                 | {{ $store.state.user.name }}
                 el-dropdown-menu(slot='dropdown')
-                  el-dropdown-item
+                  el-dropdown-item(v-if="network.name == 'eos'")
                     el-switch(v-model='payForUser' inactive-text='Free CPU')
                     hr
 
@@ -96,7 +96,7 @@
 <script>
 import axios from 'axios'
 import { captureException } from '@sentry/browser'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import Login from '~/components/modals/Login'
 
@@ -121,6 +121,7 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
+    ...mapState(['network']),
 
     payForUser: {
       get () {
