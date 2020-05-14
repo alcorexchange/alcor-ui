@@ -36,7 +36,7 @@ export default {
     ...mapState('market', ['id']),
 
     filteredItems() {
-      if (!this.market) return []
+      if (!this.markets) return []
       return this.markets.filter((i) => {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
           return true
@@ -44,7 +44,7 @@ export default {
     }
   },
 
-  async created() {
+  async mounted() {
     if (this.markets.length == 0) {
       await this.$store.dispatch('loadMarkets')
     }
