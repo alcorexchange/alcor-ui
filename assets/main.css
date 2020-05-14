@@ -21,6 +21,10 @@ button:focus {
     .container{
         max-width: 100%;
     }
+
+    .el-dialog {
+        width: 90% !important;
+    }
 }
 
 input::-webkit-outer-spin-button,

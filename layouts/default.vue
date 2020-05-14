@@ -69,7 +69,7 @@
                   el-dropdown-item
                     el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-            Login
+            Login(v-else)
       .row
         .col
           el-menu(router, :default-active="activeLink", mode='horizontal')

@@ -3,13 +3,15 @@ div
   el-button(@click="open" type="primary" size="small") Connect wallet
 
   el-dialog(title="Select Wallet", :visible.sync="visible" width="50%" :append-to-body="true")
-    el-button(size="large" @click="scatter")
-      img(src="~/assets/logos/scatter.svg" height="30").mr-2
-      span Scatter
-
-    el-button(size="large" @click="wax" v-if="network.name == 'wax'")
-      img(src="~/assets/logos/wax.svg" height="30").mr-2
-      span Wax Cloud Wallet
+    .row
+      .col-auto.pr-0.py-1
+        el-button(size="large" @click="scatter").mb-2
+          img(src="~/assets/logos/scatter.svg" height="30").mr-2
+          span Scatter
+      .col.py-1
+        el-button(size="large" @click="wax" v-if="network.name == 'wax'").mb-2
+          img(src="~/assets/logos/wax.svg" height="30").mr-2
+          span Wax Cloud Wallet
 </template>
 
 <script>
@@ -43,6 +45,7 @@ export default {
 
       try {
         await this.$store.dispatch('chain/login', 'wax')
+        this.visible = false
       } catch (e) {
         captureException(e)
         this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
@@ -60,6 +63,7 @@ export default {
 
         try {
           await this.$store.dispatch('chain/login')
+          this.visible = false
         } catch (e) {
           captureException(e)
           this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
