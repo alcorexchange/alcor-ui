@@ -39,3 +39,17 @@ input[type=number] {
   z-index: 99999;
 }
 
+.input-with-select .el-select .el-input {
+  width: 300px;
+}
+
+.input-with-select .el-input-group__append {
+  background-color: #fff;
+}
+
+.upperinput {
+    text-transform: uppercase;
+}
+.upperinput:placeholder-shown {
+    text-transform: none;
+}

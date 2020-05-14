@@ -3,7 +3,16 @@ div
   .row
     .col
       .text.item(v-if="current.pool1")
-        .row.mb-3
+        .row
+          .col
+            .p-2
+              p Quick swap or make money on provide liquidity.
+          .col
+            .d-flex
+              Withdraw(:current="current" @update="fetch").ml-auto
+
+              Liquidity(:current="current" @update="fetch").ml-auto
+        .row.mb-3.mt-2
           .col-6.bordered
             .row
               .col-lg-2
@@ -12,11 +21,12 @@ div
                 .lead {{ poolOne.quantity.symbol.code().to_string() }}@{{ poolOne.contract }}
                 b Pool size: {{ poolOne.quantity }}
 
+                el-button(@click="swapInput"  icon="el-icon-refresh").ml-3 Switch
+
             hr
 
             .text-center
               .lead Input
-                el-button(@click="swapInput"  icon="el-icon-refresh" type="text").ml-3 Switch
 
               p The amount that you give
 
@@ -42,9 +52,15 @@ div
               .lead {{ amount2 }}
             //el-input(type="number" v-model="amount2" clearable @change="amountChange" disabled).mt-3
               span(slot="suffix").mr-1 {{ poolTwo.quantity.symbol.code().to_string() }}
-        .row.mb-3
+        .row.mb-3(v-if="current.pool1")
           .col
-            .lead Price: {{ price }}
+            .row
+              .col
+                .lead Pool price: {{ (current.pool2.quantity.amount / current.pool1.quantity.amount).toFixed(5) }}
+                  |  {{ current.pool1.quantity.symbol.code().to_string() }}
+            .row
+              .col
+                .lead Current price: {{ price }}
         .row
           .col
             PleaseLoginButton
@@ -81,7 +97,7 @@ div
 
             span.ml-2(v-else) {{ scope.row.pool2.quantity.symbol.code().to_string() }}@{{ scope.row.pool2.contract }}
 
-        el-table-column(label="Pool fee")
+        el-table-column(label="Liquidity provider fee")
           template(slot-scope="scope")
             span {{ scope.row.fee / 100 }} %
 </template>
@@ -92,6 +108,8 @@ import { mapGetters, mapState } from 'vuex'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
+import Liquidity from '~/components/pools/Liquidity'
+import Withdraw from '~/components/pools/Withdraw'
 
 const inputToOutput = (a, pool1, pool2, fee) => {
   const tmp = a.multiply(-1).multiply(pool2).divide(pool1.plus(a))
@@ -103,7 +121,9 @@ const inputToOutput = (a, pool1, pool2, fee) => {
 export default {
   components: {
     TokenImage,
-    PleaseLoginButton
+    PleaseLoginButton,
+    Liquidity,
+    Withdraw
   },
 
   data() {
@@ -115,7 +135,7 @@ export default {
       pools: [],
       input: 'pool1',
 
-      loading: false,
+      loading: false
     }
   },
 
@@ -137,12 +157,18 @@ export default {
     },
 
     price() {
-      return Math.abs(this.amount1 / this.amount2).toFixed(5)
+      if (this.input == 'pool1') {
+        return Math.abs(this.amount2 / this.amount1).toFixed(5)
+      } else {
+        return Math.abs(this.amount1 / this.amount2).toFixed(5)
+      }
     }
   },
 
   watch: {
     amount1() {
+      if (isNaN(this.amount1)) return
+
       let a = asset(`${this.amount1} ${this.poolOne.quantity.symbol.code().to_string()}`).amount
 
       const p1 = this.poolOne.quantity.amount
@@ -151,19 +177,18 @@ export default {
       //this.calcReceive(this.amount1)
       if (this.input == 'pool1') {
         const r = number_to_asset(0, this.poolTwo.quantity.symbol)
-        r.set_amount(inputToOutput(a, p1, p2, this.current.fee))
+        r.set_amount(Math.abs(inputToOutput(a, p1, p2, this.current.fee)))
         this.amount2 = r.to_string().split(' ')[0]
       } else {
-        // FIXME Not working yet
-        const fee = a.multiply(-1).multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000)
+        // FIXME Не считает для пресижина
 
+        const fee = a.multiply(this.current.fee).plus(9999).divide(10000)
         a = a.minus(fee)
-
         const div = p1.plus(a)
-        const result = a.multiply(p2).multiply(-1).divide(div)
-
-        const r = number_to_asset(0, this.poolOne.quantity.symbol)
+        const result = a.multiply(p2).multiply(-1).divide(div).abs()
+        const r = number_to_asset(0, this.current.pool1.quantity.symbol)
         r.set_amount(result)
+        //console.log('result', r.amount, 'will receive: ', check)
         this.amount2 = r.to_string().split(' ')[0]
       }
     },
@@ -174,36 +199,37 @@ export default {
 
   },
 
-  async created() {
-    const { rows } = await this.rpc.get_table_by_scope({
-      code: this.network.pools.contract,
-      table: 'stat',
-      limit: 1000
-    })
-
-    this.pools = []
-    rows.reverse().map(async r => {
-      const { rows: [pool] } = await this.rpc.get_table_rows({
-        code: this.network.pools.contract,
-        scope: r.scope,
-        table: 'stat',
-        limit: 1
-      })
-
-      if (!this.current.pool1) this.current = pool
-      console.log(this.current)
-
-      pool.pool1.quantity = asset(pool.pool1.quantity)
-      pool.pool2.quantity = asset(pool.pool2.quantity)
-      pool.supply = asset(pool.supply)
-
-      this.pools.push(pool)
-    })
+  created() {
+    this.fetch()
   },
 
   methods: {
-    setInputToken(token) {
-      this.input.token = token
+    async fetch() {
+      const { rows } = await this.rpc.get_table_by_scope({
+        code: this.network.pools.contract,
+        table: 'stat',
+        limit: 1000
+      })
+
+      this.pools = []
+
+      rows.reverse().map(async r => {
+        const { rows: [pool] } = await this.rpc.get_table_rows({
+          code: this.network.pools.contract,
+          scope: r.scope,
+          table: 'stat',
+          limit: 1
+        })
+
+        if (!this.current.pool1) this.current = pool
+
+        pool.pool1.quantity = asset(pool.pool1.quantity)
+        pool.pool2.quantity = asset(pool.pool2.quantity)
+        pool.supply = asset(pool.supply)
+
+        this.pools.push(pool)
+      })
+      console.log('fetch, new pools: ', this.pools)
     },
 
     amountChange() {
@@ -215,29 +241,112 @@ export default {
       this.current = pool
     },
 
-    swap() {
-      this.$store.dispatch('chain/sendTransaction', [
+    async swap() {
+      const authorization = [{ actor: this.user.name, permission: 'active' }]
+
+      let amount1
+      let amount2
+
+      const input = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+
+      //if (this.input == 'pool1') {
+      //  amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+      //  amount2 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+      //} else {
+      //  amount1 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+      //  amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+      //}
+
+      if (this.input == 'pool1') {
+        amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+        amount2 = '-' + number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+      } else {
+        amount1 = '-' + number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+        amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+      }
+
+      //console.log(amount1, this.amount2)
+      //return
+
+      const actions = [
         {
-          account: 'lp',
+          account: this.network.pools.contract,
+          name: 'openext',
+          authorization,
+          data: {
+            user: this.user.name,
+            payer: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: this.current.pool1.quantity.symbol.toString() }
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'openext',
+          authorization,
+          data: {
+            user: this.user.name,
+            payer: this.user.name,
+            ext_symbol: { contract: this.current.pool2.contract, sym: this.current.pool2.quantity.symbol.toString() }
+          }
+        }, {
+          account: this.poolOne.contract,
+          name: 'transfer',
+          authorization,
+          data: {
+            from: this.user.name,
+            to: this.network.pools.contract,
+            quantity: input,
+            memo: ''
+          }
+        },
+        {
+          account: this.network.pools.contract,
           name: 'exchange',
-          authorization: [{
-            actor: this.user.name,
-            permission: 'active'
-          }],
+          authorization,
           data: {
             user: this.user.name,
             through: this.current.supply.symbol.toString(),
             ext_asset1: {
               contract: this.current.pool1.contract,
-              quantity: number_to_asset(parseFloat(this.amount1), this.current.pool1.quantity.symbol).to_string()
+              quantity: amount1
             },
             ext_asset2: {
               contract: this.current.pool2.contract,
-              quantity: number_to_asset(parseFloat(this.amount2), this.current.pool2.quantity.symbol).to_string()
+              quantity: amount2
             }
           }
+        }, {
+          account: this.network.pools.contract,
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: `${this.current.pool1.quantity.symbol.toString()}` },
+            to: this.user.name,
+            memo: ''
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.current.pool2.contract, sym: `${this.current.pool2.quantity.symbol.toString()}` },
+            to: this.user.name,
+            memo: ''
+          }
         }
-      ])
+      ]
+
+      this.loading = true
+      try {
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        this.$notify({ title: 'Exchange', message: 'Success', type: 'success' })
+      } catch (e) {
+        this.$notify({ title: 'Place order', message: e, type: 'error' })
+      } finally {
+        this.fetch()
+        this.loading = false
+      }
     },
 
     swapInput() {
@@ -245,75 +354,11 @@ export default {
 
       this.amountChange()
     },
-
-    calcReceive(a) {
-      a = asset(`${a} ${this.poolOne.quantity.symbol.code().to_string()}`).amount
-
-      const p1 = this.poolOne.quantity.amount
-      const p2 = this.poolTwo.quantity.amount
-
-
-      if (this.input == 'pool1') {
-        // Compute
-        //const r = inputToOutput(a)
-        const r = number_to_asset(0, this.poolTwo.quantity.symbol)
-        r.set_amount(inputToOutput(a))
-        this.amount2 = r.to_string().split(' ')[0]
-      } else {
-        // FIXME Добавить досчет для выгодной ситуации
-
-        // Amount fee Тут через позитив расчитывает
-        //const fee = a.multiply(this.current.fee).plus(9999).divide(10000)
-        ////const fee = -a.multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000)
-        //a = a.plus(fee)
-        //const div = p1.minus(a)
-        //const result = a.multiply(p2).plus(div).minus(1).divide(div)
-
-        //console.log('zz', a.multiply(-1).multiply(this.current.fee).plus(9999).plus(10000).minus(1))
-        a = a.multiply(-1)
-        const fee = a.multiply(-1).multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000)
-
-        a = a.minus(fee)
-
-        const div = p1.plus(a)
-        const result = a.multiply(p2).multiply(-1).divide(div)
-
-        const r = number_to_asset(0, this.poolOne.quantity.symbol)
-        r.set_amount(result)
-        this.amount1 = r.to_string().split(' ')[0]
-
-        // FIXME 1,2346 не прошел
-
-        // Высчитываем:
-
-        //const tmp = a.multiply(p2).plus(div).minus(1).divide(div).minus(fee)
-        //console.log('pre_tmp', tmp)
-        //console.log('tmp', tmp.minus(fee))
-
-        //let tmp = a.multiply(p2).divide(a.plus(p1))
-        ////const fee = tmp.multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000) // Rounding up
-        //const fee = tmp.multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000) // Rounding up
-        //tmp = tmp.minus(fee)
-
-        //console.log(tmp, fee)
-
-        //const b = tmp.minus(tmp.multiply(this.current.fee).plus(9999).plus(10000).minus(1).divide(10000))
-        //const b = tmp.minus(tmp.multiply(this.current.fee).plus(9999).divide(10000))
-        //console.log(b)
-      }
-    }
   }
 }
 </script>
 
 <style>
-.input-with-select .el-select .el-input {
-  width: 300px;
-}
-.input-with-select .el-input-group__append {
-  background-color: #fff;
-}
-
 .bordered {
   border-right: 1px solid;
 }

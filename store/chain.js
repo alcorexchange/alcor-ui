@@ -1,6 +1,7 @@
 import { configureScope, captureException } from '@sentry/browser'
 import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces'
 
+import * as waxjs from '@waxio/waxjs/dist'
 
 import config from '../config'
 
@@ -39,7 +40,6 @@ async function serverSign(transaction, txHeaders) {
   return pushTransactionArgs
 }
 
-
 export const actions = {
   nextProvider({ state, commit }, providers) {
     const next = state.provider + 1
@@ -52,6 +52,20 @@ export const actions = {
   },
 
   async init({ state, commit, dispatch, rootState, rootGetters }) {
+    if (rootState.user) return
+    if (rootState.network.name == 'wax') {
+      // Check for wax auto login
+      const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
+      commit('setWallet', { ...state.wallet, wax })
+
+      const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
+      if (isAutoLoginAvailable) {
+        commit('setUser', { name: wax.userAccount }, { root: true })
+        return
+      }
+      console.log('no wax autologin found...')
+    }
+
     const initAccessContext = require('eos-transit').initAccessContext
     const scatter = require('eos-transit-scatter-provider').default
     const tokenpocket = require('eos-transit-tokenpocket-provider').default
@@ -76,7 +90,7 @@ export const actions = {
     const selectedProvider = walletProviders[state.provider]
     const wallet = accessContext.initWallet(selectedProvider)
 
-    commit('setWallet', wallet)
+    commit('setWallet', { ...state.wallet, scatter: wallet })
 
     try {
       await wallet.connect()
@@ -109,28 +123,35 @@ export const actions = {
     console.log('App starting..')
   },
 
-  async logout({ state, commit }) {
-    await state.wallet.logout()
-    commit('setUser', null, { root: true })
+  async logout({ state, commit, getters }) {
+    switch (getters.provider) {
+      case 'scatter':
+        commit('setUser', null, { root: true })
+        await state.wallet.logout()
+        break
+      default:
+        commit('setUser', null, { root: true })
+    }
   },
 
-  async login({ state, commit, dispatch }) {
-    if (!state.scatterConnected)
-      return this._vm.$notify({
-        title: 'Login',
-        message: 'Scatter is not connected',
-        type: 'error'
-      })
+  async login({ state, commit, dispatch }, provider = 'scatter') {
+    if (provider == 'scatter') {
+      if (!state.scatterConnected) return this._vm.$notify({ title: 'Login', message: 'Scatter is not connected', type: 'error' })
 
-    try {
-      await state.wallet.login()
+      try {
+        await state.wallet.login()
 
-      configureScope(scope => scope.setUser({ username: state.wallet.accountInfo.account_name }))
-      commit('setUser', { ...state.wallet.accountInfo, name: state.wallet.accountInfo.account_name }, { root: true })
-      dispatch('loadUserBalances', {}, { root: true })
-    } catch (e) {
-      captureException(e)
-      this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })
+        configureScope(scope => scope.setUser({ username: state.wallet.accountInfo.account_name }))
+        commit('setUser', { ...state.wallet.accountInfo, name: state.wallet.accountInfo.account_name }, { root: true })
+        dispatch('loadUserBalances', {}, { root: true })
+      } catch (e) {
+        dispatch('loadUserBalances', {}, { root: true })
+        captureException(e)
+        this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })
+      }
+    } else if (provider == 'wax') {
+      const userAccount = await state.wallet.wax.login()
+      commit('setUser', { name: userAccount }, { root: true })
     }
   },
 
@@ -175,67 +196,70 @@ export const actions = {
     )
   },
 
-  async sendTransaction({ state, rootState, dispatch }, actions) {
-    const tx = {
-      actions
-    }
+  async sendTransaction({ state, rootState, dispatch, getters }, actions) {
+    if (!rootState.user) return this.$notify({ title: 'Authorization', message: 'Please connect wallet', type: 'info' })
 
-    let pushTransactionArgs = PushTransactionArgs
-    let serverTransactionPushArgs = PushTransactionArgs | undefined
+    const tx = { actions }
 
-    if (state.payForUser) {
-      try {
-        serverTransactionPushArgs = await serverSign(tx, transactionHeader)
-        console.log('serverTransactionPushArgs ', serverTransactionPushArgs)
-      } catch (error) {
-        this._vm.$notify({ title: 'Free CPU', message: error.message, type: 'warning' })
-
-        console.error(`Error when requesting server signature: `, error.message)
-      }
-    }
-
-    if (state.payForUser && serverTransactionPushArgs && rootState.network.name == 'eos') {
-      // just to initialize the ABIs and other structures on api
-      // https://github.com/EOSIO/eosjs/blob/master/src/eosjs-api.ts#L214-L254
-      await state.wallet.eosApi.transact(tx, {
-        ...transactionHeader,
-        sign: false,
-        broadcast: false
-      })
-
-      // fake requiredKeys to only be user's keys
-      const requiredKeys = await state.wallet.eosApi.signatureProvider.getAvailableKeys()
-      // must use server tx here because blocksBehind header might lead to different TAPOS tx header
-
-      const abis = actions.map(x => ({ accountName: x.account }))
-      abis.push({ accountName: 'eostokensdex' })
-
-      const serializedTx = serverTransactionPushArgs.serializedTransaction
-      const signArgs = {
-        chainId: state.wallet.eosApi.chainId,
-        requiredKeys,
-        serializedTransaction: serializedTx,
-        abis
-      }
-      pushTransactionArgs = await state.wallet.eosApi.signatureProvider.sign(signArgs)
-      // add server signature
-      pushTransactionArgs.signatures.unshift(
-        serverTransactionPushArgs.signatures[0]
-      )
+    let result
+    if (getters.provider == 'wax') {
+      result = await state.wallet.wax.api.transact(tx, transactionHeader)
     } else {
-      // no server response => sign original tx
-      pushTransactionArgs = await state.wallet.eosApi.transact(tx, {
-        ...transactionHeader,
-        sign: true,
-        broadcast: false
-      })
+      let pushTransactionArgs = PushTransactionArgs
+      let serverTransactionPushArgs = PushTransactionArgs | undefined
+
+      if (state.payForUser && rootState.network.name == 'eos') {
+        try {
+          serverTransactionPushArgs = await serverSign(tx, transactionHeader)
+          console.log('serverTransactionPushArgs ', serverTransactionPushArgs)
+        } catch (error) {
+          this._vm.$notify({ title: 'Free CPU', message: error.message, type: 'warning' })
+
+          console.error(`Error when requesting server signature: `, error.message)
+        }
+      }
+
+      if (state.payForUser && serverTransactionPushArgs && rootState.network.name == 'eos') {
+        // just to initialize the ABIs and other structures on api
+        // https://github.com/EOSIO/eosjs/blob/master/src/eosjs-api.ts#L214-L254
+        await state.wallet.eosApi.transact(tx, {
+          ...transactionHeader,
+          sign: false,
+          broadcast: false
+        })
+
+        // fake requiredKeys to only be user's keys
+        const requiredKeys = await state.wallet.eosApi.signatureProvider.getAvailableKeys()
+        // must use server tx here because blocksBehind header might lead to different TAPOS tx header
+
+        const abis = actions.map(x => ({ accountName: x.account }))
+        abis.push({ accountName: 'eostokensdex' })
+
+        const serializedTx = serverTransactionPushArgs.serializedTransaction
+        const signArgs = {
+          chainId: state.wallet.eosApi.chainId,
+          requiredKeys,
+          serializedTransaction: serializedTx,
+          abis
+        }
+        pushTransactionArgs = await state.wallet.eosApi.signatureProvider.sign(signArgs)
+        // add server signature
+        pushTransactionArgs.signatures.unshift(
+          serverTransactionPushArgs.signatures[0]
+        )
+      } else {
+        // no server response => sign original tx
+        pushTransactionArgs = await state.wallet.eosApi.transact(tx, {
+          ...transactionHeader,
+          sign: true,
+          broadcast: false
+        })
+      }
+
+      result = await state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
     }
 
-    const result = await state.wallet.eosApi.pushSignedTransaction(pushTransactionArgs)
-
-    // Update user state
     dispatch('update', {}, { root: true })
-
     return result
   }
 }
@@ -257,5 +281,11 @@ export const mutations = {
 
   setProvider: (state, value) => {
     state.provider = value
-  },
+  }
+}
+
+export const getters = {
+  provider(state) {
+    return 'wax' in state.wallet ? 'wax' : 'scatter'
+  }
 }

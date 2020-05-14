@@ -36,7 +36,7 @@ export default {
     ...mapState('market', ['id']),
 
     filteredItems() {
-      console.log(this.search)
+      if (!this.market) return []
       return this.markets.filter((i) => {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
           return true

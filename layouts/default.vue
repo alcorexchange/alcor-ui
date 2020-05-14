@@ -28,7 +28,6 @@
             a(href="https://t.me/alcorexchange" target="_blank")
               img(src="/telegram.png" height="40")
 
-
         li.el-menu-item(v-if="user").scatter-button
           el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
             //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
@@ -147,7 +146,6 @@ export default {
   },
 
   mounted() {
-    this.activeLink = this.$route.path
     this.$store.dispatch('checkIsMobile')
   },
 
@@ -205,7 +203,6 @@ export default {
 .scatter-button {
   position: absolute;
   right: 0;
-  z-index: 999;
 }
 
 .logo-text {

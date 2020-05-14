@@ -62,6 +62,7 @@ export const actions = {
   },
 
   update({ dispatch }) {
+    console.log('update app..')
     dispatch('loadUserBalances')
     //dispatch('loadHistory') TODO Может в будущем обновлять
   },

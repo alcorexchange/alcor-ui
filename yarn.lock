@@ -1375,6 +1375,13 @@
     eslint-import-resolver-node "^0.3.3"
     eslint-import-resolver-webpack "^0.12.1"
 
+"@waxio/waxjs@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@waxio/waxjs/-/waxjs-0.0.11.tgz#046d77306c90534d26c8618aa3c9227de969f883"
+  integrity sha512-YnQxJ1PnE5Vhb98EsBQhjj28VJEIOm1IT0Ff4xTcA8S26IoTi0Vll1Tq9HglkjLA3WZU6BeIKWYqRzALAGHubA==
+  dependencies:
+    eosjs "^20.0.0"
+
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.9.0.tgz#bd850604b4042459a5a41cd7d338cbed695ed964"

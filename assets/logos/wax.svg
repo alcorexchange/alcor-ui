@@ -1,0 +1,68 @@
+<svg width="97" height="56" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="58" width="99" y="-1" x="-1"/>
+  <g display="none" overflow="visible" y="0" x="0" height="100%" width="100%" id="canvasGrid">
+   <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <metadata transform="matrix(0.10058298622971051,0,0,0.10058298622971051,0,0) " id="svg_65">image/svg+xml</metadata>
+  <defs>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_54">
+    <path clip-rule="evenodd" d="m14534.008447,6282.093189l-143.7,-120.109l147.54,-123.785l291.17,243.894l-295.01,0z" id="svg_64"/>
+   </clipPath>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_56">
+    <path d="m11332.408447,5261.769189l4000,0l0,1419.999l-4000,0l0,-1419.999z" id="svg_63"/>
+   </clipPath>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_46">
+    <path d="m11832.408447,5493.308189l3153,0l0,978l-3153,0l0,-978z" id="svg_62"/>
+   </clipPath>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_48">
+    <path clip-rule="evenodd" d="m13596.878447,6471.769189l580.31,-489.074l-184,-154.383l-380.77,453.789l-248.01,0l-663.762,-788.78909l247.742,0l540.02,641.53509l155.85,-185.726l-203.37,0l-103.78,-123.731l410.95,0l119.5,-142.394l247.55,0l-0.02,0.023l209.62,175.906l209.68,-175.929l294.99,0l-937.69,788.773l-294.81,0z" id="svg_61"/>
+   </clipPath>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_50">
+    <path d="m11332.408447,5261.769189l4000,0l0,1419.999l-4000,0l0,-1419.999z" id="svg_60"/>
+   </clipPath>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_40">
+    <path clip-rule="evenodd" d="m12878.678447,6282.093189l-149.059,-409.547l-149.047,409.547l-247.512,0l-149.422,-410.543l-149.429,410.543l-201.801,0l218.047,-599.097l266.367,0l140.004,384.652l140.012,-384.652l265.6,0l218.07,599.097l-201.83,0z" id="svg_59"/>
+   </clipPath>
+   <clipPath clipPathUnits="userSpaceOnUse" id="svg_42">
+    <path d="m11332.408447,5261.769189l4000,0l0,1419.999l-4000,0l0,-1419.999z" id="svg_58"/>
+   </clipPath>
+  </defs>
+  <g stroke="null" id="svg_67">
+   <g stroke="null" id="svg_35" transform="matrix(0.32767138891068365,0,0,-0.32767138891068365,-387.5544917414518,-246.15824678003878) ">
+    <g stroke="null" id="svg_36" transform="translate(0,-1442.37890625) scale(0.10000000149011612) ">
+     <g stroke="null" id="svg_52">
+      <g stroke="null" id="svg_53" clip-path="url(#svg_54)">
+       <g stroke="null" id="svg_55" clip-path="url(#svg_56)">
+        <path fill="#f57f15" fill-rule="nonzero" d="m14340.308447,6332.093189l538.71,0l0,-343.89l-538.71,0l0,343.89" id="svg_57"/>
+       </g>
+      </g>
+     </g>
+     <g stroke="null" id="svg_44">
+      <g stroke="null" id="svg_45" clip-path="url(#svg_46)">
+       <g stroke="null" id="svg_47" clip-path="url(#svg_48)">
+        <g stroke="null" id="svg_49" clip-path="url(#svg_50)">
+         <path fill="#100f0d" fill-rule="nonzero" d="m12650.646447,6521.768189l2228.732,0l0,-1078.46l-2228.732,0l0,1078.46" id="svg_51"/>
+        </g>
+       </g>
+      </g>
+     </g>
+     <g stroke="null" id="svg_38">
+      <g stroke="null" id="svg_39" clip-path="url(#svg_40)">
+       <g stroke="null" id="svg_41" clip-path="url(#svg_42)">
+        <path fill="#100f0d" fill-rule="nonzero" d="m11782.408447,6332.093189l1348.1,0l0,-699.097l-1348.1,0l0,699.097" id="svg_43"/>
+       </g>
+      </g>
+     </g>
+     <path fill="#100f0d" fill-rule="nonzero" d="m14973.218447,6222.621189l-2.28,36.503c-0.22,4.789 -0.22,10.731 -0.44,17.34l-0.7,0c-1.59,-5.476 -3.42,-12.777 -5.23,-18.48l-11.18,-34.453l-12.79,0l-11.18,35.371c-1.13,4.785 -2.96,12.086 -4.32,17.562l-0.7,0c0,-5.703 -0.22,-11.636 -0.45,-17.34l-2.28,-36.503l-11.87,0l4.57,62.054l18.47,0l10.73,-30.344c1.36,-4.785 2.51,-9.355 4.11,-15.742l0.23,0c1.59,5.711 2.97,10.957 4.32,15.516l10.74,30.57l17.8,0l4.77,-62.054l-12.32,0zm-67.06,62.054l0,-10.262l-19.85,0l0,-51.792l-12.33,0l0,51.792l-19.85,0l0,10.262l52.03,0" id="svg_37"/>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>

@@ -144,7 +144,7 @@ export default {
           table: 'stat'
         })
 
-        console.log(rows, stat)
+        console.log(stat.max_supply.split(' ')[0].split('.'))
         precision = stat.max_supply.split(' ')[0].split('.')[1].length
       } catch (e) {
         captureException(e, { extra: { token } })

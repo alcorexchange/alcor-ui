@@ -251,10 +251,4 @@ export default {
   padding: 10px 70px;
 }
 
-.upperinput {
-    text-transform: uppercase;
-}
-.upperinput:placeholder-shown {
-    text-transform: none;
-}
 </style>

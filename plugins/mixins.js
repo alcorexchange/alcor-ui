@@ -184,19 +184,10 @@ export const tradeMixin = {
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
       this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
-      if (!this.$store.state.chain.scatterConnected) return this.$notify({
-        title: 'Authorization',
-        message: 'Please connect wallet',
-        type: 'info'
-      })
-
       const loading = this.$loading({
         lock: true,
         text: 'Wait for wallet'
       })
-
-      if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
-        await this.$store.dispatch('chain/login')
 
       try {
         const r = await this.$store.dispatch('chain/transfer', {
@@ -206,7 +197,7 @@ export const tradeMixin = {
           memo: `${this.amount} ${this.token.str}`
         })
 
-        this.$store.dispatch('market/fetchMarket')
+        this.$store.dispatch('market/fetchOrders')
 
         this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
@@ -227,19 +218,10 @@ export const tradeMixin = {
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
       this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
-      if (!this.$store.state.chain.scatterConnected) return this.$notify({
-        title: 'Authorization',
-        message: 'Please connect wallet',
-        type: 'info'
-      })
-
       const loading = this.$loading({
         lock: true,
         text: 'Wait for wallet'
       })
-
-      if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
-        await this.$store.dispatch('chain/login')
 
       try {
         const r = await this.$store.dispatch('chain/transfer', {
@@ -249,7 +231,7 @@ export const tradeMixin = {
           memo: `${this.total} ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`
         })
 
-        this.$store.dispatch('market/fetchMarket')
+        this.$store.dispatch('market/fetchOrders')
 
         this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
           dangerouslyUseHTMLString: true,
