@@ -7,16 +7,43 @@ import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
 import { updater, getDeals } from './history'
-import { dayChart } from './charts'
+import { dayChart, getVolume } from './charts'
 
 updater('eos', 1000 * 20)
 updater('telos', 1000 * 20)
 updater('wax', 1000 * 20)
 
+const ONEDAY = 60 * 60 * 24 * 1000
+const WEEK = ONEDAY * 7
+
 // TODO Обновлять маркеты в бекграунде
 // раздавать из кеша
 
-async function getMarket(network, market_id) {
+
+function getDayCharts(history, market) {
+  const actions = history.filter(a => {
+    const action_name = a.act.name
+
+    if (['cancelbuy', 'cancelsell'].includes(action_name)) {
+      return parseInt(a.act.data.market_id) == parseInt(market.id)
+    } else if (action_name == 'sellreceipt') {
+      return a.act.data.sell_order.bid.split(' ')[1] == market.token.symbol.name
+    } else if (action_name == 'buyreceipt') {
+      return a.act.data.buy_order.ask.split(' ')[1] == market.token.symbol.name
+    } else {
+      return parseInt(a.act.data.record.market.id) == parseInt(market.id)
+    }
+  })
+
+  try {
+    return dayChart(actions)
+  } catch (e) {
+    console.log('graph fetch error')
+    return []
+  }
+}
+
+export async function getMarket(network, market_id) {
   // TODO В кеше создать список с маркетами и при запросе маркета брать оттуда либо если его нет
   // фетчить и добавлять новый
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
@@ -62,17 +89,15 @@ async function getOrders (rpc, contract, market_id, side, kwargs) {
 }
 
 async function getMarketStats(network, market_id) {
+  const history = cache.get(`${network.name}_history`) || []
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
   const stats = cache.get(`${network.name}_market_${market_id}_stats`) || {}
-
-  if ('last_price' in stats) {
-    return stats
-  }
+  if ('last_price' in stats) return stats
 
   const [[first_buy_order], [first_sell_order]] = await Promise.all([
-    getOrders(rpc, network.contract, market_id, 'buy', { index_position: 2, key_type: 'i64', limit: 1 }),
-    getOrders(rpc, network.contract, market_id, 'sell', { index_position: 2, key_type: 'i64', limit: 1 })
+    getOrders(rpc, network.contract, market_id, 'buy', { index_position: 2, key_type: 'i128', limit: 1 }),
+    getOrders(rpc, network.contract, market_id, 'sell', { index_position: 2, key_type: 'i128', limit: 1 })
   ])
 
   if (first_buy_order) {
@@ -85,16 +110,9 @@ async function getMarketStats(network, market_id) {
 
   const deals = getDeals(network, market_id)
 
-  let volume24 = 0
-  const oneday = 60 * 60 * 24 * 1000
-
-  deals.filter(h => {
-    return Date.now() - oneday < h.time.getTime()
-  }).map(m => {
-    m.type == 'buymatch' ? volume24 += parseFloat(m.bid.quantity) : volume24 += parseFloat(m.ask.quantity)
-  })
-
-  stats.volume24 = volume24.toFixed(4) + ` ${network.baseToken.symbol}`
+  console.log(deals.length)
+  stats.volumeWeek = getVolume(deals, WEEK).toFixed(4) + ` ${network.baseToken.symbol}`
+  stats.volume24 = getVolume(deals, ONEDAY).toFixed(4) + ` ${network.baseToken.symbol}`
 
   cache.set(`${network.name}_market_${market_id}_stats`, stats, config.MARKET_STATS_CACHE_TIME)
 
@@ -114,33 +132,15 @@ markets.get('/:market_id/charts', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
   const history = cache.get(`${network.name}_history`) || []
-
   const market = await getMarket(network, market_id)
 
   if (!market) {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const actions = history.filter(a => {
-    const action_name = a.act.name
+  const charts = getDayCharts(history, market)
 
-    if (['cancelbuy', 'cancelsell'].includes(action_name)) {
-      return parseInt(a.act.data.market_id) == parseInt(market.id)
-    } else if (action_name == 'sellreceipt') {
-      return a.act.data.sell_order.bid.split(' ')[1] == market.token.symbol.name
-    } else if (action_name == 'buyreceipt') {
-      return a.act.data.buy_order.ask.split(' ')[1] == market.token.symbol.name
-    } else {
-      return parseInt(a.act.data.record.market.id) == parseInt(market.id)
-    }
-  })
-
-  try {
-    res.json(dayChart(actions))
-  } catch (e) {
-    console.log('graph fetch error')
-    res.json([])
-  }
+  res.json(charts)
 })
 
 markets.get('/:market_id', async (req, res) => {
@@ -159,13 +159,9 @@ markets.get('/:market_id', async (req, res) => {
 
 markets.get('/', async (req, res) => {
   const network = req.app.get('network')
-
   const c_markets = cache.get(`${network.name}_markets`)
 
-  if (c_markets) {
-    res.json(markets)
-    return
-  }
+  if (c_markets) return res.json(markets)
 
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
@@ -179,17 +175,20 @@ markets.get('/', async (req, res) => {
 
   rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
 
-  try {
-    const requests = rows.map(d => {
-      return { market: d, stats: getMarketStats(network, d.id) }
-    })
+  const requests = rows.map(d => {
+    return { market: d, stats: getMarketStats(network, d.id) }
+  })
 
+  try {
     await Promise.all(requests.map(r => r.stats))
 
     const markets = []
     for (const req of requests) {
       const { market } = req
       const stats = await req.stats
+
+      // Короче тут сделать расчет высокго по 24
+      //const charts = getDayCharts(history, market)
 
       markets.push({ ...market, ...stats })
     }
@@ -198,7 +197,7 @@ markets.get('/', async (req, res) => {
 
     res.json(markets)
   } catch (e) {
-    console.log(e)
+    console.log('err get stats', e)
     rows.map(r => r.last_price = 0)
     res.json(rows)
   }

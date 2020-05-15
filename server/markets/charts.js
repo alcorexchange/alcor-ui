@@ -92,7 +92,6 @@ export function dayChart(actions) {
     if (act.name == 'sellreceipt') {
       const order = data.sell_order
 
-
       const bid = quantityToAmount(order.bid)
       const ask = quantityToAmount(order.ask)
 
@@ -194,4 +193,16 @@ export function dayChart(actions) {
   }
 
   return results
+}
+
+export function getVolume(deals, period) {
+  let volume = 0
+
+  deals.filter(h => {
+    return Date.now() - period < h.time.getTime()
+  }).map(m => {
+    m.type == 'buymatch' ? volume += parseFloat(m.bid.quantity) : volume += parseFloat(m.ask.quantity)
+  })
+
+  return volume
 }

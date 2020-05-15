@@ -90,6 +90,7 @@ export const getters = {
   },
 
   sorted_asks(state) {
+    console.log(state.asks)
     return state.asks.slice().sort(sort_by_price)
   },
 
