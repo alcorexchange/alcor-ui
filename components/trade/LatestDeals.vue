@@ -48,12 +48,6 @@ export default {
   async fetch() {
     await this.$store.dispatch('market/fetchDeals')
   },
-
-  methods: {
-    monitorTx(tx) {
-      return `${this.network.monitor}/transaction/${tx}?tab=traces&${this.network.monitor_params}`
-    }
-  }
 }
 </script>
 

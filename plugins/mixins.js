@@ -262,6 +262,10 @@ Vue.mixin({
       return parseFloat(value).toFixed(precision)
     },
 
+    monitorTx(tx) {
+      return `${this.network.monitor}/transaction/${tx}?tab=traces&${this.network.monitor_params}`
+    },
+
     marketSlug(market) {
       return market.token.str.replace('@', '-')
     },

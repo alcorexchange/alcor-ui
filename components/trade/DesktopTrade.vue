@@ -54,6 +54,10 @@
       .row
         .col
           my-orders(v-if="user" v-loading="loading")
+
+      .row
+        .col
+          my-history(v-if="user" v-loading="loading")
 </template>
 
 <script>
@@ -66,6 +70,7 @@ import AssetImput from '~/components/elements/AssetInput'
 import MarketTrade from '~/components/trade/MarketTrade'
 import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
+import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'
 import Markets from '~/components/trade/Markets'
 import LatestDeals from '~/components/trade/LatestDeals'
@@ -80,6 +85,7 @@ export default {
     TokenImage,
     AssetImput,
     MarketTrade,
+    MyHistory,
     MyOrders,
     LimitTrade,
     OrderBook,

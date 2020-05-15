@@ -124,6 +124,10 @@
       .col
         MyOrders
 
+    .row.mt-3
+      .col
+        MyHistory
+
 </template>
 
 <script>
@@ -131,6 +135,7 @@ import { mapGetters, mapState } from 'vuex'
 
 import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
 
+import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'
 import Chart from '~/components/trade/Chart'
 import TokenImage from '~/components/elements/TokenImage'
@@ -141,7 +146,8 @@ export default {
     OrderBook,
     Chart,
     TokenImage,
-    MyOrders
+    MyOrders,
+    MyHistory
   },
 
   mixins: [tradeMixin, tradeChangeEvents],
@@ -159,12 +165,6 @@ export default {
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapGetters(['user', 'tokenBalance', 'baseBalance'])
   }
-
-  //computed: {
-  //  tradeComponent() {
-  //    return this.trade == 'limit' ? LimitTrade : MarketTrade
-  //  }
-  //}
 }
 </script>
 
