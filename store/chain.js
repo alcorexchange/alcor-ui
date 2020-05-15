@@ -72,6 +72,7 @@ export const actions = {
     const initAccessContext = require('eos-transit').initAccessContext
     const scatter = require('eos-transit-scatter-provider').default
     const tokenpocket = require('eos-transit-tokenpocket-provider').default
+    const anchor = require('eos-transit-anchorlink-provider').default
 
     const accessContext = initAccessContext({
       appName: config.APP_NAME,
@@ -83,7 +84,8 @@ export const actions = {
       },
       walletProviders: [
         tokenpocket(),
-        scatter()
+        scatter(),
+        anchor()
       ]
     })
 
