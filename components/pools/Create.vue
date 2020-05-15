@@ -28,6 +28,7 @@
           el-select(v-model="quote_select", slot='append', placeholder='Select' @change="setQuoteToken" value-key="id")
             el-option(:value="{id: 1, symbol: 'BB', contract: 'bebe', precision: 2}" label="BB@bebe")
             el-option(:value="{id: 2, symbol: 'TKT', contract: 'tktoken', precision: 4}" label="TKT@tktoken")
+            el-option(:value="{id: 3, symbol: 'ONE', contract: 'one', precision: 0}" label="ONE@one")
 
       el-form-item(v-if="this.base.symbol && this.quote.symbol")
         .lead Backed token symbol (Automatically set recommended)
@@ -182,8 +183,9 @@ export default {
       this.loading = true
       try {
         this.$store.dispatch('chain/sendTransaction', actions)
+        this.$notify({ title: 'Pool create', message: 'Created', type: 'success' })
       } catch (e) {
-        this.$notify({ title: 'Place order', message: e, type: 'error' })
+        this.$notify({ title: 'Pool create', message: e, type: 'error' })
       } finally {
         this.loading = false
       }
