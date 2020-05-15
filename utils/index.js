@@ -3,7 +3,11 @@ import Big from 'big.js'
 
 import config from '../config'
 
-export const sort_by_price = (a, b) => (a.unit_price < b.unit_price) ? 1 : ((b.unit_price < a.unit_price) ? -1 : 0)
+export const sort_by_price = (a, b) => {
+  a = parseInt(a.unit_price)
+  b = parseInt(b.unit_price)
+  return (a < b) ? 1 : ((b < a) ? -1 : 0)
+}
 
 export function quantityToAmount(asset) {
   const amount = asset.split(' ')[0]
@@ -86,7 +90,6 @@ export function prepareOrder(order) {
   order.ask = parseAsset(order.ask)
   order.bid = parseAsset(order.bid)
 }
-
 
 export function parseOtcAsset(asset) {
   if (Object.prototype.hasOwnProperty.call(asset, 'symbol')) return asset
