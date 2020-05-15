@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  .lead My History:
+  .lead Trade History:
 
   .mobile-markets.d-lg-none.mt-3
     .row.market-row(v-for="order in orders").mb-2
