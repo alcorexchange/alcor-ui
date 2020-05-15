@@ -85,7 +85,7 @@ export const actions = {
       walletProviders: [
         tokenpocket(),
         scatter(),
-        anchor()
+        //anchor()
       ]
     })
 
