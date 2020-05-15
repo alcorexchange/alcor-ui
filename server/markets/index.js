@@ -95,9 +95,10 @@ async function getMarketStats(network, market_id) {
   const stats = cache.get(`${network.name}_market_${market_id}_stats`) || {}
   if ('last_price' in stats) return stats
 
+  const key_type = network.name == 'wax' ? 'i128' : 'i64' // FIXME After update mainnet contract
   const [[first_buy_order], [first_sell_order]] = await Promise.all([
-    getOrders(rpc, network.contract, market_id, 'buy', { index_position: 2, key_type: 'i128', limit: 1 }),
-    getOrders(rpc, network.contract, market_id, 'sell', { index_position: 2, key_type: 'i128', limit: 1 })
+    getOrders(rpc, network.contract, market_id, 'buy', { index_position: 2, key_type, limit: 1 }),
+    getOrders(rpc, network.contract, market_id, 'sell', { index_position: 2, key_type, limit: 1 })
   ])
 
   if (first_buy_order) {
@@ -110,7 +111,6 @@ async function getMarketStats(network, market_id) {
 
   const deals = getDeals(network, market_id)
 
-  console.log(deals.length)
   stats.volumeWeek = getVolume(deals, WEEK).toFixed(4) + ` ${network.baseToken.symbol}`
   stats.volume24 = getVolume(deals, ONEDAY).toFixed(4) + ` ${network.baseToken.symbol}`
 
