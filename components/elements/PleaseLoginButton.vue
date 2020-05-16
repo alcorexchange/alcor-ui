@@ -15,23 +15,8 @@ export default {
   },
 
   methods: {
-    async login() {
-      if (this.$store.state.chain.scatterConnected) {
-        const loading = this.$loading({
-          lock: true,
-          text: 'Wait for wallet'
-        })
-
-        try {
-          await this.$store.dispatch('chain/login')
-        } catch (e) {
-          this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
-        } finally {
-          loading.close()
-        }
-      } else {
-        this.$notify({ title: 'Scatter not found', message: 'Pleace install or unlock Scatter', type: 'info' })
-      }
+    login() {
+      this.$store.dispatch('modal/login')
     }
   }
 }
