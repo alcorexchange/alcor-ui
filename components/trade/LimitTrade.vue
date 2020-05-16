@@ -53,18 +53,17 @@ div
             span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
         el-form-item.mt-2
-          // TODO разработать компонент которой чекает залогинен ли
           el-button(size="small" type="danger" @click="sell").w-100 Sell {{ token.str }}
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
+import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 
 export default {
   mixins: [tradeMixin, tradeChangeEvents],
 
-  // TODO Перенести может в миксин тоже
   computed: {
     ...mapState(['network']),
     ...mapState('market', ['token']),

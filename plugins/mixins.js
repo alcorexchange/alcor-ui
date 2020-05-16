@@ -181,7 +181,8 @@ export const tradeMixin = {
     },
 
     async buy() {
-      // TODO Придумать для незалогиненых
+      if (!await this.$store.dispatch('chain/asyncLogin')) return
+
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
       this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
@@ -216,6 +217,8 @@ export const tradeMixin = {
     },
 
     async sell() {
+      if (!await this.$store.dispatch('chain/asyncLogin')) return
+
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
       this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 

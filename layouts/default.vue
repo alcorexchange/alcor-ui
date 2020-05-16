@@ -1,5 +1,6 @@
 <template lang="pug">
 .container.mb-5.mt-2
+  ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")
       el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal' theme="dark")
@@ -40,7 +41,7 @@
                 el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
         li.el-menu-item.scatter-button(v-else)
-          Login
+          el-button(@click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
 
     .col(v-else)
       .row
@@ -76,7 +77,7 @@
                 el-dropdown-item
                   el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-          Login(v-else)
+          el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
       .row
         .col
           .row
@@ -108,13 +109,13 @@ import axios from 'axios'
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 
-import Login from '~/components/modals/Login'
-
 import config from '~/config'
+
+import ModalsDialog from '~/components/modals/ModalsDialog'
 
 export default {
   components: {
-    Login
+    ModalsDialog
   },
 
   data() {

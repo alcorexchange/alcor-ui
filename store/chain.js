@@ -11,6 +11,7 @@ const transactionHeader = {
 }
 
 export const state = () => ({
+  loginPromise: null,
   scatterConnected: false,
   oldScatter: false,
   wallet: {},
@@ -139,25 +140,30 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch }, provider = 'scatter') {
-    if (provider == 'scatter') {
-      if (!state.scatterConnected) return this._vm.$notify({ title: 'Login', message: 'Scatter is not connected', type: 'error' })
+    try {
+      if (provider == 'scatter') {
+        if (!state.scatterConnected) return this._vm.$notify({ title: 'Login', message: 'Scatter is not connected', type: 'error' })
 
-      try {
-        await state.wallet.scatter.login()
+          await state.wallet.scatter.login()
 
-        configureScope(scope => scope.setUser({ username: state.wallet.scatter.accountInfo.account_name }))
-        commit('setUser', { ...state.wallet.scatter.accountInfo, name: state.wallet.scatter.accountInfo.account_name }, { root: true })
-        dispatch('loadUserBalances', {}, { root: true })
-        commit('setCurrentWallet', 'scatter')
-      } catch (e) {
-        dispatch('loadUserBalances', {}, { root: true })
-        captureException(e)
-        this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })
+          configureScope(scope => scope.setUser({ username: state.wallet.scatter.accountInfo.account_name }))
+          commit('setUser', { ...state.wallet.scatter.accountInfo, name: state.wallet.scatter.accountInfo.account_name }, { root: true })
+          dispatch('loadUserBalances', {}, { root: true })
+          commit('setCurrentWallet', 'scatter')
+      } else if (provider == 'wax') {
+        const userAccount = await state.wallet.wax.login()
+        commit('setUser', { name: userAccount }, { root: true })
+        commit('setCurrentWallet', 'wax')
       }
-    } else if (provider == 'wax') {
-      const userAccount = await state.wallet.wax.login()
-      commit('setUser', { name: userAccount }, { root: true })
-      commit('setCurrentWallet', 'wax')
+
+      if (state.loginPromise) state.loginPromise.resolve(true)
+    } catch (e) {
+      dispatch('loadUserBalances', {}, { root: true })
+      captureException(e)
+      this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })
+      if (state.loginPromise) state.loginPromise.resolve(false)
+    } finally {
+      commit('setLoginPromise', null)
     }
   },
 
@@ -202,9 +208,18 @@ export const actions = {
     )
   },
 
-  async sendTransaction({ state, rootState, dispatch }, actions) {
-    if (!rootState.user) return this.$notify({ title: 'Authorization', message: 'Please connect wallet', type: 'info' })
+  asyncLogin({ rootState, commit, dispatch }) {
+    if (rootState.user) return Promise.resolve(true) 
 
+    const loginPromise = new Promise((resolve, reject) => {
+      commit('setLoginPromise', { resolve, reject })
+      dispatch('modal/login', null, { root: true })
+    })
+
+    return loginPromise
+  },
+
+  async sendTransaction({ state, rootState, dispatch }, actions) {
     const tx = { actions }
 
     let result
@@ -272,6 +287,7 @@ export const actions = {
 }
 
 export const mutations = {
+  setLoginPromise: (state, value) => state.loginPromise = value,
   setPayForUser: (state, value) => state.payForUser = value,
   setCurrentWallet: (state, value) => state.currentWallet = value,
 
