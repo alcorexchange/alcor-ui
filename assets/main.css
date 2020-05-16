@@ -25,6 +25,10 @@ button:focus {
     .el-dialog {
         width: 90% !important;
     }
+
+    .el-menu-item {
+        padding: 0 20px 0 8px;
+    }
 }
 
 input::-webkit-outer-spin-button,
@@ -61,4 +65,8 @@ input[type=number] {
 .a-reset {
     color: inherit !important;
     text-decoration: none !important;
+}
+
+.gh-button-container {
+    color: #24292e;
 }

@@ -25,9 +25,12 @@
               span.ml-2 {{ network.desc }}
 
         li.el-menu-item
-          el-tooltip(content="Join us on Telegram!" placement="top" effect="light").mr-2
-            a(href="https://t.me/alcorexchange" target="_blank")
-              img(src="/telegram.png" height="40")
+          el-button(size="small" type="text")
+            img(src="/telegram.png" height="30").mr-2
+            a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
+
+        li.el-menu-item
+          gh-btns-star(slug="avral/alcor-ui" show-count)
 
         li.el-menu-item(v-if="user").scatter-button
           el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
@@ -55,6 +58,10 @@
             el-option(v-for='network in networks', :key='network.name', :value='network.name')
               img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
               span.ml-2 {{ network.desc }}
+
+          el-button(size="small" type="text").ml-2
+            img(src="/telegram.png" height="30").mr-2
+            a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
         .scatter-button.mr-1
           div(v-if="user")
@@ -225,6 +232,11 @@ export default {
   font-size: 3em;
   font-family: sans-serif;
   font-weight: 100;
+}
+
+.el-menu-item {
+  display: flex;
+  align-items: center;
 }
 
 .el-menu-item:first-child {
