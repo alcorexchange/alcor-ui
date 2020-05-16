@@ -55,8 +55,11 @@ export const actions = {
 
   async init({ state, commit, dispatch, rootState, rootGetters }) {
     // TODO Refactor handle different wallets working
-    if (rootState.user || (state.wallet.wax && state.wallet.wax.api)) return
+    if (rootState.user) return
+
     if (rootState.network.name == 'wax') {
+      if (state.wallet.wax) return
+
       // Check for wax auto login
       const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
       commit('setWallet', { ...state.wallet, wax })
@@ -306,7 +309,4 @@ export const mutations = {
   setProvider: (state, value) => {
     state.provider = value
   }
-}
-
-export const getters = {
 }
