@@ -181,6 +181,7 @@ export const tradeMixin = {
     },
 
     async buy() {
+      // TODO Придумать для незалогиненых
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
       this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
