@@ -147,12 +147,12 @@ export const actions = {
       if (provider == 'scatter') {
         if (!state.scatterConnected) return this._vm.$notify({ title: 'Login', message: 'Scatter is not connected', type: 'error' })
 
-          await state.wallet.scatter.login()
+        await state.wallet.scatter.login()
 
-          configureScope(scope => scope.setUser({ username: state.wallet.scatter.accountInfo.account_name }))
-          commit('setUser', { ...state.wallet.scatter.accountInfo, name: state.wallet.scatter.accountInfo.account_name }, { root: true })
-          dispatch('loadUserBalances', {}, { root: true })
-          commit('setCurrentWallet', 'scatter')
+        configureScope(scope => scope.setUser({ username: state.wallet.scatter.accountInfo.account_name }))
+        commit('setUser', { ...state.wallet.scatter.accountInfo, name: state.wallet.scatter.accountInfo.account_name }, { root: true })
+        dispatch('loadUserBalances', {}, { root: true })
+        commit('setCurrentWallet', 'scatter')
       } else if (provider == 'wax') {
         const userAccount = await state.wallet.wax.login()
         commit('setUser', { name: userAccount }, { root: true })
@@ -212,7 +212,7 @@ export const actions = {
   },
 
   asyncLogin({ rootState, commit, dispatch }) {
-    if (rootState.user) return Promise.resolve(true) 
+    if (rootState.user) return Promise.resolve(true)
 
     const loginPromise = new Promise((resolve, reject) => {
       commit('setLoginPromise', { resolve, reject })
