@@ -100,6 +100,10 @@ div
         el-table-column(label="Liquidity provider fee")
           template(slot-scope="scope")
             span {{ scope.row.fee / 100 }} %
+
+        el-table-column(label="Pool size")
+
+        el-table-column(label="Price")
 </template>
 
 <script>
