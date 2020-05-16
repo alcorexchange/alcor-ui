@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 import config from '~/config'
-import { parseExtendedAsset } from '~/utils'
 
 export const strict = false
 
@@ -13,7 +12,8 @@ export const state = () => ({
   network: {},
 
   isMobile: false,
-  baseUrl: ''
+  baseUrl: '',
+  loading: false
 })
 
 export const mutations = {
@@ -25,7 +25,9 @@ export const mutations = {
   setMarkets: (state, markets) => state.markets = markets,
 
   setIsMobile: (state, mobile) => state.isMobile = mobile,
-  setBaseUrl: (state, url) => state.baseUrl = url
+  setBaseUrl: (state, url) => state.baseUrl = url,
+
+  setLoading: (state, loading) => state.loading = loading
 }
 
 export const actions = {
@@ -70,6 +72,11 @@ export const actions = {
   async loadMarkets({ state, commit, getters, dispatch }) {
     const { data } = await getters['api/backEnd'].get('/api/markets')
     commit('setMarkets', data)
+  },
+
+  loading({ commit }, test = '') {
+    // TODO
+    commit('setLoading', true)
   },
 
   loadUserBalances({ rootState, state, commit }) {

@@ -183,13 +183,13 @@ export const tradeMixin = {
     async buy() {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
 
-      this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-      this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
-
       const loading = this.$loading({
         lock: true,
         text: 'Wait for wallet'
       })
+
+      this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
+      this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
       try {
         const r = await this.$store.dispatch('chain/transfer', {

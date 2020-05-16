@@ -1,5 +1,5 @@
 <template lang="pug">
-.row
+.row(v-loading="loading")
   .col-auto.pr-0.py-1
     el-button(size="large" @click="scatter").mb-2
       img(src="~/assets/logos/scatter.svg" height="30").mr-2
@@ -12,19 +12,22 @@
 
 <script>
 import { captureException } from '@sentry/browser'
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
+  data() {
+    return {
+      loading: false
+    }
+  },
+
   computed: {
-    ...mapState(['user', 'network']),
+    ...mapState(['user', 'network'])
   },
 
   methods: {
     async wax() {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for wallet'
-      })
+      this.loading = true
 
       try {
         await this.$store.dispatch('chain/login', 'wax')
@@ -33,26 +36,23 @@ export default {
         captureException(e)
         this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
       } finally {
-        loading.close()
+        this.loading = false
       }
     },
 
     async scatter() {
       if (this.$store.state.chain.scatterConnected) {
-        const loading = this.$loading({
-          lock: true,
-          text: 'Wait for wallet'
-        })
+        this.loading = true
 
         try {
           await this.$store.dispatch('chain/login')
-          this.$store.dispatch('modal/closeModal')
         } catch (e) {
           captureException(e)
           this.$notify({ title: 'Scatter login error', message: e.message, type: 'error' })
         } finally {
-          loading.close()
+          this.loading = false
         }
+        this.$store.dispatch('modal/closeModal')
       } else {
         this.$notify({ title: 'Scatter not found', message: 'Pleace install or unlock Scatter', type: 'info' })
       }
