@@ -58,19 +58,19 @@ export const actions = {
     if (rootState.user) return
 
     if (rootState.network.name == 'wax') {
-      if (state.wallet.wax) return
+      if (!state.wallet.wax) {
+        // Check for wax auto login
+        const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
+        commit('setWallet', { ...state.wallet, wax })
 
-      // Check for wax auto login
-      const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
-      commit('setWallet', { ...state.wallet, wax })
-
-      const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
-      if (isAutoLoginAvailable) {
-        commit('setCurrentWallet', 'wax')
-        commit('setUser', { name: wax.userAccount }, { root: true })
-        return
+        const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
+        if (isAutoLoginAvailable) {
+          commit('setCurrentWallet', 'wax')
+          commit('setUser', { name: wax.userAccount }, { root: true })
+          return
+        }
+        console.log('no wax autologin found...')
       }
-      console.log('no wax autologin found...')
     }
 
     const initAccessContext = require('eos-transit').initAccessContext
