@@ -8,11 +8,16 @@ div(v-loading="loading")
         TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="20")
         small.ml-1 {{ scope.row.token.symbol.name }}
 
-    el-table-column(prop="last_price" label="Price")
+    el-table-column(prop="last_price" label="Price" width="90")
       template(slot-scope="scope")
-        .text-success {{ scope.row.last_price | humanFloat }}
+        .text-success {{ scope.row.last_price | humanFloat(4) }}
 
-    el-table-column(prop="volume24" label="Volume 24H")
+    el-table-column(prop="volume24" label="Volume 24H" width="120")
+      template(slot-scope="scope")
+        .text-right.pr-2
+          | {{ scope.row.volume24 }} {{ network.baseToken.symbol }}
+
+
 </template>
 
 <script>
@@ -32,7 +37,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['markets']),
+    ...mapState(['markets', 'network']),
     ...mapState('market', ['id']),
 
     filteredItems() {

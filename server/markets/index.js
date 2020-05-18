@@ -112,8 +112,8 @@ async function getMarketStats(network, market_id) {
 
   const deals = getDeals(network, market_id)
 
-  stats.volumeWeek = getVolume(deals, WEEK).toFixed(4) + ` ${network.baseToken.symbol}`
-  stats.volume24 = getVolume(deals, ONEDAY).toFixed(4) + ` ${network.baseToken.symbol}`
+  stats.volumeWeek = getVolume(deals, WEEK).toFixed(4)
+  stats.volume24 = getVolume(deals, ONEDAY).toFixed(4)
 
   cache.set(`${network.name}_market_${market_id}_stats`, stats, config.MARKET_STATS_CACHE_TIME)
 
