@@ -5,7 +5,7 @@ import config from '../config'
 
 
 export function littleEndianToDesimal(string) {
-  if (string.startsWith('0x')) {
+  if (typeof string === 'string' && string.startsWith('0x')) {
     const boundary = string.length / 2
     const lengthMinusTwo = string.length - 2
     const littleEndian = []
