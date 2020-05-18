@@ -164,7 +164,7 @@ const networks = {
     monitor: 'http://bos.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'api.bossweden.org/v2/',
+    hyperion: 'http://api.bossweden.org/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {

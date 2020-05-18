@@ -12,6 +12,7 @@ import { dayChart, getVolume } from './charts'
 updater('eos', 1000 * 20)
 updater('telos', 1000 * 20)
 updater('wax', 1000 * 20)
+updater('bos', 1000 * 20)
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
