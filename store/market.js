@@ -81,7 +81,9 @@ export const getters = {
   price(state) {
     let price = 0
 
-    if (state.bids.length)
+    if (state.deals.length > 0) {
+      price = state.deals[0].unit_price
+    } else if (state.bids.length)
       price = state.bids.sort(sort_by_price)[0].unit_price
     else if (state.asks.length)
       price = state.asks.sort(sort_by_price)[state.asks.length - 1].unit_price

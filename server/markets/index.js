@@ -89,35 +89,24 @@ async function getOrders (rpc, contract, market_id, side, kwargs) {
   })
 }
 
-async function getMarketStats(network, market_id) {
-  const history = cache.get(`${network.name}_history`) || []
-  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
+// will be ashync in future
+function getMarketStats(network, market_id) {
+  const stats = {}
 
-  const stats = cache.get(`${network.name}_market_${market_id}_stats`) || {}
   if ('last_price' in stats) return stats
 
-  const key_type = network.name == 'wax' ? 'i128' : 'i64' // FIXME After update mainnet contract
-  const [[first_buy_order], [first_sell_order]] = await Promise.all([
-    getOrders(rpc, network.contract, market_id, 'buy', { index_position: 2, key_type, limit: 1 }),
-    getOrders(rpc, network.contract, market_id, 'sell', { index_position: 2, key_type, limit: 1 })
-  ])
+  const deals = getDeals(network, market_id)
 
-  if (first_buy_order) {
-    stats.last_price = first_buy_order.unit_price
-  } else if (first_sell_order) {
-    stats.last_price = first_sell_order.unit_price
+  if (deals.length > 0) {
+    stats.last_price = deals[0].unit_price
   } else {
     stats.last_price = 0
   }
 
-  const deals = getDeals(network, market_id)
-
   stats.volumeWeek = getVolume(deals, WEEK).toFixed(4)
   stats.volume24 = getVolume(deals, ONEDAY).toFixed(4)
 
-  cache.set(`${network.name}_market_${market_id}_stats`, stats, config.MARKET_STATS_CACHE_TIME)
-
-  return stats
+  return Promise.resolve(stats)
 }
 
 const markets = Router()
@@ -135,11 +124,17 @@ markets.get('/:market_id/charts', async (req, res) => {
   const history = cache.get(`${network.name}_history`) || []
   const market = await getMarket(network, market_id)
 
+  const marketStats = await getMarketStats(network, market_id)
+
   if (!market) {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
   const charts = getDayCharts(history, market)
+
+  if (charts.length > 0) {
+    charts[charts.length - 1].close = marketStats.last_price
+  }
 
   res.json(charts)
 })

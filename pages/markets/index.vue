@@ -32,7 +32,7 @@
               .text-success {{ scope.row.last_price | humanFloat }}
           el-table-column(label='24H Volume', prop='name')
             template(slot-scope="scope")
-              span.text-mutted {{ scope.row.volume24 }}
+              span.text-mutted {{ scope.row.volume24 }} {{ network.baseToken.symbol }}
           el-table-column(label='24H Change %', prop='name')
             span.text-mutted Available soon
           el-table-column(align='right')
@@ -79,6 +79,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapGetters(['user', 'markets']),
     ...mapGetters('chain', ['rpc']),
     ...mapState({
