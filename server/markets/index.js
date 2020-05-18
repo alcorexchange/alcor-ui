@@ -193,7 +193,7 @@ markets.get('/', async (req, res) => {
       markets.push({ ...market, ...stats })
     }
 
-    cache.set(`${network.name}_markets`, markets, 3)
+    cache.set(`${network.name}_markets`, markets, 2)
 
     res.json(markets)
   } catch (e) {

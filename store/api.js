@@ -6,7 +6,7 @@ import fetch from 'node-fetch'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 
-import { parseAsset } from '~/utils'
+import { parseAsset, littleEndianToDesimal } from '~/utils'
 
 
 axiosRetry(axios, { retries: 3 })
@@ -34,6 +34,8 @@ export const actions = {
     return rows.map((b) => {
       b.ask = parseAsset(b.ask)
       b.bid = parseAsset(b.bid)
+      b.unit_price = littleEndianToDesimal(b.unit_price)
+
       return b
     })
   },

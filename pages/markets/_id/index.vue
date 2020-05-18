@@ -22,17 +22,12 @@ export default {
   },
 
   async fetch({ store, error, params }) {
-    // TODO проверать совпал ли макрет если нет то ошибку
     const [symbol, contract] = params.id.split('-')
 
     let market_id
 
     if (contract && symbol) {
       // If it's slug
-
-      //if (c_market) {
-      //  market_id = c_market.id
-      //} else {
       const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
 
       const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
@@ -45,12 +40,24 @@ export default {
         limit: 1
       })
 
-      if (!market) {
-        error(`Market ${symbol}@${contract} not found!`)
-      }
+      if (market == undefined && store.state.network.name == 'bos') {
+        // Old api of bos chain
+        if (!store.state.markets.length) {
+          await store.dispatch('loadMarkets')
+        }
 
-      market_id = market.id
-      //}
+        const market = store.state.markets.filter(m => m.token.str == `${symbol}@${contract}`)[0]
+
+        if (market) {
+          market_id = market.id
+        } else {
+          return error(`Market ${symbol}@${contract} not found!`)
+        }
+      } else if (market == undefined) {
+        return error(`Market ${symbol}@${contract} not found!`)
+      } else {
+        market_id = market.id
+      }
     } else {
       market_id = params.id
     }
@@ -83,7 +90,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['network']),
+    ...mapState(['network', 'markets']),
     ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['token', 'id', 'stats']),
     ...mapGetters(['user']),

@@ -196,7 +196,7 @@ export default {
     },
 
     async getVersion() {
-      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/eostokens-ui/commits/master')).data
+      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
     }
   },
 

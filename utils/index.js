@@ -3,6 +3,26 @@ import Big from 'big.js'
 
 import config from '../config'
 
+
+export function littleEndianToDesimal(string) {
+  if (string.startsWith('0x')) {
+    const boundary = string.length / 2
+    const lengthMinusTwo = string.length - 2
+    const littleEndian = []
+
+    for (let i = 0; i < boundary; i++) {
+      const readIndex = lengthMinusTwo - 2 * i
+      littleEndian[i] = string.substring(readIndex, readIndex + 2)
+    }
+
+    const bigEndian = littleEndian.join('').substring(0, lengthMinusTwo)
+
+    return parseInt(bigEndian, 16)
+  }
+
+  return string
+}
+
 export const sort_by_price = (a, b) => {
   a = parseInt(a.unit_price)
   b = parseInt(b.unit_price)

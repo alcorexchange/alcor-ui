@@ -97,7 +97,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://api.eossweden.org/v2/',
-    backEnd: 'https://eostokens.io/api/',
+    backEnd: 'https://alcor.exchange/api/',
 
     otc: {
       contract: 'alcorotcswap',
@@ -152,7 +152,7 @@ const networks = {
     monitor_params: 'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
     lightapi: 'http://coffe.io:5001',
     hyperion: 'https://resurces.com:17555/v2/',
-    backEnd: 'https://eostokens.io/api/',
+    backEnd: 'https://alcor.exchange/api/',
 
     otc: {
       contract: 'wwweosswapio',
@@ -190,7 +190,7 @@ const networks = {
     lightapi: 'https://api.light.xeos.me',
     //hyperion: 'https://mainnet.telosusa.io/v2/',
     hyperion: 'https://telos.eosphere.io/v2/',
-    backEnd: 'https://eostokens.io/api/',
+    backEnd: 'https://alcor.exchange/api/',
 
     otc: {
       contract: 'alcorotcswap',
@@ -213,7 +213,7 @@ const networks = {
 
   wax: {
     name: 'wax',
-    desc: 'Wax mainnet',
+    desc: 'WAX mainnet',
     contract: 'alcordexmain',
 
     baseToken: {
@@ -233,7 +233,44 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
     hyperion: 'https://api.waxsweden.org/v2/',
-    backEnd: 'https://eostokens.io/api/',
+    backEnd: 'https://alcor.exchange/api/',
+
+    otc: {
+      contract: 'alcorotcswap',
+      divs: 'aw.aq.waa',
+    },
+
+    pools: {
+      contract: 'lp'
+    },
+
+    pegs: {},
+    RECOMMENDED_MARKETS: []
+  },
+
+  bos: {
+    name: 'bos',
+    desc: 'BOS mainnet',
+    contract: 'alcordexmain',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'BOS',
+      precision: 4
+    },
+
+    marketCreationFee: '500.0000 BOS',
+
+    chainId: 'd5a3d18fbb3c084e3b1f3fa98c21014b5f3db536cc15d08f9f6479517c6a3d86',
+
+    host: 'api.bossweden.org',
+    port: 443,
+    protocol: 'https',
+    monitor: 'http://bos.bloks.io',
+    monitor_params: '',
+    lightapi: 'https://lightapi.eosamsterdam.net',
+    hyperion: 'api.bossweden.org/v2/',
+    backEnd: 'https://alcor.exchange/api/',
 
     otc: {
       contract: 'alcorotcswap',
@@ -247,6 +284,7 @@ const networks = {
     pegs: {},
     RECOMMENDED_MARKETS: []
   }
+
 }
 
 module.exports = {
