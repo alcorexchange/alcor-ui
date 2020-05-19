@@ -2,16 +2,15 @@
 div
   .row
     .col
-      .text.item(v-if="current.pool1")
+      .text.item(v-if="current")
         .row
           .col
             .p-2
               p Quick swap or make money on provide liquidity.
           .col
-            .d-flex
-              Withdraw(:current="current" @update="fetch").ml-auto
-
-              Liquidity(:current="current" @update="fetch").ml-auto
+            .d-flex.justify-content-end
+              Withdraw(:current="current" @update="fetch").mr-3
+              Liquidity(:current="current" @update="fetch")
         .row.mb-3.mt-2
           .col-6.bordered
             .row
@@ -75,9 +74,9 @@ div
   .row
     .col
       el-table(:data="pools" @row-click="clickPool" row-class-name="order-row")
-        el-table-column(label="Backed token supply")
+        el-table-column(label="Price")
           template(slot-scope="scope")
-            span {{ scope.row.supply.to_string() }}
+            span {{ scope.row.pool2.quantity.amount }} {{ scope.row.pool1.quantity.amount }}
 
         el-table-column(label="Pool 1")
           template(slot-scope="scope")
@@ -101,9 +100,10 @@ div
           template(slot-scope="scope")
             span {{ scope.row.fee / 100 }} %
 
-        el-table-column(label="Pool size")
+        el-table-column(label="Backed token supply")
+          template(slot-scope="scope")
+            span {{ scope.row.supply.to_string() }}
 
-        el-table-column(label="Price")
 </template>
 
 <script>
@@ -135,8 +135,6 @@ export default {
       amount1: 0.0,
       amount2: 0.0,
 
-      current: {},
-      pools: [],
       input: 'pool1',
 
       loading: false
@@ -145,8 +143,9 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
+    ...mapGetters('pools', ['current']),
     ...mapState(['network']),
+    ...mapState('pools', ['pools']),
 
     baseToken() {
       return this.$store.state.network.baseToken
@@ -204,38 +203,10 @@ export default {
   },
 
   mounted() {
-    this.fetch()
+    this.$store.dispatch('pools/fetchPools')
   },
 
   methods: {
-    async fetch() {
-      const { rows } = await this.rpc.get_table_by_scope({
-        code: this.network.pools.contract,
-        table: 'stat',
-        limit: 1000
-      })
-
-      this.pools = []
-
-      rows.reverse().map(async r => {
-        const { rows: [pool] } = await this.rpc.get_table_rows({
-          code: this.network.pools.contract,
-          scope: r.scope,
-          table: 'stat',
-          limit: 1
-        })
-
-        if (!this.current.pool1) this.current = pool
-
-        pool.pool1.quantity = asset(pool.pool1.quantity)
-        pool.pool2.quantity = asset(pool.pool2.quantity)
-        pool.supply = asset(pool.supply)
-
-        this.pools.push(pool)
-      })
-      console.log('fetch, new pools: ', this.pools)
-    },
-
     amountChange() {
       this.amount1 = this.toFixed(this.amount1, this.poolOne.quantity.symbol.precision())
       this.amount2 = this.toFixed(this.amount2, this.poolTwo.quantity.symbol.precision())

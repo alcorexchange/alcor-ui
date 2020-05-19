@@ -1,6 +1,6 @@
 <template lang="pug">
-.row.mt-4
-  .col-8.m-auto
+.row.mt-2
+  .col
     el-tabs(type='border-card')
       el-tab-pane(label='Swap')
         Swap

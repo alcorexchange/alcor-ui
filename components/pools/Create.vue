@@ -35,7 +35,8 @@
         el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
 
       el-form-item
-        el-button(@click="create" :loading="loading").w-100 Create
+        PleaseLoginButton
+          el-button(@click="create" :loading="loading").w-100 Create
 
 </template>
 

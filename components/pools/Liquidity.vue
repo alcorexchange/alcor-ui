@@ -1,8 +1,8 @@
 <template lang="pug">
 div
-  el-button(size="medium" @click="open" icon="el-icon-money" type="primary").ml-auto Provide liquidity
+  el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
 
-  el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user")
+  el-dialog(title="Create new order", :visible.sync="visible" width="50%")
     .row
       .col
         .text.item(v-if="current.pool1")
@@ -130,7 +130,9 @@ export default {
   },
 
   methods: {
-    open() {
+    async open() {
+      if (!await this.$store.dispatch('chain/asyncLogin')) return
+
       this.visible = true
     },
 

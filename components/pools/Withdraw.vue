@@ -115,7 +115,9 @@ export default {
   },
 
   methods: {
-    open() {
+    async open() {
+      if (!await this.$store.dispatch('chain/asyncLogin')) return
+
       this.visible = true
       this.fetchBalance()
     },
