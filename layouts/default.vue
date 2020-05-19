@@ -14,7 +14,7 @@
 
         el-menu-item(index="/otc") OTC Swaps
 
-        el-menu-item(index="/nft-market") NTF Market
+        el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'local'") NTF Market
 
         el-menu-item(index="/about") About
 
