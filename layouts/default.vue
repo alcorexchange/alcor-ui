@@ -14,7 +14,10 @@
 
         el-menu-item(index="/otc") OTC Swaps
 
+        el-menu-item(index="/nft-market") NTF Market
+
         el-menu-item(index="/about") About
+
 
         li.el-menu-item
           img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1

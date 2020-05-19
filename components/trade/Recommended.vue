@@ -5,8 +5,8 @@
       .col
         .badge.badge-primary.text-wrap Recommended tokens
     .row
-      .col-lg-2.col-md-4.col-sm-6
-        nuxt-link(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }" :key="market.id" v-for="market in markets")
+      .col-lg-2.col-md-4.col-sm-6(:key="market.id" v-for="market in markets").mb-2
+        nuxt-link(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }")
           el-card(shadow="hover")
             TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
             span.ml-2

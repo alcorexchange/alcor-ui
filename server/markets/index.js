@@ -3,9 +3,8 @@ import fetch from 'node-fetch'
 
 import { JsonRpc } from 'eosjs'
 
-import config from '../../config'
 import { cache } from '../index'
-import { parseAsset, parseExtendedAsset } from '../../utils'
+import { parseAsset, parseExtendedAsset, numberWithCommas } from '../../utils'
 import { updater, getDeals } from './history'
 import { dayChart, getVolume } from './charts'
 
@@ -104,7 +103,7 @@ function getMarketStats(network, market_id) {
   }
 
   stats.volumeWeek = getVolume(deals, WEEK).toFixed(4)
-  stats.volume24 = getVolume(deals, ONEDAY).toFixed(4)
+  stats.volume24 = numberWithCommas(Math.round(getVolume(deals, ONEDAY)))
 
   return Promise.resolve(stats)
 }

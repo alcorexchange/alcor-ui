@@ -95,7 +95,7 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: []
+    RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps']
   },
 
   telos: {

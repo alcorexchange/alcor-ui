@@ -12,7 +12,7 @@
             a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
           .col-md-4.d-flex.align-items-center
             span Volume 24H:
-            span.text-success  {{ stats.volume24 }}
+            span.text-success.ml-1  {{ stats.volume24 }} {{ network.baseToken.symbol }}
 
           .col-md-3(v-if="isPeg").d-flex.align-items-center
             withdraw

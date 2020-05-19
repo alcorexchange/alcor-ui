@@ -17,7 +17,7 @@
               .row
                 .col
                   span Volume 24H:
-                  span.text-success  {{ stats.volume24 }}
+                  span.text-success.ml-1  {{ stats.volume24 }} {{ network.baseToken.symbol }}
     chart
 
     //.text.item
