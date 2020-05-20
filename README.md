@@ -2,7 +2,7 @@
 
 The first listing free decentralized exchange.
 
-![Alcor](https://dashboard-assets.dappradar.com/document/2266/alcorexchange-dapp-exchanges-eos-image1_489e7542e92ad711abb1bf5bc277f35c.png)
+![Alcor](https://i.ibb.co/CK2MDzd/Screenshot-2020-05-20-at-21-22-49.png)
 
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
 
