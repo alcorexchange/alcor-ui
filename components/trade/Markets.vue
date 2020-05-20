@@ -15,7 +15,7 @@
     el-table-column(prop="volume24" label="Volume 24H" width="120" align="right")
       template(slot-scope="scope")
         .pr-2
-          | {{ scope.row.volume24 | humanFloat }} {{ network.baseToken.symbol }}
+          | {{ scope.row.volume24 | humanFloat(2) }} {{ network.baseToken.symbol }}
 
 
 </template>
