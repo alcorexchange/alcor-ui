@@ -3,21 +3,20 @@
   ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")
-      el-menu.el-menu-demo(router, :default-active="activeLink", mode='horizontal' theme="dark")
+      el-menu(router, :default-active="activeLink", mode='horizontal' theme="dark")
         el-menu-item(index="/")
           img(src="~/assets/logos/alcor_logo.svg").logo
 
         el-menu-item(index="/markets") Markets
+
+        el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'local'") NTF Market
 
         el-menu-item(index="/pools" v-if="$store.state.network.name == 'local'")
           el-badge(value="new" class="pools-bage") Liquidity pools
 
         el-menu-item(index="/otc") OTC Swaps
 
-        el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'local'") NTF Market
-
         el-menu-item(index="/about") About
-
 
         li.el-menu-item
           img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
@@ -27,12 +26,12 @@
               img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
               span.ml-2 {{ network.desc }}
 
-        li.el-menu-item
+        //li.el-menu-item
           el-button(size="small" type="text")
             img(src="/telegram.png" height="30").mr-2
             a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
-        li.el-menu-item
+        //li.el-menu-item
           gh-btns-star(slug="avral/alcor-ui" show-count)
 
         li.el-menu-item(v-if="user").scatter-button

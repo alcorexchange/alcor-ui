@@ -58,7 +58,11 @@ const networks = {
       },
     },
 
-    RECOMMENDED_MARKETS: ['SAND@sandiegocoin']
+    RECOMMENDED_MARKETS: ['SAND@sandiegocoin'],
+
+    nftMarket: {
+      contract: 'nft'
+    }
   },
 
   wax: {
@@ -95,7 +99,12 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps']
+
+    RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
+
+    nftMarket: {
+      contract: 'nft'
+    }
   },
 
   telos: {
@@ -133,7 +142,11 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: []
+    RECOMMENDED_MARKETS: [],
+
+    nftMarket: {
+      contract: 'nft'
+    }
     //pegs: {
     //  'EOSP@steemenginex': {
     //    desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1',
@@ -177,7 +190,11 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: []
+    RECOMMENDED_MARKETS: [],
+
+    nftMarket: {
+      contract: 'nft'
+    }
   },
 
   coffe: {
@@ -213,7 +230,11 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: []
+    RECOMMENDED_MARKETS: [],
+
+    nftMarket: {
+      contract: 'nft'
+    }
   },
 
 
@@ -249,7 +270,11 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: []
+    RECOMMENDED_MARKETS: [],
+
+    nftMarket: {
+      contract: 'nft'
+    }
   },
 
   local: {
@@ -284,7 +309,11 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: []
+    RECOMMENDED_MARKETS: [],
+
+    nftMarket: {
+      contract: 'nft'
+    }
   },
 }
 

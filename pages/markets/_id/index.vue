@@ -27,20 +27,7 @@ export default {
     let market_id
 
     if (contract && symbol) {
-      // If it's slug
-      const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
-
-      const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
-        code: store.state.network.contract,
-        scope: store.state.network.contract,
-        table: 'markets',
-        lower_bound: `0x${i128_id}`,
-        key_type: 'i128',
-        index_position: 2,
-        limit: 1
-      })
-
-      if (market == undefined && store.state.network.name == 'bos') {
+      if (store.state.network.name == 'bos') {
         // Old api of bos chain
         if (!store.state.markets.length) {
           await store.dispatch('loadMarkets')
@@ -53,10 +40,25 @@ export default {
         } else {
           return error(`Market ${symbol}@${contract} not found!`)
         }
-      } else if (market == undefined) {
-        return error(`Market ${symbol}@${contract} not found!`)
       } else {
-        market_id = market.id
+        // If it's slug use >= node v2.0
+        const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
+
+        const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
+          code: store.state.network.contract,
+          scope: store.state.network.contract,
+          table: 'markets',
+          lower_bound: `0x${i128_id}`,
+          key_type: 'i128',
+          index_position: 2,
+          limit: 1
+        })
+
+        if (market == undefined || !(market.token.sym.includes(symbol) && market.token.contract == contract)) {
+          return error(`Market ${symbol}@${contract} not found!`)
+        } else {
+          market_id = market.id
+        }
       }
     } else {
       market_id = params.id
