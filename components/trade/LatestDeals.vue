@@ -12,11 +12,10 @@
       span Time
 
   .orders-list.blist
-    //.ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
     a(v-for="deal in coloredDeals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
-        span(:class="deal.cls")  {{ deal.unit_price | humanFloat }}
-        span {{ deal.amount }}
+        span(:class="deal.cls")  {{ deal.unit_price | humanFloat(6) }}
+        span {{ deal.amount  | humanFloat }}
         span {{ deal.time | moment('DD-MM HH:mm')}}
 
 </template>
@@ -34,10 +33,10 @@ export default {
         .sort((a, b) => b.time - a.time).map(h => {
           if (h.type == 'buymatch') {
             h.cls = 'text-success'
-            h.amount = h.bid.prefix
+            h.amount = h.bid.amount
           } else {
             h.cls = 'text-danger'
-            h.amount = h.ask.prefix
+            h.amount = h.ask.amount
           }
 
           return h

@@ -4,20 +4,7 @@
   .col
     .row
       .col
-        .overflowbox.box-card.p-2
-          .row
-            .col-2.p-1.pl-4
-              TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
-
-            .col-10
-              .row
-                .col
-                  b {{ token.symbol.name }}@
-                  a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-              .row
-                .col
-                  span Volume 24H:
-                  span.text-success.ml-1  {{ stats.volume24 }} {{ network.baseToken.symbol }}
+        top-line
     chart
 
     //.text.item
@@ -140,6 +127,7 @@ import OrderBook from '~/components/trade/OrderBook'
 import Chart from '~/components/trade/Chart'
 import TokenImage from '~/components/elements/TokenImage'
 import MyOrders from '~/components/trade/MyOrders'
+import TopLine from '~/components/trade/TopLine'
 
 export default {
   components: {
@@ -147,7 +135,8 @@ export default {
     Chart,
     TokenImage,
     MyOrders,
-    MyHistory
+    MyHistory,
+    TopLine
   },
 
   mixins: [tradeMixin, tradeChangeEvents],

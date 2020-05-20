@@ -26,12 +26,12 @@
               img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
               span.ml-2 {{ network.desc }}
 
-        //li.el-menu-item
+        li.el-menu-item
           el-button(size="small" type="text")
             img(src="/telegram.png" height="30").mr-2
             a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
-        //li.el-menu-item
+        li.el-menu-item
           gh-btns-star(slug="avral/alcor-ui" show-count)
 
         li.el-menu-item(v-if="user").scatter-button

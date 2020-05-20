@@ -66,7 +66,6 @@ export default {
 
     store.commit('market/setId', market_id)
 
-    this.loading = true
     try {
       await Promise.all([
         store.dispatch('market/fetchMarket'),
@@ -77,7 +76,6 @@ export default {
       captureException(e)
       return error({ message: e, statusCode: 500 })
     } finally {
-      this.loading = false
     }
   },
 
@@ -86,8 +84,7 @@ export default {
       price: 0.0,
       amount: 0.0,
 
-      no_found: false,
-      loading: false
+      no_found: false
     }
   },
 

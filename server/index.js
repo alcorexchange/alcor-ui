@@ -38,7 +38,7 @@ async function start () {
     const builder = new Builder(nuxt)
     await builder.build()
   }
-  //// Give nuxt middleware to express | client routes
+  // Give nuxt middleware to express | client routes
   app.use(nuxt.render)
 
   // Listen the server

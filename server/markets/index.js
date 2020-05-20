@@ -6,7 +6,7 @@ import { JsonRpc } from 'eosjs'
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset, numberWithCommas } from '../../utils'
 import { updater, getDeals } from './history'
-import { dayChart, getVolume } from './charts'
+import { dayChart, getVolume, getChange } from './charts'
 
 updater('eos', 1000 * 20)
 updater('telos', 1000 * 20)
@@ -96,8 +96,11 @@ function getMarketStats(network, market_id) {
     stats.last_price = 0
   }
 
-  stats.volumeWeek = getVolume(deals, WEEK).toFixed(4)
-  stats.volume24 = numberWithCommas(Math.round(getVolume(deals, ONEDAY)))
+  stats.volumeWeek = getVolume(deals, WEEK)
+  stats.volume24 = getVolume(deals, ONEDAY)
+
+  stats.changeWeek = getChange(deals, WEEK)
+  stats.change24 = getChange(deals, ONEDAY)
 
   return Promise.resolve(stats)
 }
@@ -175,9 +178,6 @@ markets.get('/', async (req, res) => {
     for (const req of requests) {
       const { market } = req
       const stats = await req.stats
-
-      // Короче тут сделать расчет высокго по 24
-      //const charts = getDayCharts(history, market)
 
       markets.push({ ...market, ...stats })
     }

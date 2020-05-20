@@ -1,43 +1,75 @@
 <template lang="pug">
 .row
   .col
-    el-tabs(type="border-card" v-model="activeTab")
-      el-tab-pane(label="Tile" name="first")
-        .p-2
-          el-input(size="small" v-model="search" placeholder="Filter by token").align-self-end.ml-auto.d-none.d-lg-block
+    el-card
+      .row
+        .col-3
+          nuxt-link(to="new_market")
+            //.new-market-btn
+            el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
+        .col-9
+          el-input(v-model="search" placeholder="Search token")
+      .row
+        .col
+          el-table(:data='filteredItems', style='width: 100%' @row-click="clickOrder")
+            el-table-column(label='Pair', prop='date' width="250")
+              template(slot-scope="scope")
+                TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
+                span.ml-2
+                  | {{ scope.row.token.symbol.name }}
+                  a(:href="monitorAccount(scope.row.token.contract)" target="_blank") ({{ scope.row.token.contract }})
 
-        #markets.d-flex.mt-4
-          .market-new
-            nuxt-link(to="new_market")
-              //.new-market-btn
-              el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
+            el-table-column(
+              :label="`Last price`"
+              sort-by="last_price"
+              width="180"
+              align="right"
+              header-align="right"
+              sortable
+            )
+              template(slot-scope="scope")
+                .text-success {{ scope.row.last_price | humanFloat }} {{ network.baseToken.symbol }}
+            el-table-column(
+              :label='`24H Volume`'
+              align="right"
+              header-align="right"
+              sortable
+              sort-by="volume24"
+            )
+              template(slot-scope="scope")
+                span.text-mutted {{ scope.row.volume24 | humanFloat(2) }} {{ network.baseToken.symbol }}
+            el-table-column(
+              label='24H Change %'
+              prop='name'
+              align="right"
+              header-align="right"
+              sortable
+              sort-by="change24"
+            )
+              template(slot-scope="scope" align="right" header-align="right")
+                change-percent(:change="scope.row.change24")
 
-          nuxt-link.market(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }" :key="market.id" v-for="market in filteredItems")
-            TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
-            span.ml-2
-              | {{ market.token.symbol.name }}@{{ market.token.contract }}
-              .text-success {{ market.last_price | humanFloat }}
+            el-table-column(
+              label='7 Day Volume'
+              prop='name'
+              align="right"
+              header-align="right"
+              sortable
+              sort-by="volumeWeek"
+            )
+              template(slot-scope="scope")
+                span.text-mutted {{ scope.row.volumeWeek | humanFloat(2) }} {{ network.baseToken.symbol }}
 
-      el-tab-pane(label="List" name="second")
-        el-table(:data='filteredItems', style='width: 100%' @row-click="clickOrder")
-          el-table-column(label='Pair', prop='date' width="300")
-            template(slot-scope="scope")
-              TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
-              span.ml-2
-                | {{ scope.row.token.symbol.name }}
-                a(:href="monitorAccount(scope.row.token.contract)" target="_blank") ({{ scope.row.token.contract }})
-
-          el-table-column(label='Last price', prop='name')
-            template(slot-scope="scope")
-              .text-success {{ scope.row.last_price | humanFloat }}
-          el-table-column(label='24H Volume', prop='name')
-            template(slot-scope="scope")
-              span.text-mutted {{ scope.row.volume24 }} {{ network.baseToken.symbol }}
-          el-table-column(label='24H Change %', prop='name')
-            span.text-mutted Available soon
-          el-table-column(align='right')
-            template(slot='header', slot-scope='scope')
-              el-input(size="small" v-model="search" placeholder="Filter by token")
+            el-table-column(
+              label='7 Day Change %'
+              prop='name'
+              align="right"
+              header-align="right"
+              sortable
+              sort-by="changeWeek"
+            )
+              template(slot-scope="scope")
+                change-percent(:change="scope.row.changeWeek")
 
 </template>
 
@@ -46,10 +78,12 @@ import { captureException } from '@sentry/browser'
 
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
+import ChangePercent from '~/components/trade/ChangePercent'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
+    ChangePercent
   },
 
   async fetch({ store, error }) {

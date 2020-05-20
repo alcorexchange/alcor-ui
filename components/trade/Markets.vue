@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-loading="loading")
+.markets-bar(v-loading="loading")
   .pt-2.px-2
     el-input(size="small" v-model="search" placeholder="Filter by token")
   el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="650")
@@ -8,14 +8,14 @@ div(v-loading="loading")
         TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="20")
         small.ml-1 {{ scope.row.token.symbol.name }}
 
-    el-table-column(prop="last_price" label="Price" width="90")
+    el-table-column(prop="last_price" label="Price" width="90" align="right")
       template(slot-scope="scope")
-        .text-success {{ scope.row.last_price | humanFloat(4) }}
+        .text-success {{ scope.row.last_price | humanFloat }}
 
-    el-table-column(prop="volume24" label="Volume 24H" width="120")
+    el-table-column(prop="volume24" label="Volume 24H" width="120" align="right")
       template(slot-scope="scope")
-        .text-right.pr-2
-          | {{ scope.row.volume24 }} {{ network.baseToken.symbol }}
+        .pr-2
+          | {{ scope.row.volume24 | humanFloat }} {{ network.baseToken.symbol }}
 
 
 </template>
@@ -81,11 +81,11 @@ export default {
 </script>
 
 <style>
-.el-table .active-row {
+.markets-bar .el-table .active-row {
   background: #c2deff;
 }
 
-.el-table .cell {
+.markets-bar .el-table .cell {
   font-size: 12px;
   padding-right: 0px;
 }

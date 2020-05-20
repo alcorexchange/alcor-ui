@@ -10,7 +10,10 @@ Vue.filter('monitorTx', function (tx) {
 })
 
 Vue.filter('humanFloat', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
-  return (amount / config.PRICE_SCALE).toFixed(PRICE_DIGITS)
+  const price = (amount / config.PRICE_SCALE)
+
+  return parseFloat(price.toFixed(PRICE_DIGITS))
+    .toLocaleString('en', { minimumFractionDigits: Math.min(PRICE_DIGITS, 2), maximumFractionDigits: PRICE_DIGITS })
 })
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {

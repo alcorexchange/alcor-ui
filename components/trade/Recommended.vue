@@ -6,20 +6,26 @@
         .badge.badge-primary.text-wrap Recommended tokens
     .row
       .col-lg-2.col-md-4.col-sm-6(:key="market.id" v-for="market in markets").mb-2
-        nuxt-link(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }")
-          el-card(shadow="hover")
-            TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
-            span.ml-2
-              | {{ market.token.symbol.name }}
-              .text-success {{ market.last_price | humanFloat }}
+        .small
+          nuxt-link(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }")
+            el-card(shadow="hover")
+              TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
+              span.ml-2
+                span {{ market.token.symbol.name }}
+                .text-success {{ market.last_price | humanFloat }}
+
+              ChangePercent(:change="market.changeWeek")
+
 </template>
 
 <script>
 import TokenImage from '~/components/elements/TokenImage'
+import ChangePercent from '~/components/trade/ChangePercent'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
+    ChangePercent
   },
 
   props: {

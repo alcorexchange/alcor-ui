@@ -1,3 +1,5 @@
+import config from '../../config'
+
 function formatDate(d) {
   let month = '' + (d.getMonth() + 1),
     day = '' + d.getDate()
@@ -95,5 +97,21 @@ export function getVolume(deals, period) {
     m.type == 'buymatch' ? volume += parseFloat(m.bid.quantity) : volume += parseFloat(m.ask.quantity)
   })
 
-  return volume
+  return volume * config.PRICE_SCALE
+}
+
+
+export function getChange(deals, period) {
+  deals = deals.filter(h => Date.now() - period < h.time.getTime())
+
+  if (deals.length > 0) {
+    const price_before = parseInt(deals[deals.length - 1].unit_price)
+    const price_after = parseInt(deals[0].unit_price)
+
+    const change = ((price_after - price_before) / price_before) * 100
+
+    return change
+  } else {
+    return 0
+  }
 }

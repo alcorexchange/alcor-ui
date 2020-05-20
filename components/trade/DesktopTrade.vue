@@ -2,24 +2,7 @@
 .container-fluid.mb-5
   .row
     .col.pr-0.pl-0
-      .overflowbox.box-card.p-2
-        .row
-          .col-md-1.p-1.pl-5
-            TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
-
-          .col-md-4.d-flex.align-items-center
-            b {{ token.symbol.name }}@
-            a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-          .col-md-4.d-flex.align-items-center
-            span Volume 24H:
-            span.text-success.ml-1  {{ stats.volume24 }} {{ network.baseToken.symbol }}
-
-          .col-md-3(v-if="isPeg").d-flex.align-items-center
-            withdraw
-        //.row(v-if="isPeg")
-          .col
-            .p-2
-              .text {{ this.network.pegs[this.token.str].desc }}
+      top-line
 
   .row.mt-2
     .col-3.pr-0.pl-0
@@ -64,7 +47,6 @@
 import { Name, SymbolCode } from 'eos-common'
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
-import TokenImage from '~/components/elements/TokenImage'
 import AssetImput from '~/components/elements/AssetInput'
 
 import MarketTrade from '~/components/trade/MarketTrade'
@@ -75,14 +57,15 @@ import OrderBook from '~/components/trade/OrderBook'
 import Markets from '~/components/trade/Markets'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
+import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import Withdraw from '~/components/pegs/Withdraw'
+
 
 export default {
   layout: 'embed',
 
   components: {
-    TokenImage,
     AssetImput,
     MarketTrade,
     MyHistory,
@@ -93,7 +76,8 @@ export default {
     Chart,
     Markets,
     MobileTrade,
-    Withdraw
+    Withdraw,
+    TopLine
   },
 
   async fetch({ store, error, params }) {

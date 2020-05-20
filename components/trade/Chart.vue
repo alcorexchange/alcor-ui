@@ -97,7 +97,7 @@ export default {
       try {
         await this.$store.dispatch('market/fetchCharts')
         this.charts_list = this.charts // Stor react this
-        const p = p => parseFloat(this.$options.filters.humanFloat(p))
+        const p = p => parseFloat(this.$options.filters.humanFloat(p).replace(',', ''))
         this.candleSeries.setData(this.charts_list.map(i => {
           return {
             time: i.time,

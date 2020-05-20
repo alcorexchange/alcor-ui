@@ -27,12 +27,10 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
         .lead {{ order.buy.quantity }}@
           a(:href="monitorAccount(order.buy.contract)" target="_blank") {{ order.buy.contract }}
 
-    div(v-if="user")
+    PleaseLoginButton
       el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
       el-button(v-else type="primary" @click="buy").w-100 Buy
         |  {{ order.sell.quantity }}@{{ order.sell.contract }}
-    div(v-else)
-      el-button(@click="login").w-100 Pleace login
 
 el-card(v-else).box-card.mt-3
   .clearfix(slot='header')
@@ -47,12 +45,14 @@ import { captureException } from '@sentry/browser'
 import { mapActions, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
+import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 
 import config from '~/config'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
+    PleaseLoginButton
   },
 
   async asyncData({ store, error, params }) {
@@ -97,8 +97,6 @@ export default {
     ...mapActions('chain', ['login', 'transfer', 'sendTransaction']),
 
     async cancelOrder(order) {
-      if (!this.user) return this.$notify({ title: 'Authorization', message: 'Pleace login first', type: 'info' })
-
       const loading = this.$loading({
         lock: true,
         text: 'Wait for Scatter'
@@ -131,19 +129,10 @@ export default {
     },
 
     async buy() {
-      if (!this.$store.state.chain.scatterConnected) return this.$notify({
-        title: 'Authorization',
-        message: 'Pleace connect Scatter',
-        type: 'info'
-      })
-
       const loading = this.$loading({
         lock: true,
         text: 'Wait for Scatter'
       })
-
-      if (this.$store.state.chain.scatterConnected && !this.$store.state.user)
-        await this.$store.dispatch('chain/login')
 
       try {
         const { buy, id } = this.order
