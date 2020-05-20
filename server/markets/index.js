@@ -24,15 +24,9 @@ function getDayCharts(history, market) {
   const actions = history.filter(a => {
     const action_name = a.act.name
 
-    if (['cancelbuy', 'cancelsell'].includes(action_name)) {
-      return parseInt(a.act.data.market_id) == parseInt(market.id)
-    } else if (action_name == 'sellreceipt') {
-      return a.act.data.sell_order.bid.split(' ')[1] == market.token.symbol.name
-    } else if (action_name == 'buyreceipt') {
-      return a.act.data.buy_order.ask.split(' ')[1] == market.token.symbol.name
-    } else {
+    if (['sellmatch', 'buymatch'].includes(action_name)) {
       return parseInt(a.act.data.record.market.id) == parseInt(market.id)
-    }
+    } else return false
   })
 
   try {
@@ -97,7 +91,7 @@ function getMarketStats(network, market_id) {
   const deals = getDeals(network, market_id)
 
   if (deals.length > 0) {
-    stats.last_price = deals[0].unit_price
+    stats.last_price = parseInt(deals[0].unit_price)
   } else {
     stats.last_price = 0
   }

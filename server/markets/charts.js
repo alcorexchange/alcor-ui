@@ -1,6 +1,3 @@
-import taffy from 'taffy'
-import { quantityToAmount } from '../../utils'
-
 function formatDate(d) {
   let month = '' + (d.getMonth() + 1),
     day = '' + d.getDate()
@@ -14,122 +11,16 @@ function formatDate(d) {
   return [year, month, day].join('-')
 }
 
-function save_price_history(list, db, time) {
-  if (db().count() > 0) {
-    const price = parseInt(db().order('price').last().price)
-
-    list.push({ price, time })
-  } else {
-    //console.log('no orders for history')
-  }
-}
-
 export function dayChart(actions) {
   const result = []
-  const buyOrders = taffy()
-  const sellOrders = taffy()
 
   for (const act of actions.map(a => {
     a.act.timestamp = new Date(a['@timestamp'])
-    a.act.block_num = a.block_num // FIXME Remove
 
     return a.act
   }).reverse()) {
-    const data = act.data
-
-    if (act.name == 'cancelbuy') {
-      buyOrders({ account: data.executor, order_id: parseInt(data.order_id) }).remove()
-
-      save_price_history(result, buyOrders, act.timestamp)
-    }
-
-    if (act.name == 'cancelsell') {
-      //console.log('cancelsell: ', data.order_id)
-      sellOrders({ account: data.executor, order_id: parseInt(data.order_id) }).remove()
-
-      save_price_history(result, buyOrders, act.timestamp)
-    }
-
-    if (act.name == 'sellmatch') {
-      const record = data.record
-
-      const order = buyOrders({ price: record.unit_price }).order('block_num').first()
-
-      order.ask -= record.bid.amount
-      order.bid -= record.ask.amount
-
-      //console.log('after', order.ask, order.bid)
-
-      buyOrders({ order_id: order.order_id, account: order.account }).remove()
-
-      if (order.ask != 0.0 && order.bid != 0.0) {
-        buyOrders.insert({ ...order })
-      }
-
-      save_price_history(result, buyOrders, act.timestamp)
-    }
-
-    // TODO По несколько раз они же тоже не метчатся, несколько ордеров не сжирают, нужно и это учесть
-    if (act.name == 'buymatch') {
-      const record = data.record
-
-      //console.log('buymatch: ', record.unit_price, '; bid: ', record.bid.amount, '; ask: ', record.ask.amount)
-
-      const order = sellOrders({ price: record.unit_price }).order('block_num').first()
-      //const order = sellOrders().order('price').first()
-      order.ask -= record.bid.amount
-      order.bid -= record.ask.amount
-
-      sellOrders({ order_id: order.order_id, account: order.account }).remove()
-
-      if (order.ask != 0.0 && order.bid != 0.0) {
-        sellOrders.insert({ ...order })
-      }
-
-      save_price_history(result, buyOrders, act.timestamp)
-    }
-
-    if (act.name == 'sellreceipt') {
-      const order = data.sell_order
-
-      const bid = quantityToAmount(order.bid)
-      const ask = quantityToAmount(order.ask)
-
-      //console.log(`sellreceipt(${order.id}): `, order.unit_price, '; bid: ', bid, '; ask: ', ask, 'time: ', act.timestamp)
-
-      sellOrders.insert({
-        account: order.account,
-        bid,
-        ask,
-        price: order.unit_price,
-        order_id: parseInt(order.id),
-        time: act.timestamp,
-        block_num: act.block_num
-      })
-
-      save_price_history(result, buyOrders, act.timestamp)
-    }
-
-    if (act.name == 'buyreceipt') {
-      const order = data.buy_order
-
-      const bid = quantityToAmount(order.bid)
-      const ask = quantityToAmount(order.ask)
-
-      //console.log(`buyreceipt(${order.id}): `, order.unit_price, '; bid: ', bid, '; ask: ', ask, 'time: ', act.timestamp)
-
-      buyOrders.insert({
-        account: order.account,
-        bid,
-        ask,
-        price: order.unit_price,
-        order_id: parseInt(order.id),
-        time: act.timestamp,
-        block_num: act.block_num
-      })
-
-      save_price_history(result, buyOrders, act.timestamp)
-    }
+    const record = act.data.record
+    result.push({ price: record.unit_price, time: act.timestamp })
   }
 
   const results = []
