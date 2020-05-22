@@ -1,11 +1,15 @@
 <template lang="pug">
-el-card(v-loading="loading")
+el-card(v-loading="loading" shadow="hover").market-item
+  .row
+    .col
+      .badge.badge-primary.text-wrap {{ order.sell.length }} NFT's pack
+      el-button(size="small")
   .row
     .col
       div(v-for="nft in nfts")
         img.image(src='https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png')
         div(style='padding: 14px;')
-          span ID: {{ nft.id }}
+          span ID: {{ nft }}
           .bottom.clearfix
             time.time '123.123'
             el-button.button(type='text') Operating
@@ -51,3 +55,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.market-item {
+  cursor: pointer;
+}
+</style>

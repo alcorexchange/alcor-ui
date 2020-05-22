@@ -11,7 +11,7 @@
 
         el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'local'") NTF Market
 
-        el-menu-item(index="/pools" v-if="$store.state.network.name == 'local'")
+        //el-menu-item(index="/pools" v-if="$store.state.network.name == 'local'")
           el-badge(value="new" class="pools-bage") Liquidity pools
 
         el-menu-item(index="/otc") OTC Swaps

@@ -2,11 +2,18 @@
 .row.mt-3
   .col-2
     //el-menu.el-menu-vertical-demo(default-active='2', @open='handleOpen', @close='handleClose')
+    .row.mb-3
+      .col
+        NewOrder
     el-menu(router default-active='2')
-      el-menu-item(index='/nft-markets/all') All
-      el-menu-item(index='1-2') Sell
+      //li.el-menu-item
+
+      //el-menu-item(index='/nft-markets/all' disabled) Buy NFT's
+      el-menu-item(index='/nft-markets/all' disabled) Filter
+      el-menu-item(index='/nft-markets/all' disabled) Category
+      //el-menu-item(index='1-2') Sell
   .col-8
-    .row
+    //.row
       .col
         h1 NFT Market
     .row.mt-2
@@ -19,10 +26,12 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import Card from '~/components/nft_markets/Card'
+import NewOrder from '~/components/nft_markets/NewOrder'
 
 export default {
   components: {
-    Card
+    Card,
+    NewOrder
   },
 
   data() {
