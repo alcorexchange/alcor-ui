@@ -66,13 +66,13 @@ export default {
 
   methods: {
     setBid(ask) {
-      const price = this.$options.filters.humanFloat(ask.unit_price)
+      const price = this.$options.filters.humanFloat(ask.unit_price).replace(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', ask.bid.prefix)
     },
 
     setAsk(bid) {
-      const price = this.$options.filters.humanFloat(bid.unit_price)
+      const price = this.$options.filters.humanFloat(bid.unit_price).replace(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', bid.ask.prefix)
     }

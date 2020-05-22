@@ -59,7 +59,6 @@ div
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
-import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 
 export default {
   mixins: [tradeMixin, tradeChangeEvents],
@@ -75,7 +74,7 @@ export default {
   watch: {
     current_price() {
       if (this.price == 0) {
-        this.price = this.$options.filters.humanFloat(this.current_price)
+        this.price = this.$options.filters.humanFloat(this.current_price).replace(',', '')
       }
     }
   }
