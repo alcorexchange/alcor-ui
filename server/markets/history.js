@@ -44,7 +44,7 @@ export function updater(chain, interval) {
 export async function loadHistory(network) {
   const hyperion = axios.create({
     baseURL: network.hyperion,
-    timeout: 10 * 1000
+    timeout: 30 * 1000
   })
 
   const contract = network.contract

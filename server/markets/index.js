@@ -8,7 +8,7 @@ import { parseAsset, parseExtendedAsset, numberWithCommas } from '../../utils'
 import { updater, getDeals } from './history'
 import { dayChart, getVolume, getChange } from './charts'
 
-updater('eos', 1000 * 20)
+updater('eos', 1000 * 40)
 updater('telos', 1000 * 20)
 updater('wax', 1000 * 20)
 updater('bos', 1000 * 20)
