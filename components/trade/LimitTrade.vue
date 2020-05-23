@@ -74,7 +74,7 @@ export default {
   watch: {
     current_price() {
       if (this.price == 0) {
-        this.price = this.$options.filters.humanFloat(this.current_price).replace(',', '')
+        this.price = this.$options.filters.humanPrice(this.current_price).replace(',', '')
       }
     }
   }

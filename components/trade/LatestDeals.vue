@@ -14,8 +14,8 @@
   .orders-list.blist
     a(v-for="deal in coloredDeals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
-        span(:class="deal.cls")  {{ deal.unit_price | humanFloat(6) }}
-        span {{ deal.amount  | humanFloat }}
+        span(:class="deal.cls")  {{ deal.unit_price | humanPrice(6) }}
+        span {{ deal.amount | humanFloat(network.baseToken.precision) }}
         span {{ deal.time | moment('DD-MM HH:mm')}}
 
 </template>

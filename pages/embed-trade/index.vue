@@ -18,7 +18,7 @@
 
         el-table-column(label='Last price', prop='name')
           template(slot-scope="scope")
-            .text-success {{ scope.row.last_price | humanFloat }}
+            .text-success {{ scope.row.last_price | humanPrice }}
         el-table-column(label='24H Volume', prop='name')
           template(slot-scope="scope")
             span.text-mutted {{ scope.row.volume24 }}

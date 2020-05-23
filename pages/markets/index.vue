@@ -28,7 +28,7 @@
               sortable
             )
               template(slot-scope="scope")
-                .text-success {{ scope.row.last_price | humanFloat }} {{ network.baseToken.symbol }}
+                .text-success {{ scope.row.last_price | humanPrice }} {{ network.baseToken.symbol }}
             el-table-column(
               :label='`24H Volume`'
               align="right"
@@ -37,7 +37,7 @@
               sort-by="volume24"
             )
               template(slot-scope="scope")
-                span.text-mutted {{ scope.row.volume24 | humanFloat(2) }} {{ network.baseToken.symbol }}
+                span.text-mutted {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
             el-table-column(
               label='24H Change %'
               prop='name'
@@ -58,7 +58,7 @@
               sort-by="volumeWeek"
             )
               template(slot-scope="scope")
-                span.text-mutted {{ scope.row.volumeWeek | humanFloat(2) }} {{ network.baseToken.symbol }}
+                span.text-mutted {{ scope.row.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 
             el-table-column(
               label='7 Day Change %'

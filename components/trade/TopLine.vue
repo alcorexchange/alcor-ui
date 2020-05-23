@@ -12,7 +12,7 @@
         .d-flex.ml-3.w-100.justify-content-around
           .d-flex.ml-3
             span Volume 24H:
-            span.text-success.ml-1  {{ stats.volume24 | humanFloat(2) }} {{ network.baseToken.symbol }}
+            span.text-success.ml-1  {{ stats.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 
           .d-flex.ml-3
             span Change 24H:
@@ -20,7 +20,7 @@
 
           .d-flex.ml-3(v-if="!isMobile")
             span Volume 7 Day:
-            span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(2) }} {{ network.baseToken.symbol }}
+            span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 
           .d-flex.ml-3(v-if="!isMobile")
             span Change 7 Day:
@@ -43,7 +43,7 @@
           .col
             .d-flex.ml-3
               span Volume 24H:
-              span.text-success.ml-1  {{ stats.volume24 | humanFloat(2) }} {{ network.baseToken.symbol }}
+              span.text-success.ml-1  {{ stats.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 </template>
 
 <script>

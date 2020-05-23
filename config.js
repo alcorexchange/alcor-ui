@@ -26,7 +26,9 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://eos.hyperion.eosrio.io/v2/',
+    hyperion: 'http://api.eossweden.org/v2/',
+    //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
+    //hyperion: 'https://mainnet.eosn.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -128,8 +130,9 @@ const networks = {
     monitor: 'http://telos.bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    //hyperion: 'https://mainnet.telosusa.io/v2/',
-    hyperion: 'https://telos.eosphere.io/v2/',
+    hyperion: 'https://mainnet.telosusa.io/v2/',
+    //hyperion: 'https://telos.eosphere.io/v2/',
+    //
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {

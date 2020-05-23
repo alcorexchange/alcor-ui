@@ -94,10 +94,10 @@ export function getVolume(deals, period) {
   deals.filter(h => {
     return Date.now() - period < h.time.getTime()
   }).map(m => {
-    m.type == 'buymatch' ? volume += parseFloat(m.bid.quantity) : volume += parseFloat(m.ask.quantity)
+    m.type == 'buymatch' ? volume += m.bid.amount : volume += m.ask.amount
   })
 
-  return volume * config.PRICE_SCALE
+  return volume
 }
 
 

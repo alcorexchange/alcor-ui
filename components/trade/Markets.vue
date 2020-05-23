@@ -10,12 +10,12 @@
 
     el-table-column(prop="last_price" label="Price" width="90" align="right")
       template(slot-scope="scope")
-        .text-success {{ scope.row.last_price | humanFloat }}
+        .text-success {{ scope.row.last_price | humanPrice }}
 
     el-table-column(prop="volume24" label="Volume 24H" width="120" align="right")
       template(slot-scope="scope")
         .pr-2
-          | {{ scope.row.volume24 | humanFloat(2) }} {{ network.baseToken.symbol }}
+          | {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 
 
 </template>

@@ -17,10 +17,10 @@ div
         .row
           .col
             div(v-if="order.type == 'bid'")
-              strong.text-success {{ order.unit_price | humanFloat }}
+              strong.text-success {{ order.unit_price | humanPrice }}
 
             div(v-else)
-              strong.text-danger {{ order.unit_price | humanFloat }}
+              strong.text-danger {{ order.unit_price | humanPrice }}
 
       .col-6.d-flex
         el-button(size="mini")
@@ -47,7 +47,7 @@ div
 
     el-table-column(label='Price', width='120')
       template(slot-scope='scope')
-        span {{ scope.row.unit_price | humanFloat }}
+        span {{ scope.row.unit_price | humanPrice }}
 
     el-table-column(label='Operations' align="right")
       template(slot-scope='scope')

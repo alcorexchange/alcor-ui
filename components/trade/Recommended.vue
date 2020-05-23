@@ -12,7 +12,7 @@
               TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
               span.ml-2
                 span {{ market.token.symbol.name }}
-                .text-success {{ market.last_price | humanFloat }}
+                .text-success {{ market.last_price | humanPrice }}
 
               ChangePercent(:change="market.changeWeek")
 

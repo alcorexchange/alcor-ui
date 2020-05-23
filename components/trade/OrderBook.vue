@@ -8,9 +8,9 @@
 
   .orders-list.blist.asks.text-danger(ref="asks")
     .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
-      span {{ ask.unit_price | humanFloat }}
-      span.text-center {{ ask.bid.amount | humanFloat }}
-      span {{ ask.ask.amount | humanFloat }}
+      span {{ ask.unit_price | humanPrice }}
+      span.text-center {{ ask.bid.amount | humanFloat(token.symbol.precision) }}
+      span {{ ask.ask.amount | humanFloat(network.baseToken.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
       span
@@ -18,13 +18,13 @@
       span
 
   .bg-light.text-center.p-1
-    b.text-success {{ current_price | humanFloat }}
+    b.text-success {{ current_price | humanPrice }}
 
   .orders-list.blist.text-success
     .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)")
-      span {{ bid.unit_price | humanFloat }}
-      span.text-center {{ bid.ask.amount | humanFloat }}
-      span {{ bid.bid.amount | humanFloat }}
+      span {{ bid.unit_price | humanPrice }}
+      span.text-center {{ bid.ask.amount | humanFloat(token.symbol.precision) }}
+      span {{ bid.bid.amount | humanFloat(network.baseToken.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
       span
@@ -66,13 +66,13 @@ export default {
 
   methods: {
     setBid(ask) {
-      const price = this.$options.filters.humanFloat(ask.unit_price).replace(',', '')
+      const price = this.$options.filters.humanPrice(ask.unit_price).replace(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', ask.bid.prefix)
     },
 
     setAsk(bid) {
-      const price = this.$options.filters.humanFloat(bid.unit_price).replace(',', '')
+      const price = this.$options.filters.humanPrice(bid.unit_price).replace(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', bid.ask.prefix)
     }
