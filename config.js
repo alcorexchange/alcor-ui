@@ -26,7 +26,7 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://api.eossweden.org/v2/',
+    hyperion: 'https://eos.hyperion.eosrio.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -86,7 +86,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://api.waxsweden.org/v2/',
+    hyperion: 'https://wax.eosusa.news/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -177,7 +177,7 @@ const networks = {
     monitor: 'http://bos.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'http://api.bossweden.org/v2/',
+    hyperion: 'http://bos.eosn.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
