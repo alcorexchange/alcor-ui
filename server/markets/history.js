@@ -90,6 +90,7 @@ export async function loadHistory(network) {
     }
   } catch (e) {
     console.log(`Update error for: ${network.name}`, e.message)
+    return
   }
 
   actions.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name)).map(m => {
