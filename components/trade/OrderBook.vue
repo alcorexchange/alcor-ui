@@ -9,8 +9,8 @@
   .orders-list.blist.asks.text-danger(ref="asks")
     .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
       span {{ ask.unit_price | humanFloat }}
-      span.text-center {{ ask.bid.prefix }}
-      span {{ ask.ask.prefix }}
+      span.text-center {{ ask.bid.amount | humanFloat }}
+      span {{ ask.ask.amount | humanFloat }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
       span
@@ -23,8 +23,8 @@
   .orders-list.blist.text-success
     .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)")
       span {{ bid.unit_price | humanFloat }}
-      span.text-center {{ bid.ask.prefix }}
-      span {{ bid.bid.prefix }}
+      span.text-center {{ bid.ask.amount | humanFloat }}
+      span {{ bid.bid.amount | humanFloat }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
       span
