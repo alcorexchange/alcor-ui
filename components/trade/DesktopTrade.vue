@@ -27,6 +27,8 @@
 
             el-tab-pane(label="Market trade")
               market-trade
+          .tabs-right
+            el-button(type="text" @click="openInNewTab('https://eosio.support/alcor-exchange-walk-thru')") How to use?
 
     .col-3.pr-0.pl-0
       .overflowbox
@@ -173,5 +175,11 @@ export default {
   font-size: 2.5rem;
   font-weight: 230;
   line-height: 1;
+}
+
+.tabs-right {
+  position: absolute;
+  top: 0px;
+  right: 20px;
 }
 </style>

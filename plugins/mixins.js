@@ -278,6 +278,11 @@ Vue.mixin({
       return `${this.$store.state.network.monitor}/account/${account}?${this.$store.state.network.monitor_params}`
     },
 
+    openInNewTab(url) {
+      const win = window.open(url, '_blank')
+      win.focus()
+    },
+
     unitPriceInfo() {
       this.$alert(
         `Since the price calculation is calculated using int64 value,
