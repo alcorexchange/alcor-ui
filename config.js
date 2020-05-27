@@ -33,11 +33,11 @@ const networks = {
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'avral.pro',
+      divs: 'avral.pro'
     },
 
     pools: {
-      contract: 'lp'
+      contract: 'evolutiondex'
     },
 
     pegs: {
@@ -265,11 +265,11 @@ const networks = {
 
     otc: {
       contract: 'wwweosswapio',
-      divs: 'eosswapdivs1',
+      divs: 'eosswapdivs1'
     },
 
     pools: {
-      contract: 'lp'
+      contract: 'evolutiondex'
     },
 
     pegs: {},

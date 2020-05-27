@@ -48,7 +48,7 @@ input[type=number] {
 }
 
 .input-with-select .el-select .el-input {
-  width: 300px;
+  width: 400px;
 }
 
 .input-with-select .el-input-group__append {

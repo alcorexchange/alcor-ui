@@ -161,6 +161,7 @@ export const actions = {
 
       if (state.loginPromise) state.loginPromise.resolve(true)
     } catch (e) {
+      dispatch('logout')
       dispatch('loadUserBalances', {}, { root: true })
       captureException(e)
       this._vm.$notify({ title: 'Login', message: e.message, type: 'error' })

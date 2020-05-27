@@ -1,41 +1,43 @@
 <template lang="pug">
 .row
   .col
-    .px-3.mt-2
-      h1 Create new pool
-    el-form(ref="form" label-position="left").px-3
-      el-form-item
-        .lead Base token:
-          TokenImage(:src="$tokenLogo(base.symbol, base.contract)" height="25").ml-2
-          span.ml-1 {{ base.symbol + '@' + base.contract }}
+    PleaseLoginButton
+      .px-3.mt-2
+        h1 Create new pool
+      el-form(ref="form" label-position="left" v-if="user").px-3
+        el-form-item
+          .lead Base token:
+            span(v-if="base.id")
+              TokenImage(:src="$tokenLogo(base.currency, base.contract)" height="25").ml-2
+              span.ml-1 {{ base.currency + '@' + base.contract }}
 
-        p Price {{ price }}
+          p Price {{ price }}
 
-        el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
-          el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="symbol")
-            el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
-                      :value="{symbol: baseToken.symbol, contract: baseToken.contract, precision: baseToken.precision}")
-              TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
-              span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
-            el-option(:value="{symbol: 'TKT', contract: 'tktoken', precision: 4}" label="TKT@tktoken")
+          el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
+            el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
+              el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
+                span.ml-3 {{ b.id }}
+                span.float-right {{ `${b.amount} ${b.currency}` }}
 
-      el-form-item
-        .lead Quote token:
-          TokenImage(:src="$tokenLogo(base.symbol, base.contract)" height="25").ml-2
-          span.ml-1 {{ quote.symbol + '@' + quote.contract }}
+        el-form-item
+          .lead Quote token:
+            span(v-if="quote.id")
+              TokenImage(:src="$tokenLogo(quote.currency, quote.contract)" height="25").ml-2
+              span.ml-1 {{ quote.currency + '@' + quote.contract }}
 
-        el-input(type="number" placeholder='0.0' v-model="amount2" clearable @change="amountChange").input-with-select
-          el-select(v-model="quote_select", slot='append', placeholder='Select' @change="setQuoteToken" value-key="id")
-            el-option(:value="{id: 1, symbol: 'BB', contract: 'bebe', precision: 2}" label="BB@bebe")
-            el-option(:value="{id: 2, symbol: 'TKT', contract: 'tktoken', precision: 4}" label="TKT@tktoken")
-            el-option(:value="{id: 3, symbol: 'ONE', contract: 'one', precision: 0}" label="ONE@one")
+          el-input(type="number" placeholder='0.0' v-model="amount2" clearable @change="amountChange").input-with-select
+            el-select(v-model="quote_select", slot='append', placeholder='Select' @change="setQuoteToken" value-key="id")
+              el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
+                span.ml-3 {{ b.id }}
+                span.float-right {{ `${b.amount} ${b.currency}` }}
 
-      el-form-item(v-if="this.base.symbol && this.quote.symbol")
-        .lead Backed token symbol (Automatically set recommended)
-        el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
+        el-form-item(v-if="this.base.symbol && this.quote.symbol")
+          .lead Backed token symbol (Automatically set recommended)
+          el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
 
-      el-form-item
-        PleaseLoginButton
+        el-form-item
           el-button(@click="create" :loading="loading").w-100 Create
 
 </template>
@@ -87,8 +89,8 @@ export default {
     },
 
     price() {
-      if (this.base.symbol && this.quote.symbol) {
-        return Math.abs(this.amount1 / this.amount2).toFixed(5) + ` ${this.base.symbol}`
+      if (this.base.currency && this.quote.currency) {
+        return Math.abs(this.amount1 / this.amount2).toFixed(5) + ` ${this.base.currency}`
       } else {
         return '0.0000'
       }
@@ -120,11 +122,11 @@ export default {
     },
 
     amountChange() {
-      this.amount1 = this.toFixed(this.amount1, this.base.precision)
-      this.amount2 = this.toFixed(this.amount2, this.quote.precision)
+      this.amount1 = this.toFixed(this.amount1, this.base.decimals)
+      this.amount2 = this.toFixed(this.amount2, this.quote.decimals)
     },
 
-    create() {
+    async create() {
       const authorization = [{ actor: this.user.name, permission: 'active' }]
 
       const actions = [
@@ -135,7 +137,7 @@ export default {
           data: {
             user: this.user.name,
             payer: this.user.name,
-            ext_symbol: { contract: this.base.contract, sym: `${this.base.precision},${this.base.symbol}` }
+            ext_symbol: { contract: this.base.contract, sym: `${this.base.decimals},${this.base.currency}` }
           }
         }, {
           account: this.network.pools.contract,
@@ -144,7 +146,7 @@ export default {
           data: {
             user: this.user.name,
             payer: this.user.name,
-            ext_symbol: { contract: this.quote.contract, sym: `${this.quote.precision},${this.quote.symbol}` }
+            ext_symbol: { contract: this.quote.contract, sym: `${this.quote.decimals},${this.quote.currency}` }
           }
         }, {
           account: this.base.contract,
@@ -153,7 +155,7 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: `${this.amount1} ${this.base.symbol}`,
+            quantity: `${this.amount1} ${this.base.currency}`,
             memo: ''
           }
         }, {
@@ -163,7 +165,7 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: `${this.amount2} ${this.quote.symbol}`,
+            quantity: `${this.amount2} ${this.quote.currency}`,
             memo: ''
           }
         }, {
@@ -173,8 +175,8 @@ export default {
           data: {
             user: this.user.name,
             new_symbol: '4,' + this.tokenSymbol,
-            ext_asset1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.symbol}` },
-            ext_asset2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.symbol}` },
+            ext_asset1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
+            ext_asset2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
             initial_fee: 10, // TODO Вынести в параметер тоже
             fee_contract: 'avral.pro' // TODO Это в контракте пофиксить
           }
@@ -183,7 +185,8 @@ export default {
 
       this.loading = true
       try {
-        this.$store.dispatch('chain/sendTransaction', actions)
+        console.log(actions)
+        await this.$store.dispatch('chain/sendTransaction', actions)
         this.$notify({ title: 'Pool create', message: 'Created', type: 'success' })
       } catch (e) {
         this.$notify({ title: 'Pool create', message: e, type: 'error' })
