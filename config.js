@@ -20,7 +20,7 @@ const networks = {
     //host: 'eosbp.atticlab.net',
     //host: 'eos.greymass.com',
     //host: 'eos.greymass.com',
-    host: 'api.main.alohaeos.com',
+    host: 'eos.greymass.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://bloks.io',
