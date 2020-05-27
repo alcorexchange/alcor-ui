@@ -7,7 +7,7 @@
       span Total ({{ network.baseToken.symbol }})
 
   .orders-list.blist.asks.text-danger(ref="asks")
-    .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)")
+    .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'my-order': ''")
       span {{ ask.unit_price | humanPrice }}
       span.text-center {{ ask.bid.amount | humanFloat(token.symbol.precision) }}
       span {{ ask.ask.amount | humanFloat(network.baseToken.precision) }}
@@ -21,7 +21,7 @@
     b.text-success {{ current_price | humanPrice }}
 
   .orders-list.blist.text-success
-    .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)")
+    .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'my-order': ''")
       span {{ bid.unit_price | humanPrice }}
       span.text-center {{ bid.ask.amount | humanFloat(token.symbol.precision) }}
       span {{ bid.bid.amount | humanFloat(network.baseToken.precision) }}
@@ -44,7 +44,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['network']),
+    ...mapState(['network', 'user']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'token']),
 
     ...mapGetters({
@@ -75,6 +75,14 @@ export default {
       const price = this.$options.filters.humanPrice(bid.unit_price).replace(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', bid.ask.prefix)
+    },
+
+    isMyOrder(order) {
+      if (this.user && order.account == this.user.name) {
+        return true
+      }
+
+      return false
     }
   }
 }
@@ -92,7 +100,7 @@ export default {
   overflow: auto;
   flex-direction: column;
   max-height: 345px;
-  padding: 5px 10px;
+  padding-top: 5px;
   text-align: right;
 }
 
@@ -109,6 +117,7 @@ export default {
   height: 20.6px;
   line-height: 20.6px;
   overflow: hidden;
+  padding: 0px 10px;
 }
 
 
@@ -140,4 +149,7 @@ export default {
   }
 }
 
+.my-order {
+  background-color: aliceblue;
+}
 </style>
