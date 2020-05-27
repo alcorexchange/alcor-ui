@@ -20,7 +20,7 @@ export default {
   methods: {
     close() {
       this.$store.dispatch('modal/closeModal')
-    },
+    }
   }
 }
 </script>

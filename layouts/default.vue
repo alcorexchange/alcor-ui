@@ -39,7 +39,12 @@
             | {{ $store.state.user.name }}
             el-dropdown-menu(slot='dropdown')
               el-dropdown-item(v-if="network.name == 'eos'")
-                el-switch(v-model='payForUser' inactive-text='Free CPU')
+                .row
+                  .col
+                    img(src="~/assets/logos/greymassfuel.png" height="30")
+                .row
+                  .col
+                    el-switch(v-model='payForUser' inactive-text=' Free CPU')
                 hr
               el-dropdown-item
                 el-button(size="mini" type="info" plain @click="logout").w-100 logout
@@ -71,8 +76,13 @@
               | {{ $store.state.user.name }}
               el-dropdown-menu(slot='dropdown')
                 el-dropdown-item(v-if="network.name == 'eos'")
-                  el-switch(v-model='payForUser' inactive-text='Free CPU')
-                  hr
+                  .row
+                    .col
+                      img(src="~/assets/logos/greymassfuel.png" height="30")
+                  .row
+                    .col
+                      el-switch(v-model='payForUser' inactive-text=' Free CPU')
+                    hr
 
                 //el-dropdown-item
                   img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1

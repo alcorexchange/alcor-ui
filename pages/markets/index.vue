@@ -3,11 +3,11 @@
   .col
     el-card
       .row
-        .col-3
+        .col-lg-3.mb-2
           nuxt-link(to="new_market")
             //.new-market-btn
             el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
-        .col-9
+        .col-lg-9
           el-input(v-model="search" placeholder="Search token")
       .row
         .col

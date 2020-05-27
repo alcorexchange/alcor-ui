@@ -80,7 +80,7 @@ export default {
     async cancel(order) {
       if (!this.user) return this.$notify({ title: 'Authorization', message: 'Pleace login first', type: 'info' })
 
-      const loading = this.$loading({ lock: true, text: 'Wait for Scatter' })
+      const loading = this.$loading({ lock: true, text: 'Wait for wallet' })
 
       try {
         await this.$store.dispatch('chain/cancelorder', {
