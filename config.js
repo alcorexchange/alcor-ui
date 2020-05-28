@@ -88,7 +88,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://wax.eosusa.news/v2/',
+    hyperion: 'https://wax.eosn.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -130,9 +130,7 @@ const networks = {
     monitor: 'http://telos.bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://mainnet.telosusa.io/v2/',
-    //hyperion: 'https://telos.eosphere.io/v2/',
-    //
+    hyperion: 'https://telos.eosphere.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -180,7 +178,7 @@ const networks = {
     monitor: 'http://bos.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://bos.eosn.io/v2/',
+    hyperion: 'http://bos.eosn.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
