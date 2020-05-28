@@ -2,21 +2,20 @@
 .markets-bar(v-loading="loading")
   .pt-2.px-2
     el-input(size="small" v-model="search" placeholder="Filter by token")
-  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="650")
+  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="600")
     el-table-column(label="Token" width="90")
       template(slot-scope="scope")
         TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="20")
         small.ml-1 {{ scope.row.token.symbol.name }}
 
-    el-table-column(prop="last_price" label="Price" width="90" align="right")
+    el-table-column(prop="last_price" label="Price" width="90" align="right" sortable)
       template(slot-scope="scope")
         .text-success {{ scope.row.last_price | humanPrice }}
 
-    el-table-column(prop="volume24" label="Volume 24H" width="120" align="right")
+    el-table-column(prop="volume24" label="Volume 24H" width="120" align="right" sortable)
       template(slot-scope="scope")
         .pr-2
           | {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
-
 
 </template>
 
@@ -81,6 +80,10 @@ export default {
 </script>
 
 <style>
+.markets-bar {
+  height: 100px;
+}
+
 .markets-bar .el-table .active-row {
   background: #c2deff;
 }
