@@ -59,8 +59,8 @@ export const actions = {
   async logout({ state, commit, getters }) {
     switch (state.currentWallet) {
       case 'transit':
-        commit('setUser', null, { root: true })
         await getters.wallet.logout()
+        commit('setUser', null, { root: true })
         break
       default:
         commit('setUser', null, { root: true })

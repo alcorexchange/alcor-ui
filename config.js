@@ -185,7 +185,7 @@ const networks = {
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'aw.aq.waa',
+      divs: 'avraldigital'
     },
 
     pools: {
