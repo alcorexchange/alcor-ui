@@ -284,7 +284,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
 
     nftMarket: {
-      contract: 'nft'
+      contract: 'alcornftswap'
     }
   },
 

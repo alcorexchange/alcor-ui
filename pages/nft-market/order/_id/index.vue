@@ -1,12 +1,34 @@
 <template lang="pug">
-
 el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .clearfix(slot='header')
     el-page-header(@back="goBack")
       template(slot="content")
-        span Order {{ order.id }} created by
-        a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
-  .text.item(v-if="order.maker")
+        .d-flex
+          .lead.mr-5 {{ order.buy.quantity }}
+          //el-divider(direction="vertical")
+          span Order {{ order.id }} created by
+          a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
+  .text.item
+    .row.mb-3
+      .col
+        el-card(v-for="nft in nfts" shadow="hover").pointer.mb-1
+          .row
+            .col-lg-2
+              img(:src="nft.mdata.img" height=80)
+            .col-lg-10
+              .d-flex.flex-column
+                .lead {{ nft.idata.name }}
+                b ID: {{ nft.id }}
+                span Category: {{ nft.category }}
+                div.ml-auto
+                  span.mr-1 Author
+                  a(:href="monitorAccount(nft.author)" target="_blank") {{ nft.author }}
+
+    PleaseLoginButton
+      el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
+      el-button(v-else type="primary" @click="buy").w-100 Buy for {{ order.buy.quantity }}
+
+  //.text.item(v-if="order.maker")
     .row.mb-3
       .col-6.text-center.bordered
         h2 Sell
@@ -32,7 +54,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
       el-button(v-else type="primary" @click="buy").w-100 Buy
         |  {{ order.sell.quantity }}@{{ order.sell.contract }}
 
-el-card(v-else).box-card.mt-3
+//el-card(v-else).box-card.mt-3
   .clearfix(slot='header')
     span Order: {{ id }}
     el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
@@ -42,7 +64,7 @@ el-card(v-else).box-card.mt-3
 
 <script>
 import { captureException } from '@sentry/browser'
-import { mapActions, mapGetters } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
@@ -56,14 +78,11 @@ export default {
   },
 
   async asyncData({ store, error, params }) {
-    const rpc = store.getters['api/rpc']
-    const contract = store.state.network.otc.contract
-
     try {
-      const { rows: [order] } = await rpc.get_table_rows({
-        code: contract,
-        scope: contract,
-        table: 'orders',
+      const { rows: [order] } = await store.getters['api/rpc'].get_table_rows({
+        code: store.state.network.nftMarket.contract,
+        scope: store.state.network.nftMarket.contract,
+        table: 'sellorders',
         lower_bound: params.id,
         limit: 1
       })
@@ -84,12 +103,37 @@ export default {
     return {
       order: {},
       no_found: false,
-      loading: true
+      loading: true,
+      nfts: []
     }
   },
 
   computed: {
-    ...mapGetters(['user'])
+    ...mapState(['network']),
+    ...mapGetters(['user']),
+    ...mapGetters('api', ['rpc'])
+  },
+
+  async mounted() {
+    const nfts = []
+
+    for (const id of this.order.sell) {
+      const { rows: [item] } = await this.rpc.get_table_rows({
+        code: 'simpleassets',
+        scope: this.network.nftMarket.contract,
+        table: 'sassets',
+        lower_bound: id,
+        limit: 1
+      })
+
+      item.mdata = JSON.parse(item.mdata)
+      item.idata = JSON.parse(item.idata)
+
+      nfts.push(item)
+    }
+
+    this.nfts = nfts
+    this.loading = false
   },
 
   methods: {
@@ -106,8 +150,8 @@ export default {
 
         await this.sendTransaction([
           {
-            account: this.$store.state.network.otc.contract,
-            name: 'cancelorder',
+            account: this.$store.state.network.nftMarket.contract,
+            name: 'cancelsell',
             authorization: [{
               actor: order.maker,
               permission: 'active'
@@ -117,7 +161,7 @@ export default {
         ])
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
-        this.$router.push({ name: 'otc' })
+        this.$router.push({ name: 'nft-market' })
       } catch (e) {
         captureException(e, { extra: { order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -137,21 +181,14 @@ export default {
         const { buy, id } = this.order
 
         const r = await this.transfer({
-          to: this.$store.state.network.otc.contract,
+          to: this.$store.state.network.nftMarket.contract,
           contract: buy.contract,
           actor: this.user.name,
           quantity: buy.quantity,
           memo: `fill|${id}`
         })
-
-        this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: action => {
-            this.$router.push({ name: 'otc' })
-            this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
-          }
-        })
+        this.$router.push({ name: 'nft-market' })
+        this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
@@ -174,8 +211,8 @@ export default {
 }
 </script>
 
-<style>
-.bordered {
-  border-right: 1px solid;
+<style scoped>
+.lead {
+  font-weight: 500;
 }
 </style>

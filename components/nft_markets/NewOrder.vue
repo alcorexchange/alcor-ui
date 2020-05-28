@@ -6,72 +6,48 @@ div
   el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user")
     .row
       .col
-        .nft(v-for="nft in sell")
-    el-form(label-position="left")
-      el-button(type="primary" icon="el-icon-circle-plus-outline") Add NFT
+        .lead This form allow you to sell one or multiple NFT's at once by fixed price in {{ network.baseToken.symbol }}
+    .row
+      .col
+        h4 Sell {{ sell.length }} items
+        .sell-nft-box
+          el-tag(v-for="nft in sell" closable @close="rmSell(nft)").mr-2.mb-2
+            img(:src="nft.mdata.img" height=20)
 
-    //el-form(ref="form" :model="form" label-position="left" :rules="rules")
-      // TODO Bit symbol and amount here
-      h1.leader Sell
+            b {{ nft.id }}
 
-      el-form-item(label="Sell NFT")
-        el-select(v-model="tokenSelect", value-key="id" filterable clearable placeholder='Sell token' @change="sellSellToken").w-100
-          el-option(v-for="b in userNfts" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
-            //TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
-            //span.ml-3 {{ b.id }}
-            //span.float-right {{ `${b.amount} ${b.currency}` }}
+        .label Sell all items for({{ network.baseToken.symbol }} amount):
+        el-input(type="number" v-model="buy" @change="buyChange" clearable).w-100.mb-2
+          span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-      el-form-item(v-if="tokenSelect" label="Token amount")
-        el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
-
-        //el-input-number(v-model="form.buy.amount" :precision="4" :step="1").mt-2.w-100
-
-      div(v-if="form.sell.amount > 0")
+        el-button(type="primary" @click="submit" :loading="loading" :disabled="!sell.length").w-100 Sell
         hr
 
-        h1.leader Buy
-
-        el-tabs
-          el-tab-pane(label="Auto select")
-            el-select(v-model='sellSelect' value-key="id" filterable placeholder='Select' clearable @change="setBuyToken").w-100
-              el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
-                        :value="{symbol: baseToken.symbol, contract: baseToken.contract, precision: baseToken.precision}")
-                TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
-                span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
-
-              el-option(
-                v-for="t in tokens",
-                :key="t.id",
-                :label="t.id",
-                :value="t"
-              )
-                TokenImage(:src="$tokenLogo(t.symbol, t.contract)" height="25")
-                span.ml-3 {{ t.symbol + '@' + t.contract }}
-
-          el-tab-pane(label="Manually")
-            el-form-item(label="Token contract" prop="buy.contract")
-              el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.buy.contract")
-
-            el-form-item(v-if="form.buy.contract" label="Token symbol" prop="buy.symbol")
-              // TODO Uppercase
-              el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.buy.symbol").upperinput
-
-        el-form-item(v-if="form.buy.symbol" label="Token amount")
-          //el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
-          el-input-number(v-model="form.buy.amount" :precision="form.buy.precision" :step="1").mt-2.w-100
-          .lead.mt-2 Price: {{ price }}
-
-        span.dialog-footer
-          el-button(type='primary' v-if="form.buy.amount > 0" @click="submit").w-100 Create order
+    .row
+      .col-4
+        .lead Select NFT's
+      .col-8
+        el-input(placeholder="Filter NFT's" size="small")
+    hr
+    el-card(v-for="nft in userNfts" shadow="hover" @click.native="addSell(nft)").pointer.mb-1
+      .row
+        .col-lg-2
+          img(:src="nft.mdata.img" height=80)
+        .col-lg-10
+          .d-flex.flex-column
+            .lead {{ nft.idata.name }}
+            b ID: {{ nft.id }}
+            span Category: {{ nft.category }}
+            div.ml-auto
+              span.mr-1 Author
+              a(:href="monitorAccount(nft.author)" target="_blank") {{ nft.author }}
 </template>
 
 <script>
-import axios from 'axios'
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import { captureException } from '@sentry/browser'
 
 import TokenImage from '~/components/elements/TokenImage'
-import { calculatePrice } from '~/utils'
 
 export default {
   components: {
@@ -82,23 +58,42 @@ export default {
     return {
       visible: false,
 
-      userNfts: {},
+      buy: 0.0,
 
+      userNfts: [],
       sell: [],
 
-      tokenSelect: ''
+      loading: false
     }
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
+    ...mapGetters('api', ['rpc'])
   },
 
   created() {
   },
 
   methods: {
+    addSell(nft) {
+      if (this.sell.filter(n => n.id == nft.id).length > 0) {
+        return this.$notify({ title: 'Sell', message: 'Already selected', type: 'info' })
+      }
+
+      this.sell.push(nft)
+    },
+
+    rmSell(nft) {
+      this.sell = this.sell.filter(n => n.id != nft.id)
+    },
+
+    buyChange() {
+      console.log('buy change', this.buy)
+      this.buy = parseFloat(this.buy).toFixed(this.network.baseToken.precision)
+    },
+
     async fetchUserNfts() {
       const { rows } = await this.rpc.get_table_rows({
         code: 'simpleassets',
@@ -107,45 +102,60 @@ export default {
         limit: 1000
       })
 
-      rows.map(nft => this.userNfts[nft.id] = nft)
+      const nfts = []
+      rows.map(nft => {
+        nft.mdata = JSON.parse(nft.mdata)
+        nft.idata = JSON.parse(nft.idata)
+
+        nfts.push(nft)
+      })
+      this.userNfts = nfts
     },
 
     async open() {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
-      this.visible = true
       this.fetchUserNfts()
+      this.visible = true
     },
 
     async submit() {
-      const form = { ...this.form } // Copy the reactive object
-
-      form.sell.quantity = `${form.sell.amount.toFixed(form.sell.precision)} ${form.sell.symbol}`
-      form.buy.quantity = `${form.buy.amount.toFixed(form.buy.precision)} ${form.buy.symbol}@${form.buy.contract}`
-
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for Scatter'
-      })
+      this.loading = true
 
       try {
-        const r = await this.$store.dispatch('chain/transfer', {
-          to: this.$store.state.network.otc.contract,
-          contract: form.sell.contract,
-          actor: this.user.name,
-          quantity: form.sell.quantity,
-          memo: `place|${form.buy.quantity}`
-        })
+        await this.$store.dispatch('chain/sendTransaction', [
+          {
+            account: 'simpleassets',
+            name: 'transfer',
+            authorization: [
+              {
+                actor: this.user.name,
+                permission: 'active'
+              }
+            ],
+            data: {
+              from: this.user.name,
+              to: this.network.nftMarket.contract,
+              assetids: this.sell.map(s => s.id),
+              memo: `place|${this.buy} ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`
+            }
+          }
+        ])
 
         this.$notify({ title: 'Order placed', message: 'Order placed successfully', type: 'success' })
-        //this.$notify({ title: 'Place order', message: r.processed.action_traces[0].inline_traces[1].console, type: 'success' })
         this.visible = false
-        this.$store.dispatch('otc/fetchOrders')
+
+        this.buy = 0.0
+
+        this.userNfts = []
+        this.sell = []
+        this.$emit('created')
+        // TODO this.$store.dispatch('otc/fetchOrders')
       } catch (e) {
-        captureException(e, { extra: { form } })
+        captureException(e, { extra: { buy: this.buy, sell: this.sell } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
         console.log(e)
       } finally {
-        loading.close()
+        this.loading = false
       }
     }
   }
@@ -155,5 +165,9 @@ export default {
 <style scoped>
 .el-form {
   /*padding: 10px 70px; */
+}
+
+.sell-nft-box {
+  min-height: 50px;
 }
 </style>

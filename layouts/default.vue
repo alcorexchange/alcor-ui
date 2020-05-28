@@ -9,7 +9,7 @@
 
         el-menu-item(index="/markets") Markets
 
-        el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'local'") NTF Market
+        el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'jungle'") NTF Market
 
         el-menu-item(index="/pools" v-if="$store.state.network.name == 'jungle'") Liquidity pools
 

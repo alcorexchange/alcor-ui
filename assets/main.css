@@ -7,7 +7,7 @@ button:focus {
   outline: 0;
 }
 
-.el-table__row {
+.el-table__row, .pointer {
   cursor: pointer;
 }
 
