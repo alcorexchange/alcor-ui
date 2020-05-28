@@ -7,6 +7,8 @@ const { parseAsset } = require('../../utils')
 
 axiosRetry(axios, { retries: 3 })
 
+const QUERY_LIMIT = 50
+
 export function getDeals (network, market_id) {
   const matches = getMatches(network)
 
@@ -49,65 +51,46 @@ export async function loadHistory(network) {
 
   const contract = network.contract
   const formatActionFilter = action => `${contract}:${action}`
-  const filter = config.CONTRACT_ACTIONS.map(formatActionFilter).join(',')
+  const filter = ['buymatch', 'sellmatch'].map(formatActionFilter).join(',')
 
-  const actions = []
+  let skip = cache.get(`${network.name}_history_skip`) || 0
+  const actions = cache.get(`${network.name}_history`) || []
 
   try {
     const r = await hyperion.get('history/get_actions', {
       params: {
         account: contract,
-        limit: 1000,
+        skip,
+        limit: QUERY_LIMIT,
         filter
       }
     })
 
+    r.data.actions.map(m => {
+      const data = m.act.data.record
+
+      data.trx_id = m.trx_id
+      data.type = m.act.name
+      data.ask = parseAsset(data.ask)
+      data.bid = parseAsset(data.bid)
+
+      // FIXME Fix afret fix contract timestamp
+      data.time = new Date(m['@timestamp'])
+
+      return data
+    })
+
     actions.push(...r.data.actions)
+    skip += r.data.actions.length
 
-    if (r.data.total.value > 1000) {
-      const times = Math.ceil(r.data.total.value / 1000) - 1
-      let offset = 1000
+    cache.set(`${network.name}_history_skip`, skip, 0)
+    cache.set(`${network.name}_history`, actions, 0)
 
-      const requests = []
-
-      for (let i = 0; i < times; i++) {
-        requests.push(
-          hyperion.get('history/get_actions', {
-            params: {
-              account: network.contract,
-              skip: offset,
-              filter,
-              limit: 1000
-            }
-          })
-        )
-        offset += 1000
-      }
-
-      await Promise.all(requests).then(data => {
-        data.map(d => actions.push(...d.data.actions))
-      })
+    if (r.data.actions.length == QUERY_LIMIT) {
+      // Значит там есть еще, фетчим дальше
+      await loadHistory(network)
     }
   } catch (e) {
     console.log(`Update error for: ${network.name}`, e.message)
-    return
   }
-
-  actions.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name)).map(m => {
-    const data = m.act.data.record
-
-    data.trx_id = m.trx_id
-    data.type = m.act.name
-    data.ask = parseAsset(data.ask)
-    data.bid = parseAsset(data.bid)
-
-    // FIXME Fix afret fix contract timestamp
-    data.time = new Date(m['@timestamp'])
-
-    return data
-  })
-
-  cache.set(`${network.name}_history`, actions, 30 * 1)
-
-  return actions
 }
