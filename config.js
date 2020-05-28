@@ -178,7 +178,7 @@ const networks = {
     monitor: 'http://bos.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'http://bos.eosn.io/v2/',
+    hyperion: 'https://bos.eosn.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -250,6 +250,16 @@ const networks = {
       precision: 4
     },
     marketCreationFee: '3.0000 EOS',
+
+    //chainId: '2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840',
+    //host: 'api.jungle3.alohaeos.com',
+    //port: 443,
+    //protocol: 'https',
+    //monitor: 'http://jungle3.bloks.io',
+    //monitor_params: '',
+    //lightapi: 'https://lightapi.eosgeneva.io',
+    //hyperion: 'https://jungle3.cryptolions.io/v2/',
+    //backEnd: 'http://localhost:8000/api/',
 
     chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
     host: 'api.jungle.alohaeos.com',
