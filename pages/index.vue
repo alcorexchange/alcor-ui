@@ -29,7 +29,7 @@
 
       .col-lg-6
         a(href="https://youtu.be/nNneIVv0yyQ" target="_blank")
-          img(src="/market_window.png").video-image
+          img(src="/market_window.jpg").video-image
 
     hr.my-2
 
