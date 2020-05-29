@@ -15,7 +15,7 @@
             :key="author"
             @change="addAutorFilter(author)"
             :checked="isAuthorCheked(author)"
-          ) {{ author }}
+          ).w-100 {{ author }}
 
     .row.mt-2
       .col
