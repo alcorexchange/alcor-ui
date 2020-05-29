@@ -1,14 +1,13 @@
 <template lang="pug">
-el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
+el-card(v-if="!no_found").box-card.mt-3
   .clearfix(slot='header')
     el-page-header(@back="goBack")
       template(slot="content")
         .d-flex
           .lead.mr-5 {{ order.buy.quantity }}
-          //el-divider(direction="vertical")
-          span Order {{ order.id }} created by
+          span.mr-1 Order {{ order.id }} created by
           a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
-  .text.item
+  .text.item(v-loading="loading")
     .row.mb-3
       .col
         el-card(v-for="nft in nfts" shadow="hover").pointer.mb-1
@@ -116,6 +115,7 @@ export default {
 
   async mounted() {
     const nfts = []
+    this.loading = true
 
     for (const id of this.order.sell) {
       const { rows: [item] } = await this.rpc.get_table_rows({
@@ -142,7 +142,7 @@ export default {
     async cancelOrder(order) {
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter'
+        text: 'Wait for wallet'
       })
 
       try {
@@ -162,6 +162,7 @@ export default {
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$router.push({ name: 'nft-market' })
+        //this.$store.dispatch('nft/fetch')
       } catch (e) {
         captureException(e, { extra: { order } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })

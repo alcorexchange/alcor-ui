@@ -148,8 +148,8 @@ export default {
 
         this.userNfts = []
         this.sell = []
-        this.$emit('created')
-        // TODO this.$store.dispatch('otc/fetchOrders')
+
+        this.$store.dispatch('nft/fetch')
       } catch (e) {
         captureException(e, { extra: { buy: this.buy, sell: this.sell } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })

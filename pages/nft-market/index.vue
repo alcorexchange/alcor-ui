@@ -1,17 +1,52 @@
 <template lang="pug">
 .row.mt-3
-  .col-2
+  .col-2.filters.pr-0
     .row.mb-lg-3
       .col
-        NewOrder(@created="fetchOrders")
+        NewOrder
+    .row
+      .col
+        el-card
+          div(slot="header")
+            span Authors
+            // FIXME el-button(style="float: right;" size="mini" type="text" @click="clearAuthorFilters") CLEAR
+          el-checkbox(
+            v-for="author in authors"
+            :key="author"
+            @change="addAutorFilter(author)"
+            :checked="isAuthorCheked(author)"
+          ) {{ author }}
+
+    .row.mt-2
+      .col
+        el-card
+          div(slot="header")
+            span Categories
+            //el-button(style="float: right;" size="mini" type="text") CLEAR
+          el-checkbox(
+            v-for="category in categories"
+            :key="category"
+            @change="addCatFilter(category)"
+            :checked="isCatCheked(category)"
+          ) {{ category }}
+
     //el-menu(router default-active='2')
       el-menu-item(index='/nft-markets/all' disabled) Filter
       el-menu-item(index='/nft-markets/all' disabled) Category
   .col-lg-10
-    .row.mt-2
+    // TODO Fixed top
+    //el-card
+    .row
       .col
-        .items
-          card.item(v-for="order in sellOrders" :order="order")
+        el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable)
+      //.col-lg-4
+      //.col-lg-8
+    hr
+
+    .row.mt-3
+      .col
+        .market-cards
+          card.item(v-for="order in filteredOrders" :order="order").mr-2
 
 </template>
 
@@ -28,48 +63,120 @@ export default {
 
   data() {
     return {
+      search: '',
+
       sellOrders: []
     }
   },
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters('api', ['rpc'])
+    ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
+    ...mapGetters('api', ['rpc']),
+
+    filteredOrders() {
+      let orders = this.orders
+
+      if (this.authorFilter.length > 0) orders = orders.filter(o => {
+        return o.sell.some(s => this.authorFilter.includes(s.author))
+      })
+
+      if (this.catFilter.length > 0) orders = orders.filter(o => {
+        return o.sell.some(s => this.catFilter.includes(s.category))
+      })
+
+
+      orders = orders.filter(o => {
+        return o.sell.some(s => {
+          const orderSearchData = s.author + s.category + s.id + JSON.stringify(s.idata) + JSON.stringify(s.idata)
+          return orderSearchData.includes(this.search)
+        })
+      })
+
+      return orders
+    },
+
+    authors() {
+      const authors = []
+
+      this.orders.map(o => {
+        o.sell.map(o => authors.push(o.author))
+      })
+
+      return Array.from(new Set(authors))
+    },
+
+    categories() {
+      const categories = []
+
+      this.orders.map(o => {
+        o.sell.map(o => categories.push(o.category))
+      })
+
+      return Array.from(new Set(categories))
+    }
   },
 
   mounted() {
-    this.fetchOrders()
+    this.$store.dispatch('nft/fetch')
   },
 
   methods: {
-    async fetchOrders() {
-      const { rows } = await this.rpc.get_table_rows({
-        code: this.network.nftMarket.contract,
-        scope: this.network.nftMarket.contract,
-        table: 'sellorders',
-        limit: 1000
-      })
+    addAutorFilter(author) {
+      if (this.authorFilter.includes(author)) {
+        console.log('includes..')
+        this.$store.commit('nft/setAuthorFilter', this.authorFilter.filter(a => a != author))
+      } else {
+        this.$store.commit('nft/setAuthorFilter', [...this.authorFilter, author])
+      }
+    },
 
-      this.sellOrders = rows
+    clearAuthorFilters() {
+      console.log('clear authorFilter', this.authorFilter)
+      this.$store.commit('nft/setAuthorFilter', [])
+      console.log(this.authorFilter)
+    },
+
+    isAuthorCheked(author) {
+      return this.authorFilter.includes(author)
+    },
+
+    addCatFilter(cat) {
+      if (this.catFilter.includes(cat)) {
+        this.$store.commit('nft/setCatFilter', this.catFilter.filter(a => a != cat))
+      } else {
+        this.$store.commit('nft/setCatFilter', [...this.catFilter, cat])
+      }
+    },
+
+    clearCatFilters() {
+      this.$store.commit('nft/setCatFilter', [])
+    },
+
+    isCatCheked(cat) {
+      return this.catFilter.includes(cat)
     }
   }
 }
 </script>
 
-<style scoped>
-.items {
-  display: flex;
-  flex-wrap: wrap!important;
-  justify-content: space-between;
+<style>
+.market-cards .el-card__header {
+  padding: 10px 20px;
 }
 
-.item {
+.market-cards {
+  display: flex;
+  flex-wrap: wrap!important;
+}
+
+.market-cards .item {
   width: 32%;
   margin-bottom: 10px;
 }
 
 @media only screen and (max-width: 600px) {
-  .item {
+  .market-cards .item {
     width: 100%;
   }
 }

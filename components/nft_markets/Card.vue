@@ -1,11 +1,11 @@
 <template lang="pug">
-  el-card(v-loading="loading" shadow="hover" @click.native="open").market-item
+  el-card(shadow="hover" @click.native="open").market-item
     div(slot='header')
       .badge.badge-primary.text-wrap {{ order.sell.length }} NFT's pack
     .row
       .col
         .market-items
-          .p-1(v-for="nft in nfts").pointer.mb-1
+          .p-1(v-for="nft in order.sell").pointer.mb-1
             .row
               .col-lg-3
                 .p-1
@@ -27,39 +27,8 @@ import { mapState, mapGetters } from 'vuex'
 export default {
   props: ['order'],
 
-  data() {
-    return {
-      nfts: [],
-
-      loading: true
-    }
-  },
-
   computed: {
     ...mapState(['network']),
-    ...mapGetters('api', ['rpc'])
-  },
-
-  async mounted() {
-    const nfts = []
-
-    for (const id of this.order.sell) {
-      const { rows: [item] } = await this.rpc.get_table_rows({
-        code: 'simpleassets',
-        scope: this.network.nftMarket.contract,
-        table: 'sassets',
-        lower_bound: id,
-        limit: 1
-      })
-
-      item.mdata = JSON.parse(item.mdata)
-      item.idata = JSON.parse(item.idata)
-
-      nfts.push(item)
-    }
-
-    this.nfts = nfts
-    this.loading = false
   },
 
   methods: {
