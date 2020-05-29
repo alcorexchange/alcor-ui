@@ -1,7 +1,9 @@
 <template lang="pug">
   el-card(shadow="hover" @click.native="open").market-item
     div(slot='header')
-      .badge.badge-primary.text-wrap {{ order.sell.length }} NFT's pack
+      .d-flex
+        b {{ price.amount | humanFloat(price.symbol.precision()) }} {{ price.symbol.code().to_string() }}
+        .badge.badge-primary.text-wrap.ml-auto {{ order.sell.length }} NFT's pack
     .row
       .col
         .market-items
@@ -12,7 +14,7 @@
                   img(:src="nft.mdata.img" height=70)
               .col-lg-9
                 .d-flex.flex-column
-                  .lead {{ nft.idata.name }}
+                  span {{ nft.mdata.name }}
                   b ID: {{ nft.id }}
                   span Category: {{ nft.category }}
                   span Author
@@ -23,13 +25,19 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { asset } from 'eos-common'
+import { mapState } from 'vuex'
 
 export default {
   props: ['order'],
 
   computed: {
     ...mapState(['network']),
+
+    price() {
+      const q = asset(this.order.buy.quantity)
+      return q
+    }
   },
 
   methods: {
@@ -58,6 +66,10 @@ export default {
 .market-item {
   max-height: 300px;
   cursor: pointer;
+}
+
+.market-item .badge {
+  line-height: inherit;
 }
 
 .market-items {
