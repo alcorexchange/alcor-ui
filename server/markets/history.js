@@ -12,7 +12,7 @@ const QUERY_LIMIT = 50
 export function getDeals (network, market_id) {
   const matches = getMatches(network)
 
-  return matches.filter(h => parseInt(h.act.data.record.market.id) == parseInt(market_id))
+  const deals = matches.filter(h => parseInt(h.act.data.record.market.id) == parseInt(market_id))
     .map(m => {
       const data = m.act.data.record
 
@@ -26,6 +26,8 @@ export function getDeals (network, market_id) {
 
       return data
     })
+
+  return deals.reverse()
 }
 
 export function getMatches(network) {
@@ -62,7 +64,8 @@ export async function loadHistory(network) {
         account: contract,
         skip,
         limit: QUERY_LIMIT,
-        filter
+        filter,
+        sort: 'asc'
       }
     })
 

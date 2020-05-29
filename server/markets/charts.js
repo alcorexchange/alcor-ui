@@ -1,5 +1,3 @@
-import config from '../../config'
-
 function formatDate(d) {
   let month = '' + (d.getMonth() + 1),
     day = '' + d.getDate()
@@ -20,7 +18,7 @@ export function dayChart(actions) {
     a.act.timestamp = new Date(a['@timestamp'])
 
     return a.act
-  }).reverse()) {
+  })) {
     const record = act.data.record
     result.push({ price: record.unit_price, time: act.timestamp })
   }
@@ -99,7 +97,6 @@ export function getVolume(deals, period) {
 
   return volume
 }
-
 
 export function getChange(deals, period) {
   deals = deals.filter(h => Date.now() - period < h.time.getTime())
