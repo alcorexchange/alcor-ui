@@ -1,3 +1,5 @@
+import { prepareNFT } from '~/utils'
+
 export const state = () => ({
   orders: [],
 
@@ -32,14 +34,14 @@ export const actions = {
       o.sell = o.sell.map(s => {
         const token = nfts.filter(n => n.id == s)[0]
         if (token) {
-          token.mdata = JSON.parse(token.mdata)
-          token.idata = JSON.parse(token.idata)
+          prepareNFT(token)
           s = token
         } else s = { id: s }
 
         return s
       })
     })
+
 
     commit('setOrders', orders)
   }

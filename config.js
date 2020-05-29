@@ -105,7 +105,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
 
     nftMarket: {
-      contract: 'nft'
+      contract: 'alcornftswap'
     }
   },
 

@@ -3,7 +3,6 @@ import Big from 'big.js'
 
 import config from '../config'
 
-
 export function littleEndianToDesimal(string) {
   if (typeof string === 'string' && string.startsWith('0x')) {
     const boundary = string.length / 2
@@ -133,4 +132,26 @@ export function parseOtcAsset(asset) {
 
 export function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+
+export function prepareNFT(nfts) {
+  // Parse nft of nfts
+  if (nfts.length == undefined) {
+    nfts = [nfts]
+  }
+
+  nfts.map(nft => {
+    try {
+      nft.mdata = JSON.parse(nft.mdata)
+    } catch {}
+
+    try {
+      nft.idata = JSON.parse(nft.idata)
+    } catch {}
+
+    if (nft.mdata.img && nft.mdata.img.startsWith('Qm')) {
+      nft.mdata.img = 'https://ipfs.io/ipfs/' + nft.mdata.img
+    }
+  })
 }

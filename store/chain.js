@@ -68,22 +68,38 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters }, provider) {
-    if (provider == 'wax') {
-      const userAccount = await state.wallet.wax.login()
-      commit('setUser', { name: userAccount }, { root: true })
-      commit('setCurrentWallet', 'wax')
-    } else {
-      commit('setProvider', provider)
-      const wallet = getters.wallet
+    try {
+      if (provider == 'wax') {
+        const userAccount = await state.wallet.wax.login()
+        commit('setUser', { name: userAccount }, { root: true })
+        commit('setCurrentWallet', 'wax')
+      } else {
+        commit('setProvider', provider)
+        const wallet = getters.wallet
 
-      if (!wallet.connected) {
-        await getters.wallet.connect()
+        let r
+        try {
+          if (!wallet.connected) {
+            await getters.wallet.connect()
+          }
+
+          r = await wallet.login()
+        } catch (e) {
+          this._vm.$notify({ title: 'Login error', message: e, type: 'error' })
+          if (state.loginPromise) state.loginPromise.resolve(false)
+          console.log('login crash...')
+          getters.wallet.logout()
+          return
+        }
+
+        commit('setUser', { name: r.account_name }, { root: true })
+        dispatch('loadUserBalances', {}, { root: true })
       }
 
-      const r = await wallet.login()
-
-      commit('setUser', { name: r.account_name }, { root: true })
-      dispatch('loadUserBalances', {}, { root: true })
+      if (state.loginPromise) state.loginPromise.resolve(true)
+    } catch (e) {
+      if (state.loginPromise) state.loginPromise.resolve(false)
+      throw e
     }
   },
 

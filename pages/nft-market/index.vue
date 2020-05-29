@@ -22,13 +22,12 @@
         el-card
           div(slot="header")
             span Categories
-            //el-button(style="float: right;" size="mini" type="text") CLEAR
           el-checkbox(
             v-for="category in categories"
             :key="category"
             @change="addCatFilter(category)"
             :checked="isCatCheked(category)"
-          ) {{ category }}
+          ).w-100 {{ category }}
 
     //el-menu(router default-active='2')
       el-menu-item(index='/nft-markets/all' disabled) Filter
@@ -85,11 +84,10 @@ export default {
         return o.sell.some(s => this.catFilter.includes(s.category))
       })
 
-
       orders = orders.filter(o => {
         return o.sell.some(s => {
-          const orderSearchData = s.author + s.category + s.id + JSON.stringify(s.idata) + JSON.stringify(s.idata)
-          return orderSearchData.includes(this.search)
+          const orderSearchData = s.author + s.category + s.id + JSON.stringify(s.idata) + JSON.stringify(s.mdata)
+          return orderSearchData.toLowerCase().includes(this.search.toLowerCase())
         })
       })
 
@@ -155,6 +153,16 @@ export default {
 
     isCatCheked(cat) {
       return this.catFilter.includes(cat)
+    }
+  },
+
+  head() {
+    return {
+      title: `Alcor NFT Market | Trustless NFT market on ${this.network.name.toUpperCase()} chain`,
+
+      meta: [
+        { hid: 'description', name: 'description', content: `Atomic, no fee, NFT marketplace.` }
+      ]
     }
   }
 }

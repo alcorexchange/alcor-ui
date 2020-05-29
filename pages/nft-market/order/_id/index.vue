@@ -16,7 +16,7 @@ el-card(v-if="!no_found").box-card.mt-3
               img(:src="nft.mdata.img" height=80)
             .col-lg-10
               .d-flex.flex-column
-                .lead {{ nft.idata.name }}
+                .lead {{ nft.mdata.name }}
                 b ID: {{ nft.id }}
                 span Category: {{ nft.category }}
                 div.ml-auto
@@ -68,7 +68,7 @@ import { mapState, mapActions, mapGetters } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 
-import config from '~/config'
+import { prepareNFT } from '~/utils'
 
 export default {
   components: {
@@ -117,6 +117,7 @@ export default {
     const nfts = []
     this.loading = true
 
+    // TODO Create global base of nft tokens that contract holds
     for (const id of this.order.sell) {
       const { rows: [item] } = await this.rpc.get_table_rows({
         code: 'simpleassets',
@@ -126,8 +127,7 @@ export default {
         limit: 1
       })
 
-      item.mdata = JSON.parse(item.mdata)
-      item.idata = JSON.parse(item.idata)
+      prepareNFT(item)
 
       nfts.push(item)
     }

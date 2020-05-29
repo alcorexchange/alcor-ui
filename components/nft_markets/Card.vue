@@ -9,7 +9,7 @@
             .row
               .col-lg-3
                 .p-1
-                  img(:src="nft.mdata.img" height=50)
+                  img(:src="nft.mdata.img" height=70)
               .col-lg-9
                 .d-flex.flex-column
                   .lead {{ nft.idata.name }}
@@ -17,6 +17,7 @@
                   span Category: {{ nft.category }}
                   span Author
                     b.ml-1 {{ nft.author }}
+            hr.m-0
 
         //el-button().w-100 Show
 </template>
