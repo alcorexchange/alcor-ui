@@ -1,7 +1,7 @@
 <template lang="pug">
 .row.mt-3
-  .col-2.filters.pr-0
-    .row.mb-lg-3
+  .col-lg-2.filters.pr-0
+    .row.mb-3
       .col
         NewOrder
     .row
@@ -17,7 +17,7 @@
             :checked="isAuthorCheked(author)"
           ).w-100 {{ author }}
 
-    .row.mt-2
+    .row.mt-2.mb-2
       .col
         el-card
           div(slot="header")
@@ -32,7 +32,7 @@
     //el-menu(router default-active='2')
       el-menu-item(index='/nft-markets/all' disabled) Filter
       el-menu-item(index='/nft-markets/all' disabled) Category
-  .col-lg-10
+  .col-lg-10.pr-0
     // TODO Fixed top
     //el-card
     .row
@@ -45,7 +45,7 @@
     .row.mt-3
       .col
         .market-cards
-          card.item(v-for="order in filteredOrders" :order="order").mr-2
+          card.item(v-for="order in filteredOrders" :order="order").mr-lg-2
 
 </template>
 
