@@ -19,6 +19,12 @@ el-card(v-if="!no_found").box-card.mt-3
                 .lead {{ nft.mdata.name }}
                 b ID: {{ nft.id }}
                 span Category: {{ nft.category }}
+
+            //.col-lg-5
+              .d-flex.flex-column
+                span(v-for="(key, value) in nft.idata")
+                  | {{ key }} {{ value }}
+
                 div.ml-auto
                   span.mr-1 Author
                   a(:href="monitorAccount(nft.author)" target="_blank") {{ nft.author }}
