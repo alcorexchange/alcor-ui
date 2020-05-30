@@ -94,6 +94,7 @@ export const actions = {
 
         commit('setUser', { name: r.account_name }, { root: true })
         dispatch('loadUserBalances', {}, { root: true })
+        commit('setCurrentWallet', 'transit')
       }
 
       if (state.loginPromise) state.loginPromise.resolve(true)
