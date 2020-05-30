@@ -170,8 +170,8 @@ export default {
           data: {
             user: this.user.name,
             to_sell: this.amount + ' ' + this.current.supply.symbol.code().to_string(),
-            min_ext_asset1: { contract: this.poolOne.contract, quantity: this.baseReceive.to_string() },
-            min_ext_asset2: { contract: this.poolTwo.contract, quantity: this.quoteReceive.to_string() }
+            min_asset1: this.baseReceive.to_string(),
+            min_asset2: this.quoteReceive.to_string()
           }
         }, {
           account: this.network.pools.contract,

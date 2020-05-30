@@ -193,8 +193,8 @@ export default {
           data: {
             user: this.user.name,
             to_buy: this.tokenReceive,
-            max_ext_asset1: { contract: this.current.pool1.contract, quantity: amount1 },
-            max_ext_asset2: { contract: this.current.pool2.contract, quantity: amount2 }
+            max_asset1: amount1,
+            max_asset2: amount2
           }
         }]
 
@@ -202,7 +202,8 @@ export default {
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
         this.$emit('update')
-        //this.visible = false
+        this.visible = false
+        this.$notify({ title: 'Provide liquidity', message: 'Provided successful', type: 'success' })
         console.log(r)
       } catch (e) {
         console.log(e)

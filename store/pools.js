@@ -12,33 +12,33 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetchPools({ commit, rootGetters, rootState }) {
+  async fetchPools({ state, commit, rootGetters, rootState }) {
     const { rows } = await rootGetters['api/rpc'].get_table_by_scope({
       code: rootState.network.pools.contract,
       table: 'stat',
       limit: 1000
     })
 
-    const pools = []
-    rows.reverse().map(r => {
-      rootGetters['api/rpc'].get_table_rows({
+    const requests = rows.map(r => {
+      return rootGetters['api/rpc'].get_table_rows({
         code: rootState.network.pools.contract,
         scope: r.scope,
         table: 'stat',
         limit: 1
-      }).then(data => {
-        const [pool] = data.rows
-
-        pool.pool1.quantity = asset(pool.pool1.quantity)
-        pool.pool2.quantity = asset(pool.pool2.quantity)
-        pool.supply = asset(pool.supply)
-
-        pools.push(pool)
       })
     })
 
+    const pools = (await Promise.all(requests)).reverse().map(r => {
+      const [pool] = r.rows
+
+      pool.pool1.quantity = asset(pool.pool1.quantity)
+      pool.pool2.quantity = asset(pool.pool2.quantity)
+      pool.supply = asset(pool.supply)
+
+      return pool
+    })
+
     commit('setPools', pools)
-    console.log('fetch, new pools: ', pools)
   }
 }
 

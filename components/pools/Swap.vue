@@ -55,11 +55,10 @@ div
           .col
             .row
               .col
-                .lead Pool price: {{ (current.pool2.quantity.amount / current.pool1.quantity.amount).toFixed(5) }}
-                  |  {{ current.pool1.quantity.symbol.code().to_string() }}
+                .lead Pool price: {{ poolPrice }}   {{ current.pool1.quantity.symbol.code().to_string() }}
             .row
               .col
-                .lead Current price: {{ price }}
+                .lead Current price: {{ price }}   {{ current.pool1.quantity.symbol.code().to_string() }}
         .row
           .col
             PleaseLoginButton
@@ -70,40 +69,6 @@ div
           .col-6.bordered
             .p-3
               .lead No pools yet
-
-  .row
-    .col
-      el-table(:data="pools" @row-click="clickPool" row-class-name="order-row")
-        el-table-column(label="Price")
-          template(slot-scope="scope")
-            span {{ scope.row.pool2.quantity.amount }} {{ scope.row.pool1.quantity.amount }}
-
-        el-table-column(label="Pool 1")
-          template(slot-scope="scope")
-            TokenImage(:src="$tokenLogo(scope.row.pool1.quantity.symbol.code().to_string(), scope.row.pool1.contract)" height="25")
-            span.ml-2(v-if="scope.row.pool1.quantity.symbol.code().to_string() == 'EOS' && scope.row.pool1.contract != 'eosio.token'")
-              el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
-                el-tag(type="danger") {{ scope.row.pool1.quantity.symbol.code().to_string() }}@{{ scope.row.pool1.contract }}
-
-            span.ml-2(v-else) {{ scope.row.pool1.quantity.symbol.code().to_string() }}@{{ scope.row.pool1.contract }}
-
-        el-table-column(label="Pool 2")
-          template(slot-scope="scope")
-            TokenImage(:src="$tokenLogo(scope.row.pool2.quantity.symbol.code().to_string(), scope.row.pool2.contract)" height="25")
-            span.ml-2(v-if="scope.row.pool2.quantity.symbol.code().to_string() == 'EOS' && scope.row.pool2.contract != 'eosio.token'")
-              el-tooltip(effect="dark" content='This is not "EOS" system token, be careful' placement="top")
-                el-tag(type="danger") {{ scope.row.pool2.quantity.symbol.code().to_string() }}@{{ scope.row.pool2.contract }}
-
-            span.ml-2(v-else) {{ scope.row.pool2.quantity.symbol.code().to_string() }}@{{ scope.row.pool2.contract }}
-
-        el-table-column(label="Liquidity provider fee")
-          template(slot-scope="scope")
-            span {{ scope.row.fee / 100 }} %
-
-        el-table-column(label="Backed token supply")
-          template(slot-scope="scope")
-            span {{ scope.row.supply.to_string() }}
-
 </template>
 
 <script>
@@ -159,12 +124,20 @@ export default {
       return this.current[this.input == 'pool1' ? 'pool2' : 'pool1']
     },
 
+    poolPrice() {
+      return (this.current.pool2.quantity.amount / this.current.pool1.quantity.amount).toFixed(5)
+    },
+
     price() {
+      let price
+
       if (this.input == 'pool1') {
-        return Math.abs(this.amount2 / this.amount1).toFixed(5)
+        price = Math.abs(this.amount2 / this.amount1)
       } else {
-        return Math.abs(this.amount1 / this.amount2).toFixed(5)
+        price = Math.abs(this.amount1 / this.amount2)
       }
+
+      return (price || this.current.pool2.quantity.amount / this.current.pool1.quantity.amount).toFixed(5)
     }
   },
 
@@ -203,7 +176,6 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch('pools/fetchPools')
   },
 
   methods: {
@@ -222,92 +194,24 @@ export default {
       let amount1
       let amount2
 
-      const input = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
-
-      //if (this.input == 'pool1') {
-      //  amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
-      //  amount2 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
-      //} else {
-      //  amount1 = number_to_asset(-parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
-      //  amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
-      //}
-
       if (this.input == 'pool1') {
         amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
-        amount2 = '-' + number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+        amount2 = number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
       } else {
-        amount1 = '-' + number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+        amount1 = number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
         amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
       }
 
-      //console.log(amount1, this.amount2)
-      //return
-
       const actions = [
         {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.current.pool1.contract, sym: this.current.pool1.quantity.symbol.toString() }
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.current.pool2.contract, sym: this.current.pool2.quantity.symbol.toString() }
-          }
-        }, {
           account: this.poolOne.contract,
           name: 'transfer',
           authorization,
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: input,
-            memo: ''
-          }
-        },
-        {
-          account: this.network.pools.contract,
-          name: 'exchange',
-          authorization,
-          data: {
-            user: this.user.name,
-            through: this.current.supply.symbol.toString(),
-            ext_asset1: {
-              contract: this.current.pool1.contract,
-              quantity: amount1
-            },
-            ext_asset2: {
-              contract: this.current.pool2.contract,
-              quantity: amount2
-            }
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'closeext',
-          authorization,
-          data: {
-            user: this.user.name,
-            ext_symbol: { contract: this.current.pool1.contract, sym: `${this.current.pool1.quantity.symbol.toString()}` },
-            to: this.user.name,
-            memo: ''
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'closeext',
-          authorization,
-          data: {
-            user: this.user.name,
-            ext_symbol: { contract: this.current.pool2.contract, sym: `${this.current.pool2.quantity.symbol.toString()}` },
-            to: this.user.name,
-            memo: ''
+            quantity: amount1,
+            memo: `exchange: ${this.current.supply.symbol.code().to_string()},${amount2},lol`
           }
         }
       ]
@@ -328,6 +232,10 @@ export default {
       this.input = this.input == 'pool1' ? 'pool2' : 'pool1'
 
       this.amountChange()
+    },
+
+    fetch() {
+      this.$store.dispatch('pools/fetchPools')
     }
   }
 }
