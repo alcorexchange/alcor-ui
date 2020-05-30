@@ -314,7 +314,7 @@ export default {
 
       this.loading = true
       try {
-        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.$store.dispatch('chain/sendTransaction', actions)
         this.$notify({ title: 'Exchange', message: 'Success', type: 'success' })
       } catch (e) {
         this.$notify({ title: 'Place order', message: e, type: 'error' })
@@ -328,7 +328,7 @@ export default {
       this.input = this.input == 'pool1' ? 'pool2' : 'pool1'
 
       this.amountChange()
-    },
+    }
   }
 }
 </script>
