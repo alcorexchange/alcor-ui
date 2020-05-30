@@ -26,6 +26,7 @@
               align="right"
               header-align="right"
               sortable
+              :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
                 .text-success {{ scope.row.last_price | humanPrice }} {{ network.baseToken.symbol }}
@@ -35,6 +36,7 @@
               header-align="right"
               sortable
               sort-by="volume24"
+              :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
                 span.text-mutted {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
@@ -45,6 +47,7 @@
               header-align="right"
               sortable
               sort-by="change24"
+              :sort-orders="['descending', null]"
             )
               template(slot-scope="scope" align="right" header-align="right")
                 change-percent(:change="scope.row.change24")
@@ -56,6 +59,7 @@
               header-align="right"
               sortable
               sort-by="volumeWeek"
+              :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
                 span.text-mutted {{ scope.row.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
@@ -67,6 +71,7 @@
               header-align="right"
               sortable
               sort-by="changeWeek"
+              :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
                 change-percent(:change="scope.row.changeWeek")
