@@ -190,7 +190,7 @@ export default {
             initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
             initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
             initial_fee: 10, // TODO Вынести в параметер тоже
-            fee_contract: 'avral.pro' // TODO Это в контракте пофиксить
+            fee_contract: 'evodextester' // TODO Это в контракте пофиксить
           }
         }
       ]
