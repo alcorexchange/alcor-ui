@@ -3,7 +3,8 @@
     div(slot='header')
       .d-flex
         b {{ price.amount | humanFloat(price.symbol.precision()) }} {{ price.symbol.code().to_string() }}
-        .badge.badge-primary.text-wrap.ml-auto {{ order.sell.length }} NFT's pack
+        //.badge.el-button--primary.text-wrap.ml-auto {{ order.sell.length }} NFT's pack
+        .badge.el-button--primary.text-wrap.ml-auto(v-if="order.sell.length > 1") {{ order.sell.length }} NFT's pack
     .row
       .col
         .market-items
