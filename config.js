@@ -13,7 +13,7 @@ const networks = {
       symbol: 'EOS',
       precision: 4
     },
-    marketCreationFee: '3.0000 EOS',
+    marketCreationFee: '5.0000 EOS',
 
     chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
 
@@ -78,7 +78,7 @@ const networks = {
       precision: 8
     },
 
-    marketCreationFee: '300.00000000 WAX',
+    marketCreationFee: '1500.00000000 WAX',
 
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
