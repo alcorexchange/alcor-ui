@@ -102,6 +102,7 @@
             .col
               el-menu(router, :default-active="activeLink", mode='horizontal')
                 el-menu-item(index="/markets") Markets
+                el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'wax'") NFT Market
                 el-menu-item(index="/otc") OTC Exchange
                 el-menu-item(index="/about") About
 
