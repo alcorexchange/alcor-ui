@@ -2,7 +2,7 @@
 div
   el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
 
-  el-dialog(title="Create new order", :visible.sync="visible" width="50%")
+  el-dialog(title="All liquidity", :visible.sync="visible" width="50%")
     .row
       .col
         .text.item(v-if="current.pool1")
@@ -17,7 +17,7 @@ div
 
               hr
 
-              el-input(type="number" v-model="amount1" clearable @change="amountChange").mt-2
+              el-input(type="number" v-model="amount1" clearable @input="amount1Input" @change="amountChange").mt-2
                 span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
               //.lead {{ order.sell.quantity }}@
@@ -32,7 +32,7 @@ div
 
               hr
 
-              el-input(type="number" v-model="amount2" clearable @change="amountChange").mt-2
+              el-input(type="number" v-model="amount2" clearable @input="amount2Input" @change="amountChange").mt-2
                 span(slot="suffix").mr-1 {{ poolTwo.quantity.symbol.code().to_string() }}
           .row.mb-3(v-if="current.pool1")
             .col
@@ -105,8 +105,8 @@ export default {
 
       const to_buy = computeBackward(
         amount1,
-        this.current.pool1.quantity.amount,
         this.current.supply.amount,
+        this.current.pool1.quantity.amount,
         this.current.fee
       )
 
@@ -122,27 +122,51 @@ export default {
     },
 
     poolPrice() {
-      return this.current.pool2.quantity.amount / this.current.pool1.quantity.amount
-    }
-  },
-
-  watch: {
-    amount1() {
-      const amount2 = number_to_asset(0, this.current.pool2.quantity.symbol)
-
-      amount2.set_amount(
-        computeForward(this.tokenReceive, this.current.pool2.quantity.amount, this.current.supply.amount, this.current.fee)
-      )
-
-      this.amount2 = amount2.to_string().split(' ')[0]
-    },
-
-    amount2() {
-      //this.calcReceive(this.amount2)
+      return this.current.pool1.quantity.amount / this.current.pool2.quantity.amount
     }
   },
 
   methods: {
+    amount1Input(value) {
+      let amount1 = (parseFloat(value) || 0).toFixed(this.current.pool1.quantity.symbol.precision())
+
+      amount1 = asset(amount1 + ' ' + this.current.pool1.quantity.symbol.code().to_string()).amount
+
+      const to_buy = computeBackward(
+        amount1,
+        this.current.pool2.quantity.amount,
+        this.current.supply.amount,
+        this.current.fee
+      )
+
+      const amount2 = number_to_asset(0, this.current.pool2.quantity.symbol)
+
+      amount2.set_amount(
+        computeForward(to_buy, this.current.pool2.quantity.amount, this.current.supply.amount, this.current.fee)
+      )
+      this.amount2 = amount2.to_string().split(' ')[0]
+    },
+
+    amount2Input(value) {
+      let amount2 = (parseFloat(value) || 0).toFixed(this.current.pool1.quantity.symbol.precision())
+
+      amount2 = asset(amount2 + ' ' + this.current.pool1.quantity.symbol.code().to_string()).amount
+
+      const to_buy = computeBackward(
+        amount2,
+        this.current.pool1.quantity.amount,
+        this.current.supply.amount,
+        this.current.fee
+      )
+
+      const amount1 = number_to_asset(0, this.current.pool1.quantity.symbol)
+
+      amount1.set_amount(
+        computeForward(to_buy, this.current.pool1.quantity.amount, this.current.supply.amount, this.current.fee)
+      )
+      this.amount1 = amount1.to_string().split(' ')[0]
+    },
+
     async open() {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
 

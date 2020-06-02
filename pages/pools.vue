@@ -1,11 +1,11 @@
 <template lang="pug">
 // FIXME
 .row.mt-3
-  .col-lg-3.border-right
+  .col-lg-3
     .row
-      .col-lg-7
-        el-input(placeholder="Search pool" size="small" v-model="search")
-      .col-lg-5
+      .col
+        el-input(placeholder="Search pool" size="small" v-model="search" clearable)
+      //.col-lg-5
         create
     hr
     .row
@@ -27,7 +27,8 @@
         h1 olol
         span asdfasdf
   .col-lg-9
-    Swap
+    el-card
+      Swap
 
     //el-tabs(type='border-card')
       el-tab-pane(label='Swap')

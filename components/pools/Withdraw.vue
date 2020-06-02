@@ -115,6 +115,10 @@ export default {
     }
   },
 
+  mounted() {
+    this.amountChange()
+  },
+
   methods: {
     async open() {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
@@ -123,7 +127,12 @@ export default {
     },
 
     amountChange() {
-      this.amount = this.toFixed(this.amount, this.current.supply.symbol.precision())
+      try {
+        this.amount = this.toFixed(this.amount, this.current.supply.symbol.precision())
+      } catch {
+        this.amount = 0.0
+        this.amountChange()
+      }
     },
 
     async withdraw() {

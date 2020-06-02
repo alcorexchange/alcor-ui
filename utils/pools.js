@@ -18,8 +18,8 @@ export function computeForward(x, y, z, fee) {
 
 export function computeBackward(x, y, z, fee) {
   const fee_amount = x.multiply(fee).plus(9999).divide(10000)
-
   x = x.minus(fee_amount)
-  const div = y.plus(x)
-  return x.multiply(z).multiply(-1).divide(div).abs()
+  x = x.multiply(y).divide(z)
+
+  return x
 }

@@ -11,8 +11,19 @@ div
             .d-flex.justify-content-end
               Withdraw(@update="fetch").mr-3
               Liquidity(:current="current" @update="fetch")
+        //.row
+          .col-lg-6.border-right
+            .text-center
+              .lead Input
+
+              p The amount that you give
+          .col-6
+            .text-center
+              .lead Output
+              p.mt-2 The amount that you will receive
+
         .row.mb-3.mt-2
-          .col-6.bordered
+          .col-lg-5
             .row
               .col-lg-2
                 TokenImage(:src="$tokenLogo(poolOne.quantity.symbol.code().to_string(), poolOne.contract)" height="50").ml-2
@@ -20,21 +31,29 @@ div
                 .lead {{ poolOne.quantity.symbol.code().to_string() }}@{{ poolOne.contract }}
                 b Pool size: {{ poolOne.quantity }}
 
-                el-button(@click="swapInput"  icon="el-icon-refresh").ml-3 Switch
-
             hr
 
-            .text-center
-              .lead Input
+            .row.mt-4
+              .col.border-right
+                .text-center
+                  .lead Input
+                  p The amount that you give
 
-              p The amount that you give
+                el-input(type="number" v-model="amount1" clearable @change="amountChange").mt-2
+                  span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
-            el-input(type="number" v-model="amount1" clearable @change="amountChange").mt-3
-              span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
+          .col-lg-2
+            .row
+              .col
+                .d-flex.justify-content-center
+                  h1.el-icon-refresh(@click="swapInput").pointer.mt-5.el-button--text
 
-            //.lead {{ order.sell.quantity }}@
-              a(:href="monitorAccount(order.sell.contract)" target="_blank") {{ order.sell.contract }}
-          .col-6
+            .row
+              .col.text-center.mt-4
+                a(href="https://github.com/EOSArgentina/evolutiondex" target="_blank")
+                  img(src="~/assets/logos/evodex.png" height=70)
+
+          .col-lg-5
             .row
               .col-lg-2
                 TokenImage(:src="$tokenLogo(poolTwo.quantity.symbol.code().to_string(), poolTwo.contract)" height="50").ml-2
@@ -44,21 +63,19 @@ div
 
             hr
 
-            .text-center
-              .lead Output
-              p.mt-2 The amount that you will receive
+            .row.mt-4
+              .col.border-left
+                .text-center
+                  .lead Output
+                  p.mt-2 The amount that you will receive
 
-              .lead {{ amount2 }}
-            //el-input(type="number" v-model="amount2" clearable @change="amountChange" disabled).mt-3
-              span(slot="suffix").mr-1 {{ poolTwo.quantity.symbol.code().to_string() }}
+                  .lead {{ amount2 }}  {{ current.pool2.quantity.symbol.code().to_string() }}
+
         .row.mb-3(v-if="current.pool1")
           .col
             .row
               .col
-                .lead Pool price: {{ poolPrice }}   {{ current.pool1.quantity.symbol.code().to_string() }}
-            .row
-              .col
-                .lead Current price: {{ price }}   {{ current.pool1.quantity.symbol.code().to_string() }}
+                pre Price for current amount: {{ price }}   {{ current.pool1.quantity.symbol.code().to_string() }}
         .row
           .col
             PleaseLoginButton
@@ -120,24 +137,30 @@ export default {
     },
 
     poolPrice() {
-      return (this.current.pool2.quantity.amount / this.current.pool1.quantity.amount).toFixed(5)
+      return (this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
     },
 
     price() {
       let price
 
-      if (this.input == 'pool1') {
-        price = Math.abs(this.amount2 / this.amount1)
-      } else {
-        price = Math.abs(this.amount1 / this.amount2)
-      }
-
-      return (price || this.current.pool2.quantity.amount / this.current.pool1.quantity.amount).toFixed(5)
+      price = Math.abs(this.amount1 / this.amount2)
+      return (price || this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
     }
   },
 
   watch: {
     amount1() {
+      this.updateAmounts()
+    },
+
+    current() {
+      this.amount1 = 0.0
+      this.amountChange()
+    }
+  },
+
+  methods: {
+    updateAmounts() {
       if (isNaN(this.amount1)) return
 
       const a = asset(`${this.amount1} ${this.poolOne.quantity.symbol.code().to_string()}`).amount
@@ -163,17 +186,11 @@ export default {
       }
     },
 
-    amount2() {
-      //this.calcReceive(this.amount2)
-    }
-
-  },
-
-  mounted() {
-  },
-
-  methods: {
     amountChange() {
+      if (!this.amount1) {
+        this.amount1 = 0.0
+      }
+
       this.amount1 = this.toFixed(this.amount1, this.poolOne.quantity.symbol.precision())
       this.amount2 = this.toFixed(this.amount2, this.poolTwo.quantity.symbol.precision())
     },
@@ -226,6 +243,7 @@ export default {
       this.input = this.input == 'pool1' ? 'pool2' : 'pool1'
 
       this.amountChange()
+      this.updateAmounts()
     },
 
     fetch() {
@@ -236,7 +254,4 @@ export default {
 </script>
 
 <style>
-.bordered {
-  border-right: 1px solid;
-}
 </style>
