@@ -112,7 +112,7 @@ export default {
     },
 
     poolOne() {
-      return this.current[this.input]
+      return this.current[this.input == 'pool1' ? 'pool1' : 'pool2']
     },
 
     poolTwo() {
@@ -150,7 +150,13 @@ export default {
         r.set_amount(Math.abs(computeForward(a.multiply(-1), p2, p1.plus(a), this.current.fee)))
         this.amount2 = r.to_string().split(' ')[0]
       } else {
-        const result = computeBackward(a, p1, p2, this.current.fee)
+        const result = computeForward(
+          a.multiply(-1),
+          this.current.pool1.quantity.amount,
+          this.current.pool2.quantity.amount + a,
+          this.current.fee
+        ).abs()
+
         const r = number_to_asset(0, this.current.pool1.quantity.symbol)
         r.set_amount(result)
         this.amount2 = r.to_string().split(' ')[0]
@@ -183,16 +189,16 @@ export default {
       let amount2
 
       if (this.input == 'pool1') {
-        amount1 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
-        amount2 = number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
+        amount1 = number_to_asset(parseFloat(this.amount1), this.current.pool1.quantity.symbol).to_string()
+        amount2 = number_to_asset(parseFloat(this.amount2), this.current.pool2.quantity.symbol).to_string()
       } else {
-        amount1 = number_to_asset(parseFloat(this.amount2), this.poolTwo.quantity.symbol).to_string()
-        amount2 = number_to_asset(parseFloat(this.amount1), this.poolOne.quantity.symbol).to_string()
+        amount1 = number_to_asset(parseFloat(this.amount1), this.current.pool2.quantity.symbol).to_string()
+        amount2 = number_to_asset(parseFloat(this.amount2), this.current.pool1.quantity.symbol).to_string()
       }
 
       const actions = [
         {
-          account: this.poolOne.contract,
+          account: this.input == 'pool1' ? this.current.pool1.contract : this.current.pool2.contract,
           name: 'transfer',
           authorization,
           data: {
