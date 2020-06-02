@@ -9,7 +9,7 @@ div
               p Quick swap or make money on provide liquidity.
           .col
             .d-flex.justify-content-end
-              Withdraw(:current="current" @update="fetch").mr-3
+              Withdraw(@update="fetch").mr-3
               Liquidity(:current="current" @update="fetch")
         .row.mb-3.mt-2
           .col-6.bordered
@@ -75,17 +75,12 @@ div
 import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 
+import { computeForward, computeBackward } from '~/utils/pools'
+
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
 import Liquidity from '~/components/pools/Liquidity'
 import Withdraw from '~/components/pools/Withdraw'
-
-const inputToOutput = (a, pool1, pool2, fee) => {
-  const tmp = a.multiply(-1).multiply(pool2).divide(pool1.plus(a))
-
-  //Add fee
-  return tmp.plus(tmp.multiply(-1).multiply(fee).plus(9999).divide(10000))
-}
 
 export default {
   components: {
@@ -145,26 +140,19 @@ export default {
     amount1() {
       if (isNaN(this.amount1)) return
 
-      let a = asset(`${this.amount1} ${this.poolOne.quantity.symbol.code().to_string()}`).amount
+      const a = asset(`${this.amount1} ${this.poolOne.quantity.symbol.code().to_string()}`).amount
 
       const p1 = this.poolOne.quantity.amount
       const p2 = this.poolTwo.quantity.amount
 
-      //this.calcReceive(this.amount1)
       if (this.input == 'pool1') {
         const r = number_to_asset(0, this.poolTwo.quantity.symbol)
-        r.set_amount(Math.abs(inputToOutput(a, p1, p2, this.current.fee)))
+        r.set_amount(Math.abs(computeForward(a.multiply(-1), p2, p1.plus(a), this.current.fee)))
         this.amount2 = r.to_string().split(' ')[0]
       } else {
-        // FIXME Не считает для пресижина
-
-        const fee = a.multiply(this.current.fee).plus(9999).divide(10000)
-        a = a.minus(fee)
-        const div = p1.plus(a)
-        const result = a.multiply(p2).multiply(-1).divide(div).abs()
+        const result = computeBackward(a, p1, p2, this.current.fee)
         const r = number_to_asset(0, this.current.pool1.quantity.symbol)
         r.set_amount(result)
-        //console.log('result', r.amount, 'will receive: ', check)
         this.amount2 = r.to_string().split(' ')[0]
       }
     },

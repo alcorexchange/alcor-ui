@@ -37,7 +37,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'evolutiondex'
+      contract: 'evolutiondex',
+      fee: 'evodextester'
     },
 
     pegs: {
@@ -277,7 +278,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'evolutiondex'
+      contract: 'evolutiondex',
+      fee: 'evodextester'
     },
 
     pegs: {},

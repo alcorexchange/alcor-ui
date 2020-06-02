@@ -49,7 +49,9 @@ div
 
                   .row
                     .col
-                      .lead Estimated token receive: {{ tokenReceive }}
+                      .lead Estimated token receive:
+                        |  {{ tokenReceive | humanFloat(this.current.supply.symbol.precision()) }}
+                        |  {{ this.current.supply.symbol.code().to_string() }}
           .row
             .col
               PleaseLoginButton
@@ -60,6 +62,8 @@ div
 <script>
 import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
+
+import { computeForward, computeBackward } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
@@ -97,13 +101,16 @@ export default {
     ...mapState(['network']),
 
     tokenReceive() {
-      let amount1 = asset(this.amount1 + ' TEST').amount
+      const amount1 = asset(this.amount1 + ' TEST').amount
 
-      const fee = amount1.multiply(this.current.fee).plus(9999).divide(10000) // вроде вот этот варик округляет но как раз в нужную сторону!! ))
-      amount1 = amount1.minus(fee)
-      amount1 = amount1.multiply(this.current.supply.amount).divide(this.current.pool1.quantity.amount)
+      const to_buy = computeBackward(
+        amount1,
+        this.current.pool1.quantity.amount,
+        this.current.supply.amount,
+        this.current.fee
+      )
 
-      return asset(amount1, this.current.supply.symbol).to_string()
+      return to_buy
     },
 
     poolOne() {
@@ -121,7 +128,13 @@ export default {
 
   watch: {
     amount1() {
-      this.amount2 = Math.abs(this.amount1 * this.poolPrice).toFixed(this.current.pool2.quantity.symbol.precision())
+      const amount2 = number_to_asset(0, this.current.pool2.quantity.symbol)
+
+      amount2.set_amount(
+        computeForward(this.tokenReceive, this.current.pool2.quantity.amount, this.current.supply.amount, this.current.fee)
+      )
+
+      this.amount2 = amount2.to_string().split(' ')[0]
     },
 
     amount2() {
@@ -146,6 +159,7 @@ export default {
 
       const amount1 = asset(`${this.amount1} ${this.current.pool1.quantity.symbol.code().to_string()}`).to_string()
       const amount2 = asset(`${this.amount2} ${this.current.pool2.quantity.symbol.code().to_string()}`).to_string()
+      const to_buy = asset(this.tokenReceive, this.current.supply.symbol).to_string()
 
       const actions = [
         {
@@ -192,7 +206,7 @@ export default {
           authorization,
           data: {
             user: this.user.name,
-            to_buy: this.tokenReceive,
+            to_buy,
             max_asset1: amount1,
             max_asset2: amount2
           }

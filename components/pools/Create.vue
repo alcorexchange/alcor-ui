@@ -87,14 +87,6 @@ export default {
       return this.$store.state.network.baseToken
     },
 
-    poolOne() {
-      return this.current[this.input]
-    },
-
-    poolTwo() {
-      return this.current[this.input == 'pool1' ? 'pool2' : 'pool1']
-    },
-
     price() {
       if (this.base.currency && this.quote.currency) {
         return Math.abs(this.amount1 / this.amount2).toFixed(5) + ` ${this.base.currency}`
@@ -189,8 +181,8 @@ export default {
             new_symbol: this.tokenSymbol,
             initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
             initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
-            initial_fee: 10, // TODO Вынести в параметер тоже
-            fee_contract: 'evodextester' // TODO Это в контракте пофиксить
+            initial_fee: 10,
+            fee_contract: this.network.pools.fee
           }
         }
       ]

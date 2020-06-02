@@ -44,6 +44,8 @@ div
 import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 
+import { computeForward } from '~/utils/pools'
+
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
 
@@ -53,21 +55,10 @@ export default {
     PleaseLoginButton
   },
 
-  props: {
-    current: {
-      type: Object,
-      default: () => {}
-    }
-  },
-
   data() {
     return {
       amount: 0.0,
-
-      tokenBalance: 0.0,
-
       visible: false,
-
       loading: false
     }
   },
@@ -76,16 +67,28 @@ export default {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
+    ...mapGetters('pools', ['current']),
+
+    tokenBalance() {
+      if (this.user && this.user.balances) {
+        const b = this.user.balances.filter(b => {
+          return b.currency === this.current.supply.symbol.code().to_string() && b.contract ==
+            this.network.pools.contract
+        })[0]
+
+        return b.amount + ' ' + b.currency
+      }
+
+      return '0.0000'
+    },
 
     baseReceive() {
       if (!this.amount) {
         return number_to_asset(0, this.current.supply.symbol)
       } else {
         let amount = asset(this.amount + ' ' + this.current.supply.symbol.code().to_string()).amount
-
-        amount = amount.multiply(this.current.pool1.quantity.amount).divide(this.current.supply.amount)
-
-        return asset(amount, this.current.pool1.quantity.symbol)
+        amount = computeForward(amount.multiply(-1), this.current.pool1.quantity.amount, this.current.supply.amount, 0).abs()
+        return asset(amount, this.current.pool1.quantity.symbol).to_string()
       }
     },
 
@@ -94,10 +97,8 @@ export default {
         return number_to_asset(0, this.current.supply.symbol)
       } else {
         let amount = asset(this.amount + ' ' + this.current.supply.symbol.code().to_string()).amount
-
-        amount = amount.multiply(this.current.pool2.quantity.amount).divide(this.current.supply.amount)
-
-        return asset(amount, this.current.pool2.quantity.symbol)
+        amount = computeForward(amount.multiply(-1), this.current.pool2.quantity.amount, this.current.supply.amount, 0).abs()
+        return asset(amount, this.current.pool2.quantity.symbol).to_string()
       }
     },
 
@@ -119,22 +120,6 @@ export default {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
 
       this.visible = true
-      this.fetchBalance()
-    },
-
-    async fetchBalance() {
-      const { rows: [row] } = await this.rpc.get_table_rows({
-        code: this.network.pools.contract,
-        scope: this.user.name,
-        table: 'accounts',
-        limit: 1
-      })
-
-      if (!row) {
-        this.tokenBalance = asset(0, this.current.supply.symbol)
-      } else {
-        this.tokenBalance = asset(row.balance)
-      }
     },
 
     amountChange() {
@@ -170,8 +155,8 @@ export default {
           data: {
             user: this.user.name,
             to_sell: this.amount + ' ' + this.current.supply.symbol.code().to_string(),
-            min_asset1: this.baseReceive.to_string(),
-            min_asset2: this.quoteReceive.to_string()
+            min_asset1: this.baseReceive,
+            min_asset2: this.quoteReceive
           }
         }, {
           account: this.network.pools.contract,
