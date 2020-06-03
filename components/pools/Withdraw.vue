@@ -128,7 +128,7 @@ export default {
 
     amountChange() {
       try {
-        this.amount = this.toFixed(this.amount, this.current.supply.symbol.precision())
+        this.amount = (parseFloat(this.amount) || 0).toFixed(this.current.supply.symbol.precision())
       } catch {
         this.amount = 0.0
         this.amountChange()

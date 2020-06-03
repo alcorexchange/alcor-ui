@@ -134,7 +134,7 @@ export default {
 
       const to_buy = computeBackward(
         amount1,
-        this.current.pool2.quantity.amount,
+        this.current.pool1.quantity.amount,
         this.current.supply.amount,
         this.current.fee
       )
@@ -148,14 +148,14 @@ export default {
     },
 
     amount2Input(value) {
-      let amount2 = (parseFloat(value) || 0).toFixed(this.current.pool1.quantity.symbol.precision())
+      let amount2 = (parseFloat(value) || 0).toFixed(this.current.pool2.quantity.symbol.precision())
 
-      amount2 = asset(amount2 + ' ' + this.current.pool1.quantity.symbol.code().to_string()).amount
+      amount2 = asset(amount2 + ' ' + this.current.pool2.quantity.symbol.code().to_string()).amount
 
       const to_buy = computeBackward(
         amount2,
-        this.current.pool1.quantity.amount,
         this.current.supply.amount,
+        this.current.pool2.quantity.amount,
         this.current.fee
       )
 
@@ -164,18 +164,19 @@ export default {
       amount1.set_amount(
         computeForward(to_buy, this.current.pool1.quantity.amount, this.current.supply.amount, this.current.fee)
       )
+
       this.amount1 = amount1.to_string().split(' ')[0]
     },
 
     async open() {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
-
+      this.amountChange()
       this.visible = true
     },
 
     amountChange() {
-      this.amount1 = this.toFixed(this.amount1, this.current.pool1.quantity.symbol.precision())
-      this.amount2 = this.toFixed(this.amount2, this.current.pool2.quantity.symbol.precision())
+      this.amount1 = (parseFloat(this.amount1) || 0).toFixed(this.current.pool1.quantity.symbol.precision())
+      this.amount2 = (parseFloat(this.amount2) || 0).toFixed(this.current.pool2.quantity.symbol.precision())
     },
 
     async provide() {
