@@ -144,9 +144,7 @@ export default {
     },
 
     price() {
-      let price
-
-      price = Math.abs(this.amount1 / this.amount2)
+      const price = Math.abs(this.amount1 / this.amount2)
       return (price || this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
     }
   },

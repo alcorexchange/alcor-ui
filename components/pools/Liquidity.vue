@@ -75,13 +75,6 @@ export default {
     PleaseLoginButton
   },
 
-  props: {
-    current: {
-      type: Object,
-      default: () => {}
-    }
-  },
-
   data() {
     return {
       amount1: 0.0,
@@ -136,7 +129,7 @@ export default {
 
       const to_buy = computeBackward(
         amount1,
-        this.current.pool1.quantity.amount,
+        this.current.pool2.quantity.amount,
         this.current.supply.amount,
         this.current.fee
       )
