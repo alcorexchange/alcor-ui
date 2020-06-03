@@ -38,7 +38,7 @@ const networks = {
 
     pools: {
       contract: 'evolutiondex',
-      fee: 'evodextester'
+      fee: 'avral.pro'
     },
 
     pegs: {
@@ -65,7 +65,7 @@ const networks = {
 
     nftMarket: {
       contract: 'nft'
-    }
+    },
   },
 
   wax: {
@@ -98,7 +98,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'lp'
+      contract: 'alcordexpool',
+      fee: 'aw.aq.waa'
     },
 
     pegs: {},

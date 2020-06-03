@@ -2,10 +2,14 @@
 div
   el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
 
-  el-dialog(title="All liquidity", :visible.sync="visible" width="50%")
+  el-dialog(title="All liquidity", :visible.sync="visible" width="50%").pool-withdraw
     .row
       .col
         .text.item(v-if="current.pool1")
+          p You can earn money on commissions from exchanges.
+            |  Be sure to familiarize yourself with the principle of operation of liquidity pools.
+
+          pre Liquidity provider fee: {{ current.fee / 100 }}%
           .row.mb-3.mt-2
             .col-6.bordered
               .row
@@ -258,7 +262,7 @@ export default {
 </script>
 
 <style>
-.bordered {
-  border-right: 1px solid;
+.pool-withdraw .el-dialog__body {
+  padding-top: 0px;
 }
 </style>

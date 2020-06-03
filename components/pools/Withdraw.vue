@@ -76,7 +76,9 @@ export default {
             this.network.pools.contract
         })[0]
 
-        return b.amount + ' ' + b.currency
+        if (b) {
+          return b.amount + ' ' + b.currency
+        }
       }
 
       return '0.0000'

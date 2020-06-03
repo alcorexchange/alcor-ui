@@ -11,7 +11,7 @@
 
         el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'wax'") NFT Market
 
-        el-menu-item(index="/pools" v-if="$store.state.network.name == 'jungle'") Liquidity pools
+        el-menu-item(index="/pools" v-if="['wax', 'eos', 'jungle'].includes($store.state.network.name)") Liquidity pools
 
         el-menu-item(index="/otc") OTC Swaps
 
@@ -249,6 +249,7 @@ export default {
 .el-menu-item {
   display: flex;
   align-items: center;
+  padding: 0 16px;
 }
 
 .el-menu-item:first-child {

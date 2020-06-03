@@ -38,7 +38,7 @@ export const actions = {
       return pool
     })
 
-    commit('setPools', pools)
+    commit('setPools', pools.filter(p => p.pool1.contract != 'yuhjtmanserg'))
   }
 }
 
