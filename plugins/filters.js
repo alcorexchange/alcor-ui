@@ -16,7 +16,7 @@ Vue.filter('humanPrice', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
     .toLocaleString('en', { minimumFractionDigits: Math.min(PRICE_DIGITS, 2), maximumFractionDigits: PRICE_DIGITS })
 })
 
-Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS) {
+Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS = 2) {
   const amt = amount / 10 ** precision
 
   if (MAX_DIGITS !== undefined) {
@@ -26,7 +26,7 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS) {
   }
 
   return parseFloat(amt.toFixed(precision))
-    .toLocaleString('en', { minimumFractionDigits: Math.min(2, parseFloat(precision)), maximumFractionDigits: MAX_DIGITS })
+    .toLocaleString('en', { minimumFractionDigits: Math.min(MIN_DIGITS, parseFloat(precision)), maximumFractionDigits: MAX_DIGITS })
 })
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {

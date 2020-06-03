@@ -39,7 +39,10 @@ div
                   .lead Input
                   p The amount that you give
 
-                el-input(type="number" v-model="amount1" clearable @change="amountChange").mt-2
+                pre(v-if="input == 'pool1'") Balance: {{ baseBalance }}
+                pre(v-else) Balance: {{ quoteBalance }}
+
+                el-input(type="number" v-model="amount1" clearable @change="amountChange")
                   span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
           .col-lg-2
@@ -120,7 +123,7 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('pools', ['current']),
+    ...mapGetters('pools', ['current', 'baseBalance', 'quoteBalance']),
     ...mapState(['network']),
     ...mapState('pools', ['pools']),
 

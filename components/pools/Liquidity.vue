@@ -17,7 +17,8 @@ div
 
               hr
 
-              el-input(type="number" v-model="amount1" clearable @input="amount1Input" @change="amountChange").mt-2
+              pre Balance: {{ baseBalance }}
+              el-input(type="number" v-model="amount1" clearable @input="amount1Input" @change="amountChange")
                 span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
               //.lead {{ order.sell.quantity }}@
@@ -32,7 +33,8 @@ div
 
               hr
 
-              el-input(type="number" v-model="amount2" clearable @input="amount2Input" @change="amountChange").mt-2
+              pre Balance: {{ quoteBalance }}
+              el-input(type="number" v-model="amount2" clearable @input="amount2Input" @change="amountChange")
                 span(slot="suffix").mr-1 {{ poolTwo.quantity.symbol.code().to_string() }}
           .row.mb-3(v-if="current.pool1")
             .col
@@ -40,18 +42,17 @@ div
                 .col
                   .row
                     .col
-                      .lead Pool price: {{ poolPrice.toFixed(5) }}
+                      pre Pool price: {{ poolPrice.toFixed(5) }}
                         |  {{ current.pool1.quantity.symbol.code().to_string() }}
 
                   .row
                     .col
-                      .lead Pool token supply: {{ current.supply }}
+                      pre Pool token supply: {{ current.supply }}
 
                   .row
                     .col
-                      .lead Estimated token receive:
-                        |  {{ tokenReceive | humanFloat(this.current.supply.symbol.precision()) }}
-                        |  {{ this.current.supply.symbol.code().to_string() }}
+                      .big Liquidity token receive:
+                        |  {{ tokenReceive | humanFloat(this.current.supply.symbol.precision(), this.current.supply.symbol.precision(), this.current.supply.symbol.precision()) }} {{ this.current.supply.symbol.code().to_string() }}
           .row
             .col
               PleaseLoginButton
@@ -99,6 +100,7 @@ export default {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
+    ...mapGetters('pools', ['current', 'baseBalance', 'quoteBalance']),
 
     tokenReceive() {
       const amount1 = asset(this.amount1 + ' TEST').amount
