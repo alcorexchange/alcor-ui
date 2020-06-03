@@ -11,16 +11,6 @@ div
             .d-flex.justify-content-end
               Withdraw(@update="fetch").mr-3
               Liquidity(:current="current" @update="fetch")
-        //.row
-          .col-lg-6.border-right
-            .text-center
-              .lead Input
-
-              p The amount that you give
-          .col-6
-            .text-center
-              .lead Output
-              p.mt-2 The amount that you will receive
 
         .row.mb-3.mt-2
           .col-lg-5
@@ -42,7 +32,7 @@ div
                 pre(v-if="input == 'pool1'") Balance: {{ baseBalance }}
                 pre(v-else) Balance: {{ quoteBalance }}
 
-                el-input(type="number" v-model="amount1" clearable @change="amountChange")
+                el-input(type="number" v-model="amount1" clearable @change="amountChange" @input="inputAmount")
                   span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
           .col-lg-2
@@ -72,13 +62,14 @@ div
                   .lead Output
                   p.mt-2 The amount that you will receive
 
-                  .lead {{ amount2 }}  {{ current.pool2.quantity.symbol.code().to_string() }}
+                  .lead {{ amount2 }}  {{ poolTwo.quantity.symbol.code().to_string() }}
 
         .row.mb-3(v-if="current.pool1")
           .col
             .row
               .col
-                pre Price for current amount: {{ price }}   {{ current.pool1.quantity.symbol.code().to_string() }}
+                pre Price for current amount: {{ price }} {{ current.pool1.quantity.symbol.code().to_string() }}
+                  | /{{ current.pool2.quantity.symbol.code().to_string() }}
         .row
           .col
             PleaseLoginButton
@@ -95,7 +86,7 @@ div
 import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 
-import { computeForward, computeBackward } from '~/utils/pools'
+import { computeForward } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
@@ -161,10 +152,15 @@ export default {
   },
 
   methods: {
+    inputAmount() {
+      //updateAmounts()
+    },
+
     updateAmounts() {
       if (isNaN(this.amount1)) return
 
-      const a = asset(`${this.amount1} ${this.poolOne.quantity.symbol.code().to_string()}`).amount
+      let a = (parseFloat(this.amount1) || 0).toFixed(this.poolOne.quantity.symbol.precision())
+      a = asset(a + ' ' + this.current.pool1.quantity.symbol.code().to_string()).amount
 
       const p1 = this.poolOne.quantity.amount
       const p2 = this.poolTwo.quantity.amount

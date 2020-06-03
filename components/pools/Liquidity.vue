@@ -42,8 +42,8 @@ div
                 .col
                   .row
                     .col
-                      pre Pool price: {{ poolPrice.toFixed(5) }}
-                        |  {{ current.pool1.quantity.symbol.code().to_string() }}
+                      pre Pool price: {{ poolPrice }} {{ current.pool1.quantity.symbol.code().to_string() }}
+                        | /{{ current.pool2.quantity.symbol.code().to_string() }}
 
                   .row
                     .col
@@ -117,7 +117,8 @@ export default {
     },
 
     poolPrice() {
-      return this.current.pool1.quantity.amount / this.current.pool2.quantity.amount
+      const price = Math.abs(this.amount1 / this.amount2)
+      return (price || this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
     }
   },
 
