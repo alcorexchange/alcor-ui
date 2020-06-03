@@ -68,8 +68,8 @@ div
           .col
             .row
               .col
-                pre Price for current amount: {{ price }} {{ current.pool1.quantity.symbol.code().to_string() }}
-                  | /{{ current.pool2.quantity.symbol.code().to_string() }}
+                pre Price for current amount: {{ price }} {{ poolOne.quantity.symbol.code().to_string() }}
+                  | /{{ poolTwo.quantity.symbol.code().to_string() }}
         .row
           .col
             PleaseLoginButton
@@ -131,12 +131,12 @@ export default {
     },
 
     poolPrice() {
-      return (this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
+      return (this.poolOne.quantity.amount / this.poolTwo.quantity.amount).toFixed(5)
     },
 
     price() {
       const price = Math.abs(this.amount1 / this.amount2)
-      return (price || this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
+      return (price || this.poolOne.quantity.amount / this.poolTwo.quantity.amount).toFixed(5)
     }
   },
 
