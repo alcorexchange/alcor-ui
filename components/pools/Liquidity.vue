@@ -134,8 +134,8 @@ export default {
 
       const to_buy = computeBackward(
         amount1,
-        this.current.pool2.quantity.amount,
         this.current.supply.amount,
+        this.current.pool1.quantity.amount,
         this.current.fee
       )
 

@@ -1,9 +1,13 @@
 import { captureException } from '@sentry/browser'
 
 import Vue from 'vue'
+import { asset } from 'eos-common'
+
 import { EventBus } from '~/utils/event-bus'
 import config from '~/config'
 import { assetToAmount, amountToFloat } from '~/utils'
+
+
 
 function correct_price(price, _from, _for) {
   const diff_precision = Math.abs(_from - _for)
@@ -262,6 +266,10 @@ Vue.mixin({
   },
 
   methods: {
+    inputToAsset(input, precision) {
+      return asset((parseFloat(input) || 0).toFixed(precision) + ' XXX')
+    },
+
     toFixed(value, precision) {
       return parseFloat(value).toFixed(precision)
     },

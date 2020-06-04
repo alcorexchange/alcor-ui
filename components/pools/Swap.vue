@@ -6,7 +6,7 @@ div
         .row
           .col
             .p-2
-              p Quick swap or make money on provide liquidity.
+              p Quick swap or make money on providing liquidity.
           .col
             .d-flex.justify-content-end
               Withdraw(@update="fetch").mr-3
@@ -86,7 +86,7 @@ div
 import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 
-import { computeForward } from '~/utils/pools'
+import { computeForward, calcPrice } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
@@ -135,8 +135,14 @@ export default {
     },
 
     price() {
-      const price = Math.abs(this.amount1 / this.amount2)
-      return (price || this.poolOne.quantity.amount / this.poolTwo.quantity.amount).toFixed(5)
+      if (!this.current) return ''
+
+      const price = calcPrice(
+        this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision()),
+        this.inputToAsset(this.amount2, this.poolTwo.quantity.symbol.precision())
+      )
+
+      return price || calcPrice(this.poolOne.quantity, this.poolTwo.quantity).toFixed(8)
     }
   },
 

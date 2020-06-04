@@ -5,7 +5,7 @@
     .row
       .col
         el-input(placeholder="Search pool" size="small" v-model="search" clearable)
-      //.col-lg-5
+      .col-lg-5(v-if="user && user.name == 'avral.pro'")
         create
     hr
     .row
@@ -65,6 +65,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['user']),
     ...mapState('pools', ['pools', 'current_sym']),
 
     filteredPools() {

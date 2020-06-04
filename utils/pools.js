@@ -23,3 +23,9 @@ export function computeBackward(x, y, z, fee) {
 
   return x
 }
+
+export function calcPrice(a, b) {
+  const diff_precision = a.symbol.precision() - b.symbol.precision()
+
+  return (a.amount / b.amount) / (10 ** diff_precision)
+}
