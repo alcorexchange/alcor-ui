@@ -68,7 +68,7 @@ div
 import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 
-import { computeForward, computeBackward } from '~/utils/pools'
+import { computeForward, computeBackward, calcPrice } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
@@ -121,8 +121,7 @@ export default {
     },
 
     poolPrice() {
-      const price = Math.abs(this.amount1 / this.amount2)
-      return (price || this.current.pool1.quantity.amount / this.current.pool2.quantity.amount).toFixed(5)
+      return calcPrice(this.current.pool1.quantity, this.current.pool2.quantity).toFixed(8)
     }
   },
 
