@@ -34,7 +34,7 @@
     "eos-transit-scatter-provider": "^4.0.5",
     "eos-transit-simpleos-provider": "^4.0.7",
     "eos-transit-tokenpocket-provider": "^4.0.5",
-    "eosjs": "^21.0.1-rc2",
+    "eosjs": "^20.0.3",
     "esm": "^3.2.25",
     "http-status-codes": "^1.4.0",
     "js-yaml": "^3.13.1",
