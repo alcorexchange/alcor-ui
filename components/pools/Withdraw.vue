@@ -88,7 +88,7 @@ export default {
       if (!this.amount) {
         return number_to_asset(0, this.current.supply.symbol)
       } else {
-        let amount = asset(this.amount + ' ' + this.current.supply.symbol.code().to_string()).amount
+        let amount = this.inputToAsset(this.amount, this.current.supply.symbol.precision()).amount
         amount = computeForward(amount.multiply(-1), this.current.pool1.quantity.amount, this.current.supply.amount, 0).abs()
         return asset(amount, this.current.pool1.quantity.symbol).to_string()
       }
@@ -98,7 +98,7 @@ export default {
       if (!this.amount) {
         return number_to_asset(0, this.current.supply.symbol)
       } else {
-        let amount = asset(this.amount + ' ' + this.current.supply.symbol.code().to_string()).amount
+        let amount = this.inputToAsset(this.amount, this.current.supply.symbol.precision()).amount
         amount = computeForward(amount.multiply(-1), this.current.pool2.quantity.amount, this.current.supply.amount, 0).abs()
         return asset(amount, this.current.pool2.quantity.symbol).to_string()
       }
