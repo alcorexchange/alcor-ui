@@ -2,7 +2,7 @@
 div
   el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
 
-  el-dialog(title="All liquidity", :visible.sync="visible" width="50%").pool-withdraw
+  el-dialog(title="Add liquidity", :visible.sync="visible" width="50%").pool-withdraw
     .row
       .col
         .text.item(v-if="current.pool1")
@@ -100,10 +100,10 @@ export default {
     ...mapGetters('pools', ['current', 'baseBalance', 'quoteBalance']),
 
     tokenReceive() {
-      const amount1 = asset(this.amount1 + ' TEST').amount
+      const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision())
 
       const to_buy = computeBackward(
-        amount1,
+        amount1.amount,
         this.current.supply.amount,
         this.current.pool1.quantity.amount,
         this.current.fee
