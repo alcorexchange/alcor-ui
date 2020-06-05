@@ -3588,10 +3588,10 @@ entities@^2.0.0:
   resolved "https://registry.yarnpkg.com/entities/-/entities-2.0.0.tgz#68d6084cab1b079767540d80e56a39b423e4abf4"
   integrity sha512-D9f7V0JSRwIxlRI2mjMqufDrRDnx8p+eEOz7aUM9SuvF8gsBzra0/6tbjl1m8eQHrZlYj6PxqE00hZ1SAIKPLw==
 
-eos-common@^0.7.7:
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/eos-common/-/eos-common-0.7.7.tgz#6097fe45c8a294e04d5da4acddddca75cd02f587"
-  integrity sha512-fJ0GCepvWGNuYU7lZzl+Am23I/6rQwSa7DmzNSbxMI0gNCP1tgrWIccwmJh6DTnqIVf1FFZ/npZkiJzsl4QEVw==
+eos-common@0.7.8:
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/eos-common/-/eos-common-0.7.8.tgz#f3411f8f469d0aa505721f564af2ddb9640727bc"
+  integrity sha512-zq8nyQkIVCmPTaD3H4PaUFejpQIcV7xd5ohFuFsB0tqpysf3bN1ZvoQqvr4dNCK4X6IGZuf1LI6495ev+hM1fg==
   dependencies:
     big-integer "^1.6.48"
 

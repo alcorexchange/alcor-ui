@@ -27,7 +27,7 @@
     "bootstrap-utilities": "^4.1.3",
     "cross-env": "^5.2.0",
     "element-ui": "^2.11.1",
-    "eos-common": "^0.7.7",
+    "eos-common": "0.7.8",
     "eos-transit": "^4.0.7",
     "eos-transit-anchorlink-provider": "^4.0.7",
     "eos-transit-keycat-provider": "^4.0.7",
