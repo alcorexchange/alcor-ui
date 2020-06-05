@@ -235,6 +235,7 @@ export default {
             max_asset2: amount2
           }
         }]
+      // TODO Close exchange
 
       this.loading = true
       try {
