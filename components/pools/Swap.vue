@@ -225,7 +225,7 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: amount1,
-            memo: `exchange: ${this.current.supply.symbol.code().to_string()},${amount2},lol`
+            memo: `exchange: ${this.current.supply.symbol.code().to_string()},${amount2},alcor.exchange/pools`
           }
         }
       ]
