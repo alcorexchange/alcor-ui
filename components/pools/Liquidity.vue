@@ -234,8 +234,28 @@ export default {
             max_asset1: amount1,
             max_asset2: amount2
           }
-        }]
-      // TODO Close exchange
+        }, {
+          account: this.network.pools.contract,
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: this.poolOne.quantity.symbol.toString() },
+            to: this.user.name,
+            memo: ''
+          }
+        }, {
+          account: this.network.pools.contract,
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.poolTwo.contract, sym: this.poolTwo.quantity.symbol.toString() },
+            to: this.user.name,
+            memo: ''
+          }
+        }
+      ]
 
       this.loading = true
       try {
