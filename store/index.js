@@ -39,6 +39,10 @@ export const actions = {
 
     if (state.network.name == 'local') return
 
+    if (state.network.name == 'eos') {
+      setInterval(() => dispatch('pools/fetchPools', {}, { root: true }), 5000)
+    }
+
     setInterval(() => dispatch('update'), 10000)
   },
 
