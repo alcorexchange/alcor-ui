@@ -1,11 +1,10 @@
 <template lang="pug">
-// FIXME
 .row.mt-3
   .col-lg-3
     .row
       .col
         el-input(placeholder="Search pool" size="small" v-model="search" clearable)
-      .col-lg-5(v-if="user && user.name == 'avral.pro'")
+      .col-lg-5
         create
     hr
     .row
@@ -21,24 +20,9 @@
               div
                 TokenImage(:src="$tokenLogo(pool.pool2.quantity.symbol.code().to_string(), pool.pool2.contract)" height="25")
                 span.ml-2 {{ pool.pool2.quantity.symbol.code().to_string() }}
-
-    //el-menu.el-menu-vertical-demo(default-active='2', @open='handleOpen', @close='handleClose', :collapse='isCollapse')
-      el-menu-item(index='1-1') item one
-        h1 olol
-        span asdfasdf
   .col-lg-9
     el-card
       Swap
-
-    //el-tabs(type='border-card')
-      el-tab-pane(label='Swap')
-        Swap
-
-      el-tab-pane(label='Open pool')
-        Create
-
-      //el-tab-pane(label='Liquidity Provider')
-        Liquidity
 </template>
 
 <script>

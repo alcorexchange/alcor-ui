@@ -13,7 +13,9 @@ const networks = {
       symbol: 'EOS',
       precision: 4
     },
+
     marketCreationFee: '5.0000 EOS',
+    feeAccount: 'avral.pro',
 
     chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
 
@@ -38,7 +40,7 @@ const networks = {
 
     pools: {
       contract: 'evolutiondex',
-      fee: 'avral.pro'
+      fee: 'wevotethefee'
     },
 
     pegs: {

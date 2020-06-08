@@ -1,26 +1,30 @@
 <template lang="pug">
-
 div
   el-button(type="primary" size="small" @click="open") Create pool
 
-  el-dialog(title="Open new Pool", :visible="visible" @close="visible = false" width="50%" :append-to-body="true")
+  el-dialog(title="New pool creation", :visible="visible" @close="visible = false" width="50%" :append-to-body="true")
     .row
       .col
         PleaseLoginButton
           .px-3.mt-2
             h1 Create new pool
+            .lead To create a pool, select the quote token and provide the initial liquidity ratio.
           el-form(ref="form" label-position="left" v-if="user").px-3
             el-form-item
-              .lead Base token:
-                span(v-if="base.id")
-                  TokenImage(:src="$tokenLogo(base.currency, base.contract)" height="25").ml-2
-                  span.ml-1 {{ base.currency + '@' + base.contract }}
-
-              p Price {{ price }}
+              b Base token:
+              span(v-if="base.currency")
+                TokenImage(:src="$tokenLogo(base.currency, base.contract)" height="25").ml-2
+                span.ml-1 {{ base.currency + '@' + base.contract }}
 
               el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
                 el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
-                  el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                  el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
+                            :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
+                    TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
+                    span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
+
+                  // Only system token might be as base toekn of the pool
+                  //el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
                     TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
                     span.ml-3 {{ b.id }}
                     span.float-right {{ `${b.amount} ${b.currency}` }}
@@ -42,7 +46,11 @@ div
               .lead Backed token symbol (Automatically set recommended)
               el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
 
+            pre Price {{ price }}
             el-form-item
+              span.text-mutted.mt-2   Pool creation fee is:
+              b  {{ network.marketCreationFee }}
+
               el-button(@click="create" :loading="loading").w-100 Create
 
 </template>
@@ -96,7 +104,12 @@ export default {
     }
   },
 
-  async created() {
+  mounted() {
+    this.base_select = {
+      currency: this.baseToken.symbol, contract: this.baseToken.contract, decimals: this.baseToken.precision
+    }
+    this.base = { currency: this.baseToken.symbol, contract: this.baseToken.contract, decimals: this.baseToken.precision }
+    this.amountChange()
   },
 
   methods: {
@@ -161,6 +174,16 @@ export default {
             to: this.network.pools.contract,
             quantity: `${this.amount1} ${this.base.currency}`,
             memo: ''
+          }
+        }, {
+          account: this.network.baseToken.contract,
+          name: 'transfer',
+          authorization,
+          data: {
+            from: this.user.name,
+            to: this.network.feeAccount,
+            quantity: this.network.marketCreationFee,
+            memo: 'Pool creation fee'
           }
         }, {
           account: this.quote.contract,
