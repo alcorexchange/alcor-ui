@@ -152,7 +152,7 @@ export default {
     },
 
     current() {
-      this.amount1 = 0.0
+      //this.amount1 = 0.0
       this.amountChange()
     }
   },
