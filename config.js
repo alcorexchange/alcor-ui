@@ -63,7 +63,7 @@ const networks = {
       },
     },
 
-    RECOMMENDED_MARKETS: ['SAND@sandiegocoin'],
+    RECOMMENDED_MARKETS: ['SAND@sandiegocoin', 'TCN@tcapitalnote'],
 
     nftMarket: {
       contract: 'nft'
