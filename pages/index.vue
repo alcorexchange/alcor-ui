@@ -28,6 +28,8 @@
               el-button(tag="el-button" size="big" icon="el-icon-circle-plus-outline" plain) Open new market
 
       .col-lg-6
+        gh-btns-star(slug="avral/alcor-ui" show-count).github
+
         a(href="https://youtu.be/nNneIVv0yyQ" target="_blank")
           img(src="/market_window.jpg").video-image
 
@@ -104,6 +106,11 @@ export default {
 </script>
 
 <style scoped>
+.github {
+  position: absolute;
+  right: 10px;
+}
+
 .display-4 {
   font-size: 2.5rem;
 }
@@ -117,7 +124,7 @@ export default {
   .video-image {
     width: 80%;
     margin: auto;
-    margin-top: 25px;
+    margin-top: 30px;
   }
 }
 </style>
