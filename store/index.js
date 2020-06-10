@@ -13,7 +13,8 @@ export const state = () => ({
 
   isMobile: false,
   baseUrl: '',
-  loading: false
+  loading: false,
+  tokens: []
 })
 
 export const mutations = {
@@ -26,12 +27,13 @@ export const mutations = {
 
   setIsMobile: (state, mobile) => state.isMobile = mobile,
   setBaseUrl: (state, url) => state.baseUrl = url,
-
-  setLoading: (state, loading) => state.loading = loading
+  setLoading: (state, loading) => state.loading = loading,
+  setTokens: (state, tokens) => state.tokens = tokens
 }
 
 export const actions = {
   init({ dispatch, state }) {
+    dispatch('fetchTokens')
     window.addEventListener('resize', () => dispatch('checkIsMobile'))
 
     console.log('state.network.name', state.network.name)
@@ -48,6 +50,12 @@ export const actions = {
 
   checkIsMobile ({ commit }) {
     commit('setIsMobile', window.innerWidth <= 1000)
+  },
+
+  async fetchTokens({ commit }) {
+    const { data: tokens } = await axios.get('https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json')
+
+    commit('setTokens', tokens)
   },
 
   nuxtServerInit ({ commit, rootState }, { req }) {

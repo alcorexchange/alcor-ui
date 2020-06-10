@@ -31,6 +31,13 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {
   const network = this.$store.state.network.name
+  const tokens = this.$store.state.tokens
+
+  const token = tokens.filter(t => t.chain == network && t.account == contract && t.symbol == symbol)[0]
+
+  if (token) {
+    return token.logo
+  }
 
   try {
     return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
