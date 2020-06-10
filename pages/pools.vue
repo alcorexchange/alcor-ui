@@ -13,11 +13,11 @@
           el-button(plain size="small"
                     @click="setPool(pool)"
                     :class="{ 'is-active': current_sym == pool.supply.symbol.code().to_string() }").w-100
-            .d-flex.justify-content-around
-              div
+            .row
+              .col-6
                 TokenImage(:src="$tokenLogo(pool.pool1.quantity.symbol.code().to_string(), pool.pool1.contract)" height="25")
                 span.ml-2 {{ pool.pool1.quantity.symbol.code().to_string() }}
-              div
+              .col-6.text-left
                 TokenImage(:src="$tokenLogo(pool.pool2.quantity.symbol.code().to_string(), pool.pool2.contract)" height="25")
                 span.ml-2 {{ pool.pool2.quantity.symbol.code().to_string() }}
   .col-lg-9
@@ -39,7 +39,6 @@ export default {
     Swap,
     Create,
     TokenImage
-    //Liquidity
   },
 
   data() {
