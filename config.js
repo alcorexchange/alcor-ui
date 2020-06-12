@@ -108,6 +108,7 @@ const networks = {
     pegs: {},
 
     RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -149,6 +150,7 @@ const networks = {
 
     pegs: {},
     RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'nft'
@@ -197,6 +199,7 @@ const networks = {
 
     pegs: {},
     RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'nft'
@@ -237,6 +240,7 @@ const networks = {
 
     pegs: {},
     RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'nft'
@@ -288,6 +292,7 @@ const networks = {
 
     pegs: {},
     RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -327,6 +332,7 @@ const networks = {
 
     pegs: {},
     RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'nft'
