@@ -64,6 +64,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['SAND@sandiegocoin', 'TCN@tcapitalnote'],
+    SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'alcornftswap'

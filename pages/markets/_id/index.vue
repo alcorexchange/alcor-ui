@@ -3,6 +3,11 @@
 
 .row
   .col
+    .row.mb-2(v-if="network.SCAM_CONTRACTS.includes($store.state.market.token.contract)")
+      .col
+        el-alert(type="error" show-icon)
+          .lead Potential SCAM token!
+
     DesktopTrade(v-if="!isMobile")
     MobileTrade(v-else)
 </template>
