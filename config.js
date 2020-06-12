@@ -66,7 +66,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['SAND@sandiegocoin', 'TCN@tcapitalnote'],
 
     nftMarket: {
-      contract: 'nft'
+      contract: 'alcornftswap'
     },
   },
 

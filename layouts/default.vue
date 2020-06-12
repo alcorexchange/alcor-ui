@@ -9,9 +9,9 @@
 
         el-menu-item(index="/markets") Markets
 
-        el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'wax'") NFT Market
-
         el-menu-item(index="/pools" v-if="['wax', 'eos', 'jungle'].includes($store.state.network.name)") Liquidity pools
+
+        el-menu-item(index="/nft-market" v-if="['wax', 'eos'].includes($store.state.network.name)") NFT Market
 
         el-menu-item(index="/otc") OTC Swaps
 

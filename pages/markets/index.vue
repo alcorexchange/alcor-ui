@@ -11,7 +11,8 @@
           el-input(v-model="search" placeholder="Search token")
       .row
         .col
-          el-table(:data='filteredItems', style='width: 100%' @row-click="clickOrder")
+          el-table(:data='filteredItems',
+          style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
             el-table-column(label='Pair', prop='date' width="250")
               template(slot-scope="scope")
                 TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
@@ -54,7 +55,7 @@
 
             el-table-column(
               label='7 Day Volume'
-              prop='name'
+              prop='weekVolume'
               align="right"
               header-align="right"
               sortable
@@ -66,7 +67,7 @@
 
             el-table-column(
               label='7 Day Change %'
-              prop='name'
+              prop='weekChange'
               align="right"
               header-align="right"
               sortable
