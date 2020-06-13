@@ -20,10 +20,7 @@
         li.el-menu-item
           img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
 
-          el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
-            el-option(v-for='network in networks', :key='network.name', :value='network.name')
-              img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-              span.ml-2 {{ network.desc }}
+          chain-select(:current_chain="current_chain").chain-select
 
         li.el-menu-item
           el-button(size="small" type="text")
@@ -57,10 +54,7 @@
         .col-sm-5.d-flex.align-items-center
           img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
 
-          el-select(v-model='current_chain', placeholder='Select', size="mini" @change="changeChain").chain-select
-            el-option(v-for='network in networks', :key='network.name', :value='network.name')
-              img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-              span.ml-2 {{ network.desc }}
+          chain-select(:current_chain="current_chain").chain-select
 
           el-button(size="small" type="text").ml-2
             img(src="/telegram.png" height="30").mr-2
@@ -123,16 +117,17 @@
 
 <script>
 import axios from 'axios'
-import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 
 import config from '~/config'
 
 import ModalsDialog from '~/components/modals/ModalsDialog'
+import ChainSelect from '~/components/elements/ChainSelect'
 
 export default {
   components: {
-    ModalsDialog
+    ModalsDialog,
+    ChainSelect
   },
 
   data() {
@@ -179,7 +174,6 @@ export default {
   },
 
   async created() {
-    this.networks = Object.values(config.networks)
     this.current_chain = this.$store.state.network.name
     this.getVersion()
 
@@ -194,15 +188,6 @@ export default {
   methods: {
     async logout() {
       await this.$store.dispatch('chain/logout')
-    },
-
-    changeChain(v) {
-      // TODO Move to config: APP_DOMAIN
-      if (this.current_chain == 'eos') {
-        window.location = `https://alcor.exchange`
-        return
-      }
-      window.location = `https://${this.current_chain}.alcor.exchange`
     },
 
     async getVersion() {
