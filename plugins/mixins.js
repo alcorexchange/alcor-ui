@@ -204,13 +204,14 @@ export const tradeMixin = {
         })
 
         this.$store.dispatch('market/fetchOrders')
+        this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
 
-        this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: (action) => {
-          }
-        })
+        //this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+        //  dangerouslyUseHTMLString: true,
+        //  confirmButtonText: 'OK',
+        //  callback: (action) => {
+        //  }
+        //})
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
@@ -240,13 +241,13 @@ export const tradeMixin = {
         })
 
         this.$store.dispatch('market/fetchOrders')
-
-        this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: (action) => {
-          }
-        })
+        this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })
+        //this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
+        //  dangerouslyUseHTMLString: true,
+        //  confirmButtonText: 'OK',
+        //  callback: (action) => {
+        //  }
+        //})
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
