@@ -25,9 +25,9 @@ export default {
     changeChain(v) {
       // TODO Move to config: APP_DOMAIN
       const location = this.current_chain == 'eos'
-        ? 'https://alcor.exchange' : `https://${this.current_chain}.alcor.exchange`
+        ? 'https://alcor.exchange/' : `https://${this.current_chain}.alcor.exchange/`
 
-      window.location = location + window.location.pathname
+      window.location = location + window.location.pathname.split('/')[1] || ''
     }
   }
 }
