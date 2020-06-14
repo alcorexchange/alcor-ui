@@ -28,7 +28,7 @@
 
     el-form(ref="form" label-width="60px")
       el-form-item(label="Price")
-        el-input(type="number" disabled placeholder="Buy at best price")
+        el-input(type="number" disabled placeholder="Sell at best price")
           span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
 
       el-form-item(label="Amount")
