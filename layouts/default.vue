@@ -7,15 +7,8 @@
         el-menu-item(index="/")
           img(src="~/assets/logos/alcor_logo.svg").logo
 
-        el-menu-item(index="/markets") Markets
-
-        el-menu-item(index="/pools" v-if="['wax', 'eos', 'jungle'].includes($store.state.network.name)") Liquidity pools
-
-        el-menu-item(index="/nft-market" v-if="['wax', 'eos'].includes($store.state.network.name)") NFT Market
-
-        el-menu-item(index="/otc") OTC Swaps
-
-        el-menu-item(index="/about") About
+        // Menu items
+        el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
 
         li.el-menu-item
           chain-select(:current_chain="current_chain").chain-select
@@ -88,11 +81,8 @@
           .row
             .col
               el-menu(router, :default-active="activeLink", mode='horizontal')
-                el-menu-item(index="/markets") Markets
-                el-menu-item(index="/nft-market" v-if="$store.state.network.name == 'wax'") NFT Market
-                el-menu-item(index="/pools" v-if="['wax', 'eos', 'jungle'].includes($store.state.network.name)") Liquidity pools
-                el-menu-item(index="/otc") OTC Exchange
-                el-menu-item(index="/about") About
+                // Menu items
+                el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
 
   nuxt
 
@@ -141,6 +131,26 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapState(['network']),
+
+    menuItems() {
+      const items = []
+
+      items.push({ index: '/markets', name: 'Markets' })
+
+      if (['wax', 'eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/pools', name: 'Liquidity pools' })
+      }
+
+      items.push({ index: '/otc', name: 'OTC Swaps' })
+
+      if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/nft-market', name: 'NFT Market' })
+      }
+
+      items.push({ index: '/about', name: 'About' })
+
+      return items
+    },
 
     payForUser: {
       get () {
@@ -210,7 +220,7 @@ export default {
 }
 
 .chain-select {
-  width: 90px;
+  width: 105px;
 }
 
 .scatter-button {

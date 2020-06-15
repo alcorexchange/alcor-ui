@@ -126,8 +126,9 @@ const networks = {
       symbol: 'TLOS',
       precision: 4
     },
+
     marketCreationFee: '100.0000 TLOS',
-    feeAccount: 'avral.pro',
+    feeAccount: 'alcordexdivs',
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
@@ -147,7 +148,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'lp'
+      contract: 'alcordexpool',
+      fee: 'alcordexdivs'
     },
 
     pegs: {},
@@ -155,8 +157,9 @@ const networks = {
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
-      contract: 'nft'
+      contract: 'alcornftswap'
     }
+
     //pegs: {
     //  'EOSP@steemenginex': {
     //    desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1',
@@ -164,7 +167,6 @@ const networks = {
     //  }
     //}
   },
-
 
   bos: {
     name: 'bos',
@@ -235,7 +237,7 @@ const networks = {
 
     otc: {
       contract: 'wwweosswapio',
-      divs: 'eosswapdivs1',
+      divs: 'eosswapdivs1'
     },
 
     pools: {
@@ -343,8 +345,10 @@ const networks = {
     nftMarket: {
       contract: 'nft'
     }
-  },
+  }
 }
+
+// TODO Check is all chains configs is the same structure
 
 module.exports = {
   APP_NAME: 'Alcor Exchange',
