@@ -61,7 +61,6 @@ import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
 import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
-import Withdraw from '~/components/pegs/Withdraw'
 
 
 export default {
@@ -78,7 +77,6 @@ export default {
     Chart,
     Markets,
     MobileTrade,
-    Withdraw,
     TopLine
   },
 

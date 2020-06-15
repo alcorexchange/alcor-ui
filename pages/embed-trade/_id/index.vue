@@ -101,7 +101,6 @@ import Markets from '~/components/trade/Markets'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
 import MobileTrade from '~/components/trade/MobileTrade'
-import Withdraw from '~/components/pegs/Withdraw'
 
 export default {
   layout: 'embed',
@@ -117,7 +116,6 @@ export default {
     Chart,
     Markets,
     MobileTrade,
-    Withdraw
   },
 
   async fetch({ store, error, params }) {

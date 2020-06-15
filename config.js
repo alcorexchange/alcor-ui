@@ -43,14 +43,15 @@ const networks = {
       fee: 'wevotethefee'
     },
 
-    pegs: {
+    withdraw: {
       'TLOSP@steemenginex': {
         desc: 'Telos peged token. You can buy it for EOS and withdraw to Telos 1:1',
         network: {
           name: 'Telos',
           symbol: 'TLOS'
         },
-        withdrawMemo: 'TLOS {account}'
+        withdrawMemo: 'TLOS {account}',
+        gateway: 'steemenginex'
       },
 
       'BTCP@steemenginex': {
@@ -59,7 +60,8 @@ const networks = {
           name: 'Bitcoin',
           symbol: 'BTC'
         },
-        withdrawMemo: 'BTC {account}'
+        withdrawMemo: 'BTC {account}',
+        gateway: 'steemenginex'
       },
     },
 
@@ -106,7 +108,7 @@ const networks = {
       fee: 'aw.aq.waa'
     },
 
-    pegs: {},
+    withdraw: {},
 
     RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
     SCAM_CONTRACTS: ['usdcoinchain'],
@@ -152,20 +154,24 @@ const networks = {
       fee: 'alcordexdivs'
     },
 
-    pegs: {},
     RECOMMENDED_MARKETS: ['KANDA@telokandaone'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
 
-    //pegs: {
-    //  'EOSP@steemenginex': {
-    //    desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1',
-    //    withdrawMemo: account => `TLOS ${account}`
-    //  }
-    //}
+    withdraw: {
+      //'EOSP@steemenginex': {
+      //  desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1. Gateway fee will be 1%(Steem-engine)',
+      //  withdrawMemo: 'TLOS {account}',
+      //  gateway: 'steemenginex',
+      //  network: {
+      //    name: 'EOS Mainnet',
+      //    symbol: 'EOS'
+      //  }
+      //}
+    }
   },
 
   bos: {
@@ -202,7 +208,7 @@ const networks = {
       contract: 'lp'
     },
 
-    pegs: {},
+    withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
@@ -244,7 +250,7 @@ const networks = {
       contract: 'lp'
     },
 
-    pegs: {},
+    withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
@@ -297,7 +303,7 @@ const networks = {
       fee: 'evodextester'
     },
 
-    pegs: {},
+    withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
@@ -338,7 +344,7 @@ const networks = {
       contract: 'lp'
     },
 
-    pegs: {},
+    withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
 

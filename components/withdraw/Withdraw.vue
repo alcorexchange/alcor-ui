@@ -67,16 +67,14 @@ export default {
     ...mapGetters(['tokenBalance']),
 
     peg() {
-      return this.network.pegs[this.token.str]
+      return this.network.withdraw[this.token.str]
     }
   },
 
   methods: {
-    open() {
-      if (this.user)
-        this.visible = true
-      else
-        this.$notify({ title: 'Login', message: 'Pleace login first', type: 'info' })
+    async open() {
+      if (!await this.$store.dispatch('chain/asyncLogin')) return
+      this.visible = true
     },
 
     async submit() {
@@ -89,14 +87,12 @@ export default {
 
       try {
         const r = await this.$store.dispatch('chain/transfer', {
-          to: 'steemenginex',
+          to: this.peg.gateway,
           contract: this.token.contract,
           actor: this.user.name,
           quantity,
           memo: this.peg.withdrawMemo.replace('{account}', this.account)
         })
-
-        this.$notify({ title: 'Withdraw in process', type: 'success' })
 
         this.visible = false
 
@@ -104,6 +100,7 @@ export default {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {
+            this.$notify({ title: 'Withdraw in process', type: 'success' })
           }
         })
 

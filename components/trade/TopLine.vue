@@ -9,6 +9,9 @@
           b {{ token.symbol.name }}@
           a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
 
+        .d-flex.ml-3(v-if="hasWithdraw")
+          Withdraw
+
         .d-flex.ml-3.w-100.justify-content-around
           .d-flex.ml-3
             span Volume 24H:
@@ -50,16 +53,22 @@
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import Withdraw from '~/components/withdraw/Withdraw'
 
 export default {
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
+    Withdraw
   },
 
   computed: {
     ...mapState(['network']),
-    ...mapState('market', ['token', 'stats'])
+    ...mapState('market', ['token', 'stats']),
+
+    hasWithdraw() {
+      return Object.keys(this.network.withdraw).includes(this.token.str)
+    }
   }
 }
 </script>
