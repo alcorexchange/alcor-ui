@@ -73,6 +73,16 @@ export default {
       const symbol = asset(pool.supply).symbol.code().to_string()
       this.$store.commit('pools/setCurrentSym', symbol)
     }
+  },
+
+  head() {
+    return {
+      title: `Alcor.exchange | Liquidity pools`,
+
+      meta: [
+        { hid: 'description', name: 'description', content: `Swap tokens or make income on liquidity providing` }
+      ]
+    }
   }
 }
 </script>
