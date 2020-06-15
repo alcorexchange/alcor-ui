@@ -83,6 +83,7 @@ const networks = {
     },
 
     marketCreationFee: '1500.00000000 WAX',
+    feeAccount: 'aw.aq.waa',
 
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
@@ -126,6 +127,7 @@ const networks = {
       precision: 4
     },
     marketCreationFee: '100.0000 TLOS',
+    feeAccount: 'avral.pro',
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
@@ -176,6 +178,7 @@ const networks = {
     },
 
     marketCreationFee: '500.0000 BOS',
+    feeAccount: 'avral.pro',
 
     chainId: 'd5a3d18fbb3c084e3b1f3fa98c21014b5f3db536cc15d08f9f6479517c6a3d86',
 
@@ -217,6 +220,7 @@ const networks = {
       precision: 4
     },
     marketCreationFee: '20.0000 CFF',
+    feeAccount: 'avral.pro',
 
     chainId: '1ca925bc8fbc1cec262dedd10fd19d9357a1cc8de0bd92e5b61577740af9a3f2',
 
@@ -259,6 +263,7 @@ const networks = {
       precision: 4
     },
     marketCreationFee: '3.0000 EOS',
+    feeAccount: 'avral.pro',
 
     chainId: '2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840',
     host: 'api.jungle3.alohaeos.com',
@@ -310,6 +315,7 @@ const networks = {
       precision: 4
     },
     marketCreationFee: '3.0000 EOS',
+    feeAccount: 'avral.pro',
 
     chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
     host: 'localhost',
