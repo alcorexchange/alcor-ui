@@ -18,8 +18,6 @@
         el-menu-item(index="/about") About
 
         li.el-menu-item
-          img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
-
           chain-select(:current_chain="current_chain").chain-select
 
         li.el-menu-item
@@ -52,8 +50,6 @@
           nuxt-link(to="/")
             img(src="~/assets/logos/alcor_logo.svg").logo
         .col-sm-5.d-flex.align-items-center
-          img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
-
           chain-select(:current_chain="current_chain").chain-select
 
           el-button(size="small" type="text").ml-2
