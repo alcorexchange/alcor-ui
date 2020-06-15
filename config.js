@@ -149,7 +149,7 @@ const networks = {
     },
 
     pegs: {},
-    RECOMMENDED_MARKETS: [],
+    RECOMMENDED_MARKETS: ['KANDA@telokandaone'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
