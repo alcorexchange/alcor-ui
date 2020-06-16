@@ -65,16 +65,20 @@
         .col
           b.text-muted Immutable data:
           ul
-            li(v-for="(value, key) in idata")
-              span.text-muted {{ key }}:
-              span  {{ value }}
+            li(v-for="item in iRows" v-if="item[1]")
+              span.text-muted {{ item[0] }}:
+              span  {{ item[1] }}
+
+              i.el-icon-close.pointer.ml-1(@click="delI(item[0])")
       .row
         .col
           b.text-muted Mutable data:
           ul
-            li(v-for="(value, key) in mdata")
-              span.text-muted {{ key }}:
-              span  {{ value }}
+            li(v-for="item in mRows" v-if="item[1]")
+              span.text-muted {{ item[0] }}:
+              span  {{ item[1] }}
+
+              i.el-icon-close.pointer.ml-1(@click="delM(item[0])")
 
       PleaseLoginButton
         el-button(type="primary" :loading="loading" @click="create").w-100 Create NFT
@@ -109,20 +113,38 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
+
+    iRows() {
+      return Object.entries(this.idata)
+    },
+
+    mRows() {
+      return Object.entries(this.mdata)
+    }
   },
 
   mounted() {
   },
 
   methods: {
+    delI(key) {
+      this.$set(this.idata, key, undefined)
+      delete this.idata[key]
+    },
+
+    delM(key) {
+      this.$set(this.mdata, key, undefined)
+      delete this.mdata[key]
+    },
+
     addI() {
-      this.idata[this.iKey] = this.iValue
+      this.$set(this.idata, this.iKey, this.iValue)
       this.iKey = ''
       this.iValue = ''
     },
 
     addM() {
-      this.mdata[this.mKey] = this.mValue
+      this.$set(this.mdata, this.mKey, this.mValue)
       this.mKey = ''
       this.mValue = ''
     },
