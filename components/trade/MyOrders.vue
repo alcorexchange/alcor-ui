@@ -1,9 +1,9 @@
 <template lang="pug">
-div
-  .lead My orders:
+el-card
+  .lead My orders
 
   .mobile-markets.d-lg-none.mt-3
-    .row.market-row(v-for="order in orders")
+    .row.market-row(v-for="order in orders").border
       .col-8
         .row
           .col
@@ -22,7 +22,7 @@ div
             div(v-else)
               strong.text-danger {{ order.unit_price | humanPrice }}
 
-      .col-4.d-flex
+      .col-4
         el-button(size='mini', type='danger', @click='cancel(order)').ml-auto Cancel
 
   el-table(:data='orders', style='width: 100%').d-none.d-lg-block
@@ -72,7 +72,7 @@ export default {
         o.type = o.bid.symbol.symbol === this.network.baseToken.symbol ? 'bid' : 'ask'
 
         return o
-      })
+      }).sort((a, b) => b.timestamp - a.timestamp)
     }
   },
 

@@ -68,6 +68,7 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters }, provider) {
+    // TODO Add some function to autologin Scatter
     try {
       if (provider == 'wax') {
         const userAccount = await state.wallet.wax.login()

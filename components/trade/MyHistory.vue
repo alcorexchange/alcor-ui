@@ -1,9 +1,9 @@
 <template lang="pug">
-div
-  .lead Trade History:
+el-card
+  .lead Trade History
 
   .mobile-markets.d-lg-none.mt-3
-    .row.market-row(v-for="order in orders").mb-2
+    .row.market-row(v-for="order in orders").mb-2.border
       .col-6
         .row
           .col
@@ -22,7 +22,7 @@ div
             div(v-else)
               strong.text-danger {{ order.unit_price | humanPrice }}
 
-      .col-6.d-flex
+      .col-6
         el-button(size="mini")
           a(:href="monitorTx(order.trx_id)" target="_blank").a-reset Show transaction
 

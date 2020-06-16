@@ -36,7 +36,7 @@
   .row
     .col
       hr
-      .row
+      .row.mb-2
         .col
           my-orders(v-if="user" v-loading="loading")
 
