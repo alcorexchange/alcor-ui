@@ -37,7 +37,12 @@
     //el-card
     .row
       .col
-        el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable)
+        .d-flex
+          el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable)
+
+          nuxt-link(to="/new_market").ml-3
+            //.new-market-btn
+            el-button(tag="el-button" type="primary" icon="el-icon-plus") Create NFT token
       //.col-lg-4
       //.col-lg-8
     hr
@@ -45,7 +50,7 @@
     .row.mt-3
       .col
         .market-cards
-          card.item(v-for="order in filteredOrders" :order="order").mr-lg-2
+          card.item(v-for="order in filteredOrders" :order="order")
 
 </template>
 
@@ -176,10 +181,11 @@ export default {
 .market-cards {
   display: flex;
   flex-wrap: wrap!important;
+  justify-content: space-between;
 }
 
 .market-cards .item {
-  width: 32%;
+  width: 32.8%;
   margin-bottom: 10px;
 }
 
