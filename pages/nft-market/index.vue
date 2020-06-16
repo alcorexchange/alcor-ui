@@ -40,9 +40,9 @@
         .d-flex
           el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable)
 
-          nuxt-link(to="/new_market").ml-3
+          nuxt-link(to="/nft-market/create").ml-3
             //.new-market-btn
-            el-button(tag="el-button" type="primary" icon="el-icon-plus") Create NFT token
+            el-button(tag="el-button" icon="el-icon-plus") Create NFT token
       //.col-lg-4
       //.col-lg-8
     hr
