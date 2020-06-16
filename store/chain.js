@@ -87,8 +87,13 @@ export const actions = {
         } catch (e) {
           this._vm.$notify({ title: 'Login error', message: e, type: 'error' })
           if (state.loginPromise) state.loginPromise.resolve(false)
-          console.log('login crash...')
+          console.log('login crash...', e)
           getters.wallet.logout()
+
+          if ('eosio::chain::name' in e) {
+            dispatch('login')
+          }
+
           return
         }
 
