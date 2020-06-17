@@ -162,7 +162,7 @@ export default {
           ],
           data: {
             author: this.user.name,
-            category: this.category,
+            category: this.category.toLowerCase(),
             owner: this.user.name,
             idata: JSON.stringify(this.idata),
             mdata: JSON.stringify(this.mdata),
