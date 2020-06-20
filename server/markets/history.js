@@ -72,6 +72,11 @@ export async function loadHistory(network) {
     r.data.actions.map(m => {
       const data = m.act.data.record
 
+      if (!data) {
+        console.log('double data bug in: ', m.trx_id)
+        return
+      }
+
       data.trx_id = m.trx_id
       data.type = m.act.name
       data.ask = parseAsset(data.ask)
@@ -79,8 +84,6 @@ export async function loadHistory(network) {
 
       // FIXME Fix afret fix contract timestamp
       data.time = new Date(m['@timestamp'])
-
-      return data
     })
 
     actions.push(...r.data.actions)

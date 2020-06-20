@@ -162,15 +162,15 @@ const networks = {
     },
 
     withdraw: {
-      //'EOSP@steemenginex': {
-      //  desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1. Gateway fee will be 1%(Steem-engine)',
-      //  withdrawMemo: 'TLOS {account}',
-      //  gateway: 'steemenginex',
-      //  network: {
-      //    name: 'EOS Mainnet',
-      //    symbol: 'EOS'
-      //  }
-      //}
+      'EOSP@steemenginex': {
+        desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1. Gateway fee will be 1%(Steem-engine)',
+        withdrawMemo: 'TLOS {account}',
+        gateway: 'steemenginex',
+        network: {
+          name: 'EOS Mainnet',
+          symbol: 'EOS'
+        }
+      }
     }
   },
 
