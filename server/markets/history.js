@@ -74,6 +74,7 @@ export async function loadHistory(network) {
       let data = m.act.data
 
       if ('data' in data) {
+        // FIXME какая то херня возвращается у них
         console.log('double data bug in: ', m.trx_id)
         data = data.data.record
       } else {
