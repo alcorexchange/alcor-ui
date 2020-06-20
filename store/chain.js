@@ -82,6 +82,7 @@ export const actions = {
         try {
           if (!wallet.connected) {
             await getters.wallet.connect()
+            await wallet.login() // Just in case
           }
 
           r = await wallet.login()
