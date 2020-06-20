@@ -134,7 +134,6 @@ export function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
-
 export function prepareNFT(nfts) {
   // Parse nft of nfts
   if (nfts.length == undefined) {

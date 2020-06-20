@@ -12,6 +12,10 @@
         .d-flex.ml-3(v-if="hasWithdraw")
           Withdraw
 
+        //.d-flex.ml-3(v-if="hasWithdraw")
+        .d-flex.ml-3(v-if="token.contract == 'bosibc.io'")
+          BOSIbc
+
         .d-flex.ml-3.w-100.justify-content-around
           .d-flex.ml-3
             span Volume 24H:
@@ -54,12 +58,14 @@ import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import Withdraw from '~/components/withdraw/Withdraw'
+import BOSIbc from '~/components/withdraw/BOSIbc'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
-    Withdraw
+    Withdraw,
+    BOSIbc
   },
 
   computed: {

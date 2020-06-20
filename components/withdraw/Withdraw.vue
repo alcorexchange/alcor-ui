@@ -1,5 +1,6 @@
 <template lang="pug">
 // TODO Refactor with walidators for form
+// TODO boscore withdraws https://boscore.gitbook.io/docs/essentials/bos-essentials/ibc-inter-blockchain-communication/user-guide
 div
   el-button(type="primary" icon="el-icon-wallet" size="mini" @click="open").ml-auto Withdraw
 

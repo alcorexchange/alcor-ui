@@ -65,7 +65,7 @@ const networks = {
       },
     },
 
-    RECOMMENDED_MARKETS: ['SAND@sandiegocoin', 'TCN@tcapitalnote'],
+    RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@tcapitalnote'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
@@ -110,7 +110,7 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
+    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
@@ -209,7 +209,7 @@ const networks = {
     },
 
     withdraw: {},
-    RECOMMENDED_MARKETS: [],
+    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'WAX@bosibc.io', 'TLOS@bosibc.io', ''],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
