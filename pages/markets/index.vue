@@ -3,12 +3,18 @@
   .col
     el-card
       .row
-        .col-lg-3.mb-2
-          nuxt-link(to="new_market")
-            //.new-market-btn
-            el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
-        .col-lg-9
-          el-input(v-model="search" placeholder="Search token")
+        .col-lg-2.mb-2
+          .d-flex.align-items-center.h-100
+            nuxt-link(to="new_market")
+              //.new-market-btn
+              el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
+        .col-lg-7
+          .d-flex.align-items-center.h-100
+            el-checkbox(v-model="ibcTokens") IBC Tokens
+            BOSIbcDeposit.ml-auto
+        .col-lg-3
+          .d-flex.align-items-center.h-100
+            el-input(v-model="search" placeholder="Search token")
       .row
         .col
           el-table(:data='filteredItems',
@@ -85,11 +91,13 @@ import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import BOSIbcDeposit from '~/components/withdraw/BOSIbcDeposit'
 
 export default {
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
+    BOSIbcDeposit
   },
 
   async fetch({ store, error }) {
@@ -108,6 +116,7 @@ export default {
       search: '',
 
       to_assets: [],
+      ibcTokens: false,
 
       select: {
         from: '',
@@ -128,8 +137,13 @@ export default {
 
     filteredItems() {
       return this.markets.filter((i) => {
-        if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
+        if (i.token.str.toLowerCase().includes(this.search.toLowerCase())) {
+          if (this.ibcTokens) {
+            return i.token.contract == 'bosibc.io'
+          }
+
           return true
+        }
       }).reverse()
     },
 

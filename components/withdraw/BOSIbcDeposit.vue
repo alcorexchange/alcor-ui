@@ -1,37 +1,40 @@
 <template lang="pug">
 // TODO boscore withdraws https://boscore.gitbook.io/docs/essentials/bos-essentials/ibc-inter-blockchain-communication/user-guide
 .ibc-withdraw
-  el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open").ml-auto BOS Ibc Transfer
+  el-button(icon="el-icon-money" @click="open").ml-auto IBC Deposit
 
-  el-dialog(title="Withdraw using Inter Blockchain Communication", :visible.sync="visible" width="25%" v-if="user")
+  el-dialog(title="IBC Deposit", :visible.sync="visible" width="25%" v-if="user")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
+      span This form will allow you to transfer {{ network.baseToken.symbol }} to other chains and to manage(and trade) it there.
+
       el-form-item.mb-2
-        b Select withdraw network
+        b Where you want deposit {{ network.baseToken.symbol }} ?
         .row
           .col
-            el-radio-group(v-model='chain_select' @change="setChain")
-              el-radio-button(v-for="chain in chains" :key='chain', :value='chain' :label='chain')
-                img(:src="require('~/assets/icons/' + chain + '.png')" height=20).mr-2
-                span {{ chain }}
+            .d-flex
+              el-radio-group(v-model='chain_select' @change="setChain")
+                el-radio-button(v-for="chain in chains" :key='chain', :value='chain' :label='chain')
+                  img(:src="require('~/assets/icons/' + chain + '.png')" height=20).mr-2
+                  span {{ chain }}
 
-      //el-form-item.mt-1(v-if="chain.name" prop="address")
+      el-form-item.mt-1(v-if="chain.name" prop="address")
         template(slot="label")
           b {{ chain.name }} address:
         el-input(v-model="form.address" placeholder="address..").w-100
 
-      //el-form-item(v-if="chain.name" prop="amount")
+      el-form-item(v-if="chain.name" prop="amount")
         template(slot="label")
-          b Withdraw amount
+          b Deposit amount
 
-          span.w-100  (Balance {{ tokenBalance }})
+          span.w-100  (Balance {{ baseBalance }})
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
-          span(slot="suffix").mr-1 {{ this.token.symbol.name }}
+          span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-      //el-form-item.mt-1(v-if="chain.name")
+      el-form-item.mt-1(v-if="chain.name")
         span.dialog-footer(v-if="chain.name").mb-4
           el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100
-            | Transfer {{ this.token.symbol.name }} to {{ chain.desc }}
+            | Deposit {{ network.baseToken.symbol }} to {{ chain.desc }}
 </template>
 
 <script>
@@ -93,7 +96,7 @@ export default {
   computed: {
     ...mapState(['user', 'network']),
     ...mapState('market', ['token']),
-    ...mapGetters(['tokenBalance']),
+    ...mapGetters(['baseBalance']),
 
     networks() {
       return Object.values(config.networks)
@@ -112,7 +115,7 @@ export default {
     },
 
     amountChange() {
-      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.symbol.precision)
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.network.baseToken.precision)
     },
 
     async open() {
@@ -121,7 +124,7 @@ export default {
     },
 
     async submit() {
-      const quantity = this.form.amount + ' ' + this.token.symbol.name
+      const quantity = this.form.amount + ' ' + this.network.baseToken.symbol
       const memo = this.network.name != 'bos'
         ? `hub.io@bos >> ${this.form.address}@${this.chain.name} alcor.exchange (IBC transfer)`
         : `${this.form.address}@${this.chain.name} alcor.exchange (IBC transfer)`
@@ -130,7 +133,7 @@ export default {
       try {
         const r = await this.$store.dispatch('chain/transfer', {
           to: 'bosibc.io',
-          contract: this.token.contract,
+          contract: this.network.baseToken.contract,
           actor: this.user.name,
           quantity,
           memo
@@ -142,7 +145,7 @@ export default {
           dangerouslyUseHTMLString: true,
           confirmButtonText: 'OK',
           callback: (action) => {
-            this.$notify({ title: 'Withdraw in process', type: 'success' })
+            this.$notify({ title: 'Deposit in process', type: 'success' })
           }
         })
 

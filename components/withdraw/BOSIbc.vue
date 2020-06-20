@@ -6,7 +6,7 @@
   el-dialog(title="Withdraw using Inter Blockchain Communication", :visible.sync="visible" width="25%" v-if="user")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mb-2
-        b Select withdraw network
+        b Where you want transfer {{ token.symbol.name }} ?
         .row
           .col
             el-radio-group(v-model='chain_select' @change="setChain")
@@ -31,7 +31,7 @@
       el-form-item.mt-1(v-if="chain.name")
         span.dialog-footer(v-if="chain.name").mb-4
           el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100
-            | Transfer {{ this.token.symbol.name }} to {{ chain.desc }}
+            | Transfer {{ token.symbol.name }} to {{ chain.desc }}
 </template>
 
 <script>
