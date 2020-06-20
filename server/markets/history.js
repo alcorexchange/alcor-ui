@@ -70,11 +70,14 @@ export async function loadHistory(network) {
     })
 
     r.data.actions.map(m => {
-      const data = m.act.data.record
+      //const data = m.act.data.record
+      let data = m.act.data
 
-      if (!data) {
+      if ('data' in data) {
         console.log('double data bug in: ', m.trx_id)
-        return
+        data = data.data.record
+      } else {
+        data = data.record
       }
 
       data.trx_id = m.trx_id
@@ -86,7 +89,7 @@ export async function loadHistory(network) {
       data.time = new Date(m['@timestamp'])
     })
 
-    actions.push(...r.data.actions)
+    actions.push(...r.data.actions.filter(r => r.data != undefined))
     skip += r.data.actions.length
 
     cache.set(`${network.name}_history_skip`, skip, 0)
