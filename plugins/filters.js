@@ -32,12 +32,12 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
 Vue.prototype.$tokenLogo = function(symbol, contract) {
   const network = this.$store.state.network.name
 
-  if (contract == 'bosibc.io') {
-    return require(`@/assets/tokens/bosibc.io/${symbol.toLowerCase()}.png`)
-  }
-
   try {
-    return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
+    if (contract == 'bosibc.io') {
+      return require(`@/assets/tokens/bosibc.io/${symbol.toLowerCase()}.png`)
+    } else {
+      return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
+    }
   } catch {
     const tokens = this.$store.state.tokens
 
