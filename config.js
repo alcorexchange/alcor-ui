@@ -95,7 +95,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://wax.eosn.io/v2/',
+    hyperion: 'https://api.waxsweden.org/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -141,7 +141,7 @@ const networks = {
     monitor: 'http://telos.bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://telos.eosphere.io/v2/',
+    hyperion: 'https://hyperion.telosgermany.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {

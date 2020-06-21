@@ -69,28 +69,25 @@ export async function loadHistory(network) {
       }
     })
 
-    r.data.actions.map(m => {
-      //const data = m.act.data.record
-      let data = m.act.data
+    for (const t of r.data.actions) {
+      const data = t.act.data.record
 
-      if ('data' in data) {
-        // FIXME какая то херня возвращается у них
-        console.log('double data bug in: ', m.trx_id)
-        data = data.data.record
-      } else {
-        data = data.record
+      if (data == undefined) {
+        console.log(`data bug in(${network.name}): `, t.trx_id)
+        continue
       }
 
-      data.trx_id = m.trx_id
-      data.type = m.act.name
+      data.trx_id = t.trx_id
+      data.type = t.act.name
       data.ask = parseAsset(data.ask)
       data.bid = parseAsset(data.bid)
 
       // FIXME Fix afret fix contract timestamp
-      data.time = new Date(m['@timestamp'])
-    })
+      data.time = new Date(t['@timestamp'])
 
-    actions.push(...r.data.actions.filter(r => r.data != undefined))
+      actions.push(t)
+    }
+
     skip += r.data.actions.length
 
     cache.set(`${network.name}_history_skip`, skip, 0)
