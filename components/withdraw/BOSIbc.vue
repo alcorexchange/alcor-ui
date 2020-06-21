@@ -122,9 +122,10 @@ export default {
 
     async submit() {
       const quantity = this.form.amount + ' ' + this.token.symbol.name
+      const chain = this.chain.baseToken.symbol.toLowerCase()
       const memo = this.network.name != 'bos'
-        ? `hub.io@bos >> ${this.form.address}@${this.chain.name} alcor.exchange (IBC transfer)`
-        : `${this.form.address}@${this.chain.name} alcor.exchange (IBC transfer)`
+        ? `hub.io@bos >> ${this.form.address}@${chain} alcor.exchange (IBC transfer)`
+        : `${this.form.address}@${chain} alcor.exchange (IBC transfer)`
 
       const loading = this.$loading({ lock: true, text: 'Wait for wallet' })
       try {
