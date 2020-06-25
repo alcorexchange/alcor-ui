@@ -150,8 +150,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcordexpool',
-      fee: 'alcordexdivs'
+      contract: 'evolutiondex',
+      fee: 'wevotethefee'
     },
 
     RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone'],
