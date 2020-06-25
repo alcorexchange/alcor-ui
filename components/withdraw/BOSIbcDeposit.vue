@@ -6,6 +6,8 @@
   el-dialog(title="IBC Deposit", :visible.sync="visible" width="25%" v-if="user")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       span This form will allow you to transfer {{ network.baseToken.symbol }} to other chains and to manage(and trade) it there.
+      br
+      small.text-muted *no free CPU for this action now.. :(
 
       el-form-item.mb-2
         b Where you want deposit {{ network.baseToken.symbol }} ?
@@ -46,8 +48,6 @@ import { mapGetters, mapState } from 'vuex'
 
 import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
-
-
 
 export default {
   components: {
