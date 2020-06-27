@@ -175,17 +175,8 @@ export default {
             quantity: `${this.amount1} ${this.base.currency}`,
             memo: ''
           }
-        }, {
-          account: this.network.baseToken.contract,
-          name: 'transfer',
-          authorization,
-          data: {
-            from: this.user.name,
-            to: this.network.feeAccount,
-            quantity: this.network.marketCreationFee,
-            memo: 'Pool creation fee'
-          }
-        }, {
+        },
+        {
           account: this.quote.contract,
           name: 'transfer',
           authorization,
@@ -209,6 +200,20 @@ export default {
           }
         }
       ]
+
+      if (this.user.name != this.network.feeAccount) {
+        actions.push({
+          account: this.network.baseToken.contract,
+          name: 'transfer',
+          authorization,
+          data: {
+            from: this.user.name,
+            to: this.network.feeAccount,
+            quantity: this.network.marketCreationFee,
+            memo: 'Pool creation fee'
+          }
+        })
+      }
 
       this.loading = true
       try {
