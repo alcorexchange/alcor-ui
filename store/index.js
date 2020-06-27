@@ -41,11 +41,9 @@ export const actions = {
 
     if (state.network.name == 'local') return
 
-    if (state.network.name == 'eos') {
-      setInterval(() => dispatch('pools/fetchPools', {}, { root: true }), 5000)
-    }
+    setInterval(() => dispatch('pools/fetchPools', {}, { root: true }), 5000)
 
-    setInterval(() => dispatch('update'), 10000)
+    setInterval(() => dispatch('update'), 15000)
   },
 
   checkIsMobile ({ commit }) {
@@ -94,7 +92,7 @@ export const actions = {
   loadUserBalances({ rootState, state, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
-      axios.get(`${state.network.lightapi}/api/account/${state.network.name}/${rootState.user.name}`).then((r) => {
+      axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
         const balances = r.data.balances
         balances.sort((a, b) => {
           if (a.currency < b.currency) { return -1 }
