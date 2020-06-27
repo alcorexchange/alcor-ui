@@ -1,4 +1,5 @@
 import { asset, number_to_asset } from 'eos-common'
+import { preparePool } from '~/utils/pools'
 
 export const state = () => ({
   pools: [],
@@ -12,6 +13,28 @@ export const mutations = {
 }
 
 export const actions = {
+  async updatePool({ state, commit, rootGetters, rootState }) {
+    if (state.current_sym == '') return // TODO Add if current page is pools
+
+    const { rows: [pool] } = await rootGetters['api/rpc'].get_table_rows({
+      code: rootState.network.pools.contract,
+      scope: state.current_sym,
+      table: 'stat',
+      limit: 1
+    })
+
+    const pools = state.pools.map(p => {
+      if (p.supply.symbol.code().to_string() == state.current_sym) {
+        console.log('updated')
+        return preparePool(pool)
+      }
+
+      return p
+    })
+
+    commit('setPools', pools.filter(p => p.pool1.contract != 'yuhjtmanserg'))
+  },
+
   async fetchPools({ state, commit, rootGetters, rootState }) {
     const { rows } = await rootGetters['api/rpc'].get_table_by_scope({
       code: rootState.network.pools.contract,

@@ -1,3 +1,5 @@
+import { asset } from 'eos-common'
+
 export function computeForward(x, y, z, fee) {
   //const tmp = x.multiply(-1).multiply(z).divide(y.plus(x))
   //return tmp.plus(tmp.multiply(-1).multiply(fee).plus(9999).divide(10000)).abs()
@@ -28,4 +30,12 @@ export function calcPrice(a, b) {
   const diff_precision = a.symbol.precision() - b.symbol.precision()
 
   return (a.amount / b.amount) / (10 ** diff_precision)
+}
+
+export function preparePool(pool) {
+  pool.pool1.quantity = asset(pool.pool1.quantity)
+  pool.pool2.quantity = asset(pool.pool2.quantity)
+  pool.supply = asset(pool.supply)
+
+  return pool
 }

@@ -41,9 +41,12 @@ export const actions = {
 
     if (state.network.name == 'local') return
 
-    setInterval(() => dispatch('pools/fetchPools', {}, { root: true }), 5000)
+    dispatch('pools/fetchPools', {}, { root: true })
+
+    dispatch('pools/updatePool', {}, { root: true })
 
     setInterval(() => dispatch('update'), 15000)
+    setInterval(() => dispatch('pools/updatePool', {}, { root: true }), 10000)
   },
 
   checkIsMobile ({ commit }) {
