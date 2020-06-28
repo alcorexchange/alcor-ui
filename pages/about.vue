@@ -64,6 +64,9 @@
           .lead EOSIO Light API
           span.mt-2
             | The nice tool to get token balances for users.
+            br
+            | Hosted by
+            a(href="https://eosamsterdam.net/" target="_blank")  EOS Amsterdam.
         .col-md-4
           a(href="https://bloks.io" target="_blank").img
             img(src="~/assets/logos/bloks_logomark.svg" height=80)
