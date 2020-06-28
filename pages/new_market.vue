@@ -12,7 +12,7 @@
           br
           | This happens on smart contract, without the participation of third parties.
 
-        pre *You will need around 300 bytes of free RAM for new market
+        pre *You will buy 530 RAM bytes for new market creation
 
       PleaseLoginButton
         el-form(ref="form" :model="form" label-position="left" :rules="rules")
@@ -148,20 +148,37 @@ export default {
     },
 
     async submit() {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for wallet'
-      })
-
       const { contract, symbol, precision } = this.form.token
 
+      const authorization = [{ actor: this.user.name, permission: 'active' }]
+      const actions = [
+        {
+          account: this.network.baseToken.contract,
+          name: 'transfer',
+          authorization,
+          data: {
+            from: this.user.name,
+            to: this.network.contract,
+            quantity: this.network.marketCreationFee,
+            memo: `new_market|${Number(0).toFixed(precision)} ${symbol}@${contract}`
+          }
+        },
+        {
+          account: 'eosio',
+          name: 'buyrambytes',
+          authorization,
+          data: {
+            payer: this.user.name,
+            receiver: this.network.contract,
+            bytes: 530
+          }
+        }
+      ]
+
+      const loading = this.$loading({ lock: true, text: 'Wait for wallet' })
+
       try {
-        await this.$store.dispatch('chain/transfer', {
-          contract: this.network.baseToken.contract,
-          actor: this.user.name,
-          quantity: this.network.marketCreationFee,
-          memo: `new_market|${Number(0).toFixed(precision)} ${symbol}@${contract}`
-        })
+        await this.$store.dispatch('chain/sendTransaction', actions)
         this.$notify({ title: 'Market creation', message: 'Market was created successfully', type: 'info' })
         this.$router.push({ name: 'markets-id', params: { id: `${symbol}-${contract}` } })
         this.$store.dispatch('loadMarkets')

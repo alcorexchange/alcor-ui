@@ -263,7 +263,7 @@ const networks = {
   jungle: {
     name: 'jungle',
     desc: 'Jungle testnet',
-    contract: 'eostokensdex',
+    contract: 'alcordexmain',
 
     baseToken: {
       contract: 'eosio.token',
