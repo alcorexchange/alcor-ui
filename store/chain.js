@@ -9,7 +9,6 @@ import * as waxjs from '@waxio/waxjs/dist'
 
 import config from '../config'
 
-
 const fuelAuth = {
   actor: 'greymassfuel',
   permission: 'cosign'

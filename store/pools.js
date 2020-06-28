@@ -77,7 +77,9 @@ export const getters = {
       return '0.0000 '
     }
 
-    const balance = rootState.user.balances.filter(b => b.currency === getters.current.pool1.quantity.symbol.code().to_string())[0]
+    const balance = rootState.user.balances.filter(b => {
+      return b.currency === getters.current.pool1.quantity.symbol.code().to_string() && b.contract == getters.current.pool1.contract
+    })[0]
     if (!balance) return asset(0, getters.current.pool1.quantity.symbol).to_string()
 
     return `${balance.amount} ${balance.currency}`
@@ -92,7 +94,9 @@ export const getters = {
       return '0.0000 '
     }
 
-    const balance = rootState.user.balances.filter(b => b.currency === getters.current.pool2.quantity.symbol.code().to_string())[0]
+    const balance = rootState.user.balances.filter(b => {
+      return b.currency === getters.current.pool2.quantity.symbol.code().to_string() && b.contract == getters.current.pool2.contract
+    })[0]
     if (!balance) return asset(0, getters.current.pool2.quantity.symbol).to_string()
 
     return `${balance.amount} ${balance.currency}`
