@@ -56,14 +56,6 @@ export default {
     }
   },
 
-  watch: {
-    pools(newVal, oldVal) {
-      if (newVal.length > 0 && oldVal.length == 0) {
-        this.setPool(newVal[0])
-      }
-    }
-  },
-
   mounted() {
     this.$store.dispatch('pools/fetchPools')
   },
