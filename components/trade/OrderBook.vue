@@ -55,16 +55,23 @@ export default {
   watch: {
     sorted_asks() {
       // Scroll asks after update
-      const asks = this.$refs.asks
-
       if (this.sorted_asks.length != this.asksL) {
-        setTimeout(() => asks.scrollTop = asks.scrollHeight, 100)
+        this.scrollBook()
         this.asksL = this.sorted_asks.length
       }
     }
   },
 
+  mounted() {
+    setTimeout(() => this.scrollBook(), 1000)
+  },
+
   methods: {
+    scrollBook() {
+      const asks = this.$refs.asks
+      setTimeout(() => asks.scrollTop = asks.scrollHeight, 100)
+    },
+
     setBid(ask) {
       const price = this.$options.filters.humanPrice(ask.unit_price).replace(',', '')
       EventBus.$emit('setPrice', price)
