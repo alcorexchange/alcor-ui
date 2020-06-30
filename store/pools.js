@@ -14,24 +14,26 @@ export const mutations = {
 
 export const actions = {
   async updatePool({ state, commit, rootGetters, rootState }) {
-    if (state.current_sym == '') return // TODO Add if current page is pools and also for markets
+    const sym = Object.assign('', state.current_sym)
+
+    if (sym == '') return // TODO Add if current page is pools and also for markets
 
     const { rows: [pool] } = await rootGetters['api/rpc'].get_table_rows({
       code: rootState.network.pools.contract,
-      scope: state.current_sym,
+      scope: sym,
       table: 'stat',
       limit: 1
     })
 
     const pools = state.pools.map(p => {
-      if (p.supply.symbol.code().to_string() == state.current_sym) {
+      if (p.supply.symbol.code().to_string() == sym) {
         return preparePool(pool)
       }
 
       return p
     })
 
-    commit('setPools', pools.filter(p => p.pool1.contract != 'yuhjtmanserg'))
+    commit('setPools', pools)
   },
 
   async fetchPools({ state, commit, rootGetters, rootState }) {
@@ -64,6 +66,7 @@ export const actions = {
       commit('setCurrentSym', pools[0].supply.symbol.code().to_string())
     }
 
+    console.log('polls size', pools)
     commit('setPools', pools)
   }
 }

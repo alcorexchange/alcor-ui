@@ -62,7 +62,7 @@ export default {
 
   methods: {
     setPool(pool) {
-      const symbol = asset(pool.supply).symbol.code().to_string()
+      const symbol = pool.supply.symbol.code().to_string()
       this.$store.commit('pools/setCurrentSym', symbol)
     }
   },
