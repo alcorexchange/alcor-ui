@@ -66,7 +66,6 @@ export const actions = {
       commit('setCurrentSym', pools[0].supply.symbol.code().to_string())
     }
 
-    console.log('polls size', pools)
     commit('setPools', pools)
   }
 }

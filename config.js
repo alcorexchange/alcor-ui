@@ -170,6 +170,16 @@ const networks = {
           name: 'EOS Mainnet',
           symbol: 'EOS'
         }
+      },
+
+      'KANDA@telokandaone': {
+        desc: 'KANDA peged token. You can buy it for TLOS and withdraw to Hive-Engine. Gateway fee will be 1%(Hive-engine)',
+        withdrawMemo: 'KANDA {account}',
+        gateway: 'telokandaone',
+        network: {
+          name: 'Hive-Engine',
+          symbol: 'Hive'
+        }
       }
     }
   },
