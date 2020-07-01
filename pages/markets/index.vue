@@ -10,7 +10,7 @@
               el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
         .col-lg-7
           .d-flex.align-items-center.h-100
-            el-checkbox(v-model="ibcTokens") IBC Tokens
+            el-checkbox(v-model="ibcTokens") IBC Tokens (Cross-Chain)
             BOSIbcDeposit.ml-auto
         .col-lg-3
           .d-flex.align-items-center.h-100
