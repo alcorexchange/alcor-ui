@@ -11,7 +11,7 @@
           span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
       el-form-item(label="Amount")
-        el-input(type="number" clearable v-model="total")
+        el-input(type="number" clearable v-model="total" @change="format")
           span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
       el-form-item
@@ -32,7 +32,7 @@
           span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
 
       el-form-item(label="Amount")
-        el-input(type="number" v-model="amount" clearable)
+        el-input(type="number" v-model="amount" clearable @change="format")
           span(slot="suffix").mr-1 {{ token.symbol.name }}
 
       el-form-item
@@ -62,6 +62,43 @@ export default {
     ...mapState('market', ['token']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapGetters(['user', 'tokenBalance', 'baseBalance'])
+  },
+
+  watch: {
+    eosPercent(v) {
+      if (!this.baseBalance) return
+
+      const balance = parseFloat(this.baseBalance.split(' ')[0])
+
+      if (balance == 0) return
+
+      if (v === 100) {
+        this.total = balance
+      } else {
+        this.total = (balance / 100 * v).toFixed(this.network.baseToken.precision)
+      }
+    },
+
+    tokenPercent(v) {
+      if (!this.tokenBalance) return
+
+      const balance = parseFloat(this.tokenBalance.split(' ')[0])
+
+      if (balance == 0) return
+
+      if (v === 100) {
+        this.amount = balance
+      } else {
+        this.amount = (balance / 100 * v).toFixed(this.token.symbol.precision)
+      }
+    }
+  },
+
+  methods: {
+    format() {
+      this.total = this.toFixed(this.total, this.network.baseToken.precision)
+      this.amount = this.toFixed(this.amount, this.token.symbol.precision)
+    }
   }
 }
 

@@ -272,7 +272,7 @@ Vue.mixin({
     },
 
     toFixed(value, precision) {
-      return parseFloat(value).toFixed(precision)
+      return (parseFloat(value) || 0).toFixed(precision)
     },
 
     monitorTx(tx) {
