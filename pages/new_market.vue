@@ -150,7 +150,7 @@ export default {
     async submit() {
       const { contract, symbol, precision } = this.form.token
 
-      const authorization = [{ actor: this.user.name, permission: 'active' }]
+      const authorization = [this.user.authorization]
       const actions = [
         {
           account: this.network.baseToken.contract,

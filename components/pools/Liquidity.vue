@@ -179,7 +179,7 @@ export default {
     },
 
     async provide() {
-      const authorization = [{ actor: this.user.name, permission: 'active' }]
+      const authorization = [this.user.authorization]
 
       const amount1 = asset(`${this.amount1} ${this.current.pool1.quantity.symbol.code().to_string()}`).to_string()
       const amount2 = asset(`${this.amount2} ${this.current.pool2.quantity.symbol.code().to_string()}`).to_string()

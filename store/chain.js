@@ -66,13 +66,18 @@ export const actions = {
     }
   },
 
-  async login({ state, commit, dispatch, getters }, provider) {
+  async login({ state, commit, dispatch, getters, rootState }, provider) {
     // TODO Add some function to autologin Scatter
     try {
       if (provider == 'wax') {
         const userAccount = await state.wallet.wax.login()
-        commit('setUser', { name: userAccount }, { root: true })
         commit('setCurrentWallet', 'wax')
+        commit('setUser', {
+          name: userAccount,
+          authorization: {
+            actor: userAccount, permission: 'active'
+          }
+        }, { root: true })
       } else {
         commit('setProvider', provider)
         const wallet = getters.wallet
@@ -81,6 +86,7 @@ export const actions = {
         try {
           if (!wallet.connected) {
             await getters.wallet.connect()
+            // FIXME Здесь нужно перелогинивать только в случае если раный чейн
             await wallet.logout() // Just in case
           }
 
@@ -98,7 +104,10 @@ export const actions = {
           return
         }
 
-        commit('setUser', { name: r.account_name }, { root: true })
+        r.name = r.account_name
+        r.authorization = { actor: getters.wallet.auth.accountName, permission: getters.wallet.auth.permission }
+
+        commit('setUser', r, { root: true })
         dispatch('loadUserBalances', {}, { root: true })
         commit('setCurrentWallet', 'transit')
       }
@@ -117,10 +126,7 @@ export const actions = {
           account: contract,
           name: 'transfer',
           authorization: [
-            {
-              actor,
-              permission: 'active'
-            }
+            rootState.user.authorization
           ],
           data: {
             from: actor,
@@ -139,12 +145,7 @@ export const actions = {
         {
           account: contract || rootState.network.contract,
           name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
-          authorization: [
-            {
-              actor: account,
-              permission: 'active'
-            }
-          ],
+          authorization: [rootState.user.authorization],
           data: { executor: account, market_id, order_id }
         }
       ]

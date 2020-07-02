@@ -110,7 +110,7 @@ export default {
             name: 'cancelorder',
             authorization: [{
               actor: order.maker,
-              permission: 'active'
+              permission: this.user.authorization.permission
             }],
             data: { maker: order.maker, order_id: order.id }
           }

@@ -204,7 +204,7 @@ export default {
     },
 
     async swap() {
-      const authorization = [{ actor: this.user.name, permission: 'active' }]
+      const authorization = [this.user.authorization]
 
       let amount1
       let amount2

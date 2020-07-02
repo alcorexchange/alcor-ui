@@ -144,12 +144,7 @@ export default {
           {
             account: 'simpleassets',
             name: 'transfer',
-            authorization: [
-              {
-                actor: this.user.name,
-                permission: 'active'
-              }
-            ],
+            authorization: [this.user.authorization],
             data: {
               from: this.user.name,
               to: this.network.nftMarket.contract,

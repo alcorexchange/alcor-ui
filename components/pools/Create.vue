@@ -144,7 +144,7 @@ export default {
     },
 
     async create() {
-      const authorization = [{ actor: this.user.name, permission: 'active' }]
+      const authorization = [this.user.authorization]
 
       const actions = [
         {
