@@ -8,7 +8,7 @@ div
     el-form(ref="form" label-position="left")
       .row
         .col-2
-          TokenImage(:src="$tokenLogo(this.token.symbol.name, this.token.contract)" height="50")
+          TokenImage(:src="$tokenLogo(this.token.symbol, this.token.contract)" height="50")
 
         .col-10
           .row
@@ -29,7 +29,7 @@ div
       el-form-item.mt-2
         template(slot="label")
           b Withdraw amount:
-        el-input-number(v-model="amount" :precision="token.symbol.precision" :step="1").w-100
+        el-input-number(v-model="amount" :precision="token.precision" :step="1").w-100
 
       el-form-item.mt-1
         template(slot="label")
@@ -53,6 +53,13 @@ export default {
     TokenImage
   },
 
+  props: {
+    token: {
+      type: Object,
+      default: () => {}
+    }
+  },
+
   data() {
     return {
       visible: false,
@@ -64,11 +71,10 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapState('market', ['token']),
     ...mapGetters(['tokenBalance']),
 
     peg() {
-      return this.network.withdraw[this.token.str]
+      return this.network.withdraw[this.token.symbol + '@' + this.token.contract]
     }
   },
 
@@ -84,7 +90,7 @@ export default {
         text: 'Wait for wallet'
       })
 
-      const quantity = this.amount.toFixed(this.token.symbol.precision) + ' ' + this.token.symbol.name
+      const quantity = this.amount.toFixed(this.token.precision) + ' ' + this.token.symbol
 
       try {
         const r = await this.$store.dispatch('chain/transfer', {

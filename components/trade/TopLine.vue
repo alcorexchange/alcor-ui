@@ -10,11 +10,12 @@
           a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
 
         .d-flex.ml-3(v-if="hasWithdraw")
-          Withdraw
+          // TODO Token prop & mobile version
+          Withdraw(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}")
 
-        //.d-flex.ml-3(v-if="hasWithdraw")
         .d-flex.ml-3(v-if="token.contract == 'bosibc.io'")
-          BOSIbc
+          // TODO Token prop & mobile version
+          BOSIbc(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}")
 
         .d-flex.ml-3.w-100.justify-content-around
           .d-flex.ml-3
@@ -40,7 +41,6 @@
             .d-flex.ml-3
               b {{ token.symbol.name }}@
               a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-
         .row
           .col
             .d-flex.ml-3
@@ -51,6 +51,11 @@
             .d-flex.ml-3
               span Volume 24H:
               span.text-success.ml-1  {{ stats.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+        .row
+          .col.ml-3
+            Withdraw(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}" v-if="hasWithdraw")
+            BOSIbc(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}" v-if="token.contract == 'bosibc.io'")
+
 </template>
 
 <script>

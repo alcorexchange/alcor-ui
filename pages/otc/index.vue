@@ -69,17 +69,6 @@
                     template(slot-scope="scope")
                       b.ml-2 {{ scope.row.price }}
 
-          el-tab-pane(label='My balances')
-            el-alert(v-if="!user" title="Please login" :closable="false" show-icon type="info")
-
-            el-table(v-else :data="user.balances", style='width: 100%')
-              el-table-column(label='currency')
-                template(slot-scope="scope")
-                  TokenImage(:src="$tokenLogo(scope.row.currency, scope.row.contract)" height="25")
-                  span.ml-2 {{ scope.row.currency }}
-
-              el-table-column(prop='contract', label='contract')
-              el-table-column(prop='amount', label='amount')
           el-tab-pane(label='History')
             history
 

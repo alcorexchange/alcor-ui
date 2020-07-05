@@ -52,8 +52,8 @@
         .scatter-button.mr-1
           div(v-if="user")
             el-dropdown(size='mini', split-button='' :hide-on-click="false" trigger="click")
-              //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
-              | {{ $store.state.user.name }}
+              a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+              //| {{ $store.state.user.name }}
               el-dropdown-menu(slot='dropdown')
                 el-dropdown-item(v-if="network.name == 'eos'")
                   .row
@@ -151,7 +151,9 @@ export default {
         items.push({ index: '/nft-market', name: 'NFT' })
       }
 
-      items.push({ index: '/about', name: 'About' })
+      //items.push({ index: '/about', name: 'About' })
+
+      items.push({ index: '/wallet', name: 'Wallet' })
 
       return items
     },

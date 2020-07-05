@@ -1,15 +1,14 @@
 <template lang="pug">
-// TODO boscore withdraws https://boscore.gitbook.io/docs/essentials/bos-essentials/ibc-inter-blockchain-communication/user-guide
 .ibc-withdraw
-  el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open").ml-auto BOS Ibc Transfer
+  el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open") BOS Ibc Transfer
 
-  el-dialog(title="Withdraw using Inter Blockchain Communication", :visible.sync="visible" width="25%" v-if="user")
+  el-dialog(title="Withdraw using Inter Blockchain Communication", :visible.sync="visible" width="25%" v-if="user").text-left
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mb-2
-        b Where you want transfer {{ token.symbol.name }} ?
+        b Where you want transfer {{ token.symbol }} ?
         .row
           .col
-            el-radio-group(v-model='chain_select' @change="setChain")
+            el-radio-group(v-model='chain_select' @change="setChain").el-radio-full-width
               el-radio-button(v-for="chain in chains" :key='chain', :value='chain' :label='chain')
                 img(:src="require('~/assets/icons/' + chain + '.png')" height=20).mr-2
                 span {{ chain }}
@@ -26,12 +25,12 @@
           span.w-100  (Balance {{ tokenBalance }})
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
-          span(slot="suffix").mr-1 {{ this.token.symbol.name }}
+          span(slot="suffix").mr-1 {{ this.token.symbol }}
 
       el-form-item.mt-1(v-if="chain.name")
         span.dialog-footer(v-if="chain.name").mb-4
           el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100
-            | Transfer {{ token.symbol.name }} to {{ chain.desc }}
+            | Transfer {{ token.symbol }} to {{ chain.desc }}
 </template>
 
 <script>
@@ -40,15 +39,28 @@ import { JsonRpc } from 'eosjs'
 
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
+import { asset } from 'eos-common'
 
 import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
 
 
-
 export default {
   components: {
     TokenImage
+  },
+
+  props: {
+    token: {
+      type: Object,
+      default: () => {
+        return {
+          precision: 4,
+          symbol: 'EOS',
+          contract: 'eosio.token'
+        }
+      }
+    }
   },
 
   data() {
@@ -92,8 +104,8 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapState('market', ['token']),
     ...mapGetters(['tokenBalance']),
+    ...mapGetters('api', ['rpc']),
 
     networks() {
       return Object.values(config.networks)
@@ -112,7 +124,7 @@ export default {
     },
 
     amountChange() {
-      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.symbol.precision)
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.precision)
     },
 
     async open() {
@@ -121,7 +133,7 @@ export default {
     },
 
     async submit() {
-      const quantity = this.form.amount + ' ' + this.token.symbol.name
+      const quantity = this.form.amount + ' ' + this.token.symbol
       const chain = this.chain.baseToken.symbol.toLowerCase()
       const memo = this.network.name != 'bos'
         ? `hub.io@bos >> ${this.form.address}@${chain} alcor.exchange (IBC transfer)`
