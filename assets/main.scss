@@ -7,28 +7,29 @@ button:focus {
   outline: 0;
 }
 
-.el-table__row, .pointer {
+.el-table__row,
+.pointer {
   cursor: pointer;
 }
 
 @media (min-width: 1200px) {
-    .container{
-        max-width: 1260px;
-    }
+  .container {
+    max-width: 1260px;
+  }
 }
 
 @media (max-width: 1024px) {
-    .container{
-        max-width: 100%;
-    }
+  .container {
+    max-width: 100%;
+  }
 
-    .el-dialog {
-        width: 90% !important;
-    }
+  .el-dialog {
+    width: 90% !important;
+  }
 
-    .el-menu-item {
-        padding: 0 20px 0 8px;
-    }
+  .el-menu-item {
+    padding: 0 20px 0 8px;
+  }
 }
 
 input::-webkit-outer-spin-button,
@@ -38,7 +39,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
@@ -48,7 +49,7 @@ input[type=number] {
 }
 
 .input-with-select .el-select .el-input {
-  width: 400px;
+  /* width: 400px; */
 }
 
 .input-with-select .el-input-group__append {
@@ -56,17 +57,29 @@ input[type=number] {
 }
 
 .upperinput {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 .upperinput:placeholder-shown {
-    text-transform: none;
+  text-transform: none;
 }
 
 .a-reset {
-    color: inherit !important;
-    text-decoration: none !important;
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
 .gh-button-container {
-    color: #24292e;
+  color: #24292e;
+}
+
+.el-radio-full-width.el-radio-group {
+  display: flex;
+
+  label.el-radio-button {
+      flex: 1;
+  }
+
+  .el-radio-button__inner {
+    width: 100%;
+  }
 }

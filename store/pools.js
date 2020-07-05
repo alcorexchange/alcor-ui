@@ -1,4 +1,4 @@
-import { asset, number_to_asset } from 'eos-common'
+import { asset } from 'eos-common'
 import { preparePool } from '~/utils/pools'
 
 export const state = () => ({

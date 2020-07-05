@@ -34,7 +34,7 @@ div
       el-form-item.mt-1
         template(slot="label")
           b {{ peg.network.name }} address:
-          .text-info No walidation of address yet, be careful!
+          .text-info No validation of address yet, be careful!
         el-input(v-model="account" placeholder="address..").w-100
 
 

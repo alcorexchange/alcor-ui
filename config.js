@@ -63,6 +63,26 @@ const networks = {
         withdrawMemo: 'BTC {account}',
         gateway: 'steemenginex'
       },
+
+      'SAND@sandiegocoin': {
+        desc: 'SAND peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
+        network: {
+          name: 'Hive-Engine',
+          symbol: 'Hive'
+        },
+        withdrawMemo: 'SAND {account}',
+        gateway: 'sandiegocoin'
+      },
+
+      'WEED@weedcashntwk': {
+        desc: 'WEED peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
+        network: {
+          name: 'Hive-Engine',
+          symbol: 'Hive'
+        },
+        withdrawMemo: 'WEED {account}',
+        gateway: 'weedcashntwk'
+      }
     },
 
     RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@tcapitalnote'],
@@ -180,6 +200,16 @@ const networks = {
           name: 'Hive-Engine',
           symbol: 'Hive'
         }
+      },
+
+      'SAND@sandiegocoin': {
+        desc: 'SAND peged token. You can buy it for TLOS and withdraw to Hive-Engine address 1:1',
+        network: {
+          name: 'Hive-Engine',
+          symbol: 'Hive'
+        },
+        withdrawMemo: 'SAND {account}',
+        gateway: 'sandiegocoin'
       }
     }
   },

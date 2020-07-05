@@ -51,8 +51,7 @@ module.exports = {
     'element-ui/lib/theme-chalk/index.css',
     'bootstrap-utilities/bootstrap-utilities.css',
     'bootstrap/dist/css/bootstrap.min.css',
-    '~/assets/main.css'
-
+    '~/assets/main.scss'
   ],
 
   /*

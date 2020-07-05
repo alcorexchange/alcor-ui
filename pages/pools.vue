@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.mt-3
-  .col-lg-3
+  .col-lg-3.pr-1
     .row
       .col
         el-input(placeholder="Search pool" size="small" v-model="search" clearable)

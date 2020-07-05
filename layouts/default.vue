@@ -138,13 +138,17 @@ export default {
       items.push({ index: '/markets', name: 'Markets' })
 
       if (['wax', 'eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/pools', name: 'Liquidity pools' })
+        items.push({ index: '/pools', name: 'Pools' })
       }
 
-      items.push({ index: '/otc', name: 'OTC Swaps' })
+      if (['eos'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/cross-chain', name: 'Cross-Chain' })
+      }
+
+      items.push({ index: '/otc', name: 'OTC' })
 
       if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/nft-market', name: 'NFT Market' })
+        items.push({ index: '/nft-market', name: 'NFT' })
       }
 
       items.push({ index: '/about', name: 'About' })
