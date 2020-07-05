@@ -141,9 +141,9 @@ export default {
         items.push({ index: '/pools', name: 'Pools' })
       }
 
-      if (['eos'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/cross-chain', name: 'Cross-Chain' })
-      }
+      //if (['eos'].includes(this.$store.state.network.name)) {
+      //  items.push({ index: '/cross-chain', name: 'Cross-Chain' })
+      //}
 
       items.push({ index: '/otc', name: 'OTC' })
 
