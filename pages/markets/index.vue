@@ -11,7 +11,6 @@
         .col-lg-7
           .d-flex.align-items-center.h-100
             el-checkbox(v-model="ibcTokens") IBC Tokens (Cross-Chain)
-            BOSIbcDeposit.ml-auto
         .col-lg-3
           .d-flex.align-items-center.h-100
             el-input(v-model="search" placeholder="Search token")
@@ -91,13 +90,11 @@ import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-import BOSIbcDeposit from '~/components/withdraw/BOSIbcDeposit'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
-    BOSIbcDeposit
   },
 
   async fetch({ store, error }) {

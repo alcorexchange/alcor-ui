@@ -9,8 +9,11 @@ div
               p Quick swap or make money on providing liquidity.
           .col
             .d-flex.justify-content-end
-              Withdraw(@update="fetch").mr-3
-              Liquidity(:current="current" @update="fetch")
+              .row
+                .col-lg-6
+                  Withdraw(@update="fetch").mr-3.mb-2
+                .col-lg-6
+                  Liquidity(:current="current" @update="fetch")
 
         .row.mb-3.mt-2
           .col-lg-5
@@ -39,12 +42,12 @@ div
             .row
               .col
                 .d-flex.justify-content-center
-                  h1.el-icon-refresh(@click="swapInput").pointer.mt-5.el-button--text
+                  img(src="~/assets/icons/swap.png" @click="swapInput" height="50").pointer.mt-1
 
-            .row
-              .col.text-center.mt-4
+            .row.d-none.d-lg-block
+              .col.text-center
                 a(href="https://github.com/EOSArgentina/evolutiondex" target="_blank")
-                  img(src="~/assets/logos/evodex.png" height=70)
+                  img(src="~/assets/logos/evodex.png" height=70).evodexlogo
 
           .col-lg-5
             .row
@@ -61,9 +64,14 @@ div
               .col.border-left
                 .text-center
                   .lead Output
-                  p.mt-2 The amount that you will receive
+
+                  p The amount that you will receive
 
                   .lead {{ amount2 }}  {{ poolTwo.quantity.symbol.code().to_string() }}
+
+                  pre(v-if="input == 'pool2'") Balance: {{ baseBalance }}
+                  pre(v-else) Balance: {{ quoteBalance }}
+
 
         .row.mb-3(v-if="current.pool1")
           .col
@@ -99,7 +107,7 @@ export default {
     TokenImage,
     PleaseLoginButton,
     Liquidity,
-    Withdraw
+    Withdraw,
   },
 
   data() {
@@ -258,4 +266,7 @@ export default {
 </script>
 
 <style>
+.evodexlogo {
+  margin-top: 70px;
+}
 </style>

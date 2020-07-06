@@ -105,8 +105,14 @@
 
                 el-button(type="danger" size="small" @click="sell").w-100 Sell
 
+
       .col-7
         OrderBook
+
+    .row.mt-3
+      .col
+        LatestDeals
+
     .row.mt-3
       .col
         MyOrders
@@ -128,6 +134,7 @@ import Chart from '~/components/trade/Chart'
 import TokenImage from '~/components/elements/TokenImage'
 import MyOrders from '~/components/trade/MyOrders'
 import TopLine from '~/components/trade/TopLine'
+import LatestDeals from '~/components/trade/LatestDeals'
 
 export default {
   components: {
@@ -136,7 +143,8 @@ export default {
     TokenImage,
     MyOrders,
     MyHistory,
-    TopLine
+    TopLine,
+    LatestDeals
   },
 
   mixins: [tradeMixin, tradeChangeEvents],

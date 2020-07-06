@@ -1,9 +1,9 @@
 <template lang="pug">
 .row.mt-3
-  .col-lg-3.pr-1
+  .col-md-3.pr-1
     .row
       .col
-        el-input(placeholder="Search pool" size="small" v-model="search" clearable)
+        el-input(placeholder="Search pool" size="small" v-model="search" clearable).mb-2
       .col-lg-5
         create
     hr
@@ -20,7 +20,7 @@
               .col-6.text-left
                 TokenImage(:src="$tokenLogo(pool.pool2.quantity.symbol.code().to_string(), pool.pool2.contract)" height="25")
                 span.ml-2 {{ pool.pool2.quantity.symbol.code().to_string() }}
-  .col-lg-9
+  .col-md-9
     el-card
       Swap
 </template>

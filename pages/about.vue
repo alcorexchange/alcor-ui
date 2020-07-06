@@ -29,7 +29,7 @@
 
               ul
                 li.lead Add icon to Eos token collection
-                  a(href="https://github.com/BlockABC/eos-tokens" target="_blank")  https://github.com/BlockABC/eos-tokens
+                  a(href="https://github.com/eoscafe/eos-airdrops" target="_blank")  https://github.com/eoscafe/eos-airdrops
                 li.lead All icon on alcor
                   a(href="https://github.com/avral/alcor-ui/tree/master/assets/tokens" target="_blank")  github page folder
                   |  name format: symbol-contract.png
