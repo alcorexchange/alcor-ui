@@ -195,23 +195,41 @@ export const tradeMixin = {
       this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
       this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
+      const actions = [
+        {
+          account: this.network.baseToken.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.contract,
+            quantity: `${this.total} ${this.network.baseToken.symbol}`,
+            memo: `${this.amount} ${this.token.str}`
+          }
+        }
+      ]
+
+      //const balance = await this.$store.getters['api/rpc'].get_currency_balance(this.token.contract, this.user.name, this.token.symbol.name)
+      //if (balance.length == 0) {
+      //  // Open balance row for user in case not spend dex RAM for it
+      //  console.log(this.token)
+      //  actions.push({
+      //    account: this.token.contract,
+      //    name: 'open',
+      //    authorization: [this.user.authorization],
+      //    data: {
+      //      owner: this.user.name,
+      //      symbol: this.token.symbol.name,
+      //      ram_payer: this.user.name
+      //    }
+      //  })
+      //}
+
       try {
-        const r = await this.$store.dispatch('chain/transfer', {
-          contract: this.network.baseToken.contract,
-          actor: this.user.name,
-          quantity: `${this.total} ${this.network.baseToken.symbol}`,
-          memo: `${this.amount} ${this.token.str}`
-        })
+        await this.$store.dispatch('chain/sendTransaction', actions)
 
         this.$store.dispatch('market/fetchOrders')
         this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
-
-        //this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-        //  dangerouslyUseHTMLString: true,
-        //  confirmButtonText: 'OK',
-        //  callback: (action) => {
-        //  }
-        //})
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
@@ -233,7 +251,7 @@ export const tradeMixin = {
       })
 
       try {
-        const r = await this.$store.dispatch('chain/transfer', {
+        await this.$store.dispatch('chain/transfer', {
           contract: this.token.contract,
           actor: this.user.name,
           quantity: `${this.amount} ${this.token.symbol.name}`,
@@ -242,12 +260,6 @@ export const tradeMixin = {
 
         this.$store.dispatch('market/fetchOrders')
         this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })
-        //this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-        //  dangerouslyUseHTMLString: true,
-        //  confirmButtonText: 'OK',
-        //  callback: (action) => {
-        //  }
-        //})
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
