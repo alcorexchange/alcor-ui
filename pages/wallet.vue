@@ -2,13 +2,14 @@
 .row
   .col
     PleaseLoginButton
-      el-card
-        el-table(:data="balances", style='width: 100%' v-if="user")
+      el-card.wallet
+        el-table(:data="balances", style='width: 100%' v-if="user" @cell-click="cellClick")
           el-table-column(label='Asset' width="300")
             template(slot-scope="scope")
               TokenImage(:src="$tokenLogo(scope.row.currency, scope.row.contract)" height="25")
               span.ml-2 {{ scope.row.currency }}
               a(:href="monitorAccount(scope.row.contract)" target="_blank") ({{ scope.row.contract }})
+              el-tag(v-if="hasMarket(scope.row)" size="small").float-right Trade
 
           el-table-column(prop='amount', label='Amount' align="right" width="150" :sort-method="sortByAmount"
           sortable :sort-orders="['descending', null]")
@@ -55,7 +56,7 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
-    ...mapState(['network']),
+    ...mapState(['network', 'markets']),
 
     balances() {
       if (!this.user.balances) return []
@@ -65,14 +66,41 @@ export default {
 
         return b.id.toLowerCase().includes(this.search.toLowerCase())
       }).sort((a, b) => a.contract == this.network.baseToken.contract ? -1 : 1)
-    },
+    }
   },
 
   methods: {
     sortByAmount(a, b) {
       return parseFloat(a.amount) > parseFloat(b.amount) ? 1 : -1
+    },
+
+    cellClick(asset, cell) {
+      if (cell.label == 'Asset') {
+        if (this.hasMarket(asset)) {
+          this.$router.push({ name: 'markets-id', params: { id: asset.id.replace('@', '-') } })
+        }
+      }
+    },
+
+    hasMarket(row) {
+      const [market] = this.markets.filter(m => m.token.str == row.id)
+
+      return !!market
     }
   }
 }
 
 </script>
+
+<style lang="scss">
+.wallet {
+  .el-table__row {
+    cursor: auto;
+
+    td:first-child:hover {
+      cursor: pointer;
+      background-color: #eff1f5;
+    }
+  }
+}
+</style>
