@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.mt-3
-  .col-lg-6
+  .col-lg-5
     el-card
       div(slot="header")
         .lead NFT creation
@@ -14,7 +14,7 @@
       .row
         .col
           label Category
-          el-input(v-model='category', placeholder='Category')
+          el-input(v-model='category', placeholder='Category' maxlength="12" show-word-limit)
 
       hr
       .row
@@ -51,34 +51,38 @@
         .col
           el-button(size="mini" type="primary" @click="addM") Add
 
-  .col-lg-6
-    el-card
+  .col-lg-7
+    el-card.preview-wrap
       div(slot="header")
         .lead NFT Preview
 
-      .row.mb-1
-        .col
-          b.text-muted Category:
-          |  {{ category }}
-
-      .row.mb-1
-        .col
-          b.text-muted Immutable data:
-          ul
-            li(v-for="item in iRows" v-if="item[1]")
-              span.text-muted {{ item[0] }}:
-              span  {{ item[1] }}
-
-              i.el-icon-close.pointer.ml-1(@click="delI(item[0])")
       .row
-        .col
-          b.text-muted Mutable data:
-          ul
-            li(v-for="item in mRows" v-if="item[1]")
-              span.text-muted {{ item[0] }}:
-              span  {{ item[1] }}
+        .col-4
+          img(v-if="preview.mdata.img" :src="preview.mdata.img").w-100
+        .col-8
+          .row.mb-1
+            .col
+              b.text-muted Category:
+              |  {{ preview.category }}
 
-              i.el-icon-close.pointer.ml-1(@click="delM(item[0])")
+          .row.mb-1
+            .col
+              b.text-muted Immutable data:
+              ul
+                li(v-for="item in iRows" v-if="item[1]")
+                  span.text-muted {{ item[0] }}:
+                  span  {{ item[1] }}
+
+                  i.el-icon-close.pointer.ml-1(@click="delI(item[0])")
+          .row
+            .col
+              b.text-muted Mutable data:
+              ul
+                li(v-for="item in mRows" v-if="item[1]")
+                  span.text-muted {{ item[0] }}:
+                  span  {{ item[1] }}
+
+                  i.el-icon-close.pointer.ml-1(@click="delM(item[0])")
 
       PleaseLoginButton
         el-button(type="primary" :loading="loading" @click="create").w-100 Create NFT
@@ -87,6 +91,7 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
+import { prepareNFT } from '~/utils'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 
@@ -120,6 +125,19 @@ export default {
 
     mRows() {
       return Object.entries(this.mdata)
+    },
+
+    preview() {
+      const nft = JSON.parse(JSON.stringify({
+        category: this.category,
+        idata: JSON.stringify(this.idata),
+        mdata: JSON.stringify(this.mdata)
+      }))
+
+      prepareNFT(nft)
+      console.log(nft)
+
+      return nft
     }
   },
 
@@ -216,6 +234,10 @@ export default {
   .market-cards .item {
     width: 100%;
   }
+}
+
+.preview-wrap {
+  overflow-wrap: anywhere;
 }
 
 </style>
