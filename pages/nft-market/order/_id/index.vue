@@ -12,9 +12,9 @@ el-card(v-if="!no_found").box-card.mt-3
       .col
         el-card(v-for="nft in nfts" shadow="hover").pointer.mb-1
           .row
-            .col-lg-2
-              img(:src="nft.mdata.img" height=80)
-            .col-lg-10
+            .col-lg-4
+              img(:src="nft.mdata.img" with="100%")
+            .col-lg-8
               .d-flex.flex-column
                 .lead {{ nft.mdata.name }}
                 b ID: {{ nft.id }}

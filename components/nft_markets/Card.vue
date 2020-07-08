@@ -8,8 +8,28 @@
     .row
       .col
         .market-items
-          .p-1(v-for="nft in order.sell").pointer.mb-1
+          el-carousel(indicator-position="outside" :arrow="order.sell.length > 1 ? 'hover' : 'never'")
+            el-carousel-item(v-for="nft in order.sell" :key="nft.id")
+              .p-3.text-center
+                b {{ nft.mdata.name }}
+                img(:src="nft.mdata.img" width="80%")
+          //.p-3(v-for="nft in order.sell").pointer.mb-1
             .row
+              .col
+                b.text-muted.mb-1 {{ nft.mdata.name }}
+                img(:src="nft.mdata.img" width="100%")
+            .row
+              .col
+                .d-flex.flex-column
+                  b ID: {{ nft.id }}
+                  span Category: {{ nft.category }}
+                  span Author
+                    b.ml-1 {{ nft.author }}
+            .row
+              .col
+                span lol
+
+            //.row
               .col-lg-3
                 .p-1
                   img(:src="nft.mdata.img" height=70)
@@ -65,7 +85,7 @@ export default {
 }
 
 .market-item {
-  max-height: 300px;
+  max-height: 400px;
   cursor: pointer;
 }
 
@@ -77,7 +97,7 @@ export default {
   max-width: 100%;
   overflow-x: hidden;
 
-  max-height: 200px;
+  max-height: 340px;
   overflow-y: auto;
 }
 </style>
