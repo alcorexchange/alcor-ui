@@ -126,11 +126,9 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters(['user', 'markets']),
+    ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
-    ...mapState({
-      markets: state => state.markets
-    }),
+    ...mapState(['markets']),
 
     filteredItems() {
       return this.markets.filter((i) => {

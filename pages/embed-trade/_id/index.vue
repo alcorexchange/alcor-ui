@@ -1,121 +1,29 @@
 <template lang="pug">
-.container-fluid.mb-5.mt-1
-  .row.mt-2
-    .col-9
-      .row
-        .col
-          .row
-            .col
-              .text.item
-                .row.trade-window(v-if="!isMobile")
-                  .col-lg-5
-                    .row
-                      .col
-                        .overflowbox.box-card.p-2
-                          .row
-                            .col-md-2.p-1.pl-4
-                              TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
+.row
+  .col
+    .row.mb-2(v-if="network.SCAM_CONTRACTS.includes($store.state.market.token.contract)")
+      .col
+        el-alert(type="error" show-icon)
+          .lead Potential SCAM token!
 
-                            .col-md-6
-                              .row
-                                .col
-                                  b {{ token.symbol.name }}@
-                                  a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-                              .row
-                                .col
-                                  span Volume 24H:
-                                  span.text-success  {{ stats.volume24 }}
-                            .col-md-4(v-if="isPeg")
-                              withdraw
-                          .row(v-if="isPeg")
-                            .col
-                              .p-2
-                                .text {{ this.network.pegs[this.token.str].desc }}
-                    .row.mt-2
-                      .col
-                        order-book(v-loading="loading")
-
-                    .row
-                      .col
-                        LatestDeals.mt-2
-                  .col-lg-7
-                    .row
-                      .col
-                        chart
-
-                    .row
-                      .col
-                        el-tabs.h-100
-                          el-tab-pane(label="Limit trade")
-                            LimitTrade
-
-                          el-tab-pane(label="Market trade")
-                            market-trade
-
-                // Mobile verion
-                .trade-window(v-else)
-                  .row
-                    .col
-                      .overflowbox.box-card.p-2
-                        .row
-                          .col-2.p-1.pl-4
-                            TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="40")
-
-                          .col-10
-                            .row
-                              .col
-                                b {{ token.symbol.name }}@
-                                a(:href="monitorAccount(token.contract )" target="_blank") {{ token.contract }}
-                            .row
-                              .col
-                                span Volume 24H:
-                                span.text-success.ml-1  {{ stats.volume24 }}
-                  chart
-
-                  .text.item
-                    MobileTrade
-
-    .col-3
-      .overflowbox
-        markets
-  .row
-    .col
-      hr
-      .row
-        .col
-          my-orders(v-if="user" v-loading="loading")
+    DesktopTrade(v-if="!isMobile")
+    MobileTrade(v-else)
 </template>
 
 <script>
 import { Name, SymbolCode } from 'eos-common'
 import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
-import TokenImage from '~/components/elements/TokenImage'
-import AssetImput from '~/components/elements/AssetInput'
 
-import MarketTrade from '~/components/trade/MarketTrade'
-import LimitTrade from '~/components/trade/LimitTrade'
-import MyOrders from '~/components/trade/MyOrders'
-import OrderBook from '~/components/trade/OrderBook'
-import Markets from '~/components/trade/Markets'
-import LatestDeals from '~/components/trade/LatestDeals'
-import Chart from '~/components/trade/Chart'
+import DesktopTrade from '~/components/trade/DesktopTrade'
 import MobileTrade from '~/components/trade/MobileTrade'
 
 export default {
   layout: 'embed',
 
   components: {
-    TokenImage,
-    AssetImput,
-    MarketTrade,
-    MyOrders,
-    LimitTrade,
-    OrderBook,
-    LatestDeals,
-    Chart,
-    Markets,
     MobileTrade,
+    DesktopTrade
   },
 
   async fetch({ store, error, params }) {
@@ -124,46 +32,55 @@ export default {
     let market_id
 
     if (contract && symbol) {
-      // If it's slug
+      if (store.state.network.name == 'bos') {
+        // Old api of bos chain
+        if (!store.state.markets.length) {
+          await store.dispatch('loadMarkets')
+        }
 
-      //if (c_market) {
-      //  market_id = c_market.id
-      //} else {
-      const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
+        const market = store.state.markets.filter(m => m.token.str == `${symbol}@${contract}`)[0]
 
-      const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
-        code: store.state.network.contract,
-        scope: store.state.network.contract,
-        table: 'markets',
-        lower_bound: `0x${i128_id}`,
-        key_type: 'i128',
-        index_position: 2,
-        limit: 1
-      })
+        if (market) {
+          market_id = market.id
+        } else {
+          return error(`Market ${symbol}@${contract} not found!`)
+        }
+      } else {
+        // If it's slug use >= node v2.0
+        const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
 
-      if (!market) {
-        error(`Market ${symbol}@${contract} not found!`)
+        const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
+          code: store.state.network.contract,
+          scope: store.state.network.contract,
+          table: 'markets',
+          lower_bound: `0x${i128_id}`,
+          key_type: 'i128',
+          index_position: 2,
+          limit: 1
+        })
+
+        if (market == undefined || !(market.token.sym.includes(symbol) && market.token.contract == contract)) {
+          return error(`Market ${symbol}@${contract} not found!`)
+        } else {
+          market_id = market.id
+        }
       }
-
-      market_id = market.id
-      //}
     } else {
       market_id = params.id
     }
 
     store.commit('market/setId', market_id)
 
-    this.loading = true
     try {
       await Promise.all([
         store.dispatch('market/fetchMarket'),
+        store.dispatch('market/fetchOrders'),
         store.dispatch('market/fetchDeals')
       ])
     } catch (e) {
       captureException(e)
       return error({ message: e, statusCode: 500 })
     } finally {
-      this.loading = false
     }
   },
 

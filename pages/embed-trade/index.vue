@@ -2,31 +2,86 @@
 .container.mb-5.mt-1
   .row
     .col
-      .row.mt-2
-        .col
-          nuxt-link(to="/new_market")
-            //.new-market-btn
-            el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
+      el-card
+        .row
+          .col-lg-2.mb-2
+            .d-flex.align-items-center.h-100
+              nuxt-link(to="new_market")
+                //.new-market-btn
+                el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
+          .col-lg-7
+            .d-flex.align-items-center.h-100
+              el-checkbox(v-model="ibcTokens") IBC Tokens (Cross-Chain)
+          .col-lg-3
+            .d-flex.align-items-center.h-100
+              el-input(v-model="search" placeholder="Search token")
+        .row
+          .col
+            el-table(:data='filteredItems',
+            style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
+              el-table-column(label='Pair', prop='date' width="250")
+                template(slot-scope="scope")
+                  TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
+                  span.ml-2
+                    | {{ scope.row.token.symbol.name }}
+                    a(:href="monitorAccount(scope.row.token.contract)" target="_blank") ({{ scope.row.token.contract }})
 
-      el-table(:data='filteredItems', style='width: 100%' @row-click="clickOrder")
-        el-table-column(label='Pair', prop='date' width="300")
-          template(slot-scope="scope")
-            TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
-            span.ml-2
-              | {{ scope.row.token.symbol.name }}
-              a(:href="monitorAccount(scope.row.token.contract)" target="_blank") ({{ scope.row.token.contract }})
+              el-table-column(
+                :label="`Last price`"
+                sort-by="last_price"
+                width="180"
+                align="right"
+                header-align="right"
+                sortable
+                :sort-orders="['descending', null]"
+              )
+                template(slot-scope="scope")
+                  .text-success {{ scope.row.last_price | humanPrice }} {{ network.baseToken.symbol }}
+              el-table-column(
+                :label='`24H Volume`'
+                align="right"
+                header-align="right"
+                sortable
+                sort-by="volume24"
+                :sort-orders="['descending', null]"
+              )
+                template(slot-scope="scope")
+                  span.text-mutted {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+              el-table-column(
+                label='24H Change %'
+                prop='name'
+                align="right"
+                header-align="right"
+                sortable
+                sort-by="change24"
+                :sort-orders="['descending', null]"
+              )
+                template(slot-scope="scope" align="right" header-align="right")
+                  change-percent(:change="scope.row.change24")
 
-        el-table-column(label='Last price', prop='name')
-          template(slot-scope="scope")
-            .text-success {{ scope.row.last_price | humanPrice }}
-        el-table-column(label='24H Volume', prop='name')
-          template(slot-scope="scope")
-            span.text-mutted {{ scope.row.volume24 }}
-        el-table-column(label='24H Change %', prop='name')
-          span.text-mutted Available soon
-        el-table-column(align='right')
-          template(slot='header', slot-scope='scope')
-            el-input(size="small" v-model="search" placeholder="Filter by token")
+              el-table-column(
+                label='7 Day Volume'
+                prop='weekVolume'
+                align="right"
+                header-align="right"
+                sortable
+                sort-by="volumeWeek"
+                :sort-orders="['descending', null]"
+              )
+                template(slot-scope="scope")
+                  span.text-mutted {{ scope.row.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+
+              el-table-column(
+                label='7 Day Change %'
+                prop='weekChange'
+                align="right"
+                header-align="right"
+                sortable
+                sort-by="changeWeek"
+                :sort-orders="['descending', null]"
+              )
+                template(slot-scope="scope")
+                  change-percent(:change="scope.row.changeWeek")
 
 </template>
 
@@ -35,12 +90,14 @@ import { captureException } from '@sentry/browser'
 
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
+import ChangePercent from '~/components/trade/ChangePercent'
 
 export default {
   layout: 'embed',
 
   components: {
-    TokenImage
+    TokenImage,
+    ChangePercent
   },
 
   async fetch({ store, error }) {
@@ -57,27 +114,32 @@ export default {
       search: '',
 
       to_assets: [],
+      ibcTokens: false,
 
       select: {
         from: '',
         to: ''
       },
 
-      loading: true,
+      loading: true
     }
   },
 
   computed: {
-    ...mapGetters(['user', 'markets']),
+    ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
-    ...mapState({
-      markets: state => state.markets
-    }),
+    ...mapState(['markets']),
+    ...mapState(['network']),
 
     filteredItems() {
       return this.markets.filter((i) => {
-        if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
+        if (i.token.str.toLowerCase().includes(this.search.toLowerCase())) {
+          if (this.ibcTokens) {
+            return i.token.contract == 'bosibc.io'
+          }
+
           return true
+        }
       }).reverse()
     },
 
