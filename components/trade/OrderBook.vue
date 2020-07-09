@@ -7,8 +7,10 @@
       span Total ({{ network.baseToken.symbol }})
 
   .orders-list.blist.asks.text-danger(ref="asks")
-    .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'my-order': ''")
-      span {{ ask.unit_price | humanPrice }}
+    .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'pl-0': ''")
+      span
+        i.el-icon-caret-right(v-if="isMyOrder(ask)")
+        | {{ ask.unit_price | humanPrice }}
       span.text-center {{ ask.bid.amount | humanFloat(token.symbol.precision) }}
       span {{ ask.ask.amount | humanFloat(network.baseToken.precision) }}
 
@@ -21,8 +23,10 @@
     b.text-success {{ current_price | humanPrice }}
 
   .orders-list.blist.text-success
-    .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'my-order': ''")
-      span {{ bid.unit_price | humanPrice }}
+    .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'pl-0': ''")
+      span
+        i.el-icon-caret-right(v-if="isMyOrder(bid)")
+        | {{ bid.unit_price | humanPrice }}
       span.text-center {{ bid.ask.amount | humanFloat(token.symbol.precision) }}
       span {{ bid.bid.amount | humanFloat(network.baseToken.precision) }}
 
@@ -95,7 +99,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .overflowbox {
   border: 1px solid hsla(0,2%,89%,.7);
   box-shadow: none;
@@ -125,6 +129,10 @@ export default {
   line-height: 20.6px;
   overflow: hidden;
   padding: 0px 10px;
+
+  i {
+    font-size: 10px;
+  }
 }
 
 
@@ -154,9 +162,5 @@ export default {
   .display-4 {
     font-size: 1em;
   }
-}
-
-.my-order {
-  background-color: aliceblue;
 }
 </style>
