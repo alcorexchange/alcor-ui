@@ -5,21 +5,23 @@
       .col
         el-input(placeholder="Search pool" size="small" v-model="search" clearable).mb-2
       .col-lg-5
-        create
-    hr
+        create.mb-2
     .row
       .col
-        .mb-2(v-for="pool in filteredPools")
-          el-button(plain size="small"
-                    @click="setPool(pool)"
-                    :class="{ 'is-active': current_sym == pool.supply.symbol.code().to_string() }").w-100
-            .row
-              .col-6
-                TokenImage(:src="$tokenLogo(pool.pool1.quantity.symbol.code().to_string(), pool.pool1.contract)" height="25")
-                span.ml-2 {{ pool.pool1.quantity.symbol.code().to_string() }}
-              .col-6.text-left
-                TokenImage(:src="$tokenLogo(pool.pool2.quantity.symbol.code().to_string(), pool.pool2.contract)" height="25")
-                span.ml-2 {{ pool.pool2.quantity.symbol.code().to_string() }}
+        .pools-list
+          .mb-2(v-for="pool in filteredPools")
+            el-button(plain size="small"
+                      @click="setPool(pool)"
+                      :class="{ 'is-active': current_sym == pool.supply.symbol.code().to_string() }").w-100
+              .row
+                .col-6
+                  TokenImage(:src="$tokenLogo(pool.pool1.quantity.symbol.code().to_string(), pool.pool1.contract)" height="25")
+                  span.ml-2 {{ pool.pool1.quantity.symbol.code().to_string() }}
+                .col-6.text-left
+                  TokenImage(:src="$tokenLogo(pool.pool2.quantity.symbol.code().to_string(), pool.pool2.contract)" height="25")
+                  span.ml-2 {{ pool.pool2.quantity.symbol.code().to_string() }}
+        .text-center(v-if="filteredPools.length > 11")
+          i.el-icon-caret-bottom
   .col-md-9
     el-card
       Swap
@@ -52,7 +54,10 @@ export default {
     ...mapState('pools', ['pools', 'current_sym']),
 
     filteredPools() {
-      return this.pools.filter(p => p.supply.symbol.toString().toLowerCase().includes(this.search.toLowerCase()))
+      return this.pools.filter(p => {
+        const s = (p.pool2.quantity.symbol.code().to_string() + p.pool2.contract).toLowerCase()
+        return s.includes(this.search.toLowerCase())
+      })
     }
   },
 
@@ -78,3 +83,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.pools-list {
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+}
+</style>
