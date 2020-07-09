@@ -52,8 +52,9 @@ div
           .col-lg-5
             .row
               .col-lg-2
+              .col-lg-2
                 TokenImage(:src="$tokenLogo(poolTwo.quantity.symbol.code().to_string(), poolTwo.contract)" height="50").ml-2
-              .col-lg-10
+              .col-lg-8
                 .ml-2
                   .lead {{ poolTwo.quantity.symbol.code().to_string() }}@{{ poolTwo.contract }}
                   b Pool size: {{ poolTwo.quantity }}
