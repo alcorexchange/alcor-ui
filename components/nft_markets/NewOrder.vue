@@ -17,7 +17,7 @@ div
                 .p-1
                   img(:src="nft.mdata.img" height=70)
               .col-lg-9
-                .d-flex.flex-column
+                .d-flex.flex-column.pl-2
                   i.el-icon-close.ml-auto(@click="rmSell(nft)").pointer.card-close
                   .lead {{ nft.mdata.name }}
                   b ID: {{ nft.id }}
@@ -26,10 +26,27 @@ div
                     b.ml-1 {{ nft.author }}
 
         .label Sell all items for({{ network.baseToken.symbol }} amount):
-        el-input(type="number" v-model="buy" @change="buyChange" clearable).w-100.mb-2
+        el-input.input-with-select(type="number" v-model="buyAmount" @change="buyChange" clearable).nft-buy-input
+          el-select(v-model="buyToken", slot="append", placeholder="Select" value-key="str")
+            el-option(
+              :label="`${network.baseToken.symbol}@${network.baseToken.contract}`"
+              :value="{str: 'base', symbol: { name: network.baseToken.symbol, precision: network.baseToken.precision }, contract: network.baseToken.contract }"
+              )
+              TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="25")
+              span.ml-3 {{ network.baseToken.symbol }}@{{ network.baseToken.contract }}
+
+            el-option(
+              v-for="token in knownTokens"
+              :label="`${token.symbol.name}@${token.contract}`"
+              :value="token"
+              )
+              TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="25")
+              span.ml-3 {{ token.symbol.name }}@{{ token.contract }}
+
+        //el-input(type="number" v-model="buy" @change="buyChange" clearable).w-100.mb-2
           span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-        el-button(type="primary" @click="submit" :loading="loading" :disabled="!sell.length").w-100 Sell
+        el-button(type="primary" @click="submit" :loading="loading" :disabled="!sell.length").w-100.mt-2 Sell
         hr
 
     .row
@@ -70,7 +87,12 @@ export default {
 
       search: '',
 
-      buy: 0.0,
+      buyToken: {
+        symbol: { name: '', precision: 4 },
+        contract: ''
+      },
+
+      buyAmount: 0.0,
 
       userNfts_: [],
       sell: [],
@@ -81,7 +103,7 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'knownTokens']),
     ...mapGetters('api', ['rpc']),
 
     userNfts() {
@@ -98,6 +120,12 @@ export default {
   },
 
   created() {
+    this.buyToken.str = 'base'
+    this.buyToken.contract = this.network.baseToken.contract
+    this.buyToken.symbol = {
+      name: this.network.baseToken.symbol,
+      precision: this.network.baseToken.precision
+    }
   },
 
   methods: {
@@ -114,8 +142,7 @@ export default {
     },
 
     buyChange() {
-      console.log('buy change', this.buy)
-      this.buy = parseFloat(this.buy).toFixed(this.network.baseToken.precision)
+      this.buyAmount = parseFloat(this.buyAmount).toFixed(this.buyToken.symbol.precision)
     },
 
     async fetchUserNfts() {
@@ -149,7 +176,7 @@ export default {
               from: this.user.name,
               to: this.network.nftMarket.contract,
               assetids: this.sell.map(s => s.id),
-              memo: `place|${this.buy} ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`
+              memo: `place|${this.buyAmount} ${this.buyToken.symbol.name}@${this.buyToken.contract}`
             }
           }
         ])
@@ -175,9 +202,9 @@ export default {
 }
 </script>
 
-<style scoped>
-.el-form {
-  /*padding: 10px 70px; */
+<style>
+.nft-buy-input .el-input-group__append {
+  width: 20%;
 }
 
 .sell-nft-box {
@@ -185,7 +212,6 @@ export default {
   min-height: 50px;
   flex-wrap: wrap!important;
 }
-
 
 .sell-nft-box .el-card__body {
   padding: 10px;

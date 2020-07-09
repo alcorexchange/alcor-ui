@@ -41,8 +41,8 @@ export const actions = {
 
     if (state.network.name == 'local') return
 
+    dispatch('loadMarkets')
     dispatch('pools/fetchPools', {}, { root: true })
-
     dispatch('pools/updatePool', {}, { root: true })
 
     setInterval(() => dispatch('update'), 15000)
@@ -115,6 +115,12 @@ export const actions = {
 export const getters = {
   user(state) {
     return state.user
+  },
+
+  knownTokens(state) {
+    return state.markets.map(m => {
+      return m.token
+    })
   },
 
   baseBalance(state) {
