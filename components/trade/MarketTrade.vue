@@ -19,7 +19,7 @@
 
       el-form-item.mt-5
         // TODO разработать компонент которой чекает залогинен ли
-        el-button(type="success" size="small" @click="buy").w-100 Buy {{ token.str }}
+        el-button(type="success" size="small" @click="buy('market')").w-100 Buy {{ token.str }}
 
   .col-lg-6
     .d-flex.label.mb-3
@@ -40,7 +40,7 @@
 
       el-form-item.mt-5
         // TODO разработать компонент которой чекает залогинен ли
-        el-button(type="danger" size="small" @click="sell").w-100 Sell {{ token.str }}
+        el-button(type="danger" size="small" @click="sell('market')").w-100 Sell {{ token.str }}
 </template>
 
 <script>
@@ -75,8 +75,10 @@ export default {
       if (v === 100) {
         this.total = balance
       } else {
-        this.total = (balance / 100 * v).toFixed(this.network.baseToken.precision)
+        this.total = balance / 100 * v
       }
+
+      this.format()
     },
 
     tokenPercent(v) {
@@ -89,8 +91,10 @@ export default {
       if (v === 100) {
         this.amount = balance
       } else {
-        this.amount = (balance / 100 * v).toFixed(this.token.symbol.precision)
+        this.amount = balance / 100 * v
       }
+
+      this.format()
     }
   },
 

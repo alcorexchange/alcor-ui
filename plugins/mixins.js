@@ -184,16 +184,22 @@ export const tradeMixin = {
       this.total = total
     },
 
-    async buy() {
+    async buy(type) {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
+
+      if (type == 'limit') {
+        this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
+        this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+      } else {
+        this.amount = parseFloat(0).toFixed(this.token.symbol.precision)
+        this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+      }
 
       const loading = this.$loading({
         lock: true,
         text: 'Wait for wallet'
       })
 
-      this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-      this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
 
       const actions = [
         {
@@ -239,11 +245,16 @@ export const tradeMixin = {
       }
     },
 
-    async sell() {
+    async sell(type) {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
 
-      this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-      this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+      if (type == 'limit') {
+        this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
+        this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+      } else {
+        this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
+        this.total = parseFloat(0).toFixed(this.network.baseToken.precision)
+      }
 
       const loading = this.$loading({
         lock: true,

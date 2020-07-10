@@ -29,7 +29,7 @@ div
 
         el-form-item.mt-2
           // TODO разработать компонент которой чекает залогинен ли
-          el-button(size="small" type="success" @click="buy").w-100 Buy {{ token.str }}
+          el-button(size="small" type="success" @click="buy('limit')").w-100 Buy {{ token.str }}
 
     .col-lg-6
       .d-flex.label.mb-3
@@ -53,7 +53,7 @@ div
             span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
         el-form-item.mt-2
-          el-button(size="small" type="danger" @click="sell").w-100 Sell {{ token.str }}
+          el-button(size="small" type="danger" @click="sell('limit')").w-100 Sell {{ token.str }}
 </template>
 
 <script>
