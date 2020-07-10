@@ -83,6 +83,8 @@ export default {
     },
 
     hasMarket(row) {
+      if (!this.markets) return []
+
       const [market] = this.markets.filter(m => m.token.str == row.id)
 
       return !!market

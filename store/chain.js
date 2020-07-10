@@ -52,7 +52,18 @@ export const actions = {
       }
     }
 
-    console.log('App starting..')
+    dispatch('tryLogin')
+  },
+
+  async tryLogin({ state, dispatch, commit, getters }) {
+    // Check if Scatter connected
+    commit('setProvider', 0)
+    const connect = await getters.wallet.connect()
+
+    if (connect) {
+      await dispatch('login', 0)
+      // return // FUTURE
+    }
   },
 
   async logout({ state, commit, getters }) {
@@ -67,7 +78,6 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters, rootState }, provider) {
-    // TODO Add some function to autologin Scatter
     try {
       if (provider == 'wax') {
         const userAccount = await state.wallet.wax.login()
@@ -84,12 +94,12 @@ export const actions = {
 
         let r
         try {
-          if (!wallet.connected) {
-            await getters.wallet.connect()
-            // FIXME Здесь нужно перелогинивать только в случае если раный чейн
-            await wallet.logout() // Just in case
+          if (wallet.connected) {
+            // Что бы не залогиниться не с тем контекстом
+            await getters.wallet.disconnect()
           }
 
+          await getters.wallet.connect()
           r = await wallet.login()
         } catch (e) {
           this._vm.$notify({ title: 'Login error', message: e, type: 'error' })
