@@ -4,7 +4,7 @@
 .text-left
   el-button(type="primary" icon="el-icon-wallet" size="mini" @click="open").ml-auto Withdraw
 
-  el-dialog(title="Withdraw using Steem-Engine", :visible.sync="visible" width="25%" v-if="user")
+  el-dialog(title="Withdraw", :visible.sync="visible" width="25%" v-if="user")
     el-form(ref="form" label-position="left")
       .row
         .col-2
