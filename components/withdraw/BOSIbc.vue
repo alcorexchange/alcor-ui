@@ -104,7 +104,6 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapGetters(['tokenBalance']),
     ...mapGetters('api', ['rpc']),
 
     networks() {
@@ -113,6 +112,19 @@ export default {
 
     chains() {
       return ['eos', 'bos', 'telos', 'wax'].filter(c => c != this.network.name)
+    },
+
+    tokenBalance() {
+      if (!this.user || !this.user.balances || !this.token.symbol) return '0.0000'
+
+      const balance = this.user.balances.filter((b) => {
+        return b.currency === this.token.symbol && b.contract === this.token.contract
+      })[0]
+
+      if (balance)
+        return `${balance.amount} ${balance.currency}`
+      else
+        return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
     }
   },
 

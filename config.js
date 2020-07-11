@@ -82,7 +82,17 @@ const networks = {
         },
         withdrawMemo: 'WEED {account}',
         gateway: 'weedcashntwk'
-      }
+      },
+
+      'PBTC@btc.ptokens': {
+        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address 1:1',
+        network: {
+          name: 'Bitcoin',
+          symbol: 'BTC'
+        },
+        withdrawMemo: '{account}',
+        gateway: 'cross.chain'
+      },
     },
 
     RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@tcapitalnote'],

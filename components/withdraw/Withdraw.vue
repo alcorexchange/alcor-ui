@@ -71,10 +71,22 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapGetters(['tokenBalance']),
 
     peg() {
       return this.network.withdraw[this.token.symbol + '@' + this.token.contract]
+    },
+
+    tokenBalance() {
+      if (!this.user || !this.user.balances || !this.token.symbol) return '0.0000'
+
+      const balance = this.user.balances.filter((b) => {
+        return b.currency === this.token.symbol && b.contract === this.token.contract
+      })[0]
+
+      if (balance)
+        return `${balance.amount} ${balance.currency}`
+      else
+        return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
     }
   },
 
