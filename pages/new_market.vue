@@ -25,7 +25,7 @@
                 el-select(v-model='tokenSelect' v-if="user && user.balances"
        value-key="id" filterable placeholder='Select' clearable @change="selectToken")
                   el-option(
-                    v-for="t in user.balances",
+                    v-for="t in tokens",
                     :key="t.id",
                     :label="t.id",
                     :value="t"
@@ -112,9 +112,17 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'knownTokens']),
     ...mapGetters('api', ['rpc']),
-    ...mapState(['network'])
+    ...mapState(['network']),
+
+    tokens() {
+      return this.user.balances.filter(t => {
+        if (t.contract == this.network.baseToken.contract && t.currency == this.network.baseToken.symbol) return false
+
+        return !this.knownTokens.some(k => k.str == t.id)
+      })
+    }
   },
 
   watch: {
