@@ -26,7 +26,7 @@
               Withdraw(
                 v-if="Object.keys(network.withdraw).includes(scope.row.id)",
                 :token="{contract: scope.row.contract, symbol: scope.row.currency, precision: Number(scope.row.decimals)}"
-              )
+              ).float-right
 
 </template>
 
