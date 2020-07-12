@@ -80,8 +80,8 @@ div
                   span Price for current amount: {{ price }} {{ poolOne.quantity.symbol.code().to_string() }}
                     | /{{ poolTwo.quantity.symbol.code().to_string() }}
 
-                  span
-                    el-button(size="small" type="text").float-right This asset can be withdrawn on the wallet page.
+                  //span
+                    /el-button(size="small" type="text").float-right This asset can be withdrawn on the wallet page.
         .row
           .col
             PleaseLoginButton
