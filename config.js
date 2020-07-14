@@ -140,7 +140,7 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'GPKMEGA@packs.topps', 'GPKFIVE@packs.topps'],
+    RECOMMENDED_MARKETS: ['EXOMEGA@packs.topps', 'EXOFIVE@packs.topps', 'GPKMEGA@packs.topps', 'GPKFIVE@packs.topps', 'EOS@bosibc.io'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
