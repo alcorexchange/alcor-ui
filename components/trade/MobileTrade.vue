@@ -47,7 +47,7 @@
                 el-input(type="number" v-model="total" @change="totalChange()")
                   span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-                el-button(size="small" type="success" @click="buy(side)").w-100.mt-2 Buy
+                el-button(size="small" type="success" @click="buy(trade)").w-100.mt-2 Buy
 
               div(v-else)
                 span.text-danger Sell {{ token.symbol.name }}
@@ -69,7 +69,7 @@
                 el-input(type="number" v-model="total" @change="totalChange()")
                   span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
-                el-button(size="small" type="danger" @click="sell(side)").w-100.mt-2 Sel
+                el-button(size="small" type="danger" @click="sell(trade)").w-100.mt-2 Sel
 
             div(v-else)
               div(v-if="side == 'buy'")
@@ -87,7 +87,7 @@
 
                 el-slider(:step="25" v-model="eosPercent" show-stops)
 
-                el-button(type="success" size="small" @click="buy(side)").w-100 Buy
+                el-button(type="success" size="small" @click="buy(trade)").w-100 Buy
               div(v-else)
                 span.text-danger Sell {{ token.symbol.name }}
                 br
@@ -103,7 +103,7 @@
 
                 el-slider(:step="25" v-model="tokenPercent" show-stops)
 
-                el-button(type="danger" size="small" @click="sell(side)").w-100 Sell
+                el-button(type="danger" size="small" @click="sell(trade)").w-100 Sell
 
 
       .col-7
