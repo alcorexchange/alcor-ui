@@ -60,7 +60,7 @@ export default {
         this.$store.dispatch('modal/closeModal')
       } catch (e) {
         captureException(e)
-        this.$notify({ title: 'Scatter login error', message: e, type: 'error' })
+        this.$notify({ title: `${provider} login error`, message: e, type: 'error' })
       } finally {
         this.loading = false
       }
