@@ -245,6 +245,7 @@ export default {
       this.loading = true
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
+        this.$store.dispatch('pools/updatePool')
         this.$notify({ title: 'Exchange', message: 'Success', type: 'success' })
       } catch (e) {
         this.$notify({ title: 'Place order', message: e, type: 'error' })

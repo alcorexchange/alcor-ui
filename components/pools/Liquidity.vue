@@ -161,7 +161,7 @@ export default {
       const amount1 = number_to_asset(0, this.current.pool1.quantity.symbol)
 
       amount1.set_amount(
-        computeForward(to_buy, this.current.pool1.quantity.amount, this.current.supply.amount, this.current.fee)
+        computeForward(to_buy.multiply(-1), this.current.pool1.quantity.amount, this.current.supply.amount, this.current.fee).multiply(-1)
       )
 
       this.amount1 = amount1.to_string().split(' ')[0]
@@ -263,6 +263,7 @@ export default {
         this.$emit('update')
         this.visible = false
         this.$notify({ title: 'Provide liquidity', message: 'Provided successful', type: 'success' })
+        this.$store.dispatch('pools/updatePool')
         console.log(r)
       } catch (e) {
         console.log(e)

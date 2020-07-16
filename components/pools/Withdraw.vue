@@ -198,6 +198,7 @@ export default {
         this.visible = false
         this.$emit('update')
         this.$notify({ title: 'Withdraw', message: 'Success', type: 'success' })
+        this.$store.dispatch('pools/updatePool')
         console.log(r)
       } catch (e) {
         console.log(e)
