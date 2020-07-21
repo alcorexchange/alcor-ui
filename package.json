@@ -15,7 +15,7 @@
     "@nuxtjs/axios": "^5.0.0",
     "@nuxtjs/sentry": "^2.3.1",
     "@vue/eslint-config-standard": "^5.0.0",
-    "@waxio/waxjs": "^0.0.13",
+    "@waxio/waxjs": "0.0.12",
     "anchor-link": "^2.0.0",
     "anchor-link-browser-transport": "^2.0.1",
     "axios": "^0.19.0",
