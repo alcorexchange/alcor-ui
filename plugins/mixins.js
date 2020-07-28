@@ -215,22 +215,6 @@ export const tradeMixin = {
         }
       ]
 
-      //const balance = await this.$store.getters['api/rpc'].get_currency_balance(this.token.contract, this.user.name, this.token.symbol.name)
-      //if (balance.length == 0) {
-      //  // Open balance row for user in case not spend dex RAM for it
-      //  console.log(this.token)
-      //  actions.push({
-      //    account: this.token.contract,
-      //    name: 'open',
-      //    authorization: [this.user.authorization],
-      //    data: {
-      //      owner: this.user.name,
-      //      symbol: this.token.symbol.name,
-      //      ram_payer: this.user.name
-      //    }
-      //  })
-      //}
-
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
 

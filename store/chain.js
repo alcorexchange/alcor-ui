@@ -45,7 +45,13 @@ export const actions = {
         const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
         if (isAutoLoginAvailable) {
           commit('setCurrentWallet', 'wax')
-          commit('setUser', { name: wax.userAccount }, { root: true })
+          commit('setUser', {
+            name: wax.userAccount,
+            authorization: {
+              actor: wax.userAccount, permission: 'active'
+            }
+          }, { root: true })
+
           return
         }
         console.log('no wax autologin found...')
@@ -114,10 +120,11 @@ export const actions = {
           return
         }
 
-        r.name = r.account_name
-        r.authorization = { actor: getters.wallet.auth.accountName, permission: getters.wallet.auth.permission }
+        commit('setUser', {
+          name: r.account_name,
+          authorization: { actor: getters.wallet.auth.accountName, permission: getters.wallet.auth.permission }
+        }, { root: true })
 
-        commit('setUser', r, { root: true })
         dispatch('loadUserBalances', {}, { root: true })
         commit('setCurrentWallet', 'transit')
       }
