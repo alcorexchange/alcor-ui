@@ -134,7 +134,7 @@ module.exports = {
     pages: [
       /^\/pools\/.*/,
 
-      /^\/$/
+      ///^\/$/
     ],
     store: {
       type: 'memory',
