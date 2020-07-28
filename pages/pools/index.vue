@@ -24,23 +24,51 @@
           i.el-icon-caret-bottom
   .col-md-9
     el-card
-      Swap
+      nuxt-child
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { asset } from 'eos-common'
+import { mapState, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
-
-import Swap from '~/components/pools/Swap'
 import Create from '~/components/pools/Create'
 
 export default {
   components: {
-    Swap,
     Create,
     TokenImage
+  },
+
+  async fetch({ redirect, store, route, params }) {
+    if (store.state.pools.pools.length == 0) {
+      await store.dispatch('pools/fetchPools')
+    }
+
+    if (!params.pool) {
+      const cp = store.getters['pools/current']
+      const sym1 = `${cp.pool1.contract}-${cp.pool1.quantity.symbol.code().to_string().toLowerCase()}`
+      const sym2 = `${cp.pool2.contract}-${cp.pool2.quantity.symbol.code().to_string().toLowerCase()}`
+
+      redirect({
+        name: 'pools-index-pool',
+        params: {
+          pool: `${sym1}_${sym2}`
+        }
+      })
+    } else {
+      const pools = store.getters['pools/pools']
+
+      const selected_pool = pools.filter(p => {
+        const sym1 = `${p.pool1.contract}-${p.pool1.quantity.symbol.code().to_string().toLowerCase()}`
+        const sym2 = `${p.pool2.contract}-${p.pool2.quantity.symbol.code().to_string().toLowerCase()}`
+
+        return `${sym1}_${sym2}` == params.pool
+      })
+
+      if (selected_pool.length > 0) {
+        store.commit('pools/setCurrentSym', selected_pool[0].supply.symbol.code().to_string())
+      }
+    }
   },
 
   data() {
@@ -50,8 +78,8 @@ export default {
   },
 
   computed: {
-    ...mapState(['user']),
-    ...mapState('pools', ['pools', 'current_sym']),
+    ...mapGetters('pools', ['pools']),
+    ...mapState('pools', ['current_sym']),
 
     filteredPools() {
       return this.pools.filter(p => {
@@ -61,24 +89,17 @@ export default {
     }
   },
 
-  mounted() {
-    this.$store.dispatch('pools/fetchPools')
-  },
-
   methods: {
-    setPool(pool) {
-      const symbol = pool.supply.symbol.code().to_string()
-      this.$store.commit('pools/setCurrentSym', symbol)
-    }
-  },
+    setPool(p) {
+      const sym1 = `${p.pool1.contract}-${p.pool1.quantity.symbol.code().to_string().toLowerCase()}`
+      const sym2 = `${p.pool2.contract}-${p.pool2.quantity.symbol.code().to_string().toLowerCase()}`
 
-  head() {
-    return {
-      title: `Alcor.exchange | Liquidity pools`,
-
-      meta: [
-        { hid: 'description', name: 'description', content: `Swap tokens or make income on liquidity providing` }
-      ]
+      this.$router.push({
+        name: 'pools-index-pool',
+        params: {
+          pool: `${sym1}_${sym2}`
+        }
+      })
     }
   }
 }

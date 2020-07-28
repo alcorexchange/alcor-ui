@@ -14,7 +14,7 @@
 
         p.lead
           span
-            b No trading fee.
+            .badge.badge-primary.text-wrap No trading fees.
         p
           span  Immediately open the market for your token or any token you want.
           |  Forget about the listing request form, waiting, third-party dependency, and any regulations.

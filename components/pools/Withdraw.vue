@@ -138,6 +138,8 @@ export default {
     },
 
     async withdraw() {
+      this.loading = true
+
       const authorization = [{ actor: this.user.name, permission: 'active' }]
 
       const actions = [
@@ -192,7 +194,6 @@ export default {
         }
       ]
 
-      this.loading = true
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
         this.visible = false

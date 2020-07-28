@@ -3,7 +3,7 @@
   .col
     .row.mb-2
       .col
-        .badge.badge-primary.text-wrap Recommended tokens
+        .badge.text-wrap Recommended tokens
     .row
       .col-lg-2.col-md-4.col-sm-6(:key="market.id" v-for="market in markets").mb-2
         .small

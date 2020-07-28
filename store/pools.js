@@ -13,10 +13,10 @@ export const mutations = {
 }
 
 export const actions = {
-  async updatePool({ state, commit, rootGetters, rootState }) {
-    const sym = Object.assign('', state.current_sym)
+  async updatePool({ state, getters, commit, rootGetters, rootState }) {
+    const sym = JSON.parse(JSON.stringify(state.current_sym))
 
-    if (sym == '') return // TODO Add if current page is pools and also for markets
+    if (!this._vm.$nuxt.$route.name.includes('pools')) return
 
     const { rows: [pool] } = await rootGetters['api/rpc'].get_table_rows({
       code: rootState.network.pools.contract,
@@ -25,7 +25,7 @@ export const actions = {
       limit: 1
     })
 
-    const pools = state.pools.map(p => {
+    const pools = getters.pools.map(p => {
       if (p.supply.symbol.code().to_string() == sym) {
         return preparePool(pool)
       }
@@ -55,15 +55,11 @@ export const actions = {
     const pools = (await Promise.all(requests)).reverse().map(r => {
       const [pool] = r.rows
 
-      pool.pool1.quantity = asset(pool.pool1.quantity)
-      pool.pool2.quantity = asset(pool.pool2.quantity)
-      pool.supply = asset(pool.supply)
-
       return pool
     }).filter(p => p.pool1.contract != 'yuhjtmanserg')
 
     if (state.pools.length == 0 && pools.length > 0) {
-      commit('setCurrentSym', pools[0].supply.symbol.code().to_string())
+      commit('setCurrentSym', pools[0].supply.split(' ')[1])
     }
 
     commit('setPools', pools)
@@ -71,7 +67,19 @@ export const actions = {
 }
 
 export const getters = {
-  current: (state) => state.pools.filter(p => p.supply.symbol.code().to_string() == state.current_sym)[0],
+  current: (state, getters) => getters.pools.filter(p => p.supply.symbol.code().to_string() == state.current_sym)[0],
+
+  pools(state) {
+    return state.pools.map(pool => {
+      const p = JSON.parse(JSON.stringify(pool))
+
+      p.pool1.quantity = asset(pool.pool1.quantity)
+      p.pool2.quantity = asset(pool.pool2.quantity)
+      p.supply = asset(pool.supply)
+
+      return p
+    })
+  },
 
   baseBalance(state, getters, rootState) {
     if (!rootState.user || !rootState.user.balances) {

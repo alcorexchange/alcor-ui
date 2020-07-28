@@ -19,7 +19,8 @@
             a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
         li.el-menu-item
-          gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
+          no-ssr
+            gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
 
         li.el-menu-item(v-if="user").scatter-button
           el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
