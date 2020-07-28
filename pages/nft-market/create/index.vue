@@ -6,7 +6,7 @@
         .lead NFT creation
           small.text-muted.float-right (Alpha version)
 
-        small This form allows you to create an NFT.
+        small This form allow you to create an NFT.
           |  You will be the owner of the NFT immediately after creation and will be able to transfer or sell the NFT.
 
       .row
