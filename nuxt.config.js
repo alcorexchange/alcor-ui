@@ -12,6 +12,8 @@ module.exports = {
     NETWORK: process.env.NETWORK
   },
 
+  version: pkg.version,
+
   /*
   ** Headers of the page
   */
@@ -74,7 +76,8 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
-    'vue-github-buttons/nuxt'
+    'vue-github-buttons/nuxt',
+    'nuxt-ssr-cache'
   ],
   /*
   ** Axios module configuration
@@ -124,5 +127,19 @@ module.exports = {
   router: {
     mode: isSPA ? 'hash' : 'history',
     linkActiveClass: 'active'
+  },
+
+  cache: {
+    useHostPrefix: true,
+    pages: [
+      /^\/pools\/.*/,
+
+      /^\/$/
+    ],
+    store: {
+      type: 'memory',
+      max: 100,
+      ttl: 60
+    }
   }
 }
