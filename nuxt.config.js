@@ -77,7 +77,7 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
-    'nuxt-ssr-cache'
+    //'nuxt-ssr-cache'
   ],
   /*
   ** Axios module configuration
