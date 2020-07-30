@@ -171,7 +171,8 @@ const networks = {
     monitor: 'http://telos.bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://hyperion.telosgermany.io/v2/',
+    //hyperion: 'https://hyperion.telosgermany.io/v2/',
+    hyperion: 'https://telos.eosphere.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
