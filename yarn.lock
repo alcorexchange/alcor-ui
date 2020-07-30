@@ -3801,6 +3801,14 @@ eos-transit-keycat-provider@^4.0.7:
     eosjs "^20.0.0"
     keycatjs "^0.6.2"
 
+eos-transit-lynx-provider@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/eos-transit-lynx-provider/-/eos-transit-lynx-provider-4.0.7.tgz#730a73d86eebe5f9eda56507e49e4cb7977b1993"
+  integrity sha512-K/JnAW47L7OcN5wK1jYz307AbktQ0UQJBhQZmxyQ8+wjE+UiBpG0WHfnJ5X8e1hwClg7ARph47trsHMM/ia+uw==
+  dependencies:
+    eos-transit "^4.0.7"
+    eosjs "^20.0.0"
+
 eos-transit-scatter-provider@^4.0.5:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/eos-transit-scatter-provider/-/eos-transit-scatter-provider-4.0.5.tgz#1a81202ff724b77aebd54e4c80df2007164932a0"

@@ -23,6 +23,11 @@
 
       .mb-2.mr-2
         el-button(size="large" @click="login(4)")
+          img(src="~/assets/logos/lynx.svg" height="30").mr-2
+          span Lynx
+
+      .mb-2.mr-2
+        el-button(size="large" @click="login(5)")
           img(src="~/assets/logos/keycat.svg" height="30").mr-2
           span Keycat
 
@@ -30,6 +35,7 @@
         el-button(size="large" @click="login('wax')" v-if="network.name == 'wax'")
           img(src="~/assets/logos/wax.svg" height="30").mr-2
           span Wax Cloud Wallet
+
 </template>
 
 <script>

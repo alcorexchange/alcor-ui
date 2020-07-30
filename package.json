@@ -31,6 +31,7 @@
     "eos-transit": "^4.0.7",
     "eos-transit-anchorlink-provider": "^4.0.7",
     "eos-transit-keycat-provider": "^4.0.7",
+    "eos-transit-lynx-provider": "^4.0.7",
     "eos-transit-scatter-provider": "^4.0.5",
     "eos-transit-simpleos-provider": "^4.0.7",
     "eos-transit-tokenpocket-provider": "^4.0.5",
