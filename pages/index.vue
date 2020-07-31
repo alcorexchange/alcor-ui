@@ -12,7 +12,7 @@
 
         h2.lead.mt-1 No withdraw or deposit.
 
-        //p.lead
+        p.lead
           span
             .badge.badge-primary.text-wrap No trading fees.
         p
