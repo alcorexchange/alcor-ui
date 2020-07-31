@@ -19,10 +19,13 @@
         el-input(v-model="form.address" placeholder="address..").w-100
 
       el-form-item(v-if="chain.name" prop="amount")
-        template(slot="label")
+        span
           b Withdraw amount
 
-          span.w-100  (Balance {{ tokenBalance }})
+          br
+
+          span Balance
+            el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
           span(slot="suffix").mr-1 {{ this.token.symbol }}
@@ -129,6 +132,10 @@ export default {
   },
 
   methods: {
+    fullAmount() {
+      this.form.amount = (parseFloat(this.tokenBalance.split(' ')[0]) || 0).toFixed(this.token.precision)
+    },
+
     setChain(name) {
       this.chain = config.networks[name]
       this.form.address = ''
