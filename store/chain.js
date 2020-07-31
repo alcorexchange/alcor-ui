@@ -64,7 +64,11 @@ export const actions = {
   async tryLogin({ state, dispatch, commit, getters }) {
     // Check if Scatter connected
     commit('setProvider', 0)
-    const connect = await getters.wallet.connect()
+    let connect = false
+
+    try {
+      connect = await getters.wallet.connect()
+    } catch {}
 
     if (connect) {
       await dispatch('login', 0)
