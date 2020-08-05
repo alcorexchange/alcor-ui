@@ -13,7 +13,7 @@
           // TODO Token prop & mobile version
           Withdraw(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}")
 
-        .d-flex.ml-3(v-if="token.contract == 'bosibc.io'")
+        .d-flex.ml-3(v-if="$store.state.ibcTokens.includes(token.contract)")
           // TODO Token prop & mobile version
           BOSIbc(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}")
 

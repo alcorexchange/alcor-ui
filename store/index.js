@@ -14,7 +14,8 @@ export const state = () => ({
   isMobile: false,
   baseUrl: '',
   loading: false,
-  tokens: []
+  tokens: [],
+  ibcTokens: ['bosibc.io']
 })
 
 export const mutations = {
@@ -28,7 +29,8 @@ export const mutations = {
   setIsMobile: (state, mobile) => state.isMobile = mobile,
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
-  setTokens: (state, tokens) => state.tokens = tokens
+  setTokens: (state, tokens) => state.tokens = tokens,
+  setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens
 }
 
 export const actions = {
@@ -42,6 +44,7 @@ export const actions = {
     if (state.network.name == 'local') return
 
     dispatch('loadMarkets')
+    dispatch('loadIbc')
     dispatch('pools/fetchPools', {}, { root: true })
     dispatch('pools/updatePool', {}, { root: true })
 
@@ -90,6 +93,19 @@ export const actions = {
   loading({ commit }, test = '') {
     // TODO
     commit('setLoading', true)
+  },
+
+  async loadIbc({ state, commit, rootGetters }) {
+    const { rows: ibcTokens } = await rootGetters['api/rpc'].get_table_rows({
+      code: 'bosibc.io',
+      scope: 'bosibc.io',
+      table: 'accepts',
+      limit: 1000
+    })
+
+    const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
+
+    commit('setIbcTokens', tokens)
   },
 
   loadUserBalances({ rootState, state, commit }) {

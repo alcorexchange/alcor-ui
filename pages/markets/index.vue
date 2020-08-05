@@ -134,7 +134,7 @@ export default {
       return this.markets.filter((i) => {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase())) {
           if (this.ibcTokens) {
-            return i.token.contract == 'bosibc.io'
+            return this.$store.state.ibcTokens.includes(i.token.contract)
           }
 
           return true

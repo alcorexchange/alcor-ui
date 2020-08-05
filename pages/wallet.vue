@@ -19,7 +19,7 @@
               el-input(v-model='search', size='small', placeholder='Type to search').w-25
             template(slot-scope='scope')
               BOSIbc(
-                v-if="scope.row.contract == 'bosibc.io' || scope.row.contract == network.baseToken.contract"
+                v-if="$store.state.ibcTokens.includes(scope.row.contract)"
                 :token="{contract: scope.row.contract, symbol: scope.row.currency, precision: Number(scope.row.decimals)}"
               )
 
