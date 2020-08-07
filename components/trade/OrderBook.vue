@@ -125,8 +125,8 @@ export default {
   justify-content: center;
   -ms-flex-align: center;
   align-items: center;
-  height: 20.6px;
-  line-height: 20.6px;
+  //height: 20.6px;
+  //line-height: 20.6px;
   overflow: hidden;
   padding: 0px 10px;
 
