@@ -13,7 +13,7 @@ el-card(v-if="!no_found").box-card.mt-3
         el-card(v-for="nft in nfts" shadow="hover").pointer.mb-1
           .row
             .col-lg-4
-              img(:src="nft.mdata.img" height="250")
+              img(:src="nft.mdata.img" height="250").order-img
             .col-lg-8
               NftFields(:nft="nft")
 
@@ -216,3 +216,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.order-img {
+  width: 100%;
+  height: auto;
+}
+</style>
