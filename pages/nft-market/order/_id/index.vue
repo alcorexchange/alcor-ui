@@ -15,10 +15,7 @@ el-card(v-if="!no_found").box-card.mt-3
             .col-lg-4
               img(:src="nft.mdata.img" height="250")
             .col-lg-8
-              .d-flex.flex-column
-                .lead {{ nft.mdata.name }}
-                b ID: {{ nft.id }}
-                span Category: {{ nft.category }}
+              NftFields(:nft="nft")
 
             //.col-lg-5
               .d-flex.flex-column
@@ -73,13 +70,15 @@ import { mapState, mapActions, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
+import NftFields from '~/components/nft_markets/NftFields'
 
 import { prepareNFT } from '~/utils'
 
 export default {
   components: {
     TokenImage,
-    PleaseLoginButton
+    PleaseLoginButton,
+    NftFields
   },
 
   async asyncData({ store, error, params }) {
@@ -217,9 +216,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.lead {
-  font-weight: 500;
-}
-</style>
