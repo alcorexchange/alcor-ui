@@ -119,8 +119,9 @@ export default {
 
     updateRecommendedSymbol() {
       if (this.base.currency && this.quote.currency) {
+        const precision = (parseFloat(this.base.decimals) + parseFloat(this.quote.decimals)) / 2
         this.tokenSymbol = this.base.currency + this.quote.currency
-        this.tokenSymbol = `${this.tokenSymbol.length},${this.tokenSymbol}`
+        this.tokenSymbol = `${precision},${this.tokenSymbol}`
       }
     },
 
