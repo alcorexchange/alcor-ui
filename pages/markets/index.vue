@@ -134,7 +134,8 @@ export default {
       return this.markets.filter((i) => {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase())) {
           if (this.ibcTokens) {
-            return this.$store.state.ibcTokens.includes(i.token.contract)
+            return this.$store.state.ibcTokens.includes(i.token.contract) ||
+              Object.keys(this.network.withdraw).includes(i.token.str)
           }
 
           return true
