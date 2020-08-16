@@ -149,8 +149,12 @@ export function prepareNFT(nfts) {
       nft.idata = JSON.parse(nft.idata)
     } catch {}
 
-    if (nft.mdata.img && nft.mdata.img.startsWith('Qm')) {
-      nft.mdata.img = 'https://ipfs.io/ipfs/' + nft.mdata.img
+    if (nft.mdata.img) {
+      if (nft.mdata.img.startsWith('Qm')) {
+        nft.mdata.img = 'https://ipfs.io/ipfs/' + nft.mdata.img
+      }
+
+      nft.mdata.img = 'https://images.hive.blog/0x0/' + nft.mdata.img
     }
   })
 }
