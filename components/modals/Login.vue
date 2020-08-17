@@ -28,6 +28,11 @@
 
       .mb-2.mr-2
         el-button(size="large" @click="login(5)")
+          img(src="~/assets/logos/ledger.svg" height="30").mr-2
+          span Ledger
+
+      .mb-2.mr-2
+        el-button(size="large" @click="login(6)")
           img(src="~/assets/logos/keycat.svg" height="30").mr-2
           span Keycat
 
