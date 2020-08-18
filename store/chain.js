@@ -101,6 +101,8 @@ export const actions = {
       } else {
         commit('setProvider', provider)
         const wallet = getters.wallet
+        //console.log(getters.wallet.getPathKeys())
+        console.log('discover: ', await getters.wallet.discover({ pathIndexList: [0, 1, 2, 3] }))
 
         let r
         try {

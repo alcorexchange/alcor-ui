@@ -8,7 +8,6 @@ import config from '~/config'
 import { assetToAmount, amountToFloat } from '~/utils'
 
 
-
 function correct_price(price, _from, _for) {
   const diff_precision = Math.abs(_from - _for)
 
@@ -106,48 +105,33 @@ export const tradeMixin = {
 
       const price = assetToAmount(this.price, 8)
 
-      const pp = parseFloat(this.price).toString().split('.')
-      let price_numbers = pp[1] ? pp[1].length : 0
+      if (!desc) {
+        const pp = parseFloat(this.price).toString().split('.')
+        let price_numbers = pp[1] ? pp[1].length : 0
 
-      price_numbers = qp - bp + price_numbers
+        price_numbers = qp - bp + price_numbers
 
-      const step = 10 ** price_numbers
+        const step = 10 ** price_numbers
 
-      //let min_amount_number_precision = Math.min(qp, bp)
+        for (let i = 1000; ; i--) {
+          if (i === 0) {
+            console.log('a lot itertions')
+            // TODO Notify.create('Calculate better amount not possible, try onter amount or pirce')
+            break
+          }
 
-      //let min_amount = Math.pow(10, price_numbers)
-      //min_amount = correct_price(min_amount, min_amount_number_precision, qp)
+          if (amount * correct_price(price, qp, bp) % config.PRICE_SCALE !== 0) {
+            amount = Math.round(amount / step) * step
+            if (desc) {
+              amount -= step
+            } else {
+              amount += step
+            }
+            continue
+          }
 
-      //console.log('min_amount', min_amount)
-
-      //if (amount < min_amount) {
-      //  amount = min_amount
-      //}
-
-      //let minimum_tolal = assetToAmount(Math.round(parseFloat(this.price * Math.pow(10, bp))) / Math.pow(10, bp), bp) || 1
-      //console.log('minimum_tolal', minimum_tolal, Math.round(minimum_tolal / 10))
-
-      ////let min_amount = minimum_tolal * correct_price(price, bp, qp) / config.PRICE_SCALE
-      ////console.log('min_amount', min_amount)
-
-      for (let i = 1000; ; i--) {
-        if (i === 0) {
-          console.log('a lot itertions')
-          // TODO Notify.create('Calculate better amount not possible, try onter amount or pirce')
           break
         }
-
-        if (amount * correct_price(price, qp, bp) % config.PRICE_SCALE !== 0) {
-          amount = Math.round(amount / step) * step
-          if (desc) {
-            amount -= step
-          } else {
-            amount += step
-          }
-          continue
-        }
-
-        break
       }
 
       const total = amount * correct_price(price, qp, bp) / config.PRICE_SCALE
@@ -199,7 +183,6 @@ export const tradeMixin = {
         lock: true,
         text: 'Wait for wallet'
       })
-
 
       const actions = [
         {
