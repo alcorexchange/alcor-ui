@@ -55,7 +55,7 @@ const networks = {
       },
 
       'BTCP@steemenginex': {
-        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address 1:1',
+        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address. 1% fee and 0.0001 BTCP Minimum requirement!',
         network: {
           name: 'Bitcoin',
           symbol: 'BTC'
