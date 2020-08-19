@@ -35,6 +35,11 @@ module.exports = {
       { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+
+    script: [
+      { src: '/datafeeds/udf/dist/polyfills.js' },
+      { src: '/datafeeds/udf/dist/bundle.js' }
     ]
   },
 
