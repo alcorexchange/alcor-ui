@@ -193,16 +193,32 @@ export const actions = {
           }
         }, { root: true })
       } else if (provider == 'coffe') {
-        //setWallet
-        const user_name = await state.wallet.coffe.login('eostokensdex')
+        await new Promise((resolve, reject) => {
+          this._vm.$prompt('Set your Coffe account name', 'Coffe Login', {
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel'
+            // TODO EOS Account name regex
+            //inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
+            //inputErrorMessage: 'Invalid Email'
+          }).then(async ({ value }) => {
+            try {
+              const user_name = await state.wallet.coffe.login(value)
 
-        commit('setCurrentWallet', 'coffe')
-        commit('setUser', {
-          name: user_name,
-          authorization: {
-            actor: user_name, permission: 'active'
-          }
-        }, { root: true })
+              commit('setCurrentWallet', 'coffe')
+              commit('setUser', {
+                name: user_name,
+                authorization: {
+                  actor: user_name, permission: 'active'
+                }
+              }, { root: true })
+              resolve()
+            } catch (e) {
+              reject(e)
+            }
+          }).catch(() => {
+            reject()
+          })
+        })
       } else {
         commit('setProvider', provider)
         const wallet = getters.wallet
