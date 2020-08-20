@@ -20,7 +20,6 @@ const app = express()
 config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
-//function start () {
   app.use(bodyParser.json())
   app.use(serverInit)
   // Server routes

@@ -28,8 +28,8 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetchCharts({ state, commit, rootGetters }) {
-    const { data: charts } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/charts`)
+  async fetchCharts({ state, commit, rootGetters }, params) {
+    const { data: charts } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/charts`, params)
     commit('setCharts', charts)
   },
 

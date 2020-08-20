@@ -1,73 +1,85 @@
-function formatDate(d) {
-  let month = '' + (d.getMonth() + 1),
-    day = '' + d.getDate()
-  const year = d.getFullYear()
-
-  if (month.length < 2)
-    month = '0' + month
-  if (day.length < 2)
-    day = '0' + day
-
-  return [year, month, day].join('-')
+const resolutions = {
+  1: 1 * 60,
+  5: 5 * 60,
+  15: 15 * 60,
+  30: 30 * 60,
+  60: 60 * 60,
+  240: 60 * 60 * 4,
+  '1D': 60 * 60 * 24,
+  '1W': 60 * 60 * 24 * 7,
+  '1M': 60 * 60 * 24 * 30
 }
 
-export function dayChart(actions) {
-  const result = []
+export function getCharts(history, market, { resolution, from, to }) {
+  if (from) from = parseInt(from)
+  if (to) to = parseInt(to)
 
-  for (const act of actions.map(a => {
+  const actions = history.filter(a => {
+    const action_name = a.act.name
+
+    if (['sellmatch', 'buymatch'].includes(action_name)) {
+      return parseInt(a.act.data.record.market.id) == parseInt(market.id)
+    } else return false
+  }).map(a => {
     a.act.timestamp = new Date(a['@timestamp'])
 
     return a.act
-  })) {
-    const record = act.data.record
-    result.push({ price: record.unit_price, time: act.timestamp })
-  }
+  })
 
-  const results = []
-  const new_result = {}
+  const prices = actions.map(a => {
+    const record = a.data.record
+    return {
+      price: parseInt(record.unit_price) / 100000000,
+      time: Date.parse(a.timestamp) / 1000,
+      volume: record.type == 'buymatch' ? parseFloat(record.bid.prefix) : parseFloat(record.ask.prefix)
+    }
+  })
 
-  if (result.length > 0) {
-    const current_time = new Date(result[0].time)
+  let results = []
+  if (prices.length > 0 && resolution) {
+    let current_time = prices[0].time
 
     while (true) {
-      new_result[formatDate(current_time)] = result.filter(p => {
-        return p.time.getDate() == current_time.getDate() &&
-          p.time.getMonth() == current_time.getMonth() &&
-          p.time.getFullYear() == current_time.getFullYear()
-      })
+      const nex_time = current_time + resolutions[resolution]
+      const values = prices.filter(p => p.time >= current_time && p.time < nex_time) // TODO <= to <
 
-      if (current_time > new Date()) {
-        break
+      if (values.length == 0) {
+        const last_item = results[results.length - 1]
+
+        results.push({
+          time: current_time,
+          open: last_item.close,
+          high: last_item.close,
+          low: last_item.close,
+          close: last_item.close,
+          volume: 0
+        })
+      } else {
+        results.push({
+          time: current_time,
+          open: values[0].price,
+          high: Math.max(...values.map(v => v.price)),
+          low: Math.min(...values.map(v => v.price)),
+          close: values[values.length - 1].price,
+          volume: values.map(v => v.volume).reduce((a, b) => a + b, 0)
+        })
       }
 
-      current_time.setDate(current_time.getDate() + 1)
+      if (current_time > Date.now() / 1000) break
+
+      current_time = nex_time
     }
   }
 
-  for (const [key, values] of Object.entries(new_result)) {
-    if (values.length == 0) {
-      const last_item = results[results.length - 1]
-
-      results.push({
-        time: key,
-        open: last_item.close,
-        high: last_item.close,
-        low: last_item.close,
-        close: last_item.close,
-        volume: 0
-      })
-
-      continue
-    }
-
-    results.push({
-      time: key,
-      open: values[0].price,
-      high: Math.max(...values.map(v => v.price)),
-      low: Math.min(...values.map(v => v.price)),
-      close: values[values.length - 1].price,
-      volume: 0
+  if (from && to) {
+    // Filter by time
+    results = results.filter(p => {
+      return p.time >= from && p.time <= to
     })
+
+    if (results.length > 0) {
+      results[results.length - 1].time = to
+    }
   }
 
   for (let i = 0; i < results.length; i++) {

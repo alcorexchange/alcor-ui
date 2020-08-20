@@ -56,6 +56,7 @@ module.exports = {
     'camelcase': 'off',
     'no-return-await': 'off',
     'curly': 'off',
+    'require-await': 1,
     'no-unreachable': 1,
     'no-return-assign': 0,
     'no-multiple-empty-lines': 1,

@@ -131,6 +131,8 @@ export default {
     ...mapState(['markets']),
 
     filteredItems() {
+      if (!this.markets) return []
+
       return this.markets.filter((i) => {
         if (i.token.str.toLowerCase().includes(this.search.toLowerCase())) {
           if (this.ibcTokens) {

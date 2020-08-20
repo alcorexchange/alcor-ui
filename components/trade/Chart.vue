@@ -66,14 +66,15 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['token', 'charts'])
+    ...mapState('market', ['token', 'charts', 'id'])
   },
 
   watch: {
     charts() {
-      if (this.charts_list.length == this.charts.length) return
+      // TODO Обновление чартов
+      //if (this.charts_list.length == this.charts.length) return
 
-      this.makeCharts()
+      //this.makeCharts()
     }
   },
 
@@ -81,12 +82,80 @@ export default {
     const Widget = require('~/assets/charts/charting_library.min.js').widget
 
     const widgetOptions = {
-      symbol: this.symbol,
+      symbol: this.token.symbol.name,
       // BEWARE: no trailing slash is expected in feed URL
-      datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl),
+      datafeed: {
+        onReady: (callback) => {
+          console.log('[onReady]: Method call')
+          const data = { supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'], symbols_types: [{ name: 'crypto', value: 1 }] }
+          callback(data)
+        },
+
+        searchSymbols: (userInput, exchange, symbolType, onResultReadyCallback) => {
+          console.log('[searchSymbols]: Method call')
+        },
+
+        resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
+          console.log('[resolveSymbol]: Method call', symbolName)
+          const symbolInfo = {
+            name: this.token.symbol.name,
+            description: 'asdf',
+            //type: symbolItem.type,
+            session: '24x7',
+            timezone: 'Etc/UTC',
+            //exchange: symbolItem.exchange,
+            minmov: 1,
+            pricescale: 100,
+            has_intraday: true,
+            has_no_volume: false,
+            has_weekly_and_monthly: false,
+            supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+            volume_precision: 2,
+            data_status: 'streaming'
+          }
+
+          onSymbolResolvedCallback(symbolInfo)
+        },
+        getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+          console.log('[getBars]: Method call', symbolInfo, ' resolution:', resolution, 'from: ', from, 'to: ', to)
+
+          const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
+            params: { resolution, from, to }
+          })
+
+          //await this.$store.dispatch('market/fetchCharts', { resolution, from, to })
+          this.charts_list = charts // Stor react this
+          //const p = (p) => parseFloat(this.$options.filters.humanPrice(p).replace(',', ''))
+          const bars = this.charts_list.map((i) => {
+            return {
+              time: i.time * 1000,
+              //open: p(i.open),
+              //high: p(i.high),
+              //low: p(i.low),
+              //close: p(i.close)
+
+              open: i.open,
+              high: i.high,
+              low: i.low,
+              close: i.close,
+              volume: i.volume
+            }
+          })
+          console.log('bars', bars)
+          onHistoryCallback(bars, { noData: bars.length == 0 })
+        },
+        subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
+          console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID)
+        },
+        unsubscribeBars: (subscriberUID) => {
+          console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID)
+        }
+      },
+      //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl),
       interval: this.interval,
       container_id: this.containerId,
       library_path: this.libraryPath,
+      theme: 'light', // TODO Dark theme
 
       locale: 'en', // TODO Change lang
       disabled_features: [
@@ -122,10 +191,10 @@ export default {
         'timeframes_toolbar'
       ],
       enabled_features: [],
-      charts_storage_url: this.chartsStorageUrl,
-      charts_storage_api_version: this.chartsStorageApiVersion,
-      client_id: this.clientId,
-      user_id: this.userId,
+      //charts_storage_url: this.chartsStorageUrl,
+      //charts_storage_api_version: this.chartsStorageApiVersion,
+      //client_id: this.clientId,
+      //user_id: this.userId,
       fullscreen: this.fullscreen,
       autosize: this.autosize,
       studies_overrides: this.studiesOverrides
@@ -133,28 +202,6 @@ export default {
 
     const tvWidget = new Widget(widgetOptions)
     this.tvWidget = tvWidget
-
-    tvWidget.onChartReady(() => {
-      tvWidget.headerReady().then(() => {
-        const button = tvWidget.createButton()
-
-        button.setAttribute('title', 'Click to show a notification popup')
-        button.classList.add('apply-common-tooltip')
-
-        button.addEventListener('click', () =>
-          tvWidget.showNoticeDialog({
-            title: 'Notification',
-            body: 'TradingView Charting Library API works correctly',
-            callback: () => {
-              // eslint-disable-next-line no-console
-              console.log('Noticed!')
-            }
-          })
-        )
-
-        button.innerHTML = 'Check API'
-      })
-    })
 
     //const elem = this.$refs.chart
     //this.chart = LightweightCharts.createChart(elem, {
@@ -256,6 +303,6 @@ export default {
 }
 
 #tv_chart_container {
-  height: 400px;
+  height: 350px;
 }
 </style>

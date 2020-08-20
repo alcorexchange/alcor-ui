@@ -6,7 +6,7 @@ import { JsonRpc } from 'eosjs'
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset, numberWithCommas } from '../../utils'
 import { updater, getDeals } from './history'
-import { dayChart, getVolume, getChange } from './charts'
+import { getCharts, getVolume, getChange } from './charts'
 
 updater('eos', 1000 * 40)
 updater('telos', 1000 * 20)
@@ -19,23 +19,6 @@ const WEEK = ONEDAY * 7
 // TODO Обновлять маркеты в бекграунде
 // раздавать из кеша
 
-
-function getDayCharts(history, market) {
-  const actions = history.filter(a => {
-    const action_name = a.act.name
-
-    if (['sellmatch', 'buymatch'].includes(action_name)) {
-      return parseInt(a.act.data.record.market.id) == parseInt(market.id)
-    } else return false
-  })
-
-  try {
-    return dayChart(actions)
-  } catch (e) {
-    console.log('graph fetch error')
-    return []
-  }
-}
 
 export async function getMarket(network, market_id) {
   // TODO В кеше создать список с маркетами и при запросе маркета брать оттуда либо если его нет
@@ -126,10 +109,10 @@ markets.get('/:market_id/charts', async (req, res) => {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const charts = getDayCharts(history, market)
+  const charts = getCharts(history, market, req.query)
 
   if (charts.length > 0) {
-    charts[charts.length - 1].close = marketStats.last_price
+    charts[charts.length - 1].close = marketStats.last_price / 100000000
   }
 
   res.json(charts)
