@@ -165,7 +165,7 @@ export default {
         'header_compare',
         'header_undo_redo',
         'header_screenshot',
-        'header_fullscreen_button',
+        //'header_fullscreen_button',
         'compare_symbol',
         'border_around_the_chart',
         'header_saveload',
