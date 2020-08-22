@@ -30,7 +30,7 @@ const networks = {
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://api.eossweden.org/v2/',
     //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
-    // ALERT It's TAKE BROKET HISTORY!!! hyperion: 'https://mainnet.eosn.io/v2/',
+    //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's TAKE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -96,7 +96,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@tcapitalnote'],
-    SCAM_CONTRACTS: ['usdcoinchain'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap'],
 
     nftMarket: {
       contract: 'alcornftswap'
