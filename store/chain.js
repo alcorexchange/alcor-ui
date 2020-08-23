@@ -223,7 +223,6 @@ export const actions = {
         commit('setProvider', provider)
         const wallet = getters.wallet
         //console.log(getters.wallet.getPathKeys())
-        console.log('discover: ', await getters.wallet.discover({ pathIndexList: [0, 1, 2, 3] }))
 
         let r
         try {
@@ -233,6 +232,14 @@ export const actions = {
           }
 
           await getters.wallet.connect()
+
+          try {
+            console.log('ledger try...')
+            console.log('discover: ', await getters.wallet.discover({ pathIndexList: [0, 1, 2, 3] }))
+          } catch (e) {
+            console.log(e)
+          }
+
           r = await wallet.login()
         } catch (e) {
           this._vm.$notify({ title: 'Login error', message: e, type: 'error' })

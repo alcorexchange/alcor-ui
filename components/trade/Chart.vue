@@ -104,13 +104,13 @@ export default {
             session: '24x7',
             timezone: 'Etc/UTC',
             //exchange: symbolItem.exchange,
-            minmov: 1,
-            pricescale: 100,
+            //minmov: 0.0000001,
+            pricescale: 100000000,
             has_intraday: true,
             has_no_volume: false,
-            has_weekly_and_monthly: false,
+            has_weekly_and_monthly: true,
             supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
-            volume_precision: 2,
+            volume_precision: 5,
             data_status: 'streaming'
           }
 

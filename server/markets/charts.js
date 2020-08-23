@@ -21,7 +21,7 @@ export function getCharts(history, market, { resolution, from, to }) {
       return parseInt(a.act.data.record.market.id) == parseInt(market.id)
     } else return false
   }).map(a => {
-    a.act.timestamp = new Date(a['@timestamp'])
+    a.act.timestamp = a.block_time
 
     return a.act
   })
@@ -41,10 +41,10 @@ export function getCharts(history, market, { resolution, from, to }) {
 
     while (true) {
       const nex_time = current_time + resolutions[resolution]
-      const values = prices.filter(p => p.time >= current_time && p.time < nex_time) // TODO <= to <
+      const values = prices.filter(p => p.time >= current_time && p.time < nex_time)
 
       if (values.length == 0) {
-        const last_item = results[results.length - 1]
+        const last_item = results[results.length - 1] || { close: 0 }
 
         results.push({
           time: current_time,

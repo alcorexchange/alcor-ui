@@ -3,18 +3,19 @@
   .col-auto
     .d-flex.flex-wrap
       .mb-2.mr-2
+        el-button(size="large" @click="login(2)")
+          img(src="~/assets/logos/anchor.svg" height="30").mr-2
+          span Anchor
+
+      .mb-2.mr-2
         el-button(size="large" @click="login(0)")
           img(src="~/assets/logos/scatter.svg" height="30").mr-2
           span Scatter
+
       .mb-2.mr-2
         el-button(size="large" @click="login(1)")
           img(src="~/assets/logos/token_poket.png" height="30").mr-2
           span TokenPocket
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(2)")
-          img(src="~/assets/logos/anchor.svg" height="30").mr-2
-          span Anchor
 
       .mb-2.mr-2
         el-button(size="large" @click="login(3)")
