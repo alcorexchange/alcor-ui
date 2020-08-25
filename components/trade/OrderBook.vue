@@ -110,23 +110,16 @@ export default {
   display: flex;
   overflow: auto;
   flex-direction: column;
-  max-height: 345px;
+  max-height: 25vh;
   padding-top: 5px;
   text-align: right;
 }
 
 .blist .ltd {
   width: 100%;
-  min-height: min-content;
+  min-height: 18px;
   position: relative;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -ms-flex-align: center;
   align-items: center;
-  //height: 20.6px;
-  //line-height: 20.6px;
   overflow: hidden;
   padding: 0px 10px;
 
@@ -135,6 +128,17 @@ export default {
   }
 }
 
+.orders-list::-webkit-scrollbar {
+  width: 5px;               /* width of the entire scrollbar */
+}
+.orders-list::-webkit-scrollbar-track {
+  background: #fff;        /* color of the tracking area */
+}
+.orders-list::-webkit-scrollbar-thumb {
+  background-color: #c4cbd6;    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  //border: 3px solid orange;  /* creates padding around scroll thumb */
+}
 
 .orders-list.asks {
   max-height: 200px;
