@@ -125,19 +125,8 @@ async function updateMarkets(network) {
 async function getActionsByHyperion(network, account, skip, limit, filter) {
   const formatActionFilter = action => `${account}:${action}`
 
-  //console.log('get actions hyperion: ', account, skip, limit, filter)
-  const { data: { actions } } = await axios.get(network.hyperion + 'history/get_actions', {
-    timeout: 30 * 1000,
-
-    params: {
-      account,
-      skip,
-      limit,
-      filter: filter.map(formatActionFilter).join(','),
-      sort: 'asc'
-    }
-  })
-  //console.log('actions', actions)
+  const params = { account, skip, limit, filter: filter.map(formatActionFilter).join(','), sort: 'asc' }
+  const { data: { actions } } = await axios.get(network.hyperion + 'history/get_actions', { params }, { timeout: 30000 })
 
   return actions
 }
