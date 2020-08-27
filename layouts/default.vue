@@ -1,5 +1,5 @@
 <template lang="pug">
-.container.mb-5.mt-2
+.container-fluid.mb-5.mt-2
   ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")
@@ -226,7 +226,8 @@ export default {
 }
 
 .logo {
-  height: 2.5em;
+  margin-left: 20px;
+  height: 3.5em;
 }
 
 .chain-select {
