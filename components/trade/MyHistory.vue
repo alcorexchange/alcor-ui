@@ -1,7 +1,5 @@
 <template lang="pug">
-el-card
-  .lead Trade History
-
+div
   .mobile-markets.d-lg-none.mt-3
     .row.market-row(v-for="order in orders").mb-2.border
       .col-6
@@ -26,33 +24,32 @@ el-card
         el-button(size="mini")
           a(:href="monitorTx(order.trx_id)" target="_blank").a-reset Show transaction
 
-  el-table(:data='orders', style='width: 100%').d-none.d-lg-block
-    el-table-column(label='Type', width='80')
-      template(slot-scope='scope')
-        span.text-success(v-if="scope.row.type == 'bid'") BUY
+  el-table(:data='orders' max-height="260").d-none.d-lg-block
+    el-table-column(label='Type' width="50")
+      template(slot-scope='scope').text-success
+        span.text-success(v-if="scope.row.type == 'bid'") BID
         span.text-danger(v-else) SELL
 
-    el-table-column(label='Date', width='180')
+    el-table-column(label='Date' width="100")
       template(slot-scope='scope')
-        i.el-icon-time
-        span(style='margin-left: 10px') {{ scope.row.time | moment('DD-MM HH:mm')}}
+        span {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
 
-    el-table-column(label='Ask', width='180')
+    el-table-column(label='Ask' width="120")
       template(slot-scope='scope')
         span {{ scope.row.ask.quantity }}
 
-    el-table-column(label='Bid', width='180')
+    el-table-column(label='Bid' width="120")
       template(slot-scope='scope')
         span {{ scope.row.bid.quantity }}
 
-    el-table-column(label='Price', width='120')
+    el-table-column(label='Price' width="90")
       template(slot-scope='scope')
         span {{ scope.row.unit_price | humanPrice }}
 
-    el-table-column(label='Operations' align="right")
+    el-table-column(label='View' align="right")
       template(slot-scope='scope')
-        el-button(size="mini")
-          a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset Show transaction
+        el-button(size="mini" type="text")
+          a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
 
 </template>
 

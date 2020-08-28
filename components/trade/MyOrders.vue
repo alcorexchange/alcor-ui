@@ -1,7 +1,5 @@
 <template lang="pug">
-el-card
-  .lead My orders
-
+div
   .mobile-markets.d-lg-none.mt-3
     .row.market-row(v-for="order in orders").border
       .col-8
@@ -25,32 +23,31 @@ el-card
       .col-4
         el-button(size='mini', type='danger', @click='cancel(order)').ml-auto Cancel
 
-  el-table(:data='orders', style='width: 100%').d-none.d-lg-block
-    el-table-column(label='Type', width='80')
-      template(slot-scope='scope')
-        span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type }}
-        span.text-danger(v-else) {{ scope.row.type }}
+  el-table(:data='orders' max-height="260").d-none.d-lg-block.w-100
+    el-table-column(label='Type' width="50")
+      template(slot-scope='scope').text-success
+        span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type.toUpperCase() }}
+        span.text-danger(v-else) {{ scope.row.type.toUpperCase() }}
 
-    el-table-column(label='Date', width='180')
+    el-table-column(label='Date' width="100")
       template(slot-scope='scope')
-        i.el-icon-time
-        span(style='margin-left: 10px') {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
+        span {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
 
-    el-table-column(label='Ask', width='180')
+    el-table-column(label='Ask' width="120")
       template(slot-scope='scope')
         span {{ scope.row.ask.quantity }}
 
-    el-table-column(label='Bid', width='180')
+    el-table-column(label='Bid' width="120")
       template(slot-scope='scope')
         span {{ scope.row.bid.quantity }}
 
-    el-table-column(label='Price', width='120')
+    el-table-column(label='Price' width="90")
       template(slot-scope='scope')
         span {{ scope.row.unit_price | humanPrice }}
 
-    el-table-column(label='Operations' align="right")
+    el-table-column(label='Manage' align="right")
       template(slot-scope='scope')
-        el-button(size='mini', type='danger', @click='cancel(scope.row)') Cancel
+        el-button(size='mini', type='text', @click='cancel(scope.row)') Cancel
 
 </template>
 

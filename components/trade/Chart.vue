@@ -99,7 +99,7 @@ export default {
           console.log('[resolveSymbol]: Method call', symbolName)
           const symbolInfo = {
             name: this.token.symbol.name,
-            description: 'asdf',
+            description: `${this.$store.state.network.baseToken.symbol}/${this.token.symbol.name}`,
             //type: symbolItem.type,
             session: '24x7',
             timezone: 'Etc/UTC',
@@ -172,8 +172,8 @@ export default {
         'control_bar',
 
         'symbol_search_hot_key',
-        'left_toolbar',
-        'legend_widget',
+        //'left_toolbar',
+        'legend_widget', // TODO Activate later
         'edit_buttons_in_legend',
         'context_menus',
         'main_series_scale_menu',
@@ -303,6 +303,6 @@ export default {
 }
 
 #tv_chart_container {
-  height: 350px;
+  height: 500px;
 }
 </style>

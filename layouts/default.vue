@@ -1,5 +1,5 @@
 <template lang="pug">
-.container-fluid.mb-5.mt-2
+.mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'")
   ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")
@@ -222,11 +222,8 @@ export default {
 </script>
 
 <style scoped>
-.el-menu, .el-menu--horizontal {
-}
-
 .logo {
-  margin-left: 20px;
+  margin-left: 10px;
   height: 3.5em;
 }
 
@@ -296,5 +293,10 @@ footer {
     height: 40px;
     line-height: 40px;
   }
+}
+
+
+.el-menu.el-menu--horizontal {
+  border-bottom: none;
 }
 </style>

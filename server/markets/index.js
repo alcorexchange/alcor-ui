@@ -8,10 +8,10 @@ import { parseAsset, parseExtendedAsset } from '../../utils'
 import { updater, getDeals } from './history'
 import { getCharts } from './charts'
 
-updater('eos', 1000 * 40, false)
-updater('telos', 1000 * 20)
+//updater('eos', 1000 * 40, false)
+//updater('telos', 1000 * 20)
 updater('wax', 1000 * 20)
-updater('bos', 1000 * 20)
+//updater('bos', 1000 * 20)
 
 export async function getMarket(network, market_id) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })

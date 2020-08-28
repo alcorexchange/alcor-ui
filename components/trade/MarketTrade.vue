@@ -1,20 +1,22 @@
 <template lang="pug">
-.row.p-2
+.row
   .col-lg-6
-    .d-flex.label.mb-3
-      span.text-success Buy {{ token.symbol.name }}
-      span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
+    .d-flex.mb-1
+      small.text-success Buy {{ token.symbol.name }}
+      span.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
+        i.el-icon-wallet.ml-1
 
-    el-form(ref="form" label-width="60px")
-      el-form-item(label="Price")
-        el-input(type="number" disabled placeholder="Buy at best price")
-          span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
-
-      el-form-item(label="Amount")
-        el-input(type="number" clearable v-model="total" @change="format")
+    el-form(ref="form")
+      el-form-item
+        el-input(type="number" disabled placeholder="Buy at best price" size="medium")
           span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
 
       el-form-item
+        el-input(type="number" clearable v-model="total" @change="format" size="medium")
+          span(slot="prefix").mr-1 AMOUNT
+          span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+
+      .px-3
         el-slider(:step="25" v-model="eosPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item.mt-5
@@ -22,20 +24,22 @@
         el-button(type="success" size="small" @click="buy('market')").w-100 Buy {{ token.str }}
 
   .col-lg-6
-    .d-flex.label.mb-3
-      span.text-danger Sell {{ token.symbol.name }}
-      span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
+    .d-flex.mb-1
+      small.text-danger Sell {{ token.symbol.name }}
+      span.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
+        i.el-icon-wallet.ml-1
 
-    el-form(ref="form" label-width="60px")
-      el-form-item(label="Price")
-        el-input(type="number" disabled placeholder="Sell at best price")
+    el-form(ref="form")
+      el-form-item
+        el-input(type="number" disabled placeholder="Sell at best price" size="medium")
           span(slot="suffix").mr-1.ml-2 {{ network.baseToken.symbol }}
 
-      el-form-item(label="Amount")
-        el-input(type="number" v-model="amount" clearable @change="format")
+      el-form-item
+        el-input(type="number" v-model="amount" clearable @change="format" size="medium")
+          span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ token.symbol.name }}
 
-      el-form-item
+      .px-3
         el-slider(:step="25" v-model="tokenPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item.mt-5

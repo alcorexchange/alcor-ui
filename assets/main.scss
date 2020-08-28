@@ -7,6 +7,18 @@ button:focus {
   outline: 0;
 }
 
+*::-webkit-scrollbar {
+  width: 2px;               /* width of the entire scrollbar */
+}
+*::-webkit-scrollbar-track {
+  background: #fff;        /* color of the tracking area */
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #c4cbd6;    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  //border: 3px solid orange;  /* creates padding around scroll thumb */
+}
+
 .el-table__row,
 .pointer {
   cursor: pointer;
@@ -83,4 +95,10 @@ input[type='number'] {
   .el-radio-button__inner {
     width: 100%;
   }
+}
+
+
+.overflowbox {
+  border-radius: 5px;
+  border: 1px solid #dadbdc;
 }

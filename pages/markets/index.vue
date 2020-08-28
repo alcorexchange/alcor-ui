@@ -94,7 +94,7 @@ import ChangePercent from '~/components/trade/ChangePercent'
 export default {
   components: {
     TokenImage,
-    ChangePercent,
+    ChangePercent
   },
 
   async fetch({ store, error }) {
