@@ -27,12 +27,12 @@ div
   el-table(:data='orders' max-height="260").d-none.d-lg-block
     el-table-column(label='Type' width="40")
       template(slot-scope='scope').text-success
-        span.text-success(v-if="scope.row.type == 'bid'") BID
+        span.text-success(v-if="scope.row.type == 'buymatch'") BID
         span.text-danger(v-else) SELL
 
     el-table-column(label='Date' width="80")
       template(slot-scope='scope')
-        span {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
+        span {{ scope.row.time | moment('DD-MM HH:mm')}}
 
     el-table-column(label='Ask' width="120")
       template(slot-scope='scope')
