@@ -94,7 +94,7 @@ export default {
             session: '24x7',
             timezone: 'Etc/UTC',
             //exchange: symbolItem.exchange,
-            //minmov: 0.0000001,
+            minmov: 0.0000001,
             pricescale: 100000000,
             has_intraday: true,
             has_no_volume: false,

@@ -26,6 +26,9 @@
       .low-center
         .overflowbox.low-height
           el-tabs.h-100
+            //.tabs-right
+              el-button(type="text" @click="openInNewTab('https://eosio.support/alcor-exchange-walk-thru')") How to use?
+
             el-tab-pane(label="Limit trade")
               .trade-box
                 limit-trade
@@ -33,6 +36,8 @@
             el-tab-pane(label="Market trade")
               .trade-box
                 market-trade
+
+
       .low-right
         .overflowbox.low-height.overflow-hidden
           LatestDeals
