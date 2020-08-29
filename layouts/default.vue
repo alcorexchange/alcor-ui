@@ -12,9 +12,6 @@
         el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
 
         li.el-menu-item
-          chain-select(:current_chain="current_chain").chain-select
-
-        li.el-menu-item
           el-button(size="small" type="text")
             img(src="/telegram.png" height="30").mr-2
             a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
@@ -22,6 +19,9 @@
         li.el-menu-item
           //no-ssr
           gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
+
+        li.el-menu-item
+          chain-select(:current_chain="current_chain").chain-select
 
         li.el-menu-item(v-if="user").scatter-button
           el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
@@ -91,42 +91,31 @@
 
   nuxt
 
-  .row.mt-3
-    .col.text-mutted
-      small
-        span.text-muted App version:
-          a(href="https://github.com/avral/alcor-ui" target="_blank").text-secondary
-            span(v-if="lastCommit.commit")  {{ lastCommit.commit.message }}
+  FooterBlock
 
-  footer
-    .row
-      .col.d-flex
-        span.ml-auto Created by
-          b
-            a(href="https://avral.pro" target="_blank")  #Avral
 </template>
 
 <script>
-import axios from 'axios'
 import { mapGetters, mapState } from 'vuex'
 
 import config from '~/config'
 
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
+import Footer from '~/components/footer/Footer'
 
 //import '~/assets/main.scss'
 
 export default {
   components: {
     ModalsDialog,
-    ChainSelect
+    ChainSelect,
+    FooterBlock: Footer
   },
 
   data() {
     return {
       netError: false,
-      lastCommit: {},
 
       networks: [],
       current_chain: '',
@@ -196,7 +185,6 @@ export default {
 
   async created() {
     this.current_chain = this.$store.state.network.name
-    this.getVersion()
 
     try {
       await this.$store.getters['api/rpc'].get_info()
@@ -210,10 +198,6 @@ export default {
     async logout() {
       await this.$store.dispatch('chain/logout')
     },
-
-    async getVersion() {
-      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
-    }
   },
 
   head () {
@@ -264,14 +248,6 @@ export default {
 
 h1.lead {
   font-size: 1.2rem;
-}
-
-footer {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    padding-right: 5px;
 }
 
 @media only screen and (max-width: 600px) {

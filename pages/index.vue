@@ -12,7 +12,7 @@
 
         h2.lead.mt-1 No withdraw or deposit.
 
-        h3.badge.badge-primary.text-wrap No trading fees.
+        b No trading fees.
 
         p
           span  Immediately open the market for your token or any token you want.
