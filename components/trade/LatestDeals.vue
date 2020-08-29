@@ -51,12 +51,14 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .blist a {
   all: unset;
 }
 
-.orders-list {
-  height: 250px;
+.deals-history {
+  .orders-list {
+    height: 250px;
+  }
 }
 </style>

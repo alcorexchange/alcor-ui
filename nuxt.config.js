@@ -56,12 +56,16 @@ module.exports = {
   */
   css: [
     // TODO Оставить только грид и ребут
-    //'bootstrap/dist/css/bootstrap-grid.min.css',
-    //'bootstrap/dist/css/bootstrap-reboot.min.css',
-    'bootstrap/dist/css/bootstrap.min.css',
+    //'bootstrap/dist/css/bootstrap.min.css',
 
-    'element-ui/lib/theme-chalk/index.css',
+    'bootstrap/dist/css/bootstrap-grid.min.css',
+    'bootstrap/dist/css/bootstrap-reboot.min.css',
+
     'bootstrap-utilities/bootstrap-utilities.css',
+
+    //'element-ui/lib/theme-chalk/index.css',
+    //'~/assets/theme/_variables.scss',
+    '~/assets/theme/index.css',
     '~/assets/main.scss'
   ],
 

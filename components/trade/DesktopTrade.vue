@@ -2,9 +2,8 @@
 .row.trading-terminal
   .col
     .top-level
-      .top-left
-        .overflowbox
-          order-book(v-loading="loading")
+      .top-left.overflowbox
+        order-book(v-loading="loading")
 
       .top-center
         .overflowbox
@@ -16,7 +15,7 @@
 
     .low-level.mt-2
       .low-left
-        .overflowbox.low-height.overflow-hidden
+        .low-height.overflow-hidden.overflowbox
           el-tabs.h-100
             el-tab-pane(label="Open order")
               my-orders(v-if="user" v-loading="loading")

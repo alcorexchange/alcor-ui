@@ -1,4 +1,5 @@
 <template lang="pug">
+//.mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'" theme="dark")
 .mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'")
   ModalsDialog
   .row.mb-2
@@ -114,6 +115,8 @@ import config from '~/config'
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
 
+//import '~/assets/main.scss'
+
 export default {
   components: {
     ModalsDialog,
@@ -187,6 +190,8 @@ export default {
 
   mounted() {
     this.$store.dispatch('checkIsMobile')
+    //const htmlElement = document.documentElement
+    //htmlElement.setAttribute('theme', 'dark') // TODO Manage theme
   },
 
   async created() {

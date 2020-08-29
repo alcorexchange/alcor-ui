@@ -128,7 +128,7 @@ export default {
 }
 
 .orders-list.asks {
-  height: 220px;
+  max-height: 220px;
 }
 
 .orders-list.bids {
