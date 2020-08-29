@@ -156,9 +156,15 @@ export default {
 
         'symbol_search_hot_key',
         //'left_toolbar',
-        'legend_widget', // TODO Activate later
+
+        //'legend_widget',
         'edit_buttons_in_legend',
-        'context_menus',
+        'create_volume_indicator_by_default',
+        'cropped_tick_marks',
+        //'context_menus',
+
+
+        'edit_buttons_in_legend',
         'main_series_scale_menu',
         'trading_notifications',
         'show_trading_notifications_history',
@@ -172,10 +178,11 @@ export default {
         'timezone_menu',
         'property_pages',
         'timeframes_toolbar',
+        'countdown'
 
         //'use_localstorage_for_settings',
       ],
-      //enabled_features: ['items_favoriting'],
+      enabled_features: [],
       //charts_storage_url: this.chartsStorageUrl,
       //charts_storage_api_version: this.chartsStorageApiVersion,
       //client_id: this.clientId,
