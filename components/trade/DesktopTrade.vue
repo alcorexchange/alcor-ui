@@ -7,6 +7,7 @@
 
       .top-center
         .overflowbox
+          top-line
           chart
 
       .top-right

@@ -199,8 +199,41 @@ export default {
       }
     }
 
-    const tvWidget = new Widget(widgetOptions)
-    this.tvWidget = tvWidget
+    const widget = new Widget(widgetOptions)
+    this.tvWidget = widget
+
+    //widget.headerReady().then(function() {
+    //  const button = widget.createButton()
+    //  button.setAttribute('title', 'My custom button tooltip')
+    //  button.addEventListener('click', function() { alert('My custom button pressed!') })
+    //  button.textContent = 'My custom button caption'
+    //})
+
+
+    //widget.onChartReady(function() {
+    //  widget.onContextMenu(function(unixtime, price) {
+    //    return [
+    //      {
+    //        position: 'top',
+    //        text:
+    //          'First top menu item, time: ' + unixtime + ', price: ' + price,
+    //        click: alert('First clicked.')
+    //      },
+    //      { text: '-', position: 'top' },
+    //      { text: '-Objects Tree...' },
+    //      {
+    //        position: 'top',
+    //        text: 'Second top menu item 2',
+    //        click: alert('Second clicked.')
+    //      },
+    //      {
+    //        position: 'bottom',
+    //        text: 'Bottom menu item',
+    //        click: alert('Third clicked.')
+    //      }
+    //    ]
+    //  })
+    //})
   }
 }
 </script>
@@ -211,6 +244,6 @@ export default {
 }
 
 #tv_chart_container {
-  height: 500px;
+  height: 450px;
 }
 </style>
