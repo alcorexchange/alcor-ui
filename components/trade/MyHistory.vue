@@ -25,12 +25,12 @@ div
           a(:href="monitorTx(order.trx_id)" target="_blank").a-reset Show transaction
 
   el-table(:data='orders' max-height="260").d-none.d-lg-block
-    el-table-column(label='Type' width="50")
+    el-table-column(label='Type' width="40")
       template(slot-scope='scope').text-success
         span.text-success(v-if="scope.row.type == 'bid'") BID
         span.text-danger(v-else) SELL
 
-    el-table-column(label='Date' width="100")
+    el-table-column(label='Date' width="80")
       template(slot-scope='scope')
         span {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
 
@@ -42,11 +42,11 @@ div
       template(slot-scope='scope')
         span {{ scope.row.bid.quantity }}
 
-    el-table-column(label='Price' width="90")
+    el-table-column(label='Price' width="70")
       template(slot-scope='scope')
         span {{ scope.row.unit_price | humanPrice }}
 
-    el-table-column(label='View' align="right")
+    el-table-column(label='Manage' align="right" width="60")
       template(slot-scope='scope')
         el-button(size="mini" type="text")
           a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view

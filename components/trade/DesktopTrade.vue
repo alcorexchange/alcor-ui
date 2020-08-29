@@ -179,13 +179,13 @@ export default {
   height: 300px;
 
   .low-left {
-    flex: 6;
+    flex: 5;
   }
 
   .low-center {
     min-width: 490px;
     margin: 0 10px;
-    flex: 5;
+    flex: 6;
   }
 
   .low-right {
@@ -303,6 +303,10 @@ export default {
   .low-left {
     .el-tabs__header {
       margin: 0px;
+    }
+
+    .el-table {
+      font-size: 10px;
     }
   }
 

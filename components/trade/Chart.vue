@@ -61,21 +61,11 @@ export default {
     return {
       chart: null,
       candleSeries: null,
-      charts_list: [],
     }
   },
 
   computed: {
-    ...mapState('market', ['token', 'charts', 'id'])
-  },
-
-  watch: {
-    charts() {
-      // TODO Обновление чартов
-      //if (this.charts_list.length == this.charts.length) return
-
-      //this.makeCharts()
-    }
+    ...mapState('market', ['token', 'id'])
   },
 
   mounted() {
@@ -123,17 +113,9 @@ export default {
             params: { resolution, from, to }
           })
 
-          //await this.$store.dispatch('market/fetchCharts', { resolution, from, to })
-          this.charts_list = charts // Stor react this
-          //const p = (p) => parseFloat(this.$options.filters.humanPrice(p).replace(',', ''))
-          const bars = this.charts_list.map((i) => {
+          const bars = charts.map((i) => {
             return {
               time: i.time * 1000,
-              //open: p(i.open),
-              //high: p(i.high),
-              //low: p(i.low),
-              //close: p(i.close)
-
               open: i.open,
               high: i.high,
               low: i.low,
@@ -141,7 +123,6 @@ export default {
               volume: i.volume
             }
           })
-          console.log('bars', bars)
           onHistoryCallback(bars, { noData: bars.length == 0 })
         },
         subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
@@ -155,10 +136,12 @@ export default {
       interval: this.interval,
       container_id: this.containerId,
       library_path: this.libraryPath,
-      theme: 'light', // TODO Dark theme
-
+      favorites: {
+        intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
+      },
       locale: 'en', // TODO Change lang
       disabled_features: [
+        //'header_resolutions',
         'header_symbol_search',
         'header_chart_type',
         'header_settings',
@@ -188,111 +171,29 @@ export default {
         'go_to_date',
         'timezone_menu',
         'property_pages',
-        'timeframes_toolbar'
+        'timeframes_toolbar',
+
+        //'use_localstorage_for_settings',
       ],
-      enabled_features: [],
+      //enabled_features: ['items_favoriting'],
       //charts_storage_url: this.chartsStorageUrl,
       //charts_storage_api_version: this.chartsStorageApiVersion,
       //client_id: this.clientId,
       //user_id: this.userId,
       fullscreen: this.fullscreen,
       autosize: this.autosize,
-      studies_overrides: this.studiesOverrides
+      studies_overrides: this.studiesOverrides,
+
+      // Styles
+      theme: 'light', // TODO Dark theme
+      custom_css_url: '/tv_themed.css',
+      overrides: {
+        'paneProperties.background': '#F3FAFC',
+      }
     }
 
     const tvWidget = new Widget(widgetOptions)
     this.tvWidget = tvWidget
-
-    //const elem = this.$refs.chart
-    //this.chart = LightweightCharts.createChart(elem, {
-    //  width: elem.offsetWidth,
-    //  height: 200,
-    //  //layout: {
-    //  //  backgroundColor: '#000000',
-    //  //  textColor: 'rgba(255, 255, 255, 0.9)',
-    //  //},
-    //  //grid: {
-    //  //  vertLines: {
-    //  //    color: 'rgba(197, 203, 206, 0.5)',
-    //  //  },
-    //  //  horzLines: {
-    //  //    color: 'rgba(197, 203, 206, 0.5)',
-    //  //  },
-    //  //},
-    //  crosshair: {
-    //    mode: LightweightCharts.CrosshairMode.Normal,
-    //  },
-    //  priceScale: {
-    //    borderColor: 'rgba(197, 203, 206, 0.8)'
-    //  },
-    //  timeScale: {
-    //    borderColor: 'rgba(197, 203, 206, 0.8)'
-    //  },
-    //})
-
-    //this.candleSeries = this.chart.addCandlestickSeries({
-    //  //upColor: 'rgba(255, 144, 0, 1)',
-    //  //downColor: '#000',
-    //  //borderDownColor: 'rgba(255, 144, 0, 1)',
-    //  //borderUpColor: 'rgba(255, 144, 0, 1)',
-    //  //wickDownColor: 'rgba(255, 144, 0, 1)',
-    //  //wickUpColor: 'rgba(255, 144, 0, 1)',
-    //})
-
-    //// TODO Add volume
-    ////const volumeSeries = chart.addHistogramSeries({
-    ////  color: '#26a69a',
-    ////  lineWidth: 2,
-    ////  priceFormat: {
-    ////    type: 'volume'
-    ////  },
-    ////  overlay: true,
-    ////  scaleMargins: {
-    ////    top: 0.8,
-    ////    bottom: 0
-    ////  }
-    ////})
-
-    //this.candleSeries.applyOptions({
-    //  priceFormat: {
-    //    //type: 'volume',
-    //    precision: 8,
-    //    minMove: 0.0000001
-    //  }
-    //})
-
-    //this.makeCharts()
-  },
-
-  methods: {
-    async makeCharts() {
-      try {
-        await this.$store.dispatch('market/fetchCharts')
-        this.charts_list = this.charts // Stor react this
-        const p = (p) =>
-          parseFloat(this.$options.filters.humanPrice(p).replace(',', ''))
-        this.candleSeries.setData(
-          this.charts_list.map((i) => {
-            return {
-              time: i.time,
-              open: p(i.open),
-              high: p(i.high),
-              low: p(i.low),
-              close: p(i.close)
-            }
-          })
-        )
-      } catch (e) {
-        // TODO Обработка оишбки
-        this.$notify({
-          title: 'Graph',
-          message: 'graph fetch error',
-          type: 'warning'
-        })
-      } finally {
-        this.loading = false
-      }
-    }
   }
 }
 </script>

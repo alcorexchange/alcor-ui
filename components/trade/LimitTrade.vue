@@ -3,7 +3,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-success Buy {{ token.symbol.name }}
-      span.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
+      small.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -32,7 +32,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-danger Sell {{ token.symbol.name }}
-      span.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
+      small.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")

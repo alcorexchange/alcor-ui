@@ -1,7 +1,7 @@
 @import "~/assets/theme/_variables.scss";
 
 html, body {
-    background-color: var(--red);
+    background-color: var(--background-color-base);
 }
 
 button {
@@ -14,15 +14,14 @@ button:focus {
 }
 
 *::-webkit-scrollbar {
-  width: 2px;               /* width of the entire scrollbar */
+  width: 2px;
 }
 *::-webkit-scrollbar-track {
-  background: #fff;        /* color of the tracking area */
+  background: var(--background-color-base);
 }
 *::-webkit-scrollbar-thumb {
-  background-color: #c4cbd6;    /* color of the scroll thumb */
-  border-radius: 20px;       /* roundness of the scroll thumb */
-  //border: 3px solid orange;  /* creates padding around scroll thumb */
+  background-color: #c4cbd6;
+  border-radius: 20px;
 }
 
 .el-table__row,
@@ -107,4 +106,28 @@ input[type='number'] {
 .overflowbox {
   border-radius: 5px;
   border: 1px solid #dadbdc;
+}
+
+.el-menu-item {
+  &:hover,
+  &:focus {
+    outline: none;
+    background-color: red;
+  }
+}
+
+.el-menu-item {
+    background-color: var(--background-color-base) !important;
+
+    &:hover {
+        outline: none;
+
+        border-bottom: 2px solid var(--color-primary) !important;
+        color: var(--color-text-primary);
+    }
+
+}
+
+.el-input.is-disabled .el-input__inner {
+    background-color: #dde9ec;
 }

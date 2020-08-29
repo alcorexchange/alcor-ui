@@ -144,7 +144,7 @@ export default {
 
       items.push({ index: '/markets', name: 'Markets' })
 
-      if (['wax', 'eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
+      if (['eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
         items.push({ index: '/pools', name: 'Pools' })
       }
 

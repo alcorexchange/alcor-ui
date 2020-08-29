@@ -56,7 +56,7 @@ module.exports = {
   */
   css: [
     // TODO Оставить только грид и ребут
-    //'bootstrap/dist/css/bootstrap.min.css',
+    'bootstrap/dist/css/bootstrap.min.css',
 
     'bootstrap/dist/css/bootstrap-grid.min.css',
     'bootstrap/dist/css/bootstrap-reboot.min.css',

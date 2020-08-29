@@ -24,12 +24,12 @@ div
         el-button(size='mini', type='danger', @click='cancel(order)').ml-auto Cancel
 
   el-table(:data='orders' max-height="260").d-none.d-lg-block.w-100
-    el-table-column(label='Type' width="50")
+    el-table-column(label='Type' width="40")
       template(slot-scope='scope').text-success
         span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type.toUpperCase() }}
         span.text-danger(v-else) {{ scope.row.type.toUpperCase() }}
 
-    el-table-column(label='Date' width="100")
+    el-table-column(label='Date' width="80")
       template(slot-scope='scope')
         span {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
 
@@ -41,11 +41,11 @@ div
       template(slot-scope='scope')
         span {{ scope.row.bid.quantity }}
 
-    el-table-column(label='Price' width="90")
+    el-table-column(label='Price' width="70")
       template(slot-scope='scope')
         span {{ scope.row.unit_price | humanPrice }}
 
-    el-table-column(label='Manage' align="right")
+    el-table-column(label='Manage' align="right" width="60")
       template(slot-scope='scope')
         el-button(size='mini', type='text', @click='cancel(scope.row)') Cancel
 
