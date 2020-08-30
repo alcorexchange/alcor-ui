@@ -85,6 +85,6 @@ export default {
 }
 
 .markets-bar .el-table .active-row {
-  background: #c2deff;
+  background: var(--active-row);
 }
 </style>

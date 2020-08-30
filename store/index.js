@@ -12,6 +12,7 @@ export const state = () => ({
   network: {},
 
   isMobile: false,
+  theme: 'light',
   baseUrl: '',
   loading: false,
   tokens: [],
@@ -30,7 +31,8 @@ export const mutations = {
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
-  setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens
+  setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
+  setTheme: (state, theme) => state.theme = theme
 }
 
 export const actions = {
@@ -50,6 +52,11 @@ export const actions = {
 
     setInterval(() => dispatch('update'), 15000)
     setInterval(() => dispatch('pools/updatePool', {}, { root: true }), 10000)
+  },
+
+  toggleTheme({ state, commit }) {
+    document.documentElement.classList.toggle('theme-dark')
+    commit('setTheme', state.theme == 'light' ? 'dark' : 'light')
   },
 
   checkIsMobile ({ commit }) {

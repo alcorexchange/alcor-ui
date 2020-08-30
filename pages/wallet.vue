@@ -8,7 +8,7 @@
             template(slot-scope="scope")
               TokenImage(:src="$tokenLogo(scope.row.currency, scope.row.contract)" height="25")
               span.ml-2 {{ scope.row.currency }}
-              a(:href="monitorAccount(scope.row.contract)" target="_blank") ({{ scope.row.contract }})
+              a(:href="monitorAccount(scope.row.contract)" target="_blank").text-muted.ml-2 {{ scope.row.contract }}
               el-tag(v-if="hasMarket(scope.row)" size="small").float-right Trade
 
           el-table-column(prop='amount', label='Amount' align="right" width="150" :sort-method="sortByAmount"

@@ -23,7 +23,7 @@
                 TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
                 span.ml-2
                   | {{ scope.row.token.symbol.name }}
-                  a(:href="monitorAccount(scope.row.token.contract)" target="_blank") ({{ scope.row.token.contract }})
+                  a(:href="monitorAccount(scope.row.token.contract)" target="_blank").text-muted.ml-2 {{ scope.row.token.contract }}
 
             el-table-column(
               :label="`Last price`"

@@ -1,10 +1,10 @@
 <template lang="pug">
 .d-flex.align-items-center
-  img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
+  img(:src="require('~/assets/icons/' + current_chain + '.png')" height=30).mr-1
 
-  el-select(v-model='current_chain', placeholder='Select', size="mini" @change="changeChain").chain-select
+  el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
     el-option(v-for='network in networks', :key='network.name', :value='network.name')
-      img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+      img(:src="require('~/assets/icons/' + network.name + '.png')" height=30)
       span.ml-2 {{ network.desc }}
 </template>
 

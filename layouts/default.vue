@@ -1,52 +1,58 @@
 <template lang="pug">
-//.mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'" theme="dark")
-.mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'")
+.mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'" ref="top")
   ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")
-      el-menu(router, :default-active="activeLink", mode='horizontal' theme="dark")
-        el-menu-item(index="/")
-          img(src="~/assets/logos/alcor_logo.svg").logo
+      .d-flex
+        el-menu(router, :default-active="activeLink", mode='horizontal')
+          el-menu-item(index="/")
+            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
+            img(v-else src="~/assets/logos/alcorwhite.svg").logo
 
-        // Menu items
-        el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
+          // Menu items
+          el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
 
-        li.el-menu-item
-          el-button(size="small" type="text")
+        .d-flex.align-items-center.ml-auto
+          //el-button(size="small" type="text")
             img(src="/telegram.png" height="30").mr-2
             a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
-        li.el-menu-item
           //no-ssr
-          gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
+            gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
 
-        li.el-menu-item
-          chain-select(:current_chain="current_chain").chain-select
 
-        li.el-menu-item(v-if="user").scatter-button
-          el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
-            //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
-            | {{ $store.state.user.name }}
-            el-dropdown-menu(slot='dropdown')
-              el-dropdown-item(v-if="network.name == 'eos'")
-                .row
-                  .col
-                    img(src="~/assets/logos/greymassfuel.png" height="30")
-                .row
-                  .col
-                    el-switch(v-model='payForUser' inactive-text=' Free CPU')
-                hr
-              el-dropdown-item
-                el-button(size="mini" type="info" plain @click="logout").w-100 logout
+        .d-flex.align-items-center.ml-auto
+          chain-select(:current_chain="current_chain").chain-select.mr-4
 
-        li.el-menu-item.scatter-button(v-else)
-          el-button(@click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
+          div(v-if="user")
+            el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
+              //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+              | {{ $store.state.user.name }}
+              el-dropdown-menu(slot='dropdown')
+                el-dropdown-item(v-if="network.name == 'eos'")
+                  .row
+                    .col
+                      img(src="~/assets/logos/greymassfuel.png" height="30")
+                  .row
+                    .col
+                      el-switch(v-model='payForUser' inactive-text=' Free CPU')
+                  hr
+                el-dropdown-item
+                  el-button(size="mini" type="info" plain @click="logout").w-100 logout
+
+          el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
+
+          .ml-3.theme-toggle
+            el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
+            el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
+            .theme-wave
 
     .col(v-else)
       .row
         .col-md-5.mb-1
           nuxt-link(to="/")
-            img(src="~/assets/logos/alcor_logo.svg").logo
+            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
+            img(v-else src="~/assets/logos/alcorwhite.svg")
         .col-sm-5.d-flex.align-items-center
           chain-select(:current_chain="current_chain").chain-select
 
@@ -104,8 +110,6 @@ import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
 
-//import '~/assets/main.scss'
-
 export default {
   components: {
     ModalsDialog,
@@ -126,7 +130,7 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapState(['network']),
+    ...mapState(['network', 'theme']),
 
     menuItems() {
       const items = []
@@ -179,8 +183,6 @@ export default {
 
   mounted() {
     this.$store.dispatch('checkIsMobile')
-    //const htmlElement = document.documentElement
-    //htmlElement.setAttribute('theme', 'dark') // TODO Manage theme
   },
 
   async created() {
@@ -210,14 +212,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .logo {
-  margin-left: 10px;
   height: 3.5em;
 }
 
 .chain-select {
-  width: 105px;
+  width: 130px;
 }
 
 .scatter-button {
@@ -240,10 +241,6 @@ export default {
 
 .el-menu-item:first-child {
   padding-left: 0px;
-}
-
-.el-menu-item:last-child {
-  padding-right: 0px;
 }
 
 h1.lead {

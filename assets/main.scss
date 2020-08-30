@@ -1,7 +1,14 @@
-@import "~/assets/theme/_variables.scss";
-
+@import "~/assets/_variables.scss";
 html, body {
     background-color: var(--background-color-base);
+    color: var(--color-text-primary);
+
+    transition: .3s;
+}
+
+@font-face {
+    font-family: element-icons;
+    src: url(fonts/element-icons.woff) format("woff"), url(fonts/element-icons.ttf) format("truetype");
 }
 
 button {
@@ -105,7 +112,7 @@ input[type='number'] {
 
 .overflowbox {
   border-radius: 5px;
-  border: 1px solid #dadbdc;
+  border: 1px solid var(--border-color);
 }
 
 .el-menu-item {
@@ -130,4 +137,18 @@ input[type='number'] {
 
 .el-input.is-disabled .el-input__inner {
     background-color: #dde9ec;
+}
+
+.el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
+pre { color: var(--color-primary); }
+
+
+// THEMES
+.text-danger { color: #b82d0d !important; }
+.text-success { color: #53a95b!important; }
+
+// Dark
+.theme-dark {
+    .text-danger { color: #b56150 !important; }
+    .text-success { color: #53a95b!important; }
 }
