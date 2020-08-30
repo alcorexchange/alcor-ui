@@ -11,12 +11,12 @@ footer
             span.footer-title Community
           li.nav-item
             a(href="https://twitter.com/avral_pro" target="_blank")
-              img(src="~/assets/icons/tw_small.png" height="25").mr-2
+              img(src="~/assets/icons/tw.svg" height="25").mr-2
 
             a(href="https://github.com/avral/alcor-ui" target="_blank")
-              img(src="~/assets/icons/gh_small.png" height="25").mr-2
+              img(src="~/assets/icons/gh.svg" height="25").mr-2
             a(href="https://t.me/alcorexchange" target="_blank")
-              img(src="~/assets/icons/tg_small.png" height="25")
+              img(src="~/assets/icons/tg.svg" height="25")
 
     .row.mt-3
       .col.text-mutted
@@ -42,7 +42,7 @@ export default {
     }
   },
 
-  async created() {
+  async mounted() {
     this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
   }
 }
