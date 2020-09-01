@@ -60,7 +60,7 @@ export async function updater(chain, interval, hyperion) {
   updateMarkets(network).then(() => {
     setInterval(() => {
       updateMarkets(network)
-    }, 60 * 5 * 1000)
+    }, 60 * 20 * 1000)
   })
 }
 
