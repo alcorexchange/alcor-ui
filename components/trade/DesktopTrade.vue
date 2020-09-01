@@ -270,7 +270,7 @@ export default {
     padding: 0 15px;
 
     .el-input--prefix .el-input__inner {
-        padding-left: 40%;
+        padding-left: 30%;
     }
 
     .el-form-item__content {
@@ -338,7 +338,7 @@ export default {
   }
 
   .el-table {
-    font-size: 12px;
+    font-size: 10px;
 
     .el-table__header-wrapper {
       th {

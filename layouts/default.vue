@@ -51,7 +51,7 @@
       .row
         .col-md-5.mb-1
           nuxt-link(to="/")
-            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
+            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg" height="55").logo
             img(v-else src="~/assets/logos/alcorwhite.svg")
         .col-sm-5.d-flex.align-items-center
           chain-select(:current_chain="current_chain").chain-select
