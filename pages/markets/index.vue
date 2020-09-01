@@ -6,7 +6,6 @@
         .col-lg-2.mb-2
           .d-flex.align-items-center.h-100
             nuxt-link(to="new_market")
-              //.new-market-btn
               el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
         .col-lg-7
           .d-flex.align-items-center.h-100
@@ -172,51 +171,6 @@ export default {
 
 <style>
 .el-table__row {
-  cursor: pointer;
-}
-
-.search-input {
-  width: 100px;
-}
-
-#markets {
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
-.new-market {
-  width: 260px;
-  padding: 16px;
-}
-
-.market, .market-new {
-  width: 260px;
-  padding: 0px 10px;
-  height: 75px;
-}
-
-.market {
-  color:inherit;
-  text-decoration: none;
-
-  display: block;
-  font-size: 87.5%;
-  color: #212529;
-}
-
-.market:hover {
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  color:inherit;
-  text-decoration: none;
-}
-
-.market:hover img {
-  height: 35px;
-}
-
-.order-row {
   cursor: pointer;
 }
 </style>

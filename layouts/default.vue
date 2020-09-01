@@ -13,19 +13,10 @@
           el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
 
         .d-flex.align-items-center.ml-auto
-          //el-button(size="small" type="text")
-            img(src="/telegram.png" height="30").mr-2
-            a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
-
-          //no-ssr
-            gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
-
-
-        .d-flex.align-items-center.ml-auto
-          chain-select(:current_chain="current_chain").chain-select.mr-4
+          chain-select(:current_chain="current_chain").mr-4
 
           div(v-if="user")
-            el-dropdown(size='medium', split-button='' :hide-on-click="false" trigger="click")
+            el-dropdown(size='small', split-button='' :hide-on-click="false" trigger="click")
               //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
               | {{ $store.state.user.name }}
               el-dropdown-menu(slot='dropdown')
@@ -42,10 +33,9 @@
 
           el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
 
-          .ml-3.theme-toggle
+          .ml-3
             el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
             el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
-            .theme-wave
 
     .col(v-else)
       .row

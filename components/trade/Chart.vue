@@ -6,63 +6,7 @@
 import { mapState } from 'vuex'
 
 export default {
-  props: {
-    symbol: {
-      default: 'AAPL',
-      type: String
-    },
-    interval: {
-      default: 'D',
-      type: String
-    },
-    containerId: {
-      default: 'tv_chart_container',
-      type: String
-    },
-    datafeedUrl: {
-      default: 'https://demo_feed.tradingview.com',
-      type: String
-    },
-    libraryPath: {
-      default: '/charting_library/',
-      type: String
-    },
-    chartsStorageUrl: {
-      default: 'https://saveload.tradingview.com',
-      type: String
-    },
-    chartsStorageApiVersion: {
-      default: '1.1',
-      type: String
-    },
-    clientId: {
-      default: 'tradingview.com',
-      type: String
-    },
-    userId: {
-      default: 'public_user_id',
-      type: String
-    },
-    fullscreen: {
-      default: false,
-      type: Boolean
-    },
-    autosize: {
-      default: true,
-      type: Boolean
-    },
-    studiesOverrides: {
-      type: Object
-    }
-  },
   tvWidget: null,
-
-  data() {
-    return {
-      chart: null,
-      candleSeries: null,
-    }
-  },
 
   computed: {
     ...mapState('market', ['token', 'id']),
@@ -85,20 +29,13 @@ export default {
 
       const widgetOptions = {
         symbol: this.token.symbol.name,
-        // BEWARE: no trailing slash is expected in feed URL
         datafeed: {
           onReady: (callback) => {
-            console.log('[onReady]: Method call')
             const data = { supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'], symbols_types: [{ name: 'crypto', value: 1 }] }
             callback(data)
           },
 
-          searchSymbols: (userInput, exchange, symbolType, onResultReadyCallback) => {
-            console.log('[searchSymbols]: Method call')
-          },
-
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
-            console.log('[resolveSymbol]: Method call', symbolName)
             const symbolInfo = {
               name: this.token.symbol.name,
               description: `${this.$store.state.network.baseToken.symbol}/${this.token.symbol.name}`,
@@ -119,8 +56,6 @@ export default {
             onSymbolResolvedCallback(symbolInfo)
           },
           getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
-            console.log('[getBars]: Method call', symbolInfo, ' resolution:', resolution, 'from: ', from, 'to: ', to)
-
             const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
               params: { resolution, from, to }
             })
@@ -137,17 +72,17 @@ export default {
             })
             onHistoryCallback(bars, { noData: bars.length == 0 })
           },
-          subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
-            console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID)
-          },
-          unsubscribeBars: (subscriberUID) => {
-            console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID)
-          }
+          //subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
+          //  console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID)
+          //},
+          //unsubscribeBars: (subscriberUID) => {
+          //  console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID)
+          //}
         },
-        //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl),
-        interval: this.interval,
-        container_id: this.containerId,
-        library_path: this.libraryPath,
+        //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
+        interval: 'D',
+        container_id: 'tv_chart_container',
+        library_path: '/charting_library/',
         favorites: {
           intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
         },
@@ -194,13 +129,13 @@ export default {
 
           //'use_localstorage_for_settings',
         ],
-        enabled_features: [],
+        enabled_features: ['side_toolbar_in_fullscreen_mode', 'header_in_fullscreen_mode'],
         //charts_storage_url: this.chartsStorageUrl,
         //charts_storage_api_version: this.chartsStorageApiVersion,
         //client_id: this.clientId,
         //user_id: this.userId,
-        fullscreen: this.fullscreen,
-        autosize: this.autosize,
+        fullscreen: false,
+        autosize: true,
         studies_overrides: this.studiesOverrides,
 
         // Styles
@@ -208,55 +143,19 @@ export default {
         custom_css_url: '/tv_themed.css',
         overrides: {
           'paneProperties.background': this.theme == 'light' ? '#F3FAFC' : '#192427',
+          'scalesProperties.textColor': this.theme == 'light' ? '#4a4a4a' : '#9EABA3'
         }
       }
 
       const widget = new Widget(widgetOptions)
       this.tvWidget = widget
-
-      //widget.headerReady().then(function() {
-      //  const button = widget.createButton()
-      //  button.setAttribute('title', 'My custom button tooltip')
-      //  button.addEventListener('click', function() { alert('My custom button pressed!') })
-      //  button.textContent = 'My custom button caption'
-      //})
-
-
-      //widget.onChartReady(function() {
-      //  widget.onContextMenu(function(unixtime, price) {
-      //    return [
-      //      {
-      //        position: 'top',
-      //        text:
-      //          'First top menu item, time: ' + unixtime + ', price: ' + price,
-      //        click: alert('First clicked.')
-      //      },
-      //      { text: '-', position: 'top' },
-      //      { text: '-Objects Tree...' },
-      //      {
-      //        position: 'top',
-      //        text: 'Second top menu item 2',
-      //        click: alert('Second clicked.')
-      //      },
-      //      {
-      //        position: 'bottom',
-      //        text: 'Bottom menu item',
-      //        click: alert('Third clicked.')
-      //      }
-      //    ]
-      //  })
-      //})
     }
   }
 }
 </script>
 
 <style>
-.blist a {
-  all: unset;
-}
-
 #tv_chart_container {
-  height: 450px;
+  height: 460px;
 }
 </style>

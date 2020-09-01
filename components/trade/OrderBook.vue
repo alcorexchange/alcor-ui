@@ -142,7 +142,7 @@ export default {
 
 .blist .ltd span {
   width: 40%;
-  font-size: 10px;
+  font-size: 11.5px;
 }
 
 .blist .ltd span:first-child {

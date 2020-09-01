@@ -1,23 +1,15 @@
 @import "~/assets/_variables.scss";
-html, body {
-    background-color: var(--background-color-base);
-    color: var(--color-text-primary);
-
-    transition: .3s;
-}
 
 @font-face {
     font-family: element-icons;
     src: url(fonts/element-icons.woff) format("woff"), url(fonts/element-icons.ttf) format("truetype");
 }
 
-button {
-  outline: 0;
-}
+html, body {
+    background-color: var(--background-color-base);
+    color: var(--color-text-primary);
 
-button:focus {
-  outline: 0;
-  outline: 0;
+    transition: .3s;
 }
 
 *::-webkit-scrollbar {
@@ -30,6 +22,19 @@ button:focus {
   background-color: #c4cbd6;
   border-radius: 20px;
 }
+
+button, button:focus {
+  outline: 0;
+  outline: 0;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
 
 .el-table__row,
 .pointer {
@@ -56,29 +61,9 @@ button:focus {
   }
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 /* Firefox */
 input[type='number'] {
   -moz-appearance: textfield;
-}
-
-.pools-bage sup {
-  top: 10px !important;
-  z-index: 99999;
-}
-
-.input-with-select .el-select .el-input {
-  /* width: 400px; */
-}
-
-.input-with-select .el-input-group__append {
-  width: 30%;
-  background-color: #fff;
 }
 
 .upperinput {
@@ -93,8 +78,10 @@ input[type='number'] {
   text-decoration: none !important;
 }
 
-.gh-button-container {
-  color: #24292e;
+// Custom element-ui
+.input-with-select .el-input-group__append {
+  width: 30%;
+  background-color: #fff;
 }
 
 .el-radio-full-width.el-radio-group {
@@ -108,7 +95,6 @@ input[type='number'] {
     width: 100%;
   }
 }
-
 
 .overflowbox {
   border-radius: 5px;
@@ -132,7 +118,6 @@ input[type='number'] {
         border-bottom: 2px solid var(--color-primary) !important;
         color: var(--color-text-primary);
     }
-
 }
 
 .el-input.is-disabled .el-input__inner {
@@ -140,10 +125,16 @@ input[type='number'] {
 }
 
 .el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
+.nuxt-progress { background-color: var(--color-primary); }
 pre { color: var(--color-primary); }
 
+:root .el-button {
+    box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.1), inset 0px 4px 4px rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+}
 
-// THEMES
+
+// Light (default styles)
 .text-danger { color: #b82d0d !important; }
 .text-success { color: #53a95b!important; }
 
@@ -151,5 +142,4 @@ pre { color: var(--color-primary); }
 .theme-dark {
     a { color: #80a1c5 !important; }
     .text-danger { color: #b56150 !important; }
-    .text-success { color: #53a95b!important; }
 }
