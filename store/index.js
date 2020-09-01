@@ -86,7 +86,7 @@ export const actions = {
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
-    console.log('start loadMarkets..')
+    console.log('start loadMarkets..', process.env.isSpa)
     const { data } = await getters['api/backEnd'].get('/api/markets')
     console.log('finish loadMarkets..')
     commit('setMarkets', data)

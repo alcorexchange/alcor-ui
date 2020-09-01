@@ -9,6 +9,7 @@ const desc = 'With ' + config.APP_NAME + ' you can trade any EOS.IO tokens for E
 module.exports = {
   env: {
     isDev,
+    isSPA,
     NETWORK: process.env.NETWORK
   },
 
