@@ -187,11 +187,11 @@ export default {
 
   mounted() {
     this.$store.dispatch('checkIsMobile')
+    this.getVersion()
   },
 
   async created() {
     this.current_chain = this.$store.state.network.name
-    this.getVersion()
 
     try {
       await this.$store.getters['api/rpc'].get_info()
