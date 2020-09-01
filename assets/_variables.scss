@@ -9,8 +9,6 @@
     --border-color: #dadbdc;
 
     --active-row: #c2deff;
-
-    @import "light";
 }
 
 .theme-dark {
@@ -23,6 +21,4 @@
     --color-danger: #B82C0D;
 
     --active-row: #424844;
-
-    @import "dark";
 }
