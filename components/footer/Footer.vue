@@ -1,12 +1,12 @@
 <template lang="pug">
 footer
-  .container.mt-3
+  .mt-3
     .row.mt-5
       .col-lg-1
-      .col-lg-7
+      .col-lg-8
         img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
-        img(v-else src="~/assets/logos/alcorwhite.svg")
-      .col-lg-4
+        img(v-else src="~/assets/logos/alcorwhite.svg").logo
+      .col-lg-3.d-flex.align-items-center
         ul.nav.footer-column
           li.nav-item
             span.footer-title Community
@@ -50,6 +50,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.logo {
+  height: 150px;
+}
+
 .avral {
     position: fixed;
     bottom: 0;

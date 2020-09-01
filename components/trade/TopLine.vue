@@ -17,22 +17,20 @@
           // TODO Token prop & mobile version
           BOSIbc(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}")
 
-        .d-flex.ml-3.w-100.justify-content-around.desctop
-          .d-flex.ml-3
-            span Volume 24H:
-            span.text-success.ml-1  {{ stats.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+        //.d-flex.ml-3.w-100.justify-content-around.desctop
+        .d-flex.align-items-center.ml-4.small
+          span Change 24H:
+          change-percent(:change="stats.change24").ml-2
 
-          .d-flex.ml-3
-            span Change 24H:
-            change-percent(:change="stats.change24").ml-2
+          span.ml-3 Volume 24H:
+          span.text-success.ml-2  {{ stats.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 
-          .d-flex.ml-3(v-if="!isMobile")
-            span Volume 7 Day:
-            span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
 
-          .d-flex.ml-3(v-if="!isMobile")
-            span Change 7 Day:
-            change-percent(:change="stats.changeWeek").ml-2
+          //span Volume 7 Day:
+          //  span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+
+          //span Change 7 Day:
+          //  change-percent(:change="stats.changeWeek").ml-2
       div(v-else)
         .overflowbox
           .row.align-items-center

@@ -149,6 +149,7 @@ pre { color: var(--color-primary); }
 
 // Dark
 .theme-dark {
+    a { color: #80a1c5 !important; }
     .text-danger { color: #b56150 !important; }
     .text-success { color: #53a95b!important; }
 }
