@@ -18,7 +18,7 @@
             img(src="/telegram.png" height="30").mr-2
             a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
-        li.el-menu-item
+        //li.el-menu-item
           //no-ssr
           gh-btns-star(slug="avral/alcor-ui" show-count).d-none.d-lg-block
 
