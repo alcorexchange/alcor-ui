@@ -4,8 +4,8 @@ footer
     .row.mt-5
       .col-lg-1
       .col-lg-7
-        img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
-        img(v-else src="~/assets/logos/alcorwhite.svg")
+        img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack2.svg" height="55").logo
+        img(v-else src="~/assets/logos/alcorwhite2.svg" height="55")
       .col-lg-4
         ul.nav.footer-column
           li.nav-item
