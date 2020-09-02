@@ -16,13 +16,13 @@ html, body {
     transition: .3s;
 }
 
-*::-webkit-scrollbar {
+div::-webkit-scrollbar {
   width: 2px;
 }
-*::-webkit-scrollbar-track {
+div::-webkit-scrollbar-track {
   background: var(--background-color-base);
 }
-*::-webkit-scrollbar-thumb {
+div::-webkit-scrollbar-thumb {
   background-color: #c4cbd6;
   border-radius: 20px;
 }
@@ -37,6 +37,8 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+label { margin: 0px; }
 
 
 
@@ -156,15 +158,19 @@ pre { color: var(--color-primary); }
 //        border-bottom-left-radius: 0;
 //    }
 //}
+//
+.el-button:not(.el-button--text), .el-radio-group {
+    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05), inset 0 4px 4px rgba(0, 0, 0, 0.05);
+}
 
 
 // Light (default styles)
 .text-danger { color: #b82d0d !important; }
 .text-success { color: #53a95b!important; }
+a { color: #80a1c5 !important; }
 
 // Dark
 .theme-dark {
-    a { color: #80a1c5 !important; }
     .text-danger { color: #b56150 !important; }
 
     .el-button {
