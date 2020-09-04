@@ -204,7 +204,7 @@ export default {
 
 <style lang="scss" scoped>
 .logo {
-  height: 3.5em;
+  height: 3em;
 }
 
 .chain-select {
