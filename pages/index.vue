@@ -161,6 +161,7 @@ export default {
       try {
         await store.dispatch('loadMarkets')
       } catch (e) {
+        console.log('err load markets: ', e)
       }
     }
   },
