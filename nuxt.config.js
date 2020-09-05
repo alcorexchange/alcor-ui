@@ -7,6 +7,8 @@ const isDev = process.env.npm_lifecycle_event == 'dev'
 const desc = 'With ' + config.APP_NAME + ' you can trade any EOS.IO tokens for EOS system token, onchain, without the participation of third parties!'
 
 module.exports = {
+  telemetry: false,
+
   env: {
     isDev,
     NETWORK: process.env.NETWORK
@@ -95,8 +97,21 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
+    //'nuxt-socket-io'
     //'nuxt-ssr-cache'
   ],
+
+  // Socket
+  //io: {
+  //  sockets: [{
+  //    name: 'main',
+  //    url: 'http://localhost:3000/',
+  //    default: true,
+  //    vuex: {
+  //      actions: [{ test: 'test' }]
+  //    }
+  //  }]
+  //},
   /*
   ** Axios module configuration
   */

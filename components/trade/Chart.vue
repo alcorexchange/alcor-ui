@@ -35,6 +35,8 @@ export default {
             callback(data)
           },
 
+          subscribeBars: () => {},
+
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
             const symbolInfo = {
               name: this.token.symbol.name,

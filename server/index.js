@@ -1,3 +1,4 @@
+import socket from 'socket.io'
 import express from 'express'
 import consola from 'consola'
 import bodyParser from 'body-parser'
@@ -38,13 +39,19 @@ async function start () {
     const builder = new Builder(nuxt)
     await builder.build()
   }
+
   app.use(nuxt.render)
 
   // Listen the server
-  app.listen(port, host)
+  const server = app.listen(port, host)
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
     badge: true
+  })
+
+  const io = socket(server)
+  io.on('connection', function (socket) {
+    app.set('socket', socket)
   })
 }
 start()
