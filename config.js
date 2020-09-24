@@ -130,7 +130,7 @@ const networks = {
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'aw.aq.waa',
+      divs: 'aw.aq.waa'
     },
 
     pools: {
@@ -164,7 +164,7 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    host: 'api.telosgermany.io',
+    host: 'telos.caleos.io',
     //host: 'telos.caleos.io',
     port: 443,
     protocol: 'https',
@@ -172,7 +172,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'https://telos.eosphere.io/v2/',
+    hyperion: 'https://telos.caleos.io/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -247,7 +247,7 @@ const networks = {
     monitor: 'http://bos.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://bos.eosn.io/v2/',
+    hyperion: 'https://api.bossweden.org/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {

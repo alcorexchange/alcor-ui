@@ -7,6 +7,8 @@ const isDev = process.env.npm_lifecycle_event == 'dev'
 const desc = 'With ' + config.APP_NAME + ' you can trade any EOS.IO tokens for EOS system token, onchain, without the participation of third parties!'
 
 module.exports = {
+  telemetry: false,
+
   env: {
     isDev,
     isSPA,

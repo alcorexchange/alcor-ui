@@ -86,7 +86,6 @@ function getMarketStats(network, market_id) {
   return Promise.resolve(stats)
 }
 
-
 async function updateMarkets(network) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
@@ -204,8 +203,9 @@ export async function loadHistory(network, hyperion = true) {
     if (new_acions.length == QUERY_LIMIT) {
       // Значит там есть еще, фетчим дальше
       await loadHistory(network, hyperion)
+      await new Promise((resolve, reject) => setTimeout(resolve, 20000))
     }
   } catch (e) {
-    console.log(`Update error for: ${network.name}`, e.message, e)
+    console.log(`Update error for: ${network.name}`, e.message)
   }
 }
