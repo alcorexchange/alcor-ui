@@ -13,8 +13,9 @@ import { Nuxt, Builder } from 'nuxt'
 
 import config from '../nuxt.config.js'
 //import sign from './sign'
-import markets from './markets'
+import { markets, startUpdaters } from './markets'
 import { serverInit } from './utils'
+import { syncModels } from './models'
 
 const app = express()
 
@@ -22,6 +23,10 @@ const app = express()
 config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
+  //db sync
+  await syncModels()
+  startUpdaters()
+
   app.use(bodyParser.json())
   app.use(serverInit)
   // Server routes
@@ -33,7 +38,7 @@ async function start () {
 
   const { host, port } = nuxt.options.server
 
-  // NuxtJS
+  //// NuxtJS
   await nuxt.ready()
   if (config.dev) {
     const builder = new Builder(nuxt)
@@ -54,4 +59,5 @@ async function start () {
     app.set('socket', socket)
   })
 }
+
 start()

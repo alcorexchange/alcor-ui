@@ -1,17 +1,23 @@
 import { Router } from 'express'
 import fetch from 'node-fetch'
+import { Op } from 'sequelize'
 
 import { JsonRpc } from 'eosjs'
 
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
+import { Match } from '../models'
 import { updater, getDeals } from './history'
-import { getCharts } from './charts'
+import { makeCharts } from './charts'
 
-//updater('eos', 1000 * 40, false)
-//updater('telos', 1000 * 20)
-updater('wax', 1000 * 20)
-//updater('bos', 1000 * 20)
+
+export function startUpdaters() {
+  //updater('eos', 1000 * 40, false)
+  //updater('telos', 1000 * 20)
+  updater('wax', 1000 * 20)
+  //updater('bos', 1000 * 20)
+}
+
 
 export async function getMarket(network, market_id) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
@@ -57,19 +63,26 @@ async function getOrders (rpc, contract, market_id, side, kwargs) {
   })
 }
 
-const markets = Router()
+export const markets = Router()
 
-markets.get('/:market_id/deals', (req, res) => {
+markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  res.json(getDeals(network, market_id))
+  const matches = await Match.findAll({ where: { chain: network.name, market: market_id } })
+
+  // TODO Вынести на клиент или парсить в базу
+  matches.map(m => {
+    m.ask = parseAsset(m.ask)
+    m.bid = parseAsset(m.bid)
+  })
+
+  res.json(matches)
 })
 
 markets.get('/:market_id/charts', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
-  const history = cache.get(`${network.name}_history`) || []
   const market = await getMarket(network, market_id)
 
   //const marketStats = await getMarketStats(network, market_id)
@@ -78,7 +91,22 @@ markets.get('/:market_id/charts', async (req, res) => {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const charts = getCharts(history, market, req.query)
+  const { resolution, from, to } = req.query
+
+  const where = {
+    chain: network.name,
+    market: market_id
+  }
+
+  if (from && to) {
+    where.time = {
+      [Op.gte]: new Date(parseFloat(from) * 1000),
+      [Op.lte]: new Date(parseFloat(from) * 1000)
+    }
+  }
+
+  const matches = await Match.findAll({ where })
+  const charts = makeCharts(matches, resolution)
 
   //if (charts.length > 0) {
   //  charts[charts.length - 1].close = marketStats.last_price / 100000000
@@ -105,5 +133,3 @@ markets.get('/', (req, res) => {
 
   return res.json(c_markets)
 })
-
-export default markets

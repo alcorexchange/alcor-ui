@@ -10,32 +10,16 @@ const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export function getCharts(history, market, { resolution, from, to }) {
-  if (from) from = parseInt(from)
-  if (to) to = parseInt(to)
-
-  const actions = history.filter(a => {
-    const action_name = a.act.name
-
-    if (['sellmatch', 'buymatch'].includes(action_name)) {
-      return parseInt(a.act.data.record.market.id) == parseInt(market.id)
-    } else return false
-  }).map(a => {
-    a.act.timestamp = a.block_time
-
-    return a.act
-  })
-
-  const prices = actions.map(a => {
-    const record = a.data.record
+export function makeCharts(matches, resolution) {
+  const prices = matches.map(m => {
     return {
-      price: parseInt(record.unit_price) / 100000000,
-      time: Date.parse(a.timestamp) / 1000,
-      volume: record.type == 'buymatch' ? parseFloat(record.bid.prefix) : parseFloat(record.ask.prefix)
+      price: parseInt(m.unit_price) / 100000000,
+      time: m.time.getTime() / 1000,
+      volume: m.type == 'buymatch' ? parseFloat(m.bid) : parseFloat(m.ask)
     }
   })
 
-  let results = []
+  const results = []
   if (prices.length > 0 && resolution) {
     let current_time = prices[0].time
 
@@ -71,17 +55,6 @@ export function getCharts(history, market, { resolution, from, to }) {
     }
   }
 
-  if (from && to) {
-    // Filter by time
-    results = results.filter(p => {
-      return p.time >= from && p.time <= to
-    })
-
-    if (results.length > 0) {
-      results[results.length - 1].time = to
-    }
-  }
-
   for (let i = 0; i < results.length; i++) {
     const curr = results[i]
     const next = results[i + 1]
@@ -98,21 +71,17 @@ export function getCharts(history, market, { resolution, from, to }) {
   return results
 }
 
-export function getVolume(deals, period) {
+export function getVolume(deals) {
   let volume = 0
 
-  deals.filter(h => {
-    return Date.now() - period < h.time.getTime()
-  }).map(m => {
-    m.type == 'buymatch' ? volume += m.bid.amount : volume += m.ask.amount
+  deals.map(m => {
+    m.type == 'buymatch' ? volume += parseFloat(m.bid) : volume += parseFloat(m.ask)
   })
 
   return volume
 }
 
-export function getChange(deals, period) {
-  deals = deals.filter(h => Date.now() - period < h.time.getTime())
-
+export function getChange(deals) {
   if (deals.length > 0) {
     const price_before = parseInt(deals[deals.length - 1].unit_price)
     const price_after = parseInt(deals[0].unit_price)

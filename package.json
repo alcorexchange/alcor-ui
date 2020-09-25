@@ -12,6 +12,7 @@
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
   "dependencies": {
+    "@eosrio/hyperion-stream-client": "^0.4.0-beta.5",
     "@nuxtjs/axios": "^5.0.0",
     "@nuxtjs/sentry": "^4.3.4",
     "@vue/eslint-config-standard": "^5.0.0",

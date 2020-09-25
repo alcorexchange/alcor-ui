@@ -873,6 +873,14 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
+"@eosrio/hyperion-stream-client@^0.4.0-beta.5":
+  version "0.4.0-beta.5"
+  resolved "https://registry.yarnpkg.com/@eosrio/hyperion-stream-client/-/hyperion-stream-client-0.4.0-beta.5.tgz#5662775e1c0e097968ac9c1c3b0398925d2145fd"
+  integrity sha512-MSUvPx7pGpDQenFNpKOriz8hKyRY2M8U+t3gZzVj0WpavUc5s2fSCj6Bfq0QaWvdwF4o1WNT1YgnPEC8mYBIfg==
+  dependencies:
+    async "^3.2.0"
+    socket.io-client "^2.3.0"
+
 "@eslint/eslintrc@^0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.1.3.tgz#7d1a2b2358552cc04834c0979bd4275362e37085"
@@ -3227,6 +3235,11 @@ async@1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
   integrity sha1-7GphrlZIDAw8skHJVhjiCJL5Zyo=
+
+async@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/async/-/async-3.2.0.tgz#b3a2685c5ebb641d3de02d161002c60fc9f85720"
+  integrity sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw==
 
 asynckit@^0.4.0:
   version "0.4.0"
