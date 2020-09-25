@@ -84,8 +84,8 @@ async function getMarketStats(network, market_id) {
   const day_matches = await Match.findAll({ where: { chain: network.name, market: market_id, time: { [Op.gte]: Date.now() - ONEDAY } } })
   const week_matches = await Match.findAll({ where: { chain: network.name, market: market_id, time: { [Op.gte]: Date.now() - WEEK } } })
 
-  stats.volume24 = getVolume(day_matches).toFixed(2)
-  stats.volumeWeek = getVolume(week_matches).toFixed(2)
+  stats.volume24 = getVolume(day_matches)
+  stats.volumeWeek = getVolume(week_matches)
 
   stats.change24 = getChange(day_matches)
   stats.changeWeek = getChange(week_matches)

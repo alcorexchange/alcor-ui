@@ -23,7 +23,7 @@
           change-percent(:change="stats.change24").ml-2
 
           span.ml-3 Volume 24H:
-          span.text-success.ml-2  {{ stats.volume24 }} {{ network.baseToken.symbol }}
+          span.text-success.ml-2  {{ stats.volume24.toFixed(2) }} {{ network.baseToken.symbol }}
 
           //span Volume 7 Day:
           //  span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
@@ -55,7 +55,7 @@
             .col
               .d-flex.ml-2
                 span Volume 24H:
-                span.text-success.ml-1  {{ stats.volume24 }} {{ network.baseToken.symbol }}
+                span.text-success.ml-1  {{ stats.volume24.toFixed(2) }} {{ network.baseToken.symbol }}
           .row
             .col.ml-3
               Withdraw(:token="{contract: token.contract, symbol: token.symbol.name, precision: token.symbol.precision}" v-if="hasWithdraw")
