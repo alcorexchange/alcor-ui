@@ -101,12 +101,12 @@ markets.get('/:market_id/charts', async (req, res) => {
   if (from && to) {
     where.time = {
       [Op.gte]: new Date(parseFloat(from) * 1000),
-      [Op.lte]: new Date(parseFloat(from) * 1000)
+      [Op.lte]: new Date(parseFloat(to) * 1000)
     }
   }
 
   const matches = await Match.findAll({ where })
-  const charts = makeCharts(matches, resolution)
+  const charts = makeCharts(matches.reverse(), resolution)
 
   //if (charts.length > 0) {
   //  charts[charts.length - 1].close = marketStats.last_price / 100000000
