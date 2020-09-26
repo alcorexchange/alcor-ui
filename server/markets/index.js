@@ -12,9 +12,9 @@ import { makeCharts } from './charts'
 
 
 export function startUpdaters(app) {
-  updater('eos', app)
+  //updater('eos', app)
   //updater('telos', 1000 * 20)
-  //updater('wax', app)
+  updater('wax', app)
   //updater('bos', 1000 * 20)
 }
 

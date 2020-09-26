@@ -5,8 +5,8 @@ footer
       .col-lg-1
       .col-lg-7
         img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack2.svg" height="55").logo
-        img(v-else src="~/assets/logos/alcorwhite2.svg" height="55")
-      .col-lg-4
+        img(v-else src="~/assets/logos/alcorwhite2.svg" height="55").logo
+      .col-lg-2
         ul.nav.footer-column
           li.nav-item
             span.footer-title Community
@@ -19,6 +19,20 @@ footer
             a(href="https://t.me/alcorexchange" target="_blank")
               img(src="~/assets/icons/tg.svg" height="25")
 
+      .col-lg-2
+        ul.nav.footer-column
+          li.nav-item
+            span.footer-title Created by
+          li.nav-item
+            b
+              a(href="https://avral.pro" target="_blank")  #Avral
+
+
+        //span.ml-auto Created by
+          b
+            a(href="https://avral.pro" target="_blank")  #Avral
+
+
     .row.mt-3
       .col.text-mutted
         small
@@ -26,7 +40,7 @@ footer
             a(href="https://github.com/avral/alcor-ui" target="_blank").text-secondary
               span(v-if="lastCommit.commit")  {{ lastCommit.commit.message }}
 
-  .row.avral
+  //.row.avral
     .col.d-flex
       span.ml-auto Created by
         b
@@ -51,7 +65,7 @@ export default {
 
 <style lang="scss" scoped>
 .logo {
-  height: 150px;
+  height: 70px;
 }
 
 .avral {

@@ -2,13 +2,6 @@
 .embed
   nuxt
 
-  .row.mt-3
-    .col.text-mutted
-      small
-        span.text-muted App version:
-          a(href="https://github.com/avral/alcor-ui" target="_blank").text-secondary
-            span(v-if="lastCommit.commit")  {{ lastCommit.commit.message }}
-
   footer
     .row
       .col.d-flex
