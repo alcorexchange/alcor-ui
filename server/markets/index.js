@@ -11,10 +11,10 @@ import { updater, getDeals } from './history'
 import { makeCharts } from './charts'
 
 
-export function startUpdaters() {
+export function startUpdaters(app) {
   //updater('eos', 1000 * 40, false)
   //updater('telos', 1000 * 20)
-  updater('wax', 1000 * 20)
+  updater('wax', app)
   //updater('bos', 1000 * 20)
 }
 

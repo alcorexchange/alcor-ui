@@ -25,7 +25,7 @@ config.dev = process.env.NODE_ENV !== 'production'
 async function start () {
   //db sync
   await syncModels()
-  startUpdaters()
+  startUpdaters(app)
 
   app.use(bodyParser.json())
   app.use(serverInit)

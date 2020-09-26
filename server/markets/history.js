@@ -50,7 +50,7 @@ export function getMatches(network) {
   return history.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name))
 }
 
-export function updater(chain, interval, hyperion) {
+export function updater(chain, app, hyperion = true) {
   const network = config.networks[chain]
 
   console.info(`Start ${chain} updater...`)
@@ -60,7 +60,7 @@ export function updater(chain, interval, hyperion) {
   updateMarkets(network)
 
   console.log(`fetching ${network.name} initial history..`)
-  streamHistory(network, hyperion)
+  streamHistory(network, app, hyperion)
 
   updateMarkets(network).then(() => {
     setInterval(() => {
@@ -171,15 +171,11 @@ async function getActionsByNode(network, account, _skip, limit, filter) {
   return actions
 }
 
-export function streamHistory(network, hyperion = true) {
+export function streamHistory(network, app, hyperion = true) {
   const client = new HyperionSocketClient(network.hyperion, { async: true, fetch })
   client.onConnect = async () => {
-    //const last_sell_match = Match.findOne({ order: [['block_num', 'DESC']] }).block_num || 1
     const last_buy_match = await Match.findOne({ where: { type: 'buymatch' }, order: [['block_num', 'DESC']] })
     const last_sell_match = await Match.findOne({ where: { type: 'sellmatch' }, order: [['block_num', 'DESC']] })
-
-    //console.log(last_sell_match.toJSON(), last_buy_match.toJSON())
-    //console.log(last_sell_match ? last_sell_match.block_num + 1 : 1, last_buy_match ? last_buy_match.block_num + 1 : 1)
 
     client.streamActions({
       contract: network.contract,
@@ -224,8 +220,10 @@ export function streamHistory(network, hyperion = true) {
         block_num
       })
 
-      //TODO Update call push
-      //console.log(match.toJSON())
+      const socket = app.get('socket')
+      if (socket) {
+        socket.emit('update_market', { chain: network.name, market: market.id })
+      }
     }
 
     ack()

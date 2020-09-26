@@ -4,7 +4,7 @@ export default ({ app: { store } }) => {
     store.dispatch('init')
 
     const socket = require('socket.io-client')('/')
-    socket.on('update_push', data => {
+    socket.on('update_market', data => {
       updateAppOnServerPush(store, data)
     })
   })
@@ -12,5 +12,7 @@ export default ({ app: { store } }) => {
 
 // Just place it here for a while FIXME
 function updateAppOnServerPush(store, data) {
-
+  if (store.state.market.id == data.market) {
+    store.dispatch('market/update')
+  }
 }
