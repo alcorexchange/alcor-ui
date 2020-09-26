@@ -6,8 +6,6 @@
 import { mapState } from 'vuex'
 
 export default {
-  tvWidget: null,
-
   computed: {
     ...mapState('market', ['token', 'id']),
     ...mapState(['theme'])
@@ -35,7 +33,9 @@ export default {
             callback(data)
           },
 
-          subscribeBars: () => {},
+          subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
+            this.$store.commit('market/setBarStream', onRealtimeCallback)
+          },
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
             const symbolInfo = {
@@ -45,7 +45,7 @@ export default {
               session: '24x7',
               timezone: 'Etc/UTC',
               //exchange: symbolItem.exchange,
-              minmov: 0.0000001,
+              minmov: 1,
               pricescale: 100000000,
               has_intraday: true,
               has_no_volume: false,
@@ -77,9 +77,7 @@ export default {
           //subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
           //  console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID)
           //},
-          //unsubscribeBars: (subscriberUID) => {
-          //  console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID)
-          //}
+          unsubscribeBars: (subscriberUID) => {}
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
         interval: 'D',
@@ -150,7 +148,7 @@ export default {
       }
 
       const widget = new Widget(widgetOptions)
-      this.tvWidget = widget
+      this.$store.commit('market/setChartWidget', widget)
     }
   }
 }

@@ -39,13 +39,13 @@ async function start () {
   const { host, port } = nuxt.options.server
 
   //// NuxtJS
-  await nuxt.ready()
-  if (config.dev) {
-    const builder = new Builder(nuxt)
-    await builder.build()
-  }
+  //await nuxt.ready()
+  //if (config.dev) {
+  //  const builder = new Builder(nuxt)
+  //  await builder.build()
+  //}
 
-  app.use(nuxt.render)
+  //app.use(nuxt.render)
 
   // Listen the server
   const server = app.listen(port, host)

@@ -11,6 +11,8 @@ export const state = () => ({
   deals: [],
   charts: [],
 
+  barStream: null,
+
   orderLoading: false,
   activeTab: 'first'
 })
@@ -24,6 +26,7 @@ export const mutations = {
   setToken: (state, token) => state.token = token,
   setStats: (state, stats) => state.stats = stats,
   setActiveTab: (state, tab) => state.activeTab = tab,
+  setBarStream: (state, barStream) => state.barStream = barStream,
   setOrderLoading: (state, orderLoading) => state.orderLoading = orderLoading
 }
 

@@ -9,7 +9,7 @@ import { Match } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
-import { getVolume, getChange } from './charts'
+import { makeCharts, getVolume, getChange } from './charts'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -27,20 +27,6 @@ export async function getDeals (network, market_id) {
     m.bid = parseAsset(m.bid)
   })
 
-  ///const deals = matches.filter(h => parseInt(h.act.data.record.market.id) == parseInt(market_id))
-  ///  .map(m => {
-  ///    const data = m.act.data.record
-
-  ///    data.trx_id = m.trx_id
-  ///    data.type = m.act.name
-  ///    data.ask = parseAsset(data.ask)
-  ///    data.bid = parseAsset(data.bid)
-
-  ///    data.time = new Date(m.block_time)
-
-  ///    return data
-  ///  })
-
   return matches
 }
 
@@ -54,19 +40,17 @@ export function updater(chain, app, hyperion = true) {
   const network = config.networks[chain]
 
   console.info(`Start ${chain} updater...`)
-  //await new Promise((resolve, reject) => setTimeout(resolve(), 1000)) // Почему то не находит cache без этого
 
   // First call immidiatelly to fetch available markets
   updateMarkets(network)
 
-  console.log(`fetching ${network.name} initial history..`)
   streamHistory(network, app, hyperion)
 
-  updateMarkets(network).then(() => {
-    setInterval(() => {
-      updateMarkets(network)
-    }, 60 * 5 * 1000)
-  })
+  //updateMarkets(network).then(() => {
+  //  setInterval(() => {
+  //    updateMarkets(network)
+  //  }, 60 * 5 * 1000)
+  //})
 }
 
 async function getMarketStats(network, market_id) {
@@ -126,15 +110,6 @@ async function updateMarkets(network) {
     rows.map(r => r.last_price = 0)
     cache.set(`${network.name}_markets`, rows, 0)
   }
-}
-
-async function getActionsByHyperion(network, account, skip, limit, filter) {
-  const formatActionFilter = action => `${account}:${action}`
-
-  const params = { account, skip, limit, filter: filter.map(formatActionFilter).join(','), sort: 'asc' }
-  const { data: { actions } } = await axios.get(network.hyperion + 'history/get_actions', { params }, { timeout: 30000 })
-
-  return actions
 }
 
 async function getActionsByNode(network, account, _skip, limit, filter) {
@@ -201,31 +176,40 @@ export function streamHistory(network, app, hyperion = true) {
 
     if (['sellmatch', 'buymatch'].includes(name)) {
       // On new match
-      const { record: { market, ask, bid, asker, bidder, unit_price } } = data
+      const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data
 
-      const match = await Match.create({
-        chain: network.name,
-        market: market.id,
-        type: name,
-        trx_id,
+      try {
+        const match = await Match.create({
+          chain: network.name,
+          market: market.id,
+          type: name,
+          trx_id,
 
-        unit_price,
+          unit_price,
 
-        ask,
-        asker,
-        bid,
-        bidder,
+          ask,
+          asker,
+          bid,
+          bidder,
 
-        time: content['@timestamp'],
-        block_num
-      })
+          time: content['@timestamp'],
+          block_num
+        })
+        console.log(match.time)
 
-      const socket = app.get('socket')
-      if (socket) {
-        socket.emit('update_market', { chain: network.name, market: market.id })
+        const socket = app.get('socket')
+        if (socket) {
+          const matches = await Match.findAll({ where: { chain: network.name, market: market.id }, limit: 2 })
+          const charts = makeCharts(matches.reverse(), 1)
+
+          socket.emit('update_market', { chain: network.name, market: market.id, bar: charts[charts.length - 1] })
+        }
+      } catch (e) {
+        console.log('handle match err..', e)
       }
     }
 
+    console.log('ask')
     ack()
   }
 

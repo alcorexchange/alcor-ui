@@ -29,6 +29,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://eos.hyperion.eosrio.io',
+    //hyperion: 'https://api.eossweden.org/',
     //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
