@@ -12,10 +12,10 @@ import { makeCharts } from './charts'
 
 
 export function startUpdaters(app) {
-  //updater('eos', app)
-  //updater('telos', 1000 * 20)
+  updater('eos', app, false) // Update by node, not hyperion
+  updater('bos', app, false) // Update by node, not hyperion
+  updater('telos', app)
   updater('wax', app)
-  //updater('bos', 1000 * 20)
 }
 
 

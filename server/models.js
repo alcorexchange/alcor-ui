@@ -29,6 +29,28 @@ Match.addScope('defaultScope', {
 
 // TODO Markets table
 
+const Settings = sequelize.define('Settings', {
+  chain: { type: DataTypes.STRING },
+  actions_stream_offset: { type: DataTypes.INTEGER, defaultValue: 0 }
+})
+
+export async function getSettings(network) {
+  let actions_stream_offset = 0
+
+  if (network.name == 'bos') {
+    actions_stream_offset = 106
+  }
+
+  try {
+    const [ins, created] = await Settings.findOrCreate({ where: { chain: network.name }, defaults: { chain: network.name, actions_stream_offset } })
+
+    return ins
+  } catch {
+    console.log('db fail on get settinga, retry..')
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    return await getSettings(network)
+  }
+}
 
 export function syncModels() {
   return sequelize.sync({ alter: true })

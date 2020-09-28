@@ -5,7 +5,7 @@ import fetch from 'node-fetch'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 import { Op } from 'sequelize'
 
-import { Match } from '../models'
+import { Match, getSettings } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
@@ -45,16 +45,17 @@ export function updater(chain, app, hyperion = true) {
   updateMarkets(network)
 
   if (hyperion) {
-    streamHistory(network, app, hyperion)
+    streamHistory(network, app)
   } else {
-    streamActionsByNode(network)
+    //streamByDfuse(network, app)
+    streamByNode(network, app)
   }
 
-  //updateMarkets(network).then(() => {
-  //  setInterval(() => {
-  //    updateMarkets(network)
-  //  }, 60 * 5 * 1000)
-  //})
+  updateMarkets(network).then(() => {
+    setInterval(() => {
+      updateMarkets(network)
+    }, 60 * 5 * 1000)
+  })
 }
 
 async function getMarketStats(network, market_id) {
@@ -116,45 +117,43 @@ async function updateMarkets(network) {
   }
 }
 
-async function streamActionsByNode(network, account, _skip, limit, filter) {
+async function streamByNode(network, app) {
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
+  const settings = await getSettings(network)
+  const filter = ['sellmatch', 'buymatch']
 
-  const actions = []
-  let skip = cache.get(`${network.name}_history_by_node_skip`) || 0
-
+  console.log('start fetching actions by node from', settings.actions_stream_offset, 'for ', network.name)
   while (true) {
-    //console.log('fetch actions from node, skip: ', skip)
     let r
     try {
-      r = await rpc.history_get_actions(account, skip, 100)
+      r = await rpc.history_get_actions(network.contract, settings.actions_stream_offset, 100)
     } catch (e) {
       console.log('getActionsByNode err: ', e)
+      await new Promise((resolve, reject) => setTimeout(resolve, 2000))
       continue
     }
 
     for (const a of r.actions.map(a => a.action_trace)) {
       if (filter.includes(a.act.name)) {
-        actions.push(a)
+        await newMatch(a, network, app)
       }
 
-      skip += 1
-      cache.set(`${network.name}_history_by_node_skip`, skip, 0)
-
-      if (actions.length == limit) break
+      settings.actions_stream_offset += 1
+      await settings.save()
     }
 
-    if (r.actions.length < 100 || actions.length == limit) break
+    if (r.actions.length < 100) {
+      await new Promise((resolve, reject) => setTimeout(resolve, 2000))
+    }
   }
-
-  return actions
 }
 
-export function streamHistory(network, app, hyperion = true) {
+export function streamHistory(network, app) {
   const client = new HyperionSocketClient(network.hyperion, { async: true, fetch })
   client.onConnect = async () => {
-    const last_buy_match = await Match.findOne({ where: { type: 'buymatch' }, order: [['block_num', 'DESC']] })
-    const last_sell_match = await Match.findOne({ where: { type: 'sellmatch' }, order: [['block_num', 'DESC']] })
+    const last_buy_match = await Match.findOne({ where: { chain: network.name, type: 'buymatch' }, order: [['block_num', 'DESC']] })
+    const last_sell_match = await Match.findOne({ where: { chain: network.name, type: 'sellmatch' }, order: [['block_num', 'DESC']] })
 
     client.streamActions({
       contract: network.contract,
@@ -176,45 +175,51 @@ export function streamHistory(network, app, hyperion = true) {
   }
 
   client.onData = async ({ content }, ack) => {
-    const { trx_id, block_num, act: { name, data } } = content
-
-    if (['sellmatch', 'buymatch'].includes(name)) {
-      // On new match
-      const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data
-
-      try {
-        const match = await Match.create({
-          chain: network.name,
-          market: market.id,
-          type: name,
-          trx_id,
-
-          unit_price,
-
-          ask,
-          asker,
-          bid,
-          bidder,
-
-          time: content['@timestamp'],
-          block_num
-        })
-
-        console.log('new match', match.time)
-
-        app.get('io').sockets.emit('update_market', { chain: network.name, market: market.id })
-      } catch (e) {
-        console.log('handle match err..', e)
-      }
-    }
-
-    console.log('ask')
+    await newMatch(content, network, app)
     ack()
   }
 
   client.connect(() => {
     console.log(`Start streaming for ${network.name}..`)
   })
+}
+
+async function newMatch(match, network, app) {
+  const { trx_id, block_num, act: { name, data } } = match
+
+  if (['sellmatch', 'buymatch'].includes(name)) {
+    // On new match
+    const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data
+
+    try {
+      await Match.create({
+        chain: network.name,
+        market: market.id,
+        type: name,
+        trx_id,
+
+        unit_price: littleEndianToDesimal(unit_price),
+
+        ask,
+        asker,
+        bid,
+        bidder,
+
+        time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
+        block_num
+      })
+
+      console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time)
+
+      if (app.get('io')) {
+        app.get('io').sockets.emit('update_market', { chain: network.name, market: market.id })
+      }
+    } catch (e) {
+      console.log('handle match err..', e, 'retrying...')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      return await newMatch(match, network, app)
+    }
+  }
 }
 
 //export async function loadHistory(network, hyperion = true) {

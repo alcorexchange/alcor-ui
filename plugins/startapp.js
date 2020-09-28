@@ -15,9 +15,8 @@ function updateAppOnServerPush(store, data) {
   if (store.state.market.id == data.market) {
     store.dispatch('market/update')
 
-    if (store.state.market.barStream && data.bar) {
-      data.bar.time = data.bar.time * 1000
-      store.state.market.barStream(data.bar)
+    if (store.state.market.barStream) {
+      store.state.market.barStream()
     }
   }
 }

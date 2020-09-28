@@ -25,7 +25,6 @@ config.dev = process.env.NODE_ENV !== 'production'
 async function start () {
   //db sync
   await syncModels()
-  startUpdaters(app)
 
   app.use(bodyParser.json())
   app.use(serverInit)
@@ -44,7 +43,6 @@ async function start () {
     const builder = new Builder(nuxt)
     await builder.build()
   }
-
   app.use(nuxt.render)
 
   // Listen the server
@@ -56,6 +54,8 @@ async function start () {
 
   const io = socket(server)
   app.set('io', io)
+
+  startUpdaters(app)
 }
 
 start()

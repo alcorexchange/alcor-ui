@@ -21,7 +21,10 @@ export function makeCharts(matches, resolution) {
 
   const results = []
   if (prices.length > 0 && resolution) {
-    let current_time = prices[0].time
+    const first = new Date(prices[0].time * 1000)
+    first.setHours(0, 0, 0, 0)
+
+    let current_time = first.getTime() / 1000
 
     while (true) {
       const nex_time = current_time + resolutions[resolution]
