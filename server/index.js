@@ -55,9 +55,7 @@ async function start () {
   })
 
   const io = socket(server)
-  io.on('connection', function (socket) {
-    app.set('socket', socket)
-  })
+  app.set('io', io)
 }
 
 start()

@@ -1,4 +1,4 @@
-const resolutions = {
+export const resolutions = {
   1: 1 * 60,
   5: 5 * 60,
   15: 15 * 60,
@@ -31,7 +31,7 @@ export function makeCharts(matches, resolution) {
         const last_item = results[results.length - 1] || { close: 0 }
 
         results.push({
-          time: current_time,
+          time: nex_time,
           open: last_item.close,
           high: last_item.close,
           low: last_item.close,
@@ -40,7 +40,7 @@ export function makeCharts(matches, resolution) {
         })
       } else {
         results.push({
-          time: current_time,
+          time: nex_time,
           open: values[0].price,
           high: Math.max(...values.map(v => v.price)),
           low: Math.min(...values.map(v => v.price)),
@@ -49,7 +49,7 @@ export function makeCharts(matches, resolution) {
         })
       }
 
-      if (current_time > Date.now() / 1000) break
+      if (nex_time > Date.now() / 1000) break
 
       current_time = nex_time
     }

@@ -4,8 +4,16 @@
 
 <script>
 import { mapState } from 'vuex'
+import { resolutions } from '~/server/markets/charts'
 
 export default {
+  data() {
+    return {
+      resolution: '1D',
+      onRealtime: null
+    }
+  },
+
   computed: {
     ...mapState('market', ['token', 'id']),
     ...mapState(['theme'])
@@ -22,6 +30,24 @@ export default {
   },
 
   methods: {
+    async barStream() {
+      if (this.resolution && this.onRealtime) {
+        const current_time = Date.now() / 1000
+
+        const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
+          params: { resolution: this.resolution, from: current_time - resolutions[this.resolution], to: current_time }
+        })
+
+        if (charts.length > 0) {
+          const candle = charts[charts.length - 1]
+          candle.time = candle.time * 1000
+          this.onRealtime(candle)
+        } else {
+          console.log('no candles available for update!!')
+        }
+      }
+    },
+
     mountChart() {
       const Widget = require('~/assets/charts/charting_library.min.js').widget
 
@@ -34,7 +60,8 @@ export default {
           },
 
           subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
-            this.$store.commit('market/setBarStream', onRealtimeCallback)
+            this.onRealtime = onRealtimeCallback
+            this.$store.commit('market/setBarStream', this.barStream)
           },
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
@@ -58,6 +85,8 @@ export default {
             onSymbolResolvedCallback(symbolInfo)
           },
           getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+            this.resolution = resolution
+
             const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
               params: { resolution, from, to }
             })

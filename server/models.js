@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 
-const sequelize = new Sequelize('sqlite:./data/db.sqlite')
+const sequelize = new Sequelize('sqlite:./data/db.sqlite', { logging: false })
 
 export const Match = sequelize.define('Match', {
   chain: { type: DataTypes.STRING },

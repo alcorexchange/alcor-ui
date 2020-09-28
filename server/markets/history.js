@@ -44,7 +44,11 @@ export function updater(chain, app, hyperion = true) {
   // First call immidiatelly to fetch available markets
   updateMarkets(network)
 
-  streamHistory(network, app, hyperion)
+  if (hyperion) {
+    streamHistory(network, app, hyperion)
+  } else {
+    streamActionsByNode(network)
+  }
 
   //updateMarkets(network).then(() => {
   //  setInterval(() => {
@@ -112,7 +116,7 @@ async function updateMarkets(network) {
   }
 }
 
-async function getActionsByNode(network, account, _skip, limit, filter) {
+async function streamActionsByNode(network, account, _skip, limit, filter) {
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
@@ -195,15 +199,10 @@ export function streamHistory(network, app, hyperion = true) {
           time: content['@timestamp'],
           block_num
         })
-        console.log(match.time)
 
-        const socket = app.get('socket')
-        if (socket) {
-          const matches = await Match.findAll({ where: { chain: network.name, market: market.id }, limit: 2 })
-          const charts = makeCharts(matches.reverse(), 1)
+        console.log('new match', match.time)
 
-          socket.emit('update_market', { chain: network.name, market: market.id, bar: charts[charts.length - 1] })
-        }
+        app.get('io').sockets.emit('update_market', { chain: network.name, market: market.id })
       } catch (e) {
         console.log('handle match err..', e)
       }
