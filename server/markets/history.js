@@ -54,7 +54,7 @@ export function updater(chain, app, hyperion = true) {
   updateMarkets(network).then(() => {
     setInterval(() => {
       updateMarkets(network)
-    }, 60 * 20 * 1000)
+    }, 5 * 60 * 1000)
   })
 }
 
