@@ -7,7 +7,6 @@ import { EventBus } from '~/utils/event-bus'
 import config from '~/config'
 import { assetToAmount, amountToFloat } from '~/utils'
 
-
 function correct_price(price, _from, _for) {
   const diff_precision = Math.abs(_from - _for)
 
@@ -72,7 +71,7 @@ export const tradeMixin = {
 
       if (v === 100) {
         this.total = balance
-        this.totalChange(true)
+        this.totalChange()
       } else {
         this.total = (balance / 100 * v).toFixed(this.network.baseToken.precision)
         this.totalChange()
@@ -88,7 +87,7 @@ export const tradeMixin = {
 
       if (v === 100) {
         this.amount = balance
-        this.amountChange(true)
+        this.amountChange()
       } else {
         this.amount = (balance / 100 * v).toFixed(this.token.symbol.precision)
         this.amountChange()
@@ -105,7 +104,7 @@ export const tradeMixin = {
 
       const price = assetToAmount(this.price, 8)
 
-      if (!desc) {
+      if (desc) {
         const pp = parseFloat(this.price).toString().split('.')
         let price_numbers = pp[1] ? pp[1].length : 0
 
@@ -280,22 +279,6 @@ Vue.mixin({
     openInNewTab(url) {
       const win = window.open(url, '_blank')
       win.focus()
-    },
-
-    unitPriceInfo() {
-      this.$alert(
-        `Since the price calculation is calculated using int64 value,
-        then with increasing accuracy of quantity or price,
-        the price can be a floating point period. At the moment,
-        the floating point price is not supported.
-        It can not be stored in contract RAM
-        We are sorry :(`,
-
-        'The price is floating point number', {
-          closeOnClickModal: true,
-          confirmButtonText: 'Ok!'
-        }
-      )
     }
   }
 })
