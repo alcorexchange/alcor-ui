@@ -6,7 +6,6 @@
         .col-lg-2.mb-2
           .d-flex.align-items-center.h-100
             nuxt-link(to="new_market")
-              //.new-market-btn
               el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
         .col-lg-7
           .d-flex.align-items-center.h-100
@@ -23,7 +22,7 @@
                 TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
                 span.ml-2
                   | {{ scope.row.token.symbol.name }}
-                  a(:href="monitorAccount(scope.row.token.contract)" target="_blank") ({{ scope.row.token.contract }})
+                  a(:href="monitorAccount(scope.row.token.contract)" target="_blank").text-muted.ml-2 {{ scope.row.token.contract }}
 
             el-table-column(
               :label="`Last price`"
@@ -45,7 +44,7 @@
               :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
-                span.text-mutted {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+                span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ network.baseToken.symbol }}
             el-table-column(
               label='24H Change %'
               prop='name'
@@ -68,7 +67,7 @@
               :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
-                span.text-mutted {{ scope.row.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+                span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ network.baseToken.symbol }}
 
             el-table-column(
               label='7 Day Change %'
@@ -94,7 +93,7 @@ import ChangePercent from '~/components/trade/ChangePercent'
 export default {
   components: {
     TokenImage,
-    ChangePercent,
+    ChangePercent
   },
 
   async fetch({ store, error }) {
@@ -172,51 +171,6 @@ export default {
 
 <style>
 .el-table__row {
-  cursor: pointer;
-}
-
-.search-input {
-  width: 100px;
-}
-
-#markets {
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
-.new-market {
-  width: 260px;
-  padding: 16px;
-}
-
-.market, .market-new {
-  width: 260px;
-  padding: 0px 10px;
-  height: 75px;
-}
-
-.market {
-  color:inherit;
-  text-decoration: none;
-
-  display: block;
-  font-size: 87.5%;
-  color: #212529;
-}
-
-.market:hover {
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  color:inherit;
-  text-decoration: none;
-}
-
-.market:hover img {
-  height: 35px;
-}
-
-.order-row {
   cursor: pointer;
 }
 </style>

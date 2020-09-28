@@ -1,5 +1,6 @@
 <template lang="pug">
-.overflowbox.no-bottom-border
+// Переделать как табличку element
+.deals-history
   .blist
     .ltd.d-flex.justify-content-around
       span
@@ -24,6 +25,10 @@
 import { mapState } from 'vuex'
 
 export default {
+  async fetch() {
+    await this.$store.dispatch('market/fetchDeals')
+  },
+
   computed: {
     ...mapState('market', ['deals', 'token']),
     ...mapState(['network']),
@@ -42,16 +47,18 @@ export default {
           return h
         })
     }
-  },
-
-  async fetch() {
-    await this.$store.dispatch('market/fetchDeals')
-  },
+  }
 }
 </script>
 
-<style>
+<style lang="scss">
 .blist a {
   all: unset;
+}
+
+.deals-history {
+  .orders-list {
+    height: 250px;
+  }
 }
 </style>

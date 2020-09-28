@@ -1,48 +1,57 @@
 <template lang="pug">
-.container-fluid.mb-5
-  .row
-    .col.pr-0.pl-0
-      top-line
+.row.trading-terminal
+  .col
+    .top-level
+      .top-left.overflowbox
+        order-book(v-loading="loading")
 
-  .row.mt-2
-    .col-3.pr-0.pl-0
-      .row
-        .col
-          order-book(v-loading="loading")
-
-      .row
-        .col
-          LatestDeals.mt-2
-
-    .col-lg-6
-      .row
-        .col
+      .top-center
+        .overflowbox
+          top-line
           chart
 
-      .row
-        .col
+      .top-right
+        .overflowbox.overflow-hidden
+          markets
+
+    .low-level.mt-2
+      .low-left
+        .low-height.overflow-hidden.overflowbox
           el-tabs.h-100
+            el-tab-pane(label="Open order")
+              my-orders(v-if="user" v-loading="loading")
+
+            el-tab-pane(label="Order history")
+              my-history(v-if="user" v-loading="loading")
+
+      .low-center
+        .overflowbox.low-height
+          el-tabs.h-100
+            //.tabs-right
+              el-button(type="text" @click="openInNewTab('https://eosio.support/alcor-exchange-walk-thru')") How to use?
+
             el-tab-pane(label="Limit trade")
-              LimitTrade
+              .trade-box
+                limit-trade
 
             el-tab-pane(label="Market trade")
-              market-trade
-          .tabs-right
-            el-button(type="text" @click="openInNewTab('https://eosio.support/alcor-exchange-walk-thru')") How to use?
+              .trade-box
+                market-trade
 
-    .col-3.pr-0.pl-0
-      .overflowbox
-        markets
-  .row
-    .col
-      hr
-      .row.mb-2
-        .col
-          my-orders(v-if="user" v-loading="loading")
 
-      .row
-        .col
-          my-history(v-if="user" v-loading="loading")
+      .low-right
+        .overflowbox.low-height.overflow-hidden
+          LatestDeals
+
+    .row.mt-2.orders-panel
+      .col
+        .overflowbox.low-height.overflow-hidden
+          el-tabs.h-100
+            el-tab-pane(label="Open order")
+              my-orders(v-if="user" v-loading="loading")
+
+            el-tab-pane(label="Order history")
+              my-history(v-if="user" v-loading="loading")
 </template>
 
 <script>
@@ -152,7 +161,48 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.top-level {
+  display: flex;
+  height: 500px;
+
+  .top-left {
+    flex: 3;
+  }
+
+  .top-center {
+    margin: 0 10px;
+    flex: 8;
+  }
+
+  .top-right {
+    flex: 3;
+  }
+}
+
+.low-level {
+  display: flex;
+  height: 300px;
+
+  .low-left {
+    flex: 5;
+  }
+
+  .low-center {
+    min-width: 490px;
+    margin: 0 10px;
+    flex: 6;
+  }
+
+  .low-right {
+    flex: 3;
+  }
+}
+
+.low-height {
+  height: 300px;
+}
+
 .bordered {
   border-right: 1px solid;
 }
@@ -179,5 +229,122 @@ export default {
   position: absolute;
   top: 0px;
   right: 20px;
+}
+
+@media screen and (max-width: 1350px) {
+  .low-level {
+    .low-center {
+      margin: 0px 10px 0px 0px;
+    }
+  }
+
+  .low-left {
+    display: none;
+  }
+
+  .orders-panel {
+    display: block;
+  }
+}
+
+@media screen and (min-width: 1350px) {
+  .orders-panel {
+    display: none;
+  }
+}
+</style>
+
+<style lang="scss">
+.trading-terminal {
+  .el-tabs__nav {
+    margin-left: 20px;
+  }
+
+  .low-level {
+    .el-tabs__nav {
+      margin-left: 20px;
+    }
+  }
+
+  .trade-box {
+    padding: 0 15px;
+
+    .el-input--prefix .el-input__inner {
+        padding-left: 30%;
+    }
+
+    .el-form-item__content {
+      margin-left: 0px;
+    }
+
+    .el-tabs__header {
+      margin: 0 0 10px;
+    }
+
+    .el-input__prefix {
+      left: 15px;
+    }
+
+    .el-form-item {
+      margin-bottom: 3px;
+    }
+
+    // Slider
+    .el-slider__runway {
+        margin: 5px 0;
+        height: 4px;
+    }
+
+    .el-slider__button {
+        width: 10px;
+        height: 10px;
+    }
+
+    .el-slider__marks-text {
+        margin-top: 12px;
+        font-size: 10px;
+    }
+  }
+
+  .low-left {
+    .el-tabs__header {
+      margin: 0px;
+    }
+
+    .el-table {
+      font-size: 10px;
+    }
+  }
+
+  // Element tables
+  .el-table td, .el-table th {
+    padding: 5px 0;
+  }
+
+  .el-table {
+    .cell {
+      line-height: 12px;
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+
+    .cell:first-child {
+      padding-left: 5px;
+    }
+
+    .cell:last-child {
+      padding-right: 5px;
+    }
+  }
+
+  .el-table {
+    font-size: 10px;
+
+    .el-table__header-wrapper {
+      th {
+        font-weight: 100;
+      }
+    }
+  }
 }
 </style>

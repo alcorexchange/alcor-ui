@@ -11,6 +11,8 @@ export const state = () => ({
   deals: [],
   charts: [],
 
+  barStream: null,
+
   orderLoading: false,
   activeTab: 'first'
 })
@@ -24,13 +26,19 @@ export const mutations = {
   setToken: (state, token) => state.token = token,
   setStats: (state, stats) => state.stats = stats,
   setActiveTab: (state, tab) => state.activeTab = tab,
+  setBarStream: (state, barStream) => state.barStream = barStream,
   setOrderLoading: (state, orderLoading) => state.orderLoading = orderLoading
 }
 
 export const actions = {
+  update({ dispatch }) {
+    dispatch('fetchOrders')
+    dispatch('fetchDeals')
+  },
+
   async fetchCharts({ state, commit, rootGetters }, params) {
-    const { data: charts } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/charts`, params)
-    commit('setCharts', charts)
+    //const { data: charts } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/charts`, params)
+    //commit('setCharts', charts)
   },
 
   async fetchDeals({ state, commit, rootGetters }) {

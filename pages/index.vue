@@ -12,7 +12,7 @@
 
         h2.lead.mt-1 No withdraw or deposit.
 
-        h3.badge.badge-primary.text-wrap No trading fees.
+        b No trading fees.
 
         p
           span  Immediately open the market for your token or any token you want.
@@ -28,7 +28,8 @@
 
       .col-lg-6
         a(href="https://youtu.be/nNneIVv0yyQ" target="_blank")
-          img(src="/market_window.jpg").video-image
+          img(v-if="$store.state.theme == 'light'" src="~/assets/images/market_window_white.png").video-image
+          img(v-else src="~/assets/images/market_window_black.png").video-image
 
     hr.my-2
 
@@ -36,17 +37,12 @@
 
     hr.mt-3
 
-    .display-4.mt-4 Partners
-    p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to
+    // TODO Format partners!
+    //.display-4.mt-4 Partners
+    //p.lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to
       a(href="https://t.me/alcorexchange" target="_blank")  telegram chat!
 
-    .row.px-4
-      //.col-md-4.p-2
-        a(href="https://zenblocks.io" target="_blank")
-          img(src="~/assets/logos/zenblocks.png" height=70)
-
-        .lead UI/UX recomendations
-
+    //.row.px-4
       .col-md-4.p-2
         a(href="https://eosnameswaps.com" target="_blank")
           img(src="https://www.eosnameswaps.com/images/ens_logo.jpg" height=70)
@@ -165,6 +161,7 @@ export default {
       try {
         await store.dispatch('loadMarkets')
       } catch (e) {
+        console.log('err load markets: ', e)
       }
     }
   },

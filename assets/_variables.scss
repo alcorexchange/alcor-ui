@@ -1,0 +1,24 @@
+:root {
+    --lol: red;
+    --color-primary: #3E3A3B;
+    --color-success: #8CC176;
+    --color-danger: #B82C0D;
+    --color-white: #F3FAFC;
+    --color-text-secondary: #5A5356;
+    --background-color-base: #F3FAFC;
+    --border-color: #dadbdc;
+
+    --active-row: #c2deff;
+}
+
+.theme-dark {
+    --background-color-base: #192427;
+    --color-primary: #9EABA3;
+    --color-text-primary: var(--color-primary);
+    --border-color: #3F4144;
+
+    --color-success: #8CC176;
+    --color-danger: #B82C0D;
+
+    --active-row: #424844;
+}

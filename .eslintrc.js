@@ -34,6 +34,8 @@ module.exports = {
   // add your custom rules here
   rules: {
     // allow async-await
+    'quotes': 1,
+    'no-unused-expressions': 0,
     'generator-star-spacing': 'off',
     // allow paren-less arrow functions
     'arrow-parens': 'off',

@@ -1,5 +1,5 @@
 <template lang="pug">
-.overflowbox.no-bottom-border
+.order-book
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ network.baseToken.symbol }})
@@ -19,10 +19,11 @@
       span No asks
       span
 
-  .bg-light.text-center.p-1
-    b.text-success {{ current_price | humanPrice }}
+  .p-1.mt-1
+    .overflowbox.text-center
+      b.text-success {{ current_price | humanPrice }} {{ network.baseToken.symbol }}
 
-  .orders-list.blist.text-success
+  .orders-list.blist.bids.text-success
     .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'pl-0': ''")
       span
         i.el-icon-caret-right(v-if="isMyOrder(bid)")
@@ -100,9 +101,8 @@ export default {
 </script>
 
 <style lang="scss">
-.overflowbox {
-  border: 1px solid hsla(0,2%,89%,.7);
-  box-shadow: none;
+.order-book {
+  max-height: 500px;
 }
 
 .blist {
@@ -110,7 +110,6 @@ export default {
   display: flex;
   overflow: auto;
   flex-direction: column;
-  max-height: 25vh;
   padding-top: 5px;
   text-align: right;
 }
@@ -128,20 +127,12 @@ export default {
   }
 }
 
-.orders-list::-webkit-scrollbar {
-  width: 5px;               /* width of the entire scrollbar */
-}
-.orders-list::-webkit-scrollbar-track {
-  background: #fff;        /* color of the tracking area */
-}
-.orders-list::-webkit-scrollbar-thumb {
-  background-color: #c4cbd6;    /* color of the scroll thumb */
-  border-radius: 20px;       /* roundness of the scroll thumb */
-  //border: 3px solid orange;  /* creates padding around scroll thumb */
+.orders-list.asks {
+  max-height: 220px;
 }
 
-.orders-list.asks {
-  max-height: 200px;
+.orders-list.bids {
+  height: 220px;
 }
 
 .orders-list.blist .ltd:hover {
@@ -151,7 +142,7 @@ export default {
 
 .blist .ltd span {
   width: 40%;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .blist .ltd span:first-child {

@@ -1,11 +1,46 @@
-button {
+@import "~/assets/_variables.scss";
+
+// Themes
+:root { @import "light"; }
+.theme-dark { @import "dark"; }
+
+@font-face {
+    font-family: element-icons;
+    src: url(fonts/element-icons.woff) format("woff"), url(fonts/element-icons.ttf) format("truetype");
+}
+
+html, body {
+    background-color: var(--background-color-base);
+    color: var(--color-text-primary);
+
+    transition: .3s;
+}
+
+div::-webkit-scrollbar {
+  width: 2px;
+}
+div::-webkit-scrollbar-track {
+  background: var(--background-color-base);
+}
+div::-webkit-scrollbar-thumb {
+  background-color: #c4cbd6;
+  border-radius: 20px;
+}
+
+button, button:focus {
+  outline: 0;
   outline: 0;
 }
 
-button:focus {
-  outline: 0;
-  outline: 0;
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
+
+label { margin: 0px; }
+
+
 
 .el-table__row,
 .pointer {
@@ -32,29 +67,9 @@ button:focus {
   }
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 /* Firefox */
 input[type='number'] {
   -moz-appearance: textfield;
-}
-
-.pools-bage sup {
-  top: 10px !important;
-  z-index: 99999;
-}
-
-.input-with-select .el-select .el-input {
-  /* width: 400px; */
-}
-
-.input-with-select .el-input-group__append {
-  width: 30%;
-  background-color: #fff;
 }
 
 .upperinput {
@@ -69,8 +84,10 @@ input[type='number'] {
   text-decoration: none !important;
 }
 
-.gh-button-container {
-  color: #24292e;
+// Custom element-ui
+.input-with-select .el-input-group__append {
+  width: 30%;
+  background-color: #fff;
 }
 
 .el-radio-full-width.el-radio-group {
@@ -83,4 +100,80 @@ input[type='number'] {
   .el-radio-button__inner {
     width: 100%;
   }
+}
+
+.overflowbox {
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+}
+
+.el-menu-item {
+  &:hover,
+  &:focus {
+    outline: none;
+    background-color: red;
+  }
+}
+
+.el-menu-item {
+    background-color: var(--background-color-base) !important;
+
+    &:hover {
+        outline: none;
+
+        border-bottom: 2px solid var(--color-primary) !important;
+        color: var(--color-text-primary);
+    }
+}
+
+.el-input.is-disabled .el-input__inner {
+    background-color: #dde9ec;
+}
+
+.el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
+.nuxt-progress { background-color: var(--color-primary); }
+pre { color: var(--color-primary); }
+
+// TODO Обновить UI цсс элемента
+//:root .el-radio-button:first-child .el-radio-button__inner {
+//    border-radius: 10px 0 0 10px;
+//}
+//
+//:root .el-radio-button:last-child .el-radio-button__inner {
+//    border-radius: 0 10px 10px 0;
+//}
+//
+//:root .el-button:not(.el-button--text) {
+//    //background: linear-gradient(90deg, #627171 0%, rgba(74, 80, 83, 0.62) 100%);
+//    box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.1), inset 0px 4px 4px rgba(0, 0, 0, 0.06);
+//    border-radius: 10px;
+//
+//    .el-button-group > .el-button:first-child {
+//        border-top-right-radius: 0;
+//        border-bottom-right-radius: 0;
+//    }
+//
+//    .el-button-group > .el-button:last-child {
+//        border-top-left-radius: 0;
+//        border-bottom-left-radius: 0;
+//    }
+//}
+//
+.el-button:not(.el-button--text), .el-radio-group {
+    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05), inset 0 4px 4px rgba(0, 0, 0, 0.05);
+}
+
+
+// Light (default styles)
+.text-danger { color: #b82d0d !important; }
+.text-success { color: #53a95b!important; }
+a { color: #80a1c5 !important; }
+
+// Dark
+.theme-dark {
+    .text-danger { color: #b56150 !important; }
+
+    .el-button {
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1), inset 0px 2px 4px rgba(0, 0, 0, 0.18);
+    }
 }

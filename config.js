@@ -28,9 +28,10 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
-    hyperion: 'https://api.eossweden.org/v2/',
+    hyperion: 'https://api.eossweden.org/',
+    //hyperion: 'https://api.eossweden.org/',
     //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
-    //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's TAKE BROKET HISTORY!!!
+    //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -125,7 +126,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://api.waxsweden.org/v2/',
+    hyperion: 'https://wax.pink.gg/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -172,7 +173,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'https://telos.caleos.io/v2/',
+    hyperion: 'https://telos.caleos.io',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -247,7 +248,7 @@ const networks = {
     monitor: 'http://bos.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://api.bossweden.org/v2/',
+    hyperion: 'https://api.bossweden.org/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
@@ -331,7 +332,7 @@ const networks = {
     monitor: 'http://jungle3.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'https://jungle3.cryptolions.io/v2/',
+    hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
     //chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',

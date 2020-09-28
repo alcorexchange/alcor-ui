@@ -1,3 +1,4 @@
+import socket from 'socket.io'
 import express from 'express'
 import consola from 'consola'
 import bodyParser from 'body-parser'
@@ -12,8 +13,9 @@ import { Nuxt, Builder } from 'nuxt'
 
 import config from '../nuxt.config.js'
 //import sign from './sign'
-import markets from './markets'
+import { markets, startUpdaters } from './markets'
 import { serverInit } from './utils'
+import { syncModels } from './models'
 
 const app = express()
 
@@ -21,6 +23,9 @@ const app = express()
 config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
+  //db sync
+  await syncModels()
+
   app.use(bodyParser.json())
   app.use(serverInit)
   // Server routes
@@ -32,7 +37,7 @@ async function start () {
 
   const { host, port } = nuxt.options.server
 
-  // NuxtJS
+  //// NuxtJS
   await nuxt.ready()
   if (config.dev) {
     const builder = new Builder(nuxt)
@@ -41,10 +46,16 @@ async function start () {
   app.use(nuxt.render)
 
   // Listen the server
-  app.listen(port, host)
+  const server = app.listen(port, host)
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
     badge: true
   })
+
+  const io = socket(server)
+  app.set('io', io)
+
+  startUpdaters(app)
 }
+
 start()

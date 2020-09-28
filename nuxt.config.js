@@ -37,7 +37,12 @@ module.exports = {
       { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
       { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+
+      { // TODO Начать мутить шрифт этот
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap'
+      }
     ],
 
     script: [
@@ -59,12 +64,16 @@ module.exports = {
   */
   css: [
     // TODO Оставить только грид и ребут
-    //'bootstrap/dist/css/bootstrap-grid.min.css',
-    //'bootstrap/dist/css/bootstrap-reboot.min.css',
     'bootstrap/dist/css/bootstrap.min.css',
 
-    'element-ui/lib/theme-chalk/index.css',
+    'bootstrap/dist/css/bootstrap-grid.min.css',
+    'bootstrap/dist/css/bootstrap-reboot.min.css',
+
     'bootstrap-utilities/bootstrap-utilities.css',
+
+    //'element-ui/lib/theme-chalk/index.css',
+    //'~/assets/theme/_variables.scss',
+    //'~/assets/theme/index.css',
     '~/assets/main.scss'
   ],
 
@@ -89,8 +98,21 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
+    //'nuxt-socket-io'
     //'nuxt-ssr-cache'
   ],
+
+  // Socket
+  //io: {
+  //  sockets: [{
+  //    name: 'main',
+  //    url: 'http://localhost:3000/',
+  //    default: true,
+  //    vuex: {
+  //      actions: [{ test: 'test' }]
+  //    }
+  //  }]
+  //},
   /*
   ** Axios module configuration
   */
