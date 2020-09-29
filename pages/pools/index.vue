@@ -8,7 +8,7 @@
         create.mb-2
     .row
       .col
-        .pools-list
+        .pools-list.pr-1
           .mb-2(v-for="pool in filteredPools")
             el-button(plain size="small"
                       @click="setPool(pool)"
