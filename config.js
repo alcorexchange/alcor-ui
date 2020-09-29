@@ -96,7 +96,7 @@ const networks = {
       },
     },
 
-    RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'tcn@capitaltatch'],
+    RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@capitaltatch'],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap'],
 
     nftMarket: {
