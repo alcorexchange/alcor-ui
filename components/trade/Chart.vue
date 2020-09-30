@@ -135,7 +135,6 @@ export default {
 
           //'legend_widget',
           'edit_buttons_in_legend',
-          'create_volume_indicator_by_default',
           'cropped_tick_marks',
           //'context_menus',
 
