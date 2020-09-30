@@ -170,8 +170,12 @@ export default {
             quantity: this.network.marketCreationFee,
             memo: `new_market|${Number(0).toFixed(precision)} ${symbol}@${contract}`
           }
-        },
-        {
+        }
+      ]
+
+      // No need buy ram for Proton
+      if (this.network.name != 'proton') {
+        actions.push({
           account: 'eosio',
           name: 'buyrambytes',
           authorization,
@@ -180,8 +184,8 @@ export default {
             receiver: this.network.contract,
             bytes: 530
           }
-        }
-      ]
+        })
+      }
 
       const loading = this.$loading({ lock: true, text: 'Wait for wallet' })
 

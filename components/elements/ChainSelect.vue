@@ -39,7 +39,7 @@ export default {
 
     networks() {
       return Object.values(config.networks).filter((n) =>
-        ['eos', 'telos', 'wax', 'bos'].includes(n.name)
+        ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
       )
     }
   },

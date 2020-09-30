@@ -104,6 +104,51 @@ const networks = {
     },
   },
 
+  proton: {
+    name: 'proton',
+    desc: 'Proton mainnet',
+    contract: 'alcor',
+
+    baseToken: {
+      contract: 'xtokens',
+      symbol: 'XUSDT',
+      precision: 6
+    },
+
+    marketCreationFee: '1.000000 XUSDT',
+    feeAccount: 'avral',
+
+    chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
+
+    host: 'proton.cryptolions.io',
+    port: 443,
+    protocol: 'https',
+    monitor: 'http://proton.bloks.io',
+    monitor_params: '',
+    lightapi: 'https://lightapi.eosamsterdam.net',
+    hyperion: 'https://proton.pink.gg/',
+    backEnd: 'https://alcor.exchange/api/',
+
+    otc: {
+      contract: 'alcorotcswap',
+      divs: 'aw.aq.waa'
+    },
+
+    pools: {
+      contract: 'alcordexpool',
+      fee: 'aw.aq.waa'
+    },
+
+    withdraw: {},
+
+    RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: [],
+
+    nftMarket: {
+      contract: 'alcornftswap'
+    }
+  },
+
   wax: {
     name: 'wax',
     desc: 'WAX mainnet',

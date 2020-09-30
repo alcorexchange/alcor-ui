@@ -58,7 +58,7 @@ export function updater(chain, app, hyperion = true) {
   })
 }
 
-async function getMarketStats(network, market_id) {
+export async function getMarketStats(network, market_id) {
   const stats = {}
 
   if ('last_price' in stats) return stats

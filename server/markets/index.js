@@ -7,13 +7,14 @@ import { JsonRpc } from 'eosjs'
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
 import { Match } from '../models'
-import { updater, getDeals } from './history'
+import { updater, getMarketStats } from './history'
 import { makeCharts } from './charts'
 
 
 export function startUpdaters(app) {
   updater('eos', app, false) // Update by node, not hyperion
   updater('bos', app, false) // Update by node, not hyperion
+  updater('proton', app)
   updater('telos', app)
   updater('wax', app)
 }
@@ -27,13 +28,20 @@ export async function getMarket(network, market_id) {
 
   if (c_market) return c_market
 
-  const { rows: [market] } = await rpc.get_table_rows({
+  const { rows: [m] } = await rpc.get_table_rows({
     code: network.contract,
     scope: network.contract,
     table: 'markets',
     lower_bound: market_id,
     limit: 1
   })
+
+  if (m.id != market_id) {
+    return null
+  }
+
+  const marketStats = await getMarketStats(network, market_id)
+  const market = { ...m, ...marketStats }
 
   if (market) {
     market.token = parseExtendedAsset(market.token)
