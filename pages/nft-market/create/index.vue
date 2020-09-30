@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.mt-3
-  .col-lg-5
+  .col-lg-5.mb-2
     el-card
       div(slot="header")
         .lead NFT creation
@@ -57,7 +57,7 @@
         .lead {{ mdata.name }}
 
       .row
-        .col-4
+        .col-lg-4
           el-upload.avatar-uploader(
             action='/api/upload/ipfs'
             :show-file-list='false'
@@ -68,7 +68,7 @@
           )
             img.avatar(v-if='preview.mdata.img' :src='preview.mdata.img')
             i.el-icon-plus.avatar-uploader-icon(v-else)
-        .col-8
+        .col-lg-8
           .row.mb-1
             .col
               b.text-muted Category:
