@@ -10,10 +10,13 @@
           |  You will be the owner of the NFT immediately after creation and will be able to transfer or sell the NFT.
 
       .row
-
-      .row
         .col
-          label Category
+          small Name
+          el-input(v-model='mdata.name', placeholder='Name of the NFT' show-word-limit)
+
+      .row.mt-2
+        .col
+          small Category
           el-input(v-model='category', placeholder='Category' maxlength="12" show-word-limit)
 
       hr
@@ -22,11 +25,11 @@
           .row
             .col
               pre Immutable data
-              span Data that can never be changed again.
-              el-input(v-model="iKey" placeholder="key")
+              small Data that can never be changed again.
+              el-input(v-model="iKey" placeholder="key" size="small")
           .row.mt-1
             .col
-              el-input(v-model="iValue" placeholder="value")
+              el-input(v-model="iValue" placeholder="value" size="small")
       .row.mt-1
         .col
           el-button(size="mini" type="primary" @click="addI") Add
@@ -37,16 +40,13 @@
           .row
             .col
               b.text-muted Mutable data
-              p Data that you can change(as the author of the NFT).
+              p
+                small.text-muted Data that you can change(as the author of the NFT).
 
-              span.mr-1.text-muted Recommended fields:
-              el-tag(size="small" @click="mKey = 'name'").pointer name
-              el-tag(size="small" @click="mKey = 'img'").pointer.ml-1 img
-
-              el-input(v-model="mKey" placeholder="key").mt-1
+              el-input(v-model="mKey" placeholder="key" size="small").mt-1
           .row.mt-1
             .col
-              el-input(v-model="mValue" placeholder="value")
+              el-input(v-model="mValue" placeholder="value" size="small")
       .row.mt-1
         .col
           el-button(size="mini" type="primary" @click="addM") Add
@@ -54,7 +54,7 @@
   .col-lg-7
     el-card.preview-wrap
       div(slot="header")
-        .lead NFT Preview
+        .lead {{ mdata.name }}
 
       .row
         .col-4
@@ -94,7 +94,7 @@
                   i.el-icon-close.pointer.ml-1(@click="delM(item[0])")
 
       PleaseLoginButton
-        el-button(type="primary" :loading="loading" @click="create").w-100 Create NFT
+        el-button(type="primary" :loading="loading" @click="create").w-100.mt-2 Create NFT
 
 </template>
 
