@@ -2,6 +2,7 @@ import socket from 'socket.io'
 import express from 'express'
 import consola from 'consola'
 import bodyParser from 'body-parser'
+import formidable from 'express-formidable'
 import NodeCache from 'node-cache'
 export const cache = new NodeCache()
 
@@ -13,6 +14,7 @@ import { Nuxt, Builder } from 'nuxt'
 
 import config from '../nuxt.config.js'
 //import sign from './sign'
+import upload from './upload/ipfs'
 import { markets, startUpdaters } from './markets'
 import { serverInit } from './utils'
 import { syncModels } from './models'
@@ -27,10 +29,12 @@ async function start () {
   await syncModels()
 
   app.use(bodyParser.json())
+  app.use(formidable())
   app.use(serverInit)
   // Server routes
   //app.post('/api/sign', sign)
   app.use('/api/markets', markets)
+  app.use('/api/upload', upload)
 
   // Init Nuxt.js
   const nuxt = new Nuxt(config)

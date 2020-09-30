@@ -58,7 +58,16 @@
 
       .row
         .col-4
-          img(v-if="preview.mdata.img" :src="preview.mdata.img").w-100
+          el-upload.avatar-uploader(
+            action='/api/upload/ipfs'
+            :show-file-list='false'
+            :on-success='handleAvatarSuccess'
+            :before-upload='beforeAvatarUpload'
+            :on-error='onImgUploadErr'
+            :loading="loading"
+          )
+            img.avatar(v-if='preview.mdata.img' :src='preview.mdata.img')
+            i.el-icon-plus.avatar-uploader-icon(v-else)
         .col-8
           .row.mb-1
             .col
@@ -90,6 +99,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapState, mapGetters } from 'vuex'
 import { prepareNFT } from '~/utils'
 
@@ -135,7 +145,6 @@ export default {
       }))
 
       prepareNFT(nft)
-      console.log(nft)
 
       return nft
     }
@@ -145,6 +154,20 @@ export default {
   },
 
   methods: {
+    onImgUploadErr(err) {
+      this.$notify({ title: 'Place order', message: err, type: 'error' })
+      this.loading = false
+    },
+
+    handleAvatarSuccess({ IpfsHash }) {
+      this.$set(this.mdata, 'img', IpfsHash)
+      this.loading = false
+    },
+
+    beforeAvatarUpload(file) {
+      this.loading = true
+    },
+
     delI(key) {
       this.$set(this.idata, key, undefined)
       delete this.idata[key]
@@ -238,6 +261,30 @@ export default {
 
 .preview-wrap {
   overflow-wrap: anywhere;
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px !important;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 
 </style>
