@@ -1,8 +1,8 @@
 <template lang="pug">
-.markets-bar(v-loading="loading")
+.markets-bar
   .pt-2.px-2
     el-input(size="small" v-model="search" placeholder="Filter by token")
-  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="465" width="100%")
+  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
     el-table-column(label="Pair")
       template(slot-scope="scope")
         TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="20")
@@ -23,6 +23,8 @@ import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 
 export default {
+  scrollToTop: false,
+
   components: {
     TokenImage,
     ChangePercent
@@ -31,7 +33,7 @@ export default {
   data() {
     return {
       search: '',
-      loading: true
+      loading: false
     }
   },
 
@@ -48,24 +50,29 @@ export default {
     }
   },
 
-  async mounted() {
-    if (this.markets.length == 0) {
-      await this.$store.dispatch('loadMarkets')
-    }
-
-    this.loading = false
+  mounted() {
+    console.log('mounted markets...')
   },
+
+  //async mounted() {
+  //  if (this.markets.length == 0) {
+  //    await this.$store.dispatch('loadMarkets')
+  //  }
+
+  //  this.loading = false
+  //},
 
   methods: {
     setMarket(market) {
-      const loading = this.$loading({
-        lock: true
-      })
+      //const loading = this.$loading({
+      //  lock: true
+      //})
 
+      this.loading = true
       this.$router.push(
         { name: 'markets-id', params: { id: `${market.token.symbol.name}-${market.token.contract}` } },
-        () => loading.close(),
-        () => loading.close()
+        () => this.loading = false,
+        () => this.loading = false
       )
     },
 

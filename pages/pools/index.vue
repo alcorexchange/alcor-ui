@@ -78,13 +78,15 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapGetters('pools', ['pools']),
     ...mapState('pools', ['current_sym']),
 
     filteredPools() {
       return this.pools.filter(p => {
         const s = (p.pool2.quantity.symbol.code().to_string() + p.pool2.contract).toLowerCase()
-        return s.includes(this.search.toLowerCase())
+        return s.includes(this.search.toLowerCase()) &&
+          !this.network.SCAM_CONTRACTS.some(r => [p.pool1.contract, p.pool2.contract].includes(r))
       })
     }
   },
