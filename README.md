@@ -1,8 +1,8 @@
-[<img src="https://alcor.exchange/_nuxt/img/c401c99.svg" height=70>](https://alcor.exchange)
+[<img src="https://raw.githubusercontent.com/avral/alcor-ui/master/assets/logos/alcorblack2.svg" height=150>](https://alcor.exchange)
 
 The first listing free decentralized exchange.
 
-![Alcor](https://i.ibb.co/CK2MDzd/Screenshot-2020-05-20-at-21-22-49.png)
+![Alcor](https://ipfs.io/ipfs/QmNx6Ji1yfn4XqvD3RhRjqzLpQeiPGTEJHN9mWtQX3Ygsx)
 
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
 
