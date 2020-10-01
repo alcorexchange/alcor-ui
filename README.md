@@ -18,7 +18,8 @@ Props:
 1. EOS Mainnet
 2. WAX
 3. Telos
-4. Coffee
+4. Proton
+5. BOS
 
 ## Technologies:
 1. [Hyperion](https://github.com/eosrio/Hyperion-History-API)
