@@ -131,7 +131,7 @@ input[type='number'] {
 }
 
 .el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
-.nuxt-progress { background-color: var(--color-primary); }
+.nuxt-progress { background-color: var(--color-primary) !important; }
 pre { color: var(--color-primary); }
 
 // TODO Обновить UI цсс элемента
