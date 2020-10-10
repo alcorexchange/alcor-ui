@@ -1,8 +1,8 @@
-[<img src="https://alcor.exchange/_nuxt/img/c401c99.svg" height=70>](https://alcor.exchange)
+[<img src="https://raw.githubusercontent.com/avral/alcor-ui/master/assets/logos/alcorblack2.svg" height=150>](https://alcor.exchange)
 
 The first listing free decentralized exchange.
 
-![Alcor](https://i.ibb.co/CK2MDzd/Screenshot-2020-05-20-at-21-22-49.png)
+![Alcor](https://ipfs.io/ipfs/QmQSocTSazDmdL1N57icZpAgTTxupHkNMnGxJUzzuzKQLh)
 
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
 
@@ -18,7 +18,8 @@ Props:
 1. EOS Mainnet
 2. WAX
 3. Telos
-4. Coffee
+4. Proton
+5. BOS
 
 ## Technologies:
 1. [Hyperion](https://github.com/eosrio/Hyperion-History-API)
@@ -75,5 +76,3 @@ $ yarn run generate
 
 ## Created:
 [Avral's digital lab](https://avral.pro)
-
-
