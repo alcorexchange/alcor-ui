@@ -76,5 +76,3 @@ $ yarn run generate
 
 ## Created:
 [Avral's digital lab](https://avral.pro)
-
-
