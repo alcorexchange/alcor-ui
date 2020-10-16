@@ -70,7 +70,7 @@ export const getters = {
   hyperion(state, getters, rootState) {
     // FIXME If delete state from here, then rootState.network is undefined
     return axios.create({
-      baseURL: rootState.network.hyperion,
+      baseURL: rootState.network.hyperion + 'v2/',
       timeout: 30000
     })
   },
