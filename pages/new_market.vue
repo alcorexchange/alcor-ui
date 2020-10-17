@@ -98,6 +98,7 @@ export default {
             const r = await this.rpc.get_currency_stats(this.form.token.contract, value)
 
             if (value in r) {
+              this.selectToken(this.form.token)
               callback()
             } else {
               callback(new Error(`No ${value} symbol in ${this.form.token.contract} contract`))
@@ -140,7 +141,7 @@ export default {
       if (!token) return
 
       try {
-        const stat = await this.$store.dispatch('api/getToken', { code: token.contract, symbol: token.currency })
+        const stat = await this.$store.dispatch('api/getToken', { code: token.contract, symbol: token.currency || token.symbol })
         precision = stat.supply.symbol.precision()
       } catch (e) {
         captureException(e, { extra: { token } })
@@ -149,7 +150,7 @@ export default {
       }
 
       this.form.token = {
-        symbol: token.currency,
+        symbol: token.currency || token.symbol,
         contract: token.contract,
         precision
       }
