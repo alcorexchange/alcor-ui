@@ -2,15 +2,14 @@
 footer
   .mt-3
     .row.mt-5
-      .col-lg-1
-      .col-lg-7
+      .col-lg-6
         img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack2.svg" height="55").logo
         img(v-else src="~/assets/logos/alcorwhite2.svg" height="55").logo
       .col-lg-2
         ul.nav.footer-column
           li.nav-item
             span.footer-title Community
-          li.nav-item
+          li.nav-itek
             a(href="https://twitter.com/avral_pro" target="_blank")
               img(src="~/assets/icons/tw.svg" height="25").mr-2
 
@@ -27,6 +26,12 @@ footer
             b
               a(href="https://avral.pro" target="_blank")  #Avral
 
+      .col-lg-2
+        ul.nav.footer-column
+          li.nav-item
+            span.footer-title Bussines offers
+          li.nav-itek
+            a(href="mailto:admin@alcor.exchange") admin@alcor.exchange
 
         //span.ml-auto Created by
           b
@@ -85,7 +90,7 @@ ul {
 }
 
 .footer-column {
-  text-align: center;
+  //text-align: center;
   .nav-item {
     .nav-link {
       padding: 0.1rem 0;
