@@ -126,6 +126,7 @@ export default {
       const items = []
 
       items.push({ index: '/markets', name: 'Markets' })
+      items.push({ index: '/swap', name: 'Swap' })
 
       if (['eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
         items.push({ index: '/pools', name: 'Pools' })
