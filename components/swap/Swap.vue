@@ -148,6 +148,16 @@ export default {
         this.loading = false
       }
     }
+  },
+
+  head() {
+    return {
+      title: 'Alcor Swap | Trustless tokens swaps',
+
+      meta: [
+        { hid: 'description', name: 'description', content: 'Atomic swap of any token amount using swap.defi(Defibox) pools.' }
+      ]
+    }
   }
 }
 </script>
