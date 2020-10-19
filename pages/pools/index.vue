@@ -1,11 +1,5 @@
 <template lang="pug">
-.row
-  .col
-    el-tabs(type='border-card')
-      el-tab-pane(label="Swap")
-      el-tab-pane(label="Pool")
-      el-tab-pane(label="Liquidity")
-//.row.mt-3
+.row.mt-3
   .col-md-3.pr-1
     .row
       .col

@@ -110,7 +110,7 @@ export default {
     TokenImage,
     PleaseLoginButton,
     Liquidity,
-    Withdraw,
+    Withdraw
   },
 
   data() {
