@@ -85,7 +85,7 @@ export default {
 
     setToken(token) {
       if (this.token == 0) {
-        if (token.contract == this.output.contract && token.symbol == this.output.symbol) {
+        if (this.output && token.contract == this.output.contract && token.symbol == this.output.symbol) {
           this.$store.commit('swap/setOutput', this.input)
         }
 

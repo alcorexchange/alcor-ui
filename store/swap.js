@@ -5,7 +5,7 @@ export const state = () => ({
   pairs: [],
 
   input: null,
-  output: null,
+  output: null
 })
 
 export const mutations = {
@@ -179,17 +179,18 @@ export const getters = {
 
   inputBalance(state, getters, rootState) {
     if (!rootState.user || !rootState.user.balances) {
-      if (getters.current) {
-        return asset(0, state.input.symbol).to_string()
+      if (state.input) {
+        return '0.0000 ' + state.input.symbol
+      } else {
+        return '0.0000'
       }
-
-      return '0.0000 '
     }
 
     const balance = rootState.user.balances.filter(b => {
       return b.currency === state.input.symbol && b.contract == state.input.contract
     })[0]
-    if (!balance) return asset(0, state.input.symbol).to_string()
+
+    if (!balance) return '0.0000 ' + state.input.symbol
 
     return `${balance.amount} ${balance.currency}`
   },
