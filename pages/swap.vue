@@ -19,6 +19,12 @@ export default {
     Swap
   },
 
+  fetch({ store }) {
+    console.log('fetch inin swap')
+    store.commit('swap/setInput', store.state.network.baseToken)
+    console.log('inpt', store.state.swap.input)
+  },
+
   data() {
     return {
       tab: 'Swap'
