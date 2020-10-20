@@ -118,12 +118,19 @@ input[type='number'] {
 .el-menu-item {
     background-color: var(--background-color-base) !important;
 
-    &:hover {
+    &:hover, {
         outline: none;
 
         border-bottom: 2px solid var(--color-primary) !important;
         color: var(--color-text-primary);
     }
+}
+
+.el-menu-item.is-active {
+    outline: none;
+
+    border-bottom: 2px solid var(--color-primary) !important;
+    color: var(--color-text-primary);
 }
 
 .el-input.is-disabled .el-input__inner {

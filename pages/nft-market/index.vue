@@ -1,7 +1,7 @@
 <template lang="pug">
 .row.mt-3
   .col-lg-2.filters.pr-0
-    .row.mb-3
+    .row.mb-2
       .col
         NewOrder
     .row
@@ -29,22 +29,17 @@
             :checked="isCatCheked(category)"
           ).w-100 {{ category }}
 
-    //el-menu(router default-active='2')
-      el-menu-item(index='/nft-markets/all' disabled) Filter
-      el-menu-item(index='/nft-markets/all' disabled) Category
   .col-lg-10.pr-0
-    // TODO Fixed top
-    //el-card
     .row
       .col
         .d-flex
-          el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable)
+          el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable size="medium")
 
           nuxt-link(to="/nft-market/create").ml-3
-            //.new-market-btn
-            el-button(tag="el-button" icon="el-icon-plus") Create NFT token
-      //.col-lg-4
-      //.col-lg-8
+            el-button(tag="el-button" icon="el-icon-plus" size="medium") Create NFT token
+
+          nuxt-link(to="/wallet/nfts").ml-3
+            el-button(type="info" icon="el-icon-wallet" size="medium") NFT Wallet
     hr
 
     .row.mt-3
@@ -127,7 +122,6 @@ export default {
   methods: {
     addAutorFilter(author) {
       if (this.authorFilter.includes(author)) {
-        console.log('includes..')
         this.$store.commit('nft/setAuthorFilter', this.authorFilter.filter(a => a != author))
       } else {
         this.$store.commit('nft/setAuthorFilter', [...this.authorFilter, author])
@@ -135,9 +129,7 @@ export default {
     },
 
     clearAuthorFilters() {
-      console.log('clear authorFilter', this.authorFilter)
       this.$store.commit('nft/setAuthorFilter', [])
-      console.log(this.authorFilter)
     },
 
     isAuthorCheked(author) {
@@ -166,7 +158,7 @@ export default {
       title: `Alcor NFT Market | Trustless NFT market on ${this.network.name.toUpperCase()} chain`,
 
       meta: [
-        { hid: 'description', name: 'description', content: `Atomic, no fee, NFT marketplace.` }
+        { hid: 'description', name: 'description', content: 'Atomic, no fee, NFT marketplace.' }
       ]
     }
   }

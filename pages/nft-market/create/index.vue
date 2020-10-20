@@ -215,7 +215,7 @@ export default {
       this.loading = true
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
-        this.$router.push({ name: 'nft-market' })
+        this.$router.push({ name: 'wallet-index-nfts' })
         this.$notify({ title: 'NFT Creation', message: 'NFT Created!', type: 'success' })
       } catch (e) {
         this.$notify({ title: 'NFT Creation', message: e, type: 'error' })
