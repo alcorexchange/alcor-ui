@@ -8,6 +8,8 @@ div
   el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       // TODO Bit symbol and amount here
+      span Tokens are locked in the contract until the transaction is completed.
+      span  You can cancel the transaction at any time and return the tokens.
       h1.leader Sell
 
       el-form-item(label="Sell token")

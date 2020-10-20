@@ -1,17 +1,11 @@
 <template lang="pug">
 .row
   .col
-    .row.mt-1
-      .col.px-3
-        h1.lead Atomic exchange of any token amount for any other token.
-        //br
-        //span Tokens are locked in the contract until the transaction is completed.
-        //span  You can cancel the transaction at any time and return the tokens.
     .row.mt-2
       .col
         el-tabs(type='border-card')
           el-tab-pane(label="Orders" v-loading="loading")
-            .row.mb-3(v-if="$store.state.network.name == 'eos'")
+            //.row.mb-3(v-if="$store.state.network.name == 'eos'")
               .col
                 el-alert(title="The OTC contract was changed(updated)!" type="warning")
                   span Old orders can be found and canceled(recommended) here:
@@ -250,10 +244,10 @@ export default {
 
   head() {
     return {
-      title: `Alcor OTC Exchange | Trustless tokens swaps`,
+      title: 'Alcor OTC Exchange | Trustless tokens swaps',
 
       meta: [
-        { hid: 'description', name: 'description', content: `Atomic exchange of any token amount for any other token.` }
+        { hid: 'description', name: 'description', content: 'Atomic exchange of any token amount for any other token.' }
       ]
     }
   }
