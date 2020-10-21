@@ -8,12 +8,18 @@
           a(:href="monitorAccount(scope.row.contract)" target="_blank").text-muted.ml-2 {{ scope.row.contract }}
           el-tag(v-if="hasMarket(scope.row)" size="small").float-right Trade
 
-      el-table-column(prop='amount', label='Amount' align="right" width="150" :sort-method="sortByAmount"
+      el-table-column(label='Amount' align="right" width="150" :sort-method="sortByAmount"
       sortable :sort-orders="['descending', null]")
+        template(slot-scope="scope")
+          | {{ scope.row.amount }}
 
-      el-table-column(align='right')
+      el-table-column(label='Transfer' width="150")
+        template(slot-scope='scope')
+          TokenTransfer(:token="scope.row")
+
+      el-table-column(label="Manage" align='right')
         template(slot='header', slot-scope='scope')
-          el-input(v-model='search', size='small', placeholder='Type to search').w-25
+          el-input(v-model='search', size='small', placeholder='Type to search').w-50
         template(slot-scope='scope')
           BOSIbc(
             v-if="$store.state.ibcTokens.includes(scope.row.contract)"
@@ -30,6 +36,7 @@
 import { mapGetters, mapState } from 'vuex'
 
 import BOSIbc from '~/components/withdraw/BOSIbc'
+import TokenTransfer from '~/components/wallet/TokenTransfer'
 import Withdraw from '~/components/withdraw/Withdraw'
 
 import TokenImage from '~/components/elements/TokenImage'
@@ -38,7 +45,8 @@ export default {
   components: {
     TokenImage,
     BOSIbc,
-    Withdraw
+    Withdraw,
+    TokenTransfer
   },
 
   data() {
