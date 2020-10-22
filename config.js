@@ -95,15 +95,15 @@ const networks = {
         gateway: 'cross.chain'
       },
 
-      'PETH@eth.ptokens': {
-        desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
-        network: {
-          name: 'Ethereum',
-          symbol: 'ETH'
-        },
-        withdrawMemo: '{account}',
-        gateway: 'cross.chain'
-      },
+      //'PETH@eth.ptokens': {
+      //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
+      //  network: {
+      //    name: 'Ethereum',
+      //    symbol: 'ETH'
+      //  },
+      //  withdrawMemo: '{account}',
+      //  gateway: 'cross.chain'
+      //},
     },
 
     RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@capitaltatch'],
