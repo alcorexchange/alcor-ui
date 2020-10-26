@@ -157,7 +157,7 @@ export default {
           contract: this.token.contract,
           actor: this.user.name,
           quantity,
-          memo: this.form.memo + 'alcor.exchange/wallet'
+          memo: this.form.memo
         })
         this.$store.dispatch('loadUserBalances')
 
