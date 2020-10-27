@@ -12,7 +12,7 @@
           br
           | This happens on smart contract, without the participation of third parties.
 
-        pre *You will buy 530 RAM bytes for new market creation
+        pre *You will buy 530(~0.02 {{ network.baseToken.symbol }}) RAM bytes for new market creation
 
       PleaseLoginButton
         el-form(ref="form" :model="form" label-position="left" :rules="rules")
