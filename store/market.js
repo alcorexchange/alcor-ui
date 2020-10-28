@@ -1,4 +1,4 @@
-import { sort_by_price, prepareOrder } from '~/utils'
+import { sort_by_price, prepareOrder, mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -100,10 +100,10 @@ export const getters = {
   },
 
   sorted_asks(state) {
-    return state.asks.slice().sort(sort_by_price)
+    return mergeSamePriceOrders(state.asks.slice().sort(sort_by_price))
   },
 
   sorted_bids(state) {
-    return state.bids.slice().sort(sort_by_price)
+    return mergeSamePriceOrders(state.bids.slice().sort(sort_by_price))
   }
 }

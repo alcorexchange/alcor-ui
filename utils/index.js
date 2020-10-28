@@ -158,3 +158,32 @@ export function prepareNFT(nfts) {
     }
   })
 }
+
+
+export function mergeSamePriceOrders(ords) {
+  // Avoid mutatind store
+  ords = JSON.parse(JSON.stringify(ords))
+
+  const orders = {}
+
+  ords.map(o => {
+    orders[o.unit_price] ? orders[o.unit_price].push(o) : orders[o.unit_price] = [o]
+  })
+
+  return Object.values(orders).map(o => {
+    const one_order = { ...o[0] }
+
+    o.slice(1).map(o => {
+      one_order.ask.amount += o.ask.amount
+      one_order.bid.amount += o.bid.amount
+
+      one_order.ask.prefix = (parseFloat(one_order.ask.prefix) + parseFloat(o.ask.prefix)).toFixed(one_order.ask.symbol.precision)
+      one_order.bid.prefix = (parseFloat(one_order.bid.prefix) + parseFloat(o.bid.prefix)).toFixed(one_order.bid.symbol.precision)
+    })
+
+    one_order.ask.quantity = `${one_order.ask.prefix} ${one_order.ask.symbol.symbol}`
+    one_order.bid.quantity = `${one_order.bid.prefix} ${one_order.bid.symbol.symbol}`
+
+    return one_order
+  }).reverse()
+}
