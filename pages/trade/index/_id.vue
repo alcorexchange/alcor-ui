@@ -7,7 +7,9 @@ import { Name, SymbolCode } from 'eos-common'
 import { captureException } from '@sentry/browser'
 
 export default {
-  async fetch({ store, error, params }) {
+  async fetch({ redirect, store, error, params }) {
+    if (!params.id) redirect({ name: 'markets' })
+
     const [symbol, contract] = params.id.split('-')
 
     let market_id
