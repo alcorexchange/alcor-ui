@@ -79,7 +79,7 @@ export default {
     cellClick(asset, cell) {
       if (cell.label == 'Asset') {
         if (this.hasMarket(asset)) {
-          this.$router.push({ name: 'markets-id', params: { id: asset.id.replace('@', '-') } })
+          this.$router.push({ name: 'trade-index-id', params: { id: asset.id.replace('@', '-') } })
         }
       }
     },

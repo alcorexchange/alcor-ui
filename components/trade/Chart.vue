@@ -10,7 +10,10 @@ export default {
   data() {
     return {
       resolution: '1D',
-      onRealtime: null
+
+      onRealtime: null,
+      widget: null,
+      onResetCacheNeededCallback: null
     }
   },
 
@@ -22,6 +25,13 @@ export default {
   watch: {
     theme() {
       this.mountChart()
+    },
+
+    '$store.state.market.id'() {
+      if (this.widget && this.onResetCacheNeededCallback) {
+        this.onResetCacheNeededCallback()
+        this.widget.activeChart().resetData()
+      }
     }
   },
 
@@ -62,6 +72,7 @@ export default {
           subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
             this.onRealtime = onRealtimeCallback
             this.$store.commit('market/setBarStream', this.barStream)
+            this.onResetCacheNeededCallback = onResetCacheNeededCallback
           },
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
@@ -103,9 +114,7 @@ export default {
             })
             onHistoryCallback(bars, { noData: bars.length == 0 })
           },
-          //subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
-          //  console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID)
-          //},
+
           unsubscribeBars: (subscriberUID) => {}
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
@@ -133,11 +142,10 @@ export default {
           'symbol_search_hot_key',
           //'left_toolbar',
 
-          //'legend_widget',
+          'legend_widget',
           'edit_buttons_in_legend',
           'cropped_tick_marks',
           //'context_menus',
-
 
           'edit_buttons_in_legend',
           'main_series_scale_menu',
@@ -175,8 +183,7 @@ export default {
         }
       }
 
-      const widget = new Widget(widgetOptions)
-      this.$store.commit('market/setChartWidget', widget)
+      this.widget = new Widget(widgetOptions)
     }
   }
 }

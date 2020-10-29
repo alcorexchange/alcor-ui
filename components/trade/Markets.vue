@@ -54,23 +54,11 @@ export default {
     console.log('mounted markets...')
   },
 
-  //async mounted() {
-  //  if (this.markets.length == 0) {
-  //    await this.$store.dispatch('loadMarkets')
-  //  }
-
-  //  this.loading = false
-  //},
-
   methods: {
     setMarket(market) {
-      //const loading = this.$loading({
-      //  lock: true
-      //})
-
-      this.loading = true
+      //this.loading = true
       this.$router.push(
-        { name: 'markets-id', params: { id: `${market.token.symbol.name}-${market.token.contract}` } },
+        { name: 'trade-index-id', params: { id: `${market.token.symbol.name}-${market.token.contract}` } },
         () => this.loading = false,
         () => this.loading = false
       )

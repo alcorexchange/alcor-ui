@@ -88,7 +88,6 @@ export const actions = {
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
-    //dispatch('loadHistory') TODO Может в будущем обновлять
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {

@@ -1,5 +1,5 @@
 <template lang="pug">
-.mb-5.mt-2(:class="$route.name == 'markets-id' ? 'container-fluid' : 'container'" ref="top")
+.mb-5.mt-2(:class="$route.name == 'trade-index-id' ? 'container-fluid' : 'container'" ref="top")
   ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")

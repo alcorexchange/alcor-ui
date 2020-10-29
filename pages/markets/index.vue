@@ -159,7 +159,7 @@ export default {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
-      this.$router.push({ name: 'markets-id', params: { id: this.marketSlug(a) } })
+      this.$router.push({ name: 'trade-index-id', params: { id: this.marketSlug(a) } })
     },
 
     marketSlug(market) {

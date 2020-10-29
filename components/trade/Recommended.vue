@@ -7,7 +7,7 @@
     .row
       .col-lg-2.col-md-4.col-sm-6(:key="market.id" v-for="market in markets").mb-2
         .small
-          nuxt-link(:to="{ name: 'markets-id', params: { id: marketSlug(market) } }")
+          nuxt-link(:to="{ name: 'trade-index-id', params: { id: marketSlug(market) } }")
             el-card(shadow="hover")
               TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
               span.ml-2
