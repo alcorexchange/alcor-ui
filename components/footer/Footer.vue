@@ -44,6 +44,7 @@ footer
           span.text-muted App version:
             a(href="https://github.com/avral/alcor-ui" target="_blank").text-secondary
               span(v-if="lastCommit.commit")  {{ lastCommit.commit.message }}
+              span(v-else)  Latest
 
   //.row.avral
     .col.d-flex
@@ -63,7 +64,9 @@ export default {
   },
 
   async mounted() {
-    this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
+    try {
+      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
+    } catch {}
   }
 }
 </script>
