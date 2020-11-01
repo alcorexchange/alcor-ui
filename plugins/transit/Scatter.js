@@ -1,18 +1,20 @@
 import ScatterJS from '@scatterjs/core'
 import ScatterEOS from '@scatterjs/eosjs2'
+//import ScatterEOS from '@scatterjs/eosjs'
 
-const scatter = ScatterJS
 let accountPublickey
 
-scatter.plugins(new ScatterEOS())
-
-export function makeSignatureProvider(network) {
+export function makeSignatureProvider(scatter, network) {
   // 3rd param: beta3 = true
+  console.log('eosHook', scatter.eosHook)
   return scatter.eosHook({ ...network, blockchain: 'eos' }, null, true)
 }
 
 // TODO: Ability to pass Scatter options
 export function scatterWalletProvider() {
+  const scatter = ScatterJS
+  scatter.plugins(new ScatterEOS())
+
   return function makeWalletProvider(network) {
     // Connection
 
@@ -100,7 +102,7 @@ export function scatterWalletProvider() {
         description:
           'Scatter Desktop application that keeps your private keys secure'
       },
-      signatureProvider: makeSignatureProvider(network),
+      signatureProvider: makeSignatureProvider(scatter, network),
       connect,
       discover,
       disconnect,
