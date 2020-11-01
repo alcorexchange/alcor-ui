@@ -1,8 +1,5 @@
 import transit from 'eos-transit'
 
-// Coffe
-import io from 'socket.io-client'
-
 import ScatterProvider from 'eos-transit-scatter-provider'
 import KeycatProvider from 'eos-transit-keycat-provider'
 import SimpleosProvider from 'eos-transit-simpleos-provider'
@@ -11,94 +8,6 @@ import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
 import * as waxjs from '@waxio/waxjs/dist'
 
 import config from '../config'
-
-class CoffeJS {
-  CLIENT = null
-  client_id = null
-
-  auth_promise = {}
-  actions_promise = {}
-
-  constructor() {
-    this.CLIENT = io('https://coffe.io:28000/')
-  }
-
-  connect() {
-    // Empty for now..
-  }
-
-  login(user_name) {
-    // TODO Вынести в функцию
-    const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let array = new Uint8Array(length)
-    window.crypto.getRandomValues(array)
-    array = array.map(x => validChars.charCodeAt(x % validChars.length))
-    this.client_id = String.fromCharCode.apply(null, array)
-
-    this.CLIENT.on(this.client_id, receive => {
-      this.CLIENT.removeListener(this.client_id)
-
-      if (receive.action == 'confirm_action') {
-        if (receive.code == 1) {
-          if (receive.result == false) {
-            this.action_promise.reject(receive.message)
-          } else {
-            this.action_promise.resolve(receive.result)
-          }
-        } else if (receive.code == 2) {
-          this.action_promise.reject('No confirmation')
-        } else if (receive.code == 3) {
-          this.action_promise.reject('Authorisation Error')
-        } else if (receive.code == 4) {
-          this.action_promise.reject('Repeated authorization in telegram is required!')
-        } else {
-          this.action_promise.reject('Error')
-        }
-      }
-
-      if (receive.action == 'auth') {
-        if (receive.code == 1) {
-          const user_name = receive.result
-          this.auth_promise.resolve(user_name)
-        } else if (receive.code == 2) {
-          this.auth_promise.reject('Canceled')
-        } else if (receive.code == 3) {
-          this.auth_promise.reject('No confirmation')
-        } else if (receive.code == 4) {
-          this.auth_promise.reject('Repeated authorization in telegram is required!')
-        } else if (receive.code == 5) {
-          this.auth_promise.reject('Account not find!')
-        } else {
-          this.auth_promise.reject('Error')
-        }
-      }
-    })
-
-    // TODO cahnge to coffe dex account
-    const authPromise = new Promise((resolve, reject) => {
-      this.auth_promise = { resolve, reject }
-      this.CLIENT.emit('bot_module', { action: 'auth', client_id: this.client_id, dapp: 'eostokensdex', user_name })
-      setTimeout(() => reject('Exceeded the 20-second waiting limit'), 20000)
-    })
-
-    return authPromise
-  }
-
-  transact(actions) {
-    const actionsPromise = new Promise((resolve, reject) => {
-      this.actions_promise = { resolve, reject }
-
-      this.CLIENT.emit('bot_module', { action: 'confirm_action', client_id: this.client_id, dapp: 'eostokensdex', data: actions })
-      setTimeout(() => reject('Exceeded the 20-second waiting limit'), 20000)
-    })
-
-    return actionsPromise
-  }
-
-  logout() {
-    this.client_id = null
-  }
-}
 
 const fuelAuth = {
   actor: 'greymassfuel',
@@ -147,9 +56,6 @@ export const actions = {
         }
         console.log('no wax autologin found...')
       }
-    } else if (rootState.network.name == 'coffe') {
-      const coffe = new CoffeJS()
-      commit('setWallet', { ...state.wallet, coffe })
     }
 
     dispatch('tryLogin')
@@ -192,33 +98,6 @@ export const actions = {
             actor: userAccount, permission: 'active'
           }
         }, { root: true })
-      } else if (provider == 'coffe') {
-        await new Promise((resolve, reject) => {
-          this._vm.$prompt('Set your Coffe account name', 'Coffe Login', {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel'
-            // TODO EOS Account name regex
-            //inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
-            //inputErrorMessage: 'Invalid Email'
-          }).then(async ({ value }) => {
-            try {
-              const user_name = await state.wallet.coffe.login(value)
-
-              commit('setCurrentWallet', 'coffe')
-              commit('setUser', {
-                name: user_name,
-                authorization: {
-                  actor: user_name, permission: 'active'
-                }
-              }, { root: true })
-              resolve()
-            } catch (e) {
-              reject(e)
-            }
-          }).catch(() => {
-            reject()
-          })
-        })
       } else {
         commit('setProvider', provider)
         const wallet = getters.wallet

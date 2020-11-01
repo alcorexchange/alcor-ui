@@ -41,12 +41,6 @@
         el-button(size="large" @click="login('wax')" v-if="network.name == 'wax'")
           img(src="~/assets/logos/wax.svg" height="30").mr-2
           span Wax Cloud Wallet
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login('coffe')" v-if="network.name == 'coffe'")
-          img(src="~/assets/logos/coffe.svg" height="30").mr-2
-          span Coffe Wallet
-
 </template>
 
 <script>
