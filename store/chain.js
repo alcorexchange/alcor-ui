@@ -1,6 +1,6 @@
 import transit from 'eos-transit'
 
-import ScatterProvider from 'eos-transit-scatter-provider'
+//import ScatterProvider from 'eos-transit-scatter-provider'
 import KeycatProvider from 'eos-transit-keycat-provider'
 import SimpleosProvider from 'eos-transit-simpleos-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
@@ -8,6 +8,7 @@ import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
 import * as waxjs from '@waxio/waxjs/dist'
 
 import config from '../config'
+import ScatterProvider from '~/plugins/transit/Scatter'
 
 const fuelAuth = {
   actor: 'greymassfuel',

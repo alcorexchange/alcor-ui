@@ -15,6 +15,8 @@
     "@eosrio/hyperion-stream-client": "^0.4.0-beta.5",
     "@nuxtjs/axios": "^5.0.0",
     "@nuxtjs/sentry": "^4.3.4",
+    "@scatterjs/core": "^2.7.54",
+    "@scatterjs/eosjs2": "^1.5.36",
     "@vue/eslint-config-standard": "^5.0.0",
     "@waxio/waxjs": "0.0.13",
     "anchor-link": "^2.0.0",
