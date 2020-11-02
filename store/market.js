@@ -9,7 +9,6 @@ export const state = () => ({
   asks: [],
 
   deals: [],
-  charts: [],
 
   barStream: null,
 
@@ -21,24 +20,17 @@ export const mutations = {
   setId: (state, id) => state.id = id,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
-  setCharts: (state, charts) => state.charts = charts,
   setDeals: (state, deals) => state.deals = deals,
   setToken: (state, token) => state.token = token,
   setStats: (state, stats) => state.stats = stats,
   setActiveTab: (state, tab) => state.activeTab = tab,
   setBarStream: (state, barStream) => state.barStream = barStream,
-  setOrderLoading: (state, orderLoading) => state.orderLoading = orderLoading
 }
 
 export const actions = {
   update({ dispatch }) {
     dispatch('fetchOrders')
     dispatch('fetchDeals')
-  },
-
-  async fetchCharts({ state, commit, rootGetters }, params) {
-    //const { data: charts } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/charts`, params)
-    //commit('setCharts', charts)
   },
 
   async fetchDeals({ state, commit, rootGetters }) {
@@ -77,13 +69,6 @@ export const actions = {
 export const getters = {
   token (state) {
     return state.token || {}
-  },
-
-  wrongPrice() {
-    //if (this.totalEos === 0.0 || !this.amount || !this.price) return false
-
-    //return assetToAmount(this.amount, 4) * assetToAmount(this.price, 8) % config.PRICE_SCALE !== 0
-    return 'todo'
   },
 
   price(state) {
