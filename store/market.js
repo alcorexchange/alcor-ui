@@ -13,7 +13,6 @@ export const state = () => ({
   barStream: null,
 
   orderLoading: false,
-  activeTab: 'first'
 })
 
 export const mutations = {
@@ -23,8 +22,7 @@ export const mutations = {
   setDeals: (state, deals) => state.deals = deals,
   setToken: (state, token) => state.token = token,
   setStats: (state, stats) => state.stats = stats,
-  setActiveTab: (state, tab) => state.activeTab = tab,
-  setBarStream: (state, barStream) => state.barStream = barStream,
+  setBarStream: (state, barStream) => state.barStream = barStream
 }
 
 export const actions = {

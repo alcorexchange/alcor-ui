@@ -142,18 +142,7 @@ export default {
           return true
         }
       }).reverse()
-    },
-
-    activeTab: {
-      get () {
-        return this.$store.state.market.activeTab
-      },
-
-      set (value) {
-        this.$store.commit('market/setActiveTab', value)
-      }
     }
-
   },
   methods: {
     clickOrder(a, b, event) {

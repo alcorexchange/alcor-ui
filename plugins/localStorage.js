@@ -4,7 +4,7 @@ export default ({ store }) => {
   window.onNuxtReady(() => {
     createPersistedState({
       key: 'presist_v0.1',
-      paths: ['chain.payForUser', 'market.activeTab', 'theme']
+      paths: ['chain.payForUser', 'theme']
     })(store)
 
     // Theme management
