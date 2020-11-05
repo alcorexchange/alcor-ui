@@ -1,6 +1,13 @@
-import ScatterJS from '@scatterjs/core'
-import ScatterEOS from '@scatterjs/eosjs2'
-//import ScatterEOS from '@scatterjs/eosjs'
+// v20
+//import ScatterJS from '@scatterjs/core'
+//import ScatterEOS from '@scatterjs/eosjs2'
+//const scatter = ScatterJS
+
+// v16
+import ScatterJS from 'scatterjs-core'
+import ScatterEOS from 'scatterjs-plugin-eosjs2'
+
+const scatter = ScatterJS.scatter
 
 let accountPublickey
 
@@ -12,8 +19,7 @@ export function makeSignatureProvider(scatter, network) {
 
 // TODO: Ability to pass Scatter options
 export function scatterWalletProvider() {
-  const scatter = ScatterJS
-  scatter.plugins(new ScatterEOS())
+  ScatterJS.plugins(new ScatterEOS())
 
   return function makeWalletProvider(network) {
     // Connection
@@ -22,6 +28,7 @@ export function scatterWalletProvider() {
       return scatter
         .connect(appName, { initTimeout: 10000 })
         .then((connected) => {
+          console.log('Scatter connecting.. ', connected)
           if (connected) return true
           return Promise.reject('Cannot connect to Scatter')
         })
