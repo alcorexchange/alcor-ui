@@ -1,32 +1,29 @@
-// v20
-//import ScatterJS from '@scatterjs/core'
-//import ScatterEOS from '@scatterjs/eosjs2'
-//const scatter = ScatterJS
+import { JsonRpc, Api } from 'eosjs'
 
-// v16
 import ScatterJS from 'scatterjs-core'
 import ScatterEOS from 'scatterjs-plugin-eosjs2'
 
-const scatter = ScatterJS.scatter
-
+let scatter
 let accountPublickey
 let signatureProvider
 
+ScatterJS.plugins(new ScatterEOS())
+
 // TODO: Ability to pass Scatter options
 export function scatterWalletProvider() {
-  ScatterJS.plugins(new ScatterEOS())
-
   return function makeWalletProvider(network) {
-    // Connection
+    async function connect(appName) {
+      console.log('connecting 1')
+      scatter = null
+      const connected = await ScatterJS.scatter.connect(appName, { network })
 
-    function connect(appName) {
-      return scatter
-        .connect(appName, { initTimeout: 10000 })
-        .then((connected) => {
-          console.log('Scatter connecting.. ', connected)
-          if (connected) return true
-          return Promise.reject('Cannot connect to Scatter')
-        })
+      if (connected) {
+        scatter = ScatterJS.scatter
+        console.log('connecting 2, scatter: ', scatter)
+        return true
+      } else {
+        throw new Error('Cannot connect to Scatter')
+      }
     }
 
     function discover(discoveryOptions) {
@@ -42,9 +39,13 @@ export function scatterWalletProvider() {
     }
 
     function disconnect() {
-      // TODO: Uncomment when Scatter implements this correctly
-      // (probably by using `socket.close()` instead of `socket.disconnect()`)
-      scatter.disconnect()
+      try {
+        //scatter.disconnect()
+      } catch {
+        console.log('fail disconnect, try forgetIdentity... scatter: ', scatter)
+        scatter.forgetIdentity()
+      }
+
       return Promise.resolve(true)
     }
 
@@ -89,7 +90,18 @@ export function scatterWalletProvider() {
     }
 
     function logout(accountName) {
-      return scatter.forgetIdentity()
+      //scatter.logout()
+      //scatter.forgetIdentity()
+      //scatter.disconnect()
+
+      console.log('logouted_2')
+
+      try {
+        console.log('scatter.logout..')
+        return scatter.logout()
+      } catch {
+        return scatter.forgetIdentity()
+      }
     }
 
     function signArbitrary(data, userMessage) {
@@ -111,7 +123,17 @@ export function scatterWalletProvider() {
 
         sign(signatureProviderArgs) {
           if (!signatureProvider) {
-            signatureProvider = scatter.eosHook({ ...network, blockchain: 'eos' }, null, true)
+            if ('eosHook' in scatter) {
+              console.log('sing using eosHook...')
+              signatureProvider = scatter.eosHook({ ...network, blockchain: 'eos' }, null, true)
+            } else {
+              console.log('sing using eos object (old way)...')
+              const jNetwork = ScatterJS.Network.fromJson({ ...network, blockchain: 'eos' })
+              const rpc = new JsonRpc(jNetwork.fullhost())
+              const eos = scatter.eos(network, Api, { rpc })
+
+              signatureProvider = eos.signatureProvider
+            }
           }
 
           return signatureProvider.sign(signatureProviderArgs)

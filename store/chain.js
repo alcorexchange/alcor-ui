@@ -59,11 +59,12 @@ export const actions = {
       }
     }
 
-    dispatch('tryLogin')
+    //dispatch('tryLogin')
   },
 
   async tryLogin({ state, dispatch, commit, getters }) {
     // Check if Scatter connected
+    console.log('tryLogin....')
     commit('setProvider', 0)
     let connect = false
 
@@ -73,7 +74,6 @@ export const actions = {
 
     if (connect) {
       await dispatch('login', 0)
-      // return // FUTURE
     }
   },
 
@@ -100,18 +100,23 @@ export const actions = {
           }
         }, { root: true })
       } else {
+        console.log('login 1')
         commit('setProvider', provider)
         const wallet = getters.wallet
         //console.log(getters.wallet.getPathKeys())
+        console.log('login 2')
 
         let r
         try {
+          console.log('login 3, wallet connected: ', wallet.connected)
           if (wallet.connected) {
             // Что бы не залогиниться не с тем контекстом
             await getters.wallet.disconnect()
           }
 
+          console.log('login 4')
           await getters.wallet.connect()
+          console.log('login 5')
 
           try {
             console.log('ledger try...')
@@ -119,8 +124,10 @@ export const actions = {
           } catch (e) {
             console.log(e)
           }
+          console.log('login 6')
 
           r = await wallet.login()
+          console.log('login 7')
         } catch (e) {
           this._vm.$notify({ title: 'Login error', message: e, type: 'error' })
           if (state.loginPromise) state.loginPromise.resolve(false)
