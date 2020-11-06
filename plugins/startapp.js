@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 export default ({ app: { store } }) => {
   window.onNuxtReady(() => {
     store.dispatch('chain/init')
@@ -7,6 +9,11 @@ export default ({ app: { store } }) => {
     socket.on('update_market', data => {
       updateAppOnServerPush(store, data)
     })
+
+    if (process.env.isDev) {
+      const VConsole = require('vconsole')
+      Vue.prototype.$vConsole = new VConsole()
+    }
   })
 }
 
