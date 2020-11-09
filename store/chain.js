@@ -59,7 +59,7 @@ export const actions = {
       }
     }
 
-    //dispatch('tryLogin')
+    dispatch('tryLogin')
   },
 
   async tryLogin({ state, dispatch, commit, getters }) {
