@@ -1,6 +1,5 @@
 import transit from 'eos-transit'
 
-//import ScatterProvider from 'eos-transit-scatter-provider'
 import KeycatProvider from 'eos-transit-keycat-provider'
 import SimpleosProvider from 'eos-transit-simpleos-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
@@ -240,13 +239,11 @@ export const getters = {
   },
 
   accessContext(state, getters, rootState) {
-    const TokenPoketProvider = require('eos-transit-tokenpocket-provider').default
     const LynxProvider = require('eos-transit-lynx-provider').default
     const LedgerProvider = require('eos-transit-ledger-provider').default
 
     const walletProviders = [
       ScatterProvider(),
-      TokenPoketProvider(),
       AnchorLinkProvider(config.APP_NAME, {}),
       SimpleosProvider(),
       LynxProvider(),

@@ -5647,14 +5647,6 @@ eos-transit-simpleos-provider@^4.0.7:
     eos-transit "^4.0.7"
     eosjs "^20.0.0"
 
-eos-transit-tokenpocket-provider@^4.0.5:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/eos-transit-tokenpocket-provider/-/eos-transit-tokenpocket-provider-4.0.7.tgz#f64a947099cc704cff9fb6a4153ee526b05e52ff"
-  integrity sha512-FLc6pCRrTh3J4HnnpXPIXE40SQAP7/YYkNqmYZl5QhshXoix06/OITyoWd0XUFXxue8pISE61FNmTvpA8Q+Mgw==
-  dependencies:
-    eos-transit "^4.0.7"
-    eosjs "^20.0.0"
-
 eos-transit@^4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eos-transit/-/eos-transit-4.0.7.tgz#ae1478b25629af1fd1f2f57cbc52a79bfa3dc47d"

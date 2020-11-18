@@ -3,7 +3,7 @@
   .col-auto
     .d-flex.flex-wrap
       .mb-2.mr-2
-        el-button(size="large" @click="login(2)")
+        el-button(size="large" @click="login(1)")
           img(src="~/assets/logos/anchor.svg" height="30").mr-2
           span Anchor
 
@@ -13,27 +13,22 @@
           span Scatter
 
       .mb-2.mr-2
-        el-button(size="large" @click="login(1)")
-          img(src="~/assets/logos/token_poket.png" height="30").mr-2
-          span TokenPocket
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(3)")
+        el-button(size="large" @click="login(2)")
           img(src="~/assets/logos/simpleos.svg" height="30").mr-2
           span SimplEOS
 
       .mb-2.mr-2
-        el-button(size="large" @click="login(4)")
+        el-button(size="large" @click="login(3)")
           img(src="~/assets/logos/lynx.svg" height="30").mr-2
           span Lynx
 
       .mb-2.mr-2
-        el-button(size="large" @click="login(5)")
+        el-button(size="large" @click="login(4)")
           img(src="~/assets/logos/ledger.svg" height="30").mr-2
           span Ledger
 
       .mb-2.mr-2
-        el-button(size="large" @click="login(6)")
+        el-button(size="large" @click="login(5)")
           img(src="~/assets/logos/keycat.svg" height="30").mr-2
           span Keycat
 

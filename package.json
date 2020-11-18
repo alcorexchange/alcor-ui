@@ -39,7 +39,6 @@
     "eos-transit-lynx-provider": "^4.0.7",
     "eos-transit-scatter-provider": "^4.0.5",
     "eos-transit-simpleos-provider": "^4.0.7",
-    "eos-transit-tokenpocket-provider": "^4.0.5",
     "eosjs": "^21.0.3",
     "esm": "^3.2.25",
     "express-formidable": "^1.2.0",

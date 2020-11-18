@@ -3,7 +3,7 @@ import { JsonRpc, Api } from 'eosjs'
 import ScatterJS from 'scatterjs-core'
 import ScatterEOS from 'scatterjs-plugin-eosjs2'
 
-let scatter
+let scatter = null
 let accountPublickey
 let signatureProvider
 
@@ -13,8 +13,8 @@ ScatterJS.plugins(new ScatterEOS())
 export function scatterWalletProvider() {
   return function makeWalletProvider(network) {
     async function connect(appName) {
-      console.log('connecting 1')
-      scatter = null
+      if (scatter && await scatter.isConnected()) return true
+
       const connected = await ScatterJS.scatter.connect(appName, { network })
 
       if (connected) {
@@ -52,6 +52,12 @@ export function scatterWalletProvider() {
     // Authentication
 
     async function login(accountName) {
+      try {
+        console.log('check login', await scatter.checkLogin())
+      } catch (e) {
+        console.log('check login err', e)
+      }
+
       try {
         // Useful for testnets to provide a convenient means for the end use to quickly add
         // the required network configuration to their Scatter seamlessly while logging in.
