@@ -8,7 +8,7 @@ With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomi
 
 Props:
 1. Fully-onchain.
-2. NO FEES!
+2. NO TRADING FEES!
 3. Free CPU program.
 4. Open Source.
 
