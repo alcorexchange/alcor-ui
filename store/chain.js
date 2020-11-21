@@ -211,6 +211,7 @@ export const actions = {
         tx.actions.unshift(fuelNoop)
       }
 
+      // Transit
       result = await getters.wallet.eosApi.transact(tx, transactionHeader)
     }
 
@@ -276,9 +277,17 @@ export const getters = {
 
   wallet(state, getters) {
     const wallet = getters.accessContext.initWallet(getters.walletProvider)
-    const api = wallet.eosApi
-    // swizzle out authority provider to ignore the fuel permission
+    let api
+
+    if (wallet.provider.getEosApi !== undefined && wallet.provider.getEosApi() !== undefined) {
+      api = wallet.provider.getEosApi()
+    } else {
+      api = wallet.eosApi
+    }
+
     const getRequiredKeys = api.authorityProvider.getRequiredKeys.bind(api.authorityProvider)
+
+    // swizzle out authority provider to ignore the fuel permission
     api.authorityProvider.getRequiredKeys = (args) => {
       const actions = args.transaction.actions.map((action) => {
         const authorization = action.authorization.filter(
@@ -299,7 +308,9 @@ export const getters = {
         transaction
       })
     }
+
     wallet.eosApi = api
+
     return wallet
   }
 }

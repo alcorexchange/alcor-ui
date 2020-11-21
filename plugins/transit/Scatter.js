@@ -2,24 +2,54 @@ import { JsonRpc, Api } from 'eosjs'
 
 import ScatterJS from 'scatterjs-core'
 import ScatterEOS from 'scatterjs-plugin-eosjs2'
+//import ScatterEOS from '~/assets/libs/scatter-plugin2'
 
-let scatter = null
+let scatter_plugin = null
+let scatter_api = null
+
+const getScatter = () => scatter_api || scatter_plugin
+
 let accountPublickey
 let signatureProvider
 
 ScatterJS.plugins(new ScatterEOS())
 
+if (typeof window !== 'undefined' || typeof document !== 'undefined') {
+  document.addEventListener('scatterLoaded', () => {
+    console.log('scatter connect in hook')
+    scatter_plugin = window.scatter
+  })
+}
+
 // TODO: Ability to pass Scatter options
 export function scatterWalletProvider() {
   return function makeWalletProvider(network) {
     async function connect(appName) {
+      //return new Promise((resolve, reject) => {
+      //  let tries = 0
+
+      //  function checkConnect() {
+      //    if (scatter) return resolve(true)
+
+      //    tries++
+
+      //    if (tries > 5) return reject('Cannot connect to ScatterPocket wallet provider')
+
+      //    setTimeout(() => {
+      //      checkConnect()
+      //    }, 1000)
+      //  }
+
+      //  checkConnect()
+      //})
+
+      const scatter = getScatter()
       if (scatter && await scatter.isConnected()) return true
 
       const connected = await ScatterJS.scatter.connect(appName, { network })
 
       if (connected) {
-        scatter = ScatterJS.scatter
-        console.log('connecting 2, scatter: ', scatter)
+        scatter_api = ScatterJS.scatter
         return true
       } else {
         throw new Error('Cannot connect to Scatter')
@@ -39,6 +69,7 @@ export function scatterWalletProvider() {
     }
 
     function disconnect() {
+      const scatter = getScatter()
       try {
         //scatter.disconnect()
       } catch {
@@ -52,6 +83,7 @@ export function scatterWalletProvider() {
     // Authentication
 
     async function login(accountName) {
+      const scatter = getScatter()
       try {
         console.log('check login', await scatter.checkLogin())
       } catch (e) {
@@ -96,14 +128,9 @@ export function scatterWalletProvider() {
     }
 
     function logout(accountName) {
-      //scatter.logout()
-      //scatter.forgetIdentity()
-      //scatter.disconnect()
-
-      console.log('logouted_2')
+      const scatter = getScatter()
 
       try {
-        console.log('scatter.logout..')
         return scatter.logout()
       } catch {
         return scatter.forgetIdentity()
@@ -111,6 +138,8 @@ export function scatterWalletProvider() {
     }
 
     function signArbitrary(data, userMessage) {
+      const scatter = getScatter()
+
       return scatter.getArbitrarySignature(accountPublickey, data, userMessage)
     }
 
@@ -128,6 +157,8 @@ export function scatterWalletProvider() {
         },
 
         sign(signatureProviderArgs) {
+          const scatter = getScatter()
+
           if (!signatureProvider) {
             if ('eosHook' in scatter) {
               console.log('sing using eosHook...')
@@ -136,13 +167,24 @@ export function scatterWalletProvider() {
               console.log('sing using eos object (old way)...')
               const jNetwork = ScatterJS.Network.fromJson({ ...network, blockchain: 'eos' })
               const rpc = new JsonRpc(jNetwork.fullhost())
-              const eos = scatter.eos(network, Api, { rpc })
+              const eos = scatter.eos(jNetwork, Api, { rpc })
 
               signatureProvider = eos.signatureProvider
             }
           }
 
           return signatureProvider.sign(signatureProviderArgs)
+        }
+      },
+      getEosApi() {
+        if (scatter_api) {
+          return undefined
+        } else if (scatter_plugin) {
+          const jNetwork = ScatterJS.Network.fromJson({ ...network, blockchain: 'eos' })
+          const rpc = new JsonRpc(jNetwork.fullhost())
+          return scatter_plugin.eos(jNetwork, Api, { rpc })
+        } else {
+          return undefined
         }
       },
       connect,
