@@ -220,7 +220,7 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    host: 'telos.caleos.io',
+    host: 'api.telos.alohaeos.com',
     //host: 'telos.caleos.io',
     port: 443,
     protocol: 'https',
@@ -228,7 +228,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'https://telos.caleos.io',
+    hyperion: 'https://telos.caleos.io/',
     backEnd: 'https://alcor.exchange/api/',
 
     otc: {
