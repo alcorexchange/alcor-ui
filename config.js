@@ -220,8 +220,7 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    host: 'mainnet.telosusa.io',
-    //host: 'telos.caleos.io',
+    host: 'telos.caleos.io',
     port: 443,
     protocol: 'https',
     monitor: 'http://telos.bloks.io',
