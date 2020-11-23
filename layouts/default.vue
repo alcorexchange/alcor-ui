@@ -126,7 +126,7 @@ export default {
       const items = []
 
       items.push({ index: '/markets', name: 'Markets' })
-      items.push({ index: '/defi', name: 'DeFi' })
+      items.push({ index: '/defi/swap', name: 'DeFi' })
 
       //if (['eos'].includes(this.$store.state.network.name)) {
       //  items.push({ index: '/swap', name: 'Swap' })
@@ -144,7 +144,7 @@ export default {
 
       //items.push({ index: '/about', name: 'About' })
 
-      items.push({ index: '/wallet', name: 'Wallet' })
+      items.push({ index: '/wallet/tokens', name: 'Wallet' })
 
       items.push({ index: '/docs', name: 'Docs' })
 

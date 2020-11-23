@@ -22,17 +22,14 @@ export default {
   },
 
   asyncData({ store, redirect, route }) {
-    if (route.path == '/defi') {
-      redirect({ name: 'defi-index-swap' })
-    }
+    if (route.path == '/defi') redirect({ name: 'defi-index-swap' })
 
-    const paths = route.path.split('/')
-    return { defaultActiveLink: 'defi-index-' + paths[paths.length - 1] }
+    return { defaultActiveLink: route.name }
   },
 
   data() {
     return {
-      defaultActiveLink: 'wallet-index-tokens'
+      defaultActiveLink: 'defi-index-swap'
     }
   }
 }
