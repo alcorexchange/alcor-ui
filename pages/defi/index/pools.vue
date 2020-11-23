@@ -50,7 +50,7 @@ export default {
       const sym2 = `${cp.pool2.contract}-${cp.pool2.quantity.symbol.code().to_string().toLowerCase()}`
 
       redirect({
-        name: 'pools-index-pool',
+        name: 'defi-index-pools-pool',
         params: {
           pool: `${sym1}_${sym2}`
         }
@@ -97,7 +97,7 @@ export default {
       const sym2 = `${p.pool2.contract}-${p.pool2.quantity.symbol.code().to_string().toLowerCase()}`
 
       this.$router.push({
-        name: 'pools-index-pool',
+        name: 'defi-index-pools-pool',
         params: {
           pool: `${sym1}_${sym2}`
         }

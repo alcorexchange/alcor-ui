@@ -126,17 +126,14 @@ export default {
       const items = []
 
       items.push({ index: '/markets', name: 'Markets' })
-
-      if (['eos'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/swap', name: 'Swap' })
-      }
-
-      if (['eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/pools', name: 'Pools' })
-      }
+      items.push({ index: '/defi', name: 'DeFi' })
 
       //if (['eos'].includes(this.$store.state.network.name)) {
-      //  items.push({ index: '/cross-chain', name: 'Cross-Chain' })
+      //  items.push({ index: '/swap', name: 'Swap' })
+      //}
+
+      //if (['eos', 'telos', 'jungle'].includes(this.$store.state.network.name)) {
+      //  items.push({ index: '/pools', name: 'Pools' })
       //}
 
       items.push({ index: '/otc', name: 'OTC' })

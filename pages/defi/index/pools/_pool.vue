@@ -13,10 +13,12 @@ export default {
   },
 
   async fetch({ store, error, params }) {
-    console.log('fetch direct  pool')
+    console.log('fetch pool1')
     if (store.state.pools.pools.length == 0) {
       await store.dispatch('pools/fetchPools')
     }
+
+    console.log('fetch pool2')
 
     const pools = store.getters['pools/pools']
 

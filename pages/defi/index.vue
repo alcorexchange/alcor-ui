@@ -1,0 +1,43 @@
+<template lang="pug">
+.row.wallet.mt-2
+  .col-lg-2.pr-0
+    el-menu(:default-active='defaultActiveLink' router)
+      el-menu-item(index='defi-index-swap' :route="{ name: 'defi-index-swap' }")
+        i.el-icon-coin
+        span DefiBox Swap
+      el-menu-item(index='defi-index-pools' :route="{ name: 'defi-index-pools' }")
+        i.el-icon-setting
+        span Evodex
+
+  .col-lg-10
+    nuxt-child
+</template>
+
+<script>
+import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
+
+export default {
+  components: {
+    PleaseLoginButton
+  },
+
+  created() {
+    console.log(this.$router.options.routes)
+  },
+
+  asyncData({ store, redirect, route }) {
+    if (route.path == '/defi') {
+      redirect({ name: 'defi-index-swap' })
+    }
+
+    const paths = route.path.split('/')
+    return { defaultActiveLink: 'defi-index-' + paths[paths.length - 1] }
+  },
+
+  data() {
+    return {
+      defaultActiveLink: 'wallet-index-tokens'
+    }
+  }
+}
+</script>
