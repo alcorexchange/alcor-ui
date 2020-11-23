@@ -37,13 +37,11 @@ export const actions = {
   },
 
   async fetchPools({ state, commit, rootGetters, rootState }) {
-    console.log('fetchPools 1')
     const { rows } = await rootGetters['api/rpc'].get_table_by_scope({
       code: rootState.network.pools.contract,
       table: 'stat',
       limit: 1000
     })
-    console.log('fetchPools 2')
 
     const requests = rows.map(r => {
       return rootGetters['api/rpc'].get_table_rows({
@@ -59,7 +57,6 @@ export const actions = {
 
       return pool
     }).filter(p => p.pool1.contract != 'yuhjtmanserg')
-    console.log('fetchPools 3')
 
     if (state.pools.length == 0 && pools.length > 0) {
       commit('setCurrentSym', pools[0].supply.split(' ')[1])
