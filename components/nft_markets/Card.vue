@@ -12,7 +12,7 @@
             el-carousel-item(v-for="nft in order.sell" :key="nft.id")
               .p-3.text-center
                 b {{ nft.mdata.name }}
-                img(:src="nft.mdata.img" width="80%")
+                img(:src="nft.mdata.img" width="80%" @error="setOriginalSrc")
           //.p-3(v-for="nft in order.sell").pointer.mb-1
             .row
               .col
@@ -64,7 +64,12 @@ export default {
   methods: {
     open() {
       this.$router.push({ name: 'nft-market-order-id', params: { id: this.order.id } })
-    }
+    },
+
+    setOriginalSrc(event) {
+      event.target.src = event.target.src.replace('https://images.hive.blog/0x0/', '')
+    },
+
   }
 }
 </script>

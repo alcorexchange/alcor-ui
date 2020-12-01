@@ -13,7 +13,7 @@ el-card(v-if="!no_found").box-card.mt-3
         el-card(v-for="nft in nfts" shadow="hover").pointer.mb-1
           .row
             .col-lg-4
-              img(:src="nft.mdata.img" height="250").order-img
+              img(:src="nft.mdata.img" height="250" @error="setOriginalSrc").order-img
             .col-lg-8
               NftFields(:nft="nft")
 
@@ -143,6 +143,10 @@ export default {
 
   methods: {
     ...mapActions('chain', ['login', 'transfer', 'sendTransaction']),
+
+    setOriginalSrc(event) {
+      event.target.src = event.target.src.replace('https://images.hive.blog/0x0/', '')
+    },
 
     async cancelOrder(order) {
       const loading = this.$loading({
