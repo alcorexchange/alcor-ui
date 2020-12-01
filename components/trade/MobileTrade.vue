@@ -113,13 +113,24 @@
       .col
         LatestDeals
 
-    .row.mt-3
+    .row.mt-2.mobile-terminal
       .col
-        MyOrders
+        //.overflowbox.low-height.overflow-hidden
+        el-tabs.h-100
+          el-tab-pane(label="Open order")
+            my-orders(v-if="user")
 
-    .row.mt-3
-      .col
-        MyHistory
+          el-tab-pane(label="Order history")
+            my-history(v-if="user")
+
+
+    //.row.mt-3
+    //  .col
+    //    MyOrders
+
+    //.row.mt-3
+    //  .col
+    //    MyHistory
 
 </template>
 
@@ -165,7 +176,19 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+.mobile-terminal {
+  .el-table {
+    font-size: 10px;
+
+    .el-table__header-wrapper {
+      th {
+        font-weight: 100;
+      }
+    }
+  }
+}
+
 .left-bar {
   padding-right: 10px;
 }

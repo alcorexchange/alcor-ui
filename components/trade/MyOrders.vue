@@ -1,39 +1,15 @@
 <template lang="pug">
-div
-  .mobile-markets.d-lg-none.mt-3
-    .row.market-row(v-for="order in orders").border
-      .col-8
-        .row
-          .col
-            div(v-if="order.type == 'bid'")
-              strong.text-success {{ order.type }}
-              strong.ml-3 {{ order.bid.quantity }}
-
-            div(v-else)
-              strong.text-danger {{ order.type }}
-              strong.ml-3 {{ order.bid.quantity }}
-        .row
-          .col
-            div(v-if="order.type == 'bid'")
-              strong.text-success {{ order.unit_price | humanPrice }}
-
-            div(v-else)
-              strong.text-danger {{ order.unit_price | humanPrice }}
-
-      .col-4
-        el-button(size='mini', type='danger', @click='cancel(order)').ml-auto Cancel
-
-  el-table(:data='orders' max-height="260").d-none.d-lg-block.w-100
-    el-table-column(label='Type' width="40")
+  el-table(:data='orders' max-height="260").w-100
+    el-table-column(label='Type' width="50")
       template(slot-scope='scope').text-success
         span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type.toUpperCase() }}
         span.text-danger(v-else) {{ scope.row.type.toUpperCase() }}
 
-    el-table-column(label='Date' width="80")
+    el-table-column(label='Date' width="80" v-if="!isMobile")
       template(slot-scope='scope')
         span {{ scope.row.timestamp | moment('DD-MM HH:mm')}}
 
-    el-table-column(label='Ask' width="120")
+    el-table-column(label='Ask' width="120" v-if="!isMobile")
       template(slot-scope='scope')
         span {{ scope.row.ask.quantity }}
 

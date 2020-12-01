@@ -1,40 +1,15 @@
 <template lang="pug">
-div
-  .mobile-markets.d-lg-none.mt-3
-    .row.market-row(v-for="order in orders").mb-2.border
-      .col-6
-        .row
-          .col
-            div(v-if="order.type == 'bid'")
-              strong.text-success BUY
-              strong.ml-3 {{ order.bid.quantity }}
-
-            div(v-else)
-              strong.text-danger SELL
-              strong.ml-3 {{ order.bid.quantity }}
-        .row
-          .col
-            div(v-if="order.type == 'bid'")
-              strong.text-success {{ order.unit_price | humanPrice }}
-
-            div(v-else)
-              strong.text-danger {{ order.unit_price | humanPrice }}
-
-      .col-6
-        el-button(size="mini")
-          a(:href="monitorTx(order.trx_id)" target="_blank").a-reset Show transaction
-
-  el-table(:data='orders' max-height="260").d-none.d-lg-block
-    el-table-column(label='Type' width="40")
+  el-table(:data='orders' max-height="260")
+    el-table-column(label='Type' width="50")
       template(slot-scope='scope').text-success
         span.text-success(v-if="scope.row.type == 'buymatch'") BID
         span.text-danger(v-else) SELL
 
-    el-table-column(label='Date' width="80")
+    el-table-column(label='Date' width="80" v-if="!isMobile")
       template(slot-scope='scope')
         span {{ scope.row.time | moment('DD-MM HH:mm')}}
 
-    el-table-column(label='Ask' width="120")
+    el-table-column(label='Ask' width="120" v-if="!isMobile")
       template(slot-scope='scope')
         span {{ scope.row.ask.quantity }}
 
