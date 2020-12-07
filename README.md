@@ -72,6 +72,9 @@ $ yarn start
 
 # generate static project
 $ yarn run generate
+
+# Docker run:
+docker run -it -p 7001:7000 --restart=unless-stopped -d --label=com.centurylinklabs.watchtower.enable=true --name eostokens-ui -e PAYFORCPUPK=5k... -v /var/www/alcor.exchange/data:/app/data avral/alcor-ui
 ```
 
 ## Created:

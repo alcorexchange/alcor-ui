@@ -77,7 +77,7 @@ markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id } })
+  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 400 })
 
   // TODO Вынести на клиент или парсить в базу
   matches.map(m => {
