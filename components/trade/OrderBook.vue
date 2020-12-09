@@ -74,7 +74,10 @@ export default {
   methods: {
     scrollBook() {
       const asks = this.$refs.asks
-      setTimeout(() => asks.scrollTop = asks.scrollHeight, 100)
+      setTimeout(() => {
+        if (!asks) return
+        asks.scrollTop = asks.scrollHeight
+      }, 100)
     },
 
     setBid(ask) {
