@@ -5,10 +5,11 @@
   el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
     el-table-column(label="Pair")
       template(slot-scope="scope")
-        TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="20")
-        small.ml-1 {{ scope.row.token.symbol.name }}
+        TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="20")
+        small.ml-1 {{ scope.row.quote_token.symbol.name }}
+        small.ml-1  / {{ scope.row.base_token.symbol.name }}
 
-    el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]" width="100")
+    el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]" width="50")
       template(slot-scope="scope")
         .text-success {{ scope.row.last_price | humanPrice }}
 
@@ -39,12 +40,12 @@ export default {
 
   computed: {
     ...mapState(['markets', 'network']),
-    ...mapState('market', ['id']),
+    ...mapState('market', ['id', 'quote_token']),
 
     filteredItems() {
       if (!this.markets) return []
       return this.markets.filter((i) => {
-        if (i.token.str.toLowerCase().includes(this.search.toLowerCase()))
+        if (i.slug.toLowerCase().includes(this.search.toLowerCase()))
           return true
       }).reverse()
     }
@@ -58,7 +59,7 @@ export default {
     setMarket(market) {
       //this.loading = true
       this.$router.push(
-        { name: 'trade-index-id', params: { id: `${market.token.symbol.name}-${market.token.contract}` } },
+        { name: 'trade-index-id', params: { id: market.slug } },
         () => this.loading = false,
         () => this.loading = false
       )

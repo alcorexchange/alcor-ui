@@ -33,16 +33,15 @@ import { mapGetters, mapState } from 'vuex'
 
 export default {
   computed: {
-    ...mapState(['network']),
     ...mapGetters(['user']),
     ...mapGetters('chain', ['rpc']),
-    ...mapState('market', ['asks', 'bids', 'id']),
+    ...mapState('market', ['asks', 'bids', 'id', 'base_token']),
 
     orders() {
       if (!this.user) return []
 
       return [...this.asks, ...this.bids].filter(a => a.account === this.user.name).map((o) => {
-        o.type = o.bid.symbol.symbol === this.network.baseToken.symbol ? 'bid' : 'ask'
+        o.type = o.bid.symbol.symbol === this.base_token.symbol.name ? 'bid' : 'ask'
 
         return o
       }).sort((a, b) => b.timestamp - a.timestamp)

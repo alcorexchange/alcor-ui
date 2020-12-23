@@ -175,7 +175,7 @@ export default {
   computed: {
     recomendedMarkets() {
       try {
-        return this.$store.state.markets.filter(m => this.$store.state.network.RECOMMENDED_MARKETS.includes(m.token.str))
+        return this.$store.state.markets.filter(m => this.$store.state.network.RECOMMENDED_MARKETS.includes(m.quote_token.str))
       } catch (e) {
         console.log(e, 'Error getting markets in recomendations!!!')
         return []

@@ -2,7 +2,13 @@ import { sort_by_price, prepareOrder, mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
-  token: {},
+
+  slug: '',
+  symbol: '',
+
+  base_token: {},
+  quote_token: {},
+
   stats: {},
 
   bids: [],
@@ -12,17 +18,25 @@ export const state = () => ({
 
   barStream: null,
 
-  orderLoading: false,
+  orderLoading: false
 })
 
 export const mutations = {
-  setId: (state, id) => state.id = id,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setDeals: (state, deals) => state.deals = deals,
-  setToken: (state, token) => state.token = token,
-  setStats: (state, stats) => state.stats = stats,
-  setBarStream: (state, barStream) => state.barStream = barStream
+  setBarStream: (state, barStream) => state.barStream = barStream,
+
+  setMarket: (state, market) => {
+    const { id, base_token, quote_token, slug, symbol } = market
+
+    state.id = id
+    state.slug = slug
+    state.symbol = symbol
+    state.base_token = base_token
+    state.quote_token = quote_token
+    state.stats = market
+  }
 }
 
 export const actions = {
@@ -56,10 +70,7 @@ export const actions = {
       throw new Error(`Market with id ${market.id} not found or closed :(`)
     }
 
-    commit('setToken', market.token)
-    commit('setStats', market)
-    commit('setId', market.id)
-
+    commit('setMarket', market)
     // TODO Move to client side
   }
 }
@@ -72,9 +83,9 @@ export const getters = {
   price(state) {
     let price = 0
 
-    if (state.deals.length > 0) {
+    if (state.deals.length > 0)
       price = state.deals[0].unit_price
-    } else if (state.bids.length)
+    else if (state.bids.length)
       price = state.bids.sort(sort_by_price)[0].unit_price
     else if (state.asks.length)
       price = state.asks.sort(sort_by_price)[state.asks.length - 1].unit_price
@@ -88,5 +99,31 @@ export const getters = {
 
   sorted_bids(state) {
     return mergeSamePriceOrders(state.bids.slice()).sort(sort_by_price)
+  },
+
+  baseBalance(state, getters, rootState) {
+    const { user } = rootState
+
+    if (!user || !user.balances) return '0.0000 ' + state.base_token.symbol.name
+
+    const balance = user.balances.filter(b => b.currency === state.base_token.symbol.name)[0]
+    if (!balance) return '0.0000 ' + state.base_token.symbol.name
+
+    return `${balance.amount} ${balance.currency}`
+  },
+
+  tokenBalance(state, getters, rootState) {
+    const { user } = rootState
+
+    if (!user || !user.balances || !state.quote_token.symbol.name) return '0.0000'
+    const balance = user.balances.filter((b) => {
+      return b.currency === state.quote_token.symbol.name &&
+             b.contract === state.quote_token.contract
+    })[0]
+
+    if (balance)
+      return `${balance.amount} ${balance.currency}`
+    else
+      return Number(0).toFixed(state.quote_token.symbol.precision) + ` ${state.quote_token.symbol.name}`
   }
 }

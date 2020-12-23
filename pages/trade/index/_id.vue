@@ -4,66 +4,68 @@
 
 <script>
 import { Name, SymbolCode } from 'eos-common'
-import { captureException } from '@sentry/browser'
 
 export default {
   async fetch({ redirect, store, error, params }) {
     if (!params.id) redirect({ name: 'markets' })
 
-    const [symbol, contract] = params.id.split('-')
+    if (!params.id.includes('_')) {
+      // old style link(only quote token in id, and base are system)
 
-    let market_id
-
-    if (contract && symbol) {
-      if (store.state.network.name == 'bos') {
-        // Old api of bos chain
-        if (!store.state.markets.length) {
-          await store.dispatch('loadMarkets')
-        }
-
-        const market = store.state.markets.filter(m => m.token.str == `${symbol}@${contract}`)[0]
-
-        if (market) {
-          market_id = market.id
-        } else {
-          return error(`Market ${symbol}@${contract} not found!`)
-        }
-      } else {
-        // If it's slug use >= node v2.0
-        const i128_id = new Name(contract).value.shiftLeft(64).or(new SymbolCode(symbol.toUpperCase()).raw()).toString(16)
-
-        const { rows: [market] } = await store.getters['api/rpc'].get_table_rows({
-          code: store.state.network.contract,
-          scope: store.state.network.contract,
-          table: 'markets',
-          lower_bound: `0x${i128_id}`,
-          key_type: 'i128',
-          index_position: 2,
-          limit: 1
-        })
-
-        if (market == undefined || !(market.token.sym.includes(symbol) && market.token.contract == contract)) {
-          return error(`Market ${symbol}@${contract} not found!`)
-        } else {
-          market_id = market.id
-        }
-      }
-    } else {
-      market_id = params.id
+      const id = `${params.id}_${store.state.network.baseToken.symbol}-${store.state.network.baseToken.contract}`
+      redirect({ name: 'trade-index-id', params: { id } })
     }
 
-    store.commit('market/setId', market_id)
+    if (!params.id.includes('_')) redirect({ name: 'markets' })
 
-    try {
+    await store.dispatch('loadMarkets')
+
+    params.id = params.id.toLowerCase()
+    let market = store.state.markets.filter(m => m.slug == params.id)[0]
+
+    if (!market) {
+      // If not market pre-loaded (might be just new created..)
+      const [quote_token, base_token] = params.id.split('_')
+
+      const [q_sym, q_contract] = quote_token.split('-')
+      const [b_sym, b_contract] = base_token.split('-')
+
+      const q_i128_id = new Name(q_contract).value.shiftLeft(64).or(new SymbolCode(q_sym.toUpperCase()).raw())
+      const b_i128_id = new Name(b_contract).value.shiftLeft(64).or(new SymbolCode(b_sym.toUpperCase()).raw())
+
+      let i256_id
+      if (q_i128_id < b_i128_id)
+        i256_id = q_i128_id.shiftLeft(128).or(b_i128_id).toString(16)
+      else
+        i256_id = b_i128_id.shiftLeft(128).or(q_i128_id).toString(16)
+
+      const { rows } = await store.getters['api/rpc'].get_table_rows({
+        code: store.state.network.contract,
+        scope: store.state.network.contract,
+        table: 'markets',
+        lower_bound: `0x${i256_id}`,
+        key_type: 'i256',
+        index_position: 2,
+        limit: 1
+      })
+
+      if (rows.length == 0) {
+        return error(`market ${params.id} found`)
+      }
+
+      store.commit('market/setMarket', { id: rows[0].id })
       await Promise.all([
         store.dispatch('market/fetchMarket'),
         store.dispatch('market/fetchOrders'),
         store.dispatch('market/fetchDeals')
       ])
-    } catch (e) {
-      captureException(e)
-      return error({ message: e, statusCode: 500 })
-    } finally {
+    } else {
+      store.commit('market/setMarket', market)
+
+      await Promise.all([
+        store.dispatch('market/fetchOrders'),
+        store.dispatch('market/fetchDeals')
+      ])
     }
   }
 }

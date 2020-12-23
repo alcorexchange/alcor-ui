@@ -12,46 +12,75 @@
           br
           | This happens on smart contract, without the participation of third parties.
 
-        pre *You will buy 530(~0.02 {{ network.baseToken.symbol }}) RAM bytes for new market creation
+        small *You will buy 530(~0.02 {{ network.baseToken.symbol }}) RAM bytes for new market creation
 
       PleaseLoginButton
         el-form(ref="form" :model="form" label-position="left" :rules="rules")
-          el-tabs(@tab-click="tokenSelect = ''" type="border-card")
-            el-tab-pane(label="Auto select")
-              el-alert(v-if="user && !user.balances" type="warning")
-                .lead Unable to fetch user tokens.. use manually method
+          el-card.mb-2
+            .clearfix(slot="header")
+              b.text-muted BASE TOKEN
 
-              el-form-item(label="Select token for new market" prop="token.contract")
-                el-select(v-model='tokenSelect' v-if="user && user.balances"
-       value-key="id" filterable placeholder='Select' clearable @change="selectToken")
-                  el-option(
-                    v-for="t in tokens",
-                    :key="t.id",
-                    :label="t.id",
-                    :value="t"
-                  )
-                    TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
-                    span.ml-3 {{ t.currency + '@' + t.contract }}
+            el-form-item(label="System token or USDT is recommended" prop="quote_token.contract")
+              el-select(v-model='base_select' v-if="user && user.balances"
+     value-key="id" filterable placeholder='Select' clearable @change="selectBaseToken")
+                el-option(
+                  :label="network.baseToken.symbol + '@' + network.baseToken.contract",
+                  :value="network.baseToken"
+                )
+                  TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="25")
+                  span.ml-3 {{ network.baseToken.symbol + '@' + network.baseToken.contract }}
 
-            el-tab-pane(label="Manually")
-              el-form-item(label="Token contract" prop="token.contract")
-                el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.token.contract")
+                el-option(
+                  v-for="t in tokens",
+                  :key="t.id",
+                  :label="t.id",
+                  :value="t"
+                )
+                  TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
+                  span.ml-3 {{ t.currency + '@' + t.contract }}
 
-              el-form-item(v-if="form.token.contract" label="Token symbol" prop="token.symbol")
-                el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.token.symbol").upperinput
+          el-card.mb-2
+            .clearfix(slot="header")
+              b.text-muted QUOTE TOKEN
 
-            .row(v-if="form.token.contract && form.token.symbol").mt-3
-              .col
-                .lead
-                  TokenImage(:src="$tokenLogo(form.token.symbol, form.token.contract)" height="40")
-                  span  {{ form.token.symbol }}@{{ form.token.contract }}
-                small.text-mutted.ml-1.mt-2   Creation new market fee is:
-                b  {{ network.marketCreationFee }}
+            //el-tabs(@tab-click="quote_select = ''" type="border-card")
+            el-tabs(@tab-click="quote_select = ''")
+              el-tab-pane(label="Auto select")
+                el-alert(v-if="user && !user.balances" type="warning")
+                  .lead Unable to fetch user tokens.. use manually method
 
-            .row.mt-3
-              .col
-                span.dialog-footer
-                  el-button(type='primary' v-if="form.token.symbol" @click="submit").w-100 Create market
+                el-form-item(label="Select token for new market" prop="quote_token.contract")
+                  el-select(v-model='quote_select' v-if="user && user.balances"
+         value-key="id" filterable placeholder='Select' clearable @change="selectToken")
+                    el-option(
+                      v-for="t in tokens",
+                      :key="t.id",
+                      :label="t.id",
+                      :value="t"
+                    )
+                      TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
+                      span.ml-3 {{ t.currency + '@' + t.contract }}
+
+              el-tab-pane(label="Manually")
+                el-form-item(label="Token contract" prop="quote_token.contract")
+                  el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.quote_token.contract")
+
+                el-form-item(v-if="form.quote_token.contract" label="Token symbol" prop="quote_token.symbol")
+                  el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.quote_token.symbol").upperinput
+
+              .row(v-if="form.quote_token.contract && form.quote_token.symbol").mt-3
+                .col
+                  .lead
+                    TokenImage(:src="$tokenLogo(form.quote_token.symbol, form.quote_token.contract)" height="40")
+                    span  {{ form.quote_token.symbol }}@{{ form.quote_token.contract }}
+                  small.text-muted.ml-1.mt-2   Creation new market fee is:
+                    span(v-if="network.baseToken.contract != base_token.contract")  (x3 for custom base token)
+                  b  {{ creation_fee }}
+
+              .row.mt-3
+                .col
+                  span.dialog-footer
+                    el-button(type='primary' v-if="form.quote_token.symbol" @click="submit").w-100 Create market
 
 </template>
 
@@ -59,6 +88,7 @@
 import { captureException } from '@sentry/browser'
 
 import { mapGetters, mapState } from 'vuex'
+import { asset } from "eos-common"
 
 import TokenImage from '~/components/elements/TokenImage'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
@@ -72,7 +102,13 @@ export default {
   data() {
     return {
       form: {
-        token: {
+        base_token: {
+          symbol: '',
+          contract: '',
+          precision: 4
+        },
+
+        quote_token: {
           symbol: '',
           contract: '',
           precision: 4
@@ -80,7 +116,7 @@ export default {
       },
 
       rules: {
-        'token.contract': {
+        'quote_token.contract': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
             try {
@@ -92,23 +128,26 @@ export default {
           }
         },
 
-        'token.symbol': {
+        'quote_token.symbol': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
-            const r = await this.rpc.get_currency_stats(this.form.token.contract, value)
+            const r = await this.rpc.get_currency_stats(this.form.quote_token.contract, value)
 
             if (value in r) {
-              this.selectToken(this.form.token)
+              this.selectToken(this.form.quote_token)
               callback()
             } else {
-              callback(new Error(`No ${value} symbol in ${this.form.token.contract} contract`))
+              callback(new Error(`No ${value} symbol in ${this.form.quote_token.contract} contract`))
             }
           }
         }
       },
 
       formLabelWidth: '120px',
-      tokenSelect: ''
+
+      base_select: '',
+      quote_select: '',
+      creation_fee: ''
     }
   },
 
@@ -121,16 +160,37 @@ export default {
       return this.user.balances.filter(t => {
         if (t.contract == this.network.baseToken.contract && t.currency == this.network.baseToken.symbol) return false
 
-        return !this.knownTokens.some(k => k.str == t.id)
+        //return !this.knownTokens.some(k => k.str == t.id)
+        return true
       })
     }
   },
 
   watch: {
-    'form.token.symbol'() {
-      if (this.form.token.symbol) {
-        this.form.token.symbol = this.form.token.symbol.toUpperCase()
+    base_select() {
+      const creation_fee = asset(this.network.marketCreationFee)
+
+      if (this.base_token.contract != this.network.contract &&
+        this.base_token.symbol != this.network.baseToken.symbol) {
+        creation_fee.set_amount(creation_fee.amount * 3)
       }
+
+      this.creation_fee = creation_fee.to_string()
+    },
+
+    'form.quote_token.symbol'() {
+      if (this.form.quote_token.symbol) {
+        this.form.quote_token.symbol = this.form.quote_token.symbol.toUpperCase()
+      }
+    }
+  },
+
+  mounted() {
+    this.base_select = this.network.baseToken.symbol + '@' + this.network.baseToken.contract
+    this.base_token = {
+      symbol: this.network.baseToken.symbol,
+      contract: this.network.baseToken.contract,
+      precision: this.network.baseToken.precision
     }
   },
 
@@ -149,15 +209,25 @@ export default {
         console.log(e)
       }
 
-      this.form.token = {
+      this.form.quote_token = {
         symbol: token.currency || token.symbol,
         contract: token.contract,
         precision
       }
     },
 
+    selectBaseToken(token) {
+      this.base_token = {
+        symbol: token.currency || token.symbol,
+        contract: token.contract,
+        precision: token.precision || parseFloat(token.decimals)
+      }
+    },
+
     async submit() {
-      const { contract, symbol, precision } = this.form.token
+      const { contract, symbol, precision } = this.form.quote_token
+
+      const base_token_memo = `${Number(0).toFixed(this.base_token.precision)} ${this.base_token.symbol}@${this.base_token.contract}`
 
       const authorization = [this.user.authorization]
       const actions = [
@@ -168,8 +238,8 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.contract,
-            quantity: this.network.marketCreationFee,
-            memo: `new_market|${Number(0).toFixed(precision)} ${symbol}@${contract}`
+            quantity: this.creation_fee,
+            memo: `new_market|${base_token_memo}|${Number(0).toFixed(precision)} ${symbol}@${contract}`
           }
         }
       ]
@@ -192,9 +262,14 @@ export default {
 
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
-        await this.$store.dispatch('loadMarkets')
         this.$notify({ title: 'Market creation', message: 'Market was created successfully', type: 'info' })
-        this.$router.push({ name: 'trade-index-id', params: { id: `${symbol}-${contract}` } })
+        this.$router.push({
+          name: 'trade-index-id',
+          params: {
+            id: `${symbol}-${contract}_${this.base_token.symbol}_${this.base_token.contract}`
+          }
+        })
+        await this.$store.dispatch('loadMarkets')
       } catch (e) {
         captureException(e, { extra: { contract, symbol, precision } })
         this.$notify({ title: 'Market creation', message: e, type: 'error' })

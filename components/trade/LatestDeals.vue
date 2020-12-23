@@ -8,15 +8,15 @@
       span
 
     .ltd.d-flex.justify-content-around.mt-1
-      span Price ({{ token.symbol.name }})
-      span Amount ({{ network.baseToken.symbol }})
+      span Price ({{ quote_token.symbol.name }})
+      span Amount ({{ base_token.symbol.name }})
       span Time
 
   .orders-list.blist
     a(v-for="deal in coloredDeals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
         span(:class="deal.cls")  {{ deal.unit_price | humanPrice(6) }}
-        span {{ deal.amount | humanFloat(network.baseToken.precision) }}
+        span {{ deal.amount | humanFloat(base_token.symbol.precision) }}
         span {{ deal.time | moment('DD-MM HH:mm')}}
 
 </template>
@@ -30,7 +30,7 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['deals', 'token']),
+    ...mapState('market', ['deals', 'quote_token', 'base_token']),
     ...mapState(['network']),
 
     coloredDeals() {

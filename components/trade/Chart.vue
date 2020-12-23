@@ -18,7 +18,7 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['token', 'id']),
+    ...mapState('market', ['base_token', 'id', 'quote_token']),
     ...mapState(['theme'])
   },
 
@@ -62,7 +62,7 @@ export default {
       const Widget = require('~/assets/charts/charting_library.min.js').widget
 
       const widgetOptions = {
-        symbol: this.token.symbol.name,
+        symbol: this.quote_token.symbol.name,
         datafeed: {
           onReady: (callback) => {
             const data = { supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'], symbols_types: [{ name: 'crypto', value: 1 }] }
@@ -77,8 +77,8 @@ export default {
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
             const symbolInfo = {
-              name: this.token.symbol.name,
-              description: `${this.$store.state.network.baseToken.symbol}/${this.token.symbol.name}`,
+              name: this.quote_token.symbol.name,
+              description: `${this.quote_token.symbol.name}/${this.quote_token.symbol.name}`,
               //type: symbolItem.type,
               session: '24x7',
               timezone: 'Etc/UTC',

@@ -69,7 +69,7 @@ export default {
       market_id = params.id
     }
 
-    store.commit('market/setId', market_id)
+    store.commit('market/setMarket', { id: market_id })
 
     try {
       await Promise.all([

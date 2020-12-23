@@ -2,17 +2,17 @@
 .order-book
   .blist
     .ltd.d-flex.justify-content-around
-      span Price ({{ network.baseToken.symbol }})
-      span Amount({{ token.symbol.name }})
-      span Total ({{ network.baseToken.symbol }})
+      span Price ({{ base_token.symbol.name }})
+      span Amount({{ quote_token.symbol.name }})
+      span Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks.text-danger(ref="asks")
     .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'pl-0': ''")
       span
         i.el-icon-caret-right(v-if="isMyOrder(ask)")
         | {{ ask.unit_price | humanPrice }}
-      span.text-center {{ ask.bid.amount | humanFloat(token.symbol.precision) }}
-      span {{ ask.ask.amount | humanFloat(network.baseToken.precision) }}
+      span.text-center {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
+      span {{ ask.ask.amount | humanFloat(base_token.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
       span
@@ -21,15 +21,15 @@
 
   .p-1.mt-1
     .overflowbox.text-center
-      b.text-success {{ current_price | humanPrice }} {{ network.baseToken.symbol }}
+      b.text-success {{ current_price | humanPrice }} {{ base_token.symbol.name }}
 
   .orders-list.blist.bids.text-success
     .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'pl-0': ''")
       span
         i.el-icon-caret-right(v-if="isMyOrder(bid)")
         | {{ bid.unit_price | humanPrice }}
-      span.text-center {{ bid.ask.amount | humanFloat(token.symbol.precision) }}
-      span {{ bid.bid.amount | humanFloat(network.baseToken.precision) }}
+      span.text-center {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
+      span {{ bid.bid.amount | humanFloat(base_token.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
       span
@@ -50,7 +50,9 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'token']),
+    ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
+    ...mapState('market', ['quote_token', 'base_token']),
+    ...mapGetters(['user']),
 
     ...mapGetters({
       current_price: 'market/price'

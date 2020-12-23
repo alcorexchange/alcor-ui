@@ -93,7 +93,10 @@ async function updateMarkets(network) {
     limit: 1000
   })
 
-  rows.map(r => r.token = r.token = parseExtendedAsset(r.token))
+  rows.map(r => {
+    r.base_token = parseExtendedAsset(r.base_token)
+    r.quote_token = parseExtendedAsset(r.quote_token)
+  })
 
   const requests = rows.map(d => {
     return { market: d, stats: getMarketStats(network, d.id) }

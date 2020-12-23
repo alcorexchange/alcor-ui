@@ -17,12 +17,14 @@
         .col
           el-table(:data='filteredItems',
           style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
-            el-table-column(label='Pair', prop='date' width="250")
+            el-table-column(label='Pair', prop='date' width="300")
               template(slot-scope="scope")
-                TokenImage(:src="$tokenLogo(scope.row.token.symbol.name, scope.row.token.contract)" height="30")
+                TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="30")
+
                 span.ml-2
-                  | {{ scope.row.token.symbol.name }}
-                  a(:href="monitorAccount(scope.row.token.contract)" target="_blank").text-muted.ml-2 {{ scope.row.token.contract }}
+                  | {{ scope.row.quote_token.symbol.name }}
+                  a(:href="monitorAccount(scope.row.quote_token.contract)" target="_blank").text-muted.ml-2 {{ scope.row.quote_token.contract }}
+                  |  /  {{ scope.row.base_token.symbol.name }}
 
             el-table-column(
               :label="`Last price`"
@@ -133,9 +135,10 @@ export default {
       if (!this.markets) return []
 
       return this.markets.filter((i) => {
-        if (i.token.str.toLowerCase().includes(this.search.toLowerCase())) {
+        if (i.slug.includes(this.search.toLowerCase())) {
           if (this.ibcTokens) {
-            return this.$store.state.ibcTokens.includes(i.token.contract) ||
+            return this.$store.state.ibcTokens.includes(i.base_token.contract) ||
+              this.$store.state.ibcTokens.includes(i.quote_token.contract) ||
               Object.keys(this.network.withdraw).includes(i.token.str)
           }
 
@@ -148,11 +151,7 @@ export default {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
-      this.$router.push({ name: 'trade-index-id', params: { id: this.marketSlug(a) } })
-    },
-
-    marketSlug(market) {
-      return market.token.str.replace('@', '-')
+      this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
     }
   }
 }

@@ -35,7 +35,6 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapState('market', ['deals']),
-    ...mapState(['network']),
 
     orders() {
       if (!this.deals || !this.user) return []

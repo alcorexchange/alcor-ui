@@ -73,7 +73,7 @@ export const tradeMixin = {
         this.total = balance
         this.totalChange()
       } else {
-        this.total = (balance / 100 * v).toFixed(this.network.baseToken.precision)
+        this.total = (balance / 100 * v).toFixed(this.base_token.symbol.precision)
         this.totalChange()
       }
     },
@@ -89,7 +89,7 @@ export const tradeMixin = {
         this.amount = balance
         this.amountChange()
       } else {
-        this.amount = (balance / 100 * v).toFixed(this.token.symbol.precision)
+        this.amount = (balance / 100 * v).toFixed(this.quote_token.symbol.precision)
         this.amountChange()
       }
     }
@@ -97,8 +97,8 @@ export const tradeMixin = {
 
   methods: {
     getValidAmount(amount_str, desc = false) {
-      const bp = this.network.baseToken.precision
-      const qp = this.token.symbol.precision
+      const bp = this.base_token.symbol.precision
+      const qp = this.quote_token.symbol.precision
 
       let amount = assetToAmount(amount_str, qp) || 1
 
@@ -171,11 +171,11 @@ export const tradeMixin = {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
 
       if (type == 'limit') {
-        this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-        this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+        this.amount = parseFloat(this.amount).toFixed(this.quote_token.symbol.precision)
+        this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       } else {
-        this.amount = parseFloat(0).toFixed(this.token.symbol.precision)
-        this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+        this.amount = parseFloat(0).toFixed(this.quote_token.symbol.precision)
+        this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       }
 
       const loading = this.$loading({
@@ -185,14 +185,14 @@ export const tradeMixin = {
 
       const actions = [
         {
-          account: this.network.baseToken.contract,
+          account: this.base_token.contract,
           name: 'transfer',
           authorization: [this.user.authorization],
           data: {
             from: this.user.name,
             to: this.network.contract,
-            quantity: `${this.total} ${this.network.baseToken.symbol}`,
-            memo: `${this.amount} ${this.token.str}`
+            quantity: `${this.total} ${this.base_token.symbol.name}`,
+            memo: `${this.amount} ${this.quote_token.str}`
           }
         }
       ]
@@ -215,11 +215,11 @@ export const tradeMixin = {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
 
       if (type == 'limit') {
-        this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-        this.total = parseFloat(this.total).toFixed(this.network.baseToken.precision)
+        this.amount = parseFloat(this.amount).toFixed(this.quote_token.symbol.precision)
+        this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       } else {
-        this.amount = parseFloat(this.amount).toFixed(this.token.symbol.precision)
-        this.total = parseFloat(0).toFixed(this.network.baseToken.precision)
+        this.amount = parseFloat(this.amount).toFixed(this.quote_token.symbol.precision)
+        this.total = parseFloat(0).toFixed(this.base_token.symbol.precision)
       }
 
       const loading = this.$loading({
@@ -229,10 +229,10 @@ export const tradeMixin = {
 
       try {
         await this.$store.dispatch('chain/transfer', {
-          contract: this.token.contract,
+          contract: this.quote_token.contract,
           actor: this.user.name,
-          quantity: `${this.amount} ${this.token.symbol.name}`,
-          memo: `${this.total} ${this.network.baseToken.symbol}@${this.network.baseToken.contract}`
+          quantity: `${this.amount} ${this.quote_token.symbol.name}`,
+          memo: `${this.total} ${this.base_token.symbol.name}@${this.base_token.contract}`
         })
 
         this.$store.dispatch('market/fetchOrders')
@@ -266,10 +266,6 @@ Vue.mixin({
 
     monitorTx(tx) {
       return `${this.network.monitor}/transaction/${tx}?tab=traces&${this.network.monitor_params}`
-    },
-
-    marketSlug(market) {
-      return market.token.str.replace('@', '-')
     },
 
     monitorAccount(account) {

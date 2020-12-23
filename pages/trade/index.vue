@@ -3,14 +3,14 @@
 
 .row
   .col
-    .row.mb-2(v-if="network.SCAM_CONTRACTS.includes($store.state.market.token.contract)")
+    .row.mb-2(v-if="network.SCAM_CONTRACTS.includes($store.state.market.base_token.contract) || network.SCAM_CONTRACTS.includes($store.state.market.quote_token.contract)")
       .col
         el-alert(type="error" show-icon)
           .lead Potential SCAM token!
 
     DesktopTrade(v-if="!isMobile")
-    MobileTrade(v-else)
-    nuxt-child
+    //MobileTrade(v-else)
+    //nuxt-child
 </template>
 
 <script>
@@ -28,18 +28,22 @@ export default {
   computed: {
     ...mapState(['network', 'markets']),
     ...mapGetters('chain', ['rpc', 'scatter']),
-    ...mapState('market', ['token', 'id', 'stats']),
+    ...mapState('market', ['token', 'id', 'stats', 'symbol']),
     ...mapGetters(['user'])
   },
 
   head() {
     return {
-      title: `Alcor Exchange | Market ${this.token.symbol.name}`,
+      //title: `Alcor Exchange | Market ${this.symbol}`,
 
-      meta: [
-        { hid: 'description', name: 'description', content: `Trade ${this.token.str}/${this.network.baseToken.symbol} onchain, with no fee` },
-        { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.token.symbol.name, this.token.contract) }
-      ]
+      //meta: [
+      //  {
+      //    hid: 'description',
+      //    name: 'description',
+      //    content: `Trade ${this.symbol} onchain, with no fee`
+      //  },
+      //  { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.quote_token.symbol.name, this.quote_token.contract) }
+      //]
     }
   }
 }

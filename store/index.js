@@ -92,6 +92,10 @@ export const actions = {
 
   async loadMarkets({ state, commit, getters, dispatch }) {
     const { data } = await getters['api/backEnd'].get('/api/markets')
+    data.map(m => {
+      m.symbol = m.quote_token.symbol.name + ' / ' + m.base_token.symbol.name
+      m.slug = (m.quote_token.str + '_' + m.base_token.str).toLowerCase().replace(/@/g, '-')
+    })
     commit('setMarkets', data)
   },
 
@@ -139,30 +143,12 @@ export const getters = {
   },
 
   knownTokens(state) {
-    return state.markets.map(m => {
-      return m.token
+    const tokens = []
+
+    state.markets.map(m => {
+      tokens.push(m.quote_token)
     })
-  },
 
-  baseBalance(state) {
-    if (!state.user || !state.user.balances) return '0.0000 ' + state.network.baseToken.symbol
-
-    const balance = state.user.balances.filter(b => b.currency === state.network.baseToken.symbol)[0]
-    if (!balance) return '0.0000 ' + state.network.baseToken.symbol
-
-    return `${balance.amount} ${balance.currency}`
-  },
-
-  tokenBalance(state) {
-    if (!state.user || !state.user.balances || !state.market.token.symbol) return '0.0000'
-    const balance = state.user.balances.filter((b) => {
-      return b.currency === state.market.token.symbol.name &&
-             b.contract === state.market.token.contract
-    })[0]
-
-    if (balance)
-      return `${balance.amount} ${balance.currency}`
-    else
-      return Number(0).toFixed(state.market.token.symbol.precision) + ` ${state.market.token.symbol.name}`
+    return tokens
   }
 }

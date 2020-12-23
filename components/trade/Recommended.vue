@@ -7,11 +7,11 @@
     .row
       .col-lg-2.col-md-4.col-sm-6(:key="market.id" v-for="market in markets").mb-2
         .small
-          nuxt-link(:to="{ name: 'trade-index-id', params: { id: marketSlug(market) } }")
+          nuxt-link(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
             el-card(shadow="hover")
-              TokenImage(:src="$tokenLogo(market.token.symbol.name, market.token.contract)" height="30")
+              TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="30")
               span.ml-2
-                span {{ market.token.symbol.name }}
+                span {{ market.quote_token.symbol.name }}
                 .text-success {{ market.last_price | humanPrice }}
 
               ChangePercent(:change="market.changeWeek")

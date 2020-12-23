@@ -12,13 +12,21 @@ import { makeCharts } from './charts'
 
 
 export function startUpdaters(app) {
-  updater('eos', app, false) // Update by node, not hyperion
-  updater('bos', app, false) // Update by node, not hyperion
-  updater('proton', app)
-  updater('telos', app)
-  updater('wax', app)
-}
+  if (process.env.NETWORK) {
+    updater(process.env.NETWORK, app, false) // Update by node, not hyperion
+  } else {
+    updater('eos', app, false) // Update by node, not hyperion
+    updater('bos', app, false) // Update by node, not hyperion
+    updater('proton', app)
+    updater('telos', app)
+    updater('wax', app)
 
+    if (process.env.npm_lifecycle_event == 'dev') {
+      // Jungle for dev
+      updater('jungle', app, false)
+    }
+  }
+}
 
 export async function getMarket(network, market_id) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
@@ -44,7 +52,8 @@ export async function getMarket(network, market_id) {
   const market = { ...m, ...marketStats }
 
   if (market) {
-    market.token = parseExtendedAsset(market.token)
+    market.base_token = parseExtendedAsset(market.base_token)
+    market.quote_token = parseExtendedAsset(market.quote_token)
   }
 
   markets.push(market)
