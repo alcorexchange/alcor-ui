@@ -266,7 +266,7 @@ export default {
         this.$router.push({
           name: 'trade-index-id',
           params: {
-            id: `${symbol}-${contract}_${this.base_token.symbol}_${this.base_token.contract}`
+            id: `${symbol}-${contract}_${this.base_token.symbol}-${this.base_token.contract}`
           }
         })
         await this.$store.dispatch('loadMarkets')
