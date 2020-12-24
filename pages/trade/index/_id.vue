@@ -13,7 +13,7 @@ export default {
       // old style link(only quote token in id, and base are system)
 
       const id = `${params.id}_${store.state.network.baseToken.symbol}-${store.state.network.baseToken.contract}`
-      redirect({ name: 'trade-index-id', params: { id } })
+      return redirect({ name: 'trade-index-id', params: { id } })
     }
 
     if (!params.id.includes('_')) redirect({ name: 'markets' })

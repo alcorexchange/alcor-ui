@@ -34,6 +34,7 @@ import { mapGetters, mapState } from 'vuex'
 export default {
   computed: {
     ...mapGetters(['user']),
+    ...mapState(['network']),
     ...mapState('market', ['deals']),
 
     orders() {
