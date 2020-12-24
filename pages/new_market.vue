@@ -74,7 +74,7 @@
                     TokenImage(:src="$tokenLogo(form.quote_token.symbol, form.quote_token.contract)" height="40")
                     span  {{ form.quote_token.symbol }}@{{ form.quote_token.contract }}
                   small.text-muted.ml-1.mt-2   Creation new market fee is:
-                    span(v-if="network.baseToken.contract != base_token.contract")  (x3 for custom base token)
+                    span(v-if="network.baseToken.contract != base_token.contract")  (x2 for custom base token)
                   b  {{ creation_fee }}
 
               .row.mt-3
@@ -172,7 +172,7 @@ export default {
 
       if (this.base_token.contract != this.network.contract &&
         this.base_token.symbol != this.network.baseToken.symbol) {
-        creation_fee.set_amount(creation_fee.amount * 3)
+        creation_fee.set_amount(creation_fee.amount * 2)
       }
 
       this.creation_fee = creation_fee.to_string()
