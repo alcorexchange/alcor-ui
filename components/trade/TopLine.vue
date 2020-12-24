@@ -55,7 +55,7 @@
             .col
               .d-flex.ml-2
                 span Volume 24H:
-                span.text-success.ml-1  {{ stats.volume24.toFixed(2) }} {{ base_token.symbol }}
+                span.text-success.ml-1  {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
           .row
             .col.ml-3
               Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}" v-if="hasWithdraw")

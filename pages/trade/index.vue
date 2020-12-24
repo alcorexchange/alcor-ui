@@ -9,8 +9,8 @@
           .lead Potential SCAM token!
 
     DesktopTrade(v-if="!isMobile")
-    //MobileTrade(v-else)
-    //nuxt-child
+    MobileTrade(v-else)
+    nuxt-child
 </template>
 
 <script>
