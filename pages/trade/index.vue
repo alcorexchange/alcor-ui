@@ -28,23 +28,23 @@ export default {
   computed: {
     ...mapState(['network', 'markets']),
     ...mapGetters('chain', ['rpc', 'scatter']),
-    ...mapState('market', ['token', 'id', 'stats', 'symbol']),
+    ...mapState('market', ['symbol', 'id', 'stats', 'symbol']),
     ...mapGetters(['user'])
   },
 
-  head() {
-    return {
-      //title: `Alcor Exchange | Market ${this.symbol}`,
+  //head() {
+  //  return {
+  //    title: `Alcor Exchange | Market ${this.symbol}`,
 
-      //meta: [
-      //  {
-      //    hid: 'description',
-      //    name: 'description',
-      //    content: `Trade ${this.symbol} onchain, with no fee`
-      //  },
-      //  { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.quote_token.symbol.name, this.quote_token.contract) }
-      //]
-    }
-  }
+  //    //meta: [
+  //    //  {
+  //    //    hid: 'description',
+  //    //    name: 'description',
+  //    //    content: `Trade ${this.symbol} onchain, with no fee`
+  //    //  },
+  //    //  { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.quote_token.symbol.name, this.quote_token.contract) }
+  //    //]
+  //  }
+  //}
 }
 </script>

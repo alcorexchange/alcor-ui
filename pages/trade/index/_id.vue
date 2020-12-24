@@ -4,8 +4,13 @@
 
 <script>
 import { Name, SymbolCode } from 'eos-common'
+import { mapState } from 'vuex'
 
 export default {
+  computed: {
+    ...mapState('market', ['symbol', 'quote_token', 'base_token']),
+  },
+
   async fetch({ redirect, store, error, params }) {
     if (!params.id) redirect({ name: 'markets' })
 
@@ -66,6 +71,21 @@ export default {
         store.dispatch('market/fetchOrders'),
         store.dispatch('market/fetchDeals')
       ])
+    }
+  },
+
+  head() {
+    return {
+      title: `Alcor Exchange | Market ${this.symbol}`,
+
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: `Trade ${this.quote_token.symbol.name} for ${this.base_token.symbol.name} onchain, with NO FEE!`
+        },
+        { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.quote_token.symbol.name, this.quote_token.contract) }
+      ]
     }
   }
 }
