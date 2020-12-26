@@ -12,7 +12,7 @@
         i.el-icon-caret-right(v-if="isMyOrder(ask)")
         | {{ ask.unit_price | humanPrice }}
       span.text-center {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
-      span {{ ask.ask.amount | humanFloat(base_token.precision) }}
+      span {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
       span
@@ -29,7 +29,7 @@
         i.el-icon-caret-right(v-if="isMyOrder(bid)")
         | {{ bid.unit_price | humanPrice }}
       span.text-center {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
-      span {{ bid.bid.amount | humanFloat(base_token.precision) }}
+      span {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
       span
