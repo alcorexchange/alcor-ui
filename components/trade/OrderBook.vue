@@ -83,13 +83,13 @@ export default {
     },
 
     setBid(ask) {
-      const price = this.$options.filters.humanPrice(ask.unit_price).replace(',', '')
+      const price = this.$options.filters.humanPrice(ask.unit_price).replaceAll(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', ask.bid.prefix)
     },
 
     setAsk(bid) {
-      const price = this.$options.filters.humanPrice(bid.unit_price).replace(',', '')
+      const price = this.$options.filters.humanPrice(bid.unit_price).replaceAll(',', '')
       EventBus.$emit('setPrice', price)
       EventBus.$emit('setAmount', bid.ask.prefix)
     },
