@@ -1,5 +1,5 @@
 <template lang="pug">
-.row
+.row.recommended
   .col
     .row.mb-2
       .col
@@ -9,12 +9,15 @@
         .small
           nuxt-link(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
             el-card(shadow="hover")
-              TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="30")
-              span.ml-2
-                span {{ market.quote_token.symbol.name }}
-                .text-success {{ market.last_price | humanPrice }}
+              .row
+                .col
+                  TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
+                  span.ml-2 {{ market.symbol }}
 
-              ChangePercent(:change="market.changeWeek")
+              .row.mt-1
+                .col
+                  span {{ market.last_price | humanPrice }}
+                  ChangePercent(:change="market.changeWeek").float-right
 
       .col-lg-2.col-md-4.col-sm-6
         el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
@@ -40,18 +43,15 @@ export default {
 }
 </script>
 
-<style scoped>
-a {
-  text-decoration: none;
-}
+<style lang="scss">
+.recommended {
+  .el-card__body {
+      padding: 10px;
+  }
 
-.item {
-  cursor: pointer;
-  margin-right: .5%;
-  width: 17%;
-  padding: 20px 8px 20px 10px;
-  background: #fff;
+  a {
+    text-decoration: none;
+  }
 }
-
 
 </style>
