@@ -46,7 +46,7 @@
                 :sort-orders="['descending', null]"
               )
                 template(slot-scope="scope")
-                  span.text-mutted {{ scope.row.volume24 | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
+                  span.text-mutted {{ scope.row.volume24 | humanFloat(scope.row.base_token.precision, 2) }} {{ scope.row.base_token.symbol.name }}
               el-table-column(
                 label='24H Change %'
                 prop='name'

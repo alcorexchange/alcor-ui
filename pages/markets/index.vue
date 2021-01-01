@@ -46,7 +46,8 @@
               :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
-                span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ network.baseToken.symbol }}
+                span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
+
             el-table-column(
               label='24H Change %'
               prop='name'
@@ -69,7 +70,7 @@
               :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
-                span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ network.baseToken.symbol }}
+                span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
             el-table-column(
               label='7 Day Change %'
