@@ -8,6 +8,7 @@
         .d-flex.ml-2
           b {{ quote_token.symbol.name }}
           a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted.ml-2 {{ quote_token.contract }}
+          span.ml-1 /  {{ base_token.symbol.name }}
 
         .d-flex.ml-3(v-if="hasWithdraw")
           // TODO Token prop & mobile version
@@ -24,28 +25,23 @@
 
           span.ml-3 Volume 24H:
           span.text-success.ml-2  {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-
-          //span Volume 7 Day:
-          //  span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
-
-          //span Change 7 Day:
-          //  change-percent(:change="stats.changeWeek").ml-2
-          //.d-flex.ml-2(v-if="!isMobile")
-          //  span Volume 7 Day:
-          //  span.text-success.ml-1  {{ stats.volumeWeek | humanFloat(network.baseToken.precision, 2) }} {{ network.baseToken.symbol }}
-
-          //.d-flex.ml-2(v-if="!isMobile")
-          //  span Change 7 Day:
-          //  change-percent(:change="stats.changeWeek").d-flex.ml-2
       div(v-else)
         .overflowbox
-          .row.align-items-center
+          .row.align-items-center(v-if="base_token.symbol.name == network.baseToken.symbol && base_token.contract == network.baseToken.contract")
             .col-2
               TokenImage(:src="$tokenLogo(quote_token.symbol.name, quote_token.contract)" height="30").ml-2
             .col-10
               .d-flex.ml-2
                 b {{ quote_token.symbol.name }}@
                 a(:href="monitorAccount(quote_token.contract )" target="_blank") {{ quote_token.contract }}
+
+          .row.align-items-center(v-else)
+            .col-2
+              TokenImage(:src="$tokenLogo(base_token.symbol.name, base_token.contract)" height="30").ml-2
+            .col-10
+              .d-flex.ml-2
+                b {{ base_token.symbol.name }}@
+                a(:href="monitorAccount(base_token.contract )" target="_blank") {{ base_token.contract }}
           .row
             .col
               .d-flex.ml-2
