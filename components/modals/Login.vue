@@ -3,6 +3,11 @@
   .col-auto
     .d-flex.flex-wrap
       .mb-2.mr-2
+        el-button(size="large" @click="login('wax')" v-if="network.name == 'wax'")
+          img(src="~/assets/logos/wax.svg" height="30").mr-2
+          span Wax Cloud Wallet
+
+      .mb-2.mr-2
         el-button(size="large" @click="login(1)")
           img(src="~/assets/logos/anchor.svg" height="30").mr-2
           span Anchor
@@ -10,7 +15,11 @@
       .mb-2.mr-2
         el-button(size="large" @click="login(0)")
           img(src="~/assets/logos/scatter.svg" height="30").mr-2
-          span Scatter
+          span Scatter / TP / Starteos
+
+      .mb-2.mr-2
+        el-button(size="large" @click="login(0)")
+          img(src="~/assets/logos/wombat.png" height="30").mr-2
 
       .mb-2.mr-2
         el-button(size="large" @click="login(2)")
@@ -31,11 +40,6 @@
         el-button(size="large" @click="login(5)")
           img(src="~/assets/logos/keycat.svg" height="30").mr-2
           span Keycat
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login('wax')" v-if="network.name == 'wax'")
-          img(src="~/assets/logos/wax.svg" height="30").mr-2
-          span Wax Cloud Wallet
 </template>
 
 <script>
