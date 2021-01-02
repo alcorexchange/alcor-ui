@@ -7,12 +7,8 @@ import { Name, SymbolCode } from 'eos-common'
 import { mapState } from 'vuex'
 
 export default {
-  computed: {
-    ...mapState('market', ['symbol', 'quote_token', 'base_token']),
-  },
-
   async fetch({ redirect, store, error, params }) {
-    if (!params.id) redirect({ name: 'markets' })
+    if (!params.id) return redirect({ name: 'markets' })
 
     if (!params.id.includes('_')) {
       // old style link(only quote token in id, and base are system)
@@ -72,6 +68,10 @@ export default {
         store.dispatch('market/fetchDeals')
       ])
     }
+  },
+
+  computed: {
+    ...mapState('market', ['symbol', 'quote_token', 'base_token']),
   },
 
   head() {
