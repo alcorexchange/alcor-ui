@@ -6,16 +6,30 @@
         .col-lg-2.mb-2
           .d-flex.align-items-center.h-100
             nuxt-link(to="new_market")
-              el-button(tag="el-button" type="primary" size="big" icon="el-icon-plus") Open new market
+              el-button(tag="el-button" plain size="small" icon="el-icon-plus") Open new market
         .col-lg-7
-          .d-flex.align-items-center.h-100
-            el-checkbox(v-model="ibcTokens") IBC Tokens (Cross-Chain)
+          el-radio-group(
+            v-if="!isMobile"
+            v-model="base_token"
+            size="small").radio-chain-select
+
+            el-radio-button(label="all")
+              span All
+
+            el-radio-button(:label="network.baseToken.symbol")
+              span {{ network.baseToken.symbol }}
+
+            el-radio-button(v-if="network.name == 'eos'" label="USDT")
+              span USDT
+
+            el-radio-button(value='cross-chain' label="Cross-Chain")
+              span Cross-Chain
         .col-lg-3
           .d-flex.align-items-center.h-100
-            el-input(v-model="search" placeholder="Search token")
+            el-input(v-model="search" placeholder="Search token" size="small")
       .row
         .col
-          el-table(:data='filteredItems',
+          el-table(:data='filteredMarkets',
           style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
             el-table-column(label='Pair', prop='date' width="300")
               template(slot-scope="scope")
@@ -115,7 +129,7 @@ export default {
       search: '',
 
       to_assets: [],
-      ibcTokens: false,
+      base_token: 'all',
 
       select: {
         from: '',
@@ -132,20 +146,31 @@ export default {
     ...mapGetters('chain', ['rpc']),
     ...mapState(['markets']),
 
-    filteredItems() {
+    filteredMarkets() {
       if (!this.markets) return []
 
-      return this.markets.filter((i) => {
-        if (i.slug.includes(this.search.toLowerCase())) {
-          if (this.ibcTokens) {
-            return i.base_token.contract != this.network.baseToken.contract && (this.$store.state.ibcTokens.includes(i.base_token.contract) ||
-              this.$store.state.ibcTokens.includes(i.quote_token.contract) ||
-              Object.keys(this.network.withdraw).includes(i.quote_token.str))
-          }
+      console.log('base_token:', this.base_token)
+      let markets = []
+      if (this.base_token == 'all') {
+        markets = this.markets
+      } else if (this.base_token == this.network.baseToken.symbol) {
+        markets = this.markets.filter(i => i.base_token.contract == this.network.baseToken.contract)
+      } else if (this.base_token == 'USDT') {
+        markets = this.markets.filter(i => i.base_token.contract == 'tethertether')
+      } else {
+        const ibcTokens = this.$store.state.ibcTokens.filter(i => i != this.network.baseToken.contract)
 
-          return true
-        }
-      }).reverse()
+        markets = this.markets.filter(i => {
+          return (ibcTokens.includes(i.base_token.contract) ||
+              ibcTokens.includes(i.quote_token.contract) ||
+              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
+              Object.keys(this.network.withdraw).includes(i.base_token.str))
+        })
+      }
+
+      markets = markets.filter(i => i.slug.includes(this.search.toLowerCase()))
+
+      return markets.reverse()
     }
   },
   methods: {
@@ -153,7 +178,7 @@ export default {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
       this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
-    }
+    },
   }
 }
 </script>
