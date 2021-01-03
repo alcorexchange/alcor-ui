@@ -187,8 +187,8 @@ export default {
     recomendedMarkets() {
       try {
         return this.$store.state.markets.filter(m => {
-          return this.$store.state.network.RECOMMENDED_MARKETS.includes(m.quote_token.str) ||
-          this.$store.state.network.RECOMMENDED_MARKETS.includes(m.base_token.str)
+          return this.$store.state.network.RECOMMENDED_MARKETS.includes(m.quote_token.str)
+          // || this.$store.state.network.RECOMMENDED_MARKETS.includes(m.base_token.str)
         })
       } catch (e) {
         console.log(e, 'Error getting markets in recomendations!!!')
