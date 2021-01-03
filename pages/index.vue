@@ -29,6 +29,10 @@
       .col-lg-6
         el-carousel(indicator-position='outside' height="350px" :interval="6000" arrow="never")
           el-carousel-item
+            h5.text-center
+              .text-muted New video guide from
+                a(href="https://twitter.com/LigerLite" target="_blank")  @LiteLiger
+                |  is here!
             a(href="https://www.youtube.com/watch?v=myFL-sPCi90&feature=youtu.be" target="_blank")
               img(src="~/assets/images/video2.png").video-image
 
@@ -37,7 +41,7 @@
               img(v-if="$store.state.theme == 'light'" src="~/assets/images/market_window_white.png").video-image
               img(v-else src="~/assets/images/market_window_black.png").video-image
 
-          el-carousel-item
+          //el-carousel-item
             el-card.h-100
               .lead Place for your ad.
               small Telegram:
@@ -182,7 +186,10 @@ export default {
   computed: {
     recomendedMarkets() {
       try {
-        return this.$store.state.markets.filter(m => this.$store.state.network.RECOMMENDED_MARKETS.includes(m.quote_token.str))
+        return this.$store.state.markets.filter(m => {
+          return this.$store.state.network.RECOMMENDED_MARKETS.includes(m.quote_token.str) ||
+          this.$store.state.network.RECOMMENDED_MARKETS.includes(m.base_token.str)
+        })
       } catch (e) {
         console.log(e, 'Error getting markets in recomendations!!!')
         return []
