@@ -22,7 +22,7 @@
     "@waxio/waxjs": "0.0.13",
     "anchor-link": "^2.0.0",
     "anchor-link-browser-transport": "^2.0.1",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "axios-cache-adapter": "^2.3.3",
     "axios-retry": "^3.1.2",
     "big.js": "^5.2.2",
