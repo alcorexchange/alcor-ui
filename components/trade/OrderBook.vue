@@ -51,7 +51,7 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
-    ...mapState('market', ['quote_token', 'base_token']),
+    ...mapState('market', ['quote_token', 'base_token', 'id']),
     ...mapGetters(['user']),
 
     ...mapGetters({
@@ -60,6 +60,10 @@ export default {
   },
 
   watch: {
+    id () {
+      this.$store.dispatch('market/fetchOrders')
+    },
+
     sorted_asks() {
       // Scroll asks after update
       if (this.sorted_asks.length != this.asksL) {
@@ -71,6 +75,8 @@ export default {
 
   mounted() {
     setTimeout(() => this.scrollBook(), 1000)
+
+    this.$store.dispatch('market/fetchOrders')
   },
 
   methods: {

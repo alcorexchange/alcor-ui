@@ -57,15 +57,15 @@ export default {
       store.commit('market/setMarket', { id: rows[0].id })
       await Promise.all([
         store.dispatch('market/fetchMarket'),
-        store.dispatch('market/fetchOrders'),
-        store.dispatch('market/fetchDeals')
+        //store.dispatch('market/fetchOrders'),
+        //store.dispatch('market/fetchDeals')
       ])
     } else {
       store.commit('market/setMarket', market)
 
       await Promise.all([
-        store.dispatch('market/fetchOrders'),
-        store.dispatch('market/fetchDeals')
+        //store.dispatch('market/fetchOrders'),
+        //store.dispatch('market/fetchDeals')
       ])
     }
   },

@@ -30,7 +30,7 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['deals', 'quote_token', 'base_token']),
+    ...mapState('market', ['deals', 'quote_token', 'base_token', 'id']),
     ...mapState(['network']),
 
     coloredDeals() {
@@ -47,6 +47,16 @@ export default {
           return h
         })
     }
+  },
+
+  watch: {
+    id() {
+      this.$store.dispatch('market/fetchDeals')
+    }
+  },
+
+  mounted() {
+    this.$store.dispatch('market/fetchDeals')
   }
 }
 </script>
