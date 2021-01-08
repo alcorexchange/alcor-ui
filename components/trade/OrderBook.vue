@@ -1,5 +1,5 @@
 <template lang="pug">
-.order-book
+.order-book(v-loading="loading")
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
@@ -44,7 +44,8 @@ import { EventBus } from '~/utils/event-bus'
 export default {
   data() {
     return {
-      asksL: 0
+      asksL: 0,
+      loading: false
     }
   },
 
@@ -61,7 +62,7 @@ export default {
 
   watch: {
     id () {
-      this.$store.dispatch('market/fetchOrders')
+      this.fetch()
     },
 
     sorted_asks() {
@@ -76,10 +77,22 @@ export default {
   mounted() {
     setTimeout(() => this.scrollBook(), 1000)
 
-    this.$store.dispatch('market/fetchOrders')
+    this.fetch()
   },
 
   methods: {
+    async fetch() {
+      this.loading = true
+
+      try {
+        await this.$store.dispatch('market/fetchOrders')
+      } catch (e) {
+        this.$notify({ title: 'Fetch orders', message: e, type: 'error' })
+      } finally {
+        this.loading = false
+      }
+    },
+
     scrollBook() {
       const asks = this.$refs.asks
       setTimeout(() => {

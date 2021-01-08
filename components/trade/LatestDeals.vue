@@ -1,6 +1,6 @@
 <template lang="pug">
 // Переделать как табличку element
-.deals-history
+.deals-history(v-loading="loading")
   .blist
     .ltd.d-flex.justify-content-around
       span
@@ -29,6 +29,12 @@ export default {
     await this.$store.dispatch('market/fetchDeals')
   },
 
+  data() {
+    return {
+      loading: false
+    }
+  },
+
   computed: {
     ...mapState('market', ['deals', 'quote_token', 'base_token', 'id']),
     ...mapState(['network']),
@@ -51,12 +57,26 @@ export default {
 
   watch: {
     id() {
-      this.$store.dispatch('market/fetchDeals')
+      this.fetch()
     }
   },
 
   mounted() {
-    this.$store.dispatch('market/fetchDeals')
+    this.fetch()
+  },
+
+  methods: {
+    async fetch() {
+      this.loading = true
+
+      try {
+        await this.$store.dispatch('market/fetchDeals')
+      } catch (e) {
+        this.$notify({ title: 'Fetch deals', message: e, type: 'error' })
+      } finally {
+        this.loading = false
+      }
+    }
   }
 }
 </script>
