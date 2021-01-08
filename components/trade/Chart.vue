@@ -3,6 +3,7 @@
 </template>
 
 <script>
+// TODO Зафиксить график при переключении
 import { mapState } from 'vuex'
 import { resolutions } from '~/server/markets/charts'
 
