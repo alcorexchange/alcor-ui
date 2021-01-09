@@ -46,8 +46,8 @@ module.exports = {
     ],
 
     script: [
-      { src: '/datafeeds/udf/dist/polyfills.js' },
-      { src: '/datafeeds/udf/dist/bundle.js' }
+      //{ src: '/datafeeds/udf/dist/polyfills.js' },
+      //{ src: '/datafeeds/udf/dist/bundle.js' }
     ]
   },
 
