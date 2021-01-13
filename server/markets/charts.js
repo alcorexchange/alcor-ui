@@ -1,3 +1,5 @@
+import memoize from 'memoizee'
+
 export const resolutions = {
   1: 1 * 60,
   5: 5 * 60,
@@ -10,7 +12,7 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export function makeCharts(matches, resolution) {
+export const makeCharts = memoize((matches, resolution) => {
   const prices = matches.map(m => {
     return {
       price: parseInt(m.unit_price) / 100000000,
@@ -72,9 +74,9 @@ export function makeCharts(matches, resolution) {
   }
 
   return results
-}
+})
 
-export function getVolume(deals) {
+export const getVolume = memoize(deals => {
   let volume = 0
 
   deals.map(m => {
@@ -82,9 +84,9 @@ export function getVolume(deals) {
   })
 
   return volume
-}
+})
 
-export function getChange(deals) {
+export const getChange = memoize((deals) => {
   if (deals.length > 0) {
     const price_before = parseInt(deals[deals.length - 1].unit_price)
     const price_after = parseInt(deals[0].unit_price)
@@ -95,4 +97,4 @@ export function getChange(deals) {
   } else {
     return 0
   }
-}
+})

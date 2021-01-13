@@ -52,6 +52,11 @@ export async function getSettings(network) {
   }
 }
 
-export function syncModels() {
-  return sequelize.sync({ alter: true })
+export async function syncModels() {
+  try {
+    await sequelize.sync({ alter: true })
+  } catch (e) {
+    console.log(e)
+    throw new Error('sequelize err')
+  }
 }
