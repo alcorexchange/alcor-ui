@@ -124,7 +124,7 @@ async function streamByNode(network, app) {
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
   const settings = await getSettings(network)
-  const filter = ['sellmatch', 'buymatch']
+  const filter = config.CONTRACT_ACTIONS
 
   console.log('start fetching actions by node from', settings.actions_stream_offset, 'for ', network.name)
   while (true) {
@@ -175,6 +175,12 @@ export function streamHistory(network, app) {
       read_until: 0,
       filters: []
     })
+
+    // Other actions
+    client.streamActions({ contract: network.contract, action: 'sellreceipt', account: network.contract })
+    client.streamActions({ contract: network.contract, action: 'buyreceipt', account: network.contract })
+    client.streamActions({ contract: network.contract, action: 'cancelsell', account: network.contract })
+    client.streamActions({ contract: network.contract, action: 'cancelbuy', account: network.contract })
   }
 
   client.onData = async ({ content }, ack) => {
@@ -222,6 +228,13 @@ async function newMatch(match, network, app) {
       await new Promise(resolve => setTimeout(resolve, 1000))
       return await newMatch(match, network, app)
     }
+  } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
+    console.log('get new action', name)
+    if (!app.get('io')) return
+
+    const { market_id } = 'data' in data ? data.data : data
+    console.log('send update for market', market_id)
+    app.get('io').sockets.emit('update_market', { chain: network.name, market: market_id })
   }
 }
 
