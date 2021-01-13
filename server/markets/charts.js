@@ -74,7 +74,7 @@ export const makeCharts = memoize((matches, resolution) => {
   }
 
   return results
-})
+}, { maxAge: 60 * 60 * 24 })
 
 export const getVolume = memoize(deals => {
   let volume = 0
@@ -84,7 +84,7 @@ export const getVolume = memoize(deals => {
   })
 
   return volume
-})
+}, { maxAge: 60 * 60 * 24 })
 
 export const getChange = memoize((deals) => {
   if (deals.length > 0) {
@@ -97,4 +97,4 @@ export const getChange = memoize((deals) => {
   } else {
     return 0
   }
-})
+}, { maxAge: 60 * 60 * 24 })
