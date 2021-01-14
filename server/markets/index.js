@@ -122,7 +122,7 @@ markets.get('/:market_id/charts', async (req, res) => {
     }
   }
 
-  const matches = await Match.findAll({ where })
+  const matches = market_id == 26 ? await Match.findAll({ where, limit: 1000 }) : await Match.findAll({ where })
   const charts = makeCharts(matches.reverse(), resolution)
 
   //if (charts.length > 0) {
