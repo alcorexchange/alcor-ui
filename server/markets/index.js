@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks'
+
 import { Router } from 'express'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
@@ -86,14 +88,9 @@ markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 400 })
+  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 200 })
 
   // TODO Вынести на клиент или парсить в базу
-  matches.map(m => {
-    m.ask = parseAsset(m.ask)
-    m.bid = parseAsset(m.bid)
-  })
-
   res.json(matches)
 })
 
@@ -116,14 +113,20 @@ markets.get('/:market_id/charts', async (req, res) => {
   }
 
   if (from && to) {
+    const t0 = performance.now()
     where.time = {
       [Op.gte]: new Date(parseFloat(from) * 1000),
       [Op.lte]: new Date(parseFloat(to) * 1000)
     }
+    const t1 = performance.now()
+    console.log('Call to filter for charts took ' + (t1 - t0) + ' milliseconds.')
   }
 
   const matches = await Match.findAll({ where })
+  const t0 = performance.now()
   const charts = makeCharts(matches.reverse(), resolution)
+  const t1 = performance.now()
+  console.log('Call to marketCharts for charts took ' + (t1 - t0) + ' milliseconds.')
 
   //if (charts.length > 0) {
   //  charts[charts.length - 1].close = marketStats.last_price / 100000000

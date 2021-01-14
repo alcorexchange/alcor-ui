@@ -9,26 +9,12 @@ import { Match, getSettings } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
-import { makeCharts, getVolume, getChange } from './charts'
+import { getVolume, getChange } from './charts'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
 
 axiosRetry(axios, { retries: 3 })
-
-const QUERY_LIMIT = 50
-
-export async function getDeals (network, market_id) {
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id } })
-
-  // TODO Вынести на клиент
-  matches.map(m => {
-    m.ask = parseAsset(m.ask)
-    m.bid = parseAsset(m.bid)
-  })
-
-  return matches
-}
 
 export function getMatches(network) {
   const history = cache.get(`${network.name}_history`) || []
@@ -207,11 +193,11 @@ async function newMatch(match, network, app) {
         type: name,
         trx_id,
 
-        unit_price: littleEndianToDesimal(unit_price),
+        unit_price: littleEndianToDesimal(unit_price) / config.PRICE_SCALE,
 
-        ask,
+        ask: parseAsset(ask).prefix,
         asker,
-        bid,
+        bid: parseAsset(bid).prefix,
         bidder,
 
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,

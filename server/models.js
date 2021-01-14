@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 
-const sequelize = new Sequelize('sqlite:./data/db.sqlite', { logging: false })
+export const sequelize = new Sequelize('sqlite:./data/db.sqlite', { logging: false })
 
 export const Match = sequelize.define('Match', {
   chain: { type: DataTypes.STRING },
@@ -8,10 +8,10 @@ export const Match = sequelize.define('Match', {
   type: { type: DataTypes.STRING },
   trx_id: { type: DataTypes.STRING },
 
-  unit_price: DataTypes.STRING,
+  unit_price: DataTypes.FLOAT,
 
-  ask: { type: DataTypes.STRING },
-  bid: { type: DataTypes.STRING },
+  ask: { type: DataTypes.FLOAT },
+  bid: { type: DataTypes.FLOAT },
 
   asker: { type: DataTypes.STRING },
   bider: { type: DataTypes.STRING },
@@ -21,7 +21,6 @@ export const Match = sequelize.define('Match', {
 }, {
   allowNull: false
 })
-
 
 Match.addScope('defaultScope', {
   order: [['time', 'DESC']]
