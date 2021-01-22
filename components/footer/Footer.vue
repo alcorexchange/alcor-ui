@@ -29,7 +29,7 @@ footer
       .col-lg-2
         ul.nav.footer-column
           li.nav-item
-            span.footer-title Business offers
+            span.footer-title Support & Business offers
           li.nav-itek
             a(href="mailto:admin@alcor.exchange") admin@alcor.exchange
 
