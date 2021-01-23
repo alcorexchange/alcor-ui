@@ -1,4 +1,4 @@
-import { sort_by_price, prepareOrder, mergeSamePriceOrders } from '~/utils'
+import { sort_by_price, prepareOrder, mergeSamePriceOrders, parseAsset } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -47,6 +47,12 @@ export const actions = {
 
   async fetchDeals({ state, commit, rootGetters }) {
     const { data: deals } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/deals`)
+
+    deals.map(m => {
+      m.ask = parseAsset(m.ask)
+      m.bid = parseAsset(m.bid)
+    })
+
     commit('setDeals', deals)
   },
 

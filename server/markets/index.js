@@ -86,13 +86,7 @@ markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 400 })
-
-  // TODO Вынести на клиент или парсить в базу
-  matches.map(m => {
-    m.ask = parseAsset(m.ask)
-    m.bid = parseAsset(m.bid)
-  })
+  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 200 })
 
   res.json(matches)
 })
@@ -123,6 +117,8 @@ markets.get('/:market_id/charts', async (req, res) => {
   }
 
   const matches = market_id == 26 ? await Match.findAll({ where, limit: 1000 }) : await Match.findAll({ where })
+  //const matches = await Match.findAll({ where })
+
   const charts = makeCharts(matches.reverse(), resolution)
 
   //if (charts.length > 0) {
