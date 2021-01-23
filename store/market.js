@@ -48,11 +48,6 @@ export const actions = {
   async fetchDeals({ state, commit, rootGetters }) {
     const { data: deals } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/deals`)
 
-    deals.map(m => {
-      m.ask = parseAsset(m.ask)
-      m.bid = parseAsset(m.bid)
-    })
-
     commit('setDeals', deals)
   },
 

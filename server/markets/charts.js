@@ -1,4 +1,5 @@
 import memoize from 'memoizee'
+import { Bar } from '../models'
 
 export const resolutions = {
   1: 1 * 60,
@@ -10,6 +11,53 @@ export const resolutions = {
   '1D': 60 * 60 * 24,
   '1W': 60 * 60 * 24 * 7,
   '1M': 60 * 60 * 24 * 30
+}
+
+export async function markeBar(match) {
+  const last_bar = await Bar.findOne({ chain: match.chain, market: match.market }, {}, { sort: { time: -1 } })
+
+  if (!last_bar) {
+    console.log('created first bar for market: ', match.market, ' with price: ', match.unit_price)
+    // Нет баров это будет первый
+    await Bar.create({
+      chain: match.chain,
+      market: match.market,
+      time: match.time,
+      open: match.unit_price,
+      high: match.unit_price,
+      low: match.unit_price,
+      close: match.unit_price,
+      volume: match.type == 'buymatch' ? match.bid : match.ask
+    })
+
+    return
+  }
+
+  if (Math.floor(last_bar.time / 1000 / 60) == Math.floor(match.time / 1000 / 60)) {
+    console.log('match in same minute..')
+    // match in same minute
+    if (last_bar.high < match.unit_price) {
+      last_bar.high = match.unit_price
+    } else if (last_bar.low > match.unit_price) {
+      last_bar.low = match.unit_price
+    }
+
+    last_bar.close = match.unit_price
+    last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
+    last_bar.save()
+  } else {
+    console.log('new bar for: ', match.market, ' price: ', 'match:', match.unit_price)
+    await Bar.create({
+      chain: match.chain,
+      market: match.market,
+      time: match.time,
+      open: match.unit_price,
+      high: match.unit_price,
+      low: match.unit_price,
+      close: match.unit_price,
+      volume: match.type == 'buymatch' ? match.bid : match.ask
+    })
+  }
 }
 
 export const makeCharts = memoize((matches, resolution) => {
@@ -88,8 +136,8 @@ export const getVolume = memoize(deals => {
 
 export const getChange = memoize((deals) => {
   if (deals.length > 0) {
-    const price_before = parseInt(deals[deals.length - 1].unit_price)
-    const price_after = parseInt(deals[0].unit_price)
+    const price_before = parseFloat(deals[deals.length - 1].unit_price)
+    const price_after = parseFloat(deals[0].unit_price)
 
     const change = ((price_after - price_before) / price_before) * 100
 

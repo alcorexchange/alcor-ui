@@ -1,5 +1,6 @@
 import socket from 'socket.io'
 import express from 'express'
+import mongoose from 'mongoose'
 import consola from 'consola'
 import bodyParser from 'body-parser'
 import formidable from 'express-formidable'
@@ -17,7 +18,6 @@ import config from '../nuxt.config.js'
 import upload from './upload/ipfs'
 import { markets, startUpdaters } from './markets'
 import { serverInit } from './utils'
-import { syncModels } from './models'
 
 const app = express()
 
@@ -26,13 +26,20 @@ config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
   //db sync
-  await syncModels()
+  try {
+    const uri = config.dev ? 'mongodb://localhost:27017/alcor' : 'mongodb://host.docker.internal:27017/alcor'
+    await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+    console.log('MongoDB connected!')
+  } catch (e) {
+    console.log(e)
+    throw new Error('MongoDB connect err')
+  }
 
   app.use(bodyParser.json())
   app.use(formidable())
   app.use(serverInit)
+
   // Server routes
-  //app.post('/api/sign', sign)
   app.use('/api/markets', markets)
   app.use('/api/upload', upload)
 
@@ -42,12 +49,12 @@ async function start () {
   const { host, port } = nuxt.options.server
 
   //// NuxtJS
-  //await nuxt.ready()
-  //if (config.dev) {
-  //  const builder = new Builder(nuxt)
-  //  await builder.build()
-  //}
-  //app.use(nuxt.render)
+  await nuxt.ready()
+  if (config.dev) {
+    const builder = new Builder(nuxt)
+    await builder.build()
+  }
+  app.use(nuxt.render)
 
   // Listen the server
   const server = app.listen(port, host)

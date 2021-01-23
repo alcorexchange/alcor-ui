@@ -2,16 +2,26 @@ import { performance } from 'perf_hooks'
 
 import { Router } from 'express'
 import fetch from 'node-fetch'
-import { Op } from 'sequelize'
 
 import { JsonRpc } from 'eosjs'
 
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
-import { Match } from '../models'
+import { Match, Bar } from '../models'
 import { updater, getMarketStats } from './history'
 import { makeCharts } from './charts'
 
+const resolutions = {
+  1: 1,
+  5: 5,
+  15: 15,
+  30: 30,
+  60: 60,
+  240: 60 * 4,
+  '1D': 60 * 24,
+  '1W': 60 * 24 * 7,
+  '1M': 60 * 24 * 30
+}
 
 export function startUpdaters(app) {
   if (process.env.NETWORK) {
@@ -88,7 +98,7 @@ markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 200 })
+  const matches = await Match.find({ chain: network.name, market: market_id }).sort({ time: -1 }).limit(200)
 
   // TODO Вынести на клиент или парсить в базу
   res.json(matches)
@@ -109,30 +119,72 @@ markets.get('/:market_id/charts', async (req, res) => {
 
   const where = {
     chain: network.name,
-    market: market_id
+    market: parseInt(market_id)
   }
 
   if (from && to) {
-    const t0 = performance.now()
     where.time = {
-      [Op.gte]: new Date(parseFloat(from) * 1000),
-      [Op.lte]: new Date(parseFloat(to) * 1000)
+      $gte: new Date(parseFloat(from) * 1000),
+      $lte: new Date(parseFloat(to) * 1000)
     }
-    const t1 = performance.now()
-    console.log('Call to filter for charts took ' + (t1 - t0) + ' milliseconds.')
   }
 
-  const matches = await Match.findAll({ where })
+  const _resolution = resolutions[resolution]
+
+  if (!_resolution) return res.status(404).send('Incorrect resolution..')
+
+  console.log(where, _resolution)
   const t0 = performance.now()
-  const charts = makeCharts(matches.reverse(), resolution)
+  const bars = await Bar.aggregate([
+    { $match: where },
+    {
+      $group:
+      {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              { $mod: [{ $toLong: '$time' }, _resolution * 60 * 1000] }
+            ]
+          }
+        },
+        Open: { $first: '$open' },
+        High: { $max: '$high' },
+        Low: { $min: '$low' },
+        Close: { $last: '$close' },
+        Volume: { $sum: '$volume' }
+      }
+    },
+    { $sort: { _id: -1 } }
+  ]).allowDiskUse(true)
+
   const t1 = performance.now()
-  console.log('Call to marketCharts for charts took ' + (t1 - t0) + ' milliseconds.')
+  console.log('Call to filter for charts took ' + (t1 - t0) + ' milliseconds.')
 
   //if (charts.length > 0) {
   //  charts[charts.length - 1].close = marketStats.last_price / 100000000
   //}
+  const t3 = performance.now()
+  const new_bars = bars.map(b => [b._id / 1000, b.Open, b.High, b.Low, b.Close, b.Volume])
 
-  res.json(charts)
+  for (let i = 0; i < new_bars.length; i++) {
+    const curr = new_bars[i]
+    const next = new_bars[i + 1]
+
+    if (!next) {
+      break
+    }
+
+    if (curr.close != next.open) {
+      curr.close = next.open
+    }
+  }
+
+  const t4 = performance.now()
+  console.log('Call to new_bars' + (t4 - t3) + ' milliseconds.')
+
+  console.log('bars lengs', bars.length)
+  res.json(new_bars)
 })
 
 markets.get('/:market_id', async (req, res) => {

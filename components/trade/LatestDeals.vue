@@ -15,7 +15,7 @@
   .orders-list.blist
     a(v-for="deal in coloredDeals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
-        span(:class="deal.cls")  {{ deal.unit_price | humanPrice(6) }}
+        span(:class="deal.cls")  {{ deal.unit_price }}
         span {{ deal.amount | humanFloat(base_token.symbol.precision) }}
         span {{ deal.time | moment('DD-MM HH:mm')}}
 
@@ -44,10 +44,10 @@ export default {
         .sort((a, b) => b.time - a.time).map(h => {
           if (h.type == 'buymatch') {
             h.cls = 'text-success'
-            h.amount = h.bid.amount
+            h.amount = h.bid
           } else {
             h.cls = 'text-danger'
-            h.amount = h.ask.amount
+            h.amount = h.ask
           }
 
           return h
