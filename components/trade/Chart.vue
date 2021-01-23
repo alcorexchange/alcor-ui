@@ -46,7 +46,7 @@ export default {
         const current_time = Date.now() / 1000
 
         const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
-          params: { resolution: this.resolution, from: current_time - resolutions[this.resolution], to: current_time }
+          params: { resolution: this.resolution, from: current_time - resolutions[this.resolution], to: current_time, limit: 2 }
         })
 
         if (charts.length > 0) {

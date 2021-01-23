@@ -1,3 +1,4 @@
+import { performance } from 'perf_hooks'
 import { Router } from 'express'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
@@ -9,6 +10,7 @@ import { parseAsset, parseExtendedAsset } from '../../utils'
 import { Match } from '../models'
 import { updater, getMarketStats } from './history'
 import { makeCharts } from './charts'
+
 
 
 export function startUpdaters(app) {
@@ -102,7 +104,7 @@ markets.get('/:market_id/charts', async (req, res) => {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const { resolution, from, to } = req.query
+  const { resolution, from, to, limit } = req.query
 
   const where = {
     chain: network.name,
@@ -116,10 +118,16 @@ markets.get('/:market_id/charts', async (req, res) => {
     }
   }
 
-  const matches = market_id == 26 ? await Match.findAll({ where, limit: 1000 }) : await Match.findAll({ where })
-  //const matches = await Match.findAll({ where })
+  //console.log('request charts with limit: ', limit)
+  //const matches = market_id == 26 ? await Match.findAll({ where, limit: 1000 }) : await Match.findAll({ where })
+  const matches = await Match.findAll({ where, limit })
 
+  //console.log('get markets count: ', matches.length)
+
+  //const t0 = performance.now()
   const charts = makeCharts(matches.reverse(), resolution)
+  //const t1 = performance.now()
+  //console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.')
 
   //if (charts.length > 0) {
   //  charts[charts.length - 1].close = marketStats.last_price / 100000000
