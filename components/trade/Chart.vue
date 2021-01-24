@@ -114,6 +114,7 @@ export default {
 
             onSymbolResolvedCallback(symbolInfo)
           },
+
           getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
 

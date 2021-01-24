@@ -42,9 +42,7 @@ export async function markeBar(match) {
       last_bar.low = match.unit_price
     }
 
-    last_bar.close = match.unit_price
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
-    last_bar.save()
   } else {
     console.log('new bar for: ', match.market, ' price: ', 'match:', match.unit_price)
     await Bar.create({
@@ -58,6 +56,9 @@ export async function markeBar(match) {
       volume: match.type == 'buymatch' ? match.bid : match.ask
     })
   }
+
+  last_bar.close = match.unit_price
+  last_bar.save()
 }
 
 export const makeCharts = memoize((matches, resolution) => {
