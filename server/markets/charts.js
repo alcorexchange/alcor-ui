@@ -13,11 +13,31 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
+
+export const makeBarsArray = memoize(bars => {
+  const new_bars = bars.map(b => [b._id / 1000, b.Open, b.High, b.Low, b.Close, b.Volume])
+
+  //for (let i = 0; i < new_bars.length; i++) {
+  //  const curr = new_bars[i]
+  //  const next = new_bars[i + 1]
+
+  //  if (!next) {
+  //    break
+  //  }
+
+  //  if (curr.close != next.open) {
+  //    curr.close = next.open
+  //  }
+  //}
+
+  return new_bars
+}, { maxAge: 60 * 1 * 1000 })
+
+
 export async function markeBar(match) {
   const last_bar = await Bar.findOne({ chain: match.chain, market: match.market }, {}, { sort: { time: -1 } })
 
   if (!last_bar) {
-    console.log('created first bar for market: ', match.market, ' with price: ', match.unit_price)
     // Нет баров это будет первый
     await Bar.create({
       chain: match.chain,
@@ -44,7 +64,6 @@ export async function markeBar(match) {
 
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
   } else {
-    console.log('new bar for: ', match.market, ' price: ', 'match:', match.unit_price)
     await Bar.create({
       chain: match.chain,
       market: match.market,
@@ -125,7 +144,7 @@ export const makeCharts = memoize((matches, resolution) => {
   return results
 }, { maxAge: 60 * 60 * 24 })
 
-export const getVolume = memoize(deals => {
+export const getVolume = deals => {
   let volume = 0
 
   deals.map(m => {
@@ -133,9 +152,9 @@ export const getVolume = memoize(deals => {
   })
 
   return volume
-}, { maxAge: 60 * 60 * 24 })
+}
 
-export const getChange = memoize((deals) => {
+export const getChange = (deals) => {
   if (deals.length > 0) {
     const price_before = parseFloat(deals[deals.length - 1].unit_price)
     const price_after = parseFloat(deals[0].unit_price)
@@ -146,4 +165,4 @@ export const getChange = memoize((deals) => {
   } else {
     return 0
   }
-}, { maxAge: 60 * 60 * 24 })
+}

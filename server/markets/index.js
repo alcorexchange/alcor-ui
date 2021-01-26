@@ -9,7 +9,7 @@ import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
 import { Match, Bar } from '../models'
 import { updater, getMarketStats } from './history'
-import { makeCharts } from './charts'
+import { makeBarsArray } from './charts'
 
 const resolutions = {
   1: 1,
@@ -133,7 +133,6 @@ markets.get('/:market_id/charts', async (req, res) => {
 
   if (!_resolution) return res.status(404).send('Incorrect resolution..')
 
-  console.log(where, _resolution)
   const t0 = performance.now()
   const bars = await Bar.aggregate([
     { $match: where },
@@ -155,35 +154,13 @@ markets.get('/:market_id/charts', async (req, res) => {
         Volume: { $sum: '$volume' }
       }
     },
-    { $sort: { _id: -1 } }
+    { $sort: { _id: 1 } }
   ]).allowDiskUse(true)
+
+  const new_bars = makeBarsArray(bars)
 
   const t1 = performance.now()
   console.log('Call to filter for charts took ' + (t1 - t0) + ' milliseconds.')
-
-  //if (charts.length > 0) {
-  //  charts[charts.length - 1].close = marketStats.last_price / 100000000
-  //}
-  const t3 = performance.now()
-  const new_bars = bars.map(b => [b._id / 1000, b.Open, b.High, b.Low, b.Close, b.Volume])
-
-  for (let i = 0; i < new_bars.length; i++) {
-    const curr = new_bars[i]
-    const next = new_bars[i + 1]
-
-    if (!next) {
-      break
-    }
-
-    if (curr.close != next.open) {
-      curr.close = next.open
-    }
-  }
-
-  const t4 = performance.now()
-  console.log('Call to new_bars' + (t4 - t3) + ' milliseconds.')
-
-  console.log('bars lengs', bars.length)
   res.json(new_bars)
 })
 

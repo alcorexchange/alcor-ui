@@ -16,7 +16,8 @@
     a(v-for="deal in coloredDeals" :href="monitorTx(deal.trx_id)" target="_blank")
       .ltd.d-flex.justify-content-around
         span(:class="deal.cls")  {{ deal.unit_price }}
-        span {{ deal.amount | humanFloat(base_token.symbol.precision) }}
+        //span {{ deal.amount | humanFloat(base_token.symbol.precision) }}
+        span {{ deal.amount }}
         span {{ deal.time | moment('DD-MM HH:mm')}}
 
 </template>
@@ -25,10 +26,6 @@
 import { mapState } from 'vuex'
 
 export default {
-  async fetch() {
-    await this.$store.dispatch('market/fetchDeals')
-  },
-
   data() {
     return {
       loading: false

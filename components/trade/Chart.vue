@@ -62,7 +62,6 @@ export default {
 
         if (charts.length > 0) {
           const candle = charts[charts.length - 1]
-          candle.time = candle.time * 1000
           this.onRealtime({
             time: candle[0] * 1000,
             open: candle[1],

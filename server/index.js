@@ -27,7 +27,7 @@ config.dev = process.env.NODE_ENV !== 'production'
 async function start () {
   //db sync
   try {
-    const uri = config.dev ? 'mongodb://localhost:27017/alcor' : 'mongodb://host.docker.internal:27017/alcor'
+    const uri = config.dev ? 'mongodb://localhost:27017/alcor' : 'mongodb://host.docker.internal:27017/alcor_prod'
     await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
     console.log('MongoDB connected!')
   } catch (e) {

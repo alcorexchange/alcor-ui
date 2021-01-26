@@ -50,13 +50,13 @@ export async function getMarketStats(network, market_id) {
 
   const last_deal = await Match.findOne({ chain: network.name, market: market_id }, {}, { sort: { time: -1 } })
   if (last_deal) {
-    stats.last_price = parseInt(last_deal.unit_price)
+    stats.last_price = parseFloat(last_deal.unit_price) * 100000000 // FIXME
   } else {
     stats.last_price = 0
   }
 
   const day_matches = await Match.find({ chain: network.name, market: market_id, time: { $gte: Date.now() - ONEDAY } })
-  const week_matches = await Match.find({ chain: network.name, market: market_id, time: { $lte: Date.now() - WEEK } })
+  const week_matches = await Match.find({ chain: network.name, market: market_id, time: { $gte: Date.now() - WEEK } })
 
   stats.volume24 = getVolume(day_matches)
   stats.volumeWeek = getVolume(week_matches)
@@ -188,7 +188,7 @@ async function newMatch(match, network, app) {
     try {
       const m = await Match.create({
         chain: network.name,
-        market: market.id,
+        market: parseInt(market.id),
         type: name,
         trx_id,
 
@@ -216,11 +216,10 @@ async function newMatch(match, network, app) {
       return await newMatch(match, network, app)
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
-    console.log('get new action', name)
     if (!app.get('io')) return
 
     const { market_id } = 'data' in data ? data.data : data
-    if (market_id) console.log('send update for market', market_id)
+    //if (market_id) console.log('send update for market', market_id)
     app.get('io').sockets.emit('update_market', { chain: network.name, market: market_id })
   }
 }

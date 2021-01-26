@@ -14,10 +14,9 @@ export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.S
   asker: { type: String },
   bider: { type: String },
 
-  time: { type: Date },
+  time: { type: Date, index: true },
   block_num: { type: Number }
 }))
-
 
 export const Bar = mongoose.models.Bar || mongoose.model('Bar', mongoose.Schema({
   chain: { type: String, index: true },
