@@ -8,7 +8,7 @@ import { Match, getSettings } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
-import { getVolume, getChange, markeBar } from './charts'
+import { getVolume, getChange, markeBar, pushDeal, pushTicker } from './charts'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -181,9 +181,13 @@ export function streamHistory(network, app) {
 async function newMatch(match, network, app) {
   const { trx_id, block_num, act: { name, data } } = match
 
+  const io = app.get('io')
+  const chain = network.name
+
   if (['sellmatch', 'buymatch'].includes(name)) {
     // On new match
     const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data
+    console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time)
 
     try {
       const m = await Match.create({
@@ -202,24 +206,19 @@ async function newMatch(match, network, app) {
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
         block_num
       })
+      pushDeal(io, { chain, market: market.id })
 
-      markeBar(m)
-
-      console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time)
-
-      if (app.get('io')) {
-        app.get('io').sockets.emit('update_market', { chain: network.name, market: market.id })
-      }
+      await markeBar(m)
+      pushTicker(io, { chain, market: market.id, time: m.time })
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
       await new Promise(resolve => setTimeout(resolve, 1000))
       return await newMatch(match, network, app)
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
-    if (!app.get('io')) return
-
     const { market_id } = 'data' in data ? data.data : data
-    //if (market_id) console.log('send update for market', market_id)
-    app.get('io').sockets.emit('update_market', { chain: network.name, market: market_id })
+    if (!market_id) return
+
+    io.to(`orders:${network.name}.${market_id}`).emit('update_orders')
   }
 }

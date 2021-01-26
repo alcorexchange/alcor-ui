@@ -19,6 +19,7 @@ import config from '../nuxt.config.js'
 import upload from './upload/ipfs'
 import { markets, startUpdaters } from './markets'
 import { serverInit } from './utils'
+import { subscribe, unsubscribe } from './markets/sockets'
 
 const app = express()
 
@@ -65,6 +66,12 @@ async function start () {
   })
 
   const io = socket(server)
+
+  io.on('connection', socket => {
+    subscribe(io, socket)
+    unsubscribe(io, socket)
+  })
+
   app.set('io', io)
 
   startUpdaters(app)

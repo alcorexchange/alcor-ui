@@ -11,18 +11,6 @@ import { Match } from '../models'
 import { updater, getMarketStats } from './history'
 import { getCharts } from './charts'
 
-const resolutions = {
-  1: 1,
-  5: 5,
-  15: 15,
-  30: 30,
-  60: 60,
-  240: 60 * 4,
-  '1D': 60 * 24,
-  '1W': 60 * 24 * 7,
-  '1M': 60 * 24 * 30
-}
-
 export function startUpdaters(app) {
   if (process.env.NETWORK) {
     updater(process.env.NETWORK, app, process.env.NETWORK == 'wax') // Update by node, not hyperion
@@ -98,7 +86,10 @@ markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  const matches = await Match.find({ chain: network.name, market: market_id }).sort({ time: -1 }).limit(200)
+  const matches = await Match.find({ chain: network.name, market: market_id })
+    .select('time amount unit_price')
+    .sort({ time: -1 })
+    .limit(200)
 
   res.json(matches)
 })
@@ -112,12 +103,8 @@ markets.get('/:market_id/charts', async (req, res) => {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const { resolution } = req.query
-  const _resolution = resolutions[resolution]
-  if (!_resolution) return res.status(404).send('Incorrect resolution..')
-
-  const from = Math.floor(req.query.from / (60 * _resolution)) * (60 * _resolution)
-  const to = Math.ceil(req.query.to / (60 * _resolution)) * (60 * _resolution)
+  const { from, to, resolution } = req.query
+  if (resolution) return res.status(404).send('Incorrect resolution..')
 
   //const t0 = performance.now()
   const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)

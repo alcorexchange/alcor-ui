@@ -1,5 +1,5 @@
 import memoize from 'memoizee'
-import { Bar } from '../models'
+import { Bar, Match } from '../models'
 
 export const resolutions = {
   1: 1 * 60,
@@ -14,7 +14,14 @@ export const resolutions = {
 }
 
 export const getCharts = memoize(async function (chain, market, from, to, resolution) {
-  const where = { chain, market }
+  const _resolution = resolutions[resolution]
+
+  if (from && to) {
+    from = Math.floor(from / _resolution) * _resolution
+    to = Math.ceil(to / _resolution) * _resolution
+  }
+
+  const where = { chain, market: parseInt(market) }
 
   if (from && to) {
     where.time = {
@@ -71,7 +78,6 @@ export async function markeBar(match) {
   }
 
   if (Math.floor(last_bar.time / 1000 / 60) == Math.floor(match.time / 1000 / 60)) {
-    console.log('match in same minute..')
     // match in same minute
     if (last_bar.high < match.unit_price) {
       last_bar.high = match.unit_price
@@ -97,71 +103,6 @@ export async function markeBar(match) {
   last_bar.save()
 }
 
-// TODO Ненужный функция уже 
-//export const makeCharts = memoize((matches, resolution) => {
-//  const prices = matches.map(m => {
-//    return {
-//      price: parseInt(m.unit_price) / 100000000,
-//      time: m.time.getTime() / 1000,
-//      volume: m.type == 'buymatch' ? parseFloat(m.bid) : parseFloat(m.ask)
-//    }
-//  })
-//
-//  const results = []
-//  if (prices.length > 0 && resolution) {
-//    const first = new Date(prices[0].time * 1000)
-//    first.setHours(0, 0, 0, 0)
-//
-//    let current_time = first.getTime() / 1000
-//
-//    while (true) {
-//      const nex_time = current_time + resolutions[resolution]
-//      const values = prices.filter(p => p.time >= current_time && p.time < nex_time)
-//
-//      if (values.length == 0) {
-//        const last_item = results[results.length - 1] || { close: 0 }
-//
-//        results.push({
-//          time: nex_time,
-//          open: last_item.close,
-//          high: last_item.close,
-//          low: last_item.close,
-//          close: last_item.close,
-//          volume: 0
-//        })
-//      } else {
-//        results.push({
-//          time: nex_time,
-//          open: values[0].price,
-//          high: Math.max(...values.map(v => v.price)),
-//          low: Math.min(...values.map(v => v.price)),
-//          close: values[values.length - 1].price,
-//          volume: values.map(v => v.volume).reduce((a, b) => a + b, 0)
-//        })
-//      }
-//
-//      if (nex_time > Date.now() / 1000) break
-//
-//      current_time = nex_time
-//    }
-//  }
-//
-//  for (let i = 0; i < results.length; i++) {
-//    const curr = results[i]
-//    const next = results[i + 1]
-//
-//    if (!next) {
-//      break
-//    }
-//
-//    if (curr.close != next.open) {
-//      curr.close = next.open
-//    }
-//  }
-//
-//  return results
-//}, { maxAge: 60 * 60 * 24 })
-
 export const getVolume = deals => {
   let volume = 0
 
@@ -182,5 +123,24 @@ export const getChange = (deals) => {
     return change
   } else {
     return 0
+  }
+}
+
+export async function pushDeal(io, { chain, market }) {
+  const deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } }).select('time amount unit_price')
+  io.to(`deals:${chain}.${market}`).emit('new_deal', deal)
+}
+
+export function pushTicker(io, { chain, market, time }) {
+  const now = time / 1000
+
+  for (const [resolution, time] of Object.entries(resolutions)) {
+    getCharts(chain, market, now - time, now, resolution).then(charts => {
+      if (charts.length > 0) {
+        io.to(`ticker:$chain}.${market}.${resolution}`).emit(charts[charts.length - 1])
+      } else {
+        console.log('No charts for emiting after receive!!')
+      }
+    })
   }
 }
