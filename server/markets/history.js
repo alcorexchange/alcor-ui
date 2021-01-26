@@ -3,32 +3,17 @@ import axiosRetry from 'axios-retry'
 import { JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
-import { Op } from 'sequelize'
 
 import { Match, getSettings } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
-import { makeCharts, getVolume, getChange } from './charts'
+import { getVolume, getChange, markeBar } from './charts'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
 
 axiosRetry(axios, { retries: 3 })
-
-const QUERY_LIMIT = 50
-
-export async function getDeals (network, market_id) {
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id } })
-
-  // TODO Вынести на клиент
-  matches.map(m => {
-    m.ask = parseAsset(m.ask)
-    m.bid = parseAsset(m.bid)
-  })
-
-  return matches
-}
 
 export function getMatches(network) {
   const history = cache.get(`${network.name}_history`) || []
@@ -63,15 +48,15 @@ export async function getMarketStats(network, market_id) {
 
   if ('last_price' in stats) return stats
 
-  const last_deal = await Match.findOne({ where: { chain: network.name, market: market_id }, order: [['time', 'DESC']] })
+  const last_deal = await Match.findOne({ chain: network.name, market: market_id }, {}, { sort: { time: -1 } })
   if (last_deal) {
-    stats.last_price = parseInt(last_deal.unit_price)
+    stats.last_price = parseFloat(last_deal.unit_price) * 100000000 // FIXME
   } else {
     stats.last_price = 0
   }
 
-  const day_matches = await Match.findAll({ where: { chain: network.name, market: market_id, time: { [Op.gte]: Date.now() - ONEDAY } } })
-  const week_matches = await Match.findAll({ where: { chain: network.name, market: market_id, time: { [Op.gte]: Date.now() - WEEK } } })
+  const day_matches = await Match.find({ chain: network.name, market: market_id, time: { $gte: Date.now() - ONEDAY } })
+  const week_matches = await Match.find({ chain: network.name, market: market_id, time: { $gte: Date.now() - WEEK } })
 
   stats.volume24 = getVolume(day_matches)
   stats.volumeWeek = getVolume(week_matches)
@@ -132,7 +117,7 @@ async function streamByNode(network, app) {
     try {
       r = await rpc.history_get_actions(network.contract, settings.actions_stream_offset, 100)
     } catch (e) {
-      console.log('getActionsByNode err: ', e)
+      console.log('getActionsByNode err: ', e.message)
       await new Promise((resolve, reject) => setTimeout(resolve, 2000))
       continue
     }
@@ -155,8 +140,8 @@ async function streamByNode(network, app) {
 export function streamHistory(network, app) {
   const client = new HyperionSocketClient(network.hyperion, { async: true, fetch })
   client.onConnect = async () => {
-    const last_buy_match = await Match.findOne({ where: { chain: network.name, type: 'buymatch' }, order: [['block_num', 'DESC']] })
-    const last_sell_match = await Match.findOne({ where: { chain: network.name, type: 'sellmatch' }, order: [['block_num', 'DESC']] })
+    const last_buy_match = await Match.findOne({ chain: network.name, type: 'buymatch' }, {}, { sort: { block_num: -1 } })
+    const last_sell_match = await Match.findOne({ chain: network.name, type: 'sellmatch' }, {}, { sort: { block_num: -1 } })
 
     client.streamActions({
       contract: network.contract,
@@ -201,22 +186,24 @@ async function newMatch(match, network, app) {
     const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data
 
     try {
-      await Match.create({
+      const m = await Match.create({
         chain: network.name,
-        market: market.id,
+        market: parseInt(market.id),
         type: name,
         trx_id,
 
-        unit_price: littleEndianToDesimal(unit_price),
+        unit_price: littleEndianToDesimal(unit_price) / config.PRICE_SCALE,
 
-        ask,
+        ask: parseAsset(ask).prefix,
         asker,
-        bid,
+        bid: parseAsset(bid).prefix,
         bidder,
 
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
         block_num
       })
+
+      markeBar(m)
 
       console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time)
 
@@ -229,56 +216,10 @@ async function newMatch(match, network, app) {
       return await newMatch(match, network, app)
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
-    console.log('get new action', name)
     if (!app.get('io')) return
 
     const { market_id } = 'data' in data ? data.data : data
-    console.log('send update for market', market_id)
+    //if (market_id) console.log('send update for market', market_id)
     app.get('io').sockets.emit('update_market', { chain: network.name, market: market_id })
   }
 }
-
-//export async function loadHistory(network, hyperion = true) {
-//  const contract = network.contract
-//
-//  let skip = cache.get(`${network.name}_history_skip`) || 0
-//  const actions = cache.get(`${network.name}_history`) || []
-//
-//  try {
-//    const new_acions = hyperion
-//      ? await getActionsByHyperion(network, contract, skip, QUERY_LIMIT, ['buymatch', 'sellmatch'])
-//      : await getActionsByNode(network, contract, skip, QUERY_LIMIT, ['buymatch', 'sellmatch'])
-//
-//    //console.log('got ', new_acions.length, ' new_acions from fetch')
-//
-//    for (const t of new_acions) {
-//      if (!t.block_time) t.block_time = t.timestamp
-//
-//      const data = t.act.data.record
-//      if (data == undefined) {
-//        console.log(`data bug in(${network.name}): `, t.trx_id)
-//        continue
-//      }
-//
-//      data.trx_id = t.trx_id
-//      data.type = t.act.name
-//      data.ask = parseAsset(data.ask)
-//      data.bid = parseAsset(data.bid)
-//      data.unit_price = littleEndianToDesimal(data.unit_price)
-//
-//      actions.push(t)
-//    }
-//
-//    skip += new_acions.length
-//
-//    cache.set(`${network.name}_history_skip`, skip, 0)
-//    cache.set(`${network.name}_history`, actions, 0)
-//
-//    if (new_acions.length == QUERY_LIMIT) {
-//      // Значит там есть еще, фетчим дальше
-//      await loadHistory(network, hyperion)
-//    }
-//  } catch (e) {
-//    console.log(`Update error for: ${network.name}`, e.message, e)
-//  }
-//}

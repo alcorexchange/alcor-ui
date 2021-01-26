@@ -1,38 +1,38 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import mongoose from 'mongoose'
 
-const sequelize = new Sequelize('sqlite:./data/db.sqlite', { logging: false })
+export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.Schema({
+  chain: { type: String, index: true },
+  market: { type: Number, index: true }, // TODO потом сделать табличку с маркетами
+  type: { type: String },
+  trx_id: { type: String },
 
-export const Match = sequelize.define('Match', {
-  chain: { type: DataTypes.STRING },
-  market: { type: DataTypes.INTEGER }, // TODO потом сделать табличку с маркетами
-  type: { type: DataTypes.STRING },
-  trx_id: { type: DataTypes.STRING },
+  unit_price: Number,
 
-  unit_price: DataTypes.STRING,
+  ask: { type: Number },
+  bid: { type: Number },
 
-  ask: { type: DataTypes.STRING },
-  bid: { type: DataTypes.STRING },
+  asker: { type: String },
+  bider: { type: String },
 
-  asker: { type: DataTypes.STRING },
-  bider: { type: DataTypes.STRING },
+  time: { type: Date, index: true },
+  block_num: { type: Number }
+}))
 
-  time: { type: DataTypes.DATE },
-  block_num: { type: DataTypes.INTEGER }
-}, {
-  allowNull: false
-})
+export const Bar = mongoose.models.Bar || mongoose.model('Bar', mongoose.Schema({
+  chain: { type: String, index: true },
+  market: { type: Number, index: true },
+  open: Number,
+  high: Number,
+  low: Number,
+  close: Number,
+  volume: { type: Number, default: 0 },
+  time: { type: Date, index: true }
+}))
 
-
-Match.addScope('defaultScope', {
-  order: [['time', 'DESC']]
-}, { override: true })
-
-// TODO Markets table
-
-const Settings = sequelize.define('Settings', {
-  chain: { type: DataTypes.STRING },
-  actions_stream_offset: { type: DataTypes.INTEGER, defaultValue: 0 }
-})
+const Settings = mongoose.models.Settings || mongoose.model('Settings', mongoose.Schema({
+  chain: { type: String },
+  actions_stream_offset: { type: Number, default: 0 }
+}))
 
 export async function getSettings(network) {
   let actions_stream_offset = 0
@@ -42,21 +42,16 @@ export async function getSettings(network) {
   }
 
   try {
-    const [ins, created] = await Settings.findOrCreate({ where: { chain: network.name }, defaults: { chain: network.name, actions_stream_offset } })
+    let settings = await Settings.findOne({ chain: network.name })
 
-    return ins
-  } catch {
-    console.log('db fail on get settinga, retry..')
+    if (!settings) {
+      settings = await Settings.create({ chain: network.name, actions_stream_offset })
+    }
+
+    return settings
+  } catch (e) {
+    console.log('db fail on get settinga, retry..', e)
     await new Promise(resolve => setTimeout(resolve, 1000))
     return await getSettings(network)
-  }
-}
-
-export async function syncModels() {
-  try {
-    await sequelize.sync({ alter: true })
-  } catch (e) {
-    console.log(e)
-    throw new Error('sequelize err')
   }
 }

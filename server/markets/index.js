@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks'
+
 import { Router } from 'express'
 import fetch from 'node-fetch'
-import { Op } from 'sequelize'
 
 import { JsonRpc } from 'eosjs'
 
@@ -9,9 +9,19 @@ import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
 import { Match } from '../models'
 import { updater, getMarketStats } from './history'
-import { makeCharts } from './charts'
+import { getCharts } from './charts'
 
-
+const resolutions = {
+  1: 1,
+  5: 5,
+  15: 15,
+  30: 30,
+  60: 60,
+  240: 60 * 4,
+  '1D': 60 * 24,
+  '1W': 60 * 24 * 7,
+  '1M': 60 * 24 * 30
+}
 
 export function startUpdaters(app) {
   if (process.env.NETWORK) {
@@ -88,7 +98,7 @@ markets.get('/:market_id/deals', async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
 
-  const matches = await Match.findAll({ where: { chain: network.name, market: market_id }, limit: 200 })
+  const matches = await Match.find({ chain: network.name, market: market_id }).sort({ time: -1 }).limit(200)
 
   res.json(matches)
 })
@@ -98,40 +108,22 @@ markets.get('/:market_id/charts', async (req, res) => {
   const { market_id } = req.params
   const market = await getMarket(network, market_id)
 
-  //const marketStats = await getMarketStats(network, market_id)
-
   if (!market) {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const { resolution, from, to, limit } = req.query
+  const { resolution } = req.query
+  const _resolution = resolutions[resolution]
+  if (!_resolution) return res.status(404).send('Incorrect resolution..')
 
-  const where = {
-    chain: network.name,
-    market: market_id
-  }
-
-  if (from && to) {
-    where.time = {
-      [Op.gte]: new Date(parseFloat(from) * 1000),
-      [Op.lte]: new Date(parseFloat(to) * 1000)
-    }
-  }
-
-  //console.log('request charts with limit: ', limit)
-  //const matches = market_id == 26 ? await Match.findAll({ where, limit: 1000 }) : await Match.findAll({ where })
-  const matches = await Match.findAll({ where, limit })
-
-  //console.log('get markets count: ', matches.length)
+  const from = Math.floor(req.query.from / (60 * _resolution)) * (60 * _resolution)
+  const to = Math.ceil(req.query.to / (60 * _resolution)) * (60 * _resolution)
 
   //const t0 = performance.now()
-  const charts = makeCharts(matches.reverse(), resolution)
+  const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
   //const t1 = performance.now()
-  //console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.')
-
-  //if (charts.length > 0) {
-  //  charts[charts.length - 1].close = marketStats.last_price / 100000000
-  //}
+  // Charts generate/cache debug
+  //console.log('Call to filter for charts took ' + (t1 - t0) + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
 
   res.json(charts)
 })

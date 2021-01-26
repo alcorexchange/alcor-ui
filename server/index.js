@@ -1,8 +1,10 @@
 import socket from 'socket.io'
 import express from 'express'
+import mongoose from 'mongoose'
 import consola from 'consola'
 import bodyParser from 'body-parser'
 import formidable from 'express-formidable'
+
 import NodeCache from 'node-cache'
 export const cache = new NodeCache()
 
@@ -17,7 +19,6 @@ import config from '../nuxt.config.js'
 import upload from './upload/ipfs'
 import { markets, startUpdaters } from './markets'
 import { serverInit } from './utils'
-import { syncModels } from './models'
 
 const app = express()
 
@@ -26,13 +27,20 @@ config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
   //db sync
-  await syncModels()
+  try {
+    const uri = config.dev ? 'mongodb://localhost:27017/alcor' : 'mongodb://host.docker.internal:27017/alcor_prod'
+    await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+    console.log('MongoDB connected!')
+  } catch (e) {
+    console.log(e)
+    throw new Error('MongoDB connect err')
+  }
 
   app.use(bodyParser.json())
   app.use(formidable())
   app.use(serverInit)
+
   // Server routes
-  //app.post('/api/sign', sign)
   app.use('/api/markets', markets)
   app.use('/api/upload', upload)
 

@@ -5,12 +5,23 @@
 <script>
 // TODO Зафиксить график при переключении
 import { mapState } from 'vuex'
-import { resolutions } from '~/server/markets/charts'
+
+const resolutions = {
+  1: 1 * 60,
+  5: 5 * 60,
+  15: 15 * 60,
+  30: 30 * 60,
+  60: 60 * 60,
+  240: 60 * 60 * 4,
+  '1D': 60 * 60 * 24,
+  '1W': 60 * 60 * 24 * 7,
+  '1M': 60 * 60 * 24 * 30
+}
 
 export default {
   data() {
     return {
-      resolution: '1D',
+      resolution: 240,
 
       onRealtime: null,
       widget: null,
@@ -51,8 +62,14 @@ export default {
 
         if (charts.length > 0) {
           const candle = charts[charts.length - 1]
-          candle.time = candle.time * 1000
-          this.onRealtime(candle)
+          this.onRealtime({
+            time: candle[0] * 1000,
+            open: candle[1],
+            high: candle[2],
+            low: candle[3],
+            close: candle[4],
+            volume: candle[5]
+          })
         } else {
           console.log('no candles available for update!!')
         }
@@ -96,6 +113,7 @@ export default {
 
             onSymbolResolvedCallback(symbolInfo)
           },
+
           getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
 
@@ -105,12 +123,12 @@ export default {
 
             const bars = charts.map((i) => {
               return {
-                time: i.time * 1000,
-                open: i.open,
-                high: i.high,
-                low: i.low,
-                close: i.close,
-                volume: i.volume
+                time: i[0] * 1000,
+                open: i[1],
+                high: i[2],
+                low: i[3],
+                close: i[4],
+                volume: i[5]
               }
             })
             onHistoryCallback(bars, { noData: bars.length == 0 })
