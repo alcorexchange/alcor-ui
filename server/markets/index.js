@@ -160,7 +160,7 @@ markets.get('/:market_id/charts', async (req, res) => {
   const new_bars = makeBarsArray(bars)
 
   const t1 = performance.now()
-  console.log('Call to filter for charts took ' + (t1 - t0) + ' milliseconds.')
+  console.log('Call to filter for charts took ' + (t1 - t0) + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
   res.json(new_bars)
 })
 
