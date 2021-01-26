@@ -74,6 +74,8 @@ $ yarn start
 $ yarn run generate
 
 # Docker run:
+docker run -it -p 7002:7000 --restart=unless-stopped -d --name alcor_new_mongo --add-host=host.docker.internal:172.17.0.1 avral/alcor-ui:new_mongo
+
 docker run -it -p 7001:7000 --restart=unless-stopped -d --label=com.centurylinklabs.watchtower.lifecycle.post-check="rm -rf /data/nginx/cache/eostokens && service nginx reload" --label=com.centurylinklabs.watchtower.enable=true --name eostokens-ui -v /var/www/alcor.exchange/data:/app/data avral/alcor-ui
 ```
 
