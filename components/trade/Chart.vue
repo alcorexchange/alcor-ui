@@ -21,7 +21,7 @@ const resolutions = {
 export default {
   data() {
     return {
-      resolution: '1D',
+      resolution: 240,
 
       onRealtime: null,
       widget: null,

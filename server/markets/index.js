@@ -7,9 +7,9 @@ import { JsonRpc } from 'eosjs'
 
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
-import { Match, Bar } from '../models'
+import { Match } from '../models'
 import { updater, getMarketStats } from './history'
-import { makeBarsArray } from './charts'
+import { getCharts } from './charts'
 
 const resolutions = {
   1: 1,
@@ -100,7 +100,6 @@ markets.get('/:market_id/deals', async (req, res) => {
 
   const matches = await Match.find({ chain: network.name, market: market_id }).sort({ time: -1 }).limit(200)
 
-  // TODO Вынести на клиент или парсить в базу
   res.json(matches)
 })
 
@@ -109,59 +108,23 @@ markets.get('/:market_id/charts', async (req, res) => {
   const { market_id } = req.params
   const market = await getMarket(network, market_id)
 
-  //const marketStats = await getMarketStats(network, market_id)
-
   if (!market) {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const { resolution, from, to } = req.query
-
-  const where = {
-    chain: network.name,
-    market: parseInt(market_id)
-  }
-
-  if (from && to) {
-    where.time = {
-      $gte: new Date(parseFloat(from) * 1000),
-      $lte: new Date(parseFloat(to) * 1000)
-    }
-  }
-
+  const { resolution } = req.query
   const _resolution = resolutions[resolution]
-
   if (!_resolution) return res.status(404).send('Incorrect resolution..')
 
+  const from = Math.floor(req.query.from / (60 * _resolution)) * (60 * _resolution)
+  const to = Math.ceil(req.query.to / (60 * _resolution)) * (60 * _resolution)
+
   const t0 = performance.now()
-  const bars = await Bar.aggregate([
-    { $match: where },
-    {
-      $group:
-      {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, _resolution * 60 * 1000] }
-            ]
-          }
-        },
-        Open: { $first: '$open' },
-        High: { $max: '$high' },
-        Low: { $min: '$low' },
-        Close: { $last: '$close' },
-        Volume: { $sum: '$volume' }
-      }
-    },
-    { $sort: { _id: 1 } }
-  ]).allowDiskUse(true)
-
-  const new_bars = makeBarsArray(bars)
-
+  const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
   const t1 = performance.now()
   console.log('Call to filter for charts took ' + (t1 - t0) + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
-  res.json(new_bars)
+
+  res.json(charts)
 })
 
 markets.get('/:market_id', async (req, res) => {
