@@ -63,20 +63,6 @@ export default {
     this.$socket.on('new_deals', new_deals => {
       this.deals = new_deals.concat(this.deals)
     })
-  },
-
-  methods: {
-    async fetch() {
-      this.loading = true
-
-      try {
-        await this.$store.dispatch('market/fetchDeals')
-      } catch (e) {
-        this.$notify({ title: 'Fetch deals', message: e, type: 'error' })
-      } finally {
-        this.loading = false
-      }
-    }
   }
 }
 </script>

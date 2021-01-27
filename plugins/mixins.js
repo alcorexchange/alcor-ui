@@ -265,7 +265,8 @@ Vue.mixin({
     },
 
     monitorTx(tx) {
-      return `${this.network.monitor}/transaction/${tx}?tab=traces&${this.network.monitor_params}`
+      const network = this.$store.state.network
+      return `${network.monitor}/transaction/${tx}?tab=traces&${network.monitor_params}`
     },
 
     monitorAccount(account) {

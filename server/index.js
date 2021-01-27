@@ -18,6 +18,7 @@ import config from '../nuxt.config.js'
 //import sign from './sign'
 import upload from './upload/ipfs'
 import { markets, startUpdaters } from './markets'
+import { account } from './account'
 import { serverInit } from './utils'
 import { subscribe, unsubscribe } from './markets/sockets'
 
@@ -43,6 +44,7 @@ async function start () {
 
   // Server routes
   app.use('/api/markets', markets)
+  app.use('/api/account', account)
   app.use('/api/upload', upload)
 
   // Init Nuxt.js

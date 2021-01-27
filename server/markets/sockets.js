@@ -7,7 +7,7 @@ export function subscribe(io, socket) {
       socket.join(`deals:${params.chain}.${params.market}`)
 
       const deals = await Match.find({ chain: params.chain, market: params.market })
-        .select('time bid ask unit_price type')
+        .select('time bid ask unit_price type trx_id')
         .sort({ time: -1 })
         .limit(200)
 

@@ -138,8 +138,11 @@ export const actions = {
         }, { root: true })
 
         dispatch('loadUserBalances', {}, { root: true })
+
         commit('setCurrentWallet', 'transit')
       }
+
+      dispatch('fetchUserDeals', {}, { root: true })
 
       if (state.loginPromise) state.loginPromise.resolve(true)
     } catch (e) {

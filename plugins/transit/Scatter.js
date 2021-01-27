@@ -85,7 +85,7 @@ export function scatterWalletProvider() {
     async function login(accountName) {
       const scatter = getScatter()
       try {
-        console.log('check login', await scatter.checkLogin())
+        await scatter.checkLogin()
       } catch (e) {
         console.log('check login err', e)
       }

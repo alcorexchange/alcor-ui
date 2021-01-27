@@ -24,7 +24,6 @@ export const state = () => ({
 export const mutations = {
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
-  setDeals: (state, deals) => state.deals = deals,
   setStreaming: (state, streaming) => state.streaming = streaming,
 
   setMarket: (state, market) => {
@@ -42,7 +41,6 @@ export const mutations = {
 export const actions = {
   update({ dispatch }) {
     dispatch('fetchOrders')
-    dispatch('fetchDeals')
   },
 
   startStream({ state, rootState, commit }, { to, from }) {
@@ -67,12 +65,6 @@ export const actions = {
     }
 
     commit('setMarket', market)
-  },
-
-  async fetchDeals({ state, commit, rootGetters }) {
-    const { data: deals } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}/deals`)
-
-    commit('setDeals', deals)
   },
 
   async fetchOrders({ state, commit, dispatch }) {

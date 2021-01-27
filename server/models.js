@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.Schema({
   chain: { type: String, index: true },
   market: { type: Number, index: true }, // TODO потом сделать табличку с маркетами
-  type: { type: String },
+  type: { type: String, index: true },
   trx_id: { type: String },
 
   unit_price: Number,
@@ -11,8 +11,8 @@ export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.S
   ask: { type: Number },
   bid: { type: Number },
 
-  asker: { type: String },
-  bider: { type: String },
+  asker: { type: String, index: true },
+  bider: { type: String, index: true },
 
   time: { type: Date, index: true },
   block_num: { type: Number }

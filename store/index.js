@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import config from '~/config'
+import { parseAsset } from '~/utils'
 
 export const strict = false
 
@@ -8,6 +9,8 @@ const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3
 
 export const state = () => ({
   user: null,
+  userDeals: [],
+
   markets: [],
   network: {},
 
@@ -26,6 +29,7 @@ export const mutations = {
 
   setUser: (state, user) => state.user = user,
   setMarkets: (state, markets) => state.markets = markets,
+  setUserDeals: (state, deals) => state.userDeals = deals,
 
   setIsMobile: (state, mobile) => state.isMobile = mobile,
   setBaseUrl: (state, url) => state.baseUrl = url,
@@ -135,6 +139,13 @@ export const actions = {
         commit('setUser', { ...state.user, balances }, { root: true })
       })
     }
+  },
+
+  async fetchUserDeals({ state, commit, rootGetters }) {
+    if (!state.user) return
+
+    const { data: deals } = await rootGetters['api/backEnd'].get(`/api/account/${state.user.name}/deals`)
+    commit('setUserDeals', deals)
   }
 }
 
