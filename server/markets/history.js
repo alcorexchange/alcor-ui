@@ -187,7 +187,7 @@ async function newMatch(match, network, app) {
   if (['sellmatch', 'buymatch'].includes(name)) {
     // On new match
     const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data
-    console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time)
+    console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time, 'market', market.id)
 
     try {
       const m = await Match.create({
@@ -210,6 +210,7 @@ async function newMatch(match, network, app) {
 
       await markeBar(m)
       pushTicker(io, { chain, market: market.id, time: m.time })
+      io.to(`orders:${network.name}.${market.id}`).emit('update_orders')
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
       await new Promise(resolve => setTimeout(resolve, 1000))

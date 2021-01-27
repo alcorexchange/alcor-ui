@@ -1,5 +1,5 @@
 <template lang="pug">
-.order-book(v-loading="loading")
+.order-book
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
@@ -19,7 +19,7 @@
       span No asks
       span
 
-  .p-1.mt-1
+  .p-1.mt-1(v-loading="loading")
     .overflowbox.text-center
       b.text-success {{ current_price | humanPrice }} {{ base_token.symbol.name }}
 
@@ -61,7 +61,7 @@ export default {
   },
 
   watch: {
-    id () {
+    id (to, from) {
       this.fetch()
     },
 
@@ -75,14 +75,17 @@ export default {
   },
 
   mounted() {
+    this.fetch()
     setTimeout(() => this.scrollBook(), 1000)
 
-    this.fetch()
+    this.$socket.on('update_orders', new_deals => {
+      this.fetch()
+    })
   },
 
   methods: {
     async fetch() {
-      this.loading = true
+      //this.loading = true FIXME пока не делаем на это лоадинг
 
       try {
         await this.$store.dispatch('market/fetchOrders')

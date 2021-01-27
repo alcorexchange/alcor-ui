@@ -16,7 +16,7 @@ export const state = () => ({
 
   deals: [],
 
-  barStream: null,
+  streaming: false,
 
   orderLoading: false
 })
@@ -25,7 +25,7 @@ export const mutations = {
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setDeals: (state, deals) => state.deals = deals,
-  setBarStream: (state, barStream) => state.barStream = barStream,
+  setStreaming: (state, streaming) => state.streaming = streaming,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug, symbol } = market
@@ -43,6 +43,30 @@ export const actions = {
   update({ dispatch }) {
     dispatch('fetchOrders')
     dispatch('fetchDeals')
+  },
+
+  startStream({ state, rootState, commit }, { to, from }) {
+    if (from) {
+      this._vm.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
+      this._vm.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
+      this._vm.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
+    }
+    this._vm.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
+    this._vm.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
+
+    commit('setStreaming', true)
+  },
+
+  setMarket({ state, dispatch, commit }, market) {
+    if (process.client) {
+      if (state.id) {
+        dispatch('startStream', { to: market.id, from: state.id })
+      } else {
+        dispatch('startStream', { to: market.id })
+      }
+    }
+
+    commit('setMarket', market)
   },
 
   async fetchDeals({ state, commit, rootGetters }) {

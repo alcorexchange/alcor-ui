@@ -31,7 +31,7 @@ export default {
 
   computed: {
     ...mapState('market', ['base_token', 'id', 'quote_token']),
-    ...mapState(['theme'])
+    ...mapState(['theme', 'network'])
   },
 
   watch: {
@@ -39,10 +39,11 @@ export default {
       this.mountChart()
     },
 
-    '$store.state.market.id'() {
+    id(to, from) {
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
         this.widget.activeChart().resetData()
+        //this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: to, resolution: this.resolution } })
       }
     }
   },
@@ -52,30 +53,6 @@ export default {
   },
 
   methods: {
-    async barStream() {
-      if (this.resolution && this.onRealtime) {
-        const current_time = Date.now() / 1000
-
-        const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
-          params: { resolution: this.resolution, from: current_time - resolutions[this.resolution], to: current_time, limit: 2 }
-        })
-
-        if (charts.length > 0) {
-          const candle = charts[charts.length - 1]
-          this.onRealtime({
-            time: candle[0] * 1000,
-            open: candle[1],
-            high: candle[2],
-            low: candle[3],
-            close: candle[4],
-            volume: candle[5]
-          })
-        } else {
-          console.log('no candles available for update!!')
-        }
-      }
-    },
-
     mountChart() {
       const Widget = require('~/assets/charts/charting_library.min.js').widget
 
@@ -88,9 +65,21 @@ export default {
           },
 
           subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
-            this.onRealtime = onRealtimeCallback
-            this.$store.commit('market/setBarStream', this.barStream)
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
+
+            this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id } })
+            this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
+
+            this.$socket.on('tick', candle => {
+              onRealtimeCallback({
+                time: candle[0] * 1000,
+                open: candle[1],
+                high: candle[2],
+                low: candle[3],
+                close: candle[4],
+                volume: candle[5]
+              })
+            })
           },
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
@@ -134,7 +123,8 @@ export default {
             onHistoryCallback(bars, { noData: bars.length == 0 })
           },
 
-          unsubscribeBars: (subscriberUID) => {}
+          unsubscribeBars: (subscriberUID) => {
+          }
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
         interval: 'D',

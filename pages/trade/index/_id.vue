@@ -54,19 +54,12 @@ export default {
         return error(`market ${params.id} found`)
       }
 
-      store.commit('market/setMarket', { id: rows[0].id })
+      store.dispatch('market/setMarket', { id: rows[0].id })
       await Promise.all([
-        store.dispatch('market/fetchMarket'),
-        //store.dispatch('market/fetchOrders'),
-        //store.dispatch('market/fetchDeals')
+        store.dispatch('market/fetchMarket')
       ])
     } else {
-      store.commit('market/setMarket', market)
-
-      await Promise.all([
-        //store.dispatch('market/fetchOrders'),
-        //store.dispatch('market/fetchDeals')
-      ])
+      store.dispatch('market/setMarket', market)
     }
   },
 

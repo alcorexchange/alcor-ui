@@ -127,8 +127,8 @@ export const getChange = (deals) => {
 }
 
 export async function pushDeal(io, { chain, market }) {
-  const deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } }).select('time amount unit_price')
-  io.to(`deals:${chain}.${market}`).emit('new_deal', deal)
+  const deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } }).select('time ask bid type unit_price')
+  io.to(`deals:${chain}.${market}`).emit('new_deals', [deal])
 }
 
 export function pushTicker(io, { chain, market, time }) {
@@ -137,7 +137,7 @@ export function pushTicker(io, { chain, market, time }) {
   for (const [resolution, time] of Object.entries(resolutions)) {
     getCharts(chain, market, now - time, now, resolution).then(charts => {
       if (charts.length > 0) {
-        io.to(`ticker:$chain}.${market}.${resolution}`).emit(charts[charts.length - 1])
+        io.to(`ticker:${chain}.${market}.${resolution}`).emit('tick', charts[charts.length - 1])
       } else {
         console.log('No charts for emiting after receive!!')
       }

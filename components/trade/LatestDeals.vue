@@ -28,12 +28,13 @@ import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      loading: false
+      loading: false,
+      deals: []
     }
   },
 
   computed: {
-    ...mapState('market', ['deals', 'quote_token', 'base_token', 'id']),
+    ...mapState('market', ['quote_token', 'base_token', 'id']),
     ...mapState(['network']),
 
     coloredDeals() {
@@ -53,13 +54,15 @@ export default {
   },
 
   watch: {
-    id() {
-      this.fetch()
+    id(to, from) {
+      this.deals = []
     }
   },
 
   mounted() {
-    this.fetch()
+    this.$socket.on('new_deals', new_deals => {
+      this.deals = new_deals.concat(this.deals)
+    })
   },
 
   methods: {

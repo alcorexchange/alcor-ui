@@ -1,4 +1,5 @@
 import { Match } from '../models'
+import { resolutions } from './charts'
 
 export function subscribe(io, socket) {
   socket.on('subscribe', async ({ room, params }) => {
@@ -6,11 +7,11 @@ export function subscribe(io, socket) {
       socket.join(`deals:${params.chain}.${params.market}`)
 
       const deals = await Match.find({ chain: params.chain, market: params.market })
-        .select('time amount unit_price')
+        .select('time bid ask unit_price type')
         .sort({ time: -1 })
         .limit(200)
 
-      socket.emit('deals', deals)
+      socket.emit('new_deals', deals)
     }
 
     if (room == 'ticker') {
@@ -30,7 +31,9 @@ export function unsubscribe(io, socket) {
     }
 
     if (room == 'ticker') {
-      socket.leave(`ticker:${params.chain}.${params.market}.${params.resolution}`)
+      Object.keys(resolutions).map(resolution => {
+        socket.leave(`ticker:${params.chain}.${params.market}.${resolution}`)
+      })
     }
 
     if (room == 'orders') {

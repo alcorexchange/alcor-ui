@@ -28,9 +28,17 @@ export default {
   computed: {
     ...mapState(['network', 'markets']),
     ...mapGetters('chain', ['rpc', 'scatter']),
-    ...mapState('market', ['symbol', 'id', 'stats', 'symbol']),
+    ...mapState('market', ['symbol', 'id', 'stats', 'streaming']),
     ...mapGetters(['user'])
   },
+
+  mounted() {
+    console.log('trade mounted..')
+    if (!this.streaming) {
+      console.log('not streaming.. set stream')
+      this.$store.dispatch('market/startStream', { to: this.id })
+    }
+  }
 
   //head() {
   //  return {

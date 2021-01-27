@@ -87,7 +87,7 @@ markets.get('/:market_id/deals', async (req, res) => {
   const { market_id } = req.params
 
   const matches = await Match.find({ chain: network.name, market: market_id })
-    .select('time amount unit_price')
+    .select('time bid ask unit_price type')
     .sort({ time: -1 })
     .limit(200)
 
@@ -104,7 +104,7 @@ markets.get('/:market_id/charts', async (req, res) => {
   }
 
   const { from, to, resolution } = req.query
-  if (resolution) return res.status(404).send('Incorrect resolution..')
+  if (!resolution) return res.status(404).send('Incorrect resolution..')
 
   //const t0 = performance.now()
   const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
