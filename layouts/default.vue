@@ -166,7 +166,9 @@ export default {
 
       const paths = this.$route.path.split('/')
 
-      if (paths.length > 2) {
+      if (paths.includes('trade')) {
+        return '/markets'
+      } else if (paths.length > 2) {
         return '/' + paths[1]
       } else {
         return this.$route.path

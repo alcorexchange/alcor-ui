@@ -33,9 +33,7 @@ export default {
   },
 
   mounted() {
-    console.log('trade mounted..')
     if (!this.streaming) {
-      console.log('not streaming.. set stream')
       this.$store.dispatch('market/startStream', { to: this.id })
     }
   }
