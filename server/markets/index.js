@@ -106,11 +106,11 @@ markets.get('/:market_id/charts', async (req, res) => {
   const { from, to, resolution } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
 
-  //const t0 = performance.now()
+  const t0 = performance.now()
   const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
-  //const t1 = performance.now()
+  const t1 = performance.now()
   // Charts generate/cache debug
-  //console.log('Call to filter for charts took ' + (t1 - t0) + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
+  console.log('Call to filter for charts took ' + (t1 - t0) + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
 
   res.json(charts)
 })

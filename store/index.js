@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 import config from '~/config'
-import { parseAsset } from '~/utils'
 
 export const strict = false
 

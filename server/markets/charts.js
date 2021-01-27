@@ -53,7 +53,25 @@ export const getCharts = memoize(async function (chain, market, from, to, resolu
     { $sort: { _id: 1 } }
   ]).allowDiskUse(true)
 
-  const new_bars = bars.map(b => [b._id / 1000, b.Open, b.High, b.Low, b.Close, b.Volume])
+  const new_bars = []
+
+  for (let i = 0; i < bars.length; i++) {
+    const curr = bars[i]
+    const next = bars[i + 1]
+
+    if (next) {
+      if (curr.close != next.open) {
+        curr.close = next.open
+      }
+
+      //if (next.open != curr.open) {
+      //  curr.close = next.open
+      //}
+    }
+
+    new_bars.push([curr._id / 1000, curr.Open, curr.High, curr.Low, curr.Close, curr.Volume])
+  }
+
   return new_bars
 }, { maxAge: 60 * 1 * 1000, primitive: true })
 
