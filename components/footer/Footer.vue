@@ -10,7 +10,7 @@ footer
           li.nav-item
             span.footer-title Community
           li.nav-itek
-            a(href="https://twitter.com/avral_pro" target="_blank")
+            a(href="https://twitter.com/alcorexchange" target="_blank")
               img(src="~/assets/icons/tw.svg" height="25").mr-2
 
             a(href="https://github.com/avral/alcor-ui" target="_blank")

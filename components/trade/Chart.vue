@@ -127,7 +127,7 @@ export default {
           }
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
-        interval: 'D',
+        interval: '240',
         container_id: 'tv_chart_container',
         library_path: '/charting_library/',
         favorites: {
