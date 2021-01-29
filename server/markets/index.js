@@ -16,7 +16,7 @@ export function startUpdaters(app) {
     updater(process.env.NETWORK, app, process.env.NETWORK == 'wax') // Update by node, not hyperion
   } else {
     updater('eos', app, false) // Update by node, not hyperion
-    updater('bos', app, false) // Update by node, not hyperion
+    //updater('bos', app, false) // Update by node, not hyperion
     updater('proton', app)
     updater('telos', app)
     updater('wax', app)
