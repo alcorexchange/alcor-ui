@@ -181,7 +181,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://wax.eosusa.news',
+    hyperion: 'https://wax.eosusa.news/',
     //hyperion: 'https://wax.pink.gg/',
     backEnd: 'https://alcor.exchange/api/',
 
