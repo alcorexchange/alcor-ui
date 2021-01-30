@@ -61,7 +61,8 @@ export default {
 
   mounted() {
     this.$socket.on('new_deals', new_deals => {
-      this.deals = new_deals.concat(this.deals)
+      this.deals.unshift(...new_deals)
+
       if (new_deals.length > 0) {
         this.$store.commit('market/setPrice', new_deals[0].unit_price)
       }
