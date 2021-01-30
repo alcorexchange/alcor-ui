@@ -10,6 +10,7 @@ export const state = () => ({
   quote_token: {},
 
   stats: {},
+  price: '0.00000000',
 
   bids: [],
   asks: [],
@@ -25,6 +26,7 @@ export const mutations = {
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setStreaming: (state, streaming) => state.streaming = streaming,
+  setPrice: (state, price) => state.price = price,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug, symbol } = market
@@ -95,19 +97,6 @@ export const actions = {
 export const getters = {
   token (state) {
     return state.token || {}
-  },
-
-  price(state) {
-    let price = 0
-
-    if (state.deals.length > 0)
-      price = state.deals[0].unit_price
-    else if (state.bids.length)
-      price = state.bids.sort(sort_by_price)[0].unit_price
-    else if (state.asks.length)
-      price = state.asks.sort(sort_by_price)[state.asks.length - 1].unit_price
-
-    return price
   },
 
   sorted_asks(state) {

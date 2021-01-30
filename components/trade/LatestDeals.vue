@@ -62,6 +62,9 @@ export default {
   mounted() {
     this.$socket.on('new_deals', new_deals => {
       this.deals = new_deals.concat(this.deals)
+      if (new_deals.length > 0) {
+        this.$store.commit('market/setPrice', new_deals[0].unit_price)
+      }
     })
   }
 }

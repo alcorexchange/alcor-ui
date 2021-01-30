@@ -50,7 +50,7 @@
               :sort-orders="['descending', null]"
             )
               template(slot-scope="scope")
-                .text-success {{ scope.row.last_price | humanPrice }} {{ scope.row.base_token.symbol.name }}
+                .text-success {{ scope.row.last_price }} {{ scope.row.base_token.symbol.name }}
             el-table-column(
               :label='`24H Volume`'
               align="right"

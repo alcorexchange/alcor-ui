@@ -16,7 +16,7 @@
 
               .row.mt-1
                 .col
-                  span {{ market.last_price | humanPrice }}
+                  span {{ market.last_price }}
                   ChangePercent(:change="market.changeWeek").float-right
 
       .col-lg-2.col-md-4.col-sm-6

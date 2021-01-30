@@ -11,7 +11,7 @@
 
     el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]" width="50")
       template(slot-scope="scope")
-        .text-success {{ scope.row.last_price | humanPrice }}
+        .text-success {{ scope.row.last_price }}
 
     el-table-column(prop="change" label="Change" align="right" sortable :sort-orders="['descending', null]" width="100")
       template(slot-scope="scope")

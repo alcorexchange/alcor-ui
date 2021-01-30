@@ -21,7 +21,7 @@
 
   .p-1.mt-1(v-loading="loading")
     .overflowbox.text-center
-      b.text-success {{ current_price | humanPrice }} {{ base_token.symbol.name }}
+      b.text-success {{ price }} {{ base_token.symbol.name }}
 
   .orders-list.blist.bids.text-success
     .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'pl-0': ''")
@@ -52,12 +52,8 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
-    ...mapState('market', ['quote_token', 'base_token', 'id']),
+    ...mapState('market', ['quote_token', 'base_token', 'id', 'price']),
     ...mapGetters(['user']),
-
-    ...mapGetters({
-      current_price: 'market/price'
-    })
   },
 
   watch: {

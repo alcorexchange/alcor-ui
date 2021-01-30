@@ -50,7 +50,7 @@ export async function getMarketStats(network, market_id) {
 
   const last_deal = await Match.findOne({ chain: network.name, market: market_id }, {}, { sort: { time: -1 } })
   if (last_deal) {
-    stats.last_price = parseFloat(last_deal.unit_price) * 100000000 // FIXME
+    stats.last_price = parseFloat(last_deal.unit_price)
   } else {
     stats.last_price = 0
   }
