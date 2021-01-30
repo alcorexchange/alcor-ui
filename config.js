@@ -175,16 +175,16 @@ const networks = {
 
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
-    host: 'wax.eu.eosamsterdam.net',
+    host: 'wax.greymass.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    //hyperion: 'https://wax.eosusa.news/',
+    hyperion: 'https://wax.eosusa.news/',
     //hyperion: 'https://wax.pink.gg/',
-    hyperion: 'https://wax.eosrio.io',
-    backEnd: 'https://alcor.exchange/api/',
+    //hyperion: 'https://api.waxsweden.org',
+    //backEnd: 'https://alcor.exchange/api/',
 
     otc: {
       contract: 'alcorotcswap',

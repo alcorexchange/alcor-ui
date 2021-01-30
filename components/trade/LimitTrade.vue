@@ -69,16 +69,16 @@ export default {
     ...mapState(['network']),
     ...mapState('market', ['base_token', 'quote_token']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'tokenBalance', 'baseBalance']),
-    ...mapGetters({ current_price: 'market/price' }),
     ...mapGetters(['user'])
   },
 
   watch: {
-    current_price() {
-      if (this.price == 0) {
-        this.price = this.$options.filters.humanPrice(this.current_price).replace(',', '')
-      }
-    }
+    // TODO Разобраться с этим
+    //price() {
+    //  if (this.price == 0) {
+    //    this.price = this.price
+    //  }
+    //}
   }
 }
 

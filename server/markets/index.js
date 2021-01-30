@@ -13,13 +13,13 @@ import { getCharts } from './charts'
 
 export function startUpdaters(app) {
   if (process.env.NETWORK) {
-    updater(process.env.NETWORK, app, process.env.NETWORK == 'wax') // Update by node, not hyperion
+    updater(process.env.NETWORK, app, false) // Update by node, not hyperion
   } else {
     updater('eos', app, false) // Update by node, not hyperion
+    updater('wax', app, false)
     //updater('bos', app, false) // Update by node, not hyperion
     updater('proton', app)
     updater('telos', app)
-    updater('wax', app)
 
     if (process.env.npm_lifecycle_event == 'dev') {
       // Jungle for dev

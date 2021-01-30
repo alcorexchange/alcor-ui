@@ -24,15 +24,15 @@ export function getMatches(network) {
 export function updater(chain, app, hyperion = true) {
   const network = config.networks[chain]
 
-  console.info(`Start ${chain} updater...`)
 
   // First call immidiatelly to fetch available markets
   updateMarkets(network)
 
   if (hyperion) {
+    console.info(`Start ${chain} updater(hyperion)...`)
     streamHistory(network, app)
   } else {
-    //streamByDfuse(network, app)
+    console.info(`Start ${chain} updater(node)...`)
     streamByNode(network, app)
   }
 
@@ -132,7 +132,7 @@ async function streamByNode(network, app) {
     }
 
     if (r.actions.length < 100) {
-      await new Promise((resolve, reject) => setTimeout(resolve, 2000))
+      await new Promise((resolve, reject) => setTimeout(resolve, 500))
     }
   }
 }
