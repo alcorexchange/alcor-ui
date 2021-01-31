@@ -49,7 +49,7 @@ export function amountToFloat(amount, precision) {
 export function assetToAmount(amount, precision) {
   const scale = new Big(10).pow(precision)
 
-  return parseInt(new Big(Number(amount)).times(scale))
+  return new Big(parseFloat(amount)).times(scale)
 }
 
 export function calculatePrice(sell, buy) {

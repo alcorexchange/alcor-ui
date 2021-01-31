@@ -37,6 +37,9 @@
             el-tab-pane(label="Market trade")
               .trade-box
                 market-trade
+            //el-tab-pane
+              template(slot="label")
+                span Convert
 
       .low-right
         .overflowbox.low-height.overflow-hidden

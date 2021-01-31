@@ -17,7 +17,7 @@
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       .px-3
-        el-slider(:step="25" v-model="eosPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(:step="25" v-model="eos_percent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item.mt-5
         // TODO разработать компонент которой чекает залогинен ли
@@ -40,7 +40,7 @@
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
-        el-slider(:step="25" v-model="tokenPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(:step="25" v-model="token_percent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item.mt-5
         // TODO разработать компонент которой чекает залогинен ли
@@ -57,7 +57,8 @@ export default {
 
   data() {
     return {
-
+      eos_percent: 0,
+      token_percent: 0
     }
   },
 
@@ -69,7 +70,7 @@ export default {
   },
 
   watch: {
-    eosPercent(v) {
+    eos_percent(v) {
       if (!this.baseBalance) return
 
       const balance = parseFloat(this.baseBalance.split(' ')[0])
@@ -85,7 +86,7 @@ export default {
       this.format()
     },
 
-    tokenPercent(v) {
+    token_percent(v) {
       if (!this.tokenBalance) return
 
       const balance = parseFloat(this.tokenBalance.split(' ')[0])
@@ -104,7 +105,7 @@ export default {
 
   methods: {
     format() {
-      this.total = this.toFixed(this.total, this.base_token.precision)
+      this.total = this.toFixed(this.total, this.base_token.symbol.precision)
       this.amount = this.toFixed(this.amount, this.quote_token.symbol.precision)
     }
   }

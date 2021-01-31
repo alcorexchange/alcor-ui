@@ -11,9 +11,9 @@ function correct_price(price, _from, _for) {
   const diff_precision = Math.abs(_from - _for)
 
   if (_from < _for) {
-    price *= 10 ** diff_precision
+    price = price.multiply(10 ** diff_precision)
   } else if (_from > _for) {
-    price /= 10 ** diff_precision
+    price = price.divide(10 ** diff_precision)
   }
 
   return price
@@ -63,6 +63,7 @@ export const tradeMixin = {
 
   watch: {
     eosPercent(v) {
+      console.log('watcher for limit eosPercent')
       if (!this.baseBalance) return
 
       const balance = parseFloat(this.baseBalance.split(' ')[0])
@@ -71,14 +72,16 @@ export const tradeMixin = {
 
       if (v === 100) {
         this.total = balance
-        this.totalChange()
       } else {
-        this.total = (balance / 100 * v).toFixed(this.base_token.symbol.precision)
-        this.totalChange()
+        this.total = (balance / 100 * v)
       }
+
+      this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
+      this.totalChange()
     },
 
     tokenPercent(v) {
+      console.log('watcher for limit tokenPercent')
       if (!this.tokenBalance) return
 
       const balance = parseFloat(this.tokenBalance.split(' ')[0])
@@ -87,84 +90,53 @@ export const tradeMixin = {
 
       if (v === 100) {
         this.amount = balance
-        this.amountChange()
       } else {
-        this.amount = (balance / 100 * v).toFixed(this.quote_token.symbol.precision)
-        this.amountChange()
+        this.amount = (balance / 100 * v)
       }
+
+      this.amount = parseFloat(this.amount).toFixed(this.quote_token.symbol.precision)
+      this.amountChange()
     }
   },
 
   methods: {
-    getValidAmount(amount_str, desc = false) {
-      const bp = this.base_token.symbol.precision
-      const qp = this.quote_token.symbol.precision
-
-      let amount = assetToAmount(amount_str, qp) || 1
-
-      const price = assetToAmount(this.price, 8)
-
-      if (desc) {
-        const pp = parseFloat(this.price).toString().split('.')
-        let price_numbers = pp[1] ? pp[1].length : 0
-
-        price_numbers = qp - bp + price_numbers
-
-        const step = 10 ** price_numbers
-
-        for (let i = 1000; ; i--) {
-          if (i === 0) {
-            console.log('a lot itertions')
-            // TODO Notify.create('Calculate better amount not possible, try onter amount or pirce')
-            break
-          }
-
-          if (amount * correct_price(price, qp, bp) % config.PRICE_SCALE !== 0) {
-            amount = Math.round(amount / step) * step
-            if (desc) {
-              amount -= step
-            } else {
-              amount += step
-            }
-            continue
-          }
-
-          break
-        }
-      }
-
-      const total = amount * correct_price(price, qp, bp) / config.PRICE_SCALE
-
-      return [amountToFloat(amount, qp), amountToFloat(total, bp)]
-    },
-
     priceChange () {
-      const price = Math.max(parseFloat(this.price) || 1, 1 / 10 ** config.PRICE_DIGITS)
+      const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
       this.total = (this.price * this.amount)
       this.amountChange()
     },
 
     amountChange (desc = false) {
-      this.amount = parseFloat(this.amount) || 1
+      if (parseFloat(this.price) == 0) return
 
-      if (this.price == 0) return
+      const bp = this.base_token.symbol.precision
+      const qp = this.quote_token.symbol.precision
+      this.amount = (parseFloat(this.amount) || 0).toFixed(qp)
 
-      const [amount, total] = this.getValidAmount(this.amount, desc)
+      const amount = asset(this.amount + ' TEST').amount
+      const price = asset(this.price + ' TEST').amount
 
-      this.amount = amount
-      this.total = total
+      const total = amount.multiply(correct_price(price, qp, bp)).divide(config.PRICE_SCALE)
+
+      this.amount = amountToFloat(amount, qp)
+      this.total = amountToFloat(total, bp)
     },
 
     totalChange (desc = false) {
-      this.total = parseFloat(this.total) || 1
+      if (parseFloat(this.price) == 0) return
 
-      if (this.price == 0) return
+      const bp = this.base_token.symbol.precision
+      const qp = this.quote_token.symbol.precision
+      this.total = (parseFloat(this.total) || 0).toFixed(bp)
 
-      const [amount, total] = this.getValidAmount(this.total / this.price, desc)
+      const total = asset(this.total + ' TEST').amount
+      const price = asset(this.price + ' TEST').amount
+      const c_price = correct_price(price, qp, bp)
 
-      this.amount = amount
-      this.total = total
+      const division = total.multiply(config.PRICE_SCALE).plus(c_price).minus(1).divide(c_price)
+
+      this.amount = amountToFloat(division, qp)
     },
 
     async buy(type) {
