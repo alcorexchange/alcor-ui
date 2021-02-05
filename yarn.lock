@@ -2247,6 +2247,65 @@
   dependencies:
     "@types/node" ">= 8"
 
+"@protonprotocol/proton-browser-transport@^2.5.6":
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/@protonprotocol/proton-browser-transport/-/proton-browser-transport-2.5.6.tgz#8f3521361f3345dcadfb5b5b8ba54cc7624196c8"
+  integrity sha512-bFdfpboqr8pspZuaIyD/2Jwg4Sny0i95MIZdYG1upRHf1kfwBKXKXTp9N66+LyUpw8wndD2VVi/1QazKudoKlw==
+  dependencies:
+    "@protonprotocol/protonjs" "^21.0.21"
+    qrcode "^1.4.4"
+
+"@protonprotocol/proton-link@^2.5.8":
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/@protonprotocol/proton-link/-/proton-link-2.5.8.tgz#2c05b28e12f0129ed83f98598bca652bcc6c0fce"
+  integrity sha512-GNEEGxxCHOjUHLKrp+v0QNULtLejTfLFJeoV+pW1cVcipHnetvRm9yNYGoYdBMSYERTOcimXCOaSdRXyZp0tSw==
+  dependencies:
+    "@protonprotocol/proton-signing-request" "^2.5.4"
+    "@protonprotocol/protonjs" "^21.0.21"
+    eosjs-ecc "^4.0.7"
+    isomorphic-ws "^4.0.1"
+    pako "^1.0.11"
+    uuid "^8.3.1"
+    ws "^7.3.1"
+
+"@protonprotocol/proton-signing-request@^2.5.4":
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/@protonprotocol/proton-signing-request/-/proton-signing-request-2.5.4.tgz#1623b29ab3fb8d360d6d805e13b130d7885ca3f5"
+  integrity sha512-Ia4MwOg+E1vwWu3dc0aZzhOajg0YWNpcjGdwFQRt8aK3fbxYmwQZO36D4nm1LHEnVbQk2Hw93i4OU7DGT7yNCw==
+  dependencies:
+    "@protonprotocol/protonjs" "^21.0.21"
+    fast-sha256 "^1.1.1"
+    fast-text-encoding "^1.0.3"
+
+"@protonprotocol/proton-transit-provider@^2.5.10":
+  version "2.5.10"
+  resolved "https://registry.yarnpkg.com/@protonprotocol/proton-transit-provider/-/proton-transit-provider-2.5.10.tgz#25b65d20c33218e7f4eb3ae8d752cb19f3a3fa20"
+  integrity sha512-6OcaR1fudrtlDycDkFI0Ey4mRSpUXhojrdJBMyNhGAXZTMsDQ5W+PedvEvDo03pVJjGwirOYhXbBiq34Shui4w==
+  dependencies:
+    "@protonprotocol/proton-web-sdk" "^2.7.0"
+    "@protonprotocol/protonjs" "^21.0.21"
+
+"@protonprotocol/proton-web-sdk@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@protonprotocol/proton-web-sdk/-/proton-web-sdk-2.7.0.tgz#9817034c76eadb0d6f405986222e6ff9295a5038"
+  integrity sha512-mtxnjiydIo5vslkFzwfGmE2VE9BolvixFGwqQ5aPWEA69ZBuMk4CTMTyjvD54kZ0L7IplFIDFnM7aK6dd79okQ==
+  dependencies:
+    "@protonprotocol/proton-browser-transport" "^2.5.6"
+    "@protonprotocol/proton-link" "^2.5.8"
+    "@protonprotocol/protonjs" "^21.0.21"
+
+"@protonprotocol/protonjs@^21.0.21":
+  version "21.0.37"
+  resolved "https://registry.yarnpkg.com/@protonprotocol/protonjs/-/protonjs-21.0.37.tgz#e0fabf68686302bfb37b823b61b18b84f8173cc4"
+  integrity sha512-Pczkc6Ft8Xdk289dIvoADuzzvnWZfBNZMox7HE6vhoG5jOjpoZA2n2MU8ykAzpofIgCdvX4O6+CybleX7ELieA==
+  dependencies:
+    bs58 "^4.0.1"
+    elliptic "6.5.3"
+    fast-text-encoding "^1.0.3"
+    hash.js "1.1.7"
+    pako "1.0.11"
+    ripemd-ts "0.0.2"
+
 "@scatterjs/core@^2.7.54":
   version "2.7.54"
   resolved "https://registry.yarnpkg.com/@scatterjs/core/-/core-2.7.54.tgz#c82f539b6f77f96be93817c3e1f6d0799cf53193"
@@ -3717,7 +3776,7 @@ browserslist@^4.0.0, browserslist@^4.12.0, browserslist@^4.6.4, browserslist@^4.
     escalade "^3.0.2"
     node-releases "^1.1.60"
 
-bs58@4.0.1:
+bs58@4.0.1, bs58@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/bs58/-/bs58-4.0.1.tgz#be161e76c354f6f788ae4071f63f34e8c4f0a42a"
   integrity sha1-vhYedsNU9veIrkBx9j806MTwpCo=
@@ -6397,6 +6456,11 @@ fast-sha256@^1.1.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/fast-sha256/-/fast-sha256-1.3.0.tgz#7916ba2054eeb255982608cccd0f6660c79b7ae6"
   integrity sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==
+
+fast-text-encoding@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/fast-text-encoding/-/fast-text-encoding-1.0.3.tgz#ec02ac8e01ab8a319af182dae2681213cfe9ce53"
+  integrity sha512-dtm4QZH9nZtcDt8qJiOH9fcQd1NAgi+K1O2DbE6GG1PPCK/BWfOH3idCTRQ4ImXRUOyopDEgDEnVEE7Y/2Wrig==
 
 fastq@^1.6.0:
   version "1.8.0"
@@ -9958,7 +10022,7 @@ package-json@^6.3.0:
     registry-url "^5.0.0"
     semver "^6.2.0"
 
-pako@1.0.11, pako@^1.0.10, pako@~1.0.5:
+pako@1.0.11, pako@^1.0.10, pako@^1.0.11, pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
@@ -11894,6 +11958,11 @@ rimraf@2.6.3:
   dependencies:
     glob "^7.1.3"
 
+ripemd-ts@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/ripemd-ts/-/ripemd-ts-0.0.2.tgz#484d2b30dc0625dd1684b84f3e29493a7285987d"
+  integrity sha512-2XZ9cVFtjpQ3z6LmN+Kylz518XcPKmKHzxEXUEPJfqi8vZs+0reY65YU9wzhzrPGtqHzH3ARGZNnGNASlPaWfw==
+
 ripemd160@^2.0.0, ripemd160@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/ripemd160/-/ripemd160-2.0.2.tgz#a1c1a6f624751577ba5d07914cbc92850585890c"
@@ -13585,6 +13654,11 @@ uuid@^8.1.0:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.0.tgz#ab738085ca22dc9a8c92725e459b1d507df5d6ea"
   integrity sha512-fX6Z5o4m6XsXBdli9g7DtWgAx+osMsRRZFKma1mIUsLCz6vRvv+pz5VNbyu9UEDzpMWulZfvpgb/cmDXVulYFQ==
 
+uuid@^8.3.1:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
 v8-compile-cache@^2.0.3, v8-compile-cache@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/v8-compile-cache/-/v8-compile-cache-2.1.1.tgz#54bc3cdd43317bca91e35dcaf305b1a7237de745"
@@ -14119,6 +14193,11 @@ ws@^7.1.2, ws@^7.2.5:
   version "7.3.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.3.1.tgz#d0547bf67f7ce4f12a72dfe31262c68d7dc551c8"
   integrity sha512-D3RuNkynyHmEJIpD2qrgVkc9DQ23OrN/moAwZX4L8DfvszsJxpjQuUq3LMx6HoYji9fbIOBY18XWBsAux1ZZUA==
+
+ws@^7.3.1:
+  version "7.4.2"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.2.tgz#782100048e54eb36fe9843363ab1c68672b261dd"
+  integrity sha512-T4tewALS3+qsrpGI/8dqNMLIVdq/g/85U98HPMa6F0m6xTbvhXU6RCQLqPH3+SlomNV/LdY6RXEbBpMH6EOJnA==
 
 ws@~6.1.0:
   version "6.1.4"

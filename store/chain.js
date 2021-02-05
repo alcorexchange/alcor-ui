@@ -237,6 +237,7 @@ export const getters = {
   accessContext(state, getters, rootState) {
     const LynxProvider = require('eos-transit-lynx-provider').default
     const LedgerProvider = require('eos-transit-ledger-provider').default
+    const ProtonProvider = require('@protonprotocol/proton-transit-provider').default
 
     const walletProviders = [
       ScatterProvider(),
@@ -248,6 +249,10 @@ export const getters = {
 
     if (rootState.network.name == 'eos') {
       walletProviders.push(KeycatProvider())
+    }
+
+    if (rootState.network.name == 'proton') {
+      walletProviders.push(ProtonProvider(config.APP_NAME, {}))
     }
 
     return transit.initDefaultAccessContext({
@@ -267,6 +272,7 @@ export const getters = {
   },
 
   walletProvider(state, getters) {
+    console.log('provider:', getters.walletProviders[5], getters.walletProviders[6])
     return getters.walletProviders[state.provider]
   },
 

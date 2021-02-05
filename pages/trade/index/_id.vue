@@ -22,7 +22,7 @@ export default {
     await store.dispatch('loadMarkets')
 
     params.id = params.id.toLowerCase()
-    let market = store.state.markets.filter(m => m.slug == params.id)[0]
+    const market = store.state.markets.filter(m => m.slug == params.id)[0]
 
     if (!market) {
       // If not market pre-loaded (might be just new created..)

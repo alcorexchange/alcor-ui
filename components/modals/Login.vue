@@ -3,6 +3,11 @@
   .col-auto
     .d-flex.flex-wrap
       .mb-2.mr-2
+        el-button(size="large" @click="login(5)" if="network.name == 'proton'")
+          img(src="~/assets/logos/keycat.svg" height="30").mr-2
+          span Proton Wallet
+
+      .mb-2.mr-2
         el-button(size="large" @click="login('wax')" v-if="network.name == 'wax'")
           img(src="~/assets/logos/wax.svg" height="30").mr-2
           span Wax Cloud Wallet
@@ -37,7 +42,7 @@
           span Ledger
 
       .mb-2.mr-2
-        el-button(size="large" @click="login(5)")
+        el-button(size="large" @click="login(5)" if="network.name == 'eos'")
           img(src="~/assets/logos/keycat.svg" height="30").mr-2
           span Keycat
 </template>

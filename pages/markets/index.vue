@@ -149,7 +149,6 @@ export default {
     filteredMarkets() {
       if (!this.markets) return []
 
-      console.log('base_token:', this.base_token)
       let markets = []
       if (this.base_token == 'all') {
         markets = this.markets
