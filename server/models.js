@@ -12,7 +12,7 @@ export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.S
   bid: { type: Number },
 
   asker: { type: String, index: true },
-  bider: { type: String, index: true },
+  bidder: { type: String, index: true },
 
   time: { type: Date, index: true },
   block_num: { type: Number }
