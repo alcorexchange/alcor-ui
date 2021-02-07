@@ -51,11 +51,12 @@ export const actions = {
 
     dispatch('loadMarkets')
     dispatch('loadIbc')
-    dispatch('pools/fetchPools', {}, { root: true })
-    dispatch('pools/updatePool', {}, { root: true })
+    // FIXME disable pools for a while
+    //dispatch('pools/fetchPools', {}, { root: true })
+    //dispatch('pools/updatePool', {}, { root: true })
+    setInterval(() => dispatch('pools/updatePool', {}, { root: true }), 10000)
 
     setInterval(() => dispatch('update'), 15000)
-    setInterval(() => dispatch('pools/updatePool', {}, { root: true }), 10000)
   },
 
   toggleTheme({ state, commit }) {
