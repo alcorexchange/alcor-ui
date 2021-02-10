@@ -133,8 +133,8 @@ export const getVolume = deals => {
 
 export const getChange = (deals) => {
   if (deals.length > 0) {
-    const price_before = parseFloat(deals[deals.length - 1].unit_price)
-    const price_after = parseFloat(deals[0].unit_price)
+    const price_before = parseFloat(deals[0].unit_price)
+    const price_after = parseFloat(deals[deals.length - 1].unit_price)
 
     const change = ((price_after - price_before) / price_before) * 100
 
