@@ -2,6 +2,12 @@
 .row(v-loading="loading")
   .col-auto
     .d-flex.flex-wrap
+      .mb-2.mr-2(v-for="wallet in wallets")
+        el-button(size="large" @click="login(wallet.index)")
+          img(:src="wallet.logo" height="30").mr-2
+          span {{ wallet.name }}
+
+    //.col
       .mb-2.mr-2
         el-button(size="large" @click="login(5)" v-if="network.name == 'proton'")
           img(src="~/assets/logos/keycat.svg" height="30").mr-2
@@ -54,7 +60,9 @@ import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      loading: false
+      loading: false,
+
+      wallets: []
     }
   },
 
@@ -64,6 +72,29 @@ export default {
 
   mounted() {
     console.log('login mounted')
+
+    const wallets = [
+      { name: 'Anchor', logo: require('@/assets/logos/anchor.svg'), index: 1 },
+      { name: 'Scatter / TP / Starteos', logo: require('@/assets/logos/scatter.svg'), index: 0 },
+      { name: '', logo: require('@/assets/logos/wombat.png'), index: 0 },
+      { name: 'SimplEOS', logo: require('@/assets/logos/simpleos.svg'), index: 2 },
+      { name: 'Lynx', logo: require('@/assets/logos/lynx.svg'), index: 3 },
+      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 }
+    ]
+
+    if (this.network.name == 'eos') {
+      wallets.push({ name: 'Keycat', logo: require('@/assets/logos/keycat.svg'), index: 5 })
+    }
+
+    if (this.network.name == 'wax') {
+      wallets.unshift({ name: 'Wax Cloud Wallet', logo: require('@/assets/logos/wax.svg'), index: 'wax' })
+    }
+
+    if (this.network.name == 'proton') {
+      // TODO
+    }
+
+    this.wallets = wallets
   },
 
   methods: {
