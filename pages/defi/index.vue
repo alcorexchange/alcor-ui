@@ -7,6 +7,9 @@
         span DefiBox Swap
       el-menu-item(index='defi-index-pools' :route="{ name: 'defi-index-pools' }")
         i.el-icon-setting
+        span Alcor Pools
+      //el-menu-item(index='defi-index-pools' :route="{ name: 'defi-index-pools' }")
+        i.el-icon-setting
         span Evodex
 
   .col-lg-10
