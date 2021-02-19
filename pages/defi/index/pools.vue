@@ -2,7 +2,9 @@
 .row.justify-content-center.mt-3
   .col-lg-10
     el-card
-      .lead Swap tokens using Defibox
+      .lead Swap tokens using Alcor Pools
+
+      create
 
       swap(v-if="tab == 'Swap'")
 
@@ -10,10 +12,12 @@
 
 <script>
 import Swap from '~/components/swap/Swap.vue'
+import Create from '~/components/pools/Create.vue'
 
 export default {
   components: {
-    Swap
+    Swap,
+    Create
   },
 
   fetch({ store }) {

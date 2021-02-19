@@ -148,72 +148,80 @@ export default {
       const authorization = [this.user.authorization]
 
       const actions = [
+        //{
+        //  account: this.network.pools.contract,
+        //  name: 'openext',
+        //  authorization,
+        //  data: {
+        //    user: this.user.name,
+        //    payer: this.user.name,
+        //    ext_symbol: { contract: this.base.contract, sym: `${this.base.decimals},${this.base.currency}` }
+        //  }
+        //}, {
+        //  account: this.network.pools.contract,
+        //  name: 'openext',
+        //  authorization,
+        //  data: {
+        //    user: this.user.name,
+        //    payer: this.user.name,
+        //    ext_symbol: { contract: this.quote.contract, sym: `${this.quote.decimals},${this.quote.currency}` }
+        //  }
+        //},
         {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.base.contract, sym: `${this.base.decimals},${this.base.currency}` }
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.quote.contract, sym: `${this.quote.decimals},${this.quote.currency}` }
-          }
-        }, {
           account: this.base.contract,
           name: 'transfer',
           authorization,
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: `${this.amount1} ${this.base.currency}`,
-            memo: ''
+            quantity: '10.0000 EOS',
+            //quantity: `${this.amount1} ${this.base.currency}`,
+            memo: 'deposit'
           }
-        },
-        {
-          account: this.quote.contract,
+        }, {
+          //account: this.quote.contract,
+          account: 'tktoken',
           name: 'transfer',
           authorization,
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: `${this.amount2} ${this.quote.currency}`,
-            memo: ''
+            quantity: '10.0000 TKT',
+            //quantity: `${this.amount2} ${this.quote.currency}`,
+            memo: 'deposit'
           }
-        }, {
+        },
+        {
           account: this.network.pools.contract,
           name: 'inittoken',
           authorization,
           data: {
             user: this.user.name,
-            new_symbol: this.tokenSymbol,
-            initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
-            initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
+            // TODO
+            //initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
+            //initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
+
+            initial_pool1: { contract: 'eosio.token', quantity: '10.0000 EOS' },
+            initial_pool2: { contract: 'tktoken', quantity: '10.0000 TKT' },
             initial_fee: 10,
-            fee_contract: this.network.pools.fee
+            // TODO fee_contract: this.network.pools.fee
+            fee_contract: 'avral'
           }
         }
       ]
 
       if (this.user.name != this.network.feeAccount) {
-        actions.push({
-          account: this.network.baseToken.contract,
-          name: 'transfer',
-          authorization,
-          data: {
-            from: this.user.name,
-            to: this.network.feeAccount,
-            quantity: this.network.marketCreationFee,
-            memo: 'Pool creation fee'
-          }
-        })
+        //actions.push({
+        //  account: this.network.baseToken.contract,
+        //  name: 'transfer',
+        //  authorization,
+        //  data: {
+        //    from: this.user.name,
+        //    to: this.network.feeAccount,
+        //    quantity: this.network.marketCreationFee,
+        //    memo: 'Pool creation fee'
+        //  }
+        //})
       }
 
       this.loading = true
@@ -223,6 +231,7 @@ export default {
         this.visible = false
         this.$store.dispatch('pools/fetchPools')
       } catch (e) {
+        console.log(e)
         this.$notify({ title: 'Pool create', message: e, type: 'error' })
       } finally {
         this.loading = false

@@ -187,24 +187,6 @@ export default {
 
       const actions = [
         {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.current.pool1.contract, sym: this.poolOne.quantity.symbol.toString() }
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.poolTwo.contract, sym: this.poolTwo.quantity.symbol.toString() }
-          }
-        }, {
           account: this.current.pool1.contract,
           name: 'transfer',
           authorization,
@@ -230,29 +212,9 @@ export default {
           authorization,
           data: {
             user: this.user.name,
-            to_buy,
-            max_asset1: amount1,
-            max_asset2: amount2
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'closeext',
-          authorization,
-          data: {
-            user: this.user.name,
-            ext_symbol: { contract: this.current.pool1.contract, sym: this.poolOne.quantity.symbol.toString() },
-            to: this.user.name,
-            memo: ''
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'closeext',
-          authorization,
-          data: {
-            user: this.user.name,
-            ext_symbol: { contract: this.poolTwo.contract, sym: this.poolTwo.quantity.symbol.toString() },
-            to: this.user.name,
-            memo: ''
+            to_buy
+            //max_asset1: amount1,
+            //max_asset2: amount2
           }
         }
       ]

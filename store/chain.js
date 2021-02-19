@@ -125,7 +125,7 @@ export const actions = {
           console.log('login crash...', e)
           getters.wallet.logout()
 
-          if ('eosio::chain::name' in e) {
+          if (e.message.includes('unknown key')) {
             dispatch('login')
           }
 
