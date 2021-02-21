@@ -29,6 +29,11 @@ div
           .col-4
             SelectToken(:token="1")
 
+        .row.mt-2
+          .col
+            .el-card.p-3
+              .text-muted Min received: {{ minOutput }}
+
   .row.mt-2
     .col
       el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap
@@ -92,11 +97,9 @@ export default {
       const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT').amount
       const amount_out = get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee)
 
-      // TODO Слипейдж
-      //this.minOutput = amount_out.minus(amount_out.multiply(3).divide(100))
-      //this.minOutput = amount_out.minus(amount_out.multiply(3).divide(100))
-      this.minOutput = asset(amount_out, symbol(this.output.symbol, this.output.precision)) + `@${this.output.contract}`
+      const amount_min_output = amount_out.minus(amount_out.multiply(30).divide(1000))
 
+      this.minOutput = asset(amount_min_output, symbol(this.output.symbol, this.output.precision)).to_string()
       this.outputAmount = parseFloat(asset(amount_out, reserve_out.symbol).to_string()).toFixed(this.output.precision)
     },
 
@@ -130,7 +133,7 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: parseFloat(this.inputAmount).toFixed(this.input.precision) + ' ' + this.input.symbol,
-            memo: `${this.minOutput}`
+            memo: `${this.minOutput}@${this.output.contract}`
           }
         }
       ]
