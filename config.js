@@ -21,7 +21,7 @@ const networks = {
 
     //host: 'eosbp.atticlab.net',
     //host: 'eos.greymass.com',
-    host: 'api.eosn.io',
+    host: 'mainnet.eosamsterdam.net',
     //host: 'eos.greymass.com',
     port: 443,
     protocol: 'https',
