@@ -5,6 +5,8 @@
       .lead Swap tokens using Alcor Pools
 
       create
+      liquidity
+      withdraw
 
       swap(v-if="tab == 'Swap'")
 
@@ -13,11 +15,15 @@
 <script>
 import Swap from '~/components/swap/Swap.vue'
 import Create from '~/components/pools/Create.vue'
+import Liquidity from '~/components/pools/Liquidity.vue'
+import Withdraw from '~/components/pools/Withdraw.vue'
 
 export default {
   components: {
     Swap,
-    Create
+    Create,
+    Liquidity,
+    Withdraw
   },
 
   fetch({ store }) {

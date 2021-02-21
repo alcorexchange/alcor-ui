@@ -5656,7 +5656,7 @@ envinfo@^7.3.1:
   resolved "https://registry.yarnpkg.com/envinfo/-/envinfo-7.7.3.tgz#4b2d8622e3e7366afb8091b23ed95569ea0208cc"
   integrity sha512-46+j5QxbPWza0PB1i15nZx0xQ4I/EfQxg9J8Had3b408SV63nEtor2e+oiY63amTo9KTuh2a3XLObNwduxYwwA==
 
-eos-common@0.8.0:
+eos-common@^0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/eos-common/-/eos-common-0.8.0.tgz#c3fa90ffc5bca344c10bf7b07be3163fc60a451b"
   integrity sha512-Ptqg1JzwE296667+M2J02H8vXej2SHWF/KX8dnf3+q7A9tvBi/pJ9P8IDkEhffFJklD1z2v12q4621Xpjj/2LQ==

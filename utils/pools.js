@@ -1,5 +1,15 @@
 import { asset } from 'eos-common'
 
+export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 30) {
+  const amount_in_with_fee = amount_in.multiply(10000 - fee)
+  const numerator = amount_in_with_fee.multiply(reserve_out)
+  const denominator = reserve_in.multiply(10000).add(amount_in_with_fee)
+
+  return numerator.divide(denominator)
+}
+
+
+
 export function computeForward(x, y, z, fee) {
   //const tmp = x.multiply(-1).multiply(z).divide(y.plus(x))
   //return tmp.plus(tmp.multiply(-1).multiply(fee).plus(9999).divide(10000)).abs()

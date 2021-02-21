@@ -20,6 +20,7 @@ div
     .row
       .col
         small To
+          b.text-muted  (estimated)
 
         .row
           .col-8
@@ -34,8 +35,9 @@ div
 </template>
 
 <script>
-import { asset } from 'eos-common'
+import { asset, symbol } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
+import { get_amount_out } from '~/utils/pools'
 
 import TokenImage from '~/components/elements/TokenImage'
 import SelectToken from '~/components/swap/SelectToken.vue'
@@ -60,7 +62,7 @@ export default {
     ...mapState(['network', 'user']),
     ...mapState('swap', ['input', 'output']),
     ...mapGetters({
-      pair: 'swap/pair',
+      pair: 'swap/current',
       inputBalance: 'swap/inputBalance'
     }),
 
@@ -81,21 +83,19 @@ export default {
 
   methods: {
     calcOutput() {
-      const fee = 3
-
       if (!this.pair || !this.output || !this.inputAmount) return
 
-      const [reserve_in, reserve_out] = this.input.contract == this.pair.token0.contract &&
-        this.input.symbol == this.pair.reserve0.symbol.code().to_string()
-        ? [this.pair.reserve0, this.pair.reserve1] : [this.pair.reserve1, this.pair.reserve0]
+      const [reserve_in, reserve_out] = this.input.contract == this.pair.pool1.contract &&
+        this.input.symbol == this.pair.pool1.quantity.symbol.code().to_string()
+        ? [this.pair.pool1.quantity, this.pair.pool2.quantity] : [this.pair.pool2.quantity, this.pair.pool1.quantity]
 
-      const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT')
-      const amount_in_with_fee = amount_in.amount.multiply(1000 - fee)
-      const numerator = amount_in_with_fee.multiply(reserve_out.amount)
-      const denominator = reserve_in.amount.multiply(1000).add(amount_in_with_fee)
-      const amount_out = numerator.divide(denominator)
+      const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT').amount
+      const amount_out = get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee)
 
-      this.minOutput = amount_out.minus(amount_out.multiply(3).divide(100))
+      // TODO Слипейдж
+      //this.minOutput = amount_out.minus(amount_out.multiply(3).divide(100))
+      //this.minOutput = amount_out.minus(amount_out.multiply(3).divide(100))
+      this.minOutput = asset(amount_out, symbol(this.output.symbol, this.output.precision)) + `@${this.output.contract}`
 
       this.outputAmount = parseFloat(asset(amount_out, reserve_out.symbol).to_string()).toFixed(this.output.precision)
     },
@@ -128,9 +128,9 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: 'swap.defi',
+            to: this.network.pools.contract,
             quantity: parseFloat(this.inputAmount).toFixed(this.input.precision) + ' ' + this.input.symbol,
-            memo: `swap,${this.minOutput},${this.pair.id}`
+            memo: `${this.minOutput}`
           }
         }
       ]

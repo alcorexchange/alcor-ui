@@ -29,8 +29,8 @@ export const actions = {
     })
 
     rows.map(r => {
-      r.pool1 = extended_asset(r.pool1)
-      r.pool2 = extended_asset(r.pool2)
+      r.pool1.quantity = asset(r.pool1.quantity)
+      r.pool2.quantity = asset(r.pool2.quantity)
       r.supply = asset(r.supply)
     })
 
@@ -65,12 +65,10 @@ export const getters = {
   tokens0(state, getters, rootState) {
     const tokens = [rootState.network.baseToken] // Base token as default
 
-
     state.pairs.map(p => {
-      console.log(p.pool1.quantity)
       let token = {
         symbol: p.pool1.quantity.symbol.code().to_string(),
-        precision: p.pool1.quantity.symbol.precision,
+        precision: p.pool1.quantity.symbol.precision(),
         contract: p.pool1.contract
       }
 
@@ -78,7 +76,7 @@ export const getters = {
 
       token = {
         symbol: p.pool2.quantity.symbol.code().to_string(),
-        precision: p.pool2.quantity.symbol.precision,
+        precision: p.pool2.quantity.symbol.precision(),
         contract: p.pool2.contract
       }
 
@@ -98,7 +96,7 @@ export const getters = {
       if (p.pool1.contract == state.input.contract && symbol_t0 == state.input.symbol) {
         const token = {
           symbol: p.pool2.quantity.symbol.code().to_string(),
-          precision: p.pool2.quantity.symbol.precision,
+          precision: p.pool2.quantity.symbol.precision(),
           contract: p.pool2.contract
         }
 
@@ -108,7 +106,7 @@ export const getters = {
       if (p.pool2.contract == state.input.contract && symbol_t1 == state.input.symbol) {
         const token = {
           symbol: p.pool1.quantity.symbol.code().to_string(),
-          precision: p.pool1.quantity.symbol.precision,
+          precision: p.pool1.quantity.symbol.precision(),
           contract: p.pool1.contract
         }
 
@@ -119,7 +117,7 @@ export const getters = {
     return tokens
   },
 
-  pair(state) {
+  current(state) {
     const pair = state.pairs.filter(p => {
       if (!state.input || !state.output) return null
 

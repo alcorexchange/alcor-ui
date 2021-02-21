@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div(v-if="current")
   el-button(size="medium" @click="open" icon="el-icon-wallet").ml-auto Withdraw liquidity
 
   el-dialog(title="Withdraw liquidity", :visible.sync="visible" width="50%" v-if="user")
@@ -67,7 +67,7 @@ export default {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
-    ...mapGetters('pools', ['current']),
+    ...mapGetters('swap', ['current']),
 
     tokenBalance() {
       if (this.user && this.user.balances) {
@@ -117,8 +117,10 @@ export default {
     }
   },
 
-  mounted() {
-    this.amountChange()
+  watch: {
+    current() {
+      this.amountChange()
+    }
   },
 
   methods: {
@@ -145,24 +147,6 @@ export default {
       const actions = [
         {
           account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.current.pool1.contract, sym: this.current.pool1.quantity.symbol.toString() }
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.current.pool2.contract, sym: this.current.pool2.quantity.symbol.toString() }
-          }
-        }, {
-          account: this.network.pools.contract,
           name: 'remliquidity',
           authorization,
           data: {
@@ -170,26 +154,6 @@ export default {
             to_sell: this.amount + ' ' + this.current.supply.symbol.code().to_string(),
             min_asset1: this.baseReceive,
             min_asset2: this.quoteReceive
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'closeext',
-          authorization,
-          data: {
-            user: this.user.name,
-            ext_symbol: { contract: this.current.pool1.contract, sym: `${this.current.pool1.quantity.symbol.toString()}` },
-            to: this.user.name,
-            memo: ''
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'closeext',
-          authorization,
-          data: {
-            user: this.user.name,
-            ext_symbol: { contract: this.current.pool2.contract, sym: `${this.current.pool2.quantity.symbol.toString()}` },
-            to: this.user.name,
-            memo: ''
           }
         }
       ]

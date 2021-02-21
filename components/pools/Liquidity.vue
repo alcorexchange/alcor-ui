@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div(v-if="current")
   el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
 
   el-dialog(title="Add liquidity", :visible.sync="visible" width="50%").pool-withdraw
@@ -21,7 +21,7 @@ div
 
               hr
 
-              pre Balance: {{ baseBalance }}
+              pre Balance: {{ inputBalance }}
               el-input(type="number" v-model="amount1" clearable @input="amount1Input" @change="amountChange")
                 span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
@@ -97,7 +97,7 @@ export default {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
-    ...mapGetters('pools', ['current', 'baseBalance', 'quoteBalance']),
+    ...mapGetters('swap', ['current', 'inputBalance', 'quoteBalance']),
 
     tokenReceive() {
       const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision())
@@ -194,7 +194,7 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: amount1,
-            memo: ''
+            memo: 'deposit'
           }
         }, {
           account: this.current.pool2.contract,
@@ -204,7 +204,7 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: amount2,
-            memo: ''
+            memo: 'deposit'
           }
         }, {
           account: this.network.pools.contract,
