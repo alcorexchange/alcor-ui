@@ -65,9 +65,10 @@ div(v-if="current")
 </template>
 
 <script>
-import { asset, number_to_asset } from 'eos-common'
+import { asset, number_to_asset, number_to_bigint } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 import Big from 'big.js'
+import BigCommon from 'big-integer'
 
 import { computeForward, computeBackward, calcPrice, get_amount_in } from '~/utils/pools'
 
@@ -102,10 +103,15 @@ export default {
 
     tokenReceive() {
       const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision()).amount
-
       const amount2 = this.inputToAsset(this.amount2, this.poolTwo.quantity.symbol.precision()).amount
-      const b = Big(amount1.multiply(amount2))
-      const to_buy = b.sqrt()
+
+      const liquidity1 = amount1.multiply(this.current.supply.amount).divide(this.current.pool1.quantity.amount)
+      const liquidity2 = amount2.multiply(this.current.supply.amount).divide(this.current.pool2.quantity.amount)
+
+      const to_buy = BigCommon.min(liquidity1, liquidity2)
+
+      //const b = Big(amount1.multiply(amount2))
+      //const to_buy = b.sqrt()
 
       //const to_buy = computeBackward(
       //  amount1,
@@ -188,7 +194,8 @@ export default {
 
       const amount1 = asset(`${this.amount1} ${this.current.pool1.quantity.symbol.code().to_string()}`).to_string()
       const amount2 = asset(`${this.amount2} ${this.current.pool2.quantity.symbol.code().to_string()}`).to_string()
-      const to_buy = asset(this.tokenReceive.toString(), this.current.supply.symbol).to_string()
+      const to_buy = asset(BigCommon(this.tokenReceive.toString()), this.current.supply.symbol).to_string()
+      console.log('tokens to buy', this.tokenReceive.toString())
 
       const actions = [
         {
