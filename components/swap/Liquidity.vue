@@ -3,6 +3,11 @@
   .col
     .row
       .col
+        .d-flex
+          small.text-muted Asset 1
+          small.text-mutted.small.ml-auto {{ inputBalance }}
+            i.el-icon-wallet.ml-1
+
         SelectToken(v-model="amount1" :token="0" @input="amount1Input")
 
     .row.mt-3
@@ -11,6 +16,11 @@
         i.el-icon-bottom.lead
     .row
       .col
+        .d-flex
+          small.text-muted Asset 2
+          small.text-mutted.small.ml-auto {{ outputBalance }}
+            i.el-icon-wallet.ml-1
+
         SelectToken(v-model="amount2" :token="1" @input="amount2Input")
 
     .row.mt-4
@@ -65,8 +75,8 @@ export default {
       const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision()).amount
       const amount2 = this.inputToAsset(this.amount2, this.poolTwo.quantity.symbol.precision()).amount
 
-      const liquidity1 = amount1.multiply(this.current.supply.amount).divide(this.current.pool1.quantity.amount)
-      const liquidity2 = amount2.multiply(this.current.supply.amount).divide(this.current.pool2.quantity.amount)
+      const liquidity1 = amount1.multiply(this.current.supply.amount).divide(this.poolOne.quantity.amount)
+      const liquidity2 = amount2.multiply(this.current.supply.amount).divide(this.poolTwo.quantity.amount)
 
       const to_buy = BigCommon.min(liquidity1, liquidity2)
 
@@ -90,42 +100,27 @@ export default {
 
   methods: {
     toggleInputs() {
-      // FIXME Урезает сумму решить это
-      if (!this.output) return
-
-      const i = Object.assign({}, this.input)
-      const o = Object.assign({}, this.output)
-
-      const amount1 = this.amount1
-      const amount2 = this.amount2
-
-      this.amount1 = amount2
-      this.$store.commit('swap/setInput', o)
-
-      this.amount2 = amount1
-      this.$store.commit('swap/setOutput', i)
-
-      //this.amountChange()
+      // TODO
     },
 
     amount1Input(value) {
       if (!this.current) return
 
-      let amount1 = (parseFloat(value) || 0).toFixed(this.current.pool1.quantity.symbol.precision())
+      let amount1 = (parseFloat(value) || 0).toFixed(this.poolOne.quantity.symbol.precision())
 
-      amount1 = asset(amount1 + ' ' + this.current.pool1.quantity.symbol.code().to_string()).amount
+      amount1 = asset(amount1 + ' ' + this.poolOne.quantity.symbol.code().to_string()).amount
 
       const to_buy = computeBackward(
         amount1,
         this.current.supply.amount,
-        this.current.pool1.quantity.amount,
+        this.poolOne.quantity.amount,
         0
       )
 
-      const amount2 = number_to_asset(0, this.current.pool2.quantity.symbol)
+      const amount2 = number_to_asset(0, this.poolTwo.quantity.symbol)
 
       amount2.set_amount(
-        computeForward(to_buy, this.current.pool2.quantity.amount, this.current.supply.amount, 0)
+        computeForward(to_buy, this.poolTwo.quantity.amount, this.current.supply.amount, 0)
       )
       this.amount2 = amount2.to_string().split(' ')[0]
     },
@@ -133,21 +128,21 @@ export default {
     amount2Input(value) {
       if (!this.current) return
 
-      let amount2 = (parseFloat(value) || 0).toFixed(this.current.pool2.quantity.symbol.precision())
+      let amount2 = (parseFloat(value) || 0).toFixed(this.poolTwo.quantity.symbol.precision())
 
-      amount2 = asset(amount2 + ' ' + this.current.pool2.quantity.symbol.code().to_string()).amount
+      amount2 = asset(amount2 + ' ' + this.poolTwo.quantity.symbol.code().to_string()).amount
 
       const to_buy = computeBackward(
         amount2,
         this.current.supply.amount,
-        this.current.pool2.quantity.amount,
+        this.poolTwo.quantity.amount,
         0
       )
 
-      const amount1 = number_to_asset(0, this.current.pool1.quantity.symbol)
+      const amount1 = number_to_asset(0, this.poolOne.quantity.symbol)
 
       amount1.set_amount(
-        computeForward(to_buy.multiply(-1), this.current.pool1.quantity.amount, this.current.supply.amount, 0).multiply(-1)
+        computeForward(to_buy.multiply(-1), this.poolOne.quantity.amount, this.current.supply.amount, 0).multiply(-1)
       )
 
       this.amount1 = amount1.to_string().split(' ')[0]
@@ -172,7 +167,6 @@ export default {
       const amount2 = asset(`${this.amount2} ${this.poolTwo.quantity.symbol.code().to_string()}`).to_string()
 
       const to_buy = asset(BigCommon(this.tokenReceive.toString()), this.current.supply.symbol).to_string()
-      console.log('tokens to buy', this.tokenReceive.toString())
 
       const actions = [
         {

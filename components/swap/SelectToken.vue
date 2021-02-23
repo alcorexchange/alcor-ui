@@ -1,8 +1,5 @@
 <template lang="pug">
 .swap-token-select
-  small.text-muted Pay
-  small.text-mutted.small.align-self-end.float-right {{ inputBalance }}
-    i.el-icon-wallet.ml-1
   .multi-input-wrapper
     el-input(type="number" v-model="content" clearable placeholder="0.0" @input="handleInput" @change="fixedInput" :readonly="readonly")
       template(slot="append")
@@ -97,7 +94,7 @@ export default {
     },
 
     fixedInput() {
-      return this.content = (parseFloat(this.content) || 0).toFixed(this.input.precision)
+      this.content = (parseFloat(this.content) || 0).toFixed(this.input.precision)
     },
 
     setToken(token) {
@@ -115,6 +112,7 @@ export default {
         this.$store.commit('swap/setOutput', token)
       }
 
+      this.$emit('change', this.token)
       this.visible = false
     }
   }

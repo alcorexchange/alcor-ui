@@ -20,6 +20,25 @@ export const actions = {
     commit('setInput', rootState.network.baseToken)
   },
 
+  toggleInputs({ state, commit }) {
+    if (!state.output) return
+
+    const i = Object.assign({}, state.input)
+    const o = Object.assign({}, state.output)
+
+    commit('setInput', o)
+    commit('setOutput', i)
+
+    //const amount1 = this.amount1
+    //const amount2 = this.amount2
+
+    //this.amount1 = amount2
+
+    //this.amount2 = amount1
+
+    //this.amountChange()
+  },
+
   async getPairs({ commit, rootState, rootGetters }) {
     const { rows } = await rootGetters['api/rpc'].get_table_rows({
       code: rootState.network.pools.contract,
@@ -137,6 +156,10 @@ export const getters = {
     return pair || null
   },
 
+  isReverted(state, { current }) {
+    return !(current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol)
+  },
+
   poolOne(state, { current }) {
     if (!current) return null
 
@@ -190,16 +213,16 @@ export const getters = {
   outputBalance(state, getters, rootState) {
     if (!rootState.user || !rootState.user.balances) {
       if (getters.current) {
-        return asset(0, getters.current.pool2.quantity.symbol).to_string()
+        return '0.0000 ' + state.output.symbol
       }
 
-      return '0.0000 '
+      return '0.0000'
     }
 
     const balance = rootState.user.balances.filter(b => {
-      return b.currency === getters.current.pool2.quantity.symbol.code().to_string() && b.contract == getters.current.pool2.contract
+      return b.currency === state.output.symbol && b.contract == state.output.contract
     })[0]
-    if (!balance) return asset(0, getters.current.pool2.quantity.symbol).to_string()
+    if (!balance) return '0.0000 ' + state.output.symbol
 
     return `${balance.amount} ${balance.currency}`
   }
