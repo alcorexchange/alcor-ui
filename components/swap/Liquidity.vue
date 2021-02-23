@@ -62,7 +62,7 @@ export default {
     ...mapGetters(['user']),
     ...mapState(['network']),
 
-    ...mapState('swap', ['input', 'output']),
+    ...mapState('swap', ['input', 'output', 'pairs']),
     ...mapGetters({
       current: 'swap/current',
       inputBalance: 'swap/inputBalance',
@@ -95,6 +95,12 @@ export default {
 
     input() {
       this.amount2Input(this.amount2)
+    },
+
+    pairs() {
+      if (this.amount1 && this.amount2) {
+        this.amount1Input(this.amount1)
+      }
     }
   },
 

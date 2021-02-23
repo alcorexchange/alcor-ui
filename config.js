@@ -408,7 +408,7 @@ const networks = {
     },
 
     pools: {
-      contract: 'evolutiondex',
+      contract: 'alcordexswap',
       fee: 'evodextester'
     },
 

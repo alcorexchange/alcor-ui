@@ -17,9 +17,6 @@ export function get_amount_in(amount_out, reserve_in, reserve_out, fee = 10) {
 }
 
 export function computeForward(x, y, z, fee) {
-  //const tmp = x.multiply(-1).multiply(z).divide(y.plus(x))
-  //return tmp.plus(tmp.multiply(-1).multiply(fee).plus(9999).divide(10000)).abs()
-
   const prod = x.multiply(y)
   let tmp, tmp_fee
 
@@ -48,10 +45,10 @@ export function calcPrice(a, b) {
   return (a.amount / b.amount) / (10 ** diff_precision)
 }
 
-export function preparePool(pool) {
-  pool.pool1.quantity = asset(pool.pool1.quantity)
-  pool.pool2.quantity = asset(pool.pool2.quantity)
-  pool.supply = asset(pool.supply)
+export function preparePair(pair) {
+  pair.pool1.quantity = asset(pair.pool1.quantity)
+  pair.pool2.quantity = asset(pair.pool2.quantity)
+  pair.supply = asset(pair.supply)
 
-  return pool
+  return pair
 }

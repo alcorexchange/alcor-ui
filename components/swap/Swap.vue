@@ -73,7 +73,7 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
-    ...mapState('swap', ['input', 'output']),
+    ...mapState('swap', ['input', 'output', 'pairs']),
     ...mapGetters({
       pair: 'swap/current',
       inputBalance: 'swap/inputBalance',
@@ -96,6 +96,10 @@ export default {
   },
 
   watch: {
+    pairs() {
+      if (this.pair) this.$store.dispatch('swap/updatePair', this.pair.id)
+    },
+
     inputAmount() {
       this.calcOutput()
     }
@@ -208,9 +212,12 @@ export default {
 
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.$store.dispatch('swap/updatePair', this.pair.id)
+
+        this.inputAmount = Number(0).toFixed(this.input.precision)
+        this.outputAmount = Number(0).toFixed(this.output.precision)
+
         this.$notify({ title: 'Swap', message: 'Success', type: 'success' })
-        this.inputAmount = 0.0
-        this.outputAmount = 0.0
       } catch (e) {
         this.$notify({ title: 'Swap error', message: e, type: 'error' })
       } finally {

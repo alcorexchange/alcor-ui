@@ -24,7 +24,6 @@ export function getMatches(network) {
 export function updater(chain, app, hyperion = true) {
   const network = config.networks[chain]
 
-
   // First call immidiatelly to fetch available markets
   updateMarkets(network)
 

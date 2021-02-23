@@ -10,20 +10,22 @@
         component(v-bind:is="tab")
   .col-lg-8
     el-card(v-if="tab == 'Swap'")
-      .lead Chart here
+      .lead Chart (will be available soon...)
     el-card(v-else)
-      .lead Liquidity Positions
+      LiquidityPositions
 
 </template>
 
 <script>
 import Swap from '~/components/swap/Swap.vue'
 import Liquidity from '~/components/swap/Liquidity.vue'
+import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
 
 export default {
   components: {
     Swap,
-    Liquidity
+    Liquidity,
+    LiquidityPositions
   },
 
   fetch({ store }) {

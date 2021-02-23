@@ -1,5 +1,5 @@
 import { asset, extended_asset } from 'eos-common'
-import { preparePool } from '~/utils/pools'
+import { preparePair } from '~/utils/pools'
 
 export const state = () => ({
   pairs: [],
@@ -47,28 +47,30 @@ export const actions = {
     commit('setPairs', rows)
   },
 
-  async updatePool({ state, getters, commit, rootGetters, rootState }) {
-    //const sym = JSON.parse(JSON.stringify(state.current_sym))
+  async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
+    if (!this._vm.$nuxt.$route.name.includes('swap')) return
 
-    //if (!this._vm.$nuxt.$route.name.includes('pools')) return
+    const { rows: [new_pair] } = await rootGetters['api/rpc'].get_table_rows({
+      code: rootState.network.pools.contract,
+      scope: rootState.network.pools.contract,
+      table: 'pairs',
+      limit: 1
+    })
 
-    //const { rows: [pool] } = await rootGetters['api/rpc'].get_table_rows({
-    //  code: rootState.network.pools.contract,
-    //  scope: sym,
-    //  table: 'stat',
-    //  limit: 1
-    //})
+    if (!new_pair) {
+      return console.log('Not found pair for update: ', pair_id)
+    }
 
-    //const pools = getters.pools.map(p => {
-    //  if (p.supply.symbol.code().to_string() == sym) {
-    //    return preparePool(pool)
-    //  }
+    const pairs = state.pairs
+    for (let i = 0; i < pairs.length; i++) {
+      if (pairs[i].id == pair_id) {
+        this._vm.$set(state.pairs, new_pair.id, preparePair(new_pair))
+        return
+      }
+    }
 
-    //  return p
-    //})
-
-    //commit('setPools', pools)
-  },
+    console.log('not updated pair: ', pair_id)
+  }
 }
 
 export const getters = {
@@ -204,7 +206,7 @@ export const getters = {
   },
 
   outputBalance(state, getters, rootState) {
-    if (!rootState.user || !rootState.user.balances) {
+    if (!rootState.user || !rootState.user.balances || !state.output) {
       if (getters.current) {
         return '0.0000 ' + state.output.symbol
       }
