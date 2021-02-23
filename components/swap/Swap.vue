@@ -1,23 +1,24 @@
 <template lang="pug">
-div
-  .overflowbox.mt-2.p-3
+.row.mt-4
+  .col
     .row
       .col
-        small From
-          b.ml-1 ({{ inputBalance }})
+        SelectToken(v-model="inputAmount" :token="0")
 
-        .row
-          .col-8
-            el-input(type="number" clearable placeholder="0.0" v-model="inputAmount" @change="fixedInput")
-              span(slot="suffix" v-if="input").mr-1 {{ input.symbol }}
-
-          .col-4
-            SelectToken(:token="0")
-    .row.mt-4
+    .row.mt-3
       .col.text-center
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
-
     .row
+      .col
+        SelectToken(v-model="outputAmount" readonly :token="1")
+
+    .row.mt-4
+      .col(v-if="inputAmount && outputAmount")
+        el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+      .col(v-else)
+        el-button(type="primary" disabled).w-100 Select amounts
+
+    //.row
       .col
         small To
           b.text-muted  (estimated)
@@ -34,7 +35,7 @@ div
             .el-card.p-3
               .text-muted Min received: {{ minOutput }}
 
-  .row.mt-2
+  //.row.mt-2
     .col
       el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap
 </template>
@@ -44,13 +45,11 @@ import { asset, symbol } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out } from '~/utils/pools'
 
-import TokenImage from '~/components/elements/TokenImage'
 import SelectToken from '~/components/swap/SelectToken.vue'
 
 export default {
   components: {
-    SelectToken,
-    TokenImage
+    SelectToken
   },
 
   data() {
@@ -68,7 +67,8 @@ export default {
     ...mapState('swap', ['input', 'output']),
     ...mapGetters({
       pair: 'swap/current',
-      inputBalance: 'swap/inputBalance'
+      inputBalance: 'swap/inputBalance',
+      outputBalance: 'swap/outputBalance'
     }),
 
     filteredPools() {
@@ -78,6 +78,14 @@ export default {
 
   watch: {
     inputAmount() {
+      this.calcOutput()
+    },
+
+    output() {
+      this.calcOutput()
+    },
+
+    input() {
       this.calcOutput()
     }
   },
@@ -113,10 +121,6 @@ export default {
       this.$store.commit('swap/setOutput', i)
 
       this.calcOutput()
-    },
-
-    fixedInput() {
-      this.inputAmount = parseFloat(this.inputAmount).toFixed(this.input.precision)
     },
 
     async submit() {
@@ -164,3 +168,4 @@ export default {
   }
 }
 </script>
+

@@ -137,6 +137,26 @@ export const getters = {
     return pair || null
   },
 
+  poolOne(state, { current }) {
+    if (!current) return null
+
+    if (current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol) {
+      return current.pool1
+    } else {
+      return current.pool2
+    }
+  },
+
+  poolTwo(state, { current }) {
+    if (!current) return null
+
+    if (current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol) {
+      return current.pool2
+    } else {
+      return current.pool1
+    }
+  },
+
   pools(state) {
     return state.pools.map(pool => {
       const p = JSON.parse(JSON.stringify(pool))
@@ -167,7 +187,7 @@ export const getters = {
     return `${balance.amount} ${balance.currency}`
   },
 
-  quoteBalance(state, getters, rootState) {
+  outputBalance(state, getters, rootState) {
     if (!rootState.user || !rootState.user.balances) {
       if (getters.current) {
         return asset(0, getters.current.pool2.quantity.symbol).to_string()

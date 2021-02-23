@@ -125,6 +125,7 @@ export default {
     menuItems() {
       const items = []
 
+      items.push({ index: '/swap', name: 'Swap' })
       items.push({ index: '/markets', name: 'Markets' })
       items.push({ index: '/defi/swap', name: 'DeFi' })
 

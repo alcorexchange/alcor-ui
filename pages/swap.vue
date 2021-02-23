@@ -1,22 +1,27 @@
 <template lang="pug">
-.row.justify-content-center.mt-3
-  .col-lg-6
+.row.mt-3
+  .col-lg-4
     el-card
-      .lead Swap tokens using Defibox
-      //el-radio-group(v-model="tab").el-radio-full-width
+      el-radio-group(v-model="tab").el-radio-full-width
         el-radio-button(label='Swap')
         el-radio-button(label='Liquidity')
 
-      swap(v-if="tab == 'Swap'")
+      keep-alive
+        component(v-bind:is="tab")
+  .col-lg-8
+    el-card
+      .lead Liquidity Positions
 
 </template>
 
 <script>
 import Swap from '~/components/swap/Swap.vue'
+import Liquidity from '~/components/swap/Liquidity.vue'
 
 export default {
   components: {
-    Swap
+    Swap,
+    Liquidity
   },
 
   fetch({ store }) {
@@ -26,6 +31,12 @@ export default {
   data() {
     return {
       tab: 'Swap'
+    }
+  },
+
+  methods: {
+    changeTab() {
+      console.log('change tab..', this.tab)
     }
   }
 }
