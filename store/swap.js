@@ -28,15 +28,6 @@ export const actions = {
 
     commit('setInput', o)
     commit('setOutput', i)
-
-    //const amount1 = this.amount1
-    //const amount2 = this.amount2
-
-    //this.amount1 = amount2
-
-    //this.amount2 = amount1
-
-    //this.amountChange()
   },
 
   async getPairs({ commit, rootState, rootGetters }) {
@@ -107,6 +98,8 @@ export const getters = {
 
   tokens1(state, getters, rootState) {
     const tokens = [rootState.network.baseToken]
+
+    if (!state.input) return getters.tokens0
 
     for (const p of state.pairs) {
       const symbol_t0 = p.pool1.quantity.symbol.code().to_string()

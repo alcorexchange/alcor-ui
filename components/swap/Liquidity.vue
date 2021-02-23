@@ -3,7 +3,7 @@
   .col
     .row
       .col
-        .d-flex
+        .d-flex.mb-1
           small.text-muted Asset 1
           small.text-mutted.small.ml-auto {{ inputBalance }}
             i.el-icon-wallet.ml-1
@@ -16,7 +16,7 @@
         i.el-icon-bottom.lead
     .row
       .col
-        .d-flex
+        .d-flex.mb-1
           small.text-muted Asset 2
           small.text-mutted.small.ml-auto {{ outputBalance }}
             i.el-icon-wallet.ml-1
@@ -142,7 +142,8 @@ export default {
       const amount1 = number_to_asset(0, this.poolOne.quantity.symbol)
 
       amount1.set_amount(
-        computeForward(to_buy.multiply(-1), this.poolOne.quantity.amount, this.current.supply.amount, 0).multiply(-1)
+        //computeForward(to_buy.multiply(-1), this.poolOne.quantity.amount, this.current.supply.amount, 0).multiply(-1)
+        computeForward(to_buy, this.poolOne.quantity.amount, this.current.supply.amount, 0)
       )
 
       this.amount1 = amount1.to_string().split(' ')[0]

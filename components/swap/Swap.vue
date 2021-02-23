@@ -8,7 +8,7 @@
           small.text-mutted.small.ml-auto {{ inputBalance }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="inputAmount" :token="0")
+        SelectToken(v-model="inputAmount" :token="0" @change="tokenChanged(0)")
 
     .row.mt-3
       .col.text-center
@@ -20,10 +20,10 @@
           small.text-mutted.small.ml-auto {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="outputAmount" readonly :token="1" @change="calcOutput")
+        SelectToken(v-model="outputAmount" readonly :token="1" @change="tokenChanged(1)")
 
     .row.mt-4
-      .col(v-if="inputAmount && outputAmount")
+      .col(v-if="(input && inputAmount) && (output && outputAmount)")
         el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { asset, symbol } from 'eos-common'
+import { asset, symbol, number_to_asset } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
 
@@ -106,6 +106,12 @@ export default {
   },
 
   methods: {
+    tokenChanged(token) {
+      if (token == 0 && this.input && parseFloat(this.outputAmount)) this.calcInput()
+      if (token == 1 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
+      if (token == 1 && !this.input) this.calcInput()
+    },
+
     calcOutput() {
       if (!this.pair || !this.output || !this.inputAmount) return
 
@@ -122,50 +128,61 @@ export default {
     },
 
     calcInput() {
-      if (!this.pair || !this.output || !this.inputAmount) return
+      if (!this.pair || !this.output || !this.outputAmount) return
 
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
 
-      const amount_out = asset(parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT').amount
-      const amount_in = get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee)
+      let amount_out = asset(parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT').amount
+      if (amount_out > reserve_out.amount) {
+        amount_out = reserve_out.amount.minus(1)
+        this.outputAmount = number_to_asset(amount_out, reserve_out.symbol).to_string()
+      }
 
+      const amount_in = get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee)
       const amount_min_input = amount_in.minus(amount_out.multiply(30).divide(1000))
+
 
       this.inputAmount = parseFloat(asset(amount_in, reserve_in.symbol).to_string()).toFixed(this.input.precision)
       this.minOutput = asset(amount_min_input, symbol(this.output.symbol, this.output.precision)).to_string()
     },
 
     toggleInputs() {
-      this.$store.dispatch('swap/toggleInputs')
-
       if (!this.output) {
-        return
-        // TODO
-        //const i = Object.assign({}, this.input)
+        const i = Object.assign({}, this.input)
 
-        //this.$store.commit('swap/setOutput', i)
-        //return
+        this.$store.commit('swap/setOutput', i)
+        this.$store.commit('swap/setInput', null)
+
+        const ia = this.inputAmount
+
+        this.inputAmount = 0.0
+        this.outputAmount = parseFloat(ia || 0).toFixed(this.output.precision)
+        return
       }
 
+      if (!this.input) {
+        const o = Object.assign({}, this.output)
+
+        this.$store.commit('swap/setInput', o)
+        this.$store.commit('swap/setOutput', null)
+
+        const oa = this.outputAmount
+
+        this.outputAmount = 0.0
+        this.inputAmount = parseFloat(oa || 0).toFixed(this.input.precision)
+        return
+      }
+
+      this.$store.dispatch('swap/toggleInputs')
+
       if (this.isReverted) {
-        console.log('reverted')
         this.outputAmount = this.inputAmount
         this.calcInput()
       } else {
-        console.log('not reverted')
         this.inputAmount = this.outputAmount
         this.calcOutput()
       }
-
-      //console.log('input', this.input)
-      //if (this.input == this.pair)
-
-
-      //this.inputAmount = oa
-      //this.outputAmount = ia
-
-      //this.calcOutput()
     },
 
     async submit() {

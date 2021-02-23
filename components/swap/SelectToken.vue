@@ -58,7 +58,10 @@ export default {
       tokens1: 'swap/tokens1',
       pair: 'swap/current',
       inputBalance: 'swap/inputBalance',
-      outputBalance: 'swap/outputBalance'
+      outputBalance: 'swap/outputBalance',
+
+      poolOne: 'swap/poolOne',
+      poolTwo: 'swap/poolTwo'
     }),
 
     isTokenSelected() {
@@ -94,7 +97,10 @@ export default {
     },
 
     fixedInput() {
-      this.content = (parseFloat(this.content) || 0).toFixed(this.input.precision)
+      if (!this.isTokenSelected) return
+
+      const precision = this.token == 0 ? this.input.precision : this.output.precision
+      this.content = (parseFloat(this.content) || 0).toFixed(precision)
     },
 
     setToken(token) {
@@ -112,7 +118,8 @@ export default {
         this.$store.commit('swap/setOutput', token)
       }
 
-      this.$emit('change', this.token)
+      this.fixedInput()
+      this.$emit('change', token)
       this.visible = false
     }
   }

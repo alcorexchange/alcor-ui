@@ -9,7 +9,6 @@ export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 10) {
 }
 
 export function get_amount_in(amount_out, reserve_in, reserve_out, fee = 10) {
-  // TODO Test it
   const numerator = reserve_in.multiply(amount_out).multiply(10000)
   const denominator = reserve_out.minus(amount_out).multiply(10000 - fee)
   const amount_in = numerator.divide(denominator).plus(1)
