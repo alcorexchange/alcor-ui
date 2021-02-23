@@ -9,7 +9,9 @@
       keep-alive
         component(v-bind:is="tab")
   .col-lg-8
-    el-card
+    el-card(v-if="tab == 'Swap'")
+      .lead Chart here
+    el-card(v-else)
       .lead Liquidity Positions
 
 </template>

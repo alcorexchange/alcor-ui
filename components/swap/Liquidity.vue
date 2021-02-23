@@ -7,7 +7,8 @@
 
     .row.mt-3
       .col.text-center
-        i.el-icon-bottom.lead.pointer(@click="toggleInputs")
+        //i.el-icon-bottom.lead.pointer(@click="toggleInputs")
+        i.el-icon-bottom.lead
     .row
       .col
         SelectToken(v-model="amount2" :token="1" @input="amount2Input")

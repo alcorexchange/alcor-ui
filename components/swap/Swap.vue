@@ -17,27 +17,6 @@
         el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
-
-    //.row
-      .col
-        small To
-          b.text-muted  (estimated)
-
-        .row
-          .col-8
-            el-input(type="number" clearable placeholder="0.0" v-model="outputAmount")
-              span(slot="suffix" v-if="output").mr-1 {{ output.symbol }}
-          .col-4
-            SelectToken(:token="1")
-
-        .row.mt-2
-          .col
-            .el-card.p-3
-              .text-muted Min received: {{ minOutput }}
-
-  //.row.mt-2
-    .col
-      el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap
 </template>
 
 <script>
