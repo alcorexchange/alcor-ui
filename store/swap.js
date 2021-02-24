@@ -1,4 +1,4 @@
-import { asset, extended_asset } from 'eos-common'
+import { asset } from 'eos-common'
 import { preparePair } from '~/utils/pools'
 
 export const state = () => ({
@@ -16,7 +16,7 @@ export const mutations = {
 
 export const actions = {
   init({ state, commit, dispatch, rootState }) {
-    if (['eos', 'local'].includes(rootState.network.name)) dispatch('getPairs')
+    dispatch('getPairs')
     commit('setInput', rootState.network.baseToken)
   },
 
@@ -42,6 +42,7 @@ export const actions = {
       r.pool1.quantity = asset(r.pool1.quantity)
       r.pool2.quantity = asset(r.pool2.quantity)
       r.supply = asset(r.supply)
+      r.name = r.pool1.quantity.symbol.code().to_string() + '/' + r.pool2.quantity.symbol.code().to_string()
     })
 
     commit('setPairs', rows)

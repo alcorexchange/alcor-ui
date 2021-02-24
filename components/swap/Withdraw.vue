@@ -1,9 +1,9 @@
 <template lang="pug">
-div(v-if="current")
-  el-button(size="medium" @click="open" icon="el-icon-wallet").ml-auto Withdraw liquidity
+.d-inline
+  el-button(size="small" type="info" icon="el-icon-minus" @click="open")
 
-  el-dialog(title="Withdraw liquidity", :visible.sync="visible" width="50%" v-if="user")
-    .row
+  el-dialog(title="Confirm Remove Liquidity", :visible.sync="visible" width="50%" v-if="user")
+    //.row
       .col
         .row.mb-3(v-if="current.pool1")
           .col
@@ -54,6 +54,8 @@ export default {
     TokenImage,
     PleaseLoginButton
   },
+
+  props: ['pair'],
 
   data() {
     return {

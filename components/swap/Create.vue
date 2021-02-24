@@ -18,13 +18,13 @@ div
 
               el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
                 el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
-                  el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
+                  //el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
                             :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
                     TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
                     span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
                   // Only system token might be as base toekn of the pool
-                  //el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                  el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
                     TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
                     span.ml-3 {{ b.id }}
                     span.float-right {{ `${b.amount} ${b.currency}` }}
@@ -155,20 +155,17 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: '10.0000 EOS',
-            //quantity: `${this.amount1} ${this.base.currency}`,
+            quantity: `${this.amount1} ${this.base.currency}`,
             memo: 'deposit'
           }
         }, {
-          //account: this.quote.contract,
-          account: 'tktoken',
+          account: this.quote.contract,
           name: 'transfer',
           authorization,
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: '10.0000 TKT',
-            //quantity: `${this.amount2} ${this.quote.currency}`,
+            quantity: `${this.amount2} ${this.quote.currency}`,
             memo: 'deposit'
           }
         },
@@ -178,15 +175,10 @@ export default {
           authorization,
           data: {
             user: this.user.name,
-            // TODO
-            //initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
-            //initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
-
-            initial_pool1: { contract: 'eosio.token', quantity: '10.0000 EOS' },
-            initial_pool2: { contract: 'tktoken', quantity: '10.0000 TKT' },
+            initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
+            initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
             initial_fee: 30,
-            // TODO fee_contract: this.network.pools.fee
-            fee_contract: 'avral'
+            fee_contract: this.network.pools.fee
           }
         }
       ]

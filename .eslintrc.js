@@ -72,5 +72,6 @@ module.exports = {
     'prefer-const': 1,
 
     'vue/require-default-prop': 1,
+    'vue/require-prop-types': 0
   }
 }
