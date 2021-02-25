@@ -35,7 +35,7 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
+    ...mapGetters('api', ['rpc'])
   },
 
   watch: {
@@ -50,12 +50,18 @@ export default {
 
   methods: {
     send(nft) {
-      this.$prompt('Please input account where you want transfer NFT', 'lol', {
+      this.$prompt('NFT receiver account', 'Sent NFT', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel'
       }).then(async ({ value }) => {
         const authorization = [this.user.authorization]
         const actions = []
+
+        try {
+          await this.rpc.get_account(value)
+        } catch (e) {
+          return this.$notify({ title: 'Send NFT', message: 'Receiver account not exists', type: 'error' })
+        }
 
         actions.push({
           account: 'simpleassets',
