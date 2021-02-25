@@ -1,13 +1,15 @@
 <template lang="pug">
 .row.mt-3
   .col-lg-4
-    el-card
+    el-card.mb-3
       el-radio-group(v-model="tab").el-radio-full-width
         el-radio-button(label='Swap')
         el-radio-button(label='Liquidity')
 
-      keep-alive
+      //keep-alive
         component(v-bind:is="tab")
+      // FIXME Инфинит луп на компьютед если кип элайв, рассчет эрнингов
+      component(v-bind:is="tab")
   .col-lg-8
     el-card(v-if="tab == 'Swap'")
       .lead Chart (will be available soon...)

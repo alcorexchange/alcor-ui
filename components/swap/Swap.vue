@@ -13,7 +13,7 @@
     .row.mt-3
       .col.text-center
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
-    .row
+    .row.mt-2
       .col
         .d-flex.mb-1
           small.text-muted Estimated Receive
@@ -126,7 +126,7 @@ export default {
       const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT').amount
       const amount_out = get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee)
 
-      const amount_min_output = amount_out.minus(amount_out.multiply(30).divide(1000))
+      const amount_min_output = amount_out.minus(amount_out.multiply(50).divide(1000))
 
       this.minOutput = asset(amount_min_output, symbol(this.output.symbol, this.output.precision)).to_string()
       this.outputAmount = parseFloat(asset(amount_out, reserve_out.symbol).to_string()).toFixed(this.output.precision)

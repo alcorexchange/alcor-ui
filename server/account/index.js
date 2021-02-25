@@ -20,7 +20,7 @@ account.get('/:account/liquidity_positions', async (req, res) => {
   const { account } = req.params
 
   const positions = await Liquidity.aggregate([
-    { $match: { pair_id: 0, owner: account, chain: network.name } },
+    { $match: { owner: account, chain: network.name } },
     {
       $group: {
         _id: '$pair_id',
