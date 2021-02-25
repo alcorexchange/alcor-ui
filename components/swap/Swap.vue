@@ -111,6 +111,7 @@ export default {
 
   methods: {
     tokenChanged(token) {
+      if (token == 0 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
       if (token == 0 && this.input && parseFloat(this.outputAmount)) this.calcInput()
       if (token == 1 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
       if (token == 1 && !this.input) this.calcInput()
@@ -212,7 +213,8 @@ export default {
 
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
-        await this.$store.dispatch('swap/updatePair', this.pair.id)
+        this.$store.dispatch('swap/updatePair', this.pair.id)
+        this.$store.dispatch('loadUserBalances')
 
         this.inputAmount = Number(0).toFixed(this.input.precision)
         this.outputAmount = Number(0).toFixed(this.output.precision)

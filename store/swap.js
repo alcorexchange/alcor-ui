@@ -189,7 +189,7 @@ export const getters = {
   },
 
   inputBalance(state, getters, rootState) {
-    if (!rootState.user || !rootState.user.balances) {
+    if (!rootState.user || !rootState.user.balances || !state.input) {
       if (state.input) {
         return '0.0000 ' + state.input.symbol
       } else {

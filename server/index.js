@@ -17,7 +17,9 @@ import { Nuxt, Builder } from 'nuxt'
 import config from '../nuxt.config.js'
 //import sign from './sign'
 import upload from './upload/ipfs'
-import { markets, startUpdaters } from './markets'
+import { markets } from './markets'
+import { pools } from './pools'
+import { startUpdaters } from './updaters'
 import { account } from './account'
 import { serverInit } from './utils'
 import { subscribe, unsubscribe } from './markets/sockets'
@@ -46,19 +48,20 @@ async function start () {
   app.use('/api/markets', markets)
   app.use('/api/account', account)
   app.use('/api/upload', upload)
+  app.use('/api/pools', pools)
 
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
 
   const { host, port } = nuxt.options.server
 
-  //// NuxtJS
-  await nuxt.ready()
-  if (config.dev) {
-    const builder = new Builder(nuxt)
-    await builder.build()
-  }
-  app.use(nuxt.render)
+  // NuxtJS
+  //await nuxt.ready()
+  //if (config.dev) {
+  //  const builder = new Builder(nuxt)
+  //  await builder.build()
+  //}
+  //app.use(nuxt.render)
 
   // Listen the server
   const server = app.listen(port, host)

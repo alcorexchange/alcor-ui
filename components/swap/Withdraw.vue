@@ -3,6 +3,8 @@
   el-button(size="small" type="info" icon="el-icon-minus" @click="open")
 
   el-dialog(title="Confirm Remove Liquidity", :visible.sync="visible" width="50%" v-if="user")
+    p todo
+    // TODO
     //.row
       .col
         .row.mb-3(v-if="current.pool1")
