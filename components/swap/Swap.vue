@@ -28,7 +28,7 @@
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
 
-    .row.mt-3(v-if="parseFloat(inputAmount) && parseFloat(outputAmount)").swap-info
+    .row.mt-3.swap-info
       .col-6
         small Minimum Received
         small Rate
@@ -38,7 +38,7 @@
 
       .col-6.text-right
         b.small {{ minOutput }}
-        b.small 1 {{ input.symbol }} = {{ rate }} {{ output.symbol }}
+        b.small {{ price }}
 
         b.small(v-if="priceImpact >= 5").text-danger {{ priceImpact}}%
         b.small(v-else-if="priceImpact >= 3").text-warning {{ priceImpact}}%
@@ -46,7 +46,7 @@
         b.small(v-else) {{ priceImpact}} %
 
         b.small 3%
-        b.small {{ pair.fee / 1000 }}%
+        b.small {{ fee }}%
 </template>
 
 <script>
@@ -67,7 +67,7 @@ export default {
 
       inputAmount: 0.0,
       outputAmount: 0.0,
-      minOutput: ''
+      minOutput: '0.0000'
     }
   },
 
@@ -83,23 +83,26 @@ export default {
       isReverted: 'swap/isReverted'
     }),
 
-    rate() {
-      //if (!this.input || !this.output) return
+    price() {
+      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return '0.0000'
 
-      return (parseFloat(this.outputAmount) / parseFloat(this.inputAmount)).toFixed(4)
+      const rate = (parseFloat(this.outputAmount) / parseFloat(this.inputAmount)).toFixed(4)
+
+      return `${this.input.symbol} = ${rate} ${this.output.symbol}`
+    },
+
+    fee() {
+      return this.pair ? this.pair.fee / 1000 : 0.3
     },
 
     priceImpact() {
-      //price impact on buying = (Yamount*0.97) / current Yamount in pool
+      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return 0.0
+
       return parseFloat(((parseFloat(this.outputAmount) * 0.97) / (parseFloat(this.poolTwo.quantity)) * 100).toFixed(2))
     }
   },
 
   watch: {
-    pairs() {
-      if (this.pair) this.$store.dispatch('swap/updatePair', this.pair.id)
-    },
-
     inputAmount() {
       this.calcOutput()
     }
@@ -245,4 +248,3 @@ small,.small {
   display: block;
 }
 </style>
-

@@ -8,10 +8,12 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
+  const $divide = req.query.reverse == 'true' ? ['$pool1', '$pool2'] : ['$pool2', '$pool1']
+
   const prices = await Exchange.aggregate([
     { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
-    { $project: { _id: 0, time: 1, price: { $divide: ['$pool1', '$pool2'] } } },
-    { $project: { time: 1, price: { $round: ['$price', 4] } } },
+    { $project: { _id: 0, time: 1, price: { $divide } } },
+    { $project: { x: { $toLong: '$time' }, y: { $round: ['$price', 4] } } },
     { $sort: { time: 1 } }
   ])
 

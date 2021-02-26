@@ -49,6 +49,7 @@ export const actions = {
   },
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
+    console.log('updatePair...')
     if (!this._vm.$nuxt.$route.name.includes('swap')) return
 
     const { rows: [new_pair] } = await rootGetters['api/rpc'].get_table_rows({
@@ -136,6 +137,7 @@ export const getters = {
     const pair = state.pairs.filter(p => {
       if (!state.input || !state.output) return null
 
+      console.log('current pair updated...')
       return (
         p.pool1.contract == state.input.contract &&
         p.pool1.quantity.symbol.code().to_string() == state.input.symbol &&
@@ -149,10 +151,11 @@ export const getters = {
       )
     })[0]
 
-    return pair || null
+    return pair
   },
 
   isReverted(state, { current }) {
+    if (!current) return false
     return !(current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol)
   },
 

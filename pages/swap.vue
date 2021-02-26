@@ -2,17 +2,19 @@
 .row.mt-3
   .col-lg-4
     el-card.mb-3
-      el-radio-group(v-model="tab").el-radio-full-width
+      el-radio-group(v-model="tab" size="small").el-radio-full-width
         el-radio-button(label='Swap')
-        el-radio-button(label='Liquidity')
+        el-radio-button(label='Liquidity+')
+        el-radio-button(label='Liquidity-')
 
-      //keep-alive
+      keep-alive
         component(v-bind:is="tab")
       // FIXME Инфинит луп на компьютед если кип элайв, рассчет эрнингов
-      component(v-bind:is="tab")
+      //component(v-bind:is="tab")
   .col-lg-8
-    el-card(v-if="tab == 'Swap'")
-      .lead Chart (will be available soon...)
+    .pools-chart(v-if="tab == 'Swap'")
+      el-card.h-100
+        Chart.h-100
     el-card(v-else)
       LiquidityPositions
 
@@ -20,12 +22,14 @@
 
 <script>
 import Swap from '~/components/swap/Swap.vue'
+import Chart from '~/components/swap/Chart.vue'
 import Liquidity from '~/components/swap/Liquidity.vue'
 import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
 
 export default {
   components: {
     Swap,
+    Chart,
     Liquidity,
     LiquidityPositions
   },
@@ -48,5 +52,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+.pools-chart {
+  height: calc(100% - 16px);
+
+  .el-card__body {
+    height: 100%;
+    padding: 5px;
+  }
+}
 </style>
