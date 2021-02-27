@@ -387,7 +387,7 @@ const networks = {
     protocol: 'https',
     monitor: 'http://jungle3.bloks.io',
     monitor_params: '',
-    lightapi: 'https://lightapi.eosgeneva.io',
+    lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 

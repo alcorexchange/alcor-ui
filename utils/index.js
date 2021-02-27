@@ -3,6 +3,14 @@ import Big from 'big.js'
 
 import config from '../config'
 
+export function e_asset_to_token(easset) {
+  return {
+    contract: easset.contract,
+    symbol: easset.quantity.symbol.code().to_string(),
+    precision: easset.quantity.symbol.precision()
+  }
+}
+
 export function littleEndianToDesimal(string) {
   if (typeof string === 'string' && string.startsWith('0x')) {
     const boundary = string.length / 2

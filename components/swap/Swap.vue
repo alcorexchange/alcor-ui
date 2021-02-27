@@ -8,19 +8,19 @@
           small.text-mutted.small.ml-auto {{ inputBalance }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="inputAmount" :token="0" @change="tokenChanged(0)")
+        SelectToken(v-model="inputAmount" :tokens="tokens0" :token="0" @change="tokenChanged(0)")
 
     .row.mt-3
       .col.text-center
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
-    .row.mt-2
+    .row.mt-1
       .col
         .d-flex.mb-1
           small.text-muted Estimated Receive
           small.text-mutted.small.ml-auto {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="outputAmount" readonly :token="1" @change="tokenChanged(1)")
+        SelectToken(v-model="outputAmount" :tokens="tokens1" readonly :token="1" @change="tokenChanged(1)")
 
     .row.mt-4
       .col(v-if="(input && inputAmount) && (output && outputAmount)")
@@ -28,7 +28,7 @@
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
 
-    .row.mt-3.swap-info
+    .row.mt-3
       .col-6
         small Minimum Received
         small Rate
@@ -80,7 +80,9 @@ export default {
       outputBalance: 'swap/outputBalance',
       poolOne: 'swap/poolOne',
       poolTwo: 'swap/poolTwo',
-      isReverted: 'swap/isReverted'
+      isReverted: 'swap/isReverted',
+      tokens0: 'swap/tokens0',
+      tokens1: 'swap/tokens1'
     }),
 
     price() {
@@ -149,7 +151,6 @@ export default {
 
       const amount_in = get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee)
       const amount_min_input = amount_in.minus(amount_out.multiply(30).divide(1000))
-
 
       this.inputAmount = parseFloat(asset(amount_in, reserve_in.symbol).to_string()).toFixed(this.input.precision)
       this.minOutput = asset(amount_min_input, symbol(this.output.symbol, this.output.precision)).to_string()

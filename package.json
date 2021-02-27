@@ -59,6 +59,7 @@
     "socket.io-client": "^2.3.0",
     "trading-vue-js": "^0.6.1",
     "vue-apexcharts": "^1.6.0",
+    "vue-click-outside": "^1.1.0",
     "vue-github-buttons": "^3.1.0",
     "vue-moment": "^4.0.0",
     "vue-socket.io": "^3.0.10",

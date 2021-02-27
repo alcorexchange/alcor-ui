@@ -1,16 +1,14 @@
 <template lang="pug">
 .row.mt-3
   .col-lg-4
-    el-card.mb-3
+    el-card.mb-3.swap-card
       el-radio-group(v-model="tab" size="small").el-radio-full-width
         el-radio-button(label='Swap')
-        el-radio-button(label='Liquidity+')
-        el-radio-button(label='Liquidity-')
+        el-radio-button(label='+ Liquidity')
+        el-radio-button(label='- Liquidity')
 
       keep-alive
-        component(v-bind:is="tab")
-      // FIXME Инфинит луп на компьютед если кип элайв, рассчет эрнингов
-      //component(v-bind:is="tab")
+        component(v-bind:is="tabComponent")
   .col-lg-8
     .pools-chart(v-if="tab == 'Swap'")
       el-card.h-100
@@ -23,14 +21,16 @@
 <script>
 import Swap from '~/components/swap/Swap.vue'
 import Chart from '~/components/swap/Chart.vue'
-import Liquidity from '~/components/swap/Liquidity.vue'
+import AddLiquidity from '~/components/swap/AddLiquidity.vue'
+import RemoveLiquidity from '~/components/swap/RemoveLiquidity.vue'
 import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
 
 export default {
   components: {
     Swap,
     Chart,
-    Liquidity,
+    AddLiquidity,
+    RemoveLiquidity,
     LiquidityPositions
   },
 
@@ -44,6 +44,15 @@ export default {
     }
   },
 
+  computed: {
+    tabComponent() {
+      if (this.tab == '+ Liquidity') return 'AddLiquidity'
+      if (this.tab == '- Liquidity') return 'RemoveLiquidity'
+
+      return 'Swap'
+    }
+  },
+
   methods: {
     changeTab() {
       console.log('change tab..', this.tab)
@@ -53,6 +62,10 @@ export default {
 </script>
 
 <style lang="scss">
+.el-card.swap-card {
+  overflow: visible;
+}
+
 .pools-chart {
   height: calc(100% - 16px);
 

@@ -8,20 +8,20 @@
           small.text-mutted.small.ml-auto {{ inputBalance }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="amount1" :token="0" @input="amount1Input")
+        SelectToken(v-model="amount1" :tokens="tokens0" :token="0" @input="amount1Input")
 
     .row.mt-3
       .col.text-center
         //i.el-icon-bottom.lead.pointer(@click="toggleInputs")
         i.el-icon-bottom.lead
-    .row
+    .row.mt-1
       .col
         .d-flex.mb-1
           small.text-muted Asset 2
           small.text-mutted.small.ml-auto {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="amount2" :token="1" @input="amount2Input")
+        SelectToken(v-model="amount2" :tokens="tokens1" :token="1" @input="amount2Input")
 
     .row.mt-4
       .col(v-if="amount1 && amount2")
@@ -29,6 +29,23 @@
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
 
+    .row.mt-3
+      .col
+        .d-flex.justify-content-between
+          small Position (LP-T)
+          b.small {{ tokenReceive }}
+
+        .d-flex.justify-content-between
+          small Pool Share
+          b.small {{ poolShare  }}%
+
+        .d-flex.justify-content-between(v-if="this.current")
+          small Asset 1
+          b.small {{ this.current.pool1.quantity }}
+
+        .d-flex.justify-content-between(v-if="this.current")
+          small Asset 2
+          b.small {{ this.current.pool2.quantity }}
 </template>
 
 <script>
@@ -68,19 +85,30 @@ export default {
       inputBalance: 'swap/inputBalance',
       outputBalance: 'swap/outputBalance',
       poolOne: 'swap/poolOne',
-      poolTwo: 'swap/poolTwo'
+      poolTwo: 'swap/poolTwo',
+      tokens0: 'swap/tokens0',
+      tokens1: 'swap/tokens1'
     }),
 
     tokenReceive() {
+      if (!this.amount1 || !this.amount2) return BigCommon(0)
+
       const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision()).amount
       const amount2 = this.inputToAsset(this.amount2, this.poolTwo.quantity.symbol.precision()).amount
 
       const liquidity1 = amount1.multiply(this.current.supply.amount).divide(this.poolOne.quantity.amount)
       const liquidity2 = amount2.multiply(this.current.supply.amount).divide(this.poolTwo.quantity.amount)
 
-      const to_buy = BigCommon.min(liquidity1, liquidity2)
+      return asset(BigCommon.min(liquidity1, liquidity2), this.current.supply.symbol)
+    },
 
-      return to_buy
+    poolShare() {
+      if (!this.current) return '0.00'
+
+      const receive = parseFloat(asset(this.tokenReceive, this.current.supply.symbol))
+      const supply = parseFloat(this.current.supply) + receive
+
+      return ((receive * 100) / supply).toFixed(2)
     },
 
     poolPrice() {
@@ -173,7 +201,7 @@ export default {
       const amount1 = asset(`${this.amount1} ${this.poolOne.quantity.symbol.code().to_string()}`).to_string()
       const amount2 = asset(`${this.amount2} ${this.poolTwo.quantity.symbol.code().to_string()}`).to_string()
 
-      const to_buy = asset(BigCommon(this.tokenReceive.toString()), this.current.supply.symbol).to_string()
+      const to_buy = this.tokenReceive.to_string()
 
       const actions = [
         {

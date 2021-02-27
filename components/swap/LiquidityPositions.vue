@@ -26,8 +26,9 @@
 
                 .ml-auto
                   el-button(size="small" type="success" icon="el-icon-plus" @click="addLiquidity(scope.row)")
+                  el-button(size="small" type="primary" icon="el-icon-minus" @click="addLiquidity(scope.row)")
                   //el-button(size="small" type="info" icon="el-icon-minus")
-                  withdraw.ml-2
+                  //withdraw.ml-2
 </template>
 
 <script>
@@ -35,12 +36,10 @@ import { asset, number_to_asset } from 'eos-common'
 
 import { mapGetters, mapState } from 'vuex'
 import Create from '~/components/swap/Create.vue'
-import Withdraw from '~/components/swap/Withdraw.vue'
 
 export default {
   components: {
-    Create,
-    Withdraw
+    Create
   },
 
   data() {

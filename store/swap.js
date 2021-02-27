@@ -137,7 +137,6 @@ export const getters = {
     const pair = state.pairs.filter(p => {
       if (!state.input || !state.output) return null
 
-      console.log('current pair updated...')
       return (
         p.pool1.contract == state.input.contract &&
         p.pool1.quantity.symbol.code().to_string() == state.input.symbol &&
@@ -177,18 +176,6 @@ export const getters = {
     } else {
       return current.pool1
     }
-  },
-
-  pools(state) {
-    return state.pools.map(pool => {
-      const p = JSON.parse(JSON.stringify(pool))
-
-      p.pool1.quantity = asset(pool.pool1.quantity)
-      p.pool2.quantity = asset(pool.pool2.quantity)
-      p.supply = asset(pool.supply)
-
-      return p
-    })
   },
 
   inputBalance(state, getters, rootState) {

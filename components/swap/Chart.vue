@@ -136,6 +136,7 @@ export default {
 
   methods: {
     fetchCharts() {
+      // FIXME No animation on updating
       if (this.pair) {
         this.$store.getters['api/backEnd'].get(`/api/pools/${this.pair.id}/line_chart`, {
           params: {
