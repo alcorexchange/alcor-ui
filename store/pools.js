@@ -1,5 +1,5 @@
 import { asset } from 'eos-common'
-import { preparePool } from '~/utils/pools'
+import { preparePair } from '~/utils/pools'
 
 export const state = () => ({
   pools: [],
@@ -27,7 +27,7 @@ export const actions = {
 
     const pools = getters.pools.map(p => {
       if (p.supply.symbol.code().to_string() == sym) {
-        return preparePool(pool)
+        return preparePair(pool)
       }
 
       return p

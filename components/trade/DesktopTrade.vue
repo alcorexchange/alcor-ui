@@ -58,7 +58,6 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import AssetImput from '~/components/elements/AssetInput'
 
 import MarketTrade from '~/components/trade/MarketTrade'
 import LimitTrade from '~/components/trade/LimitTrade'
@@ -75,7 +74,6 @@ export default {
   layout: 'embed',
 
   components: {
-    AssetImput,
     MarketTrade,
     MyHistory,
     MyOrders,
