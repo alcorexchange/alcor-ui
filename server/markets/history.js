@@ -45,6 +45,7 @@ export async function getMarketStats(network, market_id) {
 }
 
 export async function updateMarkets(network) {
+  console.log('update market for ', network.name)
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
   const { rows } = await rpc.get_table_rows({
