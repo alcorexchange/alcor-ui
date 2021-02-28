@@ -28,14 +28,15 @@ export async function streamByNode(network, app, account, callback, actions) {
 
     for (const a of r.actions.map(a => a.action_trace)) {
       console.log('new action in streamer node', a.block_time)
+      offset += 1
+
       if (actions.includes(a.act.name)) {
         await callback(a, network, app)
-      }
 
-      offset += 1
-      console.log('offset', offset, network.name)
-      settings.actions_stream_offset[account] = offset
-      await Settings.updateOne({ chain: network.name }, { $set: { actions_stream_offset: settings.actions_stream_offset } })
+        console.log('offset', offset, network.name)
+        settings.actions_stream_offset[account] = offset
+        await Settings.updateOne({ chain: network.name }, { $set: { actions_stream_offset: settings.actions_stream_offset } })
+      }
     }
 
     if (r.actions.length < 100) {
