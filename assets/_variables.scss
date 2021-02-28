@@ -5,14 +5,18 @@
     --color-danger: #B82C0D;
     --color-white: #F3FAFC;
     --color-text-secondary: #5A5356;
+
     --background-color-base: #F3FAFC;
     --border-color: #dadbdc;
+    --background-color-secondary: #e6eef1;
 
     --active-row: #c2deff;
 }
 
 .theme-dark {
     --background-color-base: #192427;
+    --background-color-secondary: #9eaba3;
+
     --color-primary: #9EABA3;
     --color-text-primary: var(--color-primary);
     --border-color: #3F4144;

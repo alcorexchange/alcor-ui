@@ -1,22 +1,43 @@
 <template lang="pug">
-.row.justify-content-center.mt-3
-  .col-lg-6
-    el-card
-      .lead Swap tokens using Defibox
-      //el-radio-group(v-model="tab").el-radio-full-width
+.row.mt-3
+  .col-lg-4
+    el-card.mb-3.swap-card
+      el-radio-group(v-model="tab" size="small").el-radio-full-width
         el-radio-button(label='Swap')
-        el-radio-button(label='Liquidity')
+        el-radio-button(label='+ Liquidity')
+        el-radio-button(label='- Liquidity')
 
-      swap(v-if="tab == 'Swap'")
+      keep-alive
+        component(v-bind:is="tabComponent")
+  .col-lg-8
+    .pools-chart(v-if="tab == 'Swap'")
+      el-card.h-100
+        Chart(:tab="chart_tab").h-100
+
+        .px-2
+          el-radio-group(v-model="chart_tab" size="small")
+            el-radio-button(label='Price')
+            el-radio-button(label='Liquidity')
+            el-radio-button(label='Volume')
+    el-card(v-else)
+      LiquidityPositions
 
 </template>
 
 <script>
 import Swap from '~/components/swap/Swap.vue'
+import Chart from '~/components/swap/Chart.vue'
+import AddLiquidity from '~/components/swap/AddLiquidity.vue'
+import RemoveLiquidity from '~/components/swap/RemoveLiquidity.vue'
+import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
 
 export default {
   components: {
-    Swap
+    Swap,
+    Chart,
+    AddLiquidity,
+    RemoveLiquidity,
+    LiquidityPositions
   },
 
   fetch({ store }) {
@@ -25,11 +46,39 @@ export default {
 
   data() {
     return {
-      tab: 'Swap'
+      tab: 'Swap',
+      chart_tab: 'Price'
+    }
+  },
+
+  computed: {
+    tabComponent() {
+      if (this.tab == '+ Liquidity') return 'AddLiquidity'
+      if (this.tab == '- Liquidity') return 'RemoveLiquidity'
+
+      return 'Swap'
+    }
+  },
+
+  methods: {
+    changeTab() {
+      console.log('change tab..', this.tab)
     }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+.el-card.swap-card {
+  overflow: visible;
+}
+
+.pools-chart {
+  height: calc(100% - 16px);
+
+  .el-card__body {
+    height: calc(100% - 35px);
+    padding: 5px;
+  }
+}
 </style>

@@ -1,9 +1,22 @@
 import { asset } from 'eos-common'
 
-export function computeForward(x, y, z, fee) {
-  //const tmp = x.multiply(-1).multiply(z).divide(y.plus(x))
-  //return tmp.plus(tmp.multiply(-1).multiply(fee).plus(9999).divide(10000)).abs()
+export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 10) {
+  const amount_in_with_fee = amount_in.multiply(10000 - fee)
+  const numerator = amount_in_with_fee.multiply(reserve_out)
+  const denominator = reserve_in.multiply(10000).add(amount_in_with_fee)
 
+  return numerator.divide(denominator)
+}
+
+export function get_amount_in(amount_out, reserve_in, reserve_out, fee = 10) {
+  const numerator = reserve_in.multiply(amount_out).multiply(10000)
+  const denominator = reserve_out.minus(amount_out).multiply(10000 - fee)
+  const amount_in = numerator.divide(denominator).plus(1)
+
+  return amount_in
+}
+
+export function computeForward(x, y, z, fee) {
   const prod = x.multiply(y)
   let tmp, tmp_fee
 
@@ -32,10 +45,10 @@ export function calcPrice(a, b) {
   return (a.amount / b.amount) / (10 ** diff_precision)
 }
 
-export function preparePool(pool) {
-  pool.pool1.quantity = asset(pool.pool1.quantity)
-  pool.pool2.quantity = asset(pool.pool2.quantity)
-  pool.supply = asset(pool.supply)
+export function preparePair(pair) {
+  pair.pool1.quantity = asset(pair.pool1.quantity)
+  pair.pool2.quantity = asset(pair.pool2.quantity)
+  pair.supply = asset(pair.supply)
 
-  return pool
+  return pair
 }

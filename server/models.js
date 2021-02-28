@@ -1,5 +1,43 @@
 import mongoose from 'mongoose'
+// Liquidity pools
+export const Liquidity = mongoose.models.Match || mongoose.model('Liquidity', mongoose.Schema({
+  chain: { type: String, index: true },
+  pair_id: { type: Number, index: true },
+  trx_id: { type: String },
 
+  owner: { type: String, index: true },
+
+  lp_token: { type: Number },
+  liquidity1: { type: Number },
+  liquidity2: { type: Number },
+
+  pool1: { type: Number },
+  pool2: { type: Number },
+
+  supply: { type: Number },
+
+  time: { type: Date, index: true },
+  block_num: { type: Number }
+}))
+
+export const Exchange = mongoose.models.Match || mongoose.model('Exchange', mongoose.Schema({
+  chain: { type: String, index: true },
+  pair_id: { type: Number, index: true },
+  trx_id: { type: String },
+
+  maker: { type: String, index: true },
+
+  quantity_in: { type: Number },
+  quantity_out: { type: Number },
+
+  pool1: { type: Number },
+  pool2: { type: Number },
+
+  time: { type: Date, index: true },
+  block_num: { type: Number }
+}))
+
+// Limit trading
 export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.Schema({
   chain: { type: String, index: true },
   market: { type: Number, index: true }, // TODO потом сделать табличку с маркетами
@@ -29,23 +67,25 @@ export const Bar = mongoose.models.Bar || mongoose.model('Bar', mongoose.Schema(
   time: { type: Date, index: true }
 }))
 
-const Settings = mongoose.models.Settings || mongoose.model('Settings', mongoose.Schema({
+export const Settings = mongoose.models.Settings || mongoose.model('Settings', mongoose.Schema({
   chain: { type: String },
-  actions_stream_offset: { type: Number, default: 0 }
+  actions_stream_offset: { type: Object, default: {} }
 }))
 
 export async function getSettings(network) {
-  let actions_stream_offset = 0
+  const actions_stream_offset = {}
 
   if (network.name == 'bos') {
-    actions_stream_offset = 106
+    actions_stream_offset.alcordexmain = 106
   }
 
   try {
     let settings = await Settings.findOne({ chain: network.name })
 
     if (!settings) {
+      console.log('creating settings')
       settings = await Settings.create({ chain: network.name, actions_stream_offset })
+      console.log('created..')
     }
 
     return settings

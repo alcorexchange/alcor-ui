@@ -125,8 +125,9 @@ export default {
     menuItems() {
       const items = []
 
+      //items.push({ index: '/swap', name: 'Swap' })
       items.push({ index: '/markets', name: 'Markets' })
-      items.push({ index: '/defi/swap', name: 'DeFi' })
+      //items.push({ index: '/defi/swap', name: 'DeFi' })
 
       //if (['eos'].includes(this.$store.state.network.name)) {
       //  items.push({ index: '/swap', name: 'Swap' })

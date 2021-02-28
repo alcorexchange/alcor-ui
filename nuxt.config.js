@@ -87,7 +87,8 @@ module.exports = {
 
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/TradingVue.js' },
-    { ssr: false, src: '~/plugins/localStorage.js' }
+    { ssr: false, src: '~/plugins/localStorage.js' },
+    //{ ssr: false, src: '~/plugins/vue-apexchart.js' }
   ],
 
   /*
@@ -138,6 +139,8 @@ module.exports = {
   ** Build configuration
   */
   build: {
+    //vendor: ['vue-apexchart'],
+
     /*
     ** You can extend webpack config here
     */

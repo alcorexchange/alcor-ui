@@ -2,9 +2,8 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import { JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
-import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 
-import { Match, getSettings } from '../models'
+import { Match } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
@@ -19,28 +18,6 @@ export function getMatches(network) {
   const history = cache.get(`${network.name}_history`) || []
 
   return history.filter(m => ['sellmatch', 'buymatch'].includes(m.act.name))
-}
-
-export function updater(chain, app, hyperion = true) {
-  const network = config.networks[chain]
-
-
-  // First call immidiatelly to fetch available markets
-  updateMarkets(network)
-
-  if (hyperion) {
-    console.info(`Start ${chain} updater(hyperion)...`)
-    streamHistory(network, app)
-  } else {
-    console.info(`Start ${chain} updater(node)...`)
-    streamByNode(network, app)
-  }
-
-  updateMarkets(network).then(() => {
-    setInterval(() => {
-      updateMarkets(network)
-    }, 5 * 60 * 1000)
-  })
 }
 
 export async function getMarketStats(network, market_id) {
@@ -67,7 +44,7 @@ export async function getMarketStats(network, market_id) {
   return stats
 }
 
-async function updateMarkets(network) {
+export async function updateMarkets(network) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
   const { rows } = await rpc.get_table_rows({
@@ -105,80 +82,7 @@ async function updateMarkets(network) {
   }
 }
 
-async function streamByNode(network, app) {
-  // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
-  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
-  const settings = await getSettings(network)
-  const filter = config.CONTRACT_ACTIONS
-
-  console.log('start fetching actions by node from', settings.actions_stream_offset, 'for ', network.name)
-  while (true) {
-    let r
-    try {
-      r = await rpc.history_get_actions(network.contract, settings.actions_stream_offset, 100)
-    } catch (e) {
-      console.log('getActionsByNode err: ', e.message)
-      await new Promise((resolve, reject) => setTimeout(resolve, 2000))
-      continue
-    }
-
-    for (const a of r.actions.map(a => a.action_trace)) {
-      if (filter.includes(a.act.name)) {
-        await newMatch(a, network, app)
-      }
-
-      settings.actions_stream_offset += 1
-      await settings.save()
-    }
-
-    if (r.actions.length < 100) {
-      await new Promise((resolve, reject) => setTimeout(resolve, 500))
-    }
-  }
-}
-
-export function streamHistory(network, app) {
-  const client = new HyperionSocketClient(network.hyperion, { async: true, fetch })
-  client.onConnect = async () => {
-    const last_buy_match = await Match.findOne({ chain: network.name, type: 'buymatch' }, {}, { sort: { block_num: -1 } })
-    const last_sell_match = await Match.findOne({ chain: network.name, type: 'sellmatch' }, {}, { sort: { block_num: -1 } })
-
-    client.streamActions({
-      contract: network.contract,
-      action: 'sellmatch',
-      account: network.contract,
-      start_from: last_sell_match ? last_sell_match.block_num + 1 : 1,
-      read_until: 0,
-      filters: []
-    })
-
-    client.streamActions({
-      contract: network.contract,
-      action: 'buymatch',
-      account: network.contract,
-      start_from: last_buy_match ? last_buy_match.block_num + 1 : 1,
-      read_until: 0,
-      filters: []
-    })
-
-    // Other actions
-    client.streamActions({ contract: network.contract, action: 'sellreceipt', account: network.contract })
-    client.streamActions({ contract: network.contract, action: 'buyreceipt', account: network.contract })
-    client.streamActions({ contract: network.contract, action: 'cancelsell', account: network.contract })
-    client.streamActions({ contract: network.contract, action: 'cancelbuy', account: network.contract })
-  }
-
-  client.onData = async ({ content }, ack) => {
-    await newMatch(content, network, app)
-    ack()
-  }
-
-  client.connect(() => {
-    console.log(`Start streaming for ${network.name}..`)
-  })
-}
-
-async function newMatch(match, network, app) {
+export async function newMatch(match, network, app) {
   const { trx_id, block_num, act: { name, data } } = match
 
   const io = app.get('io')

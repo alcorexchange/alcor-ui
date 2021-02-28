@@ -29,6 +29,20 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
     .toLocaleString('en', { minimumFractionDigits: Math.min(MIN_DIGITS, parseFloat(precision)), maximumFractionDigits: MAX_DIGITS })
 })
 
+Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
+  const user = this.$store.state.user
+
+  if (user && user.balances) {
+    const balance = user.balances.filter(b => b.currency == symbol.toUpperCase() && b.contract == contract)[0]
+
+    if (balance) {
+      return full ? balance.amount : balance.amount
+    }
+  }
+
+  return '0.0000'
+}
+
 Vue.prototype.$tokenLogo = function(symbol, contract) {
   const network = this.$store.state.network.name
 

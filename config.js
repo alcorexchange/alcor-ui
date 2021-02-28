@@ -368,6 +368,47 @@ const networks = {
     }
   },
 
+  waxtest: {
+    name: 'waxtest',
+    desc: 'Wax testnet',
+    contract: 'alcordexswap',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'WAX',
+      precision: 8
+    },
+    marketCreationFee: '3.00000000 WAX',
+    feeAccount: '',
+
+    chainId: 'f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12',
+    host: 'waxtestnet.greymass.com',
+    port: 443,
+    protocol: 'https',
+    monitor: 'http://jungle3.bloks.io',
+    monitor_params: '',
+    lightapi: 'https://api.light.xeos.me',
+    hyperion: 'https://jungle3.cryptolions.io/',
+    backEnd: 'http://localhost:8000/api/',
+
+    otc: {
+      contract: 'wwweosswapio',
+      divs: 'eosswapdivs1'
+    },
+
+    pools: {
+      contract: 'alcordexswap',
+      fee: 'evodextester'
+    },
+
+    withdraw: {},
+    RECOMMENDED_MARKETS: [],
+    SCAM_CONTRACTS: ['usdcoinchain'],
+
+    nftMarket: {
+      contract: 'alcornftswap'
+    }
+  },
 
   jungle: {
     name: 'jungle',
@@ -383,7 +424,7 @@ const networks = {
     feeAccount: 'avral.pro',
 
     chainId: '2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840',
-    host: 'api.jungle3.alohaeos.com',
+    host: 'jungle3.greymass.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://jungle3.bloks.io',
@@ -392,23 +433,13 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
-    //chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
-    //host: 'api.jungle.alohaeos.com',
-    //port: 443,
-    //protocol: 'https',
-    //monitor: 'http://jungle.bloks.io',
-    //monitor_params: '',
-    //lightapi: 'https://lightapi.eosgeneva.io',
-    //hyperion: 'https://api.jungle.hyperion.greeneosio.com/v2/',
-    //backEnd: 'http://localhost:8000/api/',
-
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1'
     },
 
     pools: {
-      contract: 'evolutiondex',
+      contract: 'alcorpoolsex',
       fee: 'evodextester'
     },
 
@@ -434,8 +465,8 @@ const networks = {
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'avral.pro',
 
-    chainId: '5f2afc94d00f0b9442398a2a843e8ef6fd9fc375532b36a93da95219f656580d',
-    host: '140.82.56.143',
+    chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
+    host: '127.0.0.1',
     port: 8888,
     protocol: 'http',
     monitor: 'http://jungle.bloks.io',
@@ -450,7 +481,7 @@ const networks = {
     },
 
     pools: {
-      contract: 'vpools'
+      contract: 'pools'
     },
 
     withdraw: {},

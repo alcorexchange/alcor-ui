@@ -18,13 +18,13 @@ div
 
               el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
                 el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
-                  el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
+                  //el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
                             :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
                     TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
                     span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
                   // Only system token might be as base toekn of the pool
-                  //el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                  el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
                     TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
                     span.ml-3 {{ b.id }}
                     span.float-right {{ `${b.amount} ${b.currency}` }}
@@ -149,24 +149,6 @@ export default {
 
       const actions = [
         {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.base.contract, sym: `${this.base.decimals},${this.base.currency}` }
-          }
-        }, {
-          account: this.network.pools.contract,
-          name: 'openext',
-          authorization,
-          data: {
-            user: this.user.name,
-            payer: this.user.name,
-            ext_symbol: { contract: this.quote.contract, sym: `${this.quote.decimals},${this.quote.currency}` }
-          }
-        }, {
           account: this.base.contract,
           name: 'transfer',
           authorization,
@@ -174,10 +156,9 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: `${this.amount1} ${this.base.currency}`,
-            memo: ''
+            memo: 'deposit'
           }
-        },
-        {
+        }, {
           account: this.quote.contract,
           name: 'transfer',
           authorization,
@@ -185,18 +166,18 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: `${this.amount2} ${this.quote.currency}`,
-            memo: ''
+            memo: 'deposit'
           }
-        }, {
+        },
+        {
           account: this.network.pools.contract,
           name: 'inittoken',
           authorization,
           data: {
             user: this.user.name,
-            new_symbol: this.tokenSymbol,
             initial_pool1: { contract: this.base.contract, quantity: `${this.amount1} ${this.base.currency}` },
             initial_pool2: { contract: this.quote.contract, quantity: `${this.amount2} ${this.quote.currency}` },
-            initial_fee: 10,
+            initial_fee: 30,
             fee_contract: this.network.pools.fee
           }
         }
@@ -219,10 +200,12 @@ export default {
       this.loading = true
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.$store.dispatch('swap/getPairs', actions)
+
         this.$notify({ title: 'Pool create', message: 'Created', type: 'success' })
         this.visible = false
-        this.$store.dispatch('pools/fetchPools')
       } catch (e) {
+        console.log(e)
         this.$notify({ title: 'Pool create', message: e, type: 'error' })
       } finally {
         this.loading = false

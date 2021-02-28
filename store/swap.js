@@ -1,5 +1,5 @@
 import { asset } from 'eos-common'
-import { preparePool } from '~/utils/pools'
+import { preparePair } from '~/utils/pools'
 
 export const state = () => ({
   pairs: [],
@@ -16,76 +16,62 @@ export const mutations = {
 
 export const actions = {
   init({ state, commit, dispatch, rootState }) {
-    if (rootState.network.name == 'eos') dispatch('getPairs')
+    dispatch('getPairs')
     commit('setInput', rootState.network.baseToken)
   },
 
-  async getPairs({ commit, rootGetters }) {
+  toggleInputs({ state, commit }) {
+    if (!state.output) return
+
+    const i = Object.assign({}, state.input)
+    const o = Object.assign({}, state.output)
+
+    commit('setInput', o)
+    commit('setOutput', i)
+  },
+
+  async getPairs({ commit, rootState, rootGetters }) {
     const { rows } = await rootGetters['api/rpc'].get_table_rows({
-      code: 'swap.defi',
-      scope: 'swap.defi',
+      code: rootState.network.pools.contract,
+      scope: rootState.network.pools.contract,
       table: 'pairs',
       limit: 1000
     })
 
     rows.map(r => {
-      r.reserve0 = asset(r.reserve0)
-      r.reserve1 = asset(r.reserve1)
+      r.pool1.quantity = asset(r.pool1.quantity)
+      r.pool2.quantity = asset(r.pool2.quantity)
+      r.supply = asset(r.supply)
+      r.name = r.pool1.quantity.symbol.code().to_string() + '/' + r.pool2.quantity.symbol.code().to_string()
     })
 
     commit('setPairs', rows)
   },
 
-  async updatePool({ state, getters, commit, rootGetters, rootState }) {
-    const sym = JSON.parse(JSON.stringify(state.current_sym))
+  async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
+    console.log('updatePair...')
+    if (!this._vm.$nuxt.$route.name.includes('swap')) return
 
-    if (!this._vm.$nuxt.$route.name.includes('pools')) return
-
-    const { rows: [pool] } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows: [new_pair] } = await rootGetters['api/rpc'].get_table_rows({
       code: rootState.network.pools.contract,
-      scope: sym,
-      table: 'stat',
+      scope: rootState.network.pools.contract,
+      table: 'pairs',
       limit: 1
     })
 
-    const pools = getters.pools.map(p => {
-      if (p.supply.symbol.code().to_string() == sym) {
-        return preparePool(pool)
-      }
-
-      return p
-    })
-
-    commit('setPools', pools)
-  },
-
-  async fetchPools({ state, commit, rootGetters, rootState }) {
-    const { rows } = await rootGetters['api/rpc'].get_table_by_scope({
-      code: rootState.network.pools.contract,
-      table: 'stat',
-      limit: 1000
-    })
-
-    const requests = rows.map(r => {
-      return rootGetters['api/rpc'].get_table_rows({
-        code: rootState.network.pools.contract,
-        scope: r.scope,
-        table: 'stat',
-        limit: 1
-      })
-    })
-
-    const pools = (await Promise.all(requests)).reverse().map(r => {
-      const [pool] = r.rows
-
-      return pool
-    }).filter(p => p.pool1.contract != 'yuhjtmanserg')
-
-    if (state.pools.length == 0 && pools.length > 0) {
-      commit('setCurrentSym', pools[0].supply.split(' ')[1])
+    if (!new_pair) {
+      return console.log('Not found pair for update: ', pair_id)
     }
 
-    commit('setPools', pools)
+    const pairs = state.pairs
+    for (let i = 0; i < pairs.length; i++) {
+      if (pairs[i].id == pair_id) {
+        this._vm.$set(state.pairs, new_pair.id, preparePair(new_pair))
+        return
+      }
+    }
+
+    console.log('not updated pair: ', pair_id)
   }
 }
 
@@ -95,17 +81,17 @@ export const getters = {
 
     state.pairs.map(p => {
       let token = {
-        symbol: p.token0.symbol.split(',')[1],
-        precision: parseFloat(p.token0.symbol.split(',')[0]),
-        contract: p.token0.contract
+        symbol: p.pool1.quantity.symbol.code().to_string(),
+        precision: p.pool1.quantity.symbol.precision(),
+        contract: p.pool1.contract
       }
 
       if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
 
       token = {
-        symbol: p.token1.symbol.split(',')[1],
-        precision: parseFloat(p.token1.symbol.split(',')[0]),
-        contract: p.token1.contract
+        symbol: p.pool2.quantity.symbol.code().to_string(),
+        precision: p.pool2.quantity.symbol.precision(),
+        contract: p.pool2.contract
       }
 
       if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
@@ -115,27 +101,29 @@ export const getters = {
   },
 
   tokens1(state, getters, rootState) {
-    const tokens = [rootState.network.baseToken] // Base token as default
+    const tokens = [rootState.network.baseToken]
+
+    if (!state.input) return getters.tokens0
 
     for (const p of state.pairs) {
-      const symbol_t0 = p.token0.symbol.split(',')[1]
-      const symbol_t1 = p.token1.symbol.split(',')[1]
+      const symbol_t0 = p.pool1.quantity.symbol.code().to_string()
+      const symbol_t1 = p.pool2.quantity.symbol.code().to_string()
 
-      if (p.token0.contract == state.input.contract && symbol_t0 == state.input.symbol) {
+      if (p.pool1.contract == state.input.contract && symbol_t0 == state.input.symbol) {
         const token = {
-          symbol: p.token1.symbol.split(',')[1],
-          precision: parseFloat(p.token1.symbol.split(',')[0]),
-          contract: p.token1.contract
+          symbol: p.pool2.quantity.symbol.code().to_string(),
+          precision: p.pool2.quantity.symbol.precision(),
+          contract: p.pool2.contract
         }
 
         if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
       }
 
-      if (p.token1.contract == state.input.contract && symbol_t1 == state.input.symbol) {
+      if (p.pool2.contract == state.input.contract && symbol_t1 == state.input.symbol) {
         const token = {
-          symbol: p.token0.symbol.split(',')[1],
-          precision: parseFloat(p.token0.symbol.split(',')[0]),
-          contract: p.token0.contract
+          symbol: p.pool1.quantity.symbol.code().to_string(),
+          precision: p.pool1.quantity.symbol.precision(),
+          contract: p.pool1.contract
         }
 
         if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
@@ -145,40 +133,53 @@ export const getters = {
     return tokens
   },
 
-  pair(state) {
+  current(state) {
     const pair = state.pairs.filter(p => {
       if (!state.input || !state.output) return null
 
       return (
-        p.token0.contract == state.input.contract &&
-        p.reserve0.symbol.code().to_string() == state.input.symbol &&
-        p.token1.contract == state.output.contract &&
-        p.reserve1.symbol.code().to_string() == state.output.symbol
+        p.pool1.contract == state.input.contract &&
+        p.pool1.quantity.symbol.code().to_string() == state.input.symbol &&
+        p.pool2.contract == state.output.contract &&
+        p.pool2.quantity.symbol.code().to_string() == state.output.symbol
       ) || (
-        p.token1.contract == state.input.contract &&
-        p.reserve1.symbol.code().to_string() == state.input.symbol &&
-        p.token0.contract == state.output.contract &&
-        p.reserve0.symbol.code().to_string() == state.output.symbol
+        p.pool2.contract == state.input.contract &&
+        p.pool2.quantity.symbol.code().to_string() == state.input.symbol &&
+        p.pool1.contract == state.output.contract &&
+        p.pool1.quantity.symbol.code().to_string() == state.output.symbol
       )
     })[0]
 
-    return pair || null
+    return pair
   },
 
-  pools(state) {
-    return state.pools.map(pool => {
-      const p = JSON.parse(JSON.stringify(pool))
+  isReverted(state, { current }) {
+    if (!current) return false
+    return !(current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol)
+  },
 
-      p.pool1.quantity = asset(pool.pool1.quantity)
-      p.pool2.quantity = asset(pool.pool2.quantity)
-      p.supply = asset(pool.supply)
+  poolOne(state, { current }) {
+    if (!current) return null
 
-      return p
-    })
+    if (current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol) {
+      return current.pool1
+    } else {
+      return current.pool2
+    }
+  },
+
+  poolTwo(state, { current }) {
+    if (!current) return null
+
+    if (current.pool1.contract == state.input.contract && current.pool1.quantity.symbol.code().to_string() == state.input.symbol) {
+      return current.pool2
+    } else {
+      return current.pool1
+    }
   },
 
   inputBalance(state, getters, rootState) {
-    if (!rootState.user || !rootState.user.balances) {
+    if (!rootState.user || !rootState.user.balances || !state.input) {
       if (state.input) {
         return '0.0000 ' + state.input.symbol
       } else {
@@ -195,19 +196,19 @@ export const getters = {
     return `${balance.amount} ${balance.currency}`
   },
 
-  quoteBalance(state, getters, rootState) {
-    if (!rootState.user || !rootState.user.balances) {
+  outputBalance(state, getters, rootState) {
+    if (!rootState.user || !rootState.user.balances || !state.output) {
       if (getters.current) {
-        return asset(0, getters.current.pool2.quantity.symbol).to_string()
+        return '0.0000 ' + state.output.symbol
       }
 
-      return '0.0000 '
+      return '0.0000'
     }
 
     const balance = rootState.user.balances.filter(b => {
-      return b.currency === getters.current.pool2.quantity.symbol.code().to_string() && b.contract == getters.current.pool2.contract
+      return b.currency === state.output.symbol && b.contract == state.output.contract
     })[0]
-    if (!balance) return asset(0, getters.current.pool2.quantity.symbol).to_string()
+    if (!balance) return '0.0000 ' + state.output.symbol
 
     return `${balance.amount} ${balance.currency}`
   }

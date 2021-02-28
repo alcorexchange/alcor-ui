@@ -2,7 +2,7 @@
 footer
   .mt-3
     .row.mt-5
-      .col-lg-6
+      .col-lg-5
         img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack2.svg" height="55").logo
         img(v-else src="~/assets/logos/alcorwhite2.svg" height="55").logo
       .col-lg-2
@@ -26,7 +26,7 @@ footer
             b
               a(href="https://avral.pro" target="_blank")  #Avral
 
-      .col-lg-2
+      .col-lg-3
         ul.nav.footer-column
           li.nav-item
             span.footer-title Support & Business offers
