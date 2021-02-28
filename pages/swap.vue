@@ -12,7 +12,13 @@
   .col-lg-8
     .pools-chart(v-if="tab == 'Swap'")
       el-card.h-100
-        Chart.h-100
+        Chart(:tab="chart_tab").h-100
+
+        .px-2
+          el-radio-group(v-model="chart_tab" size="small")
+            el-radio-button(label='Price')
+            el-radio-button(label='Liquidity')
+            el-radio-button(label='Volume')
     el-card(v-else)
       LiquidityPositions
 
@@ -40,7 +46,8 @@ export default {
 
   data() {
     return {
-      tab: 'Swap'
+      tab: 'Swap',
+      chart_tab: 'Price'
     }
   },
 
@@ -70,7 +77,7 @@ export default {
   height: calc(100% - 16px);
 
   .el-card__body {
-    height: 100%;
+    height: calc(100% - 35px);
     padding: 5px;
   }
 }

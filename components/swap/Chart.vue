@@ -12,6 +12,8 @@ export default {
     VueApexCharts: () => import('vue-apexcharts')
   },
 
+  props: ['tab'],
+
   data () {
     return {
       width: '100%',
@@ -123,26 +125,34 @@ export default {
       this.fetchCharts()
     },
 
+    tab() {
+      this.fetchCharts()
+    },
+
     isReverted() {
       this.fetchCharts()
     }
   },
 
   mounted() {
-    console.log(this.$refs.chartdiv)
-    //this.height = this.$refs.chartdiv.offsetHeight
     this.fetchCharts()
   },
 
   methods: {
     fetchCharts() {
-      // FIXME No animation on updating
+      const API = {
+        Price: 'line_chart',
+        Liquidity: 'liquidity_chart',
+        Volume: 'volume_chart'
+      }[this.tab]
+
       if (this.pair) {
-        this.$store.getters['api/backEnd'].get(`/api/pools/${this.pair.id}/line_chart`, {
+        this.$store.getters['api/backEnd'].get(`/api/pools/${this.pair.id}/${API}`, {
           params: {
             reverse: this.isReverted
           }
         }).then(({ data }) => {
+          // FIXME No animation on updating
           this.$refs.chart.updateOptions({ series: [{ name: this.pair.slug, data }] }, true)
         })
       }

@@ -144,6 +144,7 @@ export default {
     },
 
     percentChange() {
+      console.log('percentChange')
       if (!this.lp_token.symbol) return
 
       const balance = parseFloat(this.lp_token.amount)
@@ -156,7 +157,7 @@ export default {
         this.amount = (balance / 100 * this.amountPercent)
       }
 
-      this.amountChange()
+      this.amount = (parseFloat(this.amount) || 0).toFixed(this.pair.supply.symbol.precision())
     },
 
     async open() {
@@ -166,6 +167,7 @@ export default {
     },
 
     amountChange() {
+      console.log('amountChange')
       if (!this.lp_token.symbol) return
 
       try {
