@@ -7,10 +7,20 @@ account.get('/:account/deals', async (req, res) => {
   const network = req.app.get('network')
   const { account } = req.params
 
-  const history = await Match.find({
-    chain: network.name,
-    $or: [{ asker: account }, { bidder: account }]
-  }).select('time bid ask unit_price type trx_id market')
+  const history = await Match.aggregate([
+    { $match: { chain: network.name, $or: [{ asker: account }, { bidder: account }] } },
+    {
+      $project: {
+        time: 1,
+        bid: 1,
+        ask: 1,
+        unit_price: 1,
+        trx_id: 1,
+        market: 1,
+        type: { $cond: { if: { $eq: ['$bidder', account] }, then: 'buymatch', else: 'sellmatch' } }
+      }
+    }
+  ])
 
   res.json(history)
 })
