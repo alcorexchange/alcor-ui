@@ -59,7 +59,6 @@ export default {
         precision: 0
       },
 
-      visible: false,
       loading: false
     }
   },
@@ -160,12 +159,6 @@ export default {
       this.amount = (parseFloat(this.amount) || 0).toFixed(this.pair.supply.symbol.precision())
     },
 
-    async open() {
-      if (!await this.$store.dispatch('chain/asyncLogin')) return
-
-      this.visible = true
-    },
-
     amountChange() {
       console.log('amountChange')
       if (!this.lp_token.symbol) return
@@ -204,7 +197,10 @@ export default {
 
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
-        this.visible = false
+
+        this.amount = 0.0
+        this.amountChange()
+
         this.$emit('update')
         this.$notify({ title: 'Withdraw', message: 'Success', type: 'success' })
         this.$store.dispatch('pools/updatePool')

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { Exchange, Liquidity } from '../models'
 
-import { newExchange, newLiuqudity, newPair } from './handlers'
+import { newExchange, newLiuqudity } from './handlers'
 
 export const pools = Router()
 pools.get('/:pair_id/line_chart', async (req, res) => {
@@ -79,15 +79,11 @@ pools.get('/:pair_id/liquidity_chart', async (req, res) => {
 })
 
 export async function newPoolsAction(action, network, app) {
-  console.log('newPoolsAction', action.act.name)
   const { act: { name, data } } = action
 
+  // TODO WS push for pool update
   const io = app.get('io')
   const chain = network.name
-
-  if (name == 'inittoken') {
-    await newPair(network, action)
-  }
 
   if (name == 'liquiditylog') {
     await newLiuqudity(network, action)

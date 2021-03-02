@@ -63,37 +63,3 @@ export async function newLiuqudity(network, action) {
     block_num
   })
 }
-
-export async function newPair(network, action) {
-  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
-
-  const { rows: [new_pair] } = await rpc.get_table_rows({
-    code: network.pools.contract,
-    scope: network.pools.contract,
-    table: 'pairs',
-    reverse: true,
-    limit: 1
-  })
-
-
-  const { trx_id, block_time, block_num, act: { data: { user } } } = action
-
-  await Liquidity.create({
-    chain: network.name,
-    pair_id: parseInt(new_pair.id),
-    trx_id,
-
-    owner: user,
-    lp_token: parseFloat(new_pair.supply),
-    supply: parseFloat(new_pair.supply),
-
-    liquidity1: parseFloat(new_pair.pool1.quantity),
-    liquidity2: parseFloat(new_pair.pool2.quantity),
-
-    pool1: parseFloat(new_pair.pool1.quantity),
-    pool2: parseFloat(new_pair.pool2.quantity),
-
-    time: block_time,
-    block_num
-  })
-}
