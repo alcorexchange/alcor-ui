@@ -74,7 +74,7 @@
     "eslint-plugin-nuxt": ">=0.4.2",
     "eslint-plugin-vue": "^6.0.1",
     "nodemon": "^2.0.4",
-    "pug": "^3.0.0",
+    "pug": "^3.0.1",
     "pug-plain-loader": "^1.0.0",
     "vconsole": "^3.3.4",
     "vue-functional-data-merge": "^3.1.0"
