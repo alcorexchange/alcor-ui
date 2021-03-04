@@ -134,7 +134,6 @@ export default {
 
   methods: {
     setLpToken(token) {
-      console.log(token)
       this.$store.commit('swap/setWithdrawToken', token)
     },
 
@@ -198,6 +197,7 @@ export default {
         this.$emit('update')
         this.$notify({ title: 'Withdraw', message: 'Success', type: 'success' })
         this.$store.dispatch('pools/updatePool')
+        this.$store.dispatch('loadUserBalances')
         console.log(r)
       } catch (e) {
         console.log(e)

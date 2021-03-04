@@ -1,6 +1,8 @@
 import { Match } from '../models'
 import { resolutions } from './charts'
 
+// TODO Move from /markets to global
+
 export function subscribe(io, socket) {
   socket.on('subscribe', async ({ room, params }) => {
     if (room == 'deals') {
@@ -21,6 +23,10 @@ export function subscribe(io, socket) {
     if (room == 'orders') {
       socket.join(`orders:${params.chain}.${params.market}`)
     }
+
+    if (room == 'pools') {
+      socket.join(`pools:${params.chain}`)
+    }
   })
 }
 
@@ -38,6 +44,10 @@ export function unsubscribe(io, socket) {
 
     if (room == 'orders') {
       socket.leave(`orders:${params.chain}.${params.market}`)
+    }
+
+    if (room == 'pools') {
+      socket.leave(`pools:${params.chain}`)
     }
   })
 }

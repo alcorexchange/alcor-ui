@@ -55,23 +55,22 @@ pools.get('/:pair_id/liquidity_chart', async (req, res) => {
 
   const volume = await Liquidity.aggregate([
     { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
-    // TODO Вернуть это при деплое в прод
-    //{
-    //  $group:
-    //  {
-    //    _id: {
-    //      $toDate: {
-    //        $subtract: [
-    //          { $toLong: '$time' },
-    //          { $mod: [{ $toLong: '$time' }, 60 * 60 * 1000] }
-    //        ]
-    //      }
-    //    },
-    //    supply: { $max: '$supply' }
-    //  }
-    //},
-    //{ $project: { x: { $toLong: '$_id' }, y: { $round: ['$supply', 4] } } },
-    { $project: { x: { $toLong: '$time' }, y: { $round: ['$supply', 4] } } },
+    {
+      $group:
+      {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 1000] }
+            ]
+          }
+        },
+        supply: { $max: '$supply' }
+      }
+    },
+    { $project: { x: { $toLong: '$_id' }, y: { $round: ['$supply', 4] } } },
+    //{ $project: { x: { $toLong: '$time' }, y: { $round: ['$supply', 4] } } },
     { $sort: { x: 1 } }
   ]).allowDiskUse(true)
 
@@ -79,11 +78,9 @@ pools.get('/:pair_id/liquidity_chart', async (req, res) => {
 })
 
 export async function newPoolsAction(action, network, app) {
-  const { act: { name, data } } = action
+  const { act: { name, data: { record: pair_id } } } = action
 
-  // TODO WS push for pool update
   const io = app.get('io')
-  const chain = network.name
 
   if (name == 'liquiditylog') {
     await newLiuqudity(network, action)
@@ -92,4 +89,6 @@ export async function newPoolsAction(action, network, app) {
   if (name == 'exchangelog') {
     await newExchange(network, action)
   }
+
+  io.to(`pools:${network.name}`).emit('update_pair', pair_id)
 }

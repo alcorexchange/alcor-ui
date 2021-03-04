@@ -28,7 +28,7 @@
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
 
-    .row.mt-3
+    .row.mt-3.swap-bottom
       .col-6
         small Minimum Received
         small Rate
@@ -37,16 +37,16 @@
         small Liquidity Source Fee
 
       .col-6.text-right
-        b.small {{ minOutput }}
-        b.small {{ price }}
+        .small {{ minOutput }}
+        .small {{ price }}
 
-        b.small(v-if="priceImpact >= 5").text-danger {{ priceImpact}}%
-        b.small(v-else-if="priceImpact >= 3").text-warning {{ priceImpact}}%
-        b.small(v-else-if="priceImpact < 1").text-success {{ priceImpact}}%
-        b.small(v-else) {{ priceImpact}} %
+        .small(v-if="priceImpact >= 5").text-danger {{ priceImpact}}%
+        .small(v-else-if="priceImpact >= 3").text-warning {{ priceImpact}}%
+        .small(v-else-if="priceImpact < 1").text-success {{ priceImpact}}%
+        .small(v-else) {{ priceImpact}} %
 
-        b.small 3%
-        b.small {{ fee }}%
+        .small 3%
+        .small {{ fee }}%
 </template>
 
 <script>
@@ -106,6 +106,10 @@ export default {
 
   watch: {
     inputAmount() {
+      this.calcOutput()
+    },
+
+    pair() {
       this.calcOutput()
     }
   },

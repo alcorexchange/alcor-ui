@@ -1,3 +1,4 @@
+import Vuex from 'vuex'
 import { asset } from 'eos-common'
 import { preparePair } from '~/utils/pools'
 
@@ -75,6 +76,24 @@ export const actions = {
     })
 
     commit('setPairs', rows)
+  },
+
+  updatePairOnPush({ state, commit }, data) {
+    const { pair_id, supply, pool1, pool2 } = data
+
+    const pair = state.pairs.filter(p => p.id == pair_id)[0]
+    if (!pair) return console.log('NOT FOUND PAIR FOR UPDATE BY PUSH:', pair_id)
+
+    const update = {
+      pool1: { contract: pair.pool1.contract, quantity: pool1 },
+      pool2: { contract: pair.pool2.contract, quantity: pool2 }
+    }
+
+    if (supply) {
+      update.supply = supply
+    }
+
+    this._vm.$set(state.pairs, pair_id, preparePair({ ...pair, ...update }))
   },
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {

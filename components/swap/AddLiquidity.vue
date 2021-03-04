@@ -241,6 +241,7 @@ export default {
         this.$emit('update')
         this.visible = false
         this.$notify({ title: 'Provide liquidity', message: 'Provided successful', type: 'success' })
+        this.$store.dispatch('loadUserBalances')
         this.$store.dispatch('pools/updatePool')
         console.log(r)
       } catch (e) {

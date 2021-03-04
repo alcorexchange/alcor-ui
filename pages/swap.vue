@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import Swap from '~/components/swap/Swap.vue'
 import Chart from '~/components/swap/Chart.vue'
@@ -53,7 +53,9 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapState('swap', ['tab']),
+    ...mapGetters('swap', ['current']),
 
     tabComponent() {
       if (this.tab == '+ Liquidity') return 'AddLiquidity'
@@ -61,6 +63,19 @@ export default {
 
       return 'Swap'
     }
+  },
+
+  beforeRouteLeave (to, from, next) {
+    this.$socket.emit('unsubscribe', { room: 'pools', params: { chain: this.network.name } })
+    next()
+  },
+
+  mounted() {
+    this.$socket.emit('subscribe', { room: 'pools', params: { chain: this.network.name } })
+
+    this.$socket.on('update_pair', data => {
+      this.$store.dispatch('swap/updatePairOnPush', data)
+    })
   },
 
   methods: {
