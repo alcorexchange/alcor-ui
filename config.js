@@ -421,7 +421,7 @@ const networks = {
       precision: 4
     },
     marketCreationFee: '3.0000 EOS',
-    feeAccount: 'avral.pro',
+    feeAccount: 'evodextester',
 
     chainId: '2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840',
     host: 'jungle3.greymass.com',
@@ -439,7 +439,7 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcorpoolsex',
+      contract: 'alcorammswap',
       fee: 'evodextester'
     },
 

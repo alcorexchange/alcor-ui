@@ -2,7 +2,7 @@
 .row.mt-3
   .col-lg-4
     el-card.mb-3.swap-card
-      el-radio-group(v-model="tab" size="small").el-radio-full-width
+      el-radio-group(v-model="$store.state.swap.tab" @change="changeTab" size="small").el-radio-full-width
         el-radio-button(label='Swap')
         el-radio-button(label='+ Liquidity')
         el-radio-button(label='- Liquidity')
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import Swap from '~/components/swap/Swap.vue'
 import Chart from '~/components/swap/Chart.vue'
 import AddLiquidity from '~/components/swap/AddLiquidity.vue'
@@ -46,12 +48,13 @@ export default {
 
   data() {
     return {
-      tab: 'Swap',
       chart_tab: 'Price'
     }
   },
 
   computed: {
+    ...mapState('swap', ['tab']),
+
     tabComponent() {
       if (this.tab == '+ Liquidity') return 'AddLiquidity'
       if (this.tab == '- Liquidity') return 'RemoveLiquidity'
@@ -61,8 +64,8 @@ export default {
   },
 
   methods: {
-    changeTab() {
-      console.log('change tab..', this.tab)
+    changeTab(tab) {
+      this.$store.commit('swap/setTab', tab)
     }
   }
 }

@@ -25,10 +25,21 @@
                   small {{ scope.row.earn2.to_string() }}
 
                 .ml-auto
-                  el-button(size="small" type="success" icon="el-icon-plus" @click="addLiquidity(scope.row)")
-                  el-button(size="small" type="primary" icon="el-icon-minus" @click="addLiquidity(scope.row)")
-                  //el-button(size="small" type="info" icon="el-icon-minus")
-                  //withdraw.ml-2
+                  el-button(
+                    size="small"
+                    type="success"
+                    icon="el-icon-plus"
+                    @click="addLiquidity(scope.row)"
+                    :disabled="isActiveAdd(scope.row)"
+                  )
+
+                  el-button(
+                    size="small"
+                    type="primary"
+                    icon="el-icon-minus"
+                    @click="remLiquidity(scope.row)"
+                    :disabled="isActiveRemove(scope.row)"
+                  )
 </template>
 
 <script>
@@ -51,13 +62,14 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapGetters(['user']),
-    ...mapState('swap', ['pairs']),
+    ...mapGetters('swap', ['current']),
+    ...mapState('swap', ['pairs', 'withdraw_token']),
 
     lpTokens() {
       if (!this.user || !this.user.balances) return []
 
       return this.user.balances.filter(b => b.contract == this.network.pools.contract).map(b => {
-        const position = {}
+        const position = { amount: b.amount }
 
         const pair = this.pairs.filter(p => p.supply.symbol.code().to_string() == b.currency)[0]
         if (!pair) return console.log('NOT FOUND PAIR FOR LP TOKEN: ', b.currency)
@@ -80,6 +92,9 @@ export default {
 
           position.earn1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1).minus(lp1)
           position.earn2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2).minus(lp2)
+        } else {
+          position.earn1 = asset(0, s1)
+          position.earn2 = asset(0, s2)
         }
 
         return position
@@ -98,8 +113,31 @@ export default {
   },
 
   methods: {
-    addLiquidity(balance) {
+    addLiquidity({ pair }) {
+      this.$store.commit('swap/setTab', '+ Liquidity')
+      this.$store.dispatch('swap/setPair', pair.id)
+    },
 
+    remLiquidity({ amount, pair: { supply } }) {
+      this.$store.commit('swap/setTab', '- Liquidity')
+      this.$store.commit('swap/setWithdrawToken', {
+        amount,
+        symbol: supply.symbol.code().to_string(),
+        contract: this.network.pools.contract,
+        precision: supply.symbol.precision()
+      })
+    },
+
+    isActiveAdd({ pair }) {
+      if (!this.current || !pair) return false
+
+      return this.$store.state.swap.tab == '+ Liquidity' && this.current.id == pair.id
+    },
+
+    isActiveRemove({ pair }) {
+      if (!pair) return
+
+      return this.withdraw_token.symbol == pair.supply.symbol.code().to_string() && this.$store.state.swap.tab == '- Liquidity'
     },
 
     fetchPositions() {

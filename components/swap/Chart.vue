@@ -153,7 +153,7 @@ export default {
           }
         }).then(({ data }) => {
           // FIXME No animation on updating
-          this.$refs.chart.updateOptions({ series: [{ name: this.pair.slug, data }] }, true)
+          this.$refs.chart.updateOptions({ series: [{ name: this.tab, data }] }, true)
         })
       }
     }

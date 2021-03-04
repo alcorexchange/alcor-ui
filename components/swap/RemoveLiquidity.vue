@@ -5,10 +5,10 @@
       .col
         .d-flex.justify-content-between
           small.mb-1 From
-          small.mb-1(v-if="lp_token") {{ lp_token.amount }} {{ lp_token.symbol }}
+          small.mb-1(v-if="withdraw_token") {{ withdraw_token.amount }} {{ withdraw_token.symbol }}
             i.el-icon-wallet.ml-1
 
-        SelectToken(v-model="amount" :token="lp_token" :tokens="lpTokens" @change="setLpToken" @inputchange="amountChange")
+        SelectToken(v-model="amount" :token="withdraw_token" :tokens="lpTokens" @change="setLpToken" @inputchange="amountChange")
 
         .d-flex.mt-2
           .ml-auto.small {{ amountPercent }}%
@@ -53,12 +53,6 @@ export default {
       amount: 0.0,
       amountPercent: 0,
 
-      lp_token: {
-        symbol: '',
-        contract: '',
-        precision: 0
-      },
-
       loading: false
     }
   },
@@ -67,11 +61,11 @@ export default {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
-    ...mapState('swap', ['pairs']),
+    ...mapState('swap', ['pairs', 'withdraw_token']),
 
     pair() {
-      if (!this.lp_token.symbol) return null
-      return this.pairs.filter(p => p.supply.symbol.code().to_string() == this.lp_token.symbol)[0]
+      if (!this.withdraw_token.symbol) return null
+      return this.pairs.filter(p => p.supply.symbol.code().to_string() == this.withdraw_token.symbol)[0]
     },
 
     tokenOne() {
@@ -133,20 +127,21 @@ export default {
 
   watch: {
     pair() {
+      this.amount = 0.0
       this.amountChange()
     }
   },
 
   methods: {
     setLpToken(token) {
-      this.lp_token = token
+      console.log(token)
+      this.$store.commit('swap/setWithdrawToken', token)
     },
 
     percentChange() {
-      console.log('percentChange')
-      if (!this.lp_token.symbol) return
+      if (!this.withdraw_token.symbol) return
 
-      const balance = parseFloat(this.lp_token.amount)
+      const balance = parseFloat(this.withdraw_token.amount)
 
       if (balance == 0) return
 
@@ -160,13 +155,12 @@ export default {
     },
 
     amountChange() {
-      console.log('amountChange')
-      if (!this.lp_token.symbol) return
+      if (!this.withdraw_token.symbol) return
 
       try {
         this.amount = (parseFloat(this.amount) || 0).toFixed(this.pair.supply.symbol.precision())
 
-        const balance = parseFloat(this.lp_token.amount)
+        const balance = parseFloat(this.withdraw_token.amount)
         if (balance == 0) return
 
         this.amountPercent = Math.ceil((this.amount * 100) / balance)

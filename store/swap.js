@@ -5,19 +5,48 @@ export const state = () => ({
   pairs: [],
 
   input: null,
-  output: null
+  output: null,
+
+  tab: 'Swap',
+
+  withdraw_token: {
+    amount: '',
+    symbol: '',
+    contract: '',
+    precision: 0
+  }
 })
 
 export const mutations = {
   setPairs: (state, pairs) => state.pairs = pairs,
   setInput: (state, token) => state.input = token,
-  setOutput: (state, token) => state.output = token
+  setOutput: (state, token) => state.output = token,
+  setTab: (state, tab) => state.tab = tab,
+  setWithdrawToken: (state, token) => state.withdraw_token = token
 }
 
 export const actions = {
   init({ state, commit, dispatch, rootState }) {
     dispatch('getPairs')
     commit('setInput', rootState.network.baseToken)
+  },
+
+  setPair({ state, commit }, pair_id) {
+    const pair = state.pairs.filter(p => p.id == pair_id)[0]
+
+    if (!pair) return // TODO ERROR
+
+    commit('setInput', {
+      contract: pair.pool1.contract,
+      symbol: pair.pool1.quantity.symbol.code().to_string(),
+      precision: pair.pool1.quantity.symbol.precision()
+    })
+
+    commit('setOutput', {
+      contract: pair.pool2.contract,
+      symbol: pair.pool2.quantity.symbol.code().to_string(),
+      precision: pair.pool2.quantity.symbol.precision()
+    })
   },
 
   toggleInputs({ state, commit }) {
