@@ -18,7 +18,7 @@
           el-radio-group(v-model="chart_tab" size="small")
             el-radio-button(label='Price')
             el-radio-button(label='Liquidity')
-            el-radio-button(label='Volume')
+            //el-radio-button(label='Volume')
     el-card(v-else)
       LiquidityPositions
 
