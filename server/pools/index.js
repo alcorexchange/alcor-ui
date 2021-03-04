@@ -14,7 +14,7 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
     { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
     { $project: { _id: 0, time: 1, price: { $divide } } },
     { $project: { x: { $toLong: '$time' }, y: { $round: ['$price', 4] } } },
-    { $sort: { time: 1 } }
+    { $sort: { x: 1 } }
   ])
 
   res.json(prices)
@@ -62,7 +62,7 @@ pools.get('/:pair_id/liquidity_chart', async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, 60 * 60 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 15 * 60 * 1000] }
             ]
           }
         },

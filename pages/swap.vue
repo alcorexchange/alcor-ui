@@ -19,6 +19,8 @@
             el-radio-button(label='Price')
             el-radio-button(label='Liquidity')
             //el-radio-button(label='Volume')
+          .float-right
+            el-button(type="text" @click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')") How swap & revenue works?
     el-card(v-else)
       LiquidityPositions
 
