@@ -82,6 +82,20 @@ export default {
     changeTab(tab) {
       this.$store.commit('swap/setTab', tab)
     }
+  },
+
+  head() {
+    return {
+      title: 'Alcor Exchange | Swap & Earn on your Liquidity',
+
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Uniswap like token exchange, with liquidity providers earnings.'
+        }
+      ]
+    }
   }
 }
 </script>

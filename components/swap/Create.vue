@@ -27,7 +27,7 @@ div
                   el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
                     TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
                     span.ml-3 {{ b.id }}
-                    span.float-right {{ `${b.amount} ${b.currency}` }}
+                    span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
 
             el-form-item
               .lead Quote token:
@@ -40,7 +40,7 @@ div
                   el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
                     TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
                     span.ml-3 {{ b.id }}
-                    span.float-right {{ `${b.amount} ${b.currency}` }}
+                    span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
 
             el-form-item(v-if="this.base.symbol && this.quote.symbol")
               .lead Backed token symbol (Automatically set recommended)

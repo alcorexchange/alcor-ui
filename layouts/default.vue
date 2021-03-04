@@ -129,12 +129,11 @@ export default {
         items.push({ index: '/swap', name: 'Swap' })
       }
 
-      items.push({ index: '/markets', name: 'Markets' })
-      //items.push({ index: '/defi/swap', name: 'DeFi' })
+      if (['wax'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/swap', name: 'Swap' })
+      }
 
-      //if (['eos'].includes(this.$store.state.network.name)) {
-      //  items.push({ index: '/swap', name: 'Swap' })
-      //}
+      items.push({ index: '/markets', name: 'Markets' })
 
       items.push({ index: '/otc', name: 'OTC' })
 

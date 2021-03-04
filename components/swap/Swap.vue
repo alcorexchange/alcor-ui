@@ -40,10 +40,10 @@
         .small {{ minOutput }}
         .small {{ price }}
 
-        .small(v-if="priceImpact >= 5").text-danger {{ priceImpact}}%
-        .small(v-else-if="priceImpact >= 3").text-warning {{ priceImpact}}%
-        .small(v-else-if="priceImpact < 1").text-success {{ priceImpact}}%
-        .small(v-else) {{ priceImpact}} %
+        .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
+        .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
+        .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
+        .small(v-else).font-weight-bold {{ priceImpact}} %
 
         .small 3%
         .small {{ fee }}%

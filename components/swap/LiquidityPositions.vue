@@ -14,15 +14,15 @@
               span(style='margin-left: 10px') {{ scope.row.pair.name }}
           el-table-column(label='Deposit')
             template(slot-scope='scope')
-              small {{ scope.row.asset1.to_string() }}
-              small {{ scope.row.asset2.to_string() }}
+              small {{ scope.row.asset1 }}
+              small {{ scope.row.asset2 }}
 
           el-table-column(label='Earning (Fees)')
             template(slot-scope='scope')
               .d-flex
                 .earnings(v-if="scope.row.earn1 && scope.row.earn2")
-                  small {{ scope.row.earn1.to_string() }}
-                  small {{ scope.row.earn2.to_string() }}
+                  small {{ scope.row.earn1 }}
+                  small {{ scope.row.earn2 }}
 
                 .ml-auto
                   el-button(
@@ -72,7 +72,16 @@ export default {
         const position = { amount: b.amount }
 
         const pair = this.pairs.filter(p => p.supply.symbol.code().to_string() == b.currency)[0]
-        if (!pair) return console.log('NOT FOUND PAIR FOR LP TOKEN: ', b.currency)
+
+        if (!pair) {
+          console.log('NOT FOUND PAIR FOR LP TOKEN: ', b.currency)
+          position.pair = { name: b.currency }
+          position.asset1 = '0.0000'
+          position.asset2 = '0.0000'
+          position.earn1 = '0.0000'
+          position.earn2 = '0.0000'
+          return position
+        }
 
         position.pair = pair
 
@@ -81,20 +90,20 @@ export default {
 
         //Formula total liquidity*LPHolder/totalLP = current balance
         const lp_tokens = asset(b.amount + ' X').amount
-        position.asset1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1)
-        position.asset2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2)
+        position.asset1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1).to_string()
+        position.asset2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2).to_string()
 
         const lposition = this.liquidity_positions.filter(p => p.pair_id == pair.id)[0]
 
         if (lposition) {
-          const lp1 = number_to_asset(lposition.liquidity1.toFixed(s1.precision()), s1)
-          const lp2 = number_to_asset(lposition.liquidity2.toFixed(s2.precision()), s2)
+          const lp1 = asset(lposition.liquidity1.toFixed(s1.precision()) + ' ' + s1.code().to_string())
+          const lp2 = asset(lposition.liquidity2.toFixed(s2.precision()) + ' ' + s2.code().to_string())
 
-          position.earn1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1).minus(lp1)
-          position.earn2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2).minus(lp2)
+          position.earn1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1).minus(lp1).to_string()
+          position.earn2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2).minus(lp2).to_string()
         } else {
-          position.earn1 = asset(0, s1)
-          position.earn2 = asset(0, s2)
+          position.earn1 = asset(0, s1).to_string()
+          position.earn2 = asset(0, s2).to_string()
         }
 
         return position
@@ -129,13 +138,13 @@ export default {
     },
 
     isActiveAdd({ pair }) {
-      if (!this.current || !pair) return false
+      if (!this.current || !pair.supply) return false
 
       return this.$store.state.swap.tab == '+ Liquidity' && this.current.id == pair.id
     },
 
     isActiveRemove({ pair }) {
-      if (!pair) return
+      if (!pair.supply) return
 
       return this.withdraw_token.symbol == pair.supply.symbol.code().to_string() && this.$store.state.swap.tab == '- Liquidity'
     },

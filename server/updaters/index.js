@@ -16,7 +16,7 @@ export function startUpdaters(app) {
     updater(process.env.NETWORK, app, 'node', ['pools'])
   } else {
     updater('eos', app, 'node', ['markets'])
-    updater('wax', app, 'node', ['markets'])
+    updater('wax', app, 'node', ['markets', 'pools'])
     updater('proton', app, 'node', ['markets'])
     updater('telos', app, 'node', ['markets'])
     // updater('telos', app, 'hyperion', ['markets'])

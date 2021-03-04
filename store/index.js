@@ -128,6 +128,8 @@ export const actions = {
       axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
         const balances = r.data.balances
         balances.sort((a, b) => {
+          if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
+
           if (a.currency < b.currency) { return -1 }
           if (a.currency > b.currency) { return 1 }
 

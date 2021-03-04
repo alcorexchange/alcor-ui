@@ -193,7 +193,7 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcordexpool',
+      contract: 'alcorammswap',
       fee: 'aw.aq.waa'
     },
 
