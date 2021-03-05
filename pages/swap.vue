@@ -106,6 +106,10 @@ export default {
 <style lang="scss">
 .el-card.swap-card {
   overflow: visible;
+
+  .el-button--mini {
+    padding: 0px 15px;
+  }
 }
 
 .pools-chart {

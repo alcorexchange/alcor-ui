@@ -5,7 +5,8 @@
       .col
         .d-flex.mb-1
           small.text-muted Pay
-          small.text-mutted.small.ml-auto {{ inputBalance }}
+
+          el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="inputAmount" :tokens="tokens0" :token="0" @change="tokenChanged(0)")
@@ -56,6 +57,7 @@
 </template>
 
 <script>
+import BigInt from 'big-integer'
 import { asset, symbol, number_to_asset } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
@@ -139,8 +141,11 @@ export default {
       const reserve_out = this.poolTwo.quantity
 
       const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT').amount
-      const amount_out = get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee)
 
+      const amount_out = BigInt.min(
+        get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee),
+        reserve_out.amount
+      )
       const amount_min_output = amount_out.minus(amount_out.multiply(50).divide(1000))
 
       this.minOutput = asset(amount_min_output, symbol(this.output.symbol, this.output.precision)).to_string()
@@ -156,10 +161,13 @@ export default {
       let amount_out = asset(parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT').amount
       if (amount_out > reserve_out.amount) {
         amount_out = reserve_out.amount.minus(1)
-        this.outputAmount = number_to_asset(amount_out, reserve_out.symbol).to_string()
+        this.outputAmount = asset(amount_out, reserve_out.symbol).to_string()
       }
 
-      const amount_in = get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee)
+      const amount_in = BigInt.min(
+        get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee),
+        reserve_in.amount
+      )
       const amount_min_input = amount_in.minus(amount_out.multiply(30).divide(1000))
 
       this.inputAmount = parseFloat(asset(amount_in, reserve_in.symbol).to_string()).toFixed(this.input.precision)
