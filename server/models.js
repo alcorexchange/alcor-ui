@@ -76,6 +76,7 @@ export async function getSettings(network) {
   const actions_stream_offset = {}
 
   if (network.name == 'bos') {
+    // TODO Возможно применяет каджый раз, это баг
     actions_stream_offset.alcordexmain = 106
   }
 

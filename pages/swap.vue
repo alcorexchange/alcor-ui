@@ -9,6 +9,9 @@
 
       keep-alive
         component(v-bind:is="tabComponent")
+
+      .ml-auto
+        el-button(type="text" size="small" @click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')") How swap & revenue works?
   .col-lg-8
     .pools-chart(v-if="tab == 'Swap'")
       el-card.h-100
@@ -19,8 +22,6 @@
             el-radio-button(label='Price')
             el-radio-button(label='Liquidity')
             //el-radio-button(label='Volume')
-          .float-right
-            el-button(type="text" @click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')") How swap & revenue works?
     el-card(v-else)
       LiquidityPositions
 

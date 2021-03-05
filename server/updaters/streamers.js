@@ -32,8 +32,9 @@ export async function streamByNode(network, app, account, callback, actions) {
       if (actions.includes(a.act.name)) {
         await callback(a, network, app)
 
-        settings.actions_stream_offset[account] = offset
-        await Settings.updateOne({ chain: network.name }, { $set: { actions_stream_offset: settings.actions_stream_offset } })
+        const $set = {}
+        $set[`actions_stream_offset.${account}`] = offset
+        await Settings.updateOne({ chain: network.name }, { $set })
       }
     }
 
