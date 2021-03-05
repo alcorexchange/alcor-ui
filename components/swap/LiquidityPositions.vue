@@ -6,40 +6,41 @@
         .lead Liquidity Positions
           create.float-right
     .row
-      .col
+      .col(:class="{ 'p-0': isMobile }")
         el-table(:data='lpTokens' style='width: 100%').liquidity-table
           el-table-column(label='Pairs')
             template(slot-scope='scope')
-              i.el-icon-time
-              span(style='margin-left: 10px') {{ scope.row.pair.name }}
+              // TODO Double token i.el-icon-time
+              span {{ scope.row.pair.name }}
           el-table-column(label='Deposit')
             template(slot-scope='scope')
-              small {{ scope.row.asset1 }}
-              small {{ scope.row.asset2 }}
+              .small {{ scope.row.asset1 }}
+              .small {{ scope.row.asset2 }}
 
           el-table-column(label='Earning (Fees)')
             template(slot-scope='scope')
-              .d-flex
-                .earnings(v-if="scope.row.earn1 && scope.row.earn2")
-                  small {{ scope.row.earn1 }}
-                  small {{ scope.row.earn2 }}
+              .row
+                .col-lg-6
+                  .earnings(v-if="scope.row.earn1 && scope.row.earn2")
+                    .small {{ scope.row.earn1 }}
+                    .small {{ scope.row.earn2 }}
+                .col-lg-6
+                  .ml-auto
+                    el-button(
+                      size="mini"
+                      type="success"
+                      icon="el-icon-plus"
+                      @click="addLiquidity(scope.row)"
+                      :disabled="isActiveAdd(scope.row)"
+                    )
 
-                .ml-auto
-                  el-button(
-                    size="small"
-                    type="success"
-                    icon="el-icon-plus"
-                    @click="addLiquidity(scope.row)"
-                    :disabled="isActiveAdd(scope.row)"
-                  )
-
-                  el-button(
-                    size="small"
-                    type="primary"
-                    icon="el-icon-minus"
-                    @click="remLiquidity(scope.row)"
-                    :disabled="isActiveRemove(scope.row)"
-                  )
+                    el-button(
+                      size="mini"
+                      type="primary"
+                      icon="el-icon-minus"
+                      @click="remLiquidity(scope.row)"
+                      :disabled="isActiveRemove(scope.row)"
+                    )
 </template>
 
 <script>
@@ -161,8 +162,13 @@ export default {
 
 <style lang="scss">
 .liquidity-table {
-  .el-button--small {
-    padding: 12px 15px;
+  .el-button--mini {
+    padding: 8px 10px;
+  }
+
+  .el-table .cell {
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 </style>

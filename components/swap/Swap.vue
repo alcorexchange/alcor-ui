@@ -28,25 +28,31 @@
       .col(v-else)
         el-button(type="primary" disabled).w-100 Select amounts
 
-    .row.mt-3.swap-bottom
-      .col-6
-        small Minimum Received
-        small Rate
-        small Price Impact
-        small Slippage
-        small Liquidity Source Fee
+    .row.mt-3
+      .col
+        .d-flex.justify-content-between
+          small Minimum Received
+          .small {{ minOutput }}
 
-      .col-6.text-right
-        .small {{ minOutput }}
-        .small {{ price }}
+        .d-flex.justify-content-between
+          small Rate
+          .small {{ price }}
 
-        .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
-        .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
-        .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
-        .small(v-else).font-weight-bold {{ priceImpact}} %
+        .d-flex.justify-content-between
+          small Price Impact
+          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
+          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
+          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
+          .small(v-else).font-weight-bold {{ priceImpact}} %
 
-        .small 3%
-        .small {{ fee }}%
+        .d-flex.justify-content-between
+          small Slippage
+          .small 3%
+
+        .d-flex.justify-content-between
+          small Liquidity Source Fee
+          .small {{ fee }}%
+
 </template>
 
 <script>
@@ -247,9 +253,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-small,.small {
-  display: block;
-}
-</style>

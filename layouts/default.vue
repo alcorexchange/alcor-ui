@@ -135,6 +135,10 @@ export default {
 
       items.push({ index: '/markets', name: 'Markets' })
 
+      //if (['eos'].includes(this.$store.state.network.name)) {
+      //  items.push({ index: '/swap', name: 'Swap' })
+      //}
+
       items.push({ index: '/otc', name: 'OTC' })
 
       if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {

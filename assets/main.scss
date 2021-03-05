@@ -67,6 +67,13 @@ label { margin: 0px; }
   }
 }
 
+@media (max-width: 425px) {
+  :root .el-button + .el-button {
+     margin-left: 3px;
+  }
+}
+
+
 /* Firefox */
 input[type='number'] {
   -moz-appearance: textfield;
