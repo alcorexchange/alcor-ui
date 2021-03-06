@@ -1,5 +1,5 @@
 <template lang="pug">
-.row
+.row.markets
   .col
     el-card
       .row
@@ -177,13 +177,23 @@ export default {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
       this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
-    },
+    }
   }
 }
 </script>
 
 <style>
-.el-table__row {
-  cursor: pointer;
+.theme-dark {
+  .markets {
+    .el-card__body {
+      padding: 0px;
+    }
+  }
+}
+
+.markets {
+  .el-table__row {
+    cursor: pointer;
+  }
 }
 </style>

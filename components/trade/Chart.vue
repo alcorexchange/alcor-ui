@@ -187,7 +187,7 @@ export default {
         theme: this.theme,
         custom_css_url: '/tv_themed.css',
         overrides: {
-          'paneProperties.background': this.theme == 'light' ? '#F3FAFC' : '#192427',
+          'paneProperties.background': this.theme == 'light' ? '#F3FAFC' : '#282828',
           'scalesProperties.textColor': this.theme == 'light' ? '#4a4a4a' : '#9EABA3'
         }
       }
