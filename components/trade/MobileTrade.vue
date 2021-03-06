@@ -69,7 +69,7 @@
                 el-input(type="number" v-model="total" @change="totalChange()")
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
-                el-button(size="small" type="danger" @click="sell(trade)").w-100.mt-2 Sel
+                el-button(size="small" type="danger" @click="sell(trade)").w-100.mt-2 Sell
 
             div(v-else)
               div(v-if="side == 'buy'")
