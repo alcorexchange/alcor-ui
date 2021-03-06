@@ -114,6 +114,10 @@ input[type='number'] {
   border: 1px solid var(--border-color);
 }
 
+.el-menu {
+    background-color: transparent !important;
+}
+
 .el-menu-item {
   &:hover,
   &:focus {

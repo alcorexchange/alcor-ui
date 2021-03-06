@@ -1,5 +1,5 @@
 <template lang="pug">
-.mb-5.mt-2(:class="$route.name == 'trade-index-id' ? 'container-fluid' : 'container'" ref="top")
+.mb-5.mt-2(:class="$route.name == 'trade-index-id' ? 'container-fluid' : 'container'" ref="top").top-menu
   ModalsDialog
   .row.mb-2
     .col(v-if="!isMobile")
@@ -40,43 +40,15 @@
     .col(v-else)
       .row
         .col-md-5.mb-1
-          nuxt-link(to="/")
-            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg" height="55").logo
-            img(v-else src="~/assets/logos/alcorwhite.svg")
-        .col-sm-5.d-flex.align-items-center
-          chain-select(:current_chain="current_chain").chain-select
+          .d-flex.align-items-center
+            nuxt-link(to="/")
+              img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg" height="55").logo
+              img(v-else src="~/assets/logos/alcorwhite.svg").logo
 
-          el-button(size="small" type="text").ml-2
-            img(src="/telegram.png" height="30").mr-2
-            a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
+            el-button(size="small" type="text").ml-auto
+              img(src="/telegram.png" height="30").mr-2
+              a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
 
-        .scatter-button.mr-1
-          div(v-if="user")
-            el-dropdown(size='mini', split-button='' :hide-on-click="false" trigger="click")
-              a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
-              //| {{ $store.state.user.name }}
-              el-dropdown-menu(slot='dropdown')
-                el-dropdown-item(v-if="network.name == 'eos'")
-                  .row
-                    .col
-                      img(src="~/assets/logos/greymassfuel.png" height="30")
-                  .row
-                    .col
-                      el-switch(v-model='payForUser' inactive-text=' Free CPU')
-                    hr
-
-                //el-dropdown-item
-                  img(:src="require('~/assets/icons/' + current_chain + '.png')" height=25).mr-1
-
-                  el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
-                    el-option(v-for='network in networks', :key='network.name', :value='network.name')
-                      img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-                      span.ml-2 {{ network.desc }}
-                  hr
-                el-dropdown-item
-                  el-button(size="mini" type="info" plain @click="logout").w-100 logout
-
-          el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
       .row
         .col
           .row
@@ -85,6 +57,32 @@
                 // Menu items
                 el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
 
+      .fixed-bottom.mobile-bottom
+        .row
+          .col-5.pr-0.login
+            div(v-if="user")
+              el-dropdown(size='small', split-button='' :hide-on-click="false" trigger="click")
+                a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+                //| {{ $store.state.user.name }}
+                el-dropdown-menu(slot='dropdown')
+                  el-dropdown-item(v-if="network.name == 'eos'")
+                    .row
+                      .col
+                        img(src="~/assets/logos/greymassfuel.png" height="30")
+                    .row
+                      .col
+                        el-switch(v-model='payForUser' inactive-text=' Free CPU')
+                      hr
+
+                  el-dropdown-item
+                    el-button(size="mini" type="info" plain @click="logout").w-100 logout
+
+            el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
+          .col-5
+            chain-select(:current_chain="current_chain")
+          .col-2.p-0
+            el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
+            el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
   nuxt
 
   FooterBlock
@@ -210,69 +208,86 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.logo {
-  height: 3em;
-}
-
-.chain-select {
-  width: 130px;
-}
-
-.scatter-button {
-  z-index: 1;
-  position: absolute;
-  right: 0;
-}
-
-.logo-text {
-  font-size: 3em;
-  font-family: sans-serif;
-  font-weight: 100;
-}
-
-.el-menu-item {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-}
-
-.el-menu-item:first-child {
-  padding-left: 0px;
-}
-
-h1.lead {
-  font-size: 1.2rem;
-}
-
-@media only screen and (max-width: 600px) {
+<style lang="scss">
+.top-menu {
   .logo {
-    height: 20px;
+    height: 3em;
+  }
+
+  .chain-select {
+    width: 130px;
+  }
+
+  .scatter-button {
+    z-index: 1;
+    position: absolute;
+    right: 0;
+  }
+
+  .logo-text {
+    font-size: 3em;
+    font-family: sans-serif;
+    font-weight: 100;
+  }
+
+  .el-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+  }
+
+  .el-menu-item:first-child {
+    padding-left: 0px;
+  }
+
+  h1.lead {
+    font-size: 1.2rem;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .logo {
+      height: 35px;
+    }
+  }
+
+  .market-row {
+    display: flex;
+    align-items: center;
+
+    padding: 7px 10px;
+    border-top: outset;
+    border-width: thin;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .el-dialog, .el-message-box, .el-notification {
+      width: 95%;
+    }
+
+    .el-menu--horizontal .el-menu-item {
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+
+  .el-menu.el-menu--horizontal {
+    border-bottom: none;
   }
 }
 
-.market-row {
-  display: flex;
-  align-items: center;
+.mobile-bottom {
+  padding: 6px;
+  background: var(--background-color-base);
+  box-shadow: 0px 2px 5px #888, 0px 0px 0px #888;
 
-  padding: 7px 10px;
-  border-top: outset;
-  border-width: thin;
-}
+  .login {
+    .el-button--small {
+      padding: 9px 8px;
+    }
 
-@media only screen and (max-width: 600px) {
-  .el-dialog, .el-message-box, .el-notification {
-    width: 95%;
+    .el-select .el-input__inner {
+      padding: 0px;
+    }
   }
-
-  .el-menu--horizontal .el-menu-item {
-    height: 40px;
-    line-height: 40px;
-  }
-}
-
-
-.el-menu.el-menu--horizontal {
-  border-bottom: none;
 }
 </style>

@@ -58,7 +58,7 @@
 
 <script>
 import BigInt from 'big-integer'
-import { asset, symbol, number_to_asset } from 'eos-common'
+import { asset, symbol } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
 
