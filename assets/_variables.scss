@@ -1,5 +1,4 @@
 :root {
-    --lol: red;
     --color-primary: #3E3A3B;
     --color-success: #8CC176;
     --color-danger: #B82C0D;
@@ -7,22 +6,26 @@
     --color-text-secondary: #5A5356;
 
     --background-color-base: #F3FAFC;
-    --border-color: #dadbdc;
     --background-color-secondary: #e6eef1;
+    --background-color-third: #e6eef1;
+
+    --border-color: #dadbdc;
 
     --active-row: #c2deff;
 }
 
 .theme-dark {
-    --background-color-base: #192427;
-    --background-color-secondary: #9eaba3;
-
     --color-primary: #9EABA3;
-    --color-text-primary: var(--color-primary);
+
+    --background-color-base: #282828;
+    --background-color-secondary: #212121;
+    --background-color-third: #161617;
+
+    --color-text-primary: #FFFFFF;
     --border-color: #3F4144;
 
     --color-success: #8CC176;
     --color-danger: #B82C0D;
 
-    --active-row: #424844;
+    --active-row: #282828;
 }

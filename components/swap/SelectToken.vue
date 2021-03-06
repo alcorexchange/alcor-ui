@@ -226,7 +226,7 @@ export default {
 
     margin-top: -8px;
 
-    background-color: var(--background-color-secondary);
+    background: var(--background-color-third);
     z-index: 1;
 
     height: 310px;
@@ -275,8 +275,7 @@ export default {
 
 .multi-input-wrapper {
   padding: 8px;
-  // TODO background: #282828;
-  background: var(--background-color-secondary);
+  background: var(--background-color-third);
   border-radius: 6px;
   position: relative;
 
@@ -285,6 +284,7 @@ export default {
 
     .el-input-group__append {
       border: none;
+      background: transparent;
     }
   }
 
