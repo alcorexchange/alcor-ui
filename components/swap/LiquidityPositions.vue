@@ -8,7 +8,7 @@
     .row
       .col(:class="{ 'p-0': isMobile }")
         el-table(:data='lpTokens' style='width: 100%').liquidity-table
-          el-table-column(label='Pairs')
+          el-table-column(label='Pairs' width="120")
             template(slot-scope='scope')
               // TODO Double token i.el-icon-time
               span {{ scope.row.pair.name }}
