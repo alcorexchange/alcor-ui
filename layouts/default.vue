@@ -59,7 +59,35 @@
 
       .fixed-bottom.mobile-bottom
         .row
-          .col-5.pr-0.login
+          .col
+            .d-flex.justify-content-around
+              .pr-0.login
+                el-dropdown(size='small', split-button='' :hide-on-click="false" trigger="click" v-if="user")
+                  a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
+                  //| {{ $store.state.user.name }}
+                  el-dropdown-menu(slot='dropdown')
+                    el-dropdown-item(v-if="network.name == 'eos'")
+                      .row
+                        .col
+                          img(src="~/assets/logos/greymassfuel.png" height="30")
+                      .row
+                        .col
+                          el-switch(v-model='payForUser' inactive-text=' Free CPU')
+                        hr
+
+                    el-dropdown-item
+                      el-button(size="mini" type="info" plain @click="logout").w-100 logout
+
+                el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
+
+              .chain-select
+                chain-select(:current_chain="current_chain")
+
+              .p-0
+                el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
+                el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
+
+          //.col-5.pr-0.login
             div(v-if="user")
               el-dropdown(size='small', split-button='' :hide-on-click="false" trigger="click")
                 a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
@@ -78,9 +106,9 @@
                     el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
             el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
-          .col-5
-            chain-select(:current_chain="current_chain")
-          .col-2.p-0
+          //.col-5
+          //  chain-select(:current_chain="current_chain")
+          //.col-2.p-0
             el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
             el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
   nuxt
