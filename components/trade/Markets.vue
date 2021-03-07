@@ -3,17 +3,17 @@
   .pt-2.px-2
     el-input(size="small" v-model="search" placeholder="Filter by token" clearable)
   el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
-    el-table-column(label="Pair")
+    el-table-column(label="Pair" width="150")
       template(slot-scope="scope")
         TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="20")
         small.ml-1 {{ scope.row.quote_token.symbol.name }}
         small.ml-1  / {{ scope.row.base_token.symbol.name }}
 
-    el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]" width="50")
+    el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]")
       template(slot-scope="scope")
         .text-success {{ scope.row.last_price }}
 
-    el-table-column(prop="change" label="Change" align="right" sortable :sort-orders="['descending', null]" width="100")
+    el-table-column(prop="change24" :sort-orders="['descending', 'ascending']" label="Change" align="right" sortable width="80")
       template(slot-scope="scope")
         change-percent(:change="scope.row.change24")
 </template>
