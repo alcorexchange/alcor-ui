@@ -95,7 +95,7 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: 'Uniswap like token exchange, with liquidity providers earnings.'
+          content: 'Easy token swap, with liquidity providers earnings.'
         }
       ]
     }
