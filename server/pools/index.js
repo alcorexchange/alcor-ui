@@ -12,8 +12,24 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
 
   const prices = await Exchange.aggregate([
     { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
-    { $project: { _id: 0, time: 1, price: { $divide } } },
-    { $project: { x: { $toLong: '$time' }, y: { $round: ['$price', 4] } } },
+    {
+      $group:
+      {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              { $mod: [{ $toLong: '$time' }, 15 * 60 * 1000] }
+            ]
+          }
+        },
+
+        pool1: { $avg: '$pool1' },
+        pool2: { $avg: '$pool2' }
+      }
+    },
+    { $project: { time: { $toLong: '$_id' }, price: { $divide } } },
+    { $project: { x: '$time', y: { $round: ['$price', 4] } } },
     { $sort: { x: 1 } }
   ])
 

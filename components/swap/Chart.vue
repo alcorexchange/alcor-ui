@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -25,10 +25,9 @@ export default {
       }],
 
       chartOptions: {
-        colors: ['#3E3A3B', 'red', 'green'],
+        colors: [this.$store.state.theme == 'light' ? '#3E3A3B' : '#9EABA3'],
 
         chart: {
-          //type: 'area',
           height: 350,
 
           zoom: {
@@ -54,26 +53,7 @@ export default {
           }
         },
 
-        markers: {
-          size: 0
-        },
-
-        fill: {
-          //colors: ['#3E3A3B', '#3E3A3B', '#fff'],
-
-          //type: 'gradient',
-
-          //gradient: {
-          //  shadeIntensity: 1,
-          //  opacityFrom: 0.8,
-          //  opacityTo: 0.4,
-          //  stops: [20, 80, 100]
-          //}
-        },
-
         grid: {
-          //borderColor: '#111',
-          //strokeDashArray: 7,
           xaxis: {
             lines: {
               show: false
@@ -98,7 +78,10 @@ export default {
 
         xaxis: {
           lines: { show: false },
-          type: 'datetime'
+          type: 'datetime',
+          tooltip: {
+            enabled: false
+          }
         },
 
         yaxis: {
@@ -106,14 +89,15 @@ export default {
           opposite: true
         },
 
-        legend: {
-          horizontalAlign: 'left'
+        tooltip: {
+          x: { show: false }
         }
       }
     }
   },
 
   computed: {
+    ...mapState(['theme']),
     ...mapGetters({
       pair: 'swap/current',
       isReverted: 'swap/isReverted'
@@ -131,14 +115,33 @@ export default {
 
     isReverted() {
       this.fetchCharts()
+    },
+
+    theme() {
+      this.updateChartOprions()
     }
   },
 
   mounted() {
     this.fetchCharts()
+    setTimeout(() => this.updateChartOprions(), 1000)
   },
 
   methods: {
+    updateChartOprions(options) {
+      if (!this.$refs.chart) {
+        console.log('LP CHART NOT FOUND..')
+        return
+      }
+
+      this.$refs.chart.updateOptions({
+        colors: [this.$store.state.theme == 'light' ? '#3E3A3B' : '#9EABA3'],
+        chart: {
+          foreColor: this.$store.state.theme == 'light' ? '#3E3A3B' : '#9EABA3'
+        }
+      })
+    },
+
     fetchCharts() {
       const API = {
         Price: 'line_chart',
@@ -160,3 +163,16 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.apexcharts-tooltip {
+  border: none !important;
+  border-radius: 4px;
+  box-shadow: none !important;
+
+  height: 30px;
+  background: red !important;
+  background-color: var(--background-color-base) !important;
+  color: var(--color-text-primary) !important;
+}
+</style>
