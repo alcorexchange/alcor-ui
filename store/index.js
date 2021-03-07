@@ -18,7 +18,7 @@ export const state = () => ({
   baseUrl: '',
   loading: false,
   tokens: [],
-  ibcTokens: ['bosibc.io']
+  ibcTokens: ['bosibc.io'] // TODO Collect all info for IBC Token, not only contrac & implement min/max for Transfer window
 })
 
 export const mutations = {

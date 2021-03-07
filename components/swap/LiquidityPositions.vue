@@ -4,7 +4,7 @@
     .row.mb-2
       .col
         .lead Liquidity Positions
-          create.float-right
+          //create.float-right
     .row
       .col(:class="{ 'p-0': isMobile }")
         el-table(:data='lpTokens' style='width: 100%').liquidity-table
@@ -44,14 +44,12 @@
 </template>
 
 <script>
-import { asset, number_to_asset } from 'eos-common'
+import { asset } from 'eos-common'
 
 import { mapGetters, mapState } from 'vuex'
-import Create from '~/components/swap/Create.vue'
 
 export default {
   components: {
-    Create
   },
 
   data() {

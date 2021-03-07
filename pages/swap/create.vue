@@ -1,57 +1,53 @@
 <template lang="pug">
-div
-  el-button(type="primary" size="small" @click="open") Create pool
+.row.mt-5
+  .col-md-10.m-auto
+    el-card
+      PleaseLoginButton
+        .px-3.mt-2
+          h1 Create new pool
+          .lead To create a pool, select the quote token and provide the initial liquidity ratio.
+        el-form(ref="form" label-position="left" v-if="user").px-3
+          el-form-item
+            b Base token:
+            span(v-if="base.currency")
+              TokenImage(:src="$tokenLogo(base.currency, base.contract)" height="25").ml-2
+              span.ml-1 {{ base.currency + '@' + base.contract }}
 
-  el-dialog(title="New pool creation", :visible="visible" @close="visible = false" width="50%" :append-to-body="true")
-    .row
-      .col
-        PleaseLoginButton
-          .px-3.mt-2
-            h1 Create new pool
-            .lead To create a pool, select the quote token and provide the initial liquidity ratio.
-          el-form(ref="form" label-position="left" v-if="user").px-3
-            el-form-item
-              b Base token:
-              span(v-if="base.currency")
-                TokenImage(:src="$tokenLogo(base.currency, base.contract)" height="25").ml-2
-                span.ml-1 {{ base.currency + '@' + base.contract }}
+            el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
+              el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
+                //el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
+                          :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
+                  TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
+                  span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
-              el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
-                el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
-                  //el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
-                            :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
-                    TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
-                    span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
+                // Only system token might be as base toekn of the pool
+                el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                  TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
+                  span.ml-3 {{ b.id }}
+                  span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
 
-                  // Only system token might be as base toekn of the pool
-                  el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
-                    TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
-                    span.ml-3 {{ b.id }}
-                    span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
+          el-form-item
+            .lead Quote token:
+              span(v-if="quote.id")
+                TokenImage(:src="$tokenLogo(quote.currency, quote.contract)" height="25").ml-2
+                span.ml-1 {{ quote.currency + '@' + quote.contract }}
 
-            el-form-item
-              .lead Quote token:
-                span(v-if="quote.id")
-                  TokenImage(:src="$tokenLogo(quote.currency, quote.contract)" height="25").ml-2
-                  span.ml-1 {{ quote.currency + '@' + quote.contract }}
+            el-input(type="number" placeholder='0.0' v-model="amount2" clearable @change="amountChange").input-with-select
+              el-select(v-model="quote_select", slot='append', placeholder='Select' @change="setQuoteToken" value-key="id")
+                el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+                  TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
+                  span.ml-3 {{ b.id }}
+                  span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
 
-              el-input(type="number" placeholder='0.0' v-model="amount2" clearable @change="amountChange").input-with-select
-                el-select(v-model="quote_select", slot='append', placeholder='Select' @change="setQuoteToken" value-key="id")
-                  el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
-                    TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
-                    span.ml-3 {{ b.id }}
-                    span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
+          el-form-item(v-if="this.base.symbol && this.quote.symbol")
+            .lead Backed token symbol (Automatically set recommended)
+            el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
 
-            el-form-item(v-if="this.base.symbol && this.quote.symbol")
-              .lead Backed token symbol (Automatically set recommended)
-              el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
-
-            pre Price {{ price }}
-            el-form-item
-              span.text-mutted.mt-2   Pool creation fee is:
-              b  {{ network.marketCreationFee }}
-
-              el-button(@click="create" :loading="loading").w-100 Create
+          pre Price {{ price }}
+          el-form-item
+            span.text-mutted.mt-2   Pool creation fee is:
+            b  {{ network.marketCreationFee }}
+            el-button(@click="create" type="primary" :loading="loading").w-100 Create
 
 </template>
 
@@ -201,6 +197,7 @@ export default {
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
         await this.$store.dispatch('swap/getPairs', actions)
+        this.$router.push({ name: 'swap' })
 
         this.$notify({ title: 'Pool create', message: 'Created', type: 'success' })
         this.visible = false

@@ -3,10 +3,6 @@
   el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open") BOS Ibc Transfer
 
   el-dialog(title="Cross-chain token transfer BOSIbc", :visible.sync="visible" width="25%" v-if="user").text-left
-    //el-alert(type="info" title="The IBC transfer are frozen due to maintenance")
-      span Please get more info on telegram group:
-      br
-      a(href="https://t.me/newbosibcgroup" target="_blank") https://t.me/newbosibcgroup
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mb-2
         b Where you want transfer {{ token.symbol }} ?
@@ -31,7 +27,7 @@
           span Balance
             el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
-        el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
+        el-input(type="number" v-model="form.amount" clearable @change="amountChange" :min="0.1").w-100
           span(slot="suffix").mr-1 {{ this.token.symbol }}
 
       el-form-item.mt-1(v-if="chain.name")
@@ -110,8 +106,23 @@ export default {
   },
 
   computed: {
-    ...mapState(['user', 'network']),
+    ...mapState(['user', 'network', 'ibcTokens']),
     ...mapGetters('api', ['rpc']),
+
+    // TODO
+    //min() {
+    //  const ibcToken = this.ibcTokens.filter(ibc_t => {
+    //    // TODO Checks only by contract name
+    //    console.log(ibc_t.original_contract, this.token.contract)
+    //    return ibc_t.original_contract == this.token.contract &&
+    //  })[0]
+
+    //  //console.log('ibcToken', ibcToken)
+
+    //  if (!ibcToken) return 1
+
+    //  return parseFloat(ibcToken.min_once_transfer)
+    //},
 
     networks() {
       return Object.values(config.networks)

@@ -34,22 +34,24 @@
         el-input(placeholder="Search by name or contract" :clearable="!static" v-model="search" size="small" ref="searchInput")
 
         .pairs.mt-2
-          .overflow-hidden
-            .pair(
-              v-for="token in tokensFiltered"
-              @click="setToken(token)" :class="{ isActive: isActiveToken(token) }"
-            )
-              TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
-              span.ml-2 {{ token.symbol }}
-              a(:href="monitorAccount(token.contract)" target="_blank" v-on:click.stop).text-muted.ml-2.small {{ token.contract }}
+          .pair(
+            v-for="token in tokensFiltered"
+            @click="setToken(token)" :class="{ isActive: isActiveToken(token) }"
+          )
+            TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
+            span.ml-2 {{ token.symbol }}
+            a(:href="monitorAccount(token.contract)" target="_blank" v-on:click.stop).text-muted.ml-2.small {{ token.contract }}
 
-              .ml-auto(v-if="user")
-                span.text-muted {{ $tokenBalance(token.symbol || token.currency, token.contract) }}
+            .ml-auto(v-if="user")
+              span.text-muted {{ $tokenBalance(token.symbol || token.currency, token.contract) }}
+
+          slot(name="end")
 </template>
 
 <script>
 import ClickOutside from 'vue-click-outside'
 import { mapState, mapGetters } from 'vuex'
+
 
 import TokenImage from '~/components/elements/TokenImage'
 
@@ -233,21 +235,21 @@ export default {
     overflow: hidden;
 
     .pairs {
-      overflow-y: hidden;
-      height: 100%;
+      overflow-y: auto;
+      height: calc(100% - 32px);
 
-      ::-webkit-scrollbar {
-        display: none;
-      }
+      //::-webkit-scrollbar {
+      //  display: none;
+      //}
 
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      overflow-y: scroll;
+      //-ms-overflow-style: none;
+      //scrollbar-width: none;
+      //overflow-y: scroll;
     }
 
-    .pairs::-webkit-scrollbar {
-      display: none;
-    }
+    //.pairs::-webkit-scrollbar {
+    //  display: none;
+    //}
   }
 
   .el-dialog__body {
@@ -263,14 +265,18 @@ export default {
   display: flex;
 
   cursor: pointer;
-  padding: 10px 5px;
+  padding: 10px 8px;
   border-radius: 5px;
   align-items: center;
-  margin-bottom: 5px;
+  margin-top: 5px;
 }
 
 .pair:hover,.isActive {
   background-color: var(--background-color-base);
+}
+
+.pair:last-child {
+  //margin-bottom: .5rem;
 }
 
 .multi-input-wrapper {

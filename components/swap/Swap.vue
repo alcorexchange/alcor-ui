@@ -10,6 +10,10 @@
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="inputAmount" :tokens="tokens0" :token="0" @change="tokenChanged(0)")
+          template(slot="end")
+            .pair(@click="$router.push('/swap/create')").text-muted
+              i.el-icon-plus.mr-2
+              span Create new pool
 
     .row.mt-3
       .col.text-center
@@ -22,6 +26,10 @@
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="outputAmount" :tokens="tokens1" readonly :token="1" @change="tokenChanged(1)")
+          template(slot="end")
+            .pair(@click="$router.push('/swap/create')").text-muted
+              i.el-icon-plus.mr-2
+              span Create new pool
 
     .row.mt-4
       .col(v-if="(input && inputAmount) && (output && outputAmount)")
