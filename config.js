@@ -40,8 +40,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'evolutiondex',
-      fee: 'wevotethefee'
+      contract: 'alcorammswap',
+      fee: 'avral.pro'
     },
 
     withdraw: {
