@@ -214,7 +214,7 @@ export default {
 <style lang="scss">
 .top-menu {
   .logo {
-    height: 3em;
+    height: 4em;
   }
 
   .chain-select {

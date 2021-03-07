@@ -2,7 +2,7 @@
 .ibc-withdraw
   el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open") BOS Ibc Transfer
 
-  el-dialog(title="Cross-chain token transfer BOSIbc (No fee)", :visible.sync="visible" width="25%" v-if="user").text-left
+  el-dialog(title="Cross-chain token transfer BOSIbc", :visible.sync="visible" width="25%" v-if="user").text-left
     //el-alert(type="info" title="The IBC transfer are frozen due to maintenance")
       span Please get more info on telegram group:
       br
