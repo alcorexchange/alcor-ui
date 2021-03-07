@@ -1,7 +1,7 @@
 <template lang="pug">
 .markets-bar
   .pt-2.px-2
-    el-input(size="small" v-model="search" placeholder="Filter by token")
+    el-input(size="small" v-model="search" placeholder="Filter by token" clearable)
   el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
     el-table-column(label="Pair")
       template(slot-scope="scope")

@@ -10,23 +10,25 @@
 
         SelectToken(v-model="amount" :token="withdraw_token" :tokens="lpTokens" @change="setLpToken" @inputchange="amountChange")
 
-        .d-flex.mt-2
-          .ml-auto.small {{ amountPercent }}%
-        el-slider(v-model="amountPercent" :min="0" :max="100" @input="percentChange").mx-2
-    .row.mt-3
-      .col
-        small.mb-1 To
-        SelectToken(v-model="baseReceive" :token="tokenOne" :static="true")
+    div(v-if="withdraw_token.symbol")
+      .d-flex.mt-2
+        .ml-auto.small {{ amountPercent }}%
+      el-slider(v-model="amountPercent" :min="0" :max="100" @input="percentChange").mx-2
 
-    .row.mt-3
-      .col
-        SelectToken(v-model="quoteReceive" :token="tokenTwo" :static="true")
+      .row.mt-3
+        .col
+          small.mb-1 To
+          SelectToken(v-model="baseReceive" :token="tokenOne" :static="true")
 
-    .row.mt-3
-      .col
-        PleaseLoginButton
-          el-button(v-if="parseFloat(amount)" type="primary" @click="withdraw" :loading="loading").w-100 Withdraw
-          el-button(v-else type="primary" disabled).w-100 Select Amount
+      .row.mt-3
+        .col
+          SelectToken(v-model="quoteReceive" :token="tokenTwo" :static="true")
+
+      .row.mt-3
+        .col
+          PleaseLoginButton
+            el-button(v-if="parseFloat(amount)" type="primary" @click="withdraw" :loading="loading").w-100 Withdraw
+            el-button(v-else type="primary" disabled).w-100 Select Amount
 
 </template>
 
