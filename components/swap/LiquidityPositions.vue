@@ -4,7 +4,9 @@
     .row.mb-2
       .col
         .lead Liquidity Positions
-          //create.float-right
+          nuxt-link(to="/swap/create").float-right
+            el-button(size="mini" plain ) Create pool
+            //create.float-right
     .row
       .col(:class="{ 'p-0': isMobile }")
         el-table(:data='lpTokens' style='width: 100%').liquidity-table

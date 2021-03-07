@@ -13,7 +13,7 @@
           template(slot="end")
             .pair(@click="$router.push('/swap/create')").text-muted
               i.el-icon-plus.mr-2
-              span Create new pool
+              span Create pool
 
     .row.mt-3
       .col.text-center
@@ -29,7 +29,7 @@
           template(slot="end")
             .pair(@click="$router.push('/swap/create')").text-muted
               i.el-icon-plus.mr-2
-              span Create new pool
+              span Create pool
 
     .row.mt-4
       .col(v-if="(input && inputAmount) && (output && outputAmount)")
