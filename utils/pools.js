@@ -1,6 +1,6 @@
 import { asset } from 'eos-common'
 
-export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 10) {
+export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 30) {
   const amount_in_with_fee = amount_in.multiply(10000 - fee)
   const numerator = amount_in_with_fee.multiply(reserve_out)
   const denominator = reserve_in.multiply(10000).add(amount_in_with_fee)
@@ -8,7 +8,7 @@ export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 10) {
   return numerator.divide(denominator)
 }
 
-export function get_amount_in(amount_out, reserve_in, reserve_out, fee = 10) {
+export function get_amount_in(amount_out, reserve_in, reserve_out, fee = 30) {
   const numerator = reserve_in.multiply(amount_out).multiply(10000)
   const denominator = reserve_out.minus(amount_out).multiply(10000 - fee)
   const amount_in = numerator.divide(denominator).plus(1)

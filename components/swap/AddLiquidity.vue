@@ -5,7 +5,7 @@
       .col
         .d-flex.mb-1
           small.text-muted Asset 1
-          small.text-mutted.small.ml-auto {{ inputBalance }}
+          el-button(type="text" size="mini" @click="amount1Input(inputBalance)").ml-auto.pr-0 {{ inputBalance }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="amount1" :tokens="tokens0" :token="0" @input="amount1Input")
@@ -18,7 +18,7 @@
       .col
         .d-flex.mb-1
           small.text-muted Asset 2
-          small.text-mutted.small.ml-auto {{ outputBalance }}
+          el-button(type="text" size="mini" @click="amount2Input(outputBalance)").ml-auto.pr-0 {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="amount2" :tokens="tokens1" :token="1" @input="amount2Input")
@@ -140,7 +140,8 @@ export default {
     amount1Input(value) {
       if (!this.current) return
 
-      let amount1 = (parseFloat(value) || 0).toFixed(this.poolOne.quantity.symbol.precision())
+      this.amount1 = parseFloat(value)
+      let amount1 = (this.amount1 || 0).toFixed(this.poolOne.quantity.symbol.precision())
 
       amount1 = asset(amount1 + ' ' + this.poolOne.quantity.symbol.code().to_string()).amount
 
@@ -162,7 +163,8 @@ export default {
     amount2Input(value) {
       if (!this.current) return
 
-      let amount2 = (parseFloat(value) || 0).toFixed(this.poolTwo.quantity.symbol.precision())
+      this.amount2 = parseFloat(value)
+      let amount2 = (this.amount2 || 0).toFixed(this.poolTwo.quantity.symbol.precision())
 
       amount2 = asset(amount2 + ' ' + this.poolTwo.quantity.symbol.code().to_string()).amount
 

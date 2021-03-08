@@ -14,20 +14,29 @@
             template(slot-scope='scope')
               // TODO Double token i.el-icon-time
               span {{ scope.row.pair.name }}
-          el-table-column(label='Deposit')
+          el-table-column(label='Deposit' width="200")
             template(slot-scope='scope')
               .small {{ scope.row.asset1 }}
               .small {{ scope.row.asset2 }}
 
-          el-table-column(label='Earning (Fees)')
+          el-table-column(label='Pool Share' width="130")
+            template(slot-scope='scope')
+              span {{ scope.row.share }}%
+
+          el-table-column
+            template(slot="header" slot-scope="scope")
+              .d-flex
+                span Earning
+                el-checkbox(v-model="net" active-text="Net Profit").ml-auto Net Profit
+                  small.text-muted.ml-1 (Experimental)
             template(slot-scope='scope')
               .row
                 .col-lg-6
                   .earnings(v-if="scope.row.earn1 && scope.row.earn2")
-                    .small {{ scope.row.earn1 }}
-                    .small {{ scope.row.earn2 }}
+                    .small {{ scope.row.earn1.to_string() }}
+                    .small {{ scope.row.earn2.to_string() }}
                 .col-lg-6
-                  .ml-auto
+                  .float-right
                     el-button(
                       size="mini"
                       type="success"
@@ -49,6 +58,7 @@
 import { asset } from 'eos-common'
 
 import { mapGetters, mapState } from 'vuex'
+import { get_amount_out, get_amount_in } from '~/utils/pools'
 
 export default {
   components: {
@@ -56,7 +66,8 @@ export default {
 
   data() {
     return {
-      liquidity_positions: []
+      liquidity_positions: [],
+      net: false
     }
   },
 
@@ -86,13 +97,19 @@ export default {
 
         position.pair = pair
 
+        const supply = pair.supply
+
+        const r1 = pair.pool1.quantity.amount
+        const r2 = pair.pool2.quantity.amount
+
         const s1 = pair.pool1.quantity.symbol
         const s2 = pair.pool2.quantity.symbol
 
-        //Formula total liquidity*LPHolder/totalLP = current balance
         const lp_tokens = asset(b.amount + ' X').amount
-        position.asset1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1).to_string()
-        position.asset2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2).to_string()
+        position.asset1 = asset(r1.multiply(lp_tokens).divide(supply.amount), s1).to_string()
+        position.asset2 = asset(r2.multiply(lp_tokens).divide(supply.amount), s2).to_string()
+
+        position.share = (lp_tokens.multiply(10000).divide(supply.amount) / 100).toFixed(2)
 
         const lposition = this.liquidity_positions.filter(p => p.pair_id == pair.id)[0]
 
@@ -100,11 +117,23 @@ export default {
           const lp1 = asset(lposition.liquidity1.toFixed(s1.precision()) + ' ' + s1.code().to_string())
           const lp2 = asset(lposition.liquidity2.toFixed(s2.precision()) + ' ' + s2.code().to_string())
 
-          position.earn1 = asset(pair.pool1.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s1).minus(lp1).to_string()
-          position.earn2 = asset(pair.pool2.quantity.amount.multiply(lp_tokens).divide(pair.supply.amount), s2).minus(lp2).to_string()
+          position.earn1 = asset(r1.multiply(lp_tokens).divide(supply.amount), s1).minus(lp1)
+          position.earn2 = asset(r2.multiply(lp_tokens).divide(supply.amount), s2).minus(lp2)
+
+          if (this.net) {
+            if (position.earn1.amount < 0 && position.earn2.amount >= 0) {
+              const compensate = get_amount_out(position.earn1.amount, r1, r2, -pair.fee)
+              position.earn1 = asset(0, s1)
+              position.earn2.plus(compensate)
+            } else if (position.earn2.amount < 0 && position.earn1.amount >= 0) {
+              const compensate = get_amount_in(position.earn2.amount, r1, r2, -pair.fee)
+              position.earn1.plus(compensate)
+              position.earn2 = asset(0, s2)
+            }
+          }
         } else {
-          position.earn1 = asset(0, s1).to_string()
-          position.earn2 = asset(0, s2).to_string()
+          position.earn1 = asset(0, s1)
+          position.earn2 = asset(0, s2)
         }
 
         return position

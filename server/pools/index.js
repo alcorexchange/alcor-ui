@@ -29,7 +29,7 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
       }
     },
     { $project: { time: { $toLong: '$_id' }, price: { $divide } } },
-    { $project: { x: '$time', y: { $round: ['$price', 4] } } },
+    { $project: { x: '$time', y: { $round: ['$price', 6] } } },
     { $sort: { x: 1 } }
   ])
 
