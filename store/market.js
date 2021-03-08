@@ -1,4 +1,4 @@
-import { sort_by_price, prepareOrder, mergeSamePriceOrders, parseAsset } from '~/utils'
+import { sort_by_price, prepareOrder, mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -95,6 +95,13 @@ export const actions = {
 }
 
 export const getters = {
+  relatedPool(state, getters, rootState) {
+    const current = rootState.markets.filter(m => m.id == state.id)[0]
+    if (!current) return null
+
+    return rootState.swap.pairs.filter(p => p.i256 == current.i256)[0]
+  },
+
   token (state) {
     return state.token || {}
   },

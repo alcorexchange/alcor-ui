@@ -25,7 +25,10 @@
               my-history(v-if="user" v-loading="loading")
 
       .low-center
-        .overflowbox.low-height
+        .overflowbox.low-height.position-relative
+          .tabs-right(v-if="relatedPool")
+            el-button(type="text" icon="el-icon-right" @click="goToPool") Buy & Sell using SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+
           el-tabs.h-100
             el-tab-pane(label="Limit trade")
               .trade-box
@@ -93,13 +96,21 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapGetters('chain', ['rpc', 'scatter']),
-    ...mapState('market', ['token', 'id', 'stats']),
+    ...mapState('market', ['token', 'id', 'stats', 'base_token']),
+    ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user'])
+  },
+
+  methods: {
+    goToPool() {
+      this.$store.dispatch('swap/setPair', this.relatedPool.id)
+      this.$router.push('/swap')
+    }
   }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped >
 .top-level {
   display: flex;
   height: 500px;
@@ -166,7 +177,8 @@ export default {
 .tabs-right {
   position: absolute;
   top: 0px;
-  right: 20px;
+  right: 15px;
+  z-index: 123;
 }
 
 @media screen and (max-width: 1350px) {
@@ -194,6 +206,13 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .pool-price {
+    position: absolute;
+
+    top: 5px;
+    right: 5px;
+  }
+
   .el-tabs__nav {
     margin-left: 20px;
   }

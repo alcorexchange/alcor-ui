@@ -142,8 +142,8 @@ export default {
   },
 
   watch: {
-    user() {
-      this.fetchPositions()
+    user(_new, old) {
+      if (!old) this.fetchPositions()
     }
   },
 
@@ -181,6 +181,7 @@ export default {
 
     fetchPositions() {
       if (!this.user) return
+
       this.$store.getters['api/backEnd'].get(`/api/account/${this.user.name}/liquidity_positions`).then(r => {
         this.liquidity_positions = r.data
       })

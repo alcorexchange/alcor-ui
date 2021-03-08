@@ -2,6 +2,8 @@ import axios from 'axios'
 
 import config from '~/config'
 
+import { make256key } from '~/utils'
+
 export const strict = false
 
 const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
@@ -98,8 +100,12 @@ export const actions = {
   async loadMarkets({ state, commit, getters, dispatch }) {
     const { data } = await getters['api/backEnd'].get('/api/markets')
     data.map(m => {
-      m.symbol = m.quote_token.symbol.name + ' / ' + m.base_token.symbol.name
-      m.slug = (m.quote_token.str + '_' + m.base_token.str).toLowerCase().replace(/@/g, '-')
+      const { base_token, quote_token } = m
+
+      m.symbol = quote_token.symbol.name + ' / ' + base_token.symbol.name
+      m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-')
+
+      m.i256 = make256key(base_token.contract, base_token.symbol.name, quote_token.contract, quote_token.symbol.name)
     })
     commit('setMarkets', data)
   },

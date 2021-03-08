@@ -1,5 +1,5 @@
-import Vuex from 'vuex'
 import { asset } from 'eos-common'
+import { make256key } from '~/utils'
 import { preparePair } from '~/utils/pools'
 
 export const state = () => ({
@@ -69,10 +69,15 @@ export const actions = {
     })
 
     rows.map(r => {
+      r.rate = (parseFloat(r.pool1.quantity) / parseFloat(r.pool2.quantity)).toFixed(6)
       r.pool1.quantity = asset(r.pool1.quantity)
       r.pool2.quantity = asset(r.pool2.quantity)
       r.supply = asset(r.supply)
       r.name = r.pool1.quantity.symbol.code().to_string() + '/' + r.pool2.quantity.symbol.code().to_string()
+      r.i256 = make256key(
+        r.pool1.contract, r.pool1.quantity.symbol.code().to_string(),
+        r.pool2.contract, r.pool2.quantity.symbol.code().to_string()
+      )
     })
 
     commit('setPairs', rows)

@@ -1,7 +1,20 @@
+import { Name, SymbolCode } from 'eos-common'
 import { Serialize } from 'eosjs'
 import Big from 'big.js'
 
 import config from '../config'
+
+
+export function make256key(contract1, symbol1, contract2, symbol2) {
+  const q_i128_id = new Name(contract1).value.shiftLeft(64).or(new SymbolCode(symbol1.toUpperCase()).raw())
+  const b_i128_id = new Name(contract2).value.shiftLeft(64).or(new SymbolCode(symbol2.toUpperCase()).raw())
+
+  if (q_i128_id < b_i128_id)
+    return q_i128_id.shiftLeft(128).or(b_i128_id).toString(16)
+  else
+    return b_i128_id.shiftLeft(128).or(q_i128_id).toString(16)
+}
+
 
 export function e_asset_to_token(easset) {
   return {
