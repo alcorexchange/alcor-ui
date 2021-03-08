@@ -91,7 +91,7 @@ export default {
     }
 
     if (this.network.name == 'proton') {
-      // TODO
+      wallets.unshift({ name: '', logo: require('@/assets/logos/proton_wallet.svg'), index: 'proton' })
     }
 
     this.wallets = wallets
