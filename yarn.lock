@@ -2247,6 +2247,59 @@
   dependencies:
     "@types/node" ">= 8"
 
+"@proton/browser-transport@^2.5.18":
+  version "2.5.18"
+  resolved "https://registry.yarnpkg.com/@proton/browser-transport/-/browser-transport-2.5.18.tgz#a80d30af4aca4810dbe4e4395e25e96aebd54fd4"
+  integrity sha512-YlqcyEOFBpaxvj7pvj7bPj6IZspOcpUS9AMlmcXshSIEo8ojfrnPvOY5P7yD5Vc4Po+CpsP83uxvM7ex4ge3ZQ==
+  dependencies:
+    "@proton/js" "22.0.45"
+    qrcode "^1.4.4"
+
+"@proton/js@22.0.45":
+  version "22.0.45"
+  resolved "https://registry.yarnpkg.com/@proton/js/-/js-22.0.45.tgz#fc3b6e940d72d30070d54527fdbd866e9ac49e94"
+  integrity sha512-VnH85B49QiicPn7e3WmvAWPxzN83qqiqqa/IAIcFWUq/PUF2ljG6bOMkoG4EhuA5zAgCHmbB7t0X+Armovuavg==
+  dependencies:
+    bn.js "5.1.2"
+    bs58 "^4.0.1"
+    debug "^4.3.1"
+    elliptic "6.5.3"
+    fast-text-encoding "^1.0.3"
+    hash.js "1.1.7"
+    pako "1.0.11"
+    ripemd-ts "0.0.2"
+
+"@proton/link@^2.5.32":
+  version "2.5.32"
+  resolved "https://registry.yarnpkg.com/@proton/link/-/link-2.5.32.tgz#d34b861feb99d8515bdc90f4cefde85ff2f1d821"
+  integrity sha512-ejxKl3atdNdamqTHvy5L3cj85ejErQGGf9xMPZZu63LWsVY4hDce0PLZbuFQoiOF8UJIyACniAtYvWRdNJb8Bw==
+  dependencies:
+    "@proton/js" "22.0.45"
+    "@proton/signing-request" "^2.5.19"
+    eosjs-ecc "^4.0.7"
+    isomorphic-ws "^4.0.1"
+    pako "^1.0.11"
+    uuid "^8.3.1"
+    ws "^7.3.1"
+
+"@proton/signing-request@^2.5.19":
+  version "2.5.19"
+  resolved "https://registry.yarnpkg.com/@proton/signing-request/-/signing-request-2.5.19.tgz#6255730fa305ffe7a15c8112e216a42837528de2"
+  integrity sha512-e1IWaXPP5HUFPJ8QOhc8OVukNNfg4Z2+OsEF4Tll5Z+uDmavdZOY+NoDkzt9rWyOchuxxuBHE18cd7xJNIElQw==
+  dependencies:
+    "@proton/js" "22.0.45"
+    fast-sha256 "^1.1.1"
+    fast-text-encoding "^1.0.3"
+
+"@proton/web-sdk@^2.7.16":
+  version "2.7.16"
+  resolved "https://registry.yarnpkg.com/@proton/web-sdk/-/web-sdk-2.7.16.tgz#e647ad745770c5f1e7cf304f71a1eb7c07b3d25c"
+  integrity sha512-vnJGpUrJ3mQKD/CIkk829kkT86LCY/ZDNruwILXRGcGf6ngSbF9oLw8jhNR/jt2Wx1wL6s+iOO5zMtVs8/pSdQ==
+  dependencies:
+    "@proton/browser-transport" "^2.5.18"
+    "@proton/js" "22.0.45"
+    "@proton/link" "^2.5.32"
+
 "@protonprotocol/proton-browser-transport@^2.5.6":
   version "2.5.6"
   resolved "https://registry.yarnpkg.com/@protonprotocol/proton-browser-transport/-/proton-browser-transport-2.5.6.tgz#8f3521361f3345dcadfb5b5b8ba54cc7624196c8"
@@ -3614,6 +3667,11 @@ bluebird@^3.1.1, bluebird@^3.4.1, bluebird@^3.4.6, bluebird@^3.5.1, bluebird@^3.
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
+
+bn.js@5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.2.tgz#c9686902d3c9a27729f43ab10f9d79c2004da7b0"
+  integrity sha512-40rZaf3bUNKTVYu9sIeeEGOg7g14Yvnj9kH7b50EiwX0Q7A6umbvfI5tvHaOERH0XigqKkfLkFQxzb4e6CIXnA==
 
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.8, bn.js@^4.4.0:
   version "4.11.9"
@@ -5146,6 +5204,13 @@ debug@^3.1.0, debug@^3.2.6:
   integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
   dependencies:
     ms "^2.1.1"
+
+debug@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
+  integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
+  dependencies:
+    ms "2.1.2"
 
 debuglog@^1.0.1:
   version "1.0.1"

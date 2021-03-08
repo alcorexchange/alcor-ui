@@ -132,6 +132,7 @@ export const actions = {
           return
         }
 
+        console.log(r, 'connected')
         commit('setUser', {
           name: r.account_name,
           authorization: { actor: getters.wallet.auth.accountName, permission: getters.wallet.auth.permission }
@@ -237,7 +238,7 @@ export const getters = {
   accessContext(state, getters, rootState) {
     const LynxProvider = require('eos-transit-lynx-provider').default
     const LedgerProvider = require('eos-transit-ledger-provider').default
-    const ProtonProvider = require('@protonprotocol/proton-transit-provider').default
+    const ProtonProvider = require('~/plugins/transit/ProtonProvider').default
 
     const walletProviders = [
       ScatterProvider(),
@@ -252,7 +253,7 @@ export const getters = {
     }
 
     if (rootState.network.name == 'proton') {
-      walletProviders.push(ProtonProvider(config.APP_NAME, {}))
+      walletProviders.push(ProtonProvider(config.APP_NAME, { requestAccount: rootState.network.contract }))
     }
 
     return transit.initDefaultAccessContext({
@@ -272,7 +273,6 @@ export const getters = {
   },
 
   walletProvider(state, getters) {
-    console.log('provider:', getters.walletProviders[5], getters.walletProviders[6])
     return getters.walletProviders[state.provider]
   },
 
