@@ -9,9 +9,9 @@ export default ({ app: { store } }) => {
     store.dispatch('chain/init')
     store.dispatch('init')
 
-    //if (process.env.isDev) {
-    //  const VConsole = require('vconsole')
-    //  Vue.prototype.$vConsole = new VConsole()
-    //}
+    if (process.env.isDev) {
+      const VConsole = require('vconsole')
+      Vue.prototype.$vConsole = new VConsole()
+    }
   })
 }
