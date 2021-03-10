@@ -66,13 +66,12 @@ export default {
 
   data() {
     return {
-      liquidity_positions: [],
       net: false
     }
   },
 
   computed: {
-    ...mapState(['network']),
+    ...mapState(['network', 'liquidityPositions']),
     ...mapGetters(['user']),
     ...mapGetters('swap', ['current']),
     ...mapState('swap', ['pairs', 'withdraw_token']),
@@ -111,7 +110,7 @@ export default {
 
         position.share = (lp_tokens.multiply(10000).divide(supply.amount) / 100).toFixed(2)
 
-        const lposition = this.liquidity_positions.filter(p => p.pair_id == pair.id)[0]
+        const lposition = this.liquidityPositions.filter(p => p.pair_id == pair.id)[0]
 
         if (lposition) {
           const lp1 = asset(lposition.liquidity1.toFixed(s1.precision()) + ' ' + s1.code().to_string())
@@ -182,9 +181,7 @@ export default {
     fetchPositions() {
       if (!this.user) return
 
-      this.$store.getters['api/backEnd'].get(`/api/account/${this.user.name}/liquidity_positions`).then(r => {
-        this.liquidity_positions = r.data
-      })
+      this.$store.dispatch('loadUserLiqudityPositions')
     }
   }
 }

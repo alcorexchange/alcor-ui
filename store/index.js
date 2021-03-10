@@ -11,6 +11,7 @@ const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3
 export const state = () => ({
   user: null,
   userDeals: [],
+  liquidityPositions: [],
 
   markets: [],
   network: {},
@@ -31,6 +32,7 @@ export const mutations = {
   setUser: (state, user) => state.user = user,
   setMarkets: (state, markets) => state.markets = markets,
   setUserDeals: (state, deals) => state.userDeals = deals,
+  setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
   setIsMobile: (state, mobile) => state.isMobile = mobile,
   setBaseUrl: (state, url) => state.baseUrl = url,
@@ -53,10 +55,6 @@ export const actions = {
 
     dispatch('loadMarkets')
     dispatch('loadIbc')
-    // FIXME disable pools for a while
-    //dispatch('pools/fetchPools', {}, { root: true })
-    //dispatch('pools/updatePool', {}, { root: true })
-    setInterval(() => dispatch('pools/updatePool', {}, { root: true }), 10000)
 
     setInterval(() => dispatch('update'), 15000)
   },
@@ -126,6 +124,12 @@ export const actions = {
     const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
 
     commit('setIbcTokens', tokens)
+  },
+
+  loadUserLiqudityPositions({ rootGetters, state, commit }) {
+    rootGetters['api/backEnd'].get(`/api/account/${state.user.name}/liquidity_positions`).then(r => {
+      commit('setLiquidityPositions', r.data)
+    })
   },
 
   loadUserBalances({ rootState, state, commit }) {

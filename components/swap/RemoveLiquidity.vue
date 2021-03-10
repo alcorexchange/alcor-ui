@@ -193,12 +193,21 @@ export default {
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
 
+        //TODO Refactor, create methods for it
+        const balances = this.user.balances
+        for (const b of balances) {
+          if (b.currency == this.pair.supply.symbol.code().to_string()) {
+            b.amount = parseFloat(b.amount) - parseFloat(this.amount)
+            this.$store.commit('swap/setWithdrawToken', { ...this.withdraw_token, amount: b.amount })
+          }
+        }
+        this.$store.commit('setUser', { ...this.user, balances }, { root: true })
+        // UPDATING OF user balance
+
         this.amount = 0.0
         this.amountChange()
 
-        this.$emit('update')
         this.$notify({ title: 'Withdraw', message: 'Success', type: 'success' })
-        this.$store.dispatch('pools/updatePool')
         this.$store.dispatch('loadUserBalances')
         console.log(r)
       } catch (e) {
