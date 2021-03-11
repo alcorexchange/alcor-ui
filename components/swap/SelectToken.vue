@@ -40,7 +40,8 @@
           )
             TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
             span.ml-2 {{ token.symbol }}
-            a(:href="monitorAccount(token.contract)" target="_blank" v-on:click.stop).text-muted.ml-2.small {{ token.contract }}
+            //a(:href="monitorAccount(token.contract)" target="_blank" v-on:click.stop).text-muted.ml-2.small {{ token.contract }}
+            .text-muted.ml-2.small {{ token.contract }}
 
             .ml-auto(v-if="user")
               span.text-muted {{ $tokenBalance(token.symbol || token.currency, token.contract) }}
