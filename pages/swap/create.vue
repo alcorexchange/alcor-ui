@@ -196,7 +196,7 @@ export default {
       this.loading = true
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
-        await this.$store.dispatch('swap/getPairs', actions)
+        await this.$store.dispatch('swap/getPairs')
         this.$router.push({ name: 'swap' })
 
         this.$notify({ title: 'Pool create', message: 'Created', type: 'success' })
