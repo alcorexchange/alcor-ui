@@ -26,8 +26,8 @@
           el-table-column
             template(slot="header" slot-scope="scope")
               .d-flex
-                span Earning
-                el-checkbox(v-model="net" active-text="Net Profit").ml-auto Net Profit
+                span Earnings
+                el-checkbox(v-model="net" v-if="user && user.name == 'aw.aq.waa'" active-text="Net Profit").ml-auto Net Profit
                   small.text-muted.ml-1 (Experimental)
             template(slot-scope='scope')
               .row
