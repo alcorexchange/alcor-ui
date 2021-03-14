@@ -170,7 +170,7 @@ const networks = {
       precision: 8
     },
 
-    marketCreationFee: '800.00000000 WAX',
+    marketCreationFee: '400.00000000 WAX',
     feeAccount: 'aw.aq.waa',
 
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
