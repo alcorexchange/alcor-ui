@@ -19,7 +19,7 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, 60 * 60 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 6 * 1000] }
             ]
           }
         },
@@ -42,23 +42,24 @@ pools.get('/:pair_id/volume_chart', async (req, res) => {
 
   // TODO Не работает, допилить
   const volume = await Exchange.aggregate([
-    { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
-    //{
-    //  $group:
-    //  {
-    //    _id: {
-    //      $toDate: {
-    //        $subtract: [
-    //          { $toLong: '$time' },
-    //          { $mod: [{ $toLong: '$time' }, 60 * 60 * 1000] }
-    //        ]
-    //      }
-    //    },
-    //    supply: { $max: '$supply' }
-    //  }
-    //},
-    //{ $project: { x: { $toLong: '$_id' }, y: { $round: ['$supply', 4] } } },
-    { $project: { x: { $toLong: '$time' }, y: { $round: ['$supply', 4] } } },
+    { $match: { chain: network.name, pair_id: parseFloat(pair_id) } },
+    {
+      $group:
+      {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 12 * 1000] }
+            ]
+          }
+        },
+        in: { $sum: '$quantity_in' },
+        out: { $sum: '$quantity_out' }
+      }
+    },
+    { $project: { x: { $toLong: '$_id' }, y: { $sqrt: { $multiply: ['$in', '$out'] } } } },
+    { $project: { x: 1, y: { $round: ['$y', 4] } } },
     { $sort: { x: 1 } }
   ]).allowDiskUse(true)
 
