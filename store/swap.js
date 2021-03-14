@@ -130,11 +130,7 @@ export const actions = {
 
 export const getters = {
   tokens0(state, getters, rootState) {
-    if (state.output) {
-      return get_second_tokens(state.pairs, state.output)
-    } else {
-      return get_all_tokens(state.pairs)
-    }
+    return get_all_tokens(state.pairs)
   },
 
   tokens1(state, getters, rootState) {

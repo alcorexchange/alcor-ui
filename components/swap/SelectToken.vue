@@ -189,22 +189,36 @@ export default {
     },
 
     setToken(token) {
-      // this.token Used only for pools
+      // Triggered only on for swap page
+      const { input, output } = this
       if (this.token == 0) {
-        if (this.output && token.contract == this.output.contract && token.symbol == this.output.symbol) {
-          this.$store.commit('swap/setOutput', this.input)
-        }
-
         this.$store.commit('swap/setInput', token)
+
+        if (output && token.contract == output.contract && token.symbol == output.symbol) {
+          this.$store.commit('swap/setOutput', input)
+        } else if (output && !this.tokens1.filter(t => t.contract == output.contract && t.symbol == output.symbol)[0]) {
+          if (this.tokens1) {
+            this.$store.commit('swap/setOutput', this.tokens1[0])
+          } else {
+            this.$store.commit('swap/setOutput', null)
+          }
+        }
       }
 
       if (this.token == 1) {
-        if (this.input && token.contract == this.input.contract && token.symbol == this.input.symbol) {
-          this.$store.commit('swap/setInput', this.output)
-        }
-
         this.$store.commit('swap/setOutput', token)
+
+        if (input && token.contract == input.contract && input.symbol == output.symbol) {
+          this.$store.commit('swap/setInput', output)
+        } else if (input && !this.tokens0.filter(t => t.contract == input.contract && t.symbol == input.symbol)[0]) {
+          if (this.tokens0) {
+            this.$store.commit('swap/setInput', this.tokens0[0])
+          } else {
+            this.$store.commit('swap/setInput', null)
+          }
+        }
       }
+      /////
 
       this.$emit('change', token)
       this.visible = false
