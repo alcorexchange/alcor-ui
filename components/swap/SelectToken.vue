@@ -199,7 +199,7 @@ export default {
       }
 
       if (this.token == 1) {
-        if (token.contract == this.input.contract && token.symbol == this.input.symbol) {
+        if (this.input && token.contract == this.input.contract && token.symbol == this.input.symbol) {
           this.$store.commit('swap/setInput', this.output)
         }
 

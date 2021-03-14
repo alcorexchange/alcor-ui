@@ -1,6 +1,6 @@
 import { asset } from 'eos-common'
 import { make256key } from '~/utils'
-import { preparePair } from '~/utils/pools'
+import { preparePair, get_second_tokens, get_all_tokens } from '~/utils/pools'
 
 export const state = () => ({
   pairs: [],
@@ -130,60 +130,19 @@ export const actions = {
 
 export const getters = {
   tokens0(state, getters, rootState) {
-    const tokens = [rootState.network.baseToken] // Base token as default
-
-    state.pairs.map(p => {
-      let token = {
-        symbol: p.pool1.quantity.symbol.code().to_string(),
-        precision: p.pool1.quantity.symbol.precision(),
-        contract: p.pool1.contract
-      }
-
-      if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
-
-      token = {
-        symbol: p.pool2.quantity.symbol.code().to_string(),
-        precision: p.pool2.quantity.symbol.precision(),
-        contract: p.pool2.contract
-      }
-
-      if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
-    })
-
-    return tokens
+    if (state.output) {
+      return get_second_tokens(state.pairs, state.output)
+    } else {
+      return get_all_tokens(state.pairs)
+    }
   },
 
   tokens1(state, getters, rootState) {
-    const tokens = [rootState.network.baseToken]
-
-    if (!state.input) return getters.tokens0
-
-    for (const p of state.pairs) {
-      const symbol_t0 = p.pool1.quantity.symbol.code().to_string()
-      const symbol_t1 = p.pool2.quantity.symbol.code().to_string()
-
-      if (p.pool1.contract == state.input.contract && symbol_t0 == state.input.symbol) {
-        const token = {
-          symbol: p.pool2.quantity.symbol.code().to_string(),
-          precision: p.pool2.quantity.symbol.precision(),
-          contract: p.pool2.contract
-        }
-
-        if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
-      }
-
-      if (p.pool2.contract == state.input.contract && symbol_t1 == state.input.symbol) {
-        const token = {
-          symbol: p.pool1.quantity.symbol.code().to_string(),
-          precision: p.pool1.quantity.symbol.precision(),
-          contract: p.pool1.contract
-        }
-
-        if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
-      }
+    if (!state.input) {
+      return getters.tokens0
+    } else {
+      return get_second_tokens(state.pairs, state.input)
     }
-
-    return tokens
   },
 
   current(state) {

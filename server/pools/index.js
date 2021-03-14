@@ -19,7 +19,7 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, 15 * 60 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 1000] }
             ]
           }
         },

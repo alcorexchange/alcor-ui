@@ -132,7 +132,6 @@ export const actions = {
           return
         }
 
-        console.log(r, 'connected')
         commit('setUser', {
           name: r.account_name,
           authorization: { actor: getters.wallet.auth.accountName, permission: getters.wallet.auth.permission }

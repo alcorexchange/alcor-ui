@@ -1,5 +1,53 @@
 import { asset } from 'eos-common'
 
+export function get_all_tokens(pairs) {
+  const tokens = []
+
+  pairs.map(p => {
+    let token = {
+      symbol: p.pool1.quantity.symbol.code().to_string(),
+      precision: p.pool1.quantity.symbol.precision(),
+      contract: p.pool1.contract
+    }
+
+    if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
+
+    token = {
+      symbol: p.pool2.quantity.symbol.code().to_string(),
+      precision: p.pool2.quantity.symbol.precision(),
+      contract: p.pool2.contract
+    }
+
+    if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
+  })
+
+  return tokens
+}
+
+export function get_second_tokens(pairs, token) {
+  const tokens = []
+
+  pairs.map(p => {
+    if (p.pool1.contract == token.contract && p.pool1.quantity.symbol.code().to_string() == token.symbol) {
+      tokens.push({
+        symbol: p.pool2.quantity.symbol.code().to_string(),
+        precision: p.pool2.quantity.symbol.precision(),
+        contract: p.pool2.contract
+      })
+    }
+
+    if (p.pool2.contract == token.contract && p.pool2.quantity.symbol.code().to_string() == token.symbol) {
+      tokens.push({
+        symbol: p.pool1.quantity.symbol.code().to_string(),
+        precision: p.pool1.quantity.symbol.precision(),
+        contract: p.pool1.contract
+      })
+    }
+  })
+
+  return tokens
+}
+
 export function get_amount_out(amount_in, reserve_in, reserve_out, fee = 30) {
   const amount_in_with_fee = amount_in.multiply(10000 - fee)
   const numerator = amount_in_with_fee.multiply(reserve_out)
