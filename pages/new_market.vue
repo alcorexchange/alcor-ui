@@ -88,7 +88,7 @@
 import { captureException } from '@sentry/browser'
 
 import { mapGetters, mapState } from 'vuex'
-import { asset } from "eos-common"
+import { asset } from 'eos-common'
 
 import TokenImage from '~/components/elements/TokenImage'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
