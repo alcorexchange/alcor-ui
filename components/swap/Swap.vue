@@ -32,10 +32,14 @@
               span Create pool
 
     .row.mt-4
-      .col(v-if="(input && inputAmount) && (output && outputAmount)")
-        el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
-      .col(v-else)
-        el-button(type="primary" disabled).w-100 Select amounts
+      .col
+        PleaseLoginButton
+          .div(v-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
+            el-button(type="primary" disabled).w-100 Insufficient Funds
+          .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
+            el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+          .div(v-else)
+            el-button(type="primary" disabled).w-100 Select amounts
 
     .row.mt-3
       .col
@@ -70,11 +74,13 @@ import { asset, symbol } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
 
+import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
 
 export default {
   components: {
-    SelectToken
+    SelectToken,
+    PleaseLoginButton
   },
 
   data() {

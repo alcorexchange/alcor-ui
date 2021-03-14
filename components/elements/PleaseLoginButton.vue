@@ -1,8 +1,8 @@
 <template lang="pug">
-    div(v-if="user")
-      slot
-    div(v-else)
-      el-button(@click="login").w-100 Please login to continue
+  div(v-if="user")
+    slot
+  div(v-else)
+    el-button(@click="login" type="primary").w-100 Connect Wallet
 
 </template>
 
