@@ -13,7 +13,8 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export const getCharts = memoize(async function (chain, market, from, to, resolution) {
+//export const getCharts = memoize(async function (chain, market, from, to, resolution) {
+export const getCharts = async function (chain, market, from, to, resolution) {
   const _resolution = resolutions[resolution]
 
   if (from && to) {
@@ -73,8 +74,8 @@ export const getCharts = memoize(async function (chain, market, from, to, resolu
   }
 
   return new_bars
-}, { maxAge: 60 * 1 * 1000, primitive: true })
-
+}
+//}, { maxAge: 60 * 1 * 1000, primitive: true })
 
 export async function markeBar(match) {
   const last_bar = await Bar.findOne({ chain: match.chain, market: match.market }, {}, { sort: { time: -1 } })
