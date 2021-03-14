@@ -21,7 +21,7 @@ export async function streamByNode(network, app, account, callback, actions) {
     try {
       r = await rpc.history_get_actions(account, offset, 100)
     } catch (e) {
-      console.log('getActionsByNode err: ', e.message)
+      console.log(`getActionsByNode(${network.name}) err: `, e.message)
       await new Promise((resolve, reject) => setTimeout(resolve, 2000))
       continue
     }
