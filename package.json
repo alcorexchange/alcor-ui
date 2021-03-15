@@ -54,6 +54,8 @@
     "node-fetch": "^2.6.0",
     "node-sass": "^4.14.1",
     "nuxt": "2.14.4",
+    "nuxt-imagemin": "^1.0.0",
+    "nuxt-purgecss": "^1.0.0",
     "nuxt-socket-io": "^1.1.11",
     "nuxt-ssr-cache": "^1.5.1",
     "sass-loader": "^10.0.2",

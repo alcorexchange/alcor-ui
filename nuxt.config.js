@@ -99,27 +99,11 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
-    //'nuxt-socket-io'
-    //'nuxt-ssr-cache'
+    'nuxt-imagemin',
+    'nuxt-purgecss'
   ],
 
-  // Socket
-  //io: {
-  //  sockets: [{
-  //    name: 'main',
-  //    url: 'http://localhost:3000/',
-  //    default: true,
-  //    vuex: {
-  //      actions: [{ test: 'test' }]
-  //    }
-  //  }]
-  //},
-  /*
-  ** Axios module configuration
-  */
-  axios: {
-    // See https://github.com/nuxt-community/axios-module#options
-  },
+  components: true,
 
   /*
   ** Sentry module configuration
