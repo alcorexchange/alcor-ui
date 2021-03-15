@@ -45,8 +45,12 @@
 
           pre Price {{ price }}
           el-form-item
-            span.text-mutted.mt-2   Pool creation fee is:
-            b  {{ network.marketCreationFee }}
+            //span.text-mutted.mt-2   Pool creation fee is:
+            //b  {{ network.marketCreationFee }}
+            span.text-mutted.mt-2   Pool creation is
+            b  FREE
+            //b  {{ network.marketCreationFee }}
+
             el-button(@click="create" type="primary" :loading="loading").w-100 Create
 
 </template>
@@ -179,19 +183,19 @@ export default {
         }
       ]
 
-      if (this.user.name != this.network.feeAccount) {
-        actions.push({
-          account: this.network.baseToken.contract,
-          name: 'transfer',
-          authorization,
-          data: {
-            from: this.user.name,
-            to: this.network.feeAccount,
-            quantity: this.network.marketCreationFee,
-            memo: 'Pool creation fee'
-          }
-        })
-      }
+      //if (this.user.name != this.network.feeAccount) {
+      //  actions.push({
+      //    account: this.network.baseToken.contract,
+      //    name: 'transfer',
+      //    authorization,
+      //    data: {
+      //      from: this.user.name,
+      //      to: this.network.feeAccount,
+      //      quantity: this.network.marketCreationFee,
+      //      memo: 'Pool creation fee'
+      //    }
+      //  })
+      //}
 
       this.loading = true
       try {

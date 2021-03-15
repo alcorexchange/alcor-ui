@@ -254,7 +254,7 @@ export default {
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
         this.$store.dispatch('swap/updatePair', this.pair.id)
-        this.$store.dispatch('loadUserBalances')
+        setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
 
         this.inputAmount = Number(0).toFixed(this.input.precision)
         this.outputAmount = Number(0).toFixed(this.output.precision)
