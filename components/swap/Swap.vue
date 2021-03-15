@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.mt-4
-  .col
+  .col.swap-pools
     .row
       .col
         .d-flex.mb-1
@@ -31,15 +31,26 @@
               i.el-icon-plus.mr-2
               span Create pool
 
+    .row.mt-4(v-if="output && ibcTokens.includes(output.contract)")
+      .col
+        el-form(:model="ibcForm" :rules="rules" ref="form")
+          el-form-item.mb-2
+            el-switch(v-model="ibcForm.tranfer" active-text="Swap & Transfer")
+
+          .multi-input-wrapper(v-if="ibcForm.tranfer").mt-4
+            el-form-item(prop="address").mb-0
+              el-input(v-model="ibcForm.address" clearable :placeholder="`Recipient's ${output.symbol} Address`")
+
     .row.mt-4
       .col
         PleaseLoginButton
-          .div(v-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
-            el-button(type="primary" disabled).w-100 Insufficient Funds
-          .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
-            el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
-          .div(v-else)
-            el-button(type="primary" disabled).w-100 Select amounts
+          div(v-loading="loading")
+            .div(v-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
+              el-button(type="primary" disabled).w-100 Insufficient Funds
+            .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
+              el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+            .div(v-else)
+              el-button(type="primary" disabled).w-100 Select amounts
 
     .row.mt-3
       .col
@@ -73,6 +84,7 @@ import BigInt from 'big-integer'
 import { asset, symbol } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
+import { isAccountExists } from '~/utils/account'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
@@ -87,14 +99,39 @@ export default {
     return {
       loading: false,
 
+      ibcForm: {
+        tranfer: false,
+        address: '',
+        valid: '',
+      },
+
       inputAmount: 0.0,
       outputAmount: 0.0,
-      minOutput: '0.0000'
+      minOutput: '0.0000',
+
+      rules: {
+        address: {
+          trigger: 'blur',
+          validator: async (rule, value, callback) => {
+            this.loading = true
+            const exists = await isAccountExists(value, this.network)
+            this.loading = false
+
+            if (exists) {
+              this.ibcValid = false
+              callback()
+            } else {
+              this.ibcValid = false
+              callback(new Error('Account not exists!'))
+            }
+          }
+        }
+      }
     }
   },
 
   computed: {
-    ...mapState(['network', 'user']),
+    ...mapState(['network', 'user', 'ibcTokens']),
     ...mapState('swap', ['input', 'output', 'pairs']),
     ...mapGetters({
       pair: 'swap/current',
@@ -269,3 +306,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.swap-pools {
+  :root .el-form-item__error {
+    top: -32px;
+    left: -5px;
+  }
+}
