@@ -31,13 +31,15 @@ config.dev = process.env.NODE_ENV !== 'production'
 
 async function start () {
   //db sync
-  try {
-    const uri = config.dev ? 'mongodb://localhost:27017/alcor_dev' : 'mongodb://host.docker.internal:27017/alcor_prod'
-    await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
-    console.log('MongoDB connected!')
-  } catch (e) {
-    console.log(e)
-    throw new Error('MongoDB connect err')
+  if (!process.env.DISABLE_DB) {
+    try {
+      const uri = config.dev ? 'mongodb://localhost:27017/alcor_dev' : 'mongodb://host.docker.internal:27017/alcor_prod'
+      await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+      console.log('MongoDB connected!')
+    } catch (e) {
+      console.log(e)
+      throw new Error('MongoDB connect err')
+    }
   }
 
   app.use(bodyParser.json())
@@ -70,16 +72,18 @@ async function start () {
     badge: true
   })
 
-  const io = socket(server)
+  if (!process.env.DISABLE_DB) {
+    const io = socket(server)
 
-  io.on('connection', socket => {
-    subscribe(io, socket)
-    unsubscribe(io, socket)
-  })
+    io.on('connection', socket => {
+      subscribe(io, socket)
+      unsubscribe(io, socket)
+    })
 
-  app.set('io', io)
+    app.set('io', io)
 
-  startUpdaters(app)
+    startUpdaters(app)
+  }
 }
 
 start()
