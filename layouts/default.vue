@@ -1,95 +1,64 @@
-<template lang="pug">
-.mb-5.mt-2(:class="$route.name == 'trade-index-id' ? 'container-fluid' : 'container'" ref="top").top-menu
-  ModalsDialog
-  .row.mb-2
-    .col(v-if="!isMobile")
-      .d-flex
-        el-menu(router, :default-active="activeLink", mode='horizontal')
-          el-menu-item(index="/")
-            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
-            img(v-else src="~/assets/logos/alcorwhite.svg").logo
-
-          // Menu items
-          el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
-
-        .d-flex.align-items-center.ml-auto
-          chain-select(:current_chain="current_chain").mr-4
-
-          div(v-if="user")
-            el-dropdown(size='small', split-button='' :hide-on-click="false" trigger="click")
-              //a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
-              | {{ $store.state.user.name }}
-              el-dropdown-menu(slot='dropdown')
-                el-dropdown-item(v-if="network.name == 'eos'")
-                  .row
-                    .col
-                      img(src="~/assets/logos/greymassfuel.png" height="30")
-                  .row
-                    .col
-                      el-switch(v-model='payForUser' inactive-text=' Free CPU')
-                  hr
-                el-dropdown-item
-                  el-button(size="mini" type="info" plain @click="logout").w-100 logout
-
-          el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
-
-          .ml-3
-            el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
-            el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
-
-    .col(v-else)
-      .row
-        .col-md-5.mb-1
-          .d-flex.align-items-center
-            nuxt-link(to="/")
-              img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg" height="55").logo
-              img(v-else src="~/assets/logos/alcorwhite.svg").logo
-
-            el-button(size="small" type="text").ml-auto
-              img(src="/telegram.png" height="30").mr-2
-              a.a-reset(href="https://t.me/alcorexchange" target="_blank") Join Telegram chat!
-
-      .row
-        .col
-          .row
-            .col
-              el-menu(router, :default-active="activeLink", mode='horizontal')
-                // Menu items
-                el-menu-item(v-for= "item in menuItems" :index="item.index") {{ item.name }}
-
-      .fixed-bottom.mobile-bottom
-        .row
-          .col
-            .d-flex.justify-content-around
-              .pr-0.login
-                el-dropdown(size='small', split-button='' :hide-on-click="false" trigger="click" v-if="user")
-                  a(:href="monitorAccount($store.state.user.name)" target="_blank") {{ $store.state.user.name }}
-                  //| {{ $store.state.user.name }}
-                  el-dropdown-menu(slot='dropdown')
-                    el-dropdown-item(v-if="network.name == 'eos'")
-                      .row
-                        .col
-                          img(src="~/assets/logos/greymassfuel.png" height="30")
-                      .row
-                        .col
-                          el-switch(v-model='payForUser' inactive-text=' Free CPU')
-                        hr
-
-                    el-dropdown-item
-                      el-button(size="mini" type="info" plain @click="logout").w-100 logout
-
-                el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
-
-              .chain-select
-                chain-select(:current_chain="current_chain")
-
-              .p-0
-                el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
-                el-button(v-else icon="el-icon-moon" circle size="small" @click="$store.dispatch('toggleTheme')")
-  nuxt
-
-  FooterBlock
-
+<template>
+  <div class="layout">
+    <nav class="nav">
+      <div class="nav-side nav-left">
+        <img
+          v-if="$store.state.theme == 'light'"
+          src="~/assets/logos/alcorblack.svg"
+          height="44"
+          class="logo"
+        />
+        <img
+          v-else
+          class="logo"
+          height="44"
+          src="~/assets/logos/alcorwhite.svg"
+          alt=""
+        />
+        <ul class="nav-items">
+          <li v-for="item in menuItems" :key="item.index">
+            <AlcorLink :to="item.index" flat class="item">
+              {{ item.name }}
+            </AlcorLink>
+          </li>
+        </ul>
+      </div>
+      <div class="nav-side nav-right">
+        <el-dropdown trigger="click">
+          <div class="network-selection">
+            <span>EOS MAINNET</span>
+            <i class="el-icon-arrow-down"></i>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu class="dropdown-container">
+              <div class="d-item">item</div>
+              <div class="d-item">item</div>
+              <div class="d-item">item</div>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <AlcorButton class="connect-button">Connect Wallet</AlcorButton>
+        <el-dropdown trigger="click">
+          <div class="">
+            <AlcorButton :iconOnly="true">
+              <i class="el-icon-more"></i>
+            </AlcorButton>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu class="dropdown-container">
+              <div class="d-item">item</div>
+              <div class="d-item">item</div>
+              <div class="d-item">item</div>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+    </nav>
+    <div class="main">
+      <Nuxt />
+    </div>
+    <FooterBlock />
+  </div>
 </template>
 
 <script>
@@ -100,12 +69,16 @@ import config from '~/config'
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
+import AlcorButton from '~/components/AlcorButton'
+import AlcorLink from '~/components/AlcorLink'
 
 export default {
   components: {
-    ModalsDialog,
-    ChainSelect,
-    FooterBlock: Footer
+    // ModalsDialog,
+    // ChainSelect,
+    // FooterBlock: Footer,
+    AlcorLink,
+    AlcorButton
   },
 
   data() {
@@ -152,16 +125,16 @@ export default {
     },
 
     payForUser: {
-      get () {
+      get() {
         return this.$store.state.chain.payForUser
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit('chain/setPayForUser', value)
       }
     },
 
-    activeLink () {
+    activeLink() {
       if (!this.$route) return
 
       const paths = this.$route.path.split('/')
@@ -197,17 +170,89 @@ export default {
     }
   },
 
-  head () {
+  head() {
     return {
       meta: [
-        { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' }
+        {
+          hid: 'og:image',
+          name: 'og:image',
+          content: '/android-chrome-512x512.png'
+        }
       ]
     }
   }
 }
 </script>
 
+<style scoped lang="scss">
+.layout {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  background: var(--background-color-base);
+}
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  .nav-side {
+    display: flex;
+    align-items: center;
+  }
+}
+.nav-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-left: 14px;
+  display: flex;
+  .item {
+    padding: 4px 14px;
+    margin-right: 4px;
+    &.active {
+      background: var(--btn-active);
+    }
+  }
+}
+.nav-right {
+  .network-selection {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px 14px;
+    color: var(--text);
+    span {
+      margin-right: 4px;
+    }
+  }
+  .connect-button {
+    margin: 0 4px;
+  }
+}
+.d-item {
+  display: flex;
+  text-align: center;
+  padding: 4px 12px;
+  min-width: 150px;
+  color: var(--text);
+  cursor: pointer;
+  &:hover {
+    background: var(--hover);
+  }
+}
+</style>
+
 <style lang="scss">
+// global - crashes in main.scss
+.el-dropdown-menu {
+  background: var(--bg-big-card);
+  border: 1px solid var(--bg-big-card);
+  border-radius: var(--radius-2);
+}
+.el-popper[x-placement^='bottom'] .popper__arrow::after {
+  border-bottom-color: var(--bg-big-card);
+}
 .top-menu {
   .logo {
     height: 4em;
@@ -259,7 +304,9 @@ export default {
   }
 
   @media only screen and (max-width: 600px) {
-    .el-dialog, .el-message-box, .el-notification {
+    .el-dialog,
+    .el-message-box,
+    .el-notification {
       width: 95%;
     }
 
