@@ -99,8 +99,8 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
-    //'nuxt-imagemin',
-    //'nuxt-purgecss'
+    'nuxt-imagemin'
+    //'nuxt-purgecss' // FIXME Fails on docker production building
   ],
 
   //components: true,
