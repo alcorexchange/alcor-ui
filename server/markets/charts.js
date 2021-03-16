@@ -121,24 +121,25 @@ export async function markeBar(match) {
   last_bar.save()
 }
 
-export const getVolume = deals => {
-  let volume = 0
+export async function getVolumeFrom(date, market, chain) {
+  const day_volume = await Match.aggregate([
+    { $match: { chain, market, time: { $gte: new Date(date) } } },
+    { $project: { market: 1, value: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } } } },
+    { $group: { _id: '$market', volume: { $sum: '$value' } } }
+  ])
 
-  deals.map(m => {
-    m.type == 'buymatch' ? volume += parseFloat(m.bid) : volume += parseFloat(m.ask)
-  })
-
-  return volume
+  return day_volume.length == 1 ? day_volume[0].volume : 0
 }
 
-export const getChange = (deals) => {
-  if (deals.length > 0) {
-    const price_before = parseFloat(deals[0].unit_price)
-    const price_after = parseFloat(deals[deals.length - 1].unit_price)
+export async function getChangeFrom(date, market, chain) {
+  const date_deal = await Match.findOne({ chain, market, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
+  const last_deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } })
 
-    const change = ((price_after - price_before) / price_before) * 100
+  if (date_deal) {
+    const price_before = date_deal.unit_price
+    const price_after = last_deal.unit_price
 
-    return change
+    return ((price_after - price_before) / price_before) * 100
   } else {
     return 0
   }

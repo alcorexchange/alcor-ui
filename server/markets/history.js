@@ -7,7 +7,7 @@ import { Match } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
-import { getVolume, getChange, markeBar, pushDeal, pushTicker } from './charts'
+import { getVolumeFrom, getChangeFrom, markeBar, pushDeal, pushTicker } from './charts'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -32,14 +32,18 @@ export async function getMarketStats(network, market_id) {
     stats.last_price = 0
   }
 
-  const day_matches = await Match.find({ chain: network.name, market: market_id, time: { $gte: Date.now() - ONEDAY } })
-  const week_matches = await Match.find({ chain: network.name, market: market_id, time: { $gte: Date.now() - WEEK } })
+  const oneMonthAgo = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() - 1,
+    new Date().getDate()
+  )
 
-  stats.volume24 = getVolume(day_matches)
-  stats.volumeWeek = getVolume(week_matches)
+  stats.volume24 = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
+  stats.volumeWeek = await getVolumeFrom(Date.now() - WEEK, market_id, network.name)
+  stats.volumeMonth = await getVolumeFrom(oneMonthAgo, market_id, network.name)
 
-  stats.change24 = getChange(day_matches)
-  stats.changeWeek = getChange(week_matches)
+  stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
+  stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
 
   return stats
 }
@@ -78,6 +82,7 @@ export async function updateMarkets(network) {
 
     cache.set(`${network.name}_markets`, markets, 0)
   } catch (e) {
+    console.log('err get markets', e)
     rows.map(r => r.last_price = 0)
     cache.set(`${network.name}_markets`, rows, 0)
   }
