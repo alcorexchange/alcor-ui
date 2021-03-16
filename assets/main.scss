@@ -1,12 +1,8 @@
+// Import variables for light/dark theme
 @import "~/assets/_variables.scss";
 
-.bg-base { background: var(--background-color-base); }
-.bg-secondary { background: var(--background-color-secondary); }
-.bg-third { background: var(--background-color-third); }
-
-// Themes
-:root { @import "light"; }
-.theme-dark { @import "dark"; }
+// Add elements scss (themed by variables)
+@import './element.scss';
 
 @font-face {
     font-family: element-icons;
@@ -19,6 +15,7 @@ html, body {
 
     transition: .3s;
 }
+
 
 div::-webkit-scrollbar {
   width: 2px;
