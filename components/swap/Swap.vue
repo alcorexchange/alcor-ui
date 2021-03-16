@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.mt-4
-  .col
+  .col.swap-pools
     .row
       .col
         .d-flex.mb-1
@@ -31,15 +31,28 @@
               i.el-icon-plus.mr-2
               span Create pool
 
+    .row.mt-4(v-if="output && ibcChain")
+      .col
+        el-form(:model="ibcForm" :rules="rules" ref="form")
+          el-form-item.mb-2
+            el-switch(v-model="ibcForm.transfer" active-text="Swap & Transfer")
+
+          .multi-input-wrapper(v-if="ibcForm.transfer").mt-4
+            el-form-item(prop="address").mb-0
+              el-input(v-model="ibcForm.address" clearable :placeholder="`Recipient's ${output.symbol} Address`")
+
     .row.mt-4
       .col
         PleaseLoginButton
-          .div(v-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
-            el-button(type="primary" disabled).w-100 Insufficient Funds
-          .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
-            el-button(type="primary" @click="submit" v-loading="loading").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
-          .div(v-else)
-            el-button(type="primary" disabled).w-100 Select amounts
+          div(v-loading="loading")
+            .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
+              el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
+            .div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
+              el-button(type="primary" disabled).w-100 Insufficient Funds
+            .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
+              el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+            .div(v-else)
+              el-button(type="primary" disabled).w-100 Select amounts
 
     .row.mt-3
       .col
@@ -73,6 +86,9 @@ import BigInt from 'big-integer'
 import { asset, symbol } from 'eos-common'
 import { mapState, mapGetters } from 'vuex'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
+import { isAccountExists } from '~/utils/account'
+
+import config from '~/config'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
@@ -87,14 +103,40 @@ export default {
     return {
       loading: false,
 
+      ibcForm: {
+        transfer: false,
+        address: '',
+        valid: ''
+      },
+
       inputAmount: 0.0,
       outputAmount: 0.0,
-      minOutput: '0.0000'
+      minOutput: '0.0000',
+
+      rules: {
+        address: {
+          trigger: 'blur',
+          validator: async (rule, value, callback) => {
+            if (value == '') return callback()
+            this.loading = true
+            const exists = await isAccountExists(value, config.networks[this.ibcChain])
+            this.loading = false
+
+            if (exists) {
+              this.ibcForm.valid = true
+              callback()
+            } else {
+              this.ibcForm.valid = false
+              callback(new Error('Account not exists!'))
+            }
+          }
+        }
+      }
     }
   },
 
   computed: {
-    ...mapState(['network', 'user']),
+    ...mapState(['network', 'user', 'ibcTokens']),
     ...mapState('swap', ['input', 'output', 'pairs']),
     ...mapGetters({
       pair: 'swap/current',
@@ -106,6 +148,22 @@ export default {
       tokens0: 'swap/tokens0',
       tokens1: 'swap/tokens1'
     }),
+
+    ibcChain() {
+      if (!this.output) return ''
+
+      const { contract, symbol } = this.output
+
+      if (this.network.name == 'eos') {
+        if (contract == 'bosibc.io' && symbol == 'WAX') return 'wax'
+      }
+
+      if (this.network.name == 'wax') {
+        if (contract == 'bosibc.io' && symbol == 'EOS') return 'eos'
+      }
+
+      return ''
+    },
 
     price() {
       if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return '0.0000'
@@ -127,6 +185,10 @@ export default {
   },
 
   watch: {
+    output() {
+      this.ibcForm.transfer = false
+    },
+
     inputAmount() {
       this.calcOutput()
     },
@@ -146,6 +208,8 @@ export default {
 
   methods: {
     tokenChanged(token) {
+      this.ibcForm.transfer = false
+
       if (token == 0 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
       if (token == 0 && this.input && parseFloat(this.outputAmount)) this.calcInput()
       if (token == 1 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
@@ -233,6 +297,12 @@ export default {
     async submit() {
       if (!this.inputAmount || !this.outputAmount) return
 
+      let memo = `${this.minOutput}@${this.output.contract}`
+
+      if (this.ibcChain && this.ibcForm.transfer) {
+        memo += `|bosibc.io|hub.io@bos >> ${this.ibcForm.address}@${this.ibcChain} alcor.exchange (IBC swap)`
+      }
+
       const authorization = [this.user.authorization]
 
       const actions = [
@@ -244,7 +314,7 @@ export default {
             from: this.user.name,
             to: this.network.pools.contract,
             quantity: parseFloat(this.inputAmount).toFixed(this.input.precision) + ' ' + this.input.symbol,
-            memo: `${this.minOutput}@${this.output.contract}`
+            memo
           }
         }
       ]
@@ -261,7 +331,7 @@ export default {
 
         this.$notify({ title: 'Swap', message: 'Success', type: 'success' })
       } catch (e) {
-        this.$notify({ title: 'Swap error', message: e, type: 'error' })
+        this.$notify({ title: 'Swap error', message: 'message' in e ? e.message : e, type: 'error' })
       } finally {
         this.loading = false
       }
@@ -269,3 +339,21 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.theme-dark {
+  .swap-pools {
+    .el-switch__core {
+      background: #484848;
+    }
+  }
+}
+
+.swap-pools {
+  .el-form-item__error {
+    top: -32px;
+    left: -5px;
+  }
+
+}
+</style>
