@@ -341,14 +341,19 @@ export default {
 </script>
 
 <style lang="scss">
+.theme-dark {
+  .swap-pools {
+    .el-switch__core {
+      background: #484848;
+    }
+  }
+}
+
 .swap-pools {
   .el-form-item__error {
     top: -32px;
     left: -5px;
   }
 
-  .el-switch__core {
-    background: #484848;
-  }
 }
 </style>
