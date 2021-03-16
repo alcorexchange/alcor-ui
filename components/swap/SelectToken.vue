@@ -189,6 +189,8 @@ export default {
     },
 
     setToken(token) {
+      this.$emit('change', token)
+
       // Triggered only on for swap page
       const { input, output } = this
       if (this.token == 0) {
@@ -219,8 +221,6 @@ export default {
         }
       }
       /////
-
-      this.$emit('change', token)
       this.visible = false
     }
   }

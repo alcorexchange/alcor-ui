@@ -103,7 +103,7 @@ module.exports = {
     //'nuxt-purgecss'
   ],
 
-  components: true,
+  //components: true,
 
   /*
   ** Sentry module configuration
