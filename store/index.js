@@ -21,7 +21,8 @@ export const state = () => ({
   baseUrl: '',
   loading: false,
   tokens: [],
-  ibcTokens: ['bosibc.io'] // TODO Collect all info for IBC Token, not only contrac & implement min/max for Transfer window
+  ibcTokens: ['bosibc.io'],
+  ibcAccepts: []
 })
 
 export const mutations = {
@@ -39,6 +40,7 @@ export const mutations = {
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
   setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
+  setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
   setTheme: (state, theme) => state.theme = theme
 }
 
@@ -132,6 +134,7 @@ export const actions = {
     const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
 
     commit('setIbcTokens', tokens)
+    commit('setIbcAccepts', ibcTokens)
   },
 
   loadUserLiqudityPositions({ rootGetters, state, commit }) {

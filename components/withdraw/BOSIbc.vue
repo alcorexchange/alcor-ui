@@ -28,7 +28,8 @@
           span Balance
             el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
-        el-input(type="number" v-model="form.amount" clearable @change="amountChange" :min="0.1").w-100
+        small.float-right min: {{ ibcMinAccept }} {{ token.symbol }}
+        el-input(type="number" v-model="form.amount" clearable @change="amountChange" :min="ibcMinAccept").w-100
           span(slot="suffix").mr-1 {{ this.token.symbol }}
 
       el-form-item.mt-1(v-if="chain.name")
@@ -107,23 +108,8 @@ export default {
   },
 
   computed: {
-    ...mapState(['user', 'network', 'ibcTokens']),
+    ...mapState(['user', 'network', 'ibcTokens', 'ibcAccepts']),
     ...mapGetters('api', ['rpc']),
-
-    // TODO
-    //min() {
-    //  const ibcToken = this.ibcTokens.filter(ibc_t => {
-    //    // TODO Checks only by contract name
-    //    console.log(ibc_t.original_contract, this.token.contract)
-    //    return ibc_t.original_contract == this.token.contract &&
-    //  })[0]
-
-    //  //console.log('ibcToken', ibcToken)
-
-    //  if (!ibcToken) return 1
-
-    //  return parseFloat(ibcToken.min_once_transfer)
-    //},
 
     networks() {
       return Object.values(config.networks)
@@ -144,6 +130,17 @@ export default {
         return `${balance.amount} ${balance.currency}`
       else
         return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
+    },
+
+    ibcMinAccept() {
+      const accept = this.ibcAccepts.filter(t => {
+        return t.accept.split(' ')[1] == this.token.symbol
+      })[0]
+      console.log(accept)
+
+      if (accept) return parseFloat(accept.min_once_transfer)
+
+      return 0
     }
   },
 
