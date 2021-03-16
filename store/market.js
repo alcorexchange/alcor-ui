@@ -71,8 +71,9 @@ export const actions = {
 
   async fetchOrders({ state, commit, dispatch }) {
     await Promise.all([
-      dispatch('api/getBuyOrders', { market_id: state.id }, { root: true }),
-      dispatch('api/getSellOrders', { market_id: state.id }, { root: true })
+      // Fetching orders by price
+      dispatch('api/getBuyOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true }),
+      dispatch('api/getSellOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true })
     ]).then(([buyOrders, sellOrders]) => {
       buyOrders.map(o => prepareOrder(o))
       sellOrders.map(o => prepareOrder(o))
@@ -107,11 +108,13 @@ export const getters = {
   },
 
   sorted_asks(state) {
-    return mergeSamePriceOrders(state.asks.slice()).sort(sort_by_price)
+    //return mergeSamePriceOrders(state.asks.slice()).sort(sort_by_price)
+    return mergeSamePriceOrders(state.asks.slice())
   },
 
   sorted_bids(state) {
-    return mergeSamePriceOrders(state.bids.slice()).sort(sort_by_price)
+    //return mergeSamePriceOrders(state.bids.slice()).sort(sort_by_price)
+    return mergeSamePriceOrders(state.bids.slice())
   },
 
   baseBalance(state, getters, rootState) {
