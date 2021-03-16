@@ -45,8 +45,18 @@ export default {
     LiquidityPositions
   },
 
-  fetch({ store }) {
-    store.commit('swap/setInput', store.state.network.baseToken)
+  fetch({ store, route }) {
+    const { input, output } = route.query
+
+    if (input) {
+      const [symbol, contract] = input.split('-')
+      store.commit('swap/setInput', { symbol, contract })
+    }
+
+    if (output) {
+      const [symbol, contract] = output.split('-')
+      store.commit('swap/setOutput', { symbol, contract })
+    }
   },
 
   data() {
@@ -57,7 +67,7 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapState('swap', ['tab']),
+    ...mapState('swap', ['tab', 'input', 'output']),
     ...mapGetters('swap', ['current']),
 
     tabComponent() {
@@ -65,6 +75,34 @@ export default {
       if (this.tab == '- Liquidity') return 'RemoveLiquidity'
 
       return 'Swap'
+    }
+  },
+
+  watch: {
+    output() {
+      if (this.output) {
+        setTimeout(() => {
+          this.$router.push({
+            path: this.$route.path,
+            query: { ...this.$route.query, output: this.output.symbol + '-' + this.output.contract }
+          })
+        }, 1)
+      } else {
+        this.$router.push({ path: this.$route.path })
+      }
+    },
+
+    input() {
+      if (this.input) {
+        setTimeout(() => {
+          this.$router.push({
+            path: this.$route.path,
+            query: { ...this.$route.query, input: this.input.symbol + '-' + this.input.contract }
+          })
+        }, 1)
+      } else {
+        this.$router.push({ path: this.$route.path })
+      }
     }
   },
 
@@ -88,16 +126,27 @@ export default {
   },
 
   head() {
-    return {
-      title: 'Alcor Exchange | Swap & Earn on your Liquidity',
+    const { input, output } = this.$store.state.swap
 
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: 'Easy token swap, with liquidity providers earnings.'
-        }
-      ]
+    const title = (input && output)
+      ? `Alcor Exchange | Swap ${input.symbol} for ${output.symbol}`
+      : 'Alcor Exchange | Swap & Earn on your Liquidity'
+
+    const meta = [
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'Easy token swap, with liquidity providers earnings.'
+      }
+    ]
+
+    if (input && output) {
+      meta.push({ hid: 'og:image', name: 'og:image', content: this.$tokenLogo(input.symbol, input.contract) })
+    }
+
+    return {
+      title,
+      meta
     }
   }
 }

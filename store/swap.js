@@ -27,9 +27,17 @@ export const mutations = {
 }
 
 export const actions = {
-  init({ state, commit, dispatch, rootState }) {
-    dispatch('getPairs')
-    commit('setInput', rootState.network.baseToken)
+  async init({ state, commit, dispatch, rootState }) {
+    await dispatch('getPairs')
+
+    // Update after server input/output set (need precision)
+    const tokens = get_all_tokens(state.pairs)
+
+    const input = tokens.filter(t => t.symbol == state.input.symbol && t.contract == state.input.contract)[0]
+    const output = tokens.filter(t => t.symbol == state.output.symbol && t.contract == state.output.contract)[0] // can fail if no pairs
+
+    if (input) commit('setInput', input)
+    if (output) commit('setOutput', output)
   },
 
   setPair({ state, commit }, pair_id) {
