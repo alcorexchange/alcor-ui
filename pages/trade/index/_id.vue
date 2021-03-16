@@ -64,7 +64,7 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['symbol', 'quote_token', 'base_token']),
+    ...mapState('market', ['symbol', 'quote_token', 'base_token'])
   },
 
   head() {
