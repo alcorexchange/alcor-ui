@@ -4,7 +4,7 @@ const pkg = require('./package')
 const isSPA = process.argv.includes('--spa')
 const isDev = process.env.npm_lifecycle_event == 'dev'
 
-const desc = 'With ' + config.APP_NAME + ' you can trade any EOS.IO tokens for EOS system token, onchain, without the participation of third parties!'
+const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
 
 module.exports = {
   telemetry: false,
