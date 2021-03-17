@@ -1,63 +1,165 @@
 <template>
-  <div class="layout">
-    <nav class="nav">
-      <div class="nav-side nav-left">
-        <img
-          v-if="$store.state.theme == 'light'"
-          src="~/assets/logos/alcorblack.svg"
-          height="44"
-          class="logo"
-        />
-        <img
-          v-else
-          class="logo"
-          height="44"
-          src="~/assets/logos/alcorwhite.svg"
-          alt=""
-        />
-        <ul class="nav-items">
-          <li v-for="item in menuItems" :key="item.index">
-            <AlcorLink :to="item.index" flat class="item">
-              {{ item.name }}
-            </AlcorLink>
-          </li>
-        </ul>
-      </div>
-      <div class="nav-side nav-right">
-        <el-dropdown trigger="click">
-          <div class="network-selection">
-            <span>EOS MAINNET</span>
-            <i class="el-icon-arrow-down"></i>
+  <div>
+    <ModalsDialog />
+    <div class="layout">
+      <nav class="nav" v-if="!isMobile">
+        <div class="nav-side nav-left">
+          <img
+            v-if="$store.state.theme == 'light'"
+            src="~/assets/logos/alcorblack.svg"
+            height="44"
+            class="logo"
+          />
+          <img
+            v-else
+            class="logo"
+            height="44"
+            src="~/assets/logos/alcorwhite.svg"
+            alt=""
+          />
+          <ul class="nav-items">
+            <li v-for="item in menuItems" :key="item.index">
+              <AlcorLink :to="item.index" flat class="item">
+                {{ item.name }}
+              </AlcorLink>
+            </li>
+          </ul>
+        </div>
+        <div class="nav-side nav-right">
+          <el-dropdown trigger="click">
+            <div class="network-selection">
+              <span>EOS MAINNET</span>
+              <i class="el-icon-arrow-down"></i>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="dropdown-container">
+                <div class="d-item">item</div>
+                <div class="d-item">item</div>
+                <div class="d-item">item</div>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <AlcorButton
+            @click="$store.dispatch('modal/login')"
+            class="connect-button"
+          >
+            Connect Wallet
+          </AlcorButton>
+          <el-dropdown trigger="click">
+            <div class="">
+              <AlcorButton :iconOnly="true">
+                <i class="el-icon-more"></i>
+              </AlcorButton>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="dropdown-container">
+                <a class="d-item">
+                  <!-- <i class="el-icon-help"></i> -->
+                  Help Center
+                </a>
+                <a class="d-item">Telegram</a>
+                <a class="d-item">Twitter</a>
+                <a class="d-item">
+                  <!-- <i class="el-icon-document"></i> -->
+                  Docs
+                </a>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </nav>
+      <div class="menu-and-menu-header" v-else>
+        <div class="menu-header">
+          <div class="logo">
+            <img
+              v-if="$store.state.theme == 'light'"
+              src="~/assets/logos/alcorblack.svg"
+              height="34"
+              class="logo"
+            />
+            <img
+              v-else
+              class="logo"
+              height="34"
+              src="~/assets/logos/alcorwhite.svg"
+              alt=""
+            />
           </div>
-          <template #dropdown>
-            <el-dropdown-menu class="dropdown-container">
-              <div class="d-item">item</div>
-              <div class="d-item">item</div>
-              <div class="d-item">item</div>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        <AlcorButton class="connect-button">Connect Wallet</AlcorButton>
-        <el-dropdown trigger="click">
-          <div class="">
-            <AlcorButton :iconOnly="true">
-              <i class="el-icon-more"></i>
-            </AlcorButton>
-          </div>
-          <template #dropdown>
-            <el-dropdown-menu class="dropdown-container">
-              <div class="d-item">item</div>
-              <div class="d-item">item</div>
-              <div class="d-item">item</div>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+          <AlcorButton @click="openMenu" :iconOnlyAlt="true">
+            <i class="el-icon-more"></i>
+          </AlcorButton>
+          <nav :class="['menu', { menuActive }]">
+            <div class="logo">
+              <img
+                v-if="$store.state.theme == 'light'"
+                src="~/assets/logos/alcorblack.svg"
+                height="50"
+              />
+              <img
+                v-else
+                height="50"
+                src="~/assets/logos/alcorwhite.svg"
+                alt=""
+              />
+            </div>
+            <ul class="menu-items">
+              <li v-for="item in menuItems" :key="item.index">
+                <AlcorLink :to="item.index" flat class="item">
+                  {{ item.name }}
+                </AlcorLink>
+              </li>
+            </ul>
+          </nav>
+          <div class="menu-underlay" @click="closeMenu" v-if="menuActive"></div>
+        </div>
+        <div class="fixed-menu">
+          <el-dropdown trigger="click">
+            <div class="network-selection">
+              <span>EOS MAINNET</span>
+              <i class="el-icon-arrow-down"></i>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="dropdown-container">
+                <div class="d-item">item</div>
+                <div class="d-item">item</div>
+                <div class="d-item">item</div>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <AlcorButton
+            @click="$store.dispatch('modal/login')"
+            class="connect-button"
+          >
+            Connect Wallet
+          </AlcorButton>
+          <el-dropdown trigger="click">
+            <div class="">
+              <AlcorButton :iconOnly="true">
+                <i class="el-icon-more"></i>
+              </AlcorButton>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="dropdown-container">
+                <a class="d-item">
+                  <!-- <i class="el-icon-help"></i> -->
+                  Help Center
+                </a>
+                <a class="d-item">Telegram</a>
+                <a class="d-item">Twitter</a>
+                <a class="d-item">
+                  <!-- <i class="el-icon-document"></i> -->
+                  Docs
+                </a>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </div>
-    </nav>
-    <div class="main">
-      <Nuxt />
+      <div class="main">
+        <Nuxt />
+      </div>
+      <FooterBlock />
     </div>
-    <FooterBlock />
   </div>
 </template>
 
@@ -74,11 +176,11 @@ import AlcorLink from '~/components/AlcorLink'
 
 export default {
   components: {
-    // ModalsDialog,
+    ModalsDialog,
     // ChainSelect,
-    // FooterBlock: Footer,
+    FooterBlock: Footer,
     AlcorLink,
-    AlcorButton
+    AlcorButton,
   },
 
   data() {
@@ -88,7 +190,9 @@ export default {
       networks: [],
       current_chain: '',
 
-      app_name: config.APP_NAME
+      app_name: config.APP_NAME,
+
+      menuActive: false,
     }
   },
 
@@ -131,7 +235,7 @@ export default {
 
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
-      }
+      },
     },
 
     activeLink() {
@@ -146,7 +250,7 @@ export default {
       } else {
         return this.$route.path
       }
-    }
+    },
   },
 
   mounted() {
@@ -167,7 +271,19 @@ export default {
   methods: {
     async logout() {
       await this.$store.dispatch('chain/logout')
-    }
+    },
+    openMenu() {
+      this.menuActive = true
+    },
+    closeMenu() {
+      this.menuActive = false
+    },
+  },
+
+  watch: {
+    $route() {
+      this.closeMenu()
+    },
   },
 
   head() {
@@ -176,17 +292,18 @@ export default {
         {
           hid: 'og:image',
           name: 'og:image',
-          content: '/android-chrome-512x512.png'
-        }
-      ]
+          content: '/android-chrome-512x512.png',
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 
 <style scoped lang="scss">
 .layout {
   width: 100%;
+  padding: 0 20px;
   max-width: 1200px;
   margin: auto;
   background: var(--background-color-base);
@@ -221,7 +338,7 @@ export default {
     display: flex;
     align-items: center;
     padding: 4px 14px;
-    color: var(--text);
+    color: var(--text-default);
     span {
       margin-right: 4px;
     }
@@ -235,16 +352,89 @@ export default {
   text-align: center;
   padding: 4px 12px;
   min-width: 150px;
-  color: var(--text);
+  color: var(--text-default);
   cursor: pointer;
   &:hover {
     background: var(--hover);
   }
 }
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+}
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+.menu-underlay {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: black;
+  opacity: 0.5;
+  z-index: 238;
+}
+.menu {
+  position: fixed;
+  right: -280px;
+  top: 0;
+  height: 100%;
+  width: 260px;
+  background: var(--background-color-base);
+  z-index: 240;
+  box-shadow: 0px 0px 14px 0px rgba(black, 0.4);
+  transition: all 0.4s;
+  overflow-y: auto;
+  .logo {
+    padding: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  .item {
+    padding: 4px 14px;
+    margin: 2px 8px;
+    display: flex;
+    &.active {
+      background: var(--btn-active);
+    }
+  }
+}
+.menuActive {
+  right: 0px;
+}
+.fixed-menu {
+  background: var(--background-color-base);
+  position: fixed;
+  box-shadow: 0 0 10px rgba(black, 0.4);
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px;
+  z-index: 230;
+}
 </style>
 
 <style lang="scss">
 // global - crashes in main.scss
+a {
+  text-decoration: none !important;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .el-dropdown-menu {
   background: var(--bg-big-card);
   border: 1px solid var(--bg-big-card);

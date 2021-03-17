@@ -15,15 +15,15 @@ export default {
   props: {
     flat: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     iconOnly: {
-      default: false
+      default: false,
     },
     iconOnlyAlt: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>
 
@@ -39,7 +39,7 @@ button {
   padding: 6px 10px;
   border-radius: var(--radius);
   color: white;
-  background: var(--btn);
+  background: var(--btn-default);
   transition: all 0.3s;
   display: inline-block;
 }

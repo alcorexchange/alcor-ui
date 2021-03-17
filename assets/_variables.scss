@@ -1,55 +1,53 @@
 :root {
-    --color-primary: #3E3A3B;
-    --color-success: #8CC176;
-    --color-danger: #B82C0D;
-    --color-white: #F3FAFC;
-    --color-text-secondary: #5A5356;
+  --color-primary: #3e3a3b;
+  --color-success: #8cc176;
+  --color-danger: #b82c0d;
+  --color-white: #f3fafc;
+  --color-text-secondary: #5a5356;
 
-    // backgrounds
-    --background-color-base: #F3FAFC;
-    --background-color-secondary: #e6eef1;
-    --background-color-third: #e6eef1;
-    --bg-big-card: #212121;
+  // backgrounds
+  --background-color-base: #f3fafc;
+  --background-color-secondary: #e6eef1;
+  --background-color-third: #e6eef1;
+  --bg-big-card: #212121;
 
-    // buttons
-    --btn: #333333;
-    --btn-active: #161617;
-    --hover: rgba(22,22,23,0.6);
+  // buttons
+  --btn-default: #333333;
+  --btn-active: #161617; // black primary
+  --hover: rgba(22, 22, 23, 0.6); // dark hover row
 
-    --text: #f2f2f2;
+  --text-default: #f2f2f2;
 
-    --border-color: #dadbdc;
+  --border-color: #dadbdc;
 
-    --active-row: #c2deff;
-    --radius: 4px;
-    --radius-2: 8px;
-    // --space-1: 6px;
-    // --space-2: 12px
+  --active-row: #c2deff;
+  --radius: 4px;
+  --radius-2: 8px;
+  // --space-1: 6px;
+  // --space-2: 12px
 }
 
 .theme-dark {
-    --color-primary: #9EABA3;
+  --color-primary: #9eaba3;
 
-    // backgrounds
-    --background-color-base: #282828;
-    --background-color-secondary: #212121;
-    --background-color-third: #161617;
-    --bg-big-card: #212121;
+  // backgrounds
+  --background-color-base: #282828;
+  --background-color-secondary: #212121;
+  --background-color-third: #161617;
+  --bg-big-card: #212121;
 
+  // buttons
+  --btn-default: #333333;
+  --btn-active: #161617;
+  --hover: rgba(22, 22, 23, 0.6);
 
-    // buttons
-    --btn: #333333;
-    --btn-active: #161617;
-    --hover: rgba(22,22,23,0.6);
+  --text-default: #f2f2f2;
 
-    --text: #f2f2f2;
+  --color-text-primary: #f2fff2;
+  --border-color: #3f4144;
 
-    --color-text-primary: #f2fff2;
-    --border-color: #3F4144;
+  --color-success: #8cc176;
+  --color-danger: #b82c0d;
 
-    --color-success: #8CC176;
-    --color-danger: #B82C0D;
-
-    --active-row: #282828;
+  --active-row: #282828;
 }
-
