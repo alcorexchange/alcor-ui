@@ -72,18 +72,20 @@ async function start () {
     badge: true
   })
 
-  if (!process.env.DISABLE_DB) {
-    const io = socket(server)
-
-    io.on('connection', socket => {
-      subscribe(io, socket)
-      unsubscribe(io, socket)
-    })
-
-    app.set('io', io)
-
-    startUpdaters(app)
+  if (process.env.DISABLE_DB) {
+    return
   }
+
+  const io = socket(server)
+
+  io.on('connection', socket => {
+    subscribe(io, socket)
+    unsubscribe(io, socket)
+  })
+
+  app.set('io', io)
+
+  startUpdaters(app)
 }
 
 start()
