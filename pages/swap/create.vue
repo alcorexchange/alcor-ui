@@ -6,7 +6,8 @@
         .px-3.mt-2
           h1 Create new pool
           .lead To create a pool, select the quote token and provide the initial liquidity ratio.
-        el-form(ref="form" label-position="left" v-if="user").px-3
+          b.text-muted You are the first liquidity provider. The ratio of tokens you add will set the price of this pool.
+        el-form(ref="form" label-position="left" v-if="user").px-3.mt-4
           el-form-item
             b Base token:
             span(v-if="base.currency")

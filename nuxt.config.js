@@ -4,7 +4,7 @@ const pkg = require('./package')
 const isSPA = process.argv.includes('--spa')
 const isDev = process.env.npm_lifecycle_event == 'dev'
 
-const desc = 'With ' + config.APP_NAME + ' you can trade any EOS.IO tokens for EOS system token, onchain, without the participation of third parties!'
+const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
 
 module.exports = {
   telemetry: false,
@@ -38,11 +38,6 @@ module.exports = {
       { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-
-      { // TODO Начать мутить шрифт этот
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap'
-      }
     ],
 
     script: [
@@ -86,8 +81,7 @@ module.exports = {
     '@/plugins/filters',
 
     { ssr: false, src: '~/plugins/startapp.js' },
-    { ssr: false, src: '~/plugins/TradingVue.js' },
-    { ssr: false, src: '~/plugins/localStorage.js' },
+    { ssr: false, src: '~/plugins/localStorage.js' }
     //{ ssr: false, src: '~/plugins/vue-apexchart.js' }
   ],
 
@@ -96,11 +90,10 @@ module.exports = {
   */
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
-    '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
-    //'nuxt-imagemin',
-    //'nuxt-purgecss'
+    'nuxt-imagemin'
+    //'nuxt-purgecss' // FIXME Fails on docker production building
   ],
 
   //components: true,

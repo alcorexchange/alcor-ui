@@ -10,7 +10,7 @@
           a(:href="monitorAccount($store.state.network.contract)" target="_blank").text-primary.strong  FULLY-ONCHAIN
           |  limit/market trading.
 
-        h2.lead.mt-1 No withdraw or deposit.
+        .lead.mt-1 No withdraw or deposit.
 
         b No trading fees.
 
@@ -29,7 +29,7 @@
       .col-lg-6
         el-carousel(indicator-position='outside' height="350px" :interval="6000" arrow="never")
           el-carousel-item
-            h5.text-center
+            .text-center
               .text-muted New video guide from
                 a(href="https://twitter.com/LigerLite" target="_blank")  @LiteLiger
                 |  is here!
@@ -90,14 +90,14 @@
       .col
         .row.mt-2
           .col
-            h2.lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
+            .lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
                  | atomically, without the participation of third parties! The tokens should comply with the
                  | standard eosio.token of the contract.
 
         .row
           .col
             .mt-3
-              h4 Properties:
+              .lead Properties:
                 ul.mt-1
                   li.lead Fully
                     a(:href="monitorAccount($store.state.network.contract)" target="_blank")  onchain
@@ -109,7 +109,7 @@
                     |  for beta testing time.
         .row.mt-3
           .col
-            h1 FAQ
+            .lead FAQ
             el-collapse
               el-collapse-item(title='How to add icon for my token ?', name='1')
                 p.lead You can add token, options:
@@ -191,6 +191,13 @@ export default {
         console.log(e, 'Error getting markets in recomendations!!!')
         return []
       }
+    }
+  },
+
+  head() {
+    const chain = this.$store.state.network.name.toUpperCase()
+    return {
+      title: `Alcor Exchange | (${chain}) Self-Listing DEX`
     }
   }
 }
