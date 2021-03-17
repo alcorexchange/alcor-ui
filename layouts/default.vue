@@ -63,6 +63,14 @@
                   <!-- <i class="el-icon-document"></i> -->
                   Docs
                 </a>
+                <AlcorButton
+                  :iconOnlyAlt="true"
+                  class="theme-toggle-button"
+                  @click="$store.dispatch('toggleTheme')"
+                >
+                  <i class="el-icon-sunny" v-if="theme == 'dark'"></i>
+                  <i class="el-icon-moon" v-else></i>
+                </AlcorButton>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -154,6 +162,14 @@
                     <!-- <i class="el-icon-document"></i> -->
                     Docs
                   </a>
+                  <AlcorButton
+                    :iconOnlyAlt="true"
+                    class="theme-toggle-button"
+                    @click="$store.dispatch('toggleTheme')"
+                  >
+                    <i class="el-icon-sunny" v-if="theme == 'dark'"></i>
+                    <i class="el-icon-moon" v-else></i>
+                  </AlcorButton>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -362,6 +378,10 @@ export default {
   &:hover {
     background: var(--hover);
   }
+}
+.theme-toggle-button {
+  border-radius: 50% !important;
+  margin: 4px 8px;
 }
 
 .menu-header {
