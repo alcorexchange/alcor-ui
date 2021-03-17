@@ -41,13 +41,13 @@
           </el-dropdown>
           <AlcorButton
             @click="$store.dispatch('modal/login')"
-            class="connect-button"
+            class="connect-button always-dark"
           >
             Connect Wallet
           </AlcorButton>
           <el-dropdown trigger="click">
             <div class="">
-              <AlcorButton :iconOnly="true">
+              <AlcorButton class="always-dark" :iconOnly="true">
                 <i class="el-icon-more"></i>
               </AlcorButton>
             </div>
@@ -93,7 +93,11 @@
               alt=""
             />
           </div>
-          <AlcorButton @click="openMenu" :iconOnlyAlt="true">
+          <AlcorButton
+            class="always-dark"
+            @click="openMenu"
+            :iconOnlyAlt="true"
+          >
             <i class="el-icon-more"></i>
           </AlcorButton>
           <nav :class="['menu', { menuActive }]">
@@ -140,13 +144,13 @@
           <div class="right">
             <AlcorButton
               @click="$store.dispatch('modal/login')"
-              class="connect-button"
+              class="connect-button always-dark"
             >
               Connect Wallet
             </AlcorButton>
             <el-dropdown trigger="click">
               <div class="">
-                <AlcorButton :iconOnly="true">
+                <AlcorButton class="always-dark" :iconOnly="true">
                   <i class="el-icon-more"></i>
                 </AlcorButton>
               </div>
@@ -350,6 +354,7 @@ export default {
     margin-right: 4px;
     &.active {
       background: var(--btn-active);
+      color: #f2f2f2 !important;
     }
   }
 }
@@ -382,6 +387,7 @@ export default {
 .theme-toggle-button {
   border-radius: 50% !important;
   margin: 4px 8px;
+  color: var(--text-default) !important;
 }
 
 .menu-header {
@@ -432,6 +438,7 @@ export default {
     display: flex;
     &.active {
       background: var(--btn-active);
+      color: #f2f2f2 !important;
     }
   }
 }
@@ -462,6 +469,10 @@ ul {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+.always-dark {
+  background: var(--btn-active) !important;
+  color: #f2f2f2 !important;
 }
 .el-dropdown-menu {
   background: var(--bg-big-card);
