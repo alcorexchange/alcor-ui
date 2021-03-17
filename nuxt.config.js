@@ -86,8 +86,7 @@ module.exports = {
     '@/plugins/filters',
 
     { ssr: false, src: '~/plugins/startapp.js' },
-    { ssr: false, src: '~/plugins/TradingVue.js' },
-    { ssr: false, src: '~/plugins/localStorage.js' },
+    { ssr: false, src: '~/plugins/localStorage.js' }
     //{ ssr: false, src: '~/plugins/vue-apexchart.js' }
   ],
 
@@ -96,7 +95,6 @@ module.exports = {
   */
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
-    '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
     'nuxt-imagemin'
