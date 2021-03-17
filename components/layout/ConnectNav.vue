@@ -17,15 +17,29 @@
     </div>
 
     <div class="right">
+      <div class="user-detail" v-if="user">
+        <div class="balance">1,100 $</div>
+        <el-dropdown trigger="click">
+          <div class="user-name">alcor.ex</div>
+          <template #dropdown>
+            <el-dropdown-menu class="dropdown-container">
+              <div class="d-item">item</div>
+              <div class="d-item">item</div>
+              <div class="d-item">item</div>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
       <AlcorButton
+        v-else
         @click="$store.dispatch('modal/login')"
-        class="connect-button always-dark"
+        class="connect-button"
       >
         Connect Wallet
       </AlcorButton>
       <el-dropdown trigger="click">
         <div class="">
-          <AlcorButton class="always-dark" :iconOnly="true">
+          <AlcorButton :iconOnly="true">
             <i class="el-icon-more" />
           </AlcorButton>
         </div>
@@ -58,11 +72,15 @@
 
 <script>
 import AlcorButton from '@/components/AlcorButton'
+import { mapGetters } from 'vuex'
 // import AlcorLink from '@/components/AlcorLink'
 export default {
   components: {
     AlcorButton
     // AlcorLink
+  },
+  computed: {
+    ...mapGetters(['user'])
   }
   //   props: {
   //     isFooter: {
@@ -78,6 +96,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.right {
+  display: flex;
+  align-items: center;
 }
 .theme-toggle-button {
   border-radius: 50% !important;
@@ -97,6 +119,24 @@ export default {
 }
 .connect-button {
   margin: 0 4px;
+}
+.user-detail {
+  border-radius: var(--radius);
+  background: var(--btn-default);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  margin: 0 4px;
+}
+.balance {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.user-name {
+  padding: 4px 8px;
+  background: var(--background-color-base);
+  border-radius: var(--radius);
+  cursor: pointer;
 }
 .network-selection {
   cursor: pointer;
