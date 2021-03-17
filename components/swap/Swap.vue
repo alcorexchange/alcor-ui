@@ -174,7 +174,7 @@ export default {
     },
 
     fee() {
-      return this.pair ? this.pair.fee / 1000 : 0.3
+      return this.pair ? (this.pair.fee * 100) / 10000 : 0.3
     },
 
     priceImpact() {
