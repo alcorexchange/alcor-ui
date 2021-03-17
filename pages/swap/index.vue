@@ -141,7 +141,7 @@ export default {
     ]
 
     if (input && output) {
-      meta.push({ hid: 'og:image', name: 'og:image', content: this.$tokenLogo(input.symbol, input.contract) })
+      meta.push({ hid: 'og:image', name: 'og:image', content: this.$tokenLogo(output.symbol, output.contract) })
     }
 
     return {
