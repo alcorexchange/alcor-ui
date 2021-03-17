@@ -113,46 +113,51 @@
           <div class="menu-underlay" @click="closeMenu" v-if="menuActive"></div>
         </div>
         <div class="fixed-menu">
-          <el-dropdown trigger="click">
-            <div class="network-selection">
-              <span>EOS MAINNET</span>
-              <i class="el-icon-arrow-down"></i>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu class="dropdown-container">
-                <div class="d-item">item</div>
-                <div class="d-item">item</div>
-                <div class="d-item">item</div>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          <AlcorButton
-            @click="$store.dispatch('modal/login')"
-            class="connect-button"
-          >
-            Connect Wallet
-          </AlcorButton>
-          <el-dropdown trigger="click">
-            <div class="">
-              <AlcorButton :iconOnly="true">
-                <i class="el-icon-more"></i>
-              </AlcorButton>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu class="dropdown-container">
-                <a class="d-item">
-                  <!-- <i class="el-icon-help"></i> -->
-                  Help Center
-                </a>
-                <a class="d-item">Telegram</a>
-                <a class="d-item">Twitter</a>
-                <a class="d-item">
-                  <!-- <i class="el-icon-document"></i> -->
-                  Docs
-                </a>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <div class="left">
+            <el-dropdown trigger="click">
+              <div class="network-selection">
+                <span>EOS MAINNET</span>
+                <i class="el-icon-arrow-down"></i>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu class="dropdown-container">
+                  <div class="d-item">item</div>
+                  <div class="d-item">item</div>
+                  <div class="d-item">item</div>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+
+          <div class="right">
+            <AlcorButton
+              @click="$store.dispatch('modal/login')"
+              class="connect-button"
+            >
+              Connect Wallet
+            </AlcorButton>
+            <el-dropdown trigger="click">
+              <div class="">
+                <AlcorButton :iconOnly="true">
+                  <i class="el-icon-more"></i>
+                </AlcorButton>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu class="dropdown-container">
+                  <a class="d-item">
+                    <!-- <i class="el-icon-help"></i> -->
+                    Help Center
+                  </a>
+                  <a class="d-item">Telegram</a>
+                  <a class="d-item">Twitter</a>
+                  <a class="d-item">
+                    <!-- <i class="el-icon-document"></i> -->
+                    Docs
+                  </a>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </div>
       </div>
       <div class="main">
@@ -416,6 +421,9 @@ export default {
 .fixed-menu {
   background: var(--background-color-base);
   position: fixed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   box-shadow: 0 0 10px rgba(black, 0.4);
   bottom: 0;
   left: 0;
@@ -440,8 +448,10 @@ ul {
   border: 1px solid var(--bg-big-card);
   border-radius: var(--radius-2);
 }
-.el-popper[x-placement^='bottom'] .popper__arrow::after {
+.el-popper[x-placement^='bottom'] .popper__arrow::after,
+.el-popper[x-placement^='top'] .popper__arrow::after {
   border-bottom-color: var(--bg-big-card);
+  border-top-color: var(--bg-big-card);
 }
 .top-menu {
   .logo {
