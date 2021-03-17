@@ -108,12 +108,10 @@ export const getters = {
   },
 
   sorted_asks(state) {
-    //return mergeSamePriceOrders(state.asks.slice()).sort(sort_by_price)
     return mergeSamePriceOrders(state.asks.slice())
   },
 
   sorted_bids(state) {
-    //return mergeSamePriceOrders(state.bids.slice()).sort(sort_by_price)
     return mergeSamePriceOrders(state.bids.slice())
   },
 
