@@ -26,54 +26,7 @@
           </ul>
         </div>
         <div class="nav-side nav-right">
-          <el-dropdown trigger="click">
-            <div class="network-selection">
-              <span>EOS MAINNET</span>
-              <i class="el-icon-arrow-down"></i>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu class="dropdown-container">
-                <div class="d-item">item</div>
-                <div class="d-item">item</div>
-                <div class="d-item">item</div>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          <AlcorButton
-            @click="$store.dispatch('modal/login')"
-            class="connect-button always-dark"
-          >
-            Connect Wallet
-          </AlcorButton>
-          <el-dropdown trigger="click">
-            <div class="">
-              <AlcorButton class="always-dark" :iconOnly="true">
-                <i class="el-icon-more"></i>
-              </AlcorButton>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu class="dropdown-container">
-                <a class="d-item">
-                  <!-- <i class="el-icon-help"></i> -->
-                  Help Center
-                </a>
-                <a class="d-item">Telegram</a>
-                <a class="d-item">Twitter</a>
-                <a class="d-item">
-                  <!-- <i class="el-icon-document"></i> -->
-                  Docs
-                </a>
-                <AlcorButton
-                  :iconOnlyAlt="true"
-                  class="theme-toggle-button"
-                  @click="$store.dispatch('toggleTheme')"
-                >
-                  <i class="el-icon-sunny" v-if="theme == 'dark'"></i>
-                  <i class="el-icon-moon" v-else></i>
-                </AlcorButton>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <ConnectNav />
         </div>
       </nav>
       <div class="menu-and-menu-header" v-else>
@@ -125,59 +78,7 @@
           <div class="menu-underlay" @click="closeMenu" v-if="menuActive"></div>
         </div>
         <div class="fixed-menu">
-          <div class="left">
-            <el-dropdown trigger="click">
-              <div class="network-selection">
-                <span>EOS MAINNET</span>
-                <i class="el-icon-arrow-down"></i>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu class="dropdown-container">
-                  <div class="d-item">item</div>
-                  <div class="d-item">item</div>
-                  <div class="d-item">item</div>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-
-          <div class="right">
-            <AlcorButton
-              @click="$store.dispatch('modal/login')"
-              class="connect-button always-dark"
-            >
-              Connect Wallet
-            </AlcorButton>
-            <el-dropdown trigger="click">
-              <div class="">
-                <AlcorButton class="always-dark" :iconOnly="true">
-                  <i class="el-icon-more"></i>
-                </AlcorButton>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu class="dropdown-container">
-                  <a class="d-item">
-                    <!-- <i class="el-icon-help"></i> -->
-                    Help Center
-                  </a>
-                  <a class="d-item">Telegram</a>
-                  <a class="d-item">Twitter</a>
-                  <a class="d-item">
-                    <!-- <i class="el-icon-document"></i> -->
-                    Docs
-                  </a>
-                  <AlcorButton
-                    :iconOnlyAlt="true"
-                    class="theme-toggle-button"
-                    @click="$store.dispatch('toggleTheme')"
-                  >
-                    <i class="el-icon-sunny" v-if="theme == 'dark'"></i>
-                    <i class="el-icon-moon" v-else></i>
-                  </AlcorButton>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+          <ConnectNav />
         </div>
       </div>
       <div class="main">
@@ -198,6 +99,7 @@ import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
+import ConnectNav from '~/components/layout/ConnectNav.vue'
 
 export default {
   components: {
@@ -206,6 +108,7 @@ export default {
     FooterBlock: Footer,
     AlcorLink,
     AlcorButton,
+    ConnectNav
   },
 
   data() {
@@ -217,7 +120,7 @@ export default {
 
       app_name: config.APP_NAME,
 
-      menuActive: false,
+      menuActive: false
     }
   },
 
@@ -260,7 +163,7 @@ export default {
 
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
-      },
+      }
     },
 
     activeLink() {
@@ -275,7 +178,7 @@ export default {
       } else {
         return this.$route.path
       }
-    },
+    }
   },
 
   mounted() {
@@ -302,13 +205,13 @@ export default {
     },
     closeMenu() {
       this.menuActive = false
-    },
+    }
   },
 
   watch: {
     $route() {
       this.closeMenu()
-    },
+    }
   },
 
   head() {
@@ -317,11 +220,11 @@ export default {
         {
           hid: 'og:image',
           name: 'og:image',
-          content: '/android-chrome-512x512.png',
-        },
-      ],
+          content: '/android-chrome-512x512.png'
+        }
+      ]
     }
-  },
+  }
 }
 </script>
 
@@ -384,11 +287,6 @@ export default {
     background: var(--hover);
   }
 }
-.theme-toggle-button {
-  border-radius: 50% !important;
-  margin: 4px 8px;
-  color: var(--text-default) !important;
-}
 
 .menu-header {
   display: flex;
@@ -448,9 +346,6 @@ export default {
 .fixed-menu {
   background: var(--background-color-base);
   position: fixed;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: 0 0 10px rgba(black, 0.4);
   bottom: 0;
   left: 0;
