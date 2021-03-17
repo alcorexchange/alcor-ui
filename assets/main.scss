@@ -1,4 +1,5 @@
 @import "~/assets/_variables.scss";
+@import "./base.scss";
 
 .bg-base { background: var(--background-color-base); }
 .bg-secondary { background: var(--background-color-secondary); }

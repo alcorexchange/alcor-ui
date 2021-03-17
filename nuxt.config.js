@@ -38,11 +38,6 @@ module.exports = {
       { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-
-      { // TODO Начать мутить шрифт этот
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap'
-      }
     ],
 
     script: [
