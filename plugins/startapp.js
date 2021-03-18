@@ -6,6 +6,7 @@ export default ({ app: { store } }) => {
 
   window.onNuxtReady(() => {
     console.log('Nuxt ready...')
+    store.dispatch('swap/init')
     store.dispatch('chain/init')
     store.dispatch('init')
 

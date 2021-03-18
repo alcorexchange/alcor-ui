@@ -205,10 +205,6 @@ export default {
     }
   },
 
-  mounted() {
-    this.$store.dispatch('swap/init')
-  },
-
   methods: {
     tokenChanged(token) {
       this.ibcForm.transfer = false

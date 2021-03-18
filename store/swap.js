@@ -77,7 +77,6 @@ export const actions = {
     })
 
     rows.map(r => {
-      r.rate = (parseFloat(r.pool1.quantity) / parseFloat(r.pool2.quantity)).toFixed(6)
       r.pool1.quantity = asset(r.pool1.quantity)
       r.pool2.quantity = asset(r.pool2.quantity)
       r.supply = asset(r.supply)

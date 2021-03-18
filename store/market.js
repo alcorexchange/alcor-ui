@@ -99,8 +99,17 @@ export const getters = {
   relatedPool(state, getters, rootState) {
     const current = rootState.markets.filter(m => m.id == state.id)[0]
     if (!current) return null
+    const pool = rootState.swap.pairs.filter(p => p.i256 == current.i256)[0]
+    if (!pool) return null
 
-    return rootState.swap.pairs.filter(p => p.i256 == current.i256)[0]
+    if (pool.pool1.contract == current.quote_token.contract &&
+        pool.pool1.quantity.symbol.code().to_string() == current.quote_token.symbol.name) {
+      pool.rate = (parseFloat(pool.pool2.quantity) / parseFloat(pool.pool1.quantity)).toFixed(6)
+    } else {
+      pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
+    }
+
+    return pool
   },
 
   token (state) {

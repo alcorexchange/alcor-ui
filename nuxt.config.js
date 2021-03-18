@@ -146,7 +146,7 @@ module.exports = {
   cache: {
     useHostPrefix: true,
     pages: [
-      /^\/pools\/.*/,
+      ///^\/pools\/.*/,
 
       ///^\/$/
     ],
