@@ -80,7 +80,8 @@ export default {
     // AlcorLink
   },
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+    ...mapState(['network', 'theme'])
   }
   //   props: {
   //     isFooter: {
