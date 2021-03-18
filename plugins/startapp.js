@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 export default ({ app: { store } }) => {
-  Vue.prototype.$socket = require('socket.io-client')(store.state.baseUrl)
+  Vue.prototype.$socket = require('socket.io-client')('/')
   console.log('startapp...')
 
   window.onNuxtReady(() => {
