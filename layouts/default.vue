@@ -379,6 +379,10 @@ ul {
   border-bottom-color: var(--bg-big-card);
   border-top-color: var(--bg-big-card);
 }
+.el-dropdown-selfdefine {
+  font-size: 1rem;
+  color: var(--text-default);
+}
 .top-menu {
   .logo {
     height: 4em;

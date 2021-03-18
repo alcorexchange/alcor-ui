@@ -39,7 +39,7 @@
       </AlcorButton>
       <el-dropdown trigger="click">
         <div class="">
-          <AlcorButton :iconOnly="true">
+          <AlcorButton :iconOnlyAlt="true">
             <i class="el-icon-more" />
           </AlcorButton>
         </div>
@@ -119,6 +119,7 @@ export default {
 }
 .connect-button {
   margin: 0 4px;
+  height: 36px;
 }
 .user-detail {
   border-radius: var(--radius);
@@ -127,6 +128,7 @@ export default {
   align-items: center;
   padding: 2px;
   margin: 0 4px;
+  height: 36px;
 }
 .balance {
   padding: 4px 8px;
