@@ -27,9 +27,16 @@ export const mutations = {
 }
 
 export const actions = {
-  async init({ state, commit, dispatch, rootState }) {
+  async init({ state, commit, dispatch, rootState, getters }) {
     await dispatch('getPairs')
 
+
+    if (!getters.current) {
+      if (state.pairs) dispatch('setPair', state.pairs[0].id)
+      return
+    }
+
+    // Or, there was selected in inputs
     // Update after server input/output set (need precision)
     const tokens = get_all_tokens(state.pairs)
 

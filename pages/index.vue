@@ -170,7 +170,7 @@ export default {
     Recommended
   },
 
-  async fetch({ store, error }) {
+  async fetch({ store }) {
     if (store.state.markets.length == 0) {
       try {
         await store.dispatch('loadMarkets')

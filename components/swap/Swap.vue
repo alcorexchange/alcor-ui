@@ -195,13 +195,6 @@ export default {
 
     pair() {
       this.calcOutput()
-    },
-
-    pairs(to, from) {
-      if (from.length == 0 && to.length > 0 && !this.pair) {
-        console.log('no pairs! setting')
-        this.$store.dispatch('swap/setPair', to[0].id)
-      }
     }
   },
 
