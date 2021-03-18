@@ -4,19 +4,21 @@
     <div class="layout">
       <nav class="nav" v-if="!isMobile">
         <div class="nav-side nav-left">
-          <img
-            v-if="$store.state.theme == 'light'"
-            src="~/assets/logos/alcorblack.svg"
-            height="44"
-            class="logo"
-          />
-          <img
-            v-else
-            class="logo"
-            height="44"
-            src="~/assets/logos/alcorwhite.svg"
-            alt=""
-          />
+          <nuxt-link to="/">
+            <img
+              v-if="$store.state.theme == 'light'"
+              src="~/assets/logos/alcorblack.svg"
+              height="44"
+              class="logo"
+            />
+            <img
+              v-else
+              class="logo"
+              height="44"
+              src="~/assets/logos/alcorwhite.svg"
+              alt=""
+            />
+          </nuxt-link>
           <ul class="nav-items">
             <li v-for="item in menuItems" :key="item.index">
               <AlcorLink :to="item.index" flat class="item">
@@ -32,19 +34,19 @@
       <div class="menu-and-menu-header" v-else>
         <div class="menu-header">
           <div class="logo">
-            <img
-              v-if="$store.state.theme == 'light'"
-              src="~/assets/logos/alcorblack.svg"
-              height="34"
-              class="logo"
-            />
-            <img
-              v-else
-              class="logo"
-              height="34"
-              src="~/assets/logos/alcorwhite.svg"
-              alt=""
-            />
+            <nuxt-link to="/">
+              <img
+                v-if="$store.state.theme == 'light'"
+                src="~/assets/logos/alcorblack.svg"
+                height="34"
+                class="logo"/>
+              <img
+                v-else
+                class="logo"
+                height="34"
+                src="~/assets/logos/alcorwhite.svg"
+                alt=""
+            /></nuxt-link>
           </div>
           <AlcorButton
             class="always-dark"
