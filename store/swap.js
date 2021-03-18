@@ -30,7 +30,6 @@ export const actions = {
   async init({ state, commit, dispatch, rootState, getters }) {
     await dispatch('getPairs')
 
-
     if (!getters.current) {
       if (state.pairs) dispatch('setPair', state.pairs[0].id)
       return

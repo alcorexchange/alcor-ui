@@ -140,13 +140,17 @@ export default {
       }
     ]
 
-    if (input && output & process.server) {
+    if (input && output) {
       let img = `assets/tokens/${this.$store.state.network.name}/${output.symbol.toLowerCase()}_${output.contract}.png`
 
-      if (require('fs').existsSync(img)) {
-        img = `/_nuxt/assets/tokens/${this.$store.state.network.name}/${output.symbol.toLowerCase()}_${output.contract}.png`
+      if (process.server) {
+        if (require('fs').existsSync(img)) {
+          img = `/_nuxt/assets/tokens/${this.$store.state.network.name}/${output.symbol.toLowerCase()}_${output.contract}.png`
+        } else {
+          img = `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${output.contract}/${output.symbol}.png`
+        }
       } else {
-        img = `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${output.contract}/${output.symbol}.png`
+        img = this.$tokenLogo(output.symbol, output.contract)
       }
 
       meta.push({ hid: 'og:image', name: 'og:image', content: img })
