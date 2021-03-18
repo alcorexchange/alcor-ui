@@ -74,12 +74,7 @@ async function start () {
 
   if (process.env.DISABLE_DB) return
 
-  const io = socket(server, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST']
-    }
-  })
+  const io = socket(server)
 
   io.on('connection', socket => {
     subscribe(io, socket)
