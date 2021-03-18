@@ -72,7 +72,7 @@
 
 <script>
 import AlcorButton from '@/components/AlcorButton'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 // import AlcorLink from '@/components/AlcorLink'
 export default {
   components: {
@@ -81,7 +81,7 @@ export default {
   },
   computed: {
     ...mapGetters(['user']),
-    ...mapState(['network', 'theme'])
+    ...mapState(['theme'])
   }
   //   props: {
   //     isFooter: {
