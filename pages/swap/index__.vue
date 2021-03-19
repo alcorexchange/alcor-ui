@@ -1,16 +1,30 @@
 <template lang="pug">
-  .swap-container
-    .swap-card.alcor-card
-      .tab-bar
-        .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") Swap
-        .item(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + liquidity
-        .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - liquidity
-      Spacer
-      .tab-item
-        AddLiquidity(v-if="tab === '+ Liquidity'")
-        RemoveLiquidity(v-else-if="tab === '+ Liquidity'")
-        Swap(v-else)
-    .chart-card dsa
+.row.mt-3
+  .col-lg-4
+    el-card.mb-3.swap-card
+      el-radio-group(v-model="$store.state.swap.tab" @change="changeTab" size="small").el-radio-full-width
+        el-radio-button(label='Swap')
+        el-radio-button(label='+ Liquidity')
+        el-radio-button(label='- Liquidity')
+
+      keep-alive
+        component(v-bind:is="tabComponent")
+
+      .ml-auto
+        el-button(type="text" size="small" @click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')") How swap & revenue works?
+  .col-lg-8
+    .pools-chart(v-if="tab == 'Swap'")
+      el-card.h-100
+        Chart(:tab="chart_tab").h-100
+
+        .px-2
+          el-radio-group(v-model="chart_tab" size="small")
+            el-radio-button(label='Price')
+            el-radio-button(label='Liquidity')
+            el-radio-button(label='Volume')
+    el-card(v-else)
+      LiquidityPositions
+
 </template>
 
 <script>
@@ -21,7 +35,6 @@ import Chart from '~/components/swap/Chart.vue'
 import AddLiquidity from '~/components/swap/AddLiquidity.vue'
 import RemoveLiquidity from '~/components/swap/RemoveLiquidity.vue'
 import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
-import Spacer from '~/components/Spacer.vue'
 
 export default {
   components: {
@@ -29,8 +42,7 @@ export default {
     Chart,
     AddLiquidity,
     RemoveLiquidity,
-    LiquidityPositions,
-    Spacer
+    LiquidityPositions
   },
 
   fetch({ store, route }) {
@@ -72,10 +84,7 @@ export default {
         setTimeout(() => {
           this.$router.push({
             path: this.$route.path,
-            query: {
-              ...this.$route.query,
-              output: this.output.symbol + '-' + this.output.contract
-            }
+            query: { ...this.$route.query, output: this.output.symbol + '-' + this.output.contract }
           })
         }, 1)
       } else {
@@ -88,10 +97,7 @@ export default {
         setTimeout(() => {
           this.$router.push({
             path: this.$route.path,
-            query: {
-              ...this.$route.query,
-              input: this.input.symbol + '-' + this.input.contract
-            }
+            query: { ...this.$route.query, input: this.input.symbol + '-' + this.input.contract }
           })
         }, 1)
       } else {
@@ -100,21 +106,15 @@ export default {
     }
   },
 
-  beforeRouteLeave(to, from, next) {
-    this.$socket.emit('unsubscribe', {
-      room: 'pools',
-      params: { chain: this.network.name }
-    })
+  beforeRouteLeave (to, from, next) {
+    this.$socket.emit('unsubscribe', { room: 'pools', params: { chain: this.network.name } })
     next()
   },
 
   mounted() {
-    this.$socket.emit('subscribe', {
-      room: 'pools',
-      params: { chain: this.network.name }
-    })
+    this.$socket.emit('subscribe', { room: 'pools', params: { chain: this.network.name } })
 
-    this.$socket.on('update_pair', (data) => {
+    this.$socket.on('update_pair', data => {
       this.$store.dispatch('swap/updatePairOnPush', data)
     })
   },
@@ -128,10 +128,9 @@ export default {
   head() {
     const { input, output } = this.$store.state.swap
 
-    const title =
-      input && output
-        ? `Alcor Exchange | Swap ${input.symbol} for ${output.symbol}`
-        : 'Alcor Exchange | Swap & Earn on your Liquidity'
+    const title = (input && output)
+      ? `Alcor Exchange | Swap ${input.symbol} for ${output.symbol}`
+      : 'Alcor Exchange | Swap & Earn on your Liquidity'
 
     const meta = [
       {
@@ -142,11 +141,7 @@ export default {
     ]
 
     if (input && output) {
-      meta.push({
-        hid: 'og:image',
-        name: 'og:image',
-        content: this.$tokenLogo(output.symbol, output.contract)
-      })
+      meta.push({ hid: 'og:image', name: 'og:image', content: this.$tokenLogo(output.symbol, output.contract) })
     }
 
     return {
@@ -157,39 +152,6 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.swap-container {
-  display: flex;
-}
-.swap-card {
-  width: 33.3333%;
-}
-.tab-bar {
-  display: flex;
-  background: var(--bg-alter-2);
-  display: flex;
-  align-items: center;
-  padding: 4px;
-  border-radius: var(--radius);
-  .item {
-    flex: 1;
-    text-align: center;
-    padding: 4px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.4s;
-    &.active {
-      background: var(--btn-active);
-      // color: var(--background-color-base);
-    }
-  }
-}
-.chart-card {
-  flex: 1;
-  margin-left: 14px;
-}
-</style>
 <style lang="scss">
 .el-card.swap-card {
   overflow: visible;

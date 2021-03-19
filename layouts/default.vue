@@ -258,7 +258,7 @@ export default {
     padding: 4px 14px;
     margin-right: 4px;
     &.active {
-      background: var(--btn-active);
+      background: #161617;
       color: #f2f2f2 !important;
     }
   }
@@ -337,7 +337,7 @@ export default {
     margin: 2px 8px;
     display: flex;
     &.active {
-      background: var(--btn-active);
+      background: #161617;
       color: #f2f2f2 !important;
     }
   }
