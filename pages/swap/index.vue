@@ -22,7 +22,7 @@
               .names EOS/USDT
               .detail.muted Liquidity alcor.dex
           .right
-            AlcorButton Earn On Liquidity
+            AlcorButton.eol Earn On Liquidity
         SSpacer
         .each-item-price-container
           .item
@@ -208,6 +208,7 @@ export default {
 <style lang="scss" scoped>
 .swap-container {
   display: flex;
+  padding-top: 20px;
 }
 .swap-card {
   width: 33.3333%;
@@ -251,6 +252,10 @@ export default {
     .left {
       display: flex;
       align-items: center;
+    }
+    .eol {
+      border-radius: var(--radius);
+      padding: 6px 24px;
     }
     .icons {
       position: relative;
