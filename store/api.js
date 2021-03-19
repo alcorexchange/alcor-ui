@@ -77,7 +77,7 @@ export const getters = {
 
   backEnd(state, getters, rootState) {
     return axios.create({
-      baseURL: rootState.baseUrl,
+      baseURL: rootState.baseUrl + '/api',
       timeout: 30000
     })
   }

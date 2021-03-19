@@ -1,9 +1,10 @@
+require('dotenv').config()
+
 import socket from 'socket.io'
 import express from 'express'
 import mongoose from 'mongoose'
 import consola from 'consola'
 import bodyParser from 'body-parser'
-import formidable from 'express-formidable'
 
 import NodeCache from 'node-cache'
 export const cache = new NodeCache()
@@ -17,12 +18,15 @@ import { Nuxt, Builder } from 'nuxt'
 import config from '../nuxt.config.js'
 //import sign from './sign'
 import upload from './upload/ipfs'
-import { markets } from './markets'
-import { pools } from './pools'
 import { startUpdaters } from './updaters'
-import { account } from './account'
+
 import { serverInit } from './utils'
 import { subscribe, unsubscribe } from './markets/sockets'
+
+import { markets } from './markets'
+import { pools } from './pools'
+import { account } from './account'
+import { cs } from './coinswitch'
 
 const app = express()
 
@@ -42,15 +46,20 @@ async function start () {
     }
   }
 
-  app.use(bodyParser.json())
-  app.use(formidable())
   app.use(serverInit)
+
+  // Before bodyParser coz use formidable
+  app.use('/api/upload', upload)
+
+  // Parsers
+  app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(bodyParser.json())
 
   // Server routes
   app.use('/api/markets', markets)
   app.use('/api/account', account)
-  app.use('/api/upload', upload)
   app.use('/api/pools', pools)
+  app.use('/api/coinswitch', cs)
 
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
@@ -58,12 +67,14 @@ async function start () {
   const { host, port } = nuxt.options.server
 
   // NuxtJS
-  await nuxt.ready()
-  if (config.dev) {
-    const builder = new Builder(nuxt)
-    await builder.build()
+  if (!process.env.DISABLE_UI) {
+    await nuxt.ready()
+    if (config.dev) {
+      const builder = new Builder(nuxt)
+      await builder.build()
+    }
+    app.use(nuxt.render)
   }
-  app.use(nuxt.render)
 
   // Listen the server
   const server = app.listen(port, host)

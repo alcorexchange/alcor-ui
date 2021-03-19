@@ -106,7 +106,7 @@ export const actions = {
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
-    const { data } = await getters['api/backEnd'].get('/api/markets')
+    const { data } = await getters['api/backEnd'].get('/markets')
     data.map(m => {
       const { base_token, quote_token } = m
 
@@ -138,7 +138,7 @@ export const actions = {
   },
 
   loadUserLiqudityPositions({ rootGetters, state, commit }) {
-    rootGetters['api/backEnd'].get(`/api/account/${state.user.name}/liquidity_positions`).then(r => {
+    rootGetters['api/backEnd'].get(`/account/${state.user.name}/liquidity_positions`).then(r => {
       commit('setLiquidityPositions', r.data)
     })
   },
@@ -167,7 +167,7 @@ export const actions = {
   async fetchUserDeals({ state, commit, rootGetters }) {
     if (!state.user) return
 
-    const { data: deals } = await rootGetters['api/backEnd'].get(`/api/account/${state.user.name}/deals`)
+    const { data: deals } = await rootGetters['api/backEnd'].get(`/account/${state.user.name}/deals`)
     commit('setUserDeals', deals)
   }
 }

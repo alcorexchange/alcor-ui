@@ -84,7 +84,7 @@ export const actions = {
   },
 
   async fetchMarket({ state, commit, rootGetters, dispatch }) {
-    const { data: market } = await rootGetters['api/backEnd'].get(`/api/markets/${state.id}`)
+    const { data: market } = await rootGetters['api/backEnd'].get(`/markets/${state.id}`)
 
     if (market.id != state.id) {
       throw new Error(`Market with id ${market.id} not found or closed :(`)

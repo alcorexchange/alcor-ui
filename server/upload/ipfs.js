@@ -3,10 +3,11 @@ import fs from 'fs'
 import { Router } from 'express'
 import axios from 'axios'
 import FormData from 'form-data'
+import formidable from 'express-formidable'
 
 const upload = Router()
 
-upload.post('/ipfs', async (req, res) => {
+upload.post('/ipfs', formidable(), async (req, res) => {
   const data = new FormData()
   data.append('file', fs.createReadStream(req.files.file.path))
 

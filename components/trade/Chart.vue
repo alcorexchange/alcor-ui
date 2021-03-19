@@ -106,7 +106,7 @@ export default {
           getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
 
-            const { data: charts } = await this.$store.getters['api/backEnd'].get(`/api/markets/${this.id}/charts`, {
+            const { data: charts } = await this.$store.getters['api/backEnd'].get(`/markets/${this.id}/charts`, {
               params: { resolution, from, to }
             })
 
