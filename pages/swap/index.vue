@@ -5,10 +5,10 @@
         .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") Swap
         .item(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + liquidity
         .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - liquidity
-      Spacer
+      SSpacer(high)
       .tab-item
         AddLiquidity(v-if="tab === '+ Liquidity'")
-        RemoveLiquidity(v-else-if="tab === '+ Liquidity'")
+        RemoveLiquidity(v-else-if="tab === '- Liquidity'")
         Swap(v-else)
     .chart-card dsa
 </template>
@@ -21,7 +21,7 @@ import Chart from '~/components/swap/Chart.vue'
 import AddLiquidity from '~/components/swap/AddLiquidity.vue'
 import RemoveLiquidity from '~/components/swap/RemoveLiquidity.vue'
 import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
-import Spacer from '~/components/Spacer.vue'
+import SSpacer from '~/components/SSpacer.vue'
 
 export default {
   components: {
@@ -30,7 +30,7 @@ export default {
     AddLiquidity,
     RemoveLiquidity,
     LiquidityPositions,
-    Spacer
+    SSpacer
   },
 
   fetch({ store, route }) {

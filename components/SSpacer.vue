@@ -7,9 +7,10 @@ export default {
   props: {
     high: {
       default: false,
-    },
-  },
-};
+      type: Boolean
+    }
+  }
+}
 </script>
 
 <style scoped>
