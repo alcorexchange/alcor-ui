@@ -4,6 +4,7 @@
   --color-danger: #b82c0d;
   --color-white: #f3fafc;
   --color-text-secondary: #5a5356;
+  --main-green: #66c167;
 
   // backgrounds
   --background-color-base: #fefefe;
@@ -15,8 +16,10 @@
 
   // buttons
   --btn-default: #ededed;
-  --btn-active: #ffffff; // black primary
+  --btn-active: #ffffff;
   --hover: rgba(220, 220, 220, 0.6); // dark hover row
+  --dark-btn-sm: #e0e0e0;
+  --swap-tab-active: #e0e0e0;
 
   --text-default: #161617;
 
@@ -27,6 +30,8 @@
   --active-row: #c2deff;
   --radius: 4px;
   --radius-2: 8px;
+
+  --border-1: 1px solid rgba(60, 60, 67, 0.36);
 }
 
 .theme-dark {
@@ -44,6 +49,8 @@
   --btn-default: #333333;
   --btn-active: #161617;
   --hover: rgba(22, 22, 23, 0.6);
+  --dark-btn-sm: #383838;
+  --swap-tab-active: #141415;
 
   --text-default: #f2f2f2;
 
