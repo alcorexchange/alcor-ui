@@ -13,12 +13,12 @@ export const mutations = {
 }
 
 export const actions = {
-  async updatePool({ state, getters, commit, rootGetters, rootState }) {
+  async updatePool({ state, getters, commit, rootGetters, rootState, $rpc }) {
     const sym = JSON.parse(JSON.stringify(state.current_sym))
 
     if (!this._vm.$nuxt.$route.name.includes('pools')) return
 
-    const { rows: [pool] } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows: [pool] } = await $rpc.get_table_rows({
       code: rootState.network.pools.contract,
       scope: sym,
       table: 'stat',
@@ -36,15 +36,15 @@ export const actions = {
     commit('setPools', pools)
   },
 
-  async fetchPools({ state, commit, rootGetters, rootState }) {
-    const { rows } = await rootGetters['api/rpc'].get_table_by_scope({
+  async fetchPools({ state, commit, rootGetters, rootState, $rpc }) {
+    const { rows } = await $rpc.get_table_by_scope({
       code: rootState.network.pools.contract,
       table: 'stat',
       limit: 1000
     })
 
     const requests = rows.map(r => {
-      return rootGetters['api/rpc'].get_table_rows({
+      return $rpc.get_table_rows({
         code: rootState.network.pools.contract,
         scope: r.scope,
         table: 'stat',

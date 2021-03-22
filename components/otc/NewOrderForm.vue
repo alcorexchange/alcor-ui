@@ -102,7 +102,7 @@ export default {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
             try {
-              await this.rpc.get_account(value)
+              await this.$rpc.get_account(value)
               callback()
             } catch (e) {
               callback(new Error('Account not exists'))
@@ -113,7 +113,7 @@ export default {
         'buy.symbol': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
-            const r = await this.rpc.get_currency_stats(this.form.buy.contract, value)
+            const r = await this.$rpc.get_currency_stats(this.form.buy.contract, value)
 
             if (value in r) {
               callback()
@@ -132,7 +132,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
 
     price() {
       return calculatePrice(this.form.sell, this.form.buy)

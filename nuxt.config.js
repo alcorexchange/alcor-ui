@@ -90,11 +90,16 @@ module.exports = {
   */
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
+    '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
     'nuxt-imagemin'
-    //'nuxt-purgecss' // FIXME Fails on docker production building
+    //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
+
+  axios: {
+    //baseURL: 'http://localhost:4000'
+  },
 
   //components: true,
 

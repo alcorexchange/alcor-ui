@@ -68,7 +68,7 @@ export default {
     this.current_chain = this.$store.state.network.name
 
     try {
-      await this.$store.getters['api/rpc'].get_info()
+      await this.$rpc.get_info()
     } catch (e) {
       this.netError = true
       console.log('Net error', e)
