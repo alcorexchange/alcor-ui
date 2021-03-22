@@ -31,7 +31,7 @@
               i.el-icon-plus.mr-2
               span Create pool
 
-    .row.mt-4(v-if="output && ibcChain")
+    //.row.mt-4(v-if="output && ibcChain")
       .col
         el-form(:model="ibcForm" :rules="rules" ref="form")
           el-form-item.mb-2
