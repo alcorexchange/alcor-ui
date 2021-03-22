@@ -317,6 +317,12 @@ export default {
   }
 }
 
+.theme-light {
+  .multi-input-wrapper {
+    background: var(--background-color-secondary);
+  }
+}
+
 .theme-dark {
   .swap-token-select {
     .dropdown {

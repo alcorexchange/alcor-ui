@@ -62,6 +62,7 @@ export const actions = {
   },
 
   toggleTheme({ state, commit }) {
+    document.documentElement.classList.toggle('theme-light')
     document.documentElement.classList.toggle('theme-dark')
     commit('setTheme', state.theme == 'light' ? 'dark' : 'light')
   },

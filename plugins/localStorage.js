@@ -8,8 +8,10 @@ export default ({ store }) => {
     })(store)
 
     // Theme management
-    if (store.state.theme == 'dark') {
-      document.documentElement.classList.add('theme-dark')
+    if (store.state.theme) {
+      document.documentElement.classList.add(`theme-${store.state.theme}`)
+    } else {
+      document.documentElement.classList.add('theme-light')
     }
   })
 }

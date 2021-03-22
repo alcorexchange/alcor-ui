@@ -107,7 +107,7 @@ export default {
 
     td:first-child:hover {
       cursor: pointer;
-      background-color: #eff1f5;
+      //background-color: #eff1f5;
     }
   }
 

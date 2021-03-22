@@ -22,6 +22,7 @@ module.exports = {
   */
   head: {
     title: config.APP_NAME + ' | EOS Trustless DEX.',
+
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },

@@ -158,9 +158,9 @@ input[type='number'] {
     color: var(--color-text-primary);
 }
 
-.el-input.is-disabled .el-input__inner {
-    background-color: #dde9ec;
-}
+//.el-input.is-disabled .el-input__inner {
+//    background-color: #dde9ec;
+//}
 
 .el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
 .nuxt-progress { background-color: var(--color-primary) !important; }
