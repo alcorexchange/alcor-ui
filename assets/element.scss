@@ -1,0 +1,94 @@
+// Variables set for the night theme
+$--color-primary: #000000;
+$--color-primary-light-9: #252525;
+
+$--color-white: #212121;
+$--border-base: none;
+
+$--color-text-primary: #F2F2F2;
+$--color-text-regular: #c4c4c4;
+
+$--border-color-base: transparent !default;
+$--border-color-light: transparent !default;
+$--border-color-lighter: transparent !default;
+$--border-color-extra-light: transparent !default;
+
+
+
+// BUTTON
+$--button-default-font-color: #F2F2F2;
+$--button-disabled-font-color: #BDBDBD;
+$--button-default-background-color: #363535;
+//$--radio-input-border: none;
+
+$--button-primary-font-color: #1FC781; // green
+
+// INPUT
+$--input-font-color: #FFFFFF;
+$--input-background-color: #282828; // BG color
+
+// Checkbox
+$--checkbox-checked-font-color: #F2F2F2 !default;
+$--checkbox-input-border: 1px solid !default;
+$--checkbox-button-checked-border-color: #000000;
+$--checkbox-input-border-color-hover: #909399;
+$--checkbox-checked-background-color: #909399;
+
+
+// CARD
+$--card-border-color: none !default;
+$--card-border-radius: 12px;
+
+
+// RADIO
+$--radio-button-checked-font-color: #FFFFFF;
+
+// TABLE
+$--table-font-color: #d9d9d9;
+$--table-border-color: #3C3C43;
+$--table-border: 0.5px solid $--table-border-color !default;
+$--table-row-hover-background-color: #282828;
+$--table-current-row-background-color: #282828; 
+
+
+
+@import 'element-ui/packages/theme-chalk/src/index.scss';
+
+
+$white-gray: #E3E5EB;
+
+@include b(radio-button) {
+  @include e(inner) {
+    &:hover {
+      color: $--radio-button-checked-font-color;
+      background: $--color-primary-light-9;
+    }
+  }
+}
+
+@include b(button) {
+  &:hover,
+  &:focus {
+    color: $--color-text-primary;
+  }
+
+  @include m(text) {
+    color: $white-gray;
+  }
+    
+}
+
+@include b(table) {
+  background-color: #222222;
+}
+
+@include m(primary) {
+  &.is-disabled {
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+      color: $--button-disabled-font-color;
+    }
+  }
+}

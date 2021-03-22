@@ -243,7 +243,7 @@ export default {
 
     margin-top: -8px;
 
-    background: var(--background-color-third);
+    background: var(--background-color-base);
     z-index: 1;
 
     height: 310px;
@@ -252,19 +252,7 @@ export default {
     .pairs {
       overflow-y: auto;
       height: calc(100% - 32px);
-
-      //::-webkit-scrollbar {
-      //  display: none;
-      //}
-
-      //-ms-overflow-style: none;
-      //scrollbar-width: none;
-      //overflow-y: scroll;
     }
-
-    //.pairs::-webkit-scrollbar {
-    //  display: none;
-    //}
   }
 
   .el-dialog__body {
@@ -287,16 +275,12 @@ export default {
 }
 
 .pair:hover,.isActive {
-  background-color: var(--background-color-base);
-}
-
-.pair:last-child {
-  //margin-bottom: .5rem;
+  background-color: var(--background-color-secondary);
 }
 
 .multi-input-wrapper {
-  padding: 8px;
-  background: var(--background-color-third);
+  padding: 8px 15px;
+  background: var(--background-color-base);
   border-radius: 6px;
   position: relative;
 
@@ -332,4 +316,16 @@ export default {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+.theme-dark {
+  .swap-token-select {
+    .dropdown {
+      .el-input__inner {
+        background-color: #232424;
+        border: none;
+      }
+    }
+  }
+}
+
 </style>

@@ -5,7 +5,7 @@
       .col
         .lead Liquidity Positions
           nuxt-link(to="/swap/create").float-right
-            el-button(size="mini" plain ) Create pool
+            el-button(size="mini") Create pool
             //create.float-right
     .row
       .col(:class="{ 'p-0': isMobile }")

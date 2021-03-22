@@ -1,13 +1,22 @@
 @import "~/assets/_variables.scss";
 @import "./base.scss";
+@import "./element.scss";
 
 .bg-base { background: var(--background-color-base); }
 .bg-secondary { background: var(--background-color-secondary); }
 .bg-third { background: var(--background-color-third); }
 
 // Themes
-:root { @import "light"; }
-.theme-dark { @import "dark"; }
+//:root { @import "light"; }
+//.theme-dark {
+//  //@import "dark";
+//  .el-button--primary {
+//    .is-disabled {
+//      color: #BDBDBD !important; // move to variable
+//      background-color: #363535 !important;
+//    }
+//  }
+//}
 
 @font-face {
     font-family: element-icons;

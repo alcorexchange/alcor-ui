@@ -6,7 +6,7 @@
         .col-lg-2.mb-2
           .d-flex.align-items-center.h-100
             nuxt-link(to="new_market")
-              el-button(tag="el-button" plain size="small" icon="el-icon-plus") Open new market
+              el-button(tag="el-button" size="small" icon="el-icon-plus") Open new market
         .col-lg-7
           el-radio-group(
             v-if="!isMobile"

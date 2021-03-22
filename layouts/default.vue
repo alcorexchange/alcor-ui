@@ -31,7 +31,7 @@
                 el-dropdown-item
                   el-button(size="mini" type="info" plain @click="logout").w-100 logout
 
-          el-button(v-else @click="$store.dispatch('modal/login')" type="primary" size="small") Connect wallet
+          el-button(v-else @click="$store.dispatch('modal/login')" size="small") Connect wallet
 
           .ml-3
             el-button(v-if="theme == 'dark'" icon="el-icon-sunny" circle size="small" @click="$store.dispatch('toggleTheme')")
