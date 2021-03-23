@@ -126,7 +126,7 @@ export default {
     menuItems() {
       const items = []
 
-      if (['eos', 'wax', 'jungle'].includes(this.$store.state.network.name)) {
+      if (['eos', 'wax', 'jungle', 'telos'].includes(this.$store.state.network.name)) {
         items.push({ index: '/swap', name: 'Swap' })
       }
 

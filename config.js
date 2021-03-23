@@ -223,7 +223,7 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    host: 'telos.caleos.io',
+    host: 'telos.greymass.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://telos.bloks.io',
@@ -239,8 +239,8 @@ const networks = {
     },
 
     pools: {
-      contract: 'evolutiondex',
-      fee: 'wevotethefee'
+      contract: 'alcorammswap',
+      fee: 'alcordexdivs'
     },
 
     RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone'],
