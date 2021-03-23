@@ -55,12 +55,11 @@ export default {
     PleaseLoginButton
   },
 
-  async asyncData({ store, error, params }) {
-    const rpc = store.getters['api/rpc']
+  async asyncData({ store, error, params, $rpc }) {
     const contract = store.state.network.otc.contract
 
     try {
-      const { rows: [order] } = await rpc.get_table_rows({
+      const { rows: [order] } = await $rpc.get_table_rows({
         code: contract,
         scope: contract,
         table: 'orders',

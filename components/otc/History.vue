@@ -36,8 +36,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
-    ...mapGetters('api', ['hyperion'])
+    ...mapGetters(['user'])
   },
 
   created() {
@@ -51,7 +50,7 @@ export default {
       const contract = this.$store.state.network.otc.contract
 
       try {
-        const { data: { actions } } = await this.hyperion.get('/history/get_actions', {
+        const { data: { actions } } = await this.$axios.get(this.$store.state.network.hyperion + 'v2/history/get_actions', {
           params: {
             account: contract,
             limit: 1000,

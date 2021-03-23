@@ -109,7 +109,6 @@ export default {
 
   computed: {
     ...mapState(['user', 'network', 'ibcTokens', 'ibcAccepts']),
-    ...mapGetters('api', ['rpc']),
 
     networks() {
       return Object.values(config.networks)

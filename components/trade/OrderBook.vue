@@ -39,7 +39,6 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { EventBus } from '~/utils/event-bus'
 
 export default {
   data() {
@@ -102,14 +101,14 @@ export default {
 
     setBid(ask) {
       const price = this.$options.filters.humanPrice(ask.unit_price).replaceAll(',', '')
-      EventBus.$emit('setPrice', price)
-      EventBus.$emit('setAmount', ask.bid.prefix)
+      this.$nuxt.$emit('setPrice', price)
+      this.$nuxt.$emit('setAmount', ask.bid.prefix)
     },
 
     setAsk(bid) {
       const price = this.$options.filters.humanPrice(bid.unit_price).replaceAll(',', '')
-      EventBus.$emit('setPrice', price)
-      EventBus.$emit('setAmount', bid.ask.prefix)
+      this.$nuxt.$emit('setPrice', price)
+      this.$nuxt.$emit('setAmount', bid.ask.prefix)
     },
 
     isMyOrder(order) {

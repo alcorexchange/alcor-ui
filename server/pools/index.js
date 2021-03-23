@@ -40,7 +40,6 @@ pools.get('/:pair_id/volume_chart', async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
-  // TODO Не работает, допилить
   const volume = await Exchange.aggregate([
     { $match: { chain: network.name, pair_id: parseFloat(pair_id) } },
     {
@@ -50,7 +49,7 @@ pools.get('/:pair_id/volume_chart', async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, 60 * 60 * 12 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000] }
             ]
           }
         },
@@ -79,7 +78,7 @@ pools.get('/:pair_id/liquidity_chart', async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, 15 * 60 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 12 * 1000] }
             ]
           }
         },

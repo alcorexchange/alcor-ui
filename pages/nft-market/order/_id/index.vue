@@ -81,9 +81,9 @@ export default {
     NftFields
   },
 
-  async asyncData({ store, error, params }) {
+  async asyncData({ store, error, params, $rpc }) {
     try {
-      const { rows: [order] } = await store.getters['api/rpc'].get_table_rows({
+      const { rows: [order] } = await $rpc.get_table_rows({
         code: store.state.network.nftMarket.contract,
         scope: store.state.network.nftMarket.contract,
         table: 'sellorders',
@@ -115,7 +115,6 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc'])
   },
 
   async mounted() {
@@ -124,7 +123,7 @@ export default {
 
     // TODO Create global base of nft tokens that contract holds
     for (const id of this.order.sell) {
-      const { rows: [item] } = await this.rpc.get_table_rows({
+      const { rows: [item] } = await this.$rpc.get_table_rows({
         code: 'simpleassets',
         scope: this.network.nftMarket.contract,
         table: 'sassets',

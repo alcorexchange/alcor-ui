@@ -150,7 +150,7 @@ export default {
       }[this.tab]
 
       if (this.pair) {
-        this.$store.getters['api/backEnd'].get(`/pools/${this.pair.id}/${API}`, {
+        this.$axios.get(`/pools/${this.pair.id}/${API}`, {
           params: {
             reverse: this.isReverted
           }

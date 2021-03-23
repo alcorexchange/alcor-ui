@@ -84,11 +84,9 @@ export default {
         address: {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
-            const rpc = this.$store.getters['api/rpc']
-
             try {
               this.loading = true
-              await rpc.get_account(value)
+              await this.$rpc.get_account(value)
               this.addressValid = true
               callback()
             } catch (e) {
@@ -105,7 +103,6 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapGetters('api', ['rpc']),
 
     networks() {
       return Object.values(config.networks)

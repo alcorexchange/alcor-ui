@@ -120,7 +120,7 @@ export default {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
             try {
-              await this.rpc.get_account(value)
+              await this.$rpc.get_account(value)
               callback()
             } catch (e) {
               callback(new Error('Account not exists'))
@@ -131,7 +131,7 @@ export default {
         'quote_token.symbol': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
-            const r = await this.rpc.get_currency_stats(this.form.quote_token.contract, value)
+            const r = await this.$rpc.get_currency_stats(this.form.quote_token.contract, value)
 
             if (value in r) {
               this.selectToken(this.form.quote_token)
@@ -153,7 +153,6 @@ export default {
 
   computed: {
     ...mapGetters(['user', 'knownTokens']),
-    ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
 
     tokens() {

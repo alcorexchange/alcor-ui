@@ -72,12 +72,12 @@ export const actions = {
   },
 
   async fetchTokens({ commit }) {
-    const { data: tokens } = await axios.get('https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json')
+    const { data: tokens } = await this.$axios.get('https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json')
 
     commit('setTokens', tokens)
   },
 
-  nuxtServerInit ({ commit, rootState }, { req }) {
+  nuxtServerInit ({ state, commit, rootState }, { req }) {
     if (process.env.DISABLE_DB) {
       if (!process.env.NETWORK) throw new Error('Set NETWORK env!')
       const subdomain = process.env.NETWORK == 'eos' ? '' : process.env.NETWORK + '.'
@@ -100,6 +100,8 @@ export const actions = {
         commit('setNetwork', config.networks[subdomain[0]])
       }
     }
+
+    this.$axios.setBaseURL(state.baseUrl + '/api')
   },
 
   update({ dispatch }) {
@@ -107,7 +109,7 @@ export const actions = {
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
-    const { data } = await getters['api/backEnd'].get('/markets')
+    const { data } = await this.$axios.get('/markets')
     data.map(m => {
       const { base_token, quote_token } = m
 
@@ -125,7 +127,7 @@ export const actions = {
   },
 
   async loadIbc({ state, commit, rootGetters }) {
-    const { rows: ibcTokens } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows: ibcTokens } = await this.$rpc.get_table_rows({
       code: 'bosibc.io',
       scope: 'bosibc.io',
       table: 'accepts',
@@ -138,8 +140,8 @@ export const actions = {
     commit('setIbcAccepts', ibcTokens)
   },
 
-  loadUserLiqudityPositions({ rootGetters, state, commit }) {
-    rootGetters['api/backEnd'].get(`/account/${state.user.name}/liquidity_positions`).then(r => {
+  loadUserLiqudityPositions({ state, commit }) {
+    this.$axios.get(`/account/${state.user.name}/liquidity_positions`).then(r => {
       commit('setLiquidityPositions', r.data)
     })
   },
@@ -147,8 +149,11 @@ export const actions = {
   loadUserBalances({ rootState, state, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
+      //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+      // FIXME Почему то нукстовский аксиос не работает для телефонов
       axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
         const balances = r.data.balances
+        console.log('balances', balances)
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 
@@ -161,14 +166,14 @@ export const actions = {
         balances.map(b => b.id = b.currency + '@' + b.contract)
 
         commit('setUser', { ...state.user, balances }, { root: true })
-      })
+      }).catch(e => console.log('balances: ', e))
     }
   },
 
-  async fetchUserDeals({ state, commit, rootGetters }) {
+  async fetchUserDeals({ state, commit }) {
     if (!state.user) return
 
-    const { data: deals } = await rootGetters['api/backEnd'].get(`/account/${state.user.name}/deals`)
+    const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`)
     commit('setUserDeals', deals)
   }
 }

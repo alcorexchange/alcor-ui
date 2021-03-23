@@ -94,6 +94,13 @@ export async function newMatch(match, network, app) {
   const io = app.get('io')
   const chain = network.name
 
+  try {
+    'data' in data
+  } catch (e) {
+    console.log('err to get data in action: ' + network.name, e)
+    return
+  }
+
   if (['sellmatch', 'buymatch'].includes(name)) {
     // On new match
     const { record: { market, ask, bid, asker, bidder, unit_price } } = 'data' in data ? data.data : data

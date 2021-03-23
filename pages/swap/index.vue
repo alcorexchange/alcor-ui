@@ -1,30 +1,57 @@
 <template lang="pug">
-.row.mt-3
-  .col-lg-4
-    el-card.mb-3.swap-card
-      el-radio-group(v-model="$store.state.swap.tab" @change="changeTab" size="small").el-radio-full-width
-        el-radio-button(label='Swap')
-        el-radio-button(label='+ Liquidity')
-        el-radio-button(label='- Liquidity')
-
-      keep-alive
-        component(v-bind:is="tabComponent")
-
-      .ml-auto
-        el-button(type="text" size="small" @click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')") How swap & revenue works?
-  .col-lg-8
-    .pools-chart(v-if="tab == 'Swap'")
-      el-card.h-100
-        Chart(:tab="chart_tab").h-100
-
-        .px-2
-          el-radio-group(v-model="chart_tab" size="small")
-            el-radio-button(label='Price')
-            el-radio-button(label='Liquidity')
-            el-radio-button(label='Volume')
-    el-card(v-else)
-      LiquidityPositions
-
+  .swap-container
+    .swap-card
+      .alcor-card
+        .tab-bar
+          .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") Swap
+          .item(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + liquidity
+          .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - liquidity
+        SSpacer(high)
+        .tab-item
+          AddLiquidity(v-if="tab === '+ Liquidity'")
+          RemoveLiquidity(v-else-if="tab === '- Liquidity'")
+          Swap(v-else)
+    .chart-card
+      .header
+        .pair-container
+          .left
+            .icons
+              img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon.icon-1
+              img(src="https://i.insider.com/5a71a5e9ec1ade273f1f5aed?width=600&format=jpeg&auto=webp").icon.icon-2
+            .name-container
+              .names EOS/USDT
+              .detail.muted Liquidity alcor.dex
+          .right
+            AlcorButton.eol Earn On Liquidity
+        SSpacer
+        .each-item-price-container
+          .item
+            img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon
+            span.text.muted 1 EOS = 6.02 USDT (5,00$)
+          .item
+            img(src="https://i.insider.com/5a71a5e9ec1ade273f1f5aed?width=600&format=jpeg&auto=webp").icon
+            span.text.muted 1 USDT = 0.07 EOS (5,00$)
+        SSpacer
+        .price-container
+          .price 6.02
+          .to USDT
+          .change
+            i.el-icon-caret-top
+            span.text 23.4%
+      SSpacer(high)
+      .chart
+        Chart(:tab="chart_tab")
+      SSpacer(high)
+      .footer
+        .left
+            span.item(@click="setChartTab('Price')" :class="{active: chart_tab === 'Price'}") Price
+            span.item(@click="setChartTab('Liquidity')" :class="{active: chart_tab === 'Liquidity'}") Liquidity
+            span.item(@click="setChartTab('Volume')" :class="{active: chart_tab === 'Volume'}") Volume
+        .right
+            span.item.active 24H
+            span.item 7D
+            span.item 30D
+            span.item All
 </template>
 
 <script>
@@ -35,6 +62,9 @@ import Chart from '~/components/swap/Chart.vue'
 import AddLiquidity from '~/components/swap/AddLiquidity.vue'
 import RemoveLiquidity from '~/components/swap/RemoveLiquidity.vue'
 import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
+import AlcorButton from '~/components/AlcorButton.vue'
+import SSpacer from '~/components/SSpacer.vue'
+import Spacer from '~/components/Spacer.vue'
 
 export default {
   components: {
@@ -42,7 +72,10 @@ export default {
     Chart,
     AddLiquidity,
     RemoveLiquidity,
-    LiquidityPositions
+    LiquidityPositions,
+    SSpacer,
+    Spacer,
+    AlcorButton
   },
 
   fetch({ store, route }) {
@@ -134,6 +167,9 @@ export default {
   methods: {
     changeTab(tab) {
       this.$store.commit('swap/setTab', tab)
+    },
+    setChartTab(tab) {
+      this.chart_tab = tab
     }
   },
 
@@ -154,23 +190,11 @@ export default {
     ]
 
     if (input && output) {
-      let img = `assets/tokens/${
-        this.$store.state.network.name
-      }/${output.symbol.toLowerCase()}_${output.contract}.png`
-
-      if (process.server) {
-        if (require('fs').existsSync(img)) {
-          img = `/_nuxt/assets/tokens/${
-            this.$store.state.network.name
-          }/${output.symbol.toLowerCase()}_${output.contract}.png`
-        } else {
-          img = `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${output.contract}/${output.symbol}.png`
-        }
-      } else {
-        img = this.$tokenLogo(output.symbol, output.contract)
-      }
-
-      meta.push({ hid: 'og:image', name: 'og:image', content: img })
+      meta.push({
+        hid: 'og:image',
+        name: 'og:image',
+        content: this.$tokenLogo(output.symbol, output.contract)
+      })
     }
 
     return {
@@ -181,6 +205,148 @@ export default {
 }
 </script>
 
+<style lang="scss" scoped>
+.swap-container {
+  display: flex;
+  padding-top: 20px;
+}
+.swap-card {
+  width: 33.3333%;
+}
+.tab-bar {
+  display: flex;
+  background: var(--bg-alter-2);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  .item {
+    flex: 1;
+    text-align: center;
+    padding: 4px;
+    border-radius: var(--radius-2);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+    &.active {
+      background: var(--btn-active);
+      box-shadow: 0px 3px 28px -1px rgba(0, 0, 0, 0.4);
+      // color: var(--background-color-base);
+    }
+  }
+}
+.chart-card {
+  flex: 1;
+  margin-left: 30px;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  display: flex;
+  flex-direction: column;
+  .pair-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .left {
+      display: flex;
+      align-items: center;
+    }
+    .eol {
+      border-radius: var(--radius);
+      padding: 6px 24px;
+    }
+    .icons {
+      position: relative;
+      display: flex;
+      height: 40px;
+      width: 40px;
+      .icon {
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .icon-1 {
+        top: 0;
+        left: 0;
+      }
+      .icon-2 {
+        bottom: 0;
+        right: 0;
+      }
+    }
+    .name-container {
+      padding-left: 10px;
+      .names {
+        font-size: 1.6rem;
+        font-weight: bold;
+      }
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  .each-item-price-container {
+    display: flex;
+    flex-wrap: wrap;
+    .item {
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      border-radius: var(--radius);
+      border: var(--border-1);
+      margin-right: 4px;
+      .icon {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        margin-right: 4px;
+      }
+    }
+  }
+  .price-container {
+    display: flex;
+    align-items: center;
+    .price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .change {
+      display: flex;
+      align-items: center;
+      color: var(--main-green);
+    }
+  }
+}
+.chart {
+  min-height: 300px;
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  .left,
+  .right {
+    display: flex;
+    align-items: center;
+    .item {
+      user-select: none;
+      display: flex;
+      padding: 4px 6px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      &.active {
+        background: var(--swap-tab-active);
+      }
+    }
+  }
+}
+</style>
 <style lang="scss">
 .el-card.swap-card {
   overflow: visible;

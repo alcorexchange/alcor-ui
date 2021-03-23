@@ -15,16 +15,10 @@ export const actions = {
   },
 
   async fetchPairs({ state, commit, rootGetters, dispatch }) {
-    const { data: { data: pairs } } = await rootGetters['api/backEnd'].get('/coinswitch/pairs')
+    const { data: { data: pairs } } = await this.$axios.get('/coinswitch/pairs')
 
     commit('setPairs', pairs.filter(p => p.isActive))
-  },
-
-  //async fetchCoins({ state, commit, rootGetters, dispatch }) {
-  //  const { data: { data: coins } } = await rootGetters['api/backEnd'].get('/coinswitch/coins')
-
-  //  commit('setCoins', coins.filter(p => !p.isFiat && p.isActive))
-  //}
+  }
 }
 
 export const getters = {
