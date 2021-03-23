@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import config from '~/config'
 
 import { make256key } from '~/utils'
@@ -146,8 +148,11 @@ export const actions = {
   loadUserBalances({ rootState, state, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
-      this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+      //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+      // FIXME Почему то нукстовский аксиос не работает для телефонов
+      axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
         const balances = r.data.balances
+        console.log('balances', balances)
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 
@@ -160,7 +165,7 @@ export const actions = {
         balances.map(b => b.id = b.currency + '@' + b.contract)
 
         commit('setUser', { ...state.user, balances }, { root: true })
-      })
+      }).catch(e => console.log('balances: ', e))
     }
   },
 
