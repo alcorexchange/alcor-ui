@@ -1,33 +1,22 @@
-@import "~/assets/_variables.scss";
-@import "./base.scss";
-@import "./element.scss";
+// Import variables for light/dark theme
+@import '~/assets/_variables.scss';
+@import './base.scss';
 
-.bg-base { background: var(--background-color-base); }
-.bg-secondary { background: var(--background-color-secondary); }
-.bg-third { background: var(--background-color-third); }
-
-// Themes
-//:root { @import "light"; }
-//.theme-dark {
-//  //@import "dark";
-//  .el-button--primary {
-//    .is-disabled {
-//      color: #BDBDBD !important; // move to variable
-//      background-color: #363535 !important;
-//    }
-//  }
-//}
+// Add elements scss (themed by variables)
+@import './element.scss';
 
 @font-face {
-    font-family: element-icons;
-    src: url(fonts/element-icons.woff) format("woff"), url(fonts/element-icons.ttf) format("truetype");
+  font-family: element-icons;
+  src: url(fonts/element-icons.woff) format('woff'),
+    url(fonts/element-icons.ttf) format('truetype');
 }
 
-html, body {
-    background-color: var(--background-color-base);
-    color: var(--color-text-primary);
+html,
+body {
+  background-color: var(--background-color-base);
+  color: var(--color-text-primary);
 
-    transition: .3s;
+  transition: 0.3s;
 }
 
 div::-webkit-scrollbar {
@@ -41,7 +30,8 @@ div::-webkit-scrollbar-thumb {
   border-radius: 20px;
 }
 
-button, button:focus {
+button,
+button:focus {
   outline: 0;
   outline: 0;
 }
@@ -52,9 +42,9 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-label { margin: 0px; }
-
-
+label {
+  margin: 0px;
+}
 
 .el-table__row,
 .pointer {
@@ -83,10 +73,9 @@ label { margin: 0px; }
 
 @media (max-width: 425px) {
   :root .el-button + .el-button {
-     margin-left: 3px;
+    margin-left: 3px;
   }
 }
-
 
 /* Firefox */
 input[type='number'] {
@@ -115,7 +104,7 @@ input[type='number'] {
   display: flex;
 
   label.el-radio-button {
-      flex: 1;
+    flex: 1;
   }
 
   .el-radio-button__inner {
@@ -129,7 +118,7 @@ input[type='number'] {
 }
 
 .el-menu {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .el-menu-item {
@@ -141,30 +130,37 @@ input[type='number'] {
 }
 
 .el-menu-item {
-    background-color: var(--background-color-base) !important;
+  background-color: var(--background-color-base) !important;
 
-    &:hover, {
-        outline: none;
-
-        border-bottom: 2px solid var(--color-primary) !important;
-        color: var(--color-text-primary);
-    }
-}
-
-.el-menu-item.is-active {
+  &:hover {
     outline: none;
 
     border-bottom: 2px solid var(--color-primary) !important;
     color: var(--color-text-primary);
+  }
+}
+
+.el-menu-item.is-active {
+  outline: none;
+
+  border-bottom: 2px solid var(--color-primary) !important;
+  color: var(--color-text-primary);
 }
 
 //.el-input.is-disabled .el-input__inner {
 //    background-color: #dde9ec;
 //}
 
-.el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
-.nuxt-progress { background-color: var(--color-primary) !important; }
-pre { color: var(--color-primary); }
+.el-loading-mask {
+  background-color: var(--background-color-base) !important;
+  opacity: 0.9;
+}
+.nuxt-progress {
+  background-color: var(--color-primary) !important;
+}
+pre {
+  color: var(--color-primary);
+}
 
 // TODO Обновить UI цсс элемента
 //:root .el-radio-button:first-child .el-radio-button__inner {
@@ -191,27 +187,56 @@ pre { color: var(--color-primary); }
 //    }
 //}
 //
-.el-button:not(.el-button--text), .el-radio-group {
-    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05), inset 0 4px 4px rgba(0, 0, 0, 0.05);
+.el-button:not(.el-button--text),
+.el-radio-group {
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05),
+    inset 0 4px 4px rgba(0, 0, 0, 0.05);
 }
 
-
 // Light (default styles)
-.text-danger { color: #b82d0d !important; }
-.text-success { color: #53a95b!important; }
-a { color: #80a1c5 !important; }
+.text-danger {
+  color: #b82d0d !important;
+}
+.text-success {
+  color: #53a95b !important;
+}
+a {
+  color: #80a1c5 !important;
+}
 
 // Dark
 .theme-dark {
-    .text-danger { color: #b56150 !important; }
+  .text-danger {
+    color: #b56150 !important;
+  }
 
-    .trading-terminal {
-        .el-table th,tr {
-          background-color: var(--background-color-base);
-        }
+  .trading-terminal {
+    .el-table__row:hover {
+      background-color: var(--background-color-secondary);
     }
 
-    .markets-bar {
-        height: 500px;
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
     }
+
+    .el-table th,
+    tr {
+      background-color: var(--background-color-base);
+    }
+  }
+
+  .markets-bar {
+    height: 500px;
+  }
+}
+
+.alcor-card {
+  border-radius: var(--radius-2);
+  padding: 14px;
+  background: var(--bg-big-card);
+  box-shadow: var(--card-shadow);
+}
+
+.muted {
+  opacity: 0.6;
 }

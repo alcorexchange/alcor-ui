@@ -53,7 +53,6 @@
 import ClickOutside from 'vue-click-outside'
 import { mapState, mapGetters } from 'vuex'
 
-
 import TokenImage from '~/components/elements/TokenImage'
 
 export default {
@@ -115,13 +114,16 @@ export default {
     }),
 
     isTokenSelected() {
-      return (this.token && this.token.contract && this.token.symbol) ||
+      return (
+        (this.token && this.token.contract && this.token.symbol) ||
         (this.token == 0 && this.input) ||
-        (this.token == 1 && this.output) || false
+        (this.token == 1 && this.output) ||
+        false
+      )
     },
 
     tokensFiltered() {
-      return this.tokens.filter(t => {
+      return this.tokens.filter((t) => {
         const s = (t.symbol + '@' + t.contract).toLowerCase()
         return s.includes(this.search.toLowerCase())
       })
@@ -159,14 +161,33 @@ export default {
       }
     },
 
-    handleInput (content) {
+    handleInput(content) {
       this.$emit('input', content)
     },
 
     isActiveToken(token) {
-      if (this.token == 0 && this.input && (this.input.symbol == token.symbol && this.input.contract == token.contract)) return true
-      if (this.token == 1 && this.output && (this.output.symbol == token.symbol && this.output.contract == token.contract)) return true
-      if (this.token && this.token.contract && this.token.symbol && (this.token.symbol == token.symbol && this.token.contract == token.contract)) return true
+      if (
+        this.token == 0 &&
+        this.input &&
+        this.input.symbol == token.symbol &&
+        this.input.contract == token.contract
+      )
+        return true
+      if (
+        this.token == 1 &&
+        this.output &&
+        this.output.symbol == token.symbol &&
+        this.output.contract == token.contract
+      )
+        return true
+      if (
+        this.token &&
+        this.token.contract &&
+        this.token.symbol &&
+        this.token.symbol == token.symbol &&
+        this.token.contract == token.contract
+      )
+        return true
 
       return false
     },
@@ -181,7 +202,8 @@ export default {
 
       if (this.token == 0) precision = this.input.precision
       if (this.token == 1) precision = this.output.precision
-      if (this.token && this.token.symbol && this.token.contract) precision = this.token.precision
+      if (this.token && this.token.symbol && this.token.contract)
+        precision = this.token.precision
 
       if (!precision) return
 
@@ -196,9 +218,18 @@ export default {
       if (this.token == 0) {
         this.$store.commit('swap/setInput', token)
 
-        if (output && token.contract == output.contract && token.symbol == output.symbol) {
+        if (
+          output &&
+          token.contract == output.contract &&
+          token.symbol == output.symbol
+        ) {
           this.$store.commit('swap/setOutput', input)
-        } else if (output && !this.tokens1.filter(t => t.contract == output.contract && t.symbol == output.symbol)[0]) {
+        } else if (
+          output &&
+          !this.tokens1.filter(
+            (t) => t.contract == output.contract && t.symbol == output.symbol
+          )[0]
+        ) {
           if (this.tokens1) {
             this.$store.commit('swap/setOutput', this.tokens1[0])
           } else {
@@ -210,9 +241,18 @@ export default {
       if (this.token == 1) {
         this.$store.commit('swap/setOutput', token)
 
-        if (input && token.contract == input.contract && input.symbol == output.symbol) {
+        if (
+          input &&
+          token.contract == input.contract &&
+          input.symbol == output.symbol
+        ) {
           this.$store.commit('swap/setInput', output)
-        } else if (input && !this.tokens0.filter(t => t.contract == input.contract && t.symbol == input.symbol)[0]) {
+        } else if (
+          input &&
+          !this.tokens0.filter(
+            (t) => t.contract == input.contract && t.symbol == input.symbol
+          )[0]
+        ) {
           if (this.tokens0) {
             this.$store.commit('swap/setInput', this.tokens0[0])
           } else {
@@ -227,11 +267,10 @@ export default {
 }
 </script>
 
-
 <style lang="scss">
 .swap-token-select {
   .dropdown {
-    border-radius: 7px;
+    border-radius: var(--radius);
 
     //will-change: transform;
     position: absolute;
@@ -243,7 +282,11 @@ export default {
 
     margin-top: -8px;
 
+//<<<<<<< HEAD FIXME
     background: var(--background-color-base);
+//=======
+//    background: var(--bg-alter-1);
+//>>>>>>> newUI
     z-index: 1;
 
     height: 310px;

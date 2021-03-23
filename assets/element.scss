@@ -1,12 +1,11 @@
-/*
-THIS VARIABLES SHOULD BE GENERATED FOR DARK THEME (dark.css)
+// THIS VARIABLES SHOULD BE GENERATED FOR DARK THEME (dark.css)
 $--color-primary: #000000;
 $--color-primary-light-9: #252525;
 
 $--background-color-base: #282828;
 
 $--color-white: #212121;
-$--border-base: none;
+//$--border-base: none;
 
 $--color-text-primary: #F2F2F2;
 $--color-text-regular: #c4c4c4;
@@ -30,6 +29,8 @@ $--button-primary-font-color: #1FC781; // green
 $--input-font-color: #FFFFFF;
 $--input-background-color: #282828; // BG color
 $--input-disabled-fill: #000000;
+$--input-hover-border: #a7b5ac;
+$--input-focus-border: #9eaba3;
 
 // TAG
 $--tag-primary-color: #909399;
@@ -55,11 +56,12 @@ $--card-border-radius: 12px;
 
 // RADIO
 $--radio-button-checked-font-color: #FFFFFF;
+$--radio-button-checked-border-color: transparent;
 
 // TABLE
 $--table-font-color: #d9d9d9;
 $--table-border-color: #3C3C43;
-$--table-border: 0.5px solid #3C3C43;
+$--table-border: 1px solid #282828;
 $--table-row-hover-background-color: #282828;
 $--table-current-row-background-color: #282828; 
 
@@ -67,19 +69,21 @@ $--table-current-row-background-color: #282828;
 $--select-dropdown-background: #282828;
 $--select-option-hover-background: #212121;
 $--select-option-selected-font-color: #ffffff;
+$--select-input-focus-border-color: #9eaba3;
 
 // POPOVER
 $--popover-background-color: #282828;
 
 @import 'element-ui/packages/theme-chalk/src/index.scss';
-*/
+
+
 
 .theme-light {
-  @import 'light';
+  //@import 'light';
 }
 
 .theme-dark {
-  @import 'dark';
+  //@import 'dark';
   // TABS
   .el-tabs__item.is-active {
     color: #c4c4c4;
