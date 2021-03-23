@@ -12,7 +12,8 @@
     .items
       .item(v-for="{icon, name, description} in chainTools")
         .item-inner
-          img.icon(:src="icon")
+          .icon-container
+            img(:src="icon").icon
           .h3 {{name}}
           .desc {{description}}
 </template>
@@ -58,16 +59,31 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 210px;
     width: 220px;
     border: 1px solid #545454;
     border-radius: 24px;
     backdrop-filter: blur(50px);
-    .icon {
+    .icon-container {
       width: 60px;
       height: 60px;
       background: #111111;
       border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    .h3 {
+      font-size: 1.4rem;
+      margin: 10px 0;
+    }
+    .desc {
+      color: var(--text-grey-thirdly);
     }
   }
 }
