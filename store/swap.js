@@ -75,7 +75,7 @@ export const actions = {
   },
 
   async getPairs({ commit, rootState, rootGetters }) {
-    const { rows } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows } = await this.$rpc.get_table_rows({
       code: rootState.network.pools.contract,
       scope: rootState.network.pools.contract,
       table: 'pairs',
@@ -115,10 +115,9 @@ export const actions = {
   },
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
-    console.log('updatePair...')
     if (!this._vm.$nuxt.$route.name.includes('swap')) return
 
-    const { rows: [new_pair] } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows: [new_pair] } = await this.$rpc.get_table_rows({
       code: rootState.network.pools.contract,
       scope: rootState.network.pools.contract,
       table: 'pairs',

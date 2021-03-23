@@ -104,7 +104,6 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapGetters(['user', 'knownTokens']),
-    ...mapGetters('api', ['rpc']),
 
     userNfts() {
       let nfts = this.userNfts_.filter(n => !this.sell.some(s => s.id == n.id))
@@ -146,7 +145,7 @@ export default {
     },
 
     async fetchUserNfts() {
-      const { rows } = await this.rpc.get_table_rows({
+      const { rows } = await this.$rpc.get_table_rows({
         code: 'simpleassets',
         scope: this.user.name,
         table: 'sassets',

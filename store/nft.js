@@ -16,14 +16,14 @@ export const mutations = {
 export const actions = {
   async fetch({ commit, rootGetters, rootState }) {
     console.log('Fetch nfts...')
-    const { rows: orders } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows: orders } = await this.$rpc.get_table_rows({
       code: rootState.network.nftMarket.contract,
       scope: rootState.network.nftMarket.contract,
       table: 'sellorders',
       limit: 1000
     })
 
-    const { rows: nfts } = await rootGetters['api/rpc'].get_table_rows({
+    const { rows: nfts } = await this.$rpc.get_table_rows({
       code: 'simpleassets',
       scope: rootState.network.nftMarket.contract,
       table: 'sassets',

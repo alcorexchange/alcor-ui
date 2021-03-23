@@ -137,7 +137,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
+import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
 
 import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'

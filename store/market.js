@@ -47,12 +47,12 @@ export const actions = {
 
   startStream({ state, rootState, commit }, { to, from }) {
     if (from) {
-      this._vm.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
-      this._vm.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
-      this._vm.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
+      this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
+      this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
+      this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
     }
-    this._vm.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
-    this._vm.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
+    this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
+    this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
 
     commit('setStreaming', true)
   },
@@ -84,7 +84,7 @@ export const actions = {
   },
 
   async fetchMarket({ state, commit, rootGetters, dispatch }) {
-    const { data: market } = await rootGetters['api/backEnd'].get(`/markets/${state.id}`)
+    const { data: market } = await this.$axios.get(`/markets/${state.id}`)
 
     if (market.id != state.id) {
       throw new Error(`Market with id ${market.id} not found or closed :(`)

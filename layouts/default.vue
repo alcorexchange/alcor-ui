@@ -79,7 +79,7 @@ export default {
     menuItems() {
       const items = []
 
-      if (['eos', 'wax', 'jungle'].includes(this.$store.state.network.name)) {
+      if (['eos', 'wax', 'jungle', 'telos'].includes(this.$store.state.network.name)) {
         items.push({ index: '/swap', name: 'Swap' })
       }
 
@@ -116,15 +116,13 @@ export default {
 
   },
 
-  mounted() {
+  async mounted() {
     this.$store.dispatch('checkIsMobile')
-  },
 
-  async created() {
     this.current_chain = this.$store.state.network.name
 
     try {
-      await this.$store.getters['api/rpc'].get_info()
+      await this.$rpc.get_info()
     } catch (e) {
       this.netError = true
       console.log('Net error', e)

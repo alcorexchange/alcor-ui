@@ -55,8 +55,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 export default {
   data() {
     return {
@@ -66,10 +64,6 @@ export default {
 
       walletAddress: '' // Add check
     }
-  },
-
-  computed: {
-    ...mapGetters('api', ['backEnd'])
   },
 
   watch: {
@@ -83,7 +77,7 @@ export default {
       this.loading = true
 
       try {
-        const { data } = await this.backEnd.post('coinswitch/order', {
+        const { data } = await this.$axios.post('coinswitch/order', {
           depositCoin: 'eth',
           destinationCoin: 'eos',
           depositCoinAmount: 12.0, // TODO Тут лучше сделать дестинейшн

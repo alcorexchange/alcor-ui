@@ -35,7 +35,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc'])
   },
 
   watch: {
@@ -58,7 +57,7 @@ export default {
         const actions = []
 
         try {
-          await this.rpc.get_account(value)
+          await this.$rpc.get_account(value)
         } catch (e) {
           return this.$notify({ title: 'Send NFT', message: 'Receiver account not exists', type: 'error' })
         }
@@ -99,7 +98,7 @@ export default {
       console.log('fetchNfts', this.user.name)
       if (!this.user) return
 
-      const { rows } = await this.rpc.get_table_rows({
+      const { rows } = await this.$rpc.get_table_rows({
         code: 'simpleassets',
         scope: this.user.name,
         table: 'sassets',

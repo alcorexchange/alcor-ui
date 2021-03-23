@@ -40,7 +40,7 @@ export default {
       else
         i256_id = b_i128_id.shiftLeft(128).or(q_i128_id).toString(16)
 
-      const { rows } = await store.getters['api/rpc'].get_table_rows({
+      const { rows } = await this.$rpc.get_table_rows({
         code: store.state.network.contract,
         scope: store.state.network.contract,
         table: 'markets',

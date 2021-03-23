@@ -50,7 +50,7 @@
 <script>
 // TODO Короче еще сделать для маркеттрейда размер в EOS сумировать по ордерам
 import { mapGetters, mapState } from 'vuex'
-import { tradeMixin, tradeChangeEvents } from '~/plugins/mixins'
+import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
 
 export default {
   mixins: [tradeMixin, tradeChangeEvents],

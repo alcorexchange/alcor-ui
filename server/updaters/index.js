@@ -19,7 +19,7 @@ export function startUpdaters(app) {
     updater('eos', app, 'node', ['markets', 'pools'])
     updater('wax', app, 'node', ['markets', 'pools'])
     updater('proton', app, 'node', ['markets'])
-    updater('telos', app, 'node', ['markets'])
+    updater('telos', app, 'node', ['markets', 'pools'])
     // updater('telos', app, 'hyperion', ['markets'])
     //updater('bos', app, false) // Update by node, not hyperion
   }
