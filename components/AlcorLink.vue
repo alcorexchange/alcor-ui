@@ -15,23 +15,23 @@ export default {
   name: 'AlcorButton',
   props: {
     to: {
-      default: '/',
+      default: '/'
     },
     flat: {
       default: false,
-      type: Boolean,
+      type: Boolean
     },
     iconOnly: {
-      default: false,
+      default: false
     },
     iconOnlyAlt: {
-      default: false,
+      default: false
     },
     green: {
       default: false,
-      type: Boolean,
-    },
-  },
+      type: Boolean
+    }
+  }
 }
 </script>
 
@@ -53,6 +53,7 @@ button {
   text-decoration: none;
   &.green {
     color: var(--main-green) !important;
+    background: var(--btn-active);
   }
 }
 .alcor-button .vs-icon {
