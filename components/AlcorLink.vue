@@ -1,7 +1,7 @@
 <template>
   <nuxt-link
     :to="to"
-    :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]"
+    :class="['alcor-button', { flat, iconOnly, iconOnlyAlt, green }]"
     @click.prevent="$emit('click')"
   >
     <div class="inner">
@@ -27,11 +27,15 @@ export default {
     iconOnlyAlt: {
       default: false,
     },
+    green: {
+      default: false,
+      type: Boolean,
+    },
   },
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 button {
   border: none;
   font-family: 'Sans', sans-serif;
@@ -47,6 +51,9 @@ button {
   transition: all 0.3s;
   display: inline-block;
   text-decoration: none;
+  &.green {
+    color: var(--main-green) !important;
+  }
 }
 .alcor-button .vs-icon {
   margin: 0 2px;

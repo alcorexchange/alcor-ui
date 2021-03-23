@@ -84,7 +84,10 @@ export default {
         setTimeout(() => {
           this.$router.push({
             path: this.$route.path,
-            query: { ...this.$route.query, output: this.output.symbol + '-' + this.output.contract }
+            query: {
+              ...this.$route.query,
+              output: this.output.symbol + '-' + this.output.contract
+            }
           })
         }, 1)
       } else {
@@ -97,7 +100,10 @@ export default {
         setTimeout(() => {
           this.$router.push({
             path: this.$route.path,
-            query: { ...this.$route.query, input: this.input.symbol + '-' + this.input.contract }
+            query: {
+              ...this.$route.query,
+              input: this.input.symbol + '-' + this.input.contract
+            }
           })
         }, 1)
       } else {
@@ -106,15 +112,21 @@ export default {
     }
   },
 
-  beforeRouteLeave (to, from, next) {
-    this.$socket.emit('unsubscribe', { room: 'pools', params: { chain: this.network.name } })
+  beforeRouteLeave(to, from, next) {
+    this.$socket.emit('unsubscribe', {
+      room: 'pools',
+      params: { chain: this.network.name }
+    })
     next()
   },
 
   mounted() {
-    this.$socket.emit('subscribe', { room: 'pools', params: { chain: this.network.name } })
+    this.$socket.emit('subscribe', {
+      room: 'pools',
+      params: { chain: this.network.name }
+    })
 
-    this.$socket.on('update_pair', data => {
+    this.$socket.on('update_pair', (data) => {
       this.$store.dispatch('swap/updatePairOnPush', data)
     })
   },
@@ -128,9 +140,10 @@ export default {
   head() {
     const { input, output } = this.$store.state.swap
 
-    const title = (input && output)
-      ? `Alcor Exchange | Swap ${input.symbol} for ${output.symbol}`
-      : 'Alcor Exchange | Swap & Earn on your Liquidity'
+    const title =
+      input && output
+        ? `Alcor Exchange | Swap ${input.symbol} for ${output.symbol}`
+        : 'Alcor Exchange | Swap & Earn on your Liquidity'
 
     const meta = [
       {
@@ -141,11 +154,15 @@ export default {
     ]
 
     if (input && output) {
-      let img = `assets/tokens/${this.$store.state.network.name}/${output.symbol.toLowerCase()}_${output.contract}.png`
+      let img = `assets/tokens/${
+        this.$store.state.network.name
+      }/${output.symbol.toLowerCase()}_${output.contract}.png`
 
       if (process.server) {
         if (require('fs').existsSync(img)) {
-          img = `/_nuxt/assets/tokens/${this.$store.state.network.name}/${output.symbol.toLowerCase()}_${output.contract}.png`
+          img = `/_nuxt/assets/tokens/${
+            this.$store.state.network.name
+          }/${output.symbol.toLowerCase()}_${output.contract}.png`
         } else {
           img = `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${output.contract}/${output.symbol}.png`
         }
