@@ -88,9 +88,11 @@ export default {
         address: {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
+            const rpc = new JsonRpc(`${this.chain.protocol}://${this.chain.host}:${this.chain.port}`, { fetch })
+
             try {
               this.loading = true
-              await this.$rpc.get_account(value)
+              await rpc.get_account(value)
               this.addressValid = true
               callback()
             } catch (e) {
