@@ -9,4 +9,11 @@ export default {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.home-title {
+  font-weight: normal;
+  color: var(--main-green);
+  font-size: 1.3rem;
+  margin-bottom: 5px;
+}
+</style>

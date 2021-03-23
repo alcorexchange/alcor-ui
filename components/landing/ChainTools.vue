@@ -1,6 +1,6 @@
 <template lang="pug">
   .chain-tools
-    SectionTitle Multi-Chain tools
+    SectionTitle.section-title Multi-Chain tools
     .items
       .item(v-for="{icon, name, description} in chainTools")
         .item-inner
@@ -8,14 +8,17 @@
             img(:src="icon").icon
           .h3 {{name}}
           .desc {{description}}
+    Spacer
 </template>
 
 <script>
 import SectionTitle from '@/components/landing/SectionTitle'
+import Spacer from '@/components/Spacer'
 export default {
   name: 'ChainTools',
   components: {
-    SectionTitle
+    SectionTitle,
+    Spacer
   },
   data: () => ({
     chainTools: [
@@ -45,6 +48,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.section-title {
+  margin-bottom: 25px !important;
+}
 .items {
   display: flex;
   justify-content: space-between;
