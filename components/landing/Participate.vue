@@ -17,10 +17,10 @@
                         span.desc Governance
         .right
             .tab-bar
-                .item.active
+                .item(@click="setActiveTab('allocation')" :class="{active: activeTab === 'allocation'}")
                     span Allocation
                     span.line
-                .item
+                .item(@click="setActiveTab('release')" :class="{active: activeTab === 'release'}")
                     span Release schedule
                     span.line
             SSpacer
@@ -36,7 +36,14 @@ export default {
     SectionTitle,
     SSpacer
   },
-  data: () => ({})
+  data: () => ({
+    activeTab: 'allocation'
+  }),
+  methods: {
+    setActiveTab(tab) {
+      this.activeTab = tab
+    }
+  }
 }
 </script>
 
@@ -94,16 +101,18 @@ export default {
     color: var(--text-grey-thirdly);
     display: flex;
     flex-direction: column;
+    cursor: pointer;
     .line {
       background: var(--text-grey-thirdly);
-      height: 0;
+      height: 2px;
       border-radius: 4px;
-      transition: height 0.4s;
+      opacity: 0;
+      transition: opacity 0.2s;
     }
     &.active {
       color: var(--text-default);
       .line {
-        height: 2px;
+        opacity: 1;
       }
     }
   }
