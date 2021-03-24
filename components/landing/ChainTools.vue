@@ -23,23 +23,23 @@ export default {
   data: () => ({
     chainTools: [
       {
-        icon: require('~/assets/icons/ArrowsDownUp.svg'),
+        icon: require('~/assets/icons/ArrowsClockwise.svg'),
         name: 'AMM Swap',
         description: 'Cross-Chain DEX'
       },
       {
         icon: require('~/assets/icons/ArrowsDownUp.svg'),
-        name: 'AMM Swap',
+        name: 'Spot Trading',
         description: 'Cross-Chain DEX'
       },
       {
-        icon: require('~/assets/icons/ArrowsDownUp.svg'),
-        name: 'AMM Swap',
+        icon: require('~/assets/icons/ChartLineUp.svg'),
+        name: 'Earn',
         description: 'Cross-Chain DEX'
       },
       {
-        icon: require('~/assets/icons/ArrowsDownUp.svg'),
-        name: 'AMM Swap',
+        icon: require('~/assets/icons/Image.svg'),
+        name: 'Nft',
         description: 'Cross-Chain DEX'
       }
     ]
