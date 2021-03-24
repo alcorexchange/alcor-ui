@@ -1,10 +1,13 @@
 <template lang="pug">
   .hero
-    h2 All in one DeFi
-    p.desc Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.
-    .actions
-      AlcorLink(green).start Start Trading
-      AlcorLink Read docs
+    .left
+      h2 All in one DeFi
+      p.desc Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.
+      .actions
+        AlcorLink(green).start Start Trading
+        AlcorLink Read docs
+    .right
+      img.frame(src="~/assets/images/frame.svg")
 </template>
 
 <script>
@@ -21,8 +24,13 @@ export default {
 .hero {
   height: 340px;
   display: flex;
+}
+.left {
+  display: flex;
   flex-direction: column;
   justify-content: center;
+  height: 100%;
+  width: 50%;
 }
 h2 {
   font-size: 3rem;
@@ -39,5 +47,18 @@ h2 {
   .start {
     margin-right: 15px;
   }
+}
+.right {
+  position: relative;
+  width: 50%;
+  height: 100%;
+}
+.frame {
+  position: absolute;
+  width: 1000px;
+  top: 50%;
+  transform: translate(0, -50%);
+  right: -15%;
+  z-index: 0;
 }
 </style>

@@ -1,36 +1,37 @@
 <template lang="pug">
-  .supported-chaings
-    SectionTitle.section-title Supported Chains
-    .chains
-      img.chain(src="~/assets/images/supportedchain-1.svg")
-      img.chain(src="~/assets/images/supportedchain-2.svg")
-      img.chain(src="~/assets/images/supportedchain-3.svg")
-      img.chain(src="~/assets/images/supportedchain-4.svg")
-      span.more and more...
-    .inner-container
-      span.title Building a global community.
-      p.text Learn more about Alcor, chat with the community, and get announcements faster than anyone.
-      .social-items
-        .item
-          .icon
-            img(src="~/assets/icons/Telegram.svg")
-          span.name Telegram
-          span.desc Cross-Chain DEX
-        .item
-          .icon
-            img(src="~/assets/icons/Monogram.svg")
-          span.name Medium
-          span.desc Cross-Chain DEX
-        .item
-          .icon
-            img(src="~/assets/icons/Github.svg")
-          span.name Github
-          span.desc Cross-Chain DEX
-        .item
-          .icon
-            img(src="~/assets/icons/Twitter.svg")
-          span.name Twitter
-          span.desc Cross-Chain DEX
+  .supported-chains
+    .alcor-inner
+      SectionTitle.section-title Supported Chains
+      .chains
+        img.chain(src="~/assets/images/supportedchain-1.svg")
+        img.chain(src="~/assets/images/supportedchain-2.svg")
+        img.chain(src="~/assets/images/supportedchain-3.svg")
+        img.chain(src="~/assets/images/supportedchain-4.svg")
+        span.more and more...
+      .inner-container
+        span.title Building a global community.
+        p.text Learn more about Alcor, chat with the community, and get announcements faster than anyone.
+        .social-items
+          .item
+            .icon
+              img(src="~/assets/icons/Telegram.svg")
+            span.name Telegram
+            span.desc Cross-Chain DEX
+          .item
+            .icon
+              img(src="~/assets/icons/Monogram.svg")
+            span.name Medium
+            span.desc Cross-Chain DEX
+          .item
+            .icon
+              img(src="~/assets/icons/Github.svg")
+            span.name Github
+            span.desc Cross-Chain DEX
+          .item
+            .icon
+              img(src="~/assets/icons/Twitter.svg")
+            span.name Twitter
+            span.desc Cross-Chain DEX
 </template>
 
 <script>
@@ -47,7 +48,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.supported-chaings {
+.supported-chains {
   background: linear-gradient(
     181.03deg,
     rgba(255, 255, 255, 0) -7.7%,
