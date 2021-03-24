@@ -4,15 +4,15 @@
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
       span Amount({{ quote_token.symbol.name }})
-      span Total ({{ base_token.symbol.name }})
+      span(v-if="!isMobile") Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks.text-danger(ref="asks")
-    .ltd.d-flex.justify-content-around(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'pl-0': ''")
+    .ltd.d-flex(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'pl-0': ''")
       span
         i.el-icon-caret-right(v-if="isMyOrder(ask)")
         | {{ ask.unit_price | humanPrice }}
-      span.text-center {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
-      span {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
+      span(:class="isMobile ? 'text-right' : 'text-center'") {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
+      span(v-if="!isMobile") {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
       span
@@ -28,8 +28,9 @@
       span
         i.el-icon-caret-right(v-if="isMyOrder(bid)")
         | {{ bid.unit_price | humanPrice }}
-      span.text-center {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
-      span {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
+      span(:class="isMobile ? 'text-right' : 'text-center'") {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
+
+      span(v-if="!isMobile") {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
       span
@@ -143,6 +144,7 @@ export default {
   align-items: center;
   overflow: hidden;
   padding: 0px 10px;
+  justify-content: space-between;
 
   i {
     font-size: 10px;

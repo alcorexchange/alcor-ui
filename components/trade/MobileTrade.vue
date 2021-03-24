@@ -10,17 +10,17 @@
     //.text.item
       MobileTrade
 
-    .row
-      .col-5.left-bar
-        .row
+    .row.mt-2
+      .col-6.pr-0
+        .row.mb-2
           .col
-            el-radio-group(v-model="side" size="small")
+            el-radio-group(v-model="side" size="small").el-radio-full-width
               el-radio-button(label='buy') Buy
               el-radio-button(label='sell') Sell
 
         .row
           .col
-            el-select(v-model='trade', placeholder='Trade' size="small").left-bar
+            el-select(v-model='trade', placeholder='Trade' size="small")
               el-option(label='Limit Trade', value='limit')
               el-option(label='Market Trade', value='market')
 
@@ -30,7 +30,8 @@
               div(v-if="side == 'buy'")
                 span.text-success Buy {{ quote_token.symbol.name }}
                 br
-                span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
+                small.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
+                  i.el-icon-wallet.ml-1
                 br
 
                 label.small Price
@@ -52,7 +53,8 @@
               div(v-else)
                 span.text-danger Sell {{ quote_token.symbol.name }}
                 br
-                span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
+                small.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
+                  i.el-icon-wallet.ml-1
                 br
 
                 label.small Price
@@ -106,12 +108,8 @@
                 el-button(type="danger" size="small" @click="sell(trade)").w-100 Sell
 
 
-      .col-7
+      .col-6.pl-0.mb-4
         OrderBook
-
-    .row.mt-3
-      .col
-        LatestDeals
 
     .row.mt-2.mobile-terminal
       .col
@@ -123,15 +121,9 @@
           el-tab-pane(label="Order history")
             my-history(v-if="user")
 
-
-    //.row.mt-3
-    //  .col
-    //    MyOrders
-
-    //.row.mt-3
-    //  .col
-    //    MyHistory
-
+    .row.mt-3
+      .col
+        LatestDeals
 </template>
 
 <script>
@@ -187,9 +179,5 @@ export default {
       }
     }
   }
-}
-
-.left-bar {
-  padding-right: 10px;
 }
 </style>
