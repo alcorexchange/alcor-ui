@@ -12,22 +12,22 @@
         span.title Building a global community.
         p.text Learn more about Alcor, chat with the community, and get announcements faster than anyone.
         .social-items
-          .item
+          a.item(href="#")
             .icon
               img(src="~/assets/icons/Telegram.svg")
             span.name Telegram
             span.desc Cross-Chain DEX
-          .item
+          a.item(href="#")
             .icon
               img(src="~/assets/icons/Monogram.svg")
             span.name Medium
             span.desc Cross-Chain DEX
-          .item
+          a.item(href="#")
             .icon
               img(src="~/assets/icons/Github.svg")
             span.name Github
             span.desc Cross-Chain DEX
-          .item
+          a.item(href="#")
             .icon
               img(src="~/assets/icons/Twitter.svg")
             span.name Twitter
@@ -91,6 +91,10 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: opacity 0.3s;
+      &:hover {
+        opacity: 0.8;
+      }
       .icon {
         width: 60px;
         height: 60px;
@@ -107,6 +111,7 @@ export default {
     }
     .name {
       margin: 8px 0;
+      color: var(--text-default);
     }
     .desc {
       color: var(--text-grey-thirdly);
