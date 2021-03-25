@@ -1,21 +1,27 @@
 <template lang="pug">
 .home-page
-  .hero
-    h2 All in one DeFi
-    p.desc Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.
-    .actions
-      AlcorLink(green) Start Trading
-      AlcorLink Read docs
+  Hero.alcor-inner
+  ChainTools.alcor-inner
+  Participate.alcor-inner
+  SupportedChains
 </template>
 
 <script>
-import AlcorLink from '@/components/AlcorLink'
+import SectionTitle from '@/components/landing/SectionTitle'
+import ChainTools from '@/components/landing/ChainTools'
+import Participate from '@/components/landing/Participate'
+import Hero from '@/components/landing/Hero'
+import SupportedChains from '@/components/landing/SupportedChains'
 export default {
+  layout: 'homeLayout',
   components: {
-    AlcorLink,
-  },
+    SectionTitle,
+    ChainTools,
+    Participate,
+    Hero,
+    SupportedChains
+  }
 }
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>
