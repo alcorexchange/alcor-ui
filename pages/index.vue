@@ -38,7 +38,7 @@
 
           el-carousel-item
             a(href="https://youtu.be/nNneIVv0yyQ" target="_blank")
-              img(v-if="$store.state.theme == 'light'" src="~/assets/images/market_window_white.png").video-image
+              img(v-if="$colorMode.value == 'light'" src="~/assets/images/market_window_white.png").video-image
               img(v-else src="~/assets/images/market_window_black.png").video-image
 
           //el-carousel-item

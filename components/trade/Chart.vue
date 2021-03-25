@@ -31,11 +31,11 @@ export default {
 
   computed: {
     ...mapState('market', ['base_token', 'id', 'quote_token']),
-    ...mapState(['theme', 'network'])
+    ...mapState(['network'])
   },
 
   watch: {
-    theme() {
+    '$colorMode.value'() {
       this.mountChart()
     },
 
@@ -184,11 +184,11 @@ export default {
         studies_overrides: this.studiesOverrides,
 
         // Styles
-        theme: this.theme,
+        theme: this.$colorMode.value,
         custom_css_url: '/tv_themed.css',
         overrides: {
-          'paneProperties.background': this.theme == 'light' ? '#F3FAFC' : '#282828',
-          'scalesProperties.textColor': this.theme == 'light' ? '#4a4a4a' : '#9EABA3'
+          'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#282828',
+          'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
         }
       }
 

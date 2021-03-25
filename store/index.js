@@ -17,7 +17,6 @@ export const state = () => ({
   network: {},
 
   isMobile: false,
-  theme: 'light',
   baseUrl: '',
   loading: false,
   tokens: [],
@@ -41,7 +40,6 @@ export const mutations = {
   setTokens: (state, tokens) => state.tokens = tokens,
   setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
   setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
-  setTheme: (state, theme) => state.theme = theme
 }
 
 export const actions = {
@@ -62,9 +60,7 @@ export const actions = {
   },
 
   toggleTheme({ state, commit }) {
-    document.documentElement.classList.toggle('theme-light')
-    document.documentElement.classList.toggle('theme-dark')
-    commit('setTheme', state.theme == 'light' ? 'dark' : 'light')
+    this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : 'light'
   },
 
   checkIsMobile ({ commit }) {
@@ -153,7 +149,6 @@ export const actions = {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
       axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
         const balances = r.data.balances
-        console.log('balances', balances)
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 

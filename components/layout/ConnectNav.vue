@@ -60,7 +60,7 @@
               class="theme-toggle-button"
               @click="$store.dispatch('toggleTheme')"
             >
-              <i class="el-icon-sunny" v-if="theme == 'dark'"></i>
+              <i class="el-icon-sunny" v-if="$colorMode.value == 'dark'"></i>
               <i class="el-icon-moon" v-else></i>
             </AlcorButton>
           </el-dropdown-menu>
@@ -81,7 +81,6 @@ export default {
   },
   computed: {
     ...mapGetters(['user']),
-    ...mapState(['theme'])
   }
   //   props: {
   //     isFooter: {
