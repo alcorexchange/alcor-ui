@@ -65,6 +65,7 @@ export default {
   margin-bottom: 30px;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 .inner-container {
   padding: 40px 10px;
@@ -75,15 +76,17 @@ export default {
   align-items: center;
   .title {
     font-size: 2rem;
+    text-align: center;
   }
   .text {
+    text-align: center;
     margin: 10px 0;
     margin-bottom: 40px;
     color: var(--text-grey-thirdly);
   }
   .social-items {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: wrap;
     width: 100%;
     max-width: 640px;
@@ -92,6 +95,7 @@ export default {
       flex-direction: column;
       align-items: center;
       transition: opacity 0.3s;
+      padding: 8px 12px;
       &:hover {
         opacity: 0.8;
       }
@@ -115,6 +119,20 @@ export default {
     }
     .desc {
       color: var(--text-grey-thirdly);
+    }
+  }
+}
+
+@media only screen and (max-width: 1240px) {
+  .chains {
+    justify-content: center;
+    align-items: center;
+    .chain {
+      margin: 12px;
+    }
+  }
+  .inner-container {
+    .text {
     }
   }
 }
