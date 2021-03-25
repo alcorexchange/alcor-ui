@@ -94,6 +94,22 @@ export default {
     }
   }
 }
-@media only screen and (max-width: 1040px) {
+@media only screen and (max-width: 940px) {
+  .items {
+    justify-content: center;
+    .item {
+      padding: 8px;
+    }
+  }
+}
+@media only screen and (max-width: 640px) {
+  .items {
+    .item {
+      width: 100%;
+      .item-inner {
+        width: 100%;
+      }
+    }
+  }
 }
 </style>
