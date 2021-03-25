@@ -24,6 +24,8 @@ export default {
 .hero {
   height: 340px;
   display: flex;
+  flex-wrap: wrap;
+  position: relative;
 }
 .left {
   display: flex;
@@ -31,6 +33,8 @@ export default {
   justify-content: center;
   height: 100%;
   width: 50%;
+  position: relative;
+  z-index: 2;
 }
 h2 {
   font-size: 3rem;
@@ -52,6 +56,7 @@ h2 {
   position: relative;
   width: 50%;
   height: 100%;
+  z-index: 0;
 }
 .frame {
   position: absolute;
@@ -59,6 +64,26 @@ h2 {
   top: 50%;
   transform: translate(0, -50%);
   right: -15%;
-  z-index: 0;
+}
+
+@media only screen and (max-width: 1040px) {
+  .frame {
+    right: -40%;
+  }
+}
+@media only screen and (max-width: 840px) {
+  .left,
+  .right {
+    width: 100%;
+    align-items: center;
+  }
+  .right {
+    position: absolute;
+    opacity: 0.4;
+  }
+  .frame {
+    right: 50%;
+    transform: translate(50%, -50%);
+  }
 }
 </style>

@@ -247,3 +247,8 @@ a {
   padding: 0 20px;
   margin: auto;
 }
+@media only screen and (max-width: 1240px) {
+  .alcor-inner {
+    padding: 0 8px;
+  }
+}
