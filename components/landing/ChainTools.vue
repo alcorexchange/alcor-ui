@@ -1,14 +1,14 @@
 <template lang="pug">
-  .chain-tools
-    SectionTitle.section-title Multi-Chain tools
-    .items
-      .item(v-for="{icon, name, description} in chainTools")
-        .item-inner
-          .icon-container
-            img(:src="icon").icon
-          .h3 {{name}}
-          .desc {{description}}
-    Spacer
+.chain-tools
+  SectionTitle.section-title Multi-Chain tools
+  .items
+    .item(v-for='{ icon, name, description } in chainTools')
+      nuxt-link.item-inner(to="/")
+        .icon-container
+          img.icon(:src='icon')
+        .h3 {{ name }}
+        .desc {{ description }}
+  Spacer
 </template>
 
 <script>
@@ -65,6 +65,11 @@ export default {
     border-radius: 24px;
     background: rgba(40, 40, 40, 0.3);
     backdrop-filter: blur(50px);
+    transition: all 0.3s;
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow);
+    }
     .icon-container {
       width: 60px;
       height: 60px;
@@ -81,6 +86,7 @@ export default {
     .h3 {
       font-size: 1.4rem;
       margin: 10px 0;
+      color: var(--text-default);
     }
     .desc {
       color: var(--text-grey-thirdly);
