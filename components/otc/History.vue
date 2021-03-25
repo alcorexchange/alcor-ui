@@ -39,7 +39,7 @@ export default {
     ...mapGetters(['user'])
   },
 
-  created() {
+  mounted() {
     this.fetch()
   },
 

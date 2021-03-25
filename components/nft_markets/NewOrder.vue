@@ -118,7 +118,7 @@ export default {
     }
   },
 
-  created() {
+  mounted() {
     this.buyToken.str = 'base'
     this.buyToken.contract = this.network.baseToken.contract
     this.buyToken.symbol = {

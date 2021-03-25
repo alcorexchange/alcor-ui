@@ -84,10 +84,6 @@ export default {
     }
   },
 
-  created() {
-    console.log(this.pools)
-  },
-
   methods: {
     updateReceive() {
       const p1 = this.pool.pool1.quantity.amount

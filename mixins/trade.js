@@ -18,7 +18,7 @@ function correct_price(price, _from, _for) {
 }
 
 export const tradeChangeEvents = {
-  created() {
+  mounted() {
     this.$nuxt.$on('setPrice', price => {
       this.price = price
       this.priceChange()

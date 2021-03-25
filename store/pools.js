@@ -13,13 +13,13 @@ export const mutations = {
 }
 
 export const actions = {
-  async updatePool({ state, getters, commit, rootGetters, rootState, $rpc }) {
+  async updatePool({ state, getters, commit, rootGetters, rootState }) {
     const sym = JSON.parse(JSON.stringify(state.current_sym))
 
     if (!this._vm.$nuxt.$route.name.includes('pools')) return
 
-    const { rows: [pool] } = await $rpc.get_table_rows({
-      code: rootState.network.pools.contract,
+    const { rows: [pool] } = await this.$rpc.get_table_rows({
+      code: 'evolutiondex',
       scope: sym,
       table: 'stat',
       limit: 1
@@ -36,27 +36,31 @@ export const actions = {
     commit('setPools', pools)
   },
 
-  async fetchPools({ state, commit, rootGetters, rootState, $rpc }) {
-    const { rows } = await $rpc.get_table_by_scope({
-      code: rootState.network.pools.contract,
+  async fetchPools({ state, commit, rootGetters, rootState }) {
+    const { rows } = await this.$rpc.get_table_by_scope({
+      code: 'evolutiondex',
       table: 'stat',
       limit: 1000
     })
 
     const requests = rows.map(r => {
-      return $rpc.get_table_rows({
-        code: rootState.network.pools.contract,
+      return this.$rpc.get_table_rows({
+        code: 'evolutiondex',
         scope: r.scope,
         table: 'stat',
         limit: 1
       })
     })
 
-    const pools = (await Promise.all(requests)).reverse().map(r => {
-      const [pool] = r.rows
+    const pools = []
 
-      return pool
-    }).filter(p => p.pool1.contract != 'yuhjtmanserg')
+    for (const r of requests) {
+      const [pool] = (await r).rows
+
+      if (pool.pool1.contract != 'yuhjtmanserg') {
+        pools.push(pool)
+      }
+    }
 
     if (state.pools.length == 0 && pools.length > 0) {
       commit('setCurrentSym', pools[0].supply.split(' ')[1])

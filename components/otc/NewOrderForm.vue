@@ -143,7 +143,7 @@ export default {
     }
   },
 
-  created() {
+  mounted() {
     this.fetchTokens()
   },
 
