@@ -117,4 +117,34 @@ export default {
     }
   }
 }
+@media only screen and (max-width: 840px) {
+  .main {
+    flex-direction: column;
+  }
+  .left {
+    width: 100%;
+    .left-inner {
+      flex-direction: row;
+      margin-right: 0;
+      width: 100%;
+      .item {
+        width: 50%;
+      }
+    }
+  }
+  .right {
+    width: 100%;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .left {
+    width: 100%;
+    .left-inner {
+      flex-direction: column;
+      .item {
+        width: 100%;
+      }
+    }
+  }
+}
 </style>
