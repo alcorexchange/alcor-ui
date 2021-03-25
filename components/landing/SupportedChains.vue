@@ -131,9 +131,5 @@ export default {
       margin: 12px;
     }
   }
-  .inner-container {
-    .text {
-    }
-  }
 }
 </style>
