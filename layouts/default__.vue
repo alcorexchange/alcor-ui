@@ -6,7 +6,7 @@
       .d-flex
         el-menu(router, :default-active="activeLink", mode='horizontal')
           el-menu-item(index="/")
-            img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg").logo
+            img(v-if="$colorMode.value == 'light'" src="~/assets/logos/alcorblack.svg").logo
             img(v-else src="~/assets/logos/alcorwhite.svg").logo
 
           // Menu items
@@ -42,7 +42,7 @@
         .col-md-5.mb-1
           .d-flex.align-items-center
             nuxt-link(to="/")
-              img(v-if="$store.state.theme == 'light'" src="~/assets/logos/alcorblack.svg" height="55").logo
+              img(v-if="$colorMode.value == 'light'" src="~/assets/logos/alcorblack.svg" height="55").logo
               img(v-else src="~/assets/logos/alcorwhite.svg").logo
 
             el-button(size="small" type="text").ml-auto

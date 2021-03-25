@@ -25,7 +25,7 @@ export default {
       }],
 
       chartOptions: {
-        colors: [this.$store.state.theme == 'light' ? '#3E3A3B' : '#9EABA3'],
+        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'],
 
         chart: {
           height: 350,
@@ -97,7 +97,6 @@ export default {
   },
 
   computed: {
-    ...mapState(['theme']),
     ...mapGetters({
       pair: 'swap/current',
       isReverted: 'swap/isReverted'
@@ -117,7 +116,7 @@ export default {
       this.fetchCharts()
     },
 
-    theme() {
+    '$colorMode.value'() {
       this.updateChartOprions()
     }
   },
@@ -135,9 +134,9 @@ export default {
       }
 
       this.$refs.chart.updateOptions({
-        colors: [this.$store.state.theme == 'light' ? '#3E3A3B' : '#9EABA3'],
+        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'],
         chart: {
-          foreColor: this.$store.state.theme == 'light' ? '#3E3A3B' : '#9EABA3'
+          foreColor: this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'
         }
       })
     },

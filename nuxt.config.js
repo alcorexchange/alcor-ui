@@ -28,7 +28,7 @@ module.exports = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: desc },
       { name: 'msapplication-TileColor', content: '#da532c' },
-      { name: 'theme-color', content: '#ffffff' }
+      //{ name: 'theme-color', content: '#ffffff' }
       //{ name: 'viewport', content: 'user-scalable = yes' }
     ],
 
@@ -102,6 +102,14 @@ module.exports = {
     //baseURL: 'http://localhost:4000'
   },
 
+  colorMode: {
+    //preference: 'system', // default value of $colorMode.preference
+    preference: 'dark', // default value of $colorMode.preference
+    fallback: 'dark', // fallback value if not system preference found
+    classPrefix: 'theme-',
+    classSuffix: ''
+  },
+
   //components: true,
 
   /*
@@ -113,6 +121,7 @@ module.exports = {
   },
 
   buildModules: [
+    '@nuxtjs/color-mode',
     ['@nuxtjs/google-analytics', {
       id: 'UA-155720239-1'
     }]
