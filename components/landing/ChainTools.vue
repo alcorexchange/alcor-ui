@@ -54,6 +54,7 @@ export default {
 .items {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   .item-inner {
     display: flex;
     flex-direction: column;
@@ -92,5 +93,7 @@ export default {
       color: var(--text-grey-thirdly);
     }
   }
+}
+@media only screen and (max-width: 1040px) {
 }
 </style>
