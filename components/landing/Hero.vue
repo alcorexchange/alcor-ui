@@ -85,5 +85,9 @@ h2 {
     right: 50%;
     transform: translate(50%, -50%);
   }
+  h2,
+  .desc {
+    text-align: center;
+  }
 }
 </style>
