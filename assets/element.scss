@@ -1,3 +1,4 @@
+/*
 // THIS VARIABLES SHOULD BE GENERATED FOR DARK THEME (dark.css)
 $--color-primary: #000000;
 $--color-primary-light-9: #252525;
@@ -76,14 +77,15 @@ $--popover-background-color: #282828;
 
 @import 'element-ui/packages/theme-chalk/src/index.scss';
 
+*/
 
 
 .theme-light {
-  //@import 'light';
+  @import 'light';
 }
 
 .theme-dark {
-  //@import 'dark';
+  @import 'dark';
   // TABS
   .el-tabs__item.is-active {
     color: #c4c4c4;
