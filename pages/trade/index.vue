@@ -8,9 +8,10 @@
         el-alert(type="error" show-icon)
           .lead Potential SCAM token!
 
-    DesktopTrade(v-if="!isMobile")
-    MobileTrade(v-else)
-    nuxt-child
+    client-only
+      DesktopTrade(v-if="!isMobile")
+      MobileTrade(v-else)
+      nuxt-child
 </template>
 
 <script>
