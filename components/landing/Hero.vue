@@ -74,7 +74,7 @@ h2 {
   width: 1000px;
   top: 50%;
   transform: translate(0, -50%);
-  right: -15%;
+  right: -24%;
 }
 
 @media only screen and (max-width: 1040px) {
