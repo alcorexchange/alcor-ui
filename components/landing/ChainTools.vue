@@ -74,7 +74,7 @@ export default {
     .icon-container {
       width: 60px;
       height: 60px;
-      background: var(--btn-active);
+      background: var(--landing-icon-bg);
       border-radius: 12px;
       display: flex;
       align-items: center;
