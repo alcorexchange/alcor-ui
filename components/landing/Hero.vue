@@ -4,7 +4,7 @@
     h2 All in one DeFi
     p.desc Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.
     .actions
-      AlcorLink.start(green) Start Trading
+      AlcorLink.start Start Trading
       AlcorLink Read docs
   .right
     img.frame(src='~/assets/images/frame.svg')
