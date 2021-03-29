@@ -3,7 +3,7 @@
   SectionTitle.section-title Multi-Chain tools
   .items
     .item(v-for='{ icon, name, description } in chainTools')
-      nuxt-link.item-inner(to="/")
+      nuxt-link.item-inner(to='/')
         .icon-container
           img.icon(:src='icon')
         .h3 {{ name }}
@@ -18,32 +18,32 @@ export default {
   name: 'ChainTools',
   components: {
     SectionTitle,
-    Spacer
+    Spacer,
   },
   data: () => ({
     chainTools: [
       {
         icon: require('~/assets/icons/ArrowsClockwise.svg'),
         name: 'AMM Swap',
-        description: 'Cross-Chain DEX'
+        description: 'Cross-Chain DEX',
       },
       {
         icon: require('~/assets/icons/ArrowsDownUp.svg'),
         name: 'Spot Trading',
-        description: 'Cross-Chain DEX'
+        description: 'Cross-Chain DEX',
       },
       {
         icon: require('~/assets/icons/ChartLineUp.svg'),
         name: 'Earn',
-        description: 'Cross-Chain DEX'
+        description: 'Cross-Chain DEX',
       },
       {
         icon: require('~/assets/icons/Image.svg'),
         name: 'Nft',
-        description: 'Cross-Chain DEX'
-      }
-    ]
-  })
+        description: 'Cross-Chain DEX',
+      },
+    ],
+  }),
 }
 </script>
 
@@ -62,9 +62,9 @@ export default {
     justify-content: center;
     height: 210px;
     width: 220px;
-    border: 1px solid #545454;
+    border: 1px solid var(--dark-btn-sm);
     border-radius: 24px;
-    background: rgba(40, 40, 40, 0.3);
+    background: var(--landing-card-bg);
     backdrop-filter: blur(50px);
     transition: all 0.3s;
     &:hover {
@@ -74,7 +74,7 @@ export default {
     .icon-container {
       width: 60px;
       height: 60px;
-      background: #111111;
+      background: var(--btn-active);
       border-radius: 12px;
       display: flex;
       align-items: center;
