@@ -1,10 +1,14 @@
 import { Router } from 'express'
-import { Exchange, Liquidity } from '../models'
+import { cacheSeconds } from 'route-cache'
 
+import { Exchange, Liquidity } from '../models'
 import { newExchange, newLiuqudity } from './handlers'
 
 export const pools = Router()
-pools.get('/:pair_id/line_chart', async (req, res) => {
+
+pools.get('/:pair_id/line_chart', cacheSeconds(15, (req, res) => {
+  return req.originalUrl + '|' + req.query.reverse
+}), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
@@ -36,7 +40,10 @@ pools.get('/:pair_id/line_chart', async (req, res) => {
   res.json(prices)
 })
 
-pools.get('/:pair_id/volume_chart', async (req, res) => {
+pools.get('/:pair_id/volume_chart', cacheSeconds(60 * 5, (req, res) => {
+  // TODO Update later when new params will be added
+  return req.originalUrl
+}), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
@@ -65,7 +72,9 @@ pools.get('/:pair_id/volume_chart', async (req, res) => {
   res.json(volume)
 })
 
-pools.get('/:pair_id/liquidity_chart', async (req, res) => {
+pools.get('/:pair_id/liquidity_chart', cacheSeconds(60 * 5, (req, res) => {
+  return req.originalUrl
+}), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 

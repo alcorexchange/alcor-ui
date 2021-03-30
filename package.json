@@ -48,6 +48,7 @@
     "nuxt-imagemin": "^1.0.0",
     "nuxt-purgecss": "^1.0.0",
     "nuxt-ssr-cache": "^1.5.1",
+    "route-cache": "^0.4.5",
     "scatterjs-core": "^2.7.18",
     "scatterjs-plugin-eosjs2": "^1.5.0",
     "socket.io": "^2.3.0",
