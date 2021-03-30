@@ -18,32 +18,32 @@ export default {
   name: 'ChainTools',
   components: {
     SectionTitle,
-    Spacer,
+    Spacer
   },
   data: () => ({
     chainTools: [
       {
         icon: require('~/assets/icons/ArrowsClockwise.svg'),
         name: 'AMM Swap',
-        description: 'Cross-Chain DEX',
+        description: 'Cross-Chain DEX'
       },
       {
         icon: require('~/assets/icons/ArrowsDownUp.svg'),
         name: 'Spot Trading',
-        description: 'Cross-Chain DEX',
+        description: 'Cross-Chain DEX'
       },
       {
         icon: require('~/assets/icons/ChartLineUp.svg'),
         name: 'Earn',
-        description: 'Cross-Chain DEX',
+        description: 'Cross-Chain DEX'
       },
       {
         icon: require('~/assets/icons/Image.svg'),
         name: 'Nft',
-        description: 'Cross-Chain DEX',
-      },
-    ],
-  }),
+        description: 'Cross-Chain DEX'
+      }
+    ]
+  })
 }
 </script>
 
@@ -107,6 +107,8 @@ export default {
     .item {
       width: 100%;
       .item-inner {
+        height: 160px;
+        border: none !important ;
         width: 100%;
       }
     }
