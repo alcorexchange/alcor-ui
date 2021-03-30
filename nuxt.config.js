@@ -156,6 +156,8 @@ module.exports = {
   cache: {
     useHostPrefix: true,
     pages: [
+      /^\/nft-market/
+
       ///^\/pools\/.*/,
 
       ///^\/$/
