@@ -136,6 +136,11 @@ export default {
     width: 100%;
   }
 }
+@media only screen and (max-width: 840px) {
+  .text {
+    padding: 0 8px;
+  }
+}
 @media only screen and (max-width: 540px) {
   .left {
     width: 100%;
