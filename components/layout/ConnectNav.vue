@@ -57,7 +57,7 @@
             </a>
             <AlcorButton
               :iconOnlyAlt="true"
-              class="theme-toggle-button"
+              class="theme-toggle-button desktop"
               @click="$store.dispatch('toggleTheme')"
             >
               <i class="el-icon-sunny" v-if="$colorMode.value == 'dark'"></i>
@@ -66,6 +66,14 @@
           </el-dropdown-menu>
         </template>
       </el-dropdown>
+      <AlcorButton
+        :iconOnlyAlt="true"
+        class="theme-toggle-button mobile"
+        @click="$store.dispatch('toggleTheme')"
+      >
+        <i class="el-icon-sunny" v-if="$colorMode.value == 'dark'"></i>
+        <i class="el-icon-moon" v-else></i>
+      </AlcorButton>
     </div>
   </div>
 </template>
@@ -80,7 +88,7 @@ export default {
     // AlcorLink
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   }
   //   props: {
   //     isFooter: {
@@ -105,6 +113,9 @@ export default {
   border-radius: 50% !important;
   margin: 4px 8px;
   color: var(--text-default) !important;
+  &.mobile {
+    display: none !important;
+  }
 }
 .d-item {
   display: flex;
@@ -148,6 +159,30 @@ export default {
   color: var(--text-default);
   span {
     margin-right: 4px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .connect-button {
+    font-size: 0.8rem;
+    padding: 4px;
+  }
+  .network-selection {
+    padding: 4px;
+    span {
+      font-size: 0.8rem;
+    }
+    i {
+      font-size: 0.8rem;
+    }
+  }
+  .theme-toggle-button {
+    &.desktop {
+      display: none !important;
+    }
+    &.mobile {
+      display: block !important;
+    }
   }
 }
 </style>

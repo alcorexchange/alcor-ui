@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   ModalsDialog
-  .layout
+  .layout(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
     nav.nav(v-if='!isMobile')
       .nav-side.nav-left
         nuxt-link(to='/')
@@ -78,7 +78,11 @@ export default {
     menuItems() {
       const items = []
 
-      if (['eos', 'wax', 'jungle', 'telos'].includes(this.$store.state.network.name)) {
+      if (
+        ['eos', 'wax', 'jungle', 'telos'].includes(
+          this.$store.state.network.name
+        )
+      ) {
         items.push({ index: '/swap', name: 'Swap' })
       }
 
@@ -111,8 +115,7 @@ export default {
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
       }
-    },
-
+    }
   },
 
   async mounted() {
@@ -175,10 +178,13 @@ export default {
 <style scoped lang="scss">
 .layout {
   width: 100%;
-  padding: 0 20px;
   max-width: 1200px;
+  padding: 0 20px;
   margin: auto;
   background: var(--background-color-base);
+}
+.is-market {
+  max-width: 100%;
 }
 .nav {
   display: flex;

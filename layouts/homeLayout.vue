@@ -237,6 +237,10 @@ export default {
   }
 }
 
+.menu-and-menu-header {
+  position: relative;
+  z-index: 4;
+}
 .menu-header {
   display: flex;
   justify-content: space-between;
