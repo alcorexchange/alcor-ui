@@ -7,7 +7,7 @@ import { newExchange, newLiuqudity } from './handlers'
 export const pools = Router()
 
 pools.get('/:pair_id/line_chart', cacheSeconds(15, (req, res) => {
-  return req.originalUrl + '|' + req.query.reverse
+  return req.originalUrl + '|' + req.query.reverse + '|' + req.app.get('network')
 }), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
@@ -41,8 +41,7 @@ pools.get('/:pair_id/line_chart', cacheSeconds(15, (req, res) => {
 })
 
 pools.get('/:pair_id/volume_chart', cacheSeconds(60 * 5, (req, res) => {
-  // TODO Update later when new params will be added
-  return req.originalUrl
+  return req.originalUrl + '|' + req.app.get('network')
 }), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
@@ -73,7 +72,7 @@ pools.get('/:pair_id/volume_chart', cacheSeconds(60 * 5, (req, res) => {
 })
 
 pools.get('/:pair_id/liquidity_chart', cacheSeconds(60 * 5, (req, res) => {
-  return req.originalUrl
+  return req.originalUrl + '|' + req.app.get('network')
 }), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
