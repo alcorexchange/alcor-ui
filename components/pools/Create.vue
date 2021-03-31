@@ -149,7 +149,7 @@ export default {
 
       const actions = [
         {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'openext',
           authorization,
           data: {
@@ -158,7 +158,7 @@ export default {
             ext_symbol: { contract: this.base.contract, sym: `${this.base.decimals},${this.base.currency}` }
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'openext',
           authorization,
           data: {
@@ -172,7 +172,7 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: `${this.amount1} ${this.base.currency}`,
             memo: ''
           }
@@ -183,12 +183,12 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: `${this.amount2} ${this.quote.currency}`,
             memo: ''
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'inittoken',
           authorization,
           data: {

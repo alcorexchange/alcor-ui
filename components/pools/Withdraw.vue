@@ -73,7 +73,7 @@ export default {
       if (this.user && this.user.balances) {
         const b = this.user.balances.filter(b => {
           return b.currency === this.current.supply.symbol.code().to_string() && b.contract ==
-            this.network.pools.contract
+            'evolutiondex'
         })[0]
 
         if (b) {
@@ -144,7 +144,7 @@ export default {
 
       const actions = [
         {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'openext',
           authorization,
           data: {
@@ -153,7 +153,7 @@ export default {
             ext_symbol: { contract: this.current.pool1.contract, sym: this.current.pool1.quantity.symbol.toString() }
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'openext',
           authorization,
           data: {
@@ -162,7 +162,7 @@ export default {
             ext_symbol: { contract: this.current.pool2.contract, sym: this.current.pool2.quantity.symbol.toString() }
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'remliquidity',
           authorization,
           data: {
@@ -172,7 +172,7 @@ export default {
             min_asset2: this.quoteReceive
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'closeext',
           authorization,
           data: {
@@ -182,7 +182,7 @@ export default {
             memo: ''
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'closeext',
           authorization,
           data: {

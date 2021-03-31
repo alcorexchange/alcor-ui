@@ -187,7 +187,7 @@ export default {
 
       const actions = [
         {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'openext',
           authorization,
           data: {
@@ -196,7 +196,7 @@ export default {
             ext_symbol: { contract: this.current.pool1.contract, sym: this.poolOne.quantity.symbol.toString() }
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'openext',
           authorization,
           data: {
@@ -210,7 +210,7 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: amount1,
             memo: ''
           }
@@ -220,12 +220,12 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: amount2,
             memo: ''
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'addliquidity',
           authorization,
           data: {
@@ -235,7 +235,7 @@ export default {
             max_asset2: amount2
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'closeext',
           authorization,
           data: {
@@ -245,7 +245,7 @@ export default {
             memo: ''
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'closeext',
           authorization,
           data: {
