@@ -101,8 +101,8 @@ markets.get('/:market_id/charts', async (req, res) => {
   const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
   const performance_result = performance.now() - t0
   // Charts generate/cache debug
-  if (true) {
-  //if (performance_result > 1000) {
+  //if (true) {
+  if (performance_result > 1000) {
     console.log('Call to filter for charts took ' + performance_result + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
   }
 
