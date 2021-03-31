@@ -39,40 +39,6 @@ export default {
     TokenImage
   },
 
-  async fetch({ error, redirect, store, route, params }) {
-    return error({ statusCode: 400, message: 'Evodex is not supported temporary' })
-
-    if (store.state.pools.pools.length == 0) {
-      await store.dispatch('pools/fetchPools')
-    }
-
-    if (!params.pool) {
-      const cp = store.getters['pools/current']
-      const sym1 = `${cp.pool1.contract}-${cp.pool1.quantity.symbol.code().to_string().toLowerCase()}`
-      const sym2 = `${cp.pool2.contract}-${cp.pool2.quantity.symbol.code().to_string().toLowerCase()}`
-
-      redirect({
-        name: 'defi-index-pools-pool',
-        params: {
-          pool: `${sym1}_${sym2}`
-        }
-      })
-    } else {
-      const pools = store.getters['pools/pools']
-
-      const selected_pool = pools.filter(p => {
-        const sym1 = `${p.pool1.contract}-${p.pool1.quantity.symbol.code().to_string().toLowerCase()}`
-        const sym2 = `${p.pool2.contract}-${p.pool2.quantity.symbol.code().to_string().toLowerCase()}`
-
-        return `${sym1}_${sym2}` == params.pool
-      })
-
-      if (selected_pool.length > 0) {
-        store.commit('pools/setCurrentSym', selected_pool[0].supply.symbol.code().to_string())
-      }
-    }
-  },
-
   data() {
     return {
       search: ''
@@ -92,6 +58,15 @@ export default {
       })
     }
   },
+
+  async mounted() {
+    const store = this.$store
+
+    if (store.state.pools.pools.length == 0) {
+      await store.dispatch('pools/fetchPools')
+    }
+  },
+
 
   methods: {
     setPool(p) {

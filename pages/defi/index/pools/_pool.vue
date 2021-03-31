@@ -13,7 +13,7 @@ export default {
   },
 
   async fetch({ error, redirect, store, route, params }) {
-    return error({ statusCode: 400, message: 'Evodex is not supported temporary' })
+    if (process.server) return
     if (store.state.pools.pools.length == 0) {
       await store.dispatch('pools/fetchPools')
     }
