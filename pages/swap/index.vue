@@ -299,6 +299,7 @@ export default {
       border-radius: var(--radius);
       border: var(--border-1);
       margin-right: 4px;
+      margin-bottom: 4px;
       .icon {
         width: 15px;
         height: 15px;
@@ -323,7 +324,7 @@ export default {
   }
 }
 .chart {
-  min-height: 300px;
+  min-height: 200px;
   flex: 1;
 }
 
@@ -344,6 +345,43 @@ export default {
         background: var(--swap-tab-active);
       }
     }
+  }
+}
+@media only screen and (max-width: 980px) {
+  .swap-container {
+    flex-direction: column;
+  }
+  .swap-card {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .chart-card {
+    margin-left: 0;
+  }
+}
+@media only screen and (max-width: 680px) {
+  .tab-bar {
+    .item {
+      font-size: 0.9rem;
+    }
+  }
+  .header {
+    .pair-container {
+      flex-direction: column;
+      align-items: flex-start;
+      .right {
+        margin: 8px 0;
+      }
+    }
+  }
+  .footer {
+    flex-direction: column;
+    .left {
+      margin-bottom: 8px;
+    }
+  }
+  .alcor-card {
+    padding: 8px;
   }
 }
 </style>

@@ -303,6 +303,11 @@ export default {
   padding: 8px;
   z-index: 230;
 }
+@media only screen and (max-width: 800px) {
+  .layout {
+    padding: 0 10px;
+  }
+}
 </style>
 
 <style lang="scss">
