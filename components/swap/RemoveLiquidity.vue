@@ -3,7 +3,7 @@
   .col.pool-withdraw
     .row.mt-4
       .col
-        .d-flex.justify-content-between
+        .d-flex.justify-content-between.select-label
           small.mb-1 From
           small.mb-1(v-if="withdraw_token") {{ withdraw_token.amount }} {{ withdraw_token.symbol }}
             i.el-icon-wallet.ml-1

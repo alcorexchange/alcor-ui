@@ -3,7 +3,7 @@
   .col.swap-pools
     .row
       .col
-        .d-flex.mb-1
+        .d-flex.mb-1.select-label
           small.text-muted Sell
 
           el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance }}
@@ -20,9 +20,9 @@
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
     .row.mt-1
       .col
-        .d-flex.mb-1
+        .d-flex.mb-1.select-label
           small.text-muted Buy (Estimated)
-          small.text-mutted.small.ml-auto {{ outputBalance }}
+          small.text-mutted.small.ml-auto.with-padding {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="outputAmount" :tokens="tokens1" readonly :token="1" @change="tokenChanged(1)")

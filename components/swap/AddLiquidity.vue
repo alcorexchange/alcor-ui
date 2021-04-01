@@ -3,7 +3,7 @@
   .col
     .row
       .col
-        .d-flex.mb-1
+        .d-flex.mb-1.select-label
           small.text-muted Asset 1
           el-button(type="text" size="mini" @click="amount1Input(inputBalance)").ml-auto.pr-0 {{ inputBalance }}
             i.el-icon-wallet.ml-1
@@ -16,7 +16,7 @@
         i.el-icon-bottom.lead
     .row.mt-1
       .col
-        .d-flex.mb-1
+        .d-flex.mb-1.select-label
           small.text-muted Asset 2
           el-button(type="text" size="mini" @click="amount2Input(outputBalance)").ml-auto.pr-0 {{ outputBalance }}
             i.el-icon-wallet.ml-1

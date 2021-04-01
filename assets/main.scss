@@ -262,6 +262,11 @@ a {
     background: #161617;
   }
 }
+.select-label {
+  small {
+    padding: 7px 0;
+  }
+}
 @media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;
