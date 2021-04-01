@@ -251,7 +251,7 @@ a {
   background: rgba(46, 46, 49, 0.6);
   padding: 20px !important;
   border: none;
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-2) !important;
   &:hover {
     background: rgba(46, 46, 49, 0.6);
   }
