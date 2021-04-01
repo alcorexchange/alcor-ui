@@ -1,81 +1,56 @@
-<template>
-  <div class="connect-nav">
-    <div class="left">
-      <el-dropdown trigger="click">
-        <div class="network-selection">
-          <span>EOS MAINNET</span>
-          <i class="el-icon-arrow-down" />
-        </div>
-        <template #dropdown>
-          <el-dropdown-menu class="dropdown-container">
-            <div class="d-item">item</div>
-            <div class="d-item">item</div>
-            <div class="d-item">item</div>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </div>
-
-    <div class="right">
-      <div class="user-detail" v-if="user">
-        <div class="balance">1,100 $</div>
-        <el-dropdown trigger="click">
-          <div class="user-name">alcor.ex</div>
-          <template #dropdown>
-            <el-dropdown-menu class="dropdown-container">
-              <div class="d-item">item</div>
-              <div class="d-item">item</div>
-              <div class="d-item">item</div>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-      <AlcorButton
-        v-else
-        @click="$store.dispatch('modal/login')"
-        class="connect-button"
-      >
-        Connect Wallet
-      </AlcorButton>
-      <el-dropdown trigger="click">
-        <div class="">
-          <AlcorButton :iconOnlyAlt="true">
-            <i class="el-icon-more" />
-          </AlcorButton>
-        </div>
-        <template #dropdown>
-          <el-dropdown-menu class="dropdown-container">
-            <a class="d-item">
-              <!-- <i class="el-icon-help"></i> -->
-              Help Center
-            </a>
-            <a class="d-item">Telegram</a>
-            <a class="d-item">Twitter</a>
-            <a class="d-item">
-              <!-- <i class="el-icon-document"></i> -->
-              Docs
-            </a>
-            <AlcorButton
-              :iconOnlyAlt="true"
-              class="theme-toggle-button desktop"
-              @click="$store.dispatch('toggleTheme')"
-            >
-              <i class="el-icon-sunny" v-if="$colorMode.value == 'dark'"></i>
-              <i class="el-icon-moon" v-else></i>
-            </AlcorButton>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-      <AlcorButton
-        :iconOnlyAlt="true"
-        class="theme-toggle-button mobile"
-        @click="$store.dispatch('toggleTheme')"
-      >
-        <i class="el-icon-sunny" v-if="$colorMode.value == 'dark'"></i>
-        <i class="el-icon-moon" v-else></i>
-      </AlcorButton>
-    </div>
-  </div>
+<template lang="pug">
+.connect-nav
+  .left
+    el-dropdown(trigger='click')
+      .network-selection
+        span EOS MAINNET
+        i.el-icon-arrow-down
+      template(#dropdown='')
+        el-dropdown-menu.dropdown-container
+          .d-item item
+          .d-item item
+          .d-item item
+  .right
+    .user-detail(v-if='user')
+      .balance 1,100 $
+      el-dropdown(trigger='click')
+        .user-name alcor.ex
+        template(#dropdown='')
+          el-dropdown-menu.dropdown-container
+            .d-item item
+            .d-item item
+            .d-item item
+    AlcorButton.connect-button(
+      v-else='',
+      @click='$store.dispatch("modal/login")'
+    )
+      | Connect Wallet
+    el-dropdown(trigger='click')
+      div
+        AlcorButton(:iconOnlyAlt='true')
+          i.el-icon-more
+      template(#dropdown='')
+        el-dropdown-menu.dropdown-container
+          a.d-item
+            // <i class="el-icon-help"></i>
+            | Help Center
+          a.d-item Telegram
+          a.d-item Twitter
+          a.d-item
+            // <i class="el-icon-document"></i>
+            | Docs
+          AlcorButton.theme-toggle-button.desktop(
+            :iconOnlyAlt='true',
+            @click='$store.dispatch("toggleTheme")'
+          )
+            i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+            i.el-icon-moon(v-else='')
+    AlcorButton.theme-toggle-button.mobile(
+      :iconOnlyAlt='true',
+      @click='$store.dispatch("toggleTheme")'
+    )
+      i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+      i.el-icon-moon(v-else='')
 </template>
 
 <script>
@@ -84,12 +59,12 @@ import { mapGetters, mapState } from 'vuex'
 // import AlcorLink from '@/components/AlcorLink'
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
     // AlcorLink
   },
   computed: {
-    ...mapGetters(['user'])
-  }
+    ...mapGetters(['user']),
+  },
   //   props: {
   //     isFooter: {
   //       default: false,
