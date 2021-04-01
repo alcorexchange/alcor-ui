@@ -282,15 +282,16 @@ export default {
 
     margin-top: -8px;
 
-//<<<<<<< HEAD FIXME
+    //<<<<<<< HEAD FIXME
     background: var(--background-color-base);
-//=======
-//    background: var(--bg-alter-1);
-//>>>>>>> newUI
+    //=======
+    //    background: var(--bg-alter-1);
+    //>>>>>>> newUI
     z-index: 1;
 
     height: 310px;
     overflow: hidden;
+    box-shadow: var(--dropdown-shadow);
 
     .pairs {
       overflow-y: auto;
@@ -317,7 +318,8 @@ export default {
   margin-top: 5px;
 }
 
-.pair:hover,.isActive {
+.pair:hover,
+.isActive {
   background-color: var(--background-color-secondary);
 }
 
@@ -376,5 +378,4 @@ export default {
     }
   }
 }
-
 </style>
