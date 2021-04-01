@@ -46,13 +46,13 @@
         PleaseLoginButton
           div(v-loading="loading").confirm-button
             .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
-              el-button(type="primary" disabled).w-100.confirm-button Invalid {{ this.ibcChain.toUpperCase() }} Account
+              el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
             .div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
-              el-button(type="primary" disabled).w-100.confirm-button Insufficient Funds
+              el-button(type="primary" disabled).w-100 Insufficient Funds
             .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
-              el-button(type="primary" @click="submit").w-100.confirm-button Swap {{ input.symbol }} to {{ output.symbol }}
+              el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
             .div(v-else)
-              el-button(type="primary" disabled).w-100.confirm-button Select amounts
+              el-button(type="primary" disabled).w-100 Select amounts
 
     .row.mt-3
       .col

@@ -26,7 +26,7 @@
 
       .row.mt-3
         .col
-          PleaseLoginButton
+          PleaseLoginButton.confirm-button
             el-button(v-if="parseFloat(amount)" type="primary" @click="withdraw" :loading="loading").w-100 Withdraw
             el-button(v-else type="primary" disabled).w-100 Select Amount
 

@@ -24,9 +24,9 @@
         SelectToken(v-model="amount2" :tokens="tokens1" :token="1" @input="amount2Input")
 
     .row.mt-4
-      .col(v-if="amount1 && amount2")
+      .col(v-if="amount1 && amount2").confirm-button
         el-button(type="primary" @click="submit" v-loading="loading").w-100 Provide liquidity
-      .col(v-else)
+      .col(v-else).confirm-button
         el-button(type="primary" disabled).w-100 Select amounts
 
     .row.mt-3
