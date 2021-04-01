@@ -388,7 +388,6 @@ export default {
 <style lang="scss" scoped>
 .confirm-button button {
   background: rgba(46, 46, 49, 0.6);
-  border-radius: var(--radius);
   padding: 20px;
   border: none;
   border-radius: var(--radius-2);

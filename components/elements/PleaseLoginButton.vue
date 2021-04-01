@@ -1,9 +1,8 @@
 <template lang="pug">
-  div(v-if="user")
-    slot
-  div(v-else)
-    el-button(@click="login" type="primary").w-100 Connect Wallet
-
+div(v-if='user')
+  slot
+div.confirm-button(v-else)
+  el-button.w-100(@click='login', type='primary') Connect Wallet
 </template>
 
 <script>
