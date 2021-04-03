@@ -25,11 +25,11 @@ div.alcor-card
         .name-container
           .names EOS/USDT
           .detail.muted alcor.dex
-      .deposit.p20.end
+      .deposit.p20
         .amount 102,121.01$
         span.detail.muted 1,000.10 EOS
         span.detail.muted 1,000.10 USDT
-      .earning.p20.end
+      .earning.p20
         .amount 102,121.01$
         span.detail.muted 1,000.10 EOS
         span.detail.muted 1,000.10 USDT
