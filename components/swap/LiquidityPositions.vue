@@ -17,7 +17,7 @@ div.alcor-card
     .actions
 
   .table-content
-    .item-container.portionated
+    .item-container.portionated(v-for="lpTopen in lpTokens")
       .pair-container.pools
         .icons
           img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon.icon-1
@@ -34,6 +34,10 @@ div.alcor-card
         span.detail.muted 1,000.10 EOS
         span.detail.muted 1,000.10 USDT
       .actions
+        AlcorButton.add
+          i.el-icon-plus
+        AlcorButton
+          i.el-icon-minus
   .row
     .col(:class="{ 'p-0': isMobile }")
       el-table(:data='lpTokens' style='width: 100%').liquidity-table
@@ -85,11 +89,11 @@ div.alcor-card
 import { asset } from 'eos-common'
 
 import { mapGetters, mapState } from 'vuex'
+import AlcorButton from '@/components/AlcorButton'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
 
 export default {
-  components: {},
-
+  components: { AlcorButton },
   data() {
     return {
       net: false
@@ -300,6 +304,7 @@ export default {
     border: 1px solid #373b3d;
     border-radius: var(--radius);
     padding: 6px;
+    margin-bottom: 8px;
   }
   .deposit,
   .earning {
@@ -310,6 +315,22 @@ export default {
     .detail {
       display: flex;
       justify-content: flex-end;
+    }
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .alcor-button {
+      width: 30px;
+      height: 30px;
+    }
+    .add {
+      background: #1fc781;
+      margin-right: 8px;
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 }
