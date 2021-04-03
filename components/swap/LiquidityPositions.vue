@@ -17,7 +17,7 @@ div.alcor-card
     .actions
 
   .table-content
-    .item-container.portionated(v-for="lpToken in lpTokens")
+    .item-container.portionated(v-for="lpToken in mock")
       .pair-container.pools
         .icons
           img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon.icon-1
@@ -29,10 +29,11 @@ div.alcor-card
         .amount 102,121.01$
         span.detail.muted {{lpToken.asset1}}
         span.detail.muted {{lpToken.asset2}}
-      .earning.p20(v-if="scope.row.earn1 && scope.row.earn2")
+      .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
         .amount 102,121.01$
-        span.detail.muted {{lpToken.earn1.to_string()}}
-        span.detail.muted {{lpToken.earn2.to_string()}}
+        //- TODO: add to string
+        span.detail.muted {{lpToken.earn1}}
+        span.detail.muted {{lpToken.earn2}}
       .actions
         AlcorButton.add(@click="addLiquidity(lpToken)")
           i.el-icon-plus
@@ -96,7 +97,16 @@ export default {
   components: { AlcorButton },
   data() {
     return {
-      net: false
+      net: false,
+      mock: [
+        {
+          pair: { name: 'EOS/USDT' },
+          asset1: '2000234454 USDT',
+          asset2: '235342 EOS',
+          earn1: '3424',
+          earn2: '23432'
+        }
+      ]
     }
   },
 

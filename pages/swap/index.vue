@@ -358,7 +358,8 @@ export default {
     width: 100%;
     margin-bottom: 20px;
   }
-  .chart-card {
+  .chart-card,
+  .liquidity-positions {
     margin-left: 0;
   }
 }

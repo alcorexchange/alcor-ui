@@ -305,7 +305,8 @@ export default {
 }
 @media only screen and (max-width: 800px) {
   .layout {
-    padding: 0 10px;
+    // TODO: something is causeing horizontal overflow I don't know what - Saeed
+    padding: 0 8px;
   }
 }
 </style>
