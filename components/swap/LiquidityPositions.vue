@@ -26,14 +26,18 @@ div.alcor-card
           .names {{lpToken.pair.name}}
           .detail.muted alcor.dex
       .deposit.p20
-        .amount 102,121.01$
-        span.detail.muted {{lpToken.asset1}}
-        span.detail.muted {{lpToken.asset2}}
+        .label.mobile-only Deposit
+        .main
+          .amount 102,121.01$
+          span.detail.muted {{lpToken.asset1}}
+          span.detail.muted {{lpToken.asset2}}
       .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
-        .amount 102,121.01$
-        //- TODO: add to string
-        span.detail.muted {{lpToken.earn1}}
-        span.detail.muted {{lpToken.earn2}}
+        .label.mobile-only Earning (Fees)
+        .main
+          .amount 102,121.01$
+          //- TODO: add .toString()
+          span.detail.muted {{lpToken.earn1}}
+          span.detail.muted {{lpToken.earn2}}
       .actions
         AlcorButton.add(@click="addLiquidity(lpToken)")
           i.el-icon-plus
@@ -310,6 +314,8 @@ export default {
   }
 }
 .table-content {
+  display: flex;
+  flex-direction: column;
   .item-container {
     display: flex;
     border: 1px solid #373b3d;
@@ -317,8 +323,8 @@ export default {
     padding: 6px;
     margin-bottom: 8px;
   }
-  .deposit,
-  .earning {
+  .deposit .main,
+  .earning .main {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -375,6 +381,54 @@ export default {
     flex-direction: column;
     .detail {
       font-size: 0.8rem;
+    }
+  }
+}
+.mobile-only {
+  display: none;
+}
+@media only screen and (max-width: 840px) {
+  .mobile-only {
+    display: block;
+  }
+  .table-header {
+    display: none;
+  }
+  .portionated {
+    .p20 {
+      width: 100%;
+    }
+    .actions {
+      width: 100%;
+    }
+  }
+  .item-container {
+    position: relative;
+    flex-direction: column;
+    .names {
+      font-size: 1.2rem;
+    }
+    > * {
+      width: 100%;
+    }
+    .actions {
+      justify-content: flex-end;
+    }
+  }
+  .pair-container {
+    margin-bottom: 12px;
+  }
+  .deposit,
+  .earning {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .actions {
+    width: auto;
+    > * {
+      width: 50% !important;
+      height: 40px !important;
     }
   }
 }
