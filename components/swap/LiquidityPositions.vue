@@ -17,26 +17,26 @@ div.alcor-card
     .actions
 
   .table-content
-    .item-container.portionated(v-for="lpTopen in lpTokens")
+    .item-container.portionated(v-for="lpToken in lpTokens")
       .pair-container.pools
         .icons
           img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon.icon-1
           img(src="https://i.insider.com/5a71a5e9ec1ade273f1f5aed?width=600&format=jpeg&auto=webp").icon.icon-2
         .name-container
-          .names EOS/USDT
+          .names {{lpToken.pair.name}}
           .detail.muted alcor.dex
       .deposit.p20
         .amount 102,121.01$
-        span.detail.muted 1,000.10 EOS
-        span.detail.muted 1,000.10 USDT
-      .earning.p20
+        span.detail.muted {{lpToken.asset1}}
+        span.detail.muted {{lpToken.asset2}}
+      .earning.p20(v-if="scope.row.earn1 && scope.row.earn2")
         .amount 102,121.01$
-        span.detail.muted 1,000.10 EOS
-        span.detail.muted 1,000.10 USDT
+        span.detail.muted {{lpToken.earn1.to_string()}}
+        span.detail.muted {{lpToken.earn2.to_string()}}
       .actions
-        AlcorButton.add
+        AlcorButton.add(@click="addLiquidity(lpToken)")
           i.el-icon-plus
-        AlcorButton
+        AlcorButton(@click="remLiquidity(lpToken)")
           i.el-icon-minus
   .row
     .col(:class="{ 'p-0': isMobile }")
