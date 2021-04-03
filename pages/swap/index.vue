@@ -8,9 +8,10 @@
           .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - liquidity
         SSpacer(high)
         .tab-item
-          AddLiquidity(v-if="tab === '+ Liquidity'")
-          RemoveLiquidity(v-else-if="tab === '- Liquidity'")
-          Swap(v-else)
+          keep-alive
+            AddLiquidity(v-if="tab === '+ Liquidity'")
+            RemoveLiquidity(v-else-if="tab === '- Liquidity'")
+            Swap(v-else)
     .chart-card
       .header
         .pair-container
