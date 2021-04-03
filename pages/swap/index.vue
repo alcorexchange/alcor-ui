@@ -12,7 +12,7 @@
             AddLiquidity(v-if="tab === '+ Liquidity'")
             RemoveLiquidity(v-else-if="tab === '- Liquidity'")
             Swap(v-else)
-    .chart-card
+    .chart-card(v-if="tab == 'Swap'")
       .header
         .pair-container
           .left
@@ -53,6 +53,7 @@
             span.item 7D
             span.item 30D
             span.item All
+    LiquidityPositions.liquidity-positions(v-else)
 </template>
 
 <script>
@@ -237,7 +238,8 @@ export default {
     }
   }
 }
-.chart-card {
+.chart-card,
+.liquidity-positions {
   flex: 1;
   margin-left: 30px;
   display: flex;
