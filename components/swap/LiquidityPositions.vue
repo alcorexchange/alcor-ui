@@ -428,7 +428,7 @@ export default {
     width: auto;
     > * {
       width: 50% !important;
-      height: 40px !important;
+      height: 35px !important;
     }
   }
 }
