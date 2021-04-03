@@ -1,5 +1,6 @@
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
+import { cacheSeconds } from 'route-cache'
 axiosRetry(axios, { retries: 3 })
 
 import { Router } from 'express'
@@ -23,8 +24,7 @@ cs.get('/coins', async (req, res) => {
   res.json(data)
 })
 
-// FIXME Must be cached
-cs.get('/pairs', async (req, res) => {
+cs.get('/pairs', cacheSeconds(60 * 60), async (req, res) => {
   const destinationCoin = 'eos'
   const { data: pairs } = await coinswitch.post('/pairs', { destinationCoin })
   const { data: coins } = await coinswitch.get('/coins')

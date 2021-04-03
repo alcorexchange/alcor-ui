@@ -8,7 +8,7 @@ export default ({ app: { store, $axios } }, inject) => {
     store.dispatch('init')
     store.dispatch('swap/init')
     store.dispatch('chain/init')
-    store.dispatch('coinswitch/init')
+    //store.dispatch('coinswitch/init')
 
     // Set device ID
     if (localStorage.getItem('device_id') === null) {
