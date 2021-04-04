@@ -26,8 +26,9 @@
 
       .low-center
         .overflowbox.low-height.position-relative
-          .tabs-right(v-if="relatedPool")
-            el-button(type="text" icon="el-icon-right" @click="goToPool") Buy & Sell using SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+          .tabs-right
+            el-switch(v-if="['eos', 'wax'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
+            el-button(v-if="relatedPool" type="text" icon="el-icon-right" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
           el-tabs.h-100
             el-tab-pane(label="Limit trade")
@@ -98,7 +99,17 @@ export default {
     ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['token', 'id', 'stats', 'base_token']),
     ...mapGetters('market', ['relatedPool']),
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+
+    payForUser: {
+      get () {
+        return this.$store.state.chain.payForUser
+      },
+
+      set (value) {
+        this.$store.commit('chain/setPayForUser', value)
+      }
+    }
   },
 
   methods: {
