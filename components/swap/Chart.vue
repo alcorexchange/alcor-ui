@@ -110,7 +110,7 @@ export default {
     },
 
     tab() {
-      this.fetchCharts()
+      this.fetchCharts(true)
     },
 
     isReverted() {
@@ -142,7 +142,7 @@ export default {
       })
     },
 
-    fetchCharts() {
+    fetchCharts(animate = false) {
       const API = {
         Price: 'line_chart',
         Liquidity: 'liquidity_chart',
@@ -156,7 +156,7 @@ export default {
           }
         }).then(({ data }) => {
           // FIXME No animation on updating
-          this.$refs.chart.updateOptions({ series: [{ name: this.tab, data }] }, true)
+          this.$refs.chart.updateOptions({ series: [{ name: this.tab, data }] }, true, animate)
         })
       }
     }
