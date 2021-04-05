@@ -3,13 +3,13 @@ div.alcor-card
   .header
     h2.title Liquidity Positions
     .pagination
-      i.el-icon-back
-      span Page 1 of 4
-      i.el-icon-right
-      //- .lead
-      //-   nuxt-link(to="/swap/create").float-right
-      //-     el-button(size="mini") Create pool
-          //create.float-right
+      //i.el-icon-back
+      //span Page 1 of 4
+      //i.el-icon-right
+      .lead
+        nuxt-link(to="/swap/create").float-right
+          el-button(size="mini") Create pool
+      //create.float-right
   .table-header.portionated
     .pools Pools
     .deposit.p20.end Deposit
@@ -17,33 +17,33 @@ div.alcor-card
     .actions
 
   .table-content
-    .item-container.portionated(v-for="lpToken in mock")
+    .item-container.portionated(v-for="lpToken in lpTokens")
       .pair-container.pools
         .icons
-          img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon.icon-1
-          img(src="https://i.insider.com/5a71a5e9ec1ade273f1f5aed?width=600&format=jpeg&auto=webp").icon.icon-2
+          img(:src="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)").icon.icon-1
+          img(:src="$tokenLogo(lpToken.pair.pool2.quantity.symbol.code().to_string(), lpToken.pair.pool2.contract)").icon.icon-2
         .name-container
           .names {{lpToken.pair.name}}
           .detail.muted alcor.dex
       .deposit.p20
         .label.mobile-only Deposit
         .main
-          .amount 102,121.01$
+          //.amount 102,121.01$ TODO
           span.detail.muted {{lpToken.asset1}}
           span.detail.muted {{lpToken.asset2}}
       .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
         .label.mobile-only Earning (Fees)
         .main
-          .amount 102,121.01$
+          //.amount 102,121.01$ TODO
           //- TODO: add .toString()
           span.detail.muted {{lpToken.earn1}}
           span.detail.muted {{lpToken.earn2}}
       .actions
-        AlcorButton.add(@click="addLiquidity(lpToken)")
+        AlcorButton.add(@click="addLiquidity(lpToken)" :disabled="isActiveAdd(lpToken)")
           i.el-icon-plus
-        AlcorButton(@click="remLiquidity(lpToken)")
+        AlcorButton(@click="remLiquidity(lpToken)" :disabled="isActiveRemove(lpToken)")
           i.el-icon-minus
-  .row
+  //.row
     .col(:class="{ 'p-0': isMobile }")
       el-table(:data='lpTokens' style='width: 100%').liquidity-table
         el-table-column(label='Pairs' width="120")
