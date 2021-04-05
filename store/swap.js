@@ -31,7 +31,13 @@ export const actions = {
     await dispatch('getPairs')
 
     if (!getters.current) {
-      if (state.pairs) dispatch('setPair', state.pairs[0].id)
+      if (state.pairs) {
+        if (rootState.network.name == 'wax') {
+          dispatch('setPair', state.pairs[1].id)
+        } else {
+          dispatch('setPair', state.pairs[0].id)
+        }
+      }
       return
     }
 
@@ -142,14 +148,14 @@ export const actions = {
 
 export const getters = {
   tokens0(state, getters, rootState) {
-    return get_all_tokens(state.pairs)
+    return get_all_tokens(state.pairs).filter(t => t.symbol != 'TLM')
   },
 
   tokens1(state, getters, rootState) {
     if (!state.input) {
       return getters.tokens0
     } else {
-      return get_second_tokens(state.pairs, state.input)
+      return get_second_tokens(state.pairs, state.input).filter(t => t.symbol != 'TLM')
     }
   },
 
