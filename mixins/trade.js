@@ -18,7 +18,7 @@ function correct_price(price, _from, _for) {
 }
 
 export const tradeChangeEvents = {
-  created() {
+  mounted() {
     this.$nuxt.$on('setPrice', price => {
       this.price = price
       this.priceChange()
@@ -169,6 +169,7 @@ export const tradeMixin = {
 
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
+        setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
 
         this.$store.dispatch('market/fetchOrders')
         this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
@@ -204,6 +205,7 @@ export const tradeMixin = {
           quantity: `${this.amount} ${this.quote_token.symbol.name}`,
           memo: `${this.total} ${this.base_token.symbol.name}@${this.base_token.contract}`
         })
+        setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
 
         this.$store.dispatch('market/fetchOrders')
         this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })

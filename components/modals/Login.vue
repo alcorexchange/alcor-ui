@@ -76,13 +76,13 @@ export default {
     const wallets = [
       { name: 'Anchor', logo: require('@/assets/logos/anchor.svg'), index: 1 },
       { name: 'Scatter / TP / Starteos', logo: require('@/assets/logos/scatter.svg'), index: 0 },
-      { name: '', logo: require('@/assets/logos/wombat.png'), index: 0 },
       { name: 'SimplEOS', logo: require('@/assets/logos/simpleos.svg'), index: 2 },
       { name: 'Lynx', logo: require('@/assets/logos/lynx.svg'), index: 3 },
       { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 }
     ]
 
     if (this.network.name == 'eos') {
+      wallets.push({ name: '', logo: require('@/assets/logos/wombat.png'), index: 0 })
       wallets.push({ name: 'Keycat', logo: require('@/assets/logos/keycat.svg'), index: 5 })
     }
 

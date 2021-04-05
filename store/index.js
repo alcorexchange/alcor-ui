@@ -73,33 +73,6 @@ export const actions = {
     commit('setTokens', tokens)
   },
 
-  nuxtServerInit ({ state, commit, rootState }, { req }) {
-    if (process.env.DISABLE_DB) {
-      if (!process.env.NETWORK) throw new Error('Set NETWORK env!')
-      const subdomain = process.env.NETWORK == 'eos' ? '' : process.env.NETWORK + '.'
-
-      commit('setBaseUrl', `https://${subdomain}alcor.exchange`)
-      commit('setNetwork', config.networks[process.env.NETWORK])
-    } else {
-      const protocol = process.env.isDev ? 'http' : 'https'
-      commit('setBaseUrl', `${protocol}://${req.headers.host}`)
-
-      const subdomain = req.headers.host.split('.')
-
-      if (process.env.NETWORK) {
-        commit('setNetwork', config.networks[process.env.NETWORK])
-      } else if (IP_REGEX.test(req.headers.host)) {
-        commit('setNetwork', config.networks.eos)
-      } else if (subdomain.length <= 2) {
-        commit('setNetwork', config.networks.eos)
-      } else {
-        commit('setNetwork', config.networks[subdomain[0]])
-      }
-    }
-
-    this.$axios.setBaseURL(state.baseUrl + '/api')
-  },
-
   update({ dispatch }) {
     dispatch('loadUserBalances')
   },

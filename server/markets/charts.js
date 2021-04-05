@@ -14,14 +14,6 @@ export const resolutions = {
 }
 
 export const getCharts = memoize(async function (chain, market, from, to, resolution) {
-//export const getCharts = async function (chain, market, from, to, resolution) {
-  const _resolution = resolutions[resolution]
-
-  if (from && to) {
-    from = Math.floor(from / _resolution) * _resolution
-    to = Math.ceil(to / _resolution) * _resolution
-  }
-
   const where = { chain, market: parseInt(market) }
 
   if (from && to) {

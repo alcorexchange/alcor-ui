@@ -80,6 +80,7 @@ module.exports = {
     '@/plugins/element-ui',
     '@/plugins/mixins',
     '@/plugins/filters',
+    '@/plugins/global',
 
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' }
@@ -165,6 +166,8 @@ module.exports = {
   cache: {
     useHostPrefix: true,
     pages: [
+      /^\/nft-market/
+
       ///^\/pools\/.*/,
 
       ///^\/$/

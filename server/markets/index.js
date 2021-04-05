@@ -9,7 +9,7 @@ import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
 import { Match } from '../models'
 import { getMarketStats } from './history'
-import { getCharts } from './charts'
+import { resolutions, getCharts } from './charts'
 
 export async function getMarket(network, market_id) {
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
@@ -86,13 +86,22 @@ markets.get('/:market_id/charts', async (req, res) => {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const { from, to, resolution } = req.query
+  let { from, to } = req.query
+  const { resolution } = req.query
+
   if (!resolution) return res.status(404).send('Incorrect resolution..')
+
+  const _resolution = resolutions[resolution]
+  if (from && to) {
+    from = Math.floor(from / _resolution) * _resolution
+    to = Math.ceil(to / _resolution) * _resolution
+  }
 
   const t0 = performance.now()
   const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
   const performance_result = performance.now() - t0
   // Charts generate/cache debug
+  //if (true) {
   if (performance_result > 1000) {
     console.log('Call to filter for charts took ' + performance_result + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
   }

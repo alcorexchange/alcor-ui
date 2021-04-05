@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-if="current")
+div
   el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
 
   el-dialog(title="Add liquidity", :visible.sync="visible" width="50%").pool-withdraw
@@ -21,7 +21,7 @@ div(v-if="current")
 
               hr
 
-              pre Balance: {{ inputBalance }}
+              pre Balance: {{ baseBalance }}
               el-input(type="number" v-model="amount1" clearable @input="amount1Input" @change="amountChange")
                 span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
@@ -65,12 +65,10 @@ div(v-if="current")
 </template>
 
 <script>
-import { asset, number_to_asset, number_to_bigint } from 'eos-common'
+import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
-import Big from 'big.js'
-import BigCommon from 'big-integer'
 
-import { computeForward, computeBackward, calcPrice, get_amount_in } from '~/utils/pools'
+import { computeForward, computeBackward, calcPrice } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
@@ -99,26 +97,17 @@ export default {
     ...mapGetters(['user']),
     ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
-    ...mapGetters('swap', ['current', 'inputBalance', 'quoteBalance']),
+    ...mapGetters('pools', ['current', 'baseBalance', 'quoteBalance']),
 
     tokenReceive() {
-      const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision()).amount
-      const amount2 = this.inputToAsset(this.amount2, this.poolTwo.quantity.symbol.precision()).amount
+      const amount1 = this.inputToAsset(this.amount1, this.poolOne.quantity.symbol.precision())
 
-      const liquidity1 = amount1.multiply(this.current.supply.amount).divide(this.current.pool1.quantity.amount)
-      const liquidity2 = amount2.multiply(this.current.supply.amount).divide(this.current.pool2.quantity.amount)
-
-      const to_buy = BigCommon.min(liquidity1, liquidity2)
-
-      //const b = Big(amount1.multiply(amount2))
-      //const to_buy = b.sqrt()
-
-      //const to_buy = computeBackward(
-      //  amount1,
-      //  this.current.supply.amount,
-      //  this.current.pool1.quantity.amount,
-      //  this.current.fee
-      //)
+      const to_buy = computeBackward(
+        amount1.amount,
+        this.current.supply.amount,
+        this.current.pool1.quantity.amount,
+        this.current.fee
+      )
 
       return to_buy
     },
@@ -194,19 +183,36 @@ export default {
 
       const amount1 = asset(`${this.amount1} ${this.current.pool1.quantity.symbol.code().to_string()}`).to_string()
       const amount2 = asset(`${this.amount2} ${this.current.pool2.quantity.symbol.code().to_string()}`).to_string()
-      const to_buy = asset(BigCommon(this.tokenReceive.toString()), this.current.supply.symbol).to_string()
-      console.log('tokens to buy', this.tokenReceive.toString())
+      const to_buy = asset(this.tokenReceive, this.current.supply.symbol).to_string()
 
       const actions = [
         {
+          account: 'evolutiondex',
+          name: 'openext',
+          authorization,
+          data: {
+            user: this.user.name,
+            payer: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: this.poolOne.quantity.symbol.toString() }
+          }
+        }, {
+          account: 'evolutiondex',
+          name: 'openext',
+          authorization,
+          data: {
+            user: this.user.name,
+            payer: this.user.name,
+            ext_symbol: { contract: this.poolTwo.contract, sym: this.poolTwo.quantity.symbol.toString() }
+          }
+        }, {
           account: this.current.pool1.contract,
           name: 'transfer',
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: amount1,
-            memo: 'deposit'
+            memo: ''
           }
         }, {
           account: this.current.pool2.contract,
@@ -214,19 +220,39 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: amount2,
-            memo: 'deposit'
+            memo: ''
           }
         }, {
-          account: this.network.pools.contract,
+          account: 'evolutiondex',
           name: 'addliquidity',
           authorization,
           data: {
             user: this.user.name,
-            to_buy
-            //max_asset1: amount1,
-            //max_asset2: amount2
+            to_buy,
+            max_asset1: amount1,
+            max_asset2: amount2
+          }
+        }, {
+          account: 'evolutiondex',
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.current.pool1.contract, sym: this.poolOne.quantity.symbol.toString() },
+            to: this.user.name,
+            memo: ''
+          }
+        }, {
+          account: 'evolutiondex',
+          name: 'closeext',
+          authorization,
+          data: {
+            user: this.user.name,
+            ext_symbol: { contract: this.poolTwo.contract, sym: this.poolTwo.quantity.symbol.toString() },
+            to: this.user.name,
+            memo: ''
           }
         }
       ]

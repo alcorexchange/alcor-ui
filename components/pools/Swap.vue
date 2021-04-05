@@ -70,6 +70,8 @@ div
 
                   pre(v-if="input == 'pool2'") Balance: {{ baseBalance }}
                   pre(v-else) Balance: {{ quoteBalance }}
+
+
         .row.mb-3(v-if="current.pool1")
           .col
             .row
@@ -233,7 +235,7 @@ export default {
           authorization,
           data: {
             from: this.user.name,
-            to: this.network.pools.contract,
+            to: 'evolutiondex',
             quantity: amount1,
             memo: `exchange: ${this.current.supply.symbol.code().to_string()},${amount2},alcor.exchange/pools`
           }

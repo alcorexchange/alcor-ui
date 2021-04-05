@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
-// Liquidity pools
-export const Liquidity = mongoose.models.Match || mongoose.model('Liquidity', mongoose.Schema({
+
+const LiquiditySchema = mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
   trx_id: { type: String },
@@ -18,9 +18,11 @@ export const Liquidity = mongoose.models.Match || mongoose.model('Liquidity', mo
 
   time: { type: Date, index: true },
   block_num: { type: Number }
-}))
+})
+//LiquiditySchema.index({})
 
-export const Exchange = mongoose.models.Match || mongoose.model('Exchange', mongoose.Schema({
+
+const ExchangeSchema = mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
   trx_id: { type: String },
@@ -35,16 +37,15 @@ export const Exchange = mongoose.models.Match || mongoose.model('Exchange', mong
 
   time: { type: Date, index: true },
   block_num: { type: Number }
-}))
+})
 
-// Limit trading
-export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.Schema({
+const MatchSchema = mongoose.Schema({
   chain: { type: String, index: true },
-  market: { type: Number, index: true }, // TODO потом сделать табличку с маркетами
+  market: { type: Number, index: true },
   type: { type: String, index: true },
   trx_id: { type: String },
 
-  unit_price: Number,
+  unit_price: { type: Number, index: true },
 
   ask: { type: Number },
   bid: { type: Number },
@@ -54,9 +55,11 @@ export const Match = mongoose.models.Match || mongoose.model('Match', mongoose.S
 
   time: { type: Date, index: true },
   block_num: { type: Number }
-}))
+})
+MatchSchema.index({ chain: 1, market: 1 })
+MatchSchema.index({ time: 1, unit_price: -1 })
 
-export const Bar = mongoose.models.Bar || mongoose.model('Bar', mongoose.Schema({
+const BarSchema = mongoose.Schema({
   chain: { type: String, index: true },
   market: { type: Number, index: true },
   open: Number,
@@ -65,12 +68,12 @@ export const Bar = mongoose.models.Bar || mongoose.model('Bar', mongoose.Schema(
   close: Number,
   volume: { type: Number, default: 0 },
   time: { type: Date, index: true }
-}))
+})
 
-export const Settings = mongoose.models.Settings || mongoose.model('Settings', mongoose.Schema({
+const SettingsSchema = mongoose.Schema({
   chain: { type: String },
   actions_stream_offset: { type: Object, default: {} }
-}))
+})
 
 export async function getSettings(network) {
   const actions_stream_offset = {}
@@ -96,3 +99,9 @@ export async function getSettings(network) {
     return await getSettings(network)
   }
 }
+
+export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
+export const Exchange = mongoose.model('Exchange', ExchangeSchema)
+export const Match = mongoose.model('Match', MatchSchema)
+export const Bar = mongoose.model('Bar', BarSchema)
+export const Settings = mongoose.model('Settings', SettingsSchema)

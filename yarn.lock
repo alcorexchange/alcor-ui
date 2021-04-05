@@ -9519,6 +9519,14 @@ lru-cache@4.0.0:
     pseudomap "^1.0.1"
     yallist "^2.0.0"
 
+lru-cache@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.0.1.tgz#1343955edaf2e37d9b9e7ee7241e27c4b9fb72be"
+  integrity sha1-E0OVXtry432bnn7nJB4nxLn7cr4=
+  dependencies:
+    pseudomap "^1.0.1"
+    yallist "^2.0.0"
+
 lru-cache@^4.0.1, lru-cache@^4.1.2:
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.1.5.tgz#8bbe50ea85bed59bc9e33dcab8235ee9bcf443cd"
@@ -12946,6 +12954,14 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+route-cache@^0.4.5:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/route-cache/-/route-cache-0.4.5.tgz#4969495f8a673739e90d2add49eba1fcfb8f8dc2"
+  integrity sha512-Z/nUYyOJR7hEMS+om8Qao5XKC/FmMQNeTuTukDvT7dZNrsw37OZXgsiN7gxZBhxB5JJtYi5NfTjHVteadetFug==
+  dependencies:
+    debug "3.1.0"
+    lru-cache "4.0.1"
 
 run-async@^2.2.0, run-async@^2.4.0:
   version "2.4.1"

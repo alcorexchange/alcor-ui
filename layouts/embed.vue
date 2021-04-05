@@ -57,13 +57,7 @@ export default {
     }
   },
 
-  mounted() {
-    this.activeLink = this.$route.path
-    this.$store.dispatch('checkIsMobile')
-    this.getVersion()
-  },
-
-  async created() {
+  async mounted() {
     this.networks = Object.values(config.networks)
     this.current_chain = this.$store.state.network.name
 
@@ -73,6 +67,10 @@ export default {
       this.netError = true
       console.log('Net error', e)
     }
+
+    this.activeLink = this.$route.path
+    this.$store.dispatch('checkIsMobile')
+    this.getVersion()
   },
 
   methods: {

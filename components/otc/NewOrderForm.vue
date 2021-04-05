@@ -14,7 +14,7 @@ div
 
       el-form-item(label="Sell token")
         el-select(v-model="tokenSelect", value-key="id" filterable clearable placeholder='Sell token' @change="sellSellToken").w-100
-          el-option(v-for="b in user.balances" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
+          el-option(v-for="b in user.balances.filter(t => t.currency != 'TLM')" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
             TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
             span.ml-3 {{ b.id }}
             span.float-right {{ `${b.amount} ${b.currency}` }}
@@ -143,7 +143,7 @@ export default {
     }
   },
 
-  created() {
+  mounted() {
     this.fetchTokens()
   },
 

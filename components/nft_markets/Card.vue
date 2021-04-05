@@ -67,9 +67,10 @@ export default {
     },
 
     setOriginalSrc(event) {
-      event.target.src = event.target.src.replace('https://images.hive.blog/0x0/', '')
-    },
-
+      if (event.target.src.includes('https://images.hive.blog/0x0/')) {
+        event.target.src = event.target.src.replace('https://images.hive.blog/0x0/', '')
+      }
+    }
   }
 }
 </script>
