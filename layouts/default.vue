@@ -19,7 +19,7 @@ div
           nuxt-link(to='/')
             img.logo(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='34')
             img.logo(v-else='' height='34' src='~/assets/logos/alcorwhite.svg' alt='')
-        AlcorButton.always-dark(@click='openMenu' :icononlyalt='true')
+        AlcorButton(@click='openMenu' :icononlyalt='true')
           i.el-icon-more
         nav(:class="['menu', { menuActive }]")
           .logo
