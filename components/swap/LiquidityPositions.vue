@@ -19,9 +19,13 @@ div.alcor-card
   .table-content
     .item-container.portionated(v-for="lpToken in lpTokens")
       .pair-container.pools
-        .icons
-          TokenImage(:src="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)" height="15").icon.icon-1
-          TokenImage(:src="$tokenLogo(lpToken.pair.pool2.quantity.symbol.code().to_string(), lpToken.pair.pool2.contract)" height="15").icon.icon-2
+        PairIcons(
+          :firstIcon="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)",
+          :secondIcon="$tokenLogo(lpToken.pair.pool2.quantity.symbol.code().to_string(), lpToken.pair.pool2.contract)"
+        )
+        //- .icons
+        //-   TokenImage(:src="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)" height="15").icon.icon-1
+        //-   TokenImage(:src="$tokenLogo(lpToken.pair.pool2.quantity.symbol.code().to_string(), lpToken.pair.pool2.contract)" height="15").icon.icon-2
         .name-container
           .names {{lpToken.pair.name}}
           .detail.muted alcor.dex
@@ -96,10 +100,11 @@ import { asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
 import TokenImage from '~/components/elements/TokenImage'
+import PairIcons from '~/components/PairIcons'
 import { get_amount_out, get_amount_in } from '~/utils/pools'
 
 export default {
-  components: { AlcorButton, TokenImage },
+  components: { AlcorButton, TokenImage, PairIcons },
   data() {
     return {
       net: false,
