@@ -14,31 +14,18 @@
             Swap(v-else)
     .chart-card(v-if="tab == 'Swap'")
       .header
-        .pair-container
+        .pair-container(v-if="current")
           .left
             .icons
-              img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon.icon-1
-              img(src="https://i.insider.com/5a71a5e9ec1ade273f1f5aed?width=600&format=jpeg&auto=webp").icon.icon-2
+              TokenImage(:src="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)" height="15").icon.icon-1
+              TokenImage(:src="$tokenLogo(current.pool2.quantity.symbol.code().to_string(), current.pool2.contract)" height="15").icon.icon-2
             .name-container
-              .names EOS/USDT
+              .names(v-if="!isReverted") {{ current.pool1.quantity.symbol.code().to_string() }}/{{ current.pool2.quantity.symbol.code().to_string() }}
+              .names(v-else) {{ current.pool2.quantity.symbol.code().to_string() }}/{{ current.pool1.quantity.symbol.code().to_string() }}
+
               .detail.muted Liquidity alcor.dex
           .right
             AlcorButton.eol Earn On Liquidity
-        SSpacer
-        .each-item-price-container
-          .item
-            img(src="https://cryptolithy.com/wp-content/uploads/2018/12/EOS-News-%E2%80%93-Can-EOS-continue-its-rally.png").icon
-            span.text.muted 1 EOS = 6.02 USDT (5,00$)
-          .item
-            img(src="https://i.insider.com/5a71a5e9ec1ade273f1f5aed?width=600&format=jpeg&auto=webp").icon
-            span.text.muted 1 USDT = 0.07 EOS (5,00$)
-        SSpacer
-        .price-container
-          .price 6.02
-          .to USDT
-          .change
-            i.el-icon-caret-top
-            span.text 23.4%
       SSpacer(high)
       .chart
         Chart(:tab="chart_tab")
@@ -48,7 +35,7 @@
             span.item(@click="setChartTab('Price')" :class="{active: chart_tab === 'Price'}") Price
             span.item(@click="setChartTab('Liquidity')" :class="{active: chart_tab === 'Liquidity'}") Liquidity
             span.item(@click="setChartTab('Volume')" :class="{active: chart_tab === 'Volume'}") Volume
-        .right
+        //.right TODO Timeframes for chart
             span.item.active 24H
             span.item 7D
             span.item 30D
@@ -67,6 +54,7 @@ import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
 import SSpacer from '~/components/SSpacer.vue'
 import Spacer from '~/components/Spacer.vue'
+import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
@@ -77,7 +65,8 @@ export default {
     LiquidityPositions,
     SSpacer,
     Spacer,
-    AlcorButton
+    AlcorButton,
+    TokenImage
   },
 
   fetch({ store, route }) {
@@ -103,7 +92,7 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapState('swap', ['tab', 'input', 'output']),
-    ...mapGetters('swap', ['current']),
+    ...mapGetters('swap', ['current', 'isReverted']),
 
     tabComponent() {
       if (this.tab == '+ Liquidity') return 'AddLiquidity'
@@ -289,40 +278,6 @@ export default {
       }
       display: flex;
       flex-direction: column;
-    }
-  }
-  .each-item-price-container {
-    display: flex;
-    flex-wrap: wrap;
-    .item {
-      padding: 2px;
-      display: flex;
-      align-items: center;
-      font-size: 0.9rem;
-      border-radius: var(--radius);
-      border: var(--border-1);
-      margin-right: 4px;
-      margin-bottom: 4px;
-      .icon {
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        margin-right: 4px;
-      }
-    }
-  }
-  .price-container {
-    display: flex;
-    align-items: center;
-    .price {
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin-right: 4px;
-    }
-    .change {
-      display: flex;
-      align-items: center;
-      color: var(--main-green);
     }
   }
 }

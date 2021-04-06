@@ -1,23 +1,55 @@
 <template lang="pug">
   client-only
+    // TODO Fix that hight setting
     .h-100
-      VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
+      .position-relative
+        .each-item-price-container(v-if="pair")
+          .item
+            TokenImage(:src="$tokenLogo(pair.pool1.quantity.symbol.code().to_string(), pair.pool1.contract)" height="15")
+            span.text.muted.ml-1
+              | 1 {{ pair.pool1.quantity.symbol.code().to_string() }} =
+              | {{ (parseFloat(pair.pool1.quantity) / parseFloat(pair.pool2.quantity)).toFixed(8) }}
+              | {{ pair.pool2.quantity.symbol.code().to_string() }}
+          .item
+            TokenImage(:src="$tokenLogo(pair.pool2.quantity.symbol.code().to_string(), pair.pool2.contract)" height="15")
+            span.text.muted.ml-1
+              | 1 {{ pair.pool2.quantity.symbol.code().to_string() }} =
+              | {{ (parseFloat(pair.pool2.quantity) / parseFloat(pair.pool1.quantity)).toFixed(8) }}
+              | {{ pair.pool1.quantity.symbol.code().to_string() }}
+        //SSpacer
+        .price-container.position-absolute
+          .price {{ price }}
+          .to(v-if="pair") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
+          // TODO Make change text color red and arrow down when percent is < 0
+          .change
+            i.el-icon-caret-top
+            span.text {{ percent }}%
+      .h-100(@mouseleave="setCurrentPrice").mt-2
+        VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex'
 
+import TokenImage from '~/components/elements/TokenImage'
+
+
 export default {
   components: {
-    VueApexCharts: () => import('vue-apexcharts')
+    VueApexCharts: () => import('vue-apexcharts'),
+    TokenImage
   },
 
   props: ['tab'],
 
   data () {
     return {
+      price: 0.0,
+
       width: '100%',
       height: '100%',
+
+      data: [],
 
       series: [{
         name: 'Price',
@@ -25,7 +57,19 @@ export default {
       }],
 
       chartOptions: {
-        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'],
+        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
+
+        fill: {
+          gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            shadeIntensity: 0.5,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 0.15,
+            opacityTo: 0.7
+          }
+        },
 
         chart: {
           height: 350,
@@ -49,6 +93,13 @@ export default {
             dynamicAnimation: {
               enabled: true,
               speed: 350
+            }
+          },
+
+          events: {
+            mouseMove: (event, chartContext, config) => {
+              const { y: price } = this.data[config.dataPointIndex]
+              this.price = price
             }
           }
         },
@@ -100,7 +151,17 @@ export default {
     ...mapGetters({
       pair: 'swap/current',
       isReverted: 'swap/isReverted'
-    })
+    }),
+
+    percent() {
+      const length = this.data.length
+      if (length < 2) return 0
+
+      const price_after = this.data[length - 1].y
+      const price_before = this.data[0].y
+
+      return (((price_after - price_before) / price_before) * 100).toFixed(2)
+    }
   },
 
   watch: {
@@ -127,6 +188,10 @@ export default {
   },
 
   methods: {
+    setCurrentPrice() {
+      this.price = this.data.length ? this.data[this.data.length - 1].y : 0
+    },
+
     updateChartOprions(options) {
       if (!this.$refs.chart) {
         console.log('LP CHART NOT FOUND..')
@@ -134,7 +199,7 @@ export default {
       }
 
       this.$refs.chart.updateOptions({
-        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'],
+        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
         chart: {
           foreColor: this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'
         }
@@ -154,8 +219,10 @@ export default {
             reverse: this.isReverted
           }
         }).then(({ data }) => {
-          // FIXME No animation on updating
+          this.data = data
           this.$refs.chart.updateOptions({ series: [{ name: this.tab, data }] }, true, animate)
+
+          if (this.tab == 'Price') this.setCurrentPrice()
         })
       }
     }
@@ -173,5 +240,40 @@ export default {
   background: red !important;
   background-color: var(--background-color-base) !important;
   color: var(--color-text-primary) !important;
+}
+
+.each-item-price-container {
+  display: flex;
+  flex-wrap: wrap;
+  .item {
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    border-radius: var(--radius);
+    border: var(--border-1);
+    margin-right: 4px;
+    margin-bottom: 4px;
+    .icon {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+  }
+}
+.price-container {
+  display: flex;
+  align-items: center;
+  .price {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-right: 4px;
+  }
+  .change {
+    display: flex;
+    align-items: center;
+    color: var(--main-green);
+  }
 }
 </style>
