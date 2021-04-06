@@ -1,7 +1,7 @@
 <template lang="pug">
 .pair-icons
-    TokenImage(:src="icon1" height="15").icon.icon-1
-    TokenImage(:src="icon2" height="15").icon.icon-2
+    TokenImage(:src="firstIcon" height="15").icon.icon-1
+    TokenImage(:src="secondIcon" height="15").icon.icon-2
 </template>
 
 <script>
@@ -9,7 +9,7 @@ import TokenImage from '~/components/elements/TokenImage'
 export default {
   name: 'PairIcons',
   components: { TokenImage },
-  props: ['icon1', 'icon2']
+  props: ['firstIcon', 'secondIcon']
 }
 </script>
 
