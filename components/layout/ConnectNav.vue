@@ -25,14 +25,15 @@
       @click='$store.dispatch("modal/login")'
     )
       | Connect Wallet
-    el-dropdown
+
+    AlcorButton.theme-toggle-button.desktop(
+      :iconOnlyAlt='true',
+      @click='$store.dispatch("toggleTheme")'
+    )
+      i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+      i.el-icon-moon(v-else='')
+    //el-dropdown
       div
-        AlcorButton.theme-toggle-button.desktop(
-          :iconOnlyAlt='true',
-          @click='$store.dispatch("toggleTheme")'
-        )
-          i.el-icon-sunny(v-if='$colorMode.value == "dark"')
-          i.el-icon-moon(v-else='')
         //AlcorButton(:iconOnlyAlt='true')
           i.el-icon-more
       //template(#dropdown='')
