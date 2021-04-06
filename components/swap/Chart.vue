@@ -6,16 +6,10 @@
         .each-item-price-container(v-if="pair")
           .item
             TokenImage(:src="$tokenLogo(pair.pool1.quantity.symbol.code().to_string(), pair.pool1.contract)" height="15")
-            span.text.muted.ml-1
-              | 1 {{ pair.pool1.quantity.symbol.code().to_string() }} =
-              | {{ (parseFloat(pair.pool1.quantity) / parseFloat(pair.pool2.quantity)).toFixed(8) }}
-              | {{ pair.pool2.quantity.symbol.code().to_string() }}
+            span.text.muted.ml-1 {{renderFirstPair}}
           .item
             TokenImage(:src="$tokenLogo(pair.pool2.quantity.symbol.code().to_string(), pair.pool2.contract)" height="15")
-            span.text.muted.ml-1
-              | 1 {{ pair.pool2.quantity.symbol.code().to_string() }} =
-              | {{ (parseFloat(pair.pool2.quantity) / parseFloat(pair.pool1.quantity)).toFixed(8) }}
-              | {{ pair.pool1.quantity.symbol.code().to_string() }}
+            span.text.muted.ml-1 {{renderSecondPair}}
         //SSpacer
         .price-container.position-absolute
           .price {{ price }}
@@ -169,6 +163,24 @@ export default {
     },
     isZero() {
       return this.percent === 0
+    },
+    renderFirstPair() {
+      return `1 ${this.pair.pool1.quantity.symbol.code().to_string()} =
+         ${(
+           parseFloat(this.pair.pool1.quantity) /
+           parseFloat(this.pair.pool2.quantity)
+         ).toFixed(8)}
+         ${this.pair.pool2.quantity.symbol.code().to_string()}
+       `
+    },
+    renderSecondPair() {
+      return `1 ${this.pair.pool2.quantity.symbol.code().to_string()} =
+         ${(
+           parseFloat(this.pair.pool2.quantity) /
+           parseFloat(this.pair.pool1.quantity)
+         ).toFixed(8)}
+         ${this.pair.pool1.quantity.symbol.code().to_string()}
+       `
     }
   },
 
