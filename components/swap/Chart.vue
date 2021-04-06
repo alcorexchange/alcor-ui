@@ -21,8 +21,8 @@
           .price {{ price }}
           .to(v-if="pair") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
           // TODO Make change text color red and arrow down when percent is < 0
-          .change
-            i.el-icon-caret-top
+          .change(:class="{isRed, isZero}")
+            i(:class="`el-icon-caret-${isRed? 'bottom': 'top'}`" v-if="!isZero")
             span.text {{ percent }}%
       .h-100(@mouseleave="setCurrentPrice").mt-2
         VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
@@ -33,7 +33,6 @@ import { mapState, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 
-
 export default {
   components: {
     VueApexCharts: () => import('vue-apexcharts'),
@@ -42,7 +41,7 @@ export default {
 
   props: ['tab'],
 
-  data () {
+  data() {
     return {
       price: 0.0,
 
@@ -51,10 +50,12 @@ export default {
 
       data: [],
 
-      series: [{
-        name: 'Price',
-        data: []
-      }],
+      series: [
+        {
+          name: 'Price',
+          data: []
+        }
+      ],
 
       chartOptions: {
         colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
@@ -161,6 +162,13 @@ export default {
       const price_before = this.data[0].y
 
       return (((price_after - price_before) / price_before) * 100).toFixed(2)
+    },
+
+    isRed() {
+      return this.percent <= 0
+    },
+    isZero() {
+      return this.percent === 0
     }
   },
 
@@ -214,16 +222,22 @@ export default {
       }[this.tab]
 
       if (this.pair) {
-        this.$axios.get(`/pools/${this.pair.id}/${API}`, {
-          params: {
-            reverse: this.isReverted
-          }
-        }).then(({ data }) => {
-          this.data = data
-          this.$refs.chart.updateOptions({ series: [{ name: this.tab, data }] }, true, animate)
+        this.$axios
+          .get(`/pools/${this.pair.id}/${API}`, {
+            params: {
+              reverse: this.isReverted
+            }
+          })
+          .then(({ data }) => {
+            this.data = data
+            this.$refs.chart.updateOptions(
+              { series: [{ name: this.tab, data }] },
+              true,
+              animate
+            )
 
-          if (this.tab == 'Price') this.setCurrentPrice()
-        })
+            if (this.tab == 'Price') this.setCurrentPrice()
+          })
       }
     }
   }
@@ -274,6 +288,13 @@ export default {
     display: flex;
     align-items: center;
     color: var(--main-green);
+    padding: 0 4px;
+    &.isRed {
+      color: var(--main-red);
+    }
+    &.isZero {
+      color: var(--text-default);
+    }
   }
 }
 </style>

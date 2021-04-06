@@ -16,9 +16,14 @@
       .header
         .pair-container(v-if="current")
           .left
-            .icons
-              TokenImage(:src="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)" height="15").icon.icon-1
-              TokenImage(:src="$tokenLogo(current.pool2.quantity.symbol.code().to_string(), current.pool2.contract)" height="15").icon.icon-2
+            PairIcons(
+              :token1="{symbol: current.pool1.quantity.symbol.code().to_string(), contract: current.pool1.contract}"
+              :token2="{symbol: current.pool2.quantity.symbol.code().to_string(), contract: current.pool2.contract}"
+            )
+            //- PairIcons(
+            //-   :firstIcon="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)",
+            //-   :secondIcon="$tokenLogo(current.pool2.quantity.symbol.code().to_string(), current.pool2.contract)"
+            //- )
             .name-container
               .names(v-if="!isReverted") {{ current.pool1.quantity.symbol.code().to_string() }}/{{ current.pool2.quantity.symbol.code().to_string() }}
               .names(v-else) {{ current.pool2.quantity.symbol.code().to_string() }}/{{ current.pool1.quantity.symbol.code().to_string() }}
@@ -55,6 +60,7 @@ import AlcorButton from '~/components/AlcorButton.vue'
 import SSpacer from '~/components/SSpacer.vue'
 import Spacer from '~/components/Spacer.vue'
 import TokenImage from '~/components/elements/TokenImage'
+import PairIcons from '~/components/PairIcons'
 
 export default {
   components: {
@@ -66,7 +72,8 @@ export default {
     SSpacer,
     Spacer,
     AlcorButton,
-    TokenImage
+    TokenImage,
+    PairIcons
   },
 
   fetch({ store, route }) {
