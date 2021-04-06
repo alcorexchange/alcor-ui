@@ -17,9 +17,12 @@
         .pair-container(v-if="current")
           .left
             PairIcons(
-              :firstIcon="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)",
-              :secondIcon="$tokenLogo(current.pool2.quantity.symbol.code().to_string(), current.pool2.contract)"
+              :token="current"
             )
+            //- PairIcons(
+            //-   :firstIcon="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)",
+            //-   :secondIcon="$tokenLogo(current.pool2.quantity.symbol.code().to_string(), current.pool2.contract)"
+            //- )
             .name-container
               .names(v-if="!isReverted") {{ current.pool1.quantity.symbol.code().to_string() }}/{{ current.pool2.quantity.symbol.code().to_string() }}
               .names(v-else) {{ current.pool2.quantity.symbol.code().to_string() }}/{{ current.pool1.quantity.symbol.code().to_string() }}

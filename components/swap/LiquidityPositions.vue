@@ -20,8 +20,7 @@ div.alcor-card
     .item-container.portionated(v-for="lpToken in lpTokens")
       .pair-container.pools
         PairIcons(
-          :firstIcon="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)",
-          :secondIcon="$tokenLogo(lpToken.pair.pool2.quantity.symbol.code().to_string(), lpToken.pair.pool2.contract)"
+          :token="lpToken.pair"
         )
         //- .icons
         //-   TokenImage(:src="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)" height="15").icon.icon-1
