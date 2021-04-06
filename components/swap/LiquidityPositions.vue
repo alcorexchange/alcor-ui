@@ -285,7 +285,7 @@ export default {
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 12px;
-  margin-top: 20px;
+  margin-top: 13px;
   .title {
     font-size: 1.375rem;
   }
