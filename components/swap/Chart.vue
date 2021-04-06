@@ -1,25 +1,21 @@
 <template lang="pug">
   client-only
-    // TODO Fix that hight setting
-    .h-100
-      .position-relative
-        .each-item-price-container(v-if="pair")
-          .item
-            TokenImage(:src="$tokenLogo(pair.pool1.quantity.symbol.code().to_string(), pair.pool1.contract)" height="15")
-            span.text.muted.ml-1 {{renderFirstPair}}
-          .item
-            TokenImage(:src="$tokenLogo(pair.pool2.quantity.symbol.code().to_string(), pair.pool2.contract)" height="15")
-            span.text.muted.ml-1 {{renderSecondPair}}
-        //SSpacer
-        .price-container.position-absolute
-          .price {{ price }}
-          .to(v-if="pair") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
-          // TODO Make change text color red and arrow down when percent is < 0
-          .change(:class="{isRed, isZero}")
-            i(:class="`el-icon-caret-${isRed? 'bottom': 'top'}`" v-if="!isZero")
-            span.text {{ percent }}%
-      .h-100(@mouseleave="setCurrentPrice").mt-2
-        VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
+    .h-100(@mouseleave="setCurrentPrice").mt-2
+      .each-item-price-container(v-if="pair")
+        .item
+          TokenImage(:src="$tokenLogo(pair.pool1.quantity.symbol.code().to_string(), pair.pool1.contract)" height="15")
+          span.text.muted.ml-1 {{renderFirstPair}}
+        .item
+          TokenImage(:src="$tokenLogo(pair.pool2.quantity.symbol.code().to_string(), pair.pool2.contract)" height="15")
+          span.text.muted.ml-1 {{renderSecondPair}}
+      .price-container
+        .price {{ price }}
+        .to(v-if="pair") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
+        // TODO Make change text color red and arrow down when percent is < 0
+        .change(:class="{isRed, isZero}")
+          i(:class="`el-icon-caret-${isRed? 'bottom': 'top'}`" v-if="!isZero")
+          span.text {{ percent }}%
+      VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
 </template>
 
 <script>
@@ -93,6 +89,8 @@ export default {
 
           events: {
             mouseMove: (event, chartContext, config) => {
+              if (config.dataPointIndex == -1) return
+
               const { y: price } = this.data[config.dataPointIndex]
               this.price = price
             }
@@ -291,6 +289,8 @@ export default {
 .price-container {
   display: flex;
   align-items: center;
+  margin-bottom: -30px;
+
   .price {
     font-size: 1.8rem;
     font-weight: bold;
