@@ -1,35 +1,41 @@
 <template lang="pug">
 .connect-nav
   .left
-    el-dropdown(trigger='click')
+    el-dropdown
       .network-selection
-        span EOS MAINNET
+        img(:src="require('~/assets/icons/' + current_chain.name + '.png')" height=30).mr-1
+        span {{ current_chain.desc }}
+
         i.el-icon-arrow-down
       template(#dropdown='')
         el-dropdown-menu.dropdown-container
-          .d-item item
-          .d-item item
-          .d-item item
+          .d-item(v-for='network in networks', :key='network.name', :value='network.name' :label="network.name" @click="changeChain(network.name)")
+            img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
+            span.ml-2 {{ network.desc }}
   .right
     .user-detail(v-if='user')
-      .balance 1,100 $
-      el-dropdown(trigger='click')
-        .user-name alcor.ex
-        template(#dropdown='')
-          el-dropdown-menu.dropdown-container
-            .d-item item
-            .d-item item
-            .d-item item
+      .balance 0 $
+      el-dropdown
+        .user-name {{ user.name }}
+        //template(#dropdown='')
+        el-dropdown-menu.dropdown-container
+          .d-item(@click="logout") Logout
     AlcorButton.connect-button(
       v-else='',
       @click='$store.dispatch("modal/login")'
     )
       | Connect Wallet
-    el-dropdown(trigger='click')
+    el-dropdown
       div
-        AlcorButton(:iconOnlyAlt='true')
+        AlcorButton.theme-toggle-button.desktop(
+          :iconOnlyAlt='true',
+          @click='$store.dispatch("toggleTheme")'
+        )
+          i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+          i.el-icon-moon(v-else='')
+        //AlcorButton(:iconOnlyAlt='true')
           i.el-icon-more
-      template(#dropdown='')
+      //template(#dropdown='')
         el-dropdown-menu.dropdown-container
           a.d-item
             // <i class="el-icon-help"></i>
@@ -56,14 +62,33 @@
 <script>
 import AlcorButton from '@/components/AlcorButton'
 import { mapGetters, mapState } from 'vuex'
+
+import config from '~/config'
 // import AlcorLink from '@/components/AlcorLink'
 export default {
+  data() {
+    return {
+      loading: false
+    }
+  },
+
   components: {
     AlcorButton,
     // AlcorLink
   },
   computed: {
     ...mapGetters(['user']),
+    ...mapState(['network']),
+
+    current_chain() {
+      return this.$store.state.network
+    },
+
+    networks() {
+      return Object.values(config.networks).filter((n) =>
+        ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
+      )
+    }
   },
   //   props: {
   //     isFooter: {
@@ -71,6 +96,22 @@ export default {
   //       type: Boolean
   //     }
   //   }
+  methods: {
+    async logout() {
+      await this.$store.dispatch('chain/logout')
+    },
+
+    changeChain(chain) {
+      // TODO Move to config: APP_DOMAIN
+      const location =
+        chain == 'eos'
+          ? 'https://alcor.exchange/'
+          : `https://${chain}.alcor.exchange/`
+
+      this.loading = true
+      window.location = location + window.location.pathname.split('/')[1] || ''
+    }
+  }
 }
 </script>
 
