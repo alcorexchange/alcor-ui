@@ -17,7 +17,8 @@
         .pair-container(v-if="current")
           .left
             PairIcons(
-              :token="current"
+              :token1="{symbol: current.pool1.quantity.symbol.code().to_string(), contract: current.pool1.contract}"
+              :token2="{symbol: current.pool2.quantity.symbol.code().to_string(), contract: current.pool2.contract}"
             )
             //- PairIcons(
             //-   :firstIcon="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)",
