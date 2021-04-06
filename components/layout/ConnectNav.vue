@@ -3,7 +3,7 @@
   .left
     el-dropdown
       .network-selection
-        img(:src="require('~/assets/icons/' + current_chain.name + '.png')" height=30).mr-1
+        img(:src="require('~/assets/icons/' + current_chain.name + '.png')" height=25).mr-2
         span {{ current_chain.desc }}
 
         i.el-icon-arrow-down
@@ -14,7 +14,7 @@
             span.ml-2 {{ network.desc }}
   .right
     .user-detail(v-if='user')
-      .balance 0 $
+      .balance {{ systemBalance }}
       el-dropdown
         .user-name {{ user.name }}
         //template(#dropdown='')
@@ -77,7 +77,7 @@ export default {
     // AlcorLink
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'systemBalance']),
     ...mapState(['network']),
 
     current_chain() {

@@ -151,6 +151,20 @@ export const getters = {
     return state.user
   },
 
+  systemBalance(state) {
+    const { symbol, contract } = state.network.baseToken
+
+    if (state.user && state.user.balances) {
+      const systemBalance = state.user.balances.filter(b => {
+        return b.currency === symbol && b.contract === contract
+      })[0]
+
+      if (systemBalance) return parseFloat(systemBalance.amount).toFixed(4) + ' ' + symbol
+    }
+
+    return `0.0000 ${symbol}`
+  },
+
   knownTokens(state) {
     const tokens = []
 
