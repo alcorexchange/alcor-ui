@@ -69,7 +69,7 @@
           .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
           .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
           .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
-          .small(v-else).font-weight-bold {{ priceImpact}} %
+          .small(v-else).font-weight-bold {{ priceImpact }} %
 
         .d-flex.justify-content-between
           small Slippage
@@ -286,9 +286,7 @@ export default {
       }
     },
 
-    async submit() {
-      if (!this.inputAmount || !this.outputAmount) return
-
+    async processExchange() {
       let memo = `${this.minOutput}@${this.output.contract}`
 
       if (this.ibcChain && this.ibcForm.transfer) {
@@ -326,6 +324,28 @@ export default {
         this.$notify({ title: 'Swap error', message: 'message' in e ? e.message : e, type: 'error' })
       } finally {
         this.loading = false
+      }
+    },
+
+    submit() {
+      if (!this.inputAmount || !this.outputAmount) return
+
+      if (parseFloat(this.priceImpact) > 10) {
+        this.$confirm('You are significantly overpaying for the exchange. Try the amount less or do you want to continue?', 'Impact on the price above 10%!', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+          this.processExchange()
+        }).catch(() => {
+          this.$notify({
+            type: 'info',
+            title: 'Swap',
+            message: 'Swap canceled'
+          })
+        })
+      } else {
+        this.processExchange()
       }
     }
   }
