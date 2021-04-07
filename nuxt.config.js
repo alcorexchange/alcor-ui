@@ -41,10 +41,7 @@ module.exports = {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
     ],
 
-    script: [
-      //{ src: '/datafeeds/udf/dist/polyfills.js' },
-      //{ src: '/datafeeds/udf/dist/bundle.js' }
-    ]
+    script: [{ src: 'js/doodle.js', body: true }]
   },
 
   /*
@@ -83,8 +80,7 @@ module.exports = {
     '@/plugins/global',
 
     { ssr: false, src: '~/plugins/startapp.js' },
-    { ssr: false, src: '~/plugins/localStorage.js' }
-    //{ ssr: false, src: '~/plugins/vue-apexchart.js' }
+    { ssr: false, src: '~/plugins/localStorage.js' },
   ],
 
   /*

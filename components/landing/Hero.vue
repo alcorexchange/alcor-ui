@@ -1,13 +1,71 @@
-<template lang="pug">
-.hero
-  .left
-    h2 All in one DeFi
-    p.desc Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.
-    .actions
-      AlcorLink.start Start Trading
-      AlcorLink Read docs
-  .right
-    img.frame(src='~/assets/images/frame.svg')
+<template>
+<div class="hero">
+  <div class="left">
+    <h2>All in one DeFi</h2>
+    <p class="desc">Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.</p>
+    <div class="actions">
+      <AlcorLink class="start">Start Trading</AlcorLink>
+      <AlcorLink>Read docs</AlcorLink>
+    </div>
+  </div>
+  <div class="right">
+    <!-- <img src="~/assets/images/frame_logo.svg" class="frame_logo"> -->
+    <css-doodle class="frame">
+      <style>
+        @grid: 15x1 / 1200px;
+        @place-cell: center;
+        @size: 100%;
+        animation: m @r(10s, 30s) -@r(100s) linear infinite;
+        @keyframes m {
+          to { transform: rotate(1turn) }
+        }
+        background: @svg(
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="e">
+                <stop stop-color="#949494" offset="0" />
+                <stop stop-color="#484749" stop-opacity="0" offset="1" />
+              </linearGradient>
+            </defs>
+            <circle
+              cx="50" cy="50"
+              r="@calc(5 + 30 / @I * @i)"
+              fill="none"
+              stroke="url(#e)"
+              stroke-width=".3"
+              stroke-dashoffset="0"
+              stroke-linecap="round"
+              stroke-dasharray="@calc(15 + 30 / @I * @i * 3)"
+            />
+          </svg>
+        );
+        @even {
+          animation-direction: reverse;
+          background: @svg(
+            <svg viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="e">
+                  <stop stop-color="rgba(255, 255, 255, 0)" offset="0" />
+                  <stop stop-color="#49b054" offset="1" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="50" cy="50"
+                r="@calc(5 + 30 / @I * @i)"
+                fill="none"
+                stroke="url(#e)"
+                stroke-width=".3"
+                stroke-dashoffset="0"
+                stroke-linecap="round"
+                stroke-dasharray="@calc(15 + 30 / @I * @i * 3)"
+              />
+            </svg>
+          );
+        }
+      </style>
+    </css-doodle>
+  </div>
+</div>
 </template>
 
 <script>
@@ -15,12 +73,15 @@ import AlcorLink from '@/components/AlcorLink'
 export default {
   name: 'Hero',
   components: {
-    AlcorLink,
+    AlcorLink
   },
+
+  mounted() {
+  }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped >
 .hero {
   height: 340px;
   display: flex;
@@ -71,10 +132,16 @@ h2 {
 }
 .frame {
   position: absolute;
-  width: 1000px;
-  top: 50%;
-  transform: translate(0, -50%);
-  right: -24%;
+  pointer-events: none;
+
+  top: -100%;
+  right: -50%;
+}
+
+.frame_logo {
+  position: absolute;
+  top: 60%;
+  left: 40%;
 }
 
 @media only screen and (max-width: 1040px) {
