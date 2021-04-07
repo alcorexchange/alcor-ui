@@ -65,7 +65,7 @@ export default {
     border: 1px solid var(--dark-btn-sm);
     border-radius: 24px;
     background: var(--landing-card-bg);
-    backdrop-filter: blur(50px);
+    backdrop-filter: blur(12px);
     transition: all 0.3s;
     &:hover {
       transform: translateY(-4px);
