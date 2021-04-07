@@ -32,6 +32,11 @@
             img(src='~/assets/icons/Twitter.svg')
           span.name Twitter
           span.desc Cross-Chain DEX
+        a.item(href='#')
+          .icon
+            img(src='~/assets/icons/Twitter.svg')
+          span.name Twitter
+          span.desc Cross-Chain DEX
 </template>
 
 <script>
@@ -41,9 +46,9 @@ export default {
   name: 'SupportedChains',
   components: {
     SectionTitle,
-    SSpacer,
+    SSpacer
   },
-  data: () => ({}),
+  data: () => ({})
 }
 </script>
 
@@ -90,7 +95,7 @@ export default {
     justify-content: center;
     flex-wrap: wrap;
     width: 100%;
-    max-width: 640px;
+    // max-width: 640px;
     .item {
       display: flex;
       flex-direction: column;
