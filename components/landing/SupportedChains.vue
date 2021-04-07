@@ -34,8 +34,8 @@
           span.desc Cross-Chain DEX
         a.item(href='#')
           .icon
-            img(src='~/assets/icons/Twitter.svg')
-          span.name Twitter
+            img(src='~/assets/icons/Email.svg')
+          span.name Email
           span.desc Cross-Chain DEX
 </template>
 
