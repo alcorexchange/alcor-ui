@@ -32,11 +32,11 @@
             img(src='~/assets/icons/Twitter.svg')
           span.name Twitter
           span.desc Cross-Chain DEX
-        a.item(href='#')
+        a.item(href="mailto:admin@alcor.exchange")
           .icon
             img(src='~/assets/icons/Email.svg')
           span.name Email
-          span.desc Cross-Chain DEX
+          span.desc admin@alcor.exchange
 </template>
 
 <script>
