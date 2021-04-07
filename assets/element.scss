@@ -1,7 +1,10 @@
-/*
+//@import 'element-ui/packages/theme-chalk/src/index.scss';
+
+/* 
 // THIS VARIABLES SHOULD BE GENERATED FOR DARK THEME (dark.css)
 $--color-primary: #000000;
 $--color-primary-light-9: #252525;
+//$--color-primary-light-7: #252525;
 
 $--background-color-base: #282828;
 
@@ -75,9 +78,10 @@ $--select-input-focus-border-color: #9eaba3;
 // POPOVER
 $--popover-background-color: #282828;
 
-@import 'element-ui/packages/theme-chalk/src/index.scss';
+// SWITCH
+$--switch-on-color: #909399;
 
-*/
+DARK END */ 
 
 
 .theme-light {
@@ -87,14 +91,6 @@ $--popover-background-color: #282828;
 .theme-dark {
   @import 'dark';
   // TABS
-  .el-tabs__item.is-active {
-    color: #c4c4c4;
-  }
-
-  .el-tabs__item:hover {
-      color: #c4c4c4;
-  }
-
   .el-tabs__active-bar {
     background-color: #c4c4c4;
   }
@@ -105,11 +101,34 @@ $--popover-background-color: #282828;
     background: #252525;
   }
 
+  .el-tabs__item {
+    &:hover,
+    &.is-active {
+      color: #F2F2F2 !important;
+    }
+  }
+
+  .el-switch__label {
+    color: #F2F2F2;
+  }
+
+  .el-switch__core {
+    background: #484848;
+  }
+
   // BUTTON
   .el-button {
     &:hover,
     &:focus {
       color: #F2F2F2;
+      border-color: transparent;
+    }
+  }
+
+  .el-button--primary {
+    &:hover,
+    &:focus {
+      color: #15a268;
     }
   }
 
