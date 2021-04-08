@@ -1,6 +1,7 @@
 <template lang="pug">
 div
   ModalsDialog
+  Circles
   .layout
     nav.nav.alcor-inner(v-if='!isMobile')
       .nav-side.nav-left
@@ -48,6 +49,7 @@ import Footer from '~/components/footer/Footer'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav.vue'
+import Circles from '~/components/landing/Circles.vue'
 
 export default {
   components: {
@@ -56,7 +58,8 @@ export default {
     FooterBlock: Footer,
     AlcorLink,
     AlcorButton,
-    ConnectNav
+    ConnectNav,
+    Circles
   },
 
   data() {

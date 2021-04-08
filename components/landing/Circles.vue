@@ -1,0 +1,80 @@
+<template>
+<div class="circles">
+  <!-- eslint-disable -->
+  <css-doodle class="frame">
+    <style>
+      @grid: 15x1 / 1200px;
+      @place-cell: center;
+      @size: 100%;
+      animation: m @r(10s, 30s) -@r(100s) linear infinite;
+      @keyframes m {
+        to { transform: rotate(1turn) }
+      }
+      background: @svg(
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="e">
+              <stop stop-color="#949494" offset="0" />
+              <stop stop-color="#484749" stop-opacity="0" offset="1" />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="50" cy="50"
+            r="@calc(5 + 30 / @I * @i)"
+            fill="none"
+            stroke="url(#e)"
+            stroke-width=".3"
+            stroke-dashoffset="0"
+            stroke-linecap="round"
+            stroke-dasharray="@calc(15 + 30 / @I * @i * 3)"
+          />
+        </svg>
+      );
+      @even {
+        animation-direction: reverse;
+        background: @svg(
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="e">
+                <stop stop-color="rgba(255, 255, 255, 0)" offset="0" />
+                <stop stop-color="#49b054" offset="1" />
+              </linearGradient>
+            </defs>
+            <circle
+              cx="50" cy="50"
+              r="@calc(5 + 30 / @I * @i)"
+              fill="none"
+              stroke="url(#e)"
+              stroke-width=".3"
+              stroke-dashoffset="0"
+              stroke-linecap="round"
+              stroke-dasharray="@calc(15 + 30 / @I * @i * 3)"
+            />
+          </svg>
+        );
+      }
+    </style>
+  </css-doodle>
+  <img class="logo" src="~/assets/images/frame_logo.svg" alt="" />
+</div>
+</template>
+
+<style scoped>
+.circles {
+  position: absolute;
+  z-index: 0;
+
+  top: -300px;
+  right: -10%;
+}
+
+.logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+
+  height: 130px;
+}
+</style>
