@@ -58,6 +58,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.section-title {
+  margin-bottom: 25px !important;
+}
 .items {
   display: flex;
   justify-content: space-between;
