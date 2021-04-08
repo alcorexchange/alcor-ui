@@ -5,7 +5,7 @@ import { asset } from 'eos-common'
 Vue.mixin({
   computed: {
     isMobile() {
-      return this.$store.state.isMobile
+      return (this.$device.isMobile) || (process.client ? window.innerWidth <= 1000 : false)
     }
   },
 

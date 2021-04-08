@@ -19,6 +19,10 @@ body {
   transition: 0.3s;
 }
 
+*:focus {
+  outline: none !important;
+}
+
 div::-webkit-scrollbar {
   width: 2px;
 }
