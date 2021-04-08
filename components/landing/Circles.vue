@@ -1,12 +1,13 @@
 <template>
 <div class="circles">
   <!-- eslint-disable -->
-  <css-doodle class="frame">
+  <css-doodle id="ddl" class="doodle">
     <style>
       @grid: 15x1 / 1200px;
       @place-cell: center;
       @size: 100%;
       animation: m @r(10s, 30s) -@r(100s) linear infinite;
+
       @keyframes m {
         to { transform: rotate(1turn) }
       }
@@ -55,11 +56,23 @@
       }
     </style>
   </css-doodle>
-  <img class="logo" src="~/assets/images/frame_logo.svg" alt="" />
+  <img id="logo" class="logo" src="~/assets/images/frame_logo.svg" alt="" />
 </div>
 </template>
 
-<style scoped>
+<script>
+export default {
+  mounted() {
+    setTimeout(() => {
+      document.getElementById('ddl').classList.add('is-load')
+      document.getElementById('logo').classList.add('is-load')
+      //doodle
+    }, 1000)
+  }
+}
+</script>
+
+<style scoped lang="scss">
 .circles {
   position: absolute;
   z-index: 0;
@@ -76,5 +89,17 @@
   transform: translate(-50%, -50%);
 
   height: 130px;
+  opacity: .5;
+}
+
+.doodle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.is-load {
+ transition: all 10s;
+ -webkit-transition: all 10s;
+ opacity: 1;
 }
 </style>
