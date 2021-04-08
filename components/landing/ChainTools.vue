@@ -1,6 +1,6 @@
 <template lang="pug">
 .chain-tools
-  SectionTitle.section-title Multi-Chain tools
+  SectionTitle.section-title On-Chain Tools
   .items
     .item(v-for='{ icon, name, description } in chainTools')
       nuxt-link.item-inner(to='/')
@@ -47,7 +47,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped >
 .section-title {
   margin-bottom: 25px !important;
 }
@@ -65,8 +65,22 @@ export default {
     border: 1px solid var(--dark-btn-sm);
     border-radius: 24px;
     background: var(--landing-card-bg);
+
     backdrop-filter: blur(12px);
+
+    // Trying to improve perfomance for circles
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+    transform: translate3d(0,0,0);
+    transform: translateZ(0);
+    // Trying to improve perfomance for circles
+
     transition: all 0.3s;
+
     &:hover {
       transform: translateY(-4px);
       box-shadow: var(--card-shadow);

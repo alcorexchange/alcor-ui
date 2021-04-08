@@ -123,8 +123,6 @@ export default {
   },
 
   async mounted() {
-    this.$store.dispatch('checkIsMobile')
-
     this.current_chain = this.$store.state.network.name
 
     try {

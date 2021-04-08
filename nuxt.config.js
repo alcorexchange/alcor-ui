@@ -91,7 +91,7 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
-    'nuxt-imagemin'
+    'nuxt-imagemin',
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
 
@@ -118,10 +118,9 @@ module.exports = {
   },
 
   buildModules: [
+    ['@nuxtjs/google-analytics', { id: 'UA-155720239-1' }],
     '@nuxtjs/color-mode',
-    ['@nuxtjs/google-analytics', {
-      id: 'UA-155720239-1'
-    }]
+    '@nuxtjs/device'
   ],
 
   /*

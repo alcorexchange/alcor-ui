@@ -8,11 +8,13 @@
       @grid: 15x1 / 1200px;
       @place-cell: center;
       @size: 100%;
+
       animation: m @r(10s, 30s) -@r(100s) linear infinite;
 
       @keyframes m {
         to { transform: rotate(1turn) }
       }
+
       background: @svg(
         <svg viewBox="0 0 100 100">
           <defs>
@@ -70,7 +72,6 @@ export default {
 
   head () {
     return {
-      title: 'Payment Page - My awesome project',
       script: [
         {
           hid: 'doodle-css',

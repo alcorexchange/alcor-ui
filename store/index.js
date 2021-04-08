@@ -16,7 +16,6 @@ export const state = () => ({
   markets: [],
   network: {},
 
-  isMobile: false,
   baseUrl: '',
   loading: false,
   tokens: [],
@@ -34,7 +33,6 @@ export const mutations = {
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
-  setIsMobile: (state, mobile) => state.isMobile = mobile,
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
@@ -45,9 +43,6 @@ export const mutations = {
 export const actions = {
   init({ dispatch, state }) {
     dispatch('fetchTokens')
-    window.addEventListener('resize', () => dispatch('checkIsMobile'))
-
-    console.log('state.network.name', state.network.name)
 
     //setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
 
@@ -61,10 +56,6 @@ export const actions = {
 
   toggleTheme({ state, commit }) {
     this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : 'light'
-  },
-
-  checkIsMobile ({ commit }) {
-    commit('setIsMobile', window.innerWidth <= 1000)
   },
 
   async fetchTokens({ commit }) {

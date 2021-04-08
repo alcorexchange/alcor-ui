@@ -2096,6 +2096,13 @@
     defu "^3.2.2"
     lodash.template "^4.5.0"
 
+"@nuxtjs/device@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@nuxtjs/device/-/device-2.0.1.tgz#eb96764ffd0638e1326f82a6930e9a0add411d29"
+  integrity sha512-T/vUOj9DprR+EV/H2lKy3dj6zuYH0yRV8ZnLXK7WbR1ni4Wrj6nw/qqAy60SOfTupefdnDJPKP3pghwCRpBCbQ==
+  dependencies:
+    defu "^3.2.2"
+
 "@nuxtjs/eslint-config@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@nuxtjs/eslint-config/-/eslint-config-3.1.0.tgz#7e73aa08035a743b99e64ee4337cf526a09c9973"
