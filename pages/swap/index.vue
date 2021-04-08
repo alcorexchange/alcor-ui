@@ -4,7 +4,7 @@
       .alcor-card
         .tab-bar
           .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") Swap
-          .item(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + liquidity
+          .item.center(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + liquidity
           .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - liquidity
         SSpacer(high)
         .tab-item
@@ -227,6 +227,12 @@ export default {
     cursor: pointer;
     user-select: none;
     transition: all 0.2s;
+    &.center {
+      margin: 0 2px;
+    }
+    &:hover {
+      background: var(--hover);
+    }
     &.active {
       background: var(--btn-active);
       box-shadow: 0px 3px 28px -1px rgba(0, 0, 0, 0.4);
@@ -368,7 +374,6 @@ export default {
     padding: 5px;
   }
 }
-
 
 .theme-light {
   .tab-bar {
