@@ -1,6 +1,8 @@
 <template>
+<!-- eslint-disable -->
+
+<!-- Instruction https://alligator.io/css/patterns-css-doodle/ -->
 <div class="circles">
-  <!-- eslint-disable -->
   <css-doodle id="ddl" class="doodle">
     <style>
       @grid: 15x1 / 1200px;
@@ -64,10 +66,23 @@
 export default {
   mounted() {
     document.getElementById('logo').classList.add('is-load')
+  },
 
-    setTimeout(() => {
-      document.getElementById('ddl').classList.add('is-load')
-    }, 500)
+  head () {
+    return {
+      title: 'Payment Page - My awesome project',
+      script: [
+        {
+          hid: 'doodle-css',
+          src: 'js/doodle.js',
+          defer: true,
+          // Changed after script load
+          callback: () => {
+            document.getElementById('ddl').classList.add('is-load')
+          }
+        }
+      ]
+    }
   }
 }
 </script>
@@ -98,8 +113,8 @@ export default {
 }
 
 .is-load {
- transition: all 5s;
- -webkit-transition: all 5s;
+ transition: all 6s;
+ -webkit-transition: all 6s;
  opacity: 1;
 }
 </style>
