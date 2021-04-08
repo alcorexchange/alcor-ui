@@ -14,6 +14,7 @@ div.alcor-card
     .pools Pools
     .deposit.p20.end Deposit
     .earning.p20.end Earning (Fees)
+    .earning.p20 Pool Share
     .actions
 
   .table-content
@@ -42,6 +43,12 @@ div.alcor-card
           //- TODO: add .toString()
           span.detail.muted {{lpToken.earn1}}
           span.detail.muted {{lpToken.earn2}}
+      .share.p20
+        .label.mobile-only Earning (Fees)
+        .main
+          //.amount 102,121.01$ TODO
+          //- TODO: add .toString()
+          span.detail{{ scope.row.share }}%
       .actions
         AlcorButton.add(@click="addLiquidity(lpToken)" :disabled="isActiveAdd(lpToken)")
           i.el-icon-plus
@@ -425,7 +432,8 @@ export default {
     margin-bottom: 12px;
   }
   .deposit,
-  .earning {
+  .earning,
+  .share {
     display: flex;
     justify-content: space-between;
     margin-bottom: 12px;
