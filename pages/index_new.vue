@@ -2,6 +2,7 @@
 .home-page
   Hero.alcor-inner
   ChainTools.alcor-inner
+  RecommendedMarkets.alcor-inner
   Participate.alcor-inner
   SupportedChains
 </template>
@@ -12,6 +13,7 @@ import ChainTools from '@/components/landing/ChainTools'
 import Participate from '@/components/landing/Participate'
 import Hero from '@/components/landing/Hero'
 import SupportedChains from '@/components/landing/SupportedChains'
+import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 export default {
   layout: 'homeLayout',
   components: {
@@ -19,7 +21,8 @@ export default {
     ChainTools,
     Participate,
     Hero,
-    SupportedChains
+    SupportedChains,
+    RecommendedMarkets
   }
 }
 </script>
