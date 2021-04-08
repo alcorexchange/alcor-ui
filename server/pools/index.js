@@ -102,7 +102,7 @@ pools.get('/:pair_id/liquidity_chart', cacheSeconds(60 * 5, (req, res) => {
 })
 
 export async function newPoolsAction(action, network, app) {
-  const { act: { name, data: { record: pair_id } } } = action
+  const { act: { account, name, data: { record: pair_id } } } = action
 
   const io = app.get('io')
 
@@ -112,6 +112,18 @@ export async function newPoolsAction(action, network, app) {
 
   if (name == 'exchangelog') {
     await newExchange(network, action)
+  }
+
+  if (name == 'transfer' && account == network.pools.contract) {
+    return
+
+    // TODO Тут создаем две записи на ликвидность, одна отнимает у того кто отправил, другая прибавляет тому кому
+    // отправили
+    // как понять сколько ликвидности пользователь потерял ?
+    //
+    //
+
+    //console.log('.........................transfer...', action)
   }
 
   io.to(`pools:${network.name}`).emit('update_pair', pair_id)

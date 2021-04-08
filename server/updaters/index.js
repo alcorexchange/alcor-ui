@@ -14,7 +14,7 @@ const providers = {
 export function startUpdaters(app) {
   if (process.env.NETWORK) {
     //updater('wax', app, 'node', ['markets', 'pools'])
-    updater(process.env.NETWORK, app, 'node', ['pools', 'markets'])
+    updater(process.env.NETWORK, app, 'node', ['pools'])
   } else {
     updater('eos', app, 'node', ['markets', 'pools'])
     updater('wax', app, 'node', ['markets', 'pools'])
@@ -41,6 +41,6 @@ export async function updater(chain, app, provider, services) {
 
   if (services.includes('pools')) {
     console.log('start pools updater for', chain)
-    streamer(network, app, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog'])
+    streamer(network, app, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
   }
 }

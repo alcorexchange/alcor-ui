@@ -1,5 +1,20 @@
 import mongoose from 'mongoose'
 
+const PoolPairSchema = mongoose.Schema({
+  chain: { type: String, index: true },
+  pair_id: { type: Number, index: true },
+
+  pool1: {
+    contract: { type: String, index: true },
+    symbol: { type: String, index: true }
+  },
+
+  pool2: {
+    contract: { type: String, index: true },
+    symbol: { type: String, index: true }
+  }
+})
+
 const LiquiditySchema = mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
@@ -20,7 +35,6 @@ const LiquiditySchema = mongoose.Schema({
   block_num: { type: Number }
 })
 //LiquiditySchema.index({})
-
 
 const ExchangeSchema = mongoose.Schema({
   chain: { type: String, index: true },
@@ -100,6 +114,7 @@ export async function getSettings(network) {
   }
 }
 
+export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
 export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)
 export const Match = mongoose.model('Match', MatchSchema)

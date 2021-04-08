@@ -7,7 +7,7 @@ import { Name, SymbolCode } from 'eos-common'
 import { mapState } from 'vuex'
 
 export default {
-  async fetch({ redirect, store, error, params }) {
+  async fetch({ redirect, store, error, params, $rpc }) {
     if (!params.id) return redirect({ name: 'markets' })
 
     if (!params.id.includes('_')) {
@@ -40,7 +40,7 @@ export default {
       else
         i256_id = b_i128_id.shiftLeft(128).or(q_i128_id).toString(16)
 
-      const { rows } = await this.$rpc.get_table_rows({
+      const { rows } = await $rpc.get_table_rows({
         code: store.state.network.contract,
         scope: store.state.network.contract,
         table: 'markets',
