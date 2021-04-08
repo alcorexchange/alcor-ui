@@ -307,7 +307,7 @@ export default {
       border-radius: var(--radius);
       cursor: pointer;
       &.active {
-        background: var(--swap-tab-active);
+        background: var(--btn-active);
       }
     }
   }
@@ -366,6 +366,18 @@ export default {
   .el-card__body {
     height: calc(100% - 35px);
     padding: 5px;
+  }
+}
+
+
+.theme-light {
+  .tab-bar {
+    .item {
+      //&:hover,
+      &.active {
+        background: var(--background-color-base);
+      }
+    }
   }
 }
 </style>
