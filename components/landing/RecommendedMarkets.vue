@@ -4,13 +4,13 @@
     .items
         .item-container(:key="market.id" v-for="market in markets")
             nuxt-link.item(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
-                .top
-                    TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
-                    span.ml-2 {{ market.symbol }}
+              .top
+                  TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
+                  span.ml-2 {{ market.symbol }}
 
-                .bottom
-                    span {{ market.last_price }}
-                    ChangePercent(:change="market.changeWeek")
+              .bottom
+                  span {{ market.last_price }}
+                  ChangePercent(:change="market.changeWeek")
 
         .item-container
             .col-lg-2.col-md-4.col-sm-6
@@ -63,13 +63,12 @@ export default {
 }
 .items {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
 }
 .item-container {
-  padding: 0;
-  width: 20%;
-  min-width: 240px;
+  padding: 8px;
+  padding-left: 0;
+  width: 25%;
 }
 .item {
   display: flex;
@@ -93,20 +92,18 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-@media only screen and (max-width: 1040px) {
-  .items {
-    justify-content: flex-start;
-  }
+@media only screen and (max-width: 940px) {
   .item-container {
-    padding: 14px;
+    width: 33.3334%;
   }
 }
-@media only screen and (max-width: 760px) {
-  .items {
-    justify-content: center;
+@media only screen and (max-width: 600px) {
+  .item-container {
+    width: 50%;
+    padding-left: 8px;
   }
 }
-@media only screen and (max-width: 540px) {
+@media only screen and (max-width: 440px) {
   .item-container {
     width: 100%;
     padding: 8px;
