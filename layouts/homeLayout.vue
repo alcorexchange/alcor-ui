@@ -1,7 +1,6 @@
 <template lang="pug">
 div
   ModalsDialog
-  Circles
   .layout
     nav.nav.alcor-inner(v-if='!isMobile')
       .nav-side.nav-left

@@ -12,6 +12,7 @@
       </div>
     </div>
     <div class="right">
+      <Circles />
       <!-- <img src="~/assets/images/frame_logo.svg" class="frame_logo"> -->
     </div>
   </div>
@@ -19,10 +20,12 @@
 
 <script>
 import AlcorLink from '@/components/AlcorLink'
+import Circles from '@/components/landing/Circles'
 export default {
   name: 'Hero',
   components: {
-    AlcorLink
+    AlcorLink,
+    Circles
   },
 
   mounted() {}
