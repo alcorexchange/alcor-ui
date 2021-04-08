@@ -93,8 +93,10 @@ export default {
   position: absolute;
   z-index: 0;
 
-  top: -300px;
-  right: -10%;
+  pointer-events: none;
+
+  top: -100%;
+  right: -50%;
 }
 
 .logo {
@@ -117,5 +119,17 @@ export default {
  transition: all 6s;
  -webkit-transition: all 6s;
  opacity: 1;
+}
+@media only screen and (max-width: 1040px) {
+  .circles {
+    right: -40%;
+  }
+}
+@media only screen and (max-width: 840px) {
+  .circles {
+    right: 50%;
+    // top: 50%;
+    transform: translateX(50%);
+  }
 }
 </style>
