@@ -48,7 +48,7 @@ div.alcor-card
         .main
           //.amount 102,121.01$ TODO
           //- TODO: add .toString()
-          span.detail{{ scope.row.share }}%
+          span.detail {{ scope.row.share }}%
       .actions
         AlcorButton.add(@click="addLiquidity(lpToken)" :disabled="isActiveAdd(lpToken)")
           i.el-icon-plus
