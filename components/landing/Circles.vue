@@ -63,11 +63,11 @@
 <script>
 export default {
   mounted() {
+    document.getElementById('logo').classList.add('is-load')
+
     setTimeout(() => {
       document.getElementById('ddl').classList.add('is-load')
-      document.getElementById('logo').classList.add('is-load')
-      //doodle
-    }, 1000)
+    }, 500)
   }
 }
 </script>
@@ -89,7 +89,7 @@ export default {
   transform: translate(-50%, -50%);
 
   height: 130px;
-  opacity: .5;
+  opacity: .1;
 }
 
 .doodle {
@@ -98,8 +98,8 @@ export default {
 }
 
 .is-load {
- transition: all 10s;
- -webkit-transition: all 10s;
+ transition: all 5s;
+ -webkit-transition: all 5s;
  opacity: 1;
 }
 </style>
