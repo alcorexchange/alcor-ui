@@ -1,9 +1,4 @@
-import axios from 'axios'
-import axiosRetry from 'axios-retry'
-
 import { parseOtcAsset, calculatePrice } from '~/utils'
-
-axiosRetry(axios, { retries: 3 })
 
 export const state = () => ({
   orders: []
