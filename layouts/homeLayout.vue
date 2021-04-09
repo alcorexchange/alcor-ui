@@ -34,7 +34,7 @@ div
         ConnectNav
     .main
       nuxt
-    //FooterBlock.alcor-inner
+    FooterBlock
 </template>
 
 <script>
