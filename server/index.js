@@ -66,6 +66,8 @@ async function start () {
 
   const { host, port } = nuxt.options.server
 
+  console.log('DOCKER_TAG', process.env.DOCKER_TAG)
+
   // NuxtJS
   if (!process.env.DISABLE_UI) {
     await nuxt.ready()
@@ -83,7 +85,8 @@ async function start () {
     badge: true
   })
 
-  if (process.env.DISABLE_DB) return
+  //if (process.env.DISABLE_DB) return
+  if (true) return
 
   const io = socket(server)
 

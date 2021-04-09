@@ -8,13 +8,13 @@
                 .item
                     .circle
                     .details
-                        span.title Governance
-                        span.desc Governance
+                        span.title Earn
+                        span.desc Alcor Revenue Distribution
                 .item
                     .circle
                     .details
                         span.title Governance
-                        span.desc Governance
+                        span.desc Vote for Proposals
         .right
             .tab-bar
                 .item(@click="setActiveTab('allocation')" :class="{active: activeTab === 'allocation'}")
@@ -24,16 +24,19 @@
                     span Release schedule
                     span.line
             SSpacer
-            .tab Graph goes here
+            .tab
+              Graph
 </template>
 
 <script>
 import SectionTitle from '@/components/landing/SectionTitle'
+import Graph from '@/components/landing/Graph'
 import SSpacer from '@/components/SSpacer'
 export default {
   name: 'ChainTools',
   components: {
     SectionTitle,
+    Graph,
     SSpacer
   },
   data: () => ({

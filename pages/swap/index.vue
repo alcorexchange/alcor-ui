@@ -30,7 +30,7 @@
 
               .detail.muted Liquidity alcor.dex
           .right
-            AlcorButton.eol Earn On Liquidity
+            AlcorButton.eol(@click="openInNewTab('https://docs.alcor.exchange/liquidity-pools/understanding-returns')") Earn On Liquidity
       SSpacer(high)
       .chart
         Chart(:tab="chart_tab" :period="period")
