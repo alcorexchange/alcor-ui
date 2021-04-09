@@ -77,6 +77,8 @@ pools.get('/:pair_id/liquidity_chart', cacheSeconds(60 * 5, (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
+  const side = req.query.reverse == 'true' ? '$pool2' : '$pool1'
+
   const volume = await Liquidity.aggregate([
     { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
     {
@@ -90,11 +92,10 @@ pools.get('/:pair_id/liquidity_chart', cacheSeconds(60 * 5, (req, res) => {
             ]
           }
         },
-        supply: { $max: '$supply' }
+        liquidity: { $max: side }
       }
     },
-    { $project: { x: { $toLong: '$_id' }, y: { $round: ['$supply', 4] } } },
-    //{ $project: { x: { $toLong: '$time' }, y: { $round: ['$supply', 4] } } },
+    { $project: { x: { $toLong: '$_id' }, y: { $round: ['$liquidity', 4] } } },
     { $sort: { x: 1 } }
   ]).allowDiskUse(true)
 

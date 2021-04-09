@@ -33,14 +33,14 @@
             AlcorButton.eol Earn On Liquidity
       SSpacer(high)
       .chart
-        Chart(:tab="chart_tab")
+        Chart(:tab="chart_tab" :period="period")
       SSpacer(high)
       .footer
         .left
             span.item(@click="setChartTab('Price')" :class="{active: chart_tab === 'Price'}") Price
             span.item(@click="setChartTab('Liquidity')" :class="{active: chart_tab === 'Liquidity'}") Liquidity
             span.item(@click="setChartTab('Volume')" :class="{active: chart_tab === 'Volume'}") Volume
-        //.right TODO Timeframes for chart
+        .right
             span.item.active 24H
             span.item 7D
             span.item 30D
@@ -92,7 +92,8 @@ export default {
 
   data() {
     return {
-      chart_tab: 'Price'
+      chart_tab: 'Price',
+      period: '24H'
     }
   },
 

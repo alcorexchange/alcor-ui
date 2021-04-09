@@ -19,9 +19,23 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
+
+const COLORS = {
+  light: {
+    Price: { up: '#58ab8b', down: '#F96C6C' },
+    Liquidity: '#6138b9',
+    Volume: '#3E3A3B'
+  },
+
+  dark: {
+    Price: { up: '#30B27C', down: '#F96C6C' },
+    Liquidity: '#6138b9',
+    Volume: '#1FC781'
+  }
+}
 
 export default {
   components: {
@@ -29,7 +43,7 @@ export default {
     TokenImage
   },
 
-  props: ['tab'],
+  props: ['tab', 'period'],
 
   data() {
     return {
@@ -188,6 +202,7 @@ export default {
     },
 
     tab() {
+      this.updateChartOprions()
       this.fetchCharts(true)
     },
 
@@ -216,8 +231,16 @@ export default {
         return
       }
 
+      const colors = []
+
+      if (this.tab == 'Price') {
+        colors.push(COLORS[this.$colorMode.value][this.tab][this.isRed ? 'down' : 'up'])
+      } else {
+        colors.push(COLORS[this.$colorMode.value][this.tab])
+      }
+
       this.$refs.chart.updateOptions({
-        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
+        colors,
         chart: {
           foreColor: this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'
         }
@@ -235,16 +258,20 @@ export default {
         this.$axios
           .get(`/pools/${this.pair.id}/${API}`, {
             params: {
-              reverse: this.isReverted
+              reverse: this.isReverted,
+              period: this.period
             }
           })
           .then(({ data }) => {
             this.data = data
             this.$refs.chart.updateOptions(
-              { series: [{ name: this.tab, data }] },
+              {
+                series: [{ name: this.tab, data }]
+              },
               true,
               animate
             )
+            this.updateChartOprions()
 
             if (this.tab == 'Price') this.setCurrentPrice()
           })
