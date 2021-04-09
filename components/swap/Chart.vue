@@ -104,7 +104,8 @@ export default {
           events: {
             mouseMove: (event, chartContext, config) => {
               const price = this.data[config.dataPointIndex].y
-              if (config.dataPointIndex == -1 || price == this.price || !price) return
+              if (config.dataPointIndex == -1 || price == this.price || !price)
+                return
               this.price = price
             }
           }
@@ -204,6 +205,11 @@ export default {
       this.updateChartOprions()
       this.fetchCharts(true)
     },
+    period() {
+      // TODO: watch period, I(Saeed) did it and it did not word :D
+      // this.updateChartOprions()
+      // this.fetchCharts(true)
+    },
 
     isReverted() {
       this.fetchCharts()
@@ -233,7 +239,9 @@ export default {
       const colors = []
 
       if (this.tab == 'Price') {
-        colors.push(COLORS[this.$colorMode.value][this.tab][this.isRed ? 'down' : 'up'])
+        colors.push(
+          COLORS[this.$colorMode.value][this.tab][this.isRed ? 'down' : 'up']
+        )
       } else {
         colors.push(COLORS[this.$colorMode.value][this.tab])
       }

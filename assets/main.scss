@@ -271,6 +271,21 @@ a {
     padding: 7px 0;
   }
 }
+
+.custom-radio {
+  box-shadow: none !important;
+  .el-radio-button {
+    border-radius: var(--radius) !important;
+    overflow: hidden;
+  }
+  .el-radio-button__inner {
+    padding: 4px 6px !important;
+    font-size: 1rem !important;
+    font-weight: normal !important;
+    background: transparent;
+    border: 0 !important;
+  }
+}
 @media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;

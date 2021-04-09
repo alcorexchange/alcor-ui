@@ -37,14 +37,16 @@
       SSpacer(high)
       .footer
         .left
-            span.item(@click="setChartTab('Price')" :class="{active: chart_tab === 'Price'}") Price
-            span.item(@click="setChartTab('Liquidity')" :class="{active: chart_tab === 'Liquidity'}") Liquidity
-            span.item(@click="setChartTab('Volume')" :class="{active: chart_tab === 'Volume'}") Volume
+          el-radio-group.custom-radio(v-model="chart_tab" size="small")
+            el-radio-button(label="Price")
+            el-radio-button(label="Liquidity")
+            el-radio-button(label="Volume")
         .right
-            span.item.active 24H
-            span.item 7D
-            span.item 30D
-            span.item All
+          el-radio-group.custom-radio(v-model="period" size="small")
+            el-radio-button(label="24H")
+            el-radio-button(label="7D")
+            el-radio-button(label="30D")
+            el-radio-button(label="All")
     LiquidityPositions.liquidity-positions(v-else)
 </template>
 
@@ -169,6 +171,9 @@ export default {
     },
     setChartTab(tab) {
       this.chart_tab = tab
+    },
+    setPeriod(data) {
+      this.period = data
     }
   },
 
