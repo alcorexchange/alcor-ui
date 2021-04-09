@@ -3,10 +3,10 @@
   el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open") BOS Ibc Transfer
 
   el-dialog(title="Cross-chain token transfer BOSIbc", :visible.sync="visible" width="25%" v-if="user").text-left
-    //.text-danger BOS IBC Solution are disabled temporary
+    .text-danger BOS IBC Solution are disabled temporary
       div
         a(href="https://t.me/newbosibcgroup") telegram support
-    el-form(ref="form" :model="form" label-position="left" :rules="rules")
+    //el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mb-2
         b Where you want transfer {{ token.symbol }} ?
         .row
