@@ -187,7 +187,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0;
+  padding: 12px 20px;
   position: relative;
   z-index: 2;
   .nav-side {

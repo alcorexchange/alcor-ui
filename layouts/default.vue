@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   ModalsDialog
-  .layout(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
+  .layout.alcor-inner(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
     nav.nav(v-if='!isMobile')
       .nav-side.nav-left
         nuxt-link(to='/')
@@ -175,10 +175,6 @@ export default {
 
 <style scoped lang="scss">
 .layout {
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 20px;
-  margin: auto;
   background: var(--background-color-base);
 }
 .is-market {
