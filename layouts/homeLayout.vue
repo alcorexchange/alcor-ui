@@ -5,7 +5,7 @@ div
     nav.nav.alcor-inner(v-if='!isMobile')
       .nav-side.nav-left
         nuxt-link(to='/')
-          img.logo(v-if="$store.state.theme == 'light'" src='~/assets/logos/alcorblack.svg' height='44')
+          img.logo(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='44')
           img.logo(v-else='' height='44' src='~/assets/logos/alcorwhite.svg' alt='')
         ul.nav-items
           li(v-for='item in menuItems' :key='item.index')
@@ -17,13 +17,13 @@ div
       .menu-header
         .logo
           nuxt-link(to='/')
-            img.logo(v-if="$store.state.theme == 'light'" src='~/assets/logos/alcorblack.svg' height='34')
+            img.logo(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='34')
             img.logo(v-else='' height='34' src='~/assets/logos/alcorwhite.svg' alt='')
-        AlcorButton.always-dark(@click='openMenu' :icononlyalt='true')
+        AlcorButton(@click='openMenu' :icononlyalt='true')
           i.el-icon-more
         nav(:class="['menu', { menuActive }]")
           .logo
-            img(v-if="$store.state.theme == 'light'" src='~/assets/logos/alcorblack.svg' height='50')
+            img(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='50')
             img(v-else='' height='50' src='~/assets/logos/alcorwhite.svg' alt='')
           ul.menu-items
             li(v-for='item in menuItems' :key='item.index')
