@@ -75,9 +75,6 @@ export const actions = {
       dispatch('api/getBuyOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true }),
       dispatch('api/getSellOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true })
     ]).then(([buyOrders, sellOrders]) => {
-      buyOrders.map(o => prepareOrder(o))
-      sellOrders.map(o => prepareOrder(o))
-
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
     }).catch(e => console.log(e))

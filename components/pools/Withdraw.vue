@@ -65,7 +65,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
     ...mapGetters('pools', ['current']),
 

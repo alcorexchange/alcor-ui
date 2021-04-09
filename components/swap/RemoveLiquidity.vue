@@ -61,7 +61,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
     ...mapState('swap', ['pairs', 'withdraw_token']),
 

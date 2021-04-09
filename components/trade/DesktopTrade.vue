@@ -96,7 +96,6 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['token', 'id', 'stats', 'base_token']),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),

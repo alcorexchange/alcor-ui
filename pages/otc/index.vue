@@ -137,7 +137,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('chain', ['rpc']),
     ...mapState('otc', ['orders']),
     ...mapState({
       contract: state => state.network.otc.contract,

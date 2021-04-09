@@ -47,7 +47,7 @@ export default {
 
   data() {
     return {
-      price: 0.0,
+      price: 0,
 
       width: '100%',
       height: '100%',
@@ -103,9 +103,8 @@ export default {
 
           events: {
             mouseMove: (event, chartContext, config) => {
-              if (config.dataPointIndex == -1) return
-
-              const { y: price } = this.data[config.dataPointIndex]
+              const price = this.data[config.dataPointIndex].y
+              if (config.dataPointIndex == -1 || price == this.price || !price) return
               this.price = price
             }
           }
@@ -323,6 +322,7 @@ export default {
     font-weight: bold;
     margin-right: 4px;
   }
+
   .change {
     display: flex;
     align-items: center;

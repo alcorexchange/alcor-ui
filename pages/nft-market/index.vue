@@ -71,7 +71,6 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
-    ...mapGetters('api', ['rpc']),
 
     filteredOrders() {
       let orders = this.orders

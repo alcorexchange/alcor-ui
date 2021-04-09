@@ -35,7 +35,6 @@ export default {
   computed: {
     ...mapGetters(['network']),
     ...mapGetters(['user']),
-    ...mapGetters('chain', ['rpc']),
     ...mapState('market', ['asks', 'bids', 'id', 'base_token']),
 
     orders() {

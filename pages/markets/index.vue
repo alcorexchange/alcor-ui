@@ -143,7 +143,6 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapGetters(['user']),
-    ...mapGetters('chain', ['rpc']),
     ...mapState(['markets']),
 
     filteredMarkets() {
