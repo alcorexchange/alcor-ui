@@ -23,7 +23,7 @@
   .table
     el-table.market-table(:data='filteredMarkets',
     style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
-      el-table-column(label='Pair', prop='date' :width="isMobile ? 140 : 300" )
+      el-table-column(label='Pair', prop='date' :width="isMobile ? 160 : 300" )
         template(slot-scope="scope")
           TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="30")
 
