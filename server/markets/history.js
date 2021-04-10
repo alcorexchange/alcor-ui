@@ -1,5 +1,3 @@
-import axios from 'axios'
-import axiosRetry from 'axios-retry'
 import { JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
 
@@ -11,8 +9,6 @@ import { getVolumeFrom, getChangeFrom, markeBar, pushDeal, pushTicker } from './
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
-
-axiosRetry(axios, { retries: 3 })
 
 export function getMatches(network) {
   const history = cache.get(`${network.name}_history`) || []

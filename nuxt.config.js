@@ -81,6 +81,7 @@ module.exports = {
 
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' },
+    { ssr: false, src: '~/plugins/vue-apexchart.js' },
   ],
 
   /*

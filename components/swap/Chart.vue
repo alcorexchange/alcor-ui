@@ -39,7 +39,6 @@ const COLORS = {
 
 export default {
   components: {
-    VueApexCharts: () => import('vue-apexcharts'),
     TokenImage
   },
 
