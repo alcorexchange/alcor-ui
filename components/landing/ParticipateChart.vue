@@ -9,7 +9,7 @@
             span.line
     SSpacer
     .tab.alcor-card
-    Graph
+        Graph
 </template>
 
 <script>
