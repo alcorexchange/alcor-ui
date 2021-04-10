@@ -23,19 +23,18 @@
   .table
     el-table.market-table(:data='filteredMarkets',
     style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
-      el-table-column(label='Pair', prop='date' width="300")
+      el-table-column(label='Pair', prop='date' :width="isMobile ? 140 : 300" )
         template(slot-scope="scope")
           TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="30")
 
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
-            a(:href="monitorAccount(scope.row.quote_token.contract)" target="_blank").text-muted.ml-2 {{ scope.row.quote_token.contract }}
+            a(:href="monitorAccount(scope.row.quote_token.contract)" target="_blank" v-if="!isMobile").text-muted.ml-2 {{ scope.row.quote_token.contract }}
             |  /  {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
         :label="`Last price`"
         sort-by="last_price"
-        width="180"
         align="right"
         header-align="right"
         sortable
@@ -50,16 +49,18 @@
         sortable
         sort-by="volume24"
         :sort-orders="['descending', null]"
+        v-if="!isMobile"
       )
         template(slot-scope="scope")
           span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='24H Change %'
+        label='24H'
         prop='name'
         align="right"
         header-align="right"
         sortable
+        width="80"
         sort-by="change24"
         :sort-orders="['descending', null]"
       )
@@ -67,25 +68,27 @@
           change-percent(:change="scope.row.change24")
 
       el-table-column(
-        label='7 Day Volume'
+        label='7D Volume'
         prop='weekVolume'
         align="right"
         header-align="right"
         sortable
         sort-by="volumeWeek"
         :sort-orders="['descending', null]"
+        v-if="!isMobile"
       )
         template(slot-scope="scope")
           span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='7 Day Change %'
+        label='7D Volume'
         prop='weekChange'
         align="right"
         header-align="right"
         sortable
         sort-by="changeWeek"
         :sort-orders="['descending', null]"
+        v-if="!isMobile"
       )
         template(slot-scope="scope")
           change-percent(:change="scope.row.changeWeek")
@@ -195,6 +198,12 @@ export default {
 .table td,
 .table th {
   border: 0 !important;
+}
+.last-price-item {
+  width: 180px !important;
+}
+.pair-item {
+  width: 300px !important;
 }
 .theme-dark {
   .markets {
