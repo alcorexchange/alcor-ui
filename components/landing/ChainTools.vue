@@ -47,7 +47,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped >
+<style lang="scss" scoped>
 .section-title {
   margin-bottom: 25px !important;
 }
@@ -71,11 +71,11 @@ export default {
     // Trying to improve perfomance for circles
     -webkit-backface-visibility: hidden;
     -webkit-perspective: 1000;
-    -webkit-transform: translate3d(0,0,0);
+    -webkit-transform: translate3d(0, 0, 0);
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000;
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
     transform: translateZ(0);
     // Trying to improve perfomance for circles
 

@@ -1,5 +1,6 @@
 <template lang="pug">
-  .participate
+.participage
+  .inner.alcor-inner
     SectionTitle Participate in Protocol
     .text Alcor DAO
     .main
@@ -16,36 +17,17 @@
                         span.title Governance
                         span.desc Vote for Proposals
         .right
-            .tab-bar
-                .item(@click="setActiveTab('allocation')" :class="{active: activeTab === 'allocation'}")
-                    span Allocation
-                    span.line
-                .item(@click="setActiveTab('release')" :class="{active: activeTab === 'release'}")
-                    span Release schedule
-                    span.line
-            SSpacer
-            .tab
-              Graph
+          ParticipateChart
 </template>
 
 <script>
 import SectionTitle from '@/components/landing/SectionTitle'
-import Graph from '@/components/landing/Graph'
-import SSpacer from '@/components/SSpacer'
+import ParticipateChart from '@/components/landing/ParticipateChart'
 export default {
   name: 'ChainTools',
   components: {
     SectionTitle,
-    Graph,
-    SSpacer
-  },
-  data: () => ({
-    activeTab: 'allocation'
-  }),
-  methods: {
-    setActiveTab(tab) {
-      this.activeTab = tab
-    }
+    ParticipateChart
   }
 }
 </script>
@@ -53,28 +35,31 @@ export default {
 <style scoped lang="scss">
 .participage {
   background: rgba(32, 32, 32, 0.3);
+  padding: 28px 0;
   backdrop-filter: blur(55px);
   display: flex;
 }
 .text {
   font-size: 2rem;
-  margin-bottom: 10px;
 }
 .main {
   display: flex;
 }
 .left {
   width: 33.3333%;
+  padding-top: 40px;
   .left-inner {
-    margin-right: 20px;
+    margin-right: 40px;
     display: flex;
     flex-direction: column;
   }
   .item {
-    padding: 8px;
+    padding: 14px;
     padding-bottom: 60px;
     display: flex;
     border-radius: 12px;
+    background: var(--bg-alter-1);
+    margin-bottom: 14px;
   }
   .circle {
     background: linear-gradient(59.68deg, #486cf7 13.07%, #fb3155 106.57%);
@@ -96,29 +81,6 @@ export default {
 }
 .right {
   width: 66.66666%;
-  .tab-bar {
-    display: flex;
-  }
-  .item {
-    padding: 4px 8px;
-    color: var(--text-grey-thirdly);
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    .line {
-      background: var(--text-grey-thirdly);
-      height: 2px;
-      border-radius: 4px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    &.active {
-      color: var(--text-default);
-      .line {
-        opacity: 1;
-      }
-    }
-  }
 }
 @media only screen and (max-width: 840px) {
   .main {
