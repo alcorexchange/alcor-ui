@@ -286,6 +286,21 @@ a {
     border: 0 !important;
   }
 }
+
+.market-table {
+  border-radius: 8px;
+  overflow: hidden;
+  th,
+  td {
+    border: 0;
+  }
+  th {
+    padding: 8px 0 !important;
+    font-weight: normal !important;
+    font-size: 1rem;
+    color: var(--text-default);
+  }
+}
 @media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;
