@@ -38,10 +38,8 @@ module.exports = {
       { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
       { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-    ],
-
-    script: [{ src: '/js/doodle.js', body: true }]
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ]
   },
 
   /*
@@ -128,8 +126,6 @@ module.exports = {
   ** Build configuration
   */
   build: {
-    //vendor: ['vue-apexchart'],
-
     /*
     ** You can extend webpack config here
     */
