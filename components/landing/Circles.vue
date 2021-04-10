@@ -4,7 +4,7 @@
 <!-- Instruction https://alligator.io/css/patterns-css-doodle/ -->
 <div class="circles">
   <css-doodle id="ddl" class="doodle">
-    <style>
+    <component :is="'style'">
       @grid: 15x1 / 1200px;
       @place-cell: center;
       @size: 100%;
@@ -58,7 +58,7 @@
           </svg>
         );
       }
-    </style>
+    </component>
   </css-doodle>
   <img id="logo" class="logo" src="~/assets/images/frame_logo.svg" alt="" />
 </div>
@@ -75,9 +75,8 @@ export default {
       script: [
         {
           hid: 'doodle-css',
-          src: 'js/doodle.js',
+          src: '/js/doodle.js',
           defer: true,
-          // Changed after script load
           callback: () => {
             document.getElementById('ddl').classList.add('is-load')
           }
