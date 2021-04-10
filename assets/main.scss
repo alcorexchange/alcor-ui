@@ -300,12 +300,24 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
-  .cell {
-    padding: 0 !important;
-  }
+  // .cell {
+  //   padding: 0 !important;
+  // }
 }
 @media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;
   }
 }
+// @media only screen and (max-width: 640px) {
+//   .market-table {
+//     tr {
+//       display: flex;
+//       min-width: 100%;
+//       th,
+//       td {
+//         flex: 1;
+//       }
+//     }
+//   }
+// }
