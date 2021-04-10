@@ -1,6 +1,6 @@
 <template lang="pug">
   .participate
-    SectionTitle Participate in the protocol
+    SectionTitle Participate in Protocol
     .text Alcor DAO
     .main
         .left
