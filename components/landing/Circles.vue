@@ -68,22 +68,7 @@
 export default {
   mounted() {
     document.getElementById('logo').classList.add('is-load')
-  },
-
-  head () {
-    return {
-      script: [
-        {
-          hid: 'doodle-css',
-          src: 'js/doodle.js',
-          defer: true,
-          // Changed after script load
-          callback: () => {
-            document.getElementById('ddl').classList.add('is-load')
-          }
-        }
-      ]
-    }
+    document.getElementById('ddl').classList.add('is-load')
   }
 }
 </script>
