@@ -38,7 +38,7 @@ export default {
         icon: require('~/assets/icons/ChartLineUp.svg'),
         name: 'Earn',
         description: 'Providing Liquidity',
-        to: '/wallet'
+        to: '/swap'
       },
       {
         icon: require('~/assets/icons/Image.svg'),
