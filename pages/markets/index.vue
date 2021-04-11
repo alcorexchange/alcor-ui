@@ -1,30 +1,41 @@
 <template lang="pug">
 .markets
   .table-intro
-    el-radio-group(
-      v-if="!isMobile"
-      v-model="base_token"
-      size="small").radio-chain-select.custom-radio
-
-      el-radio-button(label="all")
+    el-radio-group.radio-chain-select.custom-radio(
+      v-model='base_token',
+      size='small'
+    )
+      el-radio-button(label='all')
         span All
 
-      el-radio-button(:label="network.baseToken.symbol")
+      el-radio-button(:label='network.baseToken.symbol')
         span {{ network.baseToken.symbol }}
 
-      el-radio-button(v-if="network.name == 'eos'" label="USDT")
+      el-radio-button(v-if='network.name == "eos"', label='USDT')
         span USDT
 
-      el-radio-button(value='cross-chain' label="Cross-Chain")
+      el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
     .search-container
-      el-input(v-model="search" placeholder="Search token" size="small" prefix-icon="el-icon-search")
+      el-input(
+        v-model='search',
+        placeholder='Search token',
+        size='small',
+        prefix-icon='el-icon-search'
+      )
   .table
-    el-table.market-table(:data='filteredMarkets',
-    style='width: 100%' @row-click="clickOrder" :default-sort="{prop: 'weekVolume', order: 'descending'}")
-      el-table-column(label='Pair', prop='date' :width="isMobile ? 160 : 300" )
-        template(slot-scope="scope")
-          TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="30")
+    el-table.market-table(
+      :data='filteredMarkets',
+      style='width: 100%',
+      @row-click='clickOrder',
+      :default-sort='{ prop: "weekVolume", order: "descending" }'
+    )
+      el-table-column(label='Pair', prop='date', :width='isMobile ? 150 : 300')
+        template(slot-scope='scope')
+          TokenImage(
+            :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
+            :height='isMobile ? 20 : 30'
+          )
 
           //span TODO
           //  PairIcons(
@@ -34,69 +45,74 @@
 
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
-            a(:href="monitorAccount(scope.row.quote_token.contract)" target="_blank" v-if="!isMobile").text-muted.ml-2 {{ scope.row.quote_token.contract }}
-            |  /  {{ scope.row.base_token.symbol.name }}
+            a.text-muted.ml-2(
+              :href='monitorAccount(scope.row.quote_token.contract)',
+              target='_blank',
+              v-if='!isMobile'
+            ) {{ scope.row.quote_token.contract }}
+            |
+            | / {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        :label="`Last price`"
-        sort-by="last_price"
-        align="right"
-        header-align="right"
-        sortable
-        :sort-orders="['descending', null]"
+        :label='`Last price`',
+        sort-by='last_price',
+        align='right',
+        header-align='right',
+        sortable,
+        :sort-orders='["descending", null]'
       )
-        template(slot-scope="scope")
-          .text-success {{ scope.row.last_price }} {{ scope.row.base_token.symbol.name }}
+        template(slot-scope='scope')
+          .text-success {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
       el-table-column(
-        :label='`24H Volume`'
-        align="right"
-        header-align="right"
-        sortable
-        sort-by="volume24"
-        :sort-orders="['descending', null]"
-        v-if="!isMobile"
+        :label='`24H Vol.`',
+        align='right',
+        header-align='right',
+        sortable,
+        sort-by='volume24',
+        :sort-orders='["descending", null]'
       )
-        template(slot-scope="scope")
+        template(slot-scope='scope')
           span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='24H'
-        prop='name'
-        align="right"
-        header-align="right"
-        sortable
-        width="80"
-        sort-by="change24"
-        :sort-orders="['descending', null]"
+        label='24H',
+        prop='name',
+        align='right',
+        header-align='right',
+        sortable,
+        width='80',
+        sort-by='change24',
+        :sort-orders='["descending", null]',
+        v-if='!isMobile'
       )
-        template(slot-scope="scope" align="right" header-align="right")
-          change-percent(:change="scope.row.change24")
+        template(slot-scope='scope', align='right', header-align='right')
+          change-percent(:change='scope.row.change24')
 
       el-table-column(
-        label='7D Volume'
-        prop='weekVolume'
-        align="right"
-        header-align="right"
-        sortable
-        sort-by="volumeWeek"
-        :sort-orders="['descending', null]"
-        v-if="!isMobile"
+        label='7D Volume',
+        prop='weekVolume',
+        align='right',
+        header-align='right',
+        sortable,
+        sort-by='volumeWeek',
+        :sort-orders='["descending", null]',
+        v-if='!isMobile'
       )
-        template(slot-scope="scope")
+        template(slot-scope='scope')
           span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='7D Volume'
-        prop='weekChange'
-        align="right"
-        header-align="right"
-        sortable
-        sort-by="changeWeek"
-        :sort-orders="['descending', null]"
-        v-if="!isMobile"
+        label='7D Volume',
+        prop='weekChange',
+        align='right',
+        header-align='right',
+        sortable,
+        sort-by='changeWeek',
+        :sort-orders='["descending", null]',
+        v-if='!isMobile'
       )
-        template(slot-scope="scope")
-          change-percent(:change="scope.row.changeWeek")
+        template(slot-scope='scope')
+          change-percent(:change='scope.row.changeWeek')
 </template>
 
 <script>
@@ -111,7 +127,7 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    PairIcons
+    PairIcons,
   },
 
   async fetch({ store, error }) {
@@ -134,10 +150,10 @@ export default {
 
       select: {
         from: '',
-        to: ''
+        to: '',
       },
 
-      loading: true
+      loading: true,
     }
   },
 
@@ -180,15 +196,15 @@ export default {
       )
 
       return markets.reverse()
-    }
+    },
   },
   methods: {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
       this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -211,6 +227,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   padding: 20px 0;
   .search-container {
     width: 300px;
@@ -241,6 +258,17 @@ export default {
 .markets {
   .el-table__row {
     cursor: pointer;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .table-intro {
+    padding: 14px 0;
+    flex-direction: column-reverse;
+    justify-content: center;
+    .search-container {
+      width: 100%;
+      margin-bottom: 12px;
+    }
   }
 }
 </style>

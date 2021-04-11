@@ -292,18 +292,34 @@ a {
     font-weight: normal !important;
     background: transparent;
     border: 0 !important;
+    &:hover {
+      background: var(--hover);
+    }
   }
 }
 
+.theme-light,
+.theme-dark {
+  .market-table {
+    th,
+    td {
+      background: var(--table-background) !important;
+    }
+  }
+}
 .market-table {
   border-radius: 8px;
   overflow: hidden;
+  // tr {
+  //   padding: 8px;
+  // }
   th,
   td {
     border: 0;
   }
   th {
     padding: 8px 0 !important;
+    padding-left: 4px !important;
     font-weight: normal !important;
     font-size: 1rem;
     color: var(--text-default);
@@ -317,15 +333,24 @@ a {
     padding: 0 8px;
   }
 }
-// @media only screen and (max-width: 640px) {
-//   .market-table {
-//     tr {
-//       display: flex;
-//       min-width: 100%;
-//       th,
-//       td {
-//         flex: 1;
-//       }
-//     }
-//   }
-// }
+@media only screen and (max-width: 640px) {
+  .market-table {
+    .cell {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+    }
+    .th.cell {
+      padding-left: 4px !important;
+      padding-right: 4px !important;
+    }
+    .caret-wrapper {
+      width: 14px !important;
+    }
+    .sort-caret {
+      left: 2px !important;
+    }
+    th {
+      font-size: 0.8rem;
+    }
+  }
+}
