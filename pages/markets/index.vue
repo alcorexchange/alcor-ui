@@ -262,10 +262,12 @@ export default {
 }
 @media only screen and (max-width: 640px) {
   .table-intro {
+    padding: 14px 0;
+    flex-direction: column-reverse;
     justify-content: center;
     .search-container {
       width: 100%;
-      margin-top: 12px;
+      margin-bottom: 12px;
     }
   }
 }
