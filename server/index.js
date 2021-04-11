@@ -85,8 +85,7 @@ async function start () {
     badge: true
   })
 
-  //if (process.env.DISABLE_DB) return
-  if (true) return
+  if (process.env.DISABLE_DB) return
 
   const io = socket(server)
 
