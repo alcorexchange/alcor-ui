@@ -91,6 +91,16 @@ DARK END */
 .theme-dark {
   @import 'dark';
 
+  .el-loading-spinner {
+    .path {
+      stroke: var(--text-default) !important;
+    }
+  }
+
+  .el-loading-text {
+    color: var(--text-default) !important;
+  }
+
   // TABS
   .el-tabs__active-bar {
     background-color: #c4c4c4;

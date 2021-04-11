@@ -31,7 +31,9 @@ export const state = () => ({
   payForUser: false,
 
   provider: 0,
-  currentWallet: 'transit'
+  currentWallet: 'transit',
+
+  anchorSession: { accountName: null, authorization: null }
 })
 
 export const actions = {
@@ -62,21 +64,28 @@ export const actions = {
   },
 
   async tryLogin({ state, dispatch, commit, getters }) {
-    // Check if Scatter connected
-    console.log('tryLogin....')
-    commit('setProvider', 0)
+    // Check if Anchor || Scatter connected
     let connect = false
 
-    try {
-      connect = await getters.wallet.connect()
-    } catch {}
+    if (state.anchorSession.accountName && state.anchorSession.authorization) {
+      // Try anchor
+      await dispatch('login', 1)
+    } else {
+      try {
+        connect = await getters.wallet.connect()
+      } catch {}
 
-    if (connect) {
-      await dispatch('login', 0)
+      if (connect) {
+        await dispatch('login', 0)
+      }
     }
   },
 
   async logout({ state, commit, getters }) {
+    if (state.provider == 1) {
+      commit('setAnchorSession', { accountName: null, authorization: null })
+    }
+
     switch (state.currentWallet) {
       case 'transit':
         await getters.wallet.logout()
@@ -111,14 +120,11 @@ export const actions = {
 
           await getters.wallet.connect()
 
-          try {
-            //console.log('ledger try...')
-            //console.log('discover: ', await getters.wallet.discover({ pathIndexList: [0, 1, 2, 3] }))
-          } catch (e) {
-            console.log(e)
+          if (provider == 1) {
+            r = await wallet.login(state.anchorSession.accountName, state.anchorSession.authorization)
+          } else {
+            r = await wallet.login()
           }
-
-          r = await wallet.login()
         } catch (e) {
           this._vm.$notify({ title: 'Login error', message: e, type: 'error' })
           if (state.loginPromise) state.loginPromise.resolve(false)
@@ -130,6 +136,11 @@ export const actions = {
           }
 
           return
+        }
+
+        if (provider == 1 && (!state.anchorSession.accountName || !state.anchorSession.authorization)) {
+          // Save last Anchor session
+          commit('setAnchorSession', { accountName: getters.wallet.auth.accountName, authorization: getters.wallet.auth.permission })
         }
 
         commit('setUser', {
@@ -219,6 +230,7 @@ export const mutations = {
   setLoginPromise: (state, value) => state.loginPromise = value,
   setPayForUser: (state, value) => state.payForUser = value,
   setCurrentWallet: (state, value) => state.currentWallet = value,
+  setAnchorSession: (state, value) => state.anchorSession = value,
 
   setWallet: (state, wallet) => {
     state.wallet = wallet
@@ -241,7 +253,7 @@ export const getters = {
 
     const walletProviders = [
       ScatterProvider(),
-      AnchorLinkProvider(config.APP_NAME, {}),
+      AnchorLinkProvider(localStorage.getItem('device_id'), {}),
       SimpleosProvider(),
       LynxProvider(),
       LedgerProvider()
