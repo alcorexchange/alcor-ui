@@ -210,6 +210,14 @@ a {
 
 // Dark
 .theme-dark {
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
+    }
+
+    color: var(--text-grey-thirdly);
+  }
+
   .text-danger {
     color: #b56150 !important;
   }
