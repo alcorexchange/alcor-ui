@@ -26,6 +26,12 @@
         template(slot-scope="scope")
           TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="30")
 
+          //span TODO
+          //  PairIcons(
+          //    :token1="{symbol: scope.row.quote_token.symbol.name, contract: scope.row.quote_token.contract}"
+          //    :token2="{symbol: scope.row.base_token.symbol.name, contract: scope.row.base_token.contract}"
+          //  )
+
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
             a(:href="monitorAccount(scope.row.quote_token.contract)" target="_blank" v-if="!isMobile").text-muted.ml-2 {{ scope.row.quote_token.contract }}
@@ -99,11 +105,13 @@ import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import PairIcons from '~/components/PairIcons'
 
 export default {
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
+    PairIcons
   },
 
   async fetch({ store, error }) {

@@ -14,27 +14,27 @@
       .social-items
         a.item(href="https://t.me/alcorexchange" target="_blank")
           .icon
-            img(src='~/assets/icons/Telegram.svg')
+            img(src='~/assets/icons/telegram.svg')
           span.name Telegram
-          span.desc Cross-Chain DEX
+          span.desc Support & Trading Talks
         a.item(href="https://avral.medium.com/" target="_blank")
           .icon
             img(src='~/assets/icons/Monogram.svg')
           span.name Medium
-          span.desc Cross-Chain DEX
+          span.desc Reviews & News
         a.item(href="https://github.com/avral/alcor-ui" target="_blank")
           .icon
             img(src='~/assets/icons/Github.svg')
           span.name Github
-          span.desc Cross-Chain DEX
+          span.desc Code & Contribuion
         a.item(href="https://twitter.com/alcorexchange" target="_blank")
           .icon
             img(src='~/assets/icons/Twitter.svg')
           span.name Twitter
-          span.desc Cross-Chain DEX
+          span.desc Announcements
         a.item(href="mailto:admin@alcor.exchange")
           .icon
-            img(src='~/assets/icons/Email.svg')
+            img(src='~/assets/icons/email.svg')
           span.name Email
           span.desc admin@alcor.exchange
 </template>

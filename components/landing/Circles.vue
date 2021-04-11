@@ -3,7 +3,7 @@
 
 <!-- Instruction https://alligator.io/css/patterns-css-doodle/ -->
 <div class="circles">
-  <css-doodle id="ddl" class="doodle">
+  <css-doodle id="ddl" class="doodle" v-pre>
     <component :is="'style'">
       @grid: 15x1 / 1200px;
       @place-cell: center;

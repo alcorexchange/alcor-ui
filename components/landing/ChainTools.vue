@@ -25,25 +25,25 @@ export default {
       {
         icon: require('~/assets/icons/ArrowsClockwise.svg'),
         name: 'AMM Swap',
-        description: 'Cross-Chain DEX',
+        description: 'With Pair Creation',
         to: '/swap'
       },
       {
         icon: require('~/assets/icons/ArrowsDownUp.svg'),
         name: 'Spot Trading',
-        description: 'Cross-Chain DEX',
+        description: 'Limit & Market',
         to: '/markets'
       },
       {
         icon: require('~/assets/icons/ChartLineUp.svg'),
         name: 'Earn',
-        description: 'Cross-Chain DEX',
+        description: 'Providing Liquidity',
         to: '/wallet'
       },
       {
         icon: require('~/assets/icons/Image.svg'),
-        name: 'Nft',
-        description: 'Cross-Chain DEX',
+        name: 'NFT',
+        description: 'Multiple Protocols',
         to: '/nft-market'
       }
     ]
