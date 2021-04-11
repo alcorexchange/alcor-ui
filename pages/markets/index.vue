@@ -2,7 +2,6 @@
 .markets
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
-      v-if='!isMobile',
       v-model='base_token',
       size='small'
     )
