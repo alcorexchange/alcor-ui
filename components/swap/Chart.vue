@@ -32,7 +32,7 @@ const COLORS = {
 
   dark: {
     Price: { up: '#30B27C', down: '#F96C6C' },
-    Liquidity: '#6138b9',
+    Liquidity: '#723de4',
     Volume: '#1FC781'
   }
 }
@@ -102,6 +102,8 @@ export default {
 
           events: {
             mouseMove: (event, chartContext, config) => {
+              if (!(config.dataPointIndex in this.data)) return
+
               const price = this.data[config.dataPointIndex].y
               if (config.dataPointIndex == -1 || price == this.price || !price)
                 return

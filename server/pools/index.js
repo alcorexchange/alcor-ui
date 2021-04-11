@@ -135,7 +135,8 @@ export async function newPoolsAction(action, network, app) {
     await newExchange(network, action)
   }
 
-  if (name == 'transfer' && account == network.pools.contract) {
+  if (name == 'transfer') {
+    //  && account == network.pools.contract
     return
 
     // TODO Тут создаем две записи на ликвидность, одна отнимает у того кто отправил, другая прибавляет тому кому

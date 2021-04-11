@@ -339,7 +339,7 @@ export default {
   }
 
   .el-input__inner {
-    background-color: transparent;
+    background-color: transparent !important;
     border: none;
   }
 

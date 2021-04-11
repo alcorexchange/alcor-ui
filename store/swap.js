@@ -97,7 +97,9 @@ export const actions = {
   },
 
   updatePairOnPush({ state, commit }, data) {
+    console.log('ppp0, data: ', data)
     const { pair_id, supply, pool1, pool2 } = data
+    console.log('ppp1', pair_id)
 
     const pair = state.pairs.filter(p => p.id == pair_id)[0]
     if (!pair) return console.log('NOT FOUND PAIR FOR UPDATE BY PUSH:', pair_id)
