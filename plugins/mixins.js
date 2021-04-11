@@ -3,9 +3,18 @@ import Vue from 'vue'
 import { asset } from 'eos-common'
 
 Vue.mixin({
+  data: () => ({
+    windowWidth: 0
+  }),
+  mounted() {
+    this.windowWidth = window.innerWidth
+    window.addEventListener('resize', () => {
+      this.windowWidth = window.innerWidth
+    })
+  },
   computed: {
     isMobile() {
-      return (this.$device.isMobile) || (process.client ? window.innerWidth <= 1000 : false)
+      return (this.$device.isMobile) || (this.windowWidth && window.innerWidth <= 1000)
     }
   },
 
