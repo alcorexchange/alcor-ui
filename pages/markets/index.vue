@@ -1,6 +1,5 @@
 <template lang="pug">
 .markets
-  h1.title Market
   .table-intro
     el-radio-group(
       v-if="!isMobile"
@@ -185,6 +184,20 @@ export default {
 }
 </script>
 
+<style lang="scss">
+.theme-dark {
+  .el-input__inner {
+    background-color: var(--bg-alter-2);
+  }
+}
+
+.markets {
+  .custom-radio .el-radio-button__inner {
+    padding: 8px 15px !important;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .table-intro {
   display: flex;
@@ -210,6 +223,10 @@ export default {
     .el-card__body {
       padding: 0px;
     }
+  }
+
+  .el-input__inner {
+    background-color: var(--bg-alter-2);
   }
 }
 
