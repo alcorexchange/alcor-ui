@@ -15,7 +15,7 @@
         .change(:class="{isRed, isZero}")
           i(:class="`el-icon-caret-${isRed? 'bottom': 'top'}`" v-if="!isZero")
           span.text {{ percent }}%
-      VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
+      VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart").swap-chart
 </template>
 
 <script>
@@ -207,7 +207,7 @@ export default {
     period() {
       // TODO: watch period, I(Saeed) did it and it did not word :D
       // this.updateChartOprions()
-      // this.fetchCharts(true)
+      this.fetchCharts(true)
     },
 
     isReverted() {
@@ -288,15 +288,17 @@ export default {
 </script>
 
 <style lang="scss">
-.apexcharts-tooltip {
-  border: none !important;
-  border-radius: 4px;
-  box-shadow: none !important;
+.swap-chart {
+  .apexcharts-tooltip {
+    border: none !important;
+    border-radius: 4px;
+    box-shadow: none !important;
 
-  height: 30px;
-  background: red !important;
-  background-color: var(--background-color-base) !important;
-  color: var(--color-text-primary) !important;
+    height: 30px;
+    background: red !important;
+    background-color: var(--background-color-base) !important;
+    color: var(--color-text-primary) !important;
+  }
 }
 
 .each-item-price-container {

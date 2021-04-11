@@ -63,6 +63,7 @@
         .d-flex.justify-content-between
           small Rate
           .small {{ price }}
+            .el-icon-refresh(@click="priceReverse = !priceReverse").ml-1.pointer
         SSpacer
         .d-flex.justify-content-between
           small Price Impact
@@ -104,6 +105,8 @@ export default {
   data() {
     return {
       loading: false,
+
+      priceReverse: false,
 
       ibcForm: {
         transfer: false,
@@ -174,11 +177,19 @@ export default {
       if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount)))
         return '0.0000'
 
-      const rate = (
-        parseFloat(this.outputAmount) / parseFloat(this.inputAmount)
-      ).toFixed(4)
+      if (this.priceReverse) {
+        const rate = (
+          parseFloat(this.inputAmount) / parseFloat(this.outputAmount)
+        ).toFixed(4)
 
-      return `${this.input.symbol} = ${rate} ${this.output.symbol}`
+        return `${rate} ${this.input.symbol} per ${this.output.symbol}`
+      } else {
+        const rate = (
+          parseFloat(this.outputAmount) / parseFloat(this.inputAmount)
+        ).toFixed(4)
+
+        return `${rate} ${this.output.symbol} per ${this.input.symbol}`
+      }
     },
 
     fee() {

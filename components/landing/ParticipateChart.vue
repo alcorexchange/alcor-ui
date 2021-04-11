@@ -8,7 +8,7 @@
             span Release schedule
             span.line
     SSpacer
-    .tab.alcor-card
+    .tab.alcor-card.graph
         Graph
 </template>
 

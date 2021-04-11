@@ -2,6 +2,8 @@
 div.alcor-card
   .header
     h2.title Liquidity Positions
+      i.el-icon-question.ml-2.pointer(@click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')")
+
     .pagination
       //i.el-icon-back
       //span Page 1 of 4
@@ -334,7 +336,8 @@ export default {
   flex-direction: column;
   .item-container {
     display: flex;
-    border: 1px solid #373b3d;
+    //border: 1px solid #373b3d;
+    background: var(--bg-alter-1);
     border-radius: var(--radius);
     padding: 6px;
     margin-bottom: 8px;

@@ -16,6 +16,8 @@ import SupportedChains from '@/components/landing/SupportedChains'
 import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 export default {
   layout: 'homeLayout',
+  colorMode: 'dark',
+
   components: {
     SectionTitle,
     ChainTools,

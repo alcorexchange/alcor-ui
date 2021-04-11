@@ -27,6 +27,7 @@
       | Connect Wallet
 
     AlcorButton.theme-toggle-button.desktop(
+      v-if="$route.name != 'index'"
       :iconOnlyAlt='true',
       @click='$store.dispatch("toggleTheme")'
     )
@@ -129,6 +130,7 @@ export default {
 .theme-toggle-button {
   border-radius: 50% !important;
   margin: 4px 8px;
+  margin-right: 0;
   color: var(--text-default) !important;
   &.mobile {
     display: none !important;

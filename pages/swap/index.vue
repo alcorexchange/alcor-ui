@@ -168,12 +168,6 @@ export default {
   methods: {
     changeTab(tab) {
       this.$store.commit('swap/setTab', tab)
-    },
-    setChartTab(tab) {
-      this.chart_tab = tab
-    },
-    setPeriod(data) {
-      this.period = data
     }
   },
 

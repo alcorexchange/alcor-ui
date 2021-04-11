@@ -1,6 +1,6 @@
 <template lang="pug">
   client-only
-    .h-100
+    .h-100.landing-graph
       VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
 </template>
 
@@ -34,7 +34,7 @@ export default {
     return {
       price: 0,
 
-      width: '55%',
+      width: '100%',
       //height: '100%',
       height: '250px',
 
@@ -146,25 +146,22 @@ export default {
         }
       }
     }
-  },
-
-  watch: {
-    '$colorMode.value'() {
-      this.updateChartOprions()
-    }
   }
 }
 </script>
 
 <style lang="scss">
-.apexcharts-tooltip {
-  border: none !important;
-  border-radius: 4px;
-  box-shadow: none !important;
+.landing-graph {
+  .apexcharts-tooltip {
+    border: none !important;
+    border-radius: 4px;
+    box-shadow: none !important;
 
-  //height: 30px;
-  background: red !important;
-  background-color: var(--background-color-base) !important;
-  color: var(--color-text-primary) !important;
+    //height: 120px;
+    background: red !important;
+    background-color: var(--background-color-base) !important;
+    color: var(--color-text-primary) !important;
+    z-index: 111;
+  }
 }
 </style>
