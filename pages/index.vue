@@ -3,7 +3,7 @@
   Hero.alcor-inner
   ChainTools.alcor-inner
   RecommendedMarkets.alcor-inner
-  Participate
+  //Participate
   SupportedChains
 </template>
 
