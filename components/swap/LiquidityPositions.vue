@@ -15,6 +15,14 @@ div.alcor-card
   .table-header.portionated
     .pools Pools
     .deposit.p20.end Deposit
+      el-popover(placement='top-start' title='Deposit' width='400' trigger='hover')
+        template
+          .text-break
+            p When the deposit becomes negative, it means that your liquidity has been profitable, and you have withdrawn the deposit and part of dividend.
+            p When you receive or transfer LP Tokens, the system will increase or decrease your deposit in proportion according to the total liquidity volume of liquidity pool.
+            p There may be a difference in statistics, for reference only.
+
+        .el-icon-info(slot="reference").ml-2.pointer
     .earning.p20.end Earning (Fees)
     .share.p10.end Pool Share
     .actions
@@ -36,8 +44,10 @@ div.alcor-card
         .label.mobile-only Deposit
         .main
           //.amount 102,121.01$ TODO
-          span.detail.muted {{lpToken.asset1}}
-          span.detail.muted {{lpToken.asset2}}
+          //span.detail.muted {{lpToken.asset1}}
+          //span.detail.muted {{lpToken.asset2}}
+          span.detail.muted {{lpToken.deposit1}}
+          span.detail.muted {{lpToken.deposit2}}
       .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
         .label.mobile-only Earning (Fees)
         .main
@@ -116,16 +126,7 @@ export default {
   components: { AlcorButton, TokenImage, PairIcons },
   data() {
     return {
-      net: false,
-      mock: [
-        {
-          pair: { name: 'EOS/USDT' },
-          asset1: '2000234454 USDT',
-          asset2: '235342 EOS',
-          earn1: '3424',
-          earn2: '23432'
-        }
-      ]
+      net: false
     }
   },
 
@@ -139,9 +140,9 @@ export default {
       if (!this.user || !this.user.balances) return []
 
       return this.user.balances
-        .filter((b) => b.contract == this.network.pools.contract)
+        .filter((b) => (b.contract == this.network.pools.contract))
         .map((b) => {
-          const position = { amount: b.amount }
+          const position = { amount: parseFloat(b.amount) }
 
           const pair = this.pairs.filter(
             (p) => p.supply.symbol.code().to_string() == b.currency
@@ -150,6 +151,7 @@ export default {
           if (!pair) {
             console.log('NOT FOUND PAIR FOR LP TOKEN: ', b.currency)
             position.pair = { name: b.currency }
+            //  && account == network.pools.contract
             position.asset1 = '0.0000'
             position.asset2 = '0.0000'
             position.earn1 = '0.0000'
@@ -186,6 +188,9 @@ export default {
           )[0]
 
           if (lposition) {
+            position.deposit1 = lposition.liquidity1.toFixed(8)
+            position.deposit2 = lposition.liquidity2.toFixed(8)
+
             const lp1 = asset(
               lposition.liquidity1.toFixed(s1.precision()) +
                 ' ' +

@@ -112,7 +112,7 @@ export const actions = {
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
       axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
-        const balances = r.data.balances
+        const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 

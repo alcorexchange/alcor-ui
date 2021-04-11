@@ -288,6 +288,8 @@ export default {
       this.loading = true
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.$store.dispatch('loadUserLiqudityPositions')
+
         this.$emit('update')
         this.visible = false
         this.$notify({

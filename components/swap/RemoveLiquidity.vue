@@ -242,6 +242,7 @@ export default {
           { root: true }
         )
         // UPDATING OF user balance
+        await this.$store.dispatch('loadUserLiqudityPositions')
 
         this.amount = 0.0
         this.amountChange()
