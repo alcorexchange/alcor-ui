@@ -95,7 +95,7 @@ export default {
   data() {
     return {
       chart_tab: 'Price',
-      period: '24H'
+      period: '7D'
     }
   },
 
