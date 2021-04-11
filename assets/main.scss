@@ -284,6 +284,9 @@ a {
     font-weight: normal !important;
     background: transparent;
     border: 0 !important;
+    &:hover {
+      background: var(--hover);
+    }
   }
 }
 

@@ -228,6 +228,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   padding: 20px 0;
   .search-container {
     width: 300px;
@@ -258,6 +259,15 @@ export default {
 .markets {
   .el-table__row {
     cursor: pointer;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .table-intro {
+    justify-content: center;
+    .search-container {
+      width: 100%;
+      margin-top: 12px;
+    }
   }
 }
 </style>
