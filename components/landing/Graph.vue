@@ -1,6 +1,6 @@
 <template lang="pug">
   client-only
-    .h-100
+    .h-100.landing-graph
       VueApexCharts(:width='width' :height="height" type="area" :options='chartOptions' :series='series' ref="chart")
 </template>
 
@@ -34,17 +34,17 @@ export default {
     return {
       price: 0,
 
-      width: '55%',
+      width: '100%',
       //height: '100%',
       height: '250px',
 
       data: [],
 
       series: [
-        { name: 'Community', data: [[1, 5], [2, 16], [3, 22], [4, 25], [5, 26], [6, 26.5]] },
-        { name: 'Team', data: [[1, 2.5], [2, 6], [3, 8], [4, 9], [5, 9.5], [6, 10]] },
-        { name: 'Investors', data: [[1, 0.5], [2, 2], [3, 2.5], [4, 2.7], [5, 2.9], [6, 3]] },
-        { name: 'Advisors', data: [[1, 0], [2, 0.2], [3, 0.5], [4, 0.6], [5, 0.7], [6, 0.7]] }
+        { name: 'Community', data: [[1, 0], [2, 0], [3, 50], [4, 80], [5, 95], [6, 100]] },
+        { name: 'Team', data: [[1, 5], [2, 12], [3, 18], [4, 20], [5, 21], [6, 21]] },
+        { name: 'Investors', data: [[1, 1], [2, 4], [3, 7], [4, 8], [5, 8.5], [6, 9]] },
+        { name: 'Advisors', data: [[1, 1], [2, 0.5], [3, 0.8], [4, 1], [5, 1.2], [6, 1.2]] }
       ],
 
       chartOptions: {
@@ -146,25 +146,22 @@ export default {
         }
       }
     }
-  },
-
-  watch: {
-    '$colorMode.value'() {
-      this.updateChartOprions()
-    }
   }
 }
 </script>
 
 <style lang="scss">
-.apexcharts-tooltip {
-  border: none !important;
-  border-radius: 4px;
-  box-shadow: none !important;
+.landing-graph {
+  .apexcharts-tooltip {
+    border: none !important;
+    border-radius: 4px;
+    box-shadow: none !important;
 
-  //height: 30px;
-  background: red !important;
-  background-color: var(--background-color-base) !important;
-  color: var(--color-text-primary) !important;
+    //height: 120px;
+    background: red !important;
+    background-color: var(--background-color-base) !important;
+    color: var(--color-text-primary) !important;
+    z-index: 111;
+  }
 }
 </style>

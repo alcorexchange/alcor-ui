@@ -3,7 +3,7 @@
   Hero.alcor-inner
   ChainTools.alcor-inner
   RecommendedMarkets.alcor-inner
-  Participate
+  //Participate
   SupportedChains
 </template>
 
@@ -16,6 +16,8 @@ import SupportedChains from '@/components/landing/SupportedChains'
 import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 export default {
   layout: 'homeLayout',
+  colorMode: 'dark',
+
   components: {
     SectionTitle,
     ChainTools,

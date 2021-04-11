@@ -1,6 +1,5 @@
 <template lang="pug">
 .markets
-  h1.title Market
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
       v-if='!isMobile',
@@ -38,6 +37,12 @@
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
             :height='isMobile ? 20 : 30'
           )
+
+          //span TODO
+          //  PairIcons(
+          //    :token1="{symbol: scope.row.quote_token.symbol.name, contract: scope.row.quote_token.contract}"
+          //    :token2="{symbol: scope.row.base_token.symbol.name, contract: scope.row.base_token.contract}"
+          //  )
 
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
@@ -117,11 +122,13 @@ import { captureException } from '@sentry/browser'
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import PairIcons from '~/components/PairIcons'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
+    PairIcons,
   },
 
   async fetch({ store, error }) {
@@ -202,6 +209,20 @@ export default {
 }
 </script>
 
+<style lang="scss">
+.theme-dark {
+  .el-input__inner {
+    background-color: var(--bg-alter-2);
+  }
+}
+
+.markets {
+  .custom-radio .el-radio-button__inner {
+    padding: 8px 15px !important;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .table-intro {
   display: flex;
@@ -227,6 +248,10 @@ export default {
     .el-card__body {
       padding: 0px;
     }
+  }
+
+  .el-input__inner {
+    background-color: var(--bg-alter-2);
   }
 }
 

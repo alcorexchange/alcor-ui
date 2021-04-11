@@ -95,7 +95,7 @@ export default {
   data() {
     return {
       chart_tab: 'Price',
-      period: '24H'
+      period: '7D'
     }
   },
 
@@ -168,12 +168,6 @@ export default {
   methods: {
     changeTab(tab) {
       this.$store.commit('swap/setTab', tab)
-    },
-    setChartTab(tab) {
-      this.chart_tab = tab
-    },
-    setPeriod(data) {
-      this.period = data
     }
   },
 

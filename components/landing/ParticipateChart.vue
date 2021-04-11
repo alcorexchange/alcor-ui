@@ -1,15 +1,20 @@
 <template lang="pug">
   .participate-chart
     .tab-bar
-        .item(@click="setActiveTab('allocation')" :class="{active: activeTab === 'allocation'}")
-            span Allocation
-            span.line
         .item(@click="setActiveTab('release')" :class="{active: activeTab === 'release'}")
             span Release schedule
             span.line
+
+        .item(@click="setActiveTab('allocation')" :class="{active: activeTab === 'allocation'}")
+            span Allocation
+            span.line
     SSpacer
-    .tab.alcor-card
+    .tab.alcor-card.graph(v-if="activeTab == 'release'")
         Graph
+
+    .tab.alcor-card.graph(v-else)
+      | The token is on sale soon, wait for updates on
+      a(href="https://twitter.com/@alcorexchange" target="_blank")  Twitter
 </template>
 
 <script>
@@ -22,7 +27,7 @@ export default {
     SSpacer
   },
   data: () => ({
-    activeTab: 'allocation'
+    activeTab: 'release'
   }),
   methods: {
     setActiveTab(tab) {

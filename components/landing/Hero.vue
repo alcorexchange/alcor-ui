@@ -1,14 +1,14 @@
 <template>
   <div class="hero">
     <div class="left">
-      <h2>All in one DeFi</h2>
+      <h1>All in one DeFi</h1>
       <p class="desc">
         Alcor is a lego of decentralized finance built on multi-chain, and a
         provider of solutions in one tap.
       </p>
       <div class="actions">
-        <AlcorLink class="start">Start Trading</AlcorLink>
-        <AlcorLink>Read docs</AlcorLink>
+        <AlcorLink to="/markets" class="start">Start Trading</AlcorLink>
+        <AlcorLink @click="openInNewTab('https://docs.alcor.exchange/liquidity-pools/understanding-returns')">Read docs</AlcorLink>
       </div>
     </div>
     <div class="right">
@@ -48,7 +48,7 @@ export default {
   position: relative;
   z-index: 2;
 }
-h2 {
+h1 {
   font-size: 3rem;
 }
 .desc {

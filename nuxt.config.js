@@ -2,7 +2,7 @@ const config = require('./config')
 const pkg = require('./package')
 
 const isSPA = process.argv.includes('--spa')
-const isDev = process.env.npm_lifecycle_event == 'dev'
+const isDev = process.env.npm_lifecycle_event == 'dev' || process.argv.includes('--dev') || process.env.NODE_ENV !== 'production'
 
 const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
 

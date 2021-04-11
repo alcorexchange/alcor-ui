@@ -2,8 +2,8 @@
 .chain-tools
   SectionTitle.section-title On-Chain Tools
   .items
-    .item(v-for='{ icon, name, description } in chainTools')
-      nuxt-link.item-inner(to='/')
+    .item(v-for='{ icon, name, description, to } in chainTools')
+      nuxt-link.item-inner(:to="to")
         .icon-container
           img.icon(:src='icon')
         .h3 {{ name }}
@@ -25,22 +25,26 @@ export default {
       {
         icon: require('~/assets/icons/ArrowsClockwise.svg'),
         name: 'AMM Swap',
-        description: 'Cross-Chain DEX'
+        description: 'With Pair Creation',
+        to: '/swap'
       },
       {
         icon: require('~/assets/icons/ArrowsDownUp.svg'),
         name: 'Spot Trading',
-        description: 'Cross-Chain DEX'
+        description: 'Limit & Market',
+        to: '/markets'
       },
       {
         icon: require('~/assets/icons/ChartLineUp.svg'),
         name: 'Earn',
-        description: 'Cross-Chain DEX'
+        description: 'Providing Liquidity',
+        to: '/swap'
       },
       {
         icon: require('~/assets/icons/Image.svg'),
-        name: 'Nft',
-        description: 'Cross-Chain DEX'
+        name: 'NFT',
+        description: 'Multiple Protocols',
+        to: '/nft-market'
       }
     ]
   })

@@ -14,26 +14,18 @@ const timeframes = {
   '30D': ONEDAY * 30
 }
 
-const timepoints = {
-  '24H': 60 * 60 * 1000,
-  '7D': 60 * 60 * 4 * 1000,
-  '30D': 60 * 60 * 12 * 1000
-}
-
-const defCache = cacheSeconds(15, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
-})
-
-pools.get('/:pair_id/line_chart', defCache, async (req, res) => {
+pools.get('/:pair_id/line_chart', cacheSeconds(15, (req, res) => {
+  return req.originalUrl + '|' + req.query.reverse + '|' + req.app.get('network').name
+}), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
+  const { period, reverse } = req.query.params
 
-  const { period, reverse } = req.query
   const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
 
   const $divide = reverse == 'true' ? ['$pool2', '$pool1'] : ['$pool1', '$pool2']
   const prices = await Exchange.aggregate([
-    { $match: { chain: network.name, pair_id: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
+    { $match: { chain: network.name, pair_id: parseInt(pair_id), time: { $gte: Date.now() - timeframe } } },
     {
       $group:
       {
@@ -41,7 +33,7 @@ pools.get('/:pair_id/line_chart', defCache, async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000] }
             ]
           }
         },
@@ -58,15 +50,14 @@ pools.get('/:pair_id/line_chart', defCache, async (req, res) => {
   res.json(prices)
 })
 
-pools.get('/:pair_id/volume_chart', defCache, async (req, res) => {
+pools.get('/:pair_id/volume_chart', cacheSeconds(60 * 5, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
-  const { period } = req.query
-  const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
-
   const volume = await Exchange.aggregate([
-    { $match: { chain: network.name, pair_id: parseFloat(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
+    { $match: { chain: network.name, pair_id: parseFloat(pair_id) } },
     {
       $group:
       {
@@ -74,7 +65,7 @@ pools.get('/:pair_id/volume_chart', defCache, async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000] }
             ]
           }
         },
@@ -90,17 +81,16 @@ pools.get('/:pair_id/volume_chart', defCache, async (req, res) => {
   res.json(volume)
 })
 
-pools.get('/:pair_id/liquidity_chart', defCache, async (req, res) => {
+pools.get('/:pair_id/liquidity_chart', cacheSeconds(60 * 5, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
-  const { period, reverse } = req.query
-  const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
-
-  const side = reverse == 'true' ? '$pool2' : '$pool1'
+  const side = req.query.reverse == 'true' ? '$pool2' : '$pool1'
 
   const volume = await Liquidity.aggregate([
-    { $match: { chain: network.name, pair_id: parseFloat(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
+    { $match: { chain: network.name, pair_id: parseInt(pair_id) } },
     {
       $group:
       {
@@ -108,7 +98,7 @@ pools.get('/:pair_id/liquidity_chart', defCache, async (req, res) => {
           $toDate: {
             $subtract: [
               { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
+              { $mod: [{ $toLong: '$time' }, 60 * 60 * 12 * 1000] }
             ]
           }
         },

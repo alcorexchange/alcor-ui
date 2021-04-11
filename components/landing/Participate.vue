@@ -2,7 +2,7 @@
 .participage
   .inner.alcor-inner
     SectionTitle Participate in Protocol
-    .text Alcor DAO
+    .text Alcor DAO coming soon..
     .main
         .left
             .left-inner
