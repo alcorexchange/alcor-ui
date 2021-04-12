@@ -5,6 +5,20 @@
       AlcorButton.button(@click="login(wallet.index)" alternative)
         img(:src="wallet.logo" height="30").mr-2
         span {{ wallet.name }}
+  .divider
+    span.line
+    .text I don't have any wallet yet
+    span.line
+  .footer-actions
+  .items
+    .item
+      AlcorButton.button(alternative)
+            img(:src="wallets[0].logo" height="30").mr-2
+            span Create Anchor
+    .item
+      AlcorButton.button(alternative)
+            img(:src="wallets[1].logo" height="30").mr-2
+            span Create Scatter
 
     //.col
       .mb-2.mr-2
@@ -151,24 +165,39 @@ export default {
   display: flex;
   flex-wrap: wrap;
   padding: 14px;
+  width: 100%;
   .item {
     width: 50%;
     padding: 6px;
   }
-  .button {
-    width: 100% !important;
+}
+.button {
+  width: 100% !important;
+  flex: 1;
+  padding: 8px;
+  justify-content: flex-start;
+  border-radius: 12px !important;
+  img {
+    padding: 0 8px;
+  }
+  span {
+    display: flex;
+    justify-content: center;
     flex: 1;
-    padding: 8px;
-    justify-content: flex-start;
-    border-radius: 12px;
-    img {
-      padding: 0 8px;
-    }
-    span {
-      display: flex;
-      justify-content: center;
-      flex: 1;
-    }
+  }
+}
+.divider {
+  display: flex;
+  align-items: center;
+  padding: 8px 18px;
+  width: 100%;
+  .text {
+    padding: 0 8px;
+  }
+  .line {
+    flex: 1;
+    height: 2px;
+    background: rgba(100, 100, 100, 0.5);
   }
 }
 </style>
