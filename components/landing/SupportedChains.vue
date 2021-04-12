@@ -14,7 +14,7 @@
       .social-items
         a.item(href="https://t.me/alcorexchange" target="_blank")
           .icon
-            img(src='~/assets/icons/telegram.svg')
+            img(src='~/assets/icons/Telegram.svg')
           span.name Telegram
           span.desc Support & Trading Talks
         a.item(href="https://avral.medium.com/" target="_blank")
