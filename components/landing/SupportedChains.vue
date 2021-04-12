@@ -34,7 +34,7 @@
           span.desc Announcements
         a.item(href="mailto:admin@alcor.exchange")
           .icon
-            img(src='~/assets/icons/email.svg')
+            img(src='~/assets/icons/Email.svg')
           span.name Email
           span.desc admin@alcor.exchange
 </template>
