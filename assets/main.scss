@@ -223,10 +223,6 @@ a {
   }
 
   .trading-terminal {
-    .el-table__row:hover {
-      background-color: var(--background-color-secondary);
-    }
-
     .el-input__inner {
       background-color: var(--background-color-secondary);
     }
@@ -301,10 +297,10 @@ a {
 .theme-light,
 .theme-dark {
   .market-table {
-    th,
-    td {
-      background: var(--table-background) !important;
-    }
+    //th,
+    //td {
+    //  background: var(--table-background);
+    //}
   }
 }
 .market-table {

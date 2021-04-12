@@ -23,7 +23,7 @@
         size='small',
         prefix-icon='el-icon-search'
       )
-  .table
+  .table.el-card.is-always-shadow
     el-table.market-table(
       :data='filteredMarkets',
       style='width: 100%',
@@ -34,7 +34,7 @@
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
-            :height='isMobile ? 20 : 30'
+            :height="isMobile? '20' : '30'"
           )
 
           //span TODO
@@ -215,10 +215,15 @@ export default {
   }
 }
 
+.theme-light .markets .el-card {
+  border: none !important;
+}
+
 .markets {
   .custom-radio .el-radio-button__inner {
     padding: 8px 15px !important;
   }
+
 }
 </style>
 

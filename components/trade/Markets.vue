@@ -76,11 +76,40 @@ export default {
 </script>
 
 <style lang="scss">
+
+.theme-dark {
+  .markets-bar .el-table {
+    th, tr {
+      background: var(--background-color-base);
+    }
+
+    .el-table__row {
+      &:hover {
+        & td,
+        & th,
+        & tr {
+          background: var(--btn-active) !important;
+        }
+      }
+    }
+
+    .active-row {
+      & td,
+      & th,
+      & tr {
+        background: var(--btn-active) !important;
+      }
+    }
+
+  }
+}
+
+.markets-bar .el-table .active-row {
+  background: #e6eef1;
+}
+
 .markets-bar {
   height: 500px;
 }
 
-.markets-bar .el-table .active-row {
-  background: var(--active-row);
-}
 </style>
