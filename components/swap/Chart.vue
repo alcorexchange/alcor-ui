@@ -180,8 +180,8 @@ export default {
     renderFirstPair() {
       return `1 ${this.pair.pool1.quantity.symbol.code().to_string()} =
          ${(
-           parseFloat(this.pair.pool1.quantity) /
-           parseFloat(this.pair.pool2.quantity)
+           parseFloat(this.pair.pool2.quantity) /
+           parseFloat(this.pair.pool1.quantity)
          ).toFixed(8)}
          ${this.pair.pool2.quantity.symbol.code().to_string()}
        `
@@ -189,8 +189,8 @@ export default {
     renderSecondPair() {
       return `1 ${this.pair.pool2.quantity.symbol.code().to_string()} =
          ${(
-           parseFloat(this.pair.pool2.quantity) /
-           parseFloat(this.pair.pool1.quantity)
+           parseFloat(this.pair.pool1.quantity) /
+           parseFloat(this.pair.pool2.quantity)
          ).toFixed(8)}
          ${this.pair.pool1.quantity.symbol.code().to_string()}
        `
