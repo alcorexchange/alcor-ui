@@ -31,9 +31,11 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
 
   $axios.setBaseURL(state.baseUrl + '/api')
 
-  const socket = require('socket.io-client')(state.baseUrl)
-  const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
+  if (process.client) {
+    const socket = require('socket.io-client')(state.baseUrl)
+    inject('socket', socket)
+  }
 
-  inject('socket', socket)
+  const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
   inject('rpc', rpc)
 }
