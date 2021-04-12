@@ -1,7 +1,7 @@
 <template>
   <div class="hero">
     <div class="left">
-      <h1>All in one DeFi</h1>
+      <h1>All in one DEX</h1>
       <p class="desc">
         Alcor is a lego of decentralized finance built on multi-chain, and a
         provider of solutions in one tap.

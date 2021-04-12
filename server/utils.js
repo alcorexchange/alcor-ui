@@ -1,8 +1,3 @@
-import axios from 'axios'
-
-import axiosRetry from 'axios-retry'
-axiosRetry(axios, { retries: 3 })
-
 import config from '../config'
 
 const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
@@ -22,8 +17,6 @@ export function serverInit(req, res, next) {
   } else {
     req.app.set('network', config.networks[subdomain[0]])
   }
-
-  req.app.set('axios', axios)
 
   next()
 }

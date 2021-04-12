@@ -5,7 +5,7 @@ div
     span
       slot
 
-  el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user")
+  el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user && user.balances")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       // TODO Bit symbol and amount here
       span Tokens are locked in the contract until the transaction is completed.

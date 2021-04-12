@@ -243,12 +243,12 @@ export default {
         )
         // UPDATING OF user balance
         await this.$store.dispatch('loadUserLiqudityPositions')
+        setTimeout(() => this.$store.dispatch('loadUserBalances'), 2000)
 
         this.amount = 0.0
         this.amountChange()
 
         this.$notify({ title: 'Withdraw', message: 'Success', type: 'success' })
-        this.$store.dispatch('loadUserBalances')
         console.log(r)
       } catch (e) {
         console.log(e)

@@ -129,6 +129,10 @@ export default {
   }
 }
 
+.chain {
+  object-fit: contain;
+}
+
 @media only screen and (max-width: 1240px) {
   .chains {
     justify-content: center;

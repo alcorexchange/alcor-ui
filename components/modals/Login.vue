@@ -7,18 +7,18 @@
         span {{ wallet.name }}
   .divider
     span.line
-    .text I don't have any wallet yet
+    .text Don't have any wallet yet ?
     span.line
   .footer-actions
-  .items
+  .items(v-if="wallets.length > 0")
     .item
-      AlcorButton.button(alternative)
-            img(:src="wallets[0] && wallets[0].logo" height="30").mr-2
-            span Create Anchor
+      AlcorButton.button(alternative @click="openInNewTab(wallets[0].create)")
+        img(:src="wallets[0].logo" height="30").mr-2
+        span Get {{ wallets[0].name }}
     .item
-      AlcorButton.button(alternative)
-            img(:src="wallets[1] && wallets[1].logo" height="30").mr-2
-            span Create Scatter
+      AlcorButton.button(alternative @click="openInNewTab(wallets[1].create)")
+        img(:src="wallets[1].logo" height="30").mr-2
+        span Get {{ wallets[1].name }}
 
     //.col
       .mb-2.mr-2
@@ -91,11 +91,18 @@ export default {
     console.log('login mounted')
 
     const wallets = [
-      { name: 'Anchor', logo: require('@/assets/logos/anchor.svg'), index: 1 },
+      {
+        name: 'Anchor',
+        logo: require('@/assets/logos/anchor.svg'),
+        index: 1,
+        create: 'https://greymass.com/en/anchor/'
+      },
       {
         name: 'Scatter / TP / Starteos',
         logo: require('@/assets/logos/scatter.svg'),
-        index: 0
+        index: 0,
+        create:
+          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
       },
       {
         name: 'SimplEOS',
@@ -123,7 +130,8 @@ export default {
       wallets.unshift({
         name: 'Wax Cloud Wallet',
         logo: require('@/assets/logos/wax.svg'),
-        index: 'wax'
+        index: 'wax',
+        create: 'https://all-access.wax.io/'
       })
     }
 
