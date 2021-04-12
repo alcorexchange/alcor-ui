@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]"
+    :class="['alcor-button', { flat, alternative, iconOnly, iconOnlyAlt }]"
     @click.prevent="$emit('click')"
   >
     <div class="inner">
@@ -17,6 +17,10 @@ export default {
       default: false,
       type: Boolean
     },
+    alternative: {
+      default: false,
+      type: Boolean
+    },
     iconOnly: {
       default: false
     },
@@ -27,7 +31,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 button {
   border: none;
   font-family: 'Sans', sans-serif;
@@ -42,6 +46,9 @@ button {
   background: var(--btn-default);
   transition: all 0.3s;
   display: inline-block;
+  &.alternative {
+    background: var(--btn-alternative);
+  }
 }
 .alcor-button .vs-icon {
   margin: 0 2px;

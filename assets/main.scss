@@ -276,6 +276,11 @@ a {
   }
 }
 
+.el-dialog {
+  background: var(--dialog-background) !important;
+  border-radius: 16px !important;
+}
+
 .custom-radio {
   box-shadow: none !important;
   .el-radio-button {

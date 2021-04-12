@@ -1,11 +1,10 @@
 <template lang="pug">
 .row(v-loading="loading")
-  .col-auto
-    .d-flex.flex-wrap
-      .mb-2.mr-2(v-for="wallet in wallets")
-        el-button(size="large" @click="login(wallet.index)")
-          img(:src="wallet.logo" height="30").mr-2
-          span {{ wallet.name }}
+  .items
+    .item(v-for="wallet in wallets")
+      AlcorButton.button(@click="login(wallet.index)" alternative)
+        img(:src="wallet.logo" height="30").mr-2
+        span {{ wallet.name }}
 
     //.col
       .mb-2.mr-2
@@ -56,8 +55,12 @@
 <script>
 import { captureException } from '@sentry/browser'
 import { mapState } from 'vuex'
+import AlcorButton from '@/components/AlcorButton'
 
 export default {
+  components: {
+    AlcorButton
+  },
   data() {
     return {
       loading: false,
@@ -75,23 +78,47 @@ export default {
 
     const wallets = [
       { name: 'Anchor', logo: require('@/assets/logos/anchor.svg'), index: 1 },
-      { name: 'Scatter / TP / Starteos', logo: require('@/assets/logos/scatter.svg'), index: 0 },
-      { name: 'SimplEOS', logo: require('@/assets/logos/simpleos.svg'), index: 2 },
+      {
+        name: 'Scatter / TP / Starteos',
+        logo: require('@/assets/logos/scatter.svg'),
+        index: 0
+      },
+      {
+        name: 'SimplEOS',
+        logo: require('@/assets/logos/simpleos.svg'),
+        index: 2
+      },
       { name: 'Lynx', logo: require('@/assets/logos/lynx.svg'), index: 3 },
       { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 }
     ]
 
     if (this.network.name == 'eos') {
-      wallets.push({ name: '', logo: require('@/assets/logos/wombat.png'), index: 0 })
-      wallets.push({ name: 'Keycat', logo: require('@/assets/logos/keycat.svg'), index: 5 })
+      wallets.push({
+        name: '',
+        logo: require('@/assets/logos/wombat.png'),
+        index: 0
+      })
+      wallets.push({
+        name: 'Keycat',
+        logo: require('@/assets/logos/keycat.svg'),
+        index: 5
+      })
     }
 
     if (this.network.name == 'wax') {
-      wallets.unshift({ name: 'Wax Cloud Wallet', logo: require('@/assets/logos/wax.svg'), index: 'wax' })
+      wallets.unshift({
+        name: 'Wax Cloud Wallet',
+        logo: require('@/assets/logos/wax.svg'),
+        index: 'wax'
+      })
     }
 
     if (this.network.name == 'proton') {
-      wallets.unshift({ name: '', logo: require('@/assets/logos/proton_wallet.svg'), index: 5 })
+      wallets.unshift({
+        name: '',
+        logo: require('@/assets/logos/proton_wallet.svg'),
+        index: 5
+      })
     }
 
     this.wallets = wallets
@@ -106,7 +133,11 @@ export default {
         this.$store.dispatch('modal/closeModal')
       } catch (e) {
         captureException(e)
-        this.$notify({ title: `${provider} login error`, message: e, type: 'error' })
+        this.$notify({
+          title: `${provider} login error`,
+          message: e,
+          type: 'error'
+        })
       } finally {
         this.loading = false
       }
@@ -114,3 +145,30 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 14px;
+  .item {
+    width: 50%;
+    padding: 6px;
+  }
+  .button {
+    width: 100% !important;
+    flex: 1;
+    padding: 8px;
+    justify-content: flex-start;
+    border-radius: 12px;
+    img {
+      padding: 0 8px;
+    }
+    span {
+      display: flex;
+      justify-content: center;
+      flex: 1;
+    }
+  }
+}
+</style>
