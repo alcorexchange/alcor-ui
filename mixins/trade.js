@@ -115,6 +115,8 @@ export const tradeMixin = {
       const amount = asset(this.amount + ' TEST').amount
       const price = asset(this.price + ' TEST').amount
 
+      // TODO and FIXME the price calculation is wrong here..
+      //console.log('amount', amount, price, qp, bp, correct_price(price, qp, bp))
       const total = amount.multiply(correct_price(price, qp, bp)).divide(config.PRICE_SCALE)
 
       this.amount = amountToFloat(amount, qp)
