@@ -3,8 +3,8 @@
   .col.swap-pools
     .row
       .col
-        .d-flex.mb-1
-          small.text-muted Pay
+        .d-flex.mb-1.select-label
+          small.text-muted Sell
 
           el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance }}
             i.el-icon-wallet.ml-1
@@ -20,9 +20,9 @@
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
     .row.mt-1
       .col
-        .d-flex.mb-1
-          small.text-muted Estimated Receive
-          small.text-mutted.small.ml-auto {{ outputBalance }}
+        .d-flex.mb-1.select-label
+          small.text-muted Buy (Estimated)
+          small.text-mutted.small.ml-auto.with-padding {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="outputAmount" :tokens="tokens1" readonly :token="1" @change="tokenChanged(1)")
@@ -44,7 +44,7 @@
     .row.mt-4
       .col
         PleaseLoginButton
-          div(v-loading="loading")
+          div(v-loading="loading").confirm-button
             .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
               el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
             .div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
@@ -59,22 +59,23 @@
         .d-flex.justify-content-between
           small Minimum Received
           .small {{ minOutput }}
-
+        SSpacer
         .d-flex.justify-content-between
           small Rate
           .small {{ price }}
-
+            .el-icon-refresh(@click="priceReverse = !priceReverse").ml-1.pointer
+        SSpacer
         .d-flex.justify-content-between
           small Price Impact
           .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
           .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
           .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
-          .small(v-else).font-weight-bold {{ priceImpact }} %
-
+          .small(v-else).font-weight-bold {{ priceImpact}} %
+        SSpacer
         .d-flex.justify-content-between
           small Slippage
           .small 3%
-
+        SSpacer
         .d-flex.justify-content-between
           small Liquidity Source Fee
           .small {{ fee }}%
@@ -92,16 +93,20 @@ import config from '~/config'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
+import SSpacer from '~/components/SSpacer.vue'
 
 export default {
   components: {
     SelectToken,
-    PleaseLoginButton
+    PleaseLoginButton,
+    SSpacer
   },
 
   data() {
     return {
       loading: false,
+
+      priceReverse: false,
 
       ibcForm: {
         transfer: false,
@@ -119,7 +124,10 @@ export default {
           validator: async (rule, value, callback) => {
             if (value == '') return callback()
             this.loading = true
-            const exists = await isAccountExists(value, config.networks[this.ibcChain])
+            const exists = await isAccountExists(
+              value,
+              config.networks[this.ibcChain]
+            )
             this.loading = false
 
             if (exists) {
@@ -166,11 +174,22 @@ export default {
     },
 
     price() {
-      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return '0.0000'
+      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount)))
+        return '0.0000'
 
-      const rate = (parseFloat(this.outputAmount) / parseFloat(this.inputAmount)).toFixed(4)
+      if (this.priceReverse) {
+        const rate = (
+          parseFloat(this.inputAmount) / parseFloat(this.outputAmount)
+        ).toFixed(4)
 
-      return `${this.input.symbol} = ${rate} ${this.output.symbol}`
+        return `${rate} ${this.input.symbol} per ${this.output.symbol}`
+      } else {
+        const rate = (
+          parseFloat(this.outputAmount) / parseFloat(this.inputAmount)
+        ).toFixed(4)
+
+        return `${rate} ${this.output.symbol} per ${this.input.symbol}`
+      }
     },
 
     fee() {
@@ -178,9 +197,16 @@ export default {
     },
 
     priceImpact() {
-      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return 0.0
+      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount)))
+        return 0.0
 
-      return parseFloat(((parseFloat(this.outputAmount) * 0.97) / (parseFloat(this.poolTwo.quantity)) * 100).toFixed(2))
+      return parseFloat(
+        (
+          ((parseFloat(this.outputAmount) * 0.97) /
+            parseFloat(this.poolTwo.quantity)) *
+          100
+        ).toFixed(2)
+      )
     }
   },
 
@@ -202,9 +228,12 @@ export default {
     tokenChanged(token) {
       this.ibcForm.transfer = false
 
-      if (token == 0 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
-      if (token == 0 && this.input && parseFloat(this.outputAmount)) this.calcInput()
-      if (token == 1 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
+      if (token == 0 && this.input && parseFloat(this.inputAmount))
+        this.calcOutput()
+      if (token == 0 && this.input && parseFloat(this.outputAmount))
+        this.calcInput()
+      if (token == 1 && this.input && parseFloat(this.inputAmount))
+        this.calcOutput()
       if (token == 1 && !this.input) this.calcInput()
     },
 
@@ -214,16 +243,30 @@ export default {
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
 
-      const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT').amount
+      const amount_in = asset(
+        parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT'
+      ).amount
 
       const amount_out = BigInt.min(
-        get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee),
+        get_amount_out(
+          amount_in,
+          reserve_in.amount,
+          reserve_out.amount,
+          this.pair.fee
+        ),
         reserve_out.amount
       )
-      const amount_min_output = amount_out.minus(amount_out.multiply(50).divide(1000))
+      const amount_min_output = amount_out.minus(
+        amount_out.multiply(50).divide(1000)
+      )
 
-      this.minOutput = asset(amount_min_output, symbol(this.output.symbol, this.output.precision)).to_string()
-      this.outputAmount = parseFloat(asset(amount_out, reserve_out.symbol).to_string()).toFixed(this.output.precision)
+      this.minOutput = asset(
+        amount_min_output,
+        symbol(this.output.symbol, this.output.precision)
+      ).to_string()
+      this.outputAmount = parseFloat(
+        asset(amount_out, reserve_out.symbol).to_string()
+      ).toFixed(this.output.precision)
     },
 
     calcInput() {
@@ -232,20 +275,34 @@ export default {
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
 
-      let amount_out = asset(parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT').amount
+      let amount_out = asset(
+        parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT'
+      ).amount
       if (amount_out > reserve_out.amount) {
         amount_out = reserve_out.amount.minus(1)
         this.outputAmount = asset(amount_out, reserve_out.symbol).to_string()
       }
 
       const amount_in = BigInt.min(
-        get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee),
+        get_amount_in(
+          amount_out,
+          reserve_in.amount,
+          reserve_out.amount,
+          this.pair.fee
+        ),
         reserve_in.amount
       )
-      const amount_min_input = amount_in.minus(amount_out.multiply(30).divide(1000))
+      const amount_min_input = amount_in.minus(
+        amount_out.multiply(30).divide(1000)
+      )
 
-      this.inputAmount = parseFloat(asset(amount_in, reserve_in.symbol).to_string()).toFixed(this.input.precision)
-      this.minOutput = asset(amount_min_input, symbol(this.output.symbol, this.output.precision)).to_string()
+      this.inputAmount = parseFloat(
+        asset(amount_in, reserve_in.symbol).to_string()
+      ).toFixed(this.input.precision)
+      this.minOutput = asset(
+        amount_min_input,
+        symbol(this.output.symbol, this.output.precision)
+      ).to_string()
     },
 
     toggleInputs() {
@@ -303,7 +360,10 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: parseFloat(this.inputAmount).toFixed(this.input.precision) + ' ' + this.input.symbol,
+            quantity:
+              parseFloat(this.inputAmount).toFixed(this.input.precision) +
+              ' ' +
+              this.input.symbol,
             memo
           }
         }
@@ -321,7 +381,11 @@ export default {
 
         this.$notify({ title: 'Swap', message: 'Success', type: 'success' })
       } catch (e) {
-        this.$notify({ title: 'Swap error', message: 'message' in e ? e.message : e, type: 'error' })
+        this.$notify({
+          title: 'Swap error',
+          message: 'message' in e ? e.message : e,
+          type: 'error'
+        })
       } finally {
         this.loading = false
       }
@@ -352,20 +416,28 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.theme-dark {
-  .swap-pools {
-    .el-switch__core {
-      background: #484848;
-    }
+<style lang="scss" scoped>
+.confirm-button button {
+  background: rgba(46, 46, 49, 0.6);
+  padding: 20px;
+  border: none;
+  border-radius: var(--radius-2);
+  &:hover {
+    background: rgba(46, 46, 49, 0.6);
   }
 }
-
+.theme-dark .confirm-button button {
+  background: #161617;
+  &:hover {
+    background: #161617;
+  }
+}
+</style>
+<style lang="scss">
 .swap-pools {
   .el-form-item__error {
     top: -32px;
     left: -5px;
   }
-
 }
 </style>

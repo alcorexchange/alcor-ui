@@ -88,7 +88,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
 
     baseToken() {

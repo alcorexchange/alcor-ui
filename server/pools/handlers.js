@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { JsonRpc } from 'eosjs'
 
-import { Liquidity, Exchange } from '../models'
+import { Liquidity, Exchange, PoolPair } from '../models'
 
 export async function newExchange(network, action) {
   const {
@@ -43,6 +43,38 @@ export async function newLiuqudity(network, action) {
       }
     }
   } = action
+
+  if (lp_token == supply) {
+    const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
+
+    const { rows: [pair] } = await rpc.get_table_rows({
+      code: network.pools.contract,
+      scope: network.pools.contract,
+      table: 'pairs',
+      lower_bound: pair_id,
+      limit: 1
+    })
+
+    if (!pair || pair.id != pair_id) {
+      console.log('ERR: Wrong pair_id, while add new PoolPair')
+      return
+    }
+
+    // New pool are created
+    PoolPair.create({
+      pair_id,
+
+      pool1: {
+        contract: pair.pool1.contract,
+        symbol: pair.pool1.quantity.split(' ')[1]
+      },
+
+      pool2: {
+        contract: pair.pool2.contract,
+        symbol: pair.pool2.quantity.split(' ')[1]
+      }
+    })
+  }
 
   await Liquidity.create({
     chain: network.name,

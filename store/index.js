@@ -16,8 +16,6 @@ export const state = () => ({
   markets: [],
   network: {},
 
-  isMobile: false,
-  theme: 'light',
   baseUrl: '',
   loading: false,
   tokens: [],
@@ -35,21 +33,16 @@ export const mutations = {
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
-  setIsMobile: (state, mobile) => state.isMobile = mobile,
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
   setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
   setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
-  setTheme: (state, theme) => state.theme = theme
 }
 
 export const actions = {
   init({ dispatch, state }) {
     dispatch('fetchTokens')
-    window.addEventListener('resize', () => dispatch('checkIsMobile'))
-
-    console.log('state.network.name', state.network.name)
 
     //setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
 
@@ -62,12 +55,7 @@ export const actions = {
   },
 
   toggleTheme({ state, commit }) {
-    document.documentElement.classList.toggle('theme-dark')
-    commit('setTheme', state.theme == 'light' ? 'dark' : 'light')
-  },
-
-  checkIsMobile ({ commit }) {
-    commit('setIsMobile', window.innerWidth <= 1000)
+    this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : 'light'
   },
 
   async fetchTokens({ commit }) {
@@ -124,8 +112,7 @@ export const actions = {
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
       axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
-        const balances = r.data.balances
-        console.log('balances', balances)
+        const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 
@@ -153,6 +140,20 @@ export const actions = {
 export const getters = {
   user(state) {
     return state.user
+  },
+
+  systemBalance(state) {
+    const { symbol, contract } = state.network.baseToken
+
+    if (state.user && state.user.balances) {
+      const systemBalance = state.user.balances.filter(b => {
+        return b.currency === symbol && b.contract === contract
+      })[0]
+
+      if (systemBalance) return parseFloat(systemBalance.amount).toFixed(4) + ' ' + symbol
+    }
+
+    return `0.0000 ${symbol}`
   },
 
   knownTokens(state) {

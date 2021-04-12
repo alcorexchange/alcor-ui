@@ -57,7 +57,6 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
     ...mapState(['network', 'markets']),
 
     balances() {
@@ -107,7 +106,7 @@ export default {
 
     td:first-child:hover {
       cursor: pointer;
-      background-color: #eff1f5;
+      //background-color: #eff1f5;
     }
   }
 

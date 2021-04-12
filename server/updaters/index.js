@@ -41,6 +41,6 @@ export async function updater(chain, app, provider, services) {
 
   if (services.includes('pools')) {
     console.log('start pools updater for', chain)
-    streamer(network, app, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog'])
+    streamer(network, app, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
   }
 }

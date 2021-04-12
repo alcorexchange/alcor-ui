@@ -5,7 +5,7 @@ const MARKET_STATS_CACHE_TIME = 60 * 30
 const networks = {
   eos: {
     name: 'eos',
-    desc: 'EOS mainnet',
+    desc: 'EOS Mainnet',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -116,7 +116,7 @@ const networks = {
 
   proton: {
     name: 'proton',
-    desc: 'Proton mainnet',
+    desc: 'Proton Mainnet',
     contract: 'alcor',
 
     baseToken: {
@@ -161,7 +161,7 @@ const networks = {
 
   wax: {
     name: 'wax',
-    desc: 'WAX mainnet',
+    desc: 'WAX Mainnet',
     contract: 'alcordexmain',
 
     baseToken: {
@@ -176,7 +176,6 @@ const networks = {
     chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
 
     host: 'wax.greymass.com',
-    //host: 'wax.eosdsp.com',
     port: 443,
     protocol: 'https',
     monitor: 'http://wax.bloks.io',
@@ -209,7 +208,7 @@ const networks = {
 
   telos: {
     name: 'telos',
-    desc: 'Telos mainnet',
+    desc: 'Telos Mainnet',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -285,7 +284,7 @@ const networks = {
 
   bos: {
     name: 'bos',
-    desc: 'BOS mainnet',
+    desc: 'BOS Mainnet',
     contract: 'alcordexmain',
 
     baseToken: {
@@ -328,7 +327,7 @@ const networks = {
 
   coffe: {
     name: 'coffe',
-    desc: 'COFFE mainnet',
+    desc: 'COFFE Mainnet',
     contract: 'eostokensdex',
 
     baseToken: {

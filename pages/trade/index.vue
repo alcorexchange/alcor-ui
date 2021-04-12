@@ -33,7 +33,6 @@ export default {
 
   computed: {
     ...mapState(['network', 'markets']),
-    ...mapGetters('chain', ['rpc', 'scatter']),
     ...mapState('market', ['symbol', 'id', 'stats', 'streaming']),
     ...mapGetters(['user'])
   },

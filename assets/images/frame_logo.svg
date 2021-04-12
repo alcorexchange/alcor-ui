@@ -1,0 +1,38 @@
+<svg width="220" height="313" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com" data-name="Layer 1">
+ <defs>
+  <style>.e1c162ba-e672-4145-b1e9-fa7dcb770481 {
+        opacity: 0.95;
+      }
+
+      .bbdefb45-a7d2-4ce0-8048-9830cfc0952a {
+        fill: #333738;
+      }
+
+      .a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79, .bbdefb45-a7d2-4ce0-8048-9830cfc0952a {
+        stroke: #f2f2f2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 7px;
+      }
+
+      .a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79 {
+        fill: none;
+      }
+
+      .b77e305a-40a7-4900-9479-6029b1eb3053 {
+        fill: #bdc2c6;
+      }</style>
+ </defs>
+ <title>alcorlogo</title>
+ <g class="layer">
+  <title>Layer 1</title>
+  <g class="e1c162ba-e672-4145-b1e9-fa7dcb770481" id="svg_1">
+   <polygon class="bbdefb45-a7d2-4ce0-8048-9830cfc0952a" id="svg_2" points="109.80999755859375,313.3399963378906 0,206.42999267578125 109.80999755859375,0 219.61000061035156,206.42999267578125 109.80999755859375,313.3399963378906 "/>
+   <line class="a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79" id="svg_3" x1="96.8" x2="0" y1="231.07" y2="206.43"/>
+   <line class="a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79" id="svg_4" x1="219.61" x2="124.08" y1="206.43" y2="231.07"/>
+   <polygon class="a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79" id="svg_5" points="109.80999755859375,313.3399963378906 72.51000213623047,70.12000274658203 147.10000610351562,70.12000274658203 109.80999755859375,313.3399963378906 "/>
+   <line class="a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79" id="svg_6" x1="0" x2="109.8" y1="206.43" y2="174.18"/>
+   <line class="a90a28cf-cff2-4dd6-8ab9-82cc32d7aa79" id="svg_7" x1="219.61" x2="109.8" y1="206.43" y2="174.18"/>
+  </g>
+ </g>
+</svg>

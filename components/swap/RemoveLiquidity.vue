@@ -3,7 +3,7 @@
   .col.pool-withdraw
     .row.mt-4
       .col
-        .d-flex.justify-content-between
+        .d-flex.justify-content-between.select-label
           small.mb-1 From
           small.mb-1(v-if="withdraw_token") {{ withdraw_token.amount }} {{ withdraw_token.symbol }}
             i.el-icon-wallet.ml-1
@@ -26,7 +26,7 @@
 
       .row.mt-3
         .col
-          PleaseLoginButton
+          PleaseLoginButton.confirm-button
             el-button(v-if="parseFloat(amount)" type="primary" @click="withdraw" :loading="loading").w-100 Withdraw
             el-button(v-else type="primary" disabled).w-100 Select Amount
 
@@ -61,13 +61,14 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('api', ['rpc']),
     ...mapState(['network']),
     ...mapState('swap', ['pairs', 'withdraw_token']),
 
     pair() {
       if (!this.withdraw_token.symbol) return null
-      return this.pairs.filter(p => p.supply.symbol.code().to_string() == this.withdraw_token.symbol)[0]
+      return this.pairs.filter(
+        (p) => p.supply.symbol.code().to_string() == this.withdraw_token.symbol
+      )[0]
     },
 
     tokenOne() {
@@ -85,32 +86,58 @@ export default {
     lpTokens() {
       if (!this.user || !this.user.balances) return []
 
-      return this.user.balances.filter(b => b.contract == this.network.pools.contract).map(b => {
-        b.symbol = b.currency
-        b.precision = parseInt(b.decimals)
-        return b
-      })
+      return this.user.balances
+        .filter((b) => b.contract == this.network.pools.contract)
+        .map((b) => {
+          b.symbol = b.currency
+          b.precision = parseInt(b.decimals)
+          return b
+        })
     },
 
     baseReceive() {
       if (!this.amount || !this.pair) {
         if (!this.pair) return '0.0000'
-        return number_to_asset(0, this.pair.supply.symbol).to_string().split(' ')[0]
+        return number_to_asset(0, this.pair.supply.symbol)
+          .to_string()
+          .split(' ')[0]
       } else {
-        let amount = this.inputToAsset(this.amount, this.pair.supply.symbol.precision()).amount
-        amount = computeForward(amount.multiply(-1), this.pair.pool1.quantity.amount, this.pair.supply.amount, 0).abs()
-        return asset(amount, this.pair.pool1.quantity.symbol).to_string().split(' ')[0]
+        let amount = this.inputToAsset(
+          this.amount,
+          this.pair.supply.symbol.precision()
+        ).amount
+        amount = computeForward(
+          amount.multiply(-1),
+          this.pair.pool1.quantity.amount,
+          this.pair.supply.amount,
+          0
+        ).abs()
+        return asset(amount, this.pair.pool1.quantity.symbol)
+          .to_string()
+          .split(' ')[0]
       }
     },
 
     quoteReceive() {
       if (!this.amount || !this.pair) {
         if (!this.pair) return '0.0000'
-        return number_to_asset(0, this.pair.supply.symbol).to_string().split(' ')[0]
+        return number_to_asset(0, this.pair.supply.symbol)
+          .to_string()
+          .split(' ')[0]
       } else {
-        let amount = this.inputToAsset(this.amount, this.pair.supply.symbol.precision()).amount
-        amount = computeForward(amount.multiply(-1), this.pair.pool2.quantity.amount, this.pair.supply.amount, 0).abs()
-        return asset(amount, this.pair.pool2.quantity.symbol).to_string().split(' ')[0]
+        let amount = this.inputToAsset(
+          this.amount,
+          this.pair.supply.symbol.precision()
+        ).amount
+        amount = computeForward(
+          amount.multiply(-1),
+          this.pair.pool2.quantity.amount,
+          this.pair.supply.amount,
+          0
+        ).abs()
+        return asset(amount, this.pair.pool2.quantity.symbol)
+          .to_string()
+          .split(' ')[0]
       }
     },
 
@@ -149,17 +176,21 @@ export default {
       if (this.amountPercent === 100) {
         this.amount = balance
       } else {
-        this.amount = (balance / 100 * this.amountPercent)
+        this.amount = (balance / 100) * this.amountPercent
       }
 
-      this.amount = (parseFloat(this.amount) || 0).toFixed(this.pair.supply.symbol.precision())
+      this.amount = (parseFloat(this.amount) || 0).toFixed(
+        this.pair.supply.symbol.precision()
+      )
     },
 
     amountChange() {
       if (!this.withdraw_token.symbol) return
 
       try {
-        this.amount = (parseFloat(this.amount) || 0).toFixed(this.pair.supply.symbol.precision())
+        this.amount = (parseFloat(this.amount) || 0).toFixed(
+          this.pair.supply.symbol.precision()
+        )
 
         const balance = parseFloat(this.withdraw_token.amount)
         if (balance == 0) return
@@ -183,7 +214,8 @@ export default {
           authorization,
           data: {
             user: this.user.name,
-            to_sell: this.amount + ' ' + this.pair.supply.symbol.code().to_string(),
+            to_sell:
+              this.amount + ' ' + this.pair.supply.symbol.code().to_string(),
             min_asset1: this.baseReceive,
             min_asset2: this.quoteReceive
           }
@@ -198,11 +230,19 @@ export default {
         for (const b of balances) {
           if (b.currency == this.pair.supply.symbol.code().to_string()) {
             b.amount = parseFloat(b.amount) - parseFloat(this.amount)
-            this.$store.commit('swap/setWithdrawToken', { ...this.withdraw_token, amount: b.amount })
+            this.$store.commit('swap/setWithdrawToken', {
+              ...this.withdraw_token,
+              amount: b.amount
+            })
           }
         }
-        this.$store.commit('setUser', { ...this.user, balances }, { root: true })
+        this.$store.commit(
+          'setUser',
+          { ...this.user, balances },
+          { root: true }
+        )
         // UPDATING OF user balance
+        await this.$store.dispatch('loadUserLiqudityPositions')
 
         this.amount = 0.0
         this.amountChange()

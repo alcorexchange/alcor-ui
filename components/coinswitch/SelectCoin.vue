@@ -52,7 +52,6 @@
 import ClickOutside from 'vue-click-outside'
 import { mapState, mapGetters } from 'vuex'
 
-
 import TokenImage from '~/components/elements/TokenImage'
 
 export default {
@@ -132,7 +131,7 @@ export default {
       }
     },
 
-    handleInput (content) {
+    handleInput(content) {
       this.$emit('input', content)
     },
 
@@ -187,7 +186,6 @@ export default {
 }
 </script>
 
-
 <style lang="scss">
 .swap-token-select {
   .dropdown {
@@ -204,11 +202,11 @@ export default {
     margin-top: -8px;
 
     background: var(--background-color-third);
-    z-index: 1;
+    z-index: 8;
 
     height: 310px;
     overflow: hidden;
-
+    box-shadow: var(--dropdown-shadow);
     .pairs {
       overflow-y: auto;
       height: calc(100% - 32px);
@@ -255,12 +253,13 @@ export default {
   }
 }
 
-.pair:hover,.isActive {
+.pair:hover,
+.isActive {
   background-color: var(--background-color-base);
 }
 
 .pair:last-child {
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }
 
 .multi-input-wrapper {

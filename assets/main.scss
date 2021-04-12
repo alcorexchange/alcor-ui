@@ -1,24 +1,26 @@
-@import "~/assets/_variables.scss";
-@import "./base.scss";
+// Import variables for light/dark theme
+@import '~/assets/_variables.scss';
+@import './base.scss';
 
-.bg-base { background: var(--background-color-base); }
-.bg-secondary { background: var(--background-color-secondary); }
-.bg-third { background: var(--background-color-third); }
-
-// Themes
-:root { @import "light"; }
-.theme-dark { @import "dark"; }
+// Add elements scss (themed by variables)
+@import './element.scss';
 
 @font-face {
-    font-family: element-icons;
-    src: url(fonts/element-icons.woff) format("woff"), url(fonts/element-icons.ttf) format("truetype");
+  font-family: element-icons;
+  src: url(fonts/element-icons.woff) format('woff'),
+    url(fonts/element-icons.ttf) format('truetype');
 }
 
-html, body {
-    background-color: var(--background-color-base);
-    color: var(--color-text-primary);
+html,
+body {
+  background-color: var(--background-color-base);
+  color: var(--color-text-primary);
 
-    transition: .3s;
+  transition: 0.3s;
+}
+
+*:focus {
+  outline: none !important;
 }
 
 div::-webkit-scrollbar {
@@ -32,7 +34,8 @@ div::-webkit-scrollbar-thumb {
   border-radius: 20px;
 }
 
-button, button:focus {
+button,
+button:focus {
   outline: 0;
   outline: 0;
 }
@@ -43,9 +46,9 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-label { margin: 0px; }
-
-
+label {
+  margin: 0px;
+}
 
 .el-table__row,
 .pointer {
@@ -74,10 +77,9 @@ label { margin: 0px; }
 
 @media (max-width: 425px) {
   :root .el-button + .el-button {
-     margin-left: 3px;
+    margin-left: 3px;
   }
 }
-
 
 /* Firefox */
 input[type='number'] {
@@ -106,7 +108,7 @@ input[type='number'] {
   display: flex;
 
   label.el-radio-button {
-      flex: 1;
+    flex: 1;
   }
 
   .el-radio-button__inner {
@@ -120,7 +122,7 @@ input[type='number'] {
 }
 
 .el-menu {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .el-menu-item {
@@ -132,30 +134,37 @@ input[type='number'] {
 }
 
 .el-menu-item {
-    background-color: var(--background-color-base) !important;
+  background-color: var(--background-color-base) !important;
 
-    &:hover, {
-        outline: none;
-
-        border-bottom: 2px solid var(--color-primary) !important;
-        color: var(--color-text-primary);
-    }
-}
-
-.el-menu-item.is-active {
+  &:hover {
     outline: none;
 
     border-bottom: 2px solid var(--color-primary) !important;
     color: var(--color-text-primary);
+  }
 }
 
-.el-input.is-disabled .el-input__inner {
-    background-color: #dde9ec;
+.el-menu-item.is-active {
+  outline: none;
+
+  border-bottom: 2px solid var(--color-primary) !important;
+  color: var(--color-text-primary);
 }
 
-.el-loading-mask { background-color: var(--background-color-base) !important; opacity: 0.9; }
-.nuxt-progress { background-color: var(--color-primary) !important; }
-pre { color: var(--color-primary); }
+//.el-input.is-disabled .el-input__inner {
+//    background-color: #dde9ec;
+//}
+
+.el-loading-mask {
+  background-color: var(--background-color-base) !important;
+  opacity: 0.9;
+}
+.nuxt-progress {
+  background-color: var(--color-primary) !important;
+}
+pre {
+  color: var(--color-primary);
+}
 
 // TODO Обновить UI цсс элемента
 //:root .el-radio-button:first-child .el-radio-button__inner {
@@ -182,27 +191,162 @@ pre { color: var(--color-primary); }
 //    }
 //}
 //
-.el-button:not(.el-button--text), .el-radio-group {
-    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05), inset 0 4px 4px rgba(0, 0, 0, 0.05);
+.el-button:not(.el-button--text),
+.el-radio-group {
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05),
+    inset 0 4px 4px rgba(0, 0, 0, 0.05);
 }
 
-
 // Light (default styles)
-.text-danger { color: #b82d0d !important; }
-.text-success { color: #53a95b!important; }
-a { color: #80a1c5 !important; }
+.text-danger {
+  color: #b82d0d !important;
+}
+.text-success {
+  color: #53a95b !important;
+}
+a {
+  color: #80a1c5 !important;
+}
 
 // Dark
 .theme-dark {
-    .text-danger { color: #b56150 !important; }
-
-    .trading-terminal {
-        .el-table th,tr {
-          background-color: var(--background-color-base);
-        }
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
     }
 
-    .markets-bar {
-        height: 500px;
+    color: var(--text-grey-thirdly);
+  }
+
+  .text-danger {
+    color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
     }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    height: 500px;
+  }
+}
+
+.alcor-card {
+  border-radius: 12px;
+  padding: 22px;
+  background: var(--bg-big-card);
+  box-shadow: var(--card-shadow);
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.alcor-inner {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+  margin: auto;
+}
+.confirm-button button {
+  background: rgba(46, 46, 49, 0.6);
+  padding: 20px !important;
+  border: none;
+  border-radius: var(--radius-2) !important;
+  &:hover {
+    background: rgba(46, 46, 49, 0.6);
+  }
+}
+.theme-dark .confirm-button button {
+  background: #161617;
+  &:hover {
+    background: #161617;
+  }
+}
+.select-label {
+  small {
+    padding: 7px 0;
+  }
+}
+
+.custom-radio {
+  box-shadow: none !important;
+  .el-radio-button {
+    border-radius: var(--radius) !important;
+    overflow: hidden;
+  }
+  .el-radio-button__inner {
+    padding: 8px 8px !important;
+    font-size: 1rem !important;
+    font-weight: normal !important;
+    background: transparent;
+    border: 0 !important;
+    &:hover {
+      background: var(--hover);
+    }
+  }
+}
+
+.theme-light,
+.theme-dark {
+  .market-table {
+    //th,
+    //td {
+    //  background: var(--table-background);
+    //}
+  }
+}
+.market-table {
+  border-radius: 8px;
+  overflow: hidden;
+  // tr {
+  //   padding: 8px;
+  // }
+  th,
+  td {
+    border: 0;
+  }
+  th {
+    padding: 8px 0 !important;
+    padding-left: 4px !important;
+    font-weight: normal !important;
+    font-size: 1rem;
+    color: var(--text-default);
+  }
+  // .cell {
+  //   padding: 0 !important;
+  // }
+}
+@media only screen and (max-width: 1240px) {
+  .alcor-inner {
+    padding: 0 8px;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .market-table {
+    .cell {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+    }
+    .th.cell {
+      padding-left: 4px !important;
+      padding-right: 4px !important;
+    }
+    .caret-wrapper {
+      width: 14px !important;
+    }
+    .sort-caret {
+      left: 2px !important;
+    }
+    th {
+      font-size: 0.8rem;
+    }
+  }
 }

@@ -1,0 +1,165 @@
+//@import 'element-ui/packages/theme-chalk/src/index.scss';
+
+/* 
+// THIS VARIABLES SHOULD BE GENERATED FOR DARK THEME (dark.css)
+$--color-primary: #000000;
+$--color-primary-light-9: #252525;
+//$--color-primary-light-7: #252525;
+
+$--background-color-base: #282828;
+
+$--color-white: #212121;
+//$--border-base: none;
+
+$--color-text-primary: #F2F2F2;
+$--color-text-regular: #c4c4c4;
+
+$--border-color-base: transparent;
+$--border-color-light: transparent;
+$--border-color-lighter: transparent;
+$--border-color-extra-light: transparent;
+
+
+
+// BUTTON
+$--button-default-font-color: #F2F2F2;
+$--button-disabled-font-color: #BDBDBD;
+$--button-default-background-color: #363535;
+//$--radio-input-border: none;
+
+$--button-primary-font-color: #1FC781; // green
+
+// INPUT
+$--input-font-color: #FFFFFF;
+$--input-background-color: #282828; // BG color
+$--input-disabled-fill: #000000;
+$--input-hover-border: #a7b5ac;
+$--input-focus-border: #9eaba3;
+
+// TAG
+$--tag-primary-color: #909399;
+
+// Checkbox
+$--checkbox-checked-font-color: #F2F2F2;
+$--checkbox-input-border: 1px solid;
+$--checkbox-button-checked-border-color: #000000;
+$--checkbox-input-border-color-hover: #909399;
+$--checkbox-checked-background-color: #909399;
+
+
+// SLIDER
+$--slider-main-background-color: #1FC781;
+$--slider-stop-background-color: #1FC781;
+$--slider-runway-background-color: #385544;
+
+
+// CARD
+$--card-border-color: transparent;
+$--card-border-radius: 12px;
+
+
+// RADIO
+$--radio-button-checked-font-color: #FFFFFF;
+$--radio-button-checked-border-color: transparent;
+
+// TABLE
+$--table-font-color: #d9d9d9;
+$--table-border-color: #3C3C43;
+$--table-border: 1px solid #282828;
+$--table-row-hover-background-color: #282828;
+$--table-current-row-background-color: #282828; 
+
+// SELECT
+$--select-dropdown-background: #282828;
+$--select-option-hover-background: #909399;
+$--select-option-selected-font-color: #ffffff;
+$--select-input-focus-border-color: #65676a;
+
+// POPOVER
+$--popover-background-color: #282828;
+
+// SWITCH
+$--switch-on-color: #909399;
+
+DARK END */ 
+
+
+.theme-light {
+  @import 'light';
+}
+
+.theme-dark {
+  @import 'dark';
+
+  .el-loading-spinner {
+    .path {
+      stroke: var(--text-default) !important;
+    }
+  }
+
+  .el-loading-text {
+    color: var(--text-default) !important;
+  }
+
+  // TABS
+  .el-tabs__active-bar {
+    background-color: #c4c4c4;
+  }
+
+  // CARD
+  .el-radio-button__inner:hover {
+    color: #ffffff;;
+    background: #252525;
+  }
+
+  .el-tabs__item {
+    &:hover,
+    &.is-active {
+      color: #F2F2F2 !important;
+    }
+  }
+
+  .el-switch__label {
+    color: #959595 !important;
+  }
+
+  .el-switch__core {
+    background: #484848;
+  }
+
+  // BUTTON
+  .el-button {
+    &:hover,
+    &:focus {
+      color: #F2F2F2;
+      border-color: transparent;
+    }
+  }
+
+  .el-button--primary {
+    &:hover,
+    &:focus {
+      color: #15a268;
+    }
+  }
+
+  .el-button--text {
+    color: #E3E5EB;
+  }
+
+  .el-button--primary {
+    &.is-disabled {
+    &,
+    &:hover,
+    &:focus,
+    &:active {
+        color: #BDBDBD;
+      }
+    }
+  }
+
+  // TABLE
+  .el-table {
+    background-color: #222222;
+  }
+}

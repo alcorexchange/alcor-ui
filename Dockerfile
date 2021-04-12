@@ -24,5 +24,8 @@ ENV NUXT_HOST=0.0.0.0
 # set app port
 ENV NUXT_PORT=7000
 
+ARG DOCKER_TAG
+ENV DOCKER_TAG $DOCKER_TAG
+
 # start the app
 CMD [ "yarn", "start" ]

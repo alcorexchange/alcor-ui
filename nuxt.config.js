@@ -2,7 +2,7 @@ const config = require('./config')
 const pkg = require('./package')
 
 const isSPA = process.argv.includes('--spa')
-const isDev = process.env.npm_lifecycle_event == 'dev'
+const isDev = process.env.npm_lifecycle_event == 'dev' || process.argv.includes('--dev') || process.env.NODE_ENV !== 'production'
 
 const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
 
@@ -22,12 +22,13 @@ module.exports = {
   */
   head: {
     title: config.APP_NAME + ' | EOS Trustless DEX.',
+
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: desc },
       { name: 'msapplication-TileColor', content: '#da532c' },
-      { name: 'theme-color', content: '#ffffff' }
+      //{ name: 'theme-color', content: '#ffffff' }
       //{ name: 'viewport', content: 'user-scalable = yes' }
     ],
 
@@ -37,12 +38,7 @@ module.exports = {
       { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
       { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-    ],
-
-    script: [
-      //{ src: '/datafeeds/udf/dist/polyfills.js' },
-      //{ src: '/datafeeds/udf/dist/bundle.js' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
 
@@ -82,8 +78,8 @@ module.exports = {
     '@/plugins/global',
 
     { ssr: false, src: '~/plugins/startapp.js' },
-    { ssr: false, src: '~/plugins/localStorage.js' }
-    //{ ssr: false, src: '~/plugins/vue-apexchart.js' }
+    { ssr: false, src: '~/plugins/localStorage.js' },
+    { ssr: false, src: '~/plugins/vue-apexchart.js' },
   ],
 
   /*
@@ -94,12 +90,20 @@ module.exports = {
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
-    'nuxt-imagemin'
+    'nuxt-imagemin',
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
 
   axios: {
     //baseURL: 'http://localhost:4000'
+  },
+
+  colorMode: {
+    //preference: 'system', // default value of $colorMode.preference
+    preference: 'dark', // default value of $colorMode.preference
+    fallback: 'dark', // fallback value if not system preference found
+    classPrefix: 'theme-',
+    classSuffix: ''
   },
 
   //components: true,
@@ -113,17 +117,15 @@ module.exports = {
   },
 
   buildModules: [
-    ['@nuxtjs/google-analytics', {
-      id: 'UA-155720239-1'
-    }]
+    ['@nuxtjs/google-analytics', { id: 'UA-155720239-1' }],
+    '@nuxtjs/color-mode',
+    '@nuxtjs/device'
   ],
 
   /*
   ** Build configuration
   */
   build: {
-    //vendor: ['vue-apexchart'],
-
     /*
     ** You can extend webpack config here
     */

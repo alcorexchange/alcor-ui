@@ -1,31 +1,80 @@
 :root {
-    --color-primary: #3E3A3B;
-    --color-success: #8CC176;
-    --color-danger: #B82C0D;
-    --color-white: #F3FAFC;
-    --color-text-secondary: #5A5356;
+  --main-green: #66c167;
+  --main-red: #f96c6c;
+  --radius: 4px;
+  --radius-2: 8px;
+}
 
-    --background-color-base: #F3FAFC;
-    --background-color-secondary: #e6eef1;
-    --background-color-third: #e6eef1;
+.theme-light {
+  --color-primary: #3e3a3b;
+  --color-success: #8cc176;
+  --color-danger: #b82c0d;
+  --color-white: #f3fafc;
+  --color-text-secondary: #5a5356;
 
-    --border-color: #dadbdc;
+  // backgrounds
+  --background-color-base: #f3fafc;
+  --background-color-secondary: #e6eef1;
+  --background-color-third: #e6eef1;
+  --bg-big-card: #f3fafc;
+  --bg-alter-1: #e6eef1;
+  --bg-alter-2: #dee6e8;
+  --landing-card-bg: rgba(250, 250, 250, 0.3);
+  --landing-icon-bg: #ededed;
+  --table-background: #e6eef1;
 
-    --active-row: #c2deff;
+  // buttons
+  --btn-default: #dce4e6;
+  --btn-active: #dce4e6;
+  --hover: #e9eeef; // dark hover row
+  --dark-btn-sm: #e0e0e0;
+  --swap-tab-active: #e0e0e0;
+
+  --text-default: #161617;
+  --text-grey-thirdly: #787878;
+
+  --border-color: #dadbdc;
+
+  --card-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
+  --dropdown-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
+
+  --active-row: #c2deff;
+
+  --border-1: 1px solid rgba(60, 60, 67, 0.36);
 }
 
 .theme-dark {
-    --color-primary: #9EABA3;
+  --color-primary: #9eaba3;
 
-    --background-color-base: #282828;
-    --background-color-secondary: #212121;
-    --background-color-third: #161617;
+  // backgrounds
+  --background-color-base: #282828;
+  --background-color-secondary: #212121;
+  --background-color-third: #161617;
+  --bg-big-card: #212121;
+  --bg-alter-1: #282828;
+  --bg-alter-2: #363535;
+  --landing-card-bg: rgba(40, 40, 40, 0.3);
+  --landing-icon-bg: #111111;
+  --table-background: #212121;
 
-    --color-text-primary: #FFFFFF;
-    --border-color: #3F4144;
+  // buttons
+  --btn-default: #333333;
+  --btn-active: #161617;
+  --hover: rgba(22, 22, 23, 0.6);
+  --dark-btn-sm: #383838;
+  --swap-tab-active: #141415;
 
-    --color-success: #8CC176;
-    --color-danger: #B82C0D;
+  --text-default: #f2f2f2;
+  --text-grey-thirdly: #bdbdbd;
 
-    --active-row: #282828;
+  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
+  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
+
+  --color-text-primary: #f2fff2;
+  --border-color: #3f4144;
+
+  --color-success: #8cc176;
+  --color-danger: #b82c0d;
+
+  --active-row: #282828;
 }
