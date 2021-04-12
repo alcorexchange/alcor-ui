@@ -276,6 +276,11 @@ a {
   }
 }
 
+.el-dialog {
+  background: var(--dialog-background) !important;
+  border-radius: 16px !important;
+}
+
 .custom-radio {
   box-shadow: none !important;
   .el-radio-button {
@@ -294,21 +299,9 @@ a {
   }
 }
 
-.theme-light,
-.theme-dark {
-  .market-table {
-    //th,
-    //td {
-    //  background: var(--table-background);
-    //}
-  }
-}
 .market-table {
   border-radius: 8px;
   overflow: hidden;
-  // tr {
-  //   padding: 8px;
-  // }
   th,
   td {
     border: 0;
