@@ -289,16 +289,14 @@ export default {
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
         await this.$store.dispatch('loadUserLiqudityPositions')
+        setTimeout(() => this.$store.dispatch('loadUserBalances'), 2000)
 
-        this.$emit('update')
         this.visible = false
         this.$notify({
           title: 'Provide liquidity',
           message: 'Provided successful',
           type: 'success'
         })
-        this.$store.dispatch('loadUserBalances')
-        this.$store.dispatch('pools/updatePool')
         console.log(r)
       } catch (e) {
         console.log(e)
