@@ -13,11 +13,11 @@
   .items
     .item
       AlcorButton.button(alternative)
-            img(:src="wallets[0].logo" height="30").mr-2
+            img(:src="wallets[0] && wallets[0].logo" height="30").mr-2
             span Create Anchor
     .item
       AlcorButton.button(alternative)
-            img(:src="wallets[1].logo" height="30").mr-2
+            img(:src="wallets[1] && wallets[1].logo" height="30").mr-2
             span Create Scatter
 
     //.col

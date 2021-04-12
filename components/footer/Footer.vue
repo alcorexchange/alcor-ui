@@ -1,6 +1,33 @@
 <template lang="pug">
-footer(:class="{isMobile}")
-  span.muted © 2021 Alcor
+footer(:class="{isMobile}").alcor-inner
+  .items
+    .item
+      a(href="https://github.com/eosrio/Hyperion-History-API" target="_blank").img
+        img(src="~/assets/logos/greymass.svg")
+      .lead Hyperion by
+        a(href="https://eosrio.io/")  EOSRio
+      span.mt-2.description.muted
+        | The nice tool to get all actions history.
+        br
+        | All trading graphs and deals history provided by hyperion.
+    .item
+      a(href="https://github.com/cc32d9/eosio_light_api" target="_blank").img
+        img(src="~/assets/logos/lightapi.png")
+      .lead EOSIO Light API
+      span.mt-2.description.muted
+        | The nice tool to get token balances for users.
+        br
+        | Hosted by
+        a(href="https://eosamsterdam.net/" target="_blank")  EOS Amsterdam.
+    .item
+      a(href="https://bloks.io" target="_blank").img
+        img(src="~/assets/logos/bloks_logomark.svg")
+      .lead Bloks.io
+      span.mt-2.description.muted
+        | Is very useful eosio chains explorer.
+        br
+        | It uses for show all deals history and token contracts.
+  span.bottom.muted © 2021 Alcor
   //- .mt-3
   //-   .row.mt-5
   //-     .col-lg-5(v-if="!isMobile")
@@ -81,13 +108,38 @@ footer {
   padding-bottom: 32px;
   padding-top: 32px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   &.isMobile {
     padding-bottom: 84px;
   }
 }
-.logo {
-  height: 70px;
+.items {
+  display: flex;
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    flex: 1;
+    padding: 8px;
+    .img,
+    .lead {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    img {
+      height: 28px;
+      object-fit: contain;
+    }
+    .description {
+      text-align: center;
+      font-size: 0.86rem;
+    }
+  }
+}
+.bottom {
+  margin-top: 14px;
 }
 
 .avral {
@@ -97,32 +149,12 @@ footer {
   left: 0;
   padding-right: 5px;
 }
-
-ul {
-  display: inline-block;
-  @media (min-width: 768px) {
-    text-align: left;
-  }
-  //border: yellow solid 1px;
-}
-
-.footer-column {
-  //text-align: center;
-  .nav-item {
-    .nav-link {
-      padding: 0.1rem 0;
-    }
-    span.nav-link {
-      //color: $link-light-grey;
-    }
-    span.footer-title {
-      color: #808182;
-      font-weight: 700;
-
-      //text-transform: uppercase;
-    }
-    .fas {
-      margin-right: 0.5rem;
+@media only screen and (max-width: 840px) {
+  .items {
+    flex-direction: column;
+    .item {
+      width: 100%;
+      margin-top: 14px;
     }
   }
 }
