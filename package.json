@@ -8,7 +8,7 @@
     "dev": "cross-env NODE_ENV=development nodemon -r esm server/index.js --watch server",
     "dev2": "cross-env NODE_ENV=development nodemon --inspect -r esm server/index.js --watch server",
     "build": "nuxt build",
-    "start": "cross-env NODE_ENV=production node -r esm server/index.js",
+    "start": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm server/index.js",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
