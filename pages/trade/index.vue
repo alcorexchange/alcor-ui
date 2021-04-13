@@ -4,7 +4,7 @@
 .row
   .col
     .row
-      .col(v-if="id == 26 && network.name == 'wax'").mb-2
+      //.col(v-if="id == 26 && network.name == 'wax'").mb-2
         el-alert(title='TLM Market are closed from 6.04.2021 till 13.04.2021!' type='info' effect='dark')
           .lead Due to the opening of TLM teleport functionality trading is suspended until technical implementation is complete.
       .col(v-if="network.SCAM_CONTRACTS.includes($store.state.market.base_token.contract) || network.SCAM_CONTRACTS.includes($store.state.market.quote_token.contract)")
