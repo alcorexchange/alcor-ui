@@ -30,7 +30,7 @@
       @row-click='clickOrder',
       :default-sort='{ prop: "weekVolume", order: "descending" }'
     )
-      el-table-column(label='Pair', prop='date', :width='isMobile ? 150 : 300')
+      el-table-column(label='Pair', prop='date', :width='isMobile ? 150 : 280')
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
@@ -80,7 +80,7 @@
         align='right',
         header-align='right',
         sortable,
-        width='80',
+        width='100',
         sort-by='change24',
         :sort-orders='["descending", null]',
         v-if='!isMobile'
@@ -102,7 +102,7 @@
           span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='7D Volume',
+        label='7D Change',
         prop='weekChange',
         align='right',
         header-align='right',
@@ -127,7 +127,7 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    PairIcons,
+    PairIcons
   },
 
   async fetch({ store, error }) {
@@ -150,10 +150,10 @@ export default {
 
       select: {
         from: '',
-        to: '',
+        to: ''
       },
 
-      loading: true,
+      loading: true
     }
   },
 
@@ -196,15 +196,15 @@ export default {
       )
 
       return markets.reverse()
-    },
+    }
   },
   methods: {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
       this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
-    },
-  },
+    }
+  }
 }
 </script>
 
