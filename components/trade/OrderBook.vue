@@ -74,15 +74,17 @@ export default {
     this.fetch()
     setTimeout(() => this.scrollBook(), 1000)
 
+    let timeout
     this.$socket.on('update_orders', new_deals => {
-      this.fetch()
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+      timeout = setTimeout(() => this.fetch(), 400)
     })
   },
 
   methods: {
     async fetch() {
-      //this.loading = true FIXME пока не делаем на это лоадинг
-
       try {
         await this.$store.dispatch('market/fetchOrders')
       } catch (e) {
