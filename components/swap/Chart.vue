@@ -52,6 +52,7 @@ export default {
       height: '100%',
 
       data: [],
+      timeout: null,
 
       series: [
         {
@@ -198,8 +199,13 @@ export default {
   },
 
   watch: {
-    pair() {
-      this.fetchCharts()
+    pair(_new, old) {
+      // TODO
+      if (!old || _new.id != old.id) this.fetchCharts()
+      //if (this.timeout) {
+      //  clearTimeout(this.timeout)
+      //}
+      //this.timeout = setTimeout(() => this.fetchCharts(), 1000)
     },
 
     tab() {
@@ -207,8 +213,6 @@ export default {
       this.fetchCharts(true)
     },
     period() {
-      // TODO: watch period, I(Saeed) did it and it did not word :D
-      // this.updateChartOprions()
       this.fetchCharts(true)
     },
 

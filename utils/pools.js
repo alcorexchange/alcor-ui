@@ -64,6 +64,12 @@ export function get_amount_in(amount_out, reserve_in, reserve_out, fee = 30) {
   return amount_in
 }
 
+export function quote(amount_a, reserve_a, reserve_b) {
+  // TODO Add slippage
+  const amount_b = amount_a.multiply(reserve_b).divide(reserve_a)
+  return amount_b
+}
+
 export function computeForward(x, y, z, fee) {
   const prod = x.multiply(y)
   let tmp, tmp_fee

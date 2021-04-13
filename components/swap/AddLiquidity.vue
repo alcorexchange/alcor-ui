@@ -12,8 +12,7 @@
 
     .row.mt-3
       .col.text-center
-        //i.el-icon-bottom.lead.pointer(@click="toggleInputs")
-        i.el-icon-bottom.lead
+        i.el-icon-bottom.lead.pointer(@click="toggleInputs")
     .row.mt-1
       .col
         .d-flex.mb-1.select-label
@@ -24,10 +23,12 @@
         SelectToken(v-model="amount2" :tokens="tokens1" :token="1" @input="amount2Input")
 
     .row.mt-4
-      .col(v-if="amount1 && amount2").confirm-button
-        el-button(type="primary" @click="submit" v-loading="loading").w-100 Provide liquidity
-      .col(v-else).confirm-button
-        el-button(type="primary" disabled).w-100 Select amounts
+      .col
+        PleaseLoginButton
+          .confirm-button(v-if="amount1 && amount2")
+            el-button(type="primary" @click="submit" v-loading="loading").w-100 Provide liquidity
+          .confirm-button(v-else)
+            el-button(type="primary" disabled).w-100 Select amounts
 
     .row.mt-3
       .col
@@ -53,7 +54,7 @@ import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 import BigCommon from 'big-integer'
 
-import { computeForward, computeBackward, calcPrice } from '~/utils/pools'
+import { computeForward, computeBackward, quote, calcPrice } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
@@ -89,7 +90,8 @@ export default {
       poolOne: 'swap/poolOne',
       poolTwo: 'swap/poolTwo',
       tokens0: 'swap/tokens0',
-      tokens1: 'swap/tokens1'
+      tokens1: 'swap/tokens1',
+      isReverted: 'swap/isReverted'
     }),
 
     tokenReceive() {
@@ -107,12 +109,16 @@ export default {
       const liquidity1 = amount1
         .multiply(this.current.supply.amount)
         .divide(this.poolOne.quantity.amount)
+
       const liquidity2 = amount2
         .multiply(this.current.supply.amount)
         .divide(this.poolTwo.quantity.amount)
 
+      const to_buy = BigCommon.min(liquidity1, liquidity2)
+      const to_buy_with_slippage = to_buy.minus(to_buy.multiply(100).plus(9999).divide(10000))
+
       return asset(
-        BigCommon.min(liquidity1, liquidity2),
+        to_buy_with_slippage,
         this.current.supply.symbol
       )
     },
@@ -154,7 +160,39 @@ export default {
 
   methods: {
     toggleInputs() {
-      // TODO
+      if (!this.output) {
+        const i = Object.assign({}, this.input)
+
+        this.$store.commit('swap/setOutput', i)
+        this.$store.commit('swap/setInput', null)
+
+        const ia = this.inputAmount
+
+        this.amount1 = 0.0
+        this.amount2 = parseFloat(ia || 0).toFixed(this.output.precision)
+        return
+      }
+
+      if (!this.input) {
+        const o = Object.assign({}, this.output)
+
+        this.$store.commit('swap/setInput', o)
+        this.$store.commit('swap/setOutput', null)
+
+        const oa = this.outputAmount
+
+        this.amount1 = 0.0
+        this.amount2 = parseFloat(oa || 0).toFixed(this.input.precision)
+        return
+      }
+
+      this.$store.dispatch('swap/toggleInputs')
+
+      if (this.isReverted) {
+        this.amount2 = this.amount1
+      } else {
+        this.amount1 = this.amount2
+      }
     },
 
     amount1Input(value) {
@@ -169,23 +207,11 @@ export default {
         amount1 + ' ' + this.poolOne.quantity.symbol.code().to_string()
       ).amount
 
-      const to_buy = computeBackward(
-        amount1,
-        this.current.supply.amount,
-        this.poolOne.quantity.amount,
-        0
-      )
-
       const amount2 = number_to_asset(0, this.poolTwo.quantity.symbol)
-
       amount2.set_amount(
-        computeForward(
-          to_buy,
-          this.poolTwo.quantity.amount,
-          this.current.supply.amount,
-          0
-        )
+        quote(amount1, this.poolOne.quantity.amount, this.poolTwo.quantity.amount)
       )
+
       this.amount2 = amount2.to_string().split(' ')[0]
     },
 
@@ -201,23 +227,10 @@ export default {
         amount2 + ' ' + this.poolTwo.quantity.symbol.code().to_string()
       ).amount
 
-      const to_buy = computeBackward(
-        amount2,
-        this.current.supply.amount,
-        this.poolTwo.quantity.amount,
-        0
-      )
-
       const amount1 = number_to_asset(0, this.poolOne.quantity.symbol)
 
       amount1.set_amount(
-        //computeForward(to_buy.multiply(-1), this.poolOne.quantity.amount, this.current.supply.amount, 0).multiply(-1)
-        computeForward(
-          to_buy,
-          this.poolOne.quantity.amount,
-          this.current.supply.amount,
-          0
-        )
+        quote(amount2, this.poolTwo.quantity.amount, this.poolOne.quantity.amount)
       )
 
       this.amount1 = amount1.to_string().split(' ')[0]
