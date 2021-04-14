@@ -26,11 +26,10 @@
 
   .p-1.mt-1(v-loading='loading')
     .overflowbox.text-center.latest-price(
-      :class='{ green: isLastTradeBuy, red: isLastTradeSell }'
+      :class='{ red: isLastTradeSell }'
     )
       i(
         :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
-        v-if='latestTrade.type'
       )
       span {{ price }} {{ base_token.symbol.name }}
 
@@ -60,21 +59,19 @@ export default {
   data() {
     return {
       asksL: 0,
-      loading: false,
+      loading: false
     }
   },
 
   computed: {
-    isLastTradeSell() {
-      return this.latestTrade.type === 'sellmatch'
-    },
-    isLastTradeBuy() {
-      return this.latestTrade.type === 'buymatch'
-    },
     ...mapState(['network', 'user']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'latestTrade']),
-    ...mapState('market', ['quote_token', 'base_token', 'id', 'price']),
-    ...mapGetters(['user'])
+    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'price']),
+    ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
+    ...mapGetters(['user']),
+
+    isLastTradeSell() {
+      return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
+    }
   },
 
   watch: {
@@ -88,7 +85,7 @@ export default {
         this.scrollBook()
         this.asksL = this.sorted_asks.length
       }
-    },
+    }
   },
 
   mounted() {
@@ -145,8 +142,8 @@ export default {
       }
 
       return false
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -156,9 +153,12 @@ export default {
 }
 .latest-price {
   font-weight: bold;
-  &.green {
-    color: var(--main-green);
+  color: var(--main-green);
+
+  i {
+    margin-right: 2px;
   }
+
   &.red {
     color: var(--main-red);
   }

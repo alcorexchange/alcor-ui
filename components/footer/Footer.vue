@@ -1,6 +1,6 @@
 <template lang="pug">
 footer(:class="{isMobile}").alcor-inner
-  .items
+  //.items
     .item
       a(href="https://github.com/eosrio/Hyperion-History-API" target="_blank").img
         img(src="~/assets/logos/greymass.svg")

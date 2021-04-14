@@ -38,7 +38,7 @@ export default {
     ...mapState(['network']),
 
     coloredDeals() {
-      return Array.from(this.deals)
+      return Array.from(this.$store.state.market.deals)
         .sort((a, b) => b.time - a.time).map(h => {
           if (h.type == 'buymatch') {
             h.cls = 'text-success'
@@ -51,23 +51,6 @@ export default {
           return h
         })
     }
-  },
-
-  watch: {
-    id(to, from) {
-      this.deals = []
-    }
-  },
-
-  mounted() {
-    this.$socket.on('new_deals', new_deals => {
-      this.deals.unshift(...new_deals)
-
-      if (new_deals.length > 0) {
-        this.$store.commit('market/setPrice', new_deals[0].unit_price.toFixed(8))
-        this.$store.commit('market/setLatestTrade', new_deals[0])
-      }
-    })
   }
 }
 </script>

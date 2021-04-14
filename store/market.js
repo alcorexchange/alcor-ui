@@ -10,8 +10,6 @@ export const state = () => ({
   quote_token: {},
 
   stats: {},
-  price: '0.00000000',
-  latestTrade: {},
 
   bids: [],
   asks: [],
@@ -28,7 +26,7 @@ export const mutations = {
   setAsks: (state, asks) => state.asks = asks,
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
-  setLatestTrade: (state, data) => state.latestTrade = data,
+  setDeals: (state, deals) => state.deals = deals,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug, symbol } = market
@@ -47,7 +45,7 @@ export const actions = {
     dispatch('fetchOrders')
   },
 
-  startStream({ state, rootState, commit }, { to, from }) {
+  startStream({ state, rootState, commit, dispatch }, { to, from }) {
     if (from) {
       this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
       this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
@@ -56,10 +54,16 @@ export const actions = {
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
 
+    this.$socket.on('new_deals', new_deals => {
+      commit('setDeals', state.deals.unshift(...new_deals).slice(0, 100))
+    })
+
     commit('setStreaming', true)
   },
 
   setMarket({ state, dispatch, commit }, market) {
+    commit('setDeals', [])
+
     if (process.client) {
       if (state.id) {
         dispatch('startStream', { to: market.id, from: state.id })
@@ -95,6 +99,14 @@ export const actions = {
 }
 
 export const getters = {
+  price(state) {
+    if (state.deals.length > 0) {
+      return state.deals[0].unit_price.toFixed(8)
+    }
+
+    return '0.00000000'
+  },
+
   relatedPool(state, getters, rootState) {
     const current = rootState.markets.filter(m => m.id == state.id)[0]
     if (!current) return null
@@ -147,6 +159,5 @@ export const getters = {
       return `${balance.amount} ${balance.currency}`
     else
       return Number(0).toFixed(state.quote_token.symbol.precision) + ` ${state.quote_token.symbol.name}`
-  },
-  latestTrade: (state) => state.latestTrade
+  }
 }
