@@ -64,7 +64,7 @@ export default {
       this.deals.unshift(...new_deals)
 
       if (new_deals.length > 0) {
-        this.$store.commit('market/setPrice', new_deals[0].unit_price)
+        this.$store.commit('market/setPrice', new_deals[0].unit_price.toFixed(8))
       }
     })
   }
