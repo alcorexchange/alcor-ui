@@ -11,6 +11,7 @@ export const state = () => ({
 
   stats: {},
   price: '0.00000000',
+  latestTrade: {},
 
   bids: [],
   asks: [],
@@ -27,6 +28,7 @@ export const mutations = {
   setAsks: (state, asks) => state.asks = asks,
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
+  setLatestTrade: (state, data) => state.latestTrade = data,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug, symbol } = market
@@ -100,7 +102,7 @@ export const getters = {
     if (!pool) return null
 
     if (pool.pool1.contract == current.quote_token.contract &&
-        pool.pool1.quantity.symbol.code().to_string() == current.quote_token.symbol.name) {
+      pool.pool1.quantity.symbol.code().to_string() == current.quote_token.symbol.name) {
       pool.rate = (parseFloat(pool.pool2.quantity) / parseFloat(pool.pool1.quantity)).toFixed(6)
     } else {
       pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
@@ -109,7 +111,7 @@ export const getters = {
     return pool
   },
 
-  token (state) {
+  token(state) {
     return state.token || {}
   },
 
@@ -138,12 +140,13 @@ export const getters = {
     if (!user || !user.balances || !state.quote_token.symbol.name) return '0.0000'
     const balance = user.balances.filter((b) => {
       return b.currency === state.quote_token.symbol.name &&
-             b.contract === state.quote_token.contract
+        b.contract === state.quote_token.contract
     })[0]
 
     if (balance)
       return `${balance.amount} ${balance.currency}`
     else
       return Number(0).toFixed(state.quote_token.symbol.precision) + ` ${state.quote_token.symbol.name}`
-  }
+  },
+  latestTrade: (state) => state.latestTrade
 }
