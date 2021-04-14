@@ -31,7 +31,7 @@ pools.get('/:pair_id/line_chart', defCache, async (req, res) => {
   const { period, reverse } = req.query
   const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
 
-  const $divide = reverse == 'true' ? ['$pool2', '$pool1'] : ['$pool1', '$pool2']
+  const $divide = reverse == 'true' ? ['$pool1', '$pool2'] : ['$pool2', '$pool1']
   const prices = await Exchange.aggregate([
     { $match: { chain: network.name, pair_id: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
     {
