@@ -101,7 +101,8 @@ export default {
         name: 'Scatter / TP / Starteos',
         logo: require('@/assets/logos/scatter.svg'),
         index: 0,
-        create: 'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
+        create:
+          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
       },
       {
         name: 'SimplEOS',

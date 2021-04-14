@@ -5,35 +5,49 @@
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
       span Amount({{ quote_token.symbol.name }})
-      span(v-if="!isMobile") Total ({{ base_token.symbol.name }})
+      span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
-  .orders-list.blist.asks.text-danger(ref="asks")
-    .ltd.d-flex(v-for="ask in sorted_asks" @click="setBid(ask)" :class="isMyOrder(ask) ? 'pl-0': ''")
+  .orders-list.blist.asks.text-danger(ref='asks')
+    .ltd.d-flex(
+      v-for='ask in sorted_asks',
+      @click='setBid(ask)',
+      :class='isMyOrder(ask) ? "pl-0" : ""'
+    )
       span
-        i.el-icon-caret-right(v-if="isMyOrder(ask)")
+        i.el-icon-caret-right(v-if='isMyOrder(ask)')
         | {{ ask.unit_price | humanPrice }}
-      span(:class="isMobile ? 'text-right' : 'text-center'") {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
-      span(v-if="!isMobile") {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
+      span(:class='isMobile ? "text-right" : "text-center"') {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
+      span(v-if='!isMobile') {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
 
-    .ltd.d-flex.justify-content-around(v-if="sorted_asks.length == 0")
+    .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
       span No asks
       span
 
-  .p-1.mt-1(v-loading="loading")
-    .overflowbox.text-center
-      b.text-success {{ price }} {{ base_token.symbol.name }}
+  .p-1.mt-1(v-loading='loading')
+    .overflowbox.text-center.latest-price(
+      :class='{ green: isLastTradeBuy, red: isLastTradeSell }'
+    )
+      i(
+        :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
+        v-if='latestTrade.type'
+      )
+      span {{ price }} {{ base_token.symbol.name }}
 
   .orders-list.blist.bids.text-success
-    .ltd.d-flex(v-for="bid in sorted_bids" @click="setAsk(bid)" :class="isMyOrder(bid) ? 'pl-0': ''")
+    .ltd.d-flex(
+      v-for='bid in sorted_bids',
+      @click='setAsk(bid)',
+      :class='isMyOrder(bid) ? "pl-0" : ""'
+    )
       span
-        i.el-icon-caret-right(v-if="isMyOrder(bid)")
+        i.el-icon-caret-right(v-if='isMyOrder(bid)')
         | {{ bid.unit_price | humanPrice }}
-      span(:class="isMobile ? 'text-right' : 'text-center'") {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
+      span(:class='isMobile ? "text-right" : "text-center"') {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
 
-      span(v-if="!isMobile") {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
+      span(v-if='!isMobile') {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
 
-    .ltd.d-flex.justify-content-around(v-if="sorted_bids.length == 0")
+    .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
       span No bids
       span
@@ -46,19 +60,25 @@ export default {
   data() {
     return {
       asksL: 0,
-      loading: false
+      loading: false,
     }
   },
 
   computed: {
+    isLastTradeSell() {
+      return this.latestTrade.type === 'sellmatch'
+    },
+    isLastTradeBuy() {
+      return this.latestTrade.type === 'buymatch'
+    },
     ...mapState(['network', 'user']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
+    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'latestTrade']),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'price']),
     ...mapGetters(['user'])
   },
 
   watch: {
-    id (to, from) {
+    id(to, from) {
       this.fetch()
     },
 
@@ -68,7 +88,7 @@ export default {
         this.scrollBook()
         this.asksL = this.sorted_asks.length
       }
-    }
+    },
   },
 
   mounted() {
@@ -104,13 +124,17 @@ export default {
     },
 
     setBid(ask) {
-      const price = this.$options.filters.humanPrice(ask.unit_price).replaceAll(',', '')
+      const price = this.$options.filters
+        .humanPrice(ask.unit_price)
+        .replaceAll(',', '')
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', ask.bid.prefix)
     },
 
     setAsk(bid) {
-      const price = this.$options.filters.humanPrice(bid.unit_price).replaceAll(',', '')
+      const price = this.$options.filters
+        .humanPrice(bid.unit_price)
+        .replaceAll(',', '')
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', bid.ask.prefix)
     },
@@ -121,14 +145,23 @@ export default {
       }
 
       return false
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style lang="scss">
 .order-book {
   max-height: 500px;
+}
+.latest-price {
+  font-weight: bold;
+  &.green {
+    color: var(--main-green);
+  }
+  &.red {
+    color: var(--main-red);
+  }
 }
 
 .blist {

@@ -65,6 +65,7 @@ export default {
 
       if (new_deals.length > 0) {
         this.$store.commit('market/setPrice', new_deals[0].unit_price.toFixed(8))
+        this.$store.commit('market/setLatestTrade', new_deals[0])
       }
     })
   }
