@@ -191,7 +191,7 @@ export function mergeSamePriceOrders(ords) {
     orders[o.unit_price] ? orders[o.unit_price].push(o) : orders[o.unit_price] = [o]
   })
 
-  return Object.values(orders).map(o => {
+  const result = Object.values(orders).map(o => {
     const one_order = { ...o[0] }
 
     o.slice(1).map(o => {
@@ -207,6 +207,9 @@ export function mergeSamePriceOrders(ords) {
 
     return one_order
   }).reverse()
+
+  // TODO it properly
+  return result.sort(sort_by_price)
 }
 
 export function uuidv4() {
