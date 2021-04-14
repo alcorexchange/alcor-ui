@@ -1,5 +1,6 @@
 <template lang="pug">
 .order-book
+  // https://v3.vuejs.org/guide/transitions-list.html#list-entering-leaving-transitions
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
@@ -53,7 +54,7 @@ export default {
     ...mapState(['network', 'user']),
     ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'price']),
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
 
   watch: {

@@ -4,7 +4,6 @@ import Big from 'big.js'
 
 import config from '../config'
 
-
 export function make256key(contract1, symbol1, contract2, symbol2) {
   const q_i128_id = new Name(contract1).value.shiftLeft(64).or(new SymbolCode(symbol1.toUpperCase()).raw())
   const b_i128_id = new Name(contract2).value.shiftLeft(64).or(new SymbolCode(symbol2.toUpperCase()).raw())
@@ -14,7 +13,6 @@ export function make256key(contract1, symbol1, contract2, symbol2) {
   else
     return b_i128_id.shiftLeft(128).or(q_i128_id).toString(16)
 }
-
 
 export function e_asset_to_token(easset) {
   return {
@@ -180,41 +178,26 @@ export function prepareNFT(nfts) {
   })
 }
 
-
-export function mergeSamePriceOrders(ords) {
-  // Avoid mutatind store
-  ords = JSON.parse(JSON.stringify(ords))
-
-  const orders = {}
-
-  ords.map(o => {
-    orders[o.unit_price] ? orders[o.unit_price].push(o) : orders[o.unit_price] = [o]
-  })
-
-  const result = Object.values(orders).map(o => {
-    const one_order = { ...o[0] }
-
-    o.slice(1).map(o => {
-      one_order.ask.amount += o.ask.amount
-      one_order.bid.amount += o.bid.amount
-
-      one_order.ask.prefix = (parseFloat(one_order.ask.prefix) + parseFloat(o.ask.prefix)).toFixed(one_order.ask.symbol.precision)
-      one_order.bid.prefix = (parseFloat(one_order.bid.prefix) + parseFloat(o.bid.prefix)).toFixed(one_order.bid.symbol.precision)
-    })
-
-    one_order.ask.quantity = `${one_order.ask.prefix} ${one_order.ask.symbol.symbol}`
-    one_order.bid.quantity = `${one_order.bid.prefix} ${one_order.bid.symbol.symbol}`
-
-    return one_order
-  }).reverse()
-
-  // TODO it properly
-  return result.sort(sort_by_price)
-}
-
 export function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
     return v.toString(16)
   })
+}
+
+export function mergeSamePriceOrders(ords) {
+  const orders = {}
+
+  for (const o of ords) {
+    const order = orders[o.unit_price]
+
+    if (!order) {
+      orders[o.unit_price] = o
+    } else {
+      order.ask.amount += o.ask.amount
+      order.bid.amount += o.bid.amount
+    }
+  }
+
+  return Object.values(orders).sort(sort_by_price)
 }

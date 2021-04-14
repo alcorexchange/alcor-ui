@@ -114,11 +114,11 @@ export const getters = {
   },
 
   sorted_asks(state) {
-    return mergeSamePriceOrders(state.asks.slice())
+    return mergeSamePriceOrders(state.asks)
   },
 
   sorted_bids(state) {
-    return mergeSamePriceOrders(state.bids.slice())
+    return mergeSamePriceOrders(state.bids)
   },
 
   baseBalance(state, getters, rootState) {
