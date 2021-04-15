@@ -9,7 +9,7 @@
       @place-cell: center;
       @size: 100%;
 
-      animation: m @r(10s, 30s) -@r(100s) linear infinite;
+      animation: m @r(15s, 40s) -@r(50s) linear infinite;
 
       @keyframes m {
         to { transform: rotate(1turn) }

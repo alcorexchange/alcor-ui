@@ -4,14 +4,16 @@
     el-dropdown
       .network-selection
         img(:src="require('~/assets/icons/' + current_chain.name + '.png')" height=25).mr-2
-        span {{ current_chain.desc }}
+        span(v-if="isMobile") {{ current_chain.name }}
+        span(v-else) {{ current_chain.desc }}
 
         i.el-icon-arrow-down
       template(#dropdown='')
         el-dropdown-menu.dropdown-container
           .d-item(v-for='network in networks', :key='network.name', :value='network.name' :label="network.name" @click="changeChain(network.name)")
             img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-            span.ml-2 {{ network.desc }}
+            span.ml-2(v-if="isMobile") {{ network.name }}
+            span.ml-2(v-else) {{ network.desc }}
   .right
     .user-detail(v-if='user')
       .balance {{ systemBalance }}
