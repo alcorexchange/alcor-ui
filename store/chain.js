@@ -149,6 +149,7 @@ export const actions = {
         }, { root: true })
 
         dispatch('loadUserBalances', {}, { root: true })
+        dispatch('market/loadUserOrders', {}, { root: true })
 
         commit('setCurrentWallet', 'transit')
       }
@@ -182,8 +183,8 @@ export const actions = {
     )
   },
 
-  cancelorder({ dispatch, rootState }, { contract, account, market_id, type, order_id }) {
-    return dispatch('sendTransaction',
+  async cancelorder({ dispatch, rootState }, { contract, account, market_id, type, order_id }) {
+    const r = await dispatch('sendTransaction',
       [
         {
           account: contract || rootState.network.contract,
@@ -193,6 +194,10 @@ export const actions = {
         }
       ]
     )
+
+    dispatch('market/loadUserOrders', {}, { root: true })
+
+    return r
   },
 
   asyncLogin({ rootState, commit, dispatch }) {

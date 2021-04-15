@@ -35,16 +35,22 @@ export default {
   computed: {
     ...mapGetters(['network']),
     ...mapGetters(['user']),
-    ...mapState('market', ['asks', 'bids', 'id', 'base_token']),
+    ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'userOrders']),
 
     orders() {
       if (!this.user) return []
 
-      return [...this.asks, ...this.bids].filter(a => a.account === this.user.name).map((o) => {
-        o.type = o.bid.symbol.symbol === this.base_token.symbol.name ? 'bid' : 'ask'
+      const orders = []
 
-        return o
-      }).sort((a, b) => b.timestamp - a.timestamp)
+      for (const order of [...this.asks, ...this.bids, ...this.userOrders].filter(a => a.account === this.user.name)) {
+        order.type = order.bid.symbol.symbol === this.base_token.symbol.name ? 'bid' : 'ask'
+
+        if (orders.filter(o => o.id == order.id && o.type == order.type)[0]) continue
+
+        orders.push(order)
+      }
+
+      return orders.sort((a, b) => b.timestamp - a.timestamp)
     }
   },
 

@@ -171,9 +171,11 @@ export const tradeMixin = {
 
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
-        setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
 
+        setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
+        this.$store.dispatch('market/loadUserOrders')
         this.$store.dispatch('market/fetchOrders')
+
         this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
@@ -209,7 +211,9 @@ export const tradeMixin = {
         })
         setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
 
+        this.$store.dispatch('market/loadUserOrders')
         this.$store.dispatch('market/fetchOrders')
+
         this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })

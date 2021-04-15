@@ -1,4 +1,6 @@
-import { sort_by_price, prepareOrder, mergeSamePriceOrders } from '~/utils'
+import { nameToUint64 } from 'eosjs-account-name'
+
+import { mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -16,6 +18,8 @@ export const state = () => ({
 
   deals: [],
 
+  userOrders: [],
+
   streaming: false,
 
   orderLoading: false
@@ -27,6 +31,8 @@ export const mutations = {
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
+
+  setUserOrders: (state, orders) => state.userOrders = orders,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug, symbol } = market
@@ -63,16 +69,19 @@ export const actions = {
 
   setMarket({ state, dispatch, commit }, market) {
     commit('setDeals', [])
+    commit('setUserOrders', [])
+
+    commit('setMarket', market)
 
     if (process.client) {
+      dispatch('loadUserOrders')
+
       if (state.id) {
         dispatch('startStream', { to: market.id, from: state.id })
       } else {
         dispatch('startStream', { to: market.id })
       }
     }
-
-    commit('setMarket', market)
   },
 
   async fetchOrders({ state, commit, dispatch }) {
@@ -83,6 +92,32 @@ export const actions = {
     ]).then(([buyOrders, sellOrders]) => {
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
+    }).catch(e => console.log(e))
+  },
+
+  async loadUserOrders({ state, rootState, commit, dispatch }) {
+    if (!rootState.user || !rootState.user.name || !state.id) return
+
+    const { name } = rootState.user
+
+    await Promise.all([
+      dispatch('api/getBuyOrders', {
+        market_id: state.id,
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(name),
+        upper_bound: nameToUint64(name)
+      }, { root: true }),
+
+      dispatch('api/getSellOrders', {
+        market_id: state.id,
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(name),
+        upper_bound: nameToUint64(name)
+      }, { root: true })
+    ]).then(([buyOrders, sellOrders]) => {
+      commit('setUserOrders', buyOrders.concat(sellOrders))
     }).catch(e => console.log(e))
   },
 
