@@ -148,6 +148,17 @@ export default {
     },
 
     async submit() {
+      if (this.token.contract == 'bosibc.io') {
+        await this.$confirm(
+          'Make sure you not send tokens to an Exchange, this is NOT original token, before transfer, you have to withdraw it to original chain',
+          'IBC Token aert', {
+            confirmButtonText: 'Yes, i understand',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }
+        )
+      }
+
       const quantity = this.form.amount + ' ' + this.token.currency
 
       const loading = this.$loading({ lock: true, text: 'Wait for wallet' })
