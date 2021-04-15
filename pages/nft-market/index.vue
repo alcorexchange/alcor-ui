@@ -42,6 +42,13 @@
             el-button(type="info" icon="el-icon-wallet" size="medium") NFT Wallet
     hr
 
+    .row
+      .col
+        el-alert(type="error" title="Beware of scammers!" show-icon)
+          p
+            | Anyone can create SimpleAssets NFTs and freely choose attributes such as name and image, including fake versions of existing NFTs or stolen intellectual property.
+            | Before buying an NFT, always do your own research about the collection and double check the collection name to ensure that you are buying genuine NFTs.
+
     .row.mt-3
       .col
         .market-cards

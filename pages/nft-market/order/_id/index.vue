@@ -1,5 +1,12 @@
 <template lang="pug">
 el-card(v-if="!no_found").box-card.mt-3
+  .row.mb-2
+    .col
+      el-alert(type="error" title="Beware of scammers!" show-icon)
+        p
+          | Anyone can create SimpleAssets NFTs and freely choose attributes such as name and image, including fake versions of existing NFTs or stolen intellectual property.
+          | Before buying an NFT, always do your own research about the collection and double check the collection name to ensure that you are buying genuine NFTs.
+
   .clearfix(slot='header')
     el-page-header(@back="goBack")
       template(slot="content")
