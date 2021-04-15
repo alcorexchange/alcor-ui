@@ -52,7 +52,6 @@ export const actions = {
   },
 
   unsubscribe({ state, rootState, commit, dispatch }, market) {
-    console.log('unsubscribe..', market)
     this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
