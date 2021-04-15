@@ -97,7 +97,7 @@ export default {
 
     price() {
       if (this.base.currency && this.quote.currency) {
-        return Math.abs(this.amount1 / this.amount2).toFixed(5) + ` ${this.base.currency}`
+        return Math.abs(this.amount2 / this.amount1).toFixed(5) + ` ${this.quote.currency}`
       } else {
         return '0.0000'
       }
