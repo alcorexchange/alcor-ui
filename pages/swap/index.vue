@@ -146,7 +146,7 @@ export default {
     }
   },
 
-  beforeRouteLeave(to, from, next) {
+  beforeRouteUpdate(to, from, next) {
     this.$socket.emit('unsubscribe', {
       room: 'pools',
       params: { chain: this.network.name }

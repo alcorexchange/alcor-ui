@@ -51,12 +51,19 @@ export const actions = {
     dispatch('fetchOrders')
   },
 
+  unsubscribe({ state, rootState, commit, dispatch }, market) {
+    console.log('unsubscribe..', market)
+    this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
+    this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
+    this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
+  },
+
   startStream({ state, rootState, commit, dispatch }, { to, from }) {
-    if (from) {
-      this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
-      this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
-      this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
-    }
+    //if (from) {
+    //  this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
+    //  this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
+    //  this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
+    //}
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
 

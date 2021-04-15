@@ -31,6 +31,12 @@ export default {
     DesktopTrade
   },
 
+  beforeRouteUpdate(to, from, next) {
+    const market = this.$store.state.markets.filter(m => m.slug == from.params.id)[0]
+    if (market) this.$store.dispatch('market/unsubscribe', market.id)
+    next()
+  },
+
   computed: {
     ...mapState(['network', 'markets']),
     ...mapState('market', ['symbol', 'id', 'stats', 'streaming']),
