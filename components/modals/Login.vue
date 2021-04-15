@@ -1,23 +1,23 @@
 <template lang="pug">
-.row(v-loading="loading")
+.row(v-loading='loading')
   .items
-    .item(v-for="wallet in wallets")
-      AlcorButton.button(@click="login(wallet.index)" alternative)
-        img(:src="wallet.logo" height="30").mr-2
+    .item(v-for='wallet in wallets')
+      AlcorButton.button(@click='login(wallet.index)', alternative)
+        img.mr-2(:src='wallet.logo', height='30')
         span {{ wallet.name }}
   .divider
     span.line
     .text Don't have any wallet yet ?
     span.line
   .footer-actions
-  .items(v-if="wallets.length > 0")
+  .items(v-if='wallets.length > 0')
     .item
-      AlcorButton.button(alternative @click="openInNewTab(wallets[0].create)")
-        img(:src="wallets[0].logo" height="30").mr-2
+      AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
+        img.mr-2(:src='wallets[0].logo', height='30')
         span Get {{ wallets[0].name }}
     .item
-      AlcorButton.button(alternative @click="openInNewTab(wallets[1].create)")
-        img(:src="wallets[1].logo" height="30").mr-2
+      AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
+        img.mr-2(:src='wallets[1].logo', height='30')
         span Get {{ wallets[1].name }}
 
     //.col
@@ -73,18 +73,18 @@ import AlcorButton from '@/components/AlcorButton'
 
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
   },
   data() {
     return {
       loading: false,
 
-      wallets: []
+      wallets: [],
     }
   },
 
   computed: {
-    ...mapState(['user', 'network'])
+    ...mapState(['user', 'network']),
   },
 
   mounted() {
@@ -95,34 +95,34 @@ export default {
         name: 'Anchor',
         logo: require('@/assets/logos/anchor.svg'),
         index: 1,
-        create: 'https://greymass.com/en/anchor/'
+        create: 'https://greymass.com/en/anchor/',
       },
       {
         name: 'Scatter / TP / Starteos',
         logo: require('@/assets/logos/scatter.svg'),
         index: 0,
         create:
-          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
+          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1',
       },
       {
         name: 'SimplEOS',
         logo: require('@/assets/logos/simpleos.svg'),
-        index: 2
+        index: 2,
       },
       { name: 'Lynx', logo: require('@/assets/logos/lynx.svg'), index: 3 },
-      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 }
+      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 },
     ]
 
     if (this.network.name == 'eos') {
       wallets.push({
         name: '',
         logo: require('@/assets/logos/wombat.png'),
-        index: 0
+        index: 0,
       })
       wallets.push({
         name: 'Keycat',
         logo: require('@/assets/logos/keycat.svg'),
-        index: 5
+        index: 5,
       })
     }
 
@@ -131,7 +131,7 @@ export default {
         name: 'Wax Cloud Wallet',
         logo: require('@/assets/logos/wax.svg'),
         index: 'wax',
-        create: 'https://all-access.wax.io/'
+        create: 'https://all-access.wax.io/',
       })
     }
 
@@ -139,7 +139,7 @@ export default {
       wallets.unshift({
         name: '',
         logo: require('@/assets/logos/proton_wallet.svg'),
-        index: 5
+        index: 5,
       })
     }
 
@@ -158,13 +158,13 @@ export default {
         this.$notify({
           title: `${provider} login error`,
           message: e,
-          type: 'error'
+          type: 'error',
         })
       } finally {
         this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -206,6 +206,13 @@ export default {
     flex: 1;
     height: 2px;
     background: rgba(100, 100, 100, 0.5);
+  }
+}
+@media only screen and (max-width: 840px) {
+  .items {
+    .item {
+      width: 100%;
+    }
   }
 }
 </style>
