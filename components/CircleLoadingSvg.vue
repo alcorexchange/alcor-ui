@@ -15,13 +15,13 @@
         cy="33"
         r="30"
         stroke="url(#gradient)"
-      >
-        <linearGradient id="gradient">
-          <stop offset="50%" stop-color="#42d179" stop-opacity="1" />
-          <stop offset="65%" stop-color="#42d179" stop-opacity=".5" />
-          <stop offset="100%" stop-color="#42d179" stop-opacity="0" />
-        </linearGradient>
-      </circle>
+      />
+      <linearGradient id="gradient">
+        <stop offset="50%" stop-color="#42d179" stop-opacity="1" />
+        <stop offset="65%" stop-color="#42d179" stop-opacity=".5" />
+        <stop offset="100%" stop-color="#42d179" stop-opacity="0" />
+      </linearGradient>
+      <!-- </circle> -->
       <svg
         class="spinner-dot dot"
         width="5px"
@@ -31,7 +31,8 @@
         x="37"
         y="1.5"
       >
-        <circle class="path" fill="#42d179" cx="33" cy="33" r="30"></circle>
+        <circle class="path" fill="#42d179" cx="33" cy="33" r="30" />
+        <!-- </circle> -->
       </svg>
     </svg>
   </section>
@@ -43,17 +44,21 @@ export default {}
 
 <style scoped>
 section {
-  width: 200px;
+  /* width: 200px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto;
   padding: 20px;
+  /* transform: scale(0.8); */
 }
 
 .spinner {
   animation: rotate 1.4s linear infinite;
   -webkit-animation: rotate 1.4s linear infinite;
   -moz-animation: rotate 1.4s linear infinite;
-  width: 174px;
-  height: 174px;
+  width: 144px;
+  height: 144px;
   position: relative;
 }
 
