@@ -60,17 +60,45 @@ export default {
         symbol: this.quote_token.symbol.name,
         datafeed: {
           onReady: (callback) => {
-            const data = { supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'], symbols_types: [{ name: 'crypto', value: 1 }] }
+            const data = {
+              supported_resolutions: [
+                '1',
+                '15',
+                '30',
+                '60',
+                '240',
+                'D',
+                'W',
+                'M'
+              ],
+              symbols_types: [{ name: 'crypto', value: 1 }]
+            }
             callback(data)
           },
 
-          subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
+          subscribeBars: (
+            symbolInfo,
+            resolution,
+            onRealtimeCallback,
+            subscriberUID,
+            onResetCacheNeededCallback
+          ) => {
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
-            this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id } })
-            this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
+            this.$socket.emit('unsubscribe', {
+              room: 'ticker',
+              params: { chain: this.network.name, market: this.id }
+            })
+            this.$socket.emit('subscribe', {
+              room: 'ticker',
+              params: {
+                chain: this.network.name,
+                market: this.id,
+                resolution: this.resolution
+              }
+            })
 
-            this.$socket.on('tick', candle => {
+            this.$socket.on('tick', (candle) => {
               onRealtimeCallback({
                 time: candle[0] * 1000,
                 open: candle[1],
@@ -82,7 +110,11 @@ export default {
             })
           },
 
-          resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
+          resolveSymbol: (
+            symbolName,
+            onSymbolResolvedCallback,
+            onResolveErrorCallback
+          ) => {
             const symbolInfo = {
               name: this.quote_token.symbol.name,
               description: `${this.quote_token.symbol.name}/${this.quote_token.symbol.name}`,
@@ -95,7 +127,16 @@ export default {
               has_intraday: true,
               has_no_volume: false,
               has_weekly_and_monthly: true,
-              supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+              supported_resolutions: [
+                '1',
+                '15',
+                '30',
+                '60',
+                '240',
+                'D',
+                'W',
+                'M'
+              ],
               volume_precision: 5,
               data_status: 'streaming'
             }
@@ -103,12 +144,23 @@ export default {
             onSymbolResolvedCallback(symbolInfo)
           },
 
-          getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+          getBars: async (
+            symbolInfo,
+            resolution,
+            from,
+            to,
+            onHistoryCallback,
+            onErrorCallback,
+            firstDataRequest
+          ) => {
             this.resolution = resolution
 
-            const { data: charts } = await this.$axios.get(`/markets/${this.id}/charts`, {
-              params: { resolution, from, to }
-            })
+            const { data: charts } = await this.$axios.get(
+              `/markets/${this.id}/charts`,
+              {
+                params: { resolution, from, to }
+              }
+            )
 
             const bars = charts.map((i) => {
               return {
@@ -123,8 +175,7 @@ export default {
             onHistoryCallback(bars, { noData: bars.length == 0 })
           },
 
-          unsubscribeBars: (subscriberUID) => {
-          }
+          unsubscribeBars: (subscriberUID) => {}
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
         interval: '240',
@@ -174,7 +225,10 @@ export default {
 
           //'use_localstorage_for_settings',
         ],
-        enabled_features: ['side_toolbar_in_fullscreen_mode', 'header_in_fullscreen_mode'],
+        enabled_features: [
+          'side_toolbar_in_fullscreen_mode',
+          'header_in_fullscreen_mode'
+        ],
         //charts_storage_url: this.chartsStorageUrl,
         //charts_storage_api_version: this.chartsStorageApiVersion,
         //client_id: this.clientId,
@@ -187,8 +241,10 @@ export default {
         theme: this.$colorMode.value,
         custom_css_url: '/tv_themed.css',
         overrides: {
-          'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#282828',
-          'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
+          'paneProperties.background':
+            this.$colorMode.value == 'light' ? '#F3FAFC' : '#282828',
+          'scalesProperties.textColor':
+            this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
         }
       }
 
@@ -200,6 +256,6 @@ export default {
 
 <style>
 #tv_chart_container {
-  height: 460px;
+  height: 360px;
 }
 </style>
