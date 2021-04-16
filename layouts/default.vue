@@ -1,5 +1,6 @@
 <template lang="pug">
 div
+  AlcorLoading
   ModalsDialog
   .layout.alcor-inner(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
     nav.nav(v-if='!isMobile')
@@ -48,6 +49,7 @@ import Footer from '~/components/footer/Footer'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav.vue'
+import AlcorLoading from '~/components/AlcorLoading.vue'
 
 export default {
   components: {
@@ -56,7 +58,8 @@ export default {
     FooterBlock: Footer,
     AlcorLink,
     AlcorButton,
-    ConnectNav
+    ConnectNav,
+    AlcorLoading
   },
 
   data() {
