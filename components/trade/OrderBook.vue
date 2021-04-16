@@ -7,13 +7,13 @@
       span Amount({{ quote_token.symbol.name }})
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
-  .orders-list.blist.asks.text-danger(ref='asks')
+  .orders-list.blist.asks(ref='asks')
     .ltd.d-flex(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
       :class='isMyOrder(ask) ? "pl-0" : ""'
     )
-      span
+      span.red
         i.el-icon-caret-right(v-if='isMyOrder(ask)')
         | {{ ask.unit_price | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
@@ -33,13 +33,13 @@
       )
       span {{ price }} {{ base_token.symbol.name }}
 
-  .orders-list.blist.bids.text-success
+  .orders-list.blist.bids
     .ltd.d-flex(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
       :class='isMyOrder(bid) ? "pl-0" : ""'
     )
-      span
+      span.green
         i.el-icon-caret-right(v-if='isMyOrder(bid)')
         | {{ bid.unit_price | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
@@ -93,7 +93,7 @@ export default {
     setTimeout(() => this.scrollBook(), 1000)
 
     let timeout
-    this.$socket.on('update_orders', new_deals => {
+    this.$socket.on('update_orders', (new_deals) => {
       if (timeout) {
         clearTimeout(timeout)
       }
