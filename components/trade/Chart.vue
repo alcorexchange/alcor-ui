@@ -256,6 +256,11 @@ export default {
 
 <style>
 #tv_chart_container {
-  height: 360px;
+  height: 460px;
+}
+@media only screen and (max-width: 1000px) {
+  #tv_chart_container {
+    height: 360px;
+  }
 }
 </style>
