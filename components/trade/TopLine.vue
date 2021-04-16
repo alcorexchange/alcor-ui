@@ -26,7 +26,7 @@
           span.ml-3 Volume 24H:
           span.text-success.ml-2  {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
       div(v-else)
-        .overflowbox
+        .overflowbox.items
           .row.align-items-center(v-if="base_token.symbol.name == network.baseToken.symbol && base_token.contract == network.baseToken.contract")
             .col-2
               TokenImage(:src="$tokenLogo(quote_token.symbol.name, quote_token.contract)" height="30").ml-2
@@ -89,5 +89,10 @@ export default {
 .desctop span {
   font-size: 10px;
   padding-right: 10px;
+}
+.items {
+  > * {
+    padding: 2px;
+  }
 }
 </style>
