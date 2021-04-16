@@ -8,11 +8,18 @@
       </p>
       <div class="actions">
         <AlcorLink to="/markets" class="start">Start Trading</AlcorLink>
-        <AlcorLink @click="openInNewTab('https://docs.alcor.exchange/liquidity-pools/understanding-returns')">Read docs</AlcorLink>
+        <AlcorLink
+          @click="
+            openInNewTab(
+              'https://docs.alcor.exchange/liquidity-pools/understanding-returns'
+            )
+          "
+          >Read docs</AlcorLink
+        >
       </div>
     </div>
     <div class="right">
-      <Circles />
+      <Circles v-if="canShowCircles" />
       <!-- <img src="~/assets/images/frame_logo.svg" class="frame_logo"> -->
     </div>
   </div>
@@ -27,8 +34,14 @@ export default {
     AlcorLink,
     Circles
   },
-
-  mounted() {}
+  mounted() {
+    console.log(this.$device.isAndroid)
+  },
+  computed: {
+    canShowCircles() {
+      return !this.$device.isAndroid
+    }
+  }
 }
 </script>
 
