@@ -67,7 +67,9 @@ export const actions = {
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
 
     this.$socket.on('new_deals', new_deals => {
-      commit('setDeals', state.deals.unshift(...new_deals).slice(0, 100))
+      // TODO Refactor it
+      state.deals.unshift(...new_deals)
+      commit('setDeals', state.deals.slice(0, 100))
     })
 
     commit('setStreaming', true)
