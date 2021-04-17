@@ -70,7 +70,7 @@ export default {
     border-radius: 24px;
     background: var(--landing-card-bg);
 
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(7px);
 
     // Trying to improve perfomance for circles
     -webkit-backface-visibility: hidden;
