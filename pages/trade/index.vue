@@ -13,6 +13,12 @@
             el-alert(type="error" show-icon)
               .lead Potential SCAM token!
 
+      .col(v-if="$store.state.market.base_token.contract == 'bosibc.io' || $store.state.market.quote_token.contract == 'bosibc.io'")
+        .row.mb-2
+          .col
+            el-alert(type="warning" show-icon)
+              .lead Cross Chain transfers of BOSIBC tokens are temporary stopped! It is recommended to wait for the news before continuing trading.
+
     client-only
       DesktopTrade(v-if="!isMobile")
       MobileTrade(v-else)

@@ -70,6 +70,7 @@ export default {
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         this.$store.dispatch('market/fetchOrders')
+        this.$store.dispatch('market/loadUserOrders')
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
