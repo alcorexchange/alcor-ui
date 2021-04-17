@@ -52,19 +52,14 @@ export const actions = {
   },
 
   unsubscribe({ state, rootState, commit, dispatch }, market) {
+    this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
-    this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
   },
 
-  startStream({ state, rootState, commit, dispatch }, { to, from }) {
-    //if (from) {
-    //  this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
-    //  this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
-    //  this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
-    //}
-    this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
-    this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
+  startStream({ state, rootState, commit, dispatch }, market) {
+    this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
+    this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
 
     this.$socket.on('new_deals', new_deals => {
       // TODO Refactor it
@@ -79,16 +74,18 @@ export const actions = {
     commit('setDeals', [])
     commit('setUserOrders', [])
 
+    if (process.client) {
+      if (state.id) {
+        dispatch('startStream', market.id)
+      } else {
+        dispatch('startStream', market.id)
+      }
+    }
+
     commit('setMarket', market)
 
     if (process.client) {
       dispatch('loadUserOrders')
-
-      if (state.id) {
-        dispatch('startStream', { to: market.id, from: state.id })
-      } else {
-        dispatch('startStream', { to: market.id })
-      }
     }
   },
 
