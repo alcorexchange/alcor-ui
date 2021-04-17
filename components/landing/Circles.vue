@@ -30,8 +30,8 @@
 export default {
   mounted() {
     document.getElementById('logo').classList.add('is-load')
-    document.querySelector('g').innerHTML = this.generateCircle(15)
-    setTimeout(() => document.querySelector('g').classList.add('is-load'), 100)
+    document.querySelector('.circles g').innerHTML = this.generateCircle(15)
+    setTimeout(() => document.querySelector('.circles g').classList.add('is-load'), 10)
   },
 
   methods: {
@@ -61,32 +61,34 @@ export default {
 </script>
 
 <style lang="scss">
-circle {
-  stroke: url(#g1);
-  animation-name: r;
-  transform-origin: 50% 50%;
-  animation-duration: calc(var(--duration) * 1s);
-  animation-delay: calc(var(--delay) * 1s);
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-
-  opacity: 0;
-  transition: all 6s;
-  -webkit-transition: all 6s;
-}
-circle:nth-child(even) {
-  stroke: url(#g2);
-  animation-direction: reverse;
-}
-@keyframes r {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
-.is-load {
+.circles {
   circle {
-    opacity: 1;
+    stroke: url(#g1);
+    animation-name: r;
+    transform-origin: 50% 50%;
+    animation-duration: calc(var(--duration) * 1s);
+    animation-delay: calc(var(--delay) * 1s);
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+
+    opacity: 0;
+    transition: all 6s;
+    -webkit-transition: all 6s;
+  }
+  circle:nth-child(even) {
+    stroke: url(#g2);
+    animation-direction: reverse;
+  }
+  @keyframes r {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .is-load {
+    circle {
+      opacity: 1;
+    }
   }
 }
 </style>
