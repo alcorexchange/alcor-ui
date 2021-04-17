@@ -10,7 +10,7 @@
         .market-items
           el-carousel(indicator-position="outside" :arrow="order.sell.length > 1 ? 'hover' : 'never'")
             el-carousel-item(v-for="nft in order.sell" :key="nft.id")
-              .p-3.text-center
+              .p-3.text-center(v-if="nft.mdata")
                 b {{ nft.mdata.name }}
                 img(:src="nft.mdata.img" width="80%" @error="setOriginalSrc")
           //.p-3(v-for="nft in order.sell").pointer.mb-1
