@@ -73,7 +73,7 @@ export default {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('market/loadUserOrders')
           this.$store.dispatch('market/fetchOrders')
-        }, 1000)
+        }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
