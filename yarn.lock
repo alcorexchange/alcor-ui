@@ -6122,11 +6122,6 @@ eosio-signing-request@^1.2.0:
     eosjs "^20.0.0"
     fast-sha256 "^1.1.1"
 
-eosjs-account-name@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/eosjs-account-name/-/eosjs-account-name-2.2.1.tgz#326a7e7a1e853c40667f2e935c1e0e70d6d1af4e"
-  integrity sha512-bxFWmULh96K2WJKCzKKgyuBPy1asRI9A3yYXbJoEMYzVwlMrDDgvPhd6HT5Y19QMJoKWcirqhxGJndyNSJEOzA==
-
 eosjs-ecc@4.0.7, eosjs-ecc@^4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eosjs-ecc/-/eosjs-ecc-4.0.7.tgz#f5246da3b84839fcc237204768ef6e5ea56cc814"

@@ -4,6 +4,20 @@ import Big from 'big.js'
 
 import config from '../config'
 
+const types = Serialize.createInitialTypes()
+
+export const nameToUint64 = (name) => {
+  const ser = new Serialize.SerialBuffer()
+  ser.pushName(name)
+  return types.get('uint64').deserialize(ser)
+}
+
+export const uint64ToName = (num) => {
+  const ser = new Serialize.SerialBuffer()
+  types.get('uint64').serialize(ser, num)
+  return ser.getName()
+}
+
 export function make256key(contract1, symbol1, contract2, symbol2) {
   const q_i128_id = new Name(contract1).value.shiftLeft(64).or(new SymbolCode(symbol1.toUpperCase()).raw())
   const b_i128_id = new Name(contract2).value.shiftLeft(64).or(new SymbolCode(symbol2.toUpperCase()).raw())

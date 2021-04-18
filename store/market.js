@@ -1,6 +1,4 @@
-import { nameToUint64 } from 'eosjs-account-name'
-
-import { mergeSamePriceOrders } from '~/utils'
+import { mergeSamePriceOrders, nameToUint64 } from '~/utils'
 
 export const state = () => ({
   id: null,
