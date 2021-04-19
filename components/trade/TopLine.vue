@@ -14,7 +14,7 @@
           // TODO Token prop & mobile version
           Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
-        .d-flex.ml-3(v-if="$store.state.ibcTokens.includes(quote_token.contract)")
+        //.d-flex.ml-3(v-if="$store.state.ibcTokens.includes(quote_token.contract)")
           // TODO Token prop & mobile version
           BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
@@ -55,7 +55,7 @@
           .row
             .col.ml-3
               Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}" v-if="hasWithdraw")
-              BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}" v-if="quote_token.contract == 'bosibc.io'")
+              //BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}" v-if="quote_token.contract == 'bosibc.io'")
 
 </template>
 
@@ -64,14 +64,14 @@ import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import Withdraw from '~/components/withdraw/Withdraw'
-import BOSIbc from '~/components/withdraw/BOSIbc'
+//import BOSIbc from '~/components/withdraw/BOSIbc'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
     Withdraw,
-    BOSIbc
+    //BOSIbc
   },
 
   computed: {
