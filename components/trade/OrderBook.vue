@@ -8,7 +8,7 @@
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
-    .ltd.d-flex(
+    .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
       :class="{ 'pl-0': ask.myOrder }"
@@ -34,7 +34,7 @@
       span {{ price }} {{ base_token.symbol.name }}
 
   .orders-list.blist.bids
-    .ltd.d-flex(
+    .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
       :class="{ 'pl-0': bid.myOrder }"
