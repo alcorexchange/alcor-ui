@@ -17,7 +17,6 @@ export const state = () => ({
   network: {},
 
   baseUrl: '',
-  loading: false,
   tokens: [],
   ibcTokens: ['bosibc.io'],
   ibcAccepts: []
@@ -34,7 +33,6 @@ export const mutations = {
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
   setBaseUrl: (state, url) => state.baseUrl = url,
-  setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
   setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
   setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
@@ -79,11 +77,6 @@ export const actions = {
       m.i256 = make256key(base_token.contract, base_token.symbol.name, quote_token.contract, quote_token.symbol.name)
     })
     commit('setMarkets', data)
-  },
-
-  loading({ commit }, test = '') {
-    // TODO
-    commit('setLoading', true)
   },
 
   async loadIbc({ state, commit, rootGetters }) {
