@@ -1,6 +1,7 @@
 <template lang="pug">
 div
   ModalsDialog
+  AlcorLoading
   .layout
     nav.nav.alcor-inner(v-if='!isMobile')
       .nav-side.nav-left
@@ -49,6 +50,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav.vue'
 import Circles from '~/components/landing/Circles.vue'
+import AlcorLoading from '~/components/AlcorLoading.vue'
 
 export default {
   components: {
@@ -58,7 +60,8 @@ export default {
     AlcorLink,
     AlcorButton,
     ConnectNav,
-    Circles
+    Circles,
+    AlcorLoading
   },
 
   data() {
