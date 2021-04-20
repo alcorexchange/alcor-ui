@@ -35,7 +35,7 @@ export const mutations = {
 
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
-  setTokens: (state, tokens) => state.tokens = tokens,
+  setTokens: (state, tokens) => state.tokens = tokens
   //setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
   //setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
 }
@@ -66,6 +66,7 @@ export const actions = {
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
+    dispatch('market/loadUserOrders')
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
