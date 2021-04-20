@@ -165,11 +165,19 @@ export const getters = {
     return state.token || {}
   },
 
-  sorted_asks(state) {
+  sorted_asks(state, getters, rootState) {
+    if (rootState.user) {
+      state.asks.filter(o => o.account == rootState.user.name).forEach(o => o.myOrder = true)
+    }
+
     return mergeSamePriceOrders(state.asks)
   },
 
-  sorted_bids(state) {
+  sorted_bids(state, getters, rootState) {
+    if (rootState.user) {
+      state.bids.filter(o => o.account == rootState.user.name).forEach(o => o.myOrder = true)
+    }
+
     return mergeSamePriceOrders(state.bids)
   },
 

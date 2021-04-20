@@ -210,6 +210,7 @@ export function mergeSamePriceOrders(ords) {
     } else {
       order.ask.amount += o.ask.amount
       order.bid.amount += o.bid.amount
+      order.myOrder = o.myOrder
     }
   }
 

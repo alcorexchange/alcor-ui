@@ -11,10 +11,10 @@
     .ltd.d-flex(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class='isMyOrder(ask) ? "pl-0" : ""'
+      :class="{ 'pl-0': ask.myOrder }"
     )
       span
-        i.el-icon-caret-right(v-if='isMyOrder(ask)')
+        i.el-icon-caret-right(v-if='ask.myOrder')
         | {{ ask.unit_price | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
       span(v-if='!isMobile') {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
@@ -37,10 +37,10 @@
     .ltd.d-flex(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class='isMyOrder(bid) ? "pl-0" : ""'
+      :class="{ 'pl-0': bid.myOrder }"
     )
       span
-        i.el-icon-caret-right(v-if='isMyOrder(bid)')
+        i.el-icon-caret-right(v-if='bid.myOrder')
         | {{ bid.unit_price | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
 
@@ -134,14 +134,6 @@ export default {
         .replaceAll(',', '')
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', bid.ask.prefix)
-    },
-
-    isMyOrder(order) {
-      if (this.user && order.account == this.user.name) {
-        return true
-      }
-
-      return false
     }
   }
 }
