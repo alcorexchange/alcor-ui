@@ -19,7 +19,7 @@ export const state = () => ({
   baseUrl: '',
   loading: false,
   tokens: [],
-  ibcTokens: [],
+  ibcTokens: ['eth.token'],
   ibcAccepts: []
 })
 
