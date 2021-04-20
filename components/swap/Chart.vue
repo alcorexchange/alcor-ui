@@ -37,6 +37,8 @@ const COLORS = {
   }
 }
 
+let timeout
+
 export default {
   components: {
     TokenImage
@@ -52,7 +54,6 @@ export default {
       height: '100%',
 
       data: [],
-      timeout: null,
 
       series: [
         {
@@ -103,12 +104,18 @@ export default {
 
           events: {
             mouseMove: (event, chartContext, config) => {
-              if (!(config.dataPointIndex in this.data)) return
+              if (timeout) {
+                clearTimeout(timeout)
+              }
 
-              const price = this.data[config.dataPointIndex].y
-              if (config.dataPointIndex == -1 || price == this.price || !price)
-                return
-              this.price = price
+              timeout = setTimeout(() => {
+                if (!(config.dataPointIndex in this.data)) return
+
+                const price = this.data[config.dataPointIndex].y
+                if (config.dataPointIndex == -1 || price == this.price || !price)
+                  return
+                this.price = price
+              }, 10)
             }
           }
         },

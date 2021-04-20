@@ -7,6 +7,12 @@ import { Name, SymbolCode } from 'eos-common'
 import { mapState } from 'vuex'
 
 export default {
+  beforeRouteLeave(to, from, next) {
+    console.log('trade leave!!', this.id)
+    this.$store.dispatch('market/unsubscribe', this.id)
+    next()
+  },
+
   async fetch({ redirect, store, error, params, $rpc }) {
     if (!params.id) return redirect({ name: 'markets' })
 
@@ -64,7 +70,7 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['symbol', 'quote_token', 'base_token'])
+    ...mapState('market', ['id', 'symbol', 'quote_token', 'base_token'])
   },
 
   head() {

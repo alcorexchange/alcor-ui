@@ -18,7 +18,7 @@ export const state = () => ({
 
   baseUrl: '',
   tokens: [],
-  ibcTokens: ['bosibc.io'],
+  ibcTokens: ['eth.token'],
   ibcAccepts: []
 })
 
@@ -33,9 +33,10 @@ export const mutations = {
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
   setBaseUrl: (state, url) => state.baseUrl = url,
-  setTokens: (state, tokens) => state.tokens = tokens,
-  setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
-  setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
+  setLoading: (state, loading) => state.loading = loading,
+  setTokens: (state, tokens) => state.tokens = tokens
+  //setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
+  //setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
 }
 
 export const actions = {
@@ -47,7 +48,7 @@ export const actions = {
     if (state.network.name == 'local') return
 
     dispatch('loadMarkets')
-    dispatch('loadIbc')
+    // dispatch('loadIbc') TODO Remove BOS IBC LOGIC
 
     setInterval(() => dispatch('update'), 15000)
   },
@@ -64,6 +65,7 @@ export const actions = {
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
+    dispatch('market/loadUserOrders')
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {

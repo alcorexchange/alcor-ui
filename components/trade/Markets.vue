@@ -57,7 +57,10 @@ export default {
 
   methods: {
     setMarket(market) {
-      //this.loading = true
+      if (this.id) {
+        this.$store.dispatch('market/unsubscribe', this.id)
+      }
+
       this.$router.push(
         { name: 'trade-index-id', params: { id: market.slug } },
         () => this.loading = false,

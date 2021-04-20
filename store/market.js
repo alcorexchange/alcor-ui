@@ -1,6 +1,4 @@
-import { nameToUint64 } from 'eosjs-account-name'
-
-import { mergeSamePriceOrders } from '~/utils'
+import { mergeSamePriceOrders, nameToUint64 } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -52,22 +50,19 @@ export const actions = {
   },
 
   unsubscribe({ state, rootState, commit, dispatch }, market) {
+    this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
-    this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
   },
 
-  startStream({ state, rootState, commit, dispatch }, { to, from }) {
-    //if (from) {
-    //  this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market: from } })
-    //  this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market: from } })
-    //  this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market: from } })
-    //}
-    this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market: to } })
-    this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market: to } })
+  startStream({ state, rootState, commit, dispatch }, market) {
+    this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
+    this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
 
     this.$socket.on('new_deals', new_deals => {
-      commit('setDeals', state.deals.unshift(...new_deals).slice(0, 100))
+      // TODO Refactor it
+      state.deals.unshift(...new_deals)
+      commit('setDeals', state.deals.slice(0, 100))
     })
 
     commit('setStreaming', true)
@@ -77,16 +72,18 @@ export const actions = {
     commit('setDeals', [])
     commit('setUserOrders', [])
 
+    if (process.client) {
+      if (state.id) {
+        dispatch('startStream', market.id)
+      } else {
+        dispatch('startStream', market.id)
+      }
+    }
+
     commit('setMarket', market)
 
     if (process.client) {
       dispatch('loadUserOrders')
-
-      if (state.id) {
-        dispatch('startStream', { to: market.id, from: state.id })
-      } else {
-        dispatch('startStream', { to: market.id })
-      }
     }
   },
 
@@ -168,11 +165,19 @@ export const getters = {
     return state.token || {}
   },
 
-  sorted_asks(state) {
+  sorted_asks(state, getters, rootState) {
+    if (rootState.user) {
+      state.asks.filter(o => o.account == rootState.user.name).forEach(o => o.myOrder = true)
+    }
+
     return mergeSamePriceOrders(state.asks)
   },
 
-  sorted_bids(state) {
+  sorted_bids(state, getters, rootState) {
+    if (rootState.user) {
+      state.bids.filter(o => o.account == rootState.user.name).forEach(o => o.myOrder = true)
+    }
+
     return mergeSamePriceOrders(state.bids)
   },
 

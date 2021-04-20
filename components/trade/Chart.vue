@@ -85,18 +85,7 @@ export default {
           ) => {
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
-            this.$socket.emit('unsubscribe', {
-              room: 'ticker',
-              params: { chain: this.network.name, market: this.id }
-            })
-            this.$socket.emit('subscribe', {
-              room: 'ticker',
-              params: {
-                chain: this.network.name,
-                market: this.id,
-                resolution: this.resolution
-              }
-            })
+            this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
 
             this.$socket.on('tick', (candle) => {
               onRealtimeCallback({

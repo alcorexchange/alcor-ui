@@ -323,7 +323,7 @@ export default {
     flex: 1;
   }
   .p20 {
-    width: 20%;
+    width: 23%;
   }
   .p10 {
     width: 10%;

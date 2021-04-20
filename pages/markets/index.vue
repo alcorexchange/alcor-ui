@@ -74,6 +74,7 @@
         sortable,
         sort-by='volume24',
         :sort-orders='["descending", null]'
+        v-if='!isMobile'
       )
         template(slot-scope='scope')
           span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
@@ -100,7 +101,6 @@
         sortable,
         sort-by='volumeWeek',
         :sort-orders='["descending", null]',
-        v-if='!isMobile'
       )
         template(slot-scope='scope')
           span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}

@@ -69,8 +69,11 @@ export default {
         })
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
-        this.$store.dispatch('market/fetchOrders')
-        this.$store.dispatch('market/loadUserOrders')
+        setTimeout(() => {
+          this.$store.dispatch('loadUserBalances')
+          this.$store.dispatch('market/loadUserOrders')
+          this.$store.dispatch('market/fetchOrders')
+        }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
         this.$notify({ title: 'Place order', message: e, type: 'error' })
