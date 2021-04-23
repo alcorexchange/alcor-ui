@@ -110,19 +110,19 @@ export default {
         index: 2,
       },
       { name: 'Lynx', logo: require('@/assets/logos/lynx.svg'), index: 3 },
-      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 },
+      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 }
     ]
 
     if (this.network.name == 'eos') {
       wallets.push({
         name: '',
         logo: require('@/assets/logos/wombat.png'),
-        index: 0,
+        index: 0
       })
       wallets.push({
         name: 'Keycat',
         logo: require('@/assets/logos/keycat.svg'),
-        index: 5,
+        index: 5
       })
     }
 
@@ -131,15 +131,16 @@ export default {
         name: 'Wax Cloud Wallet',
         logo: require('@/assets/logos/wax.svg'),
         index: 'wax',
-        create: 'https://all-access.wax.io/',
+        create: 'https://all-access.wax.io/'
       })
     }
 
     if (this.network.name == 'proton') {
       wallets.unshift({
-        name: '',
-        logo: require('@/assets/logos/proton_wallet.svg'),
+        name: 'Proton',
+        logo: require('@/assets/icons/proton.png'),
         index: 5,
+        create: 'https://www.protonchain.com/wallet/'
       })
     }
 
