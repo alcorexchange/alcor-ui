@@ -70,6 +70,7 @@ export const actions = {
     if (state.anchorSession.accountName && state.anchorSession.authorization) {
       // Try anchor
       await dispatch('login', 1)
+      commit('setProvider', 1)
     } else {
       try {
         connect = await getters.wallet.connect()
@@ -89,6 +90,10 @@ export const actions = {
     switch (state.currentWallet) {
       case 'transit':
         await getters.wallet.logout()
+        commit('setUser', null, { root: true })
+        break
+      case 'wax':
+        // TODO Logount from WCW
         commit('setUser', null, { root: true })
         break
       default:
