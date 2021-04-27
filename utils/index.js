@@ -206,7 +206,8 @@ export function mergeSamePriceOrders(ords) {
     const order = orders[o.unit_price]
 
     if (!order) {
-      orders[o.unit_price] = o
+      // TODO More elegant way to do that. (it thanges store and buggy increase orders amounts)
+      orders[o.unit_price] = JSON.parse(JSON.stringify(o))
     } else {
       order.ask.amount += o.ask.amount
       order.bid.amount += o.bid.amount
