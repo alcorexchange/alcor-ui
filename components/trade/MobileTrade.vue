@@ -35,7 +35,7 @@
                 br
 
                 label.small Price
-                el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="priceChange()")
+                el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="fixPrice()" @input="priceChange()")
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 label.small Amount
@@ -58,11 +58,11 @@
                 br
 
                 label.small Price
-                el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="priceChange()")
+                el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="fixPrice()" @input="priceChange()")
                   span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
 
                 label.small Amount
-                el-input(type="number" v-model="amount" clearable @change="priceChange()")
+                el-input(type="number" v-model="amount" clearable @change="fixPrice()" @input="priceChange()")
                   span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
                 el-slider(:step="25" v-model="tokenPercent" show-stops)

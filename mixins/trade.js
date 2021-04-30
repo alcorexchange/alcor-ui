@@ -5,6 +5,9 @@ import { asset } from 'eos-common'
 import config from '~/config'
 import { amountToFloat } from '~/utils'
 
+
+// TODO This whole module need refactor
+
 function correct_price(price, _from, _for) {
   const diff_precision = Math.abs(_from - _for)
 
@@ -21,6 +24,11 @@ export const tradeChangeEvents = {
   mounted() {
     this.$nuxt.$on('setPrice', price => {
       this.price = price
+
+      const _price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
+      this.price = _price.toFixed(config.PRICE_DIGITS)
+      this.total = (this.price * this.amount)
+
       this.priceChange()
     })
 
@@ -56,7 +64,6 @@ export const tradeMixin = {
 
   watch: {
     eosPercent(v) {
-      console.log('watcher for limit eosPercent')
       if (!this.baseBalance) return
 
       const balance = parseFloat(this.baseBalance.split(' ')[0])
@@ -93,10 +100,14 @@ export const tradeMixin = {
   },
 
   methods: {
-    priceChange () {
+    fixPrice() {
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
-      this.total = (this.price * this.amount)
+    },
+
+    priceChange () {
+      const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
+      this.total = (parseFloat(price.toFixed(config.PRICE_DIGITS)) * this.amount)
       this.amountChange()
     },
 

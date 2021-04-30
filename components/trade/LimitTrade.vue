@@ -8,7 +8,7 @@
 
     el-form(ref="form" :rules="rules")
       el-form-item
-        el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="priceChange()" size="medium" align="right")
+        el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="fixPrice()" @input="priceChange()" size="medium" align="right")
           span(slot="prefix").mr-1 PRICE
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
@@ -37,12 +37,12 @@
 
     el-form(ref="form" :rules="rules")
       el-form-item
-        el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="priceChange()" size="medium")
+        el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="fixPrice()"  @input="priceChange()" size="medium")
           span(slot="prefix").mr-1 PRICE
           span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" clearable @change="priceChange()" size="medium")
+        el-input(type="number" v-model="amount" clearable @change="fixPrice()"  @input="priceChange()" size="medium")
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
