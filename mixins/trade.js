@@ -28,11 +28,6 @@ export const tradeChangeEvents = {
       this.amount = amount
       this.amountChange()
     })
-
-    this.$nuxt.$on('setTotal', total => {
-      this.total = total
-      this.totalChange()
-    })
   }
 }
 

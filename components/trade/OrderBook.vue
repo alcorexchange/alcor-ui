@@ -124,16 +124,18 @@ export default {
       const price = this.$options.filters
         .humanPrice(ask.unit_price)
         .replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', ask.bid.prefix)
+      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', ''))
     },
 
     setAsk(bid) {
       const price = this.$options.filters
         .humanPrice(bid.unit_price)
         .replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', bid.ask.prefix)
+      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', ''))
     }
   }
 }
