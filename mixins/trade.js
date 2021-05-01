@@ -103,11 +103,17 @@ export const tradeMixin = {
     fixPrice() {
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
+      this.amountChange()
     },
 
     priceChange () {
+      //const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
+      //this.price = price.toFixed(config.PRICE_DIGITS)
+      //this.total = (this.price * this.amount)
+      //this.amountChange()
+
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
-      this.total = (parseFloat(price.toFixed(config.PRICE_DIGITS)) * this.amount)
+      this.total = (price.toFixed(config.PRICE_DIGITS) * this.amount)
       this.amountChange()
     },
 
