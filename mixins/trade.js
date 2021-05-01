@@ -112,8 +112,8 @@ export const tradeMixin = {
       //this.total = (this.price * this.amount)
       //this.amountChange()
 
-      const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
-      this.total = (price.toFixed(config.PRICE_DIGITS) * this.amount)
+      //const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
+      //this.total = (price.toFixed(config.PRICE_DIGITS) * this.amount)
       this.amountChange()
     },
 
@@ -125,7 +125,7 @@ export const tradeMixin = {
       this.amount = (parseFloat(this.amount) || 0).toFixed(qp)
 
       const amount = asset(this.amount + ' TEST').amount
-      const price = asset(this.price + ' TEST').amount
+      const price = asset(Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS).toFixed(config.PRICE_DIGITS) + ' TEST').amount
 
       // TODO and FIXME the price calculation is wrong here..
       //console.log('amount', amount, price, qp, bp, correct_price(price, qp, bp))
