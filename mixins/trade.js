@@ -118,6 +118,7 @@ export const tradeMixin = {
     },
 
     amountChange (desc = false) {
+      // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
       const bp = this.base_token.symbol.precision
@@ -136,6 +137,7 @@ export const tradeMixin = {
     },
 
     totalChange (desc = false) {
+      // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
       const bp = this.base_token.symbol.precision

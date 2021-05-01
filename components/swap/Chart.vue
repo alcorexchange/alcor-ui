@@ -10,8 +10,8 @@
           span.text.muted.ml-1 {{renderSecondPair}}
       .price-container
         .price {{ price }}
-        .to(v-if="pair") {{ isReverted ? pair.pool1.quantity.symbol.code().to_string() : pair.pool2.quantity.symbol.code().to_string() }}
-        // TODO Make change text color red and arrow down when percent is < 0
+        .to(v-if="pair && tab == 'Liquidity'") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
+        .to(v-else-if="pair") {{ isReverted ? pair.pool1.quantity.symbol.code().to_string() : pair.pool2.quantity.symbol.code().to_string() }}
         .change(:class="{isRed, isZero}")
           i(:class="`el-icon-caret-${isRed? 'bottom': 'top'}`" v-if="!isZero")
           span.text {{ percent }}%
