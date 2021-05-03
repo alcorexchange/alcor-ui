@@ -49,13 +49,8 @@
 
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
-            a.text-muted.ml-2(
-              :href='monitorAccount(scope.row.quote_token.contract)',
-              target='_blank',
-              v-if='!isMobile'
-            ) {{ scope.row.quote_token.contract }}
-            |
-            | / {{ scope.row.base_token.symbol.name }}
+            span.text-muted.ml-2(v-if='!isMobile') {{ scope.row.quote_token.contract }}
+            |  / {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
         :label='`Last price`',
