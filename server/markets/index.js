@@ -1,4 +1,5 @@
 import { performance } from 'perf_hooks'
+import { cacheSeconds } from 'route-cache'
 
 import { Router } from 'express'
 import fetch from 'node-fetch'
@@ -12,12 +13,12 @@ import { getMarketStats } from './history'
 import { resolutions, getCharts } from './charts'
 
 export async function getMarket(network, market_id) {
-  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
-
   const markets = cache.get(`${network.name}_markets`) || []
   const c_market = markets.filter(m => m.id == market_id)[0]
 
   if (c_market) return c_market
+
+  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
 
   const { rows: [m] } = await rpc.get_table_rows({
     code: network.contract,
@@ -65,14 +66,17 @@ async function getOrders (rpc, contract, market_id, side, kwargs) {
 
 export const markets = Router()
 
-markets.get('/:market_id/deals', async (req, res) => {
+markets.get('/:market_id/deals', cacheSeconds(3, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
+}), async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
+  const limit = req.query.limit || 200
 
   const matches = await Match.find({ chain: network.name, market: market_id })
     .select('_id time bid ask unit_price type trx_id')
     .sort({ time: -1, _id: 1 })
-    .limit(200)
+    .limit(parseInt(limit))
 
   res.json(matches)
 })
@@ -109,7 +113,9 @@ markets.get('/:market_id/charts', async (req, res) => {
   res.json(charts)
 })
 
-markets.get('/:market_id', async (req, res) => {
+markets.get('/:market_id', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id
+}), async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
   const market = await getMarket(network, market_id)
