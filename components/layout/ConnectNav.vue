@@ -16,7 +16,7 @@
             span.ml-2(v-else) {{ network.desc }}
   .right
     .user-detail(v-if='user')
-      .balance {{ systemBalance }}
+      .balance(@click="openInNewTab(monitorAccount(user.name))") {{ systemBalance }}
       el-dropdown
         .user-name {{ user.name }}
         //template(#dropdown='')
