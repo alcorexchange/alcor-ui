@@ -198,7 +198,7 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'TLM@alien.worlds', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
+    RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
