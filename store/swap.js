@@ -15,7 +15,9 @@ export const state = () => ({
     symbol: '',
     contract: '',
     precision: 0
-  }
+  },
+
+  stream: null
 })
 
 export const mutations = {
@@ -23,7 +25,8 @@ export const mutations = {
   setInput: (state, token) => state.input = token,
   setOutput: (state, token) => state.output = token,
   setTab: (state, tab) => state.tab = tab,
-  setWithdrawToken: (state, token) => state.withdraw_token = token
+  setWithdrawToken: (state, token) => state.withdraw_token = token,
+  setStream: (state, stream) => state.stream = stream
 }
 
 export const actions = {
@@ -44,6 +47,22 @@ export const actions = {
 
     if (input) commit('setInput', input)
     if (output) commit('setOutput', output)
+  },
+
+  startStream({ state, commit, dispatch, getters, rootState }) {
+    const stream = setInterval(() => {
+      if (!getters.current) return
+      dispatch('updatePair', getters.current.id)
+    }, 1000)
+
+    commit('setStream', stream)
+  },
+
+  stopStream({ state, commit }) {
+    if (state.stream) {
+      clearInterval(state.stream)
+      commit('setStream', null)
+    }
   },
 
   setPair({ state, commit }, pair_id) {
@@ -121,7 +140,9 @@ export const actions = {
       code: rootState.network.pools.contract,
       scope: rootState.network.pools.contract,
       table: 'pairs',
-      limit: 1
+      limit: 1,
+      lower_bound: getters.current.id,
+      upper_bound: getters.current.id
     })
 
     if (!new_pair) {

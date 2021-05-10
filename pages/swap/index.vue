@@ -155,14 +155,20 @@ export default {
   },
 
   mounted() {
-    this.$socket.emit('subscribe', {
-      room: 'pools',
-      params: { chain: this.network.name }
-    })
+    this.$store.dispatch('swap/startStream')
+    // TODO Move to swap store
+    //this.$socket.emit('subscribe', {
+    //  room: 'pools',
+    //  params: { chain: this.network.name }
+    //})
 
-    this.$socket.on('update_pair', (data) => {
-      this.$store.dispatch('swap/updatePairOnPush', data)
-    })
+    //this.$socket.on('update_pair', (data) => {
+    //  this.$store.dispatch('swap/updatePairOnPush', data)
+    //})
+  },
+
+  destroyed() {
+    this.$store.dispatch('swap/stopStream')
   },
 
   methods: {
