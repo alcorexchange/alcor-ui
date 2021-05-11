@@ -1,4 +1,5 @@
 import { asset } from 'eos-common'
+import { make256key } from '~/utils'
 
 export function get_all_tokens(pairs) {
   const tokens = []
@@ -103,6 +104,11 @@ export function preparePair(pair) {
   pair.pool1.quantity = asset(pair.pool1.quantity)
   pair.pool2.quantity = asset(pair.pool2.quantity)
   pair.supply = asset(pair.supply)
+  pair.name = pair.pool1.quantity.symbol.code().to_string() + '/' + pair.pool2.quantity.symbol.code().to_string()
+  pair.i256 = make256key(
+    pair.pool1.contract, pair.pool1.quantity.symbol.code().to_string(),
+    pair.pool2.contract, pair.pool2.quantity.symbol.code().to_string()
+  )
 
   return pair
 }
