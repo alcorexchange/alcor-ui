@@ -101,6 +101,7 @@ export function calcPrice(a, b) {
 }
 
 export function preparePair(pair) {
+  // TODO Update this method / optimization
   pair.pool1.quantity = asset(pair.pool1.quantity)
   pair.pool2.quantity = asset(pair.pool2.quantity)
   pair.supply = asset(pair.supply)
