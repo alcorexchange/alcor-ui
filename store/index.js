@@ -11,6 +11,7 @@ const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3
 export const state = () => ({
   user: null,
   userDeals: [],
+  account: null,
   liquidityPositions: [],
 
   markets: [],
@@ -34,9 +35,8 @@ export const mutations = {
 
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
-  setTokens: (state, tokens) => state.tokens = tokens
-  //setIbcTokens: (state, ibcTokens) => state.ibcTokens = ibcTokens,
-  //setIbcAccepts: (state, ibcAccepts) => state.ibcAccepts = ibcAccepts,
+  setTokens: (state, tokens) => state.tokens = tokens,
+  setAccount: (state, account) => state.account = account
 }
 
 export const actions = {
@@ -66,6 +66,15 @@ export const actions = {
   update({ dispatch }) {
     dispatch('loadUserBalances')
     dispatch('market/loadUserOrders')
+    dispatch('loadAccountData')
+  },
+
+  async loadAccountData({ state, commit, getters, dispatch }) {
+    if (!state.user) return
+
+    const account = await this.$rpc.get_account(state.user.name)
+    commit('setAccount', account)
+    console.log(account)
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
