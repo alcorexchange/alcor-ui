@@ -74,7 +74,7 @@ export const actions = {
     } else {
       try {
         connect = await getters.wallet.connect()
-      } catch {}
+      } catch { }
 
       if (connect) {
         await dispatch('login', 0)
@@ -216,9 +216,13 @@ export const actions = {
     return loginPromise
   },
 
-  async sendTransaction({ state, rootState, dispatch, getters }, actions) {
+  async sendTransaction({ state, rootState, dispatch, getters, commit }, actions) {
     const tx = { actions }
-
+    // TODO: run alcor loading
+    commit('loading/OPEN', {
+      title: 'Connecting Wallet',
+      text: ''
+    }, { root: true })
     let result
     if (state.currentWallet == 'wax') {
       result = await state.wallet.wax.api.transact(tx, transactionHeader)
@@ -231,6 +235,7 @@ export const actions = {
       result = await getters.wallet.eosApi.transact(tx, transactionHeader)
     }
 
+    commit('loading/CLOSE', {}, { root: true })
     dispatch('update', {}, { root: true })
     return result
   }
