@@ -70,6 +70,7 @@ module.exports = {
     'comma-dangle': 1,
     'eqeqeq': 0,
     'prefer-const': 1,
+    'no-useless-catch': 0,
 
     'vue/require-default-prop': 1,
     'vue/require-prop-types': 0

@@ -218,26 +218,29 @@ export const actions = {
 
   async sendTransaction({ state, rootState, dispatch, getters, commit }, actions) {
     const tx = { actions }
-    // TODO: run alcor loading
-    commit('loading/OPEN', {
-      title: 'Connecting Wallet',
-      text: ''
-    }, { root: true })
-    let result
+    let transact
+
     if (state.currentWallet == 'wax') {
-      result = await state.wallet.wax.api.transact(tx, transactionHeader)
+      transact = state.wallet.wax.api.transact(tx, transactionHeader)
     } else {
       if (state.payForUser && ['eos', 'wax'].includes(rootState.network.name)) {
         tx.actions.unshift(fuelNoop)
       }
 
       // Transit
-      result = await getters.wallet.eosApi.transact(tx, transactionHeader)
+      transact = getters.wallet.eosApi.transact(tx, transactionHeader)
     }
 
-    commit('loading/CLOSE', {}, { root: true })
-    dispatch('update', {}, { root: true })
-    return result
+    commit('loading/OPEN', { title: 'Connecting Wallet', text: 'Waiting transaction approval..' }, { root: true })
+
+    try {
+      dispatch('update', {}, { root: true })
+      return await transact
+    } catch (e) {
+      throw e
+    } finally {
+      commit('loading/CLOSE', {}, { root: true })
+    }
   }
 }
 
