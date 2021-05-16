@@ -234,11 +234,11 @@ export const actions = {
     commit('loading/OPEN', { title: 'Connecting Wallet', text: 'Waiting transaction approval..' }, { root: true })
 
     try {
-      dispatch('update', {}, { root: true })
       return await transact
     } catch (e) {
       throw e
     } finally {
+      dispatch('update', {}, { root: true })
       commit('loading/CLOSE', {}, { root: true })
     }
   }
