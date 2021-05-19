@@ -59,7 +59,9 @@ export default {
     const contract = store.state.network.otc.contract
 
     try {
-      const { rows: [order] } = await $rpc.get_table_rows({
+      const {
+        rows: [order]
+      } = await $rpc.get_table_rows({
         code: contract,
         scope: contract,
         table: 'orders',
@@ -71,7 +73,10 @@ export default {
         return { order, loading: false }
       } else {
         // TODO Redirect if order in history
-        error({ message: `Order ${params.id} not found or finished`, statusCode: 404 })
+        error({
+          message: `Order ${params.id} not found or finished`,
+          statusCode: 404
+        })
       }
     } catch (e) {
       captureException(e)
@@ -95,11 +100,6 @@ export default {
     ...mapActions('chain', ['login', 'transfer', 'sendTransaction']),
 
     async cancelOrder(order) {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for Scatter'
-      })
-
       try {
         const order = this.order
 
@@ -107,22 +107,30 @@ export default {
           {
             account: this.$store.state.network.otc.contract,
             name: 'cancelorder',
-            authorization: [{
-              actor: order.maker,
-              permission: this.user.authorization.permission
-            }],
+            authorization: [
+              {
+                actor: order.maker,
+                permission: this.user.authorization.permission
+              }
+            ],
             data: { maker: order.maker, order_id: order.id }
           }
         ])
 
-        this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
+        this.$notify({
+          title: 'Success',
+          message: `Order canceled ${order.id}`,
+          type: 'success'
+        })
         this.$router.push({ name: 'otc' })
       } catch (e) {
         captureException(e, { extra: { order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({
+          title: 'Place order',
+          message: e.message,
+          type: 'error'
+        })
         console.log(e)
-      } finally {
-        loading.close()
       }
     },
 
@@ -143,17 +151,29 @@ export default {
           memo: `fill|${id}`
         })
 
-        this.$alert(`<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: action => {
-            this.$router.push({ name: 'otc' })
-            this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+        this.$alert(
+          `<a href="${config.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          'Transaction complete!',
+          {
+            dangerouslyUseHTMLString: true,
+            confirmButtonText: 'OK',
+            callback: (action) => {
+              this.$router.push({ name: 'otc' })
+              this.$notify({
+                title: 'Success',
+                message: `You fill ${id} order`,
+                type: 'success'
+              })
+            }
           }
-        })
+        )
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({
+          title: 'Place order',
+          message: e.message,
+          type: 'error'
+        })
         console.log(e)
       } finally {
         loading.close()

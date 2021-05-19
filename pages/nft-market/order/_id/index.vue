@@ -1,28 +1,32 @@
 <template lang="pug">
-el-card(v-if="!no_found").box-card.mt-3
+el-card.box-card.mt-3(v-if='!no_found')
   .row.mb-2
     .col
-      el-alert(type="error" title="Beware of scammers!" show-icon)
+      el-alert(type='error', title='Beware of scammers!', show-icon)
         p
           | Anyone can create SimpleAssets NFTs and freely choose attributes such as name and image, including fake versions of existing NFTs or stolen intellectual property.
           | Before buying an NFT, always do your own research about the collection and double check the collection name to ensure that you are buying genuine NFTs.
 
   .clearfix(slot='header')
-    el-page-header(@back="goBack")
-      template(slot="content")
+    el-page-header(@back='goBack')
+      template(slot='content')
         .d-flex
           .lead.mr-5 {{ order.buy.quantity }}
           span.mr-1 Order {{ order.id }} created by
-          a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
-  .text.item(v-loading="loading")
+          a(:href='monitorAccount(order.maker)', target='_blank') {{ order.maker }}
+  .text.item(v-loading='loading')
     .row.mb-3
       .col
-        el-card(v-for="nft in nfts" shadow="hover").pointer.mb-1
+        el-card.pointer.mb-1(v-for='nft in nfts', shadow='hover')
           .row
             .col-lg-4
-              img(:src="nft.mdata.img" height="250" @error="setOriginalSrc").order-img
+              img.order-img(
+                :src='nft.mdata.img',
+                height='250',
+                @error='setOriginalSrc'
+              )
             .col-lg-8
-              NftFields(:nft="nft")
+              NftFields(:nft='nft')
 
             //.col-lg-5
               .d-flex.flex-column
@@ -34,8 +38,12 @@ el-card(v-if="!no_found").box-card.mt-3
                   a(:href="monitorAccount(nft.author)" target="_blank") {{ nft.author }}
 
     PleaseLoginButton
-      el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
-      el-button(v-else type="primary" @click="buy").w-100 Buy for {{ order.buy.quantity }}
+      el-button.w-100(
+        v-if='user && order.maker == user.name',
+        type='warning',
+        @click='cancelOrder'
+      ) Cancel order
+      el-button.w-100(v-else, type='primary', @click='buy') Buy for {{ order.buy.quantity }}
 
   //.text.item(v-if="order.maker")
     .row.mb-3
@@ -85,24 +93,29 @@ export default {
   components: {
     TokenImage,
     PleaseLoginButton,
-    NftFields
+    NftFields,
   },
 
   async asyncData({ store, error, params, $rpc }) {
     try {
-      const { rows: [order] } = await $rpc.get_table_rows({
+      const {
+        rows: [order],
+      } = await $rpc.get_table_rows({
         code: store.state.network.nftMarket.contract,
         scope: store.state.network.nftMarket.contract,
         table: 'sellorders',
         lower_bound: params.id,
-        limit: 1
+        limit: 1,
       })
 
       if (order && order.id == params.id) {
         return { order, loading: false }
       } else {
         // TODO Redirect if order in history
-        error({ message: `Order ${params.id} not found or finished`, statusCode: 404 })
+        error({
+          message: `Order ${params.id} not found or finished`,
+          statusCode: 404,
+        })
       }
     } catch (e) {
       captureException(e)
@@ -115,7 +128,7 @@ export default {
       order: {},
       no_found: false,
       loading: true,
-      nfts: []
+      nfts: [],
     }
   },
 
@@ -130,12 +143,14 @@ export default {
 
     // TODO Create global base of nft tokens that contract holds
     for (const id of this.order.sell) {
-      const { rows: [item] } = await this.$rpc.get_table_rows({
+      const {
+        rows: [item],
+      } = await this.$rpc.get_table_rows({
         code: 'simpleassets',
         scope: this.network.nftMarket.contract,
         table: 'sassets',
         lower_bound: id,
-        limit: 1
+        limit: 1,
       })
 
       prepareNFT(item)
@@ -151,15 +166,13 @@ export default {
     ...mapActions('chain', ['login', 'transfer', 'sendTransaction']),
 
     setOriginalSrc(event) {
-      event.target.src = event.target.src.replace('https://images.hive.blog/0x0/', '')
+      event.target.src = event.target.src.replace(
+        'https://images.hive.blog/0x0/',
+        ''
+      )
     },
 
     async cancelOrder(order) {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for wallet'
-      })
-
       try {
         const order = this.order
 
@@ -167,30 +180,38 @@ export default {
           {
             account: this.$store.state.network.nftMarket.contract,
             name: 'cancelsell',
-            authorization: [{
-              actor: order.maker,
-              permission: 'active'
-            }],
-            data: { maker: order.maker, order_id: order.id }
-          }
+            authorization: [
+              {
+                actor: order.maker,
+                permission: 'active',
+              },
+            ],
+            data: { maker: order.maker, order_id: order.id },
+          },
         ])
 
-        this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
+        this.$notify({
+          title: 'Success',
+          message: `Order canceled ${order.id}`,
+          type: 'success',
+        })
         this.$router.push({ name: 'nft-market' })
         //this.$store.dispatch('nft/fetch')
       } catch (e) {
         captureException(e, { extra: { order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({
+          title: 'Place order',
+          message: e.message,
+          type: 'error',
+        })
         console.log(e)
-      } finally {
-        loading.close()
       }
     },
 
     async buy() {
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter'
+        text: 'Wait for Scatter',
       })
 
       try {
@@ -201,13 +222,21 @@ export default {
           contract: buy.contract,
           actor: this.user.name,
           quantity: buy.quantity,
-          memo: `fill|${id}`
+          memo: `fill|${id}`,
         })
         this.$router.push({ name: 'nft-market' })
-        this.$notify({ title: 'Success', message: `You fill ${id} order`, type: 'success' })
+        this.$notify({
+          title: 'Success',
+          message: `You fill ${id} order`,
+          type: 'success',
+        })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
-        this.$notify({ title: 'Place order', message: e.message, type: 'error' })
+        this.$notify({
+          title: 'Place order',
+          message: e.message,
+          type: 'error',
+        })
         console.log(e)
       } finally {
         loading.close()
@@ -216,14 +245,14 @@ export default {
 
     goBack() {
       this.$router.go(-1)
-    }
+    },
   },
 
   head() {
     return {
-      title: `Alcor OTC swap | Sell ${this.order.sell.quantity} for ${this.order.buy.quantity} by ${this.order.maker}`
+      title: `Alcor OTC swap | Sell ${this.order.sell.quantity} for ${this.order.buy.quantity} by ${this.order.maker}`,
     }
-  }
+  },
 }
 </script>
 

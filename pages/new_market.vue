@@ -131,13 +131,20 @@ export default {
         'quote_token.symbol': {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
-            const r = await this.$rpc.get_currency_stats(this.form.quote_token.contract, value)
+            const r = await this.$rpc.get_currency_stats(
+              this.form.quote_token.contract,
+              value
+            )
 
             if (value in r) {
               this.selectToken(this.form.quote_token)
               callback()
             } else {
-              callback(new Error(`No ${value} symbol in ${this.form.quote_token.contract} contract`))
+              callback(
+                new Error(
+                  `No ${value} symbol in ${this.form.quote_token.contract} contract`
+                )
+              )
             }
           }
         }
@@ -156,8 +163,12 @@ export default {
     ...mapState(['network']),
 
     tokens() {
-      return this.user.balances.filter(t => {
-        if (t.contract == this.network.baseToken.contract && t.currency == this.network.baseToken.symbol) return false
+      return this.user.balances.filter((t) => {
+        if (
+          t.contract == this.network.baseToken.contract &&
+          t.currency == this.network.baseToken.symbol
+        )
+          return false
 
         //return !this.knownTokens.some(k => k.str == t.id)
         return true
@@ -169,8 +180,10 @@ export default {
     base_select() {
       const creation_fee = asset(this.network.marketCreationFee)
 
-      if (this.base_token.contract != this.network.contract &&
-        this.base_token.symbol != this.network.baseToken.symbol) {
+      if (
+        this.base_token.contract != this.network.contract &&
+        this.base_token.symbol != this.network.baseToken.symbol
+      ) {
         creation_fee.set_amount(creation_fee.amount * 2)
       }
 
@@ -185,7 +198,8 @@ export default {
   },
 
   mounted() {
-    this.base_select = this.network.baseToken.symbol + '@' + this.network.baseToken.contract
+    this.base_select =
+      this.network.baseToken.symbol + '@' + this.network.baseToken.contract
     this.base_token = {
       symbol: this.network.baseToken.symbol,
       contract: this.network.baseToken.contract,
@@ -200,11 +214,18 @@ export default {
       if (!token) return
 
       try {
-        const stat = await this.$store.dispatch('api/getToken', { code: token.contract, symbol: token.currency || token.symbol })
+        const stat = await this.$store.dispatch('api/getToken', {
+          code: token.contract,
+          symbol: token.currency || token.symbol
+        })
         precision = stat.supply.symbol.precision()
       } catch (e) {
         captureException(e, { extra: { token } })
-        this.$notify({ title: 'Fetch token precision', message: e.message + ' \n Set precision ' + precision, type: 'warning' })
+        this.$notify({
+          title: 'Fetch token precision',
+          message: e.message + ' \n Set precision ' + precision,
+          type: 'warning'
+        })
         console.log(e)
       }
 
@@ -226,7 +247,9 @@ export default {
     async submit() {
       const { contract, symbol, precision } = this.form.quote_token
 
-      const base_token_memo = `${Number(0).toFixed(this.base_token.precision)} ${this.base_token.symbol}@${this.base_token.contract}`
+      const base_token_memo = `${Number(0).toFixed(
+        this.base_token.precision
+      )} ${this.base_token.symbol}@${this.base_token.contract}`
 
       const authorization = [this.user.authorization]
       const actions = [
@@ -238,7 +261,9 @@ export default {
             from: this.user.name,
             to: this.network.contract,
             quantity: this.creation_fee,
-            memo: `new_market|${base_token_memo}|${Number(0).toFixed(precision)} ${symbol}@${contract}`
+            memo: `new_market|${base_token_memo}|${Number(0).toFixed(
+              precision
+            )} ${symbol}@${contract}`
           }
         }
       ]
@@ -257,11 +282,13 @@ export default {
         })
       }
 
-      const loading = this.$loading({ lock: true, text: 'Wait for wallet' })
-
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
-        this.$notify({ title: 'Market creation', message: 'Market was created successfully', type: 'info' })
+        this.$notify({
+          title: 'Market creation',
+          message: 'Market was created successfully',
+          type: 'info'
+        })
         this.$router.push({
           name: 'trade-index-id',
           params: {
@@ -273,8 +300,6 @@ export default {
         captureException(e, { extra: { contract, symbol, precision } })
         this.$notify({ title: 'Market creation', message: e, type: 'error' })
         console.log(e)
-      } finally {
-        loading.close()
       }
     }
   }
@@ -287,11 +312,11 @@ export default {
 }
 
 .upperinput {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 
 .upperinput:placeholder-shown {
-    text-transform: none;
+  text-transform: none;
 }
 
 @media only screen and (max-width: 600px) {

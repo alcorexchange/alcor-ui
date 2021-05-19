@@ -34,7 +34,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
 
   watch: {
@@ -59,7 +59,11 @@ export default {
         try {
           await this.$rpc.get_account(value)
         } catch (e) {
-          return this.$notify({ title: 'Send NFT', message: 'Receiver account not exists', type: 'error' })
+          return this.$notify({
+            title: 'Send NFT',
+            message: 'Receiver account not exists',
+            type: 'error'
+          })
         }
 
         actions.push({
@@ -74,22 +78,19 @@ export default {
           }
         })
 
-        const loading = this.$loading({
-          lock: true,
-          text: 'Wait for wallet'
-        })
-
         try {
           await this.$store.dispatch('chain/sendTransaction', actions)
 
           this.$store.dispatch('market/fetchOrders')
-          this.$notify({ title: 'Send NFT', message: 'NFT sent successfully!', type: 'success' })
+          this.$notify({
+            title: 'Send NFT',
+            message: 'NFT sent successfully!',
+            type: 'success'
+          })
           this.fetchNfts()
         } catch (e) {
           this.$notify({ title: 'Send NFT', message: e, type: 'error' })
           console.log(e)
-        } finally {
-          loading.close()
         }
       })
     },
@@ -105,7 +106,7 @@ export default {
         limit: 1000
       })
 
-      rows.map(n => {
+      rows.map((n) => {
         prepareNFT(n)
       })
 
@@ -114,8 +115,6 @@ export default {
     }
   }
 }
-
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

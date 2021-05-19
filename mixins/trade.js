@@ -106,7 +106,7 @@ export const tradeMixin = {
       this.amountChange()
     },
 
-    priceChange () {
+    priceChange() {
       //const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       //this.price = price.toFixed(config.PRICE_DIGITS)
       //this.total = (this.price * this.amount)
@@ -117,7 +117,7 @@ export const tradeMixin = {
       this.amountChange()
     },
 
-    amountChange (desc = false) {
+    amountChange(desc = false) {
       // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
@@ -136,7 +136,7 @@ export const tradeMixin = {
       this.total = amountToFloat(total, bp)
     },
 
-    totalChange (desc = false) {
+    totalChange(desc = false) {
       // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
@@ -164,10 +164,6 @@ export const tradeMixin = {
         this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       }
 
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for wallet'
-      })
 
       const actions = [
         {
@@ -198,7 +194,6 @@ export const tradeMixin = {
         this.$notify({ title: 'Place order', message: e, type: 'error' })
         console.log(e)
       } finally {
-        loading.close()
       }
     },
 
