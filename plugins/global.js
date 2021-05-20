@@ -1,5 +1,7 @@
-import { JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
+
+import { JsonRpc } from 'eosjs'
+import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
 
 import config from '~/config'
 
@@ -32,10 +34,17 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
   $axios.setBaseURL(state.baseUrl + '/api')
 
   if (process.client) {
+    // Тут RPC с возможностью менять эндпоинт
     const socket = require('socket.io-client')(state.baseUrl)
+    const nodes = [state.network.protocol + '://' + state.network.host + ':' + state.network.port].concat(state.network.client_nodes)
+    const rpc = new JsonRpcMultiEnds(nodes, { fetch })
+
     inject('socket', socket)
+    inject('rpc', rpc)
   }
 
-  const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
-  inject('rpc', rpc)
+  if (process.server) {
+    const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
+    inject('rpc', rpc)
+  }
 }

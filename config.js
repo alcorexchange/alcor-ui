@@ -34,6 +34,8 @@ const networks = {
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
+    client_nodes: [],
+
     otc: {
       contract: 'alcorotcswap',
       divs: 'avral.pro'
@@ -139,6 +141,8 @@ const networks = {
     hyperion: 'https://proton.pink.gg/',
     backEnd: 'https://alcor.exchange/api/',
 
+    client_nodes: [],
+
     otc: {
       contract: 'alcorotcswap',
       divs: 'aw.aq.waa'
@@ -186,6 +190,8 @@ const networks = {
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
 
+    client_nodes: ['https://wax.eu.eosamsterdam.net', 'https://wax.cryptolions.io', 'https://wax.pink.gg', 'https://api.waxsweden.org'],
+
     otc: {
       contract: 'alcorotcswap',
       divs: 'aw.aq.waa'
@@ -231,6 +237,8 @@ const networks = {
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
     hyperion: 'https://telos.caleos.io/',
     backEnd: 'https://alcor.exchange/api/',
+
+    client_nodes: [],
 
     otc: {
       contract: 'alcorotcswap',
@@ -307,6 +315,8 @@ const networks = {
     hyperion: 'https://api.bossweden.org/',
     backEnd: 'https://alcor.exchange/api/',
 
+    client_nodes: [],
+
     otc: {
       contract: 'alcorotcswap',
       divs: 'avraldigital'
@@ -349,6 +359,8 @@ const networks = {
     hyperion: 'https://resurces.com:17555/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
+    client_nodes: [],
+
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1'
@@ -389,6 +401,8 @@ const networks = {
     lightapi: 'https://api.light.xeos.me',
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
+
+    client_nodes: [],
 
     otc: {
       contract: 'wwweosswapio',
@@ -432,6 +446,8 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
+    client_nodes: [],
+
     otc: {
       contract: 'wwweosswapio',
       divs: 'eosswapdivs1'
@@ -473,6 +489,8 @@ const networks = {
     lightapi: 'https://lightapi.eosgeneva.io',
     hyperion: 'https://api.eossweden.org/v2/',
     backEnd: 'http://localhost:8000/api/',
+
+    client_nodes: [],
 
     otc: {
       contract: 'wwweosswapio',
