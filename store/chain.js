@@ -223,7 +223,7 @@ export const actions = {
     if (state.currentWallet == 'wax') {
       transact = state.wallet.wax.api.transact(tx, transactionHeader)
     } else {
-      if (state.payForUser && ['eos', 'wax'].includes(rootState.network.name)) {
+      if (state.payForUser && ['eos'].includes(rootState.network.name)) {
         tx.actions.unshift(fuelNoop)
       }
 
