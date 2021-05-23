@@ -205,7 +205,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
-    SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken'],
 
     nftMarket: {
       contract: 'alcornftswap'
