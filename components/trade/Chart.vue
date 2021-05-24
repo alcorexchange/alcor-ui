@@ -88,14 +88,16 @@ export default {
             this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
 
             this.$socket.on('tick', (candle) => {
-              onRealtimeCallback({
-                time: candle[0] * 1000,
-                open: candle[1],
-                high: candle[2],
-                low: candle[3],
-                close: candle[4],
-                volume: candle[5]
-              })
+              candle.time = new Date(candle.time).getTime()
+              onRealtimeCallback(candle)
+              //onRealtimeCallback({
+              //  time: new Date(candle[0]).getTime(),
+              //  open: candle[1],
+              //  high: candle[2],
+              //  low: candle[3],
+              //  close: candle[4],
+              //  volume: candle[5]
+              //})
             })
           },
 
@@ -152,19 +154,16 @@ export default {
             )
 
             const bars = charts.map((i) => {
-              return {
-                time: i[0] * 1000,
-                open: i[1],
-                high: i[2],
-                low: i[3],
-                close: i[4],
-                volume: i[5]
-              }
+              i.time = new Date(i.time)
+
+              return i
             })
             onHistoryCallback(bars, { noData: bars.length == 0 })
           },
 
-          unsubscribeBars: (subscriberUID) => {}
+          unsubscribeBars: (subscriberUID) => {
+            this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
+          }
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
         interval: '240',
