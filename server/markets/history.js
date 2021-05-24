@@ -5,7 +5,7 @@ import { Match } from '../models'
 import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
-import { getVolumeFrom, getChangeFrom, markeBar, pushDeal, pushTicker } from './charts'
+import { getVolumeFrom, getChangeFrom, markeBars, pushDeal, pushTicker } from './charts'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -121,7 +121,7 @@ export async function newMatch(match, network, app) {
       })
       pushDeal(io, { chain, market: market.id })
 
-      await markeBar(m)
+      await markeBars(m)
       pushTicker(io, { chain, market: market.id, time: m.time })
       io.to(`orders:${network.name}.${market.id}`).emit('update_orders')
     } catch (e) {

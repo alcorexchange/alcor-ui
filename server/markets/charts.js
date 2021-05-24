@@ -1,4 +1,3 @@
-import memoize from 'memoizee'
 import { Bar, Match } from '../models'
 
 export const resolutions = {
@@ -13,67 +12,23 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export const getCharts = memoize(async function (chain, market, from, to, resolution) {
-  const where = { chain, market: parseInt(market) }
+export async function markeBars(match) {
+  const dbOperations = []
 
-  if (from && to) {
-    where.time = {
-      $gte: new Date(parseFloat(from) * 1000),
-      $lte: new Date(parseFloat(to) * 1000)
-    }
-  }
+  Object.keys(resolutions).map(timeframe => {
+    dbOperations.push(markeBar(timeframe, match))
+  })
 
-  const bars = await Bar.aggregate([
-    { $match: where },
-    {
-      $group:
-      {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, resolutions[resolution] * 1000] }
-            ]
-          }
-        },
-        Open: { $first: '$open' },
-        High: { $max: '$high' },
-        Low: { $min: '$low' },
-        Close: { $last: '$close' },
-        Volume: { $sum: '$volume' }
-      }
-    },
-    { $sort: { _id: 1 } }
-  ]).allowDiskUse(true)
+  await Promise.all(dbOperations)
+}
 
-  const new_bars = []
-
-  for (let i = 0; i < bars.length; i++) {
-    const curr = bars[i]
-    const next = bars[i + 1]
-
-    if (next) {
-      if (curr.close != next.open) {
-        curr.close = next.open
-      }
-
-      //if (next.open != curr.open) {
-      //  curr.close = next.open
-      //}
-    }
-
-    new_bars.push([curr._id / 1000, curr.Open, curr.High, curr.Low, curr.Close, curr.Volume])
-  }
-
-  return new_bars
-}, { maxAge: 60 * 1 * 1000, primitive: true })
-
-export async function markeBar(match) {
-  const last_bar = await Bar.findOne({ chain: match.chain, market: match.market }, {}, { sort: { time: -1 } })
+export async function markeBar(timeframe, match) {
+  const last_bar = await Bar.findOne({ chain: match.chain, market: match.market, timeframe }, {}, { sort: { time: -1 } })
 
   if (!last_bar) {
-    // Нет баров это будет первый
+    //console.log('create first bar for market:', match.market, 'for timeframe:', timeframe)
     await Bar.create({
+      timeframe,
       chain: match.chain,
       market: match.market,
       time: match.time,
@@ -87,8 +42,12 @@ export async function markeBar(match) {
     return
   }
 
-  if (Math.floor(last_bar.time / 1000 / 60) == Math.floor(match.time / 1000 / 60)) {
-    // match in same minute
+  const resolution = resolutions[timeframe]
+
+  if (Math.floor(last_bar.time / 1000 / resolution) == Math.floor(match.time / 1000 / resolution)) {
+    //console.log('updates bar for market:', match.market, 'for timeframe:', timeframe)
+
+    // match in same timeframe
     if (last_bar.high < match.unit_price) {
       last_bar.high = match.unit_price
     } else if (last_bar.low > match.unit_price) {
@@ -98,6 +57,7 @@ export async function markeBar(match) {
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
   } else {
     await Bar.create({
+      timeframe,
       chain: match.chain,
       market: match.market,
       time: match.time,
@@ -110,7 +70,7 @@ export async function markeBar(match) {
   }
 
   last_bar.close = match.unit_price
-  last_bar.save()
+  await last_bar.save()
 }
 
 export async function getVolumeFrom(date, market, chain) {
@@ -143,15 +103,10 @@ export async function pushDeal(io, { chain, market }) {
 }
 
 export function pushTicker(io, { chain, market, time }) {
-  const now = time / 1000
-
-  for (const [resolution, time] of Object.entries(resolutions)) {
-    getCharts(chain, market, now - time, now, resolution).then(charts => {
-      if (charts.length > 0) {
-        io.to(`ticker:${chain}.${market}.${resolution}`).emit('tick', charts[charts.length - 1])
-      } else {
-        console.log('No charts for emiting after receive!!')
-      }
+  Object.keys(resolutions).map(timeframe => {
+    // .select('open high low close time volume')
+    Bar.findOne({ chain, market, timeframe }, {}, { sort: { time: -1 } }).then(bar => {
+      io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', bar)
     })
-  }
+  })
 }

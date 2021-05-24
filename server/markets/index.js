@@ -8,9 +8,8 @@ import { JsonRpc } from 'eosjs'
 
 import { cache } from '../index'
 import { parseAsset, parseExtendedAsset } from '../../utils'
-import { Match } from '../models'
+import { Bar, Match } from '../models'
 import { getMarketStats } from './history'
-import { resolutions, getCharts } from './charts'
 
 export async function getMarket(network, market_id) {
   const markets = cache.get(`${network.name}_markets`) || []
@@ -90,25 +89,22 @@ markets.get('/:market_id/charts', async (req, res) => {
     res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  let { from, to } = req.query
+  const { from, to } = req.query
   const { resolution } = req.query
 
   if (!resolution) return res.status(404).send('Incorrect resolution..')
 
-  const _resolution = resolutions[resolution]
+  const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market_id) }
+  console.log('where::: ', where)
+
   if (from && to) {
-    from = Math.floor(from / _resolution) * _resolution
-    to = Math.ceil(to / _resolution) * _resolution
+    where.time = {
+      $gte: new Date(parseFloat(from) * 1000),
+      $lte: new Date(parseFloat(to) * 1000)
+    }
   }
 
-  const t0 = performance.now()
-  const charts = await getCharts(network.name, parseInt(market_id), from, to, resolution)
-  const performance_result = performance.now() - t0
-  // Charts generate/cache debug
-  //if (true) {
-  if (performance_result > 1000) {
-    console.log('Call to filter for charts took ' + performance_result + ' ms.', 'market: ', market_id, 'resolution: ', resolution, ',', 'from: ', from, 'to: ', to)
-  }
+  const charts = await Bar.find(where).select('open high low close time volume')
 
   res.json(charts)
 })
