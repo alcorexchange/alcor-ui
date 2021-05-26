@@ -37,7 +37,7 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = config.dev ? 'mongodb://localhost:27017/alcor_dev' : 'mongodb://host.docker.internal:27017/alcor_prod'
+      const uri = config.dev ? 'mongodb://localhost:27017/alcor_dev' : 'mongodb://host.docker.internal:27017/alcor_prod_new'
       await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
       console.log('MongoDB connected!')
     } catch (e) {

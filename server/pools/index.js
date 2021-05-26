@@ -20,7 +20,7 @@ const timepoints = {
   '30D': 60 * 60 * 12 * 1000
 }
 
-const defCache = cacheSeconds(15, (req, res) => {
+const defCache = cacheSeconds(60 * 5, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
 })
 
@@ -145,8 +145,8 @@ export async function newPoolsAction(action, network, app) {
         last_point.price = parseFloat(pool2) / parseFloat(pool1)
         last_point.price_r = parseFloat(pool1) / parseFloat(pool2)
 
-        last_point.volume1 = last_point.volume1 + zeroForOne ? parseFloat(quantity_in) : parseFloat(quantity_out)
-        last_point.volume2 = last_point.volume2 + zeroForOne ? parseFloat(quantity_out) : parseFloat(quantity_in)
+        last_point.volume1 += zeroForOne ? parseFloat(quantity_in) : parseFloat(quantity_out)
+        last_point.volume2 += zeroForOne ? parseFloat(quantity_out) : parseFloat(quantity_in)
 
         last_point.liquidity1 = parseFloat(pool1)
         last_point.liquidity2 = parseFloat(pool2)
