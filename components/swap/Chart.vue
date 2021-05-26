@@ -54,6 +54,7 @@ export default {
       height: '100%',
 
       data: [],
+      charts: [],
 
       series: [
         {
@@ -205,10 +206,16 @@ export default {
     }
   },
 
+  // TODO Короче тут нужно все попроавить причесать, что бы переключалка работала
   watch: {
-    pair(_new, old) {
+    async pair(_new, old) {
       // TODO
-      if (!old || _new.id != old.id) this.fetchCharts()
+      if (!old || _new.id != old.id) {
+        await this.fetchCharts()
+        this.updateSeries()
+        if (this.tab == 'Price') this.setCurrentPrice()
+      }
+
       //if (this.timeout) {
       //  clearTimeout(this.timeout)
       //}
@@ -216,15 +223,18 @@ export default {
     },
 
     tab() {
-      this.updateChartOprions()
-      this.fetchCharts(true)
+      this.updateSeries()
     },
-    period() {
-      this.fetchCharts(true)
+
+    async period() {
+      await this.fetchCharts(true)
+      this.updateSeries()
+      if (this.tab == 'Price') this.setCurrentPrice()
     },
 
     isReverted() {
-      this.fetchCharts()
+      this.updateSeries()
+      if (this.tab == 'Price') this.setCurrentPrice()
     },
 
     '$colorMode.value'() {
@@ -234,7 +244,7 @@ export default {
 
   mounted() {
     this.fetchCharts()
-    setTimeout(() => this.updateChartOprions(), 1000)
+    setTimeout(() => this.updateSeries(), 1000)
   },
 
   methods: {
@@ -266,34 +276,35 @@ export default {
       })
     },
 
-    fetchCharts(animate = false) {
-      const API = {
-        Price: 'line_chart',
-        Liquidity: 'liquidity_chart',
-        Volume: 'volume_chart'
-      }[this.tab]
+    updateSeries() {
+      const data = []
 
+      this.charts.map(point => {
+        if (this.tab == 'Price') {
+          data.push({ x: point.time, y: this.isReverted ? point.price_r.toFixed(6) : point.price.toFixed(6) })
+        } else if (this.tab == 'Liquidity') {
+          data.push({ x: point.time, y: this.isReverted ? point.liquidity2.toFixed(6) : point.liquidity1.toFixed(6) })
+        } else if (this.tab == 'Volume') {
+          data.push({ x: point.time, y: this.isReverted ? point.volume2.toFixed(6) : point.volume1.toFixed(6) })
+        }
+      })
+      console.log('updateSeries, data', data.length)
+
+      this.data = data
+      this.$refs.chart.updateOptions(
+        {
+          series: [{ name: this.tab, data }]
+        },
+        true,
+        //animate
+      )
+      this.updateChartOprions()
+      console.log(data)
+    },
+
+    async fetchCharts(animate = false) {
       if (this.pair) {
-        this.$axios
-          .get(`/pools/${this.pair.id}/${API}`, {
-            params: {
-              reverse: this.isReverted,
-              period: this.period
-            }
-          })
-          .then(({ data }) => {
-            this.data = data
-            this.$refs.chart.updateOptions(
-              {
-                series: [{ name: this.tab, data }]
-              },
-              true,
-              animate
-            )
-            this.updateChartOprions()
-
-            if (this.tab == 'Price') this.setCurrentPrice()
-          })
+        this.charts = (await this.$axios.get(`/pools/${this.pair.id}/charts`, { params: { period: this.period } })).data
       }
     }
   }

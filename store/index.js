@@ -74,7 +74,6 @@ export const actions = {
 
     const account = await this.$rpc.get_account(state.user.name)
     commit('setAccount', account)
-    console.log(account)
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {

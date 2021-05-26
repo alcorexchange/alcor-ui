@@ -86,6 +86,22 @@ const BarSchema = mongoose.Schema({
   time: { type: Date, index: true }
 })
 
+const PoolChartPointSchema = mongoose.Schema({
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  price: { type: Number, default: 0 },
+  volume1: { type: Number, default: 0 },
+  liquidity1: { type: Number, default: 0 },
+
+  // Reverted
+  price_r: { type: Number, default: 0 },
+  volume2: { type: Number, default: 0 },
+  liquidity2: { type: Number, default: 0 },
+
+  time: { type: Date, index: true }
+})
+
 const SettingsSchema = mongoose.Schema({
   chain: { type: String },
   actions_stream_offset: { type: Object, default: {} }
@@ -121,4 +137,5 @@ export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)
 export const Match = mongoose.model('Match', MatchSchema)
 export const Bar = mongoose.model('Bar', BarSchema)
+export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)

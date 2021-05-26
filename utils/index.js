@@ -6,6 +6,13 @@ import config from '../config'
 
 const types = Serialize.createInitialTypes()
 
+export const isToday = (someDate) => {
+  const today = new Date()
+  return someDate.getDate() == today.getDate() &&
+    someDate.getMonth() == today.getMonth() &&
+    someDate.getFullYear() == today.getFullYear()
+}
+
 export const nameToUint64 = (name) => {
   const ser = new Serialize.SerialBuffer()
   ser.pushName(name)

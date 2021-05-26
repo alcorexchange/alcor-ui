@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
-import { Exchange, Liquidity } from '../models'
+import { PoolChartPoint } from '../models'
 import { newExchange, newLiuqudity } from './handlers'
 
 export const pools = Router()
@@ -24,50 +24,66 @@ const defCache = cacheSeconds(15, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
 })
 
-pools.get('/:pair_id/line_chart', defCache, async (req, res) => {
-  const network = req.app.get('network')
-  const { pair_id } = req.params
+//pools.get('/:pair_id/charts', defCache, async (req, res) => {
+//  const network = req.app.get('network')
+//  const { pair_id } = req.params
+//
+//  const { period } = req.query
+//  const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
+//
+//  const $match = { chain: network.name, pool: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } }
+//
+//  let charts = []
+//
+//  if (period != '24H') {
+//    const query = [{ $match }]
+//
+//    query.push({
+//      $group:
+//      {
+//        _id: {
+//          $toDate: {
+//            $subtract: [
+//              { $toLong: '$time' },
+//              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
+//            ]
+//          }
+//        },
+//
+//        price: { $avg: '$price' },
+//        price_r: { $avg: '$price_r' },
+//
+//        liquidity1: { $avg: '$liquidity1' },
+//        liquidity2: { $avg: '$liquidity2' },
+//
+//        volume1: { $sum: '$volume1' },
+//        volume2: { $sum: '$volume2' }
+//      }
+//    })
+//    query.push({ $sort: { time: 1 } })
+//
+//    charts = await PoolChartPoint.aggregate(query)
+//  } else {
+//    console.log('zzzzz11')
+//    charts = await PoolChartPoint.find($match).sort({ time: 1 })
+//  }
+//
+//  res.json(charts)
+//})
 
-  const { period, reverse } = req.query
-  const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
-
-  const $divide = reverse == 'true' ? ['$pool1', '$pool2'] : ['$pool2', '$pool1']
-  const prices = await Exchange.aggregate([
-    { $match: { chain: network.name, pair_id: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
-    {
-      $group:
-      {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
-            ]
-          }
-        },
-
-        pool1: { $avg: '$pool1' },
-        pool2: { $avg: '$pool2' }
-      }
-    },
-    { $project: { time: { $toLong: '$_id' }, price: { $divide } } },
-    { $project: { x: '$time', y: { $round: ['$price', 6] } } },
-    { $sort: { x: 1 } }
-  ])
-
-  res.json(prices)
-})
-
-pools.get('/:pair_id/volume_chart', defCache, async (req, res) => {
+pools.get('/:pair_id/charts', defCache, async (req, res) => {
   const network = req.app.get('network')
   const { pair_id } = req.params
 
   const { period } = req.query
   const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
 
-  const volume = await Exchange.aggregate([
-    { $match: { chain: network.name, pair_id: parseFloat(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
-    {
+  const $match = { chain: network.name, pool: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } }
+
+  const query = [{ $match }]
+
+  if (timeframe != '24H') {
+    query.push({
       $group:
       {
         _id: {
@@ -78,54 +94,111 @@ pools.get('/:pair_id/volume_chart', defCache, async (req, res) => {
             ]
           }
         },
-        in: { $sum: '$quantity_in' },
-        out: { $sum: '$quantity_out' }
+
+        price: { $avg: '$price' },
+        price_r: { $avg: '$price_r' },
+
+        liquidity1: { $avg: '$liquidity1' },
+        liquidity2: { $avg: '$liquidity2' },
+
+        volume1: { $sum: '$volume1' },
+        volume2: { $sum: '$volume2' }
       }
-    },
-    { $project: { x: { $toLong: '$_id' }, y: { $sqrt: { $multiply: ['$in', '$out'] } } } },
-    { $project: { x: 1, y: { $round: ['$y', 4] } } },
-    { $sort: { x: 1 } }
-  ]).allowDiskUse(true)
+    })
 
-  res.json(volume)
-})
+    query.push({ $project: { time: { $toLong: '$_id' }, price: 1, price_r: 1, liquidity1: 1, liquidity2: 1, volume1: 1, volume2: 1 } })
+  } else {
 
-pools.get('/:pair_id/liquidity_chart', defCache, async (req, res) => {
-  const network = req.app.get('network')
-  const { pair_id } = req.params
+  }
 
-  const { period, reverse } = req.query
-  const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
+  query.push({
+    $project: {
+      time: { $toLong: '$time' },
+      price: 1,
+      price_r: 1,
+      liquidity1: 1,
+      liquidity2: 1,
+      volume1: 1,
+      volume2: 1
+    }
+  })
+  query.push({ $sort: { time: 1 } })
 
-  const side = reverse == 'true' ? '$pool2' : '$pool1'
-
-  const volume = await Liquidity.aggregate([
-    { $match: { chain: network.name, pair_id: parseFloat(pair_id), time: { $gte: new Date(Date.now() - timeframe) } } },
-    {
-      $group:
-      {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
-            ]
-          }
-        },
-        liquidity: { $max: side }
-      }
-    },
-    { $project: { x: { $toLong: '$_id' }, y: { $round: ['$liquidity', 4] } } },
-    { $sort: { x: 1 } }
-  ]).allowDiskUse(true)
-
-  res.json(volume)
+  const charts = await PoolChartPoint.aggregate(query)
+  res.json(charts)
 })
 
 export async function newPoolsAction(action, network, app) {
-  const { act: { account, name, data: { record } } } = action
+  const { act: { name, data: { record } } } = action
 
-  const io = app.get('io')
+  if (['exchangelog', 'liquiditylog'].includes(name)) {
+    const last_point = await PoolChartPoint.findOne({ chain: network.name, pool: record.pair_id }, {}, { sort: { time: -1 } })
+
+    // Sptit by one hour
+    const resolution = 60 * 60 // One hour
+    if (last_point && Math.floor(last_point.time / 1000 / resolution) == Math.floor(new Date(action.block_time) / 1000 / resolution)) {
+      if (name == 'exchangelog') {
+        const { pool1, pool2, quantity_in, quantity_out } = record
+
+        const zeroForOne = pool1.split(' ')[1] == quantity_in.split(' ')[1]
+
+        last_point.price = parseFloat(pool2) / parseFloat(pool1)
+        last_point.price_r = parseFloat(pool1) / parseFloat(pool2)
+
+        last_point.volume1 = last_point.volume1 + zeroForOne ? parseFloat(quantity_in) : parseFloat(quantity_out)
+        last_point.volume2 = last_point.volume2 + zeroForOne ? parseFloat(quantity_out) : parseFloat(quantity_in)
+
+        last_point.liquidity1 = parseFloat(pool1)
+        last_point.liquidity2 = parseFloat(pool2)
+      } else {
+        const { pool1, pool2 } = record
+
+        last_point.liquidity1 = parseFloat(pool1)
+        last_point.liquidity2 = parseFloat(pool2)
+      }
+
+      last_point.save()
+    } else {
+      const { pool1, pool2, quantity_in, quantity_out } = record
+
+      if (name == 'exchangelog') {
+        const zeroForOne = pool1.split(' ')[1] == quantity_in.split(' ')[1]
+
+        await PoolChartPoint.create({
+          chain: network.name,
+          pool: record.pair_id,
+          time: action.block_time,
+
+          price: parseFloat(pool2) / parseFloat(pool1),
+          price_r: parseFloat(pool1) / parseFloat(pool2),
+
+          volume1: zeroForOne ? parseFloat(quantity_in) : parseFloat(quantity_out),
+          volume2: zeroForOne ? parseFloat(quantity_out) : parseFloat(quantity_in),
+
+          liquidity1: parseFloat(pool1),
+          liquidity2: parseFloat(pool2)
+        })
+      }
+      //else {
+      //  const { pool1, pool2 } = record
+
+      //  await PoolChartPoint.create({
+      //    chain: network.name,
+      //    pool: record.pair_id,
+      //    time: action.block_time,
+
+      //    price: 0,
+      //    price_r: 0,
+
+      //    volume1: 0,
+      //    volume2: 0,
+
+      //    liquidity1: parseFloat(pool1),
+      //    liquidity2: parseFloat(pool2)
+      //  })
+      //}
+    }
+  }
 
   if (name == 'liquiditylog') {
     await newLiuqudity(network, action)
