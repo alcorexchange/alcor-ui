@@ -85,6 +85,7 @@ const BarSchema = mongoose.Schema({
   volume: { type: Number, default: 0 },
   time: { type: Date, index: true }
 })
+BarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
 
 const PoolChartPointSchema = mongoose.Schema({
   chain: { type: String, index: true },
@@ -101,6 +102,7 @@ const PoolChartPointSchema = mongoose.Schema({
 
   time: { type: Date, index: true }
 })
+PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 
 const SettingsSchema = mongoose.Schema({
   chain: { type: String },
