@@ -71,6 +71,7 @@ const MatchSchema = mongoose.Schema({
   block_num: { type: Number }
 })
 MatchSchema.index({ chain: 1, market: 1 })
+MatchSchema.index({ chain: 1, market: 1, time: -1 })
 MatchSchema.index({ time: 1, unit_price: -1 })
 
 const BarSchema = mongoose.Schema({
