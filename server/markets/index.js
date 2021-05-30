@@ -95,7 +95,6 @@ markets.get('/:market_id/charts', async (req, res) => {
   if (!resolution) return res.status(404).send('Incorrect resolution..')
 
   const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market_id) }
-  console.log('where::: ', where)
 
   if (from && to) {
     where.time = {
