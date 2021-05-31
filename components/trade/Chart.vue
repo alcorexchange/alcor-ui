@@ -176,7 +176,7 @@ export default {
           'symbol_search_hot_key',
           //'left_toolbar',
 
-          'legend_widget',
+          //'legend_widget',
           'edit_buttons_in_legend',
           'cropped_tick_marks',
           //'context_menus',
