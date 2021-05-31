@@ -88,7 +88,6 @@ export default {
             this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
 
             this.$socket.on('tick', (candle) => {
-              //candle.time = new Date(candle.time).getTime()
               onRealtimeCallback(candle)
             })
           },

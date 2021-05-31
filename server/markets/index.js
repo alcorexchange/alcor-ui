@@ -118,7 +118,6 @@ markets.get('/:market_id/charts', async (req, res) => {
     }
   ])
 
-
   //const charts = await Bar.find(where).select('open high low close time volume')
 
   res.json(charts)
