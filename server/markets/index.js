@@ -103,7 +103,23 @@ markets.get('/:market_id/charts', async (req, res) => {
     }
   }
 
-  const charts = await Bar.find(where).select('open high low close time volume')
+  const charts = await Bar.aggregate([
+    { $match: where },
+    { $sort: { time: 1 } },
+    {
+      $project: {
+        time: { $toLong: '$time' },
+        open: 1,
+        high: 1,
+        low: 1,
+        close: 1,
+        volume: 1
+      }
+    }
+  ])
+
+
+  //const charts = await Bar.find(where).select('open high low close time volume')
 
   res.json(charts)
 })

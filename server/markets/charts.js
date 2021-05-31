@@ -106,6 +106,7 @@ export function pushTicker(io, { chain, market, time }) {
   Object.keys(resolutions).map(timeframe => {
     // .select('open high low close time volume')
     Bar.findOne({ chain, market, timeframe }, {}, { sort: { time: -1 } }).then(bar => {
+      bar.time = new Date(bar.time).getTime()
       io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', bar)
     })
   })

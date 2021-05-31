@@ -81,6 +81,7 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
   const $match = { chain: network.name, pool: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } }
 
   const query = [{ $match }]
+  query.push({ $sort: { time: 1 } })
 
   if (timeframe != '24H') {
     query.push({
@@ -122,7 +123,6 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
       volume2: 1
     }
   })
-  query.push({ $sort: { time: 1 } })
 
   const charts = await PoolChartPoint.aggregate(query)
   res.json(charts)
