@@ -274,7 +274,7 @@ export default {
 
     //will-change: transform;
     position: absolute;
-    padding: 20px 10px;
+    padding: 20px 10px 10px 10px;
 
     right: 15px;
     left: 15px;
