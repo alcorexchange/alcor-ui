@@ -1,52 +1,46 @@
 <template lang="pug">
-// TODO Refactor with walidators for form
-// TODO boscore withdraws https://boscore.gitbook.io/docs/essentials/bos-essentials/ibc-inter-blockchain-communication/user-guide
-.text-left
-  el-button(type="primary" icon="el-icon-wallet" size="mini" @click="open").ml-auto Withdraw
+.ibc-withdraw
+  el-button(type="primary" icon="el-icon-s-promotion" size="mini" @click="open") Withdraw
 
-  el-dialog(title="Withdraw", :visible.sync="visible" width="25%" v-if="user")
-    el-form(ref="form" label-position="left")
-      .row
-        .col-2
-          TokenImage(:src="$tokenLogo(this.token.symbol, this.token.contract)" height="50")
+  el-dialog(title="Withdraw", :visible.sync="visible" width="50%" v-if="user").text-left
+    el-form(ref="form" :model="form" label-position="left" :rules="rules")
+      el-form-item.mb-2
+        b Your token will be transfered to {{ peg.network }}
+        div {{ peg.desc }}
 
-        .col-10
-          .row
-            .col
-              b Network: {{ peg.network.name }}
-          .row
-            .col
-              b Symbol: {{ peg.network.symbol }}
-          .row
-            .col
-              b Balance: {{ tokenBalance }}
-
-      .row.mt-3
-        .col
-          .label {{ peg.desc }}
-
-
-      el-form-item.mt-2
+      el-form-item.mt-1(prop="address")
         template(slot="label")
-          b Withdraw amount:
-        el-input-number(v-model="amount" :precision="token.precision" :step="1").w-100
+          b {{ chain.name }} address:
+        el-input(v-model="form.address" placeholder="address.." clearable).w-100
 
-      el-form-item.mt-1
-        template(slot="label")
-          b {{ peg.network.name }} address:
-          .text-info No validation of address yet, be careful!
-        el-input(v-model="account" placeholder="address..").w-100
+      el-form-item(prop="amount")
+        span
+          b Withdraw amount
 
+          br
 
-    span.dialog-footer
-      el-button(type='primary' @click="submit").w-100 Withdraw
+          span Balance
+            el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
+
+        //small.float-right min: {{ ibcMinAccept }} {{ token.symbol }}
+        small.float-right fee: {{ this.form.fee }} {{ token.symbol }}
+        el-input(type="number" v-model="form.amount" clearable @change="amountChange" :min="ibcMinAccept").w-100
+          span(slot="suffix").mr-1 {{ this.token.symbol }}
+
+      el-form-item.mt-1(v-if="addressValid")
+        span.dialog-footer.mb-4
+          el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100
+            | Transfer {{ token.symbol }} to {{ peg.network }}
 </template>
 
 <script>
 import { captureException } from '@sentry/browser'
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
+import PEGS from '~/core/ibc/pegs'
 
+import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
+
 
 export default {
   components: {
@@ -56,7 +50,13 @@ export default {
   props: {
     token: {
       type: Object,
-      default: () => {}
+      default: () => {
+        return {
+          precision: 4,
+          symbol: 'EOS',
+          contract: 'eosio.token'
+        }
+      }
     }
   },
 
@@ -64,16 +64,54 @@ export default {
     return {
       visible: false,
 
-      account: '',
-      amount: 0.0
+      form: {
+        address: '',
+        amount: 0.0,
+        fee: 0
+      },
+
+      addressValid: false,
+
+      chain_select: null,
+      chain: {},
+
+      loading: false,
+
+      rules: {
+        address: {
+          trigger: 'blur',
+          validator: async (rule, value, callback) => {
+            try {
+              this.loading = true
+              await this.peg.isValid(value)
+              this.addressValid = true
+              callback()
+            } catch (e) {
+              this.addressValid = false
+              callback(e)
+            } finally {
+              this.loading = false
+            }
+          }
+        }
+      }
     }
   },
 
   computed: {
-    ...mapState(['user', 'network']),
+    ...mapState(['user', 'network', 'ibcTokens', 'ibcAccepts']),
 
     peg() {
-      return this.network.withdraw[this.token.symbol + '@' + this.token.contract]
+      return `${this.token.symbol}@${this.token.contract}` in PEGS[this.network.name]
+        ? new PEGS[this.network.name][`${this.token.symbol}@${this.token.contract}`](this.$store) : {}
+    },
+
+    networks() {
+      return Object.values(config.networks)
+    },
+
+    chains() {
+      return ['eos', 'bos', 'telos', 'wax'].filter(c => c != this.network.name)
     },
 
     tokenBalance() {
@@ -87,31 +125,49 @@ export default {
         return `${balance.amount} ${balance.currency}`
       else
         return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
+    },
+
+    ibcMinAccept() {
+      const accept = this.ibcAccepts.filter(t => {
+        return t.accept.split(' ')[1] == this.token.symbol
+      })[0]
+      console.log(accept)
+
+      if (accept) return parseFloat(accept.min_once_transfer)
+
+      return 0
+    }
+  },
+
+  watch: {
+    'form.amount'() {
+      this.form.fee = this.peg.getFee(this.form.amount).toFixed(8)
     }
   },
 
   methods: {
+    fullAmount() {
+      this.form.amount = (parseFloat(this.tokenBalance.split(' ')[0]) || 0).toFixed(this.token.precision)
+    },
+
+    setChain(name) {
+      this.chain = config.networks[name]
+      this.form.address = ''
+      this.$refs.form.resetFields()
+    },
+
+    amountChange() {
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.precision)
+    },
+
     async open() {
       if (!await this.$store.dispatch('chain/asyncLogin')) return
       this.visible = true
     },
 
     async submit() {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Wait for wallet'
-      })
-
-      const quantity = this.amount.toFixed(this.token.precision) + ' ' + this.token.symbol
-
       try {
-        const r = await this.$store.dispatch('chain/transfer', {
-          to: this.peg.gateway,
-          contract: this.token.contract,
-          actor: this.user.name,
-          quantity,
-          memo: this.peg.withdrawMemo.replace('{account}', this.account)
-        })
+        const r = await this.peg.withdraw(this.form.amount, this.form.address)
 
         this.visible = false
 
@@ -128,19 +184,21 @@ export default {
         captureException(e)
         this.$notify({ title: 'Withdraw error', message: e.message, type: 'error' })
         console.log(e)
-      } finally {
-        loading.close()
       }
     }
   }
 }
 </script>
 
-<style scoped>
+<style>
 .upperinput {
     text-transform: uppercase;
 }
 .upperinput:placeholder-shown {
     text-transform: none;
+}
+
+.ibc-withdraw .el-dialog__body {
+  padding: 0px 20px 5px 20px;
 }
 </style>

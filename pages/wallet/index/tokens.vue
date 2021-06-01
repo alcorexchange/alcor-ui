@@ -22,7 +22,7 @@
           el-input(v-model='search', size='small', placeholder='Type to search').w-50
         template(slot-scope='scope')
           Withdraw(
-            v-if="Object.keys(network.withdraw).includes(scope.row.id)",
+            v-if="scope.row.id in PEGS[network.name]",
             :token="{contract: scope.row.contract, symbol: scope.row.currency, precision: Number(scope.row.decimals)}"
           ).float-right
           //BOSIbc(
@@ -34,23 +34,23 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-//import BOSIbc from '~/components/withdraw/BOSIbc'
 import TokenTransfer from '~/components/wallet/TokenTransfer'
 import Withdraw from '~/components/withdraw/Withdraw'
+import PEGS from '~/core/ibc/pegs'
 
 import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
     TokenImage,
-    //BOSIbc,
     Withdraw,
     TokenTransfer
   },
 
   data() {
     return {
-      search: ''
+      search: '',
+      PEGS
     }
   },
 
