@@ -21,10 +21,10 @@
         template(slot='header', slot-scope='scope')
           el-input(v-model='search', size='small', placeholder='Type to search').w-50
         template(slot-scope='scope')
-          Withdraw(
-            v-if="scope.row.id in PEGS[network.name]",
-            :token="{contract: scope.row.contract, symbol: scope.row.currency, precision: Number(scope.row.decimals)}"
-          ).float-right
+          //Withdraw(
+          //  v-if="scope.row.id in PEGS[network.name]",
+          //  :token="{contract: scope.row.contract, symbol: scope.row.currency, precision: Number(scope.row.decimals)}"
+          //).float-right
           //BOSIbc(
           //  v-if="$store.state.ibcTokens.includes(scope.row.contract)"
           //  :token="{contract: scope.row.contract, symbol: scope.row.currency, precision: Number(scope.row.decimals)}"
