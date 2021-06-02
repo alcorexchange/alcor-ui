@@ -279,6 +279,8 @@ export default {
     updateSeries() {
       const data = []
 
+      if (this.tab == 'Volume') this.charts.pop()
+
       this.charts.map(point => {
         if (this.tab == 'Price') {
           data.push({ x: point.time, y: this.isReverted ? point.price_r.toFixed(6) : point.price.toFixed(6) })
