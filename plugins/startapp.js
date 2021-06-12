@@ -17,8 +17,8 @@ export default ({ app: { store, $axios } }, inject) => {
     //store.dispatch('coinswitch/init')
 
     if (process.env.isDev) {
-      const VConsole = require('vconsole')
-      Vue.prototype.$vConsole = new VConsole()
+      //const VConsole = require('vconsole')
+      //Vue.prototype.$vConsole = new VConsole()
     }
   })
 }
