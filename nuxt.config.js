@@ -9,6 +9,8 @@ const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Y
 module.exports = {
   telemetry: false,
 
+  mode: 'universal',
+
   env: {
     isDev,
     isSPA,
@@ -28,6 +30,9 @@ module.exports = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: desc },
       { name: 'msapplication-TileColor', content: '#da532c' },
+
+      { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' }
+
       //{ name: 'theme-color', content: '#ffffff' }
       //{ name: 'viewport', content: 'user-scalable = yes' }
     ],

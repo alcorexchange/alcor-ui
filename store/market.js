@@ -33,10 +33,11 @@ export const mutations = {
   setUserOrders: (state, orders) => state.userOrders = orders,
 
   setMarket: (state, market) => {
-    const { id, base_token, quote_token, slug, symbol } = market
+    const { id, base_token, quote_token, slug } = market
+
     state.id = id
     state.slug = slug
-    state.symbol = base_token && base_token.symbol.name
+    state.symbol = quote_token.symbol.name + '/' + base_token.symbol.name
     state.base_token = base_token
     state.quote_token = quote_token
     state.stats = market
