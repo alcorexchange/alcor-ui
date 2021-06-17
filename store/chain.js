@@ -42,6 +42,7 @@ export const actions = {
       if (!state.wallet.wax) {
         // Check for wax auto login
         const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
+        wax.rpc = this.$rpc
         commit('setWallet', { ...state.wallet, wax })
 
         const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
@@ -153,13 +154,13 @@ export const actions = {
           authorization: { actor: getters.wallet.auth.accountName, permission: getters.wallet.auth.permission }
         }, { root: true })
 
-        dispatch('loadUserBalances', {}, { root: true })
-        dispatch('market/loadUserOrders', {}, { root: true })
-
         commit('setCurrentWallet', 'transit')
       }
 
       dispatch('fetchUserDeals', {}, { root: true })
+
+      dispatch('loadUserBalances', {}, { root: true })
+      dispatch('market/loadUserOrders', {}, { root: true })
 
       if (state.loginPromise) state.loginPromise.resolve(true)
     } catch (e) {
@@ -228,6 +229,7 @@ export const actions = {
       }
 
       // Transit
+      getters.wallet.eosApi.rpc = this.$rpc
       transact = getters.wallet.eosApi.transact(tx, transactionHeader)
     }
 

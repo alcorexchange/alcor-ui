@@ -10,8 +10,8 @@
           span.text.muted.ml-1 {{renderSecondPair}}
       .price-container
         .price {{ price }}
-        .to(v-if="pair && ['Liquidity', 'Volume'].includes(tab)") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
-        .to(v-else-if="pair") {{ isReverted ? pair.pool1.quantity.symbol.code().to_string() : pair.pool2.quantity.symbol.code().to_string() }}
+        .to(v-if="pair && ['Liquidity', 'Volume'].includes(tab)") {{ isReverted ? pair.pool1.quantity.symbol.code().to_string() : pair.pool2.quantity.symbol.code().to_string() }}
+        .to(v-else-if="pair") {{ isReverted ? pair.pool2.quantity.symbol.code().to_string() : pair.pool1.quantity.symbol.code().to_string() }}
         .change(:class="{isRed, isZero}")
           i(:class="`el-icon-caret-${isRed? 'bottom': 'top'}`" v-if="!isZero")
           span.text {{ percent }}%
@@ -283,7 +283,7 @@ export default {
 
       this.charts.map(point => {
         if (this.tab == 'Price') {
-          data.push({ x: point.time, y: this.isReverted ? point.price_r.toFixed(6) : point.price.toFixed(6) })
+          data.push({ x: point.time, y: this.isReverted ? point.price.toFixed(6) : point.price_r.toFixed(6) })
         } else if (this.tab == 'Liquidity') {
           data.push({ x: point.time, y: this.isReverted ? point.liquidity2.toFixed(6) : point.liquidity1.toFixed(6) })
         } else if (this.tab == 'Volume') {

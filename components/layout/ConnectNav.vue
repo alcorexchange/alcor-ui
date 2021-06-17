@@ -30,7 +30,7 @@
 
     AlcorButton.theme-toggle-button.desktop(
       v-if="$route.name != 'index'"
-      :iconOnlyAlt='true',
+      :icon-only-alt='true',
       @click='$store.dispatch("toggleTheme")'
     )
       i.el-icon-sunny(v-if='$colorMode.value == "dark"')
