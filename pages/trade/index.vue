@@ -47,21 +47,23 @@ export default {
     if (!this.streaming) {
       this.$store.dispatch('market/startStream', this.id)
     }
+  },
+
+  head() {
+    const { symbol, quote_token, base_token } = this.$store.state.market
+
+    return {
+      title: `Alcor Exchange | Market ${symbol}`,
+
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain, with NO FEE!`
+        },
+        { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(quote_token.symbol.name, quote_token.contract) }
+      ]
+    }
   }
-
-  //head() {
-  //  return {
-  //    title: `Alcor Exchange | Market ${this.symbol}`,
-
-  //    //meta: [
-  //    //  {
-  //    //    hid: 'description',
-  //    //    name: 'description',
-  //    //    content: `Trade ${this.symbol} onchain, with no fee`
-  //    //  },
-  //    //  { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.quote_token.symbol.name, this.quote_token.contract) }
-  //    //]
-  //  }
-  //}
 }
 </script>

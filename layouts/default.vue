@@ -160,18 +160,6 @@ export default {
     $route() {
       this.closeMenu()
     }
-  },
-
-  head() {
-    return {
-      meta: [
-        {
-          hid: 'og:image',
-          name: 'og:image',
-          content: '/android-chrome-512x512.png'
-        }
-      ]
-    }
   }
 }
 </script>

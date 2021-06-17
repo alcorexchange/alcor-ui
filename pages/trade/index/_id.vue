@@ -71,21 +71,6 @@ export default {
 
   computed: {
     ...mapState('market', ['id', 'symbol', 'quote_token', 'base_token'])
-  },
-
-  head() {
-    return {
-      title: `Alcor Exchange | Market ${this.symbol}`,
-
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: `Trade ${this.quote_token.symbol.name} for ${this.base_token.symbol.name} onchain, with NO FEE!`
-        },
-        { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(this.quote_token.symbol.name, this.quote_token.contract) }
-      ]
-    }
   }
 }
 </script>
