@@ -18,7 +18,7 @@
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
-        el-slider(:step="25" v-model="eosPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(:step="1" v-model="eosPercent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item(prop="total" :inline-message="true").mt-4
         el-input(type="number" v-model="total" @change="totalChange()" size="medium")
@@ -47,7 +47,7 @@
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
-        el-slider(:step="25" v-model="tokenPercent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(:step="1" v-model="tokenPercent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item(prop="total" :inline-message="true").mt-4
         el-input(type="number" v-model="total" @change="totalChange()" size="medium")

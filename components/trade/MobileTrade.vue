@@ -42,7 +42,7 @@
                 el-input(type="number" v-model="amount" @change="amountChange()" clearable)
                   span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
-                el-slider(:step="25" v-model="eosPercent" show-stops)
+                el-slider(:step="1" v-model="eosPercent")
 
                 label.small Total
                 el-input(type="number" v-model="total" @change="totalChange()")
@@ -65,7 +65,7 @@
                 el-input(type="number" v-model="amount" clearable @change="fixPrice()" @input="priceChange()")
                   span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
-                el-slider(:step="25" v-model="tokenPercent" show-stops)
+                el-slider(v-model="tokenPercent")
 
                 label.small Total
                 el-input(type="number" v-model="total" @change="totalChange()")
