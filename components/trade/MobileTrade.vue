@@ -39,13 +39,13 @@
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 label.small Amount
-                el-input(type="number" v-model="amount" @change="amountChange()" clearable)
+                el-input(type="number" v-model="amount" @input="amountChange()" clearable)
                   span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
                 el-slider(:step="1" v-model="eosPercent")
 
                 label.small Total
-                el-input(type="number" v-model="total" @change="totalChange()")
+                el-input(type="number" v-model="total" @input="totalChange()")
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 el-button(size="small" type="success" @click="buy(trade)").w-100.mt-2 Buy
@@ -68,7 +68,7 @@
                 el-slider(v-model="tokenPercent")
 
                 label.small Total
-                el-input(type="number" v-model="total" @change="totalChange()")
+                el-input(type="number" v-model="total" @input="totalChange()")
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 el-button(size="small" type="danger" @click="sell(trade)").w-100.mt-2 Sell

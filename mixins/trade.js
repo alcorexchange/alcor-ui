@@ -104,6 +104,7 @@ export const tradeMixin = {
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
       this.amountChange()
+      console.log('on fix price')
     },
 
     priceChange() {
