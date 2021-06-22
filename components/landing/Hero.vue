@@ -8,14 +8,7 @@
       </p>
       <div class="actions">
         <AlcorLink to="/markets" class="start">Start Trading</AlcorLink>
-        <AlcorLink
-          @click="
-            openInNewTab(
-              'https://docs.alcor.exchange/liquidity-pools/understanding-returns'
-            )
-          "
-          >Read docs</AlcorLink
-        >
+        <AlcorButton @click="openInNewTab('https://docs.alcor.exchange/')">Read docs</AlcorButton>
       </div>
     </div>
     <div class="right">
@@ -27,11 +20,14 @@
 
 <script>
 import AlcorLink from '@/components/AlcorLink'
+import AlcorButton from '@/components/AlcorButton'
 import Circles from '@/components/landing/Circles'
+
 export default {
   name: 'Hero',
   components: {
     AlcorLink,
+    AlcorButton,
     Circles
   },
   mounted() {
