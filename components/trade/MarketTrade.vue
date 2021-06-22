@@ -17,7 +17,7 @@
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       .px-3
-        el-slider(:step="25" v-model="eos_percent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(:step="1" v-model="eos_percent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item.mt-5
         // TODO разработать компонент которой чекает залогинен ли
@@ -40,7 +40,7 @@
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
-        el-slider(:step="25" v-model="token_percent" show-stops :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(:step="1" v-model="token_percent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item.mt-5
         // TODO разработать компонент которой чекает залогинен ли
