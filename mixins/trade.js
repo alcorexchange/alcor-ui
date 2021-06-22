@@ -118,6 +118,7 @@ export const tradeMixin = {
     },
     onSetAmount(balance) {
       this.amount = balance
+      this.amountChange()
     },
     amountChange(desc = false) {
       // TODO Сделать обновление в реалтайм
