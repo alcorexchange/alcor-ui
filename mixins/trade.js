@@ -115,19 +115,19 @@ export const tradeMixin = {
 
       //const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       //this.total = (price.toFixed(config.PRICE_DIGITS) * this.amount)
-      this.amountChange()
+      this.amountChange(false, false)
     },
     onSetAmount(balance) {
       this.amount = balance
       this.amountChange()
     },
-    amountChange(desc = false) {
+    amountChange(desc = false, toFloat = true) {
       // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
       const bp = this.base_token.symbol.precision
       const qp = this.quote_token.symbol.precision
-      this.amount = (parseFloat(this.amount) || 0).toFixed(qp)
+      this.amount = toFloat ? (parseFloat(this.amount) || 0).toFixed(qp) : (parseFloat(this.amount) || 0)
 
       const amount = asset(this.amount + ' TEST').amount
       const price = asset(Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS).toFixed(config.PRICE_DIGITS) + ' TEST').amount
@@ -136,17 +136,19 @@ export const tradeMixin = {
       //console.log('amount', amount, price, qp, bp, correct_price(price, qp, bp))
       const total = amount.multiply(correct_price(price, qp, bp)).divide(config.PRICE_SCALE)
 
-      this.amount = amountToFloat(amount, qp)
-      this.total = amountToFloat(total, bp)
+      // this.amount = toFloat ? amountToFloat(amount, qp) : parseFloat(amount)
+      this.amount = toFloat ? amountToFloat(amount, qp) : parseFloat(amount)
+      this.total = toFloat ? amountToFloat(total, bp) : parseFloat(total)
+      console.log({ amount })
     },
 
-    totalChange(desc = false) {
+    totalChange(desc = false, toFloat = true) {
       // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
       const bp = this.base_token.symbol.precision
       const qp = this.quote_token.symbol.precision
-      this.total = (parseFloat(this.total) || 0).toFixed(bp)
+      this.total = toFloat ? (parseFloat(this.total) || 0).toFixed(bp) : (parseFloat(this.total) || 0)
 
       const total = asset(this.total + ' TEST').amount
       const price = asset(this.price + ' TEST').amount
@@ -154,7 +156,7 @@ export const tradeMixin = {
 
       const division = total.multiply(config.PRICE_SCALE).plus(c_price).minus(1).divide(c_price)
 
-      this.amount = amountToFloat(division, qp)
+      this.amount = toFloat ? amountToFloat(division, qp) : parseFloat(division)
     },
 
     async buy(type) {
