@@ -3,7 +3,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-success Buy {{ quote_token.symbol.name }}
-      span.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
+      span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form")
@@ -26,7 +26,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-danger Sell {{ quote_token.symbol.name }}
-      span.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
+      span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form")
@@ -65,7 +65,12 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapState('market', ['token', 'base_token', 'quote_token']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'tokenBalance', 'baseBalance']),
+    ...mapGetters('market', [
+      'sorted_asks',
+      'sorted_bids',
+      'tokenBalance',
+      'baseBalance'
+    ]),
     ...mapGetters(['user'])
   },
 
@@ -80,7 +85,7 @@ export default {
       if (v === 100) {
         this.total = balance
       } else {
-        this.total = balance / 100 * v
+        this.total = (balance / 100) * v
       }
 
       this.format()
@@ -96,7 +101,7 @@ export default {
       if (v === 100) {
         this.amount = balance
       } else {
-        this.amount = balance / 100 * v
+        this.amount = (balance / 100) * v
       }
 
       this.format()
@@ -110,5 +115,10 @@ export default {
     }
   }
 }
-
 </script>
+
+<style scoped lang="scss">
+.cursor-pointer {
+  cursor: pointer;
+}
+</style>

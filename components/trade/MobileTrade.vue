@@ -77,7 +77,7 @@
               div(v-if="side == 'buy'")
                 span.text-success Buy {{ quote_token.symbol.name }}
                 br
-                span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
+                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") balance: {{ baseBalance }}
                 br
 
                 label.small Price
@@ -93,7 +93,7 @@
               div(v-else)
                 span.text-danger Sell {{ quote_token.symbol.name }}
                 br
-                span.text-mutted.small.align-self-end.ml-auto balance: {{ tokenBalance }}
+                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") balance: {{ tokenBalance }}
                 br
 
                 label.small Amount
