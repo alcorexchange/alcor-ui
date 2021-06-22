@@ -54,7 +54,7 @@ export const actions = {
               actor: wax.userAccount, permission: 'active'
             }
           }, { root: true })
-
+          dispatch('loadUserBalances', {}, { root: true })
           return
         }
         console.log('no wax autologin found...')
@@ -94,7 +94,7 @@ export const actions = {
         commit('setUser', null, { root: true })
         break
       case 'wax':
-        // TODO Logount from WCW
+        state.wallet.wax.api.logout()
         commit('setUser', null, { root: true })
         break
       default:
