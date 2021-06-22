@@ -116,7 +116,9 @@ export const tradeMixin = {
       //this.total = (price.toFixed(config.PRICE_DIGITS) * this.amount)
       this.amountChange()
     },
-
+    onSetAmount(balance) {
+      this.amount = balance
+    },
     amountChange(desc = false) {
       // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return

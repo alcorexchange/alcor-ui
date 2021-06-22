@@ -3,7 +3,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-success Buy {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -32,7 +32,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-danger Sell {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -68,9 +68,18 @@ export default {
   computed: {
     ...mapState(['network']),
     ...mapState('market', ['base_token', 'quote_token']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'tokenBalance', 'baseBalance']),
+    ...mapGetters('market', [
+      'sorted_asks',
+      'sorted_bids',
+      'tokenBalance',
+      'baseBalance'
+    ]),
     ...mapGetters(['user'])
   }
 }
-
 </script>
+<style scoped lang="scss">
+.cursor-pointer {
+  cursor: pointer;
+}
+</style>

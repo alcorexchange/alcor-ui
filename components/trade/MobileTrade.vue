@@ -30,7 +30,7 @@
               div(v-if="side == 'buy'")
                 span.text-success Buy {{ quote_token.symbol.name }}
                 br
-                small.text-mutted.small.align-self-end.ml-auto {{ baseBalance }}
+                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance }}
                   i.el-icon-wallet.ml-1
                 br
 
@@ -53,7 +53,7 @@
               div(v-else)
                 span.text-danger Sell {{ quote_token.symbol.name }}
                 br
-                small.text-mutted.small.align-self-end.ml-auto {{ tokenBalance }}
+                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance }}
                   i.el-icon-wallet.ml-1
                 br
 
@@ -161,8 +161,19 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapState('market', ['token', 'id', 'stats', 'quote_token', 'base_token']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'baseBalance', 'tokenBalance']),
+    ...mapState('market', [
+      'token',
+      'id',
+      'stats',
+      'quote_token',
+      'base_token'
+    ]),
+    ...mapGetters('market', [
+      'sorted_asks',
+      'sorted_bids',
+      'baseBalance',
+      'tokenBalance'
+    ]),
     ...mapGetters(['user'])
   }
 }
@@ -179,5 +190,8 @@ export default {
       }
     }
   }
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>
