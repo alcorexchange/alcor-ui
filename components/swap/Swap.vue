@@ -7,13 +7,12 @@
         el-dropdown-menu.dropdown(slot="dropdown")
           .section
             .section-label Transaction Setting
+            label Slippage Tolerance %
             .section-content
+              AlcorButton(@click="resetSlippageTolerance" round compact) Auto
               .section-input
-                label Slippage Tolerance
-                el-input(placeholder="Slippage Tolerance" size="small" v-model="slippageTolerance")
-                  template(#prepend) %
-                  template(#append)
-                    AlcorButton(@click="resetSlippageTolerance") Auto
+                el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
+                  //- template(#prepend) %
     .row
       .col
         .d-flex.mb-1.select-label
@@ -120,7 +119,6 @@ export default {
   data() {
     return {
       loading: false,
-      slippageTolerance: 0.1,
 
       priceReverse: false,
 
@@ -223,6 +221,15 @@ export default {
           100
         ).toFixed(2)
       )
+    },
+
+    slippageTolerance: {
+      get() {
+        return this.$store.state.swap.slippage
+      },
+      set(value) {
+        this.$store.commit('swap/setSlippage', value)
+      }
     }
   },
 
@@ -476,13 +483,16 @@ export default {
 }
 .section-content {
   display: flex;
-  align-items: center;
-  // .alcor-button {
-  //   margin-left: 4px;
-  // }
+  align-items: flex-end;
+  .alcor-button {
+    margin-right: 4px;
+  }
+}
+label {
+  margin-bottom: 4px;
 }
 .section-input {
-  max-width: 300px;
+  width: 200px;
 }
 </style>
 <style lang="scss">

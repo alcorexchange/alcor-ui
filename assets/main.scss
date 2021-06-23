@@ -329,6 +329,9 @@ a {
   .el-input-group__append{
     padding: 0  
   }
+  .el-input__inner {
+    border-radius: 20px !important;
+  }
 }
 
 @media only screen and (max-width: 1240px) {
