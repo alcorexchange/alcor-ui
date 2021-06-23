@@ -17,7 +17,9 @@ export const state = () => ({
     precision: 0
   },
 
-  stream: null
+  stream: null,
+
+  slippage: 0.1
 })
 
 export const mutations = {
@@ -26,7 +28,8 @@ export const mutations = {
   setOutput: (state, token) => state.output = token,
   setTab: (state, tab) => state.tab = tab,
   setWithdrawToken: (state, token) => state.withdraw_token = token,
-  setStream: (state, stream) => state.stream = stream
+  setStream: (state, stream) => state.stream = stream,
+  setSlippage: (state, slippage) => state.slippage = slippage,
 }
 
 export const actions = {
