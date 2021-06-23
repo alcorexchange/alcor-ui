@@ -323,6 +323,14 @@ a {
   //   padding: 0 !important;
   // }
 }
+
+// swap setting style
+.section-content{
+  .el-input-group__append{
+    padding: 0  
+  }
+}
+
 @media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;

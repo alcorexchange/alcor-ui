@@ -1,6 +1,19 @@
 <template lang="pug">
 .row.mt-4
   .col.swap-pools
+    .swap-setting
+      el-dropdown(trigger="click")
+        i.el-icon-setting
+        el-dropdown-menu.dropdown(slot="dropdown")
+          .section
+            .section-label Transaction Setting
+            .section-content
+              .section-input
+                label Slippage Tolerance
+                el-input(placeholder="Slippage Tolerance" size="small" v-model="slippageTolerance")
+                  template(#prepend) %
+                  template(#append)
+                    AlcorButton(@click="resetSlippageTolerance") Auto
     .row
       .col
         .d-flex.mb-1.select-label
@@ -94,17 +107,20 @@ import config from '~/config'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
 import SSpacer from '~/components/SSpacer.vue'
+import AlcorButton from '~/components/AlcorButton.vue'
 
 export default {
   components: {
     SelectToken,
     PleaseLoginButton,
-    SSpacer
+    SSpacer,
+    AlcorButton
   },
 
   data() {
     return {
       loading: false,
+      slippageTolerance: 0.1,
 
       priceReverse: false,
 
@@ -225,6 +241,9 @@ export default {
   },
 
   methods: {
+    resetSlippageTolerance() {
+      this.slippageTolerance = 0.1
+    },
     tokenChanged(token) {
       this.ibcForm.transfer = false
 
@@ -395,19 +414,25 @@ export default {
       if (!this.inputAmount || !this.outputAmount) return
 
       if (parseFloat(this.priceImpact) > 10) {
-        this.$confirm('You are significantly overpaying for the exchange. Try the amount less or do you want to continue?', 'Impact on the price above 10%!', {
-          confirmButtonText: 'OK',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(() => {
-          this.processExchange()
-        }).catch(() => {
-          this.$notify({
-            type: 'info',
-            title: 'Swap',
-            message: 'Swap canceled'
+        this.$confirm(
+          'You are significantly overpaying for the exchange. Try the amount less or do you want to continue?',
+          'Impact on the price above 10%!',
+          {
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }
+        )
+          .then(() => {
+            this.processExchange()
           })
-        })
+          .catch(() => {
+            this.$notify({
+              type: 'info',
+              title: 'Swap',
+              message: 'Swap canceled'
+            })
+          })
       } else {
         this.processExchange()
       }
@@ -431,6 +456,33 @@ export default {
   &:hover {
     background: #161617;
   }
+}
+.dropdown {
+  padding: 14px;
+  // .el-input-group__append {
+  //   padding: 0 !important;
+  // }
+}
+.swap-setting {
+  display: flex;
+  justify-content: flex-end;
+  .el-icon-setting {
+    font-size: 1.4rem;
+  }
+}
+.section-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.section-content {
+  display: flex;
+  align-items: center;
+  // .alcor-button {
+  //   margin-left: 4px;
+  // }
+}
+.section-input {
+  max-width: 300px;
 }
 </style>
 <style lang="scss">
