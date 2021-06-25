@@ -23,7 +23,7 @@ export default {
   props: {
     title: { type: String, default: '' },
     modelValue: { default: '' },
-    value: { type: String, default: undefined },
+    value: { type: Number, default: undefined },
     description: {
       default: ''
     }

@@ -5,8 +5,8 @@
     .desc {{pairs}}
     SSpacer
     .actions
-        AlcorButton.decrease(round compact) -{{percentage}}%
-        AlcorButton.increase(round compact) +{{percentage}}%
+        AlcorButton.decrease(@click="onPercentageChange({type: 'decrease'})" round compact) -{{percentage}}%
+        AlcorButton.increase(@click="onPercentageChange({type: 'increase'})" round compact) +{{percentage}}%
 </template>
 
 <script>
@@ -22,7 +22,19 @@ export default {
     SSpacer,
     LPCard
   },
-  props: ['title', 'pairs', 'percentage', 'value']
+  props: ['title', 'pairs', 'percentage', 'value'],
+  methods: {
+    onPercentageChange({ type }) {
+      const amountToChange = parseInt(this.value * this.percentage * 0.01)
+      const increasedAmount = parseInt(this.value) + amountToChange
+      const decreaseAmount = parseInt(this.value) - amountToChange
+      this.$emit(
+        'input',
+        type === 'increase' ? increasedAmount : decreaseAmount
+      )
+      console.log({ increasedAmount, decreaseAmount, amountToChange })
+    }
+  }
 }
 </script>
 

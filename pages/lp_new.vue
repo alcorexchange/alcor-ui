@@ -16,20 +16,20 @@
                 .title Select Pool
             .desc Select a pool type based on your preferred liquidity provider fee.
             .pool-select-container
-                PoolSelectItem(v-model="selectedPool" value="0.05%" title="0.05% fee"  description="Test 0.05%")
-                PoolSelectItem(v-model="selectedPool" value="0.1%" title="0.1% fee"  description="Test 0.1%")
-                PoolSelectItem(v-model="selectedPool" value="1%" title="1% fee"  description="Test 1%")
+                PoolSelectItem(v-model="selectedPool" :value="0.05" title="0.05% fee"  description="Test 0.05%")
+                PoolSelectItem(v-model="selectedPool" :value="0.1" title="0.1% fee"  description="Test 0.1%")
+                PoolSelectItem(v-model="selectedPool" :value="1" title="1% fee"  description="Test 1%")
         Spacer(low)
         .section
             .section-header
                 .title Set Price Range
                 .actions.range-actions
-                    .item.first(@click="selectedRangeToken = 'first'" :class="{active: selectedRangeToken === 'first'}") ETH price
-                    .item.second(@click="selectedRangeToken = 'second'" :class="{active: selectedRangeToken === 'second'}") USDT price
+                    .item.first(@click="selectedRangeToken = 'first'" :class="{active: selectedRangeToken === 'first'}") {{firstToken.symbol}} price
+                    .item.second(@click="selectedRangeToken = 'second'" :class="{active: selectedRangeToken === 'second'}") {{secondToken.symbol}} price
             .desc Select a pool type based on your preferred liquidity provider fee.Your liquidity will only earn fees when the market price of the pair is within your range.
             .ranges
-                PriceRangeItem.max-card(title="Max Price", pairs="USDT per ETH" percentage="1" v-model="maxPrice" )
-                PriceRangeItem.min-card(title="Min Price", pairs="USDT per ETH" percentage="1" v-model="minPrice" )
+                PriceRangeItem.max-card(title="Max Price", pairs="USDT per ETH" :percentage="selectedPool" v-model="maxPrice" )
+                PriceRangeItem.min-card(title="Min Price", pairs="USDT per ETH" :percentage="selectedPool" v-model="minPrice" )
             CurrentPrice(price="9999.8")
         Spacer(low)
         .section
@@ -73,9 +73,9 @@ export default {
     selectedRangeToken: 'first',
     firstToken: {},
     secondToken: {},
-    selectedPool: '0.05%',
-    maxPrice: 10000,
-    minPrice: 9999
+    selectedPool: 0.05,
+    maxPrice: 100,
+    minPrice: 99
   }),
   methods: {
     onSelectToken(index) {
