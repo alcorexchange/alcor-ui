@@ -2,7 +2,7 @@
   LPCard.current-price
     .name Current Price
     .price {{price}}
-    .desc USDT per ETH
+    .desc {{description}}
 </template>
 
 <script>
@@ -18,7 +18,20 @@ export default {
     SSpacer,
     LPCard
   },
-  props: ['pairs', 'price']
+  props: ['firstToken', 'secondToken', 'selectedRangeToken', 'price'],
+  computed: {
+    description() {
+      const first =
+        this.selectedRangeToken === 'second'
+          ? this.firstToken && this.firstToken.symbol
+          : this.secondToken && this.secondToken.symbol
+      const second =
+        this.selectedRangeToken === 'second'
+          ? this.secondToken && this.secondToken.symbol
+          : this.firstToken && this.firstToken.symbol
+      return `${first || ''} per ${second || ''}`
+    }
+  }
 }
 </script>
 

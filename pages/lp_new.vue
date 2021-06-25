@@ -1,47 +1,93 @@
 <template lang="pug">
-  .lp-new
-    .main-card.alcor-card
-        .card-title Add Liquidity
-        .section
-            .section-header
-                .title Select pair
-                .actions
-                    el-button(type="text" @click="onClearTokens") Clear All
-            .pair-select-container
-                PairSelectItem.first-pair(@click="onSelectToken('firstToken')" :token="firstToken")
-                PairSelectItem.second-pair(@click="onSelectToken('secondToken')" :token="secondToken")
-        Spacer(low)
-        .section
-            .section-header
-                .title Select Pool
-            .desc Select a pool type based on your preferred liquidity provider fee.
-            .pool-select-container
-                PoolSelectItem(v-model="selectedPool" :value="0.05" title="0.05% fee"  description="Test 0.05%")
-                PoolSelectItem(v-model="selectedPool" :value="0.1" title="0.1% fee"  description="Test 0.1%")
-                PoolSelectItem(v-model="selectedPool" :value="1" title="1% fee"  description="Test 1%")
-        Spacer(low)
-        .section
-            .section-header
-                .title Set Price Range
-                .actions.range-actions
-                    .item.first(@click="selectedRangeToken = 'first'" :class="{active: selectedRangeToken === 'first'}") {{firstToken.symbol}} price
-                    .item.second(@click="selectedRangeToken = 'second'" :class="{active: selectedRangeToken === 'second'}") {{secondToken.symbol}} price
-            .desc Select a pool type based on your preferred liquidity provider fee.Your liquidity will only earn fees when the market price of the pair is within your range.
-            .ranges
-                PriceRangeItem.max-card(title="Max Price", pairs="USDT per ETH" :percentage="selectedPool" v-model="maxPrice" )
-                PriceRangeItem.min-card(title="Min Price", pairs="USDT per ETH" :percentage="selectedPool" v-model="minPrice" )
-            CurrentPrice(price="9999.8")
-        Spacer(low)
-        .section
-            .section-header
-                .title Deposit Amounts
-            DepositAmountItem
-            SSpacer
-            DepositAmountItem
-        Spacer(low)
-        .submit-container
-            AlcorButton.submit(round) Submit Test
-    TokenSelectDialog(ref="tokenSelect")
+.lp-new
+  .main-card.alcor-card
+    .card-title Add Liquidity
+    .section
+      .section-header
+        .title Select pair
+        .actions
+          el-button(type='text', @click='onClearTokens') Clear All
+      .pair-select-container
+        PairSelectItem.first-pair(
+          @click='onSelectToken("firstToken")',
+          :token='firstToken'
+        )
+        PairSelectItem.second-pair(
+          @click='onSelectToken("secondToken")',
+          :token='secondToken'
+        )
+    Spacer(low)
+    .section(:class="{deactive: !isSelectPoolActive}")
+      .section-header
+        .title Select Pool
+      .desc Select a pool type based on your preferred liquidity provider fee.
+      .pool-select-container
+        PoolSelectItem(
+          v-model='selectedPool',
+          :value='0.05',
+          title='0.05% fee',
+          description='Test 0.05%'
+        )
+        PoolSelectItem(
+          v-model='selectedPool',
+          :value='0.1',
+          title='0.1% fee',
+          description='Test 0.1%'
+        )
+        PoolSelectItem(
+          v-model='selectedPool',
+          :value='1',
+          title='1% fee',
+          description='Test 1%'
+        )
+    Spacer(low)
+    .section(:class="{deactive: !isSettingPriceActive}")
+      .section-header
+        .title Set Price Range
+        .actions.range-actions
+          .item.first(
+            @click='selectedRangeToken = "first"',
+            :class='{ active: selectedRangeToken === "first" }'
+          ) {{ firstToken.symbol }} price
+          .item.second(
+            @click='selectedRangeToken = "second"',
+            :class='{ active: selectedRangeToken === "second" }'
+          ) {{ secondToken.symbol }} price
+      .desc Select a pool type based on your preferred liquidity provider fee.Your liquidity will only earn fees when the market price of the pair is within your range.
+      .ranges
+        PriceRangeItem.max-card(
+          title='Max Price',
+          :percentage='selectedPool',
+          v-model='maxPrice',
+          :selectedRangeToken='selectedRangeToken',
+          :firstToken='firstToken',
+          :secondToken='secondToken'
+        )
+        PriceRangeItem.min-card(
+          title='Min Price',
+          :percentage='selectedPool',
+          v-model='minPrice',
+          :selectedRangeToken='selectedRangeToken',
+          :firstToken='firstToken',
+          :secondToken='secondToken'
+        )
+      CurrentPrice(
+          price='9999.8'
+          :selectedRangeToken='selectedRangeToken',
+          :firstToken='firstToken',
+          :secondToken='secondToken'
+        )
+    Spacer(low)
+    .section(:class="{deactive: !isDepositAmountsActive}")
+      .section-header
+        .title Deposit Amounts
+      DepositAmountItem
+      SSpacer
+      DepositAmountItem
+    Spacer(low)
+    .submit-container
+      AlcorButton.submit(round) Submit Test
+  TokenSelectDialog(ref='tokenSelect')
 </template>
 
 <script>
@@ -73,9 +119,9 @@ export default {
     selectedRangeToken: 'first',
     firstToken: {},
     secondToken: {},
-    selectedPool: 0.05,
-    maxPrice: 100,
-    minPrice: 99
+    selectedPool: 0,
+    maxPrice: 0,
+    minPrice: 0
   }),
   methods: {
     onSelectToken(index) {
@@ -88,6 +134,27 @@ export default {
     onClearTokens() {
       this.firstToken = {}
       this.secondToken = {}
+      this.selectedPool = null
+      this.maxPrice = 0.0
+      this.minPrice = 0.0
+    }
+  },
+  computed: {
+    isSelectPoolActive() {
+      return this.firstToken.symbol && this.secondToken.symbol
+    },
+    isSettingPriceActive() {
+      return this.isSelectPoolActive && this.selectedPool
+    },
+    isDepositAmountsActive() {
+      return (
+        this.isSelectPoolActive &&
+        this.isSettingPriceActive &&
+        this.minPrice &&
+        this.maxPrice &&
+        // TODO: This will check whethere the price is valid or not
+        true
+      )
     }
   }
 }
@@ -104,6 +171,12 @@ export default {
 }
 .card-title {
   text-align: center;
+}
+.section {
+  &.deactive {
+    opacity: 0.6;
+    pointer-events: none;
+  }
 }
 .section-header {
   display: flex;
