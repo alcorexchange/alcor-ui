@@ -94,8 +94,8 @@ export const actions = {
         commit('setUser', null, { root: true })
         break
       case 'wax':
-        state.wallet.wax.api.logout()
         commit('setUser', null, { root: true })
+        state.wallet.wax.api.logout()
         break
       default:
         commit('setUser', null, { root: true })
