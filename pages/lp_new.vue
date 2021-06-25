@@ -70,10 +70,10 @@ export default {
     SSpacer
   },
   data: () => ({
-    selectedPool: '0.05%',
     selectedRangeToken: 'first',
     firstToken: {},
     secondToken: {},
+    selectedPool: '0.05%',
     maxPrice: 10000,
     minPrice: 9999
   }),
