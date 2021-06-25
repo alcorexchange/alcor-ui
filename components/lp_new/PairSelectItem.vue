@@ -2,14 +2,19 @@
 .select-pair(@click="$emit('click')")
     .icon-and-name
         .pair-icon
-            img(src="https://cdn.worldvectorlogo.com/logos/ethereum-eth.svg")
-        .name ETH
+            TokenImage.token-image(:src="$tokenLogo(token.symbol, token.contract)" height="24")
+        .name {{token.symbol || 'Select Token'}}
     i.el-icon-arrow-down
 </template>
 
 <script>
+import TokenImage from '@/components/elements/TokenImage.vue'
 export default {
-  name: 'SelectPair'
+  name: 'SelectPair',
+  components: {
+    TokenImage
+  },
+  props: ['token']
 }
 </script>
 
@@ -32,9 +37,7 @@ export default {
   display: flex;
   align-items: center;
 }
-img {
-  width: 24px;
-  height: 24px;
+.token-image {
   margin-right: 4px;
 }
 </style>
