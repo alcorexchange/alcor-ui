@@ -6,10 +6,10 @@
             .section-header
                 .title Select pair
                 .actions
-                    el-button(type="text") Clear All
+                    el-button(type="text" @click="onClearTokens") Clear All
             .pair-select-container
-                PairSelectItem.first-pair
-                PairSelectItem.second-pair
+                PairSelectItem.first-pair(@click="onSelectToken('firstToken')" :token="firstToken")
+                PairSelectItem.second-pair(@click="onSelectToken('secondToken')" :token="secondToken")
         Spacer(low)
         .section
             .section-header
@@ -41,6 +41,7 @@
         Spacer(low)
         .submit-container
             AlcorButton.submit(round) Submit Test
+    TokenSelectDialog(ref="tokenSelect")
 </template>
 
 <script>
@@ -50,6 +51,7 @@ import PoolSelectItem from '@/components/lp_new/PoolSelectItem.vue'
 import PriceRangeItem from '@/components/lp_new/PriceRangeItem.vue'
 import CurrentPrice from '@/components/lp_new/CurrentPrice.vue'
 import DepositAmountItem from '@/components/lp_new/DepositAmountItem.vue'
+import TokenSelectDialog from '@/components/lp_new/TokenSelectDialog.vue'
 import AlcorButton from '@/components/AlcorButton.vue'
 import Spacer from '@/components/Spacer.vue'
 import SSpacer from '@/components/SSpacer.vue'
@@ -61,6 +63,7 @@ export default {
     PriceRangeItem,
     CurrentPrice,
     DepositAmountItem,
+    TokenSelectDialog,
     AlcorButton,
     LPCard,
     Spacer,
@@ -69,9 +72,24 @@ export default {
   data: () => ({
     selectedPool: '0.05%',
     selectedRangeToken: 'first',
+    firstToken: {},
+    secondToken: {},
     maxPrice: 10000,
     minPrice: 9999
-  })
+  }),
+  methods: {
+    onSelectToken(index) {
+      this.$refs.tokenSelect.openDialog({
+        onSelect: (token) => {
+          this[index] = token
+        }
+      })
+    },
+    onClearTokens() {
+      this.firstToken = {}
+      this.secondToken = {}
+    }
+  }
 }
 </script>
 
