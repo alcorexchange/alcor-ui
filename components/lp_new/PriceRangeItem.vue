@@ -2,7 +2,7 @@
   LPCard.price-range-item
     .name {{title}}
     input(placeholder="0" :value="value" @input="$emit('input', $event.target.value)")
-    .desc {{pairs}}
+    .desc {{description}}
     SSpacer
     .actions
         AlcorButton.decrease(@click="onPercentageChange({type: 'decrease'})" round compact) -{{percentage}}%
@@ -22,17 +22,39 @@ export default {
     SSpacer,
     LPCard
   },
-  props: ['title', 'pairs', 'percentage', 'value'],
+  props: [
+    'title',
+    'firstToken',
+    'secondToken',
+    'selectedRangeToken',
+    'percentage',
+    'value'
+  ],
   methods: {
     onPercentageChange({ type }) {
-      const amountToChange = parseInt(this.value * this.percentage * 0.01)
-      const increasedAmount = parseInt(this.value) + amountToChange
-      const decreaseAmount = parseInt(this.value) - amountToChange
+      const amountToChange = parseFloat(this.value * this.percentage * 0.01)
+      const increasedAmount = parseFloat(this.value) + amountToChange
+      const decreaseAmount = parseFloat(this.value) - amountToChange
       this.$emit(
         'input',
-        type === 'increase' ? increasedAmount : decreaseAmount
+        type === 'increase'
+          ? increasedAmount.toFixed(2)
+          : decreaseAmount.toFixed(2)
       )
       console.log({ increasedAmount, decreaseAmount, amountToChange })
+    }
+  },
+  computed: {
+    description() {
+      const first =
+        this.selectedRangeToken === 'second'
+          ? this.firstToken && this.firstToken.symbol
+          : this.secondToken && this.secondToken.symbol
+      const second =
+        this.selectedRangeToken === 'second'
+          ? this.secondToken && this.secondToken.symbol
+          : this.firstToken && this.firstToken.symbol
+      return `${first || ''} per ${second || ''}`
     }
   }
 }
