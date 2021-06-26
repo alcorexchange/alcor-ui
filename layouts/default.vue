@@ -1,6 +1,7 @@
 <template lang="pug">
 div
   AlcorLoading
+  ResourcesModal
   ModalsDialog
   .layout.alcor-inner(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
     nav.nav(v-if='!isMobile')
@@ -33,6 +34,8 @@ div
         .menu-underlay(@click='closeMenu' v-if='menuActive')
       .fixed-menu
         ConnectNav
+    div(@click="$store.commit('resources/OPEN')") open resources
+
     .main
       nuxt
     FooterBlock
@@ -50,6 +53,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav.vue'
 import AlcorLoading from '~/components/AlcorLoading.vue'
+import ResourcesModal from '~/components/modals/Resources.vue'
 
 export default {
   components: {
@@ -59,7 +63,8 @@ export default {
     AlcorLink,
     AlcorButton,
     ConnectNav,
-    AlcorLoading
+    AlcorLoading,
+    ResourcesModal
   },
 
   data() {

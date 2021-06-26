@@ -81,10 +81,12 @@ module.exports = {
     '@/plugins/mixins',
     '@/plugins/filters',
     '@/plugins/global',
+    
 
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
+    { ssr: false, src: '~/plugins/progress' },
   ],
 
   /*
