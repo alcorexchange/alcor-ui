@@ -42,7 +42,8 @@ export default {
   },
   data: () => ({
     resources: [{ name: 'CPU' }, { name: 'NET' }, { name: 'RAM' }],
-    selectedResource: 'CPU'
+    selectedResource: 'CPU',
+    amount: 0.0
   }),
   computed: {
     ...mapGetters({
