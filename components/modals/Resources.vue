@@ -16,12 +16,12 @@ el-dialog(
                     .title CPU
                     .total Total Staked: 10 WAX
             .progress-continaer
-                el-progress(:percentage="40" :width="100" type="circle")
+                el-progress(:percentage="40" :width="100" type="circle" color="var(--main-green)")
                 .details
                     .title NET
                     .total Total Staked: 10 WAX
             .progress-continaer
-                el-progress(:percentage="40" :width="100" type="circle")
+                el-progress(:percentage="40" :width="100" type="circle" color="var(--main-green)")
                 .details
                     .title RAM
                     .total Total Staked: 10 WAX
@@ -64,6 +64,7 @@ export default {
   font-weight: bold;
   text-align: center;
   font-size: 1.2rem;
+  margin-bottom: 4px;
 }
 .desc {
   text-align: center;
@@ -72,6 +73,7 @@ export default {
   display: flex;
   justify-content: center;
   margin: 8px 0;
+  flex-wrap: wrap;
 }
 .progress-continaer {
   display: flex;
@@ -94,6 +96,16 @@ export default {
   .input {
     flex: 1;
     margin: 0 8px;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .title {
+    font-size: 1.08rem;
+  }
+  .add-resources {
+    .input {
+      margin: 0 4px;
+    }
   }
 }
 </style>
