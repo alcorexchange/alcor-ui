@@ -1,33 +1,38 @@
 <template lang="pug">
 LPCard
   .amount-and-token
-      .token
-          img(src="https://cdn.worldvectorlogo.com/logos/ethereum-eth.svg")
-          .name ETH
-      input(placeholder="0.0")
+    .token
+      TokenImage.token-image(
+        :src='$tokenLogo(token.symbol, token.contract)',
+        height='24'
+      )
+      .name {{ token.symbol }}
+    input(placeholder='0.0' :value="value" @input="$emit('input', $event.target.value)")
   SSpacer
   .details
-      .left
-          span Balance: 0 ETH
-          AlcorButton(flat compact) Max
-      .right
-          span ~ $999.6
+    .left
+      span Balance: 0 {{token.symbol}}
+      AlcorButton(flat, compact) Max
+    .right
+      span ~ $999.6
 </template>
 
 <script>
 import LPCard from '@/components/lp_new/LPCard.vue'
 import AlcorButton from '@/components/AlcorButton.vue'
 // import Spacer from '@/components/Spacer.vue'
+import TokenImage from '@/components/elements/TokenImage.vue'
 import SSpacer from '@/components/SSpacer.vue'
 export default {
   name: 'PriceRangeItem',
   components: {
     AlcorButton,
     // Spacer,
+    TokenImage,
     SSpacer,
     LPCard
   },
-  props: ['pairs', 'price']
+  props: ['token', 'value']
 }
 </script>
 
@@ -56,10 +61,7 @@ export default {
   border-radius: var(--radius-2);
   padding: 4px 8px;
 }
-img {
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
+.token-image {
   margin-right: 4px;
 }
 .details {
