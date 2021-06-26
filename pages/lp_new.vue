@@ -17,7 +17,7 @@
           :token='secondToken'
         )
     Spacer(low)
-    .section(:class="{deactive: !isSelectPoolActive}")
+    .section(:class='{ deactive: !isSelectPoolActive }')
       .section-header
         .title Select Pool
       .desc Select a pool type based on your preferred liquidity provider fee.
@@ -41,7 +41,7 @@
           description='Test 1%'
         )
     Spacer(low)
-    .section(:class="{deactive: !isSettingPriceActive}")
+    .section(:class='{ deactive: !isSettingPriceActive }')
       .section-header
         .title Set Price Range
         .actions.range-actions
@@ -72,18 +72,19 @@
           :secondToken='secondToken'
         )
       CurrentPrice(
-          price='9999.8'
-          :selectedRangeToken='selectedRangeToken',
-          :firstToken='firstToken',
-          :secondToken='secondToken'
-        )
+        price='9999.8',
+        :selectedRangeToken='selectedRangeToken',
+        :firstToken='firstToken',
+        :secondToken='secondToken'
+      )
     Spacer(low)
-    .section(:class="{deactive: !isDepositAmountsActive}")
+    .section(:class='{ deactive: !isDepositAmountsActive }')
       .section-header
         .title Deposit Amounts
-      DepositAmountItem
+        pre {{firstAmount}}
+      DepositAmountItem(v-model='firstAmount', :token='firstToken')
       SSpacer
-      DepositAmountItem
+      DepositAmountItem(v-model='secondAmount', :token='secondToken')
     Spacer(low)
     .submit-container
       AlcorButton.submit(round) Submit Test
@@ -121,7 +122,9 @@ export default {
     secondToken: {},
     selectedPool: 0,
     maxPrice: 0,
-    minPrice: 0
+    minPrice: 0,
+    firstAmount: 0.0,
+    secondAmount: 0.0
   }),
   methods: {
     onSelectToken(index) {
