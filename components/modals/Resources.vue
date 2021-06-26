@@ -11,17 +11,17 @@ el-dialog(
         .desc Stake CPU and NET to vote and earn rewards. RAM is used for storing data on the blockchain.
         .progresses
             .progress-continaer
-                el-progress(:percentage="80" :width="100" type="circle" color="var(--main-green)")
+                el-progress(:percentage="10" :width="100" type="circle" :color="generateColor(10)")
                 .details
                     .title CPU
                     .total Total Staked: 10 WAX
             .progress-continaer
-                el-progress(:percentage="40" :width="100" type="circle" color="var(--main-green)")
+                el-progress(:percentage="40" :width="100" type="circle" :color="generateColor(40)")
                 .details
                     .title NET
                     .total Total Staked: 10 WAX
             .progress-continaer
-                el-progress(:percentage="40" :width="100" type="circle" color="var(--main-green)")
+                el-progress(:percentage="96" :width="100" type="circle" :color="generateColor(96)")
                 .details
                     .title RAM
                     .total Total Staked: 10 WAX
@@ -52,6 +52,11 @@ export default {
   },
 
   methods: {
+    generateColor(value) {
+      //value from 0 to 100
+      const hue = ((1 - value * 0.01) * 120).toString(10)
+      return ['hsl(', hue, ',100%,40%)'].join('')
+    },
     ...mapMutations({
       close: 'resources/CLOSE'
     })
