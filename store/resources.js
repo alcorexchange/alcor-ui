@@ -20,7 +20,7 @@ export const actions = {
     return new Promise((resolve) => {
       const account = rootState.account
       // don't open the modal if there is no account or available CPU is over 500
-      if (!account || account.cpu_limit.available < 500) {
+      if (!account || account.cpu_limit.available > 500) {
         resolve()
       } else {
         commit('OPEN')
