@@ -11,20 +11,20 @@ el-dialog(
         .desc Stake CPU and NET to vote and earn rewards. RAM is used for storing data on the blockchain.
         .progresses
             .progress-continaer
-                el-progress(:percentage="10" :width="100" type="circle" :color="generateColor(10)")
+                el-progress(:percentage="getPercentage('cpu_limit')" :width="100" type="circle" :color="generateColor(getPercentage('cpu_limit'))")
                 .details
                     .title CPU
-                    .total Total Staked: 10 WAX
+                    .total Total Staked: {{totalResources.cpu_weight}}
             .progress-continaer
-                el-progress(:percentage="40" :width="100" type="circle" :color="generateColor(40)")
+                el-progress(:percentage="getPercentage('net_limit')" :width="100" type="circle" :color="generateColor(getPercentage('net_limit'))")
                 .details
                     .title NET
-                    .total Total Staked: 10 WAX
+                    .total Total Staked: {{totalResources.net_weight}}
             .progress-continaer
-                el-progress(:percentage="96" :width="100" type="circle" :color="generateColor(96)")
+                el-progress(:percentage="0" :width="100" type="circle" :color="generateColor(0)")
                 .details
                     .title RAM
-                    .total Total Staked: 10 WAX
+                    .total Total Staked: // not set
         .add-resources
             el-select.select(v-model="selectedResource")
                 el-option(v-for="{name} in resources" :Label="name" :value="name")
@@ -33,7 +33,7 @@ el-dialog(
 </template>
 
 <script>
-import { mapMutations, mapGetters } from 'vuex'
+import { mapMutations, mapGetters, mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton.vue'
 
 export default {
@@ -46,12 +46,30 @@ export default {
     amount: 0.0
   }),
   computed: {
+    // netPercentage() {
+    //   if (!this.account) return
+    //   const total = this.account.cpu_limit.max
+    //   const used = this.account.cpu_limit.used
+    //   console.log((used / total) * 100)
+    //   return parseInt((used / total) * 100)
+    // },
+    totalResources() {
+      return this.account ? this.account.total_resources : {}
+    },
     ...mapGetters({
       isActive: 'resources/isActive'
+    }),
+    ...mapState({
+      account: 'account'
     })
   },
-
   methods: {
+    getPercentage(resource) {
+      if (!this.account) return
+      const total = this.account[resource].max
+      const used = this.account[resource].used
+      return parseInt((used / total) * 100)
+    },
     generateColor(value) {
       //value from 0 to 100
       const hue = ((1 - value * 0.01) * 120).toString(10)
