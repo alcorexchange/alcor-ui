@@ -30,7 +30,7 @@ export async function streamByNode(network, app, account, callback, actions) {
       offset += 1
 
       if (actions.includes(a.act.name)) {
-        await callback(a, network, app)
+        callback(a, network, app)
 
         const $set = {}
         $set[`actions_stream_offset.${account}`] = offset
