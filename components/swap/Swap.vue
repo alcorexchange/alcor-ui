@@ -1,18 +1,6 @@
 <template lang="pug">
 .row.mt-4
   .col.swap-pools
-    .swap-setting
-      el-dropdown(trigger="click")
-        i.el-icon-setting
-        el-dropdown-menu.dropdown(slot="dropdown")
-          .section
-            .section-label Transaction Setting
-            label Slippage Tolerance %
-            .section-content
-              AlcorButton(@click="resetSlippageTolerance" round compact) Auto
-              .section-input
-                el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
-                  //- template(#prepend) %
     .row
       .col
         .d-flex.mb-1.select-label
