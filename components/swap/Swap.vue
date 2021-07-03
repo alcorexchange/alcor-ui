@@ -32,8 +32,20 @@
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
     .row.mt-1
       .col
-        .d-flex.mb-1.select-label
+        .d-flex.mb-1.select-label.align-items-center
           small.text-muted Buy (Estimated)
+          .swap-setting.ml-1
+            el-dropdown(trigger="click")
+              i.el-icon-setting
+              el-dropdown-menu.dropdown(slot="dropdown")
+                .section
+                  .section-label Transaction Setting
+                  label Slippage Tolerance %
+                  .section-content
+                    AlcorButton(@click="resetSlippageTolerance" round compact) Auto
+                    .section-input
+                      el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
+                        //- template(#prepend) %
           small.text-mutted.small.ml-auto.with-padding {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
@@ -86,7 +98,7 @@
         SSpacer
         .d-flex.justify-content-between
           small Slippage
-          .small 3%
+          .small {{ slippageTolerance }}%
         SSpacer
         .d-flex.justify-content-between
           small Liquidity Source Fee
@@ -249,7 +261,7 @@ export default {
 
   methods: {
     resetSlippageTolerance() {
-      this.slippageTolerance = 0.1
+      this.slippageTolerance = 3
     },
     tokenChanged(token) {
       this.ibcForm.transfer = false
@@ -264,7 +276,8 @@ export default {
     },
 
     calcOutput() {
-      if (!this.pair || !this.output || !this.inputAmount) return
+      if (!this.pair || !this.output || !this.inputAmount || !this.output.precision) return
+      //if (!this.pair || !this.output || !this.inputAmount) return
 
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
@@ -282,8 +295,10 @@ export default {
         ),
         reserve_out.amount
       )
+
+      const fee = Math.max(this.slippageTolerance * 10, 1)
       const amount_min_output = amount_out.minus(
-        amount_out.multiply(50).divide(1000)
+        amount_out.multiply(fee).divide(1000)
       )
 
       this.minOutput = asset(
@@ -318,8 +333,10 @@ export default {
         ),
         reserve_in.amount
       )
+
+      const fee = Math.max(this.slippageTolerance * 10, 1)
       const amount_min_input = amount_in.minus(
-        amount_out.multiply(30).divide(1000)
+        amount_out.multiply(fee).divide(1000)
       )
 
       this.inputAmount = parseFloat(
@@ -474,7 +491,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   .el-icon-setting {
-    font-size: 1.4rem;
+    font-size: 1rem;
   }
 }
 .section-label {

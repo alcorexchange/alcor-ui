@@ -221,6 +221,8 @@ export const actions = {
     const tx = { actions }
     let transact
 
+    await dispatch('resources/showIfNeeded', undefined, { root: true })
+
     if (state.currentWallet == 'wax') {
       transact = state.wallet.wax.api.transact(tx, transactionHeader)
     } else {
