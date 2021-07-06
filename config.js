@@ -144,8 +144,8 @@ const networks = {
     client_nodes: [],
 
     otc: {
-      contract: 'alcorotcswap',
-      divs: 'aw.aq.waa'
+      contract: 'alcorotc',
+      divs: 'avral'
     },
 
     pools: {
