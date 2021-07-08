@@ -2,7 +2,7 @@
 .ibc-withdraw
   el-button(plain size="mini" icon="el-icon-s-promotion" @click="open") Transfer
 
-  el-dialog(title="Token tranfer", :visible.sync="visible" width="25%" v-if="user").text-left
+  el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
       span Before transfer to exchange, you have to withdraw it to it's original chain using BOS IBC Transfer button!
 
