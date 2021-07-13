@@ -19,7 +19,9 @@ export async function streamByNode(network, app, account, callback, actions) {
   while (true) {
     let r
     try {
+      console.log(`getActionsByNode(${network.name}) ${account} ${offset}`)
       r = await rpc.history_get_actions(account, offset, 100)
+      console.log(`receive actions(${network.name}): ${r.actions.length}`)
     } catch (e) {
       console.log(`getActionsByNode(${network.name}) err: `, e.message)
       await new Promise((resolve, reject) => setTimeout(resolve, 2000))
@@ -30,7 +32,7 @@ export async function streamByNode(network, app, account, callback, actions) {
       offset += 1
 
       if (actions.includes(a.act.name)) {
-        await callback(a, network, app)
+        callback(a, network, app)
 
         const $set = {}
         $set[`actions_stream_offset.${account}`] = offset
@@ -39,6 +41,7 @@ export async function streamByNode(network, app, account, callback, actions) {
     }
 
     if (r.actions.length < 100) {
+      console.log(`waitForNewActions(${network.name})...`)
       await new Promise((resolve, reject) => setTimeout(resolve, 500))
     }
   }

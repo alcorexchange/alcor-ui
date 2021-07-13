@@ -34,7 +34,6 @@ div
         .menu-underlay(@click='closeMenu' v-if='menuActive')
       .fixed-menu
         ConnectNav
-    div(@click="$store.commit('resources/OPEN')") open resources
 
     .main
       nuxt
