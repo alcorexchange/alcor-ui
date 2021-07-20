@@ -34,7 +34,7 @@
       @row-click='clickOrder',
       :default-sort='{ prop: "weekVolume", order: "descending" }'
     )
-      el-table-column(label='Pair', prop='date', :width='isMobile ? 150 : 280')
+      el-table-column(label='Pair', prop='date', :width='isMobile ? 150 : 280' fixed)
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
@@ -69,7 +69,6 @@
         sortable,
         sort-by='volume24',
         :sort-orders='["descending", null]'
-        v-if='!isMobile'
       )
         template(slot-scope='scope')
           span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
@@ -83,7 +82,6 @@
         width='100',
         sort-by='change24',
         :sort-orders='["descending", null]',
-        v-if='!isMobile'
       )
         template(slot-scope='scope', align='right', header-align='right')
           change-percent(:change='scope.row.change24')
@@ -108,8 +106,7 @@
         sortable,
         sort-by='changeWeek',
         :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
+        )
         template(slot-scope='scope')
           change-percent(:change='scope.row.changeWeek')
 </template>
@@ -222,7 +219,6 @@ export default {
   .custom-radio .el-radio-button__inner {
     padding: 8px 15px !important;
   }
-
 }
 </style>
 
@@ -240,12 +236,6 @@ export default {
 .table td,
 .table th {
   border: 0 !important;
-}
-.last-price-item {
-  width: 180px !important;
-}
-.pair-item {
-  width: 300px !important;
 }
 .theme-dark {
   .markets {
