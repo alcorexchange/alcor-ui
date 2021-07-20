@@ -319,15 +319,12 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
-  // .cell {
-  //   padding: 0 !important;
-  // }
 }
 
 // swap setting style
-.section-content{
-  .el-input-group__append{
-    padding: 0  
+.section-content {
+  .el-input-group__append {
+    padding: 0;
   }
   .el-input__inner {
     border-radius: 20px !important;
@@ -339,24 +336,24 @@ a {
     padding: 0 8px;
   }
 }
-@media only screen and (max-width: 640px) {
-  .market-table {
-    .cell {
-      padding-left: 8px !important;
-      padding-right: 8px !important;
-    }
-    .th.cell {
-      padding-left: 4px !important;
-      padding-right: 4px !important;
-    }
-    .caret-wrapper {
-      width: 14px !important;
-    }
-    .sort-caret {
-      left: 2px !important;
-    }
-    th {
-      font-size: 0.8rem;
-    }
-  }
-}
+// @media only screen and (max-width: 640px) {
+//   .market-table {
+//     .cell {
+//       padding-left: 8px !important;
+//       padding-right: 8px !important;
+//     }
+//     .th.cell {
+//       padding-left: 4px !important;
+//       padding-right: 4px !important;
+//     }
+//     .caret-wrapper {
+//       width: 14px !important;
+//     }
+//     .sort-caret {
+//       left: 2px !important;
+//     }
+//     th {
+//       font-size: 0.8rem;
+//     }
+//   }
+// }
