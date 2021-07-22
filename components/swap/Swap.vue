@@ -264,7 +264,7 @@ export default {
     },
 
     calcOutput() {
-      if (!this.pair || !this.output || !this.inputAmount || !this.output.precision) return
+      if (!this.pair || !this.output || !this.inputAmount || this.output.precision == undefined) return
       //if (!this.pair || !this.output || !this.inputAmount) return
 
       const reserve_in = this.poolOne.quantity
