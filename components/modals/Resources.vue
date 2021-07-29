@@ -91,7 +91,7 @@ export default {
           receiver: this.user.name,
           stake_net_quantity: this.selectedResource == 'CPU' ? amount_zero : amount,
           stake_cpu_quantity: this.selectedResource == 'CPU' ? amount : amount_zero,
-          transfer: true
+          transfer: false
         }
       }])
 
