@@ -51,6 +51,25 @@ export const actions = {
     // dispatch('loadIbc') TODO Remove BOS IBC LOGIC
 
     setInterval(() => dispatch('update'), 15000)
+
+    // TODO Move push notifications to other place
+    this.$socket.on('match', match => {
+      const market = state.markets.filter(m => m.id == match.market_id)[0]
+
+      if (match.bid) {
+        this._vm.$notify({
+          title: `Order match - ${market.symbol}`,
+          message: `${match.bid} ${market.base_token.symbol.name} at ${match.price}`,
+          type: 'success'
+        })
+      } else {
+        this._vm.$notify({
+          title: `Order match - ${market.symbol}`,
+          message: `${match.ask} ${market.quote_token.symbol.name} at ${match.price}`,
+          type: 'success'
+        })
+      }
+    })
   },
 
   toggleTheme({ state, commit }) {

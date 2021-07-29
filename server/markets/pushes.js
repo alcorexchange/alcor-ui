@@ -6,7 +6,7 @@ export function pushAccountNewMatch(io, m) {
   })
 
   io.to(`account:${m.chain}.${m.bidder}`).emit('match', {
-    bid: m.bid,
+    bid: m.ask,
     market_id: m.market,
     price: m.unit_price
   })
