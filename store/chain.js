@@ -83,7 +83,15 @@ export const actions = {
     }
   },
 
-  async logout({ state, commit, getters }) {
+  async logout({ state, commit, getters, rootState }) {
+    this.$socket.emit('unsubscribe', {
+      room: 'account',
+      params: {
+        chain: rootState.network.name,
+        name: rootState.user.name
+      }
+    })
+
     if (state.provider == 1) {
       commit('setAnchorSession', { accountName: null, authorization: null })
     }
@@ -162,6 +170,14 @@ export const actions = {
       dispatch('loadUserBalances', {}, { root: true })
       dispatch('market/loadUserOrders', {}, { root: true })
 
+      this.$socket.emit('subscribe', {
+        room: 'account',
+        params: {
+          chain: rootState.network.name,
+          name: rootState.user.name
+        }
+      })
+
       if (state.loginPromise) state.loginPromise.resolve(true)
     } catch (e) {
       if (state.loginPromise) state.loginPromise.resolve(false)
@@ -221,7 +237,9 @@ export const actions = {
     const tx = { actions }
     let transact
 
-    await dispatch('resources/showIfNeeded', undefined, { root: true })
+    if (actions && actions[0].name != 'delegatebw') {
+      await dispatch('resources/showIfNeeded', undefined, { root: true })
+    }
 
     if (state.currentWallet == 'wax') {
       transact = state.wallet.wax.api.transact(tx, transactionHeader)
