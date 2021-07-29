@@ -27,6 +27,10 @@ export function subscribe(io, socket) {
     if (room == 'pools') {
       socket.join(`pools:${params.chain}`)
     }
+
+    if (room == 'account') {
+      socket.join(`account:${params.chain}.${params.name}`)
+    }
   })
 }
 
@@ -48,6 +52,10 @@ export function unsubscribe(io, socket) {
 
     if (room == 'pools') {
       socket.leave(`pools:${params.chain}`)
+    }
+
+    if (room == 'account') {
+      socket.leave(`account:${params.chain}.${params.name}`)
     }
   })
 }
