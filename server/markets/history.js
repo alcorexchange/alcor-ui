@@ -6,6 +6,7 @@ import config from '../../config'
 import { cache } from '../index'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
 import { getVolumeFrom, getChangeFrom, markeBars, pushDeal, pushTicker } from './charts'
+import { pushAccountNewMatch } from './pushes'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -119,10 +120,10 @@ export async function newMatch(match, network, app) {
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
         block_num
       })
-      pushDeal(io, { chain, market: market.id })
-
       await markeBars(m)
+      pushDeal(io, { chain, market: market.id })
       pushTicker(io, { chain, market: market.id, time: m.time })
+      pushAccountNewMatch(io, m)
       io.to(`orders:${network.name}.${market.id}`).emit('update_orders')
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
