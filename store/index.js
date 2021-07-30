@@ -52,6 +52,10 @@ export const actions = {
 
     setInterval(() => dispatch('update'), 15000)
 
+    this.$socket.on('connect_error', (err) => {
+      console.log(`websocket connect_error due to ${err.message}`)
+    })
+
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
       const market = state.markets.filter(m => m.id == match.market_id)[0]
