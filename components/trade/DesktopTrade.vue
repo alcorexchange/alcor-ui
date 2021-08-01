@@ -129,7 +129,7 @@ export default {
   height: 500px;
 
   .top-left {
-    flex: 3;
+    flex: 4;
   }
 
   .top-center {
