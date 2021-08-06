@@ -78,12 +78,14 @@ export function quantityToAmount(asset) {
 }
 
 export function amountToFloat(amount, precision) {
-  amount = Math.abs(amount)
+  const str_amount = amount.toString()
 
-  const scale = new Big(10).pow(precision)
-  const prefix = Big(amount).div(scale)
+  if (precision == 0) return str_amount
 
-  return Number.parseFloat(prefix).toFixed(precision)
+  const int_part = str_amount.substring(0, str_amount.length - precision)
+  const decimal_part = str_amount.substring(int_part.length)
+
+  return `${int_part}.${decimal_part}`
 }
 
 export function assetToAmount(amount, precision) {

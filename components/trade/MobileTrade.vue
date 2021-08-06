@@ -39,13 +39,13 @@
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 label.small Amount
-                el-input(type="number" v-model="amount" @input="amountChange()" clearable)
+                el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
                   span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
                 el-slider(:step="1" v-model="eosPercent")
 
                 label.small Total
-                el-input(type="number" v-model="total" @input="totalChange()")
+                el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 el-button(size="small" type="success" @click="buy(trade)").w-100.mt-2 Buy
@@ -62,13 +62,13 @@
                   span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
 
                 label.small Amount
-                el-input(type="number" v-model="amount" clearable @change="fixPrice()" @input="priceChange()")
+                el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
                   span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
                 el-slider(v-model="tokenPercent")
 
                 label.small Total
-                el-input(type="number" v-model="total" @input="totalChange()")
+                el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
                   span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
                 el-button(size="small" type="danger" @click="sell(trade)").w-100.mt-2 Sell
@@ -106,7 +106,6 @@
                 el-slider(:step="25" v-model="tokenPercent" show-stops)
 
                 el-button(type="danger" size="small" @click="sell(trade)").w-100 Sell
-
 
       .col-6.pl-0.mb-4
         OrderBook
