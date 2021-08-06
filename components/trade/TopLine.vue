@@ -1,5 +1,5 @@
 <template lang="pug">
-.box-card.px-2.pt-2
+.box-card.pl-2.pt-2
   .row
     .col
       .d-flex.align-items-center(v-if="!isMobile")
