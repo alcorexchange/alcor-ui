@@ -5,6 +5,7 @@ export const state = () => ({
 
   slug: '',
   symbol: '',
+  meta: {},
 
   base_token: {},
   quote_token: {},
@@ -145,6 +146,10 @@ export const getters = {
     }
 
     return '0.00000000'
+  },
+
+  meta(state, getters, rootState) {
+    return rootState.markets.filter(m => m.id == state.id)[0] || {}
   },
 
   relatedPool(state, getters, rootState) {

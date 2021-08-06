@@ -27,9 +27,9 @@
       .low-center
         .overflowbox.low-height.position-relative
           .tabs-right
-            FeeRate
+            FeeRate.mt-2
             el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
-            el-button(v-if="relatedPool" type="text" icon="el-icon-right" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+            //el-button(v-if="relatedPool" type="text" icon="el-icon-right" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
           el-tabs.h-100
             el-tab-pane(label="Limit trade")

@@ -1,22 +1,30 @@
 <template lang="pug">
-  el-dropdown(placement="top").fee-rate
+.pointer
+  el-tooltip.item(effect='dark' placement='top-start')
+    template(slot="content")
+      span.title.muted Maker Fee
+      span.value  {{ (meta.fee / 100).toFixed(4) }}%
+      span.title.muted.ml-2 Taker Fee
+      span.value  {{ (meta.fee / 100).toFixed(4) }}%
+    small % Fee Rate
+
+  //el-dropdown(placement="top").fee-rate
     AlcorButton(flat) Fee Rate
     el-dropdown-menu(slot="dropdown").dropdown-content
-        .item
-          span.title.muted Maker Fee
-          span.value 10%
-        .h-spacer
-        .item
-          span.title.muted Taker Fee
-          span.value 10%
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import AlcorButton from '@/components/AlcorButton.vue'
+
 export default {
   name: 'FeeRate',
   components: {
     AlcorButton
+  },
+
+  computed: {
+    ...mapGetters('market', ['meta'])
   }
 }
 </script>
