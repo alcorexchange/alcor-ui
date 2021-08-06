@@ -59,8 +59,8 @@
           div(v-loading="loading").confirm-button
             .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
               el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
-            .div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
-              el-button(type="primary" disabled).w-100 Insufficient Funds
+            //.div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
+            //  el-button(type="primary" disabled).w-100 Insufficient Funds
             .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
               el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
             .div(v-else)

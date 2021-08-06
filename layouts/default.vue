@@ -86,7 +86,7 @@ export default {
       const items = []
 
       if (
-        ['eos', 'wax', 'jungle', 'telos'].includes(
+        ['eos', 'wax', 'jungle', 'telos', 'local'].includes(
           this.$store.state.network.name
         )
       ) {

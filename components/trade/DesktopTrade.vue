@@ -27,6 +27,7 @@
       .low-center
         .overflowbox.low-height.position-relative
           .tabs-right
+            FeeRate
             el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
             el-button(v-if="relatedPool" type="text" icon="el-icon-right" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
@@ -67,6 +68,7 @@ import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
 import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
+import FeeRate from '~/components/trade/FeeRate'
 
 export default {
   layout: 'embed',
@@ -81,7 +83,8 @@ export default {
     Chart,
     Markets,
     MobileTrade,
-    TopLine
+    TopLine,
+    FeeRate
   },
 
   data() {
@@ -101,11 +104,11 @@ export default {
     ...mapGetters(['user']),
 
     payForUser: {
-      get () {
+      get() {
         return this.$store.state.chain.payForUser
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit('chain/setPayForUser', value)
       }
     }
@@ -120,13 +123,13 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped >
+<style lang="scss" scoped>
 .top-level {
   display: flex;
   height: 500px;
 
   .top-left {
-    flex: 3;
+    flex: 4;
   }
 
   .top-center {
@@ -175,7 +178,7 @@ export default {
 }
 
 .el-card__body {
-    padding: 10px;
+  padding: 10px;
 }
 
 .display-4 {
@@ -185,6 +188,8 @@ export default {
 }
 
 .tabs-right {
+  display: flex;
+  align-items: center;
   position: absolute;
   top: 0px;
   right: 15px;
@@ -237,7 +242,7 @@ export default {
     padding: 0 15px;
 
     .el-input--prefix .el-input__inner {
-        padding-left: 30%;
+      padding-left: 30%;
     }
 
     .el-form-item__content {
@@ -258,18 +263,18 @@ export default {
 
     // Slider
     .el-slider__runway {
-        margin: 5px 0;
-        height: 4px;
+      margin: 5px 0;
+      height: 4px;
     }
 
     .el-slider__button {
-        width: 10px;
-        height: 10px;
+      width: 10px;
+      height: 10px;
     }
 
     .el-slider__marks-text {
-        margin-top: 12px;
-        font-size: 10px;
+      margin-top: 12px;
+      font-size: 10px;
     }
   }
 
@@ -284,7 +289,8 @@ export default {
   }
 
   // Element tables
-  .el-table td, .el-table th {
+  .el-table td,
+  .el-table th {
     padding: 5px 0;
   }
 

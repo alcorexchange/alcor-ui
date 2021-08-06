@@ -40,7 +40,7 @@ export const mutations = {
 }
 
 export const actions = {
-  init({ dispatch, state }) {
+  init({ dispatch, state, getters }) {
     dispatch('fetchTokens')
 
     //setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
@@ -51,6 +51,29 @@ export const actions = {
     // dispatch('loadIbc') TODO Remove BOS IBC LOGIC
 
     setInterval(() => dispatch('update'), 15000)
+
+    this.$socket.on('connect_error', (err) => {
+      console.log(`websocket connect_error due to ${err.message}`)
+    })
+
+    // TODO Move push notifications to other place
+    this.$socket.on('match', match => {
+      const market = getters.markets.filter(m => m.id == match.market_id)[0]
+
+      if (match.bid) {
+        this._vm.$notify({
+          title: `Order match - ${market.symbol}`,
+          message: `${match.bid} ${market.base_token.symbol.name} at ${match.price}`,
+          type: 'success'
+        })
+      } else {
+        this._vm.$notify({
+          title: `Order match - ${market.symbol}`,
+          message: `${match.ask} ${market.base_token.symbol.name} at ${match.price}`,
+          type: 'success'
+        })
+      }
+    })
   },
 
   toggleTheme({ state, commit }) {
@@ -141,6 +164,10 @@ export const actions = {
 }
 
 export const getters = {
+  markets(state) {
+    return state.markets
+  },
+
   user(state) {
     return state.user
   },
