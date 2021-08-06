@@ -23,7 +23,7 @@ export default {
     return {
       resolution: 240,
 
-      onRealtime: null,
+      onRealtimeCallback: () => {},
       widget: null,
       onResetCacheNeededCallback: null
     }
@@ -52,6 +52,10 @@ export default {
 
   mounted() {
     this.mountChart()
+
+    this.$socket.on('tick', (candle) => {
+      this.onRealtimeCallback(candle)
+    })
   },
 
   methods: {
@@ -89,9 +93,8 @@ export default {
 
             this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
 
-            this.$socket.on('tick', (candle) => {
-              onRealtimeCallback(candle)
-            })
+            this.onRealtimeCallback = onRealtimeCallback
+            this.resolution = resolution
           },
 
           resolveSymbol: (
