@@ -1,5 +1,8 @@
 <template lang="pug">
   div.wallet
+    .table-header
+      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
+      el-checkbox() Hide small balances
     .table.el-card.is-always-shadow
     el-table.market-table(
       :data='balances',
@@ -134,6 +137,21 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.table-header{
+  display: flex;
+  align-items: center;
+  .el-input{
+    width: auto;
+    min-width: 300px;
+    margin-right: 8px;
+  }
+  .el-input__inner{
+    background: transparent !important;
+  }
+}
+.el-card{
+  border: none;
+}
 .asset-container{
   display: flex;
   align-items: center;
