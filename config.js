@@ -228,8 +228,8 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    //host: 'telos.greymass.com',
-    host: 'mainnet.telos.net',
+    host: 'telos.greymass.com',
+    //host: 'mainnet.telos.net',
     port: 443,
     protocol: 'https',
     monitor: 'http://telos.bloks.io',
