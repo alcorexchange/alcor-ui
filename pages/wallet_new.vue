@@ -6,7 +6,9 @@
     <SSpacer high />
     <SSpacer high />
     <WalletTabBar />
-    <nuxt-child />
+    <div class="content">
+      <nuxt-child />
+    </div>
   </div>
 </template>
 
@@ -23,5 +25,8 @@ export default {
 <style scoped lang="scss">
 .wallet-layout {
   padding-top: 25px;
+}
+.content {
+  padding: 25px 0;
 }
 </style>
