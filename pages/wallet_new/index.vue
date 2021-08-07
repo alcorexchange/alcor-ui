@@ -41,8 +41,13 @@
         template(slot-scope='{row}') 0
       el-table-column(
         label='Actions',
+        width="260"
       )
-        template(slot-scope='{row}') 0
+        template(slot-scope='{row}').actions
+          el-button(type="text") Deposit
+          el-button(type="text") Withdraw
+          el-button(type="text") Pools
+          el-button(type="text") Trade
       //- el-table-column(
       //-   :label='`24H Vol.`',
       //-   align='right',
@@ -139,6 +144,12 @@ export default {
   }
   .asset-name{
     font-weight: bold;
+  }
+}
+.actions{
+  display: flex;
+  .el-button{
+    color: var(--main-green)
   }
 }
 </style>
