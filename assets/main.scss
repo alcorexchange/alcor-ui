@@ -248,6 +248,9 @@ a {
 .muted {
   opacity: 0.6;
 }
+.cancel {
+  color: var(--cancel);
+}
 .green {
   color: var(--main-green);
 }
@@ -325,9 +328,9 @@ a {
 }
 
 // swap setting style
-.section-content{
-  .el-input-group__append{
-    padding: 0  
+.section-content {
+  .el-input-group__append {
+    padding: 0;
   }
   .el-input__inner {
     border-radius: 20px !important;
