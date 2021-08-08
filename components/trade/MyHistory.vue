@@ -50,7 +50,7 @@ export default {
 
   computed: {
     ...mapState(['user']),
-    ...mapState('market', ['base_token', 'quote_token', 'id']),
+    ...mapState('market', ['base_token', 'quote_token', 'id'])
 
     //deals() {
     //  return this.userDeals.filter(d => d.market == this.id)
@@ -86,18 +86,20 @@ export default {
       if (!this.user || !this.user.name) return
       console.log('start loading')
 
-
-      const { data: deals } = await this.$axios.get(`/account/${this.user.name}/deals`, {
-        params: {
-          limit: 100,
-          skip: this.skip
+      const { data: deals } = await this.$axios.get(
+        `/account/${this.user.name}/deals`,
+        {
+          params: {
+            limit: 100,
+            skip: this.skip
+          }
         }
-      })
+      )
 
       this.skip += deals.length
 
       if (deals.length) {
-        this.deals.push(...deals.filter(d => d.market == this.id))
+        this.deals.push(...deals.filter((d) => d.market == this.id))
         $state.loaded()
         console.log('loaded')
       } else {
@@ -107,7 +109,6 @@ export default {
     }
   }
 }
-
 </script>
 
 <style lang="scss">
@@ -116,6 +117,10 @@ export default {
 }
 
 .my-history {
+  table {
+    width: 100% !important;
+  }
+
   .el-table__append-wrapper {
     //overflow: auto;
   }

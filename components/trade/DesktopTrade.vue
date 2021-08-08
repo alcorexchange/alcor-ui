@@ -23,36 +23,36 @@
 
             el-tab-pane(label="Order history")
               my-history(v-if="user" v-loading="loading")
+      .not-history
+        .low-center
+          .overflowbox.low-height.position-relative
+            .tabs-right
+              el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
+              FeeRate.mr-2
+              el-button(v-if="relatedPool" type="text" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
-      .low-center
-        .overflowbox.low-height.position-relative
-          .tabs-right
-            el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
-            FeeRate.mr-2
-            el-button(v-if="relatedPool" type="text" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+            el-tabs.h-100
+              el-tab-pane(label="Limit trade")
+                .trade-box
+                  limit-trade
 
-          el-tabs.h-100
-            el-tab-pane(label="Limit trade")
-              .trade-box
-                limit-trade
+              el-tab-pane(label="Market trade")
+                .trade-box
+                  market-trade
 
-            el-tab-pane(label="Market trade")
-              .trade-box
-                market-trade
+        .low-right
+          .overflowbox.low-height.overflow-hidden
+            LatestDeals
 
-      .low-right
-        .overflowbox.low-height.overflow-hidden
-          LatestDeals
+    //- .row.mt-2.orders-panel
+    //-   .col
+    //-     .overflowbox.low-height.overflow-hidden
+    //-       el-tabs.h-100
+    //-         el-tab-pane(label="Open order")
+    //-           my-orders(v-if="user" v-loading="loading")
 
-    .row.mt-2.orders-panel
-      .col
-        .overflowbox.low-height.overflow-hidden
-          el-tabs.h-100
-            el-tab-pane(label="Open order")
-              my-orders(v-if="user" v-loading="loading")
-
-            el-tab-pane(label="Order history")
-              my-history(v-if="user" v-loading="loading")
+    //-         el-tab-pane(label="Order history")
+    //-           my-history(v-if="user" v-loading="loading")
 </template>
 
 <script>
@@ -149,15 +149,18 @@ export default {
   .low-left {
     flex: 5;
   }
-
+  .not-history {
+    flex: 9;
+    display: flex;
+  }
   .low-center {
     min-width: 490px;
     margin: 0 10px;
-    flex: 6;
+    flex: 2;
   }
 
   .low-right {
-    flex: 3;
+    flex: 1;
   }
 }
 
@@ -197,14 +200,18 @@ export default {
 }
 
 @media screen and (max-width: 1350px) {
+  .top-level {
+    height: auto;
+  }
   .low-level {
+    flex-direction: column-reverse;
+    height: auto;
     .low-center {
       margin: 0px 10px 0px 0px;
     }
-  }
-
-  .low-left {
-    display: none;
+    .low-left {
+      margin-top: 10px;
+    }
   }
 
   .orders-panel {
