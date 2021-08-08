@@ -2,67 +2,66 @@
   div.wallet
     .table-header
       el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
-      el-checkbox() Hide small balances
+      //- TODO: add date selecting
+      el-checkbox() show trades
+      el-checkbox() show deposits
+      el-checkbox() show withdraws
     .table.el-card.is-always-shadow
       el-table.market-table(
-        :data='balances',
+        :data='mock',
         style='width: 100%',
-        :default-sort='{ prop: "weekVolume", order: "descending" }'
       )
-        el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
-          template(slot-scope='{row}')
-            .asset-container
-              TokenImage(
-                :src='$tokenLogo(row.currency, row.contract)',
-                :height="isMobile? '20' : '30'"
-              )
+        el-table-column(label='Date')
+          template(slot-scope='{row}') {{row.date}}
 
-              div.asset
-                span.asset-name {{ row.currency }}
-                span.asset-contract.cancel {{ row.contract }}
-
+        el-table-column(label='Asset',)
+          template(slot-scope='{row}') {{row.asset}}
         el-table-column(
-          label='Total',
-          sort-by='amount',
-          sortable,
+          label='Action',
         )
-          template(slot-scope='{row}') {{ row.amount }}
+          template(slot-scope='{row}') {{ row.type }}
         el-table-column(
-          label='Available',
-          sort-by='amount',
-          sortable,
-        )
-          template(slot-scope='{row}') {{ row.amount }}
-        el-table-column(
-          label='In Order',
+          label='Price',
         )
           //- TODO: dynamic
-          template(slot-scope='{row}') 0
+          template(slot-scope='{row}') {{ row.price }}
         el-table-column(
-          label='WAX Value',
+          label='Fill',
         )
-          template(slot-scope='{row}') 0
+          template(slot-scope='{row}') {{row.fill}}
         el-table-column(
-          label='Actions',
-          width="260"
+          label='Fee',
         )
-          template(slot-scope='{row}').actions
-            el-button(type="text") Deposit
-            el-button(type="text") Withdraw
-            el-button(type="text") Pools
-            el-button(type="text") Trade
+          template(slot-scope='{row}') {{row.fee}} WAX
+        el-table-column(
+          label='Total',
+          align="right"
+        )
+          template(slot-scope='{row}') {{row.total}}
+  </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 export default {
-  name: 'Wallet',
+  name: 'WalletTransactions',
   components: {
     TokenImage
   },
   data: () => ({
-    search: ''
+    search: '',
+    mock: [
+      {
+        date: '03/08/2021 12:26:28',
+        asset: 'TLM/WAX',
+        total: 3000,
+        type: 'Buy',
+        price: '0.20342',
+        fill: 10.8,
+        fee: 0.1,
+      }
+    ]
   }),
   computed: {
     ...mapGetters(['user']),
@@ -87,38 +86,49 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.table-header {
+.table-header{
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-  .el-input {
+  .el-input{
     width: auto;
     min-width: 300px;
     margin-right: 8px;
   }
-  .el-input__inner {
+  .el-input__inner{
     background: transparent !important;
   }
 }
-.el-card {
+td.el-table__expanded-cell{
+  background: var(--bg-alter-2) !important;
+}
+.el-card{
   border: none;
 }
-.asset-container {
+.asset-container{
   display: flex;
   align-items: center;
-  .asset {
+  .asset{
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
-  .asset-name {
+  .asset-name{
     font-weight: bold;
   }
 }
-.actions {
+.el-table__expanded-cell{
+  padding: 10px !important;
+}
+.actions{
   display: flex;
-  .el-button {
-    color: var(--main-green);
+  .el-button{
+    &.red{
+      color: var(--main-red) !important;
+    }
+    &.green{
+      color: var(--main-green) !important;
+    }
   }
 }
 </style>
