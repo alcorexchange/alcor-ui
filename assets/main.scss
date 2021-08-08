@@ -50,7 +50,6 @@ label {
   margin: 0px;
 }
 
-.el-table__row,
 .pointer {
   cursor: pointer;
 }
@@ -312,6 +311,9 @@ a {
 }
 
 .market-table {
+  .el-table__row {
+    cursor: pointer;
+  }
   border-radius: 8px;
   overflow: hidden;
   th,
@@ -325,9 +327,6 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
-  // .cell {
-  //   padding: 0 !important;
-  // }
 }
 
 // swap setting style
