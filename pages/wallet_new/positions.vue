@@ -157,6 +157,7 @@ export default {
 .table-header{
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
   .el-input{
     width: auto;
     min-width: 300px;
