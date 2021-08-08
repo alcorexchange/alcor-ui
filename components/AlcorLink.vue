@@ -2,6 +2,7 @@
   <nuxt-link
     :to="to"
     :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]"
+    :exact="exact"
     @click.prevent="$emit('click')"
   >
     <div class="inner">
@@ -15,23 +16,26 @@ export default {
   name: 'AlcorButton',
   props: {
     to: {
-      default: '/',
+      default: '/'
+    },
+    exact: {
+      default: false
     },
     flat: {
       default: false,
-      type: Boolean,
+      type: Boolean
     },
     iconOnly: {
-      default: false,
+      default: false
     },
     iconOnlyAlt: {
-      default: false,
+      default: false
     },
     green: {
       default: false,
-      type: Boolean,
-    },
-  },
+      type: Boolean
+    }
+  }
 }
 </script>
 
