@@ -327,6 +327,15 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
+
+  td.el-table__expanded-cell {
+    padding: 10px !important;
+    // background: var(--bg-alter-2) !important;
+    th,
+    td {
+      background: transparent;
+    }
+  }
 }
 
 // swap setting style

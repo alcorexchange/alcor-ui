@@ -166,6 +166,9 @@ export default {
     background: transparent !important;
   }
 }
+td.el-table__expanded-cell{
+  background: var(--bg-alter-2) !important;
+}
 .el-card{
   border: none;
 }
