@@ -156,6 +156,7 @@ export const actions = {
   },
 
   async fetchUserDeals({ state, commit }) {
+    // TODO Rm this if not userd
     if (!state.user) return
 
     const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`)

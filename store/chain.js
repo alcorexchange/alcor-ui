@@ -165,7 +165,8 @@ export const actions = {
         commit('setCurrentWallet', 'transit')
       }
 
-      dispatch('fetchUserDeals', {}, { root: true })
+      // May be remove from login
+      //dispatch('fetchUserDeals', {}, { root: true })
 
       dispatch('loadUserBalances', {}, { root: true })
       dispatch('market/loadUserOrders', {}, { root: true })
