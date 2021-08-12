@@ -33,10 +33,12 @@ export default {
       type: Boolean
     },
     iconOnly: {
-      default: false
+      default: false,
+      type: Boolean
     },
     iconOnlyAlt: {
-      default: false
+      default: false,
+      type: Boolean
     }
   }
 }
