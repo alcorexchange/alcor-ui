@@ -55,7 +55,7 @@
             )
                 //- TODO: dynamic
                 template(slot-scope='{row}')
-                    AlcorButton(type="text") Vote
+                    el-button(type="text") Vote
 </template>
 
 <script>
