@@ -17,6 +17,8 @@
         StakeAction
   SSpacer(:high="true")
   Validators
+  SSpacer(:high="true")
+  Proxies
 </div>
 </template>
 
@@ -26,6 +28,7 @@ import ResourceItem from '@/components/wallet/ResourceItem.vue'
 import RewardsCard from '@/components/wallet/RewardsCard.vue'
 import StakeAction from '@/components/wallet/StakeAction.vue'
 import Validators from '@/components/wallet/Validators.vue'
+import Proxies from '@/components/wallet/Proxies.vue'
 import SSpacer from '@/components/SSpacer.vue'
 export default {
   name: 'NFTs',
@@ -34,6 +37,7 @@ export default {
     RewardsCard,
     StakeAction,
     Validators,
+    Proxies,
     SSpacer
   },
   data: () => ({
