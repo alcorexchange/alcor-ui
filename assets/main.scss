@@ -359,6 +359,19 @@ a {
   }
 }
 
+.resource-page-card {
+  .header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--background-color-base);
+    i {
+      margin-right: 4px;
+    }
+  }
+  .main {
+    padding: 10px 14px;
+  }
+}
+
 @media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;
