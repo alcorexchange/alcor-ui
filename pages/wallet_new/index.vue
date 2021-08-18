@@ -3,8 +3,8 @@
     .table-header
       el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
       el-checkbox() Hide small balances
-    .table.el-card.is-always-shadow
-      el-table.market-table(
+    .el-card.is-always-shadow
+      el-table.alcor-table.noHover(
         :data='balances',
         style='width: 100%',
         :default-sort='{ prop: "weekVolume", order: "descending" }'
@@ -47,10 +47,10 @@
           width="260"
         )
           template(slot-scope='{row}').actions
-            el-button(type="text") Deposit
-            el-button(type="text") Withdraw
-            el-button(type="text") Pools
-            el-button(type="text") Trade
+            el-button(type="text").hover-opacity Deposit
+            el-button(type="text").hover-opacity Withdraw
+            el-button(type="text").hover-opacity Pools
+            el-button(type="text").hover-opacity Trade
 </template>
 
 <script>
