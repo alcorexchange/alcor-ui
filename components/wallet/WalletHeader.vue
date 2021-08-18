@@ -1,50 +1,39 @@
-<template>
-  <div class="wallet-header alcor-card">
-    <div class="item">
-      <div class="title cancel">Portfolio value</div>
-      <div class="value">
-        <span class="main">1500.243</span>
-        <span class="symbol cancel">WAX</span>
-      </div>
-      <div class="info cancel">= $229.11</div>
-    </div>
-    <div class="item">
-      <div class="title cancel">Active positions</div>
-      <div class="value">
-        <span class="main">
-          <span class="buy green">7 Buy</span>
-          <span class="cancel">|</span>
-          <span class="sell red">8 Sell</span>
-        </span>
-        <span class="symbol cancel">WAX</span>
-      </div>
-      <div class="info cancel">5 Pairs</div>
-    </div>
-    <div class="item">
-      <div class="title cancel">Available funds</div>
-      <div class="value">
-        <span class="main">1500.243</span>
-        <span class="symbol cancel">WAX</span>
-      </div>
-      <div class="info cancel">= $229.11</div>
-    </div>
-    <div class="item">
-      <div class="title cancel">Staking rewards</div>
-      <div class="value">
-        <span class="main">1500.243</span>
-        <span class="symbol cancel">WAX</span>
-      </div>
-      <div class="info cancel">Last Claim: 0.00005</div>
-    </div>
-    <div class="item">
-      <div class="title cancel">LP rewards</div>
-      <div class="value">
-        <span class="main green">+17.382</span>
-        <span class="symbol cancel">WAX</span>
-      </div>
-      <div class="info cancel">2 Liquidity Pools</div>
-    </div>
-  </div>
+<template lang="pug">
+.wallet-header.alcor-card
+  .item
+    .title.cancel Portfolio value
+    .value
+      span.main 1500.243
+      span.symbol.cancel WAX
+    .info.cancel = $229.11
+  .item
+    .title.cancel Active positions
+    .value
+      span.main
+        span.buy.green 7 Buy
+        span.cancel |
+        span.sell.red 8 Sell
+      span.symbol.cancel WAX
+    .info.cancel 5 Pairs
+  .item
+    .title.cancel Available funds
+    .value
+      span.main 1500.243
+      span.symbol.cancel WAX
+    .info.cancel = $229.11
+  .item
+    .title.cancel Staking rewards
+    .value
+      span.main 1500.243
+      span.symbol.cancel WAX
+    .info.cancel Last Claim: 0.00005
+  .item
+    .title.cancel LP rewards
+    .value
+      span.main.green +17.382
+      span.symbol.cancel WAX
+    .info.cancel 2 Liquidity Pools
+
 </template>
 
 <script>
@@ -66,5 +55,30 @@ export default {
 .wallet-header {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+}
+@media only screen and (max-width: 840px) {
+  .wallet-header {
+    justify-content: center;
+    background: transparent;
+    padding: 0;
+  }
+  .item {
+    background: var(--background-color-secondary);
+    padding: 10px;
+    margin: 4px;
+    border-radius: var(--radius);
+  }
+}
+@media only screen and (max-width: 540px) {
+  .wallet-header {
+    flex-direction: column;
+  }
+  .item {
+    background: var(--background-color-secondary);
+    padding: 10px;
+    margin: 4px;
+    border-radius: var(--radius);
+  }
 }
 </style>
