@@ -15,7 +15,7 @@ export default {
       { name: 'Transactions', to: '/wallet_new/transactions' },
       { name: 'NFT’s', to: '/wallet_new/nfts', isNFT: true },
       { name: 'Liquidity Pools', to: '/wallet_new/liquidity_pools' },
-      { name: 'Resources', to: '/wallet_new/resourses' }
+      { name: 'Resources', to: '/wallet_new/resources' }
     ]
   })
 }

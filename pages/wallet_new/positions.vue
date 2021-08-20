@@ -5,7 +5,7 @@
       el-checkbox() Only buy orders
       el-checkbox() Only sell orders
     .table.el-card.is-always-shadow
-      el-table.market-table(
+      el-table.alcor-table(
         :data='mock',
         style='width: 100%',
       )
@@ -43,11 +43,11 @@
                   template(#default="{row}")
                     .wax-value {{ row.WValue }}
                 el-table-column(
-                  label="Wax value",
+                  label="Action",
                 )
                   template(#default="{row}")
-                    .actoins
-                      el-button(type="text").red Cancel Order
+                    .actions
+                      el-button(type="text").red.hover-opacity Cancel Order
         el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
           template(slot-scope='{row}')
             .asset-container
@@ -85,8 +85,8 @@
         )
           template(slot-scope='{row}')
             .actions
-              el-button(type="text").green Trade
-              el-button(type="text").red Cancel All Orders
+              el-button(type="text").green.hover-opacity Trade
+              el-button(type="text").red.hover-opacity Cancel All Orders
   </div>
 </template>
 
