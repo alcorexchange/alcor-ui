@@ -4,10 +4,10 @@ The first listing free decentralized exchange.
 
 ![Alcor](https://ipfs.io/ipfs/QmQSocTSazDmdL1N57icZpAgTTxupHkNMnGxJUzzuzKQLh)
 
-With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
+With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The token's contract should comply with the [eosio.token](https://github.com/EOSIO/eosio.contracts/tree/master/contracts/eosio.token) standard or be a [Simple Assets](https://github.com/CryptoLions/SimpleAssets) fungible token.
 
 Props:
-1. Fully-onchain.
+1. Fully on-chain.
 2. NO TRADING FEES!
 3. Free CPU program.
 4. Open Source.
