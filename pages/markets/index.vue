@@ -197,6 +197,11 @@ export default {
       return markets.reverse()
     }
   },
+
+  mounted() {
+    this.base_token = this.network.baseToken.symbol
+  },
+
   methods: {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
