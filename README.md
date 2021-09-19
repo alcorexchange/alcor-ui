@@ -1,8 +1,10 @@
+Project is Hiring Full-Stack Dev NOW! Good payment in cryptocurrency! Contact: [@avral](https://t.me/avral)
+--
 [<img src="https://raw.githubusercontent.com/avral/alcor-ui/master/assets/logos/alcorblack2.svg" height=150>](https://alcor.exchange)
 
 The first listing free decentralized exchange.
 
-![Alcor](https://ipfs.io/ipfs/QmQSocTSazDmdL1N57icZpAgTTxupHkNMnGxJUzzuzKQLh)
+![Alcor Exchange](https://i.imgur.com/brvzFdi.png)
 
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The token's contract should comply with the [eosio.token](https://github.com/EOSIO/eosio.contracts/tree/master/contracts/eosio.token) standard or be a [Simple Assets](https://github.com/CryptoLions/SimpleAssets) fungible token.
 
