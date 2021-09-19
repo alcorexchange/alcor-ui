@@ -3259,12 +3259,12 @@
     eslint-import-resolver-node "^0.3.3"
     eslint-import-resolver-webpack "^0.12.1"
 
-"@waxio/waxjs@^0.0.15":
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/@waxio/waxjs/-/waxjs-0.0.15.tgz#08bc7bd87037e49d63108a8196c853707baee0c5"
-  integrity sha512-EaXTdgbAmw3I2zfR1EfKMJ/N6jAQ8cf9QS2uAhT7aW4w1DJTYBttkx7lFb5x09Z2gKaTxBAEpSZRb1GZEpNqyA==
+"@waxio/waxjs@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@waxio/waxjs/-/waxjs-1.0.2.tgz#281f2b114a51149a5c4657a49585791033fa02c7"
+  integrity sha512-6np8HFPrEnhfOk//s/n6qbcVrRdPtHD01mtg9jgVjrxONAwvNQ3j73pamtwoTXcIEdqvJf2NfA46IgM1uO6fDw==
   dependencies:
-    eosjs "^20.0.0"
+    eosjs "^22.1.0"
 
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
@@ -4258,6 +4258,11 @@ bn.js@5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.2.tgz#c9686902d3c9a27729f43ab10f9d79c2004da7b0"
   integrity sha512-40rZaf3bUNKTVYu9sIeeEGOg7g14Yvnj9kH7b50EiwX0Q7A6umbvfI5tvHaOERH0XigqKkfLkFQxzb4e6CIXnA==
+
+bn.js@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.0.tgz#358860674396c6997771a9d051fcc1b57d4ae002"
+  integrity sha512-D7iWRBvnZE8ecXiLj/9wbxH7Tk79fAh8IHaTNq1RWRixsS02W+5qS+iE9yq6RYl0asXx5tw0bLhmT5pIfbSquw==
 
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.8, bn.js@^4.4.0:
   version "4.11.9"
@@ -6798,6 +6803,16 @@ eosjs@^21.0.3:
     elliptic "6.5.3"
     hash.js "1.1.7"
     pako "1.0.11"
+
+eosjs@^22.1.0:
+  version "22.1.0"
+  resolved "https://registry.yarnpkg.com/eosjs/-/eosjs-22.1.0.tgz#7ac40e2f1f959fab70539c30ac8ae46c9038aa3c"
+  integrity sha512-Ka8KO7akC3RxNdSg/3dkGWuUWUQESTzSUzQljBdVP16UG548vmQoBqSGnZdnjlZyfcab8VOu2iEt+JjyfYc5+A==
+  dependencies:
+    bn.js "5.2.0"
+    elliptic "6.5.4"
+    hash.js "1.1.7"
+    pako "2.0.3"
 
 err-code@^1.0.0:
   version "1.1.2"
@@ -11871,6 +11886,11 @@ pako@1.0.11, pako@^1.0.10, pako@^1.0.11, pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
+
+pako@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-2.0.3.tgz#cdf475e31b678565251406de9e759196a0ea7a43"
+  integrity sha512-WjR1hOeg+kki3ZIOjaf4b5WVcay1jaliKSYiEaB1XzwhMQZJxRdQRv0V31EKBYlxb4T7SK3hjfc/jxyU64BoSw==
 
 parallel-transform@^1.1.0:
   version "1.2.0"
