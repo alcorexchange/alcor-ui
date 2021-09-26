@@ -77,13 +77,29 @@ export function quantityToAmount(asset) {
   return parseInt(new Big(amount).times(scale))
 }
 
+// FIXED decimal
+//export function amountToFloat(amount, precision) {
+//  const str_amount = amount.toString()
+//
+//  if (precision == 0) return str_amount
+//
+//  const int_part = str_amount.substring(0, str_amount.length - precision)
+//  const decimal_part = str_amount.substring(int_part.length)
+//
+//  return `${int_part}.${decimal_part}`
+//}
+
 export function amountToFloat(amount, precision) {
   const str_amount = amount.toString()
 
   if (precision == 0) return str_amount
 
-  const int_part = str_amount.substring(0, str_amount.length - precision)
-  const decimal_part = str_amount.substring(int_part.length)
+  const int_part = str_amount.substring(0, str_amount.length - precision) || '0'
+  let decimal_part = str_amount.substring(int_part.length)
+
+  if (precision >= str_amount.length) {
+    decimal_part = '0'.repeat(Math.abs(str_amount.length - precision)) + str_amount
+  }
 
   return `${int_part}.${decimal_part}`
 }

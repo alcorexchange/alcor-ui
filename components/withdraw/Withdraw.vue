@@ -5,7 +5,7 @@
   el-dialog(title="Withdraw", :visible.sync="visible" width="50%" v-if="user").text-left
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mb-2
-        b Your token will be transfered to {{ peg.network }}
+        b Your token will be transferred to {{ peg.network }}
         div {{ peg.desc }}
 
       el-form-item.mt-1(prop="address")
