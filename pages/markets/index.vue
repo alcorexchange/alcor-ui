@@ -4,7 +4,7 @@
     el-radio-group.radio-chain-select.custom-radio(
       v-model='base_token',
       size='small'
-    )
+    ).mr-3
       el-radio-button(label='all')
         span All
 
@@ -16,17 +16,22 @@
 
       el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
-    .search-container
-      .d-flex
-        nuxt-link(to="new_market").mr-2
-          el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
 
-        el-input(
-          v-model='search',
-          placeholder='Search token',
-          size='small',
-          prefix-icon='el-icon-search'
-        )
+
+    .search-container
+      el-input(
+        v-model='search',
+        placeholder='Search market',
+        size='small',
+        prefix-icon='el-icon-search'
+        clearable
+      )
+
+    .ml-auto
+      nuxt-link(to="new_market")
+        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
+
+
   .table.el-card.is-always-shadow
     el-table.market-table(
       :data='filteredMarkets',
@@ -197,6 +202,15 @@ export default {
       return markets.reverse()
     }
   },
+
+  mounted() {
+    const { tab, search } = this.$route.query
+
+    tab ? this.base_token = tab : this.base_token = this.network.baseToken.symbol
+
+    if (search) this.search = search
+  },
+
   methods: {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
@@ -230,11 +244,11 @@ export default {
 .table-intro {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  //justify-content: space-between;
   flex-wrap: wrap;
   padding: 20px 0;
   .search-container {
-    width: 300px;
+    width: 600px;
   }
 }
 .table td,

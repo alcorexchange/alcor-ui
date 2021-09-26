@@ -23,8 +23,10 @@ export async function streamByNode(network, app, account, callback, actions) {
       r = await rpc.history_get_actions(account, offset, 100)
       console.log(`receive actions(${network.name}): ${r.actions.length}`)
     } catch (e) {
+      // TODO Почему то не срабатывает перезапуск при ошибке сети или днс
       console.log(`getActionsByNode(${network.name}) err: `, e.message)
-      await new Promise((resolve, reject) => setTimeout(resolve, 2000))
+      await new Promise((resolve, reject) => setTimeout(resolve, 500))
+      console.log(`getActionsByNode(${network.name}) retry..`)
       continue
     }
 

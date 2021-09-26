@@ -6,7 +6,7 @@
       span.value  {{ (meta.fee / 100).toFixed(4) }}%
       span.title.muted.ml-2 Taker Fee
       span.value  {{ (meta.fee / 100).toFixed(4) }}%
-    small % Fee Rate
+    small.muted % Fee Rate
 
   //el-dropdown(placement="top").fee-rate
     AlcorButton(flat) Fee Rate

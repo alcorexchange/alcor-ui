@@ -41,10 +41,9 @@ export const actions = {
     if (rootState.network.name == 'wax') {
       if (!state.wallet.wax) {
         // Check for wax auto login
-        const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
+        const wax = new waxjs.WaxJS({ rpcEndpoint: 'https://wax.greymass.com', tryAutoLogin: false })
         wax.rpc = this.$rpc
         commit('setWallet', { ...state.wallet, wax })
-
         const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
         if (isAutoLoginAvailable) {
           commit('setCurrentWallet', 'wax')
@@ -100,10 +99,6 @@ export const actions = {
       case 'transit':
         await getters.wallet.logout()
         commit('setUser', null, { root: true })
-        break
-      case 'wax':
-        commit('setUser', null, { root: true })
-        state.wallet.wax.api.logout()
         break
       default:
         commit('setUser', null, { root: true })
@@ -165,7 +160,8 @@ export const actions = {
         commit('setCurrentWallet', 'transit')
       }
 
-      dispatch('fetchUserDeals', {}, { root: true })
+      // May be remove from login
+      //dispatch('fetchUserDeals', {}, { root: true })
 
       dispatch('loadUserBalances', {}, { root: true })
       dispatch('market/loadUserOrders', {}, { root: true })

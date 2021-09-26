@@ -122,7 +122,7 @@ export default {
               callback()
             } else {
               this.ibcForm.valid = false
-              callback(new Error('Account not exists!'))
+              callback(new Error('Account doesn\'t exist!'))
             }
           }
         }

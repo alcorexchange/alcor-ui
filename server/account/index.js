@@ -7,7 +7,10 @@ account.get('/:account/deals', async (req, res) => {
   const network = req.app.get('network')
   const { account } = req.params
 
-  const history = await Match.aggregate([
+  const limit = req.query.limit
+  const skip = req.query.skip
+
+  const q = [
     { $match: { chain: network.name, $or: [{ asker: account }, { bidder: account }] } },
     {
       $project: {
@@ -21,7 +24,12 @@ account.get('/:account/deals', async (req, res) => {
       }
     },
     { $sort: { time: -1 } }
-  ])
+  ]
+
+  if (skip) q.push({ $skip: parseInt(skip) })
+  if (limit) q.push({ $limit: parseInt(limit) })
+
+  const history = await Match.aggregate(q)
 
   res.json(history)
 })

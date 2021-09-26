@@ -183,11 +183,10 @@ export default {
           //'left_toolbar',
 
           //'legend_widget',
-          'edit_buttons_in_legend',
           'cropped_tick_marks',
           //'context_menus',
 
-          'edit_buttons_in_legend',
+          //'edit_buttons_in_legend',
           'main_series_scale_menu',
           'trading_notifications',
           'show_trading_notifications_history',
@@ -199,7 +198,7 @@ export default {
           'shift_visible_range_on_new_bar',
           'go_to_date',
           'timezone_menu',
-          'property_pages',
+          //'property_pages',
           'timeframes_toolbar',
           'countdown'
 

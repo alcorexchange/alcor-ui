@@ -50,7 +50,6 @@ label {
   margin: 0px;
 }
 
-.el-table__row,
 .pointer {
   cursor: pointer;
 }
@@ -248,6 +247,13 @@ a {
 .muted {
   opacity: 0.6;
 }
+.fwr {
+  font-weight: 500;
+}
+.fontSmall {
+  font-size: 0.72rem;
+  line-height: 1rem;
+}
 .cancel {
   color: var(--cancel);
 }
@@ -309,6 +315,9 @@ a {
 }
 
 .market-table {
+  .el-table__row {
+    cursor: pointer;
+  }
   border-radius: 8px;
   overflow: hidden;
   th,
@@ -322,9 +331,61 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
-  // .cell {
-  //   padding: 0 !important;
+  th,
+  tr {
+    background: var(--table-background) !important;
+  }
+
+  td.el-table__expanded-cell {
+    padding: 10px !important;
+    background: var(--background-color-third) !important;
+    th,
+    tr {
+      background: var(--background-color-third) !important;
+    }
+    &:hover {
+      background: var(--background-color-third) !important;
+    }
+  }
+}
+
+.alcor-table {
+  border-radius: 8px;
+  overflow: hidden;
+  th,
+  td {
+    border: 0;
+  }
+  th {
+    padding: 8px 0 !important;
+    padding-left: 4px !important;
+    font-weight: normal !important;
+    font-size: 1rem;
+    color: var(--text-default);
+  }
+  // th,
+  // tr {
+  //   background: var(--table-background) !important;
   // }
+
+  td.el-table__expanded-cell {
+    padding: 10px !important;
+    background: var(--background-color-third) !important;
+    th,
+    tr {
+      background: var(--background-color-third) !important;
+    }
+    &:hover {
+      background: var(--background-color-third) !important;
+    }
+  }
+}
+
+.hover-opacity {
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 // swap setting style
@@ -334,6 +395,19 @@ a {
   }
   .el-input__inner {
     border-radius: 20px !important;
+  }
+}
+
+.resource-page-card {
+  .header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--background-color-base);
+    i {
+      margin-right: 4px;
+    }
+  }
+  .main {
+    padding: 10px 14px;
   }
 }
 
