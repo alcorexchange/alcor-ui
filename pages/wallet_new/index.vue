@@ -1,7 +1,8 @@
 <template lang="pug">
   div.wallet
     .table-header
-      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
+      el-input(v-model='search' prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small"
+      clearable)
       el-checkbox() Hide small balances
     .el-card.is-always-shadow
       el-table.alcor-table.noHover(
