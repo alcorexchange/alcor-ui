@@ -51,7 +51,7 @@
             el-button(type="text").hover-opacity Deposit
             el-button(type="text").hover-opacity Withdraw
             el-button(type="text").hover-opacity Pools
-            el-button(type="text").hover-opacity Trade
+            el-button.hover-opacity(type="text" @click="trade") Trade
 </template>
 
 <script>
@@ -82,6 +82,12 @@ export default {
         .sort((a, b) =>
           a.contract == this.network.baseToken.contract ? -1 : 1
         )
+    }
+  },
+
+  methods: {
+    trade() {
+      alert('trade this token')
     }
   }
 }
