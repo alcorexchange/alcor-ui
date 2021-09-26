@@ -21,7 +21,7 @@
     .search-container
       el-input(
         v-model='search',
-        placeholder='Search token',
+        placeholder='Search market',
         size='small',
         prefix-icon='el-icon-search'
         clearable
