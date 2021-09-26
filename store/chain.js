@@ -164,7 +164,7 @@ export const actions = {
       //dispatch('fetchUserDeals', {}, { root: true })
 
       dispatch('loadUserBalances', {}, { root: true })
-      dispatch('market/loadUserOrders', {}, { root: true })
+      dispatch('loadUserOrders', {}, { root: true })
 
       this.$socket.emit('subscribe', {
         room: 'account',

@@ -1,16 +1,14 @@
 import axios from 'axios'
 
-import config from '~/config'
-
-import { make256key } from '~/utils'
+import { make256key, nameToUint64 } from '~/utils'
 
 export const strict = false
-
-const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
 
 export const state = () => ({
   user: null,
   userDeals: [],
+  userOrders: {},
+  userOrdersLoading: true,
   account: null,
   liquidityPositions: [],
 
@@ -36,19 +34,19 @@ export const mutations = {
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
-  setAccount: (state, account) => state.account = account
+  setAccount: (state, account) => state.account = account,
+
+  setUserOrders: (state, { market_id, orders }) => state.userOrders[market_id] = orders,
+  setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
 
 export const actions = {
   init({ dispatch, state, getters }) {
     dispatch('fetchTokens')
 
-    //setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
-
     if (state.network.name == 'local') return
 
-    dispatch('loadMarkets')
-    // dispatch('loadIbc') TODO Remove BOS IBC LOGIC
+    dispatch('loadMarkets').then(dispatch('loadUserOrders'))
 
     setInterval(() => dispatch('update'), 15000)
 
@@ -88,7 +86,6 @@ export const actions = {
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
-    dispatch('market/loadUserOrders')
     dispatch('loadAccountData')
   },
 
@@ -130,6 +127,45 @@ export const actions = {
     this.$axios.get(`/account/${state.user.name}/liquidity_positions`).then(r => {
       commit('setLiquidityPositions', r.data)
     })
+  },
+
+  async loadUserOrders({ state, commit, dispatch }) {
+    if (!state.user || !state.user.name) return
+    const markets = state.markets.map(m => m.id)
+
+    for (const market_id of markets) {
+      await dispatch('loadOrders', market_id)
+      await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
+    }
+
+    commit('setUserOrdersLoading', false)
+  },
+
+  async loadOrders({ state, commit, dispatch }, market_id) {
+    if (!state.user || !state.user.name) return
+    console.log('loadOrders for ', market_id)
+
+    const { name } = state.user
+
+    await Promise.all([
+      dispatch('api/getBuyOrders', {
+        market_id,
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(name),
+        upper_bound: nameToUint64(name)
+      }, { root: true }),
+
+      dispatch('api/getSellOrders', {
+        market_id,
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(name),
+        upper_bound: nameToUint64(name)
+      }, { root: true })
+    ]).then(([buyOrders, sellOrders]) => {
+      commit('setUserOrders', { market_id, orders: buyOrders.concat(sellOrders) })
+    }).catch(e => console.log(e))
   },
 
   loadUserBalances({ rootState, state, commit }) {
