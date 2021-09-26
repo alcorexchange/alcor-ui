@@ -50,7 +50,7 @@
             el-button(type="text").hover-opacity Deposit
             el-button(type="text").hover-opacity Withdraw
             el-button(type="text").hover-opacity Pools
-            el-button.hover-opacity(type="text" @click="trade") Trade
+            el-button.hover-opacity(type="text" @click="trade(row)") Trade
 </template>
 
 <script>
@@ -85,8 +85,11 @@ export default {
   },
 
   methods: {
-    trade() {
-      alert('trade this token')
+    trade(token) {
+      this.$router.push({
+        name: 'markets',
+        query: { tab: 'all', search: `${token.currency}-${token.contract}` }
+      })
     }
   }
 }
