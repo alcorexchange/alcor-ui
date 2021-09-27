@@ -10,12 +10,12 @@ export default {
   name: 'WalletTabBar',
   data: () => ({
     urls: [
-      { name: 'Tokens', to: '/wallet_new', exact: true },
-      { name: 'Positions', to: '/wallet_new/positions' },
-      { name: 'Transactions', to: '/wallet_new/transactions' },
-      { name: 'NFT’s', to: '/wallet_new/nfts', isNFT: true },
-      { name: 'Liquidity Pools', to: '/wallet_new/liquidity_pools' },
-      { name: 'Resources', to: '/wallet_new/resources' }
+      { name: 'Tokens', to: '/wallet', exact: true },
+      { name: 'Positions', to: '/wallet/positions' },
+      { name: 'Transactions', to: '/wallet/transactions' },
+      { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
+      { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
+      { name: 'Resources', to: '/wallet/resources' }
     ]
   })
 }

@@ -209,6 +209,10 @@ a {
 
 // Dark
 .theme-dark {
+  .el-table::before {
+    height: 0px;
+  }
+
   .el-menu-item {
     &.is-active {
       color: var(--text-default);
@@ -370,13 +374,14 @@ a {
 
   td.el-table__expanded-cell {
     padding: 10px !important;
-    background: var(--background-color-third) !important;
+    background: var(--hover) !important;
+
     th,
     tr {
-      background: var(--background-color-third) !important;
+      background: var(--hover) !important;
     }
     &:hover {
-      background: var(--background-color-third) !important;
+      background: var(--hover) !important;
     }
   }
 }

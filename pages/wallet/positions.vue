@@ -1,12 +1,12 @@
 <template lang="pug">
   div.wallet
     .table-header
-      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
+      el-input(v-model="search" prefix-icon="el-icon-search" placeholder="Search market.." size="small" clearable)
       el-checkbox() Only buy orders
       el-checkbox() Only sell orders
     .table.el-card.is-always-shadow
       el-table.alcor-table(
-        :data='mock',
+        :data='filledPositions',
         style='width: 100%',
       )
         el-table-column(type="expand")
@@ -20,45 +20,43 @@
                   label="Order",
                 )
                   template(#default="{row}")
-                    span.order-type(:class="row.type === 'Buy' ? 'green': 'red'") {{row.type}}
+                    span.order-type(:class="row.type === 'buy' ? 'green': 'red'") {{row.type}}
                 el-table-column(
                   label="Date",
                 )
-                  template(#default="{row}") {{row.date}}
+                  template(#default="{row}") {{ row.timestamp | moment('DD-MM HH:mm') }}
                 el-table-column(
                   label="Price",
                 )
-                  template(#default="{row}") {{row.price}}
+                  template(#default="{row}") {{ row.unit_price | humanPrice }}
                 el-table-column(
-                  label="Amount",
+                  label="Bid",
                 )
-                  template(#default="{row}") {{row.amount}}
-                el-table-column(
-                  label="Filled",
-                )
+                  template(#default="{row}") {{ row.bid.quantity }}
+                //el-table-column(label="Filled")
                   template(#default="{row}") {{row.filled}}%
                 el-table-column(
-                  label="Wax value",
+                  label="Ask",
                 )
                   template(#default="{row}")
-                    .wax-value {{ row.WValue }}
+                    .wax-value {{ row.ask.quantity }}
                 el-table-column(
                   label="Action",
                 )
                   template(#default="{row}")
                     .actions
-                      el-button(type="text").red.hover-opacity Cancel Order
+                      el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
         el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
           template(slot-scope='{row}')
             .asset-container
               TokenImage(
-                :src='$tokenLogo(row.currency, row.contract)',
+                :src='$tokenLogo(row.quote_token.symbol.name, row.quote_token.contract)',
                 :height="isMobile? '20' : '30'"
               )
 
               div.asset
-                span.asset-name {{ row.pair }}
-                span.asset-contract.cancel contract.name
+                span.asset-name {{ row.symbol }}
+                span.asset-contract.cancel {{ row.quote_token.contract }}
 
         el-table-column(
           label='Current Orders',
@@ -69,24 +67,21 @@
               span.cancel &nbsp;|&nbsp;
               span.red {{row.orderCount.sell}} sell
         el-table-column(
-          label='Total Amount',
-          sort-by='total',
-          sortable,
+          label='Total Quote',
         )
-          template(slot-scope='{row}') {{ row.total }}
+          template(slot-scope='{row}') {{ row.totalBase }} {{ row.base_token.symbol.name }}
         el-table-column(
-          label='WAX Value',
+          label='Total Base',
         )
-          //- TODO: dynamic
-          template(slot-scope='{row}') {{ row.WValue }}
+          template(slot-scope='{row}') {{ row.totalQuote }} {{ row.quote_token.symbol.name }}
         el-table-column(
           label='Actions',
           width="260"
         )
           template(slot-scope='{row}')
             .actions
-              el-button(type="text").green.hover-opacity Trade
-              el-button(type="text").red.hover-opacity Cancel All Orders
+              el-button(type="text" @click="trade(row)").green.hover-opacity Trade
+              el-button(type="text" @click="cancelAll(row)").red.hover-opacity Cancel All Orders
   </div>
 </template>
 
@@ -99,41 +94,18 @@ export default {
     TokenImage
   },
   data: () => ({
-    search: '',
-    mock: [
-      {
-        pair: 'TLM/WAX',
-        id: 'alien.worlds',
-        orderCount: {
-          buy: 3,
-          sell: 3
-        },
-        total: 3000,
-        WValue: 1000,
-        orders: [
-          {
-            type: 'Buy',
-            date: '03/08/2021 12:26:28',
-            price: '0.20342',
-            amount: 2000,
-            filled: 10.8,
-            WValue: 1040,
-          },
-          {
-            type: 'Buy',
-            date: '03/08/2021 12:26:28',
-            price: '0.20342',
-            amount: 2000,
-            filled: 10.8,
-            WValue: 1040,
-          },
-        ]
-      }
-    ]
+    search: ''
   }),
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters({
+      user: 'user',
+      pairPositions: 'wallet/pairPositions'
+    }),
     ...mapState(['network', 'markets']),
+
+    filledPositions() {
+      return this.pairPositions.filter(p => p.slug.includes(this.search.toLowerCase()))
+    },
 
     balances() {
       if (!this.user) return []
@@ -148,6 +120,51 @@ export default {
         .sort((a, b) =>
           a.contract == this.network.baseToken.contract ? -1 : 1
         )
+    }
+  },
+
+  methods: {
+    trade(position) {
+      this.$router.push({
+        name: 'trade-index-id',
+        params: {
+          id: position.slug
+        }
+      })
+    },
+
+    async cancelOrder(order) {
+      try {
+        await this.$store.dispatch('chain/cancelorder', {
+          account: this.user.name,
+          market_id: order.market_id,
+          type: order.type == 'buy' ? 'bid' : 'ask',
+          order_id: order.id
+        })
+      } catch (e) {
+        this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
+      }
+
+      this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
+      this.$store.dispatch('loadOrders', order.market_id)
+    },
+
+    async cancelAll(position) {
+      const actions = []
+
+      position.orders.map(order => {
+        const { account, market_id, id } = order
+
+        actions.push({
+          account: this.$store.state.network.contract,
+          name: order.type === 'buy' ? 'cancelbuy' : 'cancelsell',
+          authorization: [this.$store.state.user.authorization],
+          data: { executor: account, market_id, order_id: id }
+        })
+      })
+
+      await this.$store.dispatch('chain/sendTransaction', actions)
+      this.$store.dispatch('loadOrders', position.id)
     }
   }
 }

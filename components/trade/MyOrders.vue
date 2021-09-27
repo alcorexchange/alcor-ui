@@ -70,8 +70,8 @@ export default {
 
         this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
         setTimeout(() => {
+          this.$store.dispatch('loadOrders', this.id)
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/loadUserOrders')
           this.$store.dispatch('market/fetchOrders')
         }, 3000)
       } catch (e) {

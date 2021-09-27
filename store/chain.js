@@ -103,6 +103,8 @@ export const actions = {
       default:
         commit('setUser', null, { root: true })
     }
+
+    commit('setUserOrders', [], { root: true })
   },
 
   async login({ state, commit, dispatch, getters, rootState }, provider) {
@@ -213,7 +215,7 @@ export const actions = {
       ]
     )
 
-    dispatch('market/loadUserOrders', {}, { root: true })
+    dispatch('loadOrders', market_id, { root: true })
 
     return r
   },

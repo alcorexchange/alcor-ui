@@ -86,7 +86,7 @@ export const actions = {
     commit('setMarket', market)
 
     if (process.client) {
-      dispatch('loadUserOrders')
+      dispatch('loadOrders', market.id)
     }
   },
 

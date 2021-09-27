@@ -8,12 +8,15 @@
     .info.cancel = $229.11
   .item
     .title.cancel Active positions
+      el-tooltip(class="item" effect="dark" content="Scanning for active positions.."
+      placement="right-start" v-if="$store.state.userOrdersLoading")
+        i.el-icon-loading.ml-1.pointer
     .value
       span.main
-        span.buy.green 7 Buy
+        span.buy.green {{ buyPositionsCount }} Buy
         span.cancel.line |
-        span.sell.red 8 Sell
-    .info.cancel 5 Pairs
+        span.sell.red {{ sellPositionsCount }} Sell
+    .info.cancel {{ pairsCount }} Pairs
   .item
     .title.cancel Available funds
     .value
@@ -35,8 +38,18 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
-  name: 'WalletHeader'
+  name: 'WalletHeader',
+
+  computed: {
+    ...mapGetters({
+      buyPositionsCount: 'wallet/buyPositionsCount',
+      sellPositionsCount: 'wallet/sellPositionsCount',
+      pairsCount: 'wallet/pairsCount'
+    })
+  }
 }
 </script>
 

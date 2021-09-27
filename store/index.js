@@ -7,12 +7,13 @@ export const strict = false
 export const state = () => ({
   user: null,
   userDeals: [],
-  userOrders: {},
+  userOrders: [],
   userOrdersLoading: true,
   account: null,
   liquidityPositions: [],
 
   markets: [],
+  markets_obj: {},
   network: {},
 
   baseUrl: '',
@@ -27,7 +28,10 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
-  setMarkets: (state, markets) => state.markets = markets,
+  setMarkets: (state, markets) => {
+    state.markets = markets
+    state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
+  },
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
@@ -36,7 +40,7 @@ export const mutations = {
   setTokens: (state, tokens) => state.tokens = tokens,
   setAccount: (state, account) => state.account = account,
 
-  setUserOrders: (state, { market_id, orders }) => state.userOrders[market_id] = orders,
+  setUserOrders: (state, orders) => state.userOrders = orders,
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
 
@@ -56,6 +60,8 @@ export const actions = {
 
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
+      dispatch('loadOrders', match.market_id)
+
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
       if (match.bid) {
@@ -135,7 +141,7 @@ export const actions = {
 
     for (const market_id of markets) {
       await dispatch('loadOrders', market_id)
-      await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
+      //await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
     }
 
     commit('setUserOrdersLoading', false)
@@ -164,7 +170,17 @@ export const actions = {
         upper_bound: nameToUint64(name)
       }, { root: true })
     ]).then(([buyOrders, sellOrders]) => {
-      commit('setUserOrders', { market_id, orders: buyOrders.concat(sellOrders) })
+      buyOrders.map(o => {
+        o.type = 'buy'
+        o.market_id = market_id
+      })
+      sellOrders.map(o => {
+        o.type = 'sell'
+        o.market_id = market_id
+      })
+
+      // TODO Need optimization so much!
+      commit('setUserOrders', state.userOrders.filter(o => o.market_id != market_id).concat(buyOrders.concat(sellOrders)))
     }).catch(e => console.log(e))
   },
 
