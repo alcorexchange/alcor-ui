@@ -60,19 +60,22 @@
         )
           template(slot-scope='{row}')
             .actions
-              el-button(type="text").hover-opacity Deposit
+              el-button(type="text" @click="openDeposit").hover-opacity Deposit
               el-button(type="text").hover-opacity Withdraw
               el-button(type="text").hover-opacity Pools
               el-button.hover-opacity(type="text" @click="trade(row)") Trade
+    DepositPopup(ref="depositPopup")
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
+import DepositPopup from '@/components/wallet/DepositPopup'
 export default {
   name: 'Wallet',
   components: {
-    TokenImage
+    TokenImage,
+    DepositPopup
   },
   data: () => ({
     search: ''
@@ -103,6 +106,9 @@ export default {
         name: 'markets',
         query: { tab: 'all', search: `${token.currency}-${token.contract}` }
       })
+    },
+    openDeposit() {
+      this.$refs.depositPopup.openPopup({})
     }
   }
 }
