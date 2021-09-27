@@ -1,18 +1,18 @@
 <template lang="pug">
-  el-dialog(:visible.sync="visible"  width="400px")
-    template(#title)
-        .title-container
-            i.el-icon-wallet
-            .text Withdraw Token
-    .main
-      .label Transfer to
-      el-input(placeholder="Address")
-      .label Amount
-      .balance Balance: 270.588 WAX
-      el-input(placeholder="0")
-      .label Memo
-      el-input(placeholder="Message" )
-      AlcorButton.done() Transfer
+el-dialog(:visible.sync='visible', width='400px')
+  template(#title)
+    .title-container
+      i.el-icon-wallet
+      .text Withdraw Token
+  .main
+    .label Transfer to
+    el-input(placeholder='Address')
+    .label Amount
+    .balance(@click='fullAmount') Balance: 270.588 WAX
+    el-input(placeholder='0')
+    .label Memo
+    el-input(placeholder='Message')
+    AlcorButton.done Transfer
 </template>
 
 <script>
@@ -20,10 +20,10 @@ import AlcorButton from '@/components/AlcorButton.vue'
 export default {
   name: 'DepositPopup',
   components: {
-    AlcorButton
+    AlcorButton,
   },
   data: () => ({
-    visible: false
+    visible: false,
   }),
   methods: {
     openPopup() {
@@ -31,8 +31,11 @@ export default {
     },
     closePopup() {
       this.visible = false
-    }
-  }
+    },
+    fullAmount() {
+      // this.form.amount = (parseFloat(this.tokenBalance.split(' ')[0]) || 0).toFixed(this.token.precision)
+    },
+  },
 }
 </script>
 
@@ -63,6 +66,12 @@ export default {
 }
 .balance {
   color: var(--text-default);
+  padding: 6px;
+  padding-left: 0;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
 }
 .el-input::v-deep {
   margin-bottom: 26px;
