@@ -61,7 +61,7 @@
           template(slot-scope='{row}')
             .actions
               el-button(type="text" @click="openDeposit").hover-opacity Deposit
-              el-button(type="text" @click="openWithdraw").hover-opacity Withdraw
+              el-button(type="text" @click="openWithdraw(row)").hover-opacity Withdraw
               el-button(type="text").hover-opacity Pools
               el-button.hover-opacity(type="text" @click="trade(row)") Trade
     DepositPopup(ref="depositPopup")
@@ -113,8 +113,15 @@ export default {
     openDeposit() {
       this.$refs.depositPopup.openPopup({})
     },
-    openWithdraw() {
-      this.$refs.withdrawPopup.openPopup({})
+    openWithdraw(row) {
+      console.log(row)
+      this.$refs.withdrawPopup.openPopup({
+        token: {
+          contract: row.contract,
+          symbol: row.currency,
+          precision: Number(row.decimals)
+        }
+      })
     }
   }
 }
