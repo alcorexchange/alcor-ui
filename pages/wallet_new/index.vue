@@ -61,21 +61,24 @@
           template(slot-scope='{row}')
             .actions
               el-button(type="text" @click="openDeposit").hover-opacity Deposit
-              el-button(type="text").hover-opacity Withdraw
+              el-button(type="text" @click="openWithdraw").hover-opacity Withdraw
               el-button(type="text").hover-opacity Pools
               el-button.hover-opacity(type="text" @click="trade(row)") Trade
     DepositPopup(ref="depositPopup")
+    WithdrawPopup(ref="withdrawPopup")
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 import DepositPopup from '@/components/wallet/DepositPopup'
+import WithdrawPopup from '@/components/wallet/WithdrawPopup'
 export default {
   name: 'Wallet',
   components: {
     TokenImage,
-    DepositPopup
+    DepositPopup,
+    WithdrawPopup
   },
   data: () => ({
     search: ''
@@ -109,6 +112,9 @@ export default {
     },
     openDeposit() {
       this.$refs.depositPopup.openPopup({})
+    },
+    openWithdraw() {
+      this.$refs.withdrawPopup.openPopup({})
     }
   }
 }
