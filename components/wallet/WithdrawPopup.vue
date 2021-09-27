@@ -41,7 +41,7 @@ import config from '~/config'
 // import TokenImage from '~/components/elements/TokenImage'
 
 export default {
-  name: 'DepositPopup',
+  name: 'WithdrawPopup',
   components: {
     AlcorButton
   },
