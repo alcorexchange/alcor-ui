@@ -151,6 +151,7 @@ export default {
   display: flex;
   .el-button--text {
     color: var(--main-green) !important;
+    font-weight: 400;
   }
 }
 </style>
