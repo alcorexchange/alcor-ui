@@ -11,9 +11,8 @@
     .value
       span.main
         span.buy.green 7 Buy
-        span.cancel |
+        span.cancel.line |
         span.sell.red 8 Sell
-      span.symbol.cancel WAX
     .info.cancel 5 Pairs
   .item
     .title.cancel Available funds
@@ -33,7 +32,6 @@
       span.main.green +17.382
       span.symbol.cancel WAX
     .info.cancel 2 Liquidity Pools
-
 </template>
 
 <script>
@@ -46,6 +44,10 @@ export default {
 .main {
   font-size: 1.1rem;
   font-weight: 500;
+  padding-right: 4px;
+}
+.symbol {
+  font-size: 0.86rem;
 }
 .title,
 .value,
@@ -56,6 +58,10 @@ export default {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+.line {
+  margin: 0 4px;
+  width: 2px;
 }
 @media only screen and (max-width: 840px) {
   .wallet-header {

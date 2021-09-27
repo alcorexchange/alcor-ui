@@ -20,7 +20,7 @@
                   label="Order",
                 )
                   template(#default="{row}")
-                    span.order-type {{row.type}}
+                    span.order-type(:class="row.type === 'Buy' ? 'green': 'red'") {{row.type}}
                 el-table-column(
                   label="Date",
                 )
@@ -187,6 +187,14 @@ td.el-table__expanded-cell{
 }
 .el-table__expanded-cell{
   padding: 10px !important;
+}
+.order-type{
+  &.green{
+    color: var(--main-green);
+  }
+  &.red{
+    color: var(--main-red);
+  }
 }
 .actions{
   display: flex;

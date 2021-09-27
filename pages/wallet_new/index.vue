@@ -26,31 +26,44 @@
           sort-by='amount',
           sortable,
         )
-          template(slot-scope='{row}') {{ row.amount }}
+          template(slot-scope='{row}')
+            div.amount-val
+              .amount {{row.amount}}
+              .val.cancel = $130.43
         el-table-column(
           label='Available',
           sort-by='amount',
           sortable,
         )
-          template(slot-scope='{row}') {{ row.amount }}
+          template(slot-scope='{row}')
+            div.amount-val
+              .amount {{row.amount}}
+              .val.cancel = $130.43
         el-table-column(
           label='In Order',
         )
           //- TODO: dynamic
-          template(slot-scope='{row}') 0
+          template(slot-scope='{row}')
+            div.amount-val
+              .amount {{row.amount}}
+              .val.cancel = $130.43
         el-table-column(
           label='WAX Value',
         )
-          template(slot-scope='{row}') 0
+          template(slot-scope='{row}')
+            div.amount-val
+              .amount {{row.amount}}
+              .val.cancel = $130.43
         el-table-column(
           label='Actions',
           width="260"
         )
-          template(slot-scope='{row}').actions
-            el-button(type="text").hover-opacity Deposit
-            el-button(type="text").hover-opacity Withdraw
-            el-button(type="text").hover-opacity Pools
-            el-button.hover-opacity(type="text" @click="trade(row)") Trade
+          template(slot-scope='{row}')
+            .actions
+              el-button(type="text").hover-opacity Deposit
+              el-button(type="text").hover-opacity Withdraw
+              el-button(type="text").hover-opacity Pools
+              el-button.hover-opacity(type="text" @click="trade(row)") Trade
 </template>
 
 <script>
@@ -124,10 +137,20 @@ export default {
     font-weight: bold;
   }
 }
+.amount-val {
+  .amount {
+    color: var(--text-default);
+    font-size: 0.9rem;
+  }
+  .val {
+    color: var(--cancel);
+    font-size: 0.8rem;
+  }
+}
 .actions {
   display: flex;
-  .el-button {
-    color: var(--main-green);
+  .el-button--text {
+    color: var(--main-green) !important;
   }
 }
 </style>
