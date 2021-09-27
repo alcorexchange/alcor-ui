@@ -7,7 +7,7 @@
     .main
         .qr-code
             img(src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=22trc.wam&choe=UTF-8")
-        .account-name
+        .account-name(@click="copyName")
             div WAX Account Name:
             div.copy-container
                 span.name 22trc.wam
@@ -26,6 +26,14 @@ export default {
     visible: false
   }),
   methods: {
+    copyName() {
+      navigator.clipboard.writeText(this.$store.state.user.name)
+      this.$notify({
+        title: 'Clipboard',
+        message: 'Account name copyed to Clipboard',
+        type: 'info'
+      })
+    },
     openPopup() {
       this.visible = true
     },
@@ -67,6 +75,7 @@ export default {
   align-items: center;
   color: var(--text-default);
   margin: 14px 0;
+  cursor: pointer;
   .copy-container {
     margin-left: 6px;
     display: flex;
