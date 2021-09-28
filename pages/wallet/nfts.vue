@@ -1,7 +1,8 @@
 <template lang="pug">
   div.nfts
-    .table-header
-      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
+    //- TODO: add search functionality
+    //- .table-header
+    //-   el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
       //- TODO: Add filter
     .items
       .item-container(v-for="x in 8")
@@ -78,9 +79,7 @@ export default {
   align-items: center;
   margin-bottom: 10px;
   .el-input{
-    width: auto;
-    min-width: 300px;
-    margin-right: 8px;
+    max-width: 300px;
   }
   .el-input__inner{
     background: transparent !important;
@@ -89,11 +88,23 @@ export default {
 .items{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  // TODO: might not be supperted in some browsers
   gap: 56px;
 }
-.item-container{
-  // width: 33.3333%;
-  // padding: 30px;
+@media only screen and (max-width: 1040px){
+ .items{
+   gap: 20px
+ }
+}
+@media only screen and (max-width: 840px){
+ .items{
+  grid-template-columns: repeat(2, 1fr);
+    gap: 10px
+ }
+}
+@media only screen and (max-width: 540px){
+ .items{
+  grid-template-columns: 100%;
+    gap: 10px
+ }
 }
 </style>
