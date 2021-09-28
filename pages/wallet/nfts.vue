@@ -101,8 +101,8 @@ export default {
     },
 
     async fetchNfts() {
-      console.log('fetchNfts', this.user.name)
       if (!this.user) return
+      console.log('fetchNfts', this.user.name)
 
       const { rows } = await this.$rpc.get_table_rows({
         code: 'simpleassets',
