@@ -37,7 +37,6 @@ import { captureException } from '@sentry/browser'
 import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
 
-
 export default {
   components: {
     TokenImage
@@ -73,7 +72,7 @@ export default {
               callback()
             } catch (e) {
               this.addressValid = false
-              callback(new Error('Account not exists!'))
+              callback(new Error('Account does not exist!'))
             } finally {
               this.loading = false
             }
@@ -91,18 +90,23 @@ export default {
     },
 
     chains() {
-      return ['eos', 'bos', 'telos', 'wax'].filter(c => c != this.network.name)
+      return ['eos', 'bos', 'telos', 'wax'].filter(
+        (c) => c != this.network.name
+      )
     },
 
     tokenBalance() {
-      if (!this.user || !this.user.balances || !this.token.currency) return '0.0000'
+      if (!this.user || !this.user.balances || !this.token.currency)
+        return '0.0000'
 
       const balance = this.user.balances.filter((b) => {
-        return b.currency === this.token.currency && b.contract === this.token.contract
+        return (
+          b.currency === this.token.currency &&
+          b.contract === this.token.contract
+        )
       })[0]
 
-      if (balance)
-        return `${balance.amount} ${balance.currency}`
+      if (balance) return `${balance.amount} ${balance.currency}`
       else
         return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
     }
@@ -118,7 +122,9 @@ export default {
     },
 
     fullAmount() {
-      this.form.amount = (parseFloat(this.tokenBalance.split(' ')[0]) || 0).toFixed(parseFloat(this.token.decimals))
+      this.form.amount = (
+        parseFloat(this.tokenBalance.split(' ')[0]) || 0
+      ).toFixed(parseFloat(this.token.decimals))
     },
 
     setChain(name) {
@@ -128,11 +134,13 @@ export default {
     },
 
     amountChange() {
-      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.decimals)
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(
+        this.token.decimals
+      )
     },
 
     async open() {
-      if (!await this.$store.dispatch('chain/asyncLogin')) return
+      if (!(await this.$store.dispatch('chain/asyncLogin'))) return
       this.visible = true
     },
 
@@ -140,7 +148,8 @@ export default {
       if (this.token.contract == 'bosibc.io') {
         await this.$confirm(
           'Make sure you not send tokens to an Exchange, this is NOT original token, before transfer, you have to withdraw it to original chain',
-          'IBC Token aert', {
+          'IBC Token aert',
+          {
             confirmButtonText: 'Yes, i understand',
             cancelButtonText: 'Cancel',
             type: 'warning'
@@ -163,16 +172,24 @@ export default {
 
         this.visible = false
 
-        this.$alert(`<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`, 'Transaction complete!', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'OK',
-          callback: (action) => {
-            this.$notify({ title: 'Token transfered!', type: 'success' })
+        this.$alert(
+          `<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          'Transaction complete!',
+          {
+            dangerouslyUseHTMLString: true,
+            confirmButtonText: 'OK',
+            callback: (action) => {
+              this.$notify({ title: 'Token transfered!', type: 'success' })
+            }
           }
-        })
+        )
       } catch (e) {
         captureException(e)
-        this.$notify({ title: 'Transfer error', message: e.message, type: 'error' })
+        this.$notify({
+          title: 'Transfer error',
+          message: e.message,
+          type: 'error'
+        })
         console.log(e)
       } finally {
         loading.close()
@@ -184,10 +201,10 @@ export default {
 
 <style>
 .upperinput {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 .upperinput:placeholder-shown {
-    text-transform: none;
+  text-transform: none;
 }
 
 .ibc-withdraw .el-dialog__body {

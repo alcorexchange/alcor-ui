@@ -149,7 +149,7 @@ export default {
               callback()
             } else {
               this.ibcForm.valid = false
-              callback(new Error('Account not exists!'))
+              callback(new Error('Account does not exist!'))
             }
           }
         }
@@ -264,7 +264,13 @@ export default {
     },
 
     calcOutput() {
-      if (!this.pair || !this.output || !this.inputAmount || this.output.precision == undefined) return
+      if (
+        !this.pair ||
+        !this.output ||
+        !this.inputAmount ||
+        this.output.precision == undefined
+      )
+        return
 
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
