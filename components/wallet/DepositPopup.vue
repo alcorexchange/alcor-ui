@@ -5,12 +5,12 @@
             i.el-icon-wallet
             .text Deposit Token
     .main
-        .qr-code
-            img(src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=22trc.wam&choe=UTF-8")
+        //- .qr-code
+        //-     img(src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=22trc.wam&choe=UTF-8")
         .account-name(@click="copyName")
             div WAX Account Name:
             div.copy-container
-                span.name 22trc.wam
+                span.name {{this.$store.state.user.name}}
                 i.el-icon-copy-document
         AlcorButton.done(@click="closePopup") Done
 </template>
