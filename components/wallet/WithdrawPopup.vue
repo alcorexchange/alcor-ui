@@ -1,32 +1,32 @@
 <template lang="pug">
-  el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left
+  el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left.dialog
+    template(#title)
+      .title-container
+        i.el-icon-wallet
+        .text Transfer
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
       span Before transferring to exchange, you have to withdraw it to it's original chain using BOS IBC Transfer button!
 
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mt-1(prop="address")
-        template(slot="label")
-          b Receiver
+        .label Transfer to
         el-input(v-model="form.address" placeholder="address..").w-100
 
       el-form-item(prop="amount")
-        span
-          b Amount
-
-          br
-
-          span Balance
-            el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
+        .label Amount
+        span Balance
+          el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
           span(slot="suffix").mr-1 {{ this.token.currency }}
 
-        b Memo
+      el-form-item
+        .label Memo
         el-input(type="text" v-model="form.memo" clearable placeholder="message").w-100
 
-      el-form-item.mt-1
+      el-form-item.mt-1.mb-0
         span.dialog-footer.mb-4
-          el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100
+          el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100.done
             | Transfer {{ token.currency }} to {{ form.address }}
 </template>
 
@@ -199,7 +199,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
 .upperinput {
   text-transform: uppercase;
 }
@@ -207,7 +207,45 @@ export default {
   text-transform: none;
 }
 
-.ibc-withdraw .el-dialog__body {
-  padding: 0px 20px 5px 20px;
+.dialog::v-deep .el-dialog__body {
+  padding: 20px;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  .text {
+    font-weight: 500;
+    padding-left: 8px;
+  }
+}
+.done {
+  width: 100%;
+  color: var(--main-green);
+  padding: 14px 10px;
+  border-radius: 10px;
+}
+.label {
+  font-size: 1rem;
+  color: var(--text-default);
+  // padding-bottom: 20px;
+}
+.balance {
+  color: var(--text-default);
+  padding: 6px;
+  padding-left: 0;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+.el-input::v-deep {
+  // margin-bottom: 26px;
+  input {
+    background: var(--btn-active);
+  }
+}
+.el-form-item {
+  width: 100%;
 }
 </style>
