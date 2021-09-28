@@ -10,7 +10,7 @@
         .account-name(@click="copyName")
             div WAX Account Name:
             div.copy-container
-                span.name {{this.$store.state.user.name}}
+                span.name {{this.$store.state.user && this.$store.state.user.name}}
                 i.el-icon-copy-document
         AlcorButton.done(@click="closePopup") Done
 </template>
