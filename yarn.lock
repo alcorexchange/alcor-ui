@@ -3130,7 +3130,7 @@
     eslint-import-resolver-node "^0.3.3"
     eslint-import-resolver-webpack "^0.12.1"
 
-"@waxio/waxjs@^1.0.2":
+"@waxio/waxjs@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@waxio/waxjs/-/waxjs-1.0.2.tgz#281f2b114a51149a5c4657a49585791033fa02c7"
   integrity sha512-6np8HFPrEnhfOk//s/n6qbcVrRdPtHD01mtg9jgVjrxONAwvNQ3j73pamtwoTXcIEdqvJf2NfA46IgM1uO6fDw==
@@ -6531,16 +6531,6 @@ eosjs@^20.0.0:
     babel-runtime "6.26.0"
     eosjs-ecc "4.0.7"
     text-encoding "0.7.0"
-
-eosjs@^21.0.3:
-  version "21.0.4"
-  resolved "https://registry.yarnpkg.com/eosjs/-/eosjs-21.0.4.tgz#67794a9fbc3c7659de19a7926c2c13cce4515571"
-  integrity sha512-XbuIoidplA1hHIejy7VQ+hmBfC6T28kYFaQMsn6G1DMTg1CFwUzxwzUvZg/dGNPuf7hgPxOpaQvAUsdidTgGhQ==
-  dependencies:
-    bn.js "5.2.0"
-    elliptic "6.5.4"
-    hash.js "1.1.7"
-    pako "2.0.3"
 
 eosjs@^22.1.0:
   version "22.1.0"
