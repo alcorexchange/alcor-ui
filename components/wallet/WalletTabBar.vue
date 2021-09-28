@@ -17,19 +17,55 @@ export default {
       { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
       { name: 'Resources', to: '/wallet/resources' }
     ]
-  })
+  }),
+  mounted() {
+    this.scrollTo()
+  },
+  methods: {
+    scrollTo() {
+      this.$scrollTo('.wallet-tab-bar .active', {
+        container: '.wallet-tab-bar',
+        offset: -100,
+        x: true
+      })
+    }
+  },
+  watch: {
+    $route() {
+      this.$nextTick(() => {
+        console.log('scrolling to')
+        this.scrollTo()
+      })
+    }
+  }
 }
 </script>
 
 <style scoped lang="scss">
 .wallet-tab-bar {
   display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  overflow: auto;
+  padding: 4px 0;
+  background: var(--background-color-base);
+  &::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+    display: block;
+  }
+  &::-webkit-scrollbar-thumb {
+    // background: rgba(gray, 0.3);
+    border-radius: 5px;
+  }
 }
 .tab-bar-item {
   flex: 1;
   border-radius: 8px;
   padding: 12px;
   margin: 0 8px;
+  white-space: nowrap;
   &:first-child {
     margin-left: 0;
   }
@@ -38,6 +74,14 @@ export default {
   }
   &.active {
     background: var(--hover);
+  }
+}
+@media only screen and (max-width: 940px) {
+  .tab-bar-item {
+    border-radius: 4px;
+    margin: 2px;
+    padding: 6px 12px;
+    font-size: 0.86rem;
   }
 }
 </style>

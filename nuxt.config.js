@@ -96,6 +96,7 @@ module.exports = {
     '@nuxtjs/sentry',
     'vue-github-buttons/nuxt',
     'nuxt-imagemin',
+    'vue-scrollto/nuxt',
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
 

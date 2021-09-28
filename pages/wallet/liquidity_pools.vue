@@ -105,8 +105,7 @@ export default {
   align-items: center;
   margin-bottom: 10px;
   .el-input{
-    width: auto;
-    min-width: 300px;
+    max-width: 300px;
     margin-right: 8px;
   }
   .el-input__inner{

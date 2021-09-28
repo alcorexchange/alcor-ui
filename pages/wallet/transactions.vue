@@ -90,10 +90,11 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-  .el-input{
-    width: auto;
-    min-width: 300px;
+  flex-wrap: wrap;
+  .el-input {
+    max-width: 300px;
     margin-right: 8px;
+    margin-bottom: 8px;
   }
   .el-input__inner{
     background: transparent !important;

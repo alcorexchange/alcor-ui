@@ -129,12 +129,13 @@ export default {
 <style scoped lang="scss">
 .table-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   margin-bottom: 10px;
   .el-input {
-    width: auto;
-    min-width: 300px;
+    max-width: 300px;
     margin-right: 8px;
+    margin-bottom: 8px;
   }
   .el-input__inner {
     background: transparent !important;
