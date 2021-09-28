@@ -33,7 +33,6 @@ export default {
   watch: {
     $route() {
       this.$nextTick(() => {
-        console.log('scrolling to')
         this.scrollTo()
       })
     }
