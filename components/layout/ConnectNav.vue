@@ -165,16 +165,16 @@ export default {
 .balance {
   padding: 4px 8px;
   cursor: pointer;
-  font-size: 0.75rem;
+  // font-size: 0.75rem;
 }
 .user-name {
   padding: 4px 8px;
   background: var(--background-color-base);
   border-radius: var(--radius);
   cursor: pointer;
-  @media only screen and (max-width: 310px) {
-    font-size: 0.75rem;
-  }
+  // @media only screen and (max-width: 310px) {
+  //   font-size: 0.75rem;
+  // }
 }
 .network-selection {
   cursor: pointer;
