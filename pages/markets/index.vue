@@ -27,6 +27,8 @@
         clearable
       )
 
+    el-switch(v-if="base_token == network.baseToken.symbol" v-model='inUSD' active-text='USD').ml-auto
+
     .ml-auto
       nuxt-link(to="new_market")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
@@ -66,7 +68,8 @@
         :sort-orders='["descending", null]'
       )
         template(slot-scope='scope')
-          .text-success {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
+          .text-success(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
+          .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
       el-table-column(
         :label='`24H Vol.`',
         align='right',
@@ -77,7 +80,8 @@
         v-if='!isMobile'
       )
         template(slot-scope='scope')
-          span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
+          span.text-mutted(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
+          span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
         label='24H',
@@ -103,7 +107,8 @@
         :sort-orders='["descending", null]',
       )
         template(slot-scope='scope')
-          span.text-mutted {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
+          span.text-mutted(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
+          span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
         label='7D Change',
@@ -151,6 +156,8 @@ export default {
 
       to_assets: [],
       base_token: 'all',
+
+      inUSD: false,
 
       select: {
         from: '',
