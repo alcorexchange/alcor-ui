@@ -1,7 +1,7 @@
 Project is Hiring Full-Stack Dev NOW! Good payment in cryptocurrency! Contact: [@avral](https://t.me/avral)
 --
 # The first listing free decentralized exchange.
-Documentation: [docs.alcor.excahnge](https://docs.alcor.excahnge)
+Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)
 
 ![Alcor Exchange](https://i.imgur.com/brvzFdi.png)
 
