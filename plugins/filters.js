@@ -39,11 +39,18 @@ Vue.filter('commaFloat', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
   return result
 })
 
-Vue.filter('systemInUSD', function(amount) {
-  // TODO
-  amount = parseFloat(amount)
-  return amount
+Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
+  let result = parseFloat(amount)
+  result *= this.$store.state.wallet.systemPrice
+  return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 5 })
 })
+
+Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
+  let result = parseFloat(amount)
+  result *= this.$store.state.wallet.systemPrice
+  return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 5 })
+}
+
 
 Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
   const user = this.$store.state.user

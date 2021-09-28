@@ -5,7 +5,7 @@
     .value
       span.main {{ systemBalance.split(' ')[0] | commaFloat(4) }}
       span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel = $229.11
+    .info.cancel = ${{ $systemToUSD(systemBalance) }}
   .item
     .title.cancel Active positions
       el-tooltip(class="item" effect="dark" content="Scanning for active positions.."
@@ -22,7 +22,7 @@
     .value
       span.main {{ systemBalance.split(' ')[0] | commaFloat }}
       span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel = $229.11
+    .info.cancel = ${{ $systemToUSD(systemBalance) }}
   .item
     .title.cancel Staking rewards
     .value

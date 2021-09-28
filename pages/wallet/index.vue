@@ -29,7 +29,8 @@
           template(slot-scope='{row}')
             div.amount-val
               .amount {{ row.amount | commaFloat(4, row.decimals) }}
-              .val.cancel = $130.43
+              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
+              .val.cancel(v-else) = $0.00
         el-table-column(
           label='Available',
           sort-by='amount',
@@ -38,22 +39,21 @@
           template(slot-scope='{row}')
             div.amount-val
               .amount {{ row.amount | commaFloat(4, row.decimals) }}
-              .val.cancel = $130.43
-        el-table-column(
-          label='In Order',
-        )
+              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
+              .val.cancel(v-else) = $0.00
+        //el-table-column(label='In Order')
           //- TODO: dynamic
           template(slot-scope='{row}')
             div.amount-val
               .amount {{row.amount}}
-              .val.cancel = $130.43
-        el-table-column(
-          label='WAX Value',
-        )
+              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
+              .val.cancel(v-else) = $0.00
+        //el-table-column(label='WAX Value')
           template(slot-scope='{row}')
             div.amount-val
               .amount {{row.amount}}
-              .val.cancel = $130.43
+              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
+              .val.cancel(v-else) = $0.00
         el-table-column(
           label='Actions',
           width="260"
