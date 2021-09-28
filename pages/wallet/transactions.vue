@@ -1,12 +1,46 @@
 <template lang="pug">
   div.wallet
     .table-header
-      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
+      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small")
       //- TODO: add date selecting
-      el-checkbox() show trades
-      el-checkbox() show deposits
-      el-checkbox() show withdraws
+      //el-checkbox() show trades
+      //el-checkbox() show deposits
+      //el-checkbox() show withdraws
     .table.el-card.is-always-shadow
+      el-table.market-table(:data='deals', style='width: 100%')
+        el-table-column(label='Type' width="70")
+          template(slot-scope='scope').text-success
+            span.text-success(v-if="scope.row.type == 'buymatch'") BID
+            span.text-danger(v-else) SELL
+
+        el-table-column(label='Asset')
+          template(slot-scope='{row}') {{ getSymbol(row.market) }}
+
+        el-table-column(label='Date' v-if="!isMobile")
+          template(slot-scope='scope')
+            span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
+
+        el-table-column(label='Ask' v-if="!isMobile")
+          template(slot-scope='scope')
+            span {{ scope.row.ask | commaFloat }}
+
+        el-table-column(label='Bid')
+          template(slot-scope='scope')
+            span {{ scope.row.bid | commaFloat }}
+
+        el-table-column(label='Price')
+          template(slot-scope='scope')
+            span {{ scope.row.unit_price }}
+
+        el-table-column(label='Manage' align="right")
+          template(slot-scope='scope')
+            el-button(size="mini" type="text")
+              a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
+
+        template(slot="append")
+          infinite-loading(@infinite='infiniteHandler' spinner="spiral")
+
+    //.table.el-card.is-always-shadow
       el-table.market-table(
         :data='deals',
         style='width: 100%',
@@ -38,10 +72,6 @@
           align="right"
         )
           template(slot-scope='{row}') {{row.total}}
-
-        template(slot="append")
-          infinite-loading(@infinite='infiniteHandler' spinner="spiral" force-use-infinite-wrapper=".my-history .el-table__body-wrapper")
-  </div>
 </template>
 
 <script>
@@ -55,14 +85,13 @@ export default {
 
   data() {
     return {
-      orders: [],
       deals: [],
       skip: 0
     }
   },
 
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user', 'markets_obj']),
     ...mapState('market', ['base_token', 'quote_token', 'id'])
 
     //deals() {
@@ -72,7 +101,7 @@ export default {
 
   watch: {
     user(to, from) {
-      if (from == null) {
+      if (from == null || to == null) {
         this.deals = []
         this.skip = 0
 
@@ -94,10 +123,14 @@ export default {
   },
 
   methods: {
+    getSymbol(market) {
+      return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
+    },
+
     async infiniteHandler($state) {
-      console.log('try loading')
+      console.log('start loading...1')
       if (!this.user || !this.user.name) return
-      console.log('start loading')
+      console.log('start loading...2')
 
       const { data: deals } = await this.$axios.get(
         `/account/${this.user.name}/deals`,
