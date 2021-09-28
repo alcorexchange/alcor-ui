@@ -32,14 +32,14 @@
                 el-table-column(
                   label="Bid",
                 )
-                  template(#default="{row}") {{ row.bid.quantity }}
+                  template(#default="{row}") {{ row.bid.quantity | commaFloat }}
                 //el-table-column(label="Filled")
                   template(#default="{row}") {{row.filled}}%
                 el-table-column(
                   label="Ask",
                 )
                   template(#default="{row}")
-                    .wax-value {{ row.ask.quantity }}
+                    .wax-value {{ row.ask.quantity | commaFloat }}
                 el-table-column(
                   label="Action",
                 )
@@ -69,11 +69,11 @@
         el-table-column(
           label='Total Quote',
         )
-          template(slot-scope='{row}') {{ row.totalBase }} {{ row.base_token.symbol.name }}
+          template(slot-scope='{row}') {{ row.totalBase | commaFloat(row.base_token.symbol.precision) }} {{ row.base_token.symbol.name }}
         el-table-column(
           label='Total Base',
         )
-          template(slot-scope='{row}') {{ row.totalQuote }} {{ row.quote_token.symbol.name }}
+          template(slot-scope='{row}') {{ row.totalQuote | commaFloat(row.quote_token.symbol.precision) }} {{ row.quote_token.symbol.name }}
         el-table-column(
           label='Actions',
           width="260"

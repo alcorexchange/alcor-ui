@@ -3,8 +3,8 @@
   .item
     .title.cancel Portfolio value
     .value
-      span.main 1500.243
-      span.symbol.cancel WAX
+      span.main {{ systemBalance.split(' ')[0] | commaFloat(4) }}
+      span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
     .info.cancel = $229.11
   .item
     .title.cancel Active positions
@@ -20,8 +20,8 @@
   .item
     .title.cancel Available funds
     .value
-      span.main 1500.243
-      span.symbol.cancel WAX
+      span.main {{ systemBalance.split(' ')[0] | commaFloat }}
+      span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
     .info.cancel = $229.11
   .item
     .title.cancel Staking rewards
@@ -47,7 +47,9 @@ export default {
     ...mapGetters({
       buyPositionsCount: 'wallet/buyPositionsCount',
       sellPositionsCount: 'wallet/sellPositionsCount',
-      pairsCount: 'wallet/pairsCount'
+      pairsCount: 'wallet/pairsCount',
+      systemBalance: 'systemBalance',
+      network: 'network'
     })
   }
 }

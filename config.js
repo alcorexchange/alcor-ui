@@ -114,6 +114,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap'
     },
+
+    USD_TOKEN: 'USDT@tethertether'
   },
 
   proton: {
@@ -160,7 +162,9 @@ const networks = {
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
+
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
   wax: {
@@ -209,7 +213,9 @@ const networks = {
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
+
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
   telos: {

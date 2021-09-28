@@ -28,7 +28,7 @@
         )
           template(slot-scope='{row}')
             div.amount-val
-              .amount {{row.amount}}
+              .amount {{ row.amount | commaFloat(4, row.decimals) }}
               .val.cancel = $130.43
         el-table-column(
           label='Available',
@@ -37,7 +37,7 @@
         )
           template(slot-scope='{row}')
             div.amount-val
-              .amount {{row.amount}}
+              .amount {{ row.amount | commaFloat(4, row.decimals) }}
               .val.cancel = $130.43
         el-table-column(
           label='In Order',
@@ -62,7 +62,7 @@
             .actions
               el-button(type="text" @click="openDeposit").hover-opacity Deposit
               el-button(type="text" @click="openWithdraw(row)").hover-opacity Transfer
-              el-button(type="text").hover-opacity Pools
+              el-button(type="text" @click="pools(row)").hover-opacity Pools
               el-button.hover-opacity(type="text" @click="trade(row)") Trade
     DepositPopup(ref="depositPopup")
     WithdrawPopup(ref="withdrawPopup")
@@ -104,6 +104,19 @@ export default {
   },
 
   methods: {
+    pools(token) {
+      this.$router.push({
+        name: 'swap',
+        //query: { input: token.id.replace('@', '-') }
+      })
+
+      this.$store.commit('swap/setInput', {
+        contract: token.contract,
+        symbol: token.currency,
+        precision: parseFloat(token.decimals)
+      })
+    },
+
     trade(token) {
       this.$router.push({
         name: 'markets',

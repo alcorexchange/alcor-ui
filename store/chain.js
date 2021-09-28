@@ -163,8 +163,6 @@ export const actions = {
       }
 
       // May be remove from login
-      //dispatch('fetchUserDeals', {}, { root: true })
-
       dispatch('loadUserBalances', {}, { root: true })
       dispatch('loadUserOrders', {}, { root: true })
 

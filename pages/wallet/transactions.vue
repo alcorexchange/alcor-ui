@@ -8,7 +8,7 @@
       el-checkbox() show withdraws
     .table.el-card.is-always-shadow
       el-table.market-table(
-        :data='mock',
+        :data='deals',
         style='width: 100%',
       )
         el-table-column(label='Date')
@@ -38,48 +38,87 @@
           align="right"
         )
           template(slot-scope='{row}') {{row.total}}
+
+        template(slot="append")
+          infinite-loading(@infinite='infiniteHandler' spinner="spiral" force-use-infinite-wrapper=".my-history .el-table__body-wrapper")
   </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import TokenImage from '@/components/elements/TokenImage'
+import { mapState } from 'vuex'
+import InfiniteLoading from 'vue-infinite-loading'
+
 export default {
-  name: 'WalletTransactions',
   components: {
-    TokenImage
+    InfiniteLoading
   },
-  data: () => ({
-    search: '',
-    mock: [
-      {
-        date: '03/08/2021 12:26:28',
-        asset: 'TLM/WAX',
-        total: 3000,
-        type: 'Buy',
-        price: '0.20342',
-        fill: 10.8,
-        fee: 0.1,
-      }
-    ]
-  }),
+
+  data() {
+    return {
+      orders: [],
+      deals: [],
+      skip: 0
+    }
+  },
+
   computed: {
-    ...mapGetters(['user']),
-    ...mapState(['network', 'markets']),
+    ...mapState(['user']),
+    ...mapState('market', ['base_token', 'quote_token', 'id'])
 
-    balances() {
-      if (!this.user) return []
-      if (!this.user.balances) return []
+    //deals() {
+    //  return this.userDeals.filter(d => d.market == this.id)
+    //}
+  },
 
-      return this.user.balances
-        .filter((b) => {
-          if (parseFloat(b.amount) == 0) return false
+  watch: {
+    user(to, from) {
+      if (from == null) {
+        this.deals = []
+        this.skip = 0
 
-          return b.id.toLowerCase().includes(this.search.toLowerCase())
+        // Initial fill
+        this.infiniteHandler({
+          loaded: () => {},
+          complete: () => {}
         })
-        .sort((a, b) =>
-          a.contract == this.network.baseToken.contract ? -1 : 1
-        )
+      }
+    }
+  },
+
+  mounted() {
+    // Initial fill
+    this.infiniteHandler({
+      loaded: () => {},
+      complete: () => {}
+    })
+  },
+
+  methods: {
+    async infiniteHandler($state) {
+      console.log('try loading')
+      if (!this.user || !this.user.name) return
+      console.log('start loading')
+
+      const { data: deals } = await this.$axios.get(
+        `/account/${this.user.name}/deals`,
+        {
+          params: {
+            limit: 100,
+            skip: this.skip
+          }
+        }
+      )
+
+      this.skip += deals.length
+
+      if (deals.length) {
+        this.deals.push(...deals)
+        $state.loaded()
+        console.log('loaded')
+      } else {
+        $state.complete()
+        console.log('complete')
+      }
     }
   }
 }
