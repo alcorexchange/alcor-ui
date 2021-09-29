@@ -21,12 +21,12 @@
             span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
 
         el-table-column(label='Ask' v-if="!isMobile")
-          template(slot-scope='scope')
-            span {{ scope.row.ask | commaFloat }}
+          template(slot-scope='{ row }')
+            span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
 
         el-table-column(label='Bid')
-          template(slot-scope='scope')
-            span {{ scope.row.bid | commaFloat }}
+          template(slot-scope='{ row }')
+            span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
 
         el-table-column(label='Price')
           template(slot-scope='scope')
@@ -123,6 +123,18 @@ export default {
   },
 
   methods: {
+    getAskSymbol(deal) {
+      const market = this.markets_obj[deal.market]
+
+      return deal.type == 'buymatch' ? market.quote_token.symbol.name : market.base_token.symbol.name
+    },
+
+    getBidSymbol(deal) {
+      const market = this.markets_obj[deal.market]
+
+      return deal.type == 'buymatch' ? market.base_token.symbol.name : market.quote_token.symbol.name
+    },
+
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
     },

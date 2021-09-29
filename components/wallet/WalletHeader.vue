@@ -8,7 +8,7 @@
     .info.cancel = ${{ $systemToUSD(systemBalance) }}
   .item
     .title.cancel Active positions
-      el-tooltip(class="item" effect="dark" content="Scanning for active positions.."
+      el-tooltip(class="item" effect="dark" content="Scanning for active positions might take some time"
       placement="right-start" v-if="$store.state.userOrdersLoading")
         i.el-icon-loading.ml-1.pointer
     .value
