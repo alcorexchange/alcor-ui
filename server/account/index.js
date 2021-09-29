@@ -20,7 +20,8 @@ account.get('/:account/deals', async (req, res) => {
         unit_price: 1,
         trx_id: 1,
         market: 1,
-        type: { $cond: { if: { $eq: ['$bidder', account] }, then: 'buymatch', else: 'sellmatch' } }
+        type: 1,
+        bidder: 1
       }
     },
     { $sort: { time: -1 } }
