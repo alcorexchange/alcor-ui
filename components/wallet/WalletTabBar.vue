@@ -19,11 +19,11 @@ export default {
     ]
   }),
   mounted() {
-    this.scrollTo()
+    this.funcScrollTo()
   },
   methods: {
-    scrollTo() {
-      this.$scrollTo('.wallet-tab-bar .active', {
+    funcScrollTo() {
+      scrollTo('.wallet-tab-bar .active', {
         container: '.wallet-tab-bar',
         offset: -100,
         x: true
@@ -33,7 +33,7 @@ export default {
   watch: {
     $route() {
       this.$nextTick(() => {
-        this.scrollTo()
+        this.funcScrollTo()
       })
     }
   }
