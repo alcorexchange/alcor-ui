@@ -29,8 +29,8 @@ export const mutations = {
 
   setUser: (state, user) => state.user = user,
   setMarkets: (state, markets) => {
-    state.markets = markets
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
+    state.markets = markets
   },
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,

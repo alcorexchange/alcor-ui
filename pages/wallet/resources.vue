@@ -33,9 +33,9 @@
       RewardsCard
     .actions-container
       .action-item
-        StakeAction(:isStake="true")
-      .action-item
         StakeAction
+      .action-item
+        UnstakeAction
   SSpacer(:high="true")
   //Validators
   //SSpacer(:high="true")
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import ResourceItem from '@/components/wallet/ResourceItem.vue'
 import RewardsCard from '@/components/wallet/RewardsCard.vue'
 import StakeAction from '@/components/wallet/StakeAction.vue'
@@ -70,7 +70,7 @@ export default {
   }),
 
   computed: {
-    ...mapState(['account']),
+    ...mapState(['account', 'user']),
 
     ramPercent() {
       return Math.round((this.account.ram_usage * 100) / this.account.ram_quota)
@@ -94,13 +94,27 @@ export default {
     }
   },
 
-  async mounted() {
-    const strokes = document.getElementsByClassName('el-progress-circle__track')
+  watch: {
+    user() {
+      // TODO Do it in a better way
+      const strokes = document.getElementsByClassName('el-progress-circle__track')
 
-    for (const s of strokes) {
-      s.setAttribute('stroke', '#333333')
+      for (const s of strokes) {
+        s.setAttribute('stroke', '#333333')
+      }
+    },
+
+    account() {
+      // TODO Do it in a better way
+      const strokes = document.getElementsByClassName('el-progress-circle__track')
+
+      for (const s of strokes) {
+        s.setAttribute('stroke', '#333333')
+      }
     }
+  },
 
+  async mounted() {
     const { rows: [{ base, quote }] } = await this.$rpc.get_table_rows({
       code: 'eosio',
       scope: 'eosio',

@@ -2,31 +2,31 @@
 .el-card.resource-page-card
     .header
         i.el-icon-present
-        span.text {{ renderType }}
+        span.text Stake
     .main
       .input-label
         .dot.green
-        span CPU {{renderType}} Amount
+        span CPU Stake Amount
       el-input(v-model="CPU" @change="toFixed")
         span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
       .percentages-container
-        AlcorButton(@click="setCPUpercent(25)") 25%
-        AlcorButton(@click="setCPUpercent(50)") 50%
-        AlcorButton(@click="setCPUpercent(75)") 75%
-        AlcorButton(@click="setCPUpercent(100)") 100%
+        AlcorButton(@click="setCPUpercent(5)") 5%
+        AlcorButton(@click="setCPUpercent(10)") 10%
+        AlcorButton(@click="setCPUpercent(15)") 15%
+        AlcorButton(@click="setCPUpercent(20)") 20%
       .divider
       .input-label
         .dot.red
-        span NET {{renderType}} Amount
-      el-input(v-model="NET")
+        span NET Stake Amount
+      el-input(v-model="NET" @change="toFixed")
       .percentages-container
-        AlcorButton 25%
-        AlcorButton 50%
-        AlcorButton 75%
-        AlcorButton 100%
+        AlcorButton(@click="setNETpercent(5)") 5%
+        AlcorButton(@click="setNETpercent(10)") 10%
+        AlcorButton(@click="setNETpercent(15)") 15%
+        AlcorButton(@click="setNETpercent(20)") 20%
       SSpacer(:high="true")
       .submit
-        AlcorButton {{renderType}}
+        AlcorButton(@click="submit" v-loading="loading") Stake
 </template>
 
 <script>
@@ -44,7 +44,9 @@ export default {
   data: () => {
     return {
       CPU: 0,
-      NET: 0
+      NET: 0,
+
+      loading: false
     }
   },
 
@@ -52,11 +54,7 @@ export default {
     ...mapState(['user', 'account', 'network']),
     ...mapGetters({
       systemBalance: 'systemBalance',
-    }),
-
-    renderType() {
-      return this.isStake ? 'Stake' : 'Unstake'
-    }
+    })
   },
 
   methods: {
@@ -66,8 +64,49 @@ export default {
       this.toFixed()
     },
 
+    setNETpercent(percent) {
+      const balance = (parseFloat(this.systemBalance) / 100) * percent
+      this.NET = balance
+      this.toFixed()
+    },
+
     toFixed() {
       this.CPU = parseFloat(this.CPU).toFixed(this.network.baseToken.precision)
+      this.NET = parseFloat(this.NET).toFixed(this.network.baseToken.precision)
+    },
+
+    async submit() {
+      const cpu = parseFloat(this.CPU).toFixed(this.$store.state.network.baseToken.precision) + ' ' +
+        this.$store.state.network.baseToken.symbol
+      const net = Number(this.NET).toFixed(this.$store.state.network.baseToken.precision) + ' ' +
+        this.$store.state.network.baseToken.symbol
+
+      this.loading = true
+      try {
+        await this.$store.dispatch('chain/sendTransaction', [{
+          account: 'eosio',
+          name: 'delegatebw',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            receiver: this.user.name,
+            stake_net_quantity: net,
+            stake_cpu_quantity: cpu,
+            transfer: false
+          }
+        }])
+        this.$store.dispatch('loadAccountData')
+      } catch (e) {
+        return this.$notify({
+          title: 'Stake Resources',
+          message: e.message,
+          type: 'error'
+        })
+      } finally {
+        this.loading = false
+      }
+
+      this.$notify({ title: 'Stake Resources', message: 'success', type: 'success' })
     }
   }
 }
