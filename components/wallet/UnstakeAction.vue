@@ -7,18 +7,17 @@
       .input-label
         .dot.green
         span CPU {{renderType}} Amount
-      el-input(v-model="CPU" @change="toFixed")
-        span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+      el-input
       .percentages-container
-        AlcorButton(@click="setCPUpercent(25)") 25%
-        AlcorButton(@click="setCPUpercent(50)") 50%
-        AlcorButton(@click="setCPUpercent(75)") 75%
-        AlcorButton(@click="setCPUpercent(100)") 100%
+        AlcorButton 25%
+        AlcorButton 50%
+        AlcorButton 75%
+        AlcorButton 100%
       .divider
       .input-label
         .dot.red
         span NET {{renderType}} Amount
-      el-input(v-model="NET")
+      el-input
       .percentages-container
         AlcorButton 25%
         AlcorButton 50%
@@ -30,7 +29,6 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
 import AlcorButton from '@/components/AlcorButton.vue'
 import SSpacer from '@/components/SSpacer.vue'
 export default {
@@ -43,31 +41,21 @@ export default {
 
   data: () => {
     return {
-      CPU: 0,
-      NET: 0
+      state: {
+        CPU: 0,
+        NET: 0
+      },
+
+      unstake: {
+        CPU: 0,
+        NET: 0
+      }
     }
   },
 
   computed: {
-    ...mapState(['user', 'account', 'network']),
-    ...mapGetters({
-      systemBalance: 'systemBalance',
-    }),
-
     renderType() {
       return this.isStake ? 'Stake' : 'Unstake'
-    }
-  },
-
-  methods: {
-    setCPUpercent(percent) {
-      const balance = (parseFloat(this.systemBalance) / 100) * percent
-      this.CPU = balance
-      this.toFixed()
-    },
-
-    toFixed() {
-      this.CPU = parseFloat(this.CPU).toFixed(this.network.baseToken.precision)
     }
   }
 }
