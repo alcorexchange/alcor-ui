@@ -23,7 +23,6 @@ export default {
   },
   methods: {
     funcScrollTo() {
-      console.log('scroll to', scrollTo)
       this.$scrollTo('.wallet-tab-bar .active', {
         container: '.wallet-tab-bar',
         offset: -100,
