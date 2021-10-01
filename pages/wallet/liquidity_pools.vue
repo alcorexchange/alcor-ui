@@ -23,14 +23,14 @@
           template(slot-scope='{row}')
             .detailed-item-container
               //span.main.fwr {{row.deposit.usd}} $
-              span.cancel.fontSmall {{row.deposit1}}
-              span.cancel.fontSmall {{row.deposit2}}
+              span.cancel.fontSmall {{row.deposit1 | commaFloat }}
+              span.cancel.fontSmall {{row.deposit2 | commaFloat }}
         el-table-column(label='Earnings')
           template(slot-scope='{row}')
             .detailed-item-container
               //span.main.fwr {{row.deposit.usd}} $
-              span.cancel.fontSmall {{ row.earn1 }}
-              span.cancel.fontSmall {{ row.earn2 }}
+              span.cancel.fontSmall {{ String(row.earn1) | commaFloat }}
+              span.cancel.fontSmall {{ String(row.earn2) | commaFloat }}
         //el-table-column(label='Earnings WAX Value')
           //- TODO: dynamic
           template(slot-scope='{row}') 123 WAX

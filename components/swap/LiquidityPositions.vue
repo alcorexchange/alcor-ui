@@ -46,15 +46,15 @@ div.alcor-card
           //.amount 102,121.01$ TODO
           //span.detail.muted {{lpToken.asset1}}
           //span.detail.muted {{lpToken.asset2}}
-          span.detail.muted {{lpToken.deposit1}}
-          span.detail.muted {{lpToken.deposit2}}
+          span.detail.muted {{lpToken.deposit1 | commaFloat }}
+          span.detail.muted {{lpToken.deposit2 | commaFloat }}
       .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
         .label.mobile-only Earning (Fees)
         .main
           //.amount 102,121.01$ TODO
           //- TODO: add .toString()
-          span.detail.muted {{lpToken.earn1}}
-          span.detail.muted {{lpToken.earn2}}
+          span.detail.muted {{ String(lpToken.earn1) | commaFloat }}
+          span.detail.muted {{ String(lpToken.earn2) | commaFloat }}
       .share.p10
         .label.mobile-only Pool Share
         .main
