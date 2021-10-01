@@ -10,12 +10,12 @@
         br
 
         span.key.fwr Refunding CPU:
-        span.value  {{ account.refund_request.cpu_amount }}
+        span.value  {{ account.refund_request && account.refund_request.cpu_amount }}
 
         br
 
         span.key.fwr Refunding NET:
-        span.value  {{ account.refund_request.net_amount }}
+        span.value  {{ account.refund_request && account.refund_request.net_amount }}
 
 
 </template>

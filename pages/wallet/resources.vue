@@ -31,11 +31,11 @@
   .rewards-and-actions
     .rewards-card
       RewardsCard
-    .actions-container
-      .action-item
-        StakeAction
-      .action-item
-        UnstakeAction
+    //- .actions-container
+    .action-item
+      StakeAction
+    .action-item
+      UnstakeAction
   SSpacer(:high="true")
   //Validators
   //SSpacer(:high="true")
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import ResourceItem from '@/components/wallet/ResourceItem.vue'
 import RewardsCard from '@/components/wallet/RewardsCard.vue'
 import StakeAction from '@/components/wallet/StakeAction.vue'
@@ -134,20 +134,16 @@ export default {
 </style>
 
 <style scoped lang="scss">
-.resources-container, .rewards-and-actions, .actions-container{
+.resources-container, .rewards-and-actions{
   display: flex;
   flex-wrap: wrap;
+  gap: 40px;
+}
+.rewards-and-actions{
+  margin-top: 40px;
 }
 .resource-item-container {
-  padding: 20px;
   flex: 1;
-  &:first-child {
-    padding-left: 0;
-  }
-  &:last-child {
-    padding-right: 0;
-  }
-
   .resource-item {
     display: flex;
     flex-direction: column;
@@ -163,23 +159,25 @@ export default {
     margin-top: 14px;
   }
 }
-.rewards-card{
-  width: 33.3333%;
-}
-.actions-container{
+.action-item, .rewards-card{
   flex: 1;
 }
-.action-item{
-  width: 50%;
+@media only screen and (max-width: 940px){
+  .resources-container, .rewards-and-actions{
+    gap: 10px;
+  }
+.rewards-and-actions{
+  margin-top: 10px;
 }
-.rewards-card{
-  padding: 20px;
-  padding-left: 0;
 }
-.action-item{
-  padding: 20px;
-  &:last-child {
-    padding-right: 0;
+@media only screen and (max-width: 740px){
+  .resources-container, .rewards-and-actions{
+    flex-direction: column;
+    max-width: 400px;
+    margin: auto;
+  }
+  .rewards-and-actions{
+    margin-top: 10px;
   }
 }
 </style>
