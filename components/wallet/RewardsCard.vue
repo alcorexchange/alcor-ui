@@ -4,16 +4,13 @@
         i.el-icon-present
         span.text Genesis and Voting Rewards
     .main
+      .item
         span.key.fwr Available Balance:
         span.value  {{ account.core_liquid_balance }}
-
-        br
-
+      .item
         span.key.fwr Refunding CPU:
         span.value  {{ account.refund_request && account.refund_request.cpu_amount }}
-
-        br
-
+      .item
         span.key.fwr Refunding NET:
         span.value  {{ account.refund_request && account.refund_request.net_amount }}
 
@@ -37,5 +34,8 @@ export default {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+}
+.item {
+  padding-bottom: 10px;
 }
 </style>
