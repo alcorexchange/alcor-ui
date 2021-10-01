@@ -1,20 +1,19 @@
 import axios from 'axios'
 
-import config from '~/config'
-
-import { make256key } from '~/utils'
+import { make256key, nameToUint64 } from '~/utils'
 
 export const strict = false
-
-const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
 
 export const state = () => ({
   user: null,
   userDeals: [],
+  userOrders: [],
+  userOrdersLoading: true,
   account: null,
   liquidityPositions: [],
 
   markets: [],
+  markets_obj: {},
   network: {},
 
   baseUrl: '',
@@ -29,26 +28,29 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
-  setMarkets: (state, markets) => state.markets = markets,
+  setMarkets: (state, markets) => {
+    state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
+    state.markets = markets
+  },
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
-  setAccount: (state, account) => state.account = account
+  setAccount: (state, account) => state.account = account,
+
+  setUserOrders: (state, orders) => state.userOrders = orders,
+  setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
 
 export const actions = {
   init({ dispatch, state, getters }) {
     dispatch('fetchTokens')
 
-    //setInterval(() => dispatch('market/fetchOrders', {}, { root: true }), 10000)
-
     if (state.network.name == 'local') return
 
-    dispatch('loadMarkets')
-    // dispatch('loadIbc') TODO Remove BOS IBC LOGIC
+    dispatch('loadMarkets').then(dispatch('loadUserOrders'))
 
     setInterval(() => dispatch('update'), 15000)
 
@@ -58,6 +60,8 @@ export const actions = {
 
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
+      dispatch('loadOrders', match.market_id)
+
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
       if (match.bid) {
@@ -88,7 +92,6 @@ export const actions = {
 
   update({ dispatch }) {
     dispatch('loadUserBalances')
-    dispatch('market/loadUserOrders')
     dispatch('loadAccountData')
   },
 
@@ -130,6 +133,56 @@ export const actions = {
     this.$axios.get(`/account/${state.user.name}/liquidity_positions`).then(r => {
       commit('setLiquidityPositions', r.data)
     })
+  },
+
+  async loadUserOrders({ state, commit, dispatch }) {
+    if (!state.user || !state.user.name) return
+    const markets = state.markets.map(m => m.id)
+
+    console.log('loadOrders start.. ')
+    for (const market_id of markets) {
+      await dispatch('loadOrders', market_id)
+      //await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
+    }
+    console.log('loadOrders finish.')
+
+    commit('setUserOrdersLoading', false)
+  },
+
+  async loadOrders({ state, commit, dispatch }, market_id) {
+    if (!state.user || !state.user.name) return
+
+    const { name } = state.user
+
+    await Promise.all([
+      dispatch('api/getBuyOrders', {
+        market_id,
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(name),
+        upper_bound: nameToUint64(name)
+      }, { root: true }),
+
+      dispatch('api/getSellOrders', {
+        market_id,
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(name),
+        upper_bound: nameToUint64(name)
+      }, { root: true })
+    ]).then(([buyOrders, sellOrders]) => {
+      buyOrders.map(o => {
+        o.type = 'buy'
+        o.market_id = market_id
+      })
+      sellOrders.map(o => {
+        o.type = 'sell'
+        o.market_id = market_id
+      })
+
+      // TODO Need optimization so much!
+      commit('setUserOrders', state.userOrders.filter(o => o.market_id != market_id).concat(buyOrders.concat(sellOrders)))
+    }).catch(e => console.log(e))
   },
 
   loadUserBalances({ rootState, state, commit }) {

@@ -61,7 +61,7 @@ export default {
         } catch (e) {
           return this.$notify({
             title: 'Send NFT',
-            message: 'Receiver account doesn\'t exist',
+            message: "Receiver account doesn't exist",
             type: 'error'
           })
         }

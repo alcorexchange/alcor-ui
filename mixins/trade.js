@@ -195,7 +195,7 @@ export const tradeMixin = {
 
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/loadUserOrders')
+          this.$store.dispatch('loadOrders', this.$store.state.market.id)
           this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
@@ -234,7 +234,7 @@ export const tradeMixin = {
 
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/loadUserOrders')
+          this.$store.dispatch('loadOrders', this.$store.state.market.id)
           this.$store.dispatch('market/fetchOrders')
         }, 1000)
 

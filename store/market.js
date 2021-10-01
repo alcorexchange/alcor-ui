@@ -1,4 +1,4 @@
-import { mergeSamePriceOrders, nameToUint64 } from '~/utils'
+import { mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -86,7 +86,7 @@ export const actions = {
     commit('setMarket', market)
 
     if (process.client) {
-      dispatch('loadUserOrders')
+      dispatch('loadOrders', market.id)
     }
   },
 
@@ -98,32 +98,6 @@ export const actions = {
     ]).then(([buyOrders, sellOrders]) => {
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
-    }).catch(e => console.log(e))
-  },
-
-  async loadUserOrders({ state, rootState, commit, dispatch }) {
-    if (!rootState.user || !rootState.user.name || !state.id) return
-
-    const { name } = rootState.user
-
-    await Promise.all([
-      dispatch('api/getBuyOrders', {
-        market_id: state.id,
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(name),
-        upper_bound: nameToUint64(name)
-      }, { root: true }),
-
-      dispatch('api/getSellOrders', {
-        market_id: state.id,
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(name),
-        upper_bound: nameToUint64(name)
-      }, { root: true })
-    ]).then(([buyOrders, sellOrders]) => {
-      commit('setUserOrders', buyOrders.concat(sellOrders))
     }).catch(e => console.log(e))
   },
 

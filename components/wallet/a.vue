@@ -1,7 +1,4 @@
 <template lang="pug">
-.ibc-withdraw
-  el-button(type="text" plain size="mini" icon="el-icon-s-promotion" @click="open").hover-opacity Transfer
-
   el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
       span Before transferring to exchange, you have to withdraw it to it's original chain using BOS IBC Transfer button!
@@ -34,12 +31,8 @@
 </template>
 
 <script>
-import fetch from 'node-fetch'
-import { JsonRpc } from 'eosjs'
-
+import { mapState } from 'vuex'
 import { captureException } from '@sentry/browser'
-import { mapGetters, mapState } from 'vuex'
-import { asset } from 'eos-common'
 
 import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
@@ -131,6 +124,14 @@ export default {
   },
 
   methods: {
+    openPopup({ token }) {
+      this.token = token
+      this.visible = true
+    },
+    closePopup() {
+      this.visible = false
+    },
+
     fullAmount() {
       console.log(this.token)
       this.form.amount = (

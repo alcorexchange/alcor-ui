@@ -2,11 +2,11 @@
 .el-card.resource-page-card
     .header
         i.el-icon-present
-        span.text Stake
+        span.text Unstake
     .main
       .input-label
         .dot.green
-        span CPU Stake Amount
+        span CPU Unstake Amount
       el-input(v-model="CPU" @change="toFixed")
         span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
       .percentages-container
@@ -17,7 +17,7 @@
       .divider
       .input-label
         .dot.red
-        span NET Stake Amount
+        span NET Unstake Amount
       el-input(v-model="NET" @change="toFixed")
       .percentages-container
         AlcorButton(@click="setNETpercent(5)") 5%
@@ -26,7 +26,7 @@
         AlcorButton(@click="setNETpercent(20)") 20%
       SSpacer(:high="true")
       .submit
-        AlcorButton(@click="submit" v-loading="loading") Stake
+        AlcorButton(@click="submit" v-loading="loading") Unstake
 </template>
 
 <script>
@@ -39,7 +39,7 @@ export default {
     AlcorButton,
     SSpacer
   },
-  props: ['isStake'],
+  props: ['isUnstake'],
 
   data: () => {
     return {
@@ -85,20 +85,19 @@ export default {
       try {
         await this.$store.dispatch('chain/sendTransaction', [{
           account: 'eosio',
-          name: 'delegatebw',
+          name: 'undelegatebw',
           authorization: [this.user.authorization],
           data: {
             from: this.user.name,
             receiver: this.user.name,
-            stake_net_quantity: net,
-            stake_cpu_quantity: cpu,
-            transfer: false
+            unstake_net_quantity: net,
+            unstake_cpu_quantity: cpu,
           }
         }])
         this.$store.dispatch('loadAccountData')
       } catch (e) {
         return this.$notify({
-          title: 'Stake Resources',
+          title: 'Unstake Resources',
           message: e.message,
           type: 'error'
         })
@@ -106,7 +105,7 @@ export default {
         this.loading = false
       }
 
-      this.$notify({ title: 'Stake Resources', message: 'success', type: 'success' })
+      this.$notify({ title: 'Unstake Resources', message: 'success', type: 'success' })
     }
   }
 }

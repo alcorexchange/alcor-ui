@@ -5,7 +5,7 @@
       .col
         .d-flex.mb-1.select-label
           small.text-muted Asset 1
-          el-button(type="text" size="mini" @click="amount1Input(inputBalance)").ml-auto.pr-0 {{ inputBalance }}
+          el-button(type="text" size="mini" @click="amount1Input(inputBalance)").ml-auto.pr-0 {{ inputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="amount1" :tokens="tokens0" :token="0" @input="amount1Input")
@@ -17,7 +17,7 @@
       .col
         .d-flex.mb-1.select-label
           small.text-muted Asset 2
-          el-button(type="text" size="mini" @click="amount2Input(outputBalance)").ml-auto.pr-0 {{ outputBalance }}
+          el-button(type="text" size="mini" @click="amount2Input(outputBalance)").ml-auto.pr-0 {{ outputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="amount2" :tokens="tokens1" :token="1" @input="amount2Input")

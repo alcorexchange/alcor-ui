@@ -29,6 +29,29 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
     .toLocaleString('en', { minimumFractionDigits: Math.min(MIN_DIGITS, parseFloat(precision)), maximumFractionDigits: MAX_DIGITS })
 })
 
+Vue.filter('commaFloat', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
+  let result = parseFloat(amount).toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 4 })
+
+  if (typeof amount === 'string' && amount.includes(' ')) {
+    result += ' ' + amount.split(' ')[1]
+  }
+
+  return result
+})
+
+Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
+  let result = parseFloat(amount)
+  result *= this.$store.state.wallet.systemPrice
+  return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 5 })
+})
+
+Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2) {
+  let result = parseFloat(amount)
+  result *= this.$store.state.wallet.systemPrice
+  return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: parseFloat(MAX_DIGITS) })
+}
+
+
 Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
   const user = this.$store.state.user
 
@@ -42,6 +65,7 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
 
   return '0.0000'
 }
+
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {
   const network = this.$store.state.network.name

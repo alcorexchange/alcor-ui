@@ -7,7 +7,7 @@
 
     el-table-column(label='Date' width="80" v-if="!isMobile")
       template(slot-scope='scope')
-        span {{ scope.row.time | moment('DD-MM HH:mm')}}
+        span {{ scope.row.time | moment('DD-MM HH:mm') }}
 
     el-table-column(label='Ask' width="120" v-if="!isMobile")
       template(slot-scope='scope')

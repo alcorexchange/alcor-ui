@@ -48,12 +48,13 @@ export const actions = {
         if (isAutoLoginAvailable) {
           commit('setCurrentWallet', 'wax')
           commit('setUser', {
-            name: wax.userAccount,
+            name: wax.user.account,
             authorization: {
-              actor: wax.userAccount, permission: 'active'
+              actor: wax.user.account, permission: 'active'
             }
           }, { root: true })
           dispatch('loadUserBalances', {}, { root: true })
+          dispatch('loadUserOrders', {}, { root: true })
           return
         }
         console.log('no wax autologin found...')
@@ -103,6 +104,8 @@ export const actions = {
       default:
         commit('setUser', null, { root: true })
     }
+
+    commit('setUserOrders', [], { root: true })
   },
 
   async login({ state, commit, dispatch, getters, rootState }, provider) {
@@ -161,10 +164,8 @@ export const actions = {
       }
 
       // May be remove from login
-      //dispatch('fetchUserDeals', {}, { root: true })
-
       dispatch('loadUserBalances', {}, { root: true })
-      dispatch('market/loadUserOrders', {}, { root: true })
+      dispatch('loadUserOrders', {}, { root: true })
 
       this.$socket.emit('subscribe', {
         room: 'account',
@@ -213,7 +214,7 @@ export const actions = {
       ]
     )
 
-    dispatch('market/loadUserOrders', {}, { root: true })
+    dispatch('loadOrders', market_id, { root: true })
 
     return r
   },
