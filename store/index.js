@@ -139,17 +139,18 @@ export const actions = {
     if (!state.user || !state.user.name) return
     const markets = state.markets.map(m => m.id)
 
+    console.log('loadOrders start.. ')
     for (const market_id of markets) {
       await dispatch('loadOrders', market_id)
       //await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
     }
+    console.log('loadOrders finish.')
 
     commit('setUserOrdersLoading', false)
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
     if (!state.user || !state.user.name) return
-    console.log('loadOrders for ', market_id)
 
     const { name } = state.user
 
