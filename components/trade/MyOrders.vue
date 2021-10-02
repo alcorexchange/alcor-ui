@@ -33,16 +33,18 @@ import { mapGetters, mapState } from 'vuex'
 
 export default {
   computed: {
-    ...mapGetters(['network']),
     ...mapGetters(['user']),
-    ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'userOrders']),
+    ...mapGetters(['network']),
+    ...mapState(['userOrders']),
+    ...mapState('market', ['asks', 'bids', 'id', 'base_token']),
 
     orders() {
       if (!this.user) return []
+      console.log('zzzzz', this.userOrders)
 
       const orders = []
 
-      for (const order of [...this.asks, ...this.bids, ...this.userOrders].filter(a => a.account === this.user.name)) {
+      for (const order of this.userOrders.filter(a => a.account === this.user.name)) {
         order.type = order.bid.symbol.symbol === this.base_token.symbol.name ? 'bid' : 'ask'
 
         if (orders.filter(o => o.id == order.id && o.type == order.type)[0]) continue
