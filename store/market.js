@@ -17,8 +17,6 @@ export const state = () => ({
 
   deals: [],
 
-  userOrders: [],
-
   streaming: false,
 
   orderLoading: false
@@ -30,8 +28,6 @@ export const mutations = {
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
-
-  setUserOrders: (state, orders) => state.userOrders = orders,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
@@ -86,7 +82,7 @@ export const actions = {
     commit('setMarket', market)
 
     if (process.client) {
-      dispatch('loadOrders', market.id)
+      dispatch('loadOrders', market.id, { root: true })
     }
   },
 

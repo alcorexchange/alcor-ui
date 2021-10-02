@@ -44,6 +44,7 @@ export default {
   },
 
   mounted() {
+    this.$store.dispatch('loadOrders', this.id)
     if (!this.streaming) {
       this.$store.dispatch('market/startStream', this.id)
     }
