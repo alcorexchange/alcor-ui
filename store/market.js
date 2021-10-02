@@ -69,7 +69,6 @@ export const actions = {
 
   setMarket({ state, dispatch, commit }, market) {
     commit('setDeals', [])
-    commit('setUserOrders', [])
 
     if (process.client) {
       if (state.id) {
