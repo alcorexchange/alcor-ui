@@ -40,7 +40,6 @@ export default {
 
     orders() {
       if (!this.user) return []
-      console.log('zzzzz', this.userOrders)
 
       const orders = []
 

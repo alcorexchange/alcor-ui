@@ -55,6 +55,7 @@ export const actions = {
           }, { root: true })
           dispatch('loadUserBalances', {}, { root: true })
           dispatch('loadUserOrders', {}, { root: true })
+          dispatch('loadOrders', rootState.market.id, { root: true })
           return
         }
         console.log('no wax autologin found...')
@@ -164,8 +165,10 @@ export const actions = {
       }
 
       // May be remove from login
+      // TODO move this 3 functionss to hook after each login
       dispatch('loadUserBalances', {}, { root: true })
       dispatch('loadUserOrders', {}, { root: true })
+      dispatch('loadOrders', rootState.market.id, { root: true })
 
       this.$socket.emit('subscribe', {
         room: 'account',
