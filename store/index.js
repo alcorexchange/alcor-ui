@@ -218,6 +218,8 @@ export const actions = {
 }
 
 export const getters = {
+  userOrders: state => state.userOrders,
+
   markets(state) {
     return state.markets
   },
