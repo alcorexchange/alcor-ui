@@ -150,7 +150,7 @@ export const actions = {
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
-    if (!state.user || !state.user.name || !market_id) return
+    if (!state.user || !state.user.name) return
 
     const { name } = state.user
 
