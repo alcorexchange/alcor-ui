@@ -42,7 +42,7 @@ export default {
 
       const orders = []
 
-      for (const order of this.userOrders.filter(a => a.account === this.user.name)) {
+      for (const order of this.userOrders.filter(a => a.account === this.user.name && a.market_id == this.id)) {
         order.type = order.bid.symbol.symbol === this.base_token.symbol.name ? 'bid' : 'ask'
 
         if (orders.filter(o => o.id == order.id && o.type == order.type)[0]) continue
