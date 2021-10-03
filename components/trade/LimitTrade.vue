@@ -141,12 +141,20 @@ import { trade } from '~/mixins/trade'
 export default {
   mixins: [trade],
 
+  data() {
+    return {
+      amountBy: 0,
+      amountSell: 0
+    }
+  },
+
   computed: {
     percentBuy: {
       get() { return this.percent_buy },
       set(val) { this.changePercentBuy({ percent: val, trade: 'limit' }) }
     }
   }
+
 }
 </script>
 
