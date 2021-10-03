@@ -46,6 +46,8 @@ export const tradeMixin = {
       total: 0.0,
       amount: 0.0,
 
+      fromWallet: false,
+
       eosPercent: 0,
       tokenPercent: 0,
 
@@ -117,7 +119,8 @@ export const tradeMixin = {
       this.amountChange(false, true)
     },
 
-    onSetAmount(balance) {
+    onSetAmount(balance, fromWallet = false) {
+      this.fromWallet = fromWallet
       this.amount = balance
       this.amountChange()
     },

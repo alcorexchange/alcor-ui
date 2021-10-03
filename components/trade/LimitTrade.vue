@@ -3,7 +3,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-success Buy {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="setAmount(parseFloat(baseBalance), 'by')") {{ baseBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -13,7 +13,14 @@
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
+        //- el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
+        el-input(
+          type="number"
+          v-model="amountBy"
+          @input="amountChange(false, true)"
+          size="medium"
+          clearable
+        )
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
@@ -32,7 +39,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-danger Sell {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="setAmount(parseFloat(tokenBalance), 'sell')") {{ tokenBalance }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -42,7 +49,14 @@
           span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
+        el-input(
+          type="number"
+          v-model="amountSell"
+          @input="amountChange(false, true)"
+          @change="setPrecisions"
+          size="medium"
+          clearable
+        )
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
@@ -65,6 +79,13 @@ import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
 export default {
   mixins: [tradeMixin, tradeChangeEvents],
 
+  data() {
+    return {
+      amountBy: 0,
+      amountSell: 0
+    }
+  },
+
   computed: {
     ...mapState(['network']),
     ...mapState('market', ['base_token', 'quote_token']),
@@ -75,7 +96,46 @@ export default {
       'baseBalance'
     ]),
     ...mapGetters(['user'])
+  },
+
+  watch: {
+    amount(newVal) {
+      // Check where the value came from
+      if (this.fromWallet) {
+        this.fromWallet = false
+        return
+      }
+
+      this.amountBy = newVal
+      this.amountSell = newVal
+    },
+    amountBy(newVal) {
+      this.setGlobalAmount(newVal)
+    },
+    amountSell(newVal) {
+      this.setGlobalAmount(newVal)
+    }
+  },
+
+  methods: {
+    setGlobalAmount(amount) {
+      this.onSetAmount(parseFloat(amount), true) // The second value indicates that the value came from the wallet
+    },
+    setAmount(amount = 0, type) {
+      if (amount == 0) return
+
+      if (type == 'by') {
+        this.amountSell = 0
+        this.amountBy = amount
+      } else if (type == 'sell') {
+        this.amountBy = 0
+        this.amountSell = amount
+      }
+
+      this.setGlobalAmount(amount)
+    }
   }
+
 }
 </script>
 

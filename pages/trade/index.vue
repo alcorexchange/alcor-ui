@@ -1,13 +1,15 @@
 <template lang="pug">
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
-.row
-  .col
-    .row
+el-row
+  el-col(:span="24")
+    el-row
       //.col(v-if="id == 26 && network.name == 'wax'").mb-2
         el-alert(title='TLM Market are closed from 6.04.2021 till 13.04.2021!' type='info' effect='dark')
           .lead Due to the opening of TLM teleport functionality trading is suspended until technical implementation is complete.
-      .col(v-if="network.SCAM_CONTRACTS.includes($store.state.market.base_token.contract) || network.SCAM_CONTRACTS.includes($store.state.market.quote_token.contract)")
+      .col(
+        v-if="network.SCAM_CONTRACTS.includes($store.state.market.base_token.contract) || network.SCAM_CONTRACTS.includes($store.state.market.quote_token.contract)"
+      )
         .row.mb-2
           .col
             el-alert(type="error" show-icon)
@@ -20,21 +22,24 @@
               .lead Cross Chain transfers of BOSIBC tokens are temporary stopped! It is recommended to wait for the news before continuing trading.
 
     client-only
-      DesktopTrade(v-if="!isMobile")
-      MobileTrade(v-else)
+      Trade
+      //- DesktopTrade(v-if="!isMobile")
+      //- MobileTrade(v-else)
       nuxt-child
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-import DesktopTrade from '~/components/trade/DesktopTrade'
-import MobileTrade from '~/components/trade/MobileTrade'
+import Trade from '~/components/trade/Trade.vue'
+// import DesktopTrade from '~/components/trade/DesktopTrade'
+// import MobileTrade from '~/components/trade/MobileTrade'
 
 export default {
   components: {
-    MobileTrade,
-    DesktopTrade
+    Trade,
+    // MobileTrade,
+    // DesktopTrade
   },
 
   computed: {
