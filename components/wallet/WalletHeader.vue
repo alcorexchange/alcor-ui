@@ -32,9 +32,9 @@
   .item
     .title.cancel LP rewards
     .value
-      span.main.green +17.382
+      span.main.green +0.0000
       span.symbol.cancel WAX
-    .info.cancel 2 Liquidity Pools
+    .info.cancel 0 Liquidity Pools
 </template>
 
 <script>
