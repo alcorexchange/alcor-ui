@@ -1,9 +1,12 @@
 <template lang="pug">
-div
+div.container-fluid
   AlcorLoading
   ResourcesModal
   ModalsDialog
-  .layout.alcor-inner(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
+  .layout(
+    :class="$route.name == 'trade-index-id' ? 'is-market' : ''"
+    ref="top"
+  )
     nav.nav(v-if='!isMobile')
       .nav-side.nav-left
         nuxt-link(to='/')
@@ -34,7 +37,6 @@ div
         .menu-underlay(@click='closeMenu' v-if='menuActive')
       .fixed-menu
         ConnectNav
-
     .main
       nuxt
     FooterBlock
@@ -231,7 +233,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .menu {
   position: fixed;
@@ -292,12 +295,7 @@ export default {
   padding: 8px;
   z-index: 230;
 }
-@media only screen and (max-width: 800px) {
-  .layout {
-    // TODO: something is causeing horizontal overflow I don't know what - Saeed
-    padding: 0 8px;
-  }
-}
+
 </style>
 
 <style lang="scss">

@@ -1,5 +1,5 @@
 <template lang="pug">
-.box-card.pl-2.pt-2
+.box-card.pt-2
   .row
     .col
       .d-flex.align-items-center(v-if="!isMobile")
@@ -10,7 +10,8 @@
           a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted.ml-2 {{ quote_token.contract }}
           span.ml-1 /  {{ base_token.symbol.name }}
 
-        .d-flex.ml-3(v-if="hasWithdraw")
+        //- .d-flex.ml-3(v-if="hasWithdraw")
+        .d-flex.ml-3
           // TODO Token prop & mobile version
           Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
