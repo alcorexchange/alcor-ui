@@ -1,9 +1,9 @@
 <template lang="pug">
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
-el-row
-  el-col(:span="24")
-    el-row
+.row
+  .col
+    .row
       //.col(v-if="id == 26 && network.name == 'wax'").mb-2
         el-alert(title='TLM Market are closed from 6.04.2021 till 13.04.2021!' type='info' effect='dark')
           .lead Due to the opening of TLM teleport functionality trading is suspended until technical implementation is complete.
@@ -23,8 +23,6 @@ el-row
 
     client-only
       Trade
-      //- DesktopTrade(v-if="!isMobile")
-      //- MobileTrade(v-else)
       nuxt-child
 </template>
 
@@ -32,14 +30,10 @@ el-row
 import { mapGetters, mapState } from 'vuex'
 
 import Trade from '~/components/trade/Trade.vue'
-// import DesktopTrade from '~/components/trade/DesktopTrade'
-// import MobileTrade from '~/components/trade/MobileTrade'
 
 export default {
   components: {
-    Trade,
-    // MobileTrade,
-    // DesktopTrade
+    Trade
   },
 
   computed: {
