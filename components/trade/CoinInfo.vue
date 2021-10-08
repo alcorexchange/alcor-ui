@@ -1,7 +1,7 @@
 <template lang="pug">
   .wrapper
     .row
-      .col.selectCoin(@click="drawer = true")
+      .col.selectCoin(@click="isDrawer = true")
         .row.align-items-center
           .col-3.col-sm-2.logo
             TokenImage(
@@ -29,7 +29,7 @@
         //- v-if="hasWithdraw"
       //-   )
     el-drawer(
-      :visible.sync="drawer"
+      :visible.sync="isDrawer"
       direction="btt"
       size="80%"
     )
@@ -53,7 +53,7 @@ export default {
 
   data() {
     return {
-      drawer: false
+      isDrawer: false
     }
   },
 
@@ -67,7 +67,7 @@ export default {
 
   watch: {
     quote_token() {
-      this.drawer = false
+      this.isDrawer = false
     }
   }
 }
