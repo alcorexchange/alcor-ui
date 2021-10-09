@@ -29,8 +29,7 @@
           template(slot-scope='{row}')
             div.amount-val
               .amount {{ row.amount | commaFloat(4, row.decimals) }}
-              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
-              .val.cancel(v-else) = $0.00
+              .val.cancel = ${{ row.usd_value }}
         el-table-column(
           label='Available',
           sort-by='amount',
