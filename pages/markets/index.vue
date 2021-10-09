@@ -81,7 +81,7 @@
       )
         template(slot-scope='scope')
           span.text-mutted(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
-          span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
+          span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
         label='24H',
@@ -108,7 +108,7 @@
       )
         template(slot-scope='scope')
           span.text-mutted(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
-          span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
+          span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
         label='7D Change',
