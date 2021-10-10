@@ -64,10 +64,10 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
+import { tradeMixin } from '~/mixins/trade'
 
 export default {
-  mixins: [tradeMixin, tradeChangeEvents],
+  mixins: [tradeMixin],
 
   props: ['bid'],
 

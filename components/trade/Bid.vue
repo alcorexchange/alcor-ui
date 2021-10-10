@@ -23,7 +23,7 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
+import { tradeMixin } from '~/mixins/trade'
 
 import TabUi from '~/components/UI/Tabs/Tab.vue'
 import SimpleTabUi from '~/components/UI/Tabs/SimpleTab.vue'
@@ -37,7 +37,7 @@ export default {
     ButtonUi,
   },
 
-  mixins: [tradeMixin, tradeChangeEvents],
+  mixins: [tradeMixin],
 
   props: ['type'],
 
