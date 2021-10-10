@@ -54,10 +54,10 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { tradeMixin } from '~/mixins/trade'
+import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
 
 export default {
-  mixins: [tradeMixin],
+  mixins: [tradeMixin, tradeChangeEvents],
 
   data() {
     return {

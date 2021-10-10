@@ -69,8 +69,8 @@ export default {
       // if (this.bid == 'buy') this.onSetAmount(parseFloat(this.baseBalance))
       // if (this.bid == 'sell') this.onSetAmount(parseFloat(this.tokenBalance))
 
-      if (this.bid == 'buy') this.onSetAmount(parseFloat(3.09), this.bid)
-      if (this.bid == 'sell') this.onSetAmount(parseFloat(0.77), this.bid)
+      if (this.bid == 'buy') this.onSetAmount(parseFloat(3.09))
+      if (this.bid == 'sell') this.onSetAmount(parseFloat(0.77))
     },
     setBid(e) {
       this.bid = e
