@@ -2,6 +2,8 @@ import { captureException } from '@sentry/browser'
 
 import { asset } from 'eos-common'
 
+import { mapMutations } from 'vuex'
+
 import config from '~/config'
 import { amountToFloat } from '~/utils'
 
@@ -45,8 +47,6 @@ export const tradeMixin = {
       price: 0.0,
       total: 0.0,
       amount: 0.0,
-
-      fromWallet: false,
 
       eosPercent: 0,
       tokenPercent: 0,
@@ -102,6 +102,11 @@ export const tradeMixin = {
   },
 
   methods: {
+    ...mapMutations('market', [
+      'SET_PRICE',
+      'SET_AMOUNT_BUY',
+      'SET_AMOUNT_SELL',
+    ]),
     fixPrice() {
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
@@ -119,9 +124,9 @@ export const tradeMixin = {
       this.amountChange(false, true)
     },
 
-    onSetAmount(balance, fromWallet = false) {
-      this.fromWallet = fromWallet
+    onSetAmount(balance) {
       this.amount = balance
+
       this.amountChange()
     },
 

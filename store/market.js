@@ -19,7 +19,15 @@ export const state = () => ({
 
   streaming: false,
 
-  orderLoading: false
+  orderLoading: false,
+
+  price_bid: 0,
+
+  amount_buy: 0,
+  amount_sell: 0,
+
+  total_buy: 0,
+  total_sell: 0
 })
 
 export const mutations = {
@@ -38,7 +46,15 @@ export const mutations = {
     state.base_token = base_token
     state.quote_token = quote_token
     state.stats = market
-  }
+  },
+
+  SET_PRICE: (state, price) => state.price_bid = price,
+
+  SET_AMOUNT_BUY: (state, amount) => state.amount_buy = amount,
+  SET_AMOUNT_SELL: (state, amount) => state.amount_sell = amount,
+
+  SET_TOTAL_BUY: (state, amount) => state.total_buy = amount,
+  SET_TOTAL_SELL: (state, amount) => state.total_sell = amount
 }
 
 export const actions = {
