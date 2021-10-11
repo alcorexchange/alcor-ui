@@ -34,7 +34,10 @@
     direction="btt"
     size="80%"
   )
-    bid(:type="bidType")
+    bid(
+      :type="bidType"
+      @setType="bidType = $event"
+    )
 </template>
 
 <script>
