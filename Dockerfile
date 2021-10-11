@@ -1,4 +1,4 @@
-FROM node:16.3.0
+FROM node:16
 
 # create destination directory
 RUN mkdir /app
