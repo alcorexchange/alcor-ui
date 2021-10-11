@@ -9,8 +9,6 @@ const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Y
 module.exports = {
   telemetry: false,
 
-  mode: 'universal',
-
   env: {
     isDev,
     isSPA,
@@ -94,7 +92,7 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
-    'vue-github-buttons/nuxt',
+    //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
     //'nuxt-purgecss' // FIXME Fails on docker pro
