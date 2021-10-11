@@ -2484,10 +2484,10 @@
     is-plain-object "^5.0.0"
     universal-user-agent "^6.0.0"
 
-"@octokit/openapi-types@^11.1.0":
-  version "11.1.0"
-  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-11.1.0.tgz#3c0d2d844b876314ad49d7f3d03eed4953038272"
-  integrity sha512-dWZfYvCCdjZzDYA3lIAMF72Q0jld8xidqCq5Ryw09eBJXZdcM6he0vWBTvw/b5UnGYqexxOyHWgfrsTlUJL3Gw==
+"@octokit/openapi-types@^11.2.0":
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-11.2.0.tgz#b38d7fc3736d52a1e96b230c1ccd4a58a2f400a6"
+  integrity sha512-PBsVO+15KSlGmiI8QAzaqvsNlZlrDlyAJYcrXBCvVUxCp7VnXjkwPoFHgjEJXx3WF9BAwkA6nfCUA7i9sODzKA==
 
 "@octokit/plugin-enterprise-rest@^6.0.1":
   version "6.0.1"
@@ -2574,11 +2574,11 @@
     "@types/node" ">= 8"
 
 "@octokit/types@^6.0.3", "@octokit/types@^6.16.1":
-  version "6.33.0"
-  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-6.33.0.tgz#7e5e664d65e88b74b6de76f328b80a344bef3f86"
-  integrity sha512-0zffZ048M0UhthyPXQHLz4038Ak46nMWZXkzlXvXB/M/L1jYPBceq4iZj4qjKVrvveaJrrgKdJ9+3yUuITfcCw==
+  version "6.34.0"
+  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-6.34.0.tgz#c6021333334d1ecfb5d370a8798162ddf1ae8218"
+  integrity sha512-s1zLBjWhdEI2zwaoSgyOFoKSl109CUcVBCc7biPJ3aAf6LGLU6szDvi31JPU7bxfla2lqfhjbbg/5DdFNxOwHw==
   dependencies:
-    "@octokit/openapi-types" "^11.1.0"
+    "@octokit/openapi-types" "^11.2.0"
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
@@ -3533,9 +3533,9 @@ anymatch@^3.0.0, anymatch@~3.1.2:
     picomatch "^2.0.4"
 
 apexcharts@^3.25.0:
-  version "3.28.3"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-3.28.3.tgz#22a6d9b234c82f6c2e1dd4aebba05b7603e2b1d2"
-  integrity sha512-EhghB2P27/Gjhwct8sSS0V63mdpRMx/ikH34dwUTqZQnkAEyOS/RKDmYjXBNA7zsAKBE/pThOdoTya6ADyk6zQ==
+  version "3.29.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-3.29.0.tgz#1ffb940f293b21e20830ca0567bb37c29894e832"
+  integrity sha512-PhI17VayidYAbLb5/g+7WOeirgFrVopzt0qGwLq8V+cd6NXx4CeHYq3S0pDZiUGO7UFQ4YIrT8+ie9/Fnler+w==
   dependencies:
     svg.draggable.js "^2.2.2"
     svg.easing.js "^2.0.0"
@@ -5620,9 +5620,9 @@ css-what@^3.2.1:
   integrity sha512-ACUm3L0/jiZTqfzRM3Hi9Q8eZqd6IK37mMWPLz9PJxkLWllYeRf+EHUSHYEtFop2Eqytaq1FizFVh7XfBnXCDQ==
 
 css-what@^5.0.0:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/css-what/-/css-what-5.0.1.tgz#3efa820131f4669a8ac2408f9c32e7c7de9f4cad"
-  integrity sha512-FYDTSHb/7KXsWICVsxdmiExPjCfRC4qRFBdVwv7Ax9hMnvMmEjP9RfxTEZ3qPZGmADDn2vAKSo9UcN1jKVYscg==
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/css-what/-/css-what-5.1.0.tgz#3f7b707aadf633baf62c2ceb8579b545bb40f7fe"
+  integrity sha512-arSMRWIIFY0hV8pIxZMEfmMI47Wj3R/aWpZDDxWYCPEiOMv6tfOrnpDtgxBYPEQD4V0Y/958+1TdC3iWTFcUPw==
 
 cssdb@^4.4.0:
   version "4.4.0"
