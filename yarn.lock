@@ -2430,7 +2430,7 @@
     fast-sha256 "^1.1.1"
     fast-text-encoding "^1.0.3"
 
-"@proton/web-sdk@^2.7.16":
+"@proton/web-sdk@^2.7.23":
   version "2.7.23"
   resolved "https://registry.yarnpkg.com/@proton/web-sdk/-/web-sdk-2.7.23.tgz#465a9aac431588268b4c505b79e565814b2c8612"
   integrity sha512-B99YVXcSYLhAe+/tU2OEc8eKfmugFuqgzE1Hz5HUIxDH7+K3/mkSKkrV1GTHBTbnFOTLqtW33Z7S2Ab0Xy/vfg==
