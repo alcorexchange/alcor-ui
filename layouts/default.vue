@@ -1,6 +1,7 @@
 <template lang="pug">
 div
   AlcorLoading
+  ResourcesModal
   ModalsDialog
   .layout.alcor-inner(:class="$route.name == 'trade-index-id' ? 'is-market' : ''" ref="top")
     nav.nav(v-if='!isMobile')
@@ -33,6 +34,7 @@ div
         .menu-underlay(@click='closeMenu' v-if='menuActive')
       .fixed-menu
         ConnectNav
+
     .main
       nuxt
     FooterBlock
@@ -50,6 +52,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav.vue'
 import AlcorLoading from '~/components/AlcorLoading.vue'
+import ResourcesModal from '~/components/modals/Resources.vue'
 
 export default {
   components: {
@@ -59,7 +62,8 @@ export default {
     AlcorLink,
     AlcorButton,
     ConnectNav,
-    AlcorLoading
+    AlcorLoading,
+    ResourcesModal
   },
 
   data() {
@@ -82,7 +86,7 @@ export default {
       const items = []
 
       if (
-        ['eos', 'wax', 'jungle', 'telos'].includes(
+        ['eos', 'wax', 'jungle', 'telos', 'local'].includes(
           this.$store.state.network.name
         )
       ) {
@@ -103,7 +107,7 @@ export default {
 
       //items.push({ index: '/about', name: 'About' })
 
-      items.push({ index: '/wallet/tokens', name: 'Wallet' })
+      items.push({ index: '/wallet', name: 'Wallet' })
 
       items.push({ index: '/docs', name: 'Docs' })
 

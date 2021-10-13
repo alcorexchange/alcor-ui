@@ -14,6 +14,7 @@ export default ({ app: { store, $axios } }, inject) => {
     store.dispatch('swap/init')
     store.dispatch('chain/init')
     store.dispatch('market/init')
+    store.dispatch('wallet/init')
     //store.dispatch('coinswitch/init')
 
     if (process.env.isDev) {

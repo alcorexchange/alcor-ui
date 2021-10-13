@@ -6,7 +6,7 @@
         .d-flex.mb-1.select-label
           small.text-muted Sell
 
-          el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance }}
+          el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="inputAmount" :tokens="tokens0" :token="0" @change="tokenChanged(0)")
@@ -20,9 +20,21 @@
         i.el-icon-bottom.lead.pointer(@click="toggleInputs")
     .row.mt-1
       .col
-        .d-flex.mb-1.select-label
+        .d-flex.mb-1.select-label.align-items-center
           small.text-muted Buy (Estimated)
-          small.text-mutted.small.ml-auto.with-padding {{ outputBalance }}
+          .swap-setting.ml-1
+            el-dropdown(trigger="click")
+              i.el-icon-setting
+              el-dropdown-menu.dropdown(slot="dropdown")
+                .section
+                  .section-label Transaction Setting
+                  label Slippage Tolerance %
+                  .section-content
+                    AlcorButton(@click="resetSlippageTolerance" round compact) Auto
+                    .section-input
+                      el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
+                        //- template(#prepend) %
+          small.text-mutted.small.ml-auto.with-padding {{ outputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="outputAmount" :tokens="tokens1" readonly :token="1" @change="tokenChanged(1)")
@@ -47,8 +59,8 @@
           div(v-loading="loading").confirm-button
             .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
               el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
-            .div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
-              el-button(type="primary" disabled).w-100 Insufficient Funds
+            //.div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
+            //  el-button(type="primary" disabled).w-100 Insufficient Funds
             .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
               el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
             .div(v-else)
@@ -58,7 +70,7 @@
       .col
         .d-flex.justify-content-between
           small Minimum Received
-          .small {{ minOutput }}
+          .small {{ minOutput | commaFloat }}
         SSpacer
         .d-flex.justify-content-between
           small Rate
@@ -74,7 +86,7 @@
         SSpacer
         .d-flex.justify-content-between
           small Slippage
-          .small 3%
+          .small {{ slippageTolerance }}%
         SSpacer
         .d-flex.justify-content-between
           small Liquidity Source Fee
@@ -94,12 +106,14 @@ import config from '~/config'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'
 import SSpacer from '~/components/SSpacer.vue'
+import AlcorButton from '~/components/AlcorButton.vue'
 
 export default {
   components: {
     SelectToken,
     PleaseLoginButton,
-    SSpacer
+    SSpacer,
+    AlcorButton
   },
 
   data() {
@@ -135,7 +149,7 @@ export default {
               callback()
             } else {
               this.ibcForm.valid = false
-              callback(new Error('Account not exists!'))
+              callback(new Error('Account does not exist!'))
             }
           }
         }
@@ -207,6 +221,15 @@ export default {
           100
         ).toFixed(2)
       )
+    },
+
+    slippageTolerance: {
+      get() {
+        return this.$store.state.swap.slippage
+      },
+      set(value) {
+        this.$store.commit('swap/setSlippage', value)
+      }
     }
   },
 
@@ -225,6 +248,9 @@ export default {
   },
 
   methods: {
+    resetSlippageTolerance() {
+      this.slippageTolerance = 3
+    },
     tokenChanged(token) {
       this.ibcForm.transfer = false
 
@@ -238,7 +264,13 @@ export default {
     },
 
     calcOutput() {
-      if (!this.pair || !this.output || !this.inputAmount) return
+      if (
+        !this.pair ||
+        !this.output ||
+        !this.inputAmount ||
+        this.output.precision == undefined
+      )
+        return
 
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
@@ -256,8 +288,10 @@ export default {
         ),
         reserve_out.amount
       )
+
+      const fee = Math.max(this.slippageTolerance * 10, 1)
       const amount_min_output = amount_out.minus(
-        amount_out.multiply(50).divide(1000)
+        amount_out.multiply(fee).divide(1000)
       )
 
       this.minOutput = asset(
@@ -292,8 +326,10 @@ export default {
         ),
         reserve_in.amount
       )
+
+      const fee = Math.max(this.slippageTolerance * 10, 1)
       const amount_min_input = amount_in.minus(
-        amount_out.multiply(30).divide(1000)
+        amount_out.multiply(fee).divide(1000)
       )
 
       this.inputAmount = parseFloat(
@@ -395,19 +431,25 @@ export default {
       if (!this.inputAmount || !this.outputAmount) return
 
       if (parseFloat(this.priceImpact) > 10) {
-        this.$confirm('You are significantly overpaying for the exchange. Try the amount less or do you want to continue?', 'Impact on the price above 10%!', {
-          confirmButtonText: 'OK',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(() => {
-          this.processExchange()
-        }).catch(() => {
-          this.$notify({
-            type: 'info',
-            title: 'Swap',
-            message: 'Swap canceled'
+        this.$confirm(
+          'You are significantly overpaying for the exchange. Try the amount less or do you want to continue?',
+          'Impact on the price above 10%!',
+          {
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }
+        )
+          .then(() => {
+            this.processExchange()
           })
-        })
+          .catch(() => {
+            this.$notify({
+              type: 'info',
+              title: 'Swap',
+              message: 'Swap canceled'
+            })
+          })
       } else {
         this.processExchange()
       }
@@ -431,6 +473,36 @@ export default {
   &:hover {
     background: #161617;
   }
+}
+.dropdown {
+  padding: 14px;
+  // .el-input-group__append {
+  //   padding: 0 !important;
+  // }
+}
+.swap-setting {
+  display: flex;
+  justify-content: flex-end;
+  .el-icon-setting {
+    font-size: 1rem;
+  }
+}
+.section-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.section-content {
+  display: flex;
+  align-items: flex-end;
+  .alcor-button {
+    margin-right: 4px;
+  }
+}
+label {
+  margin-bottom: 4px;
+}
+.section-input {
+  width: 200px;
 }
 </style>
 <style lang="scss">

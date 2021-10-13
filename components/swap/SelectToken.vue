@@ -44,7 +44,7 @@
             .text-muted.ml-2.small {{ token.contract }}
 
             .ml-auto(v-if="user")
-              span.text-muted {{ $tokenBalance(token.symbol || token.currency, token.contract) }}
+              span.text-muted {{ token.balance }}
 
           slot(name="end")
 </template>
@@ -126,6 +126,11 @@ export default {
       return this.tokens.filter((t) => {
         const s = (t.symbol + '@' + t.contract).toLowerCase()
         return s.includes(this.search.toLowerCase())
+      }).map(t => {
+        t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
+        return t
+      }).sort((a, b) => {
+        return a.balance == '0.0000' ? 1 : -1
       })
     }
   },

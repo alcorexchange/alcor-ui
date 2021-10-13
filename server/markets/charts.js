@@ -54,6 +54,7 @@ export async function markeBar(timeframe, match) {
       last_bar.low = match.unit_price
     }
 
+    //last_bar.time = match.time
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
   } else {
     await Bar.create({

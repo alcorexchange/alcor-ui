@@ -1,15 +1,17 @@
-[<img src="https://raw.githubusercontent.com/avral/alcor-ui/master/assets/logos/alcorblack2.svg" height=150>](https://alcor.exchange)
+Project is Hiring Full-Stack Dev NOW! Good payment in cryptocurrency! Contact: [@avral](https://t.me/avral)
+--
+# The first listing free decentralized exchange.
+Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)
 
-The first listing free decentralized exchange.
+![Alcor Exchange](https://i.imgur.com/brvzFdi.png)
 
-![Alcor](https://ipfs.io/ipfs/QmQSocTSazDmdL1N57icZpAgTTxupHkNMnGxJUzzuzKQLh)
-
-With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract.
+With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The token's contract should comply with the [eosio.token](https://github.com/EOSIO/eosio.contracts/tree/master/contracts/eosio.token) standard or be a [Simple Assets](https://github.com/CryptoLions/SimpleAssets) fungible token.
 
 Props:
 1. Fully-onchain.
 2. Free CPU program.
 3. Open Source.
+
 
 [Join our telegram!](https://t.me/alcorexchange)
 
@@ -75,7 +77,7 @@ $ yarn run generate
 # Docker run:
 docker run -d --restart=unless-stopped -p 127.0.0.1:27017:27017 --name mongo -m=3g mongo:4.4 --bind_ip 0.0.0.0
 
-docker run -it -p 7002:7000 --restart=unless-stopped -d --label=com.centurylinklabs.watchtower.lifecycle.post-check="rm -rf /data/nginx/cache/eostokens && service nginx reload" --label=com.centurylinklabs.watchtower.enable=true --name alcor-ui --add-host=host.docker.internal:172.17.0.9 avral/alcor-ui:new_mongo
+docker run -it -p 7002:7000 --restart=unless-stopped -d --label=com.centurylinklabs.watchtower.lifecycle.post-check="rm -rf /data/nginx/cache/eostokens && service nginx reload" --label=com.centurylinklabs.watchtower.enable=true --name alcor-ui --add-host=host.docker.internal:172.17.0.9 avral/alcor-ui
 ```
 
 ## Created:

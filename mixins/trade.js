@@ -104,7 +104,6 @@ export const tradeMixin = {
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)
       this.amountChange()
-      console.log('on fix price')
     },
 
     priceChange() {
@@ -115,31 +114,38 @@ export const tradeMixin = {
 
       //const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       //this.total = (price.toFixed(config.PRICE_DIGITS) * this.amount)
-      this.amountChange(false, false)
+      this.amountChange(false, true)
     },
+
     onSetAmount(balance) {
       this.amount = balance
       this.amountChange()
     },
+
+    setPrecisions() {
+      const bp = this.base_token.symbol.precision
+      const qp = this.quote_token.symbol.precision
+
+      this.amount = (parseFloat(this.amount) || 0).toFixed(qp)
+      this.total = (parseFloat(this.total) || 0).toFixed(bp)
+    },
+
     amountChange(desc = false, toFloat = true) {
       // TODO Сделать обновление в реалтайм
       if (parseFloat(this.price) == 0) return
 
       const bp = this.base_token.symbol.precision
       const qp = this.quote_token.symbol.precision
-      this.amount = toFloat ? (parseFloat(this.amount) || 0).toFixed(qp) : (parseFloat(this.amount) || 0)
 
-      const amount = asset(this.amount + ' TEST').amount
+      const amount = asset((parseFloat(this.amount) || 0).toFixed(qp) + ' TEST').amount
       const price = asset(Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS).toFixed(config.PRICE_DIGITS) + ' TEST').amount
 
       // TODO and FIXME the price calculation is wrong here..
       //console.log('amount', amount, price, qp, bp, correct_price(price, qp, bp))
       const total = amount.multiply(correct_price(price, qp, bp)).divide(config.PRICE_SCALE)
 
-      // this.amount = toFloat ? amountToFloat(amount, qp) : parseFloat(amount)
-      this.amount = toFloat ? amountToFloat(amount, qp) : parseFloat(amount)
+      //this.amount = toFloat ? amountToFloat(amount, qp) : parseFloat(amount)
       this.total = toFloat ? amountToFloat(total, bp) : parseFloat(total)
-      console.log({ amount })
     },
 
     totalChange(desc = false, toFloat = true) {
@@ -148,10 +154,9 @@ export const tradeMixin = {
 
       const bp = this.base_token.symbol.precision
       const qp = this.quote_token.symbol.precision
-      this.total = toFloat ? (parseFloat(this.total) || 0).toFixed(bp) : (parseFloat(this.total) || 0)
 
-      const total = asset(this.total + ' TEST').amount
-      const price = asset(this.price + ' TEST').amount
+      const total = asset((parseFloat(this.total) || 0).toFixed(bp) + ' TEST').amount
+      const price = asset(Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS).toFixed(config.PRICE_DIGITS) + ' TEST').amount
       const c_price = correct_price(price, qp, bp)
 
       const division = total.multiply(config.PRICE_SCALE).plus(c_price).minus(1).divide(c_price)
@@ -190,7 +195,7 @@ export const tradeMixin = {
 
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/loadUserOrders')
+          this.$store.dispatch('loadOrders', this.$store.state.market.id)
           this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
@@ -229,7 +234,7 @@ export const tradeMixin = {
 
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/loadUserOrders')
+          this.$store.dispatch('loadOrders', this.$store.state.market.id)
           this.$store.dispatch('market/fetchOrders')
         }, 1000)
 

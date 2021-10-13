@@ -44,6 +44,7 @@ export default {
   },
 
   mounted() {
+    this.$store.dispatch('loadOrders', this.id)
     if (!this.streaming) {
       this.$store.dispatch('market/startStream', this.id)
     }
@@ -59,7 +60,7 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain, with NO FEE!`
+          content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain!`
         },
         { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(quote_token.symbol.name, quote_token.contract) }
       ]

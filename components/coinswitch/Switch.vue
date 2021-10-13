@@ -119,7 +119,10 @@ export default {
           validator: async (rule, value, callback) => {
             if (value == '') return callback()
             this.loading = true
-            const exists = await isAccountExists(value, config.networks[this.ibcChain])
+            const exists = await isAccountExists(
+              value,
+              config.networks[this.ibcChain]
+            )
             this.loading = false
 
             if (exists) {
@@ -127,7 +130,7 @@ export default {
               callback()
             } else {
               this.ibcForm.valid = false
-              callback(new Error('Account not exists!'))
+              callback(new Error('Account does not exist!'))
             }
           }
         }
@@ -166,9 +169,12 @@ export default {
     },
 
     price() {
-      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return '0.0000'
+      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount)))
+        return '0.0000'
 
-      const rate = (parseFloat(this.outputAmount) / parseFloat(this.inputAmount)).toFixed(4)
+      const rate = (
+        parseFloat(this.outputAmount) / parseFloat(this.inputAmount)
+      ).toFixed(4)
 
       return `${this.input.symbol} = ${rate} ${this.output.symbol}`
     },
@@ -178,9 +184,16 @@ export default {
     },
 
     priceImpact() {
-      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount))) return 0.0
+      if (!(parseFloat(this.inputAmount) && parseFloat(this.outputAmount)))
+        return 0.0
 
-      return parseFloat(((parseFloat(this.outputAmount) * 0.97) / (parseFloat(this.poolTwo.quantity)) * 100).toFixed(2))
+      return parseFloat(
+        (
+          ((parseFloat(this.outputAmount) * 0.97) /
+            parseFloat(this.poolTwo.quantity)) *
+          100
+        ).toFixed(2)
+      )
     }
   },
 
@@ -202,9 +215,12 @@ export default {
     tokenChanged(token) {
       this.ibcForm.transfer = false
 
-      if (token == 0 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
-      if (token == 0 && this.input && parseFloat(this.outputAmount)) this.calcInput()
-      if (token == 1 && this.input && parseFloat(this.inputAmount)) this.calcOutput()
+      if (token == 0 && this.input && parseFloat(this.inputAmount))
+        this.calcOutput()
+      if (token == 0 && this.input && parseFloat(this.outputAmount))
+        this.calcInput()
+      if (token == 1 && this.input && parseFloat(this.inputAmount))
+        this.calcOutput()
       if (token == 1 && !this.input) this.calcInput()
     },
 
@@ -214,16 +230,30 @@ export default {
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
 
-      const amount_in = asset(parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT').amount
+      const amount_in = asset(
+        parseFloat(this.inputAmount).toFixed(this.input.precision) + ' TEXT'
+      ).amount
 
       const amount_out = BigInt.min(
-        get_amount_out(amount_in, reserve_in.amount, reserve_out.amount, this.pair.fee),
+        get_amount_out(
+          amount_in,
+          reserve_in.amount,
+          reserve_out.amount,
+          this.pair.fee
+        ),
         reserve_out.amount
       )
-      const amount_min_output = amount_out.minus(amount_out.multiply(50).divide(1000))
+      const amount_min_output = amount_out.minus(
+        amount_out.multiply(50).divide(1000)
+      )
 
-      this.minOutput = asset(amount_min_output, symbol(this.output.symbol, this.output.precision)).to_string()
-      this.outputAmount = parseFloat(asset(amount_out, reserve_out.symbol).to_string()).toFixed(this.output.precision)
+      this.minOutput = asset(
+        amount_min_output,
+        symbol(this.output.symbol, this.output.precision)
+      ).to_string()
+      this.outputAmount = parseFloat(
+        asset(amount_out, reserve_out.symbol).to_string()
+      ).toFixed(this.output.precision)
     },
 
     calcInput() {
@@ -232,20 +262,34 @@ export default {
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity
 
-      let amount_out = asset(parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT').amount
+      let amount_out = asset(
+        parseFloat(this.outputAmount).toFixed(this.output.precision) + ' TEXT'
+      ).amount
       if (amount_out > reserve_out.amount) {
         amount_out = reserve_out.amount.minus(1)
         this.outputAmount = asset(amount_out, reserve_out.symbol).to_string()
       }
 
       const amount_in = BigInt.min(
-        get_amount_in(amount_out, reserve_in.amount, reserve_out.amount, this.pair.fee),
+        get_amount_in(
+          amount_out,
+          reserve_in.amount,
+          reserve_out.amount,
+          this.pair.fee
+        ),
         reserve_in.amount
       )
-      const amount_min_input = amount_in.minus(amount_out.multiply(30).divide(1000))
+      const amount_min_input = amount_in.minus(
+        amount_out.multiply(30).divide(1000)
+      )
 
-      this.inputAmount = parseFloat(asset(amount_in, reserve_in.symbol).to_string()).toFixed(this.input.precision)
-      this.minOutput = asset(amount_min_input, symbol(this.output.symbol, this.output.precision)).to_string()
+      this.inputAmount = parseFloat(
+        asset(amount_in, reserve_in.symbol).to_string()
+      ).toFixed(this.input.precision)
+      this.minOutput = asset(
+        amount_min_input,
+        symbol(this.output.symbol, this.output.precision)
+      ).to_string()
     },
 
     toggleInputs() {
@@ -305,7 +349,10 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.pools.contract,
-            quantity: parseFloat(this.inputAmount).toFixed(this.input.precision) + ' ' + this.input.symbol,
+            quantity:
+              parseFloat(this.inputAmount).toFixed(this.input.precision) +
+              ' ' +
+              this.input.symbol,
             memo
           }
         }
@@ -323,7 +370,11 @@ export default {
 
         this.$notify({ title: 'Swap', message: 'Success', type: 'success' })
       } catch (e) {
-        this.$notify({ title: 'Swap error', message: 'message' in e ? e.message : e, type: 'error' })
+        this.$notify({
+          title: 'Swap error',
+          message: 'message' in e ? e.message : e,
+          type: 'error'
+        })
       } finally {
         this.loading = false
       }
@@ -346,6 +397,5 @@ export default {
     top: -32px;
     left: -5px;
   }
-
 }
 </style>

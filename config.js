@@ -114,6 +114,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap'
     },
+
+    USD_TOKEN: 'USDT@tethertether'
   },
 
   proton: {
@@ -144,8 +146,8 @@ const networks = {
     client_nodes: [],
 
     otc: {
-      contract: 'alcorotcswap',
-      divs: 'aw.aq.waa'
+      contract: 'alcorotc',
+      divs: 'avral'
     },
 
     pools: {
@@ -160,7 +162,9 @@ const networks = {
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
+
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
   wax: {
@@ -205,11 +209,13 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
-    SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army', 'onfederation'],
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
+
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
   telos: {
@@ -228,8 +234,8 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    //host: 'telos.greymass.com',
-    host: 'telos.caleos.io',
+    host: 'telos.greymass.com',
+    //host: 'mainnet.telos.net',
     port: 443,
     protocol: 'https',
     monitor: 'http://telos.bloks.io',
@@ -481,7 +487,7 @@ const networks = {
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'avral.pro',
 
-    chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
+    chainId: '8a34ec7df1b8cd06ff4a8abbaa7cc50300823350cadc59ab296cb00d104d2b8f',
     host: '127.0.0.1',
     port: 8888,
     protocol: 'http',

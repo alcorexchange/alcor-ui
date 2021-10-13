@@ -16,7 +16,7 @@
             span.ml-2(v-else) {{ network.desc }}
   .right
     .user-detail(v-if='user')
-      .balance(@click="openInNewTab(monitorAccount(user.name))") {{ systemBalance }}
+      .balance(@click="openInNewTab(monitorAccount(user.name))") {{ systemBalance |commaFloat }}
       el-dropdown
         .user-name {{ user.name }}
         //template(#dropdown='')
@@ -77,7 +77,7 @@ export default {
   },
 
   components: {
-    AlcorButton,
+    AlcorButton
     // AlcorLink
   },
   computed: {
@@ -165,12 +165,16 @@ export default {
 .balance {
   padding: 4px 8px;
   cursor: pointer;
+  // font-size: 0.75rem;
 }
 .user-name {
   padding: 4px 8px;
   background: var(--background-color-base);
   border-radius: var(--radius);
   cursor: pointer;
+  // @media only screen and (max-width: 310px) {
+  //   font-size: 0.75rem;
+  // }
 }
 .network-selection {
   cursor: pointer;

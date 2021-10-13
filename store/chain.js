@@ -41,20 +41,21 @@ export const actions = {
     if (rootState.network.name == 'wax') {
       if (!state.wallet.wax) {
         // Check for wax auto login
-        const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false)
+        const wax = new waxjs.WaxJS({ rpcEndpoint: 'https://wax.greymass.com', tryAutoLogin: false })
         wax.rpc = this.$rpc
         commit('setWallet', { ...state.wallet, wax })
-
         const isAutoLoginAvailable = await wax.isAutoLoginAvailable()
         if (isAutoLoginAvailable) {
           commit('setCurrentWallet', 'wax')
           commit('setUser', {
-            name: wax.userAccount,
+            name: wax.user.account,
             authorization: {
-              actor: wax.userAccount, permission: 'active'
+              actor: wax.user.account, permission: 'active'
             }
           }, { root: true })
           dispatch('loadUserBalances', {}, { root: true })
+          dispatch('loadUserOrders', {}, { root: true })
+          dispatch('loadOrders', rootState.market.id, { root: true })
           return
         }
         console.log('no wax autologin found...')
@@ -83,7 +84,15 @@ export const actions = {
     }
   },
 
-  async logout({ state, commit, getters }) {
+  async logout({ state, commit, getters, rootState }) {
+    this.$socket.emit('unsubscribe', {
+      room: 'account',
+      params: {
+        chain: rootState.network.name,
+        name: rootState.user.name
+      }
+    })
+
     if (state.provider == 1) {
       commit('setAnchorSession', { accountName: null, authorization: null })
     }
@@ -93,13 +102,11 @@ export const actions = {
         await getters.wallet.logout()
         commit('setUser', null, { root: true })
         break
-      case 'wax':
-        state.wallet.wax.api.logout()
-        commit('setUser', null, { root: true })
-        break
       default:
         commit('setUser', null, { root: true })
     }
+
+    commit('setUserOrders', [], { root: true })
   },
 
   async login({ state, commit, dispatch, getters, rootState }, provider) {
@@ -157,10 +164,19 @@ export const actions = {
         commit('setCurrentWallet', 'transit')
       }
 
-      dispatch('fetchUserDeals', {}, { root: true })
-
+      // May be remove from login
+      // TODO move this 3 functionss to hook after each login
       dispatch('loadUserBalances', {}, { root: true })
-      dispatch('market/loadUserOrders', {}, { root: true })
+      dispatch('loadUserOrders', {}, { root: true })
+      dispatch('loadOrders', rootState.market.id, { root: true })
+
+      this.$socket.emit('subscribe', {
+        room: 'account',
+        params: {
+          chain: rootState.network.name,
+          name: rootState.user.name
+        }
+      })
 
       if (state.loginPromise) state.loginPromise.resolve(true)
     } catch (e) {
@@ -201,7 +217,7 @@ export const actions = {
       ]
     )
 
-    dispatch('market/loadUserOrders', {}, { root: true })
+    dispatch('loadOrders', market_id, { root: true })
 
     return r
   },
@@ -220,6 +236,10 @@ export const actions = {
   async sendTransaction({ state, rootState, dispatch, getters, commit }, actions) {
     const tx = { actions }
     let transact
+
+    if (actions && actions[0].name != 'delegatebw') {
+      await dispatch('resources/showIfNeeded', undefined, { root: true })
+    }
 
     if (state.currentWallet == 'wax') {
       transact = state.wallet.wax.api.transact(tx, transactionHeader)

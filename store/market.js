@@ -1,10 +1,11 @@
-import { mergeSamePriceOrders, nameToUint64 } from '~/utils'
+import { mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
 
   slug: '',
   symbol: '',
+  meta: {},
 
   base_token: {},
   quote_token: {},
@@ -15,8 +16,6 @@ export const state = () => ({
   asks: [],
 
   deals: [],
-
-  userOrders: [],
 
   streaming: false,
 
@@ -29,8 +28,6 @@ export const mutations = {
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
-
-  setUserOrders: (state, orders) => state.userOrders = orders,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
@@ -72,7 +69,6 @@ export const actions = {
 
   setMarket({ state, dispatch, commit }, market) {
     commit('setDeals', [])
-    commit('setUserOrders', [])
 
     if (process.client) {
       if (state.id) {
@@ -85,7 +81,7 @@ export const actions = {
     commit('setMarket', market)
 
     if (process.client) {
-      dispatch('loadUserOrders')
+      dispatch('loadOrders', market.id, { root: true })
     }
   },
 
@@ -97,32 +93,6 @@ export const actions = {
     ]).then(([buyOrders, sellOrders]) => {
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
-    }).catch(e => console.log(e))
-  },
-
-  async loadUserOrders({ state, rootState, commit, dispatch }) {
-    if (!rootState.user || !rootState.user.name || !state.id) return
-
-    const { name } = rootState.user
-
-    await Promise.all([
-      dispatch('api/getBuyOrders', {
-        market_id: state.id,
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(name),
-        upper_bound: nameToUint64(name)
-      }, { root: true }),
-
-      dispatch('api/getSellOrders', {
-        market_id: state.id,
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(name),
-        upper_bound: nameToUint64(name)
-      }, { root: true })
-    ]).then(([buyOrders, sellOrders]) => {
-      commit('setUserOrders', buyOrders.concat(sellOrders))
     }).catch(e => console.log(e))
   },
 
@@ -145,6 +115,10 @@ export const getters = {
     }
 
     return '0.00000000'
+  },
+
+  meta(state, getters, rootState) {
+    return rootState.markets.filter(m => m.id == state.id)[0] || {}
   },
 
   relatedPool(state, getters, rootState) {

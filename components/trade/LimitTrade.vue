@@ -3,7 +3,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-success Buy {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -13,7 +13,7 @@
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" @input="amountChange(false, false)" @change="amountChange(false, true)" clearable size="medium")
+        el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
@@ -21,7 +21,7 @@
         el-slider(:step="1" v-model="eosPercent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item(prop="total" :inline-message="true").mt-4
-        el-input(type="number" v-model="total" @input="totalChange(false, false)"  @change="totalChange(false, true)" size="medium")
+        el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
           span(slot="prefix").mr-1 TOTAL
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
@@ -32,7 +32,7 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-danger Sell {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
     el-form(ref="form" :rules="rules")
@@ -42,7 +42,7 @@
           span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" clearable @change="fixPrice()"  @input="priceChange()" size="medium")
+        el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
@@ -50,7 +50,7 @@
         el-slider(:step="1" v-model="tokenPercent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
 
       el-form-item(prop="total" :inline-message="true").mt-4
-        el-input(type="number" v-model="total" @input="totalChange(false, false)"  @change="totalChange(false, true)" size="medium")
+        el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
           span(slot="prefix").mr-1 TOTAL
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 

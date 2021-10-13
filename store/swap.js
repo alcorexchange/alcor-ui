@@ -17,7 +17,9 @@ export const state = () => ({
     precision: 0
   },
 
-  stream: null
+  stream: null,
+
+  slippage: 0.1
 })
 
 export const mutations = {
@@ -26,7 +28,8 @@ export const mutations = {
   setOutput: (state, token) => state.output = token,
   setTab: (state, tab) => state.tab = tab,
   setWithdrawToken: (state, token) => state.withdraw_token = token,
-  setStream: (state, stream) => state.stream = stream
+  setStream: (state, stream) => state.stream = stream,
+  setSlippage: (state, slippage) => state.slippage = slippage
 }
 
 export const actions = {
@@ -34,13 +37,13 @@ export const actions = {
     await dispatch('getPairs')
 
     if (!getters.current) {
-      if (state.pairs) dispatch('setPair', state.pairs[0].id)
+      if (getters.pairs.length > 0) dispatch('setPair', getters.pairs[0].id)
       return
     }
 
     // Or, there was selected in inputs
     // Update after server input/output set (need precision)
-    const tokens = get_all_tokens(state.pairs)
+    const tokens = get_all_tokens(getters.pairs)
 
     const input = tokens.filter(t => t.symbol == state.input.symbol && t.contract == state.input.contract)[0]
     const output = tokens.filter(t => t.symbol == state.output.symbol && t.contract == state.output.contract)[0] // can fail if no pairs
@@ -112,7 +115,11 @@ export const actions = {
       )
     })
 
-    commit('setPairs', rows)
+    const { SCAM_CONTRACTS } = rootState.network
+    commit(
+      'setPairs',
+      rows.filter(r => !(SCAM_CONTRACTS.includes(r.pool1.contract)) && !(SCAM_CONTRACTS.includes(r.pool1.contract)))
+    )
   },
 
   updatePairOnPush({ state, commit }, data) {
@@ -162,6 +169,10 @@ export const actions = {
 }
 
 export const getters = {
+  pairs(state) {
+    return state.pairs
+  },
+
   tokens0(state, getters, rootState) {
     return get_all_tokens(state.pairs)
   },

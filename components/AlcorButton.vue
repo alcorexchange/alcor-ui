@@ -1,6 +1,9 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, iconOnly, iconOnlyAlt }]"
+    :class="[
+      'alcor-button',
+      { flat, alternative, iconOnly, iconOnlyAlt, round, compact }
+    ]"
     @click.prevent="$emit('click')"
   >
     <div class="inner">
@@ -21,11 +24,21 @@ export default {
       default: false,
       type: Boolean
     },
+    round: {
+      default: false,
+      type: Boolean
+    },
+    compact: {
+      default: false,
+      type: Boolean
+    },
     iconOnly: {
-      default: false
+      default: false,
+      type: Boolean
     },
     iconOnlyAlt: {
-      default: false
+      default: false,
+      type: Boolean
     }
   }
 }
@@ -61,6 +74,13 @@ button {
 }
 .alcor-button.flat:hover {
   box-shadow: none;
+}
+.alcor-button.round {
+  border-radius: 40px;
+  padding: 6px 14px;
+}
+.alcor-button.compact {
+  padding: 4px 12px;
 }
 .inner {
   display: flex;
