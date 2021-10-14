@@ -10,7 +10,7 @@ WORKDIR /app
 
 # copy the app, note .dockerignore
 COPY . /app/
-RUN yarn install
+RUN yarn install --network-concurrency 1
 RUN yarn global add pm2
 
 # build necessary, even if no static files are needed,

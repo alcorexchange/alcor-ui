@@ -50,8 +50,8 @@ class ProtonProvider {
         requestStatus: true
       },
       selectorOptions: {
-        appName: this.appName,
-        appLogo: 'https://protonswap.com/img/logo.svg', /* Optional: Logo to show in modal */
+        appName: 'Alcor Exchange',
+        appLogo: 'https://wax.alcor.exchange/android-chrome-192x192.svg',
 
         customStyleOptions: {
           modalBackgroundColor: '#F4F7FA',
