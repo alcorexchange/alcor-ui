@@ -114,6 +114,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap'
     },
+
+    USD_TOKEN: 'USDT@tethertether'
   },
 
   proton: {
@@ -160,7 +162,9 @@ const networks = {
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
+
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
   wax: {
@@ -205,11 +209,13 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
-    SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army', 'onfederation'],
 
     nftMarket: {
       contract: 'alcornftswap'
-    }
+    },
+
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
   telos: {

@@ -6,7 +6,7 @@
         .d-flex.mb-1.select-label
           small.text-muted Sell
 
-          el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance }}
+          el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="inputAmount" :tokens="tokens0" :token="0" @change="tokenChanged(0)")
@@ -34,7 +34,7 @@
                     .section-input
                       el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
                         //- template(#prepend) %
-          small.text-mutted.small.ml-auto.with-padding {{ outputBalance }}
+          small.text-mutted.small.ml-auto.with-padding {{ outputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
         SelectToken(v-model="outputAmount" :tokens="tokens1" readonly :token="1" @change="tokenChanged(1)")
@@ -70,7 +70,7 @@
       .col
         .d-flex.justify-content-between
           small Minimum Received
-          .small {{ minOutput }}
+          .small {{ minOutput | commaFloat }}
         SSpacer
         .d-flex.justify-content-between
           small Rate
@@ -149,7 +149,7 @@ export default {
               callback()
             } else {
               this.ibcForm.valid = false
-              callback(new Error('Account not exists!'))
+              callback(new Error('Account does not exist!'))
             }
           }
         }
@@ -264,7 +264,13 @@ export default {
     },
 
     calcOutput() {
-      if (!this.pair || !this.output || !this.inputAmount || this.output.precision == undefined) return
+      if (
+        !this.pair ||
+        !this.output ||
+        !this.inputAmount ||
+        this.output.precision == undefined
+      )
+        return
 
       const reserve_in = this.poolOne.quantity
       const reserve_out = this.poolTwo.quantity

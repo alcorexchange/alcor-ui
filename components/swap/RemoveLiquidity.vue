@@ -205,8 +205,7 @@ export default {
     async withdraw() {
       this.loading = true
 
-      const authorization = [{ actor: this.user.name, permission: 'active' }]
-
+      const authorization = [this.user.authorization]
       const actions = [
         {
           account: this.network.pools.contract,

@@ -106,7 +106,7 @@ export default {
 
       //items.push({ index: '/about', name: 'About' })
 
-      items.push({ index: '/wallet/tokens', name: 'Wallet' })
+      items.push({ index: '/wallet', name: 'Wallet' })
 
       items.push({ index: '/docs', name: 'Docs' })
 

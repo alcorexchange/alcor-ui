@@ -115,7 +115,11 @@ export const actions = {
       )
     })
 
-    commit('setPairs', rows)
+    const { SCAM_CONTRACTS } = rootState.network
+    commit(
+      'setPairs',
+      rows.filter(r => !(SCAM_CONTRACTS.includes(r.pool1.contract)) && !(SCAM_CONTRACTS.includes(r.pool1.contract)))
+    )
   },
 
   updatePairOnPush({ state, commit }, data) {

@@ -1,4 +1,4 @@
-import { mergeSamePriceOrders, nameToUint64 } from '~/utils'
+import { mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
   id: null,
@@ -17,8 +17,6 @@ export const state = () => ({
 
   deals: [],
 
-  userOrders: [],
-
   streaming: false,
 
   orderLoading: false
@@ -30,8 +28,6 @@ export const mutations = {
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
-
-  setUserOrders: (state, orders) => state.userOrders = orders,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
@@ -46,11 +42,15 @@ export const mutations = {
 }
 
 export const actions = {
-  init({ state, commit }) {
+  init({ state, commit, dispatch }) {
     this.$socket.on('new_deals', new_deals => {
       // TODO Refactor it
       state.deals.unshift(...new_deals)
       commit('setDeals', state.deals.slice(0, 100))
+    })
+
+    this.$socket.on('connect', () => {
+      if (state.id) dispatch('startStream', state.id)
     })
   },
 
@@ -65,6 +65,8 @@ export const actions = {
   },
 
   startStream({ state, rootState, commit, dispatch }, market) {
+    if (market === undefined) return
+
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
 
@@ -73,7 +75,6 @@ export const actions = {
 
   setMarket({ state, dispatch, commit }, market) {
     commit('setDeals', [])
-    commit('setUserOrders', [])
 
     if (process.client) {
       if (state.id) {
@@ -86,7 +87,7 @@ export const actions = {
     commit('setMarket', market)
 
     if (process.client) {
-      dispatch('loadUserOrders')
+      dispatch('loadOrders', market.id, { root: true })
     }
   },
 
@@ -98,32 +99,6 @@ export const actions = {
     ]).then(([buyOrders, sellOrders]) => {
       commit('setBids', buyOrders)
       commit('setAsks', sellOrders)
-    }).catch(e => console.log(e))
-  },
-
-  async loadUserOrders({ state, rootState, commit, dispatch }) {
-    if (!rootState.user || !rootState.user.name || !state.id) return
-
-    const { name } = rootState.user
-
-    await Promise.all([
-      dispatch('api/getBuyOrders', {
-        market_id: state.id,
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(name),
-        upper_bound: nameToUint64(name)
-      }, { root: true }),
-
-      dispatch('api/getSellOrders', {
-        market_id: state.id,
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(name),
-        upper_bound: nameToUint64(name)
-      }, { root: true })
-    ]).then(([buyOrders, sellOrders]) => {
-      commit('setUserOrders', buyOrders.concat(sellOrders))
     }).catch(e => console.log(e))
   },
 

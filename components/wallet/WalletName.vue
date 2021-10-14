@@ -1,18 +1,26 @@
-<template>
-  <div class="wallet-name">
-    <i class="el-icon-wallet"></i>
-    <div class="name">
-      aw.aq.waa
-    </div>
-    <div class="actions">
-      <i class="el-icon-copy-document"></i>
-    </div>
-  </div>
+<template lang="pug">
+.wallet-name(v-if="this.$store.state.user")
+  i.el-icon-wallet
+  .name
+    | {{ this.$store.state.user.name }}
+  .actions
+    i.el-icon-copy-document.pointer(@click="copyUserName")
 </template>
 
 <script>
 export default {
-  name: 'WalletName'
+  name: 'WalletName',
+
+  methods: {
+    copyUserName() {
+      navigator.clipboard.writeText(this.$store.state.user.name)
+      this.$notify({
+        title: 'Clipboard',
+        message: 'Account name copyed to Clipboard',
+        type: 'info'
+      })
+    }
+  }
 }
 </script>
 
