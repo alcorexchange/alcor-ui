@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { tradeMixin } from '~/mixins/trade'
 
 import TabUi from '~/components/UI/Tabs/Tab.vue'
@@ -65,14 +65,15 @@ export default {
   },
 
   methods: {
-    ...mapMutations('market', ['SET_TOTAL_BUY', 'SET_AMOUNT_SELL']),
+    ...mapMutations('market', ['SET_AMOUNT_SELL']),
+    ...mapActions('market', ['setBuyTotal']),
     setAmount() {
-      if (this.bid == 'buy') this.SET_TOTAL_BUY(this.baseBalance)
-      if (this.bid == 'sell') this.SET_AMOUNT_SELL(this.tokenBalance)
+      // if (this.bid == 'buy') this.setBuyTotal(this.baseBalance)
+      // if (this.bid == 'sell') this.SET_AMOUNT_SELL(this.tokenBalance)
 
       // TEST!!!
-      // if (this.bid == 'buy') this.SET_TOTAL_BUY(3.09)
-      // else if (this.bid == 'sell') this.SET_AMOUNT_SELL(0.77)
+      if (this.bid == 'buy') this.setBuyTotal(3.09)
+      else if (this.bid == 'sell') this.SET_AMOUNT_SELL(0.77)
       // if (this.bid == 'buy') this.onSetAmount(parseFloat(this.baseBalance))
       // if (this.bid == 'sell') this.onSetAmount(parseFloat(this.tokenBalance))
     },

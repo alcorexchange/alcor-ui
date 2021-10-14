@@ -1,3 +1,5 @@
+// import { asset } from 'eos-common'
+import config from '~/config'
 import { mergeSamePriceOrders } from '~/utils'
 
 export const state = () => ({
@@ -21,13 +23,13 @@ export const state = () => ({
 
   orderLoading: false,
 
-  price_bid: 0,
-
-  amount_buy: 0,
-  amount_sell: 0,
-
-  total_buy: 0,
-  total_sell: 0
+  price_bid: null,
+  amount_buy: null,
+  amount_sell: null,
+  percent_buy: 0,
+  percent_sell: 0,
+  total_buy: null,
+  total_sell: null
 })
 
 export const mutations = {
@@ -52,7 +54,8 @@ export const mutations = {
 
   SET_AMOUNT_BUY: (state, amount) => state.amount_buy = amount,
   SET_AMOUNT_SELL: (state, amount) => state.amount_sell = amount,
-
+  SET_PERCENT_BUY: (state, percent) => state.percent_buy = percent,
+  SET_PERCENT_SELL: (state, percent) => state.percent_sell = percent,
   SET_TOTAL_BUY: (state, amount) => state.total_buy = amount,
   SET_TOTAL_SELL: (state, amount) => state.total_sell = amount
 }
@@ -121,7 +124,85 @@ export const actions = {
 
     commit('setMarket', market)
     // TODO Move to client side
+  },
+
+  /**
+   * @param {Object} params - Has two parameters for calculating the accuracy of assets
+   * @param {string} params.int - The quantity to be reduced to a fractional
+   * @param {string} param.prec - How many characters after the comma
+   */
+  calculatePrecision({ state }, params) {
+    return parseFloat(params.int).toFixed(params.prec)
+  },
+
+  setPrecisionPrice({ state, commit }) {
+    const precision = config.PRICE_DIGITS
+    const price = Math.max(parseFloat(state.price_bid) || 0, 1 / 10 ** precision)
+    const floatPrice = price.toFixed(precision)
+
+    commit('SET_PRICE', floatPrice)
+  },
+
+  async setPrecisionAmountBuy({ state, commit, dispatch }) {
+    const float = await dispatch('calculatePrecision', {
+      int: state.amount_buy,
+      prec: state.quote_token.symbol.precision
+    })
+
+    commit('SET_AMOUNT_BUY', float)
+  },
+
+  async setPrecisionAmountSell({ state, commit, dispatch }) {
+    const float = await dispatch('calculatePrecision', {
+      int: state.amount_sell,
+      prec: state.quote_token.symbol.precision
+    })
+
+    commit('SET_AMOUNT_SELL', float)
+  },
+
+  async setPrecisionTotalBuy({ state, commit, dispatch }) {
+    const float = await dispatch('calculatePrecision', {
+      int: state.total_buy,
+      prec: state.base_token.symbol.precision
+    })
+
+    commit('SET_TOTAL_BUY', float)
+  },
+
+  async setPrecisionTotalSell({ state, commit, dispatch }) {
+    const float = await dispatch('calculatePrecision', {
+      int: state.total_sell,
+      prec: state.base_token.symbol.precision
+    })
+
+    commit('SET_TOTAL_SELL', float)
   }
+
+  // setAmountBuy({ state, commit }, amount) {
+
+  //   // const symbolUpperCase = state.base_token.symbol.name.toUpperCase()
+  //   // const amountFrac = asset(`${amountFloat} ${symbolUpperCase}`).amount
+
+  //   commit('SET_AMOUNT_BUY', {
+  //     // frac: amountFrac,
+  //     whole: amount
+  //   })
+  // },
+
+  // setBuyTotal({ state, commit }, total) {
+  //   const bp = state.base_token.symbol.precision
+  //   const qp = state.quote_token.symbol.precision
+  //   const totalFloat = parseFloat(total).toFixed(bp)
+
+  //   if (state.price_bid > 0) {
+  //     const priceFloat = parseFloat(state.price_bid).toFixed(bp)
+  //     const amount = totalFloat / priceFloat
+  //     commit('SET_AMOUNT_BUY', amount.toFixed(qp))
+  //   }
+
+  //   commit('SET_TOTAL_BUY', totalFloat)
+  // }
 }
 
 export const getters = {
@@ -187,7 +268,7 @@ export const getters = {
   tokenBalance(state, getters, rootState) {
     const { user } = rootState
 
-    if (!user || !user.balances || !state.quote_token.symbol.name) return '0.0000'
+    if (!user || !user.balances || !state.quote_token.symbol.name) return '0.0000 ' + state.quote_token.symbol.name
     const balance = user.balances.filter((b) => {
       return b.currency === state.quote_token.symbol.name &&
         b.contract === state.quote_token.contract
