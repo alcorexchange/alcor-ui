@@ -9,9 +9,8 @@ With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomi
 
 Props:
 1. Fully on-chain.
-2. NO TRADING FEES!
-3. Free CPU program.
-4. Open Source.
+2. Free CPU program.
+3. Open Source.
 
 [Join our telegram!](https://t.me/alcorexchange)
 
@@ -26,6 +25,7 @@ Props:
 1. [Hyperion](https://github.com/eosrio/Hyperion-History-API)
 2. [EOSIO Light API](https://github.com/cc32d9/eosio_light_api)
 3. [Bloks.io](https://bloks.io/)
+4. [Greymass Full History API](https://greymass.com)
 
 ## Instructions for manual use.
 #### Open new market:
