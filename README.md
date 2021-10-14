@@ -82,5 +82,3 @@ docker run -it -p 7002:7000 --restart=unless-stopped -d --label=com.centurylinkl
 
 ## Created:
 [Avral's digital lab](https://avral.pro)
-
-this is a test
