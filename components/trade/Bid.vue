@@ -13,7 +13,7 @@
       p {{ bid }} {{ quote_token.symbol.name }}
       p(
         @click="setAmount()"
-      ) {{ bid == 'buy' ? baseBalance : tokenBalance }} <i class="el-icon-wallet"></i>
+      ) {{ bid == 'buy' ? baseBalance : tokenBalance | commaFloat }} <i class="el-icon-wallet"></i>
     LimitBid(:bid="bid")
     ButtonUi(
       :type="bid == 'buy' ? 'success' : 'danger'"
