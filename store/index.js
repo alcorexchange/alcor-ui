@@ -185,12 +185,12 @@ export const actions = {
     }).catch(e => console.log(e))
   },
 
-  loadUserBalances({ rootState, state, commit }) {
+  loadUserBalances({ state, rootState, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
-      axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+      axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`).then((r) => {
         const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
@@ -201,7 +201,31 @@ export const actions = {
           return 0
         })
 
-        balances.map(b => b.id = b.currency + '@' + b.contract)
+        // Calc USD value
+        balances.map(token => {
+          token.id = token.currency + '@' + token.contract
+
+          const { systemPrice } = rootState.wallet
+          const market = state.markets.filter(m => {
+            return m.base_token.contract == state.network.baseToken.contract &&
+              m.quote_token.contract == token.contract &&
+              m.quote_token.symbol.name == token.currency
+          })[0]
+
+          if (market) {
+            token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+          } else {
+            token.usd_value = 0
+          }
+
+          if (token.contract == state.network.baseToken.contract) {
+            token.usd_value = parseFloat(token.amount) * systemPrice
+          }
+
+          token.usd_value = token.usd_value.toLocaleString('en', {
+            minimumFractionDigits: 2, maximumFractionDigits: 5
+          })
+        })
 
         commit('setUser', { ...state.user, balances }, { root: true })
       }).catch(e => console.log('balances: ', e))

@@ -26,9 +26,9 @@
   .item
     .title.cancel Staking rewards
     .value
-      span.main 1500.243
+      span.main 0.0000
       span.symbol.cancel WAX
-    .info.cancel Last Claim: 0.00005
+    .info.cancel Last Claim: 0.00000
   .item
     .title.cancel LP rewards
     .value

@@ -30,7 +30,7 @@
               div(v-if="side == 'buy'")
                 span.text-success Buy {{ quote_token.symbol.name }}
                 br
-                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance }}
+                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance | commaFloat }}
                   i.el-icon-wallet.ml-1
                 br
 
@@ -53,7 +53,7 @@
               div(v-else)
                 span.text-danger Sell {{ quote_token.symbol.name }}
                 br
-                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance }}
+                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance | commaFloat }}
                   i.el-icon-wallet.ml-1
                 br
 
@@ -77,7 +77,7 @@
               div(v-if="side == 'buy'")
                 span.text-success Buy {{ quote_token.symbol.name }}
                 br
-                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") balance: {{ baseBalance }}
+                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") balance: {{ baseBalance | commaFloat }}
                 br
 
                 label.small Price
@@ -93,7 +93,7 @@
               div(v-else)
                 span.text-danger Sell {{ quote_token.symbol.name }}
                 br
-                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") balance: {{ tokenBalance }}
+                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") balance: {{ tokenBalance | commaFloat }}
                 br
 
                 label.small Amount

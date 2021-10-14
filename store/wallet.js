@@ -20,6 +20,7 @@ export const actions = {
     )
 
     commit('setSystemPrice', data[rootState.network.name].usd)
+    dispatch('loadUserBalances', {}, { root: true })
   }
 }
 

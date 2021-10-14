@@ -47,8 +47,13 @@ Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
 
 Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2) {
   let result = parseFloat(amount)
-  result *= this.$store.state.wallet.systemPrice
-  return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: parseFloat(MAX_DIGITS) })
+  if (this.$store.state.wallet.systemPrice) {
+    result *= this.$store.state.wallet.systemPrice
+  } else {
+    result = 0
+  }
+  //result *= this.$store.state.wallet.systemPrice
+  return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
 }
 
 
