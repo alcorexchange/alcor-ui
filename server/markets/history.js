@@ -1,9 +1,9 @@
-import { JsonRpc } from 'eosjs'
 import fetch from 'node-fetch'
 
 import { Match } from '../models'
 import config from '../../config'
 import { cache } from '../index'
+import { JsonRpc as JsonRpcMultiEnds } from '../../assets/libs/eosjs-jsonrpc'
 import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
 import { getVolumeFrom, getChangeFrom, markeBars, pushDeal, pushTicker } from './charts'
 import { pushAccountNewMatch } from './pushes'
@@ -47,7 +47,9 @@ export async function getMarketStats(network, market_id) {
 
 export async function updateMarkets(network) {
   console.log('update market for ', network.name)
-  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
+
+  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
+  const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 
   const { rows } = await rpc.get_table_rows({
     code: network.contract,
