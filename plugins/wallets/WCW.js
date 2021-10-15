@@ -6,6 +6,8 @@ class WalletBase {
   constructor(network) {
     this.network = network
   }
+
+  logout() {}
 }
 
 export default class WCWWallet extends WalletBase {

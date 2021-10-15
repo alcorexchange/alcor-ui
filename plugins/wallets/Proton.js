@@ -7,6 +7,8 @@ class WalletBase {
     this.network = network
     this.rpc = rpc
   }
+
+  logout() {}
 }
 
 export default class AnchoWallet extends WalletBase {

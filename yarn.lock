@@ -2474,6 +2474,13 @@
     isomorphic-ws "^4.0.1"
     ws "^6.1.0"
 
+"@scatterjs/eosjs2@^1.5.36":
+  version "1.5.36"
+  resolved "https://registry.yarnpkg.com/@scatterjs/eosjs2/-/eosjs2-1.5.36.tgz#457ed69f181a6a19eb053352662bfb25726d0f74"
+  integrity sha512-osx/shuwiB59ql0XTVCZ/D9T3AZf+RA0lRnUa0Gya9M21GGBt6YHdxO2jxkmJHjEpfxE7FIwV3dRDj9T1swd2g==
+  dependencies:
+    "@scatterjs/core" "^2.7.54"
+
 "@sentry/browser@^5.27.3":
   version "5.30.0"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.30.0.tgz#c28f49d551db3172080caef9f18791a7fd39e3b3"
@@ -13090,22 +13097,6 @@ sax@~1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
-
-scatterjs-core@^2.7.18:
-  version "2.7.18"
-  resolved "https://registry.yarnpkg.com/scatterjs-core/-/scatterjs-core-2.7.18.tgz#7be773e7d793b2c7137462b2dc3c43cce1f92a07"
-  integrity sha512-2Zhe8/WBEQHuXM0QoJC00s6O2AgVH20UItHnVaRU6YkZ7XG8YmuoUt6jsPxhHLmvGjySyW1f7K2b5SS86UdI3A==
-  dependencies:
-    create-hash "^1.2.0"
-    es6-promise "^4.2.4"
-    get-random-values "^1.2.0"
-    isomorphic-ws "^4.0.1"
-    ws "^6.1.0"
-
-scatterjs-plugin-eosjs2@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/scatterjs-plugin-eosjs2/-/scatterjs-plugin-eosjs2-1.5.0.tgz#4e8e08859c82af7b9c0b275ea57c9739a373cc18"
-  integrity sha512-RIYGW+c4dH//jwcAflcnI2N+erzy2AHQwfqMr8CTMCRg2S8Drm/PWf/iDn1JHsjbyTv1+kIP335zWz7xP92iAQ==
 
 schema-utils@^1.0.0:
   version "1.0.0"

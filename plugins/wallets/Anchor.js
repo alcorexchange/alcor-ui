@@ -7,6 +7,8 @@ class WalletBase {
   constructor(network) {
     this.network = network
   }
+
+  logout() {}
 }
 
 
