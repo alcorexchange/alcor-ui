@@ -1,16 +1,15 @@
 import fetch from 'node-fetch'
-
+import { JsonRpc } from 'eosjs'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 
+//import config from '../../config'
 import { Match, Settings, getSettings } from '../models'
-import { JsonRpc as JsonRpcMultiEnds } from '../../assets/libs/eosjs-jsonrpc'
 
 export async function streamByNode(network, app, account, callback, actions) {
   console.info(`Start NODE updater for ${network.name} (${account})...`)
 
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
-  const rpc = new JsonRpcMultiEnds(nodes, { fetch })
+  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
   const settings = await getSettings(network)
 
   let offset = settings.actions_stream_offset[account] || 0
