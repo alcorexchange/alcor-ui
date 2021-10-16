@@ -123,7 +123,7 @@ export async function newMatch(match, network, app) {
         block_num
       })
       await markeBars(m)
-      pushDeal(io, { chain, market: market.id })
+      pushDeal(io, { chain, deal: m })
       pushTicker(io, { chain, market: market.id, time: m.time })
       pushAccountNewMatch(io, m)
       io.to(`orders:${network.name}.${market.id}`).emit('update_orders')
