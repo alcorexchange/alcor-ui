@@ -88,8 +88,8 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
 
     if (token) {
       return token.logo
+    } else {
+      return null
     }
-
-    return `https://raw.githubusercontent.com/BlockABC/eos-tokens/master/tokens/${contract}/${symbol}.png`
   }
 }
