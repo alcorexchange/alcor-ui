@@ -12,7 +12,7 @@ export default {
     urls: [
       { name: 'Tokens', to: '/wallet', exact: true },
       { name: 'Positions', to: '/wallet/positions' },
-      { name: 'Transactions', to: '/wallet/transactions' },
+      { name: 'History', to: '/wallet/history' },
       { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
       { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
       { name: 'Resources', to: '/wallet/resources' }
