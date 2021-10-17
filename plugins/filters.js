@@ -56,7 +56,6 @@ Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2) {
   return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
 }
 
-
 Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
   const user = this.$store.state.user
 
@@ -70,7 +69,6 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
 
   return '0.0000'
 }
-
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {
   const network = this.$store.state.network.name
