@@ -1,4 +1,5 @@
-import { JsonRpc, Api } from 'eosjs'
+import { Api } from 'eosjs'
+
 
 import ScatterJS from 'scatterjs-core'
 import ScatterEOS from 'scatterjs-plugin-eosjs2'
@@ -161,7 +162,8 @@ export function scatterWalletProvider() {
 
           if (!signatureProvider) {
             if ('eosHook' in scatter) {
-              console.log('sing using eosHook...')
+              console.log('sing using eosHook...', scatter)
+              console.log(2)
               signatureProvider = scatter.eosHook({ ...network, blockchain: 'eos' }, null, true)
             } else {
               console.log('sing using eos object (old way)...')

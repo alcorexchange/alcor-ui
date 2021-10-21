@@ -40,13 +40,7 @@ export default {
     },
 
     id(to, from) {
-      if (this.widget && this.onResetCacheNeededCallback) {
-        this.onResetCacheNeededCallback()
-        //this.widget.activeChart().symbolExt().description = `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`
-        this.widget.activeChart().resetData()
-        this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-        //this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: to, resolution: this.resolution } })
-      }
+      this.reset()
     }
   },
 
@@ -56,9 +50,23 @@ export default {
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
     })
+
+    this.$socket.on('connect', (candle) => {
+      this.reset()
+    })
   },
 
   methods: {
+    reset() {
+      if (this.widget && this.onResetCacheNeededCallback) {
+        this.onResetCacheNeededCallback()
+        this.widget.activeChart().resetData()
+        this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+        //this.widget.activeChart().symbolExt().description = `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`
+        //this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: to, resolution: this.resolution } })
+      }
+    },
+
     mountChart() {
       const Widget = require('~/assets/charts/charting_library.min.js').widget
 
