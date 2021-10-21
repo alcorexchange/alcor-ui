@@ -7,6 +7,8 @@ class WalletBase {
   constructor(network) {
     this.network = network
   }
+
+  logout() {}
 }
 
 
@@ -16,6 +18,18 @@ export default class AnchoWallet extends WalletBase {
 
   constructor(network, rpc) {
     super(network)
+
+    this.createLink()
+  }
+
+  logout() {
+    this.link = null
+  }
+
+  createLink() {
+    if (this.link) return null
+
+    const { network } = this
 
     this.link = new AnchorLink({
       transport: new AnchorLinkBrowserTransport(),
@@ -29,6 +43,7 @@ export default class AnchoWallet extends WalletBase {
   }
 
   async checkLogin() {
+    if (!this.link) return null
     const session = await this.link.restoreSession('Alcor Exchange')
 
     if (session) {
@@ -45,6 +60,7 @@ export default class AnchoWallet extends WalletBase {
   }
 
   async login() {
+    if (!this.link) this.createLink()
     const identity = await this.link.login('Alcor Exchange')
     this.session = identity.session
 

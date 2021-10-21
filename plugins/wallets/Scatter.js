@@ -1,7 +1,9 @@
 import { JsonRpc, Api } from 'eosjs'
 
-import ScatterJS from 'scatterjs-core'
-import ScatterEOS from 'scatterjs-plugin-eosjs2'
+import ScatterEOS from '@scatterjs/eosjs2'
+import ScatterJS from '@scatterjs/core'
+//import ScatterJS from 'scatterjs-core'
+//import ScatterEOS from 'scatterjs-plugin-eosjs2'
 
 class WalletBase {
   network = null
@@ -22,6 +24,7 @@ export default class WCWWallet extends WalletBase {
 
   constructor(network, rpc) {
     super(network)
+    this.rpc = rpc
 
     ScatterJS.plugins(new ScatterEOS())
 
@@ -107,16 +110,19 @@ export default class WCWWallet extends WalletBase {
   }
 
   transact(actions) {
+    const scatter = this.getScatter()
     let eos
 
-    if ('eosHook' in this.scatter) {
-      console.log('sing using eosHook...')
-      eos = this.scatter.eosHook({ ...this.network, blockchain: 'eos' }, null, true)
+    if ('eosHook' in scatter) {
+      console.log('sing using eosHook...', scatter)
+      const network = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
+      const rpc = new JsonRpc(network.fullhost())
+      eos = ScatterJS.eos(network, Api, { rpc })
     } else {
       console.log('sing using eos object (old way)...')
       const jNetwork = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
       const rpc = new JsonRpc(jNetwork.fullhost())
-      eos = this.scatter.eos(jNetwork, Api, { rpc })
+      eos = scatter.eos(jNetwork, Api, { rpc })
     }
 
     return eos.transact({ actions }, { blocksBehind: 3, expireSeconds: 1200 })
