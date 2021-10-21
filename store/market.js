@@ -1,4 +1,6 @@
-// import { asset } from 'eos-common'
+/* global BigInt */
+import { captureException } from '@sentry/browser'
+
 import config from '~/config'
 import { mergeSamePriceOrders } from '~/utils'
 
@@ -135,26 +137,122 @@ export const actions = {
     return parseFloat(params.int).toFixed(params.prec)
   },
 
-  setPrecisionPrice({ state, commit }) {
+  calculateAmount({ state }, params) {
+    if (!state.price_bid) return
+
+    const bp = state.base_token.symbol.precision
+    const qp = state.quote_token.symbol.precision
+    const price = Math.round(state.price_bid * config.PRICE_SCALE)
+    const total = Math.round(params.total * (10 ** bp))
+
+    const amountBigInt = BigInt(Math.ceil(total / price * (10 ** qp)))
+    const amount = parseFloat(amountBigInt) / (10 ** qp)
+
+    return amount.toFixed(qp)
+  },
+
+  calculateTotal({ state }, params) {
+    const bp = state.base_token.symbol.precision
+    const qp = state.quote_token.symbol.precision
+    const price = Math.round(state.price_bid * config.PRICE_SCALE)
+    const amount = Math.round(params.amount * (10 ** qp))
+
+    const totalBigInt = BigInt(amount * price)
+    let total
+    if (qp == bp) {
+      total = Math.trunc(parseFloat(totalBigInt) / config.PRICE_SCALE)
+    } else if (qp !== bp) {
+      total = Math.trunc(parseFloat(totalBigInt) / (10 ** qp))
+    }
+    const fixTotal = total / (10 ** bp)
+
+    return fixTotal.toFixed(bp)
+  },
+
+  async changePrice({ state, commit, dispatch }, param) {
+    const price = param
+
+    commit('SET_PRICE', price)
+
+    if (parseFloat(state.amount_buy) > 0) {
+      const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
+      commit('SET_TOTAL_BUY', totalBuy)
+    }
+
+    if (parseFloat(state.amount_sell) > 0) {
+      const totalSell = await dispatch('calculateTotal', { amount: state.amount_sell })
+      commit('SET_TOTAL_SELL', totalSell)
+    }
+  },
+
+  async changeAmount({ state, commit, dispatch }, params) {
+    const amount = params.amount
+    const type = params.type
+
+    if (type == 'buy') {
+      commit('SET_AMOUNT_BUY', amount)
+      const total = await dispatch('calculateTotal', { amount: state.amount_buy })
+      commit('SET_TOTAL_BUY', total)
+    } else if (type == 'sell') {
+      commit('SET_AMOUNT_SELL', amount)
+      const total = await dispatch('calculateTotal', { amount: state.amount_sell })
+      commit('SET_TOTAL_SELL', total)
+    }
+  },
+
+  changePercentBuy({ state, commit, dispatch, getters }, percent) {
+    commit('SET_PERCENT_BUY', percent)
+
+    if (parseFloat(!getters.baseBalance)) return
+
+    const balance = parseFloat(getters.baseBalance)
+    const total = parseFloat(balance / 100 * percent).toFixed(state.base_token.symbol.precision)
+
+    dispatch('changeTotal', { total, type: 'buy' })
+  },
+
+  changePercentSell({ state, commit }, percent) {
+    commit('SET_PERCENT_SELL', percent)
+  },
+
+  async changeTotal({ state, commit, dispatch }, params) {
+    const total = params.total
+    const type = params.type
+
+    if (type == 'buy') {
+      commit('SET_TOTAL_BUY', total)
+      const amount = await dispatch('calculateAmount', { total: state.total_buy })
+      commit('SET_AMOUNT_BUY', amount)
+    } else if (type == 'sell') {
+      commit('SET_TOTAL_SELL', total)
+      const amount = await dispatch('calculateAmount', { total: state.total_sell })
+      commit('SET_AMOUNT_SELL', amount)
+    }
+  },
+
+  setPrecisionPrice({ state, commit }, inPrice = null) {
+    const price = inPrice !== null ? inPrice : state.price_bid
     const precision = config.PRICE_DIGITS
-    const price = Math.max(parseFloat(state.price_bid) || 0, 1 / 10 ** precision)
-    const floatPrice = price.toFixed(precision)
+    const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
+    const floatPrice = correctPrice.toFixed(precision)
 
     commit('SET_PRICE', floatPrice)
   },
 
-  async setPrecisionAmountBuy({ state, commit, dispatch }) {
+  async setPrecisionAmountBuy({ state, commit, dispatch }, inAmount = null) {
+    const amount = inAmount !== null ? inAmount : state.amount_buy
     const float = await dispatch('calculatePrecision', {
-      int: state.amount_buy,
+      int: amount,
       prec: state.quote_token.symbol.precision
     })
 
     commit('SET_AMOUNT_BUY', float)
   },
 
-  async setPrecisionAmountSell({ state, commit, dispatch }) {
+  async setPrecisionAmountSell({ state, commit, dispatch }, inAmount = null) {
+    const amount = inAmount !== null ? inAmount : state.amount_sell
     const float = await dispatch('calculatePrecision', {
-      int: state.amount_sell,
+      int: amount,
       prec: state.quote_token.symbol.precision
     })
 
@@ -177,32 +275,51 @@ export const actions = {
     })
 
     commit('SET_TOTAL_SELL', float)
+  },
+
+  async fetchBuy({ state, dispatch, rootState }, trade) {
+    if (!await dispatch('chain/asyncLogin', null, { root: true })) return
+
+    const { user, network } = rootState
+    const total = parseFloat(state.total_buy).toFixed(state.base_token.symbol.precision)
+    let amount = null
+
+    if (trade == 'limit') {
+      amount = parseFloat(state.amount_buy).toFixed(state.quote_token.symbol.precision)
+    } else {
+      amount = parseFloat(0).toFixed(state.quote_token.symbol.precision)
+    }
+
+    const objTrans = [{
+      account: state.base_token.contract,
+      name: 'transfer',
+      authorization: [user.authorization],
+      data: {
+        from: user.name,
+        to: network.contract,
+        quantity: `${total} ${state.base_token.symbol.name}`,
+        memo: `${amount} ${state.quote_token.str}`
+      }
+    }]
+
+    try {
+      const res = await dispatch('chain/sendTransaction', objTrans, { root: true })
+        .then(() => {
+          dispatch('loadUserBalances', null, { root: true })
+          dispatch('loadOrders', state.id, { root: true })
+          dispatch('fetchOrders')
+        })
+
+      return { err: false, desc: res }
+    } catch (e) {
+      captureException(e, { extra: { order: this.order } })
+      return { err: true, desc: e }
+    }
+  },
+
+  async fetchSell({ state }) {
+
   }
-
-  // setAmountBuy({ state, commit }, amount) {
-
-  //   // const symbolUpperCase = state.base_token.symbol.name.toUpperCase()
-  //   // const amountFrac = asset(`${amountFloat} ${symbolUpperCase}`).amount
-
-  //   commit('SET_AMOUNT_BUY', {
-  //     // frac: amountFrac,
-  //     whole: amount
-  //   })
-  // },
-
-  // setBuyTotal({ state, commit }, total) {
-  //   const bp = state.base_token.symbol.precision
-  //   const qp = state.quote_token.symbol.precision
-  //   const totalFloat = parseFloat(total).toFixed(bp)
-
-  //   if (state.price_bid > 0) {
-  //     const priceFloat = parseFloat(state.price_bid).toFixed(bp)
-  //     const amount = totalFloat / priceFloat
-  //     commit('SET_AMOUNT_BUY', amount.toFixed(qp))
-  //   }
-
-  //   commit('SET_TOTAL_BUY', totalFloat)
-  // }
 }
 
 export const getters = {

@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
 
 export default {
@@ -108,6 +108,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('market', [
+      'changePrice',
+      'changeAmount'
+    ]),
     async fetch() {
       try {
         await this.$store.dispatch('market/fetchOrders')
@@ -136,9 +140,9 @@ export default {
       this.$nuxt.$emit('setAmount', amount)
 
       // Price and amount for marked moved to VUEX
-      this.SET_PRICE(price)
-      this.SET_AMOUNT_BUY(amount)
-      this.SET_AMOUNT_SELL(amount)
+      this.changePrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     },
 
     setAsk(bid) {
@@ -151,9 +155,9 @@ export default {
       this.$nuxt.$emit('setAmount', amount)
 
       // Price and amount for marked moved to VUEX
-      this.SET_PRICE(price)
-      this.SET_AMOUNT_BUY(amount)
-      this.SET_AMOUNT_SELL(amount)
+      this.changePrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     }
   }
 }

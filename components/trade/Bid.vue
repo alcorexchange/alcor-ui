@@ -17,7 +17,7 @@
     LimitBid(:bid="bid")
     ButtonUi(
       :type="bid == 'buy' ? 'success' : 'danger'"
-      @click.native="bid == 'buy' ? buy(trade) : sell(trade)"
+      @click.native="actionOrder()"
     ) {{ bid }} {{ quote_token.symbol.name }}
 </template>
 
@@ -34,7 +34,7 @@ export default {
     TabUi,
     SimpleTabUi,
     LimitBid,
-    ButtonUi,
+    ButtonUi
   },
 
   mixins: [tradeMixin],
@@ -54,7 +54,12 @@ export default {
   },
 
   computed: {
-    ...mapState('market', ['quote_token']),
+    ...mapState('market', [
+      'quote_token',
+      'price_bid',
+      'amount_buy',
+      'total_buy'
+    ]),
     ...mapGetters('market', ['tokenBalance', 'baseBalance'])
   },
 
@@ -66,16 +71,15 @@ export default {
 
   methods: {
     ...mapMutations('market', ['SET_AMOUNT_SELL']),
-    ...mapActions('market', ['setBuyTotal']),
+    ...mapActions('market', [
+      'changeTotal',
+      'changeAmount',
+      'fetchBuy',
+      'fetchSell'
+    ]),
     setAmount() {
-      // if (this.bid == 'buy') this.setBuyTotal(this.baseBalance)
-      // if (this.bid == 'sell') this.SET_AMOUNT_SELL(this.tokenBalance)
-
-      // TEST!!!
-      if (this.bid == 'buy') this.setBuyTotal(3.09)
-      else if (this.bid == 'sell') this.SET_AMOUNT_SELL(0.77)
-      // if (this.bid == 'buy') this.onSetAmount(parseFloat(this.baseBalance))
-      // if (this.bid == 'sell') this.onSetAmount(parseFloat(this.tokenBalance))
+      if (this.bid == 'buy') this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
+      if (this.bid == 'sell') this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
     },
     setBid(e) {
       this.bid = e
@@ -83,6 +87,27 @@ export default {
     },
     setTrade(e) {
       this.trade = e
+    },
+    async actionOrder() {
+      let res
+      if (this.bid == 'buy') {
+        if (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid)) {
+          this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
+          return
+        } else if (parseFloat(this.amount_buy) == 0 || this.amount_buy == null || isNaN(this.amount_buy)) {
+          this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+          return
+        }
+
+        res = await this.fetchBuy(this.trade)
+      }
+
+      if (res.err) {
+        this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
+      } else {
+        this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
+      }
+
     }
   },
 }

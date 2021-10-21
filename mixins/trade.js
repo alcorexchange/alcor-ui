@@ -2,8 +2,6 @@ import { captureException } from '@sentry/browser'
 
 import { asset } from 'eos-common'
 
-import { mapMutations } from 'vuex'
-
 import config from '~/config'
 import { amountToFloat } from '~/utils'
 
@@ -101,11 +99,6 @@ export const tradeMixin = {
   },
 
   methods: {
-    ...mapMutations('market', [
-      'SET_PRICE',
-      'SET_AMOUNT_BUY',
-      'SET_AMOUNT_SELL'
-    ]),
     fixPrice() {
       const price = Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS)
       this.price = price.toFixed(config.PRICE_DIGITS)

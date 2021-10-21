@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import { tradeMixin } from '~/mixins/trade'
 
 export default {
@@ -95,48 +95,46 @@ export default {
     ]),
     priceBid: {
       get() { return this.price_bid },
-      set(val) { this.SET_PRICE(val) }
+      set(val) { this.changePrice(val) }
     },
     amountBuy: {
       get() { return this.amount_buy },
-      set(val) { this.SET_AMOUNT_BUY(val) }
+      set(val) { this.changeAmount({ amount: val, type: 'buy' }) }
     },
     amountSell: {
       get() { return this.amount_sell },
-      set(val) { this.SET_AMOUNT_SELL(val) }
+      set(val) { this.changeAmount({ amount: val, type: 'sell' }) }
     },
     percentBuy: {
       get() { return this.percent_buy },
-      set(val) { this.SET_PERCENT_BUY(val) }
+      set(val) { this.changePercentBuy(val) }
     },
     percentSell: {
       get() { return this.percent_sell },
-      set(val) { this.SET_PERCENT_SELL(val) }
+      set(val) { this.changePercentSell(val) }
     },
     totalBuy: {
       get() { return this.total_buy },
-      set(val) { this.SET_TOTAL_BUY(val) }
+      set(val) { this.changeTotal({ total: val, type: 'buy' }) }
     },
     totalSell: {
       get() { return this.total_sell },
-      set(val) { this.SET_TOTAL_SELL(val) }
+      set(val) { this.changeTotal({ total: val, type: 'sell' }) }
     }
   },
 
   methods: {
     ...mapActions('market', [
-      'setAmountBuy',
+      'changePrice',
       'setPrecisionPrice',
+      'changeAmount',
       'setPrecisionAmountBuy',
       'setPrecisionAmountSell',
+      'changeTotal',
       'setPrecisionTotalBuy',
-      'setPrecisionTotalSell'
-    ]),
-    ...mapMutations('market', [
-      'SET_TOTAL_BUY',
-      'SET_TOTAL_SELL',
-      'SET_PERCENT_BUY',
-      'SET_PERCENT_SELL'
+      'setPrecisionTotalSell',
+      'changePercentBuy',
+      'changePercentSell'
     ])
   }
 }
