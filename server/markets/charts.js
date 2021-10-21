@@ -98,9 +98,9 @@ export async function getChangeFrom(date, market, chain) {
   }
 }
 
-export async function pushDeal(io, { chain, market }) {
-  const deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } }).select('time ask bid type unit_price trx_id')
-  io.to(`deals:${chain}.${market}`).emit('new_deals', [deal])
+export function pushDeal(io, { chain, deal }) {
+  const { market, time, ask, bid, type, unit_price, trx_id } = deal
+  io.to(`deals:${chain}.${market}`).emit('new_deals', [{ time, ask, bid, type, unit_price, trx_id }])
 }
 
 export function pushTicker(io, { chain, market, time }) {

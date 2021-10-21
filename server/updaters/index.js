@@ -34,7 +34,9 @@ export async function updater(chain, app, provider, services) {
   await getSettings(network)
 
   if (services.includes('markets')) {
-    setTimeout(() => updateMarkets(network), 5000)
+    updateMarkets(network)
+    setTimeout(() => updateMarkets(network), 1000)
+    setTimeout(() => updateMarkets(network), 10000)
     setInterval(() => updateMarkets(network), 5 * 60 * 1000)
 
     streamer(network, app, network.contract, newMatch, config.CONTRACT_ACTIONS)

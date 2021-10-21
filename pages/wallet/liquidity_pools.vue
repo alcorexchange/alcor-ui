@@ -188,7 +188,7 @@ export default {
           }
 
           return position
-        })
+        }).filter(lp => lp.pair.pool1 !== undefined)
     }
   },
 

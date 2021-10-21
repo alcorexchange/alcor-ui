@@ -44,7 +44,7 @@
             .text-muted.ml-2.small {{ token.contract }}
 
             .ml-auto(v-if="user")
-              span.text-muted {{ token.balance }}
+              span.text-muted {{ token.balance | commaFloat }}
 
           slot(name="end")
 </template>
@@ -131,7 +131,7 @@ export default {
         return t
       }).sort((a, b) => {
         return a.balance == '0.0000' ? 1 : -1
-      })
+      }).sort((a, b) => parseFloat(a.balance) < parseFloat(b.balance) ? 1 : -1)
     }
   },
 

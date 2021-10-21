@@ -42,11 +42,15 @@ export const mutations = {
 }
 
 export const actions = {
-  init({ state, commit }) {
+  init({ state, commit, dispatch }) {
     this.$socket.on('new_deals', new_deals => {
       // TODO Refactor it
       state.deals.unshift(...new_deals)
       commit('setDeals', state.deals.slice(0, 100))
+    })
+
+    this.$socket.on('connect', () => {
+      if (state.id) dispatch('startStream', state.id)
     })
   },
 
@@ -61,6 +65,8 @@ export const actions = {
   },
 
   startStream({ state, rootState, commit, dispatch }, market) {
+    if (market === undefined) return
+
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
 

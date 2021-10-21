@@ -2,7 +2,7 @@
 .row(v-loading='loading')
   .items
     .item(v-for='wallet in wallets')
-      AlcorButton.button(@click='login(wallet.index)', alternative)
+      AlcorButton.button(@click='login(wallet.id)', alternative)
         img.mr-2(:src='wallet.logo', height='30')
         span {{ wallet.name }}
   .divider
@@ -19,51 +19,6 @@
       AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
         img.mr-2(:src='wallets[1].logo', height='30')
         span Get {{ wallets[1].name }}
-
-    //.col
-      .mb-2.mr-2
-        el-button(size="large" @click="login(5)" v-if="network.name == 'proton'")
-          img(src="~/assets/logos/keycat.svg" height="30").mr-2
-          span Proton Wallet
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login('wax')" v-if="network.name == 'wax'")
-          img(src="~/assets/logos/wax.svg" height="30").mr-2
-          span Wax Cloud Wallet
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(1)")
-          img(src="~/assets/logos/anchor.svg" height="30").mr-2
-          span Anchor
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(0)")
-          img(src="~/assets/logos/scatter.svg" height="30").mr-2
-          span Scatter / TP / Starteos
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(0)")
-          img(src="~/assets/logos/wombat.png" height="30").mr-2
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(2)")
-          img(src="~/assets/logos/simpleos.svg" height="30").mr-2
-          span SimplEOS
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(3)")
-          img(src="~/assets/logos/lynx.svg" height="30").mr-2
-          span Lynx
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(4)")
-          img(src="~/assets/logos/ledger.svg" height="30").mr-2
-          span Ledger
-
-      .mb-2.mr-2
-        el-button(size="large" @click="login(5)" if="network.name == 'eos'")
-          img(src="~/assets/logos/keycat.svg" height="30").mr-2
-          span Keycat
 </template>
 
 <script>
@@ -92,42 +47,41 @@ export default {
 
     const wallets = [
       {
+        id: 'anchor',
         name: 'Anchor',
         logo: require('@/assets/logos/anchor.svg'),
-        index: 1,
         create: 'https://greymass.com/en/anchor/',
       },
       {
+        id: 'scatter',
         name: 'Scatter / TP / Starteos',
         logo: require('@/assets/logos/scatter.svg'),
-        index: 0,
         create:
           'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1',
       },
       {
         name: 'SimplEOS',
         logo: require('@/assets/logos/simpleos.svg'),
-        index: 2,
       },
-      { name: 'Lynx', logo: require('@/assets/logos/lynx.svg'), index: 3 },
-      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg'), index: 4 }
+      { name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
+      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
     ]
 
     if (this.network.name == 'eos') {
       wallets.push({
+        id: 'scatter',
         name: '',
         logo: require('@/assets/logos/wombat.png'),
-        index: 0
       })
       wallets.push({
         name: 'Keycat',
         logo: require('@/assets/logos/keycat.svg'),
-        index: 5
       })
     }
 
     if (this.network.name == 'wax') {
       wallets.unshift({
+        id: 'wcw',
         name: 'Wax Cloud Wallet',
         logo: require('@/assets/logos/wax.svg'),
         index: 'wax',
@@ -137,9 +91,9 @@ export default {
 
     if (this.network.name == 'proton') {
       wallets.unshift({
+        id: 'proton',
         name: 'Proton',
         logo: require('@/assets/icons/proton.png'),
-        index: 5,
         create: 'https://www.protonchain.com/wallet/'
       })
     }
@@ -159,13 +113,13 @@ export default {
         this.$notify({
           title: `${provider} login error`,
           message: e,
-          type: 'error',
+          type: 'error'
         })
       } finally {
         this.loading = false
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
