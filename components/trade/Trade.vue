@@ -1,7 +1,6 @@
 <template lang="pug">
 .row
   .col-12
-    //- TODO Уменьшить высоту, что бы на мобилках было больше пространства
     coin-info
     chart
   .col-12.wrapBid
