@@ -18,7 +18,7 @@
   .col-12
     el-tabs.h-100.order
       el-tab-pane(label="Open order")
-        my-orders(v-if="user")
+        my-orders.test(v-if="user")
       el-tab-pane(label="Order history")
         my-history(v-if="user")
       el-tab-pane(label="Order book")
@@ -89,10 +89,10 @@ export default {
     }
   }
   .order {
-    box-shadow: 0px 2px 13px 1px rgb(0 0 0 / 10%);
-    background-color: #2a2a2a;
+    background: var(--bg-big-card);
+    box-shadow: var(--card-shadow);
     margin-top: 10px;
     margin-bottom: 15px;
-    padding: 10px 15px;
+    padding: 5px;
   }
 </style>

@@ -100,12 +100,22 @@ export default {
         }
 
         res = await this.fetchBuy(this.trade)
+      } else {
+        if (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid)) {
+          this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
+          return
+        } else if (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell)) {
+          this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+          return
+        }
+
+        res = await this.fetchSell(this.trade)
       }
 
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
       } else {
-        this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
+        this.$notify({ title: this.bid == 'buy' ? 'Buy' : 'Sell', message: 'Order placed!', type: 'success' })
       }
 
     }

@@ -209,16 +209,27 @@ export const actions = {
   changePercentBuy({ state, commit, dispatch, getters }, percent) {
     commit('SET_PERCENT_BUY', percent)
 
-    if (parseFloat(!getters.baseBalance)) return
+    if (parseFloat(!getters.baseBalance) || percent == 0) return
 
-    const balance = parseFloat(getters.baseBalance)
-    const total = parseFloat(balance / 100 * percent).toFixed(state.base_token.symbol.precision)
+    const bp = state.base_token.symbol.precision
+    const balance = parseFloat(getters.baseBalance) * 10 ** bp
+    let total = balance / 100 * percent
+    total = parseFloat(total).toFixed() / (10 ** bp)
 
     dispatch('changeTotal', { total, type: 'buy' })
   },
 
-  changePercentSell({ state, commit }, percent) {
+  async changePercentSell({ state, commit, dispatch, getters }, percent) {
     commit('SET_PERCENT_SELL', percent)
+
+    if (parseFloat(!getters.tokenBalance) || percent == 0) return
+
+    const qp = state.quote_token.symbol.precision
+    const balance = parseFloat(getters.tokenBalance) * 10 ** qp
+    let amount = balance / 100 * percent
+    amount = parseFloat(amount).toFixed() / (10 ** qp)
+
+    await dispatch('changeAmount', { amount, type: 'sell' })
   },
 
   async changeTotal({ state, commit, dispatch }, params) {
@@ -323,8 +334,39 @@ export const actions = {
     }
   },
 
-  async fetchSell({ state }) {
+  async fetchSell({ state, dispatch, rootState }, trade) {
+    if (!await dispatch('chain/asyncLogin', null, { root: true })) return
 
+    const { user } = rootState
+    const amount = parseFloat(state.amount_sell).toFixed(state.quote_token.symbol.precision)
+    let total = null
+
+    if (trade == 'limit') {
+      total = parseFloat(state.total_sell).toFixed(state.base_token.symbol.precision)
+    } else {
+      total = parseFloat(0).toFixed(state.base_token.symbol.precision)
+    }
+
+    const objTrans = {
+      contract: state.quote_token.contract,
+      actor: user.name,
+      quantity: `${amount} ${state.quote_token.symbol.name}`,
+      memo: `${total} ${state.base_token.symbol.name}@${state.base_token.contract}`
+    }
+
+    try {
+      const res = await dispatch('chain/transfer', objTrans, { root: true })
+        .then(() => {
+          dispatch('loadUserBalances', null, { root: true })
+          dispatch('loadOrders', state.id, { root: true })
+          dispatch('fetchOrders')
+        })
+
+      return { err: false, desc: res }
+    } catch (e) {
+      captureException(e, { extra: { order: this.order } })
+      return { err: true, desc: e }
+    }
   }
 }
 
