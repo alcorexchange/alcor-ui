@@ -1,39 +1,33 @@
 <template lang="pug">
   .wrapper
-    .row
-      .col.selectCoin(@click="isDrawer = true")
-        .row.align-items-center
-          .col-3.col-sm-2.logo
-            TokenImage(
-              :src="$tokenLogo(quote_token.symbol.name, quote_token.contract)"
-              height="30"
-            )
-          .col.title
-            p {{ quote_token.symbol.name }} &nbsp;
-              a.text-muted(
-                @click.stop
-                :href="monitorAccount(quote_token.contract )"
-                target="_blank"
-              ) {{ quote_token.contract }}
-            p /  {{ base_token.symbol.name }}
-      .col-3.text
-        .item
-          p.title Change 24H
-          change-percent.desc(:change="stats.change24")
-        .item
-          p.title Volume 24H
-          p.desc.text-success {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-      //- .col-12.withdraw
-      //-   Withdraw(
-      //-     :token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}"
-        //- v-if="hasWithdraw"
-      //-   )
+    .card(@click="isDrawer = true")
+      .image
+        TokenImage(
+          :src="$tokenLogo(quote_token.symbol.name, quote_token.contract)"
+          height="30"
+        )
+      .title
+        p {{ quote_token.symbol.name }} &nbsp;
+          a(
+            @click.stop
+            :href="monitorAccount(quote_token.contract )"
+            target="_blank"
+          ) {{ quote_token.contract }}
+        p {{ base_token.symbol.name }}
+      .desc
+        p.text-success {{ stats.volume24.toFixed(2) }}
+        change-percent(:change="stats.change24")
     el-drawer(
       :visible.sync="isDrawer"
       direction="btt"
       size="80%"
     )
       markets
+  //- .col-12.withdraw
+  //-   Withdraw(
+  //-     :token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}"
+    //- v-if="hasWithdraw"
+  //-   )
 </template>
 
 <script>
@@ -75,52 +69,24 @@ export default {
 
 <style lang="scss" scoped>
   .wrapper {
-    box-shadow: 0px 2px 13px 1px rgb(0 0 0 / 10%);
-    background-color: #2a2a2a;
-    border: none;
     margin-bottom: 5px;
-    padding: 5px;
-    .selectCoin {
-      margin-left: 5px;
-      &:hover {
-        background-color: #efefef08;
-        transition: .3s;
-        cursor: pointer;
-      }
-      &>.row {
-        height: 100%;
-        .logo {
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .title p {
-          margin: 0;
-        }
-      }
-    }
-    .text .item {
-      margin: 5px 0;
+    .card {
+      background: var(--bg-big-card);
+      box-shadow: var(--card-shadow);
+      display: grid;
+      grid-template-columns: auto 2fr 1fr;
+      grid-gap: 10px;
+      border: none;
+      padding: 5px 15px;
       p {
         margin: 0;
       }
-      .title {
-        font-size: 10px;
+      .image {
+        align-self: center;
       }
       .desc {
-        font-size: 12px;
+        text-align: right;
       }
-    }
-    // .withdraw {
-    //   margin-top: 15px;
-    //   text-align: end;
-    // }
-  }
-
-  @media (min-width:576px) {
-    .wrapper .selectCoin>.row .title p {
-      display: inline-block;
     }
   }
 </style>
