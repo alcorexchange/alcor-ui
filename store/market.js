@@ -206,30 +206,49 @@ export const actions = {
     }
   },
 
-  changePercentBuy({ state, commit, dispatch, getters }, percent) {
-    commit('SET_PERCENT_BUY', percent)
+  async changePercentBuy({ state, commit, dispatch, getters }, params) {
+    commit('SET_PERCENT_BUY', params.percent)
 
-    if (parseFloat(!getters.baseBalance) || percent == 0) return
+    const balance = getters.baseBalance
+    const prec = state.base_token.symbol.precision
 
-    const bp = state.base_token.symbol.precision
-    const balance = parseFloat(getters.baseBalance) * 10 ** bp
-    let total = balance / 100 * percent
-    total = parseFloat(total).toFixed() / (10 ** bp)
+    const total = await dispatch('calculatePercent', { balance, prec, percent: params.percent })
 
-    dispatch('changeTotal', { total, type: 'buy' })
+    if (!total) {
+      if (params.trade == 'limit') commit('SET_TOTAL_BUY', null)
+      else if (params.trade == 'market') commit('SET_AMOUNT_BUY', null)
+      return
+    }
+
+    if (params.trade == 'limit') dispatch('changeTotal', { total, type: 'buy' })
+    else if (params.trade == 'market') commit('SET_AMOUNT_BUY', total)
   },
 
   async changePercentSell({ state, commit, dispatch, getters }, percent) {
     commit('SET_PERCENT_SELL', percent)
 
-    if (parseFloat(!getters.tokenBalance) || percent == 0) return
+    const balance = getters.tokenBalance
+    const prec = state.quote_token.symbol.precision
 
-    const qp = state.quote_token.symbol.precision
-    const balance = parseFloat(getters.tokenBalance) * 10 ** qp
-    let amount = balance / 100 * percent
-    amount = parseFloat(amount).toFixed() / (10 ** qp)
+    const amount = await dispatch('calculatePercent', { balance, prec, percent })
 
-    await dispatch('changeAmount', { amount, type: 'sell' })
+    if (!amount) {
+      commit('SET_AMOUNT_SELL', null)
+      return
+    }
+
+    dispatch('changeAmount', { amount, type: 'sell' })
+  },
+
+  calculatePercent({ state }, params) {
+    if (parseFloat(!params.balance) || params.percent == 0) return false
+
+    const prec = params.prec
+    const balance = parseFloat(params.balance) * 10 ** prec
+    let calc = balance / 100 * params.percent
+    calc = parseFloat(calc).toFixed() / (10 ** prec)
+
+    return calc
   },
 
   async changeTotal({ state, commit, dispatch }, params) {

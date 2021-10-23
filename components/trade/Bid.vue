@@ -13,8 +13,11 @@
       p {{ bid }} {{ quote_token.symbol.name }}
       p(
         @click="setAmount()"
-      ) {{ bid == 'buy' ? baseBalance : tokenBalance | commaFloat }} <i class="el-icon-wallet"></i>
-    LimitBid(:bid="bid")
+      )
+        | {{ bid == 'buy' ? baseBalance : tokenBalance | commaFloat }}
+        | <i class="el-icon-wallet"></i>
+    LimitBid(v-if="trade == 'limit'" :bid="bid")
+    MarketBid(v-else :bid="bid")
     ButtonUi(
       :type="bid == 'buy' ? 'success' : 'danger'"
       @click.native="actionOrder()"
@@ -28,12 +31,14 @@ import { tradeMixin } from '~/mixins/trade'
 import TabUi from '~/components/UI/Tabs/Tab.vue'
 import SimpleTabUi from '~/components/UI/Tabs/SimpleTab.vue'
 import LimitBid from '~/components/trade/LimitBid.vue'
+import MarketBid from '~/components/trade/MarketBid.vue'
 import ButtonUi from '~/components/UI/Buttons/Button.vue'
 export default {
   components: {
     TabUi,
     SimpleTabUi,
     LimitBid,
+    MarketBid,
     ButtonUi
   },
 
@@ -78,8 +83,13 @@ export default {
       'fetchSell'
     ]),
     setAmount() {
-      if (this.bid == 'buy') this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
-      if (this.bid == 'sell') this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
+      if (this.trade == 'limit' && this.bid == 'buy') {
+        this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
+      } else if (this.trade == 'market' && this.bid == 'buy') {
+        this.changeAmount({ amount: parseFloat(this.baseBalance), type: 'buy' })
+      } else {
+        this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
+      }
     },
     setBid(e) {
       this.bid = e
@@ -91,7 +101,7 @@ export default {
     async actionOrder() {
       let res
       if (this.bid == 'buy') {
-        if (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid)) {
+        if (this.trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
           this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
           return
         } else if (parseFloat(this.amount_buy) == 0 || this.amount_buy == null || isNaN(this.amount_buy)) {
@@ -101,7 +111,7 @@ export default {
 
         res = await this.fetchBuy(this.trade)
       } else {
-        if (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid)) {
+        if (this.trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
           this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
           return
         } else if (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell)) {
@@ -119,7 +129,7 @@ export default {
       }
 
     }
-  },
+  }
 }
 </script>
 

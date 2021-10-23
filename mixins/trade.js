@@ -1,9 +1,47 @@
 import { captureException } from '@sentry/browser'
 
 import { asset } from 'eos-common'
+import { mapActions, mapState } from 'vuex'
 
 import config from '~/config'
 import { amountToFloat } from '~/utils'
+
+// New mixin for trade
+
+export const trade = {
+  computed: {
+    ...mapState('market', [
+      'base_token',
+      'quote_token',
+      'amount_buy',
+      'amount_sell',
+      'percent_buy',
+      'percent_sell'
+    ]),
+    amountBuy: {
+      get() { return this.amount_buy },
+      set(val) { this.changeAmount({ amount: val, type: 'buy' }) }
+    },
+    amountSell: {
+      get() { return this.amount_sell },
+      set(val) { this.changeAmount({ amount: val, type: 'sell' }) }
+    },
+    percentSell: {
+      get() { return this.percent_sell },
+      set(val) { this.changePercentSell(val) }
+    },
+  },
+
+  methods: {
+    ...mapActions('market', [
+      'changeAmount',
+      'setPrecisionAmountBuy',
+      'setPrecisionAmountSell',
+      'changePercentBuy',
+      'changePercentSell'
+    ])
+  }
+}
 
 // TODO This whole module need refactor
 
