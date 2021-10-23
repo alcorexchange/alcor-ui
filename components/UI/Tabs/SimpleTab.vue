@@ -32,9 +32,11 @@ export default {
     display: flex;
     .tab {
       padding: 5px 15px;
-      color: #f5f5f5;
+      transition: .3s;
       &.active {
-        color: #9e9e9e;
+        color: black;
+        background-color: #c1c1c185;
+        border-radius: 5px;
       }
     }
   }
