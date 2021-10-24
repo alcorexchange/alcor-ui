@@ -1,6 +1,7 @@
 <template lang="pug">
   .wrapper
     TabUi(
+      class="tab"
       :tabs="tabsBid"
       :selectByDefault="bid"
       @tabSelect="setBid($event)"
@@ -9,19 +10,31 @@
       :tabs="tabsTrade"
       @tabSelect="setTrade($event)"
     )
-    .balance
-      p {{ bid }} {{ quote_token.symbol.name }}
-      p(
-        @click="setAmount()"
+    .cards
+      .cardBid(
+        v-for="card in arrCard"
+        :key="card.bid"
+        :class="isCardActive(card.bid)"
       )
-        | {{ bid == 'buy' ? baseBalance : tokenBalance | commaFloat }}
-        | <i class="el-icon-wallet"></i>
-    LimitBid(v-if="trade == 'limit'" :bid="bid")
-    MarketBid(v-else :bid="bid")
-    ButtonUi(
-      :type="bid == 'buy' ? 'success' : 'danger'"
-      @click.native="actionOrder()"
-    ) {{ bid }} {{ quote_token.symbol.name }}
+        .balance
+          p {{ bid }} {{ quote_token.symbol.name }}
+          p(
+            @click="setAmount(card.bid)"
+          )
+            | {{ card.balance | commaFloat }}
+            | <i class="el-icon-wallet"></i>
+        LimitBid(
+          v-if="trade == 'limit'"
+          :bid="card.bid"
+        )
+        MarketBid(
+          v-else
+          :bid="card.bid"
+        )
+        ButtonUi(
+          :type="card.bid == 'buy' ? 'success' : 'danger'"
+          @click.native="actionOrder(card.bid)"
+        ) {{ card.bid }} {{ quote_token.symbol.name }}
 </template>
 
 <script>
@@ -53,6 +66,7 @@ export default {
         { label: 'sell', color: 'e57373' }
       ],
       tabsTrade: ['limit', 'market'],
+      arrCard: [],
       bid: 'buy',
       trade: 'limit'
     }
@@ -82,10 +96,10 @@ export default {
       'fetchBuy',
       'fetchSell'
     ]),
-    setAmount() {
-      if (this.trade == 'limit' && this.bid == 'buy') {
+    setAmount(bid) {
+      if (this.trade == 'limit' && bid == 'buy') {
         this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
-      } else if (this.trade == 'market' && this.bid == 'buy') {
+      } else if (this.trade == 'market' && bid == 'buy') {
         this.changeAmount({ amount: parseFloat(this.baseBalance), type: 'buy' })
       } else {
         this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
@@ -98,9 +112,9 @@ export default {
     setTrade(e) {
       this.trade = e
     },
-    async actionOrder() {
+    async actionOrder(bid) {
       let res
-      if (this.bid == 'buy') {
+      if (bid == 'buy') {
         if (this.trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
           this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
           return
@@ -125,10 +139,29 @@ export default {
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
       } else {
-        this.$notify({ title: this.bid == 'buy' ? 'Buy' : 'Sell', message: 'Order placed!', type: 'success' })
+        this.$notify({ title: bid == 'buy' ? 'Buy' : 'Sell', message: 'Order placed!', type: 'success' })
       }
 
+    },
+    isCardActive(bid) {
+      if (bid == this.bid) return 'active'
+      else return ''
     }
+  },
+
+  created() {
+    const cards = [
+      {
+        balance: this.baseBalance,
+        bid: 'buy'
+      },
+      {
+        balance: this.tokenBalance,
+        bid: 'sell'
+      }
+    ]
+
+    this.arrCard = cards
   }
 }
 </script>
@@ -138,6 +171,26 @@ export default {
     display: grid;
     grid-gap: 10px;
     padding: 10px 15px;
+    .tab {
+      @media (min-width: 768px) {
+        display: none;
+      }
+    }
+    .cards {
+      .cardBid {
+        @media (max-width: 767px) {
+          display: none;
+          &.active {
+            display: block;
+          }
+        }
+      }
+      @media (min-width: 768px) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 25px;
+      }
+    }
     .balance {
       display: flex;
       justify-content: space-between;
