@@ -44,7 +44,7 @@ export async function streamByNode(network, app, account, callback, actions) {
 
     if (r.actions.length < 100) {
       console.log(`waitForNewActions(${network.name})...`)
-      await new Promise((resolve, reject) => setTimeout(resolve, 500))
+      await new Promise((resolve, reject) => setTimeout(resolve, 1000))
     }
   }
 }
