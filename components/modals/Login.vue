@@ -87,6 +87,11 @@ export default {
         index: 'wax',
         create: 'https://all-access.wax.io/'
       })
+      wallets.push({
+        id: 'scatter',
+        name: '',
+        logo: require('@/assets/logos/wombat.png'),
+      })
     }
 
     if (this.network.name == 'proton') {
