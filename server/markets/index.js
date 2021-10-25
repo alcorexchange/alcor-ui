@@ -138,7 +138,9 @@ markets.get('/:market_id', cacheSeconds(60, (req, res) => {
   res.json(market)
 })
 
-markets.get('/', (req, res) => {
+markets.get('/', cacheSeconds(3, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), (req, res) => {
   const network = req.app.get('network')
   const c_markets = cache.get(`${network.name}_markets`) || []
 
