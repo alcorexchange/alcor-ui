@@ -70,12 +70,13 @@ markets.get('/:market_id/deals', cacheSeconds(3, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
   const { market_id } = req.params
-  const limit = req.query.limit || 200
+  const limit = parseInt(req.query.limit) || 200
 
   const matches = await Match.find({ chain: network.name, market: market_id })
     .select('_id time bid ask unit_price type trx_id')
-    .sort({ time: -1, _id: 1 })
-    .limit(parseInt(limit))
+    //.sort({ time: -1, _id: 1 })
+    .sort({ time: -1 })
+    .limit(limit)
 
   res.json(matches)
 })
