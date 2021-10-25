@@ -35,6 +35,7 @@ export async function updater(chain, app, provider, services) {
 
   if (services.includes('markets')) {
     updateMarkets(network)
+
     setTimeout(() => updateMarkets(network), 1000)
     setTimeout(() => updateMarkets(network), 10000)
     setInterval(() => updateMarkets(network), 5 * 60 * 1000)
