@@ -34,7 +34,7 @@ export async function updater(chain, app, provider, services) {
   await getSettings(network)
 
   if (services.includes('markets')) {
-    await updateMarkets(network)
+    updateMarkets(network)
 
     setTimeout(() => updateMarkets(network), 1000)
     setTimeout(() => updateMarkets(network), 10000)
