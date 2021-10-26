@@ -5,7 +5,7 @@ import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 //import config from '../../config'
 import { Match, Settings, getSettings } from '../models'
 
-export async function streamByNode(network, app, account, callback, actions) {
+export async function streamByNode(network, account, callback, actions) {
   console.info(`Start NODE updater for ${network.name} (${account})...`)
 
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
@@ -24,7 +24,7 @@ export async function streamByNode(network, app, account, callback, actions) {
       console.log(`receive actions(${network.name}): ${r.actions.length}`)
     } catch (e) {
       // TODO Почему то не срабатывает перезапуск при ошибке сети или днс
-      console.log(`getActionsByNode(${network.name}) err: `, e.message)
+      console.log(`getActionsByNode(${network.name}) err: `, e)
       await new Promise((resolve, reject) => setTimeout(resolve, 500))
       console.log(`getActionsByNode(${network.name}) retry..`)
       continue
@@ -34,7 +34,7 @@ export async function streamByNode(network, app, account, callback, actions) {
       offset += 1
 
       if (actions.includes(a.act.name)) {
-        callback(a, network, app)
+        callback(a, network)
 
         const $set = {}
         $set[`actions_stream_offset.${account}`] = offset

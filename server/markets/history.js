@@ -1,15 +1,16 @@
-import fetch from 'node-fetch'
 
+import redis from 'redis'
 import { Match } from '../models'
 import config from '../../config'
 import { cache } from '../index'
-import { JsonRpc as JsonRpcMultiEnds } from '../../assets/libs/eosjs-jsonrpc'
-import { parseAsset, littleEndianToDesimal, parseExtendedAsset } from '../../utils'
+import { parseAsset, littleEndianToDesimal } from '../../utils'
 import { getVolumeFrom, getChangeFrom, markeBars, pushDeal, pushTicker } from './charts'
 import { pushAccountNewMatch } from './pushes'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
+
+const redisClient = redis.createClient()
 
 export function getMatches(network) {
   const history = cache.get(`${network.name}_history`) || []
@@ -43,48 +44,6 @@ export async function getMarketStats(network, market_id) {
   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
 
   return stats
-}
-
-export async function updateMarkets(network) {
-  console.log('update market for ', network.name)
-
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
-  const rpc = new JsonRpcMultiEnds(nodes, { fetch })
-
-  const { rows } = await rpc.get_table_rows({
-    code: network.contract,
-    scope: network.contract,
-    table: 'markets',
-    reverse: true,
-    limit: 1000
-  })
-
-  rows.map(r => {
-    r.base_token = parseExtendedAsset(r.base_token)
-    r.quote_token = parseExtendedAsset(r.quote_token)
-  })
-
-  const requests = rows.map(d => {
-    return { market: d, stats: getMarketStats(network, d.id) }
-  })
-
-  try {
-    await Promise.all(requests.map(r => r.stats))
-
-    const markets = []
-    for (const req of requests) {
-      const { market } = req
-      const stats = await req.stats
-
-      markets.push({ ...market, ...stats })
-    }
-
-    cache.set(`${network.name}_markets`, markets, 0)
-  } catch (e) {
-    console.log('err get markets', e)
-    rows.map(r => r.last_price = 0)
-    cache.set(`${network.name}_markets`, rows, 0)
-  }
 }
 
 export async function newMatch(match, network, app) {
@@ -134,6 +93,7 @@ export async function newMatch(match, network, app) {
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
     const { market_id } = 'data' in data ? data.data : data
+    redisClient.publish('test', { market_id, name })
     if (!market_id) return
 
     io.to(`orders:${network.name}.${market_id}`).emit('update_orders')

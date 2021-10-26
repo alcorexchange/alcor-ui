@@ -1,5 +1,5 @@
 import { Match } from '../models'
-import { resolutions } from './charts'
+import { resolutions } from '../markets/charts'
 
 // TODO Move from /markets to global
 
@@ -57,5 +57,21 @@ export function unsubscribe(io, socket) {
     if (room == 'account') {
       socket.leave(`account:${params.chain}.${params.name}`)
     }
+  })
+}
+
+
+export function pushDeal(io, { chain, deal }) {
+  const { market, time, ask, bid, type, unit_price, trx_id } = deal
+  io.to(`deals:${chain}.${market}`).emit('new_deals', [{ time, ask, bid, type, unit_price, trx_id }])
+}
+
+export function pushTicker(io, { chain, market, time }) {
+  Object.keys(resolutions).map(timeframe => {
+    // .select('open high low close time volume')
+    Bar.findOne({ chain, market, timeframe }, {}, { sort: { time: -1 } }).then(bar => {
+      const tick = { ...bar.toObject(), time: new Date(bar.time).getTime() }
+      io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
+    })
   })
 }

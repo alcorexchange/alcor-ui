@@ -1,5 +1,38 @@
 import mongoose from 'mongoose'
 
+const MarketSchema = mongoose.Schema({
+  id: { type: Number, index: true },
+  chain: { type: String, index: true },
+
+  base_token: {
+    contract: { type: String, index: true },
+    symbol: {
+      name: { type: String },
+      precision: { type: Number }
+    }
+  },
+
+  quote_token: {
+    contract: { type: String },
+    symbol: {
+      name: { type: String },
+      precision: { type: Number }
+    }
+  },
+
+  min_buy: { type: String },
+  min_sell: { type: String },
+  frozen: { type: Boolean },
+  fee: { type: Number },
+  last_price: { type: Number },
+  volume24: { type: Number },
+  volumeWeek: { type: Number },
+  volumeMonth: { type: Number },
+  change24: { type: Number },
+  changeWeek: { type: Number }
+})
+MarketSchema.index({ chain: 1, id: 1 })
+
 const PoolPairSchema = mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
@@ -135,6 +168,7 @@ export async function getSettings(network) {
   }
 }
 
+export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
 export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)

@@ -74,17 +74,26 @@ export async function markeBar(timeframe, match) {
   await last_bar.save()
 }
 
-export function pushDeal(io, { chain, deal }) {
-  const { market, time, ask, bid, type, unit_price, trx_id } = deal
-  io.to(`deals:${chain}.${market}`).emit('new_deals', [{ time, ask, bid, type, unit_price, trx_id }])
+export async function getVolumeFrom(date, market, chain) {
+  const day_volume = await Match.aggregate([
+    { $match: { chain, market, time: { $gte: new Date(date) } } },
+    { $project: { market: 1, value: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } } } },
+    { $group: { _id: '$market', volume: { $sum: '$value' } } }
+  ])
+
+  return day_volume.length == 1 ? day_volume[0].volume : 0
 }
 
-export function pushTicker(io, { chain, market, time }) {
-  Object.keys(resolutions).map(timeframe => {
-    // .select('open high low close time volume')
-    Bar.findOne({ chain, market, timeframe }, {}, { sort: { time: -1 } }).then(bar => {
-      const tick = { ...bar.toObject(), time: new Date(bar.time).getTime() }
-      io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
-    })
-  })
+export async function getChangeFrom(date, market, chain) {
+  const date_deal = await Match.findOne({ chain, market, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
+  const last_deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } })
+
+  if (date_deal) {
+    const price_before = date_deal.unit_price
+    const price_after = last_deal.unit_price
+
+    return ((price_after - price_before) / price_before) * 100
+  } else {
+    return 0
+  }
 }
