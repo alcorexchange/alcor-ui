@@ -91,6 +91,14 @@ export const actions = {
     }
   },
 
+  fetchAsks({ state, commit, dispatch }) {
+    dispatch('api/getSellOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true }).then(orders => commit('setAsks', orders))
+  },
+
+  fetchBids({ state, commit, dispatch }) {
+    dispatch('api/getBuyOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true }).then(orders => commit('setBids', orders))
+  },
+
   async fetchOrders({ state, commit, dispatch }) {
     await Promise.all([
       // Fetching orders by price

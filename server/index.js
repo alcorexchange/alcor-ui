@@ -1,6 +1,5 @@
 require('dotenv').config()
 
-import socket from 'socket.io'
 import express from 'express'
 import mongoose from 'mongoose'
 import consola from 'consola'
@@ -18,10 +17,8 @@ import { Nuxt, Builder } from 'nuxt'
 import config from '../nuxt.config.js'
 //import sign from './sign'
 import upload from './upload/ipfs'
-import { startUpdaters } from './updaters'
 
 import { serverInit } from './utils'
-import { subscribe, unsubscribe } from './markets/sockets'
 
 import { markets } from './markets'
 import { pools } from './pools'
@@ -37,7 +34,7 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = config.dev ? 'mongodb://localhost:27017/alcor_dev' : 'mongodb://host.docker.internal:27017/alcor_prod_new'
+      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
       await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
       console.log('MongoDB connected!')
     } catch (e) {
@@ -79,24 +76,11 @@ async function start () {
   }
 
   // Listen the server
-  const server = app.listen(port, host)
+  app.listen(port, host)
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
     badge: true
   })
-
-  if (process.env.DISABLE_DB) return
-
-  const io = socket(server)
-
-  io.on('connection', socket => {
-    subscribe(io, socket)
-    unsubscribe(io, socket)
-  })
-
-  app.set('io', io)
-
-  startUpdaters(app)
 }
 
 start()

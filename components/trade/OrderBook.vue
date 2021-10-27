@@ -92,13 +92,8 @@ export default {
     this.fetch()
     setTimeout(() => this.scrollBook(), 1000)
 
-    let timeout
-    this.$socket.on('update_orders', (new_deals) => {
-      if (timeout) {
-        clearTimeout(timeout)
-      }
-      timeout = setTimeout(() => this.fetch(), 400)
-    })
+    this.$socket.on('update_asks', () => this.$store.dispatch('market/fetchAsks'))
+    this.$socket.on('update_bids', () => this.$store.dispatch('market/fetchBids'))
   },
 
   methods: {
