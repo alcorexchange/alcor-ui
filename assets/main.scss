@@ -153,6 +153,25 @@ input[type='number'] {
 //.el-input.is-disabled .el-input__inner {
 //    background-color: #dde9ec;
 //}
+.prefix-pos {
+  position: relative;
+  .el-input__inner {
+    text-align: right;
+    padding-left: 5px!important;
+  }
+  span.el-input__prefix {
+    background: var(--bg-big-card);
+    height: 19px;
+    top: -10px;
+    padding: 0 5px;
+    left: 5px;
+  }
+  .el-input-group__append {
+    width: 70px;
+    padding: 0 5px;
+    text-align: center;
+  }
+}
 
 .el-loading-mask {
   background-color: var(--background-color-base) !important;

@@ -30,13 +30,18 @@ export default {
 <style lang="scss" scoped>
   .tabs {
     display: flex;
+    gap: 5px;
     .tab {
       padding: 5px 15px;
       transition: .3s;
+      cursor: pointer;
+      color: black;
+      border-radius: 5px;
+      &:hover {
+        background-color: #d9ddde69;
+      }
       &.active {
-        color: black;
         background-color: #c1c1c185;
-        border-radius: 5px;
       }
     }
   }

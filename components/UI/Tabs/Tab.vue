@@ -3,6 +3,7 @@
     .tab(
       v-for="tab in tabs"
       :style="getStyle(tab)"
+      :class="getClass(tab)"
       @click="selected = tab.label"
     ) {{ tab.label }}
 </template>
@@ -37,6 +38,11 @@ export default {
       if (tab.label == this.selected) style = `background-color: #${tab.color};`
 
       return style
+    },
+    getClass(tab) {
+      let classBtn = 'greenHov'
+      if (tab.label == 'sell') classBtn = 'redHov'
+      return classBtn
     }
   }
 }
@@ -44,13 +50,24 @@ export default {
 
 <style lang="scss" scoped>
   .tabs {
-    display: flex;
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(2, 1fr);
     .tab {
-      padding: 10px 15px;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 35px;
       width: 100%;
       text-transform: uppercase;
       font-weight: bolder;
+      cursor: pointer;
+      &.greenHov:hover {
+        background-color: #aed58173;
+      }
+      &.redHov:hover {
+        background-color: #e5737352;
+      }
     }
   }
 </style>

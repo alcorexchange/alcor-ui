@@ -1,31 +1,40 @@
 <template lang="pug">
-.row
-  .col-12
-    coin-info
-    chart
-  .col-12.wrapBid
-    .row
-      .col-6
-        el-button.btn(
-          type="success"
-          @click="showDrawer('buy')"
-        ) Buy
-      .col-6
-        el-button.btn(
-          type="danger"
-          @click="showDrawer('sell')"
-        ) Sell
-  .col-12
-    el-tabs.h-100.order
-      el-tab-pane(label="Open order")
+.wrap-trade
+  coin-info.coin
+  chart.chart
+  bid(
+    class="bid"
+    :type="bidType"
+    @setType="bidType = $event"
+  )
+  .button-bid
+    el-button.btn(
+      type="success"
+      @click="showDrawer('buy')"
+    ) Buy
+    el-button.btn(
+      type="danger"
+      @click="showDrawer('sell')"
+    ) Sell
+  order-book.book
+  latest-deals.deals
+  .tabs-panel
+    el-tabs.h-100.order(tabPosition="top")
+      el-tab-pane(label="Order")
         my-orders.test(v-if="user")
-      el-tab-pane(label="Order history")
+      el-tab-pane(label="History")
         my-history(v-if="user")
-      el-tab-pane(label="Order book")
+  .tabs-panel-mobile
+    el-tabs.h-100.order(tabPosition="top")
+      el-tab-pane(label="Order")
+        my-orders.test(v-if="user")
+      el-tab-pane(label="History")
+        my-history(v-if="user")
+      el-tab-pane(label="Book")
         order-book
-      el-tab-pane(label="Latest deals")
+      el-tab-pane(label="Deals")
         latest-deals
-  //- TODO разобраться с заголовком и высотой, у заголовка убрать огромный маргин а высоту сделать адаптивной
+  //- //- TODO разобраться с заголовком и высотой, у заголовка убрать огромный маргин а высоту сделать адаптивной
   el-drawer(
     :visible.sync="isDrawer"
     :close-on-press-escape="true"
@@ -82,17 +91,114 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .wrapBid {
-    margin-top: 10px;
-    .btn {
-      width: 100%;
+.wrap-trade {
+  @media (min-width: 768px) {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 260px;
+    grid-template-rows: auto 1fr 320px;
+    @media (min-width: 768px) {
+      grid-template-columns: 230px 1fr 260px;
+    }
+    @media (min-width: 984px) {
+      grid-template-columns: 330px 1fr 260px;
     }
   }
-  .order {
+  .coin {
+    grid-row: 1;
+    grid-column: 1/-1;
+    @media (min-width: 1024px) {
+      grid-column: 2;
+    }
+  }
+  .chart {
+    grid-row: 2;
+    grid-column: 1/3;
+    @media (min-width: 1024px) {
+      grid-column: 2;
+    }
+  }
+  .bid {
+    grid-row: 2/4;
+    grid-column: 3;
     background: var(--bg-big-card);
     box-shadow: var(--card-shadow);
-    margin-top: 10px;
-    margin-bottom: 15px;
-    padding: 5px;
+    padding: 10px;
+    @media (max-width: 767px) {
+      display: none;
+    }
+    @media (min-width: 1024px) {
+      grid-row: 1/3;
+    }
+  }
+  .button-bid {
+    display: none;
+    width: 100%;
+    margin: 10px 0;
+    button {
+      width: 100%;
+    }
+    @media (max-width: 767px) {
+      display: flex;
+    }
+  }
+  .book {
+    grid-column: 1;
+    grid-row: 3;
+    @media (min-width: 1024px) {
+      padding: 10px;
+      background: var(--bg-big-card);
+      box-shadow: var(--card-shadow);
+      grid-row: 1/3;
+      grid-column: 1;
+    }
+  }
+  .deals {
+    grid-row: 3;
+    @media (min-width: 1024px) {
+      background: var(--bg-big-card);
+      box-shadow: var(--card-shadow);
+      padding: 5px;
+    }
+  }
+  &>.book, &>.deals {
+    @media (max-width: 767px) {
+      display: none;
+    }
+  }
+  .tabs-panel {
+    background: var(--bg-big-card);
+    box-shadow: var(--card-shadow);
+    padding: 10px;
+    grid-column: 1/-1;
+    @media (max-width: 767px) {
+      display: none;
+    }
+    @media (min-width: 1024px) {
+      grid-column: 2/-1;
+    }
+  }
+  .tabs-panel-mobile {
+    grid-column: 1/-1;
+    @media (min-width: 768px) {
+      display: none;
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+  .book {
+    @media (min-width: 768px) {
+      .orders-list {
+        max-height: 130px;
+      }
+    }
+    @media (min-width: 1024px) {
+      max-height: inherit;
+      .orders-list {
+        max-height: 230px;
+      }
+    }
   }
 </style>

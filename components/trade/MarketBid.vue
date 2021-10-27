@@ -3,23 +3,25 @@
     el-form-item
       el-input(
         v-if="bid == 'buy'"
+        class="prefix-pos"
         type="number"
         v-model="amountBuy"
         @change="setPrecisionAmountBuy()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") AMOUNT
+        span(slot="prefix") Amount
         span(slot="append") {{ base_token.symbol.name }}
       el-input(
         v-else
+        class="prefix-pos"
         type="number"
         v-model="amountSell"
         @change="setPrecisionAmountSell()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") AMOUNT
+        span(slot="prefix") Amount
         span(slot="append") {{ quote_token.symbol.name }}
     el-slider.slider(
       v-if="bid == 'buy'"

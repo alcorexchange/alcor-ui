@@ -3,36 +3,39 @@
   el-form(ref="form")
     el-form-item
       el-input(
+        class="prefix-pos"
         type="number"
         v-model="priceBid"
         @change="setPrecisionPrice()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") PRICE
+        span(slot="prefix") Price
         span(slot="append") {{ base_token.symbol.name }}
     el-form-item
       //- Logic for buying
       el-input(
         v-if="bid == 'buy'"
+        class="prefix-pos"
         type="number"
         v-model="amountBuy"
         @change="setPrecisionAmountBuy()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") AMOUNT
+        span(slot="prefix") Amount
         span(slot="append") {{ quote_token.symbol.name }}
       //- Logic for selling
       el-input(
         v-else
+        class="prefix-pos"
         type="number"
         v-model="amountSell"
         @change="setPrecisionAmountSell()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") AMOUNT
+        span(slot="prefix") Amount
         span(slot="append") {{ quote_token.symbol.name }}
     //- TODO Запилить свой компонент slider, так как на мобилках есть лаг, что подсказка не исчезает...
     el-slider.slider(
@@ -51,24 +54,26 @@
       //- For buy
       el-input(
         v-if="bid == 'buy'"
+        class="prefix-pos"
         type="number"
         v-model="totalBuy"
         @change="setPrecisionTotalBuy()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") TOTAL
+        span(slot="prefix") Total
         span(slot="append") {{ base_token.symbol.name }}
       //- For sell
       el-input(
         v-else
+        class="prefix-pos"
         type="number"
         v-model="totalSell"
         @change="setPrecisionTotalSell()"
         placeholder="0"
         clearable
       )
-        span(slot="prepend") TOTAL
+        span(slot="prefix") Total
         span(slot="append") {{ base_token.symbol.name }}
 </template>
 

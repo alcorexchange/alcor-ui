@@ -17,7 +17,6 @@
         :class="isCardActive(card.bid)"
       )
         .balance
-          p {{ bid }} {{ quote_token.symbol.name }}
           p(
             @click="setAmount(card.bid)"
           )
@@ -85,6 +84,12 @@ export default {
   watch: {
     type(val) {
       this.bid = val
+    },
+    baseBalance(val) {
+      this.arrCard[0].balance = this.baseBalance
+    },
+    tokenBalance(val) {
+      this.arrCard[1].balance = this.tokenBalance
     }
   },
 
@@ -149,7 +154,7 @@ export default {
     }
   },
 
-  created() {
+  async mounted() {
     const cards = [
       {
         balance: this.baseBalance,
@@ -160,7 +165,6 @@ export default {
         bid: 'sell'
       }
     ]
-
     this.arrCard = cards
   }
 }
@@ -169,31 +173,22 @@ export default {
 <style lang="scss" scoped>
   .wrapper {
     display: grid;
-    grid-gap: 10px;
-    padding: 10px 15px;
-    .tab {
-      @media (min-width: 768px) {
-        display: none;
-      }
+    grid-gap: 15px;
+    align-content: baseline;
+    @media (max-width: 1023px) {
+      padding: 5px 10px;
     }
     .cards {
       .cardBid {
-        @media (max-width: 767px) {
-          display: none;
-          &.active {
-            display: block;
-          }
+        display: none;
+        &.active {
+          display: block;
         }
-      }
-      @media (min-width: 768px) {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 25px;
       }
     }
     .balance {
       display: flex;
-      justify-content: space-between;
+      justify-content: end;
       p {
         margin: 0;
         text-transform: capitalize;
