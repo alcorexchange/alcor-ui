@@ -1,7 +1,16 @@
 import { Match } from '../models'
-import { resolutions } from './charts'
 
-// TODO Move from /markets to global
+export const resolutions = {
+  1: 1 * 60,
+  5: 5 * 60,
+  15: 15 * 60,
+  30: 30 * 60,
+  60: 60 * 60,
+  240: 60 * 60 * 4,
+  '1D': 60 * 60 * 24,
+  '1W': 60 * 60 * 24 * 7,
+  '1M': 60 * 60 * 24 * 30
+}
 
 export function subscribe(io, socket) {
   socket.on('subscribe', async ({ room, params }) => {
