@@ -46,6 +46,7 @@ export async function newMatch(match, network) {
         block_num
       })
       await markeBars(m)
+      redisClient.publish('market_action', `${network.name}_${market.id}_${name}`)
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
       await new Promise(resolve => setTimeout(resolve, 1000))

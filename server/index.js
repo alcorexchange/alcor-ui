@@ -34,7 +34,7 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = 'mongodb://127.0.0.1:27018/alcor_prod_new'
+      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
       await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
       console.log('MongoDB connected!')
     } catch (e) {

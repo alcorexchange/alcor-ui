@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 import express from 'express'
 import socket from 'socket.io'
 import mongoose from 'mongoose'
@@ -15,14 +17,16 @@ const server = app.listen(PORT, function () {
 
 const redis = require('redis')
 const client = redis.createClient()
+client.connect()
 const io = socket(server)
 
 async function main() {
-  const uri = 'mongodb://127.0.0.1:27018/alcor_prod_new'
+  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
-  console.log('mongodb connected')
 
   io.on('connection', socket => {
+    console.log(socket.client.conn.server.clientsCount + 'users connected')
+
     subscribe(io, socket)
     unsubscribe(io, socket)
   })
@@ -32,8 +36,6 @@ async function main() {
 
     pushDeal(io, match)
     pushAccountNewMatch(io, match)
-
-    io.to(`orders:${match.chain}.${match.market}`).emit('update_orders')
   })
 
   Bar.watch().on('change', async (op) => {
@@ -46,32 +48,28 @@ async function main() {
       bar = op.fullDocument
     }
 
-    const { chain, market, timeframe } = bar
-    const tick = { ...bar, time: new Date(bar.time).getTime() }
+    const { chain, market, timeframe, time, close, open, high, low, volume } = bar
+    const tick = { close, open, high, low, volume, time: new Date(time).getTime() }
     io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
   })
 
   const timeout = {}
-  client.on('message', (channel, message) => {
-    if (channel == 'market_action') {
-      const [chain, market, action] = message.split('_')
+  client.subscribe('market_action', message => {
+    const [chain, market, action] = message.split('_')
 
-      if (timeout[message]) {
-        clearTimeout(timeout[message])
-      }
-      timeout[message] = setTimeout(() => {
-        if (['buyreceipt', 'cancelbuy'].includes(action)) {
-          io.to(`orders:${chain}.${market}`).emit('update_bids')
-        }
-
-        if (['sellreceipt', 'cancelsell'].includes(action)) {
-          io.to(`orders:${chain}.${market}`).emit('update_asks')
-        }
-      }, 400)
+    if (timeout[message]) {
+      clearTimeout(timeout[message])
     }
-  })
+    timeout[message] = setTimeout(() => {
+      if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
+        io.to(`orders:${chain}.${market}`).emit('update_bids')
+      }
 
-  client.subscribe('market_action')
+      if (['sellreceipt', 'cancelsell', 'buymatch'].includes(action)) {
+        io.to(`orders:${chain}.${market}`).emit('update_asks')
+      }
+    }, 400)
+  })
 }
 
 main()
