@@ -147,6 +147,7 @@ export async function updateMarkets(network) {
       const complete_market = { chain: network.name, ...market, ...stats }
 
       if (current_markets.includes(complete_market.id)) {
+        // TODO проверить
         Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
       } else {
         markets_for_create.push(complete_market)

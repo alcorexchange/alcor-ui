@@ -40,7 +40,7 @@ export async function updater(chain, provider, services) {
   }
 
   if (services.includes('pools')) {
-    //console.log('start pools updater for', chain)
-    //streamer(network, redis, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
+    console.log('start pools updater for', chain)
+    streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
   }
 }

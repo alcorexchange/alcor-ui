@@ -9,7 +9,8 @@ const MarketSchema = mongoose.Schema({
     symbol: {
       name: { type: String },
       precision: { type: Number }
-    }
+    },
+    str: { type: String }
   },
 
   quote_token: {
@@ -17,7 +18,8 @@ const MarketSchema = mongoose.Schema({
     symbol: {
       name: { type: String },
       precision: { type: Number }
-    }
+    },
+    str: { type: String }
   },
 
   min_buy: { type: String },
