@@ -148,13 +148,13 @@ export async function updateMarkets(network) {
 
       if (current_markets.includes(complete_market.id)) {
         // TODO проверить
-        Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
+        await Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
       } else {
         markets_for_create.push(complete_market)
       }
     }
 
-    Market.insertMany(markets_for_create)
+    await Market.insertMany(markets_for_create)
     console.log('Markets for', network.name, 'updated')
   } catch (e) {
     rows.map(r => r.last_price = 0)
