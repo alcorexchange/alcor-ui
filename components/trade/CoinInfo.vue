@@ -122,6 +122,7 @@ export default {
       .select-coin {
         display: none;
         @media (max-width: 1279px) {
+          cursor: pointer;
           padding: 5px 15px;
           background: var(--bg-big-card);
           display: grid;
