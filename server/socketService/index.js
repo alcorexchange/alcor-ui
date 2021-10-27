@@ -1,4 +1,3 @@
-import redis from 'redis'
 import express from 'express'
 import socket from 'socket.io'
 import mongoose from 'mongoose'
@@ -8,18 +7,18 @@ import { Match, Bar } from '../models'
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
 
-const dev = process.env.NODE_ENV !== 'production'
-const PORT = 7002
+const PORT = process.env.PORT || 7002
 const app = express()
 const server = app.listen(PORT, function () {
   console.log(`WS Listening on port ${PORT}`)
 })
 
+const redis = require('redis')
 const client = redis.createClient()
 const io = socket(server)
 
 async function main() {
-  const uri = dev ? 'mongodb://localhost:27017/alcor_dev' : 'mongodb://host.docker.internal:27017/alcor_prod_new'
+  const uri = 'mongodb://127.0.0.1:27018/alcor_prod_new'
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
   console.log('mongodb connected')
 
@@ -51,7 +50,6 @@ async function main() {
     const tick = { ...bar, time: new Date(bar.time).getTime() }
     io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
   })
-
 
   const timeout = {}
   client.on('message', (channel, message) => {

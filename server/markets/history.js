@@ -1,4 +1,4 @@
-
+// TODO Remove, not used
 import redis from 'redis'
 import { Match } from '../models'
 import config from '../../config'

@@ -137,7 +137,7 @@ export async function updateMarkets(network) {
     await Promise.all(requests.map(r => r.stats))
 
     const markets_for_create = []
-    const current_markets = await Market.distinct('id')
+    const current_markets = await Market.distinct('id', { chain: network.name })
 
     for (const req of requests) {
       const { market } = req
@@ -146,7 +146,7 @@ export async function updateMarkets(network) {
       const complete_market = { chain: network.name, ...market, ...stats }
 
       if (current_markets.includes(complete_market.id)) {
-        Market.updateOne({ id: complete_market.id }, complete_market)
+        Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
       } else {
         markets_for_create.push(complete_market)
       }
