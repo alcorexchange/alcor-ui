@@ -87,18 +87,10 @@ export default {
   props: ['bid'],
 
   computed: {
-    ...mapState('market', [
-      'price_bid',
-      'total_buy',
-      'total_sell'
-    ]),
+    ...mapState('market', ['total_buy', 'total_sell']),
     priceBid: {
       get() { return this.price_bid },
       set(val) { this.changePrice(val) }
-    },
-    percentBuy: {
-      get() { return this.percent_buy },
-      set(val) { this.changePercentBuy({ percent: val, trade: 'limit' }) }
     },
     totalBuy: {
       get() { return this.total_buy },
@@ -114,7 +106,6 @@ export default {
     ...mapActions('market', [
       'changePrice',
       'setPrecisionPrice',
-      'changeTotal',
       'setPrecisionTotalBuy',
       'setPrecisionTotalSell'
     ])

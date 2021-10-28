@@ -1,5 +1,19 @@
 <template lang="pug">
   .wrapper
+    .info
+      el-switch(
+        class="free-cpu"
+        v-if="['eos'].includes(network.name) && user"
+        v-model="funPayForUser"
+        inactive-text="Free CPU"
+      )
+      el-button(
+        class="swap"
+        v-if="relatedPool"
+        type="text"
+        @click="goToPool"
+      ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+      FeeRate
     TabUi(
       class="tab"
       :tabs="tabsBid"
@@ -34,27 +48,33 @@
           :type="card.bid == 'buy' ? 'success' : 'danger'"
           @click.native="actionOrder(card.bid)"
         ) {{ card.bid }} {{ quote_token.symbol.name }}
+    //- Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}" v-if="hasWithdraw")
+    //- BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}" v-if="quote_token.contract == 'bosibc.io'")
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-import { tradeMixin } from '~/mixins/trade'
+import { trade } from '~/mixins/trade'
 
+import FeeRate from '~/components/trade/FeeRate.vue'
 import TabUi from '~/components/UI/Tabs/Tab.vue'
 import SimpleTabUi from '~/components/UI/Tabs/SimpleTab.vue'
 import LimitBid from '~/components/trade/LimitBid.vue'
 import MarketBid from '~/components/trade/MarketBid.vue'
 import ButtonUi from '~/components/UI/Buttons/Button.vue'
+// import Withdraw from '~/components/withdraw/Withdraw'
 export default {
   components: {
+    FeeRate,
     TabUi,
     SimpleTabUi,
     LimitBid,
     MarketBid,
-    ButtonUi
+    ButtonUi,
+    // Withdraw
   },
 
-  mixins: [tradeMixin],
+  mixins: [trade],
 
   props: ['type'],
 
@@ -72,13 +92,21 @@ export default {
   },
 
   computed: {
-    ...mapState('market', [
-      'quote_token',
-      'price_bid',
-      'amount_buy',
-      'total_buy'
-    ]),
-    ...mapGetters('market', ['tokenBalance', 'baseBalance'])
+    ...mapState(['network']),
+    ...mapState('chain', ['payForUser']),
+    ...mapGetters('market', ['relatedPool', 'tokenBalance', 'baseBalance']),
+    ...mapGetters(['user']),
+    funPayForUser: {
+      get() {
+        return this.payForUser
+      },
+      set(val) {
+        this.setPayForUser(val)
+      }
+    },
+    // hasWithdraw() {
+    //   return Object.keys(this.network.withdraw).includes(this.quote_token.str)
+    // }
   },
 
   watch: {
@@ -94,13 +122,13 @@ export default {
   },
 
   methods: {
-    ...mapMutations('market', ['SET_AMOUNT_SELL']),
-    ...mapActions('market', [
-      'changeTotal',
-      'changeAmount',
-      'fetchBuy',
-      'fetchSell'
-    ]),
+    ...mapMutations('chain', ['setPayForUser']),
+    ...mapActions('market', ['fetchBuy', 'fetchSell']),
+    ...mapActions('swap', ['setPair']),
+    goToPool() {
+      this.setPair(this.relatedPool.id)
+      this.$router.push('/swap')
+    },
     setAmount(bid) {
       if (this.trade == 'limit' && bid == 'buy') {
         this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
@@ -177,6 +205,13 @@ export default {
     align-content: baseline;
     @media (max-width: 1023px) {
       padding: 5px 10px;
+    }
+    .info {
+      text-align: right;
+      .free-cpu {
+        display: block;
+        margin: 5px;
+      }
     }
     .cards {
       .cardBid {

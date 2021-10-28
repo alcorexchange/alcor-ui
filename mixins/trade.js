@@ -11,6 +11,7 @@ import { amountToFloat } from '~/utils'
 export const trade = {
   computed: {
     ...mapState('market', [
+      'price_bid',
       'base_token',
       'quote_token',
       'amount_buy',
@@ -26,6 +27,10 @@ export const trade = {
       get() { return this.amount_sell },
       set(val) { this.changeAmount({ amount: val, type: 'sell' }) }
     },
+    percentBuy: {
+      get() { return this.percent_buy },
+      set(val) { this.changePercentBuy({ percent: val, trade: 'limit' }) }
+    },
     percentSell: {
       get() { return this.percent_sell },
       set(val) { this.changePercentSell(val) }
@@ -34,6 +39,7 @@ export const trade = {
 
   methods: {
     ...mapActions('market', [
+      'changeTotal',
       'changeAmount',
       'setPrecisionAmountBuy',
       'setPrecisionAmountSell',

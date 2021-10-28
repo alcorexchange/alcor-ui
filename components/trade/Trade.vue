@@ -18,6 +18,9 @@
     ) Sell
   order-book.book
   latest-deals.deals
+  .my-info
+    my-orders.orders(v-if="user")
+    my-history.history(v-if="user")
   .tabs-panel
     el-tabs.h-100.order(tabPosition="top")
       el-tab-pane(label="Order")
@@ -34,13 +37,12 @@
         order-book
       el-tab-pane(label="Deals")
         latest-deals
-  //- //- TODO разобраться с заголовком и высотой, у заголовка убрать огромный маргин а высоту сделать адаптивной
   el-drawer(
     :visible.sync="isDrawer"
     :close-on-press-escape="true"
     :modal="true"
     direction="btt"
-    size="80%"
+    size="87%"
   )
     bid(
       :type="bidType"
@@ -166,6 +168,20 @@ export default {
       display: none;
     }
   }
+  .my-info {
+    grid-column: 2/-1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    @media (max-width: 1439px) {
+      display: none;
+    }
+    .orders, .history {
+      background: var(--bg-big-card);
+      box-shadow: var(--card-shadow);
+      max-height: 100%!important;
+    }
+  }
   .tabs-panel {
     background: var(--bg-big-card);
     box-shadow: var(--card-shadow);
@@ -176,6 +192,9 @@ export default {
     }
     @media (min-width: 1024px) {
       grid-column: 2/-1;
+    }
+    @media (min-width: 1440px) {
+      display: none;
     }
   }
   .tabs-panel-mobile {
@@ -199,6 +218,18 @@ export default {
       .orders-list {
         max-height: 230px;
       }
+    }
+  }
+  .my-info {
+    .history .el-table__body-wrapper {
+      max-height: 80%!important;
+    }
+  }
+  .el-drawer__wrapper .el-drawer.btt {
+    overflow: auto;
+    .el-drawer__header {
+      padding: 10px;
+      margin-bottom: 5px;
     }
   }
 </style>

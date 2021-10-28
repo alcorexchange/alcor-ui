@@ -1,16 +1,14 @@
 <template lang="pug">
 .pointer
-  el-tooltip.item(effect='dark' placement='top-start')
-    template(slot="content")
-      span.title.muted Maker Fee
-      span.value  {{ (meta.fee / 100).toFixed(4) }}%
-      span.title.muted.ml-2 Taker Fee
-      span.value  {{ (meta.fee / 100).toFixed(4) }}%
-    small.muted % Fee Rate
-
-  //el-dropdown(placement="top").fee-rate
-    AlcorButton(flat) Fee Rate
-    el-dropdown-menu(slot="dropdown").dropdown-content
+  small.muted % Fee Rate
+  .desc
+    span.title.muted Maker Fee
+    span.value  {{ (meta.fee / 100).toFixed(4) }}%
+    span.title.muted Taker Fee
+    span.value  {{ (meta.fee / 100).toFixed(4) }}%
+  //- el-dropdown(placement="top").fee-rate
+  //-   AlcorButton(flat) Fee Rate
+  //-   el-dropdown-menu(slot="dropdown").dropdown-content
 </template>
 
 <script>
@@ -30,20 +28,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.dropdown-content {
-  display: flex;
-  padding: 8px;
-}
-.item {
-  display: flex;
-  align-items: center;
-  .title {
-    padding-right: 2px;
+.pointer {
+  .desc {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    .title {
+      justify-self: start;
+    }
   }
-}
-.h-spacer {
-  width: 1px;
-  background: var(--background-color-secondary);
-  margin: 0 8px;
 }
 </style>

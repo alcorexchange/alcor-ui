@@ -43,14 +43,7 @@ import { trade } from '~/mixins/trade'
 export default {
   mixins: [trade],
 
-  props: ['bid'],
-
-  computed: {
-    percentBuy: {
-      get() { return this.percent_buy },
-      set(val) { this.changePercentBuy({ percent: val, trade: 'market' }) }
-    }
-  }
+  props: ['bid']
 }
 </script>
 
