@@ -1,10 +1,10 @@
 <template lang="pug">
-div.container-fluid
+div
   AlcorLoading
   ResourcesModal
   ModalsDialog
   .layout(
-    :class="$route.name == 'trade-index-id' ? 'is-market' : ''"
+    :class="$route.name == 'trade-index-id' ? 'is-market container-fluid' : 'container'"
     ref="top"
   )
     nav.nav(v-if='!isMobile')
