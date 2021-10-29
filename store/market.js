@@ -159,8 +159,7 @@ export const actions = {
     const price = Math.round(state.price_bid * config.PRICE_SCALE)
     const total = Math.round(params.total * (10 ** bp))
 
-    const amountBigInt = BigInt(Math.ceil(total / price * (10 ** qp)))
-    const amount = parseFloat(amountBigInt) / (10 ** qp)
+    const amount = total / price * (10 ** qp)
 
     return amount.toFixed(qp)
   },
@@ -325,13 +324,15 @@ export const actions = {
     if (!await dispatch('chain/asyncLogin', null, { root: true })) return
 
     const { user, network } = rootState
-    const total = parseFloat(state.total_buy).toFixed(state.base_token.symbol.precision)
     let amount = null
+    let total = null
 
     if (trade == 'limit') {
       amount = parseFloat(state.amount_buy).toFixed(state.quote_token.symbol.precision)
+      total = parseFloat(state.total_buy).toFixed(state.base_token.symbol.precision)
     } else {
       amount = parseFloat(0).toFixed(state.quote_token.symbol.precision)
+      total = parseFloat(state.amount_buy).toFixed(state.base_token.symbol.precision)
     }
 
     const objTrans = [{
