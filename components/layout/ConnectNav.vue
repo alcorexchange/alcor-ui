@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import AlcorButton from '@/components/AlcorButton'
 import { mapGetters, mapState } from 'vuex'
+import AlcorButton from '@/components/AlcorButton'
 
 import config from '~/config'
 // import AlcorLink from '@/components/AlcorLink'
