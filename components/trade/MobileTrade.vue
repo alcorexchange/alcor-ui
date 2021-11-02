@@ -26,86 +26,116 @@
 
         .row.mt-2
           .col
+
+            span(
+              class="capitalize"
+              :class="textColor(side)"
+            ) {{ side }} {{ quote_token.symbol.name }}
+            br
+            small(
+              class="text-mutted small align-self-end ml-auto cursor-pointer"
+              @click="setAmount(trade, side)"
+            ) {{ side == 'buy' ? baseBalance : tokenBalance | commaFloat }}
+              i.el-icon-wallet.ml-1
+            br
+
             div(v-if="trade == 'limit'")
-              div(v-if="side == 'buy'")
-                span.text-success Buy {{ quote_token.symbol.name }}
-                br
-                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance | commaFloat }}
-                  i.el-icon-wallet.ml-1
-                br
 
-                label.small Price
-                el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="fixPrice()" @input="priceChange()")
-                  span(slot="suffix").mr-1 {{ base_token.symbol.name }}
+              label.small Price
+              el-input(
+                type="number"
+                :min="side == 'buy' ? '0.00000001' : '0'"
+                :step="side == 'buy' ? '0.00000001' : '0.0001'"
+                v-model="priceBid"
+                @change="setPrecisionPrice()"
+                placeholder="0"
+                clearable
+              )
+                span(
+                  class="mr-1 ml-2"
+                  slot="suffix"
+                ) {{ base_token.symbol.name }}
 
-                label.small Amount
-                el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
-                  span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
+              label.small Amount
+              el-input(
+                v-if="side == 'buy'"
+                type="number"
+                v-model="amountBuy"
+                @change="setPrecisionAmountBuy()"
+                size="medium"
+                placeholder="0"
+                clearable
+              )
+                span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
-                el-slider(:step="1" v-model="eosPercent")
+              el-input(
+                v-if="side == 'sell'"
+                type="number"
+                v-model="amountSell"
+                @change="setPrecisionAmountSell()"
+                size="medium"
+                placeholder="0"
+                clearable
+              )
+                span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
-                label.small Total
-                el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
-                  span(slot="suffix").mr-1 {{ base_token.symbol.name }}
+              el-slider(v-if="side == 'buy'" :step="1" v-model="percentBuy")
+              el-slider(v-if="side == 'sell'" :step="1" v-model="percentSell")
 
-                el-button(size="small" type="success" @click="buy(trade)").w-100.mt-2 Buy
+              label.small Total
+              el-input(
+                v-if="side == 'buy'"
+                type="number"
+                v-model="totalBuy"
+                @change="setPrecisionTotalBuy()"
+                placeholder="0"
+                size="medium"
+              )
+                span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
-              div(v-else)
-                span.text-danger Sell {{ quote_token.symbol.name }}
-                br
-                small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance | commaFloat }}
-                  i.el-icon-wallet.ml-1
-                br
-
-                label.small Price
-                el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="fixPrice()" @input="priceChange()")
-                  span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
-
-                label.small Amount
-                el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
-                  span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
-
-                el-slider(v-model="tokenPercent")
-
-                label.small Total
-                el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
-                  span(slot="suffix").mr-1 {{ base_token.symbol.name }}
-
-                el-button(size="small" type="danger" @click="sell(trade)").w-100.mt-2 Sell
+              el-input(
+                v-if="side == 'sell'"
+                type="number"
+                v-model="totalSell"
+                @change="setPrecisionTotalSell()"
+                placeholder="0"
+                size="medium"
+              )
+                span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
             div(v-else)
-              div(v-if="side == 'buy'")
-                span.text-success Buy {{ quote_token.symbol.name }}
-                br
-                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") balance: {{ baseBalance | commaFloat }}
-                br
 
-                label.small Price
-                el-input(type="number" disabled placeholder="Buy at best price")
+              label.small Price
+              el-input(type="number" disabled placeholder="Buy at best price")
 
-                label.small Total
-                el-input(type="number" clearable v-model="total")
-                  span(slot="suffix").mr-1 {{ base_token.symbol.name }}
+              label.small Amount
+              el-input(
+                v-if="side == 'buy'"
+                type="number"
+                v-model="amountBuy"
+                placeholder="0"
+                clearable
+              )
+                span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
-                el-slider(:step="25" v-model="eosPercent" show-stops)
+              el-input(
+                v-if="side == 'sell'"
+                type="number"
+                v-model="amountSell"
+                placeholder="0"
+                clearable
+              )
+                span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
-                el-button(type="success" size="small" @click="buy(trade)").w-100 Buy
-              div(v-else)
-                span.text-danger Sell {{ quote_token.symbol.name }}
-                br
-                span.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") balance: {{ tokenBalance | commaFloat }}
-                br
+              el-slider(v-if="side == 'buy'" :step="25" v-model="percentBuyMarket" show-stops)
+              el-slider(v-if="side == 'sell'" :step="25" v-model="percentSell" show-stops)
 
-                label.small Amount
-                el-input(type="number" disabled placeholder="Buy at best price")
-
-                label.small Amount
-                el-input(type="number" v-model="amount" clearable)
-                  span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
-
-                el-slider(:step="25" v-model="tokenPercent" show-stops)
-
-                el-button(type="danger" size="small" @click="sell(trade)").w-100 Sell
+            el-button(
+              class="w-100 mt-2 capitalize"
+              :type="side == 'buy' ? 'success' : 'danger'"
+              size="small"
+              @click="actionOrder(trade, side)"
+            ) {{ side }}
 
       .col-6.pl-0.mb-4
         OrderBook
@@ -126,9 +156,9 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
-import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
+import { trade } from '~/mixins/trade'
 
 import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'
@@ -149,7 +179,7 @@ export default {
     LatestDeals
   },
 
-  mixins: [tradeMixin, tradeChangeEvents],
+  mixins: [trade],
 
   data() {
     return {
@@ -158,22 +188,22 @@ export default {
     }
   },
 
+  methods: {
+    textColor(side) {
+      return side == 'buy' ? 'text-success' : 'text-danger'
+    }
+  },
+
   computed: {
-    ...mapState(['network']),
-    ...mapState('market', [
-      'token',
-      'id',
-      'stats',
-      'quote_token',
-      'base_token'
-    ]),
-    ...mapGetters('market', [
-      'sorted_asks',
-      'sorted_bids',
-      'baseBalance',
-      'tokenBalance'
-    ]),
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+    percentBuy: {
+      get() { return this.percent_buy },
+      set(val) { this.changePercentBuy({ percent: val, trade: 'limit' }) }
+    },
+    percentBuyMarket: {
+      get() { return this.percent_buy },
+      set(val) { this.changePercentBuy({ percent: val, trade: 'market' }) }
+    }
   }
 }
 </script>
@@ -192,5 +222,8 @@ export default {
 }
 .cursor-pointer {
   cursor: pointer;
+}
+.capitalize {
+  text-transform: capitalize;
 }
 </style>
