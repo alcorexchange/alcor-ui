@@ -54,8 +54,11 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import { trade } from '~/mixins/trade'
 
 export default {
+  mixins: [trade],
+
   data() {
     return {
       asksL: 0,
@@ -120,8 +123,15 @@ export default {
         .humanPrice(ask.unit_price)
         .replaceAll(',', '')
 
+      const amount = this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', ''))
+      this.$nuxt.$emit('setAmount', amount)
+
+      // Price and amount for marked moved to VUEX
+      this.changePrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     },
 
     setAsk(bid) {
@@ -129,8 +139,15 @@ export default {
         .humanPrice(bid.unit_price)
         .replaceAll(',', '')
 
+      const amount = this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', ''))
+      this.$nuxt.$emit('setAmount', amount)
+
+      // Price and amount for marked moved to VUEX
+      this.changePrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     }
   }
 }
