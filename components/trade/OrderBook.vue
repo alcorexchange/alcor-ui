@@ -25,13 +25,18 @@
       span
 
   .p-1.mt-1(v-loading='loading')
-    .overflowbox.text-center.latest-price(
+    .overflowbox.latest-price(
       :class='{ red: isLastTradeSell }'
     )
-      i(
-        :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
-      )
-      span {{ price }} {{ base_token.symbol.name }}
+      .price
+        i(
+          :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
+        )
+        span.num {{ price }} &nbsp;
+        span.token {{ base_token.symbol.name }}
+      .spread
+        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice }} Spread
+        span.prec ({{ getSpreadPercent ? getSpreadPercent : '0.00' }}%)
 
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
@@ -71,6 +76,20 @@ export default {
 
     isLastTradeSell() {
       return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
+    },
+
+    getSpreadNum() {
+      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const latestBid = this.sorted_bids[0]
+      const spreadDec = latestAsk?.unit_price - latestBid?.unit_price
+      return spreadDec
+    },
+
+    getSpreadPercent() {
+      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
+      const spread = Math.round(spreadDec * 100) / 100
+      return spread
     }
   },
 
@@ -139,17 +158,63 @@ export default {
 <style lang="scss">
 .order-book {
   max-height: 500px;
-}
-.latest-price {
-  font-weight: bold;
-  color: var(--main-green);
-
-  i {
-    margin-right: 2px;
-  }
-
-  &.red {
-    color: var(--main-red);
+  .latest-price {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    color: var(--main-green);
+    @media (max-width: 1600px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 0 5px;
+      .price {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 5px;
+        align-items: center;
+        i {
+          grid-row: 1/3;
+        }
+        .num {
+          grid-row: 1;
+        }
+        .token {
+          grid-row: 2;
+        }
+      }
+      .spread {
+        justify-items: end;
+        display: grid;
+        font-size: 14px;
+        .num {
+          grid-row: 1;
+        }
+        .perc {
+          grid-row: 2;
+        }
+      }
+    }
+    @media (max-width: 1200px) and (min-width: 983px) {
+      .price, .spread {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 600px) {
+      .price, .spread {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 468px) {
+      .price, .spread {
+        font-size: 9px;
+      }
+    }
+    i {
+      margin-right: 2px;
+    }
+    &.red {
+      color: var(--main-red);
+    }
   }
 }
 
