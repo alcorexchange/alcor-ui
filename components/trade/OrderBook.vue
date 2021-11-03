@@ -4,7 +4,7 @@
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
-      span Amount({{ quote_token.symbol.name }})
+      span Amount ({{ quote_token.symbol.name }})
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
