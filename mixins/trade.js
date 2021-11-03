@@ -1,9 +1,107 @@
 import { captureException } from '@sentry/browser'
 
 import { asset } from 'eos-common'
+import { mapActions, mapState, mapGetters } from 'vuex'
 
 import config from '~/config'
 import { amountToFloat } from '~/utils'
+
+export const trade = {
+  computed: {
+    ...mapState('market', [
+      'price_bid',
+      'base_token',
+      'quote_token',
+      'amount_buy',
+      'amount_sell',
+      'percent_buy',
+      'percent_sell',
+      'total_buy',
+      'total_sell'
+    ]),
+    ...mapGetters('market', [
+      'baseBalance',
+      'tokenBalance'
+    ]),
+    priceBid: {
+      get() { return this.price_bid },
+      set(val) { this.changePrice(val) }
+    },
+    amountBuy: {
+      get() { return this.amount_buy },
+      set(val) { this.changeAmount({ amount: val, type: 'buy' }) }
+    },
+    amountSell: {
+      get() { return this.amount_sell },
+      set(val) { this.changeAmount({ amount: val, type: 'sell' }) }
+    },
+    percentSell: {
+      get() { return this.percent_sell },
+      set(val) { this.changePercentSell(val) }
+    },
+    totalBuy: {
+      get() { return this.total_buy },
+      set(val) { this.changeTotal({ total: val, type: 'buy' }) }
+    },
+    totalSell: {
+      get() { return this.total_sell },
+      set(val) { this.changeTotal({ total: val, type: 'sell' }) }
+    }
+  },
+
+  methods: {
+    ...mapActions('market', [
+      'changePrice',
+      'setPrecisionPrice',
+      'setPrecisionTotalBuy',
+      'setPrecisionTotalSell',
+      'changeTotal',
+      'changeAmount',
+      'setPrecisionAmountBuy',
+      'setPrecisionAmountSell',
+      'changePercentBuy',
+      'changePercentSell',
+      'fetchBuy',
+      'fetchSell'
+    ]),
+    setAmount(trade, bid) {
+      if (trade == 'limit' && bid == 'buy') {
+        this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
+      } else if (trade == 'market' && bid == 'buy') {
+        this.changeAmount({ amount: parseFloat(this.baseBalance), type: 'buy' })
+      } else {
+        this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
+      }
+    },
+    async actionOrder(trade, bid) {
+      let res
+      if (bid == 'buy') {
+        if (trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
+          this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
+          return
+        } else if (parseFloat(this.amount_buy) == 0 || this.amount_buy == null || isNaN(this.amount_buy)) {
+          this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+          return
+        }
+        res = await this.fetchBuy(trade)
+      } else {
+        if (trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
+          this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
+          return
+        } else if (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell)) {
+          this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+          return
+        }
+        res = await this.fetchSell(trade)
+      }
+      if (res.err) {
+        this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
+      } else {
+        this.$notify({ title: bid == 'buy' ? 'Buy' : 'Sell', message: 'Order placed!', type: 'success' })
+      }
+    }
+  }
+}
 
 
 // TODO This whole module need refactor
