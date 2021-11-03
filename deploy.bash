@@ -1,3 +1,3 @@
 git pull origin master
-yarn
+yarn && yarn build
 pm2 reload all
