@@ -35,8 +35,11 @@
         span.num {{ price }} &nbsp;
         span.token {{ base_token.symbol.name }}
       .spread
-        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice }} Spread
-        span.prec ({{ getSpreadPercent ? getSpreadPercent : '0.00' }}%)
+        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice }} Spread&nbsp;
+        span(
+          class="prec"
+          :class="percentWarn"
+        ) ({{ getSpreadPercent ? getSpreadPercent : '0.00' }}%)
 
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
@@ -93,6 +96,10 @@ export default {
       const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
       const spread = Math.round(spreadDec * 100) / 100
       return spread
+    },
+
+    percentWarn() {
+      return this.getSpreadPercent > 5 ? 'warn' : ''
     }
   },
 
@@ -180,6 +187,12 @@ export default {
     justify-content: space-between;
     font-weight: bold;
     color: var(--main-green);
+    .spread {
+      color: #9e9e9e;
+      .prec.warn {
+        color: var(--main-red);
+      }
+    }
     @media (max-width: 1600px) {
       display: grid;
       grid-template-columns: 1fr 1fr;
