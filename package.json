@@ -20,7 +20,7 @@
     "@scatterjs/core": "^2.7.54",
     "@scatterjs/eosjs2": "^1.5.36",
     "@vue/eslint-config-standard": "^5.0.0",
-    "@waxio/waxjs": "git://github.com/pinknetworkx/waxjs.git#develop",
+    "@waxio/waxjs": "pinknetworkx/waxjs.git#develop",
     "anchor-link": "^3.3.4",
     "anchor-link-browser-transport": "^3.2.5",
     "apexcharts": "^3.25.0",
