@@ -108,13 +108,18 @@ import SelectToken from '~/components/swap/SelectToken.vue'
 import SSpacer from '~/components/SSpacer.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
 
+import { popup } from '~/mixins/popup'
+
 export default {
+
   components: {
     SelectToken,
     PleaseLoginButton,
     SSpacer,
     AlcorButton
   },
+
+  mixins: [popup],
 
   data() {
     return {
@@ -427,29 +432,16 @@ export default {
       }
     },
 
-    submit() {
+    async submit() {
       if (!this.inputAmount || !this.outputAmount) return
 
       if (parseFloat(this.priceImpact) > 10) {
-        this.$confirm(
-          'You are significantly overpaying for the exchange. Try the amount less or do you want to continue?',
-          'Impact on the price above 10%!',
-          {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
-            type: 'warning'
-          }
-        )
-          .then(() => {
-            this.processExchange()
-          })
-          .catch(() => {
-            this.$notify({
-              type: 'info',
-              title: 'Swap',
-              message: 'Swap canceled'
-            })
-          })
+        const confInfo = {
+          title: 'Impact on the price above 10%!',
+          mess: 'You are significantly overpaying for the exchange. Try the amount less or do you want to continue?'
+        }
+        const actionCancel = await this.showPopupWarning(confInfo, 'Swap')
+        if (!actionCancel) this.processExchange()
       } else {
         this.processExchange()
       }
