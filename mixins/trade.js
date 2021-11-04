@@ -6,7 +6,10 @@ import { mapActions, mapState, mapGetters } from 'vuex'
 import config from '~/config'
 import { amountToFloat } from '~/utils'
 
+import { popup } from '~/mixins/popup'
+
 export const trade = {
+  mixins: [popup],
   computed: {
     ...mapState('market', [
       'price_bid',
@@ -21,7 +24,9 @@ export const trade = {
     ]),
     ...mapGetters('market', [
       'baseBalance',
-      'tokenBalance'
+      'tokenBalance',
+      'sorted_asks',
+      'sorted_bids'
     ]),
     priceBid: {
       get() { return this.price_bid },
@@ -46,6 +51,20 @@ export const trade = {
     totalSell: {
       get() { return this.total_sell },
       set(val) { this.changeTotal({ total: val, type: 'sell' }) }
+    },
+
+    getSpreadNum() {
+      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const latestBid = this.sorted_bids[0]
+      const spreadDec = latestAsk?.unit_price - latestBid?.unit_price
+      return spreadDec
+    },
+
+    getSpreadPercent() {
+      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
+      const spread = Math.round(spreadDec * 100) / 100
+      return spread
     }
   },
 
@@ -73,27 +92,40 @@ export const trade = {
         this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
       }
     },
-    async actionOrder(trade, bid) {
+
+    sendFetchBid(trade, bid) {
       let res
-      if (bid == 'buy') {
-        if (trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
-          this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
-          return
-        } else if (parseFloat(this.amount_buy) == 0 || this.amount_buy == null || isNaN(this.amount_buy)) {
-          this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
-          return
-        }
-        res = await this.fetchBuy(trade)
-      } else {
-        if (trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
-          this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
-          return
-        } else if (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell)) {
-          this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
-          return
-        }
-        res = await this.fetchSell(trade)
+      if (bid == 'buy') res = this.fetchBuy(trade)
+      else res = this.fetchSell(trade)
+
+      return res
+    },
+
+    async actionOrder(trade, bid) {
+      if (trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
+        this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
+        return
       }
+
+      if (bid == 'buy' && (parseFloat(this.amount_buy) == 0 || this.amount_buy == null || isNaN(this.amount_buy))) {
+        this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+        return
+      } else if (bid == 'sell' && (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell))) {
+        this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+        return
+      }
+
+      if (trade == 'market' && this.getSpreadPercent > 10) {
+        const confInfo = {
+          title: 'Spread is above 10%!',
+          mess: 'Limit order usage is recommended, do you want to continue?'
+        }
+        const actionCancel = await this.showPopupWarning(confInfo, 'Trade')
+        if (actionCancel) return
+      }
+
+      let res = this.sendFetchBid(trade, bid)
+
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
       } else {

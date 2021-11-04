@@ -77,26 +77,12 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'price']),
+    ...mapGetters('market', ['price']),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
     ...mapGetters(['user']),
 
     isLastTradeSell() {
       return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
-    },
-
-    getSpreadNum() {
-      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
-      const latestBid = this.sorted_bids[0]
-      const spreadDec = latestAsk?.unit_price - latestBid?.unit_price
-      return spreadDec
-    },
-
-    getSpreadPercent() {
-      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
-      const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
-      const spread = Math.round(spreadDec * 100) / 100
-      return spread
     },
 
     percentWarn() {
