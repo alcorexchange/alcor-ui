@@ -159,7 +159,7 @@ export const actions = {
     const price = Math.round(state.price_bid * config.PRICE_SCALE)
     const total = Math.round(params.total * (10 ** bp))
 
-    const amount = total / price * (10 ** qp)
+    const amount = Math.ceil(total / price * (10 ** qp)) / 10 ** qp
 
     return amount.toFixed(qp)
   },
