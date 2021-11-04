@@ -32,7 +32,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         DISABLE_UI: true,
-        PORT: 7012
+        PORT: 7002
       }
     },
     {
