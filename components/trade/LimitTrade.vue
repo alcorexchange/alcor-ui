@@ -3,78 +3,149 @@
   .col-lg-6
     .d-flex.mb-1
       small.text-success Buy {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(baseBalance))") {{ baseBalance | commaFloat }}
+      small(
+        class="text-mutted small align-self-end ml-auto cursor-pointer"
+        @click="setAmount('limit', 'buy')"
+      ) {{ baseBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
-    el-form(ref="form" :rules="rules")
+    el-form
       el-form-item
-        el-input(type="number" min="0.00000001" step="0.00000001" v-model="price" clearable @change="fixPrice()" @input="priceChange()" size="medium" align="right")
+        el-input(
+          type="number"
+          min="0.00000001"
+          step="0.00000001"
+          v-model="priceBid"
+          @change="setPrecisionPrice()"
+          size="medium"
+          align="right"
+          placeholder="0"
+          clearable
+        )
           span(slot="prefix").mr-1 PRICE
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
+        el-input(
+          type="number"
+          v-model="amountBuy"
+          @change="setPrecisionAmountBuy()"
+          size="medium"
+          placeholder="0"
+          clearable
+        )
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
-        el-slider(:step="1" v-model="eosPercent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(
+          :step="1"
+          v-model="percentBuy"
+          :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}"
+        )
 
-      el-form-item(prop="total" :inline-message="true").mt-4
-        el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
+      el-form-item(
+        class="mt-4"
+        prop="totalBuy"
+        :inline-message="true"
+      )
+        el-input(
+          type="number"
+          v-model="totalBuy"
+          @change="setPrecisionTotalBuy()"
+          placeholder="0"
+          size="medium"
+        )
           span(slot="prefix").mr-1 TOTAL
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       el-form-item.mt-1
-        // TODO разработать компонент которой чекает залогинен ли
-        el-button(size="small" type="success" @click="buy('limit')").w-100 Buy {{ quote_token.str }}
+        el-button(
+          class="w-100"
+          size="small"
+          type="success"
+          @click="actionOrder('limit', 'buy')"
+        ) Buy {{ quote_token.str }}
 
   .col-lg-6
     .d-flex.mb-1
       small.text-danger Sell {{ quote_token.symbol.name }}
-      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(@click="onSetAmount(parseFloat(tokenBalance))") {{ tokenBalance | commaFloat }}
+      small(
+        class="text-mutted small align-self-end ml-auto cursor-pointer"
+        @click="setAmount('limit', 'sell')"
+      ) {{ tokenBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
-    el-form(ref="form" :rules="rules")
+    el-form
       el-form-item
-        el-input(type="number" min="0" step="0.0001" value="0" v-model="price" clearable @change="fixPrice()"  @input="priceChange()" size="medium")
+        el-input(
+          type="number"
+          min="0"
+          step="0.0001"
+          value="0"
+          v-model="priceBid"
+          @change="setPrecisionPrice()"
+          size="medium"
+          placeholder="0"
+          clearable
+        )
           span(slot="prefix").mr-1 PRICE
           span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
 
       el-form-item
-        el-input(type="number" v-model="amount" @input="amountChange(false, true)" @change="setPrecisions" clearable size="medium")
+        el-input(
+          type="number"
+          v-model="amountSell"
+          @change="setPrecisionAmountSell()"
+          size="medium"
+          placeholder="0"
+          clearable
+        )
           span(slot="prefix").mr-1 AMOUNT
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
-        el-slider(:step="1" v-model="tokenPercent" :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}")
+        el-slider(
+          :step="1"
+          v-model="percentSell"
+          :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}"
+        )
 
-      el-form-item(prop="total" :inline-message="true").mt-4
-        el-input(type="number" v-model="total" @input="totalChange(false, true)"  @change="setPrecisions" size="medium")
+      el-form-item(
+        class="mt-4"
+        prop="totalSell"
+        :inline-message="true"
+      )
+        el-input(
+          type="number"
+          v-model="totalSell"
+          @change="setPrecisionTotalSell()"
+          placeholder="0"
+          size="medium"
+        )
           span(slot="prefix").mr-1 TOTAL
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       el-form-item.mt-1
-        el-button(size="small" type="danger" @click="sell('limit')").w-100 Sell {{ quote_token.str }}
+        el-button(
+          class="w-100"
+          size="small"
+          type="danger"
+          @click="actionOrder('limit', 'sell')"
+        ) Sell {{ quote_token.str }}
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import { tradeMixin, tradeChangeEvents } from '~/mixins/trade'
+import { trade } from '~/mixins/trade'
 
 export default {
-  mixins: [tradeMixin, tradeChangeEvents],
+  mixins: [trade],
 
   computed: {
-    ...mapState(['network']),
-    ...mapState('market', ['base_token', 'quote_token']),
-    ...mapGetters('market', [
-      'sorted_asks',
-      'sorted_bids',
-      'tokenBalance',
-      'baseBalance'
-    ]),
-    ...mapGetters(['user'])
+    percentBuy: {
+      get() { return this.percent_buy },
+      set(val) { this.changePercentBuy({ percent: val, trade: 'limit' }) }
+    }
   }
 }
 </script>

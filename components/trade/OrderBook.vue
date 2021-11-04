@@ -4,7 +4,7 @@
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
-      span Amount({{ quote_token.symbol.name }})
+      span Amount ({{ quote_token.symbol.name }})
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
@@ -25,13 +25,22 @@
       span
 
   .p-1.mt-1(v-loading='loading')
-    .overflowbox.text-center.latest-price(
-      :class='{ red: isLastTradeSell }'
+    .overflowbox.latest-price(
     )
-      i(
-        :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
+      .price(
+        :class='{ red: isLastTradeSell }'
       )
-      span {{ price }} {{ base_token.symbol.name }}
+        i(
+          :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
+        )
+        span.num {{ price }} &nbsp;
+        //span.token {{ base_token.symbol.name }}
+      .spread
+        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }} Spread&nbsp;
+        span(
+          class="prec"
+          :class="percentWarn"
+        ) ({{ getSpreadPercent ? getSpreadPercent : '0.00' }}%)
 
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
@@ -54,8 +63,11 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import { trade } from '~/mixins/trade'
 
 export default {
+  mixins: [trade],
+
   data() {
     return {
       asksL: 0,
@@ -71,6 +83,24 @@ export default {
 
     isLastTradeSell() {
       return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
+    },
+
+    getSpreadNum() {
+      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const latestBid = this.sorted_bids[0]
+      const spreadDec = latestAsk?.unit_price - latestBid?.unit_price
+      return spreadDec
+    },
+
+    getSpreadPercent() {
+      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
+      const spread = Math.round(spreadDec * 100) / 100
+      return spread
+    },
+
+    percentWarn() {
+      return this.getSpreadPercent > 5 ? 'warn' : ''
     }
   },
 
@@ -120,8 +150,15 @@ export default {
         .humanPrice(ask.unit_price)
         .replaceAll(',', '')
 
+      const amount = this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', ''))
+      this.$nuxt.$emit('setAmount', amount)
+
+      // Price and amount for marked moved to VUEX
+      this.changePrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     },
 
     setAsk(bid) {
@@ -129,8 +166,15 @@ export default {
         .humanPrice(bid.unit_price)
         .replaceAll(',', '')
 
+      const amount = this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', ''))
+      this.$nuxt.$emit('setAmount', amount)
+
+      // Price and amount for marked moved to VUEX
+      this.changePrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     }
   }
 }
@@ -139,17 +183,72 @@ export default {
 <style lang="scss">
 .order-book {
   max-height: 500px;
-}
-.latest-price {
-  font-weight: bold;
-  color: var(--main-green);
-
-  i {
-    margin-right: 2px;
-  }
-
-  &.red {
-    color: var(--main-red);
+  .latest-price {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    padding: 0 5px;
+    .price {
+      color: var(--main-green);
+      &.red {
+        color: var(--main-red);
+      }
+    }
+    .spread {
+      font-weight: normal;
+      color: #80a1c5;
+      .prec.warn {
+        color: var(--main-red);
+      }
+    }
+    @media (max-width: 1600px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      .price {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 5px;
+        align-items: center;
+        i {
+          grid-row: 1/3;
+        }
+        .num {
+          grid-row: 1;
+        }
+        .token {
+          grid-row: 2;
+        }
+      }
+      .spread {
+        justify-items: end;
+        display: grid;
+        font-size: 11px;
+        .num {
+          grid-row: 1;
+        }
+        .perc {
+          grid-row: 2;
+        }
+      }
+    }
+    @media (max-width: 1200px) and (min-width: 983px) {
+      .price, .spread {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 600px) {
+      .price, .spread {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 468px) {
+      .price, .spread {
+        font-size: 9px;
+      }
+    }
+    i {
+      margin-right: 2px;
+    }
   }
 }
 
@@ -181,7 +280,7 @@ export default {
 }
 
 .orders-list.bids {
-  height: 220px;
+  height: 209px;
 }
 
 .orders-list.blist .ltd:hover {
