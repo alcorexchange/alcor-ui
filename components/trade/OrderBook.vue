@@ -170,6 +170,7 @@ export default {
     justify-content: space-between;
     font-weight: bold;
     color: var(--main-green);
+    padding: 0 5px;
     .spread {
       color: #9e9e9e;
       .prec.warn {
@@ -179,7 +180,6 @@ export default {
     @media (max-width: 1600px) {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      padding: 0 5px;
       .price {
         display: grid;
         grid-template-columns: auto 1fr;
