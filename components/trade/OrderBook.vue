@@ -34,9 +34,9 @@
           :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
         )
         span.num {{ price }} &nbsp;
-        span.token {{ base_token.symbol.name }}
+        //span.token {{ base_token.symbol.name }}
       .spread
-        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice }} Spread&nbsp;
+        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }} Spread&nbsp;
         span(
           class="prec"
           :class="percentWarn"
@@ -196,7 +196,7 @@ export default {
     }
     .spread {
       font-weight: normal;
-      color: var(--color-text-primary);
+      color: #80a1c5;
       .prec.warn {
         color: var(--main-red);
       }
@@ -222,7 +222,7 @@ export default {
       .spread {
         justify-items: end;
         display: grid;
-        font-size: 14px;
+        font-size: 11px;
         .num {
           grid-row: 1;
         }
@@ -280,7 +280,7 @@ export default {
 }
 
 .orders-list.bids {
-  height: 220px;
+  height: 209px;
 }
 
 .orders-list.blist .ltd:hover {
