@@ -26,9 +26,10 @@
 
   .p-1.mt-1(v-loading='loading')
     .overflowbox.latest-price(
-      :class='{ red: isLastTradeSell }'
     )
-      .price
+      .price(
+        :class='{ red: isLastTradeSell }'
+      )
         i(
           :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
         )
@@ -169,10 +170,16 @@ export default {
     display: flex;
     justify-content: space-between;
     font-weight: bold;
-    color: var(--main-green);
     padding: 0 5px;
+    .price {
+      color: var(--main-green);
+      &.red {
+        color: var(--main-red);
+      }
+    }
     .spread {
-      color: #9e9e9e;
+      font-weight: normal;
+      color: var(--color-text-primary);
       .prec.warn {
         color: var(--main-red);
       }
@@ -224,9 +231,6 @@ export default {
     }
     i {
       margin-right: 2px;
-    }
-    &.red {
-      color: var(--main-red);
     }
   }
 }
