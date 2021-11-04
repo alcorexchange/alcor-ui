@@ -77,7 +77,10 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'price']),
+    ...mapGetters('market', ['sorted_asks', 'sorted_bids']),
+    ...mapGetters('market', {
+      orderPrice: 'price'
+    }),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
     ...mapGetters(['user']),
 
@@ -127,6 +130,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('market', [
+      'changePrice',
+      'changeAmount'
+    ]),
     async fetch() {
       try {
         await this.$store.dispatch('market/fetchOrders')
@@ -149,6 +156,7 @@ export default {
       const price = this.$options.filters
         .humanPrice(ask.unit_price)
         .replaceAll(',', '')
+      const amount = this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', '')
 
       const amount = this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', '')
 
@@ -165,6 +173,7 @@ export default {
       const price = this.$options.filters
         .humanPrice(bid.unit_price)
         .replaceAll(',', '')
+      const amount = this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', '')
 
       const amount = this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', '')
 

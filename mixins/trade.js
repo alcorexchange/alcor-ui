@@ -220,6 +220,7 @@ export const tradeMixin = {
     onSetAmount(balance, fromWallet = false) {
       this.fromWallet = fromWallet
       this.amount = balance
+
       this.amountChange()
     },
 
@@ -242,7 +243,7 @@ export const tradeMixin = {
       const price = asset(Math.max(parseFloat(this.price) || 0, 1 / 10 ** config.PRICE_DIGITS).toFixed(config.PRICE_DIGITS) + ' TEST').amount
 
       // TODO and FIXME the price calculation is wrong here..
-      //console.log('amount', amount, price, qp, bp, correct_price(price, qp, bp))
+      // console.log('amount', amount, price, qp, bp, correct_price(price, qp, bp))
       const total = amount.multiply(correct_price(price, qp, bp)).divide(config.PRICE_SCALE)
 
       //this.amount = toFloat ? amountToFloat(amount, qp) : parseFloat(amount)

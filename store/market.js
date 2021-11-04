@@ -461,7 +461,7 @@ export const getters = {
   tokenBalance(state, getters, rootState) {
     const { user } = rootState
 
-    if (!user || !user.balances || !state.quote_token.symbol.name) return '0.0000'
+    if (!user || !user.balances || !state.quote_token.symbol.name) return '0.0000 ' + state.quote_token.symbol.name
     const balance = user.balances.filter((b) => {
       return b.currency === state.quote_token.symbol.name &&
         b.contract === state.quote_token.contract
