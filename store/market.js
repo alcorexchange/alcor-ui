@@ -168,8 +168,8 @@ export const actions = {
   calculateTotal({ state }, params) {
     const bp = state.base_token.symbol.precision
     const qp = state.quote_token.symbol.precision
-    const price = state.price_bid * config.PRICE_SCALE
-    const amount = params.amount * (10 ** qp)
+    const price = Math.ceil(state.price_bid * config.PRICE_SCALE)
+    const amount = Math.ceil(params.amount * (10 ** qp))
 
     const totalBigInt = BigInt(amount * price)
     let total, totalPrec
@@ -189,11 +189,12 @@ export const actions = {
 
     const bp = state.base_token.symbol.precision
     const qp = state.quote_token.symbol.precision
-    const price = state.price_bid * config.PRICE_SCALE
-    const total = params.total * (10 ** bp)
+    const price = Math.ceil(state.price_bid * config.PRICE_SCALE)
+    const total = Math.ceil(params.total * (10 ** bp))
+    const medPrec = 8 - bp
+    const priceDec = Math.ceil(price * (10 ** medPrec))
 
-    // const amount = Math.ceil(total / price * (10 ** qp)) / 10 ** qp
-    const amount = total / price * 10 ** (8 - bp)
+    const amount = total / priceDec
 
     return Math.ceil(amount * (10 ** qp)) / (10 ** qp)
   },
@@ -255,7 +256,7 @@ export const actions = {
     if (parseFloat(!params.balance) || params.percent == 0) return false
 
     const prec = params.prec
-    const balance = parseFloat(params.balance) * 10 ** prec
+    const balance = Math.ceil(parseFloat(params.balance) * (10 ** prec))
     let calc = balance / 100 * params.percent
     calc = parseFloat(calc).toFixed() / (10 ** prec)
 
