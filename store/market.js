@@ -181,7 +181,6 @@ export const actions = {
       totalPrec = parseInt(total * (10 ** bp)) / (10 ** bp)
     }
 
-    console.log('TOTAL PREC', totalPrec)
     return totalPrec
   },
 
