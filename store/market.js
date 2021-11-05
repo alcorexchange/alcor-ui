@@ -346,9 +346,11 @@ export const actions = {
     try {
       const res = await dispatch('chain/sendTransaction', objTrans, { root: true })
         .then(() => {
-          dispatch('loadUserBalances', null, { root: true })
-          dispatch('loadOrders', state.id, { root: true })
-          dispatch('fetchOrders')
+          setTimeout(() => {
+            dispatch('loadUserBalances', null, { root: true })
+            dispatch('loadOrders', state.id, { root: true })
+            dispatch('fetchOrders')
+          }, 1000)
         })
 
       return { err: false, desc: res }
@@ -381,9 +383,11 @@ export const actions = {
     try {
       const res = await dispatch('chain/transfer', objTrans, { root: true })
         .then(() => {
-          dispatch('loadUserBalances', null, { root: true })
-          dispatch('loadOrders', state.id, { root: true })
-          dispatch('fetchOrders')
+          setTimeout(() => {
+            dispatch('loadUserBalances', null, { root: true })
+            dispatch('loadOrders', state.id, { root: true })
+            dispatch('fetchOrders')
+          }, 1000)
         })
 
       return { err: false, desc: res }
