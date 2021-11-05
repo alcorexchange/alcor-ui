@@ -124,7 +124,7 @@ export const trade = {
         if (actionCancel) return
       }
 
-      let res = this.sendFetchBid(trade, bid)
+      let res = await this.sendFetchBid(trade, bid)
 
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })

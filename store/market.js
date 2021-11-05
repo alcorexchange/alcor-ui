@@ -142,13 +142,46 @@ export const actions = {
     // TODO Move to client side
   },
 
-  /**
-   * @param {Object} params - Has two parameters for calculating the accuracy of assets
-   * @param {string} params.int - The quantity to be reduced to a fractional
-   * @param {string} param.prec - How many characters after the comma
-   */
-  calculatePrecision({ state }, params) {
-    return parseFloat(params.int).toFixed(params.prec)
+  setPrecisionPrice({ state, commit }, inPrice = null) {
+    const price = inPrice !== null ? inPrice : state.price_bid
+    const precision = config.PRICE_DIGITS
+    const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
+    const floatPrice = correctPrice.toFixed(precision)
+
+    commit('SET_PRICE', floatPrice)
+  },
+
+  async changePrice({ state, commit, dispatch }, price) {
+    commit('SET_PRICE', price)
+
+    if (state.amount_buy > 0) {
+      const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
+      commit('SET_TOTAL_BUY', totalBuy)
+    }
+
+    if (state.amount_sell > 0) {
+      const totalSell = await dispatch('calculateTotal', { amount: state.amount_sell })
+      commit('SET_TOTAL_SELL', totalSell)
+    }
+  },
+
+  calculateTotal({ state }, params) {
+    const bp = state.base_token.symbol.precision
+    const qp = state.quote_token.symbol.precision
+    const price = state.price_bid * config.PRICE_SCALE
+    const amount = params.amount * (10 ** qp)
+
+    const totalBigInt = BigInt(amount * price)
+    let total, totalPrec
+    if (qp == bp) {
+      total = parseFloat(totalBigInt) / config.PRICE_SCALE
+      totalPrec = parseInt(total) / (10 ** bp)
+    } else if (qp !== bp) {
+      total = parseFloat(totalBigInt) / 10 ** (qp + 8)
+      totalPrec = parseInt(total * (10 ** bp)) / (10 ** bp)
+    }
+
+    return totalPrec
   },
 
   calculateAmount({ state }, params) {
@@ -156,46 +189,17 @@ export const actions = {
 
     const bp = state.base_token.symbol.precision
     const qp = state.quote_token.symbol.precision
-    const price = Math.round(state.price_bid * config.PRICE_SCALE)
-    const total = Math.round(params.total * (10 ** bp))
+    const price = state.price_bid * config.PRICE_SCALE
+    const total = params.total * (10 ** bp)
 
-    const amount = Math.ceil(total / price * (10 ** qp)) / 10 ** qp
+    // const amount = Math.ceil(total / price * (10 ** qp)) / 10 ** qp
+    const amount = total / price * 10 ** (8 - bp)
 
-    return amount.toFixed(qp)
+    return Math.ceil(amount * (10 ** qp)) / (10 ** qp)
   },
 
-  calculateTotal({ state }, params) {
-    const bp = state.base_token.symbol.precision
-    const qp = state.quote_token.symbol.precision
-    const price = Math.round(state.price_bid * config.PRICE_SCALE)
-    const amount = Math.round(params.amount * (10 ** qp))
-
-    const totalBigInt = BigInt(amount * price)
-    let total
-    if (qp == bp) {
-      total = Math.trunc(parseFloat(totalBigInt) / config.PRICE_SCALE)
-    } else if (qp !== bp) {
-      total = Math.trunc(parseFloat(totalBigInt) / (10 ** qp))
-    }
-    const fixTotal = total / (10 ** bp)
-
-    return fixTotal.toFixed(bp)
-  },
-
-  async changePrice({ state, commit, dispatch }, param) {
-    const price = param
-
-    commit('SET_PRICE', price)
-
-    if (parseFloat(state.amount_buy) > 0) {
-      const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
-      commit('SET_TOTAL_BUY', totalBuy)
-    }
-
-    if (parseFloat(state.amount_sell) > 0) {
-      const totalSell = await dispatch('calculateTotal', { amount: state.amount_sell })
-      commit('SET_TOTAL_SELL', totalSell)
-    }
+  calculatePrecision({ state }, params) {
+    return parseFloat(params.int).toFixed(params.prec)
   },
 
   async changeAmount({ state, commit, dispatch }, params) {
@@ -273,15 +277,6 @@ export const actions = {
     }
   },
 
-  setPrecisionPrice({ state, commit }, inPrice = null) {
-    const price = inPrice !== null ? inPrice : state.price_bid
-    const precision = config.PRICE_DIGITS
-    const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
-    const floatPrice = correctPrice.toFixed(precision)
-
-    commit('SET_PRICE', floatPrice)
-  },
-
   async setPrecisionAmountBuy({ state, commit, dispatch }, inAmount = null) {
     const amount = inAmount !== null ? inAmount : state.amount_buy
     const float = await dispatch('calculatePrecision', {
@@ -350,9 +345,11 @@ export const actions = {
     try {
       const res = await dispatch('chain/sendTransaction', objTrans, { root: true })
         .then(() => {
-          dispatch('loadUserBalances', null, { root: true })
-          dispatch('loadOrders', state.id, { root: true })
-          dispatch('fetchOrders')
+          setTimeout(() => {
+            dispatch('loadUserBalances', null, { root: true })
+            dispatch('loadOrders', state.id, { root: true })
+            dispatch('fetchOrders')
+          }, 1000)
         })
 
       return { err: false, desc: res }
@@ -385,9 +382,11 @@ export const actions = {
     try {
       const res = await dispatch('chain/transfer', objTrans, { root: true })
         .then(() => {
-          dispatch('loadUserBalances', null, { root: true })
-          dispatch('loadOrders', state.id, { root: true })
-          dispatch('fetchOrders')
+          setTimeout(() => {
+            dispatch('loadUserBalances', null, { root: true })
+            dispatch('loadOrders', state.id, { root: true })
+            dispatch('fetchOrders')
+          }, 1000)
         })
 
       return { err: false, desc: res }

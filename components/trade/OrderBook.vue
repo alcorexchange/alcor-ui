@@ -142,7 +142,7 @@ export default {
       this.$nuxt.$emit('setAmount', amount)
 
       // Price and amount for marked moved to VUEX
-      this.changePrice(price)
+      this.setPrecisionPrice(price)
       this.changeAmount({ amount, type: 'buy' })
       this.changeAmount({ amount, type: 'sell' })
     },
@@ -158,7 +158,7 @@ export default {
       this.$nuxt.$emit('setAmount', amount)
 
       // Price and amount for marked moved to VUEX
-      this.changePrice(price)
+      this.setPrecisionPrice(price)
       this.changeAmount({ amount, type: 'buy' })
       this.changeAmount({ amount, type: 'sell' })
     }
