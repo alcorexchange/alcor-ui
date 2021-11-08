@@ -77,7 +77,11 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
     if (contract == 'bosibc.io') {
       return require(`@/assets/tokens/bosibc.io/${symbol.toLowerCase()}.png`)
     } else {
-      return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
+      try {
+        return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
+      } catch {
+        return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.webp`)
+      }
     }
   } catch {
     const tokens = this.$store.state.tokens
