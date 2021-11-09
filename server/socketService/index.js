@@ -20,7 +20,7 @@ client.connect()
 const httpServer = createServer()
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://.alcor.exchange', 'https://alcor.exchange'],
+    origin: ['*'],
     methods: ['GET', 'POST'],
     credentials: true
   }
