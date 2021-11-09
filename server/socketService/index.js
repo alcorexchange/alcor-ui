@@ -27,7 +27,7 @@ const io = new Server(httpServer, {
 })
 io.adapter(redisAdapter({ host: 'localhost', port: 6379 }))
 
-httpServer.listen(3000, function () {
+httpServer.listen(PORT, function () {
   console.log(`WS Listening on port ${PORT}`)
 })
 
