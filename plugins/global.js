@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import io from 'socket.io-client'
+import { io } from 'socket.io-client'
 
 import { JsonRpc } from 'eosjs'
 import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
