@@ -3,6 +3,7 @@ require('dotenv').config()
 import express from 'express'
 import socket from 'socket.io'
 import mongoose from 'mongoose'
+import redisAdapter from 'socket.io-redis'
 
 import { Match, Bar } from '../models'
 
@@ -18,7 +19,14 @@ const server = app.listen(PORT, function () {
 const redis = require('redis')
 const client = redis.createClient()
 client.connect()
+
 const io = socket(server)
+
+try {
+  const r = io.adapter(redisAdapter({ host: 'localhost', port: 6379 }))
+} catch (e) {
+  console.warn('Socket running without REDIS!!!', e.message)
+}
 
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
