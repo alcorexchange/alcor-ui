@@ -20,9 +20,7 @@ client.connect()
 const httpServer = createServer()
 const io = new Server(httpServer, {
   cors: {
-    origin: ['*'],
-    methods: ['GET', 'POST'],
-    credentials: true
+    origin: '*'
   }
 })
 io.adapter(redisAdapter({ host: 'localhost', port: 6379 }))
