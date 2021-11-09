@@ -52,7 +52,7 @@
     "route-cache": "^0.4.5",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "socket.io-redis": "^5.4.0",
+    "socket.io-redis": "5.2.0",
     "vue-apexcharts": "^1.6.0",
     "vue-click-outside": "^1.1.0",
     "vue-infinite-loading": "^2.4.5",

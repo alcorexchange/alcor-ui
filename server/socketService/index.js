@@ -21,12 +21,7 @@ const client = redis.createClient()
 client.connect()
 
 const io = socket(server)
-
-try {
-  const r = io.adapter(redisAdapter({ host: 'localhost', port: 6379 }))
-} catch (e) {
-  console.warn('Socket running without REDIS!!!', e.message)
-}
+io.adapter(redisAdapter({ host: 'localhost', port: 6379 }))
 
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
