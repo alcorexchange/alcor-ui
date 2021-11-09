@@ -36,7 +36,7 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
 
   if (process.client) {
     // Тут RPC с возможностью менять эндпоинт
-    const socket = io(state.baseUrl)
+    const socket = io(process.env.isDev ? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] })
     const nodes = [state.network.protocol + '://' + state.network.host + ':' + state.network.port].concat(state.network.client_nodes)
     const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 

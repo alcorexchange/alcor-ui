@@ -2,9 +2,10 @@ require('dotenv').config()
 
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import { createAdapter } from '@socket.io/cluster-adapter'
+import { setupWorker } from '@socket.io/sticky'
 
 import mongoose from 'mongoose'
-import redisAdapter from 'socket.io-redis'
 
 import { Match, Bar } from '../models'
 
@@ -23,7 +24,9 @@ const io = new Server(httpServer, {
     origin: '*'
   }
 })
-io.adapter(redisAdapter({ host: 'localhost', port: 6379 }))
+
+io.adapter(createAdapter())
+setupWorker(io)
 
 httpServer.listen(PORT, function () {
   console.log(`WS Listening on port ${PORT}`)
