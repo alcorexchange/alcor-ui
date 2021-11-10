@@ -2,9 +2,6 @@ require('dotenv').config()
 
 import { createServer } from 'http'
 import { Server } from 'socket.io'
-import { createAdapter } from '@socket.io/cluster-adapter'
-import { setupWorker } from '@socket.io/sticky'
-
 import mongoose from 'mongoose'
 
 import { Match, Bar } from '../models'
@@ -24,9 +21,6 @@ const io = new Server(httpServer, {
     origin: '*'
   }
 })
-
-io.adapter(createAdapter())
-setupWorker(io)
 
 httpServer.listen(PORT, function () {
   console.log(`WS Listening on port ${PORT}`)

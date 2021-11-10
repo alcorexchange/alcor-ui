@@ -2598,23 +2598,10 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
-"@socket.io/cluster-adapter@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@socket.io/cluster-adapter/-/cluster-adapter-0.1.0.tgz#4d47642372384274454ddfadbe69ff7aca21e124"
-  integrity sha512-8fSpsJxsFzOt4t3kZ19DF/s7vAMz5OVSHjAu8ekegf1/VY10idbBlhgAgM6cP8tupQt+goKA5OxIs3HKgbBppg==
-  dependencies:
-    debug "~4.3.1"
-    socket.io-adapter "~2.3.0"
-
 "@socket.io/component-emitter@~3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@socket.io/component-emitter/-/component-emitter-3.0.0.tgz#8863915676f837d9dad7b76f50cb500c1e9422e9"
   integrity sha512-2pTGuibAXJswAPJjaKisthqS/NOK5ypG4LYT6tEAV0S/mxW0zOIvYvGK0V8w8+SHxAm6vRMSjqSalFXeBAqs+Q==
-
-"@socket.io/sticky@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@socket.io/sticky/-/sticky-1.0.1.tgz#d0ea2f2da7177ba900c7065c92c8af39915fbcdf"
-  integrity sha512-g5vmW25QZ1sDA6/NqgKJHhUKWI6b11BPWqwQBvPTVodGqbYMkfuY7hQtEXDoUPf+0WhySgcdVLf9o2AgOAXUhA==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
@@ -13490,7 +13477,7 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-socket.io-adapter@~2.3.0, socket.io-adapter@~2.3.2:
+socket.io-adapter@~2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/socket.io-adapter/-/socket.io-adapter-2.3.2.tgz#039cd7c71a52abad984a6d57da2c0b7ecdd3c289"
   integrity sha512-PBZpxUPYjmoogY0aoaTmo1643JelsaS1CiAwNjRVdrI0X9Seuc19Y2Wife8k88avW6haG8cznvwbubAZwH4Mtg==
