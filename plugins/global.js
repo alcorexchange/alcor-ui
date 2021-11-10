@@ -40,8 +40,8 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     // Тут RPC с возможностью менять эндпоинт
     const socket = io(
       (process.env.isDev && !process.env.DISABLE_DB)
-        //? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] }
-        ? 'localhost:7002' : state.baseUrl
+        //? 'localhost:7002' : state.baseUrl
+        ? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] }
     )
     const nodes = state.network.client_nodes
     shuffleArray(nodes)

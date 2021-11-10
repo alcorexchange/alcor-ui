@@ -34,7 +34,9 @@ const networks = {
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: [
+      'https://eos.greymass.com'
+    ],
 
     otc: {
       contract: 'alcorotcswap',
@@ -143,7 +145,9 @@ const networks = {
     hyperion: 'https://proton.pink.gg/',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: [
+      'https://proton.greymass.com'
+    ],
 
     otc: {
       contract: 'alcorotc',
@@ -199,7 +203,7 @@ const networks = {
       'https://wax.eu.eosamsterdam.net',
       'https://wax.cryptolions.io',
       'https://wax.pink.gg',
-      'https://api.waxsweden.org',
+      //'https://api.waxsweden.org', CORS
       'https://api.wax.liquidstudios.io',
       'https://wax.eosn.io',
       'https://wax.eoseoul.io',
@@ -255,7 +259,9 @@ const networks = {
     hyperion: 'https://telos.caleos.io/',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: [
+      'https://telos.greymass.com'
+    ],
 
     otc: {
       contract: 'alcorotcswap',
