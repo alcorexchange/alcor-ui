@@ -2,7 +2,7 @@
 .partners-section.alcor-inner
     SectionTitle.section-title Partners & API Providers
     .items
-      a.item(v-for="{image, url, padding} in items" href="url" target="_blank" :style="{padding}")
+      a.item(v-for="{image, url, padding} in items" :href="url" target="_blank" :style="{padding}")
         img(:src="image")
 </template>
 
