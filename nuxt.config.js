@@ -12,7 +12,8 @@ module.exports = {
   env: {
     isDev,
     isSPA,
-    NETWORK: process.env.NETWORK
+    NETWORK: process.env.NETWORK,
+    DISABLE_DB: process.env.DISABLE_DB
   },
 
   version: pkg.version,
