@@ -5,6 +5,7 @@
   RecommendedMarkets.alcor-inner
   //Participate
   SupportedChains
+  Partners
 </template>
 
 <script>
@@ -14,6 +15,7 @@ import Participate from '@/components/landing/Participate'
 import Hero from '@/components/landing/Hero'
 import SupportedChains from '@/components/landing/SupportedChains'
 import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
+import Partners from '@/components/landing/Partners'
 export default {
   layout: 'homeLayout',
   colorMode: 'dark',
@@ -24,7 +26,8 @@ export default {
     Participate,
     Hero,
     SupportedChains,
-    RecommendedMarkets
+    RecommendedMarkets,
+    Partners
   }
 }
 </script>
