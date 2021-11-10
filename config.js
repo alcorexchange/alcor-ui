@@ -194,7 +194,17 @@ const networks = {
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: ['https://wax.eu.eosamsterdam.net', 'https://wax.cryptolions.io', 'https://wax.pink.gg', 'https://api.waxsweden.org'],
+    client_nodes: [
+      'https://wax.greymass.com',
+      'https://wax.eu.eosamsterdam.net',
+      'https://wax.cryptolions.io',
+      'https://wax.pink.gg',
+      'https://api.waxsweden.org',
+      'https://api.wax.liquidstudios.io',
+      'https://wax.eosn.io',
+      'https://wax.eoseoul.io',
+      'https://wax.eosusa.news/'
+    ],
 
     otc: {
       contract: 'alcorotcswap',
