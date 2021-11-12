@@ -146,7 +146,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [
-      'https://proton.greymass.com'
+      'https://proton.greymass.com',
     ],
 
     otc: {
@@ -206,8 +206,8 @@ const networks = {
       //'https://api.waxsweden.org', CORS
       'https://api.wax.liquidstudios.io',
       'https://wax.eosn.io',
-      'https://wax.eoseoul.io',
-      'https://wax.eosusa.news/'
+      'https://wax.eoseoul.io'
+      // 'https://wax.eosusa.news/' CORS
     ],
 
     otc: {
