@@ -201,12 +201,12 @@ const networks = {
     client_nodes: [
       'https://wax.greymass.com',
       'https://wax.eu.eosamsterdam.net',
-      'https://wax.cryptolions.io',
+      //'https://wax.cryptolions.io', CORS
       'https://wax.pink.gg',
       //'https://api.waxsweden.org', CORS
       'https://api.wax.liquidstudios.io',
       'https://wax.eosn.io',
-      'https://wax.eoseoul.io'
+      // 'https://wax.eoseoul.io' CORS
       // 'https://wax.eosusa.news/' CORS
     ],
 
