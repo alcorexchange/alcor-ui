@@ -141,7 +141,7 @@ const PoolChartPointSchema = mongoose.Schema({
 PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 
 const SettingsSchema = mongoose.Schema({
-  chain: { type: String },
+  chain: { type: String, index: true },
   actions_stream_offset: { type: Object, default: {} }
 })
 
