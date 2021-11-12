@@ -1,3 +1,4 @@
+import { performance } from 'perf_hooks'
 import fetch from 'node-fetch'
 import { JsonRpc } from 'eosjs'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
