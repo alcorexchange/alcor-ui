@@ -20,7 +20,7 @@ export function startUpdaters() {
     updater('eos', 'node', ['markets', 'pools'])
     updater('wax', 'node', ['markets', 'pools'])
     updater('proton', 'node', ['markets'])
-    updater('telos', 'node', ['markets', 'pools'])
+    //updater('telos', 'node', ['markets', 'pools'])
   }
 }
 
