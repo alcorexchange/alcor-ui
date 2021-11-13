@@ -199,13 +199,17 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [
+      'https://waxnode01.alcor.exchange',
+      'https://waxnode02.alcor.exchange',
+
       'https://wax.greymass.com',
       'https://wax.eu.eosamsterdam.net',
-      //'https://wax.cryptolions.io', CORS
-      'https://wax.pink.gg',
-      //'https://api.waxsweden.org', CORS
-      'https://api.wax.liquidstudios.io',
       'https://wax.eosn.io',
+      'https://wax.pink.gg', // OK
+
+      //'https://wax.cryptolions.io', CORS
+      //'https://api.waxsweden.org', CORS
+      // 'https://api.wax.liquidstudios.io', NOT WORKING
       // 'https://wax.eoseoul.io' CORS
       // 'https://wax.eosusa.news/' CORS
     ],
