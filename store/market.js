@@ -284,7 +284,6 @@ export const actions = {
     const balance = getters.tokenBalance
     const prec = state.quote_token.symbol.precision
     const amount = await dispatch('calculatePercent', { balance, prec, percent })
-
     if (!amount) {
       commit('SET_AMOUNT_SELL', null)
       return
