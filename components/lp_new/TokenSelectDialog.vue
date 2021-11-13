@@ -15,9 +15,9 @@ el-dialog(:visible.sync="active" width="40%" title="Select Token").token-select-
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import SSpacer from '@/components/SSpacer.vue'
 import TokenImage from '@/components/elements/TokenImage.vue'
-import { mapGetters } from 'vuex'
 export default {
   name: 'TokenSelectDialog',
   components: {
