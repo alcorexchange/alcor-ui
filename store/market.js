@@ -226,15 +226,23 @@ export const actions = {
       commit('SET_TOTAL_SELL', null)
     }
   },
-  setPrecisionAmountBuy({ state, commit }) {
+  async setPrecisionAmountBuy({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
     const amount = Big(state.amount_buy).round(prec, 0)
     commit('SET_AMOUNT_BUY', amount)
+
+    if (state.amount_buy > 0) {
+      await dispatch('changeAmount', { amount, type: 'buy' })
+    }
   },
-  setPrecisionAmountSell({ state, commit }) {
+  async setPrecisionAmountSell({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
     const amount = Big(state.amount_sell).round(prec, 0)
     commit('SET_AMOUNT_SELL', amount)
+
+    if (state.amount_buy > 0) {
+      await dispatch('changeAmount', { amount, type: 'sell' })
+    }
   },
   setPrecisionTotalBuy({ state, commit }) {
     const prec = state.base_token.symbol.precision
