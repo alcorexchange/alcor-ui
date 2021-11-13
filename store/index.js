@@ -142,7 +142,7 @@ export const actions = {
     console.log('loadOrders start.. ')
     for (const market_id of markets) {
       await dispatch('loadOrders', market_id)
-      //await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
+      await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
     }
     console.log('loadOrders finish.')
 

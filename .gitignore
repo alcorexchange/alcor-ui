@@ -84,3 +84,4 @@ dist
 .tern-port
 deploy.sh
 data/
+ecosystem.config.js
