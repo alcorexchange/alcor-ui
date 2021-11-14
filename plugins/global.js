@@ -45,6 +45,7 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     )
     const nodes = state.network.client_nodes
     shuffleArray(nodes)
+    nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
 
     const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 
