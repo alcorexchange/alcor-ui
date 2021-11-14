@@ -173,7 +173,7 @@ export default {
         this.visible = false
 
         this.$alert(
-          `<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          `<a href="${this.network.monitor}/tx/${r.transaction.id.toString()}" target="_blank">Transaction id</a>`,
           'Transaction complete!',
           {
             dangerouslyUseHTMLString: true,
