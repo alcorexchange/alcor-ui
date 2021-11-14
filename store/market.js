@@ -144,6 +144,15 @@ export const actions = {
     // TODO Move to client side
   },
 
+  clearField({ commit }) {
+    commit('SET_PRICE', null)
+    commit('SET_AMOUNT_BUY', null)
+    commit('SET_AMOUNT_SELL', null)
+    commit('SET_PERCENT_BUY', 0)
+    commit('SET_PERCENT_SELL', 0)
+    commit('SET_TOTAL_BUY', null)
+    commit('SET_TOTAL_SELL', null)
+  },
   async changePrice({ commit, dispatch }, price) {
     commit('SET_PRICE', price)
     dispatch('calcAndSetTotal')
