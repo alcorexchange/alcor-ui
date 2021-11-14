@@ -35,7 +35,7 @@ export async function streamByNode(network, account, callback, actions) {
       offset += 1
 
       if (actions.includes(a.act.name)) {
-        callback(a, network)
+        await callback(a, network)
       }
     }
 
