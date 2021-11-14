@@ -144,7 +144,38 @@ export const actions = {
     // TODO Move to client side
   },
 
-  // New!
+  async changePrice({ commit, dispatch }, price) {
+    commit('SET_PRICE', price)
+    dispatch('calcAndSetTotal')
+  },
+  changeAmount({ commit, dispatch }, params) {
+    const amount = params.amount.toString() ? params.amount.toString().replace(/[^\d.]/g, '') : null
+    const type = params.type
+
+    if (type == 'buy') {
+      commit('SET_AMOUNT_BUY', amount)
+      dispatch('calcAndSetTotal')
+    }
+
+    if (type == 'sell') {
+      commit('SET_AMOUNT_SELL', amount)
+      dispatch('calcAndSetTotal')
+    }
+  },
+  async changeTotal({ state, commit, dispatch }, params) {
+    const total = params.total.toString() ? params.total.toString().replace(/[^\d.]/g, '') : null
+    const type = params.type
+
+    if (type == 'buy') {
+      commit('SET_TOTAL_BUY', total)
+      const amount = await dispatch('calculateAmount', { total: state.total_buy })
+      commit('SET_AMOUNT_BUY', amount)
+    } else if (type == 'sell') {
+      commit('SET_TOTAL_SELL', total)
+      const amount = await dispatch('calculateAmount', { total: state.total_sell })
+      commit('SET_AMOUNT_SELL', amount)
+    }
+  },
   async calcAndSetTotal({ state, commit, dispatch }) {
     if (state.amount_buy > 0) {
       const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
@@ -177,91 +208,67 @@ export const actions = {
     commit('SET_PRICE', floatPrice)
     dispatch('calcAndSetTotal')
   },
-  async changePrice({ state, commit, dispatch }, price) {
-    commit('SET_PRICE', price)
-    dispatch('calcAndSetTotal')
-  },
   calculateAmount({ state }, params) {
     if (!state.price_bid || !params.total) return null
 
+    Big.NE = -9
     const qp = state.quote_token.symbol.precision
     const price = Big(state.price_bid)
     const total = Big(params.total)
     const amount = total.div(price).round(qp, 3)
+    console.log('AMOUNT', total.div(price).toFixed())
+    console.log('AMOUNT', total.div(price).toString())
     return amount.toString()
-  },
-  async changeTotal({ state, commit, dispatch }, params) {
-    const total = params.total
-    const type = params.type
-
-    if (type == 'buy') {
-      commit('SET_TOTAL_BUY', total)
-      const amount = await dispatch('calculateAmount', { total: state.total_buy })
-      commit('SET_AMOUNT_BUY', amount)
-    } else if (type == 'sell') {
-      commit('SET_TOTAL_SELL', total)
-      const amount = await dispatch('calculateAmount', { total: state.total_sell })
-      commit('SET_AMOUNT_SELL', amount)
-    }
-  },
-  async changeAmount({ state, commit, dispatch }, params) {
-    const amount = params.amount
-    const type = params.type
-
-    if (type == 'buy' && amount > 0) {
-      commit('SET_AMOUNT_BUY', amount)
-      const total = await dispatch('calculateTotal', { amount: state.amount_buy })
-      commit('SET_TOTAL_BUY', total)
-    } else if (type == 'buy') {
-      commit('SET_AMOUNT_BUY', null)
-      commit('SET_TOTAL_BUY', null)
-    }
-
-    if (type == 'sell' && amount > 0) {
-      commit('SET_AMOUNT_SELL', amount)
-      const total = await dispatch('calculateTotal', { amount: state.amount_sell })
-      commit('SET_TOTAL_SELL', total)
-    } else if (type == 'sell') {
-      commit('SET_AMOUNT_SELL', null)
-      commit('SET_TOTAL_SELL', null)
-    }
   },
   async setPrecisionAmountBuy({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
-    const amount = Big(state.amount_buy).round(prec, 0)
-    commit('SET_AMOUNT_BUY', amount)
+    if (state.amount_buy) {
+      const amount = Big(state.amount_buy).round(prec, 0).toString()
+      commit('SET_AMOUNT_BUY', amount)
 
-    if (state.amount_buy > 0) {
       await dispatch('changeAmount', { amount, type: 'buy' })
+    } else {
+      commit('SET_AMOUNT_BUY', null)
     }
   },
   async setPrecisionAmountSell({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
-    const amount = Big(state.amount_sell).round(prec, 0)
-    commit('SET_AMOUNT_SELL', amount)
+    if (state.amount_sell) {
+      const amount = Big(state.amount_sell).round(prec, 0).toString()
+      commit('SET_AMOUNT_SELL', amount)
 
-    if (state.amount_buy > 0) {
       await dispatch('changeAmount', { amount, type: 'sell' })
+    } else {
+      commit('SET_AMOUNT_SELL', null)
     }
   },
   setPrecisionTotalBuy({ state, commit }) {
     const prec = state.base_token.symbol.precision
-    const total = Big(state.total_buy).round(prec, 0)
-    commit('SET_TOTAL_BUY', total)
+    if (state.total_buy) {
+      const total = Big(state.total_buy).round(prec, 0)
+      commit('SET_TOTAL_BUY', total)
+    } else {
+      commit('SET_TOTAL_BUY', null)
+    }
   },
   setPrecisionTotalSell({ state, commit }) {
     const prec = state.base_token.symbol.precision
-    const total = Big(state.total_sell).round(prec, 0)
-    commit('SET_TOTAL_SELL', total)
+    if (state.total_sell) {
+      const total = Big(state.total_sell).round(prec, 0)
+      commit('SET_TOTAL_SELL', total)
+    } else {
+      commit('SET_TOTAL_SELL', null)
+    }
   },
   calculatePercent({ state }, params) {
     if (parseFloat(!params.balance) || params.percent == 0) return false
 
-    const balance = Big(params.balance)
+    const balanceStr = params.balance.replace(/[^\d.]/g, '')
+    const balance = Big(balanceStr)
     const percent = Big(params.percent)
     const prec = params.prec
     const calc = balance.times(percent).div(100).round(prec, 0)
-    return calc
+    return calc.toString()
   },
   async changePercentBuy({ state, commit, dispatch, getters }, params) {
     commit('SET_PERCENT_BUY', params.percent)

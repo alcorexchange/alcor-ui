@@ -85,11 +85,11 @@ export const trade = {
     ]),
     setAmount(trade, bid) {
       if (trade == 'limit' && bid == 'buy') {
-        this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
+        this.changeTotal({ total: this.baseBalance, type: 'buy' })
       } else if (trade == 'market' && bid == 'buy') {
-        this.changeAmount({ amount: parseFloat(this.baseBalance), type: 'buy' })
+        this.changeAmount({ amount: this.baseBalance, type: 'buy' })
       } else {
-        this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
+        this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
       }
     },
 
