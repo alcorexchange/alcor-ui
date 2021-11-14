@@ -216,8 +216,6 @@ export const actions = {
     const price = Big(state.price_bid)
     const total = Big(params.total)
     const amount = total.div(price).round(qp, 3)
-    console.log('AMOUNT', total.div(price).toFixed())
-    console.log('AMOUNT', total.div(price).toString())
     return amount.toString()
   },
   async setPrecisionAmountBuy({ state, commit, dispatch }) {
