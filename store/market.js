@@ -312,11 +312,11 @@ export const actions = {
     let total = null
 
     if (trade == 'limit') {
-      amount = state.amount_buy.toFixed(state.quote_token.symbol.precision)
-      total = state.total_buy.toFixed(state.base_token.symbol.precision)
+      amount = parseFloat(state.amount_buy).toFixed(state.quote_token.symbol.precision)
+      total = parseFloat(state.total_buy).toFixed(state.base_token.symbol.precision)
     } else {
       amount = parseFloat(0).toFixed(state.quote_token.symbol.precision)
-      total = state.total_buy.toFixed(state.base_token.symbol.precision)
+      total = parseFloat(state.total_buy).toFixed(state.base_token.symbol.precision)
     }
 
     const objTrans = [{
@@ -352,11 +352,11 @@ export const actions = {
     if (!await dispatch('chain/asyncLogin', null, { root: true })) return
 
     const { user } = rootState
-    const amount = state.amount_sell.toFixed(state.quote_token.symbol.precision)
+    const amount = parseFloat(state.amount_sell).toFixed(state.quote_token.symbol.precision)
     let total = null
 
     if (trade == 'limit') {
-      total = state.total_sell.toFixed(state.base_token.symbol.precision)
+      total = parseFloat(state.total_sell).toFixed(state.base_token.symbol.precision)
     } else {
       total = parseFloat(0).toFixed(state.base_token.symbol.precision)
     }
