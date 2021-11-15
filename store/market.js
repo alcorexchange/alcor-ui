@@ -284,13 +284,11 @@ export const actions = {
     const total = await dispatch('calculatePercent', { balance, prec, percent: params.percent })
 
     if (!total) {
-      if (params.trade == 'limit') commit('SET_TOTAL_BUY', null)
-      else if (params.trade == 'market') commit('SET_AMOUNT_BUY', null)
+      commit('SET_TOTAL_BUY', null)
       return
     }
 
-    if (params.trade == 'limit') await dispatch('changeTotal', { total, type: 'buy' })
-    else if (params.trade == 'market') commit('SET_AMOUNT_BUY', total)
+    await dispatch('changeTotal', { total, type: 'buy' })
   },
 
   async changePercentSell({ state, commit, dispatch, getters }, percent) {
@@ -314,11 +312,11 @@ export const actions = {
     let total = null
 
     if (trade == 'limit') {
-      amount = parseFloat(state.amount_buy).toFixed(state.quote_token.symbol.precision)
-      total = parseFloat(state.total_buy).toFixed(state.base_token.symbol.precision)
+      amount = state.amount_buy
+      total = state.total_buy
     } else {
-      amount = parseFloat(0).toFixed(state.quote_token.symbol.precision)
-      total = parseFloat(state.amount_buy).toFixed(state.base_token.symbol.precision)
+      amount = '0'
+      total = state.total_buy
     }
 
     const objTrans = [{
@@ -354,13 +352,13 @@ export const actions = {
     if (!await dispatch('chain/asyncLogin', null, { root: true })) return
 
     const { user } = rootState
-    const amount = parseFloat(state.amount_sell).toFixed(state.quote_token.symbol.precision)
+    const amount = state.amount_sell
     let total = null
 
     if (trade == 'limit') {
-      total = parseFloat(state.total_sell).toFixed(state.base_token.symbol.precision)
+      total = state.total_sell
     } else {
-      total = parseFloat(0).toFixed(state.base_token.symbol.precision)
+      total = '0'
     }
 
     const objTrans = {

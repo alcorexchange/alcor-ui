@@ -22,7 +22,7 @@
       el-form-item
         el-input(
           type="number"
-          v-model="amountBuy"
+          v-model="totalBuy"
           @change="setPrecisionAmountBuy()"
           size="medium"
           placeholder="0"
