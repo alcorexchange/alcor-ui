@@ -147,6 +147,8 @@ const networks = {
 
     client_nodes: [
       'https://proton.greymass.com',
+      'https://proton.pink.gg',
+      'https://proton.eu.eosamsterdam.net'
     ],
 
     otc: {
