@@ -23,7 +23,7 @@
         el-input(
           type="number"
           v-model="totalBuy"
-          @change="setPrecisionAmountBuy()"
+          @change="setPrecisionTotalBuy()"
           size="medium"
           placeholder="0"
           clearable

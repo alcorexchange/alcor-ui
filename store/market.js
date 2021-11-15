@@ -252,7 +252,7 @@ export const actions = {
   setPrecisionTotalBuy({ state, commit }) {
     const prec = state.base_token.symbol.precision
     if (state.total_buy) {
-      const total = Big(state.total_buy).round(prec, 0)
+      const total = Big(state.total_buy).round(prec, 0).toString()
       commit('SET_TOTAL_BUY', total)
     } else {
       commit('SET_TOTAL_BUY', null)
@@ -261,7 +261,7 @@ export const actions = {
   setPrecisionTotalSell({ state, commit }) {
     const prec = state.base_token.symbol.precision
     if (state.total_sell) {
-      const total = Big(state.total_sell).round(prec, 0)
+      const total = Big(state.total_sell).round(prec, 0).toString()
       commit('SET_TOTAL_SELL', total)
     } else {
       commit('SET_TOTAL_SELL', null)
