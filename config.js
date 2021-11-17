@@ -279,7 +279,7 @@ const networks = {
       fee: 'alcordexdivs'
     },
 
-    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone'],
+    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone', 'GUX@vapaeetokens'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {
