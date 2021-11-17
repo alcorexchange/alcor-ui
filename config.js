@@ -147,6 +147,8 @@ const networks = {
 
     client_nodes: [
       'https://proton.greymass.com',
+      'https://proton.pink.gg',
+      'https://proton.eu.eosamsterdam.net'
     ],
 
     otc: {
@@ -277,7 +279,7 @@ const networks = {
       fee: 'alcordexdivs'
     },
 
-    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone'],
+    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone', 'GUX@vapaeetokens'],
     SCAM_CONTRACTS: ['usdcoinchain'],
 
     nftMarket: {

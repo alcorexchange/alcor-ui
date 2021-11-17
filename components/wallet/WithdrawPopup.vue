@@ -172,8 +172,10 @@ export default {
 
         this.visible = false
 
+        const txid = r.transaction_id || r.transaction.id.toString()
+
         this.$alert(
-          `<a href="${this.network.monitor}/tx/${r.transaction.id.toString()}" target="_blank">Transaction id</a>`,
+          `<a href="${this.network.monitor}/tx/${txid}" target="_blank">Transaction id</a>`,
           'Transaction complete!',
           {
             dangerouslyUseHTMLString: true,
