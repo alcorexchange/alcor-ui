@@ -1,3 +1,4 @@
+import { performance } from 'perf_hooks'
 import fetch from 'node-fetch'
 import { JsonRpc } from 'eosjs'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
@@ -19,14 +20,14 @@ export async function streamByNode(network, account, callback, actions) {
   while (true) {
     let r
     try {
-      console.log(`getActionsByNode(${network.name}) ${account} ${offset}`)
+      const startTime = performance.now()
       r = await rpc.history_get_actions(account, offset, 100)
-      console.log(`receive actions(${network.name}): ${r.actions.length}`)
+      const endTime = performance.now()
+      console.log(`receive actions(${network.name}, ${account}): ${r.actions.length} -> ${Math.round(endTime - startTime)}ms`)
     } catch (e) {
       // TODO Почему то не срабатывает перезапуск при ошибке сети или днс
       console.log(`getActionsByNode(${network.name}) err: `, e)
       await new Promise((resolve, reject) => setTimeout(resolve, 500))
-      console.log(`getActionsByNode(${network.name}) retry..`)
       continue
     }
 
@@ -34,16 +35,19 @@ export async function streamByNode(network, account, callback, actions) {
       offset += 1
 
       if (actions.includes(a.act.name)) {
-        callback(a, network)
-
-        const $set = {}
-        $set[`actions_stream_offset.${account}`] = offset
-        await Settings.updateOne({ chain: network.name }, { $set })
+        await callback(a, network)
       }
     }
 
+    const $set = {}
+    $set[`actions_stream_offset.${account}`] = offset
+    const startTime = performance.now()
+    await Settings.updateOne({ chain: network.name }, { $set })
+    const endTime = performance.now()
+    console.log(`update setting in mongo(${network.name}) --> ${Math.round(endTime - startTime)}ms`)
+
     if (r.actions.length < 100) {
-      console.log(`waitForNewActions(${network.name})...`)
+      console.log(`waitForNewActions(${network.name}, ${account})...`)
       await new Promise((resolve, reject) => setTimeout(resolve, 1000))
     }
   }

@@ -85,11 +85,11 @@ export const trade = {
     ]),
     setAmount(trade, bid) {
       if (trade == 'limit' && bid == 'buy') {
-        this.changeTotal({ total: parseFloat(this.baseBalance), type: 'buy' })
+        this.changeTotal({ total: this.baseBalance, type: 'buy' })
       } else if (trade == 'market' && bid == 'buy') {
-        this.changeAmount({ amount: parseFloat(this.baseBalance), type: 'buy' })
+        this.changeAmount({ amount: this.baseBalance, type: 'buy' })
       } else {
-        this.changeAmount({ amount: parseFloat(this.tokenBalance), type: 'sell' })
+        this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
       }
     },
 
@@ -107,8 +107,8 @@ export const trade = {
         return
       }
 
-      if (bid == 'buy' && (parseFloat(this.amount_buy) == 0 || this.amount_buy == null || isNaN(this.amount_buy))) {
-        this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
+      if (bid == 'buy' && (parseFloat(this.total_buy) == 0 || this.total_buy == null || isNaN(this.total_buy))) {
+        this.$notify({ title: 'Place order', message: 'Specify the number and total amount of', type: 'error' })
         return
       } else if (bid == 'sell' && (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell))) {
         this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })

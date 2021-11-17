@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-import express from 'express'
-import socket from 'socket.io'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
 import { Match, Bar } from '../models'
@@ -10,15 +10,21 @@ import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
 
 const PORT = process.env.PORT || 7002
-const app = express()
-const server = app.listen(PORT, function () {
-  console.log(`WS Listening on port ${PORT}`)
-})
 
 const redis = require('redis')
 const client = redis.createClient()
 client.connect()
-const io = socket(server)
+
+const httpServer = createServer()
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*'
+  }
+})
+
+httpServer.listen(PORT, function () {
+  console.log(`WS Listening on port ${PORT}`)
+})
 
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`

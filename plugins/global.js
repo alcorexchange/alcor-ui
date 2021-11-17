@@ -1,7 +1,9 @@
 import fetch from 'node-fetch'
-import io from 'socket.io-client'
+import { io } from 'socket.io-client'
 
 import { JsonRpc } from 'eosjs'
+import { shuffleArray } from '../utils'
+
 import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
 
 import config from '~/config'
@@ -36,8 +38,15 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
 
   if (process.client) {
     // Тут RPC с возможностью менять эндпоинт
-    const socket = io(state.baseUrl)
-    const nodes = [state.network.protocol + '://' + state.network.host + ':' + state.network.port].concat(state.network.client_nodes)
+    const socket = io(
+      (process.env.isDev && !process.env.DISABLE_DB)
+        //? 'localhost:7002' : state.baseUrl
+        ? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] }
+    )
+    const nodes = state.network.client_nodes
+    shuffleArray(nodes)
+    nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
     const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 
     inject('socket', socket)
