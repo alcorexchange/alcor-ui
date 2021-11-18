@@ -112,6 +112,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@capitaltatch', 'HASH@eoshashcoins', 'JOKER@joker.eos'],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -165,6 +166,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: [],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -207,7 +209,7 @@ const networks = {
       'https://wax.greymass.com',
       'https://wax.eu.eosamsterdam.net',
       'https://wax.eosn.io',
-      'https://wax.pink.gg', // OK
+      'https://wax.pink.gg' // OK
 
       //'https://wax.cryptolions.io', CORS
       //'https://api.waxsweden.org', CORS
@@ -230,6 +232,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
     SCAM_CONTRACTS: ['usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army', 'onfederation'],
+    CEX_CONTRACTS: ['huobiwaxdepo', 'waxonbinance', 'kcstothemoon', 'bithumbwaxr1'],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -254,7 +257,7 @@ const networks = {
 
     chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11',
 
-    host: 'telos.caleos.io',
+    host: 'telos.greymass.com',
     //host: 'mainnet.telos.net',
     port: 443,
     protocol: 'https',
@@ -281,6 +284,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone', 'GUX@vapaeetokens'],
     SCAM_CONTRACTS: ['usdcoinchain'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -358,6 +362,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'WAX@bosibc.io', 'TLOS@bosibc.io', ''],
     SCAM_CONTRACTS: ['usdcoinchain'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'nft'
@@ -402,6 +407,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'nft'
@@ -446,6 +452,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -490,6 +497,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'alcornftswap'
@@ -533,6 +541,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
+    CEX_CONTRACTS: [],
 
     nftMarket: {
       contract: 'nft'

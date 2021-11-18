@@ -145,16 +145,26 @@ export default {
     },
 
     async submit() {
-      if (this.token.contract == 'bosibc.io') {
-        await this.$confirm(
-          'Make sure you not send tokens to an Exchange, this is NOT original token, before transfer, you have to withdraw it to original chain',
-          'IBC Token aert',
-          {
-            confirmButtonText: 'Yes, i understand',
-            cancelButtonText: 'Cancel',
-            type: 'warning'
-          }
-        )
+      const memo = this.form.memo.trim()
+
+      try {
+        if (this.network.CEX_CONTRACTS.includes(this.form.address) && memo == '') {
+          await this.$confirm(
+            'You can lose money by sending tokens to the exchange without a MEMO. Do you want to continue?',
+            'Transfer to Exchange accout without MEMO',
+            {
+              confirmButtonText: 'Yes, i understand',
+              cancelButtonText: 'Cancel',
+              type: 'warning'
+            }
+          )
+        }
+      } catch (e) {
+        this.$notify({
+          title: 'Canceled',
+          type: 'info'
+        })
+        return
       }
 
       const quantity = this.form.amount + ' ' + this.token.currency
@@ -166,7 +176,7 @@ export default {
           contract: this.token.contract,
           actor: this.user.name,
           quantity,
-          memo: this.form.memo
+          memo
         })
         this.$store.dispatch('loadUserBalances')
 
