@@ -107,7 +107,8 @@ const MatchSchema = mongoose.Schema({
 })
 MatchSchema.index({ chain: 1, market: 1 })
 MatchSchema.index({ chain: 1, market: 1, time: -1 })
-MatchSchema.index({ time: 1, unit_price: -1 })
+MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1 })
+MatchSchema.index({ chain: 1, market: 1, time: 1, unit_price: -1 })
 
 const BarSchema = mongoose.Schema({
   timeframe: { type: String, index: true },
