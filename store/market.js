@@ -19,10 +19,13 @@ export const state = () => ({
 
   streaming: false,
 
-  orderLoading: false
+  orderLoading: false,
+
+  showVolumeInUSD: false
 })
 
 export const mutations = {
+  setShowVolumeInUSD: (state, value) => state.showVolumeInUSD = value,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setStreaming: (state, streaming) => state.streaming = streaming,
