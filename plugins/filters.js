@@ -29,14 +29,18 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
     .toLocaleString('en', { minimumFractionDigits: Math.min(MIN_DIGITS, parseFloat(precision)), maximumFractionDigits: MAX_DIGITS })
 })
 
-Vue.filter('commaFloat', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
-  let result = parseFloat(amount).toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 4 })
+Vue.filter('commaFloat', function(num, precision = 4) {
+  let sym = ''
 
-  if (typeof amount === 'string' && amount.includes(' ')) {
-    result += ' ' + amount.split(' ')[1]
+  if (typeof num === 'string' && num.includes(' ')) {
+    sym = ' ' + num.split(' ')[1]
+    num = num.split(' ')[0]
   }
 
-  return result
+  const fixed = (+(Math.ceil(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision)
+  const [int, dec] = fixed.split('.')
+
+  return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + '.' + dec + sym
 })
 
 Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
