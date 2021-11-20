@@ -130,7 +130,7 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
 })
 
 export async function newPoolsAction(action, network) {
-  if (action.data == null) {
+  if (action.act.data == null) {
     console.log('Invalid action in pools', action)
     return
   }
