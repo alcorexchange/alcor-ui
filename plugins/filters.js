@@ -30,6 +30,8 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
 })
 
 Vue.filter('commaFloat', function(num, precision = 4) {
+  const pow = Math.pow(10, precision)
+
   let sym = ''
 
   if (typeof num === 'string' && num.includes(' ')) {
@@ -37,9 +39,10 @@ Vue.filter('commaFloat', function(num, precision = 4) {
     num = num.split(' ')[0]
   }
 
-  const fixed = (+(Math.ceil(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision)
-  const [int, dec] = fixed.split('.')
+  const rounded = Math.ceil(parseFloat(num) * pow) / pow
+  const fixed = rounded.toFixed(precision)
 
+  const [int, dec] = fixed.split('.')
   return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + '.' + dec + sym
 })
 
