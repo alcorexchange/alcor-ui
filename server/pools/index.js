@@ -129,7 +129,8 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
   res.json(charts)
 })
 
-export async function newPoolsAction(action, network, app) {
+export async function newPoolsAction(action, network) {
+  console.log('pools new action..', network.name)
   const { act: { name, data: { record } } } = action
 
   if (['exchangelog', 'liquiditylog'].includes(name)) {
@@ -222,5 +223,6 @@ export async function newPoolsAction(action, network, app) {
     //console.log('.........................transfer...', action)
   }
 
+  console.log('pools new action end..', network.name)
   //io.to(`pools:${network.name}`).emit('update_pair', record)
 }
