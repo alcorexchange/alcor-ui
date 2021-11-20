@@ -5,9 +5,6 @@
         span.text-success(v-if="scope.row.type == 'buy'") BID
         span.text-danger(v-else) SELL
 
-    el-table-column(label='Asset')
-      template(slot-scope='{row}') {{ getSymbol(row.market) }}
-
     el-table-column(label='Date' v-if="!isMobile")
       template(slot-scope='scope')
         span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
@@ -98,10 +95,6 @@ export default {
       const market = this.markets_obj[deal.market]
 
       return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
-    },
-
-    getSymbol(market) {
-      return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
     },
 
     async infiniteHandler($state) {
