@@ -130,10 +130,9 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
 })
 
 export async function newPoolsAction(action, network) {
-  console.log('pools new action..', network.name)
-
-  if (!action.data) {
+  if (action.data == null) {
     console.log('Invalid action in pools', action)
+    return
   }
 
   const { act: { name, data: { record } } } = action
@@ -228,6 +227,5 @@ export async function newPoolsAction(action, network) {
     //console.log('.........................transfer...', action)
   }
 
-  console.log('pools new action end..', network.name)
   //io.to(`pools:${network.name}`).emit('update_pair', record)
 }
