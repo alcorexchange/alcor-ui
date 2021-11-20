@@ -131,6 +131,11 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
 
 export async function newPoolsAction(action, network) {
   console.log('pools new action..', network.name)
+
+  if (!action.data) {
+    console.log('Invalid action in pools', action)
+  }
+
   const { act: { name, data: { record } } } = action
 
   if (['exchangelog', 'liquiditylog'].includes(name)) {
