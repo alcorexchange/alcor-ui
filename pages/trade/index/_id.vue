@@ -16,6 +16,7 @@ export default {
 
   beforeRouteUpdate(to, from, next) {
     this.clearField()
+    next()
   },
 
   methods: {
