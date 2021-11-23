@@ -25,16 +25,11 @@ export const state = () => ({
 
   orderLoading: false,
 
-  price_bid: null,
-  amount_buy: null,
-  amount_sell: null,
-  percent_buy: 0,
-  percent_sell: 0,
-  total_buy: null,
-  total_sell: null
+  showVolumeInUSD: false
 })
 
 export const mutations = {
+  setShowVolumeInUSD: (state, value) => state.showVolumeInUSD = value,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setStreaming: (state, streaming) => state.streaming = streaming,

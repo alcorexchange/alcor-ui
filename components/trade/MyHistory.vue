@@ -1,27 +1,27 @@
 <template lang="pug">
-  el-table(:data='deals' max-height="245").my-history
+  el-table(:data='deals' max-height="245" row-class-name="pointer" @row-click="rowClick").my-history
     el-table-column(label='Type' width="50")
       template(slot-scope='scope').text-success
-        span.text-success(v-if="scope.row.type == 'buymatch'") BID
+        span.text-success(v-if="scope.row.type == 'buy'") BID
         span.text-danger(v-else) SELL
 
-    el-table-column(label='Date' width="80" v-if="!isMobile")
+    el-table-column(label='Date' v-if="!isMobile")
       template(slot-scope='scope')
-        span {{ scope.row.time | moment('DD-MM HH:mm') }}
+        span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
 
-    el-table-column(label='Ask' width="120" v-if="!isMobile")
+    el-table-column(label='Ask' v-if="!isMobile")
+      template(slot-scope='{ row }')
+        span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
+
+    el-table-column(label='Bid')
+      template(slot-scope='{ row }')
+        span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
+
+    el-table-column(label='Price')
       template(slot-scope='scope')
-        span {{ scope.row.ask }}
+        span {{ scope.row.unit_price | commaFloat(6)  }}
 
-    el-table-column(label='Bid' width="120")
-      template(slot-scope='scope')
-        span {{ scope.row.bid }}
-
-    el-table-column(label='Price' width="70")
-      template(slot-scope='scope')
-        span {{ scope.row.unit_price }}
-
-    el-table-column(label='Manage' align="right" width="60")
+    //el-table-column(label='Manage' align="right")
       template(slot-scope='scope')
         el-button(size="mini" type="text")
           a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
@@ -49,7 +49,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user', 'markets_obj']),
     ...mapState('market', ['base_token', 'quote_token', 'id'])
 
     //deals() {
@@ -81,6 +81,22 @@ export default {
   },
 
   methods: {
+    rowClick(row) {
+      this.openInNewTab(this.monitorTx(row.trx_id))
+    },
+
+    getAskSymbol(deal) {
+      const market = this.markets_obj[deal.market]
+
+      return deal.type == 'buy' ? market.quote_token.symbol.name : market.base_token.symbol.name
+    },
+
+    getBidSymbol(deal) {
+      const market = this.markets_obj[deal.market]
+
+      return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
+    },
+
     async infiniteHandler($state) {
       console.log('try loading')
       if (!this.user || !this.user.name) return
@@ -91,7 +107,8 @@ export default {
         {
           params: {
             limit: 100,
-            skip: this.skip
+            skip: this.skip,
+            market: this.id
           }
         }
       )
@@ -99,7 +116,11 @@ export default {
       this.skip += deals.length
 
       if (deals.length) {
-        this.deals.push(...deals.filter((d) => d.market == this.id))
+        deals.map(d => {
+          d.type = this.user.name == d.bidder && d.type == 'buymatch' ? 'buy' : 'sell'
+        })
+
+        this.deals.push(...deals)
         $state.loaded()
         console.log('loaded')
       } else {

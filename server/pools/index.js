@@ -129,7 +129,12 @@ pools.get('/:pair_id/charts', defCache, async (req, res) => {
   res.json(charts)
 })
 
-export async function newPoolsAction(action, network, app) {
+export async function newPoolsAction(action, network) {
+  if (action.act.data == null) {
+    console.log('Invalid action in pools', action)
+    return
+  }
+
   const { act: { name, data: { record } } } = action
 
   if (['exchangelog', 'liquiditylog'].includes(name)) {
