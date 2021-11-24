@@ -22,8 +22,8 @@
       el-form-item
         el-input(
           type="number"
-          v-model="amountBuy"
-          @change="setPrecisionAmountBuy()"
+          v-model="totalBuy"
+          @change="setPrecisionTotalBuy()"
           size="medium"
           placeholder="0"
           clearable

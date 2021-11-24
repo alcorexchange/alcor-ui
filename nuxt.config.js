@@ -100,7 +100,6 @@ module.exports = {
   ],
 
   axios: {
-    //baseURL: 'http://localhost:4000'
   },
 
   colorMode: {
