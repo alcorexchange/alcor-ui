@@ -12,6 +12,14 @@ export const state = () => ({
   account: null,
   liquidityPositions: [],
 
+  accountLimits: {
+    buyorders: {},
+    sellorders: {},
+
+    orders_total: 0,
+    orders_limit: 50
+  },
+
   markets: [],
   markets_obj: {},
   network: {},
@@ -39,7 +47,7 @@ export const mutations = {
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
   setAccount: (state, account) => state.account = account,
-
+  setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
@@ -61,6 +69,7 @@ export const actions = {
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
       dispatch('loadOrders', match.market_id)
+      dispatch('loadAccountTable')
 
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
@@ -100,6 +109,21 @@ export const actions = {
 
     const account = await this.$rpc.get_account(state.user.name)
     commit('setAccount', account)
+  },
+
+  async loadAccountLimits({ commit, state }) {
+    if (!state.user) return
+
+    const { rows: [account] } = await this.$rpc.get_table_rows({
+      code: state.network.contract,
+      scope: state.network.contract,
+      table: 'account',
+      limit: 1,
+      lower_bound: nameToUint64(state.user.name),
+      upper_bound: nameToUint64(state.user.name)
+    })
+
+    if (account) commit('setAccountLimits', account)
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {

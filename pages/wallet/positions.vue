@@ -4,6 +4,16 @@
       el-input(v-model="search" prefix-icon="el-icon-search" placeholder="Search market.." size="small" clearable)
       el-checkbox() Only buy orders
       el-checkbox() Only sell orders
+
+      .d-flex.ml-auto
+        .cancel Total orders:
+          |  {{ accountLimits.orders_total }}
+
+        .cancel.ml-3 Order slot limit:
+          |  {{ accountLimits.orders_limit }}
+
+        el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 Buy more order slots
+
     .table.el-card.is-always-shadow
       el-table.alcor-table(
         :data='filledPositions',
@@ -82,7 +92,6 @@
             .actions
               el-button(type="text" @click="trade(row)").green.hover-opacity Trade
               el-button(type="text" @click="cancelAll(row)").red.hover-opacity Cancel All Orders
-  </div>
 </template>
 
 <script>
@@ -101,7 +110,7 @@ export default {
       user: 'user',
       pairPositions: 'wallet/pairPositions'
     }),
-    ...mapState(['network', 'markets']),
+    ...mapState(['network', 'markets', 'accountLimits']),
 
     filledPositions() {
       return this.pairPositions.filter(p => p.slug.includes(this.search.toLowerCase()))

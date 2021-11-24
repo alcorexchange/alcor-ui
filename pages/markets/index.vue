@@ -26,7 +26,7 @@
         clearable
       )
 
-    el-switch(v-if="base_token == network.baseToken.symbol" v-model='inUSD' active-text='USD').ml-auto
+    el-switch(v-if="base_token == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
     .ml-auto
       nuxt-link(to="new_market")
@@ -66,7 +66,7 @@
         :sort-orders='["descending", null]'
       )
         template(slot-scope='scope')
-          .text-success(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
+          .text-success(v-if="showVolumeInUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
           .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
       el-table-column(
         :label='`24H Vol.`',
@@ -78,7 +78,7 @@
         v-if='!isMobile'
       )
         template(slot-scope='scope')
-          span.text-mutted(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
+          span.text-mutted(v-if="showVolumeInUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
           span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
@@ -105,7 +105,7 @@
         :sort-orders='["descending", null]',
       )
         template(slot-scope='scope')
-          span.text-mutted(v-if="inUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
+          span.text-mutted(v-if="showVolumeInUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
           span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
@@ -155,8 +155,6 @@ export default {
       to_assets: [],
       base_token: 'all',
 
-      inUSD: false,
-
       select: {
         from: '',
         to: ''
@@ -170,6 +168,16 @@ export default {
     ...mapState(['network']),
     ...mapGetters(['user']),
     ...mapState(['markets']),
+
+    showVolumeInUSD: {
+      get() {
+        return this.$store.state.market.showVolumeInUSD
+      },
+
+      set(value) {
+        this.$store.commit('market/setShowVolumeInUSD', value)
+      }
+    },
 
     filteredMarkets() {
       if (!this.markets) return []

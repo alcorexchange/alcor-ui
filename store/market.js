@@ -27,6 +27,7 @@ export const state = () => ({
 
   orderLoading: false,
 
+  showVolumeInUSD: false,
   price_bid: null,
   amount_buy: null,
   amount_sell: null,
@@ -37,6 +38,7 @@ export const state = () => ({
 })
 
 export const mutations = {
+  setShowVolumeInUSD: (state, value) => state.showVolumeInUSD = value,
   setBids: (state, bids) => state.bids = bids,
   setAsks: (state, asks) => state.asks = asks,
   setStreaming: (state, streaming) => state.streaming = streaming,

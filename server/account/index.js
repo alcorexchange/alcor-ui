@@ -7,11 +7,13 @@ account.get('/:account/deals', async (req, res) => {
   const network = req.app.get('network')
   const { account } = req.params
 
-  const limit = req.query.limit
-  const skip = req.query.skip
+  const { limit, skip, market } = req.query
+
+  const $match = { chain: network.name, $or: [{ asker: account }, { bidder: account }] }
+  if (market) $match.market = parseInt(market)
 
   const q = [
-    { $match: { chain: network.name, $or: [{ asker: account }, { bidder: account }] } },
+    { $match },
     {
       $project: {
         time: 1,

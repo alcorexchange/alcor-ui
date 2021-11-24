@@ -28,7 +28,7 @@
         )
           template(slot-scope='{row}')
             div.amount-val
-              .amount {{ row.amount | commaFloat(4, row.decimals) }}
+              .amount {{ row.amount | commaFloat(4) }}
               .val.cancel = ${{ row.usd_value }}
         el-table-column(
           label='Available',
@@ -37,7 +37,7 @@
         )
           template(slot-scope='{row}')
             div.amount-val
-              .amount {{ row.amount | commaFloat(4, row.decimals) }}
+              .amount {{ row.amount | commaFloat(4) }}
               .val.cancel = ${{ row.usd_value }}
         //el-table-column(label='In Order')
           //- TODO: dynamic
