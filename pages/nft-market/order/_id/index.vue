@@ -97,19 +97,19 @@ export default {
   components: {
     TokenImage,
     PleaseLoginButton,
-    NftFields,
+    NftFields
   },
 
   async asyncData({ store, error, params, $rpc }) {
     try {
       const {
-        rows: [order],
+        rows: [order]
       } = await $rpc.get_table_rows({
         code: store.state.network.nftMarket.contract,
         scope: store.state.network.nftMarket.contract,
         table: 'sellorders',
         lower_bound: params.id,
-        limit: 1,
+        limit: 1
       })
 
       if (order && order.id == params.id) {
@@ -118,7 +118,7 @@ export default {
         // TODO Redirect if order in history
         error({
           message: `Order ${params.id} not found or finished`,
-          statusCode: 404,
+          statusCode: 404
         })
       }
     } catch (e) {
@@ -132,13 +132,13 @@ export default {
       order: {},
       no_found: false,
       loading: true,
-      nfts: [],
+      nfts: []
     }
   },
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
 
   async mounted() {
@@ -148,13 +148,13 @@ export default {
     // TODO Create global base of nft tokens that contract holds
     for (const id of this.order.sell) {
       const {
-        rows: [item],
+        rows: [item]
       } = await this.$rpc.get_table_rows({
         code: 'simpleassets',
         scope: this.network.nftMarket.contract,
         table: 'sassets',
         lower_bound: id,
-        limit: 1,
+        limit: 1
       })
 
       prepareNFT(item)
@@ -187,17 +187,17 @@ export default {
             authorization: [
               {
                 actor: order.maker,
-                permission: 'active',
-              },
+                permission: 'active'
+              }
             ],
-            data: { maker: order.maker, order_id: order.id },
-          },
+            data: { maker: order.maker, order_id: order.id }
+          }
         ])
 
         this.$notify({
           title: 'Success',
           message: `Order canceled ${order.id}`,
-          type: 'success',
+          type: 'success'
         })
         this.$router.push({ name: 'nft-market' })
         //this.$store.dispatch('nft/fetch')
@@ -206,7 +206,7 @@ export default {
         this.$notify({
           title: 'Place order',
           message: e.message,
-          type: 'error',
+          type: 'error'
         })
         console.log(e)
       }
@@ -215,31 +215,31 @@ export default {
     async buy() {
       const loading = this.$loading({
         lock: true,
-        text: 'Wait for Scatter',
+        text: 'Wait for Scatter'
       })
 
       try {
         const { buy, id } = this.order
 
-        const r = await this.transfer({
+        await this.transfer({
           to: this.$store.state.network.nftMarket.contract,
           contract: buy.contract,
           actor: this.user.name,
           quantity: buy.quantity,
-          memo: `fill|${id}`,
+          memo: `fill|${id}`
         })
         this.$router.push({ name: 'nft-market' })
         this.$notify({
           title: 'Success',
           message: `You fill ${id} order`,
-          type: 'success',
+          type: 'success'
         })
       } catch (e) {
         captureException(e, { extra: { order: this.order } })
         this.$notify({
           title: 'Place order',
           message: e.message,
-          type: 'error',
+          type: 'error'
         })
         console.log(e)
       } finally {
@@ -249,14 +249,14 @@ export default {
 
     goBack() {
       this.$router.go(-1)
-    },
+    }
   },
 
   head() {
     return {
-      title: `Alcor OTC swap | Sell ${this.order.sell.quantity} for ${this.order.buy.quantity} by ${this.order.maker}`,
+      title: `Alcor OTC swap | Sell ${this.order.sell.quantity} for ${this.order.buy.quantity} by ${this.order.maker}`
     }
-  },
+  }
 }
 </script>
 
