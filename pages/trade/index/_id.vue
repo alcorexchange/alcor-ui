@@ -8,7 +8,6 @@ import { mapState } from 'vuex'
 
 export default {
   beforeRouteLeave(to, from, next) {
-    console.log('trade leave!!', this.id)
     this.$store.dispatch('market/unsubscribe', this.id)
     next()
   },
