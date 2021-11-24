@@ -19,10 +19,6 @@ export default {
     next()
   },
 
-  methods: {
-    ...mapActions('market', ['clearField'])
-  },
-
   async fetch({ redirect, store, error, params, $rpc }) {
     if (!params.id) return redirect({ name: 'markets' })
 
@@ -81,6 +77,10 @@ export default {
 
   computed: {
     ...mapState('market', ['id', 'symbol', 'quote_token', 'base_token'])
+  },
+
+  methods: {
+    ...mapActions('market', ['clearField'])
   }
 }
 </script>
