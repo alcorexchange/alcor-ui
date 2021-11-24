@@ -35,7 +35,7 @@ export default {
 
     mRows() {
       return Object.entries(this.nft.mdata)
-    },
+    }
   },
 
   methods: {

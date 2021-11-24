@@ -1,6 +1,6 @@
 export const state = () => ({
-  pairs: [],
   //coins: [],
+  pairs: []
 })
 
 export const mutations = {

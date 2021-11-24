@@ -27,7 +27,13 @@ el-dialog(
                     .total Total Staked: // not set
         .add-resources
             el-select.select(v-model="selectedResource")
-                el-option(v-for="{name} in resources" :Label="name" :value="name" :id="name")
+                el-option(
+                  v-for="{name} in resources"
+                  :Label="name"
+                  :value="name"
+                  :id="name"
+                  :key="name"
+                )
             el-input.input(v-model="amount" :placeholder="'Amount Of' + $store.state.network.baseToken.symbol")
             AlcorButton(@click="submit") Stake
 </template>

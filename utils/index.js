@@ -1,6 +1,6 @@
 import { Name, SymbolCode } from 'eos-common'
 import { Serialize } from 'eosjs'
-import Big from 'big.js'
+import { Big } from 'big.js'
 
 import config from '../config'
 

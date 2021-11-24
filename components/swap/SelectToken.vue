@@ -77,7 +77,10 @@ export default {
       default: () => []
     },
 
-    token: [Number, Object],
+    token: {
+      type: [Number, Object],
+      default: () => ''
+    },
 
     readonly: {
       type: Boolean,

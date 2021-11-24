@@ -168,5 +168,5 @@ export const getters = {
     return rootState.network.name
   },
 
-  wallet: (state, getters) => state.wallets[state.currentWallet],
+  wallet: (state, getters) => state.wallets[state.currentWallet]
 }

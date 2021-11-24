@@ -50,7 +50,7 @@
 
 <script>
 import ClickOutside from 'vue-click-outside'
-import { mapState, mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 
@@ -74,7 +74,10 @@ export default {
       default: () => []
     },
 
-    token: [String],
+    token: {
+      type: String,
+      default: ''
+    },
 
     readonly: {
       type: Boolean,

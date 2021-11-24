@@ -34,12 +34,12 @@
 </template>
 
 <script>
-import fetch from 'node-fetch'
-import { JsonRpc } from 'eosjs'
+// import fetch from 'node-fetch'
+// import { JsonRpc } from 'eosjs'
 
 import { captureException } from '@sentry/browser'
-import { mapGetters, mapState } from 'vuex'
-import { asset } from 'eos-common'
+import { mapState } from 'vuex'
+// import { asset } from 'eos-common'
 
 import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'

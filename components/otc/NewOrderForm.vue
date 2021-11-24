@@ -220,7 +220,7 @@ export default {
       })
 
       try {
-        const r = await this.$store.dispatch('chain/transfer', {
+        await this.$store.dispatch('chain/transfer', {
           to: this.$store.state.network.otc.contract,
           contract: form.sell.contract,
           actor: this.user.name,
