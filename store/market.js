@@ -1,7 +1,7 @@
 import { captureException } from '@sentry/browser'
 
 // import { asset } from 'eos-common'
-import Big from 'big.js'
+import { Big } from 'big.js'
 
 import config from '~/config'
 import { mergeSamePriceOrders } from '~/utils'
@@ -153,7 +153,7 @@ export const actions = {
     commit('SET_TOTAL_BUY', null)
     commit('SET_TOTAL_SELL', null)
   },
-  async changePrice({ commit, dispatch }, price) {
+  changePrice({ commit, dispatch }, price) {
     commit('SET_PRICE', price)
     dispatch('calcAndSetTotal')
   },
@@ -209,7 +209,7 @@ export const actions = {
     const total = price.times(amount).round(bp, 0)
     return total.toString()
   },
-  async setPrecisionPrice({ state, commit, dispatch }, inPrice = null) {
+  setPrecisionPrice({ state, commit, dispatch }, inPrice = null) {
     const price = inPrice !== null ? inPrice : state.price_bid
     const precision = config.PRICE_DIGITS
     const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
