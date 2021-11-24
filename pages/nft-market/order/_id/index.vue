@@ -17,7 +17,11 @@ el-card.box-card.mt-3(v-if='!no_found')
   .text.item(v-loading='loading')
     .row.mb-3
       .col
-        el-card.pointer.mb-1(v-for='nft in nfts', shadow='hover')
+        el-card.pointer.mb-1(
+          v-for='(nft, i) in nfts',
+          shadow='hover'
+          :key="nft.id + i"
+        )
           .row
             .col-lg-4
               img.order-img(

@@ -1,6 +1,11 @@
 <template lang="pug">
   div.wallet-tab-bar
-    AlcorLink.tab-bar-item(v-for="{name, to, exact} in urls" :to="to" :exact="exact") {{name}}
+    AlcorLink.tab-bar-item(
+      v-for="{name, to, exact} in urls"
+      :to="to"
+      :exact="exact"
+      :key="name"
+    ) {{name}}
 </template>
 
 <script>

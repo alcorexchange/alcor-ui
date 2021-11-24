@@ -52,7 +52,11 @@
     .row.mt-3
       .col
         .market-cards
-          card.item(v-for="order in filteredOrders" :order="order")
+          card.item(
+            v-for="(order, i) in filteredOrders"
+            :order="order"
+            :key="order.id + i"
+          )
 
 </template>
 
