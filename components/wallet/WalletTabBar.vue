@@ -11,8 +11,8 @@
 <script>
 import AlcorLink from '../AlcorLink.vue'
 export default {
-  components: { AlcorLink },
   name: 'WalletTabBar',
+  components: { AlcorLink },
   data: () => ({
     urls: [
       { name: 'Tokens', to: '/wallet', exact: true },
@@ -23,6 +23,13 @@ export default {
       { name: 'Resources', to: '/wallet/resources' }
     ]
   }),
+  watch: {
+    $route() {
+      this.$nextTick(() => {
+        this.funcScrollTo()
+      })
+    }
+  },
   mounted() {
     this.funcScrollTo()
   },
@@ -32,13 +39,6 @@ export default {
         container: '.wallet-tab-bar',
         offset: -100,
         x: true
-      })
-    }
-  },
-  watch: {
-    $route() {
-      this.$nextTick(() => {
-        this.funcScrollTo()
       })
     }
   }

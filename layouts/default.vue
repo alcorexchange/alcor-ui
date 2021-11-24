@@ -41,12 +41,12 @@ div
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 import config from '~/config'
 
 import ModalsDialog from '~/components/modals/ModalsDialog'
-import ChainSelect from '~/components/elements/ChainSelect'
+// import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
@@ -125,6 +125,12 @@ export default {
     }
   },
 
+  watch: {
+    $route() {
+      this.closeMenu()
+    }
+  },
+
   async mounted() {
     this.current_chain = this.$store.state.network.name
 
@@ -157,12 +163,6 @@ export default {
 
     closeMenu() {
       this.menuActive = false
-    }
-  },
-
-  watch: {
-    $route() {
-      this.closeMenu()
     }
   }
 }

@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import Card from '~/components/nft_markets/Card'
 import NewOrder from '~/components/nft_markets/NewOrder'
 

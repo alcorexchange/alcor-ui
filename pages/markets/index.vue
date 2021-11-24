@@ -17,7 +17,6 @@
       el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
 
-
     .search-container
       el-input(
         v-model='search',
@@ -32,7 +31,6 @@
     .ml-auto
       nuxt-link(to="new_market")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
-
 
   .table.el-card.is-always-shadow
     el-table.market-table(

@@ -97,7 +97,7 @@ const networks = {
         },
         withdrawMemo: '{account}',
         gateway: 'cross.chain'
-      },
+      }
 
       //'PETH@eth.ptokens': {
       //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
@@ -146,7 +146,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [
-      'https://proton.greymass.com',
+      'https://proton.greymass.com'
     ],
 
     otc: {
@@ -205,7 +205,7 @@ const networks = {
       'https://wax.greymass.com',
       'https://wax.eu.eosamsterdam.net',
       'https://wax.eosn.io',
-      'https://wax.pink.gg', // OK
+      'https://wax.pink.gg' // OK
 
       //'https://wax.cryptolions.io', CORS
       //'https://api.waxsweden.org', CORS

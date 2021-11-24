@@ -188,12 +188,6 @@ export default {
     }
   },
 
-  methods: {
-    textColor(side) {
-      return side == 'buy' ? 'text-success' : 'text-danger'
-    }
-  },
-
   computed: {
     ...mapGetters(['user']),
     percentBuy: {
@@ -203,6 +197,12 @@ export default {
     percentBuyMarket: {
       get() { return this.percent_buy },
       set(val) { this.changePercentBuy({ percent: val, trade: 'market' }) }
+    }
+  },
+
+  methods: {
+    textColor(side) {
+      return side == 'buy' ? 'text-success' : 'text-danger'
     }
   }
 }

@@ -30,6 +30,19 @@ export default {
     'percentage',
     'value'
   ],
+  computed: {
+    description() {
+      const first =
+        this.selectedRangeToken === 'second'
+          ? this.firstToken && this.firstToken.symbol
+          : this.secondToken && this.secondToken.symbol
+      const second =
+        this.selectedRangeToken === 'second'
+          ? this.secondToken && this.secondToken.symbol
+          : this.firstToken && this.firstToken.symbol
+      return `${first || ''} per ${second || ''}`
+    }
+  },
   methods: {
     onPercentageChange({ type }) {
       const amountToChange = parseFloat(this.value * this.percentage * 0.01)
@@ -42,19 +55,6 @@ export default {
           : decreaseAmount.toFixed(2)
       )
       console.log({ increasedAmount, decreaseAmount, amountToChange })
-    }
-  },
-  computed: {
-    description() {
-      const first =
-        this.selectedRangeToken === 'second'
-          ? this.firstToken && this.firstToken.symbol
-          : this.secondToken && this.secondToken.symbol
-      const second =
-        this.selectedRangeToken === 'second'
-          ? this.secondToken && this.secondToken.symbol
-          : this.firstToken && this.firstToken.symbol
-      return `${first || ''} per ${second || ''}`
     }
   }
 }

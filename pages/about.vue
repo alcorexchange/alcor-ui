@@ -36,12 +36,9 @@
                 li.lead If you cant do any of that,
                   a(href="https://t.me/avral" target="_blank")  send me .png to dm.
 
-
             el-collapse-item(title='Audit? How it works?', name='2')
               .lead Exchange contract:
                 a(:href="monitorAccount($store.state.network.contract)" target="_blank") {{ $store.state.network.contract }}
-
-
 
       .row.mb-3
         .col

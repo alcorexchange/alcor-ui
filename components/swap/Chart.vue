@@ -297,7 +297,7 @@ export default {
         {
           series: [{ name: this.tab, data }]
         },
-        true,
+        true
         //animate
       )
       this.updateChartOprions()
