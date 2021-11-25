@@ -1,8 +1,8 @@
 <template lang="pug">
   el-table(:data='deals' max-height="245" row-class-name="pointer" @row-click="rowClick").my-history
-    el-table-column(label='Type' width="50")
+    el-table-column(label='Side' width="60")
       template(slot-scope='scope').text-success
-        span.text-success(v-if="scope.row.type == 'buy'") BID
+        span.text-success(v-if="scope.row.type == 'buy'") BUY
         span.text-danger(v-else) SELL
 
     el-table-column(label='Date' v-if="!isMobile")

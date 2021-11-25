@@ -8,9 +8,9 @@
       //el-checkbox() show withdraws
     .table.el-card.is-always-shadow
       el-table.market-table(:data='deals', style='width: 100%')
-        el-table-column(label='Type' width="70")
+        el-table-column(label='Side' width="70")
           template(slot-scope='scope').text-success
-            span.text-success(v-if="scope.row.type == 'buy'") BID
+            span.text-success(v-if="scope.row.type == 'buy'") BUY
             span.text-danger(v-else) SELL
 
         el-table-column(label='Asset')
