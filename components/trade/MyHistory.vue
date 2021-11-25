@@ -9,11 +9,11 @@
       template(slot-scope='scope')
         span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
 
-    el-table-column(label='Ask' v-if="!isMobile")
+    el-table-column(label='Bid' v-if="!isMobile")
       template(slot-scope='{ row }')
         span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
 
-    el-table-column(label='Bid')
+    el-table-column(label='Ask')
       template(slot-scope='{ row }')
         span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
 
@@ -88,13 +88,13 @@ export default {
     getAskSymbol(deal) {
       const market = this.markets_obj[deal.market]
 
-      return deal.type == 'buy' ? market.quote_token.symbol.name : market.base_token.symbol.name
+      return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
     },
 
     getBidSymbol(deal) {
       const market = this.markets_obj[deal.market]
 
-      return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
+      return deal.type == 'buy' ? market.quote_token.symbol.name : market.base_token.symbol.name
     },
 
     async infiniteHandler($state) {
@@ -117,7 +117,13 @@ export default {
 
       if (deals.length) {
         deals.map(d => {
-          d.type = this.user.name == d.bidder && d.type == 'buymatch' ? 'buy' : 'sell'
+          d.type = this.user.name == d.bidder ? 'buy' : 'sell'
+          //if ((this.user.name == d.bidder && d.type != 'buymatch') || (this.user.name != d.bidder && d.type == 'buymatch')) [d.ask, d.bid] = [d.bid, d.ask]
+          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
+          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
+          //  [d.ask, d.bid] = [d.bid, d.ask]
+          //  console.log('change bid/ask', d.ask, d.bid)
+          //}
         })
 
         this.deals.push(...deals)
