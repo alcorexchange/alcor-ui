@@ -14,7 +14,7 @@ const client = createClient()
 const publisher = client.duplicate()
 const subscriber = client.duplicate()
 
-async function getOrderbook(chain, side, market) {
+export async function getOrderbook(chain, side, market) {
   const entries = await client.get(`orderbook_${chain}_${side}_${market}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }
@@ -145,7 +145,6 @@ async function main() {
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
-    //console.log(message)
 
     if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
       throttledUpdate('buy', chain, market)
