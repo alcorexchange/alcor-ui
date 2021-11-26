@@ -7,8 +7,12 @@
         provider of solutions in one tap.
       </p>
       <div class="actions">
-        <AlcorLink to="/markets" class="start">Start Trading</AlcorLink>
-        <AlcorButton @click="openInNewTab('https://docs.alcor.exchange/')">Read docs</AlcorButton>
+        <AlcorLink to="/markets" class="start">
+          Start Trading
+        </AlcorLink>
+        <AlcorButton @click="openInNewTab('https://docs.alcor.exchange/')">
+          Read docs
+        </AlcorButton>
       </div>
     </div>
     <div class="right">
@@ -30,13 +34,13 @@ export default {
     AlcorButton,
     Circles
   },
-  mounted() {
-    console.log(this.$device.isAndroid)
-  },
   computed: {
     canShowCircles() {
       return !this.$device.isAndroid
     }
+  },
+  mounted() {
+    console.log(this.$device.isAndroid)
   }
 }
 </script>

@@ -16,18 +16,18 @@ import Login from '~/components/modals/Login'
 
 export default {
   components: {
-    Login,
+    Login
   },
 
   computed: {
-    ...mapState('modal', ['current', 'visible']),
+    ...mapState('modal', ['current', 'visible'])
   },
 
   methods: {
     close() {
       this.$store.dispatch('modal/closeModal')
-    },
-  },
+    }
+  }
 }
 </script>
 

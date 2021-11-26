@@ -70,7 +70,7 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    Withdraw,
+    Withdraw
     //BOSIbc
   },
 

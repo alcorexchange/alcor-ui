@@ -126,22 +126,6 @@ export default {
     firstAmount: 0.0,
     secondAmount: 0.0
   }),
-  methods: {
-    onSelectToken(index) {
-      this.$refs.tokenSelect.openDialog({
-        onSelect: (token) => {
-          this[index] = token
-        }
-      })
-    },
-    onClearTokens() {
-      this.firstToken = {}
-      this.secondToken = {}
-      this.selectedPool = null
-      this.maxPrice = 0.0
-      this.minPrice = 0.0
-    }
-  },
   computed: {
     isSelectPoolActive() {
       return this.firstToken.symbol && this.secondToken.symbol
@@ -158,6 +142,22 @@ export default {
         // TODO: This will check whethere the price is valid or not
         true
       )
+    }
+  },
+  methods: {
+    onSelectToken(index) {
+      this.$refs.tokenSelect.openDialog({
+        onSelect: (token) => {
+          this[index] = token
+        }
+      })
+    },
+    onClearTokens() {
+      this.firstToken = {}
+      this.secondToken = {}
+      this.selectedPool = null
+      this.maxPrice = 0.0
+      this.minPrice = 0.0
     }
   }
 }

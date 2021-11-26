@@ -47,7 +47,6 @@
               small Telegram:
               a(@click="openInNewTab('https://t.me/avral')").pointer  @avral
 
-
     hr.my-2
 
     Recommended(:markets="recomendedMarkets")

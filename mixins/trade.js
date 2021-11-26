@@ -124,7 +124,7 @@ export const trade = {
         if (actionCancel) return
       }
 
-      let res = await this.sendFetchBid(trade, bid)
+      const res = await this.sendFetchBid(trade, bid)
 
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
@@ -134,7 +134,6 @@ export const trade = {
     }
   }
 }
-
 
 // TODO This whole module need refactor
 
@@ -304,7 +303,6 @@ export const tradeMixin = {
         this.amount = parseFloat(0).toFixed(this.quote_token.symbol.precision)
         this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       }
-
 
       const actions = [
         {
