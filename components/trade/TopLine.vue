@@ -5,10 +5,19 @@
       .d-flex.align-items-center(v-if="!isMobile")
         TokenImage(:src="$tokenLogo(quote_token.symbol.name, quote_token.contract)" height="30").ml-1
 
-        .d-flex.ml-2
-          b {{ quote_token.symbol.name }}
-          a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted.ml-2 {{ quote_token.contract }}
-          span.ml-1 /  {{ base_token.symbol.name }}
+        .d-flex.ml-2.title-token
+          p
+            <b>{{ quote_token.symbol.name }}</b>
+          a(
+            :href="monitorAccount(quote_token.contract )"
+            target="_blank"
+            class="text-muted"
+          ) {{ quote_token.contract }}
+          p / {{ base_token.symbol.name }}
+        //- .d-flex.ml-2.title-token
+        //-   p <b>{{ quote_token.symbol.name }}</b>
+        //-   a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted {{ quote_token.contract }}
+        //-   p / {{ base_token.symbol.name }}
 
         .d-flex.ml-3(v-if="hasWithdraw")
           // TODO Token prop & mobile version
@@ -86,6 +95,9 @@ export default {
 </script>
 
 <style lang="scss">
+.title-token {
+  column-gap: .5rem;
+}
 .desctop span {
   font-size: 10px;
   padding-right: 10px;
