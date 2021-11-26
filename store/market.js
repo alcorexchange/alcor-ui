@@ -41,7 +41,9 @@ export const state = () => ({
   percent_buy: 0,
   percent_sell: 0,
   total_buy: null,
-  total_sell: null
+  total_sell: null,
+
+  markets_active_tab: null
 })
 
 export const mutations = {
@@ -51,6 +53,7 @@ export const mutations = {
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
+  setMarketActiveTab: (state, value) => state.markets_active_tab = value,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
