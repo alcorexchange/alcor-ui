@@ -57,7 +57,7 @@ export const trade = {
       const latestAsk = this.sorted_asks[0]
       const latestBid = this.sorted_bids[0]
 
-      if (!latestAsk || latestBid) return 0
+      if (!latestAsk || !latestBid) return 0
 
       const spreadDec = latestAsk[0] - latestBid[0]
       return spreadDec
