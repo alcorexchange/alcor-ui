@@ -9,7 +9,7 @@
 
   .orders-list.blist.asks(ref='asks')
     .ltd.d-flex.text-danger(
-      v-for='ask in asks',
+      v-for='ask in sorted_asks',
       @click='setBid(ask)',
       :class="{ 'pl-0': ask.myOrder }"
     )
@@ -19,7 +19,7 @@
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
       span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
-    .ltd.d-flex.justify-content-around(v-if='asks.length == 0')
+    .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
       span No asks
       span
@@ -44,7 +44,7 @@
 
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
-      v-for='bid in bids',
+      v-for='bid in sorted_bids',
       @click='setAsk(bid)',
       :class="{ 'pl-0': bid.myOrder }"
     )
@@ -55,7 +55,7 @@
 
       span(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
-    .ltd.d-flex.justify-content-around(v-if='bids.length == 0')
+    .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
       span No bids
       span
@@ -66,12 +66,6 @@
 
 import { mapGetters, mapState } from 'vuex'
 import { trade } from '~/mixins/trade'
-
-function sortByPrice(a, b) {
-  if (a[0] > b[0]) return -1
-  if (a[0] < b[0]) return 1
-  return 0
-}
 
 export default {
   mixins: [trade],
@@ -101,103 +95,13 @@ export default {
     }
   },
 
-  watch: {
-    id(to, from) {
-      this.fetch()
-    },
-
-    asks() {
-      // Scroll asks after update
-      if (this.sorted_asks.length != this.asksL) {
-        this.scrollBook()
-        this.asksL = this.sorted_asks.length
-      }
-    }
-  },
-
-  mounted() {
-    //this.fetch()
-    setTimeout(() => this.scrollBook(), 1000)
-
-    this.$socket.on('orderbook_buy', bids => {
-      if (this.bids.length == 0) {
-        this.bids = bids
-      } else {
-        bids.map(b => {
-          const old = this.bids.findIndex(old_bid => old_bid[0] == b[0])
-          if (old != -1) {
-            if (b[1] == 0) {
-              this.bids.splice(old, 1)
-            } else {
-              this.bids[old] = b
-            }
-          } else if (b[1] !== 0) {
-            this.bids.push(b)
-          }
-        })
-      }
-
-      this.bids.sort(sortByPrice)
-    })
-
-    this.$socket.on('orderbook_sell', asks => {
-      if (this.asks.length == 0) {
-        this.asks = asks.reverse()
-      } else {
-        asks.map(b => {
-          const old = this.asks.findIndex(old_ask => old_ask[0] == b[0])
-          if (old != -1) {
-            if (b[1] == 0) {
-              this.asks.splice(old, 1)
-            } else {
-              this.asks[old] = b
-            }
-          } else if (b[1] !== 0) {
-            this.asks.push(b)
-          }
-        })
-
-        this.asks.sort(sortByPrice)
-      }
-    })
-
-    //const timeout = {}
-    //this.$socket.on('update_asks', () => {
-    //  if (timeout.update_asks) clearTimeout(timeout.update_asks)
-    //  timeout.update_asks = setTimeout(() => this.$store.dispatch('market/fetchAsks'), 400)
-    //})
-
-    //this.$socket.on('update_bids', () => {
-    //  if (timeout.update_bids) clearTimeout(timeout.update_bids)
-    //  timeout.update_bids = setTimeout(() => this.$store.dispatch('market/fetchBids'), 400)
-    //})
-  },
-
   methods: {
-    async fetch() {
-      try {
-        await this.$store.dispatch('market/fetchOrders')
-      } catch (e) {
-        this.$notify({ title: 'Fetch orders', message: e, type: 'error' })
-      } finally {
-        this.loading = false
-      }
-    },
-
-    scrollBook() {
-      const asks = this.$refs.asks
-      setTimeout(() => {
-        if (!asks) return
-        asks.scrollTop = asks.scrollHeight
-      }, 100)
-    },
-
     setBid(ask) {
       const price = this.$options.filters
-        .humanPrice(ask.unit_price)
+        .humanPrice(ask[0])
         .replaceAll(',', '')
 
-      const amount = this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', '')
+      const amount = this.$options.filters.humanFloat(ask[1], this.quote_token.symbol.precision).replaceAll(',', '')
 
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', amount)
@@ -210,10 +114,10 @@ export default {
 
     setAsk(bid) {
       const price = this.$options.filters
-        .humanPrice(bid.unit_price)
+        .humanPrice(bid[0])
         .replaceAll(',', '')
 
-      const amount = this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', '')
+      const amount = this.$options.filters.humanFloat(bid[2], this.quote_token.symbol.precision).replaceAll(',', '')
 
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', amount)
@@ -299,6 +203,8 @@ export default {
   }
 }
 
+
+
 .blist {
   flex: 1;
   display: flex;
@@ -324,6 +230,7 @@ export default {
 
 .orders-list.asks {
   max-height: 220px;
+  flex-direction: column-reverse;
 }
 
 .orders-list.bids {
