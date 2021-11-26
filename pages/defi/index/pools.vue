@@ -67,7 +67,6 @@ export default {
     }
   },
 
-
   methods: {
     setPool(p) {
       const sym1 = `${p.pool1.contract}-${p.pool1.quantity.symbol.code().to_string().toLowerCase()}`

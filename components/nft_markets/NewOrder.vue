@@ -11,7 +11,11 @@ div
       .col
         h4 Sell {{ sell.length }} items
         .sell-nft-box
-          el-card(v-for="nft in sell" closable).mr-2.mb-2
+          el-card(
+            v-for="(nft, i) in sell"
+            :key="nft.id + i"
+            closable
+          ).mr-2.mb-2
             .row
               .col-lg-3
                 .p-1
@@ -36,9 +40,10 @@ div
               span.ml-3 {{ network.baseToken.symbol }}@{{ network.baseToken.contract }}
 
             el-option(
-              v-for="token in knownTokens"
+              v-for="(token, i) in knownTokens"
               :label="`${token.symbol.name}@${token.contract}`"
               :value="token"
+              :key="token.symbol.name + i"
               )
               TokenImage(:src="$tokenLogo(token.symbol.name, token.contract)" height="25")
               span.ml-3 {{ token.symbol.name }}@{{ token.contract }}
@@ -55,7 +60,12 @@ div
       .col-8
         el-input(placeholder="Filter NFT's" size="small" v-model="search" clearable)
     hr
-    el-card(v-for="nft in userNfts" shadow="hover" @click.native="addSell(nft)").pointer.mb-1
+    el-card(
+      v-for="(nft, i) in userNfts"
+      :key="nft.id + i"
+      shadow="hover"
+      @click.native="addSell(nft)"
+    ).pointer.mb-1
       .row
         .col-lg-2
           img(:src="nft.mdata.img" height=80)

@@ -97,7 +97,7 @@ const networks = {
         },
         withdrawMemo: '{account}',
         gateway: 'cross.chain'
-      },
+      }
 
       //'PETH@eth.ptokens': {
       //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',

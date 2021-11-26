@@ -14,7 +14,6 @@
         span.key.fwr Refunding NET:
         span.value  {{ account.refund_request && account.refund_request.net_amount }}
 
-
 </template>
 
 <script>
