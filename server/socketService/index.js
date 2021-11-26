@@ -82,10 +82,10 @@ async function main() {
     const { key, update } = JSON.parse(msg)
     const [chain, side, market] = key.split('_')
 
-    // FIXME
+    // FIXME Multiple times on WS cluster
     console.log('push!', `orderbook:${chain}.${side}.${market}`, update)
 
-    io.to(`orderbook:${chain}.${side}.${market}`).emit('orderbook', update)
+    io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
   })
 }
 
