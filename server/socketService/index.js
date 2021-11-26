@@ -80,15 +80,12 @@ async function main() {
   //  }, 400)
   //})
 
-  //subscriber.subscribe('orderbook_update', msg => {
-  //  const { key, update } = JSON.parse(msg)
-  //  const [chain, side, market] = key.split('_')
+  subscriber.subscribe('orderbook_update', msg => {
+    const { key, update } = JSON.parse(msg)
+    const [chain, side, market] = key.split('_')
 
-  //  // FIXME Multiple times on WS cluster
-  //  console.log('push!', `orderbook:${chain}.${side}.${market}`, update)
-
-  //  io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
-  //})
+    io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
+  })
 }
 
 main()

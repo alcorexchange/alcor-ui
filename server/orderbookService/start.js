@@ -78,7 +78,16 @@ async function updateOrders(side, chain, market_id) {
     }
   })
 
+  orderbook.forEach((row, key) => {
+    if (!orders.has(key)) {
+      row[1] = 0
+      row[2] = 0
+      update.push(row)
+    }
+  })
+
   await setOrderbook(chain, side, market_id, orders)
+
   if (update.length == 0) return
 
   const push = JSON.stringify({ key: `${chain}_${side}_${market_id}`, update })
@@ -141,7 +150,7 @@ export async function main() {
   await publisher.connect()
   await subscriber.connect()
 
-  initialUpdate()
+  //initialUpdate()
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
