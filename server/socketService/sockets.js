@@ -1,5 +1,4 @@
 import { Match } from '../models'
-import { getOrderbook } from '../orderbookService/index'
 
 export const resolutions = {
   1: 1 * 60,
@@ -13,7 +12,7 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export function subscribe(io, socket) {
+export function subscribe(io, socket, client) {
   socket.on('subscribe', async ({ room, params }) => {
     if (room == 'deals') {
       socket.join(`deals:${params.chain}.${params.market}`)
@@ -45,9 +44,11 @@ export function subscribe(io, socket) {
     if (room == 'orderbook') {
       const { chain, side, market } = params
 
-      const orderbook = await getOrderbook(chain, side, market)
-      socket.emit('new_deals', orderbook)
+      const data = await client.get(`orderbook_${chain}_${side}_${market}`)
+      const entries = JSON.parse(data || [])
+      const orderbook = Object.values(Object.fromEntries(entries))
 
+      socket.emit(`orderbook_${side}`, orderbook)
       socket.join(`orderbook:${chain}.${side}.${market}`)
     }
   })
