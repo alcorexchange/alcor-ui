@@ -74,7 +74,7 @@ export const actions = {
       commit('setDeals', state.deals.slice(0, 100))
     })
 
-    this.$socket.on('connect', () => {
+    this.$socket.io.on('reconnect', () => {
       if (state.id) dispatch('startStream', state.id)
     })
   },
@@ -87,6 +87,8 @@ export const actions = {
     this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
+
+    this.$socket.emit('unsubscribe', { room: 'orderbook', params: { chain: rootState.network.name, market } })
   },
 
   startStream({ state, rootState, commit, dispatch }, market) {
@@ -94,6 +96,9 @@ export const actions = {
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
+
+    this.$socket.emit('subscribe', { room: 'orderbook', params: { chain: rootState.network.name, market, side: 'buy' } })
+    this.$socket.emit('subscribe', { room: 'orderbook', params: { chain: rootState.network.name, market, side: 'sell' } })
 
     commit('setStreaming', true)
   },
