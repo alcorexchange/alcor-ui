@@ -14,7 +14,8 @@ const providers = {
 export function startUpdaters() {
   if (process.env.NETWORK) {
     //updater('wax', app, 'node', ['markets', 'pools'])
-    updater(process.env.NETWORK, 'node', ['pools', 'markets'])
+    //updater(process.env.NETWORK, 'node', ['pools', 'markets'])
+    updater(process.env.NETWORK, 'node', ['markets'])
     //updater(process.env.NETWORK, app, 'node', ['pools'])
   } else {
     updater('eos', 'node', ['markets', 'pools'])

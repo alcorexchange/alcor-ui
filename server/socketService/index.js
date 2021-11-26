@@ -59,6 +59,7 @@ async function main() {
     io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
   })
 
+  // TODO Lagacy rm it
   const timeout = {}
   client.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
@@ -75,6 +76,16 @@ async function main() {
         io.to(`orders:${chain}.${market}`).emit('update_asks')
       }
     }, 400)
+  })
+
+  client.subscribe('orderbook_update', msg => {
+    const { key, update } = JSON.parse(msg)
+    const [chain, side, market] = key.split('_')
+
+    // FIXME Multiple times on WS cluster
+    console.log('push!', `orderbook:${chain}.${side}.${market}`, update)
+
+    io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
   })
 }
 
