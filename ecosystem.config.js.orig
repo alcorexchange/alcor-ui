@@ -48,7 +48,7 @@ module.exports = {
     },
     {
       name: 'Alcor-orderbook-service',
-      script: './server/orderbookService/index.js',
+      script: './server/orderbookService/start.js',
       node_args: '-r esm'
     }
   ]

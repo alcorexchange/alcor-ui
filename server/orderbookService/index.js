@@ -132,7 +132,7 @@ async function initialUpdate() {
   }
 }
 
-async function main() {
+export async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
 
@@ -155,5 +155,3 @@ async function main() {
     }
   })
 }
-
-main()
