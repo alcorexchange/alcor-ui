@@ -11,10 +11,10 @@
     .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class="{ 'pl-0': ask.myOrder }"
+      :class="{ 'pl-0': isMyOrder(ask) }"
     )
       span
-        i.el-icon-caret-right(v-if='ask.myOrder')
+        i.el-icon-caret-right(v-if='isMyOrder(ask)')
         | {{ ask[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
       span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
@@ -46,10 +46,10 @@
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class="{ 'pl-0': bid.myOrder }"
+      :class="{ 'pl-0': isMyOrder(bid) }"
     )
       span
-        i.el-icon-caret-right(v-if='bid.myOrder')
+        i.el-icon-caret-right(v-if='isMyOrder(bid)')
         | {{ bid[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
 
@@ -81,7 +81,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['network', 'user']),
+    ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
     ...mapGetters(['user']),
@@ -96,6 +96,14 @@ export default {
   },
 
   methods: {
+    isMyOrder(ask) {
+      for (const o of this.userOrders.filter(o => o.market_id == this.id)) {
+        if (ask[0] == o.unit_price) return true
+      }
+
+      return false
+    },
+
     setBid(ask) {
       const price = this.$options.filters
         .humanPrice(ask[0])
