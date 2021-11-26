@@ -1,2 +1,2 @@
-import { start } from './index'
-start()
+import { main } from './index'
+main()
