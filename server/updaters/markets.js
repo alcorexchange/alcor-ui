@@ -54,7 +54,6 @@ export async function newMatch(match, network) {
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
     const { market_id } = 'data' in data ? data.data : data
-    if (!market_id) return
     redisClient.publish('market_action', `${network.name}_${market_id}_${name}`)
   }
 }

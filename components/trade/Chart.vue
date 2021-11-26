@@ -51,7 +51,7 @@ export default {
       this.onRealtimeCallback(candle)
     })
 
-    this.$socket.on('connect', (candle) => {
+    this.$socket.io.on('reconnect', () => {
       this.reset()
     })
   },
