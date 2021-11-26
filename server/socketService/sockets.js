@@ -1,4 +1,5 @@
 import { Match } from '../models'
+import { getOrderbook } from '../orderbookService/index'
 
 export const resolutions = {
   1: 1 * 60,
@@ -40,6 +41,15 @@ export function subscribe(io, socket) {
     if (room == 'account') {
       socket.join(`account:${params.chain}.${params.name}`)
     }
+
+    if (room == 'orderbook') {
+      const { chain, side, market } = params
+
+      const orderbook = await getOrderbook(chain, side, market)
+      socket.emit('new_deals', orderbook)
+
+      socket.join(`orderbook:${chain}.${side}.${market}`)
+    }
   })
 }
 
@@ -65,6 +75,13 @@ export function unsubscribe(io, socket) {
 
     if (room == 'account') {
       socket.leave(`account:${params.chain}.${params.name}`)
+    }
+
+    if (room == 'orderbook') {
+      const { chain, market } = params
+
+      socket.leave(`orderbook:${chain}.buy.${market}`)
+      socket.leave(`orderbook:${chain}.sell.${market}`)
     }
   })
 }

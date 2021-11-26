@@ -3,15 +3,16 @@ require('dotenv').config()
 import lodash from 'lodash'
 import fetch from 'node-fetch'
 import mongoose from 'mongoose'
+import { createClient } from 'redis'
 import { JsonRpc } from '../../assets/libs/eosjs-jsonrpc'
 
+import { Market } from '../models'
 import { networks } from '../../config'
-import { Match, Bar } from '../models'
 import { littleEndianToDesimal, parseAsset } from '../../utils'
 
-const redis = require('redis')
-const client = redis.createClient()
-client.connect()
+const client = createClient()
+const publisher = client.duplicate()
+const subscriber = client.duplicate()
 
 async function getOrderbook(chain, side, market) {
   const entries = await client.get(`orderbook_${chain}_${side}_${market}`)
@@ -42,6 +43,27 @@ export function mergeSamePriceOrders(ords) {
   return orders
 }
 
+const throttles = {}
+function throttledUpdate(side, chain, market) {
+  if (`${side}_${chain}_${market}` in throttles) {
+    // Second call in throttle time
+    throttles[`${side}_${chain}_${market}`] = true
+    return
+  }
+
+  //console.log('pass call for', side, chain, market)
+  updateOrders(side, chain, market)
+  throttles[`${side}_${chain}_${market}`] = false
+
+  setTimeout(function() {
+    if (throttles[`${side}_${chain}_${market}`] === true) {
+      updateOrders(side, chain, market)
+    }
+
+    delete throttles[`${side}_${chain}_${market}`]
+  }, 500)
+}
+
 async function updateOrders(side, chain, market_id) {
   const orderbook = await getOrderbook(chain, side, market_id)
   const _orders = await getOrders({ side, chain, market_id })
@@ -57,22 +79,34 @@ async function updateOrders(side, chain, market_id) {
   })
 
   await setOrderbook(chain, side, market_id, orders)
+  if (update.length == 0) return
 
-  // TODO Пушит это пабсабом в прокси
-  console.log('update', side, update)
+  const push = JSON.stringify({ key: `${chain}_${side}_${market_id}`, update })
+  publisher.publish('orderbook_update', push)
+}
+
+const rpcs = {}
+function getRpc(network) {
+  if (network.name in rpcs) return rpcs[network.name]
+
+  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
+  nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+  const rpc = new JsonRpc(nodes, { fetch })
+  rpcs[network.name] = rpc
+
+  return rpc
 }
 
 async function getOrders({ chain, market_id, side }) {
   const network = networks[chain]
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
-  const rpc = new JsonRpc(nodes, { fetch })
+  const rpc = getRpc(network)
 
   const { rows } = await rpc.get_table_rows({
     code: network.contract,
     scope: market_id,
     table: `${side}order`,
-    //limit: 1000,
-    limit: 100,
+    limit: 1000,
     key_type: 'i128',
     index_position: 2
   })
@@ -86,74 +120,41 @@ async function getOrders({ chain, market_id, side }) {
   })
 }
 
-//async function main() {
-//  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-//  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
-//
-//  io.on('connection', socket => {
-//    console.log(socket.client.conn.server.clientsCount + 'users connected')
-//
-//    subscribe(io, socket)
-//    unsubscribe(io, socket)
-//  })
-//
-//  Match.watch().on('change', ({ fullDocument: match, operationType }) => {
-//    if (operationType != 'insert') return
-//
-//    pushDeal(io, match)
-//    pushAccountNewMatch(io, match)
-//  })
-//
-//  Bar.watch().on('change', async (op) => {
-//    let bar
-//
-//    if (op.operationType == 'update') {
-//      const { documentKey: { _id } } = op
-//      bar = await Bar.findById(_id)
-//    } else if (op.operationType == 'insert') {
-//      bar = op.fullDocument
-//    }
-//
-//    const { chain, market, timeframe, time, close, open, high, low, volume } = bar
-//    const tick = { close, open, high, low, volume, time: new Date(time).getTime() }
-//    io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
-//  })
-//
-//  client.subscribe('market_action', message => {
-//    const [chain, market, action] = message.split('_')
-//
-//    if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
-//      updateBuyOrders(chain, market)
-//    }
-//
-//    if (['sellreceipt', 'cancelsell', 'buymatch'].includes(action)) {
-//      io.to(`orders:${chain}.${market}`).emit('update_asks')
-//    }
-//  })
-//
-//  const timeout = {}
-//  client.subscribe('market_action', message => {
-//    const [chain, market, action] = message.split('_')
-//
-//    if (timeout[message]) {
-//      clearTimeout(timeout[message])
-//    }
-//    timeout[message] = setTimeout(() => {
-//      if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
-//        io.to(`orders:${chain}.${market}`).emit('update_bids')
-//      }
-//
-//      if (['sellreceipt', 'cancelsell', 'buymatch'].includes(action)) {
-//        io.to(`orders:${chain}.${market}`).emit('update_asks')
-//      }
-//    }, 500)
-//  })
-//}
+async function initialUpdate() {
+  console.log('Start markets orderbooks update..')
 
-//main()
-setInterval(() => updateOrders('buy', 'wax', 104), 5000)
-setInterval(() => updateOrders('sell', 'wax', 104), 5000)
+  const markets = await Market.find()
+  for (const { chain, id: market } of markets) {
+    updateOrders('buy', chain, market)
+    updateOrders('sell', chain, market)
 
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
+  }
+}
 
-// TODO Тут слушаем на новые экшены и обновляем ордербук в редис
-// TODO Функция которая при запуске сразу обновляет все маркеты
+async function main() {
+  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
+  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+
+  // Redis
+  await client.connect()
+  await publisher.connect()
+  await subscriber.connect()
+
+  initialUpdate()
+
+  subscriber.subscribe('market_action', message => {
+    const [chain, market, action] = message.split('_')
+    //console.log(message)
+
+    if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
+      throttledUpdate('buy', chain, market)
+    }
+
+    if (['sellreceipt', 'cancelsell', 'buymatch'].includes(action)) {
+      throttledUpdate('sell', chain, market)
+    }
+  })
+}
+
+main()

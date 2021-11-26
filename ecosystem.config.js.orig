@@ -45,6 +45,11 @@ module.exports = {
       env: {
 
       }
+    },
+    {
+      name: 'Alcor-orderbook-service',
+      script: './server/orderbookService/index.js',
+      node_args: '-r esm'
     }
   ]
 }
