@@ -85,7 +85,7 @@ async function main() {
     // FIXME
     console.log('push!', `orderbook:${chain}.${side}.${market}`, update)
 
-    io.to(`orderbook:${chain}.${side}.${market}`).emit(update)
+    io.to(`orderbook:${chain}.${side}.${market}`).emit('orderbook', update)
   })
 }
 
