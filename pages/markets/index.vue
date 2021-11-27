@@ -2,7 +2,7 @@
 .markets
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
-      v-model='base_token',
+      v-model='markets_active_tab',
       size='small'
     ).mr-3
       el-radio-button(label='all')
@@ -26,7 +26,7 @@
         clearable
       )
 
-    el-switch(v-if="base_token == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
+    el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
     .ml-auto
       nuxt-link(to="new_market")
@@ -66,7 +66,7 @@
         :sort-orders='["descending", null]'
       )
         template(slot-scope='scope')
-          .text-success(v-if="showVolumeInUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
+          .text-success(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
           .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
       el-table-column(
         :label='`24H Vol.`',
@@ -78,7 +78,7 @@
         v-if='!isMobile'
       )
         template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
+          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
           span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
@@ -105,7 +105,7 @@
         :sort-orders='["descending", null]',
       )
         template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && base_token == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
+          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
           span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
@@ -153,8 +153,6 @@ export default {
       search: '',
 
       to_assets: [],
-      base_token: 'all',
-
       select: {
         from: '',
         to: ''
@@ -168,6 +166,16 @@ export default {
     ...mapState(['network']),
     ...mapGetters(['user']),
     ...mapState(['markets']),
+
+    markets_active_tab: {
+      get() {
+        return this.$store.state.market.markets_active_tab || this.network.baseToken.symbol
+      },
+
+      set(value) {
+        this.$store.commit('market/setMarketActiveTab', value)
+      }
+    },
 
     showVolumeInUSD: {
       get() {
@@ -183,13 +191,13 @@ export default {
       if (!this.markets) return []
 
       let markets = []
-      if (this.base_token == 'all') {
+      if (this.markets_active_tab == 'all') {
         markets = this.markets
-      } else if (this.base_token == this.network.baseToken.symbol) {
+      } else if (this.markets_active_tab == this.network.baseToken.symbol) {
         markets = this.markets.filter(
           (i) => i.base_token.contract == this.network.baseToken.contract
         )
-      } else if (this.base_token == 'USDT') {
+      } else if (this.markets_active_tab == 'USDT') {
         markets = this.markets.filter(
           (i) => i.base_token.contract == 'tethertether'
         )
@@ -219,7 +227,9 @@ export default {
   mounted() {
     const { tab, search } = this.$route.query
 
-    tab ? this.base_token = tab : this.base_token = this.network.baseToken.symbol
+    if (tab) {
+      this.markets_active_tab = tab
+    }
 
     if (search) this.search = search
   },

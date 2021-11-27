@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 7002
 
 const redis = require('redis')
 const client = redis.createClient()
-client.connect()
+const subscriber = client.duplicate()
 
 const httpServer = createServer()
 const io = new Server(httpServer, {
@@ -29,11 +29,13 @@ httpServer.listen(PORT, function () {
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+  await client.connect()
+  await subscriber.connect()
 
   io.on('connection', socket => {
     console.log(socket.client.conn.server.clientsCount + 'users connected')
 
-    subscribe(io, socket)
+    subscribe(io, socket, client)
     unsubscribe(io, socket)
   })
 
@@ -61,7 +63,7 @@ async function main() {
 
   // TODO Lagacy rm it
   const timeout = {}
-  client.subscribe('market_action', message => {
+  subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
 
     if (timeout[message]) {
@@ -78,12 +80,9 @@ async function main() {
     }, 400)
   })
 
-  client.subscribe('orderbook_update', msg => {
+  subscriber.subscribe('orderbook_update', msg => {
     const { key, update } = JSON.parse(msg)
     const [chain, side, market] = key.split('_')
-
-    // FIXME Multiple times on WS cluster
-    console.log('push!', `orderbook:${chain}.${side}.${market}`, update)
 
     io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
   })
