@@ -1,11 +1,9 @@
-import _ from "lodash"
+import cloneDeep from 'lodash/cloneDeep'
 
 import { captureException } from '@sentry/browser'
-// import { asset } from 'eos-common'
 import { Big } from 'big.js'
 
 import config from '~/config'
-import { mergeSamePriceOrders } from '~/utils'
 
 function sortByPrice(a, b) {
   if (a[0] > b[0]) return -1
@@ -94,7 +92,7 @@ export const actions = {
       if (state.bids.length == 0) {
         commit('setBids', bids.sort(sortByPrice))
       } else {
-        const old_bids = _.cloneDeep(state.bids)
+        const old_bids = cloneDeep(state.bids)
 
         bids.map(b => {
           const old = old_bids.findIndex(old_bid => old_bid[0] == b[0])
@@ -118,7 +116,7 @@ export const actions = {
       if (state.asks.length == 0) {
         commit('setAsks', asks.sort(sortByPrice))
       } else {
-        const old_asks = _.cloneDeep(state.asks)
+        const old_asks = cloneDeep(state.asks)
 
         asks.map(b => {
           const old = old_asks.findIndex(old_ask => old_ask[0] == b[0])
