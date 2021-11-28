@@ -329,7 +329,6 @@ export const tradeMixin = {
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('loadOrders', this.$store.state.market.id)
-          this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
         this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
@@ -368,7 +367,6 @@ export const tradeMixin = {
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('loadOrders', this.$store.state.market.id)
-          this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
         this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })

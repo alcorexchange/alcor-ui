@@ -137,7 +137,6 @@ export const actions = {
   },
 
   update({ dispatch }) {
-    dispatch('fetchOrders')
   },
 
   unsubscribe({ state, rootState, commit, dispatch }, market) {
@@ -393,7 +392,6 @@ export const actions = {
           setTimeout(() => {
             dispatch('loadUserBalances', null, { root: true })
             dispatch('loadOrders', state.id, { root: true })
-            dispatch('fetchOrders')
           }, 1000)
         })
 
@@ -430,7 +428,6 @@ export const actions = {
           setTimeout(() => {
             dispatch('loadUserBalances', null, { root: true })
             dispatch('loadOrders', state.id, { root: true })
-            dispatch('fetchOrders')
           }, 1000)
         })
 
