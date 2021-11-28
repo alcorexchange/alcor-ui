@@ -1,4 +1,5 @@
 import axios from 'axios'
+import debounce from 'lodash/debounce'
 
 import { make256key, nameToUint64 } from '~/utils'
 
@@ -52,6 +53,12 @@ export const mutations = {
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
 
+// Move to notifications module (nee create it)
+const playOrderMatchSound = debounce(() => {
+  const audio = new Audio(require('~/assets/sounds/match.mp3'))
+  audio.play()
+}, 50)
+
 export const actions = {
   init({ dispatch, state, getters }) {
     dispatch('fetchTokens')
@@ -85,6 +92,9 @@ export const actions = {
           type: 'success'
         })
       }
+
+      // Play sound
+      playOrderMatchSound()
     })
   },
 
