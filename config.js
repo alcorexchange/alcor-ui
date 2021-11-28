@@ -35,7 +35,11 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [
-      'https://eos.greymass.com'
+      'https://eos.greymass.com',
+      'https://mainnet.genereos.io',
+      'https://mainnet.eosamsterdam.net',
+      'https://api.eosn.io',
+      'https://eos.dfuse.eosnation.io'
     ],
 
     otc: {
@@ -149,7 +153,14 @@ const networks = {
     client_nodes: [
       'https://proton.greymass.com',
       'https://proton.pink.gg',
-      'https://proton.eu.eosamsterdam.net'
+      'https://proton.eu.eosamsterdam.net',
+      'http://api.protonnz.com',
+      'http://api.proton.quantumblok.com',
+      'http://proton.eoscafeblock.com',
+      'http://proton.protonuk.io',
+      'http://api.proton.eossweden.org',
+      'http://proton.genereos.io',
+      'http://api.eostribe.io'
     ],
 
     otc: {
