@@ -112,7 +112,7 @@
               el-input(
                 v-if="side == 'buy'"
                 type="number"
-                v-model="amountBuy"
+                v-model="totalBuy"
                 placeholder="0"
                 clearable
               )
