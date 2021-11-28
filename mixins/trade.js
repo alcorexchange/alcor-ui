@@ -54,15 +54,20 @@ export const trade = {
     },
 
     getSpreadNum() {
-      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const latestAsk = this.sorted_asks[0]
       const latestBid = this.sorted_bids[0]
-      const spreadDec = latestAsk?.unit_price - latestBid?.unit_price
+
+      if (!latestAsk || !latestBid) return 0
+
+      const spreadDec = latestAsk[0] - latestBid[0]
       return spreadDec
     },
 
     getSpreadPercent() {
-      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
-      const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
+      const latestAsk = this.sorted_asks[0]
+      if (!latestAsk) return 0
+
+      const spreadDec = this.getSpreadNum / latestAsk[0] * 100
       const spread = Math.round(spreadDec * 100) / 100
       return spread
     }
@@ -124,7 +129,7 @@ export const trade = {
         if (actionCancel) return
       }
 
-      let res = await this.sendFetchBid(trade, bid)
+      const res = await this.sendFetchBid(trade, bid)
 
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
@@ -134,7 +139,6 @@ export const trade = {
     }
   }
 }
-
 
 // TODO This whole module need refactor
 
@@ -304,7 +308,6 @@ export const tradeMixin = {
         this.amount = parseFloat(0).toFixed(this.quote_token.symbol.precision)
         this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       }
-
 
       const actions = [
         {

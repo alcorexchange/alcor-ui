@@ -52,12 +52,16 @@
     .row.mt-3
       .col
         .market-cards
-          card.item(v-for="order in filteredOrders" :order="order")
+          card.item(
+            v-for="(order, i) in filteredOrders"
+            :order="order"
+            :key="order.id + i"
+          )
 
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import Card from '~/components/nft_markets/Card'
 import NewOrder from '~/components/nft_markets/NewOrder'
 

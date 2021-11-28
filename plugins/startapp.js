@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import { uuidv4 } from '~/utils'
 
 export default ({ app: { store, $axios } }, inject) => {

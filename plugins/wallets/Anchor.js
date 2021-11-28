@@ -11,7 +11,6 @@ class WalletBase {
   logout() {}
 }
 
-
 export default class AnchoWallet extends WalletBase {
   link = null
   session = null
