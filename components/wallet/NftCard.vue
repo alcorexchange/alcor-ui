@@ -37,11 +37,11 @@
 import AlcorButton from '@/components/AlcorButton.vue'
 export default {
   name: 'NFTCard',
-  props: ['author', 'category', 'mdata', 'idata', 'id'],
   components: {
     // AlcorLink,
     AlcorButton
-  }
+  },
+  props: ['author', 'category', 'mdata', 'idata', 'id']
 }
 </script>
 

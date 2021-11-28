@@ -1,10 +1,15 @@
-import { captureException } from '@sentry/browser'
+import cloneDeep from 'lodash/cloneDeep'
 
-// import { asset } from 'eos-common'
-import Big from 'big.js'
+import { captureException } from '@sentry/browser'
+import { Big } from 'big.js'
 
 import config from '~/config'
-import { mergeSamePriceOrders } from '~/utils'
+
+function sortByPrice(a, b) {
+  if (a[0] > b[0]) return -1
+  if (a[0] < b[0]) return 1
+  return 0
+}
 
 export const state = () => ({
   id: null,
@@ -34,7 +39,9 @@ export const state = () => ({
   percent_buy: 0,
   percent_sell: 0,
   total_buy: null,
-  total_sell: null
+  total_sell: null,
+
+  markets_active_tab: null
 })
 
 export const mutations = {
@@ -44,6 +51,7 @@ export const mutations = {
   setStreaming: (state, streaming) => state.streaming = streaming,
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
+  setMarketActiveTab: (state, value) => state.markets_active_tab = value,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
@@ -69,26 +77,77 @@ export const mutations = {
 export const actions = {
   init({ state, commit, dispatch }) {
     this.$socket.on('new_deals', new_deals => {
-      // TODO Refactor it
       state.deals.unshift(...new_deals)
-      commit('setDeals', state.deals.slice(0, 100))
+      commit('setDeals', state.deals.slice(0, 200))
     })
 
     this.$socket.io.on('reconnect', () => {
+      commit('setBids', [])
+      commit('setAsks', [])
+
       if (state.id) dispatch('startStream', state.id)
+    })
+
+    this.$socket.on('orderbook_buy', bids => {
+      if (state.bids.length == 0) {
+        commit('setBids', bids.sort(sortByPrice))
+      } else {
+        const old_bids = cloneDeep(state.bids)
+
+        bids.map(b => {
+          const old = old_bids.findIndex(old_bid => old_bid[0] == b[0])
+
+          if (old != -1) {
+            if (b[1] == 0) {
+              old_bids.splice(old, 1)
+            } else {
+              old_bids[old] = b
+            }
+          } else if (b[1] !== 0) {
+            old_bids.push(b)
+          }
+        })
+
+        commit('setBids', old_bids)
+      }
+    })
+
+    this.$socket.on('orderbook_sell', asks => {
+      if (state.asks.length == 0) {
+        commit('setAsks', asks.sort(sortByPrice))
+      } else {
+        const old_asks = cloneDeep(state.asks)
+
+        asks.map(b => {
+          const old = old_asks.findIndex(old_ask => old_ask[0] == b[0])
+          if (old != -1) {
+            if (b[1] == 0) {
+              old_asks.splice(old, 1)
+            } else {
+              old_asks[old] = b
+            }
+          } else if (b[1] !== 0) {
+            old_asks.push(b)
+          }
+
+          commit('setAsks', old_asks)
+        })
+      }
     })
   },
 
   update({ dispatch }) {
-    dispatch('fetchOrders')
   },
 
   unsubscribe({ state, rootState, commit, dispatch }, market) {
+    this.$socket.emit('unsubscribe', { room: 'orderbook', params: { chain: rootState.network.name, market } })
+
     this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('unsubscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
 
-    this.$socket.emit('unsubscribe', { room: 'orderbook', params: { chain: rootState.network.name, market } })
+    commit('setBids', [])
+    commit('setAsks', [])
   },
 
   startStream({ state, rootState, commit, dispatch }, market) {
@@ -129,17 +188,6 @@ export const actions = {
     dispatch('api/getBuyOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true }).then(orders => commit('setBids', orders))
   },
 
-  async fetchOrders({ state, commit, dispatch }) {
-    await Promise.all([
-      // Fetching orders by price
-      dispatch('api/getBuyOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true }),
-      dispatch('api/getSellOrders', { market_id: state.id, key_type: 'i128', index_position: 2 }, { root: true })
-    ]).then(([buyOrders, sellOrders]) => {
-      commit('setBids', buyOrders)
-      commit('setAsks', sellOrders)
-    }).catch(e => console.log(e))
-  },
-
   async fetchMarket({ state, commit, rootGetters, dispatch }) {
     const { data: market } = await this.$axios.get(`/markets/${state.id}`)
 
@@ -160,7 +208,7 @@ export const actions = {
     commit('SET_TOTAL_BUY', null)
     commit('SET_TOTAL_SELL', null)
   },
-  async changePrice({ commit, dispatch }, price) {
+  changePrice({ commit, dispatch }, price) {
     commit('SET_PRICE', price)
     dispatch('calcAndSetTotal')
   },
@@ -216,7 +264,7 @@ export const actions = {
     const total = price.times(amount).round(bp, 0)
     return total.toString()
   },
-  async setPrecisionPrice({ state, commit, dispatch }, inPrice = null) {
+  setPrecisionPrice({ state, commit, dispatch }, inPrice = null) {
     const price = inPrice !== null ? inPrice : state.price_bid
     const precision = config.PRICE_DIGITS
     const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
@@ -344,7 +392,6 @@ export const actions = {
           setTimeout(() => {
             dispatch('loadUserBalances', null, { root: true })
             dispatch('loadOrders', state.id, { root: true })
-            dispatch('fetchOrders')
           }, 1000)
         })
 
@@ -381,7 +428,6 @@ export const actions = {
           setTimeout(() => {
             dispatch('loadUserBalances', null, { root: true })
             dispatch('loadOrders', state.id, { root: true })
-            dispatch('fetchOrders')
           }, 1000)
         })
 
@@ -427,19 +473,11 @@ export const getters = {
   },
 
   sorted_asks(state, getters, rootState) {
-    if (rootState.user) {
-      state.asks.filter(o => o.account == rootState.user.name).forEach(o => o.myOrder = true)
-    }
-
-    return mergeSamePriceOrders(state.asks)
+    return state.asks.sort(sortByPrice).reverse()
   },
 
   sorted_bids(state, getters, rootState) {
-    if (rootState.user) {
-      state.bids.filter(o => o.account == rootState.user.name).forEach(o => o.myOrder = true)
-    }
-
-    return mergeSamePriceOrders(state.bids)
+    return state.bids.sort(sortByPrice)
   },
 
   baseBalance(state, getters, rootState) {

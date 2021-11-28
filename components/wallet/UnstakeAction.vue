@@ -53,7 +53,7 @@ export default {
   computed: {
     ...mapState(['user', 'account', 'network']),
     ...mapGetters({
-      systemBalance: 'systemBalance',
+      systemBalance: 'systemBalance'
     })
   },
 
@@ -91,7 +91,7 @@ export default {
             from: this.user.name,
             receiver: this.user.name,
             unstake_net_quantity: net,
-            unstake_cpu_quantity: cpu,
+            unstake_cpu_quantity: cpu
           }
         }])
         this.$store.dispatch('loadAccountData')

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['spacer', { high }]"></div>
+  <div :class="['spacer', { high }]" />
 </template>
 
 <script>

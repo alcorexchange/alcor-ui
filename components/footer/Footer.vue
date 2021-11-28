@@ -65,7 +65,6 @@ footer(:class="{isMobile}").alcor-inner
   //-         b
   //-           a(href="https://avral.pro" target="_blank")  #Avral
 
-
   //-   .row.mt-3
   //-     .col.text-mutted
   //-       small

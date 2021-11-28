@@ -1,7 +1,7 @@
 <template lang="pug">
   .nft-wallet
     small.text-muted(v-if="nfts.length == 0") There is no NFT's yet..
-    el-card(v-for="nft in nfts").mb-2
+    el-card(v-for="(nft, i) in nfts" :key="nft.id + i").mb-2
       .float-right
         el-button(size="mini" type="primary" @click="send(nft)").mb-1 Send
           i.el-icon-s-promotion.ml-2
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 import { prepareNFT } from '~/utils'
 
@@ -81,7 +81,6 @@ export default {
         try {
           await this.$store.dispatch('chain/sendTransaction', actions)
 
-          this.$store.dispatch('market/fetchOrders')
           this.$notify({
             title: 'Send NFT',
             message: 'NFT sent successfully!',

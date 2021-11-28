@@ -11,13 +11,13 @@
     .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class="{ 'pl-0': ask.myOrder }"
+      :class="{ 'pl-0': isMyOrder(ask) }"
     )
       span
-        i.el-icon-caret-right(v-if='ask.myOrder')
-        | {{ ask.unit_price | humanPrice }}
-      span(:class='isMobile ? "text-right" : "text-center"') {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
-      span(v-if='!isMobile') {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
+        i.el-icon-caret-right(v-if='isMyOrder(ask)')
+        | {{ ask[0] | humanPrice }}
+      span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
+      span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
@@ -46,14 +46,14 @@
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class="{ 'pl-0': bid.myOrder }"
+      :class="{ 'pl-0': isMyOrder(bid) }"
     )
       span
-        i.el-icon-caret-right(v-if='bid.myOrder')
-        | {{ bid.unit_price | humanPrice }}
-      span(:class='isMobile ? "text-right" : "text-center"') {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
+        i.el-icon-caret-right(v-if='isMyOrder(bid)')
+        | {{ bid[0] | humanPrice }}
+      span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
 
-      span(v-if='!isMobile') {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
+      span(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
@@ -62,6 +62,8 @@
 </template>
 
 <script>
+//import { find } from 'lodash/fp'
+
 import { mapGetters, mapState } from 'vuex'
 import { trade } from '~/mixins/trade'
 
@@ -70,13 +72,16 @@ export default {
 
   data() {
     return {
+      bids: [],
+      asks: [],
+
       asksL: 0,
       loading: false
     }
   },
 
   computed: {
-    ...mapState(['network', 'user']),
+    ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
     ...mapGetters(['user']),
@@ -90,61 +95,21 @@ export default {
     }
   },
 
-  watch: {
-    id(to, from) {
-      this.fetch()
-    },
-
-    sorted_asks() {
-      // Scroll asks after update
-      if (this.sorted_asks.length != this.asksL) {
-        this.scrollBook()
-        this.asksL = this.sorted_asks.length
-      }
-    }
-  },
-
-  mounted() {
-    this.fetch()
-    setTimeout(() => this.scrollBook(), 1000)
-
-    const timeout = {}
-    this.$socket.on('update_asks', () => {
-      if (timeout.update_asks) clearTimeout(timeout.update_asks)
-      timeout.update_asks = setTimeout(() => this.$store.dispatch('market/fetchAsks'), 400)
-    })
-
-    this.$socket.on('update_bids', () => {
-      if (timeout.update_bids) clearTimeout(timeout.update_bids)
-      timeout.update_bids = setTimeout(() => this.$store.dispatch('market/fetchBids'), 400)
-    })
-  },
-
   methods: {
-    async fetch() {
-      try {
-        await this.$store.dispatch('market/fetchOrders')
-      } catch (e) {
-        this.$notify({ title: 'Fetch orders', message: e, type: 'error' })
-      } finally {
-        this.loading = false
+    isMyOrder(ask) {
+      for (const o of this.userOrders.filter(o => o.market_id == this.id)) {
+        if (ask[0] == o.unit_price) return true
       }
-    },
 
-    scrollBook() {
-      const asks = this.$refs.asks
-      setTimeout(() => {
-        if (!asks) return
-        asks.scrollTop = asks.scrollHeight
-      }, 100)
+      return false
     },
 
     setBid(ask) {
       const price = this.$options.filters
-        .humanPrice(ask.unit_price)
+        .humanPrice(ask[0])
         .replaceAll(',', '')
 
-      const amount = this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', '')
+      const amount = this.$options.filters.humanFloat(ask[1], this.quote_token.symbol.precision).replaceAll(',', '')
 
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', amount)
@@ -157,10 +122,10 @@ export default {
 
     setAsk(bid) {
       const price = this.$options.filters
-        .humanPrice(bid.unit_price)
+        .humanPrice(bid[0])
         .replaceAll(',', '')
 
-      const amount = this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', '')
+      const amount = this.$options.filters.humanFloat(bid[2], this.quote_token.symbol.precision).replaceAll(',', '')
 
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', amount)
@@ -271,6 +236,7 @@ export default {
 
 .orders-list.asks {
   max-height: 220px;
+  flex-direction: column-reverse;
 }
 
 .orders-list.bids {

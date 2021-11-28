@@ -54,15 +54,20 @@ export const trade = {
     },
 
     getSpreadNum() {
-      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
+      const latestAsk = this.sorted_asks[0]
       const latestBid = this.sorted_bids[0]
-      const spreadDec = latestAsk?.unit_price - latestBid?.unit_price
+
+      if (!latestAsk || !latestBid) return 0
+
+      const spreadDec = latestAsk[0] - latestBid[0]
       return spreadDec
     },
 
     getSpreadPercent() {
-      const latestAsk = this.sorted_asks[this.sorted_asks.length - 1]
-      const spreadDec = this.getSpreadNum / latestAsk?.unit_price * 100
+      const latestAsk = this.sorted_asks[0]
+      if (!latestAsk) return 0
+
+      const spreadDec = this.getSpreadNum / latestAsk[0] * 100
       const spread = Math.round(spreadDec * 100) / 100
       return spread
     }
@@ -124,7 +129,7 @@ export const trade = {
         if (actionCancel) return
       }
 
-      let res = await this.sendFetchBid(trade, bid)
+      const res = await this.sendFetchBid(trade, bid)
 
       if (res.err) {
         this.$notify({ title: 'Place order', message: res.desc, type: 'error' })
@@ -134,7 +139,6 @@ export const trade = {
     }
   }
 }
-
 
 // TODO This whole module need refactor
 
@@ -305,7 +309,6 @@ export const tradeMixin = {
         this.total = parseFloat(this.total).toFixed(this.base_token.symbol.precision)
       }
 
-
       const actions = [
         {
           account: this.base_token.contract,
@@ -326,7 +329,6 @@ export const tradeMixin = {
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('loadOrders', this.$store.state.market.id)
-          this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
         this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
@@ -365,7 +367,6 @@ export const tradeMixin = {
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('loadOrders', this.$store.state.market.id)
-          this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
         this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })

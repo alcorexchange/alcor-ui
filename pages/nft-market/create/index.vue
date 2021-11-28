@@ -99,8 +99,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import { prepareNFT } from '~/utils'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
@@ -227,10 +226,10 @@ export default {
 
   head() {
     return {
-      title: `Alcor NFT Market | Create you ownt NFT tokens`,
+      title: 'Alcor NFT Market | Create you ownt NFT tokens',
 
       meta: [
-        { hid: 'description', name: 'description', content: `Atomic, NFT creation form` }
+        { hid: 'description', name: 'description', content: 'Atomic, NFT creation form' }
       ]
     }
   }

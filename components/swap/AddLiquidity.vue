@@ -54,7 +54,7 @@ import { asset, number_to_asset } from 'eos-common'
 import { mapGetters, mapState } from 'vuex'
 import BigCommon from 'big-integer'
 
-import { computeForward, computeBackward, quote, calcPrice } from '~/utils/pools'
+import { quote, calcPrice } from '~/utils/pools'
 
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import SelectToken from '~/components/swap/SelectToken.vue'

@@ -72,7 +72,6 @@ export default {
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/fetchOrders')
         }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })

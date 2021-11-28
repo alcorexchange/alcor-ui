@@ -69,7 +69,6 @@ export const actions = {
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
       dispatch('loadOrders', match.market_id)
-      dispatch('loadAccountTable')
 
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
