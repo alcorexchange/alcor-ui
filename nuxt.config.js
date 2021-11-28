@@ -146,16 +146,16 @@ module.exports = {
           loader: 'eslint-loader',
           exclude: /(node_modules)/
         })
-
-        config.module.rules.push({
-          test: /\.(ogg|mp3|wav|mpe?g)$/i,
-          loader: 'file-loader',
-          options: {
-            esModule: false,
-            name: '[path][name].[ext]'
-          }
-        })
       }
+
+      config.module.rules.push({
+        test: /\.(ogg|mp3|wav|mpe?g)$/i,
+        loader: 'file-loader',
+        options: {
+          esModule: false,
+          name: '[path][name].[ext]'
+        }
+      })
 
       if (isSPA) {
         config.output.publicPath = './_nuxt/'
