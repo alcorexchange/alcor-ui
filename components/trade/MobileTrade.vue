@@ -34,7 +34,7 @@
             br
             small(
               class="text-mutted small align-self-end ml-auto cursor-pointer"
-              @click="setAmount(trade, side)"
+              @click="setAmount(side)"
             ) {{ side == 'buy' ? baseBalance : tokenBalance | commaFloat }}
               i.el-icon-wallet.ml-1
             br
