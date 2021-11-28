@@ -79,14 +79,21 @@ export const actions = {
 
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
+      const notify_options = {}
+      if (document.hidden) {
+        notify_options.duration = 0
+      }
+
       if (match.bid) {
         this._vm.$notify({
+          ...notify_options,
           title: `Order match - ${market.symbol}`,
           message: `${match.bid} ${market.base_token.symbol.name} at ${match.price}`,
           type: 'success'
         })
       } else {
         this._vm.$notify({
+          ...notify_options,
           title: `Order match - ${market.symbol}`,
           message: `${match.ask} ${market.base_token.symbol.name} at ${match.price}`,
           type: 'success'
