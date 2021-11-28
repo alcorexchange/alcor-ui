@@ -81,7 +81,7 @@ export const actions = {
 
       const notify_options = {}
       if (document.hidden) {
-        notify_options.duration = 0
+        notify_options.duration = 10000
       }
 
       if (match.bid) {
