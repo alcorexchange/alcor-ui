@@ -8,8 +8,20 @@ div.wallet
       size="small"
       clearable
     )
-    el-checkbox() Only buy orders
-    el-checkbox() Only sell orders
+    input(
+      type="checkbox"
+      v-model="onlyBuy"
+      true-value="1"
+      id="onlyBuy"
+    )
+    label(for="onlyBuy") Only buy orders
+    input(
+      type="checkbox"
+      v-model="onlySell"
+      true-value="1"
+      id="onlySell"
+    )
+    label(for="onlySell") Only sell orders
 
     .d-flex.ml-auto
       .cancel Total orders: {{ accountLimits.orders_total }}
@@ -107,7 +119,9 @@ export default {
     TokenImage
   },
   data: () => ({
-    search: ''
+    search: '',
+    onlyBuy: false,
+    onlySell: false
   }),
   computed: {
     ...mapGetters({
@@ -117,7 +131,9 @@ export default {
     ...mapState(['network', 'markets', 'accountLimits']),
 
     filledPositions() {
-      return this.pairPositions.filter(p => p.slug.includes(this.search.toLowerCase()))
+      return this.pairPositions.filter(p => {
+        return p.slug.includes(this.search.toLowerCase())
+      })
     },
 
     balances() {
