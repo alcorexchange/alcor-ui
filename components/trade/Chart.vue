@@ -6,21 +6,11 @@
 // TODO Зафиксить график при переключении
 import { mapState } from 'vuex'
 
-// const resolutions = {
-//   1: 1 * 60,
-//   5: 5 * 60,
-//   15: 15 * 60,
-//   30: 30 * 60,
-//   60: 60 * 60,
-//   240: 60 * 60 * 4,
-//   '1D': 60 * 60 * 24,
-//   '1W': 60 * 60 * 24 * 7,
-//   '1M': 60 * 60 * 24 * 30
-// }
-
 export default {
   data() {
     return {
+      isResetting: false,
+
       resolution: 240,
 
       onRealtimeCallback: () => {},
@@ -49,6 +39,11 @@ export default {
 
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
+
+      if (this.isResetting) {
+        this.onResetCacheNeededCallback()
+        this.isResetting = false
+      }
     })
 
     this.$socket.io.on('reconnect', () => {
@@ -58,10 +53,12 @@ export default {
 
   methods: {
     reset() {
+      this.isResetting = true
+
       if (this.widget && this.onResetCacheNeededCallback) {
-        this.onResetCacheNeededCallback()
         this.widget.activeChart().resetData()
         this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+
         //this.widget.activeChart().symbolExt().description = `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`
         //this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: to, resolution: this.resolution } })
       }
@@ -98,7 +95,6 @@ export default {
             onResetCacheNeededCallback
           ) => {
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
-
             this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
 
             this.onRealtimeCallback = onRealtimeCallback

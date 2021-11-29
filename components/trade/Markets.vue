@@ -1,6 +1,12 @@
 <template lang="pug">
 .markets-bar
-  .pt-2.px-2
+  el-tabs(v-model='sideMaretsTab' size="mini")
+    el-tab-pane(label='Fav' name='fav')
+    el-tab-pane(label='All' name='all')
+    el-tab-pane(:label='network.baseToken.symbol' :name='network.baseToken.symbol')
+    el-tab-pane(label='Wrapped' name='wrapped')
+
+  .px-2
     el-input(size="small" v-model="search" placeholder="Filter by token" clearable)
   el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :default-sort='{ prop: "volume24", order: "descending" }' :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
     el-table-column(label="Pair" width="120")
@@ -11,7 +17,7 @@
 
     el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]")
       template(slot-scope="scope")
-        .text-success {{ scope.row.last_price }}
+        .text-success {{ scope.row.last_price | commaFloat(5) }}
 
     el-table-column(prop="volume24" :sort-orders="['descending', 'ascending']" label="Vol 24H" align="right" sortable width="100")
       template(slot-scope='scope')
@@ -41,13 +47,56 @@ export default {
   computed: {
     ...mapState(['markets', 'network']),
     ...mapState('market', ['id', 'quote_token']),
+    ...mapState('settings', ['favMarkets']),
+
+    sideMaretsTab: {
+      get() {
+        return this.$store.state.settings.sideMaretsTab
+      },
+
+      set(value) {
+        this.$store.commit('settings/setSideMaretsTab', value)
+      }
+    },
 
     filteredItems() {
       if (!this.markets) return []
-      return this.markets.filter((i) => {
-        if (i.slug.toLowerCase().includes(this.search.toLowerCase()))
-          return true
-      }).reverse()
+
+      let markets = []
+      if (this.sideMaretsTab == 'all') {
+        markets = this.markets
+      } else if (this.sideMaretsTab == this.network.baseToken.symbol) {
+        markets = this.markets.filter(
+          (i) => i.base_token.contract == this.network.baseToken.contract
+        )
+      } else if (this.sideMaretsTab == 'USDT') {
+        markets = this.markets.filter(
+          (i) => i.base_token.contract == 'tethertether'
+        )
+      } else if (this.sideMaretsTab == 'fav') {
+        markets = this.markets.filter(
+          (i) => this.favMarkets.includes(i.id)
+        )
+      } else {
+        const ibcTokens = this.$store.state.ibcTokens.filter(
+          (i) => i != this.network.baseToken.contract
+        )
+
+        markets = this.markets.filter((i) => {
+          return (
+            ibcTokens.includes(i.base_token.contract) ||
+            ibcTokens.includes(i.quote_token.contract) ||
+            Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
+            Object.keys(this.network.withdraw).includes(i.base_token.str)
+          )
+        })
+      }
+
+      markets = markets.filter((i) =>
+        i.slug.includes(this.search.toLowerCase())
+      )
+
+      return markets.reverse()
     }
   },
 

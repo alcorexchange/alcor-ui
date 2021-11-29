@@ -5,7 +5,8 @@ export default ({ store }) => {
     key: 'presist_v0.1',
     paths: [
       'chain.payForUser', 'swap.slippage', 'chain.lastWallet',
-      'market.showVolumeInUSD', 'market.markets_active_tab'
+      'market.showVolumeInUSD', 'market.markets_active_tab',
+      'settings.sideMaretsTab', 'settings.favMarkets'
     ]
   })(store)
 }
