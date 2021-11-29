@@ -8,20 +8,15 @@ div.wallet
       size="small"
       clearable
     )
-    input(
-      type="checkbox"
+
+    SelectUI(
       v-model="onlyBuy"
-      true-value="1"
       id="onlyBuy"
-    )
-    label(for="onlyBuy") Only buy orders
-    input(
-      type="checkbox"
+    ) Only buy orders
+    SelectUI(
       v-model="onlySell"
-      true-value="1"
       id="onlySell"
-    )
-    label(for="onlySell") Only sell orders
+    ) Only sell orders
 
     .d-flex.ml-auto
       .cancel Total orders: {{ accountLimits.orders_total }}
@@ -32,7 +27,7 @@ div.wallet
 
   .table.el-card.is-always-shadow
     el-table.alcor-table(
-      :data='filledPositions',
+      :data='filledPositions()',
       style='width: 100%',
     )
       el-table-column(type="expand")
@@ -113,10 +108,12 @@ div.wallet
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
+import SelectUI from '~/components/UI/input/selectUI.vue'
 export default {
   name: 'Wallet',
   components: {
-    TokenImage
+    TokenImage,
+    SelectUI
   },
   data: () => ({
     search: '',
@@ -129,12 +126,6 @@ export default {
       pairPositions: 'wallet/pairPositions'
     }),
     ...mapState(['network', 'markets', 'accountLimits']),
-
-    filledPositions() {
-      return this.pairPositions.filter(p => {
-        return p.slug.includes(this.search.toLowerCase())
-      })
-    },
 
     balances() {
       if (!this.user) return []
@@ -153,6 +144,15 @@ export default {
   },
 
   methods: {
+    filledPositions() {
+      return this.pairPositions.filter(el => {
+        if (!el.slug.includes(this.search.toLowerCase())) return false
+        if (this.onlyBuy && !el.orderCount.buy) return false
+        if (this.onlySell && !el.orderCount.sell) return false
+        return el
+      })
+    },
+
     trade(position) {
       this.$router.push({
         name: 'trade-index-id',
@@ -205,6 +205,7 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
+  gap: 30px;
   .el-input {
     max-width: 300px;
     margin-right: 8px;
