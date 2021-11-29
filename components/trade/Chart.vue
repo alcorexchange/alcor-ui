@@ -9,8 +9,6 @@ import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      isResetting: false,
-
       resolution: 240,
 
       onRealtimeCallback: () => {},
@@ -39,11 +37,6 @@ export default {
 
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
-
-      if (this.isResetting) {
-        this.onResetCacheNeededCallback()
-        this.isResetting = false
-      }
     })
 
     this.$socket.io.on('reconnect', () => {
@@ -53,14 +46,8 @@ export default {
 
   methods: {
     reset() {
-      this.isResetting = true
-
       if (this.widget && this.onResetCacheNeededCallback) {
-        this.widget.activeChart().resetData()
-        this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-
-        //this.widget.activeChart().symbolExt().description = `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`
-        //this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: to, resolution: this.resolution } })
+        this.onResetCacheNeededCallback()
       }
     },
 
@@ -95,6 +82,7 @@ export default {
             onResetCacheNeededCallback
           ) => {
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
+
             this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
 
             this.onRealtimeCallback = onRealtimeCallback
@@ -155,6 +143,8 @@ export default {
             )
 
             onHistoryCallback(charts, { noData: charts.length == 0 })
+            this.widget.activeChart().resetData()
+            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
           },
 
           unsubscribeBars: (subscriberUID) => {
