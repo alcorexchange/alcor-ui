@@ -88,11 +88,9 @@ export const trade = {
       'fetchBuy',
       'fetchSell'
     ]),
-    setAmount(trade, bid) {
-      if (trade == 'limit' && bid == 'buy') {
+    setAmount(bid) {
+      if (bid == 'buy') {
         this.changeTotal({ total: this.baseBalance, type: 'buy' })
-      } else if (trade == 'market' && bid == 'buy') {
-        this.changeAmount({ amount: this.baseBalance, type: 'buy' })
       } else {
         this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
       }

@@ -4,7 +4,7 @@
     .d-flex.mb-1
       small.text-success Buy {{ quote_token.symbol.name }}
       span(
-        @click="setAmount('market', 'buy')"
+        @click="setAmount('buy')"
         class="text-mutted small align-self-end ml-auto cursor-pointer"
       ) {{ baseBalance | commaFloat }}
         i.el-icon-wallet.ml-1
@@ -51,7 +51,7 @@
       small.text-danger Sell {{ quote_token.symbol.name }}
       span(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
-        @click="setAmount('market', 'sell')"
+        @click="setAmount('sell')"
       ) {{ tokenBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
