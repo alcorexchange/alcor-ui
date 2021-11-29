@@ -88,11 +88,9 @@ export const trade = {
       'fetchBuy',
       'fetchSell'
     ]),
-    setAmount(trade, bid) {
-      if (trade == 'limit' && bid == 'buy') {
+    setAmount(bid) {
+      if (bid == 'buy') {
         this.changeTotal({ total: this.baseBalance, type: 'buy' })
-      } else if (trade == 'market' && bid == 'buy') {
-        this.changeAmount({ amount: this.baseBalance, type: 'buy' })
       } else {
         this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
       }
@@ -329,7 +327,6 @@ export const tradeMixin = {
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('loadOrders', this.$store.state.market.id)
-          this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
         this.$notify({ title: 'Buy', message: 'Order placed!', type: 'success' })
@@ -368,7 +365,6 @@ export const tradeMixin = {
         setTimeout(() => {
           this.$store.dispatch('loadUserBalances')
           this.$store.dispatch('loadOrders', this.$store.state.market.id)
-          this.$store.dispatch('market/fetchOrders')
         }, 1000)
 
         this.$notify({ title: 'Sell', message: 'Order placed!', type: 'success' })

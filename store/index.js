@@ -1,4 +1,5 @@
 import axios from 'axios'
+import debounce from 'lodash/debounce'
 
 import { make256key, nameToUint64 } from '~/utils'
 
@@ -52,6 +53,12 @@ export const mutations = {
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
 
+// Move to notifications module (nee create it)
+const playOrderMatchSound = debounce(() => {
+  const audio = new Audio(require('~/assets/sounds/match.mp3'))
+  audio.play()
+}, 50)
+
 export const actions = {
   init({ dispatch, state, getters }) {
     dispatch('fetchTokens')
@@ -69,23 +76,32 @@ export const actions = {
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
       dispatch('loadOrders', match.market_id)
-      dispatch('loadAccountTable')
 
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
+      const notify_options = {}
+      if (document.hidden) {
+        notify_options.duration = 10000
+      }
+
       if (match.bid) {
         this._vm.$notify({
+          ...notify_options,
           title: `Order match - ${market.symbol}`,
           message: `${match.bid} ${market.base_token.symbol.name} at ${match.price}`,
           type: 'success'
         })
       } else {
         this._vm.$notify({
+          ...notify_options,
           title: `Order match - ${market.symbol}`,
           message: `${match.ask} ${market.base_token.symbol.name} at ${match.price}`,
           type: 'success'
         })
       }
+
+      // Play sound
+      playOrderMatchSound()
     })
   },
 

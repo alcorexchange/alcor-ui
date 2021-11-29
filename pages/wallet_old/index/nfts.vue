@@ -81,7 +81,6 @@ export default {
         try {
           await this.$store.dispatch('chain/sendTransaction', actions)
 
-          this.$store.dispatch('market/fetchOrders')
           this.$notify({
             title: 'Send NFT',
             message: 'NFT sent successfully!',

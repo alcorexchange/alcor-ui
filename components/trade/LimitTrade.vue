@@ -5,7 +5,7 @@
       small.text-success Buy {{ quote_token.symbol.name }}
       small(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
-        @click="setAmount('limit', 'buy')"
+        @click="setAmount('buy')"
       ) {{ baseBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
@@ -72,7 +72,7 @@
       small.text-danger Sell {{ quote_token.symbol.name }}
       small(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
-        @click="setAmount('limit', 'sell')"
+        @click="setAmount('sell')"
       ) {{ tokenBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
