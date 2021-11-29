@@ -8,7 +8,7 @@
 
   .px-2
     el-input(size="small" v-model="search" placeholder="Filter by token" clearable)
-  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :default-sort='{ prop: "volume24", order: "descending" }' :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
+  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :default-sort='{ prop: "volume24", order: "descending" }' :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading" row-class-name="pointer")
     el-table-column(label="Pair" width="120")
       template(slot-scope="scope")
         TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="20")
