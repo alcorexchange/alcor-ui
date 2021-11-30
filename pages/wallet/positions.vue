@@ -9,11 +9,12 @@ div.wallet
       clearable
     )
 
-    SelectUI(
+    el-checkbox(
       v-model="onlyBuy"
       id="onlyBuy"
     ) Only buy orders
-    SelectUI(
+
+    el-checkbox(
       v-model="onlySell"
       id="onlySell"
     ) Only sell orders
