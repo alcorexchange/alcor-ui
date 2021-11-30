@@ -436,6 +436,26 @@ export const actions = {
       captureException(e, { extra: { order: this.order } })
       return { err: true, desc: e }
     }
+  },
+
+  async cancelAll({ dispatch, rootState }, orders) {
+    if (orders.length == 0) return
+
+    const actions = []
+
+    orders.map(order => {
+      const { account, market_id, id } = order
+
+      actions.push({
+        account: rootState.network.contract,
+        name: ['buy', 'bid'].includes(order.type) ? 'cancelbuy' : 'cancelsell',
+        authorization: [rootState.user.authorization],
+        data: { executor: account, market_id, order_id: id }
+      })
+    })
+
+    await dispatch('chain/sendTransaction', actions, { root: true })
+    await dispatch('loadOrders', orders[0].market_id, { root: true })
   }
 }
 

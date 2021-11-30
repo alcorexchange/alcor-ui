@@ -17,7 +17,11 @@
     .low-level.mt-2
       .low-left
         .low-height.overflow-hidden.overflowbox
-          el-tabs.h-100
+          alcor-tabs(v-model="tab").h-100
+            template(slot="right")
+              .d-flex
+                el-button(type="text" v-show="tab == 0" size="small" @click="cancelAll").red.hover-opacity.ml-3.mt-1 Cancel All Orders
+
             el-tab-pane(label="Open order")
               my-orders(v-if="user" v-loading="loading")
 
@@ -70,6 +74,8 @@ import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
 
+import AlcorTabs from '~/components/alcor-element/tabs/tabs'
+
 export default {
   layout: 'embed',
 
@@ -84,11 +90,15 @@ export default {
     Markets,
     MobileTrade,
     TopLine,
-    FeeRate
+    FeeRate,
+
+    AlcorTabs
   },
 
   data() {
     return {
+      tab: 0,
+
       price: 0.0,
       amount: 0.0,
 
@@ -98,7 +108,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['network']),
+    ...mapState(['network', 'userOrders']),
     ...mapState('market', ['token', 'id', 'stats', 'base_token']),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
@@ -115,6 +125,10 @@ export default {
   },
 
   methods: {
+    cancelAll() {
+      this.$store.dispatch('market/cancelAll', this.userOrders.filter(a => a.account === this.user.name && a.market_id == this.id))
+    },
+
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
       this.$router.push('/swap')
@@ -124,6 +138,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.red {
+  color: var(--main-red);
+
+  &:hover,
+  &:focus {
+    outline: none;
+    color: var(--main-red);
+  }
+}
 .top-level {
   display: flex;
   height: 500px;

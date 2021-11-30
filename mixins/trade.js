@@ -121,7 +121,7 @@ export const trade = {
       if (trade == 'market' && this.getSpreadPercent > 10) {
         const confInfo = {
           title: 'Spread is above 10%!',
-          mess: 'Limit order usage is recommended, do you want to continue?'
+          mess: 'Using a limit order is recommended. The bid / ask spread is over 10%. Do you want to continue with a market order?'
         }
         const actionCancel = await this.showPopupWarning(confInfo, 'Trade')
         if (actionCancel) return

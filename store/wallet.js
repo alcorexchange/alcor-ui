@@ -47,7 +47,7 @@ export const getters = {
       }
     })
 
-    markets.map(m => {
+    return markets.map(m => {
       m.orderCount = {
         buy: m.orders.filter(o => o.type == 'buy').length,
         sell: m.orders.filter(o => o.type == 'sell').length
@@ -55,9 +55,9 @@ export const getters = {
 
       m.totalBase = m.orders.filter(o => o.type == 'buy').map(o => parseFloat(o.bid.prefix)).reduce((a, b) => a + b, 0)
       m.totalQuote = m.orders.filter(o => o.type == 'sell').map(o => parseFloat(o.bid.prefix)).reduce((a, b) => a + b, 0)
-    })
 
-    return markets
+      return m
+    })
   },
 
   pairsCount(state, getters, rootState) {

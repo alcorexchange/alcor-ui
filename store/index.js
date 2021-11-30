@@ -199,7 +199,6 @@ export const actions = {
 
   async loadOrders({ state, commit, dispatch }, market_id) {
     if (!state.user || !state.user.name) return
-    console.log('loadOrders', market_id)
 
     const { name } = state.user
 

@@ -121,6 +121,7 @@ export default {
     onlyBuy: false,
     onlySell: false
   }),
+
   computed: {
     ...mapGetters({
       user: 'user',
@@ -179,22 +180,8 @@ export default {
       this.$store.dispatch('loadOrders', order.market_id)
     },
 
-    async cancelAll(position) {
-      const actions = []
-
-      position.orders.map(order => {
-        const { account, market_id, id } = order
-
-        actions.push({
-          account: this.$store.state.network.contract,
-          name: order.type === 'buy' ? 'cancelbuy' : 'cancelsell',
-          authorization: [this.$store.state.user.authorization],
-          data: { executor: account, market_id, order_id: id }
-        })
-      })
-
-      await this.$store.dispatch('chain/sendTransaction', actions)
-      this.$store.dispatch('loadOrders', position.id)
+    async cancelAll({ orders }) {
+      await this.$store.dispatch('market/cancelAll', orders)
     }
   }
 }
