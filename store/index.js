@@ -77,7 +77,6 @@ export const actions = {
 
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
-      console.log('match', match.market_id)
       if (loadOrdersDebounce[match.market_id]) clearTimeout(loadOrdersDebounce[match.market_id])
       loadOrdersDebounce[match.market_id] = setTimeout(() => {
         dispatch('loadOrders', match.market_id)
@@ -87,7 +86,7 @@ export const actions = {
 
       const notify_options = {}
       if (document.hidden) {
-        notify_options.duration = 10000
+        notify_options.duration = 15000
       }
 
       if (match.bid) {
@@ -182,16 +181,19 @@ export const actions = {
   },
 
   async loadUserOrders({ state, commit, dispatch }) {
+    console.log('loadUserOrders')
     if (!state.user || !state.user.name) return
-    const markets = state.markets.map(m => m.id)
 
-    console.log('loadOrders start.. ')
+    const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
+    const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
+
+    const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
+
     for (const market_id of markets) {
       await dispatch('loadOrders', market_id)
-      await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
+      await new Promise(resolve => setTimeout(resolve, 250))
     }
     console.log('loadOrders finish.')
-
     commit('setUserOrdersLoading', false)
   },
 

@@ -54,8 +54,7 @@ export const actions = {
 
   afterLoginHook({ dispatch, rootState }) {
     dispatch('loadUserBalances', {}, { root: true })
-    dispatch('loadAccountLimits', {}, { root: true })
-    dispatch('loadUserOrders', {}, { root: true })
+    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true }))
     dispatch('loadOrders', rootState.market.id, { root: true })
 
     this.$socket.emit('subscribe', {
