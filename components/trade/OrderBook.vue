@@ -11,10 +11,10 @@
     .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class="{ 'pl-0': isMyOrder(ask) }"
+      :class="{ 'pl-0': isMyOrder(ask, 'ask') }"
     )
       span
-        i.el-icon-caret-right(v-if='isMyOrder(ask)')
+        i.el-icon-caret-right(v-if="isMyOrder(ask, 'ask')")
         | {{ ask[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
       span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
@@ -46,10 +46,10 @@
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class="{ 'pl-0': isMyOrder(bid) }"
+      :class="{ 'pl-0': isMyOrder(bid, 'bid') }"
     )
       span
-        i.el-icon-caret-right(v-if='isMyOrder(bid)')
+        i.el-icon-caret-right(v-if="isMyOrder(bid, 'bid')")
         | {{ bid[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
 
@@ -96,9 +96,9 @@ export default {
   },
 
   methods: {
-    isMyOrder(ask) {
+    isMyOrder(ask, side) {
       for (const o of this.userOrders.filter(o => o.market_id == this.id)) {
-        if (ask[0] == o.unit_price) return true
+        if (ask[0] == parseInt(o.unit_price) && side == o.type) return true
       }
 
       return false
