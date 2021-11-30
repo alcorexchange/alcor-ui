@@ -59,13 +59,15 @@ const playOrderMatchSound = debounce(() => {
   audio.play()
 }, 50)
 
+const loadOrdersDebounce = {}
+
 export const actions = {
   init({ dispatch, state, getters }) {
     dispatch('fetchTokens')
 
     if (state.network.name == 'local') return
 
-    dispatch('loadMarkets').then(dispatch('loadUserOrders'))
+    dispatch('loadMarkets')
 
     setInterval(() => dispatch('update'), 15000)
 
@@ -75,7 +77,11 @@ export const actions = {
 
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
-      dispatch('loadOrders', match.market_id)
+      console.log('match', match.market_id)
+      if (loadOrdersDebounce[match.market_id]) clearTimeout(loadOrdersDebounce[match.market_id])
+      loadOrdersDebounce[match.market_id] = setTimeout(() => {
+        dispatch('loadOrders', match.market_id)
+      }, 500)
 
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
@@ -191,6 +197,7 @@ export const actions = {
 
   async loadOrders({ state, commit, dispatch }, market_id) {
     if (!state.user || !state.user.name) return
+    console.log('loadOrders', market_id)
 
     const { name } = state.user
 
