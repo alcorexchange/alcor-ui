@@ -455,7 +455,7 @@ export const actions = {
     })
 
     await dispatch('chain/sendTransaction', actions, { root: true })
-    await dispatch('loadOrders', orders[0].market_id, { root: true })
+    setTimeout(() => dispatch('loadOrders', orders[0].market_id, { root: true }), 1000)
   }
 }
 

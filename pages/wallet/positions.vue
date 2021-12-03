@@ -177,7 +177,6 @@ export default {
       }
 
       this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
-      this.$store.dispatch('loadOrders', order.market_id)
     },
 
     async cancelAll({ orders }) {

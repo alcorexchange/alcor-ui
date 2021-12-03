@@ -134,6 +134,7 @@ export const actions = {
 
   async loadAccountLimits({ commit, state }) {
     if (!state.user) return
+    console.log('loadAccountLimits', 1)
 
     const { rows: [account] } = await this.$rpc.get_table_rows({
       code: state.network.contract,
@@ -143,6 +144,8 @@ export const actions = {
       lower_bound: nameToUint64(state.user.name),
       upper_bound: nameToUint64(state.user.name)
     })
+
+    console.log('loadAccountLimits', 2)
 
     if (account) commit('setAccountLimits', account)
   },
@@ -181,7 +184,7 @@ export const actions = {
   },
 
   async loadUserOrders({ state, commit, dispatch }) {
-    console.log('loadUserOrders')
+    console.log('loadUserOrders', state.accountLimits)
     if (!state.user || !state.user.name) return
 
     const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
