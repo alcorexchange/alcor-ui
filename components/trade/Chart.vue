@@ -100,7 +100,6 @@ export default {
               //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
               //type: symbolItem.type,
               session: '24x7',
-              timezone: 'Etc/UTC',
               //exchange: symbolItem.exchange,
               minmov: 1,
               pricescale: 100000000,
@@ -155,6 +154,7 @@ export default {
         interval: '240',
         container_id: 'tv_chart_container',
         library_path: '/charting_library/',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
           intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
         },
