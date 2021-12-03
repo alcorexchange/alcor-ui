@@ -11,10 +11,10 @@
     .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class="{ 'pl-0': isMyOrder(ask, 'ask') }"
+      :class="{ 'pl-0': isMyOrder(ask, 'sell') }"
     )
       span
-        i.el-icon-caret-right(v-if="isMyOrder(ask, 'ask')")
+        i.el-icon-caret-right(v-if="isMyOrder(ask, 'sell')")
         | {{ ask[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
       span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
@@ -46,10 +46,10 @@
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class="{ 'pl-0': isMyOrder(bid, 'bid') }"
+      :class="{ 'pl-0': isMyOrder(bid, 'buy') }"
     )
       span
-        i.el-icon-caret-right(v-if="isMyOrder(bid, 'bid')")
+        i.el-icon-caret-right(v-if="isMyOrder(bid, 'buy')")
         | {{ bid[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
 
