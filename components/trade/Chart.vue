@@ -235,7 +235,10 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
-        this.widget.subscribe('onAutoSaveNeeded', () => this.save())
+        this.widget.subscribe('onAutoSaveNeeded', () => {
+          console.log('chart save..')
+          this.save()
+        })
       })
     }
   }
