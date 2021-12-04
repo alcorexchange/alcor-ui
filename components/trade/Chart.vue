@@ -45,6 +45,16 @@ export default {
   },
 
   methods: {
+    save() {
+      this.widget.save((o) => { this.$store.commit('settings/setTwChart', o) })
+    },
+
+    load() {
+      const twChart = this.$store.state.settings.twChart
+      if (!twChart.charts) return
+      this.widget.load(this.$store.state.settings.twChart)
+    },
+
     reset() {
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
@@ -200,7 +210,8 @@ export default {
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
-          'header_in_fullscreen_mode'
+          'header_in_fullscreen_mode',
+          'save_chart_properties_to_local_storage'
         ],
         //charts_storage_url: this.chartsStorageUrl,
         //charts_storage_api_version: this.chartsStorageApiVersion,
@@ -222,6 +233,10 @@ export default {
       }
 
       this.widget = new Widget(widgetOptions)
+      this.widget.onChartReady(() => {
+        this.load()
+        this.widget.subscribe('onAutoSaveNeeded', () => this.save())
+      })
     }
   }
 }

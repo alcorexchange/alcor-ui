@@ -6,7 +6,7 @@ export default ({ store }) => {
     paths: [
       'chain.payForUser', 'swap.slippage', 'chain.lastWallet',
       'market.showVolumeInUSD', 'market.markets_active_tab',
-      'settings.sideMaretsTab', 'settings.favMarkets'
+      'settings.sideMaretsTab', 'settings.favMarkets', 'settings.twChart'
     ]
   })(store)
 }
