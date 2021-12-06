@@ -5,6 +5,10 @@
       v-model='markets_active_tab',
       size='small'
     ).mr-3
+      el-radio-button(label='fav')
+        i.el-icon-star-on
+        span Fav
+
       el-radio-button(label='all')
         span All
 
@@ -166,6 +170,7 @@ export default {
     ...mapState(['network']),
     ...mapGetters(['user']),
     ...mapState(['markets']),
+    ...mapState('settings', ['favMarkets']),
 
     markets_active_tab: {
       get() {
@@ -200,6 +205,10 @@ export default {
       } else if (this.markets_active_tab == 'USDT') {
         markets = this.markets.filter(
           (i) => i.base_token.contract == 'tethertether'
+        )
+      } else if (this.markets_active_tab == 'fav') {
+        markets = this.markets.filter(
+          (i) => this.favMarkets.includes(i.id)
         )
       } else {
         const ibcTokens = this.$store.state.ibcTokens.filter(
