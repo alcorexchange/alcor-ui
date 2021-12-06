@@ -5,23 +5,22 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 
-const COLORS = {
-  light: {
-    Price: { up: '#58ab8b', down: '#F96C6C' },
-    Liquidity: '#6138b9',
-    Volume: '#3E3A3B'
-  },
+// const COLORS = {
+//   light: {
+//     Price: { up: '#58ab8b', down: '#F96C6C' },
+//     Liquidity: '#6138b9',
+//     Volume: '#3E3A3B'
+//   },
 
-  dark: {
-    Price: { up: '#30B27C', down: '#F96C6C' },
-    Liquidity: '#6138b9',
-    Volume: '#1FC781'
-  }
-}
+//   dark: {
+//     Price: { up: '#30B27C', down: '#F96C6C' },
+//     Liquidity: '#6138b9',
+//     Volume: '#1FC781'
+//   }
+// }
 
 export default {
   components: {

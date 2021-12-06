@@ -2,7 +2,7 @@ import config from '../../config'
 
 import { getSettings } from '../models'
 import { newPoolsAction } from '../pools'
-import { updateMarkets, newMatch } from '../markets/history'
+import { updateMarkets, newMatch } from './markets'
 
 import { streamHyperion, streamByNode } from './streamers'
 
@@ -11,22 +11,21 @@ const providers = {
   node: streamByNode
 }
 
-export function startUpdaters(app) {
+export function startUpdaters() {
   if (process.env.NETWORK) {
     //updater('wax', app, 'node', ['markets', 'pools'])
-    updater(process.env.NETWORK, app, 'node', ['pools', 'markets'])
+    //updater(process.env.NETWORK, 'node', ['pools', 'markets'])
+    updater(process.env.NETWORK, 'node', ['markets'])
     //updater(process.env.NETWORK, app, 'node', ['pools'])
   } else {
-    updater('eos', app, 'node', ['markets', 'pools'])
-    updater('wax', app, 'node', ['markets', 'pools'])
-    updater('proton', app, 'node', ['markets'])
-    updater('telos', app, 'node', ['markets', 'pools'])
-    // updater('telos', app, 'hyperion', ['markets'])
-    //updater('bos', app, false) // Update by node, not hyperion
+    updater('eos', 'node', ['markets', 'pools'])
+    updater('wax', 'node', ['markets', 'pools'])
+    updater('proton', 'node', ['markets'])
+    updater('telos', 'node', ['markets', 'pools'])
   }
 }
 
-export async function updater(chain, app, provider, services) {
+export async function updater(chain, provider, services) {
   const network = config.networks[chain]
   const streamer = providers[provider]
 
@@ -34,16 +33,15 @@ export async function updater(chain, app, provider, services) {
   await getSettings(network)
 
   if (services.includes('markets')) {
-    updateMarkets(network)
-    setTimeout(() => updateMarkets(network), 1000)
-    setTimeout(() => updateMarkets(network), 10000)
-    setInterval(() => updateMarkets(network), 5 * 60 * 1000)
+    console.log('Start market updater for', chain)
 
-    streamer(network, app, network.contract, newMatch, config.CONTRACT_ACTIONS)
+    await updateMarkets(network)
+    setInterval(() => updateMarkets(network), 1 * 60 * 1000)
+    streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
   }
 
   if (services.includes('pools')) {
     console.log('start pools updater for', chain)
-    streamer(network, app, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
+    streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
   }
 }

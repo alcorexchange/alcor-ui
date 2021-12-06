@@ -1,9 +1,9 @@
 <template lang="pug">
   el-table(:data='orders' max-height="260").w-100
     el-table-column(label='Type' width="50")
-      template(slot-scope='scope').text-success
-        span.text-success(v-if="scope.row.type == 'bid'") {{ scope.row.type.toUpperCase() }}
-        span.text-danger(v-else) {{ scope.row.type.toUpperCase() }}
+      template(slot-scope='{ row }').text-success
+        span.text-success(v-if="row.type == 'buy'") {{ row.type.toUpperCase() }}
+        span.text-danger(v-else) {{ row.type.toUpperCase() }}
 
     el-table-column(label='Date' width="80" v-if="!isMobile")
       template(slot-scope='scope')
@@ -40,17 +40,7 @@ export default {
     orders() {
       if (!this.user) return []
 
-      const orders = []
-
-      for (const order of this.userOrders.filter(a => a.account === this.user.name && a.market_id == this.id)) {
-        order.type = order.bid.symbol.symbol === this.base_token.symbol.name ? 'bid' : 'ask'
-
-        if (orders.filter(o => o.id == order.id && o.type == order.type)[0]) continue
-
-        orders.push(order)
-      }
-
-      return orders.sort((a, b) => b.timestamp - a.timestamp)
+      return this.userOrders.filter(a => a.account === this.user.name && a.market_id == this.id).sort((a, b) => b.timestamp - a.timestamp)
     }
   },
 
@@ -72,7 +62,6 @@ export default {
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
           this.$store.dispatch('loadUserBalances')
-          this.$store.dispatch('market/fetchOrders')
         }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })

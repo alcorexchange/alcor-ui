@@ -1,9 +1,18 @@
 import { Match } from '../models'
-import { resolutions } from './charts'
 
-// TODO Move from /markets to global
+export const resolutions = {
+  1: 1 * 60,
+  5: 5 * 60,
+  15: 15 * 60,
+  30: 30 * 60,
+  60: 60 * 60,
+  240: 60 * 60 * 4,
+  '1D': 60 * 60 * 24,
+  '1W': 60 * 60 * 24 * 7,
+  '1M': 60 * 60 * 24 * 30
+}
 
-export function subscribe(io, socket) {
+export function subscribe(io, socket, client) {
   socket.on('subscribe', async ({ room, params }) => {
     if (room == 'deals') {
       socket.join(`deals:${params.chain}.${params.market}`)
@@ -31,6 +40,17 @@ export function subscribe(io, socket) {
     if (room == 'account') {
       socket.join(`account:${params.chain}.${params.name}`)
     }
+
+    if (room == 'orderbook') {
+      const { chain, side, market } = params
+
+      const data = await client.get(`orderbook_${chain}_${side}_${market}`)
+      const entries = JSON.parse(data || [])
+      const orderbook = Object.values(Object.fromEntries(entries))
+
+      socket.emit(`orderbook_${side}`, orderbook)
+      socket.join(`orderbook:${chain}.${side}.${market}`)
+    }
   })
 }
 
@@ -56,6 +76,13 @@ export function unsubscribe(io, socket) {
 
     if (room == 'account') {
       socket.leave(`account:${params.chain}.${params.name}`)
+    }
+
+    if (room == 'orderbook') {
+      const { chain, market } = params
+
+      socket.leave(`orderbook:${chain}.buy.${market}`)
+      socket.leave(`orderbook:${chain}.sell.${market}`)
     }
   })
 }

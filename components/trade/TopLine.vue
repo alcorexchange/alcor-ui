@@ -2,15 +2,15 @@
 .box-card.pl-2.pt-2
   .row
     .col
-      .d-flex.align-items-center(v-if="!isMobile")
+      .d-flex.align-items-center(v-if="!isMobile").desktop
         TokenImage(:src="$tokenLogo(quote_token.symbol.name, quote_token.contract)" height="30").ml-1
 
-        .d-flex.ml-2
+        .d-flex.ml-2.symbol
           b {{ quote_token.symbol.name }}
           a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted.ml-2 {{ quote_token.contract }}
           span.ml-1 /  {{ base_token.symbol.name }}
 
-        .d-flex.ml-3(v-if="hasWithdraw")
+        //.d-flex.ml-3(v-if="hasWithdraw")
           // TODO Token prop & mobile version
           Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
@@ -19,12 +19,15 @@
           BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
         //.d-flex.ml-3.w-100.justify-content-around.desctop
-        .d-flex.align-items-center.ml-4.small
+        .d-flex.align-items-center.ml-3.small.text-muted
           span Change 24H:
           change-percent(:change="stats.change24").ml-2
 
-          span.ml-3 Volume 24H:
+          span.ml-2 Volume 24H:
           span.text-success.ml-2  {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+          .pointer.ml-2
+            i(:class="{ 'el-icon-star-on': isFavorite }" @click="toggleFav").el-icon-star-off
+            //i.el-icon-star-off.ml-2
       div(v-else)
         .overflowbox.items
           .row.align-items-center(v-if="base_token.symbol.name == network.baseToken.symbol && base_token.contract == network.baseToken.contract")
@@ -76,16 +79,39 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapState('market', ['stats', 'base_token', 'quote_token']),
+    ...mapState('market', ['stats', 'base_token', 'quote_token', 'id']),
+    ...mapState('settings', ['favMarkets']),
 
     hasWithdraw() {
       return Object.keys(this.network.withdraw).includes(this.quote_token.str)
+    },
+
+    isFavorite() {
+      return this.favMarkets.includes(this.id)
+    }
+  },
+
+  methods: {
+    toggleFav() {
+      if (this.isFavorite) {
+        this.$store.commit('settings/setFavMarkets', this.favMarkets.filter(m => m != this.id))
+      } else {
+        this.$store.commit('settings/setFavMarkets', this.favMarkets.concat([this.id]))
+      }
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
+.desktop {
+  font-size: 14px;
+
+  i {
+    font-size: 17px;
+  }
+}
+
 .desctop span {
   font-size: 10px;
   padding-right: 10px;

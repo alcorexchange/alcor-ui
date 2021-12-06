@@ -4,20 +4,20 @@
   .blist
     .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
-      span Amount({{ quote_token.symbol.name }})
+      span Amount ({{ quote_token.symbol.name }})
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
     .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class="{ 'pl-0': ask.myOrder }"
+      :class="{ 'pl-0': isMyOrder(ask, 'sell') }"
     )
       span
-        i.el-icon-caret-right(v-if='ask.myOrder')
-        | {{ ask.unit_price | humanPrice }}
-      span(:class='isMobile ? "text-right" : "text-center"') {{ ask.bid.amount | humanFloat(quote_token.symbol.precision) }}
-      span(v-if='!isMobile') {{ ask.ask.amount | humanFloat(base_token.symbol.precision) }}
+        i.el-icon-caret-right(v-if="isMyOrder(ask, 'sell')")
+        | {{ ask[0] | humanPrice }}
+      span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
+      span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
@@ -25,26 +25,35 @@
       span
 
   .p-1.mt-1(v-loading='loading')
-    .overflowbox.text-center.latest-price(
-      :class='{ red: isLastTradeSell }'
+    .overflowbox.latest-price(
     )
-      i(
-        :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
+      .price(
+        :class='{ red: isLastTradeSell }'
       )
-      span {{ price }} {{ base_token.symbol.name }}
+        i(
+          :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
+        )
+        span.num {{ price }} &nbsp;
+        //span.token {{ base_token.symbol.name }}
+      .spread
+        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }} Spread&nbsp;
+        span(
+          class="prec"
+          :class="percentWarn"
+        ) ({{ getSpreadPercent ? getSpreadPercent : '0.00' }}%)
 
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class="{ 'pl-0': bid.myOrder }"
+      :class="{ 'pl-0': isMyOrder(bid, 'buy') }"
     )
       span
-        i.el-icon-caret-right(v-if='bid.myOrder')
-        | {{ bid.unit_price | humanPrice }}
-      span(:class='isMobile ? "text-right" : "text-center"') {{ bid.ask.amount | humanFloat(quote_token.symbol.precision) }}
+        i.el-icon-caret-right(v-if="isMyOrder(bid, 'buy')")
+        | {{ bid[0] | humanPrice }}
+      span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
 
-      span(v-if='!isMobile') {{ bid.bid.amount | humanFloat(base_token.symbol.precision) }}
+      span(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
     .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
@@ -53,89 +62,78 @@
 </template>
 
 <script>
+//import { find } from 'lodash/fp'
+
 import { mapGetters, mapState } from 'vuex'
+import { trade } from '~/mixins/trade'
 
 export default {
+  mixins: [trade],
+
   data() {
     return {
+      bids: [],
+      asks: [],
+
       asksL: 0,
       loading: false
     }
   },
 
   computed: {
-    ...mapState(['network', 'user']),
-    ...mapGetters('market', ['sorted_asks', 'sorted_bids', 'price']),
+    ...mapState(['network', 'user', 'userOrders']),
+    ...mapGetters('market', ['price']),
     ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
     ...mapGetters(['user']),
 
     isLastTradeSell() {
       return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
-    }
-  },
-
-  watch: {
-    id(to, from) {
-      this.fetch()
     },
 
-    sorted_asks() {
-      // Scroll asks after update
-      if (this.sorted_asks.length != this.asksL) {
-        this.scrollBook()
-        this.asksL = this.sorted_asks.length
-      }
+    percentWarn() {
+      return this.getSpreadPercent > 5 ? 'warn' : ''
     }
-  },
-
-  mounted() {
-    this.fetch()
-    setTimeout(() => this.scrollBook(), 1000)
-
-    let timeout
-    this.$socket.on('update_orders', (new_deals) => {
-      if (timeout) {
-        clearTimeout(timeout)
-      }
-      timeout = setTimeout(() => this.fetch(), 400)
-    })
   },
 
   methods: {
-    async fetch() {
-      try {
-        await this.$store.dispatch('market/fetchOrders')
-      } catch (e) {
-        this.$notify({ title: 'Fetch orders', message: e, type: 'error' })
-      } finally {
-        this.loading = false
+    isMyOrder(ask, side) {
+      for (const o of this.userOrders.filter(o => o.market_id == this.id)) {
+        if (ask[0] == parseInt(o.unit_price) && side == o.type) return true
       }
-    },
 
-    scrollBook() {
-      const asks = this.$refs.asks
-      setTimeout(() => {
-        if (!asks) return
-        asks.scrollTop = asks.scrollHeight
-      }, 100)
+      return false
     },
 
     setBid(ask) {
       const price = this.$options.filters
-        .humanPrice(ask.unit_price)
+        .humanPrice(ask[0])
         .replaceAll(',', '')
 
+      const amount = this.$options.filters.humanFloat(ask[1], this.quote_token.symbol.precision).replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(ask.bid.amount, ask.bid.symbol.precision).replaceAll(',', ''))
+      this.$nuxt.$emit('setAmount', amount)
+
+      // Price and amount for marked moved to VUEX
+      this.setPrecisionPrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     },
 
     setAsk(bid) {
       const price = this.$options.filters
-        .humanPrice(bid.unit_price)
+        .humanPrice(bid[0])
         .replaceAll(',', '')
 
+      const amount = this.$options.filters.humanFloat(bid[2], this.quote_token.symbol.precision).replaceAll(',', '')
+
       this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', this.$options.filters.humanFloat(bid.ask.amount, bid.ask.symbol.precision).replaceAll(',', ''))
+      this.$nuxt.$emit('setAmount', amount)
+
+      // Price and amount for marked moved to VUEX
+      this.setPrecisionPrice(price)
+      this.changeAmount({ amount, type: 'buy' })
+      this.changeAmount({ amount, type: 'sell' })
     }
   }
 }
@@ -144,17 +142,72 @@ export default {
 <style lang="scss">
 .order-book {
   max-height: 500px;
-}
-.latest-price {
-  font-weight: bold;
-  color: var(--main-green);
-
-  i {
-    margin-right: 2px;
-  }
-
-  &.red {
-    color: var(--main-red);
+  .latest-price {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    padding: 0 5px;
+    .price {
+      color: var(--main-green);
+      &.red {
+        color: var(--main-red);
+      }
+    }
+    .spread {
+      font-weight: normal;
+      color: #80a1c5;
+      .prec.warn {
+        color: var(--main-red);
+      }
+    }
+    @media (max-width: 1600px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      .price {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 5px;
+        align-items: center;
+        i {
+          grid-row: 1/3;
+        }
+        .num {
+          grid-row: 1;
+        }
+        .token {
+          grid-row: 2;
+        }
+      }
+      .spread {
+        justify-items: end;
+        display: grid;
+        font-size: 11px;
+        .num {
+          grid-row: 1;
+        }
+        .perc {
+          grid-row: 2;
+        }
+      }
+    }
+    @media (max-width: 1200px) and (min-width: 983px) {
+      .price, .spread {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 600px) {
+      .price, .spread {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 468px) {
+      .price, .spread {
+        font-size: 9px;
+      }
+    }
+    i {
+      margin-right: 2px;
+    }
   }
 }
 
@@ -183,10 +236,11 @@ export default {
 
 .orders-list.asks {
   max-height: 220px;
+  flex-direction: column-reverse;
 }
 
 .orders-list.bids {
-  height: 220px;
+  height: 209px;
 }
 
 .orders-list.blist .ltd:hover {

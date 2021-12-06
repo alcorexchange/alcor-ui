@@ -53,7 +53,7 @@ export default {
   computed: {
     ...mapState(['user', 'account', 'network']),
     ...mapGetters({
-      systemBalance: 'systemBalance',
+      systemBalance: 'systemBalance'
     })
   },
 

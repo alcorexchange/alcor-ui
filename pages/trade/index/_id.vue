@@ -1,15 +1,20 @@
 <template lang="pug">
-  .empty-div
+.empty-div
 </template>
 
 <script>
 import { Name, SymbolCode } from 'eos-common'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   beforeRouteLeave(to, from, next) {
-    console.log('trade leave!!', this.id)
+    this.clearField()
     this.$store.dispatch('market/unsubscribe', this.id)
+    next()
+  },
+
+  beforeRouteUpdate(to, from, next) {
+    this.clearField()
     next()
   },
 
@@ -71,6 +76,10 @@ export default {
 
   computed: {
     ...mapState('market', ['id', 'symbol', 'quote_token', 'base_token'])
+  },
+
+  methods: {
+    ...mapActions('market', ['clearField'])
   }
 }
 </script>

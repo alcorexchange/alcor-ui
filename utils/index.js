@@ -1,6 +1,6 @@
 import { Name, SymbolCode } from 'eos-common'
 import { Serialize } from 'eosjs'
-import Big from 'big.js'
+import { Big } from 'big.js'
 
 import config from '../config'
 
@@ -241,4 +241,11 @@ export function mergeSamePriceOrders(ords) {
   }
 
   return Object.values(orders).sort(sort_by_price)
+}
+
+export function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]
+  }
 }

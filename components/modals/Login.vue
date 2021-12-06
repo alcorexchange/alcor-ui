@@ -28,18 +28,18 @@ import AlcorButton from '@/components/AlcorButton'
 
 export default {
   components: {
-    AlcorButton,
+    AlcorButton
   },
   data() {
     return {
       loading: false,
 
-      wallets: [],
+      wallets: []
     }
   },
 
   computed: {
-    ...mapState(['user', 'network']),
+    ...mapState(['user', 'network'])
   },
 
   mounted() {
@@ -50,18 +50,18 @@ export default {
         id: 'anchor',
         name: 'Anchor',
         logo: require('@/assets/logos/anchor.svg'),
-        create: 'https://greymass.com/en/anchor/',
+        create: 'https://greymass.com/en/anchor/'
       },
       {
         id: 'scatter',
         name: 'Scatter / TP / Starteos',
         logo: require('@/assets/logos/scatter.svg'),
         create:
-          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1',
+          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
       },
       {
         name: 'SimplEOS',
-        logo: require('@/assets/logos/simpleos.svg'),
+        logo: require('@/assets/logos/simpleos.svg')
       },
       { name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
       { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
@@ -71,11 +71,11 @@ export default {
       wallets.push({
         id: 'scatter',
         name: '',
-        logo: require('@/assets/logos/wombat.png'),
+        logo: require('@/assets/logos/wombat.png')
       })
       wallets.push({
         name: 'Keycat',
-        logo: require('@/assets/logos/keycat.svg'),
+        logo: require('@/assets/logos/keycat.svg')
       })
     }
 
@@ -86,6 +86,11 @@ export default {
         logo: require('@/assets/logos/wax.svg'),
         index: 'wax',
         create: 'https://all-access.wax.io/'
+      })
+      wallets.push({
+        id: 'scatter',
+        name: '',
+        logo: require('@/assets/logos/wombat.png')
       })
     }
 

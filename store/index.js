@@ -1,4 +1,5 @@
 import axios from 'axios'
+import debounce from 'lodash/debounce'
 
 import { make256key, nameToUint64 } from '~/utils'
 
@@ -11,6 +12,14 @@ export const state = () => ({
   userOrdersLoading: true,
   account: null,
   liquidityPositions: [],
+
+  accountLimits: {
+    buyorders: {},
+    sellorders: {},
+
+    orders_total: 0,
+    orders_limit: 50
+  },
 
   markets: [],
   markets_obj: {},
@@ -39,10 +48,18 @@ export const mutations = {
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
   setAccount: (state, account) => state.account = account,
-
+  setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
 }
+
+// Move to notifications module (nee create it)
+const playOrderMatchSound = debounce(() => {
+  const audio = new Audio(require('~/assets/sounds/match.mp3'))
+  audio.play()
+}, 50)
+
+const loadOrdersDebounce = {}
 
 export const actions = {
   init({ dispatch, state, getters }) {
@@ -50,7 +67,7 @@ export const actions = {
 
     if (state.network.name == 'local') return
 
-    dispatch('loadMarkets').then(dispatch('loadUserOrders'))
+    dispatch('loadMarkets')
 
     setInterval(() => dispatch('update'), 15000)
 
@@ -60,23 +77,36 @@ export const actions = {
 
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
-      dispatch('loadOrders', match.market_id)
+      if (loadOrdersDebounce[match.market_id]) clearTimeout(loadOrdersDebounce[match.market_id])
+      loadOrdersDebounce[match.market_id] = setTimeout(() => {
+        dispatch('loadOrders', match.market_id)
+      }, 500)
 
       const market = getters.markets.filter(m => m.id == match.market_id)[0]
 
+      const notify_options = {}
+      if (document.hidden) {
+        notify_options.duration = 15000
+      }
+
       if (match.bid) {
         this._vm.$notify({
+          ...notify_options,
           title: `Order match - ${market.symbol}`,
           message: `${match.bid} ${market.base_token.symbol.name} at ${match.price}`,
           type: 'success'
         })
       } else {
         this._vm.$notify({
+          ...notify_options,
           title: `Order match - ${market.symbol}`,
           message: `${match.ask} ${market.base_token.symbol.name} at ${match.price}`,
           type: 'success'
         })
       }
+
+      // Play sound
+      playOrderMatchSound()
     })
   },
 
@@ -100,6 +130,24 @@ export const actions = {
 
     const account = await this.$rpc.get_account(state.user.name)
     commit('setAccount', account)
+  },
+
+  async loadAccountLimits({ commit, state }) {
+    if (!state.user) return
+    console.log('loadAccountLimits', 1)
+
+    const { rows: [account] } = await this.$rpc.get_table_rows({
+      code: state.network.contract,
+      scope: state.network.contract,
+      table: 'account',
+      limit: 1,
+      lower_bound: nameToUint64(state.user.name),
+      upper_bound: nameToUint64(state.user.name)
+    })
+
+    console.log('loadAccountLimits', 2)
+
+    if (account) commit('setAccountLimits', account)
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
@@ -136,16 +184,19 @@ export const actions = {
   },
 
   async loadUserOrders({ state, commit, dispatch }) {
+    console.log('loadUserOrders', state.accountLimits)
     if (!state.user || !state.user.name) return
-    const markets = state.markets.map(m => m.id)
 
-    console.log('loadOrders start.. ')
+    const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
+    const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
+
+    const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
+
     for (const market_id of markets) {
       await dispatch('loadOrders', market_id)
-      //await new Promise(resolve => setTimeout(resolve, 500)) // Sleep for rate limit
+      await new Promise(resolve => setTimeout(resolve, 250))
     }
     console.log('loadOrders finish.')
-
     commit('setUserOrdersLoading', false)
   },
 

@@ -41,7 +41,6 @@ import PEGS from '~/core/ibc/pegs'
 import config from '~/config'
 import TokenImage from '~/components/elements/TokenImage'
 
-
 export default {
   components: {
     TokenImage

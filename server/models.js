@@ -1,5 +1,40 @@
 import mongoose from 'mongoose'
 
+const MarketSchema = mongoose.Schema({
+  id: { type: Number, index: true },
+  chain: { type: String, index: true },
+
+  base_token: {
+    contract: { type: String, index: true },
+    symbol: {
+      name: { type: String },
+      precision: { type: Number }
+    },
+    str: { type: String }
+  },
+
+  quote_token: {
+    contract: { type: String },
+    symbol: {
+      name: { type: String },
+      precision: { type: Number }
+    },
+    str: { type: String }
+  },
+
+  min_buy: { type: String },
+  min_sell: { type: String },
+  frozen: { type: Boolean },
+  fee: { type: Number },
+  last_price: { type: Number },
+  volume24: { type: Number },
+  volumeWeek: { type: Number },
+  volumeMonth: { type: Number },
+  change24: { type: Number },
+  changeWeek: { type: Number }
+})
+MarketSchema.index({ chain: 1, id: 1 })
+
 const PoolPairSchema = mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
@@ -72,7 +107,8 @@ const MatchSchema = mongoose.Schema({
 })
 MatchSchema.index({ chain: 1, market: 1 })
 MatchSchema.index({ chain: 1, market: 1, time: -1 })
-MatchSchema.index({ time: 1, unit_price: -1 })
+MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1 })
+MatchSchema.index({ chain: 1, market: 1, time: 1, unit_price: -1 })
 
 const BarSchema = mongoose.Schema({
   timeframe: { type: String, index: true },
@@ -106,7 +142,7 @@ const PoolChartPointSchema = mongoose.Schema({
 PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 
 const SettingsSchema = mongoose.Schema({
-  chain: { type: String },
+  chain: { type: String, index: true },
   actions_stream_offset: { type: Object, default: {} }
 })
 
@@ -135,6 +171,7 @@ export async function getSettings(network) {
   }
 }
 
+export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
 export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)

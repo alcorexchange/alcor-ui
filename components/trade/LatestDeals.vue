@@ -17,7 +17,7 @@
       .ltd.d-flex.justify-content-around
         span(:class="deal.cls")  {{ deal.unit_price }}
         //span {{ deal.amount | humanFloat(base_token.symbol.precision) }}
-        span {{ deal.amount }}
+        span {{ deal.amount | commaFloat(3) }}
         span {{ deal.time | moment('DD-MM HH:mm')}}
 
 </template>

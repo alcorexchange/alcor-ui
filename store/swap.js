@@ -97,14 +97,24 @@ export const actions = {
   },
 
   async getPairs({ commit, rootState, rootGetters }) {
-    const { rows } = await this.$rpc.get_table_rows({
-      code: rootState.network.pools.contract,
-      scope: rootState.network.pools.contract,
-      table: 'pairs',
-      limit: 1000
-    })
+    const pairs = []
 
-    rows.map(r => {
+    let lower_bound
+    while (true) {
+      const { rows } = await this.$rpc.get_table_rows({
+        code: rootState.network.pools.contract,
+        scope: rootState.network.pools.contract,
+        table: 'pairs',
+        limit: 1000,
+        lower_bound
+      })
+
+      pairs.push(...rows)
+      if (rows.length != 1000) break
+      lower_bound = rows[rows.length - 1]
+    }
+
+    pairs.map(r => {
       r.pool1.quantity = asset(r.pool1.quantity)
       r.pool2.quantity = asset(r.pool2.quantity)
       r.supply = asset(r.supply)
@@ -118,7 +128,7 @@ export const actions = {
     const { SCAM_CONTRACTS } = rootState.network
     commit(
       'setPairs',
-      rows.filter(r => !(SCAM_CONTRACTS.includes(r.pool1.contract)) && !(SCAM_CONTRACTS.includes(r.pool1.contract)))
+      pairs.filter(r => !(SCAM_CONTRACTS.includes(r.pool1.contract)) && !(SCAM_CONTRACTS.includes(r.pool1.contract)))
     )
   },
 

@@ -12,7 +12,8 @@ module.exports = {
   env: {
     isDev,
     isSPA,
-    NETWORK: process.env.NETWORK
+    NETWORK: process.env.NETWORK,
+    DISABLE_DB: process.env.DISABLE_DB
   },
 
   version: pkg.version,
@@ -99,7 +100,6 @@ module.exports = {
   ],
 
   axios: {
-    //baseURL: 'http://localhost:4000'
   },
 
   colorMode: {
@@ -130,9 +130,6 @@ module.exports = {
   ** Build configuration
   */
   build: {
-    /*
-    ** You can extend webpack config here
-    */
     extend(config, ctx) {
       config.node = {
         fs: 'empty'
@@ -147,6 +144,15 @@ module.exports = {
           exclude: /(node_modules)/
         })
       }
+
+      config.module.rules.push({
+        test: /\.(ogg|mp3|wav|mpe?g)$/i,
+        loader: 'file-loader',
+        options: {
+          esModule: false,
+          name: '[path][name].[ext]'
+        }
+      })
 
       if (isSPA) {
         config.output.publicPath = './_nuxt/'

@@ -64,22 +64,22 @@
 </template>
 
 <script>
-import AlcorButton from '@/components/AlcorButton'
 import { mapGetters, mapState } from 'vuex'
+import AlcorButton from '@/components/AlcorButton'
 
 import config from '~/config'
 // import AlcorLink from '@/components/AlcorLink'
 export default {
+  components: {
+    AlcorButton
+    // AlcorLink
+  },
   data() {
     return {
       loading: false
     }
   },
 
-  components: {
-    AlcorButton
-    // AlcorLink
-  },
   computed: {
     ...mapGetters(['user', 'systemBalance']),
     ...mapState(['network']),

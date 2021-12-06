@@ -53,8 +53,9 @@ export const actions = {
   },
 
   afterLoginHook({ dispatch, rootState }) {
+    dispatch('loadAccountData', {}, { root: true })
     dispatch('loadUserBalances', {}, { root: true })
-    dispatch('loadUserOrders', {}, { root: true })
+    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true }))
     dispatch('loadOrders', rootState.market.id, { root: true })
 
     this.$socket.emit('subscribe', {
@@ -121,15 +122,14 @@ export const actions = {
       [
         {
           account: contract || rootState.network.contract,
-          name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
+          name: `cancel${type}`,
           authorization: [rootState.user.authorization],
           data: { executor: account, market_id, order_id }
         }
       ]
     )
 
-    dispatch('loadOrders', market_id, { root: true })
-
+    setTimeout(() => dispatch('loadOrders', market_id, { root: true }), 1000)
     return r
   },
 
@@ -167,5 +167,5 @@ export const getters = {
     return rootState.network.name
   },
 
-  wallet: (state, getters) => state.wallets[state.currentWallet],
+  wallet: (state, getters) => state.wallets[state.currentWallet]
 }

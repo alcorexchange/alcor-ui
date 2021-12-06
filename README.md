@@ -8,9 +8,10 @@ Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The token's contract should comply with the [eosio.token](https://github.com/EOSIO/eosio.contracts/tree/master/contracts/eosio.token) standard or be a [Simple Assets](https://github.com/CryptoLions/SimpleAssets) fungible token.
 
 Props:
-1. Fully on-chain.
+1. Fully-onchain.
 2. Free CPU program.
 3. Open Source.
+
 
 [Join our telegram!](https://t.me/alcorexchange)
 
@@ -19,13 +20,12 @@ Props:
 2. WAX
 3. Telos
 4. Proton
-5. BOS
 
 ## Technologies:
 1. [Hyperion](https://github.com/eosrio/Hyperion-History-API)
 2. [EOSIO Light API](https://github.com/cc32d9/eosio_light_api)
 3. [Bloks.io](https://bloks.io/)
-4. [Greymass Full History API](https://greymass.com)
+4. [Greymass Full-History NODE API](https://greymass.com/)
 
 ## Instructions for manual use.
 #### Open new market:

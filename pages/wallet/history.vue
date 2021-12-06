@@ -8,9 +8,9 @@
       //el-checkbox() show withdraws
     .table.el-card.is-always-shadow
       el-table.market-table(:data='deals', style='width: 100%')
-        el-table-column(label='Type' width="70")
+        el-table-column(label='Side' width="70")
           template(slot-scope='scope').text-success
-            span.text-success(v-if="scope.row.type == 'buymatch'") BID
+            span.text-success(v-if="scope.row.type == 'buy'") BUY
             span.text-danger(v-else) SELL
 
         el-table-column(label='Asset')
@@ -126,13 +126,13 @@ export default {
     getAskSymbol(deal) {
       const market = this.markets_obj[deal.market]
 
-      return deal.type == 'buymatch' ? market.quote_token.symbol.name : market.base_token.symbol.name
+      return deal.type == 'buy' ? market.quote_token.symbol.name : market.base_token.symbol.name
     },
 
     getBidSymbol(deal) {
       const market = this.markets_obj[deal.market]
 
-      return deal.type == 'buymatch' ? market.base_token.symbol.name : market.quote_token.symbol.name
+      return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
     },
 
     getSymbol(market) {
@@ -157,6 +157,10 @@ export default {
       this.skip += deals.length
 
       if (deals.length) {
+        deals.map(d => {
+          d.type = this.user.name == d.bidder && d.type == 'buymatch' ? 'buy' : 'sell'
+        })
+
         this.deals.push(...deals)
         $state.loaded()
         console.log('loaded')

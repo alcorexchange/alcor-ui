@@ -1,23 +1,35 @@
 <template lang="pug">
   div.wallet-tab-bar
-    AlcorLink.tab-bar-item(v-for="{name, to, exact} in urls" :to="to" :exact="exact") {{name}}
+    AlcorLink.tab-bar-item(
+      v-for="{name, to, exact} in urls"
+      :to="to"
+      :exact="exact"
+      :key="name"
+    ) {{name}}
 </template>
 
 <script>
 import AlcorLink from '../AlcorLink.vue'
 export default {
-  components: { AlcorLink },
   name: 'WalletTabBar',
+  components: { AlcorLink },
   data: () => ({
     urls: [
       { name: 'Tokens', to: '/wallet', exact: true },
-      { name: 'Positions', to: '/wallet/positions' },
-      { name: 'Transactions', to: '/wallet/transactions' },
+      { name: 'Open Orders', to: '/wallet/positions' },
+      { name: 'History', to: '/wallet/history' },
       { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
       { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
       { name: 'Resources', to: '/wallet/resources' }
     ]
   }),
+  watch: {
+    $route() {
+      this.$nextTick(() => {
+        this.funcScrollTo()
+      })
+    }
+  },
   mounted() {
     this.funcScrollTo()
   },
@@ -27,13 +39,6 @@ export default {
         container: '.wallet-tab-bar',
         offset: -100,
         x: true
-      })
-    }
-  },
-  watch: {
-    $route() {
-      this.$nextTick(() => {
-        this.funcScrollTo()
       })
     }
   }

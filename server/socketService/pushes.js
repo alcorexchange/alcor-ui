@@ -11,3 +11,8 @@ export function pushAccountNewMatch(io, m) {
     price: m.unit_price
   })
 }
+
+export function pushDeal(io, match) {
+  const { market, time, ask, bid, type, unit_price, trx_id, chain } = match
+  io.to(`deals:${chain}.${market}`).emit('new_deals', [{ time: new Date(time).getTime(), ask, bid, type, unit_price, trx_id }])
+}

@@ -42,7 +42,6 @@ export const actions = {
       })
     })
 
-
     commit('setOrders', orders)
   }
 }

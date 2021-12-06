@@ -29,7 +29,6 @@ el-card
       PleaseLoginButton
         el-button(type="primary").w-100.mt-2 Swap
 
-
   //TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="50").ml-2
   //span {{ network.baseToken.symbol }}@{{ network.baseToken.contract }}
 </template>
@@ -38,15 +37,15 @@ el-card
 import { mapGetters, mapState } from 'vuex'
 
 import { asset, number_to_asset } from 'eos-common'
-import { computeForward, calcPrice } from '~/utils/pools'
+import { computeForward } from '~/utils/pools'
 import PleaseLoginButton from '~/components/elements/PleaseLoginButton'
 import TokenImage from '~/components/elements/TokenImage'
 import config from '~/config'
 
-const PEGS = {
-  telos: 'EOSTLOS',
-  wax: 'EOSWAX'
-}
+// const PEGS = {
+//   telos: 'EOSTLOS',
+//   wax: 'EOSWAX'
+// }
 
 export default {
   components: {

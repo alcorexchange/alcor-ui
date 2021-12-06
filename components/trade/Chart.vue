@@ -6,18 +6,6 @@
 // TODO Зафиксить график при переключении
 import { mapState } from 'vuex'
 
-const resolutions = {
-  1: 1 * 60,
-  5: 5 * 60,
-  15: 15 * 60,
-  30: 30 * 60,
-  60: 60 * 60,
-  240: 60 * 60 * 4,
-  '1D': 60 * 60 * 24,
-  '1W': 60 * 60 * 24 * 7,
-  '1M': 60 * 60 * 24 * 30
-}
-
 export default {
   data() {
     return {
@@ -51,19 +39,27 @@ export default {
       this.onRealtimeCallback(candle)
     })
 
-    this.$socket.on('connect', (candle) => {
+    this.$socket.io.on('reconnect', () => {
       this.reset()
     })
   },
 
   methods: {
+    save() {
+      this.widget.save((o) => { this.$store.commit('settings/setTwChart', o) })
+    },
+
+    load() {
+      const twChart = this.$store.state.settings.twChart
+      if (!twChart.charts) return
+      this.widget.load(this.$store.state.settings.twChart)
+    },
+
     reset() {
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
-        this.widget.activeChart().resetData()
-        this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-        //this.widget.activeChart().symbolExt().description = `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`
-        //this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: to, resolution: this.resolution } })
+      } else {
+        this.mountChart()
       }
     },
 
@@ -116,7 +112,6 @@ export default {
               //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
               //type: symbolItem.type,
               session: '24x7',
-              timezone: 'Etc/UTC',
               //exchange: symbolItem.exchange,
               minmov: 1,
               pricescale: 100000000,
@@ -159,6 +154,8 @@ export default {
             )
 
             onHistoryCallback(charts, { noData: charts.length == 0 })
+            this.widget.activeChart().resetData()
+            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
           },
 
           unsubscribeBars: (subscriberUID) => {
@@ -169,6 +166,7 @@ export default {
         interval: '240',
         container_id: 'tv_chart_container',
         library_path: '/charting_library/',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
           intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
         },
@@ -214,7 +212,8 @@ export default {
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
-          'header_in_fullscreen_mode'
+          'header_in_fullscreen_mode',
+          'save_chart_properties_to_local_storage'
         ],
         //charts_storage_url: this.chartsStorageUrl,
         //charts_storage_api_version: this.chartsStorageApiVersion,
@@ -236,6 +235,13 @@ export default {
       }
 
       this.widget = new Widget(widgetOptions)
+      this.widget.onChartReady(() => {
+        this.load()
+        this.widget.subscribe('onAutoSaveNeeded', () => {
+          console.log('chart save..')
+          this.save()
+        })
+      })
     }
   }
 }
