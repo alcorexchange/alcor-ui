@@ -58,6 +58,8 @@ export default {
     reset() {
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
+      } else {
+        this.mountChart()
       }
     },
 
