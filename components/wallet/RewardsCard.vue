@@ -67,6 +67,7 @@ export default {
             data: { owner: this.user.name }
           }
         ])
+        this.$notify({ type: 'success', message: 'Refunded!' })
       } catch (e) {
         this.$notify({ type: 'error', message: e.message })
       } finally {
