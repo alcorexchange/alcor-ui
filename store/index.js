@@ -1,5 +1,6 @@
 import axios from 'axios'
 import debounce from 'lodash/debounce'
+import findIndex from 'lodash/findIndex'
 
 import { make256key, nameToUint64 } from '~/utils'
 
@@ -34,6 +35,20 @@ export const state = () => ({
 export const mutations = {
   setNetwork: (state, network) => {
     state.network = network
+  },
+
+  // TODO Refactor for better balances handling
+  // (separate array not in user object)
+  updateBalance(state, balance) {
+    if (!state.user) return
+    if (!state.user.balances) state.user.balances = []
+
+    const balances = JSON.parse(JSON.stringify(state.user.balances))
+    const index = findIndex(balances, { id: balance.id })
+    if (index === -1) balances.push(balance)
+    else balances.splice(index, 1, { ...balances[index], ...balance })
+
+    state.user = { ...state.user, balances }
   },
 
   setUser: (state, user) => state.user = user,
@@ -130,6 +145,19 @@ export const actions = {
 
     const account = await this.$rpc.get_account(state.user.name)
     commit('setAccount', account)
+
+    if (account) {
+      // add core balance
+      const amount = account.core_liquid_balance.split(' ')[0]
+
+      commit('updateBalance', {
+        id: state.network.baseToken.symbol + '@' + state.network.baseToken.contract,
+        contract: state.network.baseToken.contract,
+        currency: state.network.baseToken.symbol,
+        decimals: state.network.baseToken.precision,
+        amount
+      })
+    }
   },
 
   async loadAccountLimits({ commit, state }) {
@@ -252,6 +280,7 @@ export const actions = {
           return 0
         })
 
+        // TODO Refactor this and make separate filter/computed for getting token in USD
         // Calc USD value
         balances.map(token => {
           token.id = token.currency + '@' + token.contract
@@ -276,9 +305,9 @@ export const actions = {
           token.usd_value = token.usd_value.toLocaleString('en', {
             minimumFractionDigits: 2, maximumFractionDigits: 5
           })
-        })
 
-        commit('setUser', { ...state.user, balances }, { root: true })
+          commit('updateBalance', token)
+        })
       }).catch(e => console.log('balances: ', e))
     }
   },
