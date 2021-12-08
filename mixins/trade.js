@@ -325,7 +325,12 @@ export const tradeMixin = {
         await this.$store.dispatch('chain/sendTransaction', actions)
 
         setTimeout(() => {
-          this.$store.dispatch('loadUserBalances')
+          //this.$store.dispatch('loadUserBalances')
+
+          console.log('call updateBalance')
+          this.$store.dispatch('updateBalance', { contract: this.base_token.contract, symbol: this.base_token.symbol.name })
+          this.$store.dispatch('updateBalance', { contract: this.quote_token.contract, symbol: this.quote_token.symbol.name })
+
           //this.$store.dispatch('loadOrders', this.$store.state.market.id)
         }, 1000)
 
@@ -363,7 +368,10 @@ export const tradeMixin = {
         })
 
         setTimeout(() => {
-          this.$store.dispatch('loadUserBalances')
+          //this.$store.dispatch('loadUserBalances')
+
+          this.$store.dispatch('updateBalance', { contract: this.base_token.contract, symbol: this.base_token.symbol.name })
+          this.$store.dispatch('updateBalance', { contract: this.quote_token.contract, symbol: this.quote_token.symbol.name })
           //this.$store.dispatch('loadOrders', this.$store.state.market.id)
         }, 1000)
 

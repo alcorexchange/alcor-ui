@@ -134,6 +134,9 @@ export const actions = {
         })
       }
     })
+
+    // TODO Update balance each 5 seconds using
+    //set
   },
 
   update({ dispatch }) {
@@ -177,6 +180,7 @@ export const actions = {
 
     if (process.client) {
       dispatch('loadOrders', market.id, { root: true })
+      dispatch('updatePairBalances')
     }
   },
 
@@ -390,7 +394,7 @@ export const actions = {
       const res = await dispatch('chain/sendTransaction', objTrans, { root: true })
         .then(() => {
           setTimeout(() => {
-            dispatch('loadUserBalances', null, { root: true })
+            dispatch('updatePairBalances')
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
@@ -400,6 +404,18 @@ export const actions = {
       captureException(e, { extra: { order: this.order } })
       return { err: true, desc: e }
     }
+  },
+
+  updatePairBalances({ state, dispatch, rootState }) {
+    dispatch('updateBalance', {
+      contract: state.base_token.contract,
+      symbol: state.base_token.symbol.name
+    }, { root: true })
+
+    dispatch('updateBalance', {
+      contract: state.quote_token.contract,
+      symbol: state.quote_token.symbol.name
+    }, { root: true })
   },
 
   async fetchSell({ state, dispatch, rootState }, trade) {
@@ -426,7 +442,7 @@ export const actions = {
       const res = await dispatch('chain/transfer', objTrans, { root: true })
         .then(() => {
           setTimeout(() => {
-            dispatch('loadUserBalances', null, { root: true })
+            dispatch('updatePairBalances')
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
@@ -455,7 +471,10 @@ export const actions = {
     })
 
     await dispatch('chain/sendTransaction', actions, { root: true })
-    setTimeout(() => dispatch('loadOrders', orders[0].market_id, { root: true }), 1000)
+    setTimeout(() => {
+      dispatch('updatePairBalances')
+      dispatch('loadOrders', orders[0].market_id, { root: true })
+    }, 1000)
   }
 }
 

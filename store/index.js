@@ -2,7 +2,7 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import findIndex from 'lodash/findIndex'
 
-import { make256key, nameToUint64 } from '~/utils'
+import { parseAsset, make256key, nameToUint64 } from '~/utils'
 
 export const strict = false
 
@@ -29,7 +29,8 @@ export const state = () => ({
   baseUrl: '',
   tokens: [],
   ibcTokens: ['eth.token'],
-  ibcAccepts: []
+  lihgHistoryBlock: null,
+  blockNum: null
 })
 
 export const mutations = {
@@ -65,7 +66,9 @@ export const mutations = {
   setAccount: (state, account) => state.account = account,
   setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,
-  setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
+  setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading,
+  setLihgHistoryBlock: (state, block) => state.lihgHistoryBlock = block,
+  setBlockNum: (state, block) => state.blockNum = block,
 }
 
 // Move to notifications module (nee create it)
@@ -93,7 +96,9 @@ export const actions = {
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
       if (loadOrdersDebounce[match.market_id]) clearTimeout(loadOrdersDebounce[match.market_id])
+
       loadOrdersDebounce[match.market_id] = setTimeout(() => {
+        dispatch('market/updatePairBalances', null, { root: true })
         dispatch('loadOrders', match.market_id)
       }, 500)
 
@@ -136,7 +141,7 @@ export const actions = {
   },
 
   update({ dispatch }) {
-    dispatch('loadUserBalances')
+    //dispatch('loadUserBalances')
     dispatch('loadAccountData')
   },
 
@@ -145,6 +150,7 @@ export const actions = {
 
     const account = await this.$rpc.get_account(state.user.name)
     commit('setAccount', account)
+    commit('setBlockNum', account.head_block_num)
 
     if (account) {
       // add core balance
@@ -162,7 +168,6 @@ export const actions = {
 
   async loadAccountLimits({ commit, state }) {
     if (!state.user) return
-    console.log('loadAccountLimits', 1)
 
     const { rows: [account] } = await this.$rpc.get_table_rows({
       code: state.network.contract,
@@ -172,8 +177,6 @@ export const actions = {
       lower_bound: nameToUint64(state.user.name),
       upper_bound: nameToUint64(state.user.name)
     })
-
-    console.log('loadAccountLimits', 2)
 
     if (account) commit('setAccountLimits', account)
   },
@@ -212,7 +215,6 @@ export const actions = {
   },
 
   async loadUserOrders({ state, commit, dispatch }) {
-    console.log('loadUserOrders', state.accountLimits)
     if (!state.user || !state.user.name) return
 
     const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
@@ -224,7 +226,6 @@ export const actions = {
       await dispatch('loadOrders', market_id)
       await new Promise(resolve => setTimeout(resolve, 250))
     }
-    console.log('loadOrders finish.')
     commit('setUserOrdersLoading', false)
   },
 
@@ -264,6 +265,24 @@ export const actions = {
     }).catch(e => console.log(e))
   },
 
+  async updateBalance({ state, commit, getters, dispatch }, { contract, symbol }) {
+    if (!state.user) return
+
+    const balance = await this.$rpc.get_currency_balance(contract, state.user.name, symbol)
+    if (!balance[0]) return
+
+
+    const asset = parseAsset(balance[0])
+
+    commit('updateBalance', {
+      id: symbol + '@' + contract,
+      contract,
+      currency: symbol,
+      decimals: asset.symbol.precision,
+      amount: asset.prefix
+    })
+  },
+
   loadUserBalances({ state, rootState, commit }) {
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
@@ -271,6 +290,8 @@ export const actions = {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
       axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`).then((r) => {
         const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
+        commit('setLihgHistoryBlock', r.data.chain.block_num)
+
         balances.sort((a, b) => {
           if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 
