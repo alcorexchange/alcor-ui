@@ -154,6 +154,7 @@ export default {
     pairs() {
       if (this.amount1 && this.amount2) {
         this.amount1Input(this.amount1)
+        this.$store.dispatch('swap/updatePairBalances')
       }
     }
   },

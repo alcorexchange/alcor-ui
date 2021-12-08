@@ -96,6 +96,22 @@ export const actions = {
     commit('setOutput', i)
   },
 
+  updatePairBalances({ getters, dispatch }) {
+    if (!getters.current) return
+
+    const { pool1, pool2 } = getters.current
+
+    dispatch('updateBalance', {
+      contract: pool1.contract,
+      symbol: pool1.quantity.symbol.code().to_string()
+    }, { root: true })
+
+    dispatch('updateBalance', {
+      contract: pool2.contract,
+      symbol: pool2.quantity.symbol.code().to_string()
+    }, { root: true })
+  },
+
   async getPairs({ commit, rootState, rootGetters }) {
     const pairs = []
 

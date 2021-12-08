@@ -158,6 +158,7 @@ export default {
     withdraw_token() {
       this.amount = 0.0
       this.amountChange()
+      this.$store.dispatch('swap/updatePairBalances')
     }
   },
 
