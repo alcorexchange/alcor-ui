@@ -29,7 +29,7 @@
           template(slot-scope='{row}')
             div.amount-val
               .amount {{ row.amount | commaFloat(4) }}
-              .val.cancel = ${{ row.usd_value }}
+              .val.cancel = ${{ row.usd_value | commaFloat }}
         el-table-column(
           label='Available',
           sort-by='amount',
@@ -38,7 +38,7 @@
           template(slot-scope='{row}')
             div.amount-val
               .amount {{ row.amount | commaFloat(4) }}
-              .val.cancel = ${{ row.usd_value }}
+              .val.cancel = ${{ row.usd_value | commaFloat }}
         //el-table-column(label='In Order')
           //- TODO: dynamic
           template(slot-scope='{row}')
@@ -95,9 +95,14 @@ export default {
 
           return b.id.toLowerCase().includes(this.search.toLowerCase())
         })
-        .sort((a, b) =>
-          a.contract == this.network.baseToken.contract ? -1 : 1
-        )
+        .sort((a, b) => {
+          if (a.contract == this.network.baseToken.contract) return -1
+
+          if (a.usd_value > b.usd_value) return -1
+          if (a.usd_value < b.usd_value) return 1
+
+          return 0
+        })
     }
   },
 

@@ -147,7 +147,7 @@ const networks = {
     monitor: 'http://proton.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://proton.pink.gg/',
+    hyperion: 'https://proton.eu.eosamsterdam.net',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [
@@ -208,7 +208,8 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://wax.eosusa.news/',
+    hyperion: 'https://wax.eu.eosamsterdam.net',
+
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
@@ -276,7 +277,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://api.light.xeos.me',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'https://telos.caleos.io/',
+    hyperion: 'http://api.kainosbp.com',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [

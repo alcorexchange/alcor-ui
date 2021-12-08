@@ -298,10 +298,8 @@ export default {
           series: [{ name: this.tab, data }]
         },
         true
-        //animate
       )
       this.updateChartOprions()
-      console.log(data)
     },
 
     async fetchCharts(animate = false) {

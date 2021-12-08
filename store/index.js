@@ -1,3 +1,4 @@
+// TODO Module needs fucking refactoring.
 import axios from 'axios'
 import debounce from 'lodash/debounce'
 import findIndex from 'lodash/findIndex'
@@ -140,8 +141,12 @@ export const actions = {
     commit('setTokens', tokens)
   },
 
-  update({ dispatch }) {
-    //dispatch('loadUserBalances')
+  update({ dispatch, state }) {
+    const route = this._vm.$nuxt.$route
+    if (!['trade-index-id', 'swap'].includes(route)) {
+      dispatch('loadUserBalances')
+    }
+
     dispatch('loadAccountData')
   },
 
@@ -283,53 +288,110 @@ export const actions = {
     })
   },
 
-  loadUserBalances({ state, rootState, commit }) {
+  async loadUserBalances({ dispatch }) {
+    try {
+      await dispatch('loadUserBalancesLightAPI')
+    } catch (e) {
+      console.log('Getting balances from LightAPI failed:', e)
+      console.log('Try with hyperion', e)
+      await dispatch('loadUserBalancesHyperion')
+    }
+  },
+
+  async loadUserBalancesLightAPI({ state, rootState, commit }) {
+    if (state.user) {
+      //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+      // FIXME Почему то нукстовский аксиос не работает для телефонов
+      const r = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`)
+
+      // Check sync is correct
+      const block_time = new Date(r.data.chain.block_time + ' UTC')
+      const diff = (new Date().getTime() - block_time.getTime()) / 1000
+
+      if (diff > 60) throw new Error('LightAPI sync is more the one minute out.')
+
+      const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
+      commit('setLihgHistoryBlock', r.data.chain.block_num)
+
+      // TODO Refactor this and make separate filter/computed for getting token in USD
+      // Calc USD value
+      balances.map(token => {
+        token.id = token.currency + '@' + token.contract
+
+        const { systemPrice } = rootState.wallet
+        const market = state.markets.filter(m => {
+          return m.base_token.contract == state.network.baseToken.contract &&
+            m.quote_token.contract == token.contract &&
+            m.quote_token.symbol.name == token.currency
+        })[0]
+
+        if (market) {
+          token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+        } else {
+          token.usd_value = 0
+        }
+
+        if (token.contract == state.network.baseToken.contract) {
+          token.usd_value = parseFloat(token.amount) * systemPrice
+        }
+
+        token.usd_value = token.usd_value.toLocaleString('en', {
+          minimumFractionDigits: 2, maximumFractionDigits: 5
+        })
+
+        commit('updateBalance', token)
+      })
+    }
+  },
+
+  // Using Hyperion
+  async loadUserBalancesHyperion({ state, rootState, commit }) {
+    console.log('loadUserBalances..')
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
-      axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`).then((r) => {
-        const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
-        commit('setLihgHistoryBlock', r.data.chain.block_num)
+      const r = await axios.get(`${state.network.hyperion}/v2/state/get_tokens`, { params: { account: rootState.user.name } })
+      const balances = r.data.tokens.filter(b => parseFloat(b.amount) > 0)
 
-        balances.sort((a, b) => {
-          if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
+      //balances.sort((a, b) => {
+      //  if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
+      //  return 1
+      //})
 
-          if (a.currency < b.currency) { return -1 }
-          if (a.currency > b.currency) { return 1 }
+      // TODO Refactor this and make separate filter/computed for getting token in USD
+      // Calc USD value
+      balances.map(token => {
+        if (!token.precision) token.precision = 0
+        token.currency = token.symbol
+        token.decimals = token.precision
+        token.id = token.currency + '@' + token.contract
 
-          return 0
-        })
+        const { systemPrice } = rootState.wallet
+        const market = state.markets.filter(m => {
+          return m.base_token.contract == state.network.baseToken.contract &&
+            m.quote_token.contract == token.contract &&
+            m.quote_token.symbol.name == token.currency
+        })[0]
 
-        // TODO Refactor this and make separate filter/computed for getting token in USD
-        // Calc USD value
-        balances.map(token => {
-          token.id = token.currency + '@' + token.contract
+        if (market) {
+          token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+        } else {
+          token.usd_value = 0
+        }
 
-          const { systemPrice } = rootState.wallet
-          const market = state.markets.filter(m => {
-            return m.base_token.contract == state.network.baseToken.contract &&
-              m.quote_token.contract == token.contract &&
-              m.quote_token.symbol.name == token.currency
-          })[0]
+        if (token.contract == state.network.baseToken.contract) {
+          token.usd_value = parseFloat(token.amount) * systemPrice
+        }
+      })
 
-          if (market) {
-            token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
-          } else {
-            token.usd_value = 0
-          }
+      balances.sort((a, b) => {
+        if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 
-          if (token.contract == state.network.baseToken.contract) {
-            token.usd_value = parseFloat(token.amount) * systemPrice
-          }
+        return 0
+      })
 
-          token.usd_value = token.usd_value.toLocaleString('en', {
-            minimumFractionDigits: 2, maximumFractionDigits: 5
-          })
-
-          commit('updateBalance', token)
-        })
-      }).catch(e => console.log('balances: ', e))
+      balances.map(b => commit('updateBalance', b))
     }
   },
 
