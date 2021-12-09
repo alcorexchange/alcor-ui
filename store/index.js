@@ -335,10 +335,6 @@ export const actions = {
           token.usd_value = parseFloat(token.amount) * systemPrice
         }
 
-        token.usd_value = token.usd_value.toLocaleString('en', {
-          minimumFractionDigits: 2, maximumFractionDigits: 5
-        })
-
         commit('updateBalance', token)
       })
     }
