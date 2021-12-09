@@ -47,7 +47,10 @@ export const mutations = {
 
     const balances = JSON.parse(JSON.stringify(state.user.balances))
     const index = findIndex(balances, { id: balance.id })
-    if (index === -1) balances.push(balance)
+
+    if (index !== -1 && parseFloat(balance.amount) <= 0) balances.splice(index, 1)
+    else if (index === -1 && parseFloat(balance.amount) <= 0) return
+    else if (index === -1) balances.push(balance)
     else balances.splice(index, 1, { ...balances[index], ...balance })
 
     state.user = { ...state.user, balances }
@@ -285,6 +288,32 @@ export const actions = {
       currency: symbol,
       decimals: asset.symbol.precision,
       amount: asset.prefix
+    })
+  },
+
+  async loadLPTBalances({ state, commit }) {
+    if (!state.user) return
+
+    const { rows } = await this.$rpc.get_table_rows({
+      code: state.network.pools.contract,
+      scope: state.user.name,
+      table: 'accounts',
+      limit: 1000
+    })
+
+    const balances = state.user.balances.filter(b => b.contract != state.network.pools.contract)
+    commit('setUser', { ...state.user, balances })
+
+    rows.map(r => {
+      const asset = parseAsset(r.balance)
+
+      commit('updateBalance', {
+        id: asset.symbol.symbol + '@' + 'alcorammswap',
+        contract: 'alcorammswap',
+        currency: asset.symbol.symbol,
+        decimals: asset.symbol.precision,
+        amount: asset.prefix
+      })
     })
   },
 

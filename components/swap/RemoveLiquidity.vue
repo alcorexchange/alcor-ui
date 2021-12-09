@@ -158,7 +158,6 @@ export default {
     withdraw_token() {
       this.amount = 0.0
       this.amountChange()
-      this.$store.dispatch('swap/updatePairBalances')
     }
   },
 
@@ -243,7 +242,10 @@ export default {
         )
         // UPDATING OF user balance
         await this.$store.dispatch('loadUserLiqudityPositions')
-        setTimeout(() => this.$store.dispatch('loadUserBalances'), 2000)
+        setTimeout(() => {
+          this.$store.dispatch('loadLPTBalances')
+          this.$store.dispatch('swap/updatePairBalances')
+        }, 1000)
 
         this.amount = 0.0
         this.amountChange()
