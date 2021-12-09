@@ -29,6 +29,7 @@ export default {
 
     id(to, from) {
       this.reset()
+      this.load()
     }
   },
 
@@ -46,13 +47,17 @@ export default {
 
   methods: {
     save() {
-      this.widget.save((o) => { this.$store.commit('settings/setTwChart', o) })
+      const twChart = JSON.parse(JSON.stringify(this.$store.state.settings.twChart))
+      this.widget.save((o) => {
+        twChart[this.id] = o
+        this.$store.commit('settings/setTwChart', twChart)
+      })
     },
 
     load() {
-      const twChart = this.$store.state.settings.twChart
-      if (!twChart.charts) return
-      this.widget.load(this.$store.state.settings.twChart)
+      const twChart = this.$store.state.settings.twChart[this.id]
+      if (!twChart || !twChart.charts) return
+      this.widget.load(twChart)
     },
 
     reset() {
