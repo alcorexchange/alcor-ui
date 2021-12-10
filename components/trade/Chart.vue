@@ -56,6 +56,7 @@ export default {
     },
 
     load() {
+      // FIXME Not workin in production
       const twChart = this.$store.state.settings.twChart[this.id]
       console.log('load chart for', this.id)
       if (!twChart || !twChart.charts) return
