@@ -37,7 +37,7 @@
     .action-item
       UnstakeAction
   SSpacer(:high="true")
-  //Validators
+  Validators
   //SSpacer(:high="true")
   //Proxies
 </div>

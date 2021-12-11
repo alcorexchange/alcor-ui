@@ -74,7 +74,12 @@ export default {
         rewardPerDay: 2143.1234
       }
     ]
-  })
+  }),
+
+  async mounted() {
+    const r = await this.$axios.get('https://www.api.bloks.io/wax/producers?pageNum=1&perPage=50')
+    console.log(r)
+  }
 }
 </script>
 
