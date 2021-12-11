@@ -2,7 +2,7 @@
 // TODO Сделать подгрузку инфы о токене с сервиса там о дапах который
 
 .row
-  .col
+  .col.trade-page
     .row
       //.col(v-if="id == 26 && network.name == 'wax'").mb-2
         el-alert(title='TLM Market are closed from 6.04.2021 till 13.04.2021!' type='info' effect='dark')
@@ -62,9 +62,23 @@ export default {
           name: 'description',
           content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain!`
         },
-        { hid: 'og:image', name: 'og:image', content: this.$tokenLogo(quote_token.symbol.name, quote_token.contract) }
+        {
+          hid: 'og:image',
+          name: 'og:image',
+          content: this.$tokenLogo(
+            quote_token.symbol.name,
+            quote_token.contract
+          )
+        }
       ]
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+.trade-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+}
+</style>
