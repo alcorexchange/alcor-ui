@@ -7,6 +7,7 @@
         el-table.market-table(
         :data='list',
         style='width: 100%',
+        height="400"
         )
             el-table-column(label='Rank' width="68")
                 template(#default='{row}') {{row.rank}}
@@ -95,9 +96,9 @@ export default {
   flex-direction: column;
 }
 .main {
-  height: auto;
-  max-height: 400px;
-  overflow: auto;
+  // height: auto;
+  // max-height: 400px;
+  // overflow: auto;
 }
 .status-container {
   display: flex;
