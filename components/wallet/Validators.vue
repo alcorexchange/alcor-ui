@@ -14,14 +14,15 @@
                 template(slot-scope='{row}')
                     .asset-container
                       .logox
-                        img(:src="row.logo")
-                      span {{ row.candidate_name }}
+                        img(:src="row.logo" v-if="row.logo")
+                      span {{ row.owner }}
             el-table-column(
                 label='Status',
             )
                 template(slot-scope='{row}')
                     //- Can add 'red' or 'yellow' or 'green' class based on status
-                    .status Top {{row.rank}}
+                    .status-container
+                      .status(:class="{red: row.rank > 21}") {{row.rank > 21 ? 'Standby' : `Top 21`}}
             el-table-column(
                 label='Location',
             )
@@ -31,10 +32,12 @@
             )
                 template(slot-scope='{row}')
                     .links
+                        a(:href="row.url" target="_blank" v-if="row.url")
+                          img.social-icon(src="@/assets/icons/linkweb.svg")
                         a(:href="`http://t.me/${row.telegram}`" target="_blank" v-if="row.telegram")
-                          img.social-icon(src="@/assets/icons/tg.svg")
+                          img.social-icon(src="@/assets/icons/linktg.svg")
                         a(:href="`http://twitter.com/${row.twitter}`" target="_blank" v-if="row.twitter")
-                          img.social-icon(src="@/assets/icons/tw.svg")
+                          img.social-icon(src="@/assets/icons/linktw.svg")
             el-table-column(
                 label='Votes',
             )
@@ -45,6 +48,7 @@
                 template(slot-scope='{row}') {{ parseInt(row.num_votes) }}
             el-table-column(
                 label='Rewards Per Day',
+                min-width="120"
             )
                 template(slot-scope='{row}') {{ row.reward }}
             el-table-column(
@@ -95,8 +99,11 @@ export default {
   max-height: 400px;
   overflow: auto;
 }
+.status-container {
+  display: flex;
+}
 .status {
-  padding: 8px;
+  padding: 8px 12px;
   border-radius: 10px;
   background: var(--hover);
   text-align: center;
