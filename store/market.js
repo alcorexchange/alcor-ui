@@ -29,6 +29,7 @@ export const state = () => ({
   deals: [],
 
   streaming: false,
+  last_market_subscribed: null,
 
   orderLoading: false,
 
@@ -52,6 +53,7 @@ export const mutations = {
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
+  setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
@@ -85,7 +87,13 @@ export const actions = {
       commit('setBids', [])
       commit('setAsks', [])
 
-      if (state.id) dispatch('startStream', state.id)
+      if (state.last_market_subscribed !== null) {
+        dispatch('unsubscribe', state.last_market_subscribed)
+      }
+
+      if (state.id && this._vm.$nuxt.$route.name == 'trade-index-id') {
+        dispatch('startStream', state.id)
+      }
     })
 
     this.$socket.on('orderbook_buy', bids => {
@@ -158,10 +166,10 @@ export const actions = {
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
-
     this.$socket.emit('subscribe', { room: 'orderbook', params: { chain: rootState.network.name, market, side: 'buy' } })
     this.$socket.emit('subscribe', { room: 'orderbook', params: { chain: rootState.network.name, market, side: 'sell' } })
 
+    commit('setLastMarketSubscribed', market)
     commit('setStreaming', true)
   },
 

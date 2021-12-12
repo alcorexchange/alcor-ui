@@ -145,7 +145,7 @@ export const actions = {
   },
 
   update({ dispatch, state }) {
-    const route = this._vm.$nuxt.$route
+    const route = this._vm.$nuxt.$route.name
     if (!['trade-index-id', 'swap'].includes(route)) {
       dispatch('loadUserBalances')
     }
