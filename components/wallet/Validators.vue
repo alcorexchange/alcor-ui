@@ -5,63 +5,61 @@
         span.text Validators
     .main
         el-table.market-table(
-        :data='mock',
+        :data='list',
         style='width: 100%',
         )
             el-table-column(label='Rank' width="68")
-                template(slot-scope='{row}') {{row.rank}}
+                template(#default='{row}') {{row.rank}}
             el-table-column(label='Guilds')
                 template(slot-scope='{row}')
                     .asset-container
-                        TokenImage(:src="$tokenLogo('', '')" height="25")
-                        span {{ row.guilds }}
+                      .logox
+                        img(:src="row.logo")
+                      span {{ row.candidate_name }}
             el-table-column(
                 label='Status',
             )
                 template(slot-scope='{row}')
                     //- Can add 'red' or 'yellow' or 'green' class based on status
-                    .status.red {{row.status}}
+                    .status Top {{row.rank}}
             el-table-column(
                 label='Location',
             )
-                //- TODO: dynamic
-                template(slot-scope='{row}') {{ row.location }}
+                template(slot-scope='{row}') {{ row.country }}
             el-table-column(
                 label='Links',
             )
                 template(slot-scope='{row}')
                     .links
-                        el-link(type="primary" target="_blank" v-if="row.links.website")
-                            i.el-icon-copy-document
-                        el-link(type="primary" target="_blank" v-if="row.links.website")
-                            i.el-icon-copy-document
+                        a(:href="`http://t.me/${row.telegram}`" target="_blank" v-if="row.telegram")
+                          img.social-icon(src="@/assets/icons/tg.svg")
+                        a(:href="`http://twitter.com/${row.twitter}`" target="_blank" v-if="row.twitter")
+                          img.social-icon(src="@/assets/icons/tw.svg")
             el-table-column(
                 label='Votes',
             )
-                //- TODO: dynamic
-                template(slot-scope='{row}') {{ row.votes }}%
+                template(slot-scope='{row}') {{ row.percentage_votes.toFixed(2) }}%
             el-table-column(
                 label='Total Votes',
             )
-                //- TODO: dynamic
-                template(slot-scope='{row}') {{ row.totalVotes }}
+                template(slot-scope='{row}') {{ parseInt(row.num_votes) }}
             el-table-column(
                 label='Rewards Per Day',
             )
-                //- TODO: dynamic
-                template(slot-scope='{row}') {{ row.rewardPerDay }}
+                template(slot-scope='{row}') {{ row.reward }}
             el-table-column(
                 label='Action',
             )
                 //- TODO: dynamic
                 template(slot-scope='{row}')
-                    el-button(type="text") Vote
+                    el-button.vote(type="text") Vote
 </template>
 
 <script>
 export default {
   name: 'RewardsCard',
   data: () => ({
+    list: [],
     mock: [
       {
         rank: 1,
@@ -77,8 +75,12 @@ export default {
   }),
 
   async mounted() {
-    const r = await this.$axios.get('https://www.api.bloks.io/wax/producers?pageNum=1&perPage=50')
-    console.log(r)
+    const network = this.$store.state.network.name
+    const { data } = await this.$axios.get(
+      `https://www.api.bloks.io/${network}/producers?pageNum=1&perPage=50`
+    )
+    console.log(data)
+    this.list = data.producers
   }
 }
 </script>
@@ -87,7 +89,11 @@ export default {
 .resource-page-card {
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
+}
+.main {
+  height: auto;
+  max-height: 400px;
+  overflow: auto;
 }
 .status {
   padding: 8px;
@@ -106,9 +112,30 @@ export default {
     border-color: #f39c12;
   }
 }
+.asset-container {
+  display: flex;
+  align-items: center;
+  .logox {
+    margin-right: 8px;
+    img {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  span {
+    white-space: nowrap;
+  }
+}
+.social-icon {
+  width: 20px;
+  height: 20px;
+}
 .links {
   > * {
     padding: 2px;
   }
+}
+.vote {
+  color: var(--main-green) !important;
 }
 </style>
