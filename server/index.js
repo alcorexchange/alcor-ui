@@ -5,13 +5,10 @@ import mongoose from 'mongoose'
 import consola from 'consola'
 import bodyParser from 'body-parser'
 
-import NodeCache from 'node-cache'
-export const cache = new NodeCache()
-
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
-
 axiosRetry(axios, { retries: 3 })
+
 import { Nuxt, Builder } from 'nuxt'
 
 import config from '../nuxt.config.js'
@@ -23,7 +20,7 @@ import { serverInit } from './utils'
 import { markets } from './markets'
 import { pools } from './pools'
 import { account } from './account'
-import { cs } from './coinswitch'
+//import { cs } from './coinswitch'
 
 const app = express()
 
@@ -56,7 +53,7 @@ async function start () {
   app.use('/api/markets', markets)
   app.use('/api/account', account)
   app.use('/api/pools', pools)
-  app.use('/api/coinswitch', cs)
+  //app.use('/api/coinswitch', cs)
 
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
