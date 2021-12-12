@@ -95,11 +95,6 @@ export default {
   display: flex;
   flex-direction: column;
 }
-.main {
-  // height: auto;
-  // max-height: 400px;
-  // overflow: auto;
-}
 .status-container {
   display: flex;
 }
