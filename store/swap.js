@@ -1,3 +1,5 @@
+import findIndex from 'lodash/findIndex'
+
 import { asset } from 'eos-common'
 import { parseAsset, make256key } from '~/utils'
 import { preparePair, get_second_tokens, get_all_tokens } from '~/utils/pools'
@@ -29,7 +31,14 @@ export const mutations = {
   setTab: (state, tab) => state.tab = tab,
   setWithdrawToken: (state, token) => state.withdraw_token = token,
   setStream: (state, stream) => state.stream = stream,
-  setSlippage: (state, slippage) => state.slippage = slippage
+  setSlippage: (state, slippage) => state.slippage = slippage,
+
+  updatePair: (state, pair) => {
+    const index = findIndex(state.pairs, { id: pair.id })
+    if (index === -1) return console.log('not updated pair: ', pair.id)
+
+    state.pairs.splice(index, 1, pair)
+  }
 }
 
 export const actions = {
@@ -182,15 +191,7 @@ export const actions = {
       return console.log('Not found pair for update: ', pair_id)
     }
 
-    const pairs = state.pairs
-    for (let i = 0; i < pairs.length; i++) {
-      if (pairs[i].id == pair_id) {
-        this._vm.$set(state.pairs, new_pair.id, preparePair(new_pair))
-        return
-      }
-    }
-
-    console.log('not updated pair: ', pair_id)
+    commit('updatePair', preparePair(new_pair))
   }
 }
 
