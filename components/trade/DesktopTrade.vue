@@ -128,6 +128,7 @@ export default {
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
+      this.$store.commit('swap/setTab', 'Swap')
       this.$router.push('/swap')
     }
   }
