@@ -208,7 +208,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://wax.eu.eosamsterdam.net',
+    hyperion: 'https://wax.eosrio.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
