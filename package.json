@@ -17,6 +17,7 @@
     "@eosrio/hyperion-stream-client": "^0.4.0-beta.5",
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/sentry": "^4.3.4",
+    "@proton/web-sdk": "^2.7.23-67",
     "@scatterjs/core": "^2.7.54",
     "@scatterjs/eosjs2": "^1.5.36",
     "@vue/eslint-config-standard": "^5.0.0",

@@ -1,4 +1,4 @@
-import { ConnectWallet } from '@bloks/web-sdk'
+import { ConnectWallet } from '@proton/web-sdk'
 
 class WalletBase {
   network = null
