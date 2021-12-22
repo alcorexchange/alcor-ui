@@ -13,6 +13,13 @@
             el-alert(type="error" show-icon)
               .lead Potential SCAM token!
 
+      .col(v-if="$store.state.market.quote_token.str == 'DMT@shmothership'")
+        .row.mb-2
+          .col
+            el-alert(type="error" show-icon)
+              .lead The DMT token has been hacked. Any movement of the token (including cancellation of the order) takes 99% of the transfer amount. For any questions, please contact the DMT team!
+
+
       .col(v-if="$store.state.market.base_token.contract == 'bosibc.io' || $store.state.market.quote_token.contract == 'bosibc.io'")
         .row.mb-2
           .col
