@@ -21,6 +21,9 @@
       el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
 
+      el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
+        span  Terraformers
+
     .search-container
       el-input(
         v-model='search',
@@ -210,6 +213,10 @@ export default {
         markets = this.markets.filter(
           (i) => this.favMarkets.includes(i.id)
         )
+      } else if (this.markets_active_tab == 'Terraformers') {
+        markets = this.markets.filter(
+          (i) => i.quote_token.contract == 'unboundtoken'
+        )
       } else {
         const ibcTokens = this.$store.state.ibcTokens.filter(
           (i) => i != this.network.baseToken.contract
@@ -280,7 +287,7 @@ export default {
   flex-wrap: wrap;
   padding: 20px 0;
   .search-container {
-    width: 600px;
+    width: 500px;
   }
 }
 .table td,
