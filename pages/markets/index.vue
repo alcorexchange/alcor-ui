@@ -287,7 +287,7 @@ export default {
   flex-wrap: wrap;
   padding: 20px 0;
   .search-container {
-    width: 500px;
+    width: 450px;
   }
 }
 .table td,
