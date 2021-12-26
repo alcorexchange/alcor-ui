@@ -74,8 +74,6 @@ import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
 
-import AlcorTabs from '~/components/alcor-element/tabs/tabs'
-
 export default {
   layout: 'embed',
 
@@ -90,9 +88,7 @@ export default {
     Markets,
     MobileTrade,
     TopLine,
-    FeeRate,
-
-    AlcorTabs
+    FeeRate
   },
 
   data() {
@@ -131,6 +127,8 @@ export default {
 
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
+      this.$store.dispatch('swap/updatePair', this.relatedPool.id)
+      this.$store.commit('swap/setTab', 'Swap')
       this.$router.push('/swap')
     }
   }

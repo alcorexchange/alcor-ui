@@ -29,6 +29,7 @@ export const state = () => ({
   deals: [],
 
   streaming: false,
+  last_market_subscribed: null,
 
   orderLoading: false,
 
@@ -52,6 +53,7 @@ export const mutations = {
   setPrice: (state, price) => state.price = price,
   setDeals: (state, deals) => state.deals = deals,
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
+  setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
@@ -85,7 +87,13 @@ export const actions = {
       commit('setBids', [])
       commit('setAsks', [])
 
-      if (state.id) dispatch('startStream', state.id)
+      if (state.last_market_subscribed !== null) {
+        dispatch('unsubscribe', state.last_market_subscribed)
+      }
+
+      if (state.id && this._vm.$nuxt.$route.name == 'trade-index-id') {
+        dispatch('startStream', state.id)
+      }
     })
 
     this.$socket.on('orderbook_buy', bids => {
@@ -134,6 +142,9 @@ export const actions = {
         })
       }
     })
+
+    // TODO Update balance each 5 seconds using
+    //set
   },
 
   update({ dispatch }) {
@@ -155,10 +166,10 @@ export const actions = {
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
-
     this.$socket.emit('subscribe', { room: 'orderbook', params: { chain: rootState.network.name, market, side: 'buy' } })
     this.$socket.emit('subscribe', { room: 'orderbook', params: { chain: rootState.network.name, market, side: 'sell' } })
 
+    commit('setLastMarketSubscribed', market)
     commit('setStreaming', true)
   },
 
@@ -177,6 +188,7 @@ export const actions = {
 
     if (process.client) {
       dispatch('loadOrders', market.id, { root: true })
+      dispatch('updatePairBalances')
     }
   },
 
@@ -390,7 +402,7 @@ export const actions = {
       const res = await dispatch('chain/sendTransaction', objTrans, { root: true })
         .then(() => {
           setTimeout(() => {
-            dispatch('loadUserBalances', null, { root: true })
+            dispatch('updatePairBalances')
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
@@ -400,6 +412,18 @@ export const actions = {
       captureException(e, { extra: { order: this.order } })
       return { err: true, desc: e }
     }
+  },
+
+  updatePairBalances({ state, dispatch, rootState }) {
+    dispatch('updateBalance', {
+      contract: state.base_token.contract,
+      symbol: state.base_token.symbol.name
+    }, { root: true })
+
+    dispatch('updateBalance', {
+      contract: state.quote_token.contract,
+      symbol: state.quote_token.symbol.name
+    }, { root: true })
   },
 
   async fetchSell({ state, dispatch, rootState }, trade) {
@@ -426,7 +450,7 @@ export const actions = {
       const res = await dispatch('chain/transfer', objTrans, { root: true })
         .then(() => {
           setTimeout(() => {
-            dispatch('loadUserBalances', null, { root: true })
+            dispatch('updatePairBalances')
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
@@ -455,7 +479,10 @@ export const actions = {
     })
 
     await dispatch('chain/sendTransaction', actions, { root: true })
-    await dispatch('loadOrders', orders[0].market_id, { root: true })
+    setTimeout(() => {
+      dispatch('updatePairBalances')
+      dispatch('loadOrders', orders[0].market_id, { root: true })
+    }, 1000)
   }
 }
 

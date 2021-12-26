@@ -3,7 +3,7 @@
   import TabNav from './tab-nav';
 
   export default {
-    name: 'ElTabs',
+    name: 'AlcorTabs',
 
     components: {
       TabNav

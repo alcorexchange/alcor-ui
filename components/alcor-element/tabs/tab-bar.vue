@@ -6,7 +6,7 @@
   ></div>
 </template>
 <script>
-import { arrayFind } from 'element-ui/src/utils/util'
+import { arrayFind } from 'element-ui/lib/utils/util'
 export default {
   name: 'TabBar',
 

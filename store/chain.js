@@ -53,8 +53,11 @@ export const actions = {
   },
 
   afterLoginHook({ dispatch, rootState }) {
-    dispatch('loadUserBalances', {}, { root: true })
+    dispatch('loadAccountData', {}, { root: true })
+
+    dispatch('loadUserBalances', {}, { root: true }).then(() => dispatch('market/updatePairBalances', {}, { root: true }))
     dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true }))
+
     dispatch('loadOrders', rootState.market.id, { root: true })
 
     this.$socket.emit('subscribe', {
@@ -121,15 +124,14 @@ export const actions = {
       [
         {
           account: contract || rootState.network.contract,
-          name: type === 'bid' ? 'cancelbuy' : 'cancelsell',
+          name: `cancel${type}`,
           authorization: [rootState.user.authorization],
           data: { executor: account, market_id, order_id }
         }
       ]
     )
 
-    dispatch('loadOrders', market_id, { root: true })
-
+    setTimeout(() => dispatch('loadOrders', market_id, { root: true }), 1000)
     return r
   },
 

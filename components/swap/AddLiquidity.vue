@@ -302,7 +302,10 @@ export default {
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
         await this.$store.dispatch('loadUserLiqudityPositions')
-        setTimeout(() => this.$store.dispatch('loadUserBalances'), 2000)
+        setTimeout(() => {
+          this.$store.dispatch('loadLPTBalances')
+          this.$store.dispatch('swap/updatePairBalances')
+        }, 1000)
 
         this.visible = false
         this.$notify({
@@ -310,7 +313,6 @@ export default {
           message: 'Provided successful',
           type: 'success'
         })
-        console.log(r)
       } catch (e) {
         console.log(e)
         this.$notify({ title: 'Place order', message: e, type: 'error' })

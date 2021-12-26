@@ -4,7 +4,7 @@
     .resource-item-container
       .el-card.resource-item
           span.title.fwr Ram
-          el-progress(:percentage="ramPercent" :width="154" type="circle" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
+          alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="#333333" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
           .details
               .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
               .staked
@@ -13,7 +13,7 @@
     .resource-item-container
       .el-card.resource-item
           span.title.fwr CPU
-          el-progress(:percentage="cpuPercent" :width="154" type="circle" color="#66C167" :stroke-width="32" stroke-linecap="butt")
+          alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="#333333" color="#66C167" :stroke-width="32" stroke-linecap="butt")
           .details
               .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
               .staked
@@ -22,7 +22,7 @@
     .resource-item-container
       .el-card.resource-item
           span.title.fwr NET
-          el-progress(:percentage="netPercent" :width="154" type="circle" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
+          alcor-progress(:percentage="netPercent" :width="154" type="circle" background="#333333" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
           .details
               .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
               .staked
@@ -37,7 +37,7 @@
     .action-item
       UnstakeAction
   SSpacer(:high="true")
-  //Validators
+  Validators
   //SSpacer(:high="true")
   //Proxies
 </div>
@@ -52,6 +52,9 @@ import UnstakeAction from '@/components/wallet/UnstakeAction.vue'
 import Validators from '@/components/wallet/Validators.vue'
 import Proxies from '@/components/wallet/Proxies.vue'
 import SSpacer from '@/components/SSpacer.vue'
+
+import AlcorProgress from '~/components/alcor-element/progress'
+
 export default {
   name: 'NFTs',
   components: {
@@ -61,7 +64,8 @@ export default {
     UnstakeAction,
     Validators,
     Proxies,
-    SSpacer
+    SSpacer,
+    AlcorProgress
   },
 
   data: () => ({
@@ -85,32 +89,11 @@ export default {
     },
 
     cpuPercent() {
-      console.log(this.account)
       return Math.round((this.account.cpu_limit.used * 100) / this.account.cpu_limit.max)
     },
 
     netPercent() {
       return Math.round((this.account.net_limit.used * 100) / this.account.net_limit.max)
-    }
-  },
-
-  watch: {
-    user() {
-      // TODO Do it in a better way
-      const strokes = document.getElementsByClassName('el-progress-circle__track')
-
-      for (const s of strokes) {
-        s.setAttribute('stroke', '#333333')
-      }
-    },
-
-    account() {
-      // TODO Do it in a better way
-      const strokes = document.getElementsByClassName('el-progress-circle__track')
-
-      for (const s of strokes) {
-        s.setAttribute('stroke', '#333333')
-      }
     }
   },
 

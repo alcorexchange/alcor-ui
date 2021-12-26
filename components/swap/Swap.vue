@@ -239,8 +239,13 @@ export default {
   },
 
   watch: {
+    input() {
+      this.$store.dispatch('swap/updatePairBalances')
+    },
+
     output() {
       this.ibcForm.transfer = false
+      this.$store.dispatch('swap/updatePairBalances')
     },
 
     inputAmount() {
@@ -415,7 +420,7 @@ export default {
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
         this.$store.dispatch('swap/updatePair', this.pair.id)
-        setTimeout(() => this.$store.dispatch('loadUserBalances'), 1000)
+        setTimeout(() => this.$store.dispatch('swap/updatePairBalances'), 1000)
 
         this.inputAmount = Number(0).toFixed(this.input.precision)
         this.outputAmount = Number(0).toFixed(this.output.precision)

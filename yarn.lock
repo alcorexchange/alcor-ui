@@ -957,6 +957,13 @@
   dependencies:
     qrcode "^1.4.4"
 
+"@bloks/qrcode@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@bloks/qrcode/-/qrcode-0.1.1.tgz#a67f1c966d5da6c972b9c84641e68379bc0e5d8b"
+  integrity sha512-1VAhgZTctj7egdspsqgiqAmxFf7wWgv4diPOdSdHueLiKlE8S/RdB/GW2Tzv3sQiiAhDB/F47Ikq1PjzBfb4Ng==
+  dependencies:
+    qrcode "^1.4.4"
+
 "@bloks/signing-request@^2.2.2-8":
   version "2.2.2-8"
   resolved "https://registry.npmjs.org/@bloks/signing-request/-/signing-request-2.2.2-8.tgz"
@@ -1514,6 +1521,54 @@
   version "1.0.0-next.21"
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.21.tgz"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
+
+"@proton/browser-transport@^3.2.1-25":
+  version "3.2.1-26"
+  resolved "https://registry.yarnpkg.com/@proton/browser-transport/-/browser-transport-3.2.1-26.tgz#a1762568fc09a532eda6cbecf3fc09393e3712ce"
+  integrity sha512-Ulf4iXK1v/FvJ0rOgTBcaJr4rPB4rQOi1osgocSnLphCD27qoF8lIzyixZ3boRTgZqL46qbjWYOrrBrYrqD/LQ==
+  dependencies:
+    "@bloks/qrcode" "^0.1.1"
+    tslib "^2.0.3"
+
+"@proton/link@^3.2.3-25":
+  version "3.2.3-25"
+  resolved "https://registry.yarnpkg.com/@proton/link/-/link-3.2.3-25.tgz#771eb8f7d10905f3124ba51c96a13594339e0efc"
+  integrity sha512-5L4faGTABnjqSKWUtwEaOf0bIDI+FLzhsVNNI+gFQ7lILTXpvvjoe1IsmrhqVHc8slbU5s6uDRvon9RJbldxuQ==
+  dependencies:
+    "@greymass/eosio" "^0.4.7"
+    "@jafri/asmcrypto.js" "^2.3.2"
+    "@proton/signing-request" "^2.2.2-9"
+    fetch-ponyfill "^7.1.0"
+    isomorphic-ws "^4.0.1"
+    pako "^2.0.3"
+    tslib "^2.1.0"
+    uuid "^8.3.2"
+    ws "^7.4.3"
+
+"@proton/provider-axios@^2.2.2-4":
+  version "2.2.2-5"
+  resolved "https://registry.yarnpkg.com/@proton/provider-axios/-/provider-axios-2.2.2-5.tgz#c884ff5e13a264929c258ea51b9627a4259136e1"
+  integrity sha512-9C2uUX78DjuHA2PCg6m72VFcQ2o99NkR6DcqQ9AOOKkYG4L/Q32NPbD6Cz3Vh9r+uSrh6DossABDQTG+jB7OJg==
+  dependencies:
+    axios "^0.21.1"
+    tslib "^2.0.3"
+
+"@proton/signing-request@^2.2.2-9":
+  version "2.2.2-9"
+  resolved "https://registry.yarnpkg.com/@proton/signing-request/-/signing-request-2.2.2-9.tgz#9d1f49d97ce79e735e7ff6a0a5e4233dfd5f1ba7"
+  integrity sha512-JeIyyoqDNtHT703KexUeZ1Igv8WAkLah6+DRqagI/ftJRSlXiLPC/p/8WRzUUlYJHmYIgMrVxKiqtmEK+uG82A==
+  dependencies:
+    "@greymass/eosio" "^0.4.7"
+    tslib "^2.0.3"
+
+"@proton/web-sdk@^2.7.23-67":
+  version "2.7.23-67"
+  resolved "https://registry.yarnpkg.com/@proton/web-sdk/-/web-sdk-2.7.23-67.tgz#6265558daa0b7f231de668720eb609d3274a4a98"
+  integrity sha512-3EqqKkJh4Cicx2mq/b73Ai7hE8IE6jsY/QCvGuZ4fqvPC3Ova3QAUnefVM09A9542skAmP55vYGUeJhOPY0vrw==
+  dependencies:
+    "@proton/browser-transport" "^3.2.1-25"
+    "@proton/link" "^3.2.3-25"
+    "@proton/provider-axios" "^2.2.2-4"
 
 "@scatterjs/core@^2.7.54":
   version "2.7.54"
@@ -3423,11 +3478,6 @@ clone-response@1.0.2, clone-response@^1.0.2:
   integrity sha1-0dyXOSAxTfZ/vrlCI7TuNQI56Ws=
   dependencies:
     mimic-response "^1.0.0"
-
-clone@2.x:
-  version "2.1.2"
-  resolved "https://registry.npmjs.org/clone/-/clone-2.1.2.tgz"
-  integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
 
 cluster-key-slot@1.1.0:
   version "1.1.0"
@@ -8075,13 +8125,6 @@ node-addon-api@^2.0.0:
   version "2.0.2"
   resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-2.0.2.tgz"
   integrity sha512-Ntyt4AIXyaLIuMHF6IOoTakB3K+RWxwtsHNRxllEoA6vPwP9o4866g6YWDLUdnucilZhmkxiHwHr11gAENw+QA==
-
-node-cache@^5.1.0:
-  version "5.1.2"
-  resolved "https://registry.npmjs.org/node-cache/-/node-cache-5.1.2.tgz"
-  integrity sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==
-  dependencies:
-    clone "2.x"
 
 node-fetch@^2.6.0, node-fetch@^2.6.1, node-fetch@~2.6.1:
   version "2.6.5"

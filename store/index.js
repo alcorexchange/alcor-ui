@@ -1,7 +1,9 @@
+// TODO Module needs fucking refactoring.
 import axios from 'axios'
 import debounce from 'lodash/debounce'
+import findIndex from 'lodash/findIndex'
 
-import { make256key, nameToUint64 } from '~/utils'
+import { parseAsset, make256key, nameToUint64 } from '~/utils'
 
 export const strict = false
 
@@ -28,12 +30,30 @@ export const state = () => ({
   baseUrl: '',
   tokens: [],
   ibcTokens: ['eth.token'],
-  ibcAccepts: []
+  lihgHistoryBlock: null,
+  blockNum: null
 })
 
 export const mutations = {
   setNetwork: (state, network) => {
     state.network = network
+  },
+
+  // TODO Refactor for better balances handling
+  // (separate array not in user object)
+  updateBalance(state, balance) {
+    if (!state.user) return
+    if (!state.user.balances) state.user.balances = []
+
+    const balances = JSON.parse(JSON.stringify(state.user.balances))
+    const index = findIndex(balances, { id: balance.id })
+
+    if (index !== -1 && parseFloat(balance.amount) <= 0) balances.splice(index, 1)
+    else if (index === -1 && parseFloat(balance.amount) <= 0) return
+    else if (index === -1) balances.push(balance)
+    else balances.splice(index, 1, { ...balances[index], ...balance })
+
+    state.user = { ...state.user, balances }
   },
 
   setUser: (state, user) => state.user = user,
@@ -50,7 +70,9 @@ export const mutations = {
   setAccount: (state, account) => state.account = account,
   setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,
-  setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading
+  setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading,
+  setLihgHistoryBlock: (state, block) => state.lihgHistoryBlock = block,
+  setBlockNum: (state, block) => state.blockNum = block,
 }
 
 // Move to notifications module (nee create it)
@@ -78,7 +100,9 @@ export const actions = {
     // TODO Move push notifications to other place
     this.$socket.on('match', match => {
       if (loadOrdersDebounce[match.market_id]) clearTimeout(loadOrdersDebounce[match.market_id])
+
       loadOrdersDebounce[match.market_id] = setTimeout(() => {
+        dispatch('market/updatePairBalances', null, { root: true })
         dispatch('loadOrders', match.market_id)
       }, 500)
 
@@ -120,8 +144,12 @@ export const actions = {
     commit('setTokens', tokens)
   },
 
-  update({ dispatch }) {
-    dispatch('loadUserBalances')
+  update({ dispatch, state }) {
+    const route = this._vm.$nuxt.$route.name
+    if (!['trade-index-id', 'swap'].includes(route)) {
+      dispatch('loadUserBalances')
+    }
+
     dispatch('loadAccountData')
   },
 
@@ -130,6 +158,20 @@ export const actions = {
 
     const account = await this.$rpc.get_account(state.user.name)
     commit('setAccount', account)
+    commit('setBlockNum', account.head_block_num)
+
+    if (account) {
+      // add core balance
+      const amount = account.core_liquid_balance.split(' ')[0]
+
+      commit('updateBalance', {
+        id: state.network.baseToken.symbol + '@' + state.network.baseToken.contract,
+        contract: state.network.baseToken.contract,
+        currency: state.network.baseToken.symbol,
+        decimals: state.network.baseToken.precision,
+        amount
+      })
+    }
   },
 
   async loadAccountLimits({ commit, state }) {
@@ -181,7 +223,6 @@ export const actions = {
   },
 
   async loadUserOrders({ state, commit, dispatch }) {
-    console.log('loadUserOrders')
     if (!state.user || !state.user.name) return
 
     const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
@@ -193,11 +234,11 @@ export const actions = {
       await dispatch('loadOrders', market_id)
       await new Promise(resolve => setTimeout(resolve, 250))
     }
-    console.log('loadOrders finish.')
     commit('setUserOrdersLoading', false)
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
+    if (market_id == null) return console.error('LoadOrders for NULL market!') // FIXME Happends on first load
     if (!state.user || !state.user.name) return
 
     const { name } = state.user
@@ -233,50 +274,150 @@ export const actions = {
     }).catch(e => console.log(e))
   },
 
-  loadUserBalances({ state, rootState, commit }) {
+  async updateBalance({ state, commit, getters, dispatch }, { contract, symbol }) {
+    if (!state.user) return
+
+    const balance = await this.$rpc.get_currency_balance(contract, state.user.name, symbol)
+    if (!balance[0]) return
+
+
+    const asset = parseAsset(balance[0])
+
+    commit('updateBalance', {
+      id: symbol + '@' + contract,
+      contract,
+      currency: symbol,
+      decimals: asset.symbol.precision,
+      amount: asset.prefix
+    })
+  },
+
+  async loadLPTBalances({ state, commit }) {
+    if (!state.user) return
+
+    const { rows } = await this.$rpc.get_table_rows({
+      code: state.network.pools.contract,
+      scope: state.user.name,
+      table: 'accounts',
+      limit: 1000
+    })
+
+    const balances = state.user.balances.filter(b => b.contract != state.network.pools.contract)
+    commit('setUser', { ...state.user, balances })
+
+    rows.map(r => {
+      const asset = parseAsset(r.balance)
+
+      commit('updateBalance', {
+        id: asset.symbol.symbol + '@' + 'alcorammswap',
+        contract: 'alcorammswap',
+        currency: asset.symbol.symbol,
+        decimals: asset.symbol.precision,
+        amount: asset.prefix
+      })
+    })
+  },
+
+  async loadUserBalances({ dispatch }) {
+    try {
+      await dispatch('loadUserBalancesLightAPI')
+    } catch (e) {
+      console.log('Getting balances from LightAPI failed:', e)
+      console.log('Try with hyperion', e)
+      await dispatch('loadUserBalancesHyperion')
+    }
+  },
+
+  async loadUserBalancesLightAPI({ state, rootState, commit }) {
+    if (state.user) {
+      //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+      // FIXME Почему то нукстовский аксиос не работает для телефонов
+      const r = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`)
+
+      // Check sync is correct
+      const block_time = new Date(r.data.chain.block_time + ' UTC')
+      const diff = (new Date().getTime() - block_time.getTime()) / 1000
+
+      if (diff > 60) throw new Error('LightAPI sync is more the one minute out.')
+
+      const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
+      commit('setLihgHistoryBlock', r.data.chain.block_num)
+
+      // TODO Refactor this and make separate filter/computed for getting token in USD
+      // Calc USD value
+      balances.map(token => {
+        token.id = token.currency + '@' + token.contract
+
+        const { systemPrice } = rootState.wallet
+        const market = state.markets.filter(m => {
+          return m.base_token.contract == state.network.baseToken.contract &&
+            m.quote_token.contract == token.contract &&
+            m.quote_token.symbol.name == token.currency
+        })[0]
+
+        if (market) {
+          token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+        } else {
+          token.usd_value = 0
+        }
+
+        if (token.contract == state.network.baseToken.contract) {
+          token.usd_value = parseFloat(token.amount) * systemPrice
+        }
+
+        commit('updateBalance', token)
+      })
+    }
+  },
+
+  // Using Hyperion
+  async loadUserBalancesHyperion({ state, rootState, commit }) {
+    console.log('loadUserBalances..')
     if (state.user) {
       // TODO Вынести этот эндпоинт в конфиг
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
       // FIXME Почему то нукстовский аксиос не работает для телефонов
-      axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`).then((r) => {
-        const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
-        balances.sort((a, b) => {
-          if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
+      const r = await axios.get(`${state.network.hyperion}/v2/state/get_tokens`, { params: { account: rootState.user.name } })
+      const balances = r.data.tokens.filter(b => parseFloat(b.amount) > 0)
 
-          if (a.currency < b.currency) { return -1 }
-          if (a.currency > b.currency) { return 1 }
+      //balances.sort((a, b) => {
+      //  if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
+      //  return 1
+      //})
 
-          return 0
-        })
+      // TODO Refactor this and make separate filter/computed for getting token in USD
+      // Calc USD value
+      balances.map(token => {
+        if (!token.precision) token.precision = 0
+        token.currency = token.symbol
+        token.decimals = token.precision
+        token.id = token.currency + '@' + token.contract
 
-        // Calc USD value
-        balances.map(token => {
-          token.id = token.currency + '@' + token.contract
+        const { systemPrice } = rootState.wallet
+        const market = state.markets.filter(m => {
+          return m.base_token.contract == state.network.baseToken.contract &&
+            m.quote_token.contract == token.contract &&
+            m.quote_token.symbol.name == token.currency
+        })[0]
 
-          const { systemPrice } = rootState.wallet
-          const market = state.markets.filter(m => {
-            return m.base_token.contract == state.network.baseToken.contract &&
-              m.quote_token.contract == token.contract &&
-              m.quote_token.symbol.name == token.currency
-          })[0]
+        if (market) {
+          token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+        } else {
+          token.usd_value = 0
+        }
 
-          if (market) {
-            token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
-          } else {
-            token.usd_value = 0
-          }
+        if (token.contract == state.network.baseToken.contract) {
+          token.usd_value = parseFloat(token.amount) * systemPrice
+        }
+      })
 
-          if (token.contract == state.network.baseToken.contract) {
-            token.usd_value = parseFloat(token.amount) * systemPrice
-          }
+      balances.sort((a, b) => {
+        if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
 
-          token.usd_value = token.usd_value.toLocaleString('en', {
-            minimumFractionDigits: 2, maximumFractionDigits: 5
-          })
-        })
+        return 0
+      })
 
-        commit('setUser', { ...state.user, balances }, { root: true })
-      }).catch(e => console.log('balances: ', e))
+      balances.map(b => commit('updateBalance', b))
     }
   },
 

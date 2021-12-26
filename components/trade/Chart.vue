@@ -29,6 +29,7 @@ export default {
 
     id(to, from) {
       this.reset()
+      this.load()
     }
   },
 
@@ -45,9 +46,28 @@ export default {
   },
 
   methods: {
+    save() {
+      const twChart = JSON.parse(JSON.stringify(this.$store.state.settings.twChart))
+      this.widget.save((o) => {
+        console.log('save chart for', this.id)
+        twChart[this.id] = o
+        this.$store.commit('settings/setTwChart', twChart)
+      })
+    },
+
+    load() {
+      // FIXME Not workin in production
+      const twChart = this.$store.state.settings.twChart[this.id]
+      console.log('load chart for', this.id)
+      if (!twChart || !twChart.charts) return
+      this.widget.load(twChart)
+    },
+
     reset() {
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
+      } else {
+        this.mountChart()
       }
     },
 
@@ -100,7 +120,6 @@ export default {
               //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
               //type: symbolItem.type,
               session: '24x7',
-              timezone: 'Etc/UTC',
               //exchange: symbolItem.exchange,
               minmov: 1,
               pricescale: 100000000,
@@ -155,6 +174,7 @@ export default {
         interval: '240',
         container_id: 'tv_chart_container',
         library_path: '/charting_library/',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
           intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
         },
@@ -200,7 +220,8 @@ export default {
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
-          'header_in_fullscreen_mode'
+          'header_in_fullscreen_mode',
+          'save_chart_properties_to_local_storage'
         ],
         //charts_storage_url: this.chartsStorageUrl,
         //charts_storage_api_version: this.chartsStorageApiVersion,
@@ -222,6 +243,13 @@ export default {
       }
 
       this.widget = new Widget(widgetOptions)
+      this.widget.onChartReady(() => {
+        this.load()
+        this.widget.subscribe('onAutoSaveNeeded', () => {
+          console.log('chart save..')
+          this.save()
+        })
+      })
     }
   }
 }

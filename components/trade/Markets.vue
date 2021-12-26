@@ -1,7 +1,10 @@
 <template lang="pug">
 .markets-bar
   el-tabs(v-model='sideMaretsTab' size="mini")
-    el-tab-pane(label='Fav' name='fav')
+    el-tab-pane(name='fav')
+      span(slot="label")
+        i.el-icon-star-on
+        |  Fav
     el-tab-pane(label='All' name='all')
     el-tab-pane(:label='network.baseToken.symbol' :name='network.baseToken.symbol')
     el-tab-pane(label='Wrapped' name='wrapped')

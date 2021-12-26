@@ -113,6 +113,10 @@ export default {
   },
 
   watch: {
+    tab() {
+      this.$store.dispatch('loadLPTBalances')
+    },
+
     output() {
       if (this.output) {
         setTimeout(() => {
