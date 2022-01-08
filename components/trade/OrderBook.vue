@@ -40,8 +40,10 @@
         span(
           class="prec"
           :class="percentWarn"
-        ) ({{ getSpreadPercent ? getSpreadPercent : '0.00' }}%)
-
+        )
+          span.parant (
+          span {{ getSpreadPercent ? getSpreadPercent : '0.00' }}%
+          span.parant )
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
@@ -97,7 +99,7 @@ export default {
 
   methods: {
     isMyOrder(ask, side) {
-      for (const o of this.userOrders.filter(o => o.market_id == this.id)) {
+      for (const o of this.userOrders.filter((o) => o.market_id == this.id)) {
         if (ask[0] == parseInt(o.unit_price) && side == o.type) return true
       }
 
@@ -105,11 +107,11 @@ export default {
     },
 
     setBid(ask) {
-      const price = this.$options.filters
-        .humanPrice(ask[0])
-        .replaceAll(',', '')
+      const price = this.$options.filters.humanPrice(ask[0]).replaceAll(',', '')
 
-      const amount = this.$options.filters.humanFloat(ask[1], this.quote_token.symbol.precision).replaceAll(',', '')
+      const amount = this.$options.filters
+        .humanFloat(ask[1], this.quote_token.symbol.precision)
+        .replaceAll(',', '')
 
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', amount)
@@ -121,11 +123,11 @@ export default {
     },
 
     setAsk(bid) {
-      const price = this.$options.filters
-        .humanPrice(bid[0])
-        .replaceAll(',', '')
+      const price = this.$options.filters.humanPrice(bid[0]).replaceAll(',', '')
 
-      const amount = this.$options.filters.humanFloat(bid[2], this.quote_token.symbol.precision).replaceAll(',', '')
+      const amount = this.$options.filters
+        .humanFloat(bid[2], this.quote_token.symbol.precision)
+        .replaceAll(',', '')
 
       this.$nuxt.$emit('setPrice', price)
       this.$nuxt.$emit('setAmount', amount)
@@ -146,7 +148,8 @@ export default {
     display: flex;
     justify-content: space-between;
     font-weight: bold;
-    padding: 0 5px;
+    padding: 4px;
+    align-items: center;
     .price {
       color: var(--main-green);
       &.red {
@@ -154,60 +157,93 @@ export default {
       }
     }
     .spread {
+      font-size: 0.8rem;
       font-weight: normal;
       color: #80a1c5;
       .prec.warn {
         color: var(--main-red);
       }
     }
-    @media (max-width: 1600px) {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      .price {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-column-gap: 5px;
-        align-items: center;
-        i {
-          grid-row: 1/3;
-        }
-        .num {
-          grid-row: 1;
-        }
-        .token {
-          grid-row: 2;
-        }
-      }
+    @media (max-width: 1180px) {
       .spread {
-        justify-items: end;
-        display: grid;
-        font-size: 11px;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-end;
         .num {
-          grid-row: 1;
+          font-size: 0.7rem;
         }
-        .perc {
-          grid-row: 2;
+        .parant {
+          display: none;
         }
       }
     }
-    @media (max-width: 1200px) and (min-width: 983px) {
-      .price, .spread {
-        font-size: 11px;
+    // @media (max-width: 480px) {
+    //   & {
+    //     flex-direction: column;
+    //     .spread {
+    //       flex-direction: row;
+    //     }
+    //   }
+    // }
+    @media (max-width: 480px) {
+      & {
+        flex-direction: column;
+        .price {
+          margin-right: auto;
+        }
+        .spread {
+          flex-direction: row;
+          margin-left: auto;
+        }
       }
     }
-    @media (max-width: 600px) {
-      .price, .spread {
-        font-size: 11px;
-      }
-    }
-    @media (max-width: 468px) {
-      .price, .spread {
-        font-size: 9px;
-      }
-    }
-    i {
-      margin-right: 2px;
-    }
+    //   display: grid;
+    //   grid-template-columns: 1fr 1fr;
+    //   .price {
+    //     display: grid;
+    //     grid-template-columns: auto 1fr;
+    //     grid-column-gap: 5px;
+    //     align-items: center;
+    //     i {
+    //       grid-row: 1/3;
+    //     }
+    //     .num {
+    //       grid-row: 1;
+    //     }
+    //     .token {
+    //       grid-row: 2;
+    //     }
+    //   }
+    //   .spread {
+    //     justify-items: end;
+    //     display: grid;
+    //     font-size: 11px;
+    //     .num {
+    //       grid-row: 1;
+    //     }
+    //     .perc {
+    //       grid-row: 2;
+    //     }
+    //   }
+    // }
+    // @media (max-width: 1200px) and (min-width: 983px) {
+    //   .price, .spread {
+    //     font-size: 11px;
+    //   }
+    // }
+    // @media (max-width: 600px) {
+    //   .price, .spread {
+    //     font-size: 11px;
+    //   }
+    // }
+    // @media (max-width: 468px) {
+    //   .price, .spread {
+    //     font-size: 9px;
+    //   }
+    // }
+    // i {
+    //   margin-right: 2px;
+    // }
   }
 }
 
