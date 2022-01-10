@@ -1,4 +1,4 @@
-import { ConnectWallet } from '@proton/web-sdk'
+const ConnectWallet = (...args) => import('@proton/web-sdk').then(({ default: fetch }) => fetch(...args))
 
 class WalletBase {
   network = null
