@@ -25,25 +25,24 @@
       span
 
   .p-1.mt-1(v-loading='loading')
-    .overflowbox.latest-price(
-    )
-      .price(
-        :class='{ red: isLastTradeSell }'
-      )
+    .overflowbox.latest-price
+      .price.small(
+        :class='{ red: isLastTradeSell }')
         i(
           :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
         )
-        span.num {{ price }} &nbsp;
+        span.num  {{ price }} &nbsp;
         //span.token {{ base_token.symbol.name }}
-      .spread
-        span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }} Spread&nbsp;
-        span(
-          class="prec"
-          :class="percentWarn"
-        )
-          span.parant (
-          span {{ getSpreadPercent ? getSpreadPercent : '0.00' }}%
-          span.parant )
+      el-tooltip(class="item" effect="dark" content="Spread" placement="top-end")
+        .spread
+          span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }}
+          span(
+            class="prec"
+            :class="percentWarn"
+          )
+            span.parant  (
+            span {{ getSpreadPercent ? getSpreadPercent : '0.00' }}%
+            span.parant )
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
@@ -146,6 +145,7 @@ export default {
   max-height: 500px;
   .latest-price {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     font-weight: bold;
     padding: 4px;
