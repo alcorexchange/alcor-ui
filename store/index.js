@@ -160,7 +160,7 @@ export const actions = {
     commit('setAccount', account)
     commit('setBlockNum', account.head_block_num)
 
-    if (account) {
+    if (account && account.core_liquid_balance) {
       // add core balance
       const amount = account.core_liquid_balance.split(' ')[0]
 
