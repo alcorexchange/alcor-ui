@@ -22,25 +22,25 @@
         span Cross-Chain
 
       el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
-        span  Terraformers
+        span Terraformers
 
       el-radio-button(value='blockchainrpg', label='BlockchainRPG' v-if="network.name == 'wax'")
         span BlockchainRPG
 
-    .search-container
+    el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
+
+  .d-flex
+    .flex-fill.search-container
       el-input(
         v-model='search',
-        placeholder='Search market',
+        placeholder='Search Market',
         size='small',
         prefix-icon='el-icon-search'
         clearable
       )
-
-    el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
-
-    .ml-auto
+    .create-market
       nuxt-link(to="new_market")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
+        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Create Market
 
   .table.el-card.is-always-shadow
     el-table.market-table(
@@ -222,7 +222,7 @@ export default {
         )
       } else if (this.markets_active_tab == 'BlockchainRPG') {
         markets = this.markets.filter(
-          (i) => i.base_token.contract == 'token.brpg' || i.quote_token.contract == 'token.brpg' 
+          (i) => i.base_token.contract == 'token.brpg' || i.quote_token.contract == 'token.brpg'
         )
       } else {
         const ibcTokens = this.$store.state.ibcTokens.filter(
@@ -292,10 +292,13 @@ export default {
   align-items: center;
   //justify-content: space-between;
   flex-wrap: wrap;
-  padding: 20px 0;
-  .search-container {
-    width: 450px;
-  }
+  padding: 12px 0;
+}
+.search-container {
+  margin-bottom: 12px;
+}
+.create-market {
+  margin-left: 12px;
 }
 .table td,
 .table th {
@@ -329,10 +332,6 @@ export default {
     padding: 14px 0;
     flex-direction: column-reverse;
     justify-content: center;
-    .search-container {
-      width: 100%;
-      margin-bottom: 12px;
-    }
   }
 }
 </style>
