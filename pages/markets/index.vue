@@ -24,6 +24,9 @@
       el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
         span  Terraformers
 
+      el-radio-button(value='blockchainrpg', label='BlockchainRPG' v-if="network.name == 'wax'")
+        span BlockchainRPG
+
     .search-container
       el-input(
         v-model='search',
@@ -216,6 +219,10 @@ export default {
       } else if (this.markets_active_tab == 'Terraformers') {
         markets = this.markets.filter(
           (i) => i.quote_token.contract == 'unboundtoken'
+        )
+      } else if (this.markets_active_tab == 'BlockchainRPG') {
+        markets = this.markets.filter(
+          (i) => i.base_token.contract == 'token.brpg' || i.quote_token.contract == 'token.brpg' 
         )
       } else {
         const ibcTokens = this.$store.state.ibcTokens.filter(
