@@ -136,7 +136,7 @@ export const actions = {
 
       pairs.push(...rows)
       if (rows.length != 1000) break
-      lower_bound = rows[rows.length - 1]
+      lower_bound = rows[rows.length - 1].id
     }
 
     pairs.map(r => {
