@@ -27,8 +27,6 @@
       el-radio-button(value='blockchainrpg', label='BlockchainRPG' v-if="network.name == 'wax'")
         span BlockchainRPG
 
-    el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
-
   .d-flex
     .flex-fill.search-container
       el-input(
@@ -38,6 +36,10 @@
         prefix-icon='el-icon-search'
         clearable
       )
+
+    .usd-toggle
+      el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD')
+
     .create-market
       nuxt-link(to="new_market")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Create Market
@@ -296,6 +298,10 @@ export default {
 }
 .search-container {
   margin-bottom: 12px;
+}
+
+.usd-toggle {
+  margin-left: 12px;
 }
 .create-market {
   margin-left: 12px;
