@@ -116,14 +116,25 @@ export async function updateMarkets(network) {
   const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
   const rpc = new JsonRpc(nodes, { fetch })
 
-  const { rows } = await rpc.get_table_rows({
-    code: network.contract,
-    scope: network.contract,
-    table: 'markets',
-    reverse: true,
-    limit: 1000
-  })
+  let r
+  try {
+    r = await rpc.get_table_rows({
+      code: network.contract,
+      scope: network.contract,
+      table: 'markets',
+      reverse: true,
+      limit: 1000
+    })
+  } catch (e) {
+    console.log('failed update markets for ', network.name, ' retry..')
+    // Retry
+    //await new Promise(resolve => setTimeout(resolve, 3000))
+    //return await updateMarkets(network)
 
+    return
+  }
+
+  const { rows } = r
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)
