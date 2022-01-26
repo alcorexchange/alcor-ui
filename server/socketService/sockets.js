@@ -45,7 +45,15 @@ export function subscribe(io, socket, client) {
       const { chain, side, market } = params
 
       const data = await client.get(`orderbook_${chain}_${side}_${market}`)
-      const entries = JSON.parse(data || [])
+
+      let entries
+      try {
+        entries = JSON.parse(data || [])
+      } catch (e) {
+        console.log('Error in orderbook data: ', data)
+        throw e
+      }
+
       const orderbook = Object.values(Object.fromEntries(entries))
 
       socket.emit(`orderbook_${side}`, orderbook)
