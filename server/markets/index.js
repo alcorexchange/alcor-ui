@@ -8,8 +8,10 @@ markets.get('/:market_id/deals', cacheSeconds(3, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
 }), async (req, res) => {
   const network = req.app.get('network')
-  const { market_id } = req.params
+  const market_id = parseInt(req.params.market_id)
   const limit = parseInt(req.query.limit) || 200
+
+  if (isNaN(market_id)) return res.status(403).send('Invalid market id')
 
   const matches = await Match.find({ chain: network.name, market: market_id })
     .select('_id time bid ask unit_price type trx_id')
@@ -21,7 +23,9 @@ markets.get('/:market_id/deals', cacheSeconds(3, (req, res) => {
 
 markets.get('/:market_id/charts', async (req, res) => {
   const network = req.app.get('network')
-  const { market_id } = req.params
+  const market_id = parseInt(req.params.market_id)
+  if (isNaN(market_id)) return res.status(403).send('Invalid market id')
+
   const market = await Market.findOne({ id: market_id, chain: network.name })
 
   if (!market) {
@@ -64,7 +68,8 @@ markets.get('/:market_id', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id
 }), async (req, res) => {
   const network = req.app.get('network')
-  const { market_id } = req.params
+  const market_id = parseInt(req.params.market_id)
+  if (isNaN(market_id)) return res.status(403).send('Invalid market id')
 
   const market = await Market.findOne({ id: market_id, chain: network.name })
   market ? res.json(market) : res.status(404)
