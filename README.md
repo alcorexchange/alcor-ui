@@ -65,7 +65,7 @@ order_id: 3
 $ yarn install
 
 # serve with hot reload at localhost:3000
-$ NETWORK=<eos/jungle/local> yarn run dev
+$ NETWORK=wax DISABLE_DB=true yarn dev // Run using production API and Wax chain.
 
 # build for production and launch server
 $ NETWORK=<eos/jungle/local> yarn run build
