@@ -26,7 +26,7 @@ export async function streamByNode(network, account, callback, actions) {
       console.log(`receive actions(${network.name}, ${account}): ${r.actions.length} -> ${Math.round(endTime - startTime)}ms`)
     } catch (e) {
       // TODO Почему то не срабатывает перезапуск при ошибке сети или днс
-      console.log(`getActionsByNode(${network.name}) err: `, e)
+      console.log(`getActionsByNode(${network.name}) err: `, e.message)
       await new Promise((resolve, reject) => setTimeout(resolve, 500))
       continue
     }
