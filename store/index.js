@@ -140,10 +140,10 @@ export const actions = {
 
   async fetchTokens({ commit }) {
     try {
-      const { data: tokens } = await this.$axios.get(
+      const { data } = await this.$axios.get(
         'https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json'
       )
-      commit('setTokens', JSON.parse(tokens))
+      commit('setTokens', data)
     } catch (e) {
       console.error('Fetching tokens from eos-airdrops', e)
     }
