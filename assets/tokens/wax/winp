@@ -1,0 +1,8 @@
+{
+  "name": "<WINP>",
+  "logo": "https://raw.githubusercontent.com/eosasia/eos-dapps/master/WAX/logos/winp.png",
+  "logo_lg": "https://raw.githubusercontent.com/eosasia/eos-dapps/master/WAX/logos/winp.png",
+  "symbol": "WINP",
+  "account": "TOKENUMKMWAX",
+  "precision": 8
+}
