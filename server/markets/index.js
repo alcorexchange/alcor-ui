@@ -72,7 +72,8 @@ markets.get('/:market_id', cacheSeconds(60, (req, res) => {
   if (isNaN(market_id)) return res.status(403).send('Invalid market id')
 
   const market = await Market.findOne({ id: market_id, chain: network.name })
-  market ? res.json(market) : res.status(404)
+  //market ? res.json(market) : res.status(404)
+  market ? res.json(market) : res.status(404).send('Market not found')
 })
 
 markets.get('/', cacheSeconds(3, (req, res) => {
