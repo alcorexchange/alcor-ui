@@ -236,6 +236,10 @@ export default {
         i.slug.includes(this.search.toLowerCase())
       )
 
+      markets = markets.filter((i) => {
+        return !this.network.SCAM_CONTRACTS.includes(i.quote_token.contract)
+      })
+
       return markets.reverse()
     }
   },
