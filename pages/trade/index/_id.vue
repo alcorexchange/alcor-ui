@@ -21,14 +21,9 @@ export default {
   async fetch({ redirect, store, error, params, $rpc }) {
     if (!params.id) return redirect({ name: 'markets' })
 
-    if (!params.id.includes('_')) {
-      // old style link(only quote token in id, and base are system)
-
-      const id = `${params.id}_${store.state.network.baseToken.symbol}-${store.state.network.baseToken.contract}`
-      return redirect({ name: 'trade-index-id', params: { id } })
+    if (params.id.match(/.*-.*_.*-[A-Za-z0-9.]+$/) == null) {
+      return redirect({ name: 'markets' })
     }
-
-    if (!params.id.includes('_')) redirect({ name: 'markets' })
 
     await store.dispatch('loadMarkets')
 
