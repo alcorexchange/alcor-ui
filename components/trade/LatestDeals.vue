@@ -62,7 +62,7 @@ export default {
 
 .deals-history {
   .orders-list {
-    height: 250px;
+    height: 350px;
   }
 }
 </style>

@@ -142,7 +142,7 @@ export default {
 
 <style lang="scss">
 .order-book {
-  max-height: 500px;
+  max-height: 450px;
   .latest-price {
     display: flex;
     flex-wrap: wrap;
