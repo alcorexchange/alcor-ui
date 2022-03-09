@@ -246,7 +246,7 @@ const networks = {
 
     SCAM_CONTRACTS: [
       'usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army',
-      'onfederation', 'martaintoken'],
+      'onfederation', 'martaintoken', 'martiantoken'],
 
     CEX_CONTRACTS: ['huobiwaxdepo', 'waxonbinance', 'kcstothemoon', 'bithumbwaxr1'],
 
