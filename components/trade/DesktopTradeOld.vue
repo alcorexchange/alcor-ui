@@ -1,52 +1,62 @@
 <template lang="pug">
 .row.trading-terminal
-  client-only
-    .col
-        grid-layout(:layout.sync="layout" :col-num="24" :row-height="30" :is-draggable="true" :is-resizable="true" :is-mirrored="false" :vertical-compact="true" :margin="[10, 10]" :use-css-transforms="true")
-          grid-item.overflowbox(v-for='item in layout' :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" :key='item.i')
-            .right-icons
-              .icon-btn
-                i.el-icon-setting
-              .icon-btn
-                i.el-icon-close
-            top-line(v-if="item.i=='1'")
-            chart(v-if="item.i=='1'")
-            el-tabs.h-100(v-loading="loading" v-if="item.i=='2'")
-                el-tab-pane(label="Orderbook")
-                  order-book
-                el-tab-pane(label="Depth Chart")
-                  order-book
-            el-tabs.h-100(v-if="item.i=='3'")
-                el-tab-pane(label="Times and Sales")
-                  LatestDeals
-            //- markets(v-if="item.i=='3'")
-            alcor-tabs(v-if="item.i=='4'" v-model="tab").h-100
-              template(slot="right")
-                .d-flex
-                  el-button(type="text" v-show="tab == 0" size="small" @click="cancelAll").red.hover-opacity.ml-3.mt-1 Cancel All Orders
-              el-tab-pane(label="Open order")
-                my-orders(v-if="user" v-loading="loading")
-              el-tab-pane(label="Order history")
-                my-history(v-if="user" v-loading="loading")
-              el-tab-pane(label="Trade History")
-                my-history
-              el-tab-pane(label="Funds")
-                my-history
-            .not-history(v-if="item.i=='5'")
-              .tabs-right
-                el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
-                FeeRate.mr-2
-                el-button(v-if="relatedPool" type="text" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
-              el-tabs.h-100
-                el-tab-pane(label="Limit trade")
-                  .trade-box
-                    limit-trade
-                el-tab-pane(label="Market trade")
-                  .trade-box
-                    market-trade
-            //- .low-right(v-if="item.i=='6'")
-            //-   .overflowbox.low-height.overflow-hidden
-            //-     LatestDeals
+  .col
+    .top-level
+      .top-left.overflowbox
+        order-book(v-loading="loading")
+
+      .top-center
+        .overflowbox
+          top-line
+          chart
+
+      .top-right
+        .overflowbox.overflow-hidden
+          markets
+
+    .low-level.mt-2
+      .low-left
+        .low-height.overflow-hidden.overflowbox
+          alcor-tabs(v-model="tab").h-100
+            template(slot="right")
+              .d-flex
+                el-button(type="text" v-show="tab == 0" size="small" @click="cancelAll").red.hover-opacity.ml-3.mt-1 Cancel All Orders
+
+            el-tab-pane(label="Open order")
+              my-orders(v-if="user" v-loading="loading")
+
+            el-tab-pane(label="Order history")
+              my-history(v-if="user" v-loading="loading")
+      .not-history
+        .low-center
+          .overflowbox.low-height.position-relative
+            .tabs-right
+              el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
+              FeeRate.mr-2
+              el-button(v-if="relatedPool" type="text" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+
+            el-tabs.h-100
+              el-tab-pane(label="Limit trade")
+                .trade-box
+                  limit-trade
+
+              el-tab-pane(label="Market trade")
+                .trade-box
+                  market-trade
+
+        .low-right
+          .overflowbox.low-height.overflow-hidden
+            LatestDeals
+
+    //- .row.mt-2.orders-panel
+    //-   .col
+    //-     .overflowbox.low-height.overflow-hidden
+    //-       el-tabs.h-100
+    //-         el-tab-pane(label="Open order")
+    //-           my-orders(v-if="user" v-loading="loading")
+
+    //-         el-tab-pane(label="Order history")
+    //-           my-history(v-if="user" v-loading="loading")
 </template>
 
 <script>
@@ -84,27 +94,12 @@ export default {
   data() {
     return {
       tab: 0,
+
       price: 0.0,
       amount: 0.0,
+
       no_found: false,
-      loading: false,
-      layout: [
-        {
-          x: 0, y: 0, w: 15, h: 13, i: '1'
-        },
-        {
-          x: 15, y: 0, w: 5, h: 13, i: '2'
-        },
-        {
-          x: 20, y: 0, w: 4, h: 13, i: '3'
-        },
-        {
-          x: 0, y: 13, w: 15, h: 8, i: '4'
-        },
-        {
-          x: 15, y: 13, w: 9, h: 8, i: '5'
-        }
-      ]
+      loading: false
     }
   },
 
@@ -141,36 +136,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.el-item {
-  position: absolute;
-  border: 2px solid rgb(63, 63, 63);
-  margin: 2px;
-  border-radius: 2px;
-  margin: 1px;
-}
-
-.right-icons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 0;
-  z-index: 100;
-  margin: 1px;
-}
-
-.icon-btn {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #3F3F3F;
-  border-radius: 0px 0px 0px 3px;
-  cursor: pointer;
-  margin: 1px;
-}
-
 .red {
   color: var(--main-red);
 
