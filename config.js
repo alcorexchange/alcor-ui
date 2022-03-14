@@ -175,7 +175,7 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: [],
+    RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
     SCAM_CONTRACTS: [],
     CEX_CONTRACTS: [],
 
