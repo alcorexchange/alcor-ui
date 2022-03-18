@@ -3,25 +3,37 @@
   .left
     el-dropdown
       .network-selection
-        img(:src="require('~/assets/icons/' + current_chain.name + '.png')" height=25).mr-2
-        span(v-if="isMobile") {{ current_chain.name }}
+        img.mr-2(
+          :src='require("~/assets/icons/" + current_chain.name + ".png")',
+          height=25
+        )
+        span(v-if='isMobile') {{ current_chain.name }}
         span(v-else) {{ current_chain.desc }}
 
         i.el-icon-arrow-down
       template(#dropdown='')
         el-dropdown-menu.dropdown-container
-          .d-item(v-for='network in networks', :key='network.name', :value='network.name' :label="network.name" @click="changeChain(network.name)")
-            img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-            span.ml-2(v-if="isMobile") {{ network.name }}
+          .d-item(
+            v-for='network in networks',
+            :key='network.name',
+            :value='network.name',
+            :label='network.name',
+            @click='changeChain(network.name)'
+          )
+            img(
+              :src='require("~/assets/icons/" + network.name + ".png")',
+              height=25
+            )
+            span.ml-2(v-if='isMobile') {{ network.name }}
             span.ml-2(v-else) {{ network.desc }}
   .right
     .user-detail(v-if='user')
-      .balance(@click="openInNewTab(monitorAccount(user.name))") {{ systemBalance |commaFloat }}
+      .balance(@click='openInNewTab(monitorAccount(user.name))') {{ systemBalance | commaFloat }}
       el-dropdown
         .user-name {{ user.name }}
         //template(#dropdown='')
         el-dropdown-menu.dropdown-container
-          .d-item(@click="logout") Logout
+          .d-item(@click='logout') Logout
     AlcorButton.connect-button(
       v-else='',
       @click='$store.dispatch("modal/login")'
@@ -29,12 +41,21 @@
       | Connect Wallet
 
     AlcorButton.theme-toggle-button.desktop(
-      v-if="$route.name != 'index'"
+      v-if='$route.name != "index"',
       :icon-only-alt='true',
       @click='$store.dispatch("toggleTheme")'
     )
       i.el-icon-sunny(v-if='$colorMode.value == "dark"')
       i.el-icon-moon(v-else='')
+
+    AlcorButton.theme-toggle-button.desktop.show-settings(
+      v-if='$route.name != "index"',
+      :icon-only-alt='true',
+      @click='showSetting = !showSetting'
+    )
+      i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
+      i.el-icon-setting.show-settings(v-else='')
+    settings.settings(v-if='showSetting', v-click-outside1='onClickOutside')
     //el-dropdown
       div
         //AlcorButton(:iconOnlyAlt='true')
@@ -64,19 +85,45 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
 
 import config from '~/config'
+import Settings from '~/components/layout/Settings'
+
 // import AlcorLink from '@/components/AlcorLink'
+
+Vue.directive('click-outside1', {
+  bind(el, binding, vnode) {
+    el.clickOutsideEvent = (event) => {
+      if (
+        !(
+          el === event.target ||
+          el.contains(event.target) ||
+          event.target.className.includes('show-settings')
+        )
+      ) {
+        vnode.context[binding.expression](event)
+      }
+    }
+    document.body.addEventListener('click', el.clickOutsideEvent)
+  },
+  unbind(el) {
+    document.body.removeEventListener('click', el.clickOutsideEvent)
+  }
+})
+
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
+    Settings
     // AlcorLink
   },
   data() {
     return {
-      loading: false
+      loading: false,
+      showSetting: false //to show settings modal
     }
   },
 
@@ -100,11 +147,21 @@ export default {
   //       type: Boolean
   //     }
   //   }
+  created: () => {
+    console.log('color mode:')
+  },
   methods: {
     async logout() {
       await this.$store.dispatch('chain/logout')
     },
-
+    onClickOutside(event) {
+      console.log('this is click setting modal:', this.showSetting)
+      console.log(event)
+      if (this.showSetting) {
+        console.log(event)
+        this.showSetting = false
+      }
+    },
     changeChain(chain) {
       // TODO Move to config: APP_DOMAIN
       const location =
@@ -185,6 +242,15 @@ export default {
   span {
     margin-right: 4px;
   }
+}
+.settings {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  background: #282828;
+  border: 2px solid rgb(63, 63, 63);
+  border-radius: 2px;
+  z-index: 9;
 }
 
 @media only screen and (max-width: 600px) {
