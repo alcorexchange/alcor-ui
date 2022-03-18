@@ -1,16 +1,15 @@
 <template lang="pug">
-.box-card.pl-3.pt-2
+.box-card.pl-2.pt-2
   .row
     .col
       .d-flex.align-items-center(v-if="!isMobile").desktop
-        .d-flex.flex-column.justify-content-center
-          .d-flex.align-items-center.cursor-pointer.show-markets(@click="showMarkets = !showMarkets")
-            TokenImage(:src="$tokenLogo(quote_token.symbol.name, quote_token.contract)" height="20").show-markets
-            .d-flex.ml-2.symbol.show-markets
-              b.show-markets {{ quote_token.symbol.name }}
-              span.ml-1.show-markets /  {{ base_token.symbol.name }}
-          a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted {{ quote_token.contract }}
-        markets.markets(v-if="showMarkets" v-click-outside="onClickOutside")
+        TokenImage(:src="$tokenLogo(quote_token.symbol.name, quote_token.contract)" height="30").ml-1
+
+        .d-flex.ml-2.symbol
+          b {{ quote_token.symbol.name }}
+          a(:href="monitorAccount(quote_token.contract )" target="_blank").text-muted.ml-2 {{ quote_token.contract }}
+          span.ml-1 /  {{ base_token.symbol.name }}
+
         //.d-flex.ml-3(v-if="hasWithdraw")
           // TODO Token prop & mobile version
           Withdraw(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
@@ -20,19 +19,12 @@
           BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
         //.d-flex.ml-3.w-100.justify-content-around.desctop
-        .d-flex.align-items-center.ml-3.small
-          .d-flex.flex-column.ml-2
-            span.text-muted Change 24H
-            change-percent(:change="stats.change24")
-          .d-flex.flex-column.ml-2
-            span.text-muted Volume 24H:
-            span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-          .d-flex.flex-column.ml-2
-            span.text-muted 24H High:
-            span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-          .d-flex.flex-column.ml-2
-            span.text-muted 24H Low:
-            span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+        .d-flex.align-items-center.ml-3.small.text-muted
+          span Change 24H:
+          change-percent(:change="stats.change24").ml-2
+
+          span.ml-2 Volume 24H:
+          span.text-success.ml-2  {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
           .pointer.ml-2
             i(:class="{ 'el-icon-star-on': isFavorite }" @click="toggleFav").el-icon-star-off
             //i.el-icon-star-off.ml-2
@@ -74,42 +66,17 @@
 
 <script>
 import { mapState } from 'vuex'
-import Vue from 'vue'
-
-Vue.directive('click-outside', {
-  bind(el, binding, vnode) {
-    el.clickOutsideEvent = (event) => {
-      if (!(el === event.target || el.contains(event.target) || event.target.className.includes("show-markets"))) {
-        vnode.context[binding.expression](event)
-      }
-    }
-    document.body.addEventListener('click', el.clickOutsideEvent)
-  },
-  unbind(el) {
-    document.body.removeEventListener('click', el.clickOutsideEvent)
-  }
-})
-
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import Withdraw from '~/components/withdraw/Withdraw'
-import Markets from '~/components/trade/Markets'
-
 //import BOSIbc from '~/components/withdraw/BOSIbc'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
-    Withdraw,
-    Markets
+    Withdraw
     //BOSIbc
-  },
-
-  data() {
-    return {
-      showMarkets: false
-    }
   },
 
   computed: {
@@ -127,13 +94,6 @@ export default {
   },
 
   methods: {
-    onClickOutside(event) {
-      console.log(event)
-      if (this.showMarkets) {
-        console.log(event)
-        this.showMarkets = false
-      }
-    },
     toggleFav() {
       if (this.isFavorite) {
         this.$store.commit('settings/setFavMarkets', this.favMarkets.filter(m => m != this.id))
@@ -162,13 +122,5 @@ export default {
   > * {
     padding: 2px;
   }
-}
-
-.markets {
-  position: fixed;
-  top: 30px;
-  background: #282828;
-  border: 2px solid rgb(63, 63, 63);
-  border-radius: 2px;
 }
 </style>

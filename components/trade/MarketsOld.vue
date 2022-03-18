@@ -11,8 +11,8 @@
 
   .px-2
     el-input(size="small" v-model="search" placeholder="Filter by token" clearable)
-  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :default-sort='{ prop: "volume24", order: "descending" }' :row-class-name="activeRowClassName" height="390" width="100%" v-loading="loading")
-    el-table-column(prop="quote_token.symbol.name" label="Pair(a-z)" width="120" sortable :sort-orders="['descending', 'ascending']" )
+  el-table(:data="filteredItems" style="width: 100%" @row-click="setMarket" :default-sort='{ prop: "volume24", order: "descending" }' :row-class-name="activeRowClassName" height="465" width="100%" v-loading="loading")
+    el-table-column(label="Pair" width="120")
       template(slot-scope="scope")
         TokenImage(:src="$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)" height="20")
         small.ml-1 {{ scope.row.quote_token.symbol.name }}
@@ -20,7 +20,7 @@
 
     el-table-column(prop="last_price" label="Price" align="right" sortable :sort-orders="['descending', null]")
       template(slot-scope="scope")
-        | {{ scope.row.last_price | commaFloat(5) }}
+        .text-success {{ scope.row.last_price | commaFloat(5) }}
 
     el-table-column(prop="volume24" :sort-orders="['descending', 'ascending']" label="Vol 24H" align="right" sortable width="100")
       template(slot-scope='scope')
@@ -162,13 +162,12 @@ export default {
   }
 }
 
-.markets-bar {
-  height: initial !important;
-}
-
 .markets-bar .el-table .active-row {
   background: #e6eef1;
 }
 
+.markets-bar {
+  height: 500px;
+}
 
 </style>
