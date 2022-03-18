@@ -147,9 +147,6 @@ export default {
   //       type: Boolean
   //     }
   //   }
-  created: () => {
-    console.log('color mode:')
-  },
   methods: {
     async logout() {
       await this.$store.dispatch('chain/logout')
