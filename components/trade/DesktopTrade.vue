@@ -15,7 +15,7 @@
                 el-tab-pane(label="Orderbook")
                   order-book
                 el-tab-pane(label="Depth Chart")
-                  order-book
+                  depth-chart
             el-tabs.h-100(v-if="item.i=='3'")
                 el-tab-pane(label="Times and Sales")
                   LatestDeals
@@ -57,6 +57,7 @@ import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
 import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'
+import DepthChart from '~/components/trade/DepthChart'
 import Markets from '~/components/trade/Markets'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
@@ -78,7 +79,8 @@ export default {
     Markets,
     MobileTrade,
     TopLine,
-    FeeRate
+    FeeRate,
+    DepthChart
   },
 
   data() {

@@ -94,11 +94,15 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
+    'nuxt-highcharts',
     //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
+  highcharts: {
+    /* module options */
+  },
 
   axios: {
   },
