@@ -244,6 +244,12 @@ export default {
     }
   },
 
+  watch: {
+    search() {
+      this.$router.replace({ name: this.$route.name, query: { search: this.search } })
+    }
+  },
+
   mounted() {
     const { tab, search } = this.$route.query
 
