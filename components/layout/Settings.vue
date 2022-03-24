@@ -94,43 +94,12 @@
         span.module-title Layout Modules
       .el-main.module-main-settings
         .module-selection.d-flex.flex-column
-          .module-list.d-flex.flex-row.justify-content-between
-            .module-name Chart
+          .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in markets_layout')
+            .module-name {{settingBtnTitles[settingBtn.i]}}
             .module-pickers.d-flex.flex-row
               el-switch(
-                v-model='switchvalue1',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-          .module-list.d-flex.flex-row.justify-content-between
-            .module-name Orderbook/Depth Chart
-            .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='switchvalue2',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-          .module-list.d-flex.flex-row.justify-content-between
-            .module-name Times and Sales
-            .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='switchvalue3',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-          .module-list.d-flex.flex-row.justify-content-between
-            .module-name Limit Trade/Market Trade
-            .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='switchvalue4',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-          .module-list.d-flex.flex-row.justify-content-between
-            .module-name Open Orders
-            .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='switchvalue5',
+                v-model='settingBtn.status',
+                @change='updateState()'
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
@@ -138,7 +107,7 @@
             .module-name Markets
             .module-pickers.d-flex.flex-row
               el-switch(
-                v-model='switchvalue6',
+                v-model='marketswitchvalue',
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
@@ -146,7 +115,7 @@
             .module-name Favorites
             .module-pickers.d-flex.flex-row
               el-switch(
-                v-model='switchvalue7',
+                v-model='favoritesswitchvalue',
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
@@ -163,37 +132,47 @@ export default {
 
   components: {
     TokenImage,
-    ChangePercent,
+    ChangePercent
   },
 
   data() {
     return {
-      search: '',
-      loading: false,
-      switchvalue1: true,
-      switchvalue2: true,
-      switchvalue3: true,
-      switchvalue4: true,
-      switchvalue5: true,
-      switchvalue6: false,
-      switchvalue7: false,
-      radio: '1',
-      checked: true,
-      checkedorange: false,
+      settingBtnTitles: {
+        chart: "Chart",
+        'order-depth': "Orderbook/Depth Chart",
+        'time-sale': "Times and Sales",
+        'limit-market': "Limit Trade/Market Trade",
+        'open-oder': "Open Orders"
+      },
+      marketswitchvalue: false,
+      favoritesswitchvalue: false,
+      checkedorange: false
     }
   },
   computed: {
     ...mapState(['markets']),
     ...mapState(['checked']),
-    ...mapState('settings', ['favMarkets']),
+    markets_layout: {
+      get() {
+        return this.$store.state.market.markets_layout
+      },
+
+      set(value) {
+        this.$store.commit('market/setMarketLayout', value)
+      }
+    }
   },
   methods: {
     onChange(e) {
-      console.log('event value>>>>>>>: orange', e.target.value)
       this.$store.dispatch('dynamicTheme', e.target.value)
       if (e.target.value == 'oranger') this.checkedorange = true
     },
-  },
+    updateState() {
+      this.$store.commit('market/setMarketLayout', this.markets_layout)
+    },
+    initiateState() {
+    }
+  }
 }
 </script>
 
@@ -567,6 +546,7 @@ input[type='radio']:checked + label:before {
 
 .module-name,
 .module-footer {
+  cursor: pointer;
   font-size: 14px;
 }
 

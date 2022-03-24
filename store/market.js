@@ -42,7 +42,61 @@ export const state = () => ({
   total_buy: null,
   total_sell: null,
 
-  markets_active_tab: null
+  markets_active_tab: null,
+  markets_layout: [
+    {
+      x: 0,
+      y: 0,
+      w: 15,
+      h: 14,
+      i: 'chart',
+      status: true
+    },
+    {
+      x: 15,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'order-depth',
+      status: true
+    },
+    {
+      x: 20,
+      y: 0,
+      w: 4,
+      h: 14,
+      i: 'time-sale',
+      status: true
+    },
+    {
+      x: 0,
+      y: 14,
+      w: 15,
+      h: 8,
+      i: 'open-oder',
+      status: true
+    },
+    {
+      x: 15,
+      y: 14,
+      w: 9,
+      h: 8,
+      i: 'limit-market',
+      status: true
+    }
+  ],
+  settings_list: [
+    {
+      chart: false,
+      orderdepth: true,
+      imesale: true,
+      imitmarket: true,
+      penorder: true,
+      arkets: true,
+      avorites: true
+    }
+  ]
+
 })
 
 export const mutations = {
@@ -54,6 +108,8 @@ export const mutations = {
   setDeals: (state, deals) => state.deals = deals,
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
+  setMarketLayout: (state, layout) => state.markets_layout = layout,
+  setSettingsList: (state, list) => state.settings_list = list,
 
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market

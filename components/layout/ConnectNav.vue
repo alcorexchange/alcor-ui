@@ -111,19 +111,19 @@ Vue.directive('click-outside1', {
   },
   unbind(el) {
     document.body.removeEventListener('click', el.clickOutsideEvent)
-  }
+  },
 })
 
 export default {
   components: {
     AlcorButton,
-    Settings
+    Settings,
     // AlcorLink
   },
   data() {
     return {
       loading: false,
-      showSetting: false //to show settings modal
+      showSetting: false, //to show settings modal
     }
   },
 
@@ -139,7 +139,7 @@ export default {
       return Object.values(config.networks).filter((n) =>
         ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
       )
-    }
+    },
   },
   //   props: {
   //     isFooter: {
@@ -168,8 +168,8 @@ export default {
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
-    }
-  }
+    },
+  },
 }
 </script>
 
