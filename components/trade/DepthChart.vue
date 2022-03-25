@@ -1,6 +1,11 @@
 <template lang="pug">
 .depth-chart
-  highchart(ref="chart" :options="chartOptions" :redraw="true" :update="['options', 'options.title', 'options.series']")
+  highchart(
+    ref='chart',
+    :options='chartOptions',
+    :redraw='true',
+    :update='["options", "options.title", "options.series"]'
+  )
 </template>
 
 <script>
@@ -14,91 +19,108 @@ export default {
     return {
       chartOptions: {
         credits: {
-          enabled: false
+          enabled: false,
         },
-        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572',
-          '#FF9655', '#FFF263', '#6AF9C4'],
+        colors: [
+          '#058DC7',
+          '#50B432',
+          '#ED561B',
+          '#DDDF00',
+          '#24CBE5',
+          '#64E572',
+          '#FF9655',
+          '#FFF263',
+          '#6AF9C4',
+        ],
         chart: {
           inverted: true,
           backgroundColor: {
             linearGradient: [0, 0, 500, 500],
             stops: [
               [0, 'rgb(40, 40, 40)'],
-              [1, 'rgb(40, 40, 40)']
-            ]
+              [1, 'rgb(40, 40, 40)'],
+            ],
           },
           type: 'area',
-          zoomType: 'xy'
+          zoomType: 'xy',
         },
         title: {
           text: '',
           margin: 0,
           stytle: {
-            display: 'none'
-          }
+            display: 'none',
+          },
         },
         xAxis: {
           minPadding: 0,
           maxPadding: 0,
-          plotLines: [{
-            value: 0.144,
-            zIndex: 2,
-            width: 2,
-            dashStyle: 'dotDash',
-            color: 'black',
-            label: {
-              text: '0.144',
-              rotation: 0
-            }
-          }],
+          plotLines: [
+            {
+              value: 0.144,
+              zIndex: 2,
+              width: 2,
+              dashStyle: 'dotDash',
+              color: 'black',
+              label: {
+                text: '0.144',
+                rotation: 0,
+              },
+            },
+          ],
           title: {
-            text: 'Price'
-          }
+            text: 'Price',
+          },
         },
-        yAxis: [{
-          lineWidth: 0,
-          gridLineWidth: 0,
-          title: null,
-          tickWidth: 0,
-          tickLength: 0,
-          tickPosition: 'inside',
-          labels: {
-            align: 'left',
-            x: 8
-          }
-        }],
+        yAxis: [
+          {
+            lineWidth: 0,
+            gridLineWidth: 0,
+            title: null,
+            tickWidth: 0,
+            tickLength: 0,
+            tickPosition: 'inside',
+            labels: {
+              align: 'left',
+              x: 8,
+            },
+          },
+        ],
         legend: {
-          enabled: false
+          enabled: false,
         },
         plotOptions: {
           area: {
             fillOpacity: 0.2,
-            lineWidth: 1
-          }
+            lineWidth: 1,
+          },
         },
         tooltip: {
-          headerFormat: '<span style="font-size=10px;">Price: {point.key}</span><br/>',
-          valueDecimals: 2
+          headerFormat:
+            '<span style="font-size=10px;">Price: {point.key}</span><br/>',
+          valueDecimals: 2,
         },
-        series: [{
-          name: 'Bids',
-          marker: {
-            enabled: false
+        series: [
+          {
+            name: 'Bids',
+            marker: {
+              enabled: false,
+            },
+            data: [],
+            color: '#03a7a8',
           },
-          data: [],
-          color: '#03a7a8'
-        }, {
-          name: 'Asks',
-          marker: {
-            enabled: false
+          {
+            name: 'Asks',
+            marker: {
+              enabled: false,
+            },
+            data: [],
+            color: '#fc5857',
           },
-          data: [],
-          color: '#fc5857'
-        }]
+        ],
       },
       bids: [],
       asks: [],
-      loading: false
+      loading: false,
     }
   },
 
@@ -114,7 +136,7 @@ export default {
 
     percentWarn() {
       return this.getSpreadPercent > 5 ? 'warn' : ''
-    }
+    },
   },
 
   watch: {
@@ -131,21 +153,20 @@ export default {
         this.bids.push([newBids[i][0], newBids[i][1]])
       }
       this.updateChartData(this.asks, this.bids)
-    }
+    },
   },
 
   methods: {
     updateChartData(asks, bids) {
       this.$refs.chart.chart.series[0].update({ data: asks.slice(0, 5) })
       this.$refs.chart.chart.series[1].update({ data: bids.slice(0, 5) })
-    }
+    },
   },
   mounted() {
     setTimeout(() => {
       this.$refs.chart.chart.setSize(250, 350)
     }, 100)
-  }
-
+  },
 }
 </script>
 

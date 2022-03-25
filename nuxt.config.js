@@ -85,6 +85,7 @@ module.exports = {
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
     { ssr: false, src: '~/plugins/vue-grid.js' },
+    { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' },
   ],
 
   /*
