@@ -1,103 +1,156 @@
 <template lang="pug">
-.row.mt-3
-  .col-lg-2.filters.pr-0
-    .row.mb-2
-      .col
-        NewOrder
-    .row
-      .col
-        el-card
-          div(slot="header")
-            span Authors
-            // FIXME el-button(style="float: right;" size="mini" type="text" @click="clearAuthorFilters") CLEAR
-          el-checkbox(
-            v-for="author in authors"
-            :key="author"
-            @change="addAutorFilter(author)"
-            :checked="isAuthorCheked(author)"
-          ).w-100 {{ author }}
-
-    .row.mt-2.mb-2
-      .col
-        el-card
-          div(slot="header")
-            span Categories
-          el-checkbox(
-            v-for="category in categories"
-            :key="category"
-            @change="addCatFilter(category)"
-            :checked="isCatCheked(category)"
-          ).w-100 {{ category }}
-
-  .col-lg-10.pr-0
-    .row
-      .col
-        .d-flex
-          el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable size="medium")
-
-          nuxt-link(to="/nft-market/create").ml-3
-            el-button(tag="el-button" icon="el-icon-plus" size="medium") Create NFT token
-
-          nuxt-link(to="/wallet/nfts").ml-3
-            el-button(type="info" icon="el-icon-wallet" size="medium") NFT Wallet
-    hr
-
-    .row
-      .col
-        el-alert(type="error" title="Beware of scammers!" show-icon)
-          p
-            | Anyone can create SimpleAssets NFTs and freely choose attributes such as name and image, including fake versions of existing NFTs or stolen intellectual property.
-            | Before buying an NFT, always do your own research about the collection and double check the collection name to ensure that you are buying genuine NFTs.
-
-    .row.mt-3
-      .col
-        .market-cards
-          card.item(
-            v-for="(order, i) in filteredOrders"
-            :order="order"
-            :key="order.id + i"
-          )
-
+.nft-container.j-container
+  .grid-container
+    div(v-for='(card, index) in cardData', :key='index')
+      NftCard(:data='card')
+    .relation-item
+      NftRelation
+  #loading.d-flex.justify-content-center(v-if='!filteredOrders.length')
+    .spinner-border(role='status')
+      span.sr-only Loading...
+  h1.recent-title(v-if='filteredOrders.length') Recent Listenings
+  VueSlickCarousel(
+    v-if='filteredOrders.length',
+    v-bind='settings'
+  )
+    .d-flex.justify-content-center(
+      v-for='(item, index) in filteredOrders.slice(0, 5)',
+      :key='index'
+    )
+      NormalCard(v-if='item', :data='item', :price='getPrice', :kindBut='"sales"')
+  h1.recent-title(v-if='filteredOrders.length') New NFTs
+  VueSlickCarousel(
+    v-if='filteredOrders.length',
+    v-bind='settings'
+  )
+    .d-flex.justify-content-center(
+      v-for='(item, index) in filteredOrders.reverse().slice(0, 5)',
+      :key='index'
+    )
+      NormalCard(v-if='item', :data='item', :price='getPrice', :kindBut='"sendoffer"')
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import Card from '~/components/nft_markets/Card'
-import NewOrder from '~/components/nft_markets/NewOrder'
+import VueSlickCarousel from 'vue-slick-carousel'
+import NftCard from '~/components/nft_markets/NftCard'
+import NftRelation from '~/components/nft_markets/NftRelation'
+import NormalCard from '~/components/nft_markets/NormalCard'
+import Img1 from '~/assets/images/nft_marketplace.png'
+import Img2 from '~/assets/images/wallet.png'
+import Img3 from '~/assets/images/nft_explorer.png'
+import Img4 from '~/assets/images/nft.png'
+import subImg from '~/assets/icons/wax.png'
+import 'vue-slick-carousel/dist/vue-slick-carousel.css'
+import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
 
 export default {
   components: {
-    Card,
-    NewOrder
+    NftCard,
+    NftRelation,
+    NormalCard,
+    VueSlickCarousel,
   },
 
   data() {
     return {
+      title: 'ABC',
+      cardData: [
+        {
+          title: 'ALCOR',
+          subTItle: 'NFT MARKETPLACE',
+          img: Img1,
+          to: 'nft-market/marketplace',
+        },
+        {
+          title: 'WALLET',
+          subTItle: 'flfum.wam',
+          img: Img2,
+          subImage: subImg,
+          to: 'nft-market/walletinventory',
+        },
+        {
+          title: 'ALCOR',
+          subTItle: 'NFT EXPLORER',
+          img: Img3,
+          to: 'nft-market/nftexplorer',
+        },
+        {
+          title: 'ALCOR',
+          subTItle: 'CREATE NFT',
+          img: Img4,
+          to: 'nft-market/cardnft',
+        },
+      ],
+      normalcardData: [
+        {
+          title: 'ALCOR',
+          subTItle: 'NFT MARKETPLACE',
+          img: Img1,
+        },
+        {
+          title: 'WALLET',
+          subTItle: 'flfum.wam',
+          img: Img2,
+          subImage: subImg,
+        },
+        {
+          title: 'ALCOR',
+          subTItle: 'NFT EXPLORER',
+          img: Img3,
+        },
+        {
+          title: 'ALCOR',
+          subTItle: 'CREATE NFT',
+          img: Img4,
+        },
+      ],
       search: '',
-
-      sellOrders: []
+      sellOrders: [],
+      settings: {
+        dots: false,
+        focusOnSelect: true,
+        infinite: true,
+        autoplay: true,
+        speed: 500,
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        touchThreshold: 5,
+        autoplaySpeed: 4600,
+        swipeToSlide: true
+      },
     }
   },
 
   computed: {
     ...mapState(['network']),
     ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
+    ...mapState('wallet', ['systemPrice']),
 
     filteredOrders() {
       let orders = this.orders
 
-      if (this.authorFilter.length > 0) orders = orders.filter(o => {
-        return o.sell.some(s => this.authorFilter.includes(s.author))
-      })
+      if (this.authorFilter.length > 0)
+        orders = orders.filter((o) => {
+          return o.sell.some((s) => this.authorFilter.includes(s.author))
+        })
 
-      if (this.catFilter.length > 0) orders = orders.filter(o => {
-        return o.sell.some(s => this.catFilter.includes(s.category))
-      })
+      if (this.catFilter.length > 0)
+        orders = orders.filter((o) => {
+          return o.sell.some((s) => this.catFilter.includes(s.category))
+        })
 
-      orders = orders.filter(o => {
-        return o.sell.some(s => {
-          const orderSearchData = s.author + s.category + s.id + JSON.stringify(s.idata) + JSON.stringify(s.mdata)
-          return orderSearchData.toLowerCase().includes(this.search.toLowerCase())
+      orders = orders.filter((o) => {
+        return o.sell.some((s) => {
+          const orderSearchData =
+            s.author +
+            s.category +
+            s.id +
+            JSON.stringify(s.idata) +
+            JSON.stringify(s.mdata)
+          return orderSearchData
+            .toLowerCase()
+            .includes(this.search.toLowerCase())
         })
       })
 
@@ -107,22 +160,27 @@ export default {
     authors() {
       const authors = []
 
-      this.orders.map(o => {
-        o.sell.map(o => authors.push(o.author))
+      this.orders.map((o) => {
+        o.sell.map((o) => authors.push(o.author))
       })
 
       return Array.from(new Set(authors))
     },
 
+    getPrice() {
+      let price = this.systemPrice
+      return price
+    },
+
     categories() {
       const categories = []
 
-      this.orders.map(o => {
-        o.sell.map(o => categories.push(o.category))
+      this.orders.map((o) => {
+        o.sell.map((o) => categories.push(o.category))
       })
 
       return Array.from(new Set(categories))
-    }
+    },
   },
 
   mounted() {
@@ -132,9 +190,15 @@ export default {
   methods: {
     addAutorFilter(author) {
       if (this.authorFilter.includes(author)) {
-        this.$store.commit('nft/setAuthorFilter', this.authorFilter.filter(a => a != author))
+        this.$store.commit(
+          'nft/setAuthorFilter',
+          this.authorFilter.filter((a) => a != author)
+        )
       } else {
-        this.$store.commit('nft/setAuthorFilter', [...this.authorFilter, author])
+        this.$store.commit('nft/setAuthorFilter', [
+          ...this.authorFilter,
+          author,
+        ])
       }
     },
 
@@ -148,7 +212,10 @@ export default {
 
     addCatFilter(cat) {
       if (this.catFilter.includes(cat)) {
-        this.$store.commit('nft/setCatFilter', this.catFilter.filter(a => a != cat))
+        this.$store.commit(
+          'nft/setCatFilter',
+          this.catFilter.filter((a) => a != cat)
+        )
       } else {
         this.$store.commit('nft/setCatFilter', [...this.catFilter, cat])
       }
@@ -160,7 +227,7 @@ export default {
 
     isCatCheked(cat) {
       return this.catFilter.includes(cat)
-    }
+    },
   },
 
   head() {
@@ -168,27 +235,59 @@ export default {
       title: `Alcor NFT Market | Trustless NFT market on ${this.network.name.toUpperCase()} chain`,
 
       meta: [
-        { hid: 'description', name: 'description', content: 'Atomic, no fee, NFT marketplace.' }
-      ]
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Atomic, no fee, NFT marketplace.',
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 
 <style>
-.market-cards .el-card__header {
-  padding: 10px 20px;
+.nft-container {
+  margin-top: 30px;
+}
+.nft-container .grid-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 30px;
+}
+#loading {
+  margin-top: 20px;
+  position: relative;
 }
 
-.market-cards {
-  display: flex;
-  flex-wrap: wrap!important;
-  justify-content: space-between;
+.slick-prev:before,
+.slick-next:before {
+  content: '';
+}
+.slick-prev,
+.slick-prev:hover,
+.slick-next,
+.slick-next:hover {
+  background: url('~/assets/images/left_arrow.png') !important;
+  background-size: 100% 100% !important;
+  width: 12.5px !important;
+  height: 25px !important;
 }
 
-.market-cards .item {
-  width: 32.8%;
-  margin-bottom: 10px;
+.slick-next,
+.slick-next:hover {
+  background: url('~/assets/images/right_arrow.png') !important;
+  background-size: 100% 100% !important;
+}
+
+.relation-item {
+  grid-area: 3 / 1 / 3 / 3;
+}
+.recent-title {
+  margin: 30px 0;
+  font-size: 36px;
+  font-weight: bold;
+  color: #fff;
 }
 
 @media only screen and (max-width: 600px) {
@@ -196,5 +295,4 @@ export default {
     width: 100%;
   }
 }
-
 </style>
