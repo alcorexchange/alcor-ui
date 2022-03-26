@@ -24,7 +24,11 @@
         )
           .right-icons
             .icon-btn
-              i.el-icon-setting
+              i.el-icon-setting(
+                v-if='item.i == "chart"',
+                @click='show_modal = !show_modal'
+              )
+              i.el-icon-setting(v-else)
             .icon-btn
               i.el-icon-close
           top-line(v-if='item.i == "chart"')
@@ -74,6 +78,7 @@
           //- .low-right(v-if="item.i=='6'")
           //-   .overflowbox.low-height.overflow-hidden
           //-     LatestDeals
+    SettingModal(v-if="show_modal" :outofmodalClick="outofmodalClick")
 </template>
 
 <script>
@@ -91,6 +96,7 @@ import Chart from '~/components/trade/Chart'
 import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
+import SettingModal from '~/components/trade/SettingModal'
 
 export default {
   layout: 'embed',
@@ -109,6 +115,7 @@ export default {
     TopLine,
     FeeRate,
     DepthChart,
+    SettingModal,
   },
 
   data() {
@@ -117,13 +124,20 @@ export default {
       price: 0.0,
       amount: 0.0,
       no_found: false,
-      loading: false
+      loading: false,
+      show_modal: false,
     }
   },
 
   computed: {
     ...mapState(['network', 'userOrders']),
-    ...mapState('market', ['token', 'id', 'stats', 'base_token', 'markets_layout']),
+    ...mapState('market', [
+      'token',
+      'id',
+      'stats',
+      'base_token',
+      'markets_layout',
+    ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
     payForUser: {
@@ -138,6 +152,10 @@ export default {
   },
 
   methods: {
+    outofmodalClick(event) {
+      if (event.target.classList.contains('body-container'))
+        this.show_modal = false
+    },
     cancelAll() {
       this.$store.dispatch(
         'market/cancelAll',
@@ -154,6 +172,9 @@ export default {
       this.$router.push('/swap')
     },
   },
+  mounted() {
+    console.log(this.$store.state)
+  }
 }
 </script>
 
