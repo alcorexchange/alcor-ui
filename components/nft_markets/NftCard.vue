@@ -1,6 +1,8 @@
 <template lang="pug">
 nuxt-link(:to='data.to' :exact="false")
-  .image-container(:style='imageBackground')
+  div.image-container
+    video(autoplay='' loop='')
+      source(:src='imageBackground' type='video/webm')
     .image-title
       p {{data.title}}
       .d-flex.align-items-center
@@ -17,18 +19,22 @@ export default {
       search: '',
       src: this.msg,
       sellOrders: [],
-      imageBackground: { backgroundImage: 'url(' + this.data.img + ')' },
+      imageBackground: this.data.img,
     }
   },
 }
 </script>
 
 <style>
+video {
+  border-radius: 25px;
+}
 .image-container {
   position: relative;
-  border-radius: 20px;
-  width: 455px;
-  height: 200px;
+  border-radius: 24px;
+  width: 100%;
+  height: 100%;
+  background-size: 100% 100%;
 }
 .image-title {
   color: #FFF;

@@ -1,9 +1,9 @@
 <template lang="pug">
 .nft-container.j-container
-  .grid-container
-    div(v-for='(card, index) in cardData', :key='index')
+  .grid-container.row
+    .card-container.lg-6.md-12.sm-12.xl-12(v-for='(card, index) in cardData', :key='index')
       NftCard(:data='card')
-    .relation-item
+    .lg-12.md-12.sm-12.xl-12.relation-item
       NftRelation
   #loading.d-flex.justify-content-center(v-if='!filteredOrders.length')
     .spinner-border(role='status')
@@ -36,10 +36,10 @@ import VueSlickCarousel from 'vue-slick-carousel'
 import NftCard from '~/components/nft_markets/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
 import NormalCard from '~/components/nft_markets/NormalCard'
-import Img1 from '~/assets/images/nft_marketplace.png'
-import Img2 from '~/assets/images/wallet.png'
-import Img3 from '~/assets/images/nft_explorer.png'
-import Img4 from '~/assets/images/nft.png'
+import Img1 from '~/assets/images/nft_marketplace.webm'
+import Img2 from '~/assets/images/wallet.webm'
+import Img3 from '~/assets/images/nft_explorer.webm'
+import Img4 from '~/assets/images/nft.webm'
 import subImg from '~/assets/icons/wax.png'
 import 'vue-slick-carousel/dist/vue-slick-carousel.css'
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
@@ -79,7 +79,7 @@ export default {
           title: 'ALCOR',
           subTItle: 'CREATE NFT',
           img: Img4,
-          to: 'nft-market/cardnft',
+          to: 'nft-market/createnft',
         },
       ],
       normalcardData: [
@@ -111,13 +111,42 @@ export default {
         dots: false,
         focusOnSelect: true,
         infinite: true,
-        autoplay: true,
+        autoplay: false,
         speed: 500,
         slidesToShow: 4,
         slidesToScroll: 1,
         touchThreshold: 5,
         autoplaySpeed: 4600,
-        swipeToSlide: true
+        swipeToSlide: true,
+        responsive: [
+          {
+            breakpoint: 1024,
+            settings: {
+              arrows: false,
+              slidesToShow: 3,
+              slidesToScroll: 3,
+              infinite: true,
+              dots: true
+            }
+          },
+          {
+            breakpoint: 600,
+            settings: {
+              arrows: false,
+              slidesToShow: 2,
+              slidesToScroll: 2,
+              initialSlide: 2
+            }
+          },
+          {
+            breakpoint: 480,
+            settings: {
+              arrows: false,
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+          }
+        ]
       },
     }
   },
@@ -251,9 +280,15 @@ export default {
   margin-top: 30px;
 }
 .nft-container .grid-container {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 30px;
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 20px);
+  margin: auto;
+}
+.card-container {
+  width: 440px;
+  height: 200px;
+  margin-bottom: 30px;
 }
 #loading {
   margin-top: 20px;
@@ -281,7 +316,7 @@ export default {
 }
 
 .relation-item {
-  grid-area: 3 / 1 / 3 / 3;
+  width: 100%;
 }
 .recent-title {
   margin: 30px 0;
@@ -290,9 +325,10 @@ export default {
   color: #fff;
 }
 
-@media only screen and (max-width: 600px) {
-  .market-cards .item {
-    width: 100%;
+@media only screen and (max-width: 1000px) {
+  .nft-container .grid-container {
+    justify-content: center;
+    width: calc(100% - 25px);
   }
 }
 </style>
