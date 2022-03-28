@@ -80,11 +80,6 @@
               el-tab-pane(label='Market trade')
                 .trade-box
                   market-trade
-          ChartModal.chart-modal(
-            v-show='showModal',
-            v-if='showModal',
-            @close-modal='showModal = false'
-          )
           //- .low-right(v-if="item.i=='6'")
           //-   .overflowbox.low-height.overflow-hidden
           //-     LatestDeals
@@ -105,7 +100,6 @@ import Chart from '~/components/trade/Chart'
 import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
-import chartModal from '~/components/trade/chartModal.vue'
 
 export default {
   layout: 'embed',
@@ -124,7 +118,6 @@ export default {
     TopLine,
     FeeRate,
     DepthChart,
-    chartModal,
   },
 
   data() {
