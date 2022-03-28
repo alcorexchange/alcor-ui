@@ -85,18 +85,24 @@ export const state = () => ({
       status: true
     }
   ],
-  settings_list: [
-    {
-      chart: false,
-      orderdepth: true,
-      imesale: true,
-      imitmarket: true,
-      penorder: true,
-      arkets: true,
-      avorites: true
-    }
-  ]
-
+  header_settings: {
+    change_24: true,
+    volume_24: true,
+    high_24: true,
+    low_24: true,
+    volume_24_usd: false,
+    weekly_volume: false,
+    all_time: false
+  },
+  chart_orders_settings: {
+    show_open_orders: true,
+    show_labels: true,
+    chart_order_interactivity: true,
+    chart_executions: true,
+    show_trade_executions: true,
+    show_trade_executions_price: false,
+    show_trade_execution_amount: false
+  }
 })
 
 export const mutations = {
@@ -109,8 +115,25 @@ export const mutations = {
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
   setMarketLayout: (state, layout) => state.markets_layout = layout,
-  setSettingsList: (state, list) => state.settings_list = list,
-
+  setHeaderSettings: (state, list) => state.header_settings = list,
+  setHeaderSettingsDefault: (state) => state.header_settings = {
+    change_24: true,
+    volume_24: true,
+    high_24: true,
+    low_24: true,
+    volume_24_usd: false,
+    weekly_volume: false,
+    all_time: false
+  },
+  setChartOrdersSettingsDefault: (state) => state.chart_orders_settings = {
+    show_open_orders: true,
+    show_labels: true,
+    chart_order_interactivity: true,
+    chart_executions: true,
+    show_trade_executions: true,
+    show_trade_executions_price: false,
+    show_trade_execution_amount: false
+  },
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
 
