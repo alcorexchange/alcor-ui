@@ -30,16 +30,16 @@ client-only
 
           //.d-flex.ml-3.w-100.justify-content-around.desctop
           .d-flex.align-items-center.ml-3.small
-            .d-flex.flex-column.ml-3.mr-3
+            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.change_24")
               span.text-muted Change 24H
               change-percent(:change='stats.change24')
-            .d-flex.flex-column.ml-3.mr-3
+            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.volume_24")
               span.text-muted Volume 24H:
               span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-            .d-flex.flex-column.ml-3.mr-3
+            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.high_24")
               span.text-muted 24H High:
               span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-            .d-flex.flex-column.ml-3.mr-3
+            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.low_24")
               span.text-muted 24H Low:
               span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
             .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center
@@ -150,7 +150,7 @@ export default {
 
   computed: {
     ...mapState(['network']),
-    ...mapState('market', ['stats', 'base_token', 'quote_token', 'id']),
+    ...mapState('market', ['stats', 'base_token', 'quote_token', 'id', 'header_settings']),
     ...mapState('settings', ['favMarkets']),
 
     hasWithdraw() {

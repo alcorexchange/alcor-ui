@@ -94,12 +94,14 @@
         span.module-title Layout Modules
       .el-main.module-main-settings
         .module-selection.d-flex.flex-column
-          .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in markets_layout')
-            .module-name {{settingBtnTitles[settingBtn.i]}}
+          .module-list.d-flex.flex-row.justify-content-between(
+            v-for='settingBtn in markets_layout'
+          )
+            .module-name {{ settingBtnTitles[settingBtn.i] }}
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='settingBtn.status',
-                @change='updateState()'
+                @change='updateState()',
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
@@ -132,21 +134,21 @@ export default {
 
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
   },
 
   data() {
     return {
       settingBtnTitles: {
-        chart: "Chart",
-        'order-depth': "Orderbook/Depth Chart",
-        'time-sale': "Times and Sales",
-        'limit-market': "Limit Trade/Market Trade",
-        'open-oder': "Open Orders"
+        chart: 'Chart',
+        'order-depth': 'Orderbook/Depth Chart',
+        'time-sale': 'Times and Sales',
+        'limit-market': 'Limit Trade/Market Trade',
+        'open-oder': 'Open Orders',
       },
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false
+      checkedorange: false,
     }
   },
   computed: {
@@ -154,13 +156,59 @@ export default {
     ...mapState(['checked']),
     markets_layout: {
       get() {
-        return this.$store.state.market.markets_layout
+        if (this.$store.state.market.markets_layout != null) {
+          return this.$store.state.market.markets_layout
+        } else {
+          let defaultlayout = [
+            {
+              x: 0,
+              y: 0,
+              w: 15,
+              h: 14,
+              i: 'chart',
+              status: true,
+            },
+            {
+              x: 15,
+              y: 0,
+              w: 5,
+              h: 14,
+              i: 'order-depth',
+              status: true,
+            },
+            {
+              x: 20,
+              y: 0,
+              w: 4,
+              h: 14,
+              i: 'time-sale',
+              status: true,
+            },
+            {
+              x: 0,
+              y: 14,
+              w: 15,
+              h: 8,
+              i: 'open-oder',
+              status: true,
+            },
+            {
+              x: 15,
+              y: 14,
+              w: 9,
+              h: 8,
+              i: 'limit-market',
+              status: true,
+            },
+          ]
+          return defaultlayout
+        }
       },
 
       set(value) {
         this.$store.commit('market/setMarketLayout', value)
-      }
-    }
+      },
+    },
   },
   methods: {
     onChange(e) {
@@ -170,9 +218,8 @@ export default {
     updateState() {
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     },
-    initiateState() {
-    }
-  }
+    initiateState() {},
+  },
 }
 </script>
 
