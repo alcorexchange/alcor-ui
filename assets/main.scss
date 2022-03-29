@@ -19,6 +19,12 @@ body {
   transition: 0.3s;
 }
 
+.j-container {
+  width: 100%;
+  margin: auto;
+  max-width: 970px;
+}
+
 *:focus {
   outline: none !important;
 }
