@@ -1,7 +1,7 @@
 <template lang="pug">
 .row.trading-terminal
   client-only
-    .col(v-if='markets_layout.length > 0')
+    .col(v-if='markets_layout != null && markets_layout.length > 0')
       grid-layout(
         :layout.sync='markets_layout',
         :col-num='24',
@@ -14,7 +14,7 @@
         :use-css-transforms='true'
       )
         grid-item.overflowbox(
-          v-for='item in markets_layout.filter(item=>item.status)',
+          v-for='item in markets_layout.filter((item) => item.status)',
           :x='item.x',
           :y='item.y',
           :w='item.w',
@@ -24,7 +24,11 @@
         )
           .right-icons
             .icon-btn
-              i.el-icon-setting
+              i.el-icon-setting(
+                v-if='item.i == "chart"',
+                @click='show_modal = !show_modal'
+              )
+              i.el-icon-setting(v-else)
             .icon-btn
               i.el-icon-close
           top-line(v-if='item.i == "chart"')
@@ -32,8 +36,17 @@
           el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
             el-tab-pane(label='Orderbook')
               order-book
-            el-tab-pane(label='Depth Chart')
-              depth-chart
+            el-tab-pane(label='Depth Chart', @click='showmessage')
+              depth-chart(
+                @click='showmessage',
+                :is-draggable='false',
+                :is-resizable='false',
+                :is-mirrored='false',
+                :vertical-compact='false',
+                :margin='[10, 10]',
+                :use-css-transforms='false',
+                :onMouseDown='handlePress(e)'
+              )
           el-tabs.h-100(v-if='item.i == "time-sale"')
             el-tab-pane(label='Times and Sales')
               LatestDeals
@@ -74,6 +87,7 @@
           //- .low-right(v-if="item.i=='6'")
           //-   .overflowbox.low-height.overflow-hidden
           //-     LatestDeals
+    SettingModal(v-if="show_modal" :outofmodalClick="outofmodalClick")
 </template>
 
 <script>
@@ -91,6 +105,7 @@ import Chart from '~/components/trade/Chart'
 import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
+import SettingModal from '~/components/trade/SettingModal'
 
 export default {
   layout: 'embed',
@@ -109,6 +124,7 @@ export default {
     TopLine,
     FeeRate,
     DepthChart,
+    SettingModal,
   },
 
   data() {
@@ -117,13 +133,20 @@ export default {
       price: 0.0,
       amount: 0.0,
       no_found: false,
-      loading: false
+      loading: false,
+      show_modal: false,
     }
   },
 
   computed: {
     ...mapState(['network', 'userOrders']),
-    ...mapState('market', ['token', 'id', 'stats', 'base_token', 'markets_layout']),
+    ...mapState('market', [
+      'token',
+      'id',
+      'stats',
+      'base_token',
+      'markets_layout',
+    ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
     payForUser: {
@@ -138,6 +161,10 @@ export default {
   },
 
   methods: {
+    outofmodalClick(event) {
+      if (event.target.classList.contains('body-container'))
+        this.show_modal = false
+    },
     cancelAll() {
       this.$store.dispatch(
         'market/cancelAll',
@@ -146,7 +173,10 @@ export default {
         )
       )
     },
-
+    showmessage() {},
+    handlePress(e) {
+      // e.stopPropagation()
+    },
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
@@ -154,6 +184,9 @@ export default {
       this.$router.push('/swap')
     },
   },
+  mounted() {
+    console.log(this.$store.state)
+  }
 }
 </script>
 
