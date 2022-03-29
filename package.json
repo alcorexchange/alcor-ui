@@ -58,6 +58,7 @@
     "vue-moment": "^4.0.0",
     "vue-scrollto": "^2.20.0",
     "vue-slick-carousel": "^1.0.6",
+    "vue-upload-drop-images": "^1.0.7",
     "vuex-persistedstate": "^3.0.1",
     "web3-utils": "^1.6.0"
   },
