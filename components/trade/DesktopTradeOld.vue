@@ -1,79 +1,62 @@
 <template lang="pug">
 .row.trading-terminal
-  client-only
-    .col(v-if='markets_layout.length > 0')
-      grid-layout(
-        :layout.sync='markets_layout',
-        :col-num='24',
-        :row-height='30',
-        :is-draggable='true',
-        :is-resizable='true',
-        :is-mirrored='false',
-        :vertical-compact='true',
-        :margin='[10, 10]',
-        :use-css-transforms='true'
-      )
-        grid-item.overflowbox(
-          v-for='item in markets_layout.filter(item=>item.status)',
-          :x='item.x',
-          :y='item.y',
-          :w='item.w',
-          :h='item.h',
-          :i='item.i',
-          :key='item.i'
-        )
-          .right-icons
-            .icon-btn
-              i.el-icon-setting
-            .icon-btn
-              i.el-icon-close
-          top-line(v-if='item.i == "chart"')
-          chart(v-if='item.i == "chart"')
-          el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
-            el-tab-pane(label='Orderbook')
-              order-book
-            el-tab-pane(label='Depth Chart')
-              depth-chart
-          el-tabs.h-100(v-if='item.i == "time-sale"')
-            el-tab-pane(label='Times and Sales')
-              LatestDeals
-          //- markets(v-if="item.i=='3'")
-          alcor-tabs.h-100(v-if='item.i == "open-oder"', v-model='tab')
-            template(slot='right')
+  .col
+    .top-level
+      .top-left.overflowbox
+        order-book(v-loading="loading")
+
+      .top-center
+        .overflowbox
+          top-line
+          chart
+
+      .top-right
+        .overflowbox.overflow-hidden
+          markets
+
+    .low-level.mt-2
+      .low-left
+        .low-height.overflow-hidden.overflowbox
+          alcor-tabs(v-model="tab").h-100
+            template(slot="right")
               .d-flex
-                el-button.red.hover-opacity.ml-3.mt-1(
-                  type='text',
-                  v-show='tab == 0',
-                  size='small',
-                  @click='cancelAll'
-                ) Cancel All Orders
-            el-tab-pane(label='Open order')
-              my-orders(v-if='user', v-loading='loading')
-            el-tab-pane(label='Order history')
-              my-history(v-if='user', v-loading='loading')
-            el-tab-pane(label='Trade History')
-              my-history
-            el-tab-pane(label='Funds')
-              my-history
-          .not-history(v-if='item.i == "limit-market"')
+                el-button(type="text" v-show="tab == 0" size="small" @click="cancelAll").red.hover-opacity.ml-3.mt-1 Cancel All Orders
+
+            el-tab-pane(label="Open order")
+              my-orders(v-if="user" v-loading="loading")
+
+            el-tab-pane(label="Order history")
+              my-history(v-if="user" v-loading="loading")
+      .not-history
+        .low-center
+          .overflowbox.low-height.position-relative
             .tabs-right
-              el-switch.mr-2(
-                v-if='["eos"].includes(network.name) && user',
-                v-model='payForUser',
-                inactive-text=' Free CPU'
-              )
+              el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
               FeeRate.mr-2
-              el-button(v-if='relatedPool', type='text', @click='goToPool') SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+              el-button(v-if="relatedPool" type="text" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+
             el-tabs.h-100
-              el-tab-pane(label='Limit trade')
+              el-tab-pane(label="Limit trade")
                 .trade-box
                   limit-trade
-              el-tab-pane(label='Market trade')
+
+              el-tab-pane(label="Market trade")
                 .trade-box
                   market-trade
-          //- .low-right(v-if="item.i=='6'")
-          //-   .overflowbox.low-height.overflow-hidden
-          //-     LatestDeals
+
+        .low-right
+          .overflowbox.low-height.overflow-hidden
+            LatestDeals
+
+    //- .row.mt-2.orders-panel
+    //-   .col
+    //-     .overflowbox.low-height.overflow-hidden
+    //-       el-tabs.h-100
+    //-         el-tab-pane(label="Open order")
+    //-           my-orders(v-if="user" v-loading="loading")
+
+    //-         el-tab-pane(label="Order history")
+    //-           my-history(v-if="user" v-loading="loading")
 </template>
 
 <script>
@@ -84,7 +67,6 @@ import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
 import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'
-import DepthChart from '~/components/trade/DepthChart'
 import Markets from '~/components/trade/Markets'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
@@ -94,8 +76,7 @@ import FeeRate from '~/components/trade/FeeRate'
 
 export default {
   layout: 'embed',
-  path: 'desktoptrade',
-  name: 'desktoptrade',
+
   components: {
     MarketTrade,
     MyHistory,
@@ -107,15 +88,16 @@ export default {
     Markets,
     MobileTrade,
     TopLine,
-    FeeRate,
-    DepthChart,
+    FeeRate
   },
 
   data() {
     return {
       tab: 0,
+
       price: 0.0,
       amount: 0.0,
+
       no_found: false,
       loading: false
     }
@@ -123,9 +105,10 @@ export default {
 
   computed: {
     ...mapState(['network', 'userOrders']),
-    ...mapState('market', ['token', 'id', 'stats', 'base_token', 'markets_layout']),
+    ...mapState('market', ['token', 'id', 'stats', 'base_token']),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
+
     payForUser: {
       get() {
         return this.$store.state.chain.payForUser
@@ -133,18 +116,13 @@ export default {
 
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
-      },
-    },
+      }
+    }
   },
 
   methods: {
     cancelAll() {
-      this.$store.dispatch(
-        'market/cancelAll',
-        this.userOrders.filter(
-          (a) => a.account === this.user.name && a.market_id == this.id
-        )
-      )
+      this.$store.dispatch('market/cancelAll', this.userOrders.filter(a => a.account === this.user.name && a.market_id == this.id))
     },
 
     goToPool() {
@@ -152,42 +130,12 @@ export default {
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
       this.$store.commit('swap/setTab', 'Swap')
       this.$router.push('/swap')
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-.el-item {
-  position: absolute;
-  border: 2px solid rgb(63, 63, 63);
-  margin: 2px;
-  border-radius: 2px;
-  margin: 1px;
-}
-
-.right-icons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 0;
-  z-index: 100;
-  margin: 1px;
-}
-
-.icon-btn {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #3f3f3f;
-  border-radius: 0px 0px 0px 3px;
-  cursor: pointer;
-  margin: 1px;
-}
-
 .red {
   color: var(--main-red);
 

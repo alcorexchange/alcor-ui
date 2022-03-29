@@ -6,11 +6,24 @@ div
     nav.nav.alcor-inner(v-if='!isMobile')
       .nav-side.nav-left
         nuxt-link(to='/')
-          img.logo(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='44')
-          img.logo(v-else='' height='44' src='~/assets/logos/alcorwhite.svg' alt='')
+          img.logo(
+            v-if='$colorMode.value == "light"',
+            src='~/assets/logos/alcorblack.svg',
+            height='44'
+          )
+          img.logo(
+            v-else='',
+            height='44',
+            src='~/assets/logos/alcorwhite.svg',
+            alt=''
+          )
         ul.nav-items
-          li(v-for='item in menuItems' :key='item.index')
-            AlcorLink.item(:to='item.index' flat :class="{ active: isActive(item.index) }")
+          li(v-for='item in menuItems', :key='item.index')
+            AlcorLink.item(
+              :to='item.index',
+              flat,
+              :class='{ active: isActive(item.index) }'
+            )
               | {{ item.name }}
       .nav-side.nav-right
         ConnectNav
@@ -18,19 +31,37 @@ div
       .menu-header
         .logo
           nuxt-link(to='/')
-            img.logo(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='34')
-            img.logo(v-else='' height='34' src='~/assets/logos/alcorwhite.svg' alt='')
-        AlcorButton(@click='openMenu' :icononlyalt='true')
+            img.logo(
+              v-if='$colorMode.value == "light"',
+              src='~/assets/logos/alcorblack.svg',
+              height='34'
+            )
+            img.logo(
+              v-else='',
+              height='34',
+              src='~/assets/logos/alcorwhite.svg',
+              alt=''
+            )
+        AlcorButton(@click='openMenu', :icononlyalt='true')
           i.el-icon-more
-        nav(:class="['menu', { menuActive }]")
+        nav(:class='["menu", { menuActive }]')
           .logo
-            img(v-if="$colorMode.value == 'light'" src='~/assets/logos/alcorblack.svg' height='50')
-            img(v-else='' height='50' src='~/assets/logos/alcorwhite.svg' alt='')
+            img(
+              v-if='$colorMode.value == "light"',
+              src='~/assets/logos/alcorblack.svg',
+              height='50'
+            )
+            img(
+              v-else='',
+              height='50',
+              src='~/assets/logos/alcorwhite.svg',
+              alt=''
+            )
           ul.menu-items
-            li(v-for='item in menuItems' :key='item.index')
-              AlcorLink.item(:to='item.index' flat='')
+            li(v-for='item in menuItems', :key='item.index')
+              AlcorLink.item(:to='item.index', flat='')
                 | {{ item.name }}
-        .menu-underlay(@click='closeMenu' v-if='menuActive')
+        .menu-underlay(@click='closeMenu', v-if='menuActive')
       .fixed-menu
         ConnectNav
     .main
@@ -61,7 +92,7 @@ export default {
     AlcorButton,
     ConnectNav,
     Circles,
-    AlcorLoading
+    AlcorLoading,
   },
 
   data() {
@@ -73,7 +104,7 @@ export default {
 
       app_name: config.APP_NAME,
 
-      menuActive: false
+      menuActive: false,
     }
   },
 
@@ -120,14 +151,14 @@ export default {
 
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
-      }
-    }
+      },
+    },
   },
 
   watch: {
     $route() {
       this.closeMenu()
-    }
+    },
   },
 
   async mounted() {
@@ -162,7 +193,7 @@ export default {
 
     closeMenu() {
       this.menuActive = false
-    }
+    },
   },
 
   head() {
@@ -171,11 +202,11 @@ export default {
         {
           hid: 'og:image',
           name: 'og:image',
-          content: '/android-chrome-512x512.png'
-        }
-      ]
+          content: '/android-chrome-512x512.png',
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 

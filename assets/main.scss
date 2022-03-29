@@ -237,9 +237,194 @@ a {
   }
 
   .markets-bar {
-    height: 500px;
+    // height: 500px;
   }
 }
+
+.theme-contrast {
+  .el-table::before {
+    height: 0px;
+  }
+
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
+    }
+
+    color: var(--text-grey-thirdly);
+  }
+
+  .text-danger {
+    color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
+}
+
+.theme-oranger {
+  .el-table::before {
+    height: 0px;
+  }
+
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
+    }
+
+    color: var(--text-grey-thirdly);
+  }
+
+  .text-danger {
+    color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
+}
+
+.theme-oceano {
+  .el-table::before {
+    height: 0px;
+  }
+
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
+    }
+
+    color: var(--text-grey-thirdly);
+  }
+
+  .text-danger {
+    color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
+}
+
+.theme-cyber {
+  .el-table::before {
+    height: 0px;
+  }
+
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
+    }
+
+    color: var(--text-grey-thirdly);
+  }
+
+  .text-danger {
+    color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
+}
+
+.theme-bloom {
+  .el-table::before {
+    height: 0px;
+  }
+
+  .el-menu-item {
+    &.is-active {
+      color: var(--text-default);
+    }
+
+    color: var(--text-grey-thirdly);
+  }
+
+  .text-danger {
+    color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
+}
+
+:root {
+  --color: #243746;
+  --color-primary: #158876;
+  --color-secondary: #0e2233;
+  --bg: #f3f5f4;
+  --bg-secondary: #fff;
+  --border-color: #ddd;
+}
+
+.dark-mode {
+  --color: #ebf4f1;
+  --color-primary: #41b38a;
+  --color-secondary: #fdf9f3;
+  --bg: #091a28;
+  --bg-secondary: #071521;
+  --border-color: #0d2538;
+}
+
+
 
 .alcor-card {
   border-radius: 12px;

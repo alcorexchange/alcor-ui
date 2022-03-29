@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
   "dependencies": {
+    "@azukisiromochi/vue-mo.js": "^1.0.2",
     "@bloks/web-sdk": "^2.7.23-55",
     "@eosrio/hyperion-stream-client": "^0.4.0-beta.5",
     "@nuxtjs/axios": "^5.13.1",
@@ -44,6 +45,7 @@
     "mongoose": "^5.13.12",
     "node-fetch": "^2.6.0",
     "nuxt": "^2.15.7",
+    "nuxt-highcharts": "^2.0.3",
     "nuxt-imagemin": "^1.0.0",
     "redis": "^4.0.0-rc.3",
     "route-cache": "^0.4.5",
@@ -51,8 +53,10 @@
     "socket.io-client": "^4.3.2",
     "vue-apexcharts": "^1.6.0",
     "vue-click-outside": "^1.1.0",
+    "vue-grid-layout": "^2.3.12",
     "vue-infinite-loading": "^2.4.5",
     "vue-moment": "^4.0.0",
+    "vue-no-ssr": "^1.1.1",
     "vue-scrollto": "^2.20.0",
     "vuex-persistedstate": "^3.0.1",
     "web3-utils": "^1.6.0"
