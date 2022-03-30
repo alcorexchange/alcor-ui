@@ -70,6 +70,7 @@ export const actions = {
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
+    console.log('logout..')
     getters.wallet.logout()
     commit('setLastWallet', null)
     this.$socket.emit('unsubscribe', {
@@ -85,6 +86,7 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters, rootState }, wallet_name) {
+    console.log('login..')
     commit('setCurrentWallet', wallet_name)
     const wasAutoLoginned = await dispatch('autoLogin')
     if (wasAutoLoginned) return commit('setLastWallet', wallet_name)
@@ -92,6 +94,7 @@ export const actions = {
     const { name, authorization } = await getters.wallet.login()
     commit('setUser', { name, authorization }, { root: true })
     dispatch('afterLoginHook')
+
 
     commit('setLastWallet', wallet_name)
 
