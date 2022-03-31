@@ -1,13 +1,13 @@
 <template lang="pug">
-.j-container.creatingschema
+.j-container.schemaview
   div
-    nuxt-link(:to='"/nft-market"' :exact="true")
+    nuxt-link(:to='"/nft-market/creatingschema"' :exact="true")
       a#return-btn Return - Collection: Alcorex
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 Create Schema in:
-        span.color-green &nbsp;Alcorex
-      p Edit your collection or add schemas and NFTs.
+        span.color-green &nbsp;Golden
+      p Schemas are a group of attributes that are attached to your NFTs.
     .page-header-progress.lg-4.md-4.sm-12.xm-12
       .progress-info
         .info-capacity.d-flex.justify-content-between
@@ -19,14 +19,7 @@
             span.plus-icon.border-radius5 +
         b-progress(:max='100')
           b-progress-bar(:value='value' :label='`${value}%`')
-  .d-flex.justify-content-between
-    .schema-create
-      p.description-title Schema Name
-      p.validation-name (12 Characters max)
-        span.color-red *
-      input(:type="'text'")
-      nuxt-link(:to='"/nft-market/schemaview"' :exact="true")
-        .create-schema-btn Create Schema
+  div
     .add-attribute
       .add-attribute_header
         .row.add-attribute_header.d-flex
@@ -34,36 +27,60 @@
           p Attribute type:
       .add-attribute_content
         .row.d-flex.align-items-center(v-for='(item, index) in attribute_data' :key='index')
-          p.minus-button(v-if='!item["name"]' @click='deleteitem(item["id"])' :style="{ backgroundImage:`url(${require('~/assets/images/minus_radius.svg')})`}")
-          input.input-attribute(v-if='!item["name"]' placeholder='insert attribute name')
-          el-select(v-if='!item["name"]' v-model='item["selectedValue"]' placeholder='Select type')
+          p.minus-button(v-if='item["selectEditable"] && !item["name"]' @click='deleteitem(item["id"])' :style="{ backgroundImage:`url(${require('~/assets/images/minus_radius.svg')})`}")
+          input.input-attribute(v-if='item["selectEditable"] && !item["name"]' placeholder='insert attribute name')
+          p.name-button(v-if='item["selectEditable"] && item["name"]') {{item['name']}}
+          el-select(v-if='item["selectEditable"]' v-model='item["selectedValue"]' placeholder='Select type')
             el-option(v-for='option in options' :key='option.value' :label='option.label' :value='option.value')
-          p.name-button(v-if='item["name"]') {{item['name']}}
-          p.type-button(v-if='item["name"]') {{item['type']}}
+          p.name-button(v-if='!item["selectEditable"]') {{item['name']}}
+          p.type-button(v-if='!item["selectEditable"]') {{item['type']}}
       p.add-button(@click='additem()') + Add Attribute
+    h4.nft-title NFTs:
+    .nftcard.create-collections.radius10.d-flex.justify-content-center.align-items-center
+      .card-content
+        .plus-round-background(:style="{ backgroundImage:`url(${require('~/assets/images/plus_round_icon.svg')})`}")
+        h4 Mint NFT
+    h4.nft-title Templates:
+    .d-flex
+      .nftcard.create-collections.radius10.d-flex.justify-content-center.align-items-center.template-card
+        nuxt-link(:to='"/nft-market/newtemplate"' :exact="true")
+          .card-content
+            .plus-round-background(:style="{ backgroundImage:`url(${require('~/assets/images/plus_round_icon.svg')})`}")
+            h4.color-white New Templates
+      SchemaCard(:cardData="cardData")
 </template>
 
 <script>
 import { BProgress, BProgressBar } from 'bootstrap-vue'
+import SchemaCard from '~/components/nft_markets/SchemaCard'
 
 export default {
   components: {
     BProgress,
-    BProgressBar
+    BProgressBar,
+    SchemaCard,
   },
 
   data() {
     return {
+      cardData: {
+        maker: 'flfum.wam',
+        creator: 'AlcorExchange',
+        showNFTdata: false,
+        showNFTvalue: true,
+        nftvalue: 0,
+        btnname: 'Details',
+      },
       options: [
         { value: 'Text', label: 'Text' },
         { value: 'image', label: 'image' },
       ],
       value: 73,
       attribute_data: [
-        { id: 0, name: 'name', type: 'Text', selectedValue: '' },
-        { id: 1, name: 'image', type: 'image', selectedValue: '' },
-        { id: 2, name: '', type: 'Text', selectedValue: 'Text' },
-        { id: 3, name: '', type: 'image', selectedValue: 'image' },
+        { id: 0, name: 'name', type: 'Text', selectedValue: '', selectEditable: false },
+        { id: 1, name: 'image', type: 'image', selectedValue: '', selectEditable: false },
+        { id: 2, name: 'Clean', type: 'Text', selectedValue: 'Text', selectEditable: true },
+        { id: 3, name: 'Back', type: 'image', selectedValue: 'image', selectEditable: true },
       ]
     }
   },
@@ -72,14 +89,23 @@ export default {
       this.attribute_data = this.attribute_data.filter((item) => item.id != id)
     },
     additem() {
-      this.attribute_data.push({ id: this.attribute_data[this.attribute_data.length - 1].id + 1, name: '', type: this.options[0].text })
+      this.attribute_data.push({ id: this.attribute_data[this.attribute_data.length - 1].id + 1, name: '', type: this.options[0].text, selectEditable: true })
     }
   }
 }
 </script>
 
 <style lang="scss">
-.creatingschema {
+.schemaview {
+  .radius10 {
+    border-radius: 10px;
+  }
+  .color-white {
+    color: #FFF !important;
+  }
+  .nft-title {
+    margin: 32px 0;
+  }
   .el-input__suffix {
     right: 65px !important;
   }
@@ -269,15 +295,6 @@ export default {
     height: 70px;
     margin: auto;
   }
-  .almemes-background {
-    width: 100px;
-    height: 117px;
-    margin: auto;
-  }
-  .almemes h4 {
-    margin: 30px 0 0 !important;
-    color: #67C23A;
-  }
   .card-content {
     margin-top: 23px;
     font-weight: 700;
@@ -347,8 +364,11 @@ export default {
   }
   .nftcard {
     width: 220px;
-    height: 195px;
+    height: 300px;
     border: 1px solid #67C23A;
+  }
+  .template-card {
+    height: 174px;
   }
   .create-collections {
     margin-right: 25px;
