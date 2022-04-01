@@ -125,6 +125,7 @@ export const mutations = {
     weekly_volume: false,
     all_time: false
   },
+  setChartOrdersSettings: (state, list) => state.chart_orders_settings = list,
   setChartOrdersSettingsDefault: (state) => state.chart_orders_settings = {
     show_open_orders: true,
     show_labels: true,
