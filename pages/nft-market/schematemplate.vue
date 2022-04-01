@@ -1,13 +1,13 @@
 <template lang="pug">
-.j-container.creatingschema
+.j-container.schematemplate
   div
-    nuxt-link(:to='"/nft-market"' :exact="true")
+    nuxt-link(:to='"/nft-market/creatingschema"' :exact="true")
       a#return-btn Return - Collection: Alcorex
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 Create Schema in:
-        span.color-green &nbsp;Alcorex
-      p Edit your collection or add schemas and NFTs.
+      h4 Template:
+        span.color-green &nbsp;#204102
+      p Templates can be applied to NFTs, the attributes will then be changed accordingly.
     .page-header-progress.lg-4.md-4.sm-12.xm-12
       .progress-info
         .info-capacity.d-flex.justify-content-between
@@ -19,67 +19,89 @@
             span.plus-icon.border-radius5 +
         b-progress(:max='100')
           b-progress-bar(:value='value' :label='`${value}%`')
-  .d-flex.justify-content-between
-    .schema-create
-      p.description-title Schema Name
-      p.validation-name (12 Characters max)
-        span.color-red *
-      input(:type="'text'")
-      nuxt-link(:to='"/nft-market/schemaview"' :exact="true")
-        .create-schema-btn Create Schema
-    .add-attribute
-      .add-attribute_header
-        .row.add-attribute_header.d-flex
-          p Attribute name:
-          p Attribute type:
-      .add-attribute_content
-        .row.d-flex.align-items-center(v-for='(item, index) in attribute_data' :key='index')
-          p.minus-button(v-if='!item["name"]' @click='deleteitem(item["id"])' :style="{ backgroundImage:`url(${require('~/assets/images/minus_radius.svg')})`}")
-          input.input-attribute(v-if='!item["name"]' placeholder='insert attribute name')
-          el-select(v-if='!item["name"]' v-model='item["selectedValue"]' placeholder='Select type')
-            el-option(v-for='option in options' :key='option.value' :label='option.label' :value='option.value')
-          p.name-button(v-if='item["name"]') {{item['name']}}
-          p.type-button(v-if='item["name"]') {{item['type']}}
-      p.add-button(@click='additem()') + Add Attribute
+  div
+    h4.nft-title Details
+    .d-flex
+      SchemaCard(:cardData="cardData")
+      .golden-card-content.radius10
+        h4.color-green Golden
+        h4 Alcorex
+        h5 (3 Attributes)
+    .d-flex.justify-content-between.align-items-end.template-container(:style="{marginTop: '100px'}")
+      div
+        h4.nft-title Templates:
+        .d-flex
+          .nftcard.create-collections.radius10.d-flex.justify-content-center.align-items-center.template-card
+            nuxt-link(:to='"/nft-market/newtemplate"' :exact="true")
+              .card-content
+                .plus-round-background(:style="{ backgroundImage:`url(${require('~/assets/images/plus_round_icon.svg')})`}")
+                h4.color-white New Templates
+      div
+        h5.color-white NFTs
+        .nftcard.create-collections.radius10.d-flex.justify-content-center.align-items-center
+          .card-content
+            .plus-round-background(:style="{ backgroundImage:`url(${require('~/assets/images/plus_round_icon.svg')})`}")
+            h5 Mint NFT
 </template>
 
 <script>
 import { BProgress, BProgressBar } from 'bootstrap-vue'
+import SchemaCard from '~/components/nft_markets/SchemaCard'
 
 export default {
   components: {
     BProgress,
-    BProgressBar
+    BProgressBar,
+    SchemaCard,
   },
 
   data() {
     return {
-      options: [
-        { value: 'Text', label: 'Text' },
-        { value: 'image', label: 'image' },
-      ],
+      cardData: {
+        maker: 'flfum.wam',
+        creator: 'AlcorExchange',
+        showNFTdata: true,
+        showNFTvalue: false,
+        nftvalue: 0,
+        btnname: 'View in market',
+      },
       value: 73,
-      attribute_data: [
-        { id: 0, name: 'name', type: 'Text', selectedValue: '' },
-        { id: 1, name: 'image', type: 'image', selectedValue: '' },
-        { id: 2, name: '', type: 'Text', selectedValue: 'Text' },
-        { id: 3, name: '', type: 'image', selectedValue: 'image' },
-      ]
     }
   },
-  methods: {
-    deleteitem(id) {
-      this.attribute_data = this.attribute_data.filter((item) => item.id != id)
-    },
-    additem() {
-      this.attribute_data.push({ id: this.attribute_data[this.attribute_data.length - 1].id + 1, name: '', type: this.options[0].text })
-    }
-  }
 }
 </script>
 
 <style lang="scss">
-.creatingschema {
+.schematemplate {
+  .radius10 {
+    border-radius: 10px;
+  }
+  .golden-card-content {
+    width: 220px;
+    height: 195px;
+    border: 1px solid #67C23A;
+    background-color: #202021;
+    margin-left: 37px;
+    padding-top: 43px;
+    font-weight: 700;
+    font-size: 24px;
+    text-align: center;
+    h4 {
+      margin: 10px 0 !important;
+    }
+    h5 {
+      color: #9F979A;
+    }
+  }
+  .template-container {
+    width: 70%;
+  }
+  .color-white {
+    color: #FFF !important;
+  }
+  .nft-title {
+    margin: 32px 0;
+  }
   .el-input__suffix {
     right: 65px !important;
   }
@@ -151,19 +173,6 @@ export default {
   }
   .type-button {
     color: white;
-  }
-  .add-attribute_header {
-    font-weight: 500;
-    font-size: 20px;
-    p:first-child {
-      margin-right: 12px;
-    }
-    p {
-      width: 233px;
-    }
-  }
-  .add-attribute {
-    width: 478px;
   }
   .create-schema-btn {
     width: 233px;
@@ -269,21 +278,13 @@ export default {
     height: 70px;
     margin: auto;
   }
-  .almemes-background {
-    width: 100px;
-    height: 117px;
-    margin: auto;
-  }
-  .almemes h4 {
-    margin: 30px 0 0 !important;
-    color: #67C23A;
-  }
   .card-content {
     margin-top: 23px;
     font-weight: 700;
     font-size: 24px;
     text-align: center;
-    h4 {
+    h4,
+    h5 {
       margin: 10px 0;
     }
   }
@@ -347,11 +348,15 @@ export default {
   }
   .nftcard {
     width: 220px;
-    height: 195px;
+    height: 300px;
     border: 1px solid #67C23A;
+  }
+  .template-card {
+    height: 174px;
   }
   .create-collections {
     margin-right: 25px;
+    background-color: #202021;
   }
 }
 </style>
