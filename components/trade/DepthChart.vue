@@ -5,7 +5,7 @@
   :is-mirrored='false',
   :vertical-compact='false',
   :use-css-transforms='false',
-  @click='showmessage($event)'
+  onmousedown='event.preventDefault ? event.preventDefault() : event.returnValue = false'
 )
   .chart-nav.scale-value-nav
     .chart-part
@@ -138,13 +138,13 @@ export default {
               zIndex: 10,
               width: 2,
               dashStyle: 'shortdash',
-              color: '#03a7a8',
+              color: '#66C167',
               label: {
                 text: '0.15495',
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#03a7a8',
+                  color: '#66C167',
                 },
               },
             },
@@ -153,13 +153,13 @@ export default {
               zIndex: 10,
               width: 2,
               dashStyle: 'shortdash',
-              color: '#03a7a8',
+              color: '#66C167',
               label: {
                 text: '0.158',
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#03a7a8',
+                  color: '#66C167',
                 },
               },
             },
@@ -168,13 +168,13 @@ export default {
               zIndex: 10,
               width: 2,
               dashStyle: 'shortdash',
-              color: '#03a7a8',
+              color: '#66C167',
               label: {
                 text: '0.1526',
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#03a7a8',
+                  color: '#66C167',
                 },
               },
             },
@@ -253,7 +253,7 @@ export default {
               [0.16, 81.58156],
               [0.1608, 83.38156],
             ],
-            color: '#03a7a8',
+            color: '#66C167',
           },
           {
             name: 'Asks',
