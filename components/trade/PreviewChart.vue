@@ -13,12 +13,16 @@ export default {
 
       onRealtimeCallback: () => {},
       widget: null,
-      onResetCacheNeededCallback: null
+      onResetCacheNeededCallback: null,
+      flag: false,
+      executionshape_flg: false,
+      executionshape: '',
+      order: '',
     }
   },
 
   computed: {
-    ...mapState('market', ['base_token', 'id', 'quote_token']),
+    ...mapState('market', ['base_token', 'id', 'quote_token', 'chart_orders_settings']),
     ...mapState(['network'])
   },
 
@@ -30,6 +34,43 @@ export default {
     id(to, from) {
       this.reset()
       this.load()
+    },
+    'chart_orders_settings.chart_order_interactivity'() {
+      this.flag = false
+      if (this.chart_orders_settings.show_open_orders && this.order.remove)
+        this.order.remove()
+      this.gridLabels()
+    },
+    'chart_orders_settings.show_labels'() {
+      this.flag = false
+      if (this.chart_orders_settings.show_open_orders && this.order.remove)
+        this.order.remove()
+      this.gridLabels()
+    },
+    'chart_orders_settings.show_open_orders'() {
+      this.flag = false
+      if (!this.chart_orders_settings.show_open_orders) {
+        if (this.order.remove)
+          this.order.remove()
+      } else this.gridLabels()
+    },
+    'chart_orders_settings.show_trade_execution_amount'() {
+      this.executionshape_flg = false
+      if (this.chart_orders_settings.show_trade_executions && this.executionshape.remove)
+        this.executionshape.remove()
+      this.gridExecution()
+    },
+    'chart_orders_settings.show_trade_executions_price'() {
+      this.executionshape_flg = false
+      if (this.chart_orders_settings.show_trade_executions && this.executionshape.remove)
+        this.executionshape.remove()
+      this.gridExecution()
+    },
+    'chart_orders_settings.show_trade_executions'() {
+      this.executionshape_flg = false
+      if (!this.chart_orders_settings.show_trade_executions)
+        this.executionshape.remove()
+      else this.gridExecution()
     }
   },
 
@@ -68,6 +109,65 @@ export default {
         this.onResetCacheNeededCallback()
       } else {
         this.mountChart()
+      }
+    },
+
+    gridLabels() {
+      if (this.chart_orders_settings.show_open_orders && !this.flag) {
+        this.flag = true
+        this.order = this.widget.chart().createOrderLine()
+          .setLineLength(3)
+          .setLineColor('#c95a5a')
+          .setBodyBackgroundColor('#c95a5a')
+          .setBodyBorderColor('#c95a5a')
+          .setQuantityBackgroundColor('#c95a5a')
+          .setBodyTextColor('#000')
+          .setQuantityTextColor('#000')
+          .setQuantityBorderColor('#c95a5a')
+          .setCancelButtonBorderColor('#c95a5a')
+          .setCancelButtonBackgroundColor('#FFF')
+          .setCancelButtonIconColor('#000')
+          .setLineStyle(1)
+          .setQuantity("a")
+          .setText("a")
+        if (this.chart_orders_settings.show_labels) {
+          this.order.setQuantity("150,000 VOID")
+          this.order.setText("Buy")
+          if (this.chart_orders_settings.chart_order_interactivity) {
+            this.order
+              .onMove(function() {
+              })
+              .onModify("onModify called", function(text) {
+              })
+              .onCancel("onCancel called", function(text) {
+              })
+          }
+        } else {
+          this.order.setQuantity("")
+          this.order.setText("")
+        }
+        this.order.setPrice(0.008)
+      }
+    },
+
+    gridExecution() {
+      if (!this.executionshape_flg && this.chart_orders_settings.show_trade_executions) {
+        this.executionshape_flg = true
+        this.executionshape = this.widget.chart().createExecutionShape()
+          .setText("0000 - 0000.7VOID")
+          .setTextColor("#FFF")
+          .setArrowColor("#00b9ff")
+          .setFont("100pt")
+          .setArrowHeight(8)
+          .setDirection("buy")
+          // .setTime(1648772490411)
+          .setPrice(0.007)
+        if (!this.chart_orders_settings.show_trade_executions_price)
+          this.executionshape.setText("0000")
+        if (!this.chart_orders_settings.show_trade_execution_amount)
+          this.executionshape.setText("0000.7VOID")
+        if (!this.chart_orders_settings.show_trade_executions_price && !this.chart_orders_settings.show_trade_execution_amount)
+          this.executionshape.setText("")
       }
     },
 
@@ -248,6 +348,8 @@ export default {
         this.widget.subscribe('onAutoSaveNeeded', () => {
           console.log('chart save..')
           this.save()
+          this.gridLabels()
+          this.gridExecution()
         })
       })
     }

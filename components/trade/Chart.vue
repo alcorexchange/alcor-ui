@@ -1,10 +1,11 @@
 <template lang="pug">
-  #tv_chart_container
+#tv_chart_container
 </template>
 
 <script>
 // TODO Зафиксить график при переключении
 import { mapState } from 'vuex'
+import global from '~/plugins/global'
 
 export default {
   data() {
@@ -13,13 +14,22 @@ export default {
 
       onRealtimeCallback: () => {},
       widget: null,
-      onResetCacheNeededCallback: null
+      onResetCacheNeededCallback: null,
+      flag: false,
+      executionshape_flg: false,
+      executionshape: '',
+      order: '',
     }
   },
 
   computed: {
-    ...mapState('market', ['base_token', 'id', 'quote_token']),
-    ...mapState(['network'])
+    ...mapState('market', [
+      'base_token',
+      'id',
+      'quote_token',
+      'chart_orders_settings',
+    ]),
+    ...mapState(['network']),
   },
 
   watch: {
@@ -30,7 +40,49 @@ export default {
     id(to, from) {
       this.reset()
       this.load()
-    }
+    },
+    'chart_orders_settings.chart_order_interactivity'() {
+      this.flag = false
+      if (this.chart_orders_settings.show_open_orders && this.order.remove)
+        this.order.remove()
+      this.gridLabels()
+    },
+    'chart_orders_settings.show_labels'() {
+      this.flag = false
+      if (this.chart_orders_settings.show_open_orders && this.order.remove)
+        this.order.remove()
+      this.gridLabels()
+    },
+    'chart_orders_settings.show_open_orders'() {
+      this.flag = false
+      if (!this.chart_orders_settings.show_open_orders) {
+        if (this.order.remove) this.order.remove()
+      } else this.gridLabels()
+    },
+    'chart_orders_settings.show_trade_execution_amount'() {
+      this.executionshape_flg = false
+      if (
+        this.chart_orders_settings.show_trade_executions &&
+        this.executionshape.remove
+      )
+        this.executionshape.remove()
+      this.gridExecution()
+    },
+    'chart_orders_settings.show_trade_executions_price'() {
+      this.executionshape_flg = false
+      if (
+        this.chart_orders_settings.show_trade_executions &&
+        this.executionshape.remove
+      )
+        this.executionshape.remove()
+      this.gridExecution()
+    },
+    'chart_orders_settings.show_trade_executions'() {
+      this.executionshape_flg = false
+      if (!this.chart_orders_settings.show_trade_executions)
+        this.executionshape.remove()
+      else this.gridExecution()
+    },
   },
 
   mounted() {
@@ -47,7 +99,9 @@ export default {
 
   methods: {
     save() {
-      const twChart = JSON.parse(JSON.stringify(this.$store.state.settings.twChart))
+      const twChart = JSON.parse(
+        JSON.stringify(this.$store.state.settings.twChart)
+      )
       this.widget.save((o) => {
         console.log('save chart for', this.id)
         twChart[this.id] = o
@@ -71,6 +125,72 @@ export default {
       }
     },
 
+    gridLabels() {
+      if (this.chart_orders_settings.show_open_orders && !this.flag) {
+        this.flag = true
+        this.order = this.widget
+          .chart()
+          .createOrderLine()
+          .setLineLength(3)
+          .setLineColor('#c95a5a')
+          .setBodyBackgroundColor('#c95a5a')
+          .setBodyBorderColor('#c95a5a')
+          .setQuantityBackgroundColor('#c95a5a')
+          .setBodyTextColor('#000')
+          .setQuantityTextColor('#000')
+          .setQuantityBorderColor('#c95a5a')
+          .setCancelButtonBorderColor('#c95a5a')
+          .setCancelButtonBackgroundColor('#FFF')
+          .setCancelButtonIconColor('#000')
+          .setLineStyle(1)
+          .setQuantity('a')
+          .setText('a')
+        if (this.chart_orders_settings.show_labels) {
+          this.order.setQuantity('150,000 VOID')
+          this.order.setText('Buy')
+          if (this.chart_orders_settings.chart_order_interactivity) {
+            this.order
+              .onMove(function () {})
+              .onModify('onModify called', function (text) {})
+              .onCancel('onCancel called', function (text) {})
+          }
+        } else {
+          this.order.setQuantity('')
+          this.order.setText('')
+        }
+        this.order.setPrice(0.008)
+      }
+    },
+
+    gridExecution() {
+      if (
+        !this.executionshape_flg &&
+        this.chart_orders_settings.show_trade_executions
+      ) {
+        this.executionshape_flg = true
+        this.executionshape = this.widget
+          .chart()
+          .createExecutionShape()
+          .setText('0000 - 0000.7VOID')
+          .setTextColor('#FFF')
+          .setArrowColor('#00b9ff')
+          .setFont('12pt Verdana')
+          .setArrowHeight(8)
+          .setDirection('buy')
+          // .setTime(1648772490411)
+          .setPrice(0.007)
+        if (!this.chart_orders_settings.show_trade_executions_price)
+          this.executionshape.setText('0000')
+        if (!this.chart_orders_settings.show_trade_execution_amount)
+          this.executionshape.setText('0000.7VOID')
+        if (
+          !this.chart_orders_settings.show_trade_executions_price &&
+          !this.chart_orders_settings.show_trade_execution_amount
+        )
+          this.executionshape.setText('')
+      }
+    },
+
     mountChart() {
       const Widget = require('~/assets/charts/charting_library.min.js').widget
 
@@ -87,9 +207,9 @@ export default {
                 '240',
                 'D',
                 'W',
-                'M'
+                'M',
               ],
-              symbols_types: [{ name: 'crypto', value: 1 }]
+              symbols_types: [{ name: 'crypto', value: 1 }],
             }
             callback(data)
           },
@@ -103,7 +223,14 @@ export default {
           ) => {
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
-            this.$socket.emit('subscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
+            this.$socket.emit('subscribe', {
+              room: 'ticker',
+              params: {
+                chain: this.network.name,
+                market: this.id,
+                resolution: this.resolution,
+              },
+            })
 
             this.onRealtimeCallback = onRealtimeCallback
             this.resolution = resolution
@@ -134,10 +261,10 @@ export default {
                 '240',
                 'D',
                 'W',
-                'M'
+                'M',
               ],
               volume_precision: 5,
-              data_status: 'streaming'
+              data_status: 'streaming',
             }
 
             onSymbolResolvedCallback(symbolInfo)
@@ -157,18 +284,24 @@ export default {
             const { data: charts } = await this.$axios.get(
               `/markets/${this.id}/charts`,
               {
-                params: { resolution, from, to }
+                params: { resolution, from, to },
               }
             )
-
             onHistoryCallback(charts, { noData: charts.length == 0 })
             this.widget.activeChart().resetData()
             this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
           },
 
           unsubscribeBars: (subscriberUID) => {
-            this.$socket.emit('unsubscribe', { room: 'ticker', params: { chain: this.network.name, market: this.id, resolution: this.resolution } })
-          }
+            this.$socket.emit('unsubscribe', {
+              room: 'ticker',
+              params: {
+                chain: this.network.name,
+                market: this.id,
+                resolution: this.resolution,
+              },
+            })
+          },
         },
         //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
         interval: '240',
@@ -176,7 +309,7 @@ export default {
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
+          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
@@ -214,14 +347,14 @@ export default {
           'timezone_menu',
           //'property_pages',
           'timeframes_toolbar',
-          'countdown'
+          'countdown',
 
           //'use_localstorage_for_settings',
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
           'header_in_fullscreen_mode',
-          'save_chart_properties_to_local_storage'
+          'save_chart_properties_to_local_storage',
         ],
         //charts_storage_url: this.chartsStorageUrl,
         //charts_storage_api_version: this.chartsStorageApiVersion,
@@ -238,8 +371,8 @@ export default {
           'paneProperties.background':
             this.$colorMode.value == 'light' ? '#F3FAFC' : '#282828',
           'scalesProperties.textColor':
-            this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
-        }
+            this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
+        },
       }
 
       this.widget = new Widget(widgetOptions)
@@ -248,10 +381,12 @@ export default {
         this.widget.subscribe('onAutoSaveNeeded', () => {
           console.log('chart save..')
           this.save()
+          this.gridLabels()
+          this.gridExecution()
         })
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

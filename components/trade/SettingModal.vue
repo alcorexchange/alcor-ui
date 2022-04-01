@@ -1,41 +1,38 @@
 <template lang="pug">
-.body-container(@click='outofmodalClick')
-  .table-setting-modal
-    .el-container.setting-container.pt-2.d-flex.flex-column
-      .el-container.setting-layout.d-flex.flex-row.justify-content-around
-        h4.preview-title Chart Preview
-        preview-chart
-      .el-container.setting-layout.d-flex.flex-row.mt-30
-        .el-main.module-main-settings.main-settings-left
-          .module-selection.d-flex.flex-column
-            .settings-title Header Settings
-            .module-list.d-flex.flex-row.justify-content-between(
-              v-for='settingBtn in header_settings_title'
-            )
-              .module-name {{ settingBtn.name }}
-              .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='header_settings_change[settingBtn.key]',
-                @change='headerUpdateState()',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-        .el-main.module-main-settings.main-settings-right
-          .module-selection.d-flex.flex-column
-            .settings-title Chart Orders
-            .module-list.d-flex.flex-row.justify-content-between(
-              v-for='settingBtn in chart_orders_title'
-            )
-              .module-name {{ settingBtn.name }}
-              .module-pickers.d-flex.flex-row
-              el-switch(
-                v-if='settingBtn.key != "chart_executions"',
-                v-model='chart_orders_settings_change[settingBtn.key]',
-                @change='chartOrdersUpdateState()',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-      .el-footer.module-footer(@click='initiateState()') Reset to Default
+.body-container(@click="outofmodalClick")
+    .table-setting-modal
+        .el-container.setting-container.pt-2.d-flex.flex-column
+            .el-container.setting-layout.d-flex.flex-row.justify-content-around
+                h4.preview-title Chart Preview
+                preview-chart
+            .el-container.setting-layout.d-flex.flex-row.mt-30
+                .el-main.module-main-settings.main-settings-left
+                    .module-selection.d-flex.flex-column
+                        .settings-title Header Settings
+                        .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in header_settings_title')
+                            .module-name {{settingBtn.name}}
+                            .module-pickers.d-flex.flex-row
+                            el-switch(
+                                v-model='header_settings_change[settingBtn.key]',
+                                @change='headerUpdateState()'
+                                active-color='#13ce66',
+                                inactive-color='#161617'
+                            )
+                .el-main.module-main-settings.main-settings-right
+                    .module-selection.d-flex.flex-column
+                        .settings-title Chart Orders
+                        .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in chart_orders_title')
+                            .module-name {{settingBtn.name}}
+                              p(v-if='settingBtn.key == "chart_executions"' class='tooltip-desc') Order Interactivity allows you to move or cancel orders directly from the chart,
+                                | just drag the lavel to move the order or click the "X" button to cancel the orther
+                            .module-pickers.d-flex.flex-row
+                            el-switch( v-if="settingBtn.key != 'chart_executions'"
+                                v-model='chart_orders_settings_change[settingBtn.key]',
+                                @change='chartOrdersUpdateState()'
+                                active-color='#13ce66',
+                                inactive-color='#161617'
+                            )
+            .el-footer.module-footer(@click='initiateState()') Reset to Default
 </template>
 
 <script>
@@ -168,6 +165,21 @@ export default {
 }
 .module-name {
   margin: 3px 0;
+}
+.tooltip-desc {
+  border-radius: 10px;
+  color: white;
+  background-color: rgb(22, 22, 23);
+  transform: translate(23px, -160px);
+  z-index: 999;
+  width: 270px;
+  padding: 15px;
+  position: absolute;
+  display: none;
+  font-size: 14px;
+}
+.module-name:hover p {
+  display: block;
 }
 
 .table-setting-modal {
