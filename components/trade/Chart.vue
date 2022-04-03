@@ -19,6 +19,7 @@ export default {
       executionshape_flg: false,
       executionshape: '',
       order: '',
+      isReady: false,
     }
   },
 
@@ -28,6 +29,7 @@ export default {
       'id',
       'quote_token',
       'chart_orders_settings',
+      'orderdata'
     ]),
     ...mapState(['network']),
   },
@@ -42,24 +44,28 @@ export default {
       this.load()
     },
     'chart_orders_settings.chart_order_interactivity'() {
+      if (!this.isReady) return
       this.flag = false
       if (this.chart_orders_settings.show_open_orders && this.order.remove)
         this.order.remove()
       this.gridLabels()
     },
     'chart_orders_settings.show_labels'() {
+      if (!this.isReady) return
       this.flag = false
       if (this.chart_orders_settings.show_open_orders && this.order.remove)
         this.order.remove()
       this.gridLabels()
     },
     'chart_orders_settings.show_open_orders'() {
+      if (!this.isReady) return
       this.flag = false
       if (!this.chart_orders_settings.show_open_orders) {
         if (this.order.remove) this.order.remove()
       } else this.gridLabels()
     },
     'chart_orders_settings.show_trade_execution_amount'() {
+      if (!this.isReady) return
       this.executionshape_flg = false
       if (
         this.chart_orders_settings.show_trade_executions &&
@@ -69,6 +75,7 @@ export default {
       this.gridExecution()
     },
     'chart_orders_settings.show_trade_executions_price'() {
+      if (!this.isReady) return
       this.executionshape_flg = false
       if (
         this.chart_orders_settings.show_trade_executions &&
@@ -78,6 +85,7 @@ export default {
       this.gridExecution()
     },
     'chart_orders_settings.show_trade_executions'() {
+      if (!this.isReady) return
       this.executionshape_flg = false
       if (!this.chart_orders_settings.show_trade_executions)
         this.executionshape.remove()
@@ -150,16 +158,25 @@ export default {
           this.order.setText('Buy')
           if (this.chart_orders_settings.chart_order_interactivity) {
             this.order
-              .onMove(function () {})
-              .onModify('onModify called', function (text) {})
-              .onCancel('onCancel called', function (text) {})
+              .onMove(this.Movedfunc)
+              // .onModify('onModify called', this.Movedfunc)
+              .onCancel('onCancel called', this.Cancelfunc)
           }
         } else {
           this.order.setQuantity('')
           this.order.setText('')
         }
-        this.order.setPrice(0.008)
+        this.order.setPrice(this.orderdata.price)
       }
+    },
+
+    Movedfunc() {
+      this.orderdata.show_move_modal = true
+      this.orderdata.new_price = this.order.getPrice()
+    },
+
+    Cancelfunc() {
+      this.orderdata.show_cancel_modal = true
     },
 
     gridExecution() {
@@ -383,6 +400,7 @@ export default {
           this.save()
           this.gridLabels()
           this.gridExecution()
+          this.isReady = true
         })
       })
     },

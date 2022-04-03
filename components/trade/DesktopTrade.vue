@@ -105,6 +105,37 @@
       :closemodal='closemodal',
       @changedtimeformat='showtimeformat'
     )
+    #price_cancel_modal(v-if="orderdata.show_cancel_modal")
+      .cancel-modal-content
+        .price-info
+          p Your order to:
+          span.color-green &nbsp;{{orderdata.order_to}}
+        .price-info
+          p At a price of:
+          span &nbsp;{{orderdata.price}}
+        p Will be
+          span.color-red &nbsp;cancelled
+          |, do you wish to proceed?
+        .alert-btn-group.d-flex.justify-content-between
+          div(@click="cancel_confirm_order(true)") Yes
+          div(@click="cancel_confirm_order(false)") No
+        i.el-icon-close(@click="cancel_confirm_order(false)")
+    #price_move_modal(v-if="orderdata.show_move_modal")
+      .cancel-modal-content
+        .price-info
+          p Your order to:
+          span.color-green &nbsp;{{orderdata.order_to}}
+        .price-info
+          p At a price of:
+          span &nbsp;{{orderdata.price}}
+        .price-info
+          p.width-auto Will be moved to:
+          span &nbsp;{{orderdata.new_price}}
+        p Do you wish to proceed?
+        .alert-btn-group.d-flex.justify-content-between
+          div(@click="move_confirm_order(true)") Yes
+          div(@click="move_confirm_order(false)") No
+        i.el-icon-close(@click="move_confirm_order(false)")
 </template>
 
 <script>
@@ -167,6 +198,7 @@ export default {
       'stats',
       'base_token',
       'markets_layout',
+      'orderdata'
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
@@ -185,6 +217,15 @@ export default {
   },
 
   methods: {
+    cancel_confirm_order(isCancel) {
+      this.orderdata.show_cancel_modal = false
+      //
+    },
+    move_confirm_order(isMove) {
+      this.orderdata.show_move_modal = false
+      if (isMove) this.orderdata.price = this.orderdata.new_price
+      //
+    },
     showtimeformat(value) {
       this.timeformat = value
     },
@@ -230,6 +271,65 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#price_cancel_modal,
+#price_move_modal {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size: 14px;
+  background-color: rgba(0,0,0,0.7);
+  .cancel-modal-content {
+    width: 300px;
+    border: 2px solid #333 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    border: 1px solid ;
+    background-color: #212121;
+    border-radius: 5px;
+    color: white;
+    .color-green {
+      color: #00a308;
+    }
+    .price-info span {
+      background-color: #282828;
+      padding: 3px;
+      border-radius: 5px;
+      margin-left: 5px;
+    }
+    .price-info p {
+      width: 87px;
+      display: inline-block;
+    }
+    .color-red {
+      color: #f96c6c;
+    }
+    .alert-btn-group div {
+      border-radius: 5px;
+      width: 47%;
+      background-color: #333;
+      padding: 4px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .el-icon-close {
+      background-color: #333;
+      position: absolute;
+      padding: 3px;
+      right: 1px;
+      top: 1px;
+      cursor: pointer;
+    }
+    .price-info p.width-auto {
+      width: auto;
+    }
+  }
+}
+
 .el-item {
   position: absolute;
   border: 2px solid rgb(63, 63, 63);
