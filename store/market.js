@@ -47,42 +47,47 @@ export const state = () => ({
     {
       x: 0,
       y: 0,
-      w: 15,
+      w: 14,
       h: 14,
       i: 'chart',
-      status: true
+      status: true,
+      mw: "9",
     },
     {
-      x: 15,
+      x: 14,
       y: 0,
       w: 5,
       h: 14,
       i: 'order-depth',
-      status: true
+      status: true,
+      mw: "3",
     },
     {
-      x: 20,
+      x: 19,
       y: 0,
       w: 4,
       h: 14,
       i: 'time-sale',
-      status: true
+      status: true,
+      mw: "3",
     },
     {
       x: 0,
       y: 14,
-      w: 15,
+      w: 14,
       h: 8,
       i: 'open-oder',
-      status: true
+      status: true,
+      mw: "10",
     },
     {
-      x: 15,
+      x: 14,
       y: 14,
-      w: 9,
+      w: 10,
       h: 8,
       i: 'limit-market',
-      status: true
+      status: true,
+      mw: "8",
     }
   ],
   header_settings: {
@@ -102,6 +107,13 @@ export const state = () => ({
     show_trade_executions: true,
     show_trade_executions_price: false,
     show_trade_execution_amount: false
+  },
+  orderdata: {
+    show_cancel_modal: false,
+    show_move_modal: false,
+    order_to: "",
+    price: "",
+    new_price: "",
   }
 })
 
@@ -116,6 +128,7 @@ export const mutations = {
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
   setMarketLayout: (state, layout) => state.markets_layout = layout,
   setHeaderSettings: (state, list) => state.header_settings = list,
+  // setOrderdata: (state, list) => state.orderdata = list,
   setHeaderSettingsDefault: (state) => state.header_settings = {
     change_24: true,
     volume_24: true,
@@ -125,6 +138,7 @@ export const mutations = {
     weekly_volume: false,
     all_time: false
   },
+  setChartOrdersSettings: (state, list) => state.chart_orders_settings = list,
   setChartOrdersSettingsDefault: (state) => state.chart_orders_settings = {
     show_open_orders: true,
     show_labels: true,

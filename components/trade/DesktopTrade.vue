@@ -5,12 +5,12 @@
       grid-layout(
         :layout.sync='markets_layout',
         :col-num='24',
-        :row-height='30',
+        :row-height='40',
         :is-draggable='true',
         :is-resizable='true',
         :is-mirrored='false',
         :vertical-compact='true',
-        :margin='[10, 10]',
+        :margin='[2, 2]',
         :use-css-transforms='true'
       )
         grid-item.overflowbox(
@@ -20,7 +20,10 @@
           :w='item.w',
           :h='item.h',
           :i='item.i',
-          :key='item.i'
+          :key='item.i',
+          :min-w='item.mw',
+          drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
+          drag-allow-from='.el-tabs__header, .box-card'
         )
           .right-icons
             .icon-btn
@@ -28,9 +31,13 @@
                 v-if='item.i == "chart"',
                 @click='show_modal = !show_modal'
               )
+              i.el-icon-setting(
+                v-else-if='item.i == "time-sale"',
+                @click='show_timesale_modal = !show_timesale_modal'
+              )
               i.el-icon-setting(v-else)
             .icon-btn
-              i.el-icon-close
+              i.el-icon-close(@click='closegriditem(item.i)')
           top-line(v-if='item.i == "chart"')
           chart(v-if='item.i == "chart"')
           el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
@@ -45,11 +52,11 @@
                 :vertical-compact='false',
                 :margin='[10, 10]',
                 :use-css-transforms='false',
-                :onMouseDown='handlePress(e)'
+                ondragend='myFunction(event)'
               )
-          el-tabs.h-100(v-if='item.i == "time-sale"')
+          el-tabs.h-100.time-sale(v-if='item.i == "time-sale"', :min-w='3')
             el-tab-pane(label='Times and Sales')
-              LatestDeals
+              LatestDeals(:timeformat='timeformat')
           //- markets(v-if="item.i=='3'")
           alcor-tabs.h-100(v-if='item.i == "open-oder"', v-model='tab')
             template(slot='right')
@@ -68,17 +75,21 @@
               my-history
             el-tab-pane(label='Funds')
               my-history
-          .not-history(v-if='item.i == "limit-market"')
+          .not-history.limit-market(v-if='item.i == "limit-market"')
             .tabs-right
               el-switch.mr-2(
                 v-if='["eos"].includes(network.name) && user',
                 v-model='payForUser',
                 inactive-text=' Free CPU'
               )
-              FeeRate.mr-2
-              el-button(v-if='relatedPool', type='text', @click='goToPool') SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
-            el-tabs.h-100
-              el-tab-pane(label='Limit trade')
+              el-button.swap-button.rounded-0(
+                v-if='relatedPool',
+                type='button',
+                @click='goToPool'
+              ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+              FeeRate.feebutton
+            el-tabs.h-100.no_drag
+              el-tab-pane.h-10(label='Limit trade')
                 .trade-box
                   limit-trade
               el-tab-pane(label='Market trade')
@@ -87,7 +98,44 @@
           //- .low-right(v-if="item.i=='6'")
           //-   .overflowbox.low-height.overflow-hidden
           //-     LatestDeals
-    SettingModal(v-if="show_modal" :outofmodalClick="outofmodalClick")
+    SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
+    TimeSaleModal(
+      v-if='show_timesale_modal',
+      :outoftimesalemodalClick='outoftimesalemodalClick',
+      :closemodal='closemodal',
+      @changedtimeformat='showtimeformat'
+    )
+    #price_cancel_modal(v-if="orderdata.show_cancel_modal")
+      .cancel-modal-content
+        .price-info
+          p Your order to:
+          span.color-green &nbsp;{{orderdata.order_to}}
+        .price-info
+          p At a price of:
+          span &nbsp;{{orderdata.price}}
+        p Will be
+          span.color-red &nbsp;cancelled
+          |, do you wish to proceed?
+        .alert-btn-group.d-flex.justify-content-between
+          div(@click="cancel_confirm_order(true)") Yes
+          div(@click="cancel_confirm_order(false)") No
+        i.el-icon-close(@click="cancel_confirm_order(false)")
+    #price_move_modal(v-if="orderdata.show_move_modal")
+      .cancel-modal-content
+        .price-info
+          p Your order to:
+          span.color-green &nbsp;{{orderdata.order_to}}
+        .price-info
+          p At a price of:
+          span &nbsp;{{orderdata.price}}
+        .price-info
+          p.width-auto Will be moved to:
+          span &nbsp;{{orderdata.new_price}}
+        p Do you wish to proceed?
+        .alert-btn-group.d-flex.justify-content-between
+          div(@click="move_confirm_order(true)") Yes
+          div(@click="move_confirm_order(false)") No
+        i.el-icon-close(@click="move_confirm_order(false)")
 </template>
 
 <script>
@@ -106,11 +154,12 @@ import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
 import SettingModal from '~/components/trade/SettingModal'
+import TimeSaleModal from '~/components/trade/TimeSaleModal'
 
 export default {
   layout: 'embed',
   path: 'desktoptrade',
-  name: 'desktoptrade',
+  name: 'Desktoptrade',
   components: {
     MarketTrade,
     MyHistory,
@@ -125,6 +174,7 @@ export default {
     FeeRate,
     DepthChart,
     SettingModal,
+    TimeSaleModal,
   },
 
   data() {
@@ -135,6 +185,8 @@ export default {
       no_found: false,
       loading: false,
       show_modal: false,
+      show_timesale_modal: false,
+      timeformat: 'DD-MM HH:mm',
     }
   },
 
@@ -146,6 +198,7 @@ export default {
       'stats',
       'base_token',
       'markets_layout',
+      'orderdata'
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
@@ -159,11 +212,41 @@ export default {
       },
     },
   },
+  mounted() {
+    console.log(this.$store.state)
+  },
 
   methods: {
+    cancel_confirm_order(isCancel) {
+      this.orderdata.show_cancel_modal = false
+      //
+    },
+    move_confirm_order(isMove) {
+      this.orderdata.show_move_modal = false
+      if (isMove) this.orderdata.price = this.orderdata.new_price
+      //
+    },
+    showtimeformat(value) {
+      this.timeformat = value
+    },
+    closegriditem(item_name) {
+      this.markets_layout.map((item) => {
+        if (item.i == item_name) {
+          item.status = false
+        }
+      })
+    },
     outofmodalClick(event) {
       if (event.target.classList.contains('body-container'))
         this.show_modal = false
+    },
+    outoftimesalemodalClick(event) {
+      if (event.target.classList.contains('body-timesale-container'))
+        this.show_timesale_modal = false
+    },
+    closemodal(event) {
+      // if (event.target.classList.contains('body-timesale-container'))
+      this.show_timesale_modal = false
     },
     cancelAll() {
       this.$store.dispatch(
@@ -184,19 +267,85 @@ export default {
       this.$router.push('/swap')
     },
   },
-  mounted() {
-    console.log(this.$store.state)
-  }
 }
 </script>
 
 <style lang="scss" scoped>
+#price_cancel_modal,
+#price_move_modal {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size: 14px;
+  background-color: rgba(0,0,0,0.7);
+  .cancel-modal-content {
+    width: 300px;
+    border: 2px solid #333 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    border: 1px solid ;
+    background-color: #212121;
+    border-radius: 5px;
+    color: white;
+    .color-green {
+      color: #00a308;
+    }
+    .price-info span {
+      background-color: #282828;
+      padding: 3px;
+      border-radius: 5px;
+      margin-left: 5px;
+    }
+    .price-info p {
+      width: 87px;
+      display: inline-block;
+    }
+    .color-red {
+      color: #f96c6c;
+    }
+    .alert-btn-group div {
+      border-radius: 5px;
+      width: 47%;
+      background-color: #333;
+      padding: 4px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .el-icon-close {
+      background-color: #333;
+      position: absolute;
+      padding: 3px;
+      right: 1px;
+      top: 1px;
+      cursor: pointer;
+    }
+    .price-info p.width-auto {
+      width: auto;
+    }
+  }
+}
+
 .el-item {
   position: absolute;
   border: 2px solid rgb(63, 63, 63);
   margin: 2px;
   border-radius: 2px;
   margin: 1px;
+}
+
+.theme-dark .el-tooltip__popper.is-dark {
+  background: #303133 !important;
+  color: #fff !important;
+}
+
+.el-tooltip__popper.is-white {
+  display: flex;
+  border: 2px solid blue !important;
 }
 
 .right-icons {
@@ -207,6 +356,14 @@ export default {
   right: 0;
   z-index: 100;
   margin: 1px;
+}
+
+.alcor-inner .main .box-card {
+  background-color: #212121;
+}
+
+.vue-grid-item.overflowbox {
+  background-color: #212121;
 }
 
 .icon-btn {
@@ -298,13 +455,28 @@ export default {
 
 .tabs-right {
   display: flex;
+  height: 20px;
+  margin: 1px 1px;
   align-items: center;
   position: absolute;
-  top: 0px;
-  right: 15px;
+  top: 1px;
+  right: 43px;
   z-index: 123;
+  .swap-button {
+    background: #3f3f3f;
+    border: 0px 0px 0px 2px !important;
+    padding: 0px 10px !important;
+    margin-right: 2px;
+    color: #bdbdbd !important;
+    height: 100% !important;
+  }
 }
-
+.feebutton {
+  background: #3f3f3f;
+  padding: 0px 2px !important;
+  margin-right: 2px !important;
+  height: 100% !important;
+}
 @media screen and (max-width: 1350px) {
   .top-level {
     height: auto;
@@ -334,6 +506,28 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .vue-grid-layout {
+    background-color: #212121;
+  }
+
+  .vue-grid-item {
+    // background-color: #282828;
+  }
+
+  .vue-grid-item.vue-grid-placeholder {
+    background: #66c167 !important;
+    opacity: 0.25;
+  }
+
+  .orders-list {
+    user-select: none;
+  }
+
+  .time-sale {
+    min-width: 165px;
+    max-height: 730px;
+  }
+
   .pool-price {
     position: absolute;
 
@@ -355,7 +549,7 @@ export default {
     padding: 0 15px;
 
     .el-input--prefix .el-input__inner {
-      padding-left: 30%;
+      padding-left: 35% !important;
     }
 
     .el-form-item__content {

@@ -29,21 +29,32 @@ client-only
             BOSIbc(:token="{contract: quote_token.contract, symbol: quote_token.symbol.name, precision: quote_token.symbol.precision}")
 
           //.d-flex.ml-3.w-100.justify-content-around.desctop
-          .d-flex.align-items-center.ml-3.small
-            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.change_24")
-              span.text-muted Change 24H
-              change-percent(:change='stats.change24')
-            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.volume_24")
-              span.text-muted Volume 24H:
-              span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.high_24")
-              span.text-muted 24H High:
-              span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-            .d-flex.flex-column.ml-3.mr-3(v-if="header_settings.low_24")
-              span.text-muted 24H Low:
-              span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-            .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center
-              i.el-icon-right(:class='{ "el-icon-left": false }')
+          .d-flex.align-items-center.ml-3.small.topline-container
+            .d-flex.align-items-center.ml-3.header-items-container
+              .d-flex.flex-column(v-if="header_settings.change_24")
+                span.text-muted Change 24H
+                change-percent(:change='stats.change24')
+              .d-flex.flex-column(v-if="header_settings.volume_24")
+                span.text-muted Volume 24H:
+                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+              .d-flex.flex-column(v-if="header_settings.high_24")
+                span.text-muted 24H High:
+                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+              .d-flex.flex-column(v-if="header_settings.low_24")
+                span.text-muted 24H Low:
+                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+              .d-flex.flex-column(v-if="header_settings.volume_24_usd")
+                span.text-muted 24H USD:
+                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+              .d-flex.flex-column(v-if="header_settings.weekly_volume")
+                span.text-muted Weekly Volume (WAX, USD):
+                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+              .d-flex.flex-column(v-if="header_settings.all_time")
+                span.text-muted All Time High/Low:
+                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+            .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc')
+              i.el-icon-right(v-if="arrowRight")
+              i.el-icon-back(v-else)
             .pointer.ml-3.mr-2
               i.el-icon-star-off(
                 :class='{ "el-icon-star-on": isFavorite }',
@@ -145,6 +156,7 @@ export default {
   data() {
     return {
       showMarkets: false,
+      arrowRight: true,
     }
   },
 
@@ -163,6 +175,13 @@ export default {
   },
 
   methods: {
+    arrowClickfunc() {
+      if (this.arrowRight)
+        document.getElementsByClassName('header-items-container')[0].scrollLeft = document.getElementsByClassName('header-items-container')[0].scrollWidth
+      else
+        document.getElementsByClassName('header-items-container')[0].scrollLeft = 0
+      this.arrowRight = !this.arrowRight
+    },
     onClickOutside(event) {
       console.log(event)
       if (this.showMarkets) {
@@ -188,6 +207,20 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.topline-container {
+  width: calc(100% - 300px);
+}
+.header-items-container {
+  scroll-behavior: smooth;
+  overflow-x: auto;
+  .flex-column {
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+}
+.header-items-container::-webkit-scrollbar {
+  display: none;
+}
 .desktop {
   font-size: 14px;
 
