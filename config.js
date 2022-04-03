@@ -154,13 +154,13 @@ const networks = {
       'https://proton.greymass.com',
       'https://proton.pink.gg',
       'https://proton.eu.eosamsterdam.net',
-      'http://api.protonnz.com',
-      'http://api.proton.quantumblok.com',
-      'http://proton.eoscafeblock.com',
-      'http://proton.protonuk.io',
-      'http://api.proton.eossweden.org',
-      'http://proton.genereos.io',
-      'http://api.eostribe.io'
+      'https://api.protonnz.com',
+      'https://proton.eoscafeblock.com',
+      'https://proton.protonuk.io',
+      'https://api.proton.eossweden.org',
+      'https://proton.genereos.io',
+      'https://api.eostribe.io',
+      'https://eoscafeblock.com'
     ],
 
     otc: {
