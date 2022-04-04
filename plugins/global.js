@@ -13,7 +13,7 @@ const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3
 export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
   if (process.env.DISABLE_DB) {
     if (!process.env.NETWORK) throw new Error('Set NETWORK env!')
-    const subdomain = process.env.NETWORK == 'eos' ? '' : process.env.NETWORK + '.'
+    const subdomain = process.env.NETWORK == 'wax' ? '' : process.env.NETWORK + '.'
 
     commit('setBaseUrl', `https://${subdomain}alcor.exchange`)
     commit('setNetwork', config.networks[process.env.NETWORK])
@@ -28,7 +28,7 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     } else if (IP_REGEX.test(req.headers.host)) {
       commit('setNetwork', config.networks.eos)
     } else if (subdomain.length <= 2) {
-      commit('setNetwork', config.networks.eos)
+      commit('setNetwork', config.networks.wax)
     } else {
       commit('setNetwork', config.networks[subdomain[0]])
     }
