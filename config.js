@@ -151,6 +151,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: [
+      'https://nodeproton.alcor.exchange',
       'https://proton.greymass.com',
       'https://proton.pink.gg',
       'https://proton.eu.eosamsterdam.net',
