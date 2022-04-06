@@ -113,7 +113,7 @@
         align='right',
         header-align='right',
         sortable,
-        :width='isMobile ? 125 : 200',
+        :width='isMobile ? 157 : 200',
         sort-by='volumeWeek',
         :sort-orders='["descending", null]',
       )
