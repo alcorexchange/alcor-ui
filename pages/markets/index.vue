@@ -64,14 +64,14 @@
             span.text-muted.ml-2(v-if='!isMobile') {{ scope.row.quote_token.contract }}
             |  / {{ scope.row.base_token.symbol.name }}
 
-          span.float-right(v-if="scope.row.promoted")
+          span.promoted(v-if="scope.row.promoted")
             img(src="~/assets/icons/badge-promoted.svg")
 
       el-table-column(
         :label='`Last price`',
         sort-by='last_price',
         align='right',
-        width='150',
+        :width='isMobile ? 110 : 150',
         header-align='right',
         sortable,
         :sort-orders='["descending", null]'
@@ -113,7 +113,7 @@
         align='right',
         header-align='right',
         sortable,
-        width='200',
+        :width='isMobile ? 125 : 200',
         sort-by='volumeWeek',
         :sort-orders='["descending", null]',
       )
@@ -330,6 +330,11 @@ export default {
     cursor: pointer;
   }
 }
+
+.promoted {
+  float: right;
+}
+
 @media only screen and (max-width: 640px) {
   .table-intro {
     div[role="radiogroup"] {
@@ -340,6 +345,16 @@ export default {
     .search-container {
       width: 70%;
     }
+  }
+
+  .el-table__row {
+    .cell {
+      font-size: 12px;
+    }
+  }
+
+  .promoted {
+    float: none;
   }
 }
 </style>
