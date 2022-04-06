@@ -201,6 +201,8 @@ export const actions = {
 
       m.symbol = quote_token.symbol.name + ' / ' + base_token.symbol.name
       m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-')
+      m.promoted = state.network.PROMOTED_MARKETS.includes(m.id)
+      m.scam = state.network.SCAM_CONTRACTS.includes(quote_token.contract)
 
       m.i256 = make256key(base_token.contract, base_token.symbol.name, quote_token.contract, quote_token.symbol.name)
     })

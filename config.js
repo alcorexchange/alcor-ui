@@ -115,6 +115,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@capitaltatch', 'HASH@eoshashcoins', 'JOKER@joker.eos'],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
     CEX_CONTRACTS: [],
 
@@ -177,6 +178,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: [],
     CEX_CONTRACTS: [],
 
@@ -244,6 +246,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
+    PROMOTED_MARKETS: [424],
 
     SCAM_CONTRACTS: [
       'usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army',
@@ -300,6 +303,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone', 'GUX@vapaeetokens'],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -378,6 +382,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'WAX@bosibc.io', 'TLOS@bosibc.io', ''],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -423,6 +428,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -468,6 +474,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -513,6 +520,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -557,6 +565,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
+    PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 

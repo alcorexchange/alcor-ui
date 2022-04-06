@@ -21,7 +21,7 @@
       el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
 
-      el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
+      //el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
         span  Terraformers
 
     .search-container
@@ -35,7 +35,7 @@
 
     el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
-    .ml-auto
+    .ml-auto(v-if="!isMobile")
       nuxt-link(to="new_market")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
 
@@ -46,7 +46,7 @@
       @row-click='clickOrder',
       :default-sort='{ prop: "weekVolume", order: "descending" }'
     )
-      el-table-column(label='Pair', prop='date', :width='isMobile ? 150 : 280')
+      el-table-column(label='Pair', prop='date')
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
@@ -64,10 +64,14 @@
             span.text-muted.ml-2(v-if='!isMobile') {{ scope.row.quote_token.contract }}
             |  / {{ scope.row.base_token.symbol.name }}
 
+          span.float-right(v-if="scope.row.promoted")
+            img(src="~/assets/icons/badge-promoted.svg")
+
       el-table-column(
         :label='`Last price`',
         sort-by='last_price',
         align='right',
+        width='150',
         header-align='right',
         sortable,
         :sort-orders='["descending", null]'
@@ -80,6 +84,7 @@
         align='right',
         header-align='right',
         sortable,
+        width='200',
         sort-by='volume24',
         :sort-orders='["descending", null]'
         v-if='!isMobile'
@@ -108,6 +113,7 @@
         align='right',
         header-align='right',
         sortable,
+        width='200',
         sort-by='volumeWeek',
         :sort-orders='["descending", null]',
       )
@@ -121,6 +127,7 @@
         align='right',
         header-align='right',
         sortable,
+        width='150',
         sort-by='changeWeek',
         :sort-orders='["descending", null]',
         v-if='!isMobile'
@@ -233,12 +240,8 @@ export default {
       }
 
       markets = markets.filter((i) =>
-        i.slug.includes(this.search.toLowerCase())
+        i.slug.includes(this.search.toLowerCase()) && !i.scam
       )
-
-      markets = markets.filter((i) => {
-        return !this.network.SCAM_CONTRACTS.includes(i.quote_token.contract)
-      })
 
       return markets.reverse()
     }
@@ -329,12 +332,13 @@ export default {
 }
 @media only screen and (max-width: 640px) {
   .table-intro {
+    div[role="radiogroup"] {
+      margin-bottom: 10px;
+    }
+
     padding: 14px 0;
-    flex-direction: column-reverse;
-    justify-content: center;
     .search-container {
-      width: 100%;
-      margin-bottom: 12px;
+      width: 70%;
     }
   }
 }
