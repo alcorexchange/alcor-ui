@@ -44,6 +44,7 @@ export async function markeBar(timeframe, match) {
 
   const resolution = resolutions[timeframe]
 
+  // FIXME It work not properly as it 1 candle late
   if (Math.floor(last_bar.time / 1000 / resolution) == Math.floor(match.time / 1000 / resolution)) {
     //console.log('updates bar for market:', match.market, 'for timeframe:', timeframe)
 
