@@ -35,7 +35,7 @@
         //span.token {{ base_token.symbol.name }}
       el-tooltip(class="item" effect="dark" content="Spread" placement="top-end")
         .spread
-          span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }}
+          span.num  {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }}
           span(
             class="prec"
             :class="percentWarn"
@@ -193,7 +193,11 @@ export default {
         }
         .spread {
           flex-direction: row;
-          margin-left: auto;
+          margin-right: auto;
+
+          .num {
+            margin-right: 5px;
+          }
         }
       }
     }
