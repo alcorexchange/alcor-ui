@@ -23,7 +23,7 @@
                         .settings-title Chart Orders
                         .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in chart_orders_title')
                             .module-name {{settingBtn.name}}
-                              p(v-if='settingBtn.key == "chart_executions"' class='tooltip-desc') Order Interactivity allows you to move or cancel orders directly from the chart,
+                              p(v-if='settingBtn.key == "chart_order_interactivity"' class='tooltip-desc') Order Interactivity allows you to move or cancel orders directly from the chart,
                                 | just drag the lavel to move the order or click the "X" button to cancel the orther
                             .module-pickers.d-flex.flex-row
                             el-switch( v-if="settingBtn.key != 'chart_executions'"
@@ -165,6 +165,21 @@ export default {
 }
 .module-name {
   margin: 3px 0;
+}
+.tooltip-desc {
+  border-radius: 10px;
+  color: white;
+  background-color: rgb(22, 22, 23);
+  transform: translate(23px, -160px);
+  z-index: 999;
+  width: 270px;
+  padding: 15px;
+  position: absolute;
+  display: none;
+  font-size: 14px;
+}
+.module-name:hover p {
+  display: block;
 }
 .tooltip-desc {
   border-radius: 10px;
