@@ -108,37 +108,37 @@
       :closemodal='closemodal',
       @changedtimeformat='showtimeformat'
     )
-    #price_cancel_modal(v-if="orderdata.show_cancel_modal")
+    #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
       .cancel-modal-content
         .price-info
           p Your order to:
-          span.color-green &nbsp;{{orderdata.order_to}}
+          span.color-green &nbsp;{{ orderdata.order_to }}
         .price-info
           p At a price of:
-          span &nbsp;{{orderdata.price}}
+          span &nbsp;{{ orderdata.price }}
         p Will be
           span.color-red &nbsp;cancelled
-          |, do you wish to proceed?
+          | , do you wish to proceed?
         .alert-btn-group.d-flex.justify-content-between
-          div(@click="cancel_confirm_order(true)") Yes
-          div(@click="cancel_confirm_order(false)") No
-        i.el-icon-close(@click="cancel_confirm_order(false)")
-    #price_move_modal(v-if="orderdata.show_move_modal")
+          div(@click='cancel_confirm_order(true)') Yes
+          div(@click='cancel_confirm_order(false)') No
+        i.el-icon-close(@click='cancel_confirm_order(false)')
+    #price_move_modal(v-if='orderdata.show_move_modal')
       .cancel-modal-content
         .price-info
           p Your order to:
-          span.color-green &nbsp;{{orderdata.order_to}}
+          span.color-green &nbsp;{{ orderdata.order_to }}
         .price-info
           p At a price of:
-          span &nbsp;{{orderdata.price}}
+          span &nbsp;{{ orderdata.price }}
         .price-info
           p.width-auto Will be moved to:
-          span &nbsp;{{orderdata.new_price}}
+          span &nbsp;{{ orderdata.new_price }}
         p Do you wish to proceed?
         .alert-btn-group.d-flex.justify-content-between
-          div(@click="move_confirm_order(true)") Yes
-          div(@click="move_confirm_order(false)") No
-        i.el-icon-close(@click="move_confirm_order(false)")
+          div(@click='move_confirm_order(true)') Yes
+          div(@click='move_confirm_order(false)') No
+        i.el-icon-close(@click='move_confirm_order(false)')
 </template>
 
 <script>
@@ -203,7 +203,7 @@ export default {
       'stats',
       'base_token',
       'markets_layout',
-      'orderdata'
+      'orderdata',
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
@@ -295,7 +295,7 @@ export default {
   top: 0;
   left: 0;
   font-size: 14px;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   .cancel-modal-content {
     width: 300px;
     border: 2px solid #333 !important;
@@ -304,7 +304,7 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 15px;
-    border: 1px solid ;
+    border: 1px solid;
     background-color: #212121;
     border-radius: 5px;
     color: white;
