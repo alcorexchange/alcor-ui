@@ -392,7 +392,7 @@ export default {
 
 <style>
 #tv_chart_container {
-  height: 460px;
+  height: calc(100% - 50px) !important;
 }
 @media only screen and (max-width: 1000px) {
   #tv_chart_container {

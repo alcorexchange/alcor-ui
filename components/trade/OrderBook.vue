@@ -11,10 +11,10 @@
     .ltd.d-flex.text-danger(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
-      :class="{ 'pl-0': isMyOrder(ask, 'sell') }"
+      :class='{ "pl-0": isMyOrder(ask, "sell") }'
     )
       span
-        i.el-icon-caret-right(v-if="isMyOrder(ask, 'sell')")
+        i.el-icon-caret-right(v-if='isMyOrder(ask, "sell")')
         | {{ ask[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
       span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
@@ -26,31 +26,25 @@
 
   .p-1.mt-1(v-loading='loading')
     .overflowbox.latest-price
-      .price.small(
-        :class='{ red: isLastTradeSell }')
-        i(
-          :class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`',
-        )
-        span.num  {{ price }} &nbsp;
+      .price.small(:class='{ red: isLastTradeSell }')
+        i(:class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`')
+        span.num {{ price }} &nbsp;
         //span.token {{ base_token.symbol.name }}
-      el-tooltip(class="item" effect="dark" content="Spread" placement="top-end")
+      el-tooltip.item(effect='dark', content='Spread', placement='top-end')
         .spread
-          span.num {{ getSpreadNum ? getSpreadNum : '0.00' | humanPrice(6) }}
-          span(
-            class="prec"
-            :class="percentWarn"
-          )
-            span.parant  (
-            span {{ getSpreadPercent ? getSpreadPercent : '0.00' }}%
+          span.num {{ getSpreadNum ? getSpreadNum : "0.00" | humanPrice(6) }}
+          span.prec(:class='percentWarn')
+            span.parant (
+            span {{ getSpreadPercent ? getSpreadPercent : "0.00" }}%
             span.parant )
   .orders-list.blist.bids
     .ltd.d-flex.text-success(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
-      :class="{ 'pl-0': isMyOrder(bid, 'buy') }"
+      :class='{ "pl-0": isMyOrder(bid, "buy") }'
     )
       span
-        i.el-icon-caret-right(v-if="isMyOrder(bid, 'buy')")
+        i.el-icon-caret-right(v-if='isMyOrder(bid, "buy")')
         | {{ bid[0] | humanPrice }}
       span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
 
@@ -77,7 +71,7 @@ export default {
       asks: [],
 
       asksL: 0,
-      loading: false
+      loading: false,
     }
   },
 
@@ -93,7 +87,7 @@ export default {
 
     percentWarn() {
       return this.getSpreadPercent > 5 ? 'warn' : ''
-    }
+    },
   },
 
   methods: {
@@ -135,8 +129,8 @@ export default {
       this.setPrecisionPrice(price)
       this.changeAmount({ amount, type: 'buy' })
       this.changeAmount({ amount, type: 'sell' })
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -276,7 +270,7 @@ export default {
 }
 
 .orders-list.bids {
-  height: 209px;
+  height: 245px;
 }
 
 .orders-list.blist .ltd:hover {

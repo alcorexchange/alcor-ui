@@ -29,7 +29,7 @@ import { trade } from '~/mixins/trade'
 
 export default {
   mixins: [trade],
-
+  props: ['depthChartUpdated'],
   data() {
     return {
       chartOptions: {
@@ -52,6 +52,8 @@ export default {
         ],
         chart: {
           inverted: true,
+          marginTop: 40,
+          marginBottom: 0,
           backgroundColor: {
             linearGradient: [0, 0, 500, 500],
             stops: [
@@ -295,7 +297,13 @@ export default {
   computed: {
     ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
-    ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
+    ...mapState('market', [
+      'quote_token',
+      'base_token',
+      'id',
+      'deals',
+      'markets_layout',
+    ]),
     ...mapGetters(['user']),
 
     isLastTradeSell() {
@@ -308,6 +316,13 @@ export default {
   },
 
   watch: {
+    '$colorMode.value'() {
+      this.$refs.chart.chart.setSize(250, 640)
+    },
+
+    depthChartUpdated(newData, oldData) {
+      this.$refs.chart.chart.setSize(newData.width, newData.height)
+    },
     // sorted_asks(newAsks, oldAsks) {
     //   this.asks = []
     //   for (let i = 0; i < 20; i++) {
@@ -325,11 +340,10 @@ export default {
   },
   mounted() {
     setTimeout(() => {
-      // this.$refs.chart.chart.setSize(
-      //   document.getElementsByClassName('cssTransforms')[0].width * 0.9,
-      //   document.getElementsByClassName('cssTransforms')[0].height * 0.9
-      // )
-      this.$refs.chart.chart.setSize(250, 450)
+      const order_depth_layout = this.$store.state.market.markets_layout[1]
+      const order_depthW = order_depth_layout.w * 55
+      const order_depthH = order_depth_layout.h * 42 - 55
+      this.$refs.chart.chart.setSize(order_depthW, order_depthH)
     }, 100)
   },
 
@@ -371,8 +385,10 @@ export default {
   user-select: none;
   .highcharts-container {
     height: 100% !important;
+    width: 100% !important;
     .highcharts-root {
       height: 100% !important;
+      width: 100% !important;
     }
   }
 }
@@ -380,20 +396,15 @@ export default {
 .chart-nav.scale-value-nav {
   width: 100% !important;
 }
-.el-tabs.el-tabs--top {
-  height: 90% !important;
-}
 
-.el-tabs__content {
-  height: 90%;
-}
-
-.highcharts-container {
-  width: 100% !important;
-}
-
-.highcharts-root {
-  width: 100% !important;
+.order-depth .el-tabs__content {
+  height: calc(100% - 55px);
+  .el-tab-pane,
+  .chart-nav,
+  .chart-part,
+  .wax-highchart {
+    height: 100% !important;
+  }
 }
 
 @media only screen and (max-width: 700px) {

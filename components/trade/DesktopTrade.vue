@@ -11,7 +11,8 @@
         :is-mirrored='false',
         :vertical-compact='true',
         :margin='[2, 2]',
-        :use-css-transforms='true'
+        :use-css-transforms='true',
+        @layout-updated='layoutUpdatedEvent'
       )
         grid-item.overflowbox(
           v-for='item in markets_layout.filter((item) => item.status)',
@@ -21,7 +22,9 @@
           :h='item.h',
           :i='item.i',
           :key='item.i',
-          :min-w='item.mw',
+          :min-w='parseInt(item.mw)',
+          :class='item.i',
+          @resize='layoutUpdatedEvent',
           drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
           drag-allow-from='.el-tabs__header, .box-card'
         )
@@ -52,7 +55,7 @@
                 :vertical-compact='false',
                 :margin='[10, 10]',
                 :use-css-transforms='false',
-                ondragend='myFunction(event)'
+                :depthChartUpdated='depthChartUpdated'
               )
           el-tabs.h-100.time-sale(v-if='item.i == "time-sale"', :min-w='3')
             el-tab-pane(label='Times and Sales')
@@ -156,6 +159,8 @@ export default {
       show_modal: false,
       show_timesale_modal: false,
       timeformat: 'DD-MM HH:mm',
+      resizestatus: null,
+      depthchartupdated: false,
     }
   },
 
@@ -187,6 +192,11 @@ export default {
   methods: {
     showtimeformat(value) {
       this.timeformat = value
+    },
+    resize(iname, newH, newW, newHPx, newWPx) {
+      if (iname == 'order-depth') {
+        this.resizestatus = { i: iname, height: newH * 40, width: newW }
+      }
     },
     closegriditem(item_name) {
       this.markets_layout.map((item) => {
@@ -224,6 +234,12 @@ export default {
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
       this.$store.commit('swap/setTab', 'Swap')
       this.$router.push('/swap')
+    },
+    layoutUpdatedEvent(e) {
+      this.depthChartUpdated = {
+        width: e[1].w * 55,
+        height: e[1].h * 42 - 55,
+      }
     },
   },
 }

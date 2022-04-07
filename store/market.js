@@ -51,7 +51,7 @@ export const state = () => ({
       h: 14,
       i: 'chart',
       status: true,
-      mw: "9",
+      mw: 9,
     },
     {
       x: 14,
@@ -60,7 +60,7 @@ export const state = () => ({
       h: 14,
       i: 'order-depth',
       status: true,
-      mw: "3",
+      mw: 3,
     },
     {
       x: 19,
@@ -69,7 +69,7 @@ export const state = () => ({
       h: 14,
       i: 'time-sale',
       status: true,
-      mw: "3",
+      mw: 3,
     },
     {
       x: 0,
@@ -78,7 +78,7 @@ export const state = () => ({
       h: 8,
       i: 'open-oder',
       status: true,
-      mw: "10",
+      mw: 10,
     },
     {
       x: 14,
@@ -87,7 +87,7 @@ export const state = () => ({
       h: 8,
       i: 'limit-market',
       status: true,
-      mw: "8",
+      mw: 8,
     }
   ],
   header_settings: {
