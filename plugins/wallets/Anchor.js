@@ -35,9 +35,9 @@ export default class AnchoWallet extends WalletBase {
       chains: [
         {
           chainId: this.network.chainId,
-          nodeUrl: `${network.protocol}://${network.host}:${network.port}`,
-        },
-      ],
+          nodeUrl: `${network.protocol}://${network.host}:${network.port}`
+        }
+      ]
     })
   }
 
@@ -47,15 +47,14 @@ export default class AnchoWallet extends WalletBase {
 
     if (session) {
       this.session = session
-      this.sessionProvider = session.makeSignatureProvider()
       const { actor, permission } = session.auth
 
       return {
         name: actor.toString(),
         authorization: {
           actor: actor.toString(),
-          permission: permission.toString(),
-        },
+          permission: permission.toString()
+        }
       }
     } else {
       return null
@@ -73,8 +72,8 @@ export default class AnchoWallet extends WalletBase {
       name: actor.toString(),
       authorization: {
         actor: actor.toString(),
-        permission: permission.toString(),
-      },
+        permission: permission.toString()
+      }
     }
   }
 
@@ -98,7 +97,7 @@ export default class AnchoWallet extends WalletBase {
     return {
       serializedTransaction: Serializer.encode({ object: data.transaction })
         .array,
-      signatures: data.signatures.map((signature) => signature.toString()),
+      signatures: data.signatures.map((signature) => signature.toString())
     }
   }
 }
