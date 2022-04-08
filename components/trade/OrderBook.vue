@@ -270,7 +270,7 @@ export default {
 }
 
 .orders-list.bids {
-  height: 245px;
+  height: calc(100% - 55px);
 }
 
 .orders-list.blist .ltd:hover {

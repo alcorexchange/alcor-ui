@@ -5,7 +5,8 @@
   :is-mirrored='false',
   :vertical-compact='false',
   :use-css-transforms='false',
-  onmousedown='event.preventDefault ? event.preventDefault() : event.returnValue = false'
+  onmousedown='event.preventDefault ? event.preventDefault() : event.returnValue = false',
+  ref='chartContainer'
 )
   .chart-nav.scale-value-nav
     .chart-part
@@ -19,6 +20,7 @@
         :is-mirrored='false',
         :vertical-compact='false',
         :use-css-transforms='false',
+        v-loading='loading',
         v-on:click.stop
       )
 </template>
@@ -54,6 +56,8 @@ export default {
           inverted: true,
           marginTop: 40,
           marginBottom: 0,
+          minPadding: 0,
+          maxPadding: 0,
           backgroundColor: {
             linearGradient: [0, 0, 500, 500],
             stops: [
@@ -291,6 +295,7 @@ export default {
       bids: [],
       asks: [],
       loading: false,
+      parentHeight: 0,
     }
   },
 
@@ -316,12 +321,18 @@ export default {
   },
 
   watch: {
-    '$colorMode.value'() {
-      this.$refs.chart.chart.setSize(250, 640)
+    markets_layout(_new, old) {
+      this.$refs.chart.chart.setSize(
+        this.$refs.chartContainer.offsetWidth,
+        this.$refs.chartContainer.offsetHeight
+      )
     },
 
     depthChartUpdated(newData, oldData) {
-      this.$refs.chart.chart.setSize(newData.width, newData.height)
+      this.$refs.chart.chart.setSize(
+        this.$refs.chartContainer.offsetWidth,
+        this.$refs.chartContainer.offsetHeight
+      )
     },
     // sorted_asks(newAsks, oldAsks) {
     //   this.asks = []
@@ -339,14 +350,19 @@ export default {
     // },
   },
   mounted() {
-    setTimeout(() => {
-      const order_depth_layout = this.$store.state.market.markets_layout[1]
-      const order_depthW = order_depth_layout.w * 55
-      const order_depthH = order_depth_layout.h * 42 - 55
-      this.$refs.chart.chart.setSize(order_depthW, order_depthH)
-    }, 100)
+    this.$nextTick(() => {
+      let chartContrainerInterval = null
+      chartContrainerInterval = setInterval(() => {
+        if (this.$refs.chartContainer.offsetWidth > 0) {
+          this.$refs.chart.chart.setSize(
+            this.$refs.chartContainer.offsetWidth,
+            this.$refs.chartContainer.offsetHeight
+          )
+          clearInterval(chartContrainerInterval)
+        }
+      }, 100)
+    })
   },
-
   methods: {
     updateChartData(asks, bids) {
       // this.$refs.chart.chart.series[0].update({ data: asks.slice(0, 5) })

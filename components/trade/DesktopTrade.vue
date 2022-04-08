@@ -11,8 +11,7 @@
         :is-mirrored='false',
         :vertical-compact='true',
         :margin='[2, 2]',
-        :use-css-transforms='true',
-        @layout-updated='layoutUpdatedEvent'
+        :use-css-transforms='true'
       )
         grid-item.overflowbox(
           v-for='item in markets_layout.filter((item) => item.status)',
@@ -24,7 +23,7 @@
           :key='item.i',
           :min-w='parseInt(item.mw)',
           :class='item.i',
-          @resize='layoutUpdatedEvent',
+          @resized='layoutUpdatedEvent(item)',
           drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
           drag-allow-from='.el-tabs__header, .box-card'
         )
@@ -46,9 +45,8 @@
           el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
             el-tab-pane(label='Orderbook')
               order-book
-            el-tab-pane(label='Depth Chart', @click='showmessage')
+            el-tab-pane(label='Depth Chart')
               depth-chart(
-                @click='showmessage',
                 :is-draggable='false',
                 :is-resizable='false',
                 :is-mirrored='false',
@@ -191,7 +189,7 @@ export default {
       show_timesale_modal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
-      depthchartupdated: false,
+      depthChartUpdated: false,
     }
   },
 
@@ -217,10 +215,6 @@ export default {
       },
     },
   },
-  mounted() {
-    console.log(this.$store.state)
-  },
-
   methods: {
     cancel_confirm_order(isCancel) {
       this.orderdata.show_cancel_modal = false
@@ -266,10 +260,6 @@ export default {
         )
       )
     },
-    showmessage() {},
-    handlePress(e) {
-      // e.stopPropagation()
-    },
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
@@ -277,10 +267,8 @@ export default {
       this.$router.push('/swap')
     },
     layoutUpdatedEvent(e) {
-      this.depthChartUpdated = {
-        width: e[1].w * 55,
-        height: e[1].h * 42 - 55,
-      }
+      if (e.i != 'order-depth') return
+      this.depthChartUpdated = !this.depthChartUpdated
     },
   },
 }
