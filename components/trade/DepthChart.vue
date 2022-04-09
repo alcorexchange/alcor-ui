@@ -353,7 +353,10 @@ export default {
     this.$nextTick(() => {
       let chartContrainerInterval = null
       chartContrainerInterval = setInterval(() => {
-        if (this.$refs.chartContainer.offsetWidth > 0) {
+        if (
+          (this.$refs.chartContainer !== undefined) &
+          (this.$refs.chartContainer.offsetWidth > 0)
+        ) {
           this.$refs.chart.chart.setSize(
             this.$refs.chartContainer.offsetWidth,
             this.$refs.chartContainer.offsetHeight

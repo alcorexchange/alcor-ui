@@ -22,6 +22,7 @@
           :i='item.i',
           :key='item.i',
           :min-w='parseInt(item.mw)',
+          :min-h='parseInt(item.mh)',
           :class='item.i',
           @resized='layoutUpdatedEvent(item)',
           drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
@@ -76,7 +77,10 @@
               my-history
             el-tab-pane(label='Funds')
               my-history
-          .not-history.limit-market(v-if='item.i == "limit-market"')
+          .not-history.limit-market(
+            v-if='item.i == "limit-market"',
+            :min-h='10'
+          )
             .tabs-right
               el-switch.mr-2(
                 v-if='["eos"].includes(network.name) && user',
