@@ -1,4 +1,4 @@
-import AnchorLink from 'anchor-link'
+import AnchorLink, { LinkChain, Serializer } from 'anchor-link'
 import AnchorLinkBrowserTransport from 'anchor-link-browser-transport'
 
 class WalletBase {
@@ -51,7 +51,10 @@ export default class AnchoWallet extends WalletBase {
 
       return {
         name: actor.toString(),
-        authorization: { actor: actor.toString(), permission: permission.toString() }
+        authorization: {
+          actor: actor.toString(),
+          permission: permission.toString()
+        }
       }
     } else {
       return null
@@ -67,11 +70,34 @@ export default class AnchoWallet extends WalletBase {
 
     return {
       name: actor.toString(),
-      authorization: { actor: actor.toString(), permission: permission.toString() }
+      authorization: {
+        actor: actor.toString(),
+        permission: permission.toString()
+      }
     }
   }
 
   transact(actions) {
-    return this.session.transact({ actions })
+    return this.session.transact(actions)
+  }
+
+  async sign(transaction) {
+    const data = await this.session.transact(
+      { transaction },
+      { broadcast: false }
+    )
+
+    if (
+      !data.signatures ||
+      !Array.isArray(data.signatures) ||
+      data.signatures.length === 0
+    ) {
+      throw new Error('Wallet did not return any signatures!')
+    }
+    return {
+      serializedTransaction: Serializer.encode({ object: data.transaction })
+        .array,
+      signatures: data.signatures.map((signature) => signature.toString())
+    }
   }
 }
