@@ -9,7 +9,7 @@ const rpcWAX = new JsonRpc('https://wax.greymass.com/')
 const apiWAX = new Api({
   rpc: rpcWAX,
   textDecoder: new TextDecoder(),
-  textEncoder: new TextEncoder(),
+  textEncoder: new TextEncoder()
 })
 
 export const state = () => ({
@@ -18,7 +18,7 @@ export const state = () => ({
 
   payForUser: false,
   currentWallet: 'anchor',
-  lastWallet: null,
+  lastWallet: null
 })
 
 export const mutations = {
@@ -26,7 +26,7 @@ export const mutations = {
   setLoginPromise: (state, value) => (state.loginPromise = value),
   setPayForUser: (state, value) => (state.payForUser = value),
   setCurrentWallet: (state, value) => (state.currentWallet = value),
-  setLastWallet: (state, value) => (state.lastWallet = value),
+  setLastWallet: (state, value) => (state.lastWallet = value)
 }
 
 export const actions = {
@@ -35,7 +35,7 @@ export const actions = {
 
     const wallets = {
       anchor: new AnchoWallet(network, this.$rpc),
-      scatter: new ScatterWallet(network, this.$rpc),
+      scatter: new ScatterWallet(network, this.$rpc)
     }
 
     if (network.name == 'wax') wallets.wcw = new WCW(network, this.$rpc)
@@ -78,8 +78,8 @@ export const actions = {
       room: 'account',
       params: {
         chain: rootState.network.name,
-        name: rootState.user.name,
-      },
+        name: rootState.user.name
+      }
     })
   },
 
@@ -91,8 +91,8 @@ export const actions = {
       room: 'account',
       params: {
         chain: rootState.network.name,
-        name: rootState.user.name,
-      },
+        name: rootState.user.name
+      }
     })
 
     commit('setUser', null, { root: true })
@@ -125,9 +125,9 @@ export const actions = {
           from: actor,
           to: to || rootState.network.contract,
           quantity,
-          memo,
-        },
-      },
+          memo
+        }
+      }
     ])
   },
 
@@ -140,8 +140,8 @@ export const actions = {
         account: contract || rootState.network.contract,
         name: `cancel${type}`,
         authorization: [rootState.user.authorization],
-        data: { executor: account, market_id, order_id },
-      },
+        data: { executor: account, market_id, order_id }
+      }
     ])
 
     setTimeout(() => dispatch('loadOrders', market_id, { root: true }), 1000)
@@ -181,8 +181,8 @@ export const actions = {
             method: 'GET',
             headers: {
               Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
+              'Content-Type': 'application/json'
+            }
           })
         } catch (e) {
           console.error(e)
@@ -199,8 +199,8 @@ export const actions = {
               method: 'GET',
               headers: {
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
+                'Content-Type': 'application/json'
+              }
             }
           )
           const account_info_json = await account_info.json()
@@ -217,19 +217,10 @@ export const actions = {
           enough_cpu = false
         }
 
-        let cosignpayer = ''
         let index = 0
         let enough_bank_wax = false
-        let ms = 1
-        if (actions[0].data.to == 'alcorammswap') {
-          cosignpayer = 'alcorammswap'
-          index = 1
-        }
-        if (actions[0].data.to == 'alcordexmain') {
-          cosignpayer = 'alcordexmain'
-          index = 0
-          ms = 2
-        }
+        let cosignpayer = 'alcordexmain'
+        let ms = 2
         try {
           const bank_wax = await rpcWAX.get_table_rows({
             json: true, // Get the response as json
@@ -238,7 +229,7 @@ export const actions = {
             table: 'waxdeposits', // Table name
             limit: 100, // Maximum number of rows that we want to get
             reverse: false, // Optional: Get reversed data
-            show_payer: false, // Optional: Show ram payer
+            show_payer: false // Optional: Show ram payer
           })
           for (let i = 0; i < bank_wax.rows.length; i++) {
             if (bank_wax.rows[i].index == index) {
@@ -261,7 +252,7 @@ export const actions = {
           return await getters.wallet.transact({
             max_cpu_usage_ms: 10,
             max_net_usage_words: 10000,
-            actions,
+            actions
           })
         } else {
           // Can cosign for user
@@ -274,7 +265,7 @@ export const actions = {
               table: 'config', // Table name
               limit: 1, // Maximum number of rows that we want to get
               reverse: false, // Optional: Get reversed data
-              show_payer: false, // Optional: Show ram payer
+              show_payer: false // Optional: Show ram payer
             })
             cpu_cost = parseFloat(table.rows[0].cost)
           } catch (e) {
@@ -286,14 +277,14 @@ export const actions = {
             name: 'paycpu',
             data: {
               user: rootState.user.name,
-              info: ms + ' ms max, alcor',
+              info: ms + ' ms max, alcor'
             },
             authorization: [
               {
                 actor: 'limitlesswax',
-                permission: 'cosign',
-              },
-            ],
+                permission: 'cosign'
+              }
+            ]
           }
           const cosignpay = {
             account: 'limitlessbnk',
@@ -303,14 +294,14 @@ export const actions = {
               owner: 'alcordexfund',
               ms,
               maincontract: cosignpayer,
-              amount: (cpu_cost * ms).toFixed(8) + ' WAX',
+              amount: (cpu_cost * ms).toFixed(8) + ' WAX'
             },
             authorization: [
               {
                 actor: 'limitlesswax',
-                permission: 'cosign',
-              },
-            ],
+                permission: 'cosign'
+              }
+            ]
           }
           actions = [cosign, cosignpay, ...actions]
           if (state.currentWallet == 'anchor') {
@@ -318,13 +309,13 @@ export const actions = {
               {
                 max_cpu_usage_ms: ms,
                 max_net_usage_words: 1000 * ms,
-                actions,
+                actions
               },
               {
                 broadcast: false,
                 sign: false,
                 blocksBehind: 5,
-                expireSeconds: 1200,
+                expireSeconds: 1200
               }
             )
             const deserializedTransaction = await apiWAX.deserializeTransaction(
@@ -333,21 +324,19 @@ export const actions = {
             const abis = await apiWAX.getTransactionAbis(
               deserializedTransaction
             )
-            const serializedContextFreeData =
-              await apiWAX.serializeContextFreeData(
-                deserializedTransaction.context_free_data
-              )
+            const serializedContextFreeData = await apiWAX.serializeContextFreeData(
+              deserializedTransaction.context_free_data
+            )
 
             const chainId = rootState.network.chainId
-            const requiredKeys =
-              await getters.wallet.sessionProvider.getAvailableKeys()
+            const requiredKeys = await getters.wallet.sessionProvider.getAvailableKeys()
             const serializedTransaction = transaction.serializedTransaction
             const signedTransaction = await getters.wallet.sign(
               deserializedTransaction
             )
 
             const request = {
-              transaction: Array.from(serializedTransaction),
+              transaction: Array.from(serializedTransaction)
             }
 
             const response = await fetch(
@@ -356,9 +345,9 @@ export const actions = {
                 method: 'POST',
                 headers: {
                   Accept: 'application/json',
-                  'Content-Type': 'application/json',
+                  'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(request),
+                body: JSON.stringify(request)
               }
             )
 
@@ -383,7 +372,7 @@ export const actions = {
               signatures: sigs,
               compression: false,
               serializedContextFreeData,
-              serializedTransaction,
+              serializedTransaction
             }
 
             try {
@@ -400,7 +389,7 @@ export const actions = {
             return await getters.wallet.transact({
               max_cpu_usage_ms: ms,
               max_net_usage_words: 1000 * ms,
-              actions,
+              actions
             })
           }
           // not logged in with anchor or wcw
@@ -415,7 +404,7 @@ export const actions = {
       dispatch('update', {}, { root: true })
       commit('loading/CLOSE', {}, { root: true })
     }
-  },
+  }
 }
 
 export const getters = {
@@ -423,5 +412,5 @@ export const getters = {
     return rootState.network.name
   },
 
-  wallet: (state, getters) => state.wallets[state.currentWallet],
+  wallet: (state, getters) => state.wallets[state.currentWallet]
 }
