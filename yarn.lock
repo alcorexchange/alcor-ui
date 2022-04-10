@@ -2,6 +2,15 @@
 # yarn lockfile v1
 
 
+"@azukisiromochi/vue-mo.js@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@azukisiromochi/vue-mo.js/-/vue-mo.js-1.0.2.tgz#e0cdb5a3437a29c25578bfb8345da9fa59f151c7"
+  integrity sha512-/IXGLyV/CTFarbMW7gII6BP/SfRjsuK88yWRqXUYAQXBeiArSi0LSAKHmiemOyhJOaomxLOjkurLeppYWv/VFA==
+  dependencies:
+    "@mojs/core" "^0.288.2"
+    core-js "^3.3.2"
+    vue "^2.6.10"
+
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.12.11.tgz"
@@ -1187,6 +1196,13 @@
   version "2.3.2"
   resolved "https://registry.npmjs.org/@jafri/asmcrypto.js/-/asmcrypto.js-2.3.2.tgz"
   integrity sha512-Caqwb82nHBmxm9ZbINc31fMGx60+ZLc+fUn1L3UiypgBGXs1R1nbuZnIfZH3j4o3aGy4jrs4bWRRFWuOxiIUnQ==
+
+"@mojs/core@^0.288.2":
+  version "0.288.2"
+  resolved "https://registry.yarnpkg.com/@mojs/core/-/core-0.288.2.tgz#3011145672a01c694fbd247b90f4a4a2b216905b"
+  integrity sha512-WBkiwvn14GcHfMyUuLJ0irJlTjv/Lc3jha67npYw04bG6AxATRR+Uyb9x5TkTlJAwCFLhfhLLLe5EeZoiaqiZw==
+  dependencies:
+    babel-runtime "^6.5.0"
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
@@ -2794,9 +2810,9 @@ babel-plugin-polyfill-regenerator@^0.2.2:
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.2.2"
 
-babel-runtime@6.x, babel-runtime@^6.18.0:
+babel-runtime@6.x, babel-runtime@^6.18.0, babel-runtime@^6.5.0:
   version "6.26.0"
-  resolved "https://registry.npmjs.org/babel-runtime/-/babel-runtime-6.26.0.tgz"
+  resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   integrity sha1-llxwWGaOgrVde/4E/yM3vItWR/4=
   dependencies:
     core-js "^2.4.0"
@@ -3921,6 +3937,11 @@ core-js@^3.11.0:
   version "3.18.2"
   resolved "https://registry.npmjs.org/core-js/-/core-js-3.18.2.tgz"
   integrity sha512-zNhPOUoSgoizoSQFdX1MeZO16ORRb9FFQLts8gSYbZU5FcgXhp24iMWMxnOQo5uIaIG7/6FA/IqJPwev1o9ZXQ==
+
+core-js@^3.3.2:
+  version "3.21.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.21.1.tgz#f2e0ddc1fc43da6f904706e8e955bc19d06a0d94"
+  integrity sha512-FRq5b/VMrWlrmCzwRrpDYNxyHP9BcAZC+xHJaqTgIE5091ZV1NTmyh0sGOg5XqpnHvR0svdy0sv1gWA1zmhxig==
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -12388,9 +12409,9 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
-vue@^2.6.12:
+vue@^2.6.10, vue@^2.6.12:
   version "2.6.14"
-  resolved "https://registry.npmjs.org/vue/-/vue-2.6.14.tgz"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
 
 vuex-persistedstate@^3.0.1:

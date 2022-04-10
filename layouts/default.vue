@@ -172,9 +172,6 @@ export default {
 .layout {
   background: var(--background-color-base);
 }
-.is-market {
-  max-width: 100%;
-}
 .nav {
   display: flex;
   align-items: center;
@@ -183,6 +180,15 @@ export default {
   .nav-side {
     display: flex;
     align-items: center;
+  }
+}
+
+.is-market {
+  max-width: 100%;
+  padding: 0px;
+
+  .nav {
+    padding: 12px 20px;
   }
 }
 .nav-items {
