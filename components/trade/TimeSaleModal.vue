@@ -45,7 +45,7 @@
         span Preview:
       .display-preview-element
         .deals-preview(v-loading='loading')
-          .orders-list.blist
+          .max-orders-list.blist
             a(
               v-for='deal in coloredDeals',
               :href='monitorTx(deal.trx_id)',
@@ -315,7 +315,7 @@ export default {
   padding: 3px 0px;
 }
 .deals-history {
-  .orders-list {
+  .max-orders-list {
     height: 350px;
   }
 }

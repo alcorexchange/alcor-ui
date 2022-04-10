@@ -5,7 +5,8 @@
   :is-mirrored='false',
   :vertical-compact='false',
   :use-css-transforms='false',
-  onmousedown='event.preventDefault ? event.preventDefault() : event.returnValue = false'
+  onmousedown='event.preventDefault ? event.preventDefault() : event.returnValue = false',
+  ref='chartContainer'
 )
   .chart-nav.scale-value-nav
     .chart-part
@@ -19,6 +20,7 @@
         :is-mirrored='false',
         :vertical-compact='false',
         :use-css-transforms='false',
+        v-loading='loading',
         v-on:click.stop
       )
 </template>
@@ -29,7 +31,7 @@ import { trade } from '~/mixins/trade'
 
 export default {
   mixins: [trade],
-
+  props: ['depthChartUpdated'],
   data() {
     return {
       chartOptions: {
@@ -52,6 +54,10 @@ export default {
         ],
         chart: {
           inverted: true,
+          marginTop: 40,
+          marginBottom: 0,
+          minPadding: 0,
+          maxPadding: 0,
           backgroundColor: {
             linearGradient: [0, 0, 500, 500],
             stops: [
@@ -289,13 +295,20 @@ export default {
       bids: [],
       asks: [],
       loading: false,
+      parentHeight: 0,
     }
   },
 
   computed: {
     ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
-    ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
+    ...mapState('market', [
+      'quote_token',
+      'base_token',
+      'id',
+      'deals',
+      'markets_layout',
+    ]),
     ...mapGetters(['user']),
 
     isLastTradeSell() {
@@ -308,6 +321,19 @@ export default {
   },
 
   watch: {
+    markets_layout(_new, old) {
+      this.$refs.chart.chart.setSize(
+        this.$refs.chartContainer.offsetWidth,
+        this.$refs.chartContainer.offsetHeight
+      )
+    },
+
+    depthChartUpdated(newData, oldData) {
+      this.$refs.chart.chart.setSize(
+        this.$refs.chartContainer.offsetWidth,
+        this.$refs.chartContainer.offsetHeight
+      )
+    },
     // sorted_asks(newAsks, oldAsks) {
     //   this.asks = []
     //   for (let i = 0; i < 20; i++) {
@@ -324,15 +350,22 @@ export default {
     // },
   },
   mounted() {
-    setTimeout(() => {
-      // this.$refs.chart.chart.setSize(
-      //   document.getElementsByClassName('cssTransforms')[0].width * 0.9,
-      //   document.getElementsByClassName('cssTransforms')[0].height * 0.9
-      // )
-      this.$refs.chart.chart.setSize(250, 450)
-    }, 100)
+    this.$nextTick(() => {
+      let chartContrainerInterval = null
+      chartContrainerInterval = setInterval(() => {
+        if (
+          (this.$refs.chartContainer !== undefined) &
+          (this.$refs.chartContainer.offsetWidth > 0)
+        ) {
+          this.$refs.chart.chart.setSize(
+            this.$refs.chartContainer.offsetWidth,
+            this.$refs.chartContainer.offsetHeight
+          )
+          clearInterval(chartContrainerInterval)
+        }
+      }, 100)
+    })
   },
-
   methods: {
     updateChartData(asks, bids) {
       // this.$refs.chart.chart.series[0].update({ data: asks.slice(0, 5) })
@@ -371,8 +404,10 @@ export default {
   user-select: none;
   .highcharts-container {
     height: 100% !important;
+    width: 100% !important;
     .highcharts-root {
       height: 100% !important;
+      width: 100% !important;
     }
   }
 }
@@ -380,20 +415,15 @@ export default {
 .chart-nav.scale-value-nav {
   width: 100% !important;
 }
-.el-tabs.el-tabs--top {
-  height: 90% !important;
-}
 
-.el-tabs__content {
-  height: 90%;
-}
-
-.highcharts-container {
-  width: 100% !important;
-}
-
-.highcharts-root {
-  width: 100% !important;
+.order-depth .el-tabs__content {
+  height: calc(100% - 55px);
+  .el-tab-pane,
+  .chart-nav,
+  .chart-part,
+  .wax-highchart {
+    height: 100% !important;
+  }
 }
 
 @media only screen and (max-width: 700px) {

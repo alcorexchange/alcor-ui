@@ -2,11 +2,10 @@
 // Переделать как табличку element
 .deals-history(v-loading='loading')
   .blist
-    .ltd.d-flex.justify-content-around
-      span
-      span.text-muted Latest Deals
-      span
-
+    //- .ltd.d-flex.justify-content-around
+    //-   span
+    //-   span.text-muted Latest Deals
+    //-   span
     .ltd.d-flex.justify-content-around.mt-1
       span Price ({{ quote_token.symbol.name }})
       span bid ({{ base_token.symbol.name }})
@@ -89,7 +88,19 @@ export default {
 
 .deals-history {
   .orders-list {
-    height: 350px;
+    height: calc(100% - 28px);
+  }
+}
+
+.time-sale {
+  .el-tabs__content {
+    height: calc(100% - 55px);
+  }
+  .el-tab-pane {
+    height: 100%;
+  }
+  .deals-history {
+    height: 100%;
   }
 }
 </style>

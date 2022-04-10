@@ -21,7 +21,10 @@
           :h='item.h',
           :i='item.i',
           :key='item.i',
-          :min-w='item.mw',
+          :min-w='parseInt(item.mw)',
+          :min-h='parseInt(item.mh)',
+          :class='item.i',
+          @resized='layoutUpdatedEvent(item)',
           drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
           drag-allow-from='.el-tabs__header, .box-card'
         )
@@ -43,16 +46,15 @@
           el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
             el-tab-pane(label='Orderbook')
               order-book
-            el-tab-pane(label='Depth Chart', @click='showmessage')
+            el-tab-pane(label='Depth Chart')
               depth-chart(
-                @click='showmessage',
                 :is-draggable='false',
                 :is-resizable='false',
                 :is-mirrored='false',
                 :vertical-compact='false',
                 :margin='[10, 10]',
                 :use-css-transforms='false',
-                ondragend='myFunction(event)'
+                :depthChartUpdated='depthChartUpdated'
               )
           el-tabs.h-100.time-sale(v-if='item.i == "time-sale"', :min-w='3')
             el-tab-pane(label='Times and Sales')
@@ -75,7 +77,10 @@
               my-history
             el-tab-pane(label='Funds')
               my-history
-          .not-history.limit-market(v-if='item.i == "limit-market"')
+          .not-history.limit-market(
+            v-if='item.i == "limit-market"',
+            :min-h='10'
+          )
             .tabs-right
               el-switch.mr-2(
                 v-if='["eos"].includes(network.name) && user',
@@ -105,37 +110,37 @@
       :closemodal='closemodal',
       @changedtimeformat='showtimeformat'
     )
-    #price_cancel_modal(v-if="orderdata.show_cancel_modal")
+    #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
       .cancel-modal-content
         .price-info
           p Your order to:
-          span.color-green &nbsp;{{orderdata.order_to}}
+          span.color-green &nbsp;{{ orderdata.order_to }}
         .price-info
           p At a price of:
-          span &nbsp;{{orderdata.price}}
+          span &nbsp;{{ orderdata.price }}
         p Will be
           span.color-red &nbsp;cancelled
-          |, do you wish to proceed?
+          | , do you wish to proceed?
         .alert-btn-group.d-flex.justify-content-between
-          div(@click="cancel_confirm_order(true)") Yes
-          div(@click="cancel_confirm_order(false)") No
-        i.el-icon-close(@click="cancel_confirm_order(false)")
-    #price_move_modal(v-if="orderdata.show_move_modal")
+          div(@click='cancel_confirm_order(true)') Yes
+          div(@click='cancel_confirm_order(false)') No
+        i.el-icon-close(@click='cancel_confirm_order(false)')
+    #price_move_modal(v-if='orderdata.show_move_modal')
       .cancel-modal-content
         .price-info
           p Your order to:
-          span.color-green &nbsp;{{orderdata.order_to}}
+          span.color-green &nbsp;{{ orderdata.order_to }}
         .price-info
           p At a price of:
-          span &nbsp;{{orderdata.price}}
+          span &nbsp;{{ orderdata.price }}
         .price-info
           p.width-auto Will be moved to:
-          span &nbsp;{{orderdata.new_price}}
+          span &nbsp;{{ orderdata.new_price }}
         p Do you wish to proceed?
         .alert-btn-group.d-flex.justify-content-between
-          div(@click="move_confirm_order(true)") Yes
-          div(@click="move_confirm_order(false)") No
-        i.el-icon-close(@click="move_confirm_order(false)")
+          div(@click='move_confirm_order(true)') Yes
+          div(@click='move_confirm_order(false)') No
+        i.el-icon-close(@click='move_confirm_order(false)')
 </template>
 
 <script>
@@ -187,6 +192,8 @@ export default {
       show_modal: false,
       show_timesale_modal: false,
       timeformat: 'DD-MM HH:mm',
+      resizestatus: null,
+      depthChartUpdated: false,
     }
   },
 
@@ -198,7 +205,7 @@ export default {
       'stats',
       'base_token',
       'markets_layout',
-      'orderdata'
+      'orderdata',
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
@@ -212,10 +219,6 @@ export default {
       },
     },
   },
-  mounted() {
-    console.log(this.$store.state)
-  },
-
   methods: {
     cancel_confirm_order(isCancel) {
       this.orderdata.show_cancel_modal = false
@@ -228,6 +231,11 @@ export default {
     },
     showtimeformat(value) {
       this.timeformat = value
+    },
+    resize(iname, newH, newW, newHPx, newWPx) {
+      if (iname == 'order-depth') {
+        this.resizestatus = { i: iname, height: newH * 40, width: newW }
+      }
     },
     closegriditem(item_name) {
       this.markets_layout.map((item) => {
@@ -256,15 +264,15 @@ export default {
         )
       )
     },
-    showmessage() {},
-    handlePress(e) {
-      // e.stopPropagation()
-    },
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
       this.$store.commit('swap/setTab', 'Swap')
       this.$router.push('/swap')
+    },
+    layoutUpdatedEvent(e) {
+      if (e.i != 'order-depth') return
+      this.depthChartUpdated = !this.depthChartUpdated
     },
   },
 }
@@ -279,7 +287,7 @@ export default {
   top: 0;
   left: 0;
   font-size: 14px;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   .cancel-modal-content {
     width: 300px;
     border: 2px solid #333 !important;
@@ -288,7 +296,7 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 15px;
-    border: 1px solid ;
+    border: 1px solid;
     background-color: #212121;
     border-radius: 5px;
     color: white;
