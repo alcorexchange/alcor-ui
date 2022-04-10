@@ -23,7 +23,7 @@ import { mapState } from 'vuex'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data', 'price', 'kindBut', 'imageBackground'],
+  props: ['data', 'price', 'kindBut'],
 
   data() {
     return {

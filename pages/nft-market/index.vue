@@ -1,37 +1,45 @@
 <template lang="pug">
 .nft-container.j-container
   .grid-container.row
-    .card-container.lg-6.md-12.sm-12.xl-12(v-for='(card, index) in cardData', :key='index')
+    .card-container.lg-6.md-12.sm-12.xl-12(
+      v-for='(card, index) in cardData',
+      :key='index'
+    )
       NftCard(:data='card')
     .lg-12.md-12.sm-12.xl-12.relation-item
-      NftRelation
+      NftRelation(:data='relationData', :price='getPrice')
   #loading.d-flex.justify-content-center(v-if='!filteredOrders.length')
     .spinner-border(role='status')
       span.sr-only Loading...
   h1.recent-title(v-if='filteredOrders.length') Recent Listenings
-  VueSlickCarousel(
-    v-if='filteredOrders.length',
-    v-bind='settings'
-  )
+  VueSlickCarousel(v-if='filteredOrders.length', v-bind='settings')
     .d-flex.justify-content-center(
       v-for='(item, index) in filteredOrders.slice(0, 5)',
       :key='index'
     )
-      NormalCard(v-if='item', :data='item', :price='getPrice', :kindBut='"sales"')
+      NormalCard(
+        v-if='item',
+        :data='item',
+        :price='getPrice',
+        :kindBut='"sales"'
+      )
   h1.recent-title(v-if='filteredOrders.length') New NFTs
-  VueSlickCarousel(
-    v-if='filteredOrders.length',
-    v-bind='settings'
-  )
+  VueSlickCarousel(v-if='filteredOrders.length', v-bind='settings')
     .d-flex.justify-content-center(
       v-for='(item, index) in filteredOrders.reverse().slice(0, 5)',
       :key='index'
     )
-      NormalCard(v-if='item', :data='item', :price='getPrice', :kindBut='"sendoffer"')
+      NormalCard(
+        v-if='item',
+        :data='item',
+        :price='getPrice',
+        :kindBut='"sendoffer"'
+      )
 </template>
 
 <script>
 import { mapState } from 'vuex'
+// import axios from 'axios'
 import VueSlickCarousel from 'vue-slick-carousel'
 import NftCard from '~/components/nft_markets/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
@@ -60,28 +68,29 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: 'nft-market/marketplace',
+          to: '/nft-market/marketplace',
         },
         {
           title: 'WALLET',
           subTItle: 'flfum.wam',
           img: Img2,
           subImage: subImg,
-          to: 'nft-market/walletinventory',
+          to: '/nft-market/walletinventory',
         },
         {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
           img: Img3,
-          to: 'nft-market/nftexplorer',
+          to: '/nft-market/nftexplorer',
         },
         {
           title: 'ALCOR',
           subTItle: 'CREATE NFT',
           img: Img4,
-          to: 'nft-market/createnft',
+          to: '/nft-market/createnft',
         },
       ],
+      relationData: '',
       normalcardData: [
         {
           title: 'ALCOR',
@@ -126,8 +135,8 @@ export default {
               slidesToShow: 3,
               slidesToScroll: 3,
               infinite: true,
-              dots: true
-            }
+              dots: true,
+            },
           },
           {
             breakpoint: 600,
@@ -135,18 +144,18 @@ export default {
               arrows: false,
               slidesToShow: 2,
               slidesToScroll: 2,
-              initialSlide: 2
-            }
+              initialSlide: 2,
+            },
           },
           {
             breakpoint: 480,
             settings: {
               arrows: false,
               slidesToShow: 1,
-              slidesToScroll: 1
-            }
-          }
-        ]
+              slidesToScroll: 1,
+            },
+          },
+        ],
       },
     }
   },
@@ -214,6 +223,7 @@ export default {
 
   mounted() {
     this.$store.dispatch('nft/fetch')
+    this.getSymbolInfo()
   },
 
   methods: {
@@ -257,6 +267,11 @@ export default {
     isCatCheked(cat) {
       return this.catFilter.includes(cat)
     },
+
+    async getSymbolInfo() {
+      const data = await this.$store.dispatch('api/getSymbolInfo')
+      this.relationData = data
+    }
   },
 
   head() {
