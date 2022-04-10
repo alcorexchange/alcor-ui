@@ -49,14 +49,12 @@
     "route-cache": "^0.4.5",
     "socket.io": "^4.3.2",
     "socket.io-client": "^4.3.2",
-    "util": "^0.12.4",
     "vue-apexcharts": "^1.6.0",
     "vue-click-outside": "^1.1.0",
     "vue-infinite-loading": "^2.4.5",
     "vue-moment": "^4.0.0",
     "vue-scrollto": "^2.20.0",
     "vuex-persistedstate": "^3.0.1",
-    "web-encoding": "^1.1.5",
     "web3-utils": "^1.6.0"
   },
   "devDependencies": {
