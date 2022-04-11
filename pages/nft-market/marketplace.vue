@@ -1,22 +1,47 @@
 <template lang="pug">
 .j-container
   div
-    nuxt-link(:to='"/nft-market"' :exact="true")
+    nuxt-link(:to='"/nft-market"', :exact='true')
       a#return-btn Return
     h4 Marketplace
-  MarketTab(:data='data' :currentTab='currentTab' :handleTab='handleTab')
-  #loading.d-flex.justify-content-center(v-if='!filteredOrders.length')
-    .spinner-border(role='status')
-      span.sr-only Loading...
-  .grid-container
-    .d-flex.justify-content-center(v-for='(item, index) in filteredOrders.slice(0, 16)' :key='index')
-      NormalCard(v-if='item' :data='item' :price='getPrice' :kindBut='currentTab')
-
+  MarketTab(
+    :data='data',
+    :currentTab='currentTab',
+    :handleTab='handleTab',
+    :handleSearch='handleSearch',
+    :collectionData='collectionData',
+    :handleCollection='handleCollection',
+    :searchValue='search',
+    :handleSearchValue='handleSearchValue'
+  )
+  .grid-container(v-if='loading')
+    vue-skeleton-loader(
+      :width='220',
+      :height='380',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+      v-for='item in 40',
+      :key='item'
+    )
+  .grid-container(v-else)
+    .d-flex.justify-content-center(
+      v-for='(item, index) in marketData',
+      :key='index'
+    )
+      NormalCard(
+        v-if='item',
+        :data='item',
+        :price='getPrice',
+        :kindBut='currentTab',
+        mode='market'
+      )
 </template>
 
 <script>
 // import Vue from 'vue'
 import { mapState } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import MarketTab from '~/components/nft_markets/MarketTab'
 import searchImg from '~/assets/images/search.svg'
@@ -27,138 +52,101 @@ export default {
   components: {
     NormalCard,
     MarketTab,
+    VueSkeletonLoader,
   },
 
   data() {
     return {
       search: '',
-      sellOrders: [],
-      tabIndex: 0,
       currentTab: 'sales',
+      marketData: [],
+      loading: true,
+      collectionData: [],
+      currentCollectionName: '',
       data: {
         searchIcon: searchImg,
         filterIcon: filterImg,
         downIcon: downImg,
-      }
+      },
+      limit: 40,
     }
   },
-
   computed: {
     ...mapState(['network']),
-    ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
     ...mapState('wallet', ['systemPrice']),
-
-    filteredOrders() {
-      let orders = this.orders
-
-      if (this.authorFilter.length > 0)
-        orders = orders.filter((o) => {
-          return o.sell.some((s) => this.authorFilter.includes(s.author))
-        })
-
-      if (this.catFilter.length > 0)
-        orders = orders.filter((o) => {
-          return o.sell.some((s) => this.catFilter.includes(s.category))
-        })
-
-      orders = orders.filter((o) => {
-        return o.sell.some((s) => {
-          const orderSearchData =
-            s.author +
-            s.category +
-            s.id +
-            JSON.stringify(s.idata) +
-            JSON.stringify(s.mdata)
-          return orderSearchData
-            .toLowerCase()
-            .includes(this.search.toLowerCase())
-        })
-      })
-
-      return orders
-    },
-
-    authors() {
-      const authors = []
-
-      this.orders.map((o) => {
-        o.sell.map((o) => authors.push(o.author))
-      })
-
-      return Array.from(new Set(authors))
-    },
-
     getPrice() {
       let price = this.systemPrice
       return price
     },
-
-    categories() {
-      const categories = []
-
-      this.orders.map((o) => {
-        o.sell.map((o) => categories.push(o.category))
-      })
-
-      return Array.from(new Set(categories))
-    },
   },
 
   mounted() {
-    this.$store.dispatch('nft/fetch')
+    this.getSaleData()
+    this.getCollectionData()
   },
 
   methods: {
-    handleTab (value) {
+    handleTab(value) {
       this.currentTab = value
     },
 
-    linkClass(idx) {
-      if (this.tabIndex === idx) {
-        return ['bg-primary', 'text-light']
-      } else {
-        return ['bg-light', 'text-info']
-      }
+    handleSearchValue(value) {
+      this.search = value
     },
-    addAutorFilter(author) {
-      if (this.authorFilter.includes(author)) {
-        this.$store.commit(
-          'nft/setAuthorFilter',
-          this.authorFilter.filter((a) => a != author)
-        )
+
+    handleCollection(value) {
+      this.currentCollectionName = value
+      if (this.currentTab === 'sales') {
+        this.getSaleData()
       } else {
-        this.$store.commit('nft/setAuthorFilter', [
-          ...this.authorFilter,
-          author,
-        ])
+        this.getAuctionData()
       }
     },
 
-    clearAuthorFilters() {
-      this.$store.commit('nft/setAuthorFilter', [])
-    },
-
-    isAuthorCheked(author) {
-      return this.authorFilter.includes(author)
-    },
-
-    addCatFilter(cat) {
-      if (this.catFilter.includes(cat)) {
-        this.$store.commit(
-          'nft/setCatFilter',
-          this.catFilter.filter((a) => a != cat)
-        )
+    handleSearch() {
+      if (this.currentTab === 'sales') {
+        this.getSaleData()
       } else {
-        this.$store.commit('nft/setCatFilter', [...this.catFilter, cat])
+        this.getAuctionData()
       }
     },
 
-    clearCatFilters() {
-      this.$store.commit('nft/setCatFilter', [])
+    async getCollectionData() {
+      const data = await this.$store.dispatch('api/getCollectionData')
+      this.collectionData = data
     },
 
-    isCatCheked(cat) {
-      return this.catFilter.includes(cat)
+    async getSaleData() {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getSaleData', {
+        limit: this.limit,
+        search: this.search,
+        collectionName: this.currentCollectionName,
+      })
+      this.marketData = data
+      this.loading = false
+    },
+    async getAuctionData() {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getAuctionData', {
+        limit: this.limit,
+        search: this.search,
+        collectionName: this.currentCollectionName,
+      })
+      this.marketData = data
+      this.loading = false
+    },
+  },
+
+  watch: {
+    currentTab(newCurrnetTab, oldCurrentTab) {
+      this.currentCollectionName = ''
+      this.search = ''
+      if (newCurrnetTab === 'sales') {
+        this.getSaleData()
+      } else {
+        this.getAuctionData()
+      }
     },
   },
 

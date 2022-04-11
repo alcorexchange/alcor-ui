@@ -48,6 +48,7 @@
     "nuxt-imagemin": "^1.0.0",
     "redis": "^4.0.0-rc.3",
     "route-cache": "^0.4.5",
+    "skeleton-loader-vue": "^1.0.10",
     "socket.io": "^4.3.2",
     "socket.io-client": "^4.3.2",
     "swiper": "6.8.4",

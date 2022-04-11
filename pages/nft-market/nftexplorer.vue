@@ -1,29 +1,59 @@
 <template lang="pug">
 .j-container
   div
-    nuxt-link(:to='"/nft-market"' :exact="true")
+    nuxt-link(:to='"/nft-market"', :exact='true')
       a#return-btn Return
     h4 Explorer
-  ExplorerTab(:data='data', :currentTab='currentTab', :handleTab='handleTab')
-  .grid-container
+  ExplorerTab(
+    :data='data',
+    :currentTab='currentTab',
+    :handleTab='handleTab',
+    :collectionData='collectionData',
+    :handleCollection='handleCollection',
+    :searchValue='search',
+    :handleSearch='handleSearch',
+    :handleSearchValue='handleSearchValue'
+  )
+  .grid-container(v-if='loading')
+    vue-skeleton-loader(
+      :width='220',
+      :height='380',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+      v-for='item in 40',
+      :key='item'
+    )
+  .grid-container(v-else)
     .d-flex.justify-content-center(
-      v-for='(item, index) in filteredOrders.slice(0, 16)',
-      :key='index'
+      v-if='currentTab === "all" || currentTab === "assets"',
+      v-for='(item, index) in assetsData',
+      :key='"assets-" + index'
+    )
+      NormalCard(v-if='item', :data='item', :price='getPrice', mode='assets')
+    .d-flex.justify-content-center(
+      v-if='currentTab === "all" || currentTab === "templates"',
+      v-for='(item, index) in templatesData',
+      :key='"templates-" + index'
     )
       NormalCard(
         v-if='item',
         :data='item',
         :price='getPrice',
-        :kindBut='currentTab'
+        mode='templates'
       )
-  #loading.d-flex.justify-content-center(v-if='!filteredOrders.length')
-    .spinner-border(role='status')
-      span.sr-only Loading...
+    .d-flex.justify-content-center(
+      v-if='currentTab === "all" || currentTab === "schemas"',
+      v-for='(item, index) in schemasData',
+      :key='"schemas-" + index'
+    )
+      NormalCard(v-if='item', :data='item', :price='getPrice', mode='schemas')
 </template>
 
 <script>
 // import Vue from 'vue'
 import { mapState } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import ExplorerTab from '~/components/nft_markets/ExplorerTab'
 import searchImg from '~/assets/images/search.svg'
@@ -34,6 +64,7 @@ export default {
   components: {
     NormalCard,
     ExplorerTab,
+    VueSkeletonLoader,
   },
 
   data() {
@@ -41,7 +72,15 @@ export default {
       search: '',
       sellOrders: [],
       tabIndex: 0,
+      loading: true,
       currentTab: 'all',
+      assetsData: [],
+      templatesData: [],
+      accountsData: [],
+      collectionData: [],
+      schemasData: [],
+      currentCollectionName: '',
+      limit: 40,
       data: {
         searchIcon: searchImg,
         filterIcon: filterImg,
@@ -50,69 +89,27 @@ export default {
     }
   },
 
+  watch: {
+    currentTab(newCurrnetTab, oldCurrentTab) {
+      this.currentCollectionName = ''
+      this.search = ''
+      this.getData()
+    },
+  },
+
   computed: {
     ...mapState(['network']),
-    ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
     ...mapState('wallet', ['systemPrice']),
-
-    filteredOrders() {
-      let orders = this.orders
-
-      if (this.authorFilter.length > 0)
-        orders = orders.filter((o) => {
-          return o.sell.some((s) => this.authorFilter.includes(s.author))
-        })
-
-      if (this.catFilter.length > 0)
-        orders = orders.filter((o) => {
-          return o.sell.some((s) => this.catFilter.includes(s.category))
-        })
-
-      orders = orders.filter((o) => {
-        return o.sell.some((s) => {
-          const orderSearchData =
-            s.author +
-            s.category +
-            s.id +
-            JSON.stringify(s.idata) +
-            JSON.stringify(s.mdata)
-          return orderSearchData
-            .toLowerCase()
-            .includes(this.search.toLowerCase())
-        })
-      })
-
-      return orders
-    },
-
-    authors() {
-      const authors = []
-
-      this.orders.map((o) => {
-        o.sell.map((o) => authors.push(o.author))
-      })
-
-      return Array.from(new Set(authors))
-    },
 
     getPrice() {
       let price = this.systemPrice
       return price
     },
-
-    categories() {
-      const categories = []
-
-      this.orders.map((o) => {
-        o.sell.map((o) => categories.push(o.category))
-      })
-
-      return Array.from(new Set(categories))
-    },
   },
 
   mounted() {
-    this.$store.dispatch('nft/fetch')
+    this.getData()
+    this.getCollectionData()
   },
 
   methods: {
@@ -120,52 +117,83 @@ export default {
       this.currentTab = value
     },
 
-    linkClass(idx) {
-      if (this.tabIndex === idx) {
-        return ['bg-primary', 'text-light']
-      } else {
-        return ['bg-light', 'text-info']
-      }
-    },
-    addAutorFilter(author) {
-      if (this.authorFilter.includes(author)) {
-        this.$store.commit(
-          'nft/setAuthorFilter',
-          this.authorFilter.filter((a) => a != author)
-        )
-      } else {
-        this.$store.commit('nft/setAuthorFilter', [
-          ...this.authorFilter,
-          author,
-        ])
-      }
+    handleSearchValue(value) {
+      this.search = value
     },
 
-    clearAuthorFilters() {
-      this.$store.commit('nft/setAuthorFilter', [])
-    },
-
-    isAuthorCheked(author) {
-      return this.authorFilter.includes(author)
-    },
-
-    addCatFilter(cat) {
-      if (this.catFilter.includes(cat)) {
-        this.$store.commit(
-          'nft/setCatFilter',
-          this.catFilter.filter((a) => a != cat)
-        )
-      } else {
-        this.$store.commit('nft/setCatFilter', [...this.catFilter, cat])
+    async getData() {
+      if (this.currentTab === 'all') {
+        await this.getAssetsData()
+        await this.getTemplatesData()
+        await this.getSchemasData()
+        await this.getAccountsData()
+      } else if (this.currentTab === 'assets') {
+        this.getAssetsData()
+      } else if (this.currentTab === 'templates') {
+        this.getTemplatesData()
+      } else if (this.currentTab === 'schemas') {
+        this.getSchemasData()
+      } else if (this.currentTab === 'accounts') {
+        this.getAccountsData()
       }
     },
 
-    clearCatFilters() {
-      this.$store.commit('nft/setCatFilter', [])
+    handleSearch() {
+      this.getData()
     },
 
-    isCatCheked(cat) {
-      return this.catFilter.includes(cat)
+    handleCollection(value) {
+      this.currentCollectionName = value
+      this.getData()
+    },
+
+    async getCollectionData() {
+      const data = await this.$store.dispatch('api/getCollectionData')
+      this.collectionData = data
+    },
+
+    async getAssetsData() {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getAssetsData', {
+        limit: this.limit,
+        search: this.search,
+        collectionName: this.currentCollectionName,
+      })
+      this.assetsData = data
+      this.loading = false
+    },
+
+    async getTemplatesData() {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getTemplatesData', {
+        limit: this.limit,
+        search: this.search,
+        collectionName: this.currentCollectionName,
+      })
+      this.templatesData = data
+      this.loading = false
+    },
+
+    async getSchemasData() {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getSchemasData', {
+        limit: this.limit,
+        search: this.search,
+        collectionName: this.currentCollectionName,
+      })
+      this.schemasData = data
+      this.loading = false
+    },
+
+    async getAccountsData() {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getAccountsData', {
+        limit: this.limit,
+        search: this.search,
+        collectionName: this.currentCollectionName,
+      })
+      this.accountsData = data
+      this.loading = false
     },
   },
 
