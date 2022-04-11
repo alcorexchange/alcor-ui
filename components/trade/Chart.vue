@@ -1,10 +1,11 @@
 <template lang="pug">
 #tv_chart_container
+  el-table.w-100(:data='orders', max-height='260')
 </template>
 
 <script>
 // TODO Зафиксить график при переключении
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import global from '~/plugins/global'
 
 export default {
@@ -20,18 +21,27 @@ export default {
       executionshape: '',
       order: '',
       isReady: false,
+      userOrder: [],
     }
   },
 
   computed: {
+    ...mapGetters(['user']),
+    ...mapGetters(['network', 'userOrders']),
     ...mapState('market', [
       'base_token',
       'id',
       'quote_token',
       'chart_orders_settings',
-      'orderdata'
+      'orderdata',
     ]),
-    ...mapState(['network']),
+    orders() {
+      if (!this.user) return []
+
+      return this.userOrders
+        .filter((a) => a.account === this.user.name && a.market_id == this.id)
+        .sort((a, b) => b.timestamp - a.timestamp)
+    },
   },
 
   watch: {
@@ -95,7 +105,6 @@ export default {
 
   mounted() {
     this.mountChart()
-
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
     })
@@ -133,7 +142,7 @@ export default {
       }
     },
 
-    gridLabels() {
+    async gridLabels() {
       if (this.chart_orders_settings.show_open_orders && !this.flag) {
         this.flag = true
         this.order = this.widget
@@ -153,9 +162,19 @@ export default {
           .setLineStyle(1)
           .setQuantity('a')
           .setText('a')
+        console.log('show_labels>', this.chart_orders_settings.show_labels)
         if (this.chart_orders_settings.show_labels) {
           this.order.setQuantity('150,000 VOID')
           this.order.setText('Buy')
+          console.log('How are you?')
+          // if ((await this.orders.length) > 0) {
+          //   await this.orders.map((item) => {
+          //     console.log('===============orders', item, item.bid.quantity)
+          //     this.order.setQuantity(item.bid.quantity)
+          //     // return item
+          //     this.order.setText('Buy')
+          //   })
+          // }
           if (this.chart_orders_settings.chart_order_interactivity) {
             this.order
               .onMove(this.Movedfunc)
@@ -171,8 +190,19 @@ export default {
     },
 
     Movedfunc() {
+      console.log('moved:=======', this.order.getPrice(), this.order)
       this.orderdata.show_move_modal = true
       this.orderdata.new_price = this.order.getPrice()
+      this.orderdata.price = this.orders.map((item) => {
+        console.log(
+          'price',
+          item.unit_price | this.$options.filters.humanPrice(item.unit_price)
+        )
+        return (
+          item.unit_price | this.$options.filters.humanPrice(item.unit_price)
+        )
+      })
+      // console.log('my_price:', this.orderdata.price[0])
     },
 
     Cancelfunc() {

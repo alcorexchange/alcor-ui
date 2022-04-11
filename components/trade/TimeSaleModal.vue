@@ -35,9 +35,20 @@
           )
     .time-sale-list.large-trade-threshold.d-flex.flex-row.justify-content-between
       .threshold-title.mt-auto.mb-auto
-        label.threshold-label Larage trade threshold:
-      .trade-threshold-value
-        span 100 WAX
+        label.threshold-label Large trade threshold:
+      .trade-threshold-value.mt-auto.mb-auto.mr-1
+        el-input.threshold-input(v-model='input_threshold')
+      .trade-type-menu.d-flex.flex-row
+        el-select.trade-type-selection(
+          v-model='threshold',
+          placeholder='Currency'
+        )
+          el-option(
+            v-for='item in thresholds_options',
+            :key='item.value',
+            :label='item.label',
+            :value='item.threshold'
+          )
     .time-sale-list.timesale-preview.d-flex.flex-column.justify-content-between(
       v-if='coloredDeals'
     )
@@ -71,31 +82,39 @@ export default {
       deals: [],
       options: [
         {
-          timeformat: 'dd/MM hh/mm/ss',
-          label: 'dd/MM hh/mm/ss',
+          timeformat: 'DD/MM hh:mm:ss',
+          label: 'dd/MM hh:mm:ss',
         },
         {
-          timeformat: 'MM/dd hh/mm/ss',
-          label: 'MM/dd hh/mm/ss',
+          timeformat: 'MM/DD hh:mm:ss',
+          label: 'MM/dd hh:mm:ss',
         },
         {
-          timeformat: 'dd hh/mm/ss',
-          label: 'dd hh/mm/ss',
+          timeformat: 'DD hh:mm:ss',
+          label: 'dd hh:mm:ss',
         },
         {
-          timeformat: 'dd hh/mm',
-          label: 'dd hh/mm',
+          timeformat: 'DD hh:mm',
+          label: 'dd hh:mm',
         },
         {
-          timeformat: 'hh/mm/ss',
-          label: 'hh/mm/ss',
-        },
-        {
-          timeformat: 'DD-MM HH:mm',
-          label: 'DD-MM HH:mm',
+          timeformat: 'hh:mm:ss',
+          label: 'hh:mm:ss',
         },
       ],
-      timeformat: 'DD-MM HH:mm',
+      thresholds_options: [
+        {
+          threshold: 'WAX',
+          label: 'wax',
+        },
+        {
+          threshold: 'VOID',
+          label: 'void',
+        },
+      ],
+      timeformat: 'MM/DD hh:mm:ss',
+      threshold: 'Currency',
+      input_threshold: 0,
     }
   },
   computed: {
@@ -215,7 +234,7 @@ export default {
     padding-right: 55px;
   }
   &.large-trade-threshold {
-    padding-right: 55px;
+    // padding-right: 55px;
   }
 }
 
@@ -288,7 +307,7 @@ export default {
 .trade-threshold-value {
   width: 128px;
   height: 24px;
-  background-color: #161617;
+  // background-color: #161617;
   border-radius: 2px;
   font-family: 'Roboto';
   font-style: normal;
@@ -299,6 +318,27 @@ export default {
   display: flex;
   justify-content: flex-start;
   padding-left: 5px;
+  .threshold-input {
+    background-color: #2a2a2b !important;
+    width: 110px;
+    // height: 80%;
+    .el-input__inner {
+      background-color: #2a2a2b !important;
+      height: 30px !important;
+    }
+  }
+}
+
+.threshold-title {
+  width: 145px !important;
+}
+.trade-type-menu {
+  width: 130px;
+  background-color: #2a2a2b !important;
+  .el-input__inner {
+    background-color: #2a2a2b !important;
+    height: 30px;
+  }
 }
 
 .blist a {

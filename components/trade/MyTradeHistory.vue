@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table.my-order-history(
+el-table.my-trade-history(
   :data='deals',
   max-height='245',
   row-class-name='pointer',
@@ -36,7 +36,7 @@ el-table.my-order-history(
     infinite-loading(
       @infinite='infiniteHandler',
       spinner='spiral',
-      force-use-infinite-wrapper='.my-order-history .el-table__body-wrapper'
+      force-use-infinite-wrapper='.my-trade-history .el-table__body-wrapper'
     )
 </template>
 
