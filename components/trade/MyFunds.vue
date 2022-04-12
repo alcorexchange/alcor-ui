@@ -1,31 +1,27 @@
 <template lang="pug">
-el-table.my-order-history(
+el-table.my-funds(
   :data='deals',
   max-height='245',
   row-class-name='pointer',
   @row-click='rowClick'
 )
-  el-table-column(label='Time', v-if='!isMobile')
+  el-table-column(label='Token', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
-  el-table-column(label='Pair', v-if='!isMobile')
+  el-table-column(label='Total Amount', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ quote_token.symbol.name }}/{{ base_token.symbol.name }}
-  el-table-column(label='Side', width='60')
+  el-table-column(label='Available', width='60')
     template.text-success(slot-scope='scope')
       span.text-success(v-if='scope.row.type == "buy"') BUY
       span.text-danger(v-else) SELL
-  el-table-column(label='Bid', v-if='!isMobile')
+  el-table-column(label='In orders', v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
 
-  el-table-column(label='Ask')
+  el-table-column(label='Value in WAX')
     template(slot-scope='{ row }')
       span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
-
-  el-table-column(label='Price')
-    template(slot-scope='scope')
-      span {{ scope.row.unit_price | commaFloat(6) }}
 
   //el-table-column(label='Manage' align="right")
     template(slot-scope='scope')
@@ -36,7 +32,7 @@ el-table.my-order-history(
     infinite-loading(
       @infinite='infiniteHandler',
       spinner='spiral',
-      force-use-infinite-wrapper='.my-order-history .el-table__body-wrapper'
+      force-use-infinite-wrapper='.my-funds .el-table__body-wrapper'
     )
 </template>
 
@@ -156,7 +152,7 @@ export default {
   font-size: 13px;
 }
 
-.my-order-history {
+.my-funds {
   table {
     width: 100% !important;
   }

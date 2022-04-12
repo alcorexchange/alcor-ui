@@ -29,7 +29,7 @@
           drag-allow-from='.el-tabs__header, .box-card'
         )
           .right-icons
-            .icon-btn
+            .icon-btn(v-if='item.i != "open-order"')
               i.el-icon-setting(
                 v-if='item.i == "chart"',
                 @click='show_modal = !show_modal'
@@ -60,23 +60,30 @@
             el-tab-pane(label='Times and Sales')
               LatestDeals(:timeformat='timeformat')
           //- markets(v-if="item.i=='3'")
-          alcor-tabs.h-100(v-if='item.i == "open-oder"', v-model='tab')
+          alcor-tabs.h-100(v-if='item.i == "open-order"', v-model='tab')
             template(slot='right')
-              .d-flex
-                el-button.red.hover-opacity.ml-3.mt-1(
-                  type='text',
-                  v-show='tab == 0',
-                  size='small',
-                  @click='cancelAll'
-                ) Cancel All Orders
+              .d-flex.pairs-switch-right
+                //- el-button.red.hover-opacity.ml-3.mt-1(
+                //-   type='text',
+                //-   v-show='tab == 0',
+                //-   size='small',
+                //-   @click='cancelAll'
+                //- ) Hide other pairs
+                .module-name.mr-2 Hide other pairs
+                .module-pickers.d-flex.flex-row
+                  el-switch(
+                    v-model='hideswitch',
+                    active-color='#13ce66',
+                    inactive-color='#161617'
+                  )
             el-tab-pane(label='Open order')
               my-orders(v-if='user', v-loading='loading')
             el-tab-pane(label='Order history')
               my-history(v-if='user', v-loading='loading')
             el-tab-pane(label='Trade History')
-              my-history
+              my-trade-history
             el-tab-pane(label='Funds')
-              my-history
+              my-funds
           .not-history.limit-market(
             v-if='item.i == "limit-market"',
             :min-h='10'
@@ -150,6 +157,8 @@ import MarketTrade from '~/components/trade/MarketTrade'
 import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
 import MyHistory from '~/components/trade/MyHistory'
+import MyTradeHistory from '~/components/trade/MyTradeHistory'
+import MyFunds from '~/components/trade/MyFunds'
 import OrderBook from '~/components/trade/OrderBook'
 import DepthChart from '~/components/trade/DepthChart'
 import Markets from '~/components/trade/Markets'
@@ -168,6 +177,8 @@ export default {
   components: {
     MarketTrade,
     MyHistory,
+    MyTradeHistory,
+    MyFunds,
     MyOrders,
     LimitTrade,
     OrderBook,
@@ -194,6 +205,7 @@ export default {
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
       depthChartUpdated: false,
+      hideswitch: false,
     }
   },
 
@@ -514,6 +526,8 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  margin: 0;
+  padding: 0;
   .vue-grid-layout {
     background-color: #212121;
   }
@@ -534,6 +548,15 @@ export default {
   .time-sale {
     min-width: 165px;
     max-height: 730px;
+  }
+
+  .pairs-switch-right {
+    display: flex;
+    float: right;
+    position: absolute;
+    right: 39px;
+    flex-direction: row;
+    align-items: center;
   }
 
   .pool-price {

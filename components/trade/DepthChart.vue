@@ -38,7 +38,7 @@ export default {
         credits: {
           enabled: false,
           align: 'right',
-          verticalAlign: 'bottom',
+          verticalAlign: 'bottom'
         },
         type: 'column',
         colors: [
@@ -50,7 +50,7 @@ export default {
           '#64E572',
           '#FF9655',
           '#FFF263',
-          '#6AF9C4',
+          '#6AF9C4'
         ],
         chart: {
           inverted: true,
@@ -62,18 +62,18 @@ export default {
             linearGradient: [0, 0, 500, 500],
             stops: [
               [0, 'rgb(40, 40, 40)'],
-              [1, 'rgb(40, 40, 40)'],
-            ],
+              [1, 'rgb(40, 40, 40)']
+            ]
           },
           type: 'area',
-          zoomType: 'xy',
+          zoomType: 'xy'
         },
         title: {
           text: '',
           margin: 0,
           stytle: {
-            display: 'none',
-          },
+            display: 'none'
+          }
         },
         xAxis: {
           minPadding: 0,
@@ -90,9 +90,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.15,
@@ -105,9 +105,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.143,
@@ -120,9 +120,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.147,
@@ -135,9 +135,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.15495,
@@ -150,9 +150,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#66C167',
-                },
-              },
+                  color: '#66C167'
+                }
+              }
             },
             {
               value: 0.158,
@@ -165,9 +165,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#66C167',
-                },
-              },
+                  color: '#66C167'
+                }
+              }
             },
             {
               value: 0.1526,
@@ -180,22 +180,22 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#66C167',
-                },
-              },
-            },
+                  color: '#66C167'
+                }
+              }
+            }
           ],
           title: {
             text: 'Price',
             y: -12,
             align: 'high',
             rotation: 0,
-            offset: 12,
+            offset: 12
           },
           opposite: true,
           inverted: true,
           lineWidth: 1,
-          tickLength: 0,
+          tickLength: 0
           // startOnTick: false,
           // min: 0.5,
         },
@@ -213,29 +213,29 @@ export default {
               align: 'left',
               step: 1,
               x: -5,
-              padding: 30,
-            },
-          },
+              padding: 30
+            }
+          }
         ],
         legend: {
-          enabled: false,
+          enabled: false
         },
         plotOptions: {
           area: {
             fillOpacity: 0.2,
-            lineWidth: 1,
-          },
+            lineWidth: 1
+          }
         },
         tooltip: {
           headerFormat:
             '<span style="font-size=10px;">Price: {point.key}</span><br/>',
-          valueDecimals: 2,
+          valueDecimals: 2
         },
         series: [
           {
             name: 'Bids',
             marker: {
-              enabled: false,
+              enabled: false
             },
             data: [
               [0.1524, 0.948665],
@@ -257,14 +257,14 @@ export default {
               [0.1588, 79.584064],
               [0.159, 80.584064],
               [0.16, 81.58156],
-              [0.1608, 83.38156],
+              [0.1608, 83.38156]
             ],
-            color: '#66C167',
+            color: '#66C167'
           },
           {
             name: 'Asks',
             marker: {
-              enabled: false,
+              enabled: false
             },
             data: [
               [0.1435, 242.521842],
@@ -286,16 +286,16 @@ export default {
               [0.1453, 12.345828999999998],
               [0.1454, 10.035642],
               [0.148, 9.326642],
-              [0.1522, 3.76317],
+              [0.1522, 3.76317]
             ],
-            color: '#fc5857',
-          },
-        ],
+            color: '#fc5857'
+          }
+        ]
       },
       bids: [],
       asks: [],
       loading: false,
-      parentHeight: 0,
+      parentHeight: 0
     }
   },
 
@@ -307,7 +307,7 @@ export default {
       'base_token',
       'id',
       'deals',
-      'markets_layout',
+      'markets_layout'
     ]),
     ...mapGetters(['user']),
 
@@ -317,7 +317,7 @@ export default {
 
     percentWarn() {
       return this.getSpreadPercent > 5 ? 'warn' : ''
-    },
+    }
   },
 
   watch: {
@@ -333,7 +333,7 @@ export default {
         this.$refs.chartContainer.offsetWidth,
         this.$refs.chartContainer.offsetHeight
       )
-    },
+    }
     // sorted_asks(newAsks, oldAsks) {
     //   this.asks = []
     //   for (let i = 0; i < 20; i++) {
@@ -353,10 +353,7 @@ export default {
     this.$nextTick(() => {
       let chartContrainerInterval = null
       chartContrainerInterval = setInterval(() => {
-        if (
-          (this.$refs.chartContainer !== undefined) &
-          (this.$refs.chartContainer.offsetWidth > 0)
-        ) {
+        if (this.$refs.chartContainer !== undefined && this.$refs.chartContainer.offsetWidth > 0) {
           this.$refs.chart.chart.setSize(
             this.$refs.chartContainer.offsetWidth,
             this.$refs.chartContainer.offsetHeight
@@ -377,8 +374,8 @@ export default {
     drag(event) {
       event.preventDefault()
       event.stopPropagation()
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -79,7 +79,7 @@ export const state = () => ({
       y: 14,
       w: 14,
       h: 8,
-      i: 'open-oder',
+      i: 'open-order',
       status: true,
       mw: 10,
       mh: 7,
