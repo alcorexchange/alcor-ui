@@ -40,16 +40,16 @@ client-only
                 change-percent(:change='stats.change24')
               .d-flex.flex-column(v-if="header_settings.volume_24")
                 span.text-muted Volume 24H:
-                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+                span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
               .d-flex.flex-column(v-if="header_settings.high_24")
                 span.text-muted 24H High:
-                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+                span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
               .d-flex.flex-column(v-if="header_settings.low_24")
                 span.text-muted 24H Low:
-                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+                span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
               .d-flex.flex-column(v-if="header_settings.volume_24_usd")
                 span.text-muted 24H USD:
-                span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+                span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
               .d-flex.flex-column(v-if="header_settings.weekly_volume")
                 span.text-muted Weekly Volume (WAX, USD):
                 span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
