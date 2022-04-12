@@ -1,10 +1,10 @@
 <template lang="pug">
 client-only
-  .box-card.pl-3.pt-2
+  .trade-top-line.box-card.pl-3
     .row
       .col
         .d-flex.align-items-center.desktop(v-if='!isMobile')
-          .d-flex.flex-column.justify-content-center
+          .d-flex.flex-column.justify-content-center.pt-2.pb-1
             .d-flex.align-items-center.cursor-pointer.show-markets(
               @click='showMarkets = !showMarkets'
             )
@@ -31,6 +31,10 @@ client-only
           //.d-flex.ml-3.w-100.justify-content-around.desctop
           .d-flex.align-items-center.ml-3.small.topline-container
             .d-flex.align-items-center.ml-3.header-items-container
+              .d-flex.flex-column(v-if="header_settings.change_24")
+                div(:class="stats.change24 > 0 ? 'text-success' : 'text-danger'") {{ price }} &nbsp;
+                div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
+
               .d-flex.flex-column(v-if="header_settings.change_24")
                 span.text-muted Change 24H
                 change-percent(:change='stats.change24')
@@ -114,7 +118,7 @@ client-only
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Vue from 'vue'
 
 Vue.directive('click-outside', {
@@ -164,6 +168,8 @@ export default {
     ...mapState(['network']),
     ...mapState('market', ['stats', 'base_token', 'quote_token', 'id', 'header_settings']),
     ...mapState('settings', ['favMarkets']),
+    ...mapGetters('market', ['price']),
+
 
     hasWithdraw() {
       return Object.keys(this.network.withdraw).includes(this.quote_token.str)
@@ -208,7 +214,6 @@ export default {
 
 <style scoped lang="scss">
 .topline-container {
-  width: calc(100% - 300px);
 }
 .header-items-container {
   scroll-behavior: smooth;
@@ -252,5 +257,16 @@ export default {
   border-radius: 50%;
   width: 22px;
   height: 22px;
+}
+</style>
+
+<style lang="scss">
+.trade-top-line {
+  //border-bottom: solid;
+  margin-bottom: 2px;
+
+  font-weight: 700;
+  font-size: 14px;
+  //line-height: 16px;
 }
 </style>

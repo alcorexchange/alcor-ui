@@ -5,6 +5,8 @@
 // Add elements scss (themed by variables)
 @import './element.scss';
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+
 @font-face {
   font-family: element-icons;
   src: url(fonts/element-icons.woff) format('woff'),
@@ -13,6 +15,8 @@
 
 html,
 body {
+  font-family: 'Roboto', sans-serif;
+
   background-color: var(--background-color-base);
   color: var(--color-text-primary);
 
@@ -116,11 +120,6 @@ input[type='number'] {
   .el-radio-button__inner {
     width: 100%;
   }
-}
-
-.overflowbox {
-  border-radius: 5px;
-  border: 1px solid var(--border-color);
 }
 
 .el-menu {

@@ -1,153 +1,154 @@
 <template lang="pug">
-.row.trading-terminal
+.trading-terminal
   client-only
-    .col(v-if='markets_layout != null && markets_layout.length > 0')
-      grid-layout(
-        :layout.sync='markets_layout',
-        :col-num='24',
-        :row-height='40',
-        :is-draggable='true',
-        :is-resizable='true',
-        :is-mirrored='false',
-        :vertical-compact='true',
-        :margin='[2, 2]',
-        :use-css-transforms='true'
-      )
-        grid-item.overflowbox(
-          v-for='item in markets_layout.filter((item) => item.status)',
-          :x='item.x',
-          :y='item.y',
-          :w='item.w',
-          :h='item.h',
-          :i='item.i',
-          :key='item.i',
-          :min-w='parseInt(item.mw)',
-          :min-h='parseInt(item.mh)',
-          :class='item.i',
-          @resized='layoutUpdatedEvent(item)',
-          drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
-          drag-allow-from='.el-tabs__header, .box-card'
-        )
-          .right-icons
-            .icon-btn(v-if='item.i != "open-order"')
-              i.el-icon-setting(
-                v-if='item.i == "chart"',
-                @click='show_modal = !show_modal'
-              )
-              i.el-icon-setting(
-                v-else-if='item.i == "time-sale"',
-                @click='show_timesale_modal = !show_timesale_modal'
-              )
-              i.el-icon-setting(v-else)
-            .icon-btn
-              i.el-icon-close(@click='closegriditem(item.i)')
-          top-line(v-if='item.i == "chart"')
-          chart(v-if='item.i == "chart"')
-          el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
-            el-tab-pane(label='Orderbook')
-              order-book
-            el-tab-pane(label='Depth Chart')
-              depth-chart(
-                :is-draggable='false',
-                :is-resizable='false',
-                :is-mirrored='false',
-                :vertical-compact='false',
-                :margin='[10, 10]',
-                :use-css-transforms='false',
-                :depthChartUpdated='depthChartUpdated'
-              )
-          el-tabs.h-100.time-sale(v-if='item.i == "time-sale"', :min-w='3')
-            el-tab-pane(label='Times and Sales')
-              LatestDeals(:timeformat='timeformat')
-          //- markets(v-if="item.i=='3'")
-          alcor-tabs.h-100(v-if='item.i == "open-order"', v-model='tab')
-            template(slot='right')
-              .d-flex.pairs-switch-right
-                //- el-button.red.hover-opacity.ml-3.mt-1(
-                //-   type='text',
-                //-   v-show='tab == 0',
-                //-   size='small',
-                //-   @click='cancelAll'
-                //- ) Hide other pairs
-                .module-name.mr-2 Hide other pairs
-                .module-pickers.d-flex.flex-row
-                  el-switch(
-                    v-model='hideswitch',
-                    active-color='#13ce66',
-                    inactive-color='#161617'
-                  )
-            el-tab-pane(label='Open order')
-              my-orders(v-if='user', v-loading='loading')
-            el-tab-pane(label='Order history')
-              my-history(v-if='user', v-loading='loading')
-            el-tab-pane(label='Trade History')
-              my-trade-history
-            el-tab-pane(label='Funds')
-              my-funds
-          .not-history.limit-market(
-            v-if='item.i == "limit-market"',
-            :min-h='10'
-          )
-            .tabs-right
-              el-switch.mr-2(
-                v-if='["eos"].includes(network.name) && user',
-                v-model='payForUser',
-                inactive-text=' Free CPU'
-              )
-              el-button.swap-button.rounded-0(
-                v-if='relatedPool',
-                type='button',
-                @click='goToPool'
-              ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
-              FeeRate.feebutton
-            el-tabs.h-100.no_drag
-              el-tab-pane.h-10(label='Limit trade')
-                .trade-box
-                  limit-trade
-              el-tab-pane(label='Market trade')
-                .trade-box
-                  market-trade
-          //- .low-right(v-if="item.i=='6'")
-          //-   .overflowbox.low-height.overflow-hidden
-          //-     LatestDeals
-    SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
-    TimeSaleModal(
-      v-if='show_timesale_modal',
-      :outoftimesalemodalClick='outoftimesalemodalClick',
-      :closemodal='closemodal',
-      @changedtimeformat='showtimeformat'
+    grid-layout(
+      :layout.sync='markets_layout',
+      :col-num='24',
+      :row-height='40',
+      :is-draggable='true',
+      :is-resizable='true',
+      :is-mirrored='false',
+      :vertical-compact='true',
+      :margin='[4, 4]',
+      :use-css-transforms='true'
     )
-    #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
-      .cancel-modal-content
-        .price-info
-          p Your order to:
-          span.color-green &nbsp;{{ orderdata.order_to }}
-        .price-info
-          p At a price of:
-          span &nbsp;{{ orderdata.price }}
-        p Will be
-          span.color-red &nbsp;cancelled
-          | , do you wish to proceed?
-        .alert-btn-group.d-flex.justify-content-between
-          div(@click='cancel_confirm_order(true)') Yes
-          div(@click='cancel_confirm_order(false)') No
-        i.el-icon-close(@click='cancel_confirm_order(false)')
-    #price_move_modal(v-if='orderdata.show_move_modal')
-      .cancel-modal-content
-        .price-info
-          p Your order to:
-          span.color-green &nbsp;{{ orderdata.order_to }}
-        .price-info
-          p At a price of:
-          span &nbsp;{{ orderdata.price }}
-        .price-info
-          p.width-auto Will be moved to:
-          span &nbsp;{{ orderdata.new_price }}
-        p Do you wish to proceed?
-        .alert-btn-group.d-flex.justify-content-between
-          div(@click='move_confirm_order(true)') Yes
-          div(@click='move_confirm_order(false)') No
-        i.el-icon-close(@click='move_confirm_order(false)')
+      grid-item.overflowbox(
+        v-for='item in markets_layout.filter((item) => item.status)',
+        :x='item.x',
+        :y='item.y',
+        :w='item.w',
+        :h='item.h',
+        :i='item.i',
+        :key='item.i',
+        :min-w='parseInt(item.mw)',
+        :min-h='parseInt(item.mh)',
+        :class='item.i',
+        @resized='layoutUpdatedEvent(item)',
+        drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
+        drag-allow-from='.el-tabs__header, .box-card'
+      )
+        .right-icons
+          .icon-btn(v-if='item.i != "open-order"')
+            i.el-icon-setting(
+              v-if='item.i == "chart"',
+              @click='show_modal = !show_modal'
+            )
+            i.el-icon-setting(
+              v-else-if='item.i == "time-sale"',
+              @click='show_timesale_modal = !show_timesale_modal'
+            )
+            i.el-icon-setting(v-else)
+          .icon-btn
+            i.el-icon-close(@click='closegriditem(item.i)')
+        top-line(v-if='item.i == "chart"')
+        chart(v-if='item.i == "chart"')
+
+        el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small")
+          el-tab-pane(label='Orderbook')
+            order-book
+          el-tab-pane(label='Depth Chart')
+            depth-chart(
+              :is-draggable='false',
+              :is-resizable='false',
+              :is-mirrored='false',
+              :vertical-compact='false',
+              :margin='[10, 10]',
+              :use-css-transforms='false',
+              :depthChartUpdated='depthChartUpdated'
+            )
+        div(v-if='item.i == "time-sale"', :min-w='3')
+          .times-and-sales
+            span Times and Sales
+          LatestDeals(:timeformat='timeformat')
+        //- markets(v-if="item.i=='3'")
+        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
+          template(slot='right')
+            .d-flex.pairs-switch-right
+              //- el-button.red.hover-opacity.ml-3.mt-1(
+              //-   type='text',
+              //-   v-show='tab == 0',
+              //-   size='small',
+              //-   @click='cancelAll'
+              //- ) Hide other pairs
+              .module-name.mr-2 Hide other pairs
+              .module-pickers.d-flex.flex-row
+                el-switch(
+                  v-model='hideswitch',
+                  active-color='#13ce66',
+                  inactive-color='#161617'
+                )
+          el-tab-pane(label='Open order')
+            my-orders(v-if='user', v-loading='loading')
+          el-tab-pane(label='Order history')
+            my-history(v-if='user', v-loading='loading')
+          el-tab-pane(label='Trade History')
+            my-trade-history
+          el-tab-pane(label='Funds')
+            my-funds
+        .not-history.limit-market(
+          v-if='item.i == "limit-market"',
+          :min-h='10'
+        )
+          .tabs-right
+            el-switch.mr-2(
+              v-if='["eos"].includes(network.name) && user',
+              v-model='payForUser',
+              inactive-text=' Free CPU'
+            )
+            el-button.swap-button.rounded-0(
+              v-if='relatedPool',
+              type='button',
+              @click='goToPool'
+            ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+            FeeRate.feebutton
+          el-tabs(type="border-card").h-100.no_drag
+            el-tab-pane.h-10(label='Limit trade')
+              .trade-box
+                limit-trade
+            el-tab-pane(label='Market trade')
+              .trade-box
+                market-trade
+        //- .low-right(v-if="item.i=='6'")
+        //-   .overflowbox.low-height.overflow-hidden
+        //-     LatestDeals
+  SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
+  TimeSaleModal(
+    v-if='show_timesale_modal',
+    :outoftimesalemodalClick='outoftimesalemodalClick',
+    :closemodal='closemodal',
+    @changedtimeformat='showtimeformat'
+  )
+  #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
+    .cancel-modal-content
+      .price-info
+        p Your order to:
+        span.color-green &nbsp;{{ orderdata.order_to }}
+      .price-info
+        p At a price of:
+        span &nbsp;{{ orderdata.price }}
+      p Will be
+        span.color-red &nbsp;cancelled
+        | , do you wish to proceed?
+      .alert-btn-group.d-flex.justify-content-between
+        div(@click='cancel_confirm_order(true)') Yes
+        div(@click='cancel_confirm_order(false)') No
+      i.el-icon-close(@click='cancel_confirm_order(false)')
+  #price_move_modal(v-if='orderdata.show_move_modal')
+    .cancel-modal-content
+      .price-info
+        p Your order to:
+        span.color-green &nbsp;{{ orderdata.order_to }}
+      .price-info
+        p At a price of:
+        span &nbsp;{{ orderdata.price }}
+      .price-info
+        p.width-auto Will be moved to:
+        span &nbsp;{{ orderdata.new_price }}
+      p Do you wish to proceed?
+      .alert-btn-group.d-flex.justify-content-between
+        div(@click='move_confirm_order(true)') Yes
+        div(@click='move_confirm_order(false)') No
+      i.el-icon-close(@click='move_confirm_order(false)')
 </template>
 
 <script>
@@ -382,10 +383,6 @@ export default {
   background-color: #212121;
 }
 
-.vue-grid-item.overflowbox {
-  background-color: #212121;
-}
-
 .icon-btn {
   width: 20px;
   height: 20px;
@@ -526,14 +523,49 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
-  margin: 0;
-  padding: 0;
-  .vue-grid-layout {
-    background-color: #212121;
+  //padding: 2px 0px;
+  background: #121212;
+
+  .el-tabs--border-card {
+    background: transparent;
+    border: none;
+  }
+
+  .el-tabs__item {
+    height: 30px;
+    line-height: 25px;
+  }
+
+  .el-tabs__content {
+    padding: 0px !important;
+  }
+
+  .el-tabs__item.is-active {
+    background-color: transparent !important;
+    border-bottom: solid !important;
+  }
+
+  .el-tabs__header {
+    background-color: var(--table-background) !important;
+    margin: 0;
   }
 
   .vue-grid-item {
-    // background-color: #282828;
+    background: var(--bg-alter-1);
+    border: 2px solid #3F3F3F;
+    box-sizing: border-box;
+    border-radius: 2px;
+
+    overflow: auto;
+    overflow-x: hidden;
+  }
+
+  .vue-resizable-handle {
+    width: 15px;
+    height: 15px;
+
+    background: url('@/assets/icons/resize.png');
+    background-repeat: no-repeat;
   }
 
   .vue-grid-item.vue-grid-placeholder {
@@ -543,6 +575,20 @@ export default {
 
   .orders-list {
     user-select: none;
+  }
+
+  .times-and-sales {
+    display: flex;
+    align-items: center;
+    height: 25px;
+    top: 2px;
+    background: #212121;
+
+    span {
+      margin-left: 10px;
+      font-size: 14px;
+      font-weight: 500;
+    }
   }
 
   .time-sale {
@@ -566,10 +612,6 @@ export default {
     right: 5px;
   }
 
-  .el-tabs__nav {
-    margin-left: 20px;
-  }
-
   .low-level {
     .el-tabs__nav {
       margin-left: 20px;
@@ -577,6 +619,7 @@ export default {
   }
 
   .trade-box {
+    margin-top: 20px;
     padding: 0 15px;
 
     .el-input--prefix .el-input__inner {
@@ -632,6 +675,10 @@ export default {
     padding: 5px 0;
   }
 
+  .el-table__header th {
+    background-color: var(--btn-default);
+  }
+
   .el-table {
     .cell {
       line-height: 12px;
@@ -653,7 +700,7 @@ export default {
 
     .el-table__header-wrapper {
       th {
-        font-weight: 100;
+        font-weight: 400;
       }
     }
   }

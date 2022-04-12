@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table.w-100.my-orders(:data='orders', max-height='260')
+el-table.w-100.my-orders(:data='orders', max-height='260' empty-text='No open orders')
   el-table-column(label='Time', width='120', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ scope.row.timestamp | moment("MM-DD HH:mm:ss") }}

@@ -7,9 +7,9 @@
   )
     template(slot='content')
       span.title.muted Maker Fee
-      span.value {{ (meta.fee / 100).toFixed(4) }}%
+      span.value.ml-1 {{ (meta.fee / 100).toFixed(4) }}%
       span.title.muted.ml-2 Taker Fee
-      span.value {{ (meta.fee / 100).toFixed(4) }}%
+      span.value.ml-1 {{ (meta.fee / 100).toFixed(4) }}%
     el-button.muted.px-1 % Fee
 
   //el-dropdown(placement="top").fee-rate

@@ -2,13 +2,9 @@
 // Переделать как табличку element
 .deals-history(v-loading='loading')
   .blist
-    //- .ltd.d-flex.justify-content-around
-    //-   span
-    //-   span.text-muted Latest Deals
-    //-   span
-    .ltd.d-flex.justify-content-around.mt-1
-      span Price ({{ quote_token.symbol.name }})
-      span bid ({{ base_token.symbol.name }})
+    .ltd.first.d-flex.justify-content-around.mt-1
+      span Price ({{ base_token.symbol.name }})
+      span Amount ({{ quote_token.symbol.name }})
       span Time
   .orders-list.blist
     a(
