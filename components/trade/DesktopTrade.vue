@@ -250,7 +250,6 @@ export default {
       this.timeformat = value
     },
     showbyamountoption(value) {
-      console.log('lalalalala')
       this.currenttoken = value
     },
     resize(iname, newH, newW, newHPx, newWPx) {

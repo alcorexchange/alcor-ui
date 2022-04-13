@@ -106,7 +106,6 @@ export default {
   },
   watch: {
     currenttoken(value) {
-      console.log('Changed Token', value)
       if (value == 'Token') {
         this.comparison_token = this.quote_token.symbol.name
         this.unit_token = this.base_token.symbol.name
@@ -117,10 +116,7 @@ export default {
         this.ctrl_val = 2
       }
     },
-    markets_layout(old_val, new_val) {
-      // this.ctrl_val = this.$store.state.market.ctrl_val
-      // console.log('herehere', this.ctrl_val)
-    },
+    markets_layout(old_val, new_val) {},
   },
   mounted() {
     this.comparison_token = this.quote_token.symbol.name
