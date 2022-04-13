@@ -13,15 +13,14 @@ el-table.my-funds(
       span {{ quote_token.symbol.name }}/{{ base_token.symbol.name }}
   el-table-column(label='Available', width='60')
     template.text-success(slot-scope='scope')
-      span.text-success(v-if='scope.row.type == "buy"') BUY
-      span.text-danger(v-else) SELL
+      span.text-success {{ getAvaliableValue() }}
   el-table-column(label='In orders', v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
 
   el-table-column(label='Value in WAX')
     template(slot-scope='{ row }')
-      span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
+      span {{ baseBalance | commaFloat }}
 
   //el-table-column(label='Manage' align="right")
     template(slot-scope='scope')
@@ -37,14 +36,15 @@ el-table.my-funds(
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import InfiniteLoading from 'vue-infinite-loading'
+import { trade } from '~/mixins/trade'
 
 export default {
+  mixins: [trade],
   components: {
     InfiniteLoading,
   },
-
   data() {
     return {
       orders: [],
@@ -54,12 +54,14 @@ export default {
   },
 
   computed: {
-    ...mapState(['user', 'markets_obj']),
+    ...mapState(['user', 'markets_obj', 'network']),
     ...mapState('market', ['base_token', 'quote_token', 'id']),
-
-    //deals() {
-    //  return this.userDeals.filter(d => d.market == this.id)
-    //}
+    ...mapGetters('market', [
+      'baseBalance',
+      'tokenBalance',
+      'sorted_asks',
+      'sorted_bids',
+    ]),
   },
 
   watch: {
@@ -104,6 +106,13 @@ export default {
       return deal.type == 'buy'
         ? market.quote_token.symbol.name
         : market.base_token.symbol.name
+    },
+
+    getAvaliableValue() {
+      console.log('available', this.baseBalance, this.id)
+
+      const available_value = this.baseBalance - this.deals.ask
+      return available_value
     },
 
     async infiniteHandler($state) {

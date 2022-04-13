@@ -47,9 +47,7 @@ export default {
   },
 
   mounted() {
-    setTimeout(() => {
-      console.log('myorders', this.orders, this.userOrders)
-    }, 100)
+    setTimeout(() => {}, 100)
   },
 
   methods: {

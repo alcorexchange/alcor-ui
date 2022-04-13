@@ -8,7 +8,7 @@
     //-   span
     .ltd.d-flex.justify-content-around.mt-1
       span Price ({{ quote_token.symbol.name }})
-      span bid ({{ base_token.symbol.name }})
+      span Amount ({{ base_token.symbol.name }})
       span Time
   .orders-list.blist
     a(

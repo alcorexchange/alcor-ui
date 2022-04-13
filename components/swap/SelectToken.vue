@@ -3,50 +3,79 @@
 .swap-token-select
   .row
     .col
-      .multi-input-wrapper(v-bind:style="visible ? 'z-index: 2;' : ''")
-        el-input(type="number" v-model="content" :clearable="!static" placeholder="0.0" @input="handleInput" @change="inputChange" :readonly="readonly || static")
-          template(slot="append")
-            el-button(v-if="isTokenSelected" type="text" @click="toggle")
-              .d-flex.align-items-center(v-if="token == 0")
-                TokenImage(:src="$tokenLogo(input.symbol, input.contract)" height="25")
+      .multi-input-wrapper(v-bind:style='visible ? "z-index: 2;" : ""')
+        el-input(
+          type='number',
+          v-model='content',
+          :clearable='!static',
+          placeholder='0.0',
+          @input='handleInput',
+          @change='inputChange',
+          :readonly='readonly || static'
+        )
+          template(slot='append')
+            el-button(v-if='isTokenSelected', type='text', @click='toggle')
+              .d-flex.align-items-center(v-if='token == 0')
+                TokenImage(
+                  :src='$tokenLogo(input.symbol, input.contract)',
+                  height='25'
+                )
                 span.ml-2 {{ input.symbol }}
-                i.el-icon-bottom.ml-1(v-if="!static")
-                i.ml-2(v-else="!static")
+                i.el-icon-bottom.ml-1(v-if='!static')
+                i.ml-2(v-else='!static')
 
-              .d-flex.align-items-center(v-else-if="token == 1")
-                TokenImage(:src="$tokenLogo(output.symbol, output.contract)" height="25")
+              .d-flex.align-items-center(v-else-if='token == 1')
+                TokenImage(
+                  :src='$tokenLogo(output.symbol, output.contract)',
+                  height='25'
+                )
                 span.ml-2 {{ output.symbol }}
-                i.el-icon-bottom.ml-1(v-if="!static")
-                i.ml-2(v-else="!static")
+                i.el-icon-bottom.ml-1(v-if='!static')
+                i.ml-2(v-else='!static')
 
-              .d-flex.align-items-center(v-else-if="token && token.contract && token.symbol")
-                TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
+              .d-flex.align-items-center(
+                v-else-if='token && token.contract && token.symbol'
+              )
+                TokenImage(
+                  :src='$tokenLogo(token.symbol, token.contract)',
+                  height='25'
+                )
                 span.ml-2 {{ token.symbol }}
-                i.el-icon-bottom.ml-1(v-if="!static")
-                i.ml-2(v-else="!static")
+                i.el-icon-bottom.ml-1(v-if='!static')
+                i.ml-2(v-else='!static')
 
-            el-button(type="text" @click="toggle" v-else-if="!static")
+            el-button(type='text', @click='toggle', v-else-if='!static')
               | Select token
-              i.el-icon-bottom.ml-1(v-if="!static")
-              i.ml-2(v-else="!static")
+              i.el-icon-bottom.ml-1(v-if='!static')
+              i.ml-2(v-else='!static')
 
-      .dropdown(v-show="visible" v-click-outside="hide")
-        el-input(placeholder="Search by name or contract" :clearable="!static" v-model="search" size="small" ref="searchInput")
+      .dropdown(v-show='visible', v-click-outside='hide')
+        el-input(
+          placeholder='Search by name or contract',
+          :clearable='!static',
+          v-model='search',
+          size='small',
+          ref='searchInput'
+        )
 
         .pairs.mt-2
           .pair(
-            v-for="token in tokensFiltered"
-            @click="setToken(token)" :class="{ isActive: isActiveToken(token) }"
+            v-for='token in tokensFiltered',
+            @click='setToken(token)',
+            :class='{ isActive: isActiveToken(token) }'
           )
-            TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
+            TokenImage(
+              :src='$tokenLogo(token.symbol, token.contract)',
+              height='25'
+            )
             span.ml-2 {{ token.symbol }}
             //a(:href="monitorAccount(token.contract)" target="_blank" v-on:click.stop).text-muted.ml-2.small {{ token.contract }}
             .text-muted.ml-2.small {{ token.contract }}
 
-            .ml-auto(v-if="user")
+            .ml-auto(v-if='user')
               span.text-muted {{ token.balance | commaFloat }}
 
-          slot(name="end")
+          slot(name='end')
 </template>
 
 <script>
@@ -57,11 +86,11 @@ import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
   },
 
   directives: {
-    ClickOutside
+    ClickOutside,
   },
 
   //props: ['value', 'tokens', 'token', 'readonly', 'static'],
@@ -69,28 +98,28 @@ export default {
   props: {
     value: {
       type: [String, Number],
-      default: () => '0.0000'
+      default: () => '0.0000',
     },
 
     tokens: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     token: {
       type: [Number, Object],
-      default: () => ''
+      default: () => '',
     },
 
     readonly: {
       type: Boolean,
-      default: () => false
+      default: () => false,
     },
 
     static: {
       type: Boolean,
-      default: () => false
-    }
+      default: () => false,
+    },
   },
 
   data() {
@@ -98,7 +127,7 @@ export default {
       content: this.value,
 
       visible: false,
-      search: ''
+      search: '',
     }
   },
 
@@ -113,10 +142,11 @@ export default {
       outputBalance: 'swap/outputBalance',
 
       poolOne: 'swap/poolOne',
-      poolTwo: 'swap/poolTwo'
+      poolTwo: 'swap/poolTwo',
     }),
 
     isTokenSelected() {
+      console.log('Token===========', this.token)
       return (
         (this.token && this.token.contract && this.token.symbol) ||
         (this.token == 0 && this.input) ||
@@ -126,16 +156,22 @@ export default {
     },
 
     tokensFiltered() {
-      return this.tokens.filter((t) => {
-        const s = (t.symbol + '@' + t.contract).toLowerCase()
-        return s.includes(this.search.toLowerCase())
-      }).map(t => {
-        t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
-        return t
-      }).sort((a, b) => {
-        return a.balance == '0.0000' ? 1 : -1
-      }).sort((a, b) => parseFloat(a.balance) < parseFloat(b.balance) ? 1 : -1)
-    }
+      return this.tokens
+        .filter((t) => {
+          const s = (t.symbol + '@' + t.contract).toLowerCase()
+          return s.includes(this.search.toLowerCase())
+        })
+        .map((t) => {
+          t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
+          return t
+        })
+        .sort((a, b) => {
+          return a.balance == '0.0000' ? 1 : -1
+        })
+        .sort((a, b) =>
+          parseFloat(a.balance) < parseFloat(b.balance) ? 1 : -1
+        )
+    },
   },
 
   watch: {
@@ -145,7 +181,7 @@ export default {
 
     token() {
       this.fixedInput()
-    }
+    },
   },
 
   mounted() {
@@ -270,8 +306,8 @@ export default {
       }
       /////
       this.visible = false
-    }
-  }
+    },
+  },
 }
 </script>
 

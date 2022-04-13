@@ -39,10 +39,7 @@
       .trade-threshold-value.mt-auto.mb-auto.mr-1
         el-input.threshold-input(v-model='input_threshold')
       .trade-type-menu.d-flex.flex-row
-        el-select.trade-type-selection(
-          v-model='threshold',
-          placeholder='Currency'
-        )
+        el-select.trade-type-selection(v-model='threshold')
           el-option(
             v-for='item in thresholds_options',
             :key='item.value',
@@ -338,6 +335,12 @@ export default {
   .el-input__inner {
     background-color: #2a2a2b !important;
     height: 30px;
+  }
+  .trade-type-selection {
+    .el-input__suffix {
+      display: flex;
+      align-items: center;
+    }
   }
 }
 

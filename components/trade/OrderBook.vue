@@ -90,8 +90,18 @@ export default {
     },
   },
 
+  mounted() {
+    console.log('sorted_asks11', this.userOrders, this.sorted_asks)
+  },
+
+  watch: {
+    userOrders() {
+      console.log('userOrderchange')
+    },
+  },
   methods: {
     isMyOrder(ask, side) {
+      console.log('sorted_asks', this.userOrders, this.id)
       for (const o of this.userOrders.filter((o) => o.market_id == this.id)) {
         if (ask[0] == parseInt(o.unit_price) && side == o.type) return true
       }
@@ -270,7 +280,8 @@ export default {
 }
 
 .orders-list.bids {
-  height: calc(100% - 55px);
+  max-height: 500px;
+  // height: calc(100% - 55px);
 }
 
 .orders-list.blist .ltd:hover {
