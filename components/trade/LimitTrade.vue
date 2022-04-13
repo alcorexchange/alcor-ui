@@ -2,7 +2,7 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.text-success Buy {{ quote_token.symbol.name }}
+      small.green Buy {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("buy")'
       ) {{ baseBalance | commaFloat }}
@@ -63,7 +63,7 @@
 
   .col-lg-6
     .d-flex.mb-1
-      small.text-danger Sell {{ quote_token.symbol.name }}
+      small.red Sell {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("sell")'
       ) {{ tokenBalance | commaFloat }}

@@ -8,7 +8,7 @@
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
-    .ltd.d-flex.text-danger(
+    .ltd.d-flex(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
       :class='{ "pl-0": isMyOrder(ask, "sell") }'
@@ -25,7 +25,7 @@
       span
 
   .latest-price
-    .left.d-flex.align-items-center
+    .left.d-flex.align-items-center.green
       .arrow(:class='{ red: isLastTradeSell }').mr-2
         i(:class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`')
 
@@ -41,7 +41,7 @@
           .text-muted(:class='percentWarn') {{ getSpreadNum ? getSpreadNum : "0.00" | humanPrice(6) }}
 
   .orders-list.blist.bids
-    .ltd.d-flex.text-success(
+    .ltd.d-flex(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
       :class='{ "pl-0": isMyOrder(bid, "buy") }'
@@ -139,7 +139,7 @@ export default {
 
 <style lang="scss">
 .order-book {
-  max-height: 450px;
+  height: calc(100%);
 
   .latest-price {
     display: flex;
@@ -296,13 +296,15 @@ export default {
 }
 
 .orders-list.asks {
-  max-height: 220px;
+  height: calc(50% - 41px);
   flex-direction: column-reverse;
+  color: var(--main-red);
 
 }
 
 .orders-list.bids {
-  height: calc(100% - 55px);
+  color: var(--main-green);
+  height: calc(50% - 18px);
 }
 
 .orders-list.blist .ltd:hover {

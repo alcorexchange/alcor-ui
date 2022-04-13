@@ -164,6 +164,12 @@ export default {
     }
   },
 
+  watch: {
+    id() {
+      this.showMarkets = false
+    }
+  },
+
   computed: {
     ...mapState(['network']),
     ...mapState('market', ['stats', 'base_token', 'quote_token', 'id', 'header_settings']),

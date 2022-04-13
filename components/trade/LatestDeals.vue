@@ -2,7 +2,7 @@
 // Переделать как табличку element
 .deals-history(v-loading='loading')
   .blist
-    .ltd.first.d-flex.justify-content-around.mt-1
+    .ltd.first.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
       span Amount ({{ quote_token.symbol.name }})
       span Time
@@ -58,14 +58,14 @@ export default {
             if (h.bid == maxBuy) {
               h.cls = 'max-buymatch'
             } else {
-              h.cls = 'text-success'
+              h.cls = 'green'
             }
             h.amount = h.bid
           } else {
             if (h.bid == maxSell) {
               h.cls = 'max-sellmatch'
             } else {
-              h.cls = 'text-danger'
+              h.cls = 'red'
             }
             h.amount = h.ask
           }
@@ -83,8 +83,11 @@ export default {
 }
 
 .deals-history {
+  height: 100%;
+
   .orders-list {
-    height: calc(100% - 28px);
+    overflow: auto;
+    height: calc(100% - 53px);
   }
 }
 

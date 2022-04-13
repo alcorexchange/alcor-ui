@@ -414,7 +414,7 @@ export default {
 }
 
 .order-depth .el-tabs__content {
-  height: calc(100% - 55px);
+  height: calc(100% - 30px);
   .el-tab-pane,
   .chart-nav,
   .chart-part,

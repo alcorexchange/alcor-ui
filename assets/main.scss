@@ -482,11 +482,11 @@ a {
 }
 
 .green {
-  color: var(--main-green);
+  color: var(--main-green) !important;
 }
 
 .red {
-  color: var(--main-red);
+  color: var(--main-red) !important;
 }
 
 .alcor-inner {

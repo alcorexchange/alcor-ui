@@ -1,7 +1,6 @@
 <template lang="pug">
 el-table.my-trade-history(
   :data='deals',
-  max-height='245',
   row-class-name='pointer',
   @row-click='rowClick'
 )
@@ -9,8 +8,8 @@ el-table.my-trade-history(
     template(slot-scope='scope')
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
   el-table-column(label='Pair', v-if='!isMobile')
-    template(slot-scope='scope')
-      span {{ quote_token.symbol.name }}/{{ base_token.symbol.name }}
+    template(slot-scope='{ row }')
+      span {{ row.market_symbol }}
   el-table-column(label='Side', width='60')
     template.text-success(slot-scope='scope')
       span.text-success(v-if='scope.row.type == "buy"') BUY
@@ -27,11 +26,6 @@ el-table.my-trade-history(
     template(slot-scope='scope')
       span {{ scope.row.unit_price | commaFloat(6) }}
 
-  //el-table-column(label='Manage' align="right")
-    template(slot-scope='scope')
-      el-button(size="mini" type="text")
-        a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
-
   template(slot='append')
     infinite-loading(
       @infinite='infiniteHandler',
@@ -46,24 +40,22 @@ import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
   components: {
-    InfiniteLoading,
+    InfiniteLoading
   },
+
+  props: ['onlyCurrentPair'],
 
   data() {
     return {
       orders: [],
       deals: [],
-      skip: 0,
+      skip: 0
     }
   },
 
   computed: {
     ...mapState(['user', 'markets_obj']),
     ...mapState('market', ['base_token', 'quote_token', 'id']),
-
-    //deals() {
-    //  return this.userDeals.filter(d => d.market == this.id)
-    //}
   },
 
   watch: {
@@ -75,17 +67,28 @@ export default {
         // Initial fill
         this.infiniteHandler({
           loaded: () => {},
-          complete: () => {},
+          complete: () => {}
         })
       }
     },
+
+    onlyCurrentPair() {
+      this.deals = []
+      this.skip = 0
+
+      // Initial fill
+      this.infiniteHandler({
+        loaded: () => {},
+        complete: () => {}
+      })
+    }
   },
 
   mounted() {
     // Initial fill
     this.infiniteHandler({
       loaded: () => {},
-      complete: () => {},
+      complete: () => {}
     })
   },
 
@@ -111,19 +114,18 @@ export default {
     },
 
     async infiniteHandler($state) {
-      console.log('try loading')
       if (!this.user || !this.user.name) return
-      console.log('start loading')
+
+      const params = {
+        limit: 100,
+        skip: this.skip
+      }
+
+      if (this.onlyCurrentPair) params.market = this.id
 
       const { data: deals } = await this.$axios.get(
         `/account/${this.user.name}/deals`,
-        {
-          params: {
-            limit: 100,
-            skip: this.skip,
-            market: this.id,
-          },
-        }
+        { params }
       )
 
       this.skip += deals.length
@@ -131,12 +133,7 @@ export default {
       if (deals.length) {
         deals.map((d) => {
           d.type = this.user.name == d.bidder ? 'buy' : 'sell'
-          //if ((this.user.name == d.bidder && d.type != 'buymatch') || (this.user.name != d.bidder && d.type == 'buymatch')) [d.ask, d.bid] = [d.bid, d.ask]
-          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
-          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
-          //  [d.ask, d.bid] = [d.bid, d.ask]
-          //  console.log('change bid/ask', d.ask, d.bid)
-          //}
+          d.market_symbol = this.markets_obj[d.market].symbol
         })
 
         this.deals.push(...deals)
@@ -146,8 +143,8 @@ export default {
         $state.complete()
         console.log('complete')
       }
-    },
-  },
+    }
+  }
 }
 </script>
 

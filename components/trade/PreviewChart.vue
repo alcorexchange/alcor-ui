@@ -343,7 +343,7 @@ export default {
         custom_css_url: '/tv_themed.css',
         overrides: {
           'paneProperties.background':
-            this.$colorMode.value == 'light' ? '#F3FAFC' : '#282828',
+            this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
           'scalesProperties.textColor':
             this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
         }

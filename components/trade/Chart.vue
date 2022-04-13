@@ -26,8 +26,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
-    ...mapGetters(['network', 'userOrders']),
+    ...mapState(['user', 'network']),
+    ...mapGetters(['userOrders']),
     ...mapState('market', [
       'base_token',
       'id',

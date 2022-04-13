@@ -1,6 +1,6 @@
 <template lang="pug">
 .markets-bar
-  el-tabs(v-model='sideMaretsTab', size='mini')
+  el-tabs(v-model='sideMaretsTab', size='mini' type="border-card")
     el-tab-pane(name='fav')
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
@@ -11,7 +11,7 @@
     )
     el-tab-pane(label='Wrapped', name='wrapped')
 
-  .px-2
+  .px-2.mt-2
     el-input(
       size='small',
       v-model='search',

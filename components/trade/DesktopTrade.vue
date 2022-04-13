@@ -25,7 +25,7 @@
         :class='item.i',
         @resized='layoutUpdatedEvent(item)',
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
-        drag-allow-from='.el-tabs__header, .box-card'
+        drag-allow-from='.el-tabs__header, .box-card, .times-and-sales'
       )
         .right-icons
           .icon-btn(v-if='item.i != "open-order"')
@@ -56,12 +56,12 @@
               :use-css-transforms='false',
               :depthChartUpdated='depthChartUpdated'
             )
-        div(v-if='item.i == "time-sale"', :min-w='3')
+        .h-100(v-if='item.i == "time-sale"', :min-w='3')
           .times-and-sales
             span Times and Sales
           LatestDeals(:timeformat='timeformat')
         //- markets(v-if="item.i=='3'")
-        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
+        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card").trade-tabs
           template(slot='right')
             .d-flex.pairs-switch-right
               //- el-button.red.hover-opacity.ml-3.mt-1(
@@ -73,18 +73,18 @@
               .module-name.mr-2 Hide other pairs
               .module-pickers.d-flex.flex-row
                 el-switch(
-                  v-model='hideswitch',
+                  v-model='hideOtherPairs',
                   active-color='#13ce66',
                   inactive-color='#161617'
                 )
           el-tab-pane(label='Open order')
-            my-orders(v-if='user', v-loading='loading')
-          el-tab-pane(label='Order history')
+            my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
+          //el-tab-pane(label='Order history')
             my-history(v-if='user', v-loading='loading')
           el-tab-pane(label='Trade History')
-            my-trade-history
+            my-trade-history(:only-current-pair="hideOtherPairs")
           el-tab-pane(label='Funds')
-            my-funds
+            my-funds(:only-current-pair="hideOtherPairs")
         .not-history.limit-market(
           v-if='item.i == "limit-market"',
           :min-h='10'
@@ -206,7 +206,6 @@ export default {
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
       depthChartUpdated: false,
-      hideswitch: false,
     }
   },
 
@@ -218,10 +217,21 @@ export default {
       'stats',
       'base_token',
       'markets_layout',
-      'orderdata',
+      'orderdata'
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
+
+    hideOtherPairs: {
+      get() {
+        return this.$store.state.settings.hideOtherPairs
+      },
+
+      set(value) {
+        this.$store.commit('settings/setHideOtherPairs', value)
+      }
+    },
+
     payForUser: {
       get() {
         return this.$store.state.chain.payForUser
@@ -556,8 +566,8 @@ export default {
     box-sizing: border-box;
     border-radius: 2px;
 
-    overflow: auto;
-    overflow-x: hidden;
+    //overflow: auto;
+    //overflow-x: hidden;
   }
 
   .vue-resizable-handle {
@@ -580,7 +590,7 @@ export default {
   .times-and-sales {
     display: flex;
     align-items: center;
-    height: 25px;
+    height: 30px;
     top: 2px;
     background: #212121;
 
@@ -703,6 +713,30 @@ export default {
         font-weight: 400;
       }
     }
+  }
+
+  .open-order {
+    .el-tabs {
+      height: 100%;
+
+      .el-tabs__content {
+        height: calc(100% - 30px);
+
+        .el-tab-pane {
+          height: 100%;
+
+          .el-table {
+            height: 100%;
+
+            .el-table__body-wrapper {
+              height: 100%;
+              overflow: auto;
+            }
+          }
+        }
+      }
+    }
+
   }
 }
 </style>
