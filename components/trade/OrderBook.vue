@@ -90,9 +90,7 @@ export default {
     },
   },
 
-  mounted() {
-    console.log('sorted_asks11', this.userOrders, this.sorted_asks)
-  },
+  mounted() {},
 
   watch: {
     userOrders() {
@@ -101,7 +99,7 @@ export default {
   },
   methods: {
     isMyOrder(ask, side) {
-      console.log('sorted_asks', this.userOrders, this.id)
+      // console.log('sorted_asks', this.userOrders, this.id)
       for (const o of this.userOrders.filter((o) => o.market_id == this.id)) {
         if (ask[0] == parseInt(o.unit_price) && side == o.type) return true
       }

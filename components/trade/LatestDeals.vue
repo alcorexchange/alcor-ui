@@ -7,8 +7,8 @@
     //-   span.text-muted Latest Deals
     //-   span
     .ltd.d-flex.justify-content-around.mt-1
-      span Price ({{ quote_token.symbol.name }})
-      span Amount ({{ base_token.symbol.name }})
+      span Price ({{ comparison_token }})
+      span Amount ({{ unit_token }})
       span Time
   .orders-list.blist
     a(
@@ -17,26 +17,53 @@
       target='_blank'
     )
       .ltd.d-flex.justify-content-around.deal-list(:class='deal.cls + "-deal"')
-        span(:class='deal.cls') {{ deal.unit_price }}
-        //span {{ deal.bid | humanFloat(base_token.symbol.precision) }}
-        span {{ deal.bid | commaFloat(3) }}
-        span {{ deal.time | moment(timeformat) }}
+        template(v-if='ctrl_val == 1')
+          span(:class='deal.cls') {{ deal.unit_price * ctrl_val }}
+          span {{ deal.bid | commaFloat(3) }}
+          span {{ deal.time | moment(timeformat) }}
+        template(v-else)
+          span(:class='deal.cls') {{ (1 / deal.unit_price) | commaFloat(6) }}
+          //span {{ deal.bid | humanFloat(base_token.symbol.precision) }}
+          span {{ (deal.bid * deal.unit_price * deal.unit_price) | commaFloat(3) }}
+          span {{ deal.time | moment(timeformat) }}
 </template>
 
 <script>
 import { mapState } from 'vuex'
 
 export default {
-  props: ['timeformat'],
+  props: ['timeformat', 'currenttoken'],
   data() {
     return {
       loading: false,
       deals: [],
+      comparison_token: '',
+      unit_token: '',
+      ctrl_val: 1,
     }
   },
   computed: {
-    ...mapState('market', ['quote_token', 'base_token', 'id']),
+    ...mapState('market', [
+      'quote_token',
+      'base_token',
+      'id',
+      'markets_layout',
+    ]),
     ...mapState(['network']),
+    // ctrl_val: {
+    //   get() {
+    //     if (this.$store.state.market.ctrl_val != null) {
+    //       return this.$store.state.market.ctrl_val
+    //     } else {
+    //       const defalutcontrolvalue = 1
+    //       return defalutcontrolvalue
+    //     }
+    //   },
+
+    //   set(value) {
+    //     this.$store.commit('market/setControlValueForToken', value)
+    //   },
+    // },
     coloredDeals() {
       // let amArry = this.$store.state.market.deals
       let maxBuy = 0
@@ -76,6 +103,28 @@ export default {
           return h
         })
     },
+  },
+  watch: {
+    currenttoken(value) {
+      console.log('Changed Token', value)
+      if (value == 'Token') {
+        this.comparison_token = this.quote_token.symbol.name
+        this.unit_token = this.base_token.symbol.name
+        this.ctrl_val = 1
+      } else {
+        this.comparison_token = this.base_token.symbol.name
+        this.unit_token = this.quote_token.symbol.name
+        this.ctrl_val = 2
+      }
+    },
+    markets_layout(old_val, new_val) {
+      // this.ctrl_val = this.$store.state.market.ctrl_val
+      // console.log('herehere', this.ctrl_val)
+    },
+  },
+  mounted() {
+    this.comparison_token = this.quote_token.symbol.name
+    this.unit_token = this.base_token.symbol.name
   },
   methods: {},
 }

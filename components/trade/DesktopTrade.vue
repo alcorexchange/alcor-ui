@@ -58,7 +58,10 @@
               )
           el-tabs.h-100.time-sale(v-if='item.i == "time-sale"', :min-w='3')
             el-tab-pane(label='Times and Sales')
-              LatestDeals(:timeformat='timeformat')
+              LatestDeals(
+                :timeformat='timeformat',
+                :currenttoken='currenttoken'
+              )
           //- markets(v-if="item.i=='3'")
           alcor-tabs.h-100(v-if='item.i == "open-order"', v-model='tab')
             template(slot='right')
@@ -115,7 +118,8 @@
       v-if='show_timesale_modal',
       :outoftimesalemodalClick='outoftimesalemodalClick',
       :closemodal='closemodal',
-      @changedtimeformat='showtimeformat'
+      @changedtimeformat='showtimeformat',
+      @exchangetokenunit='showbyamountoption'
     )
     #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
       .cancel-modal-content
@@ -203,6 +207,7 @@ export default {
       show_modal: false,
       show_timesale_modal: false,
       timeformat: 'DD-MM HH:mm',
+      currenttoken: 'WAX',
       resizestatus: null,
       depthChartUpdated: false,
       hideswitch: false,
@@ -243,6 +248,10 @@ export default {
     },
     showtimeformat(value) {
       this.timeformat = value
+    },
+    showbyamountoption(value) {
+      console.log('lalalalala')
+      this.currenttoken = value
     },
     resize(iname, newH, newW, newHPx, newWPx) {
       if (iname == 'order-depth') {

@@ -13,10 +13,10 @@
         label.toggle-format
           input(type='checkbox')
           .slider
-          .option.token-option
+          .option.token-option(@click='showDataByAmountIn("Token")')
             span Token
           span.slash /
-          .option.quote-option
+          .option.quote-option(@click='showDataByAmountIn("Quote")')
             span Quote
     .time-sale-list.time-format.d-flex.flex-row.justify-content-between
       .time-format-title.mt-auto.mb-auto
@@ -163,6 +163,10 @@ export default {
   methods: {
     handleCommand(command) {
       this.$message('click on item ' + command)
+    },
+    showDataByAmountIn(option) {
+      //emit data when user selected token or quote
+      this.$emit('exchangetokenunit', option)
     },
     changeTimeFormat(timeformat) {
       //emit data from child compoent to parent compoent

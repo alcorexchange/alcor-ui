@@ -95,6 +95,7 @@ export const state = () => ({
       mh: 8,
     }
   ],
+  ctrl_val: 1,
   header_settings: {
     change_24: true,
     volume_24: true,
@@ -132,6 +133,7 @@ export const mutations = {
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
   setMarketLayout: (state, layout) => state.markets_layout = layout,
+  setControlValueForToken: (state, value) => state.ctrl_val = value,
   setHeaderSettings: (state, list) => state.header_settings = list,
   // setOrderdata: (state, list) => state.orderdata = list,
   setHeaderSettingsDefault: (state) => state.header_settings = {
