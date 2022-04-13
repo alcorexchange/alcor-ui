@@ -1,43 +1,30 @@
 <template lang="pug">
-el-table.my-order-history(
-  :data='deals',
-  max-height='245',
-  row-class-name='pointer',
-  @row-click='rowClick'
-)
-  el-table-column(label='Time', v-if='!isMobile')
-    template(slot-scope='scope')
-      span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
-  el-table-column(label='Pair', v-if='!isMobile')
-    template(slot-scope='scope')
-      span {{ quote_token.symbol.name }}/{{ base_token.symbol.name }}
-  el-table-column(label='Side', width='60')
+//el-table.my-funds(:data='balances' row-class-name='pointer' @row-click='rowClick' style="height: calc(100vh - 5px);overflow: auto;")
+el-table.my-funds(:data='balances' row-class-name='pointer' @row-click='rowClick')
+  el-table-column(:label="'Token (' + balances.length + ')'", v-if='!isMobile' width=50)
+    template(slot-scope='{ row }')
+      span {{ row.currency }}
+  el-table-column(label='Total Amount', v-if='!isMobile' width=300)
+    template(slot-scope='{ row }')
+      .d-flex
+        span.amount {{ row.amount | commaFloat(4) }}
+        span.green.ml-auto (${{ row.usd_value | commaFloat }})
+  //el-table-column(label='Available', width='60')
     template.text-success(slot-scope='scope')
       span.text-success(v-if='scope.row.type == "buy"') BUY
       span.text-danger(v-else) SELL
-  el-table-column(label='Bid', v-if='!isMobile')
-    template(slot-scope='{ row }')
-      span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
+  //el-table-column(label='In orders', v-if='!isMobile')
+  //  template(slot-scope='{ row }')
+  //    span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
 
-  el-table-column(label='Ask')
-    template(slot-scope='{ row }')
-      span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
-
-  el-table-column(label='Price')
-    template(slot-scope='scope')
-      span {{ scope.row.unit_price | commaFloat(6) }}
+  //el-table-column(label='Value in WAX')
+  //  template(slot-scope='{ row }')
+  //    span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
 
   //el-table-column(label='Manage' align="right")
     template(slot-scope='scope')
       el-button(size="mini" type="text")
         a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
-
-  template(slot='append')
-    infinite-loading(
-      @infinite='infiniteHandler',
-      spinner='spiral',
-      force-use-infinite-wrapper='.my-order-history .el-table__body-wrapper'
-    )
 </template>
 
 <script>
@@ -45,6 +32,8 @@ import { mapState } from 'vuex'
 import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
+  props: ['onlyCurrentPair'],
+
   components: {
     InfiniteLoading,
   },
@@ -58,12 +47,33 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
     ...mapState(['user', 'markets_obj']),
     ...mapState('market', ['base_token', 'quote_token', 'id']),
 
-    //deals() {
-    //  return this.userDeals.filter(d => d.market == this.id)
-    //}
+    balances() {
+      if (!this.user) return []
+      if (!this.user.balances) return []
+
+      return this.user.balances
+        .filter((b) => {
+          if (this.onlyCurrentPair) {
+            if (b.contract == this.base_token.contract || b.contract == this.quote_token.contract) return true
+
+            return false
+          }
+
+          return true
+        })
+        .sort((a, b) => {
+          if (a.contract == this.network.baseToken.contract) return -1
+
+          if (a.usd_value > b.usd_value) return -1
+          if (a.usd_value < b.usd_value) return 1
+
+          return 0
+        })
+    }
   },
 
   watch: {
@@ -156,7 +166,7 @@ export default {
   font-size: 13px;
 }
 
-.my-order-history {
+.my-funds {
   table {
     width: 100% !important;
   }

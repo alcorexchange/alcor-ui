@@ -3,7 +3,7 @@
   .col
     .top-level
       .top-left.overflowbox
-        order-book(v-loading="loading")
+        order-book(v-loading='loading')
 
       .top-center
         .overflowbox
@@ -17,30 +17,39 @@
     .low-level.mt-2
       .low-left
         .low-height.overflow-hidden.overflowbox
-          alcor-tabs(v-model="tab").h-100
-            template(slot="right")
+          alcor-tabs.h-100(v-model='tab')
+            template(slot='right')
               .d-flex
-                el-button(type="text" v-show="tab == 0" size="small" @click="cancelAll").red.hover-opacity.ml-3.mt-1 Cancel All Orders
+                el-button.red.hover-opacity.ml-3.mt-1(
+                  type='text',
+                  v-show='tab == 0',
+                  size='small',
+                  @click='cancelAll'
+                ) Cancel All Orders
 
-            el-tab-pane(label="Open order")
-              my-orders(v-if="user" v-loading="loading")
+            el-tab-pane(label='Open order')
+              my-orders(v-if='user', v-loading='loading')
 
-            el-tab-pane(label="Order history")
-              my-history(v-if="user" v-loading="loading")
+            el-tab-pane(label='Order history')
+              my-history(v-if='user', v-loading='loading')
       .not-history
         .low-center
           .overflowbox.low-height.position-relative
             .tabs-right
-              el-switch(v-if="['eos'].includes(network.name) && user" v-model='payForUser' inactive-text=' Free CPU').mr-2
+              el-switch.mr-2(
+                v-if='["eos"].includes(network.name) && user',
+                v-model='payForUser',
+                inactive-text=' Free CPU'
+              )
               FeeRate.mr-2
-              el-button(v-if="relatedPool" type="text" @click="goToPool") SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+              el-button(v-if='relatedPool', type='text', @click='goToPool') SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
             el-tabs.h-100
-              el-tab-pane(label="Limit trade")
+              el-tab-pane(label='Limit trade')
                 .trade-box
                   limit-trade
 
-              el-tab-pane(label="Market trade")
+              el-tab-pane(label='Market trade')
                 .trade-box
                   market-trade
 
@@ -88,7 +97,7 @@ export default {
     Markets,
     MobileTrade,
     TopLine,
-    FeeRate
+    FeeRate,
   },
 
   data() {
@@ -99,7 +108,7 @@ export default {
       amount: 0.0,
 
       no_found: false,
-      loading: false
+      loading: false,
     }
   },
 
@@ -116,13 +125,18 @@ export default {
 
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
-      }
-    }
+      },
+    },
   },
 
   methods: {
     cancelAll() {
-      this.$store.dispatch('market/cancelAll', this.userOrders.filter(a => a.account === this.user.name && a.market_id == this.id))
+      this.$store.dispatch(
+        'market/cancelAll',
+        this.userOrders.filter(
+          (a) => a.account === this.user.name && a.market_id == this.id
+        )
+      )
     },
 
     goToPool() {
@@ -130,8 +144,8 @@ export default {
       this.$store.dispatch('swap/updatePair', this.relatedPool.id)
       this.$store.commit('swap/setTab', 'Swap')
       this.$router.push('/swap')
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -1,36 +1,45 @@
 <template lang="pug">
-.body-container(@click="outofmodalClick")
-    .table-setting-modal
-        .el-container.setting-container.pt-2.d-flex.flex-column
-            .el-container.setting-layout.d-flex.flex-row.justify-content-around
-                h4.preview-title Chart Preview
-                preview-chart
-            .el-container.setting-layout.d-flex.flex-row.mt-30
-                .el-main.module-main-settings.main-settings-left
-                    .module-selection.d-flex.flex-column
-                        .settings-title Header Settings
-                        .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in header_settings_title')
-                            .module-name {{settingBtn.name}}
-                            .module-pickers.d-flex.flex-row
-                            el-switch(
-                                v-model='header_settings_change[settingBtn.key]',
-                                @change='headerUpdateState()'
-                                active-color='#13ce66',
-                                inactive-color='#161617'
-                            )
-                .el-main.module-main-settings.main-settings-right
-                    .module-selection.d-flex.flex-column
-                        .settings-title Chart Orders
-                        .module-list.d-flex.flex-row.justify-content-between(v-for='settingBtn in chart_orders_title')
-                            .module-name {{settingBtn.name}}
-                            .module-pickers.d-flex.flex-row
-                            el-switch( v-if="settingBtn.key != 'chart_executions'"
-                                v-model='chart_orders_settings_change[settingBtn.key]',
-                                @change='chartOrdersUpdateState()'
-                                active-color='#13ce66',
-                                inactive-color='#161617'
-                            )
-            .el-footer.module-footer(@click='initiateState()') Reset to Default
+.body-container(@click='outofmodalClick')
+  .table-setting-modal
+    .el-container.setting-container.pt-2.d-flex.flex-column
+      .el-container.setting-layout.d-flex.flex-row.justify-content-around
+        h4.preview-title Chart Preview
+        preview-chart
+      .el-container.setting-layout.d-flex.flex-row.mt-30
+        .el-main.module-main-settings.main-settings-left
+          .module-selection.d-flex.flex-column
+            .settings-title Header Settings
+            .module-list.d-flex.flex-row.justify-content-between(
+              v-for='settingBtn in header_settings_title'
+            )
+              .module-name {{ settingBtn.name }}
+              .module-pickers.d-flex.flex-row
+              el-switch(
+                v-model='header_settings_change[settingBtn.key]',
+                @change='headerUpdateState()',
+                active-color='#13ce66',
+                inactive-color='#161617'
+              )
+        .el-main.module-main-settings.main-settings-right
+          .module-selection.d-flex.flex-column
+            .settings-title Chart Orders
+            .module-list.d-flex.flex-row.justify-content-between(
+              v-for='settingBtn in chart_orders_title'
+            )
+              .module-name {{ settingBtn.name }}
+                p.tooltip-desc(
+                  v-if='settingBtn.key == "chart_order_interactivity"'
+                ) Order Interactivity allows you to move or cancel orders directly from the chart,
+                  | just drag the lavel to move the order or click the "X" button to cancel the orther
+              .module-pickers.d-flex.flex-row
+              el-switch(
+                v-if='settingBtn.key != "chart_executions"',
+                v-model='chart_orders_settings_change[settingBtn.key]',
+                @change='chartOrdersUpdateState()',
+                active-color='#13ce66',
+                inactive-color='#161617'
+              )
+      .el-footer.module-footer(@click='initiateState()') Reset to Default
 </template>
 
 <script>
@@ -40,9 +49,7 @@ import ChangePercent from '~/components/trade/ChangePercent'
 import PreviewChart from '~/components/trade/PreviewChart'
 
 export default {
-  props: [
-    'outofmodalClick'
-  ],
+  props: ['outofmodalClick'],
   scrollToTop: false,
   components: {
     TokenImage,
@@ -53,33 +60,39 @@ export default {
   data() {
     return {
       header_settings_title: [
-        { key: "change_24", name: "Change 24H" },
-        { key: "volume_24", name: "Volume 24H" },
-        { key: "high_24", name: "24H High" },
-        { key: "low_24", name: "24H Low" },
-        { key: "volume_24_usd", name: "Volume 24H USD" },
-        { key: "weekly_volume", name: "Weekly Volume (WAX, USD)" },
-        { key: "all_time", name: "All Time High/Low" },
+        { key: 'change_24', name: 'Change 24H' },
+        { key: 'volume_24', name: 'Volume 24H' },
+        { key: 'high_24', name: '24H High' },
+        { key: 'low_24', name: '24H Low' },
+        { key: 'volume_24_usd', name: 'Volume 24H USD' },
+        { key: 'weekly_volume', name: 'Weekly Volume (WAX, USD)' },
+        { key: 'all_time', name: 'All Time High/Low' },
       ],
       chart_orders_title: [
-        { key: "show_open_orders", name: "Show open orders" },
-        { key: "show_labels", name: "Show labels" },
-        { key: "chart_order_interactivity", name: "Chart order interactivity" },
-        { key: "chart_executions", name: "Chart Executions" },
-        { key: "show_trade_executions", name: "Show trade executions" },
-        { key: "show_trade_executions_price", name: "Show trade execution price" },
-        { key: "show_trade_execution_amount", name: "Show_trade_execution_amount" },
+        { key: 'show_open_orders', name: 'Show open orders' },
+        { key: 'show_labels', name: 'Show labels' },
+        { key: 'chart_order_interactivity', name: 'Chart order interactivity' },
+        { key: 'chart_executions', name: 'Chart Executions' },
+        { key: 'show_trade_executions', name: 'Show trade executions' },
+        {
+          key: 'show_trade_executions_price',
+          name: 'Show trade execution price',
+        },
+        {
+          key: 'show_trade_execution_amount',
+          name: 'Show_trade_execution_amount',
+        },
       ],
       settingBtnTitles: {
-        chart: "Chart",
-        'order-depth': "Orderbook/Depth Chart",
-        'time-sale': "Times and Sales",
-        'limit-market': "Limit Trade/Market Trade",
-        'open-oder': "Open Orders"
+        chart: 'Chart',
+        'order-depth': 'Orderbook/Depth Chart',
+        'time-sale': 'Times and Sales',
+        'limit-market': 'Limit Trade/Market Trade',
+        'open-order': 'Open Orders',
       },
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false
+      checkedorange: false,
     }
   },
   computed: {
@@ -90,34 +103,40 @@ export default {
     },
     chart_orders_settings_change() {
       return this.$store.state.market.chart_orders_settings
-    }
+    },
   },
   methods: {
     headerUpdateState() {
       this.$store.commit('market/setHeaderSettings', this.header_settings)
     },
     chartOrdersUpdateState() {
-      this.$store.commit('market/setChartOrdersSettings', this.chart_orders_settings)
+      this.$store.commit(
+        'market/setChartOrdersSettings',
+        this.chart_orders_settings
+      )
     },
     initiateState() {
       this.$store.commit('market/setHeaderSettingsDefault')
-      this.$store.commit('market/setChartOrdersSettingsDefault', this.header_settings)
+      this.$store.commit(
+        'market/setChartOrdersSettingsDefault',
+        this.header_settings
+      )
     },
-  }
+  },
 }
 </script>
 
 <style lang="scss">
 .body-container {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(22,22,23,0.8);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(22, 22, 23, 0.8);
 }
 .mt-30 {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 .preview-title {
   padding-top: 10px;
@@ -152,7 +171,37 @@ export default {
   }
 }
 .module-name {
-    margin: 3px 0;
+  margin: 3px 0;
+}
+.tooltip-desc {
+  border-radius: 10px;
+  color: white;
+  background-color: rgb(22, 22, 23);
+  transform: translate(23px, -160px);
+  z-index: 999;
+  width: 270px;
+  padding: 15px;
+  position: absolute;
+  display: none;
+  font-size: 14px;
+}
+.module-name:hover p {
+  display: block;
+}
+.tooltip-desc {
+  border-radius: 10px;
+  color: white;
+  background-color: rgb(22, 22, 23);
+  transform: translate(23px, -160px);
+  z-index: 999;
+  width: 270px;
+  padding: 15px;
+  position: absolute;
+  display: none;
+  font-size: 14px;
+}
+.module-name:hover p {
+  display: block;
 }
 
 .table-setting-modal {
@@ -166,8 +215,8 @@ export default {
   background-color: var(--table-background);
 }
 .settings-title {
-    font-size: 12px;
-    color: var(--cancel);
+  font-size: 12px;
+  color: var(--cancel);
 }
 
 .setting-container {
@@ -229,14 +278,13 @@ input[type='radio']:checked + label:before {
 .theme-oranger .el-main,
 .theme-oceano .el-main,
 .theme-cyber .el-main,
-.theme-bloom .el-main
- {
+.theme-bloom .el-main {
   padding: 8px 12px 8px 12px !important;
   &.main-settings-left {
-      padding-right: 33px !important;
+    padding-right: 33px !important;
   }
   &.main-settings-right {
-      margin-right: 18px !important;
+    margin-right: 18px !important;
   }
 }
 

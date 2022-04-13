@@ -5,6 +5,8 @@
 // Add elements scss (themed by variables)
 @import './element.scss';
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+
 @font-face {
   font-family: element-icons;
   src: url(fonts/element-icons.woff) format('woff'),
@@ -13,6 +15,8 @@
 
 html,
 body {
+  font-family: 'Roboto', sans-serif;
+
   background-color: var(--background-color-base);
   color: var(--color-text-primary);
 
@@ -32,9 +36,11 @@ body {
 div::-webkit-scrollbar {
   width: 2px;
 }
+
 div::-webkit-scrollbar-track {
   background: var(--background-color-base);
 }
+
 div::-webkit-scrollbar-thumb {
   background-color: #c4cbd6;
   border-radius: 20px;
@@ -81,7 +87,7 @@ label {
 }
 
 @media (max-width: 425px) {
-  :root .el-button + .el-button {
+  :root .el-button+.el-button {
     margin-left: 3px;
   }
 }
@@ -94,6 +100,7 @@ input[type='number'] {
 .upperinput {
   text-transform: uppercase;
 }
+
 .upperinput:placeholder-shown {
   text-transform: none;
 }
@@ -121,16 +128,12 @@ input[type='number'] {
   }
 }
 
-.overflowbox {
-  border-radius: 5px;
-  border: 1px solid var(--border-color);
-}
-
 .el-menu {
   background-color: transparent !important;
 }
 
 .el-menu-item {
+
   &:hover,
   &:focus {
     outline: none;
@@ -164,9 +167,11 @@ input[type='number'] {
   background-color: var(--background-color-base) !important;
   opacity: 0.9;
 }
+
 .nuxt-progress {
   background-color: var(--color-primary) !important;
 }
+
 pre {
   color: var(--color-primary);
 }
@@ -203,12 +208,38 @@ pre {
 }
 
 // Light (default styles)
-.text-danger {
+.text-danger,
+.max-sellmatch {
   color: #b82d0d !important;
 }
+
+.text-success,
+.max-buymatch {
+  color: #66C167 !important;
+}
+
+.text-danger-deal,
+.text-success-deal,
+.max-buymatch-deal span {
+  color: #FFFFFF;
+}
+
 .text-success {
   color: #53a95b !important;
 }
+
+.max-buymatch-deal {
+  background: linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%)
+}
+
+.max-sellmatch-deal {
+  background: linear-gradient(180deg, rgba(237, 66, 69, 0.1) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
+
+  span {
+    color: #FFFFFF;
+  }
+}
+
 a {
   color: #80a1c5 !important;
 }
@@ -418,7 +449,7 @@ a {
   --color-secondary: #0e2233;
   --bg: #f3f5f4;
   --bg-secondary: #fff;
-  --border-color: #ddd;
+  --border-color: #3F3F3F;
 }
 
 .dark-mode {
@@ -442,21 +473,26 @@ a {
 .muted {
   opacity: 0.6;
 }
+
 .fwr {
   font-weight: 500;
 }
+
 .fontSmall {
   font-size: 0.72rem;
   line-height: 1rem;
 }
+
 .cancel {
   color: var(--cancel);
 }
+
 .green {
-  color: var(--main-green);
+  color: var(--main-green) !important;
 }
+
 .red {
-  color: var(--main-red);
+  color: var(--main-red) !important;
 }
 
 .alcor-inner {
@@ -465,21 +501,26 @@ a {
   padding: 0 20px;
   margin: auto;
 }
+
 .confirm-button button {
   background: rgba(46, 46, 49, 0.6);
   padding: 20px !important;
   border: none;
   border-radius: var(--radius-2) !important;
+
   &:hover {
     background: rgba(46, 46, 49, 0.6);
   }
 }
+
 .theme-dark .confirm-button button {
   background: #161617;
+
   &:hover {
     background: #161617;
   }
 }
+
 .select-label {
   small {
     padding: 7px 0;
@@ -493,16 +534,19 @@ a {
 
 .custom-radio {
   box-shadow: none !important;
+
   .el-radio-button {
     border-radius: var(--radius) !important;
     overflow: hidden;
   }
+
   .el-radio-button__inner {
     padding: 8px 8px !important;
     font-size: 1rem !important;
     font-weight: normal !important;
     background: transparent;
     border: 0 !important;
+
     &:hover {
       background: var(--hover);
     }
@@ -513,12 +557,15 @@ a {
   .el-table__row {
     cursor: pointer;
   }
+
   border-radius: 8px;
   overflow: hidden;
+
   th,
   td {
     border: 0;
   }
+
   th {
     padding: 8px 0 !important;
     padding-left: 4px !important;
@@ -526,6 +573,7 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
+
   th,
   tr {
     background: var(--table-background) !important;
@@ -534,10 +582,12 @@ a {
   td.el-table__expanded-cell {
     padding: 10px !important;
     background: var(--background-color-third) !important;
+
     th,
     tr {
       background: var(--background-color-third) !important;
     }
+
     &:hover {
       background: var(--background-color-third) !important;
     }
@@ -547,10 +597,12 @@ a {
 .alcor-table {
   border-radius: 8px;
   overflow: hidden;
+
   th,
   td {
     border: 0;
   }
+
   th {
     padding: 8px 0 !important;
     padding-left: 4px !important;
@@ -558,6 +610,7 @@ a {
     font-size: 1rem;
     color: var(--text-default);
   }
+
   // th,
   // tr {
   //   background: var(--table-background) !important;
@@ -571,6 +624,7 @@ a {
     tr {
       background: var(--hover) !important;
     }
+
     &:hover {
       background: var(--hover) !important;
     }
@@ -579,6 +633,7 @@ a {
 
 .hover-opacity {
   transition: opacity 0.3s;
+
   &:hover {
     opacity: 0.8;
   }
@@ -589,6 +644,7 @@ a {
   .el-input-group__append {
     padding: 0;
   }
+
   .el-input__inner {
     border-radius: 20px !important;
   }
@@ -598,10 +654,12 @@ a {
   .header {
     padding: 10px 14px;
     border-bottom: 1px solid var(--background-color-base);
+
     i {
       margin-right: 4px;
     }
   }
+
   .main {
     padding: 10px 14px;
   }
@@ -612,24 +670,44 @@ a {
     padding: 0 8px;
   }
 }
+
 @media only screen and (max-width: 640px) {
   .market-table {
     .cell {
       padding-left: 8px !important;
       padding-right: 8px !important;
     }
+
     .th.cell {
       padding-left: 4px !important;
       padding-right: 4px !important;
     }
+
     .caret-wrapper {
       width: 14px !important;
     }
+
     .sort-caret {
       left: 2px !important;
     }
+
     th {
       font-size: 0.8rem;
     }
+  }
+}
+
+//in fee rate component
+.tabs-right .swap-button {
+  border: 0px 0px 0px 2px !important;
+}
+
+.popup-dialog {
+  background: #121212;
+  border: 2px solid #282828;
+
+  .popper__arrow {
+    // display:none !important;
+    background: #121212 !important;
   }
 }

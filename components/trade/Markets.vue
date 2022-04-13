@@ -1,6 +1,6 @@
 <template lang="pug">
 .markets-bar
-  el-tabs(v-model='sideMaretsTab', size='mini')
+  el-tabs(v-model='sideMaretsTab', size='mini' type="border-card")
     el-tab-pane(name='fav')
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
@@ -11,7 +11,7 @@
     )
     el-tab-pane(label='Wrapped', name='wrapped')
 
-  .px-2
+  .px-2.mt-2
     el-input(
       size='small',
       v-model='search',
@@ -79,13 +79,13 @@ export default {
 
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
   },
 
   data() {
     return {
       search: '',
-      loading: false
+      loading: false,
     }
   },
 
@@ -101,7 +101,7 @@ export default {
 
       set(value) {
         this.$store.commit('settings/setSideMaretsTab', value)
-      }
+      },
     },
 
     isFavorite() {
@@ -148,7 +148,7 @@ export default {
       )
 
       return markets.reverse()
-    }
+    },
   },
 
   methods: {
@@ -202,8 +202,8 @@ export default {
             rotate: { 270: 0 },
             duration: 2000,
             radius: { 0: 'rand(8, 12)' },
-            delay: 'stagger( rand(0, 100) )'
-          }
+            delay: 'stagger( rand(0, 100) )',
+          },
         })
 
         const circle = this.$vuemo.Shape({
@@ -214,12 +214,12 @@ export default {
           stroke: 'white',
           strokeWidth: { 10: 0 },
           duration: 450,
-          easing: 'cubic.out'
+          easing: 'cubic.out',
         })
         burst
           .tune({
             x: e.clientX - width / 2 + 8,
-            y: e.clientY - height / 2
+            y: e.clientY - height / 2,
           })
           .setSpeed(3)
           .replay()
@@ -227,7 +227,7 @@ export default {
         circle
           .tune({
             x: e.clientX - width / 2 + 8,
-            y: e.clientY - height / 2
+            y: e.clientY - height / 2,
           })
           .replay()
         this.$store.commit(
@@ -235,8 +235,8 @@ export default {
           this.favMarkets.concat([id])
         )
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -5,7 +5,8 @@
   :is-mirrored='false',
   :vertical-compact='false',
   :use-css-transforms='false',
-  @click='showmessage($event)'
+  onmousedown='event.preventDefault ? event.preventDefault() : event.returnValue = false',
+  ref='chartContainer'
 )
   .chart-nav.scale-value-nav
     .chart-part
@@ -19,6 +20,7 @@
         :is-mirrored='false',
         :vertical-compact='false',
         :use-css-transforms='false',
+        v-loading='loading',
         v-on:click.stop
       )
 </template>
@@ -29,14 +31,14 @@ import { trade } from '~/mixins/trade'
 
 export default {
   mixins: [trade],
-
+  props: ['depthChartUpdated'],
   data() {
     return {
       chartOptions: {
         credits: {
           enabled: false,
           align: 'right',
-          verticalAlign: 'bottom',
+          verticalAlign: 'bottom'
         },
         type: 'column',
         colors: [
@@ -48,26 +50,30 @@ export default {
           '#64E572',
           '#FF9655',
           '#FFF263',
-          '#6AF9C4',
+          '#6AF9C4'
         ],
         chart: {
           inverted: true,
+          marginTop: 40,
+          marginBottom: 0,
+          minPadding: 0,
+          maxPadding: 0,
           backgroundColor: {
             linearGradient: [0, 0, 500, 500],
             stops: [
               [0, 'rgb(40, 40, 40)'],
-              [1, 'rgb(40, 40, 40)'],
-            ],
+              [1, 'rgb(40, 40, 40)']
+            ]
           },
           type: 'area',
-          zoomType: 'xy',
+          zoomType: 'xy'
         },
         title: {
           text: '',
           margin: 0,
           stytle: {
-            display: 'none',
-          },
+            display: 'none'
+          }
         },
         xAxis: {
           minPadding: 0,
@@ -84,9 +90,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.15,
@@ -99,9 +105,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.143,
@@ -114,9 +120,9 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.147,
@@ -129,67 +135,67 @@ export default {
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#fc5857',
-                },
-              },
+                  color: '#fc5857'
+                }
+              }
             },
             {
               value: 0.15495,
               zIndex: 10,
               width: 2,
               dashStyle: 'shortdash',
-              color: '#03a7a8',
+              color: '#66C167',
               label: {
                 text: '0.15495',
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#03a7a8',
-                },
-              },
+                  color: '#66C167'
+                }
+              }
             },
             {
               value: 0.158,
               zIndex: 10,
               width: 2,
               dashStyle: 'shortdash',
-              color: '#03a7a8',
+              color: '#66C167',
               label: {
                 text: '0.158',
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#03a7a8',
-                },
-              },
+                  color: '#66C167'
+                }
+              }
             },
             {
               value: 0.1526,
               zIndex: 10,
               width: 2,
               dashStyle: 'shortdash',
-              color: '#03a7a8',
+              color: '#66C167',
               label: {
                 text: '0.1526',
                 rotation: 0,
                 align: 'left',
                 style: {
-                  color: '#03a7a8',
-                },
-              },
-            },
+                  color: '#66C167'
+                }
+              }
+            }
           ],
           title: {
             text: 'Price',
             y: -12,
             align: 'high',
             rotation: 0,
-            offset: 12,
+            offset: 12
           },
           opposite: true,
           inverted: true,
           lineWidth: 1,
-          tickLength: 0,
+          tickLength: 0
           // startOnTick: false,
           // min: 0.5,
         },
@@ -207,29 +213,29 @@ export default {
               align: 'left',
               step: 1,
               x: -5,
-              padding: 30,
-            },
-          },
+              padding: 30
+            }
+          }
         ],
         legend: {
-          enabled: false,
+          enabled: false
         },
         plotOptions: {
           area: {
             fillOpacity: 0.2,
-            lineWidth: 1,
-          },
+            lineWidth: 1
+          }
         },
         tooltip: {
           headerFormat:
             '<span style="font-size=10px;">Price: {point.key}</span><br/>',
-          valueDecimals: 2,
+          valueDecimals: 2
         },
         series: [
           {
             name: 'Bids',
             marker: {
-              enabled: false,
+              enabled: false
             },
             data: [
               [0.1524, 0.948665],
@@ -251,14 +257,14 @@ export default {
               [0.1588, 79.584064],
               [0.159, 80.584064],
               [0.16, 81.58156],
-              [0.1608, 83.38156],
+              [0.1608, 83.38156]
             ],
-            color: '#03a7a8',
+            color: '#66C167'
           },
           {
             name: 'Asks',
             marker: {
-              enabled: false,
+              enabled: false
             },
             data: [
               [0.1435, 242.521842],
@@ -280,22 +286,29 @@ export default {
               [0.1453, 12.345828999999998],
               [0.1454, 10.035642],
               [0.148, 9.326642],
-              [0.1522, 3.76317],
+              [0.1522, 3.76317]
             ],
-            color: '#fc5857',
-          },
-        ],
+            color: '#fc5857'
+          }
+        ]
       },
       bids: [],
       asks: [],
       loading: false,
+      parentHeight: 0
     }
   },
 
   computed: {
     ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
-    ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
+    ...mapState('market', [
+      'quote_token',
+      'base_token',
+      'id',
+      'deals',
+      'markets_layout'
+    ]),
     ...mapGetters(['user']),
 
     isLastTradeSell() {
@@ -304,10 +317,23 @@ export default {
 
     percentWarn() {
       return this.getSpreadPercent > 5 ? 'warn' : ''
-    },
+    }
   },
 
   watch: {
+    markets_layout(_new, old) {
+      this.$refs.chart.chart.setSize(
+        this.$refs.chartContainer.offsetWidth,
+        this.$refs.chartContainer.offsetHeight
+      )
+    },
+
+    depthChartUpdated(newData, oldData) {
+      this.$refs.chart.chart.setSize(
+        this.$refs.chartContainer.offsetWidth,
+        this.$refs.chartContainer.offsetHeight
+      )
+    }
     // sorted_asks(newAsks, oldAsks) {
     //   this.asks = []
     //   for (let i = 0; i < 20; i++) {
@@ -324,15 +350,19 @@ export default {
     // },
   },
   mounted() {
-    setTimeout(() => {
-      // this.$refs.chart.chart.setSize(
-      //   document.getElementsByClassName('cssTransforms')[0].width * 0.9,
-      //   document.getElementsByClassName('cssTransforms')[0].height * 0.9
-      // )
-      this.$refs.chart.chart.setSize(250, 450)
-    }, 100)
+    this.$nextTick(() => {
+      let chartContrainerInterval = null
+      chartContrainerInterval = setInterval(() => {
+        if (this.$refs.chartContainer !== undefined && this.$refs.chartContainer.offsetWidth > 0) {
+          this.$refs.chart.chart.setSize(
+            this.$refs.chartContainer.offsetWidth,
+            this.$refs.chartContainer.offsetHeight
+          )
+          clearInterval(chartContrainerInterval)
+        }
+      }, 100)
+    })
   },
-
   methods: {
     updateChartData(asks, bids) {
       // this.$refs.chart.chart.series[0].update({ data: asks.slice(0, 5) })
@@ -344,8 +374,8 @@ export default {
     drag(event) {
       event.preventDefault()
       event.stopPropagation()
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -371,8 +401,10 @@ export default {
   user-select: none;
   .highcharts-container {
     height: 100% !important;
+    width: 100% !important;
     .highcharts-root {
       height: 100% !important;
+      width: 100% !important;
     }
   }
 }
@@ -380,20 +412,15 @@ export default {
 .chart-nav.scale-value-nav {
   width: 100% !important;
 }
-.el-tabs.el-tabs--top {
-  height: 90% !important;
-}
 
-.el-tabs__content {
-  height: 90%;
-}
-
-.highcharts-container {
-  width: 100% !important;
-}
-
-.highcharts-root {
-  width: 100% !important;
+.order-depth .el-tabs__content {
+  height: calc(100% - 30px);
+  .el-tab-pane,
+  .chart-nav,
+  .chart-part,
+  .wax-highchart {
+    height: 100% !important;
+  }
 }
 
 @media only screen and (max-width: 700px) {

@@ -121,7 +121,8 @@
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
-      .el-footer.module-footer(@click='initiateState()') Return to Default Settings
+      .el-footer.module-footer.default-settings-part
+        .return-default-setting(@click='initiateState()') Return to Default Settings
 </template>
 
 <script>
@@ -144,7 +145,7 @@ export default {
         'order-depth': 'Orderbook/Depth Chart',
         'time-sale': 'Times and Sales',
         'limit-market': 'Limit Trade/Market Trade',
-        'open-oder': 'Open Orders',
+        'open-order': 'Open Orders',
       },
       marketswitchvalue: false,
       favoritesswitchvalue: false,
@@ -163,42 +164,52 @@ export default {
             {
               x: 0,
               y: 0,
-              w: 15,
+              w: 14,
               h: 14,
               i: 'chart',
               status: true,
+              mw: 9,
+              mh: 9,
             },
             {
-              x: 15,
+              x: 14,
               y: 0,
               w: 5,
               h: 14,
               i: 'order-depth',
               status: true,
+              mw: 5,
+              mh: 9,
             },
             {
-              x: 20,
+              x: 19,
               y: 0,
-              w: 4,
+              w: 5,
               h: 14,
               i: 'time-sale',
               status: true,
+              mw: 3,
+              mh: 9,
             },
             {
               x: 0,
               y: 14,
-              w: 15,
+              w: 14,
               h: 8,
-              i: 'open-oder',
+              i: 'open-order',
               status: true,
+              mw: 10,
+              mh: 7,
             },
             {
-              x: 15,
+              x: 14,
               y: 14,
-              w: 9,
+              w: 10,
               h: 8,
               i: 'limit-market',
               status: true,
+              mw: 8,
+              mh: 8,
             },
           ]
           return defaultlayout
@@ -218,7 +229,60 @@ export default {
     updateState() {
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     },
-    initiateState() {},
+    initiateState() {
+      this.markets_layout = [
+        {
+          x: 0,
+          y: 0,
+          w: 14,
+          h: 14,
+          i: 'chart',
+          status: true,
+          mw: 9,
+          mh: 9,
+        },
+        {
+          x: 14,
+          y: 0,
+          w: 5,
+          h: 14,
+          i: 'order-depth',
+          status: true,
+          mw: 5,
+          mh: 9,
+        },
+        {
+          x: 19,
+          y: 0,
+          w: 5,
+          h: 14,
+          i: 'time-sale',
+          status: true,
+          mw: 3,
+          mh: 9,
+        },
+        {
+          x: 0,
+          y: 14,
+          w: 14,
+          h: 8,
+          i: 'open-order',
+          status: true,
+          mw: 10,
+          mh: 7,
+        },
+        {
+          x: 14,
+          y: 14,
+          w: 10,
+          h: 8,
+          i: 'limit-market',
+          status: true,
+          mw: 8,
+          mh: 8,
+        },
+      ]
+    },
   },
 }
 </script>
@@ -252,7 +316,7 @@ export default {
 }
 
 .setting-modal {
-  height: 549px;
+  height: auto;
   width: 288px;
   background-color: white;
 }
@@ -597,7 +661,15 @@ input[type='radio']:checked + label:before {
   font-size: 14px;
 }
 
-.module-footer {
+.module-footer.default-settings-part {
+  color: #1fc781;
+  width: auto;
+  background: none !important;
+  width: 100% !important;
+  padding: 16px 16px !important;
+}
+
+.return-default-setting:hover {
   color: #1fc781;
 }
 
