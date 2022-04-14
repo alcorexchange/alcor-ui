@@ -33,7 +33,7 @@ export const state = () => ({
 
   orderLoading: false,
 
-  showVolumeInUSD: false,
+  showVolumeInUSD: true,
   price_bid: null,
   amount_buy: null,
   amount_sell: null,
