@@ -34,7 +34,7 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     }
   }
 
-  $axios.setBaseURL(state.baseUrl + '/api')
+  $axios.setBaseURL(state.baseUrl.replace('https', 'http') + '/api')
 
   if (process.client) {
     // Тут RPC с возможностью менять эндпоинт
