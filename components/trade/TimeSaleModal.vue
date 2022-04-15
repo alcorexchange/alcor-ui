@@ -11,7 +11,7 @@
         //- span /
         //- el-button.quote-btn(type='info') Quote
         label.toggle-format
-          input(type='checkbox')
+          input(type='checkbox' v-model="showQuote")
           .slider
           .option.token-option
             span Token
@@ -24,7 +24,6 @@
       .time-format-menu.d-flex.flex-row
         el-select.time-format-selection(
           v-model='timeformat',
-          @change='changeTimeFormat(timeformat)',
           placeholder='choose time format'
         )
           el-option(
@@ -37,18 +36,14 @@
       .threshold-title.mt-auto.mb-auto
         label.threshold-label Large trade threshold:
       .trade-threshold-value.mt-auto.mb-auto.mr-1
-        el-input.threshold-input(v-model='input_threshold')
+        el-input.threshold-input(v-model='largeThreshold')
       .trade-type-menu.d-flex.flex-row
         el-select.trade-type-selection(
-          v-model='threshold',
+          v-model='thresholdCurrency',
           placeholder='Currency'
         )
-          el-option(
-            v-for='item in thresholds_options',
-            :key='item.value',
-            :label='item.label',
-            :value='item.threshold'
-          )
+          el-option(:value="base_token.symbol.name") {{ base_token.symbol.name }}
+          el-option(:value="quote_token.symbol.name") {{ quote_token.symbol.name }}
     .time-sale-list.timesale-preview.d-flex.flex-column.justify-content-between(
       v-if='coloredDeals'
     )
@@ -76,6 +71,7 @@ import { mapState } from 'vuex'
 export default {
   props: ['outoftimesalemodalClick', 'closemodal'],
   scrollToTop: false,
+
   data() {
     return {
       loading: false,
@@ -112,14 +108,55 @@ export default {
           label: 'void',
         },
       ],
-      timeformat: 'MM/DD hh:mm:ss',
       threshold: 'Currency',
-      input_threshold: 0,
     }
   },
   computed: {
     ...mapState('market', ['quote_token', 'base_token', 'id']),
+    ...mapState('settings', ['timesAndSales']),
     ...mapState(['network']),
+
+    showQuote: {
+      get() {
+        return (this.timesAndSales[this.id] || {}).showQuote || false
+      },
+
+      set(showQuote) {
+        this.$store.dispatch('settings/updateTimeAndSales', { market: this.id, key: 'showQuote', value: showQuote })
+      }
+    },
+
+    timeformat: {
+      get() {
+        return (this.timesAndSales[this.id] || {}).timeformat || 'MM/DD hh:mm:ss'
+      },
+
+      set(timeformat) {
+        this.$store.dispatch('settings/updateTimeAndSales', { market: this.id, key: 'timeformat', value: timeformat })
+      }
+    },
+
+    largeThreshold: {
+      get() {
+        const settings = this.timesAndSales[this.id] || {}
+        return settings[this.thresholdCurrency]
+      },
+
+      set(largeThreshold) {
+        this.$store.dispatch('settings/updateTimeAndSales', { market: this.id, key: this.thresholdCurrency, value: largeThreshold })
+      }
+    },
+
+    thresholdCurrency: {
+      get() {
+        return (this.timesAndSales[this.id] || {}).thresholdCurrency || this.base_token.symbol.name
+      },
+
+      set(thresholdCurrency) {
+        this.$store.dispatch('settings/updateTimeAndSales', { market: this.id, key: 'thresholdCurrency', value: thresholdCurrency })
+      }
+    },
+
     coloredDeals() {
       // let amArry = this.$store.state.market.deals
       let maxBuy = 0
@@ -166,12 +203,8 @@ export default {
   methods: {
     handleCommand(command) {
       this.$message('click on item ' + command)
-    },
-    changeTimeFormat(timeformat) {
-      //emit data from child compoent to parent compoent
-      this.$emit('changedtimeformat', timeformat)
-    },
-  },
+    }
+  }
 }
 </script>
 

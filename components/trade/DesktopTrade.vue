@@ -46,7 +46,8 @@
         el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small")
           el-tab-pane(label='Orderbook')
             order-book
-          el-tab-pane(label='Depth Chart')
+          // TODO DepthChart
+          //el-tab-pane(label='Depth Chart')
             depth-chart(
               :is-draggable='false',
               :is-resizable='false',
