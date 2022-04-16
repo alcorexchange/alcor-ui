@@ -162,7 +162,7 @@ export default {
     changeChain(chain) {
       // TODO Move to config: APP_DOMAIN
       const location =
-        chain == 'eos'
+        chain == 'wax'
           ? 'https://alcor.exchange/'
           : `https://${chain}.alcor.exchange/`
 

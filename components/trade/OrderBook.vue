@@ -199,7 +199,11 @@ export default {
         }
         .spread {
           flex-direction: row;
-          margin-left: auto;
+          margin-right: auto;
+
+          .num {
+            margin-right: 5px;
+          }
         }
       }
     }

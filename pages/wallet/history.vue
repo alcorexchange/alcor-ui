@@ -158,7 +158,7 @@ export default {
 
       if (deals.length) {
         deals.map(d => {
-          d.type = this.user.name == d.bidder && d.type == 'buymatch' ? 'buy' : 'sell'
+          d.type = this.user.name == d.bidder ? 'buy' : 'sell'
         })
 
         this.deals.push(...deals)
