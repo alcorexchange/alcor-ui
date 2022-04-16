@@ -4,10 +4,8 @@ client-only
     .row
       .col
         .d-flex.align-items-center.desktop(v-if='!isMobile')
-          .d-flex.flex-column.justify-content-center.pt-2.pb-1
-            .d-flex.align-items-center.cursor-pointer.show-markets(
-              @click='showMarkets = !showMarkets'
-            )
+          .d-flex.flex-column.justify-content-center
+            .d-flex.align-items-center.cursor-pointer.show-markets(@click='showMarkets = !showMarkets')
               TokenImage.show-markets(
                 :src='$tokenLogo(quote_token.symbol.name, quote_token.contract)',
                 height='20'
@@ -15,10 +13,12 @@ client-only
               .d-flex.ml-2.symbol.show-markets
                 b.show-markets {{ quote_token.symbol.name }}
                 span.ml-1.show-markets / {{ base_token.symbol.name }}
-            a.text-muted(
-              :href='monitorAccount(quote_token.contract)',
-              target='_blank'
-            ) {{ quote_token.contract }}
+                i.el-icon-caret-bottom.ml-1.text-muted
+            //span
+              a.text-muted(
+                :href='monitorAccount(quote_token.contract)',
+                target='_blank'
+              ) {{ quote_token.contract }}
           markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
           //.d-flex.ml-3(v-if="hasWithdraw")
             // TODO Token prop & mobile version
@@ -32,7 +32,7 @@ client-only
           .d-flex.align-items-center.ml-3.small.topline-container
             .d-flex.align-items-center.ml-3.header-items-container
               .d-flex.flex-column(v-if="header_settings.change_24")
-                div(:class="stats.change24 > 0 ? 'text-success' : 'text-danger'") {{ price }} &nbsp;
+                div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
                 div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
 
               .d-flex.flex-column(v-if="header_settings.change_24")
@@ -102,7 +102,7 @@ client-only
               .col
                 .d-flex.ml-2
                   span Volume 24H:
-                  span.text-success.ml-1 {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+                  span.green.ml-1 {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
                   .pointer.ml-2
                     i.el-icon-star-off(
                       :class='{ "el-icon-star-on": isFavorite }',
@@ -233,6 +233,7 @@ export default {
   display: none;
 }
 .desktop {
+  height: 54px;
   font-size: 14px;
 
   i {
@@ -251,6 +252,7 @@ export default {
 }
 
 .markets {
+  width: 360px;
   position: fixed;
   top: 30px;
   background: #282828;

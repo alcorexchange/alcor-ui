@@ -21,7 +21,7 @@ el-table.w-100.my-orders(:data='filledPositions' empty-text='No open orders')
       span {{ scope.row.unit_price | humanPrice }}
   el-table-column(label='Amount', v-if='!isMobile')
     template(slot-scope='{ row }')
-      span {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity }}
+      span {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
   el-table-column(:label="'Total(' + base_token.symbol.name + ')'", v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}

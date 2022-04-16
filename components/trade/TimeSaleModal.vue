@@ -79,36 +79,36 @@ export default {
       options: [
         {
           timeformat: 'DD/MM hh:mm:ss',
-          label: 'dd/MM hh:mm:ss',
+          label: 'dd/MM hh:mm:ss'
         },
         {
           timeformat: 'MM/DD hh:mm:ss',
-          label: 'MM/dd hh:mm:ss',
+          label: 'MM/dd hh:mm:ss'
         },
         {
           timeformat: 'DD hh:mm:ss',
-          label: 'dd hh:mm:ss',
+          label: 'dd hh:mm:ss'
         },
         {
           timeformat: 'DD hh:mm',
-          label: 'dd hh:mm',
+          label: 'dd hh:mm'
         },
         {
           timeformat: 'hh:mm:ss',
-          label: 'hh:mm:ss',
-        },
+          label: 'hh:mm:ss'
+        }
       ],
       thresholds_options: [
         {
           threshold: 'WAX',
-          label: 'wax',
+          label: 'wax'
         },
         {
           threshold: 'VOID',
-          label: 'void',
-        },
+          label: 'void'
+        }
       ],
-      threshold: 'Currency',
+      threshold: 'Currency'
     }
   },
   computed: {

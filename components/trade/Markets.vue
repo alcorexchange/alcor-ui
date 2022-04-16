@@ -17,21 +17,23 @@
       v-model='search',
       placeholder='Filter by token',
       clearable
+      width="60%"
     )
+       template(slot="append")
+        el-checkbox(v-model="showVolumeInUSD") USD
   el-table(
     :data='filteredItems',
     style='width: 100%',
     @row-click='setMarket',
     :default-sort='{ prop: "volume24", order: "descending" }',
     :row-class-name='activeRowClassName',
-    height='390',
     width='100%',
     v-loading='loading'
   )
     el-table-column(
       prop='quote_token.symbol.name',
       label='Pair(a-z)',
-      width='120',
+      width='130',
       sortable,
       :sort-orders='["descending", "ascending"]'
     )
@@ -53,6 +55,7 @@
       align='right',
       sortable,
       :sort-orders='["descending", null]'
+      width="70"
     )
       template(slot-scope='scope')
         | {{ scope.row.last_price | commaFloat(5) }}
@@ -63,10 +66,10 @@
       label='Vol 24H',
       align='right',
       sortable,
-      width='100'
     )
       template(slot-scope='scope')
-        span.text-mutted {{ scope.row.volume24.toFixed(2) }} {{ scope.row.base_token.symbol.name }}
+        span.text-mutted(v-if="showVolumeInUSD && sideMaretsTab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
+        span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 </template>
 
 <script>
@@ -93,6 +96,16 @@ export default {
     ...mapState(['markets', 'network']),
     ...mapState('market', ['id', 'quote_token']),
     ...mapState('settings', ['favMarkets']),
+
+    showVolumeInUSD: {
+      get() {
+        return this.$store.state.market.showVolumeInUSD
+      },
+
+      set(value) {
+        this.$store.commit('market/setShowVolumeInUSD', value)
+      }
+    },
 
     sideMaretsTab: {
       get() {
@@ -269,7 +282,16 @@ export default {
 }
 
 .markets-bar {
-  height: initial !important;
+  height: 100%;
+
+  .el-table--fit {
+    height: calc(100% - 70px);
+  }
+  .el-table__body-wrapper{
+    height: calc(100% - 50px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 }
 
 .markets-bar .el-table .active-row {

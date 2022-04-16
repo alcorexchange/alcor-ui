@@ -24,7 +24,7 @@
         :min-h='parseInt(item.mh)',
         :class='item.i',
         @resized='layoutUpdatedEvent(item)',
-        drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list',
+        drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list .desktop',
         drag-allow-from='.el-tabs__header, .box-card, .times-and-sales'
       )
         .right-icons
@@ -57,10 +57,17 @@
               :use-css-transforms='false',
               :depthChartUpdated='depthChartUpdated'
             )
+
         .h-100(v-if='item.i == "time-sale"', :min-w='3')
-          .times-and-sales
+          el-tabs(type="border-card").h-100.no_drag
+            el-tab-pane.h-10(label='Times & Sales')
+              LatestDeals(:timeformat='timeformat')
+            el-tab-pane(label='Markets')
+              Markets.mt-2
+
+          //.times-and-sales
             span Times and Sales
-          LatestDeals(:timeformat='timeformat')
+          //LatestDeals(:timeformat='timeformat')
         //- markets(v-if="item.i=='3'")
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card").trade-tabs
           template(slot='right')
@@ -109,9 +116,9 @@
             el-tab-pane(label='Market trade')
               .trade-box
                 market-trade
-        //- .low-right(v-if="item.i=='6'")
-        //-   .overflowbox.low-height.overflow-hidden
-        //-     LatestDeals
+
+        .h-100(v-if='item.i == "markets"')
+          Markets
   SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
   TimeSaleModal(
     v-if='show_timesale_modal',
@@ -206,7 +213,7 @@ export default {
       show_timesale_modal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
-      depthChartUpdated: false,
+      depthChartUpdated: false
     }
   },
 
@@ -707,7 +714,7 @@ export default {
   }
 
   .el-table {
-    font-size: 10px;
+    font-size: 12px;
 
     .el-table__header-wrapper {
       th {

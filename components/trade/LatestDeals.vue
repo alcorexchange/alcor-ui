@@ -83,13 +83,14 @@ export default {
 
   .orders-list {
     overflow: auto;
-    height: calc(100% - 53px);
+    //height: calc(100% - 53px);
+    height: 100%;
   }
 }
 
 .time-sale {
   .el-tabs__content {
-    height: calc(100% - 55px);
+    height: calc(100% - 30px);
   }
   .el-tab-pane {
     height: 100%;

@@ -105,7 +105,7 @@
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
-          .module-list.d-flex.flex-row.justify-content-between
+          //.module-list.d-flex.flex-row.justify-content-between
             .module-name Markets
             .module-pickers.d-flex.flex-row
               el-switch(
@@ -113,7 +113,7 @@
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
-          .module-list.d-flex.flex-row.justify-content-between
+          //.module-list.d-flex.flex-row.justify-content-between
             .module-name Favorites
             .module-pickers.d-flex.flex-row
               el-switch(
@@ -135,7 +135,7 @@ export default {
 
   components: {
     TokenImage,
-    ChangePercent,
+    ChangePercent
   },
 
   data() {
@@ -146,10 +146,11 @@ export default {
         'time-sale': 'Times and Sales',
         'limit-market': 'Limit Trade/Market Trade',
         'open-order': 'Open Orders',
+        markets: 'Markets'
       },
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false,
+      checkedorange: false
     }
   },
   computed: {
@@ -160,7 +161,7 @@ export default {
         if (this.$store.state.market.markets_layout != null) {
           return this.$store.state.market.markets_layout
         } else {
-          let defaultlayout = [
+          const defaultlayout = [
             {
               x: 0,
               y: 0,
@@ -169,7 +170,7 @@ export default {
               i: 'chart',
               status: true,
               mw: 9,
-              mh: 9,
+              mh: 9
             },
             {
               x: 14,
@@ -179,7 +180,7 @@ export default {
               i: 'order-depth',
               status: true,
               mw: 5,
-              mh: 9,
+              mh: 9
             },
             {
               x: 19,
@@ -189,7 +190,7 @@ export default {
               i: 'time-sale',
               status: true,
               mw: 3,
-              mh: 9,
+              mh: 9
             },
             {
               x: 0,
@@ -199,7 +200,7 @@ export default {
               i: 'open-order',
               status: true,
               mw: 10,
-              mh: 7,
+              mh: 7
             },
             {
               x: 14,
@@ -209,8 +210,18 @@ export default {
               i: 'limit-market',
               status: true,
               mw: 8,
-              mh: 8,
+              mh: 8
             },
+            {
+              x: 14,
+              y: 14,
+              w: 5,
+              h: 8,
+              i: 'markets',
+              status: false,
+              mw: 5,
+              mh: 5
+            }
           ]
           return defaultlayout
         }
@@ -218,8 +229,8 @@ export default {
 
       set(value) {
         this.$store.commit('market/setMarketLayout', value)
-      },
-    },
+      }
+    }
   },
   methods: {
     onChange(e) {
@@ -239,7 +250,7 @@ export default {
           i: 'chart',
           status: true,
           mw: 9,
-          mh: 9,
+          mh: 9
         },
         {
           x: 14,
@@ -249,7 +260,7 @@ export default {
           i: 'order-depth',
           status: true,
           mw: 5,
-          mh: 9,
+          mh: 9
         },
         {
           x: 19,
@@ -258,8 +269,8 @@ export default {
           h: 14,
           i: 'time-sale',
           status: true,
-          mw: 3,
-          mh: 9,
+          mw: 5,
+          mh: 9
         },
         {
           x: 0,
@@ -269,7 +280,7 @@ export default {
           i: 'open-order',
           status: true,
           mw: 10,
-          mh: 7,
+          mh: 7
         },
         {
           x: 14,
@@ -278,16 +289,30 @@ export default {
           h: 8,
           i: 'limit-market',
           status: true,
-          mw: 8,
-          mh: 8,
+          mw: 6,
+          mh: 6
         },
+        {
+          x: 14,
+          y: 14,
+          w: 5,
+          h: 8,
+          i: 'markets',
+          status: true,
+          mw: 5,
+          mh: 5
+        }
       ]
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss">
+.markets-bar {
+  height: 100%;
+}
+
 .theme-dark {
   .markets-bar .el-table {
     th,
