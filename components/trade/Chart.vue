@@ -140,7 +140,7 @@ export default {
     },
 
     drawOrders() {
-      console.log('drawOrders..', this.isReady)
+      //console.log('drawOrders..', this.isReady)
 
       if (!this.isReady) return
 
@@ -150,8 +150,6 @@ export default {
           const order = this.orderLines.pop()
           order.remove()
         }
-
-        console.log('this.orderLines after', this.orderLines)
 
         this.orders.map(o => {
           const order = this.widget

@@ -27,19 +27,18 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { trade } from '~/mixins/trade'
 
 export default {
-  mixins: [trade],
   props: ['depthChartUpdated'],
+
   data() {
     return {
       chartOptions: {
-        credits: {
-          enabled: false,
-          align: 'right',
-          verticalAlign: 'bottom'
-        },
+        //credits: {
+        //  enabled: false,
+        //  align: 'right',
+        //  verticalAlign: 'bottom'
+        //},
         type: 'column',
         colors: [
           '#058DC7',
@@ -78,113 +77,113 @@ export default {
         xAxis: {
           minPadding: 0,
           maxPadding: 0,
-          plotLines: [
-            {
-              value: 0.152,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#fc5857',
-              label: {
-                text: '0.152',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#fc5857'
-                }
-              }
-            },
-            {
-              value: 0.15,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#fc5857',
-              label: {
-                text: '0.15',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#fc5857'
-                }
-              }
-            },
-            {
-              value: 0.143,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#fc5857',
-              label: {
-                text: '0.143',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#fc5857'
-                }
-              }
-            },
-            {
-              value: 0.147,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#fc5857',
-              label: {
-                text: '0.147',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#fc5857'
-                }
-              }
-            },
-            {
-              value: 0.15495,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#66C167',
-              label: {
-                text: '0.15495',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#66C167'
-                }
-              }
-            },
-            {
-              value: 0.158,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#66C167',
-              label: {
-                text: '0.158',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#66C167'
-                }
-              }
-            },
-            {
-              value: 0.1526,
-              zIndex: 10,
-              width: 2,
-              dashStyle: 'shortdash',
-              color: '#66C167',
-              label: {
-                text: '0.1526',
-                rotation: 0,
-                align: 'left',
-                style: {
-                  color: '#66C167'
-                }
-              }
-            }
-          ],
+          //plotLines: [
+          //  {
+          //    value: 0.152,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#fc5857',
+          //    label: {
+          //      text: '0.152',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#fc5857'
+          //      }
+          //    }
+          //  },
+          //  {
+          //    value: 0.15,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#fc5857',
+          //    label: {
+          //      text: '0.15',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#fc5857'
+          //      }
+          //    }
+          //  },
+          //  {
+          //    value: 0.143,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#fc5857',
+          //    label: {
+          //      text: '0.143',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#fc5857'
+          //      }
+          //    }
+          //  },
+          //  {
+          //    value: 0.147,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#fc5857',
+          //    label: {
+          //      text: '0.147',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#fc5857'
+          //      }
+          //    }
+          //  },
+          //  {
+          //    value: 0.15495,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#66C167',
+          //    label: {
+          //      text: '0.15495',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#66C167'
+          //      }
+          //    }
+          //  },
+          //  {
+          //    value: 0.158,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#66C167',
+          //    label: {
+          //      text: '0.158',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#66C167'
+          //      }
+          //    }
+          //  },
+          //  {
+          //    value: 0.1526,
+          //    zIndex: 10,
+          //    width: 2,
+          //    dashStyle: 'shortdash',
+          //    color: '#66C167',
+          //    label: {
+          //      text: '0.1526',
+          //      rotation: 0,
+          //      align: 'left',
+          //      style: {
+          //        color: '#66C167'
+          //      }
+          //    }
+          //  }
+          //],
           title: {
             text: 'Price',
             y: -12,
@@ -195,29 +194,29 @@ export default {
           opposite: true,
           inverted: true,
           lineWidth: 1,
-          tickLength: 0
+          tickLength: 0,
+          reversed: false
           // startOnTick: false,
           // min: 0.5,
         },
-        yAxis: [
-          {
-            opposite: true,
-            reversed: true,
-            lineWidth: 0,
-            gridLineWidth: 0,
-            title: null,
-            tickWidth: 0,
-            tickLength: 0,
-            tickPosition: 'inside',
-            labels: {
-              align: 'left',
-              step: 1,
-              x: -5,
-              padding: 30
-            }
+        yAxis: {
+          opposite: true,
+          reversed: true,
+          lineWidth: 0,
+          gridLineWidth: 0,
+          title: null,
+          tickWidth: 0,
+          tickLength: 0,
+          tickPosition: 'inside',
+          labels: {
+            align: 'left',
+            step: 1,
+            x: -5,
+            padding: 30
           }
-        ],
+        },
         legend: {
+          //reversed: true,
           enabled: false
         },
         plotOptions: {
@@ -233,63 +232,63 @@ export default {
         },
         series: [
           {
-            name: 'Bids',
+            name: 'asks',
             marker: {
               enabled: false
             },
             data: [
-              [0.1524, 0.948665],
-              [0.1539, 35.510715],
-              [0.154, 39.883437],
-              [0.1541, 40.499661],
-              [0.1545, 43.262994000000006],
-              [0.1547, 60.14799400000001],
-              [0.1553, 60.30799400000001],
-              [0.1558, 60.55018100000001],
-              [0.1564, 68.381696],
-              [0.1567, 69.46518400000001],
-              [0.1569, 69.621464],
-              [0.157, 70.398015],
-              [0.1574, 70.400197],
-              [0.1575, 73.199217],
-              [0.158, 77.700017],
-              [0.1583, 79.449017],
-              [0.1588, 79.584064],
-              [0.159, 80.584064],
-              [0.16, 81.58156],
-              [0.1608, 83.38156]
+              //[0.1524, 0.948665],
+              //[0.1539, 35.510715],
+              //[0.154, 39.883437],
+              //[0.1541, 40.499661],
+              //[0.1545, 43.262994000000006],
+              //[0.1547, 60.14799400000001],
+              //[0.1553, 60.30799400000001],
+              //[0.1558, 60.55018100000001],
+              //[0.1564, 68.381696],
+              //[0.1567, 69.46518400000001],
+              //[0.1569, 69.621464],
+              //[0.157, 70.398015],
+              //[0.1574, 70.400197],
+              //[0.1575, 73.199217],
+              //[0.158, 77.700017],
+              //[0.1583, 79.449017],
+              //[0.1588, 79.584064],
+              //[0.159, 80.584064],
+              //[0.16, 81.58156],
+              //[0.1608, 83.38156]
+            ],
+            color: '#fc5857'
+          },
+          {
+            name: 'WAX',
+            marker: {
+              enabled: false
+            },
+            data: [
+              //[0.1435, 242.521842],
+              //[0.1436, 206.49862099999999],
+              //[0.1437, 205.823735],
+              //[0.1438, 197.33275],
+              //[0.1439, 153.677454],
+              //[0.144, 146.007722],
+              //[0.1442, 82.55212900000001],
+              //[0.1443, 59.152814000000006],
+              //[0.1444, 57.942260000000005],
+              //[0.1445, 57.483850000000004],
+              //[0.1446, 52.39210800000001],
+              //[0.1447, 51.867208000000005],
+              //[0.1448, 44.104697],
+              //[0.1449, 40.131217],
+              //[0.145, 31.878217],
+              //[0.1451, 22.794916999999998],
+              //[0.1453, 12.345828999999998],
+              //[0.1454, 10.035642],
+              //[0.148, 9.326642],
+              //[0.1522, 3.76317]
             ],
             color: '#66C167'
           },
-          {
-            name: 'Asks',
-            marker: {
-              enabled: false
-            },
-            data: [
-              [0.1435, 242.521842],
-              [0.1436, 206.49862099999999],
-              [0.1437, 205.823735],
-              [0.1438, 197.33275],
-              [0.1439, 153.677454],
-              [0.144, 146.007722],
-              [0.1442, 82.55212900000001],
-              [0.1443, 59.152814000000006],
-              [0.1444, 57.942260000000005],
-              [0.1445, 57.483850000000004],
-              [0.1446, 52.39210800000001],
-              [0.1447, 51.867208000000005],
-              [0.1448, 44.104697],
-              [0.1449, 40.131217],
-              [0.145, 31.878217],
-              [0.1451, 22.794916999999998],
-              [0.1453, 12.345828999999998],
-              [0.1454, 10.035642],
-              [0.148, 9.326642],
-              [0.1522, 3.76317]
-            ],
-            color: '#fc5857'
-          }
         ]
       },
       bids: [],
@@ -310,6 +309,11 @@ export default {
       'markets_layout'
     ]),
     ...mapGetters(['user']),
+
+    ...mapGetters('market', [
+      'sorted_asks',
+      'sorted_bids'
+    ]),
 
     isLastTradeSell() {
       return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
@@ -333,23 +337,22 @@ export default {
         this.$refs.chartContainer.offsetWidth,
         this.$refs.chartContainer.offsetHeight
       )
+    },
+
+    sorted_asks(newAsks, oldAsks) {
+      this.setAsks()
+
+      //this.updateChartData(this.asks, this.bids)
+    },
+
+    sorted_bids(newBids, oldBids) {
+      this.setBids()
     }
-    // sorted_asks(newAsks, oldAsks) {
-    //   this.asks = []
-    //   for (let i = 0; i < 20; i++) {
-    //     this.asks.push([newAsks[i][0], newAsks[i][1]])
-    //   }
-    //   this.updateChartData(this.asks, this.bids)
-    // },
-    // sorted_bids(newBids, oldBids) {
-    //   this.bids = []
-    //   for (let i = 0; i < 20; i++) {
-    //     this.bids.push([newBids[i][0], newBids[i][1]])
-    //   }
-    //   this.updateChartData(this.asks, this.bids)
-    // },
   },
   mounted() {
+    this.setAsks()
+    this.setBids()
+
     this.$nextTick(() => {
       let chartContrainerInterval = null
       chartContrainerInterval = setInterval(() => {
@@ -368,12 +371,83 @@ export default {
       // this.$refs.chart.chart.series[0].update({ data: asks.slice(0, 5) })
       // this.$refs.chart.chart.series[1].update({ data: bids.slice(0, 5) })
     },
+
     showmessage(e) {
       e.stopPropagations
     },
+
     drag(event) {
       event.preventDefault()
       event.stopPropagation()
+    },
+
+    setBids() {
+      const topPrice = this.sorted_bids[0]
+
+      const bids = {}
+      let value = 0
+
+      for (const bid of this.sorted_bids) {
+        // This is use to avoid big differences in depth chart
+        const priceDiffCoffecient = bid[0] / topPrice[0]
+        if (priceDiffCoffecient < 0.1) continue
+        //
+
+        value += bid[1]
+
+        if (bids[bid[0]]) {
+          bids[bid[0]] = value
+        } else {
+          bids[bid[0]] = value
+        }
+      }
+
+      const result = []
+
+      for (const [key, value] of Object.entries(bids)) {
+        result.push([
+          Number(this.$options.filters.humanPrice(key, 6)),
+          value / Math.pow(10, this.base_token.symbol.precision)
+        ])
+      }
+
+      if (result.length > 0) {
+        this.$refs.chart.chart.series[1].setData(result, true, true, true)
+      }
+    },
+
+    setAsks() {
+      const topPrice = this.sorted_asks[0]
+      if (!topPrice) return
+
+      const asks = {}
+      let value = 0
+
+      for (const ask of this.sorted_asks) {
+        const priceDiffCoffecient = ask[0] / topPrice[0]
+        if (priceDiffCoffecient > 3) continue
+
+        value += ask[2]
+
+        if (asks[ask[0]]) {
+          asks[ask[0]] = value
+        } else {
+          asks[ask[0]] = value
+        }
+      }
+
+      const result = []
+
+      for (const [key, value] of Object.entries(asks)) {
+        result.push([
+          Number(this.$options.filters.humanPrice(key, 6)),
+          value / Math.pow(10, this.base_token.symbol.precision)
+        ])
+      }
+
+      if (result.length > 0) {
+        this.$refs.chart.chart.series[0].setData(result, true, true, true)
+      }
     }
   }
 }
