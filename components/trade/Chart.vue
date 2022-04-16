@@ -250,12 +250,16 @@ export default {
       //console.log('moved:=======', order.getPrice(), orderdata)
       //console.log(actions)
 
-
-      await this.$store.dispatch('chain/sendTransaction', actions, { root: true })
-      setTimeout(() => {
-        this.$store.dispatch('updatePairBalances')
-        this.$store.dispatch('loadOrders', this.id, { root: true })
-      }, 1000)
+      try {
+        await this.$store.dispatch('chain/sendTransaction', actions, { root: true })
+        setTimeout(() => {
+          this.$store.dispatch('updatePairBalances')
+          this.$store.dispatch('loadOrders', this.id, { root: true })
+        }, 1000)
+      } catch (e) {
+        this.$notify({ title: 'Move order', message: e, type: 'error' })
+        this.drawOrders()
+      }
     },
 
     async cancelOrder(position, order) {
