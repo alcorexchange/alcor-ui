@@ -60,6 +60,7 @@ export default {
     id(to, from) {
       this.reset()
       this.load()
+      this.drawOrders()
     },
 
     'chart_orders_settings.chart_order_interactivity'() {
