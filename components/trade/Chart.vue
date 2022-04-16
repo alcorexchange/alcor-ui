@@ -58,68 +58,50 @@ export default {
     },
 
     id(to, from) {
+      this.isReady = false
       this.reset()
       this.load()
-      this.drawOrders()
+      //setTimeout(() => this.drawOrders(), 1000) // FIXME!!! do it properly
     },
 
     'chart_orders_settings.chart_order_interactivity'() {
-      if (!this.isReady) return
-      this.flag = false
-      if (this.chart_orders_settings.show_open_orders && this.order.remove)
-        this.order.remove()
       this.drawOrders()
     },
 
     'chart_orders_settings.show_labels'() {
-      if (!this.isReady) return
-      this.flag = false
-      if (this.chart_orders_settings.show_open_orders && this.order.remove)
-        this.order.remove()
       this.drawOrders()
     },
     'chart_orders_settings.show_open_orders'() {
-      if (!this.isReady) return
-      this.flag = false
-      if (!this.chart_orders_settings.show_open_orders) {
-        if (this.order.remove) this.order.remove()
-      } else this.drawOrders()
+      this.drawOrders()
     },
     'chart_orders_settings.show_trade_execution_amount'() {
-      if (!this.isReady) return
-      this.executionshape_flg = false
-      if (
-        this.chart_orders_settings.show_trade_executions &&
-        this.executionshape.remove
-      )
-        this.executionshape.remove()
-      this.gridExecution()
+      this.drawOrders()
     },
     'chart_orders_settings.show_trade_executions_price'() {
-      if (!this.isReady) return
-      this.executionshape_flg = false
-      if (
-        this.chart_orders_settings.show_trade_executions &&
-        this.executionshape.remove
-      )
-        this.executionshape.remove()
-      this.gridExecution()
+      //if (!this.isReady) return
+      //this.executionshape_flg = false
+      //if (
+      //  this.chart_orders_settings.show_trade_executions &&
+      //  this.executionshape.remove
+      //)
+      //this.executionshape.remove()
+      //this.gridExecution()
     },
     'chart_orders_settings.show_trade_executions'() {
-      if (!this.isReady) return
-      this.executionshape_flg = false
-      if (!this.chart_orders_settings.show_trade_executions)
-        this.executionshape.remove()
-      else this.gridExecution()
+      //if (!this.isReady) return
+      //this.executionshape_flg = false
+      //if (!this.chart_orders_settings.show_trade_executions)
+      //  this.executionshape.remove()
+      //else this.gridExecution()
     },
   },
 
   mounted() {
-    this.$nuxt.$on('loadUserOrdersFinish', () => {
-      this.isReady = true
-      this.drawOrders()
-      console.log('on loadUserOrdersFinish!!')
-    })
+    //this.$nuxt.$on('loadUserOrdersFinish', () => {
+    //  this.isReady = true
+    //  this.drawOrders()
+    //  console.log('on loadUserOrdersFinish!!')
+    //})
 
     this.mountChart()
     this.$socket.on('tick', (candle) => {
@@ -169,11 +151,12 @@ export default {
           order.remove()
         }
 
+        console.log('this.orderLines after', this.orderLines)
+
         this.orders.map(o => {
-          console.log('lllllllll')
           const order = this.widget
-            .chart()
-            .createOrderLine()
+            .activeChart()
+            .createOrderLine() // FIXME Value is none how to fix?
             .setLineLength(3)
             .setLineColor(o.type == 'buy' ? '#1FC780' : '#E74747')
             .setBodyBackgroundColor(o.type == 'buy' ? '#1FC780' : '#E74747')
@@ -186,7 +169,6 @@ export default {
             .setCancelButtonBackgroundColor('#FFF')
             .setCancelButtonIconColor('#000')
             .setLineStyle(3)
-          console.log('ooooooooo')
 
           if (this.chart_orders_settings.show_labels) {
             order
@@ -435,6 +417,8 @@ export default {
             onHistoryCallback(charts, { noData: charts.length == 0 })
             this.widget.activeChart().resetData()
             this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+            this.isReady = true
+            this.drawOrders()
           },
 
           unsubscribeBars: (subscriberUID) => {
@@ -523,6 +507,7 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
+        console.log('on Chart ready!!!')
         //this.isReady = true
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
