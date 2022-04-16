@@ -4,9 +4,13 @@
 </template>
 
 <script>
-// TODO Зафиксить график при переключении
+import { Big } from 'big.js'
+import { asset, symbol } from 'eos-common'
+
+
 import { mapState, mapGetters } from 'vuex'
 import global from '~/plugins/global'
+
 
 export default {
   data() {
@@ -16,12 +20,11 @@ export default {
       onRealtimeCallback: () => {},
       widget: null,
       onResetCacheNeededCallback: null,
-      flag: false,
       executionshape_flg: false,
       executionshape: '',
-      order: '',
+      order_lines: [],
       isReady: false,
-      userOrder: [],
+      orderLines: []
     }
   },
 
@@ -35,6 +38,7 @@ export default {
       'chart_orders_settings',
       'orderdata',
     ]),
+
     orders() {
       if (!this.user) return []
 
@@ -49,30 +53,36 @@ export default {
       this.mountChart()
     },
 
+    userOrders() {
+      this.drawOrders()
+    },
+
     id(to, from) {
       this.reset()
       this.load()
     },
+
     'chart_orders_settings.chart_order_interactivity'() {
       if (!this.isReady) return
       this.flag = false
       if (this.chart_orders_settings.show_open_orders && this.order.remove)
         this.order.remove()
-      this.gridLabels()
+      this.drawOrders()
     },
+
     'chart_orders_settings.show_labels'() {
       if (!this.isReady) return
       this.flag = false
       if (this.chart_orders_settings.show_open_orders && this.order.remove)
         this.order.remove()
-      this.gridLabels()
+      this.drawOrders()
     },
     'chart_orders_settings.show_open_orders'() {
       if (!this.isReady) return
       this.flag = false
       if (!this.chart_orders_settings.show_open_orders) {
         if (this.order.remove) this.order.remove()
-      } else this.gridLabels()
+      } else this.drawOrders()
     },
     'chart_orders_settings.show_trade_execution_amount'() {
       if (!this.isReady) return
@@ -104,6 +114,12 @@ export default {
   },
 
   mounted() {
+    this.$nuxt.$on('loadUserOrdersFinish', () => {
+      this.isReady = true
+      this.drawOrders()
+      console.log('on loadUserOrdersFinish!!')
+    })
+
     this.mountChart()
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
@@ -120,7 +136,6 @@ export default {
         JSON.stringify(this.$store.state.settings.twChart)
       )
       this.widget.save((o) => {
-        console.log('save chart for', this.id)
         twChart[this.id] = o
         this.$store.commit('settings/setTwChart', twChart)
       })
@@ -129,7 +144,6 @@ export default {
     load() {
       // FIXME Not workin in production
       const twChart = this.$store.state.settings.twChart[this.id]
-      console.log('load chart for', this.id)
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
     },
@@ -142,71 +156,154 @@ export default {
       }
     },
 
-    async gridLabels() {
-      if (this.chart_orders_settings.show_open_orders && !this.flag) {
-        this.flag = true
-        this.order = this.widget
-          .chart()
-          .createOrderLine()
-          .setLineLength(3)
-          .setLineColor('#c95a5a')
-          .setBodyBackgroundColor('#c95a5a')
-          .setBodyBorderColor('#c95a5a')
-          .setQuantityBackgroundColor('#c95a5a')
-          .setBodyTextColor('#000')
-          .setQuantityTextColor('#000')
-          .setQuantityBorderColor('#c95a5a')
-          .setCancelButtonBorderColor('#c95a5a')
-          .setCancelButtonBackgroundColor('#FFF')
-          .setCancelButtonIconColor('#000')
-          .setLineStyle(1)
-          .setQuantity('a')
-          .setText('a')
-        console.log('show_labels>', this.chart_orders_settings.show_labels)
-        if (this.chart_orders_settings.show_labels) {
-          this.order.setQuantity('150,000 VOID')
-          this.order.setText('Buy')
-          console.log('How are you?')
-          // if ((await this.orders.length) > 0) {
-          //   await this.orders.map((item) => {
-          //     console.log('===============orders', item, item.bid.quantity)
-          //     this.order.setQuantity(item.bid.quantity)
-          //     // return item
-          //     this.order.setText('Buy')
-          //   })
-          // }
-          if (this.chart_orders_settings.chart_order_interactivity) {
-            this.order
-              .onMove(this.Movedfunc)
-              // .onModify('onModify called', this.Movedfunc)
-              .onCancel('onCancel called', this.Cancelfunc)
-          }
-        } else {
-          this.order.setQuantity('')
-          this.order.setText('')
+    drawOrders() {
+      console.log('drawOrders..', this.isReady)
+
+      if (!this.isReady) return
+
+      if (this.chart_orders_settings.show_open_orders) {
+        // Clean all orders
+        while (this.orderLines.length != 0) {
+          const order = this.orderLines.pop()
+          order.remove()
         }
-        this.order.setPrice(this.orderdata.price)
+
+        this.orders.map(o => {
+          console.log('lllllllll')
+          const order = this.widget
+            .chart()
+            .createOrderLine()
+            .setLineLength(3)
+            .setLineColor(o.type == 'buy' ? '#1FC780' : '#E74747')
+            .setBodyBackgroundColor(o.type == 'buy' ? '#1FC780' : '#E74747')
+            .setBodyBorderColor(o.type == 'buy' ? '#1FC780' : '#E74747')
+            .setQuantityBackgroundColor(o.type == 'buy' ? '#1FC780' : '#E74747')
+            .setBodyTextColor('#000')
+            .setQuantityTextColor('#000')
+            .setQuantityBorderColor(o.type == 'buy' ? '#1FC780' : '#E74747')
+            .setCancelButtonBorderColor(o.type == 'buy' ? '#1FC780' : '#E74747')
+            .setCancelButtonBackgroundColor('#FFF')
+            .setCancelButtonIconColor('#000')
+            .setLineStyle(3)
+          console.log('ooooooooo')
+
+          if (this.chart_orders_settings.show_labels) {
+            order
+              .setQuantity(o.type == 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
+              .setText(o.type == 'sell' ? 'Sell Line' : 'Buy Line')
+              .setLineLength(3)
+
+              .onCancel(() => this.cancelOrder(order, o))
+              .onMove(() => this.moveOrder(order, o))
+
+              .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
+          }
+
+          this.orderLines.push(order)
+        })
       }
     },
 
-    Movedfunc() {
-      console.log('moved:=======', this.order.getPrice(), this.order)
-      this.orderdata.show_move_modal = true
-      this.orderdata.new_price = this.order.getPrice()
-      this.orderdata.price = this.orders.map((item) => {
-        console.log(
-          'price',
-          item.unit_price | this.$options.filters.humanPrice(item.unit_price)
-        )
-        return (
-          item.unit_price | this.$options.filters.humanPrice(item.unit_price)
-        )
-      })
-      // console.log('my_price:', this.orderdata.price[0])
+    async moveOrder(order, orderdata) {
+      const actions = [
+        { // Cancel current order
+          account: this.network.contract,
+          name: ['buy', 'bid'].includes(orderdata.type) ? 'cancelbuy' : 'cancelsell',
+          authorization: [this.user.authorization],
+          data: { executor: this.user.name, market_id: this.id, order_id: orderdata.id }
+        }
+      ]
+
+      const new_unit_price = Big(order.getPrice() * 100000000)
+
+      console.log(orderdata)
+      if (['buy', 'bid'].includes(orderdata.type)) {
+        // buy order
+        const bp = this.base_token.symbol.precision
+        const qp = this.quote_token.symbol.precision
+        const new_ask = Big(orderdata.bid.amount)
+          .mul(-1).mul(Big(-100000000))
+          .div(new_unit_price).abs()
+          .div(Big(10).pow(bp))
+          .round(qp, 0)
+
+        console.log('new ask', new_ask.toString())
+
+        actions.push({
+          account: this.base_token.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.contract,
+            quantity: `${orderdata.bid.quantity}`,
+            memo: `${new_ask} ${this.quote_token.str}`
+          }
+        })
+      } else {
+        const bp = this.base_token.symbol.precision
+        const qp = this.quote_token.symbol.precision
+        const new_ask = Big(orderdata.bid.amount)
+          .mul(new_unit_price).div(Big(100000000))
+          .div(Big(10).pow(qp))
+          .round(bp, 0)
+
+        console.log('new ask', new_ask.toString())
+
+        actions.push({
+          account: this.quote_token.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.contract,
+            quantity: `${orderdata.bid.quantity}`,
+            memo: `${new_ask} ${this.base_token.str}`
+          }
+        })
+      }
+
+
+      //console.log('moved:=======', order.getPrice(), orderdata)
+      //console.log(actions)
+
+
+      await this.$store.dispatch('chain/sendTransaction', actions, { root: true })
+      setTimeout(() => {
+        this.$store.dispatch('updatePairBalances')
+        this.$store.dispatch('loadOrders', this.id, { root: true })
+      }, 1000)
     },
 
-    Cancelfunc() {
-      this.orderdata.show_cancel_modal = true
+    async cancelOrder(position, order) {
+      try {
+        await this.$store.dispatch('chain/cancelorder', {
+          account: this.user.name,
+          market_id: this.id,
+          type: order.type,
+          order_id: order.id
+        })
+
+        //position.remove()
+
+        this.$notify({
+          title: 'Success',
+          message: `Order canceled ${order.id}`,
+          type: 'success'
+        })
+        setTimeout(() => {
+          this.$store.dispatch('loadOrders', this.id)
+          this.$store.dispatch('loadUserBalances')
+        }, 3000)
+      } catch (e) {
+        this.$notify({ title: 'Place order', message: e, type: 'error' })
+        console.log(e)
+      } finally {
+      }
+
+
+      //this.orderdata.order = o
+      //this.orderdata.show_cancel_modal = true TODO Modal for canceling
     },
 
     gridExecution() {
@@ -425,12 +522,11 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
+        //this.isReady = true
+
         this.widget.subscribe('onAutoSaveNeeded', () => {
-          console.log('chart save..')
           this.save()
-          this.gridLabels()
-          this.gridExecution()
-          this.isReady = true
+          //this.gridExecution()
         })
       })
     },

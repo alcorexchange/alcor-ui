@@ -114,6 +114,7 @@ export const state = () => ({
     show_trade_execution_amount: false
   },
   orderdata: {
+    order: {},
     show_cancel_modal: false,
     show_move_modal: false,
     order_to: "",

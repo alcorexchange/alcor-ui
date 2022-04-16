@@ -247,6 +247,7 @@ export const actions = {
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
+    console.log('loadOrders....', market_id)
     if (market_id == null) return console.error('LoadOrders for NULL market!') // FIXME Happends on first load
     if (!state.user || !state.user.name) return
 

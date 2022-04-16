@@ -20,11 +20,11 @@ el-table.w-100.my-orders(:data='filledPositions' empty-text='No open orders')
     template(slot-scope='scope')
       span {{ scope.row.unit_price | humanPrice }}
   el-table-column(label='Amount', v-if='!isMobile')
-    template(slot-scope='scope')
-      span {{ scope.row.ask.quantity }}
+    template(slot-scope='{ row }')
+      span {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity }}
   el-table-column(:label="'Total(' + base_token.symbol.name + ')'", v-if='!isMobile')
-    template(slot-scope='scope')
-      span {{ scope.row.bid.quantity }}
+    template(slot-scope='{ row }')
+      span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
   el-table-column(label='Action', align='right' width="50")
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel

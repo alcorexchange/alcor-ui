@@ -56,7 +56,9 @@ export const actions = {
     dispatch('loadAccountData', {}, { root: true })
 
     dispatch('loadUserBalances', {}, { root: true }).then(() => dispatch('market/updatePairBalances', {}, { root: true }))
-    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true }))
+    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true })).then(() => {
+      this._vm.$nuxt.$emit('loadUserOrdersFinish')
+    })
 
     dispatch('loadOrders', rootState.market.id, { root: true })
 
