@@ -290,7 +290,7 @@ export default {
           i: 'limit-market',
           status: true,
           mw: 6,
-          mh: 6
+          mh: 7
         },
         {
           x: 14,
