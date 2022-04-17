@@ -5,12 +5,8 @@
 
 <script>
 import { Big } from 'big.js'
-import { asset, symbol } from 'eos-common'
-
 
 import { mapState, mapGetters } from 'vuex'
-import global from '~/plugins/global'
-
 
 export default {
   data() {
@@ -20,11 +16,13 @@ export default {
       onRealtimeCallback: () => {},
       widget: null,
       onResetCacheNeededCallback: null,
-      executionshape_flg: false,
       executionshape: '',
       order_lines: [],
       isReady: false,
-      orderLines: []
+      orderLines: [],
+      gridExecutions: [],
+      skip: 0,
+      deals: []
     }
   },
 
@@ -61,7 +59,6 @@ export default {
       this.isReady = false
       this.reset()
       this.load()
-      //setTimeout(() => this.drawOrders(), 1000) // FIXME!!! do it properly
     },
 
     'chart_orders_settings.chart_order_interactivity'() {
@@ -78,21 +75,10 @@ export default {
       this.drawOrders()
     },
     'chart_orders_settings.show_trade_executions_price'() {
-      //if (!this.isReady) return
-      //this.executionshape_flg = false
-      //if (
-      //  this.chart_orders_settings.show_trade_executions &&
-      //  this.executionshape.remove
-      //)
-      //this.executionshape.remove()
-      //this.gridExecution()
+      this.gridExecution()
     },
     'chart_orders_settings.show_trade_executions'() {
-      //if (!this.isReady) return
-      //this.executionshape_flg = false
-      //if (!this.chart_orders_settings.show_trade_executions)
-      //  this.executionshape.remove()
-      //else this.gridExecution()
+      this.gridExecution()
     },
   },
 
@@ -102,7 +88,6 @@ export default {
     //  this.drawOrders()
     //  console.log('on loadUserOrdersFinish!!')
     //})
-
     this.mountChart()
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
@@ -197,7 +182,6 @@ export default {
 
       const new_unit_price = Big(order.getPrice() * 100000000)
 
-      console.log(orderdata)
       if (['buy', 'bid'].includes(orderdata.type)) {
         // buy order
         const bp = this.base_token.symbol.precision
@@ -207,8 +191,6 @@ export default {
           .div(new_unit_price).abs()
           .div(Big(10).pow(bp))
           .round(qp, 0)
-
-        console.log('new ask', new_ask.toString())
 
         actions.push({
           account: this.base_token.contract,
@@ -229,8 +211,6 @@ export default {
           .div(Big(10).pow(qp))
           .round(bp, 0)
 
-        console.log('new ask', new_ask.toString())
-
         actions.push({
           account: this.quote_token.contract,
           name: 'transfer',
@@ -243,10 +223,6 @@ export default {
           }
         })
       }
-
-
-      //console.log('moved:=======', order.getPrice(), orderdata)
-      //console.log(actions)
 
       try {
         await this.$store.dispatch('chain/sendTransaction', actions, { root: true })
@@ -285,38 +261,132 @@ export default {
         console.log(e)
       } finally {
       }
+    },
 
+    async loadHistory() {
+      if (!this.user || !this.user.name) return
 
-      //this.orderdata.order = o
-      //this.orderdata.show_cancel_modal = true TODO Modal for canceling
+      const { data: deals } = await this.$axios.get(
+        `/account/${this.user.name}/deals`,
+        {
+          params: {
+            limit: 100,
+            skip: this.skip,
+            market: this.id
+          }
+        }
+      )
+
+      this.skip += deals.length
+
+      if (deals.length) {
+        deals.map((d) => {
+          d.type = this.user.name == d.bidder ? 'buy' : 'sell'
+        })
+
+        //this.deals.push(...deals)
+        this.deals = deals
+        console.log('loaded')
+      } else {
+        console.log('complete')
+      }
     },
 
     gridExecution() {
-      if (
-        !this.executionshape_flg &&
-        this.chart_orders_settings.show_trade_executions
-      ) {
-        this.executionshape_flg = true
-        this.executionshape = this.widget
-          .chart()
-          .createExecutionShape()
-          .setText('0000 - 0000.7VOID')
-          .setTextColor('#FFF')
-          .setArrowColor('#00b9ff')
-          .setFont('12pt Verdana')
-          .setArrowHeight(8)
-          .setDirection('buy')
-          // .setTime(1648772490411)
-          .setPrice(0.007)
-        if (!this.chart_orders_settings.show_trade_executions_price)
-          this.executionshape.setText('0000')
-        if (!this.chart_orders_settings.show_trade_execution_amount)
-          this.executionshape.setText('0000.7VOID')
-        if (
-          !this.chart_orders_settings.show_trade_executions_price &&
-          !this.chart_orders_settings.show_trade_execution_amount
-        )
-          this.executionshape.setText('')
+      console.log('Grid execution...')
+
+      this.gridExecutions.map(e => e.remove())
+      this.gridExecutions = []
+
+      if (this.chart_orders_settings.show_trade_executions) {
+        const _deals = []
+
+        const compressed = {}
+        for (const deal of this.deals) {
+          if (compressed[deal.trx_id]) {
+            compressed[deal.trx_id].push(deal)
+          } else {
+            compressed[deal.trx_id] = [deal]
+          }
+        }
+
+        for (const pack of Object.values(compressed)) {
+          const byPrice = {}
+
+          for (const d of pack) {
+            if (byPrice[d.unit_price]) {
+              byPrice[d.unit_price].bid += d.bid
+              byPrice[d.unit_price].ask += d.ask
+            } else {
+              byPrice[d.unit_price] = d
+            }
+          }
+
+          _deals.push(...Object.values(byPrice))
+        }
+
+
+        for (const deal of _deals) {
+          const execution = this.widget
+            .activeChart()
+            .createExecutionShape()
+            //.setTooltip('@1,320.75 Limit Buy 1')
+            //.setTooltip(`${deal.unit_price} ` + deal.type == 'buy' ? `@${deal.bid}` : `@${deal.ask}`)
+            .setTooltip(deal.buy)
+
+            .setText(deal.unit_price)
+            .setTextColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
+            .setArrowColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
+            .setDirection(deal.type)
+            .setTime(new Date(deal.time).getTime() / 1000)
+            .setPrice(deal.unit_price)
+            .setArrowHeight(10)
+            .setArrowSpacing(0)
+            .setFont('bold 15pt Verdana')
+
+          //if (!this.chart_orders_settings.show_trade_executions_price)
+          //  this.executionshape.setText('0000')
+          //if (!this.chart_orders_settings.show_trade_execution_amount)
+          //  this.executionshape.setText('0000.7VOID')
+          //if (
+          //  !this.chart_orders_settings.show_trade_executions_price &&
+          //  !this.chart_orders_settings.show_trade_execution_amount
+          //)
+          //  this.executionshape.setText('')
+
+          //gridExecutions.push
+
+
+          this.gridExecutions.push(execution)
+        }
+        //for
+        //this.executionshape = this.widget
+        //  .chart()
+        //  .createExecutionShape()
+        //  .setTooltip('@1,320.75 Limit Buy 1')
+        //  .setText('0000 - 0000.7VOID')
+        //  .setTextColor('#f96c6c')
+        //  .setArrowColor('#f96c6c')
+        //  //.setFont('18pt Verdana')
+        //  //.setArrowSpacing(25)
+        //  //.setArrowHeight(25)
+        //  .setDirection('buy')
+        //  .setLineStyle(2)
+        //  // .setTime(1648772490411)
+        //  .setPrice(0.007)
+        //  .setArrowHeight(20)
+        //  .setArrowSpacing(0)
+        //  .setFont('bold 15pt Verdana')
+
+        //if (!this.chart_orders_settings.show_trade_executions_price)
+        //  this.executionshape.setText('0000')
+        //if (!this.chart_orders_settings.show_trade_execution_amount)
+        //  this.executionshape.setText('0000.7VOID')
+        //if (
+        //  !this.chart_orders_settings.show_trade_executions_price &&
+        //  !this.chart_orders_settings.show_trade_execution_amount
+        //)
+        //  this.executionshape.setText('')
       }
     },
 
@@ -417,10 +487,14 @@ export default {
               }
             )
             onHistoryCallback(charts, { noData: charts.length == 0 })
+
             this.widget.activeChart().resetData()
             this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+
             this.isReady = true
+
             this.drawOrders()
+            //this.loadHistory().then(() => this.gridExecution()) TODO History on chart
           },
 
           unsubscribeBars: (subscriberUID) => {
@@ -509,7 +583,6 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
-        console.log('on Chart ready!!!')
         //this.isReady = true
 
         this.widget.subscribe('onAutoSaveNeeded', () => {

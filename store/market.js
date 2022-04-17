@@ -110,8 +110,8 @@ export const state = () => ({
     chart_order_interactivity: true,
     chart_executions: true,
     show_trade_executions: true,
-    show_trade_executions_price: false,
-    show_trade_execution_amount: false
+    show_trade_executions_price: true,
+    show_trade_execution_amount: true
   },
   orderdata: {
     order: {},

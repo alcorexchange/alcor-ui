@@ -298,7 +298,7 @@ export default {
           w: 5,
           h: 8,
           i: 'markets',
-          status: true,
+          status: false,
           mw: 5,
           mh: 5
         }

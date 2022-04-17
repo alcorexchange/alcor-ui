@@ -46,20 +46,20 @@ import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
   components: {
-    InfiniteLoading,
+    InfiniteLoading
   },
 
   data() {
     return {
       orders: [],
       deals: [],
-      skip: 0,
+      skip: 0
     }
   },
 
   computed: {
     ...mapState(['user', 'markets_obj']),
-    ...mapState('market', ['base_token', 'quote_token', 'id']),
+    ...mapState('market', ['base_token', 'quote_token', 'id'])
 
     //deals() {
     //  return this.userDeals.filter(d => d.market == this.id)
@@ -75,17 +75,17 @@ export default {
         // Initial fill
         this.infiniteHandler({
           loaded: () => {},
-          complete: () => {},
+          complete: () => {}
         })
       }
-    },
+    }
   },
 
   mounted() {
     // Initial fill
     this.infiniteHandler({
       loaded: () => {},
-      complete: () => {},
+      complete: () => {}
     })
   },
 
@@ -121,8 +121,8 @@ export default {
           params: {
             limit: 100,
             skip: this.skip,
-            market: this.id,
-          },
+            market: this.id
+          }
         }
       )
 
@@ -131,12 +131,6 @@ export default {
       if (deals.length) {
         deals.map((d) => {
           d.type = this.user.name == d.bidder ? 'buy' : 'sell'
-          //if ((this.user.name == d.bidder && d.type != 'buymatch') || (this.user.name != d.bidder && d.type == 'buymatch')) [d.ask, d.bid] = [d.bid, d.ask]
-          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
-          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
-          //  [d.ask, d.bid] = [d.bid, d.ask]
-          //  console.log('change bid/ask', d.ask, d.bid)
-          //}
         })
 
         this.deals.push(...deals)
@@ -146,8 +140,8 @@ export default {
         $state.complete()
         console.log('complete')
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
