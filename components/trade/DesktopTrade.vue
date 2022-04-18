@@ -11,6 +11,7 @@
       :vertical-compact='true',
       :margin='[4, 4]',
       :use-css-transforms='true'
+      v-if="markets_layout.length > 0"
     )
       grid-item.overflowbox(
         v-for='item in markets_layout.filter((item) => item.status)',
