@@ -37,7 +37,15 @@ export async function updater(chain, provider, services) {
 
     await updateMarkets(network)
     setInterval(() => updateMarkets(network), 1 * 60 * 1000)
-    streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
+
+    while (true) {
+      try {
+        await streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
+      } catch (e) {
+        console.error(`${chain} STREAMER WAS FAILED! restarting...`, e)
+        await new Promise((resolve, reject) => setTimeout(resolve, 1000))
+      }
+    }
   }
 
   if (services.includes('pools')) {

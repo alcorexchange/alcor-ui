@@ -7,13 +7,18 @@ import config from '../../config'
 import { markeBars } from './charts'
 
 // TODO Тут от докера прокидываем
-const redisClient = createClient()
-redisClient.connect()
+let redisClient
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
 
 export async function newMatch(match, network) {
+  if (!redisClient) {
+    // TODO Refactor it properly
+    redisClient = createClient()
+    redisClient.connect()
+  }
+
   const { trx_id, block_num, act: { name, data } } = match
 
   try {
