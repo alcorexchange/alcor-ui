@@ -42,7 +42,7 @@
             .icon-btn
               i.el-icon-close(@click='closegriditem(item.i)')
           top-line(v-if='item.i == "chart"')
-          chart(v-if='item.i == "chart"')
+          chart(v-if='item.i == "chart"', :status_move='confirmordermove')
           el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"')
             el-tab-pane(label='Orderbook')
               order-book
@@ -211,6 +211,7 @@ export default {
       resizestatus: null,
       depthChartUpdated: false,
       hideswitch: false,
+      confirmordermove: '',
     }
   },
 
@@ -244,7 +245,7 @@ export default {
     move_confirm_order(isMove) {
       this.orderdata.show_move_modal = false
       if (isMove) this.orderdata.price = this.orderdata.new_price
-      //
+      this.confirmordermove = { move: false, value: this.orderdata.new_price }
     },
     showtimeformat(value) {
       this.timeformat = value

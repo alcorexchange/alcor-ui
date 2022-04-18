@@ -9,6 +9,7 @@ import { mapState, mapGetters } from 'vuex'
 import global from '~/plugins/global'
 
 export default {
+  props: ['status_move'],
   data() {
     return {
       resolution: 240,
@@ -22,6 +23,7 @@ export default {
       order: '',
       isReady: false,
       userOrder: [],
+      currentPrice: '',
     }
   },
 
@@ -52,6 +54,13 @@ export default {
     id(to, from) {
       this.reset()
       this.load()
+    },
+    status_move(old_order, order) {
+      if (!order.move) this.order.setPrice(old_order.value)
+      else this.order.setPrice(order.value)
+    },
+    'orderdata.new_price'(old_price, new_price) {
+      this.orderdata.price = new_price
     },
     'chart_orders_settings.chart_order_interactivity'() {
       if (!this.isReady) return
@@ -166,18 +175,9 @@ export default {
         if (this.chart_orders_settings.show_labels) {
           this.order.setQuantity('150,000 VOID')
           this.order.setText('Buy')
-          console.log('How are you?')
-          // if ((await this.orders.length) > 0) {
-          //   await this.orders.map((item) => {
-          //     console.log('===============orders', item, item.bid.quantity)
-          //     this.order.setQuantity(item.bid.quantity)
-          //     // return item
-          //     this.order.setText('Buy')
-          //   })
-          // }
           if (this.chart_orders_settings.chart_order_interactivity) {
             this.order
-              .onMove(this.Movedfunc)
+              .onMove(this.order.getPrice(), this.Movedfunc)
               // .onModify('onModify called', this.Movedfunc)
               .onCancel('onCancel called', this.Cancelfunc)
           }
@@ -189,20 +189,9 @@ export default {
       }
     },
 
-    Movedfunc() {
-      console.log('moved:=======', this.order.getPrice(), this.order)
+    Movedfunc(current_price) {
       this.orderdata.show_move_modal = true
       this.orderdata.new_price = this.order.getPrice()
-      this.orderdata.price = this.orders.map((item) => {
-        console.log(
-          'price',
-          item.unit_price | this.$options.filters.humanPrice(item.unit_price)
-        )
-        return (
-          item.unit_price | this.$options.filters.humanPrice(item.unit_price)
-        )
-      })
-      // console.log('my_price:', this.orderdata.price[0])
     },
 
     Cancelfunc() {
