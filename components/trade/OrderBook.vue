@@ -303,12 +303,13 @@ export default {
   height: calc(50% - 41px);
   flex-direction: column-reverse;
   color: var(--main-red);
-
+  padding-bottom: 1px;
 }
 
 .orders-list.bids {
   color: var(--main-green);
   height: calc(50% - 18px);
+  padding-top: 1px;
 }
 
 .orders-list.blist .ltd:hover {
