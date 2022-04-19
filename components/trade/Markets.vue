@@ -19,7 +19,7 @@
       clearable
       width="60%"
     )
-       template(slot="append")
+       template(v-if="sideMaretsTab == network.baseToken.symbol" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
   el-table(
     :data='filteredItems',
