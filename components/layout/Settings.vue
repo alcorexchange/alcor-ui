@@ -6,86 +6,20 @@
         span.theme-title Theme
       .el-main.theme-main-settings
         .theme-selection.d-flex.flex-column
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal1(
-                type='radio',
-                value='dark',
-                name='soundsignal',
-                checked=checked,
-                @change='onChange($event)'
+          .theme-list.option-theme
+            b-dropdown(:text='selected ? selected.text : `<div>sunsun</div>`')
+              b-dropdown-item(
+                :disabled='option.disabled',
+                @click='select(option)',
+                v-for='option in options',
+                :key='option.value'
               )
-              label(for='soundsignal1') Default
-            .theme-pickers.d-flex.flex-row
-              .text-picker.default-text.mx-1 Aa
-              .static-color-picker.default-green.mx-1
-              .static-color-picker.default-red.mx-1
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal2(
-                type='radio',
-                value='contrast',
-                name='soundsignal',
-                @change='onChange($event)'
-              )
-              label(for='soundsignal2') Contrast
-            .theme-pickers.d-flex.flex-row
-              .text-picker.contrast-text.mx-1 Aa
-              .static-color-picker.contrast-green.mx-1
-              .static-color-picker.contrast-red.mx-1
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal3(
-                type='radio',
-                value='oranger',
-                name='soundsignal',
-                checked=checkedorange,
-                @change='onChange($event)'
-              )
-              label(for='soundsignal3') Oranger
-            .theme-pickers.d-flex.flex-row
-              .text-picker.oranger-text.mx-1 Aa
-              .static-color-picker.oranger-blue.mx-1
-              .static-color-picker.oranger-brown.mx-1
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal4(
-                type='radio',
-                value='oceano',
-                name='soundsignal',
-                @change='onChange($event)'
-              )
-              label(for='soundsignal4') Oceano
-            .theme-pickers.d-flex.flex-row
-              .text-picker.oceano-text.mx-1 Aa
-              .static-color-picker.oceano-blue.mx-1
-              .static-color-picker.oceano-white.mx-1
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal5(
-                type='radio',
-                value='cyber',
-                name='soundsignal',
-                @change='onChange($event)'
-              )
-              label(for='soundsignal5') Cyber
-            .theme-pickers.d-flex.flex-row
-              .text-picker.cyber-text.mx-1 Aa
-              .static-color-picker.cyber-green.mx-1
-              .static-color-picker.cyber-red.mx-1
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal6(
-                type='radio',
-                value='bloom',
-                name='soundsignal',
-                @change='onChange($event)'
-              )
-              label(for='soundsignal6') Bloom
-            .theme-pickers.d-flex.flex-row
-              .text-picker.bloom-text.mx-1 Aa
-              .static-color-picker.bloom-green.mx-1
-              .static-color-picker.bloom-red.mx-1
+                .theme-list.d-flex.flex-row.justify-content-between
+                  label(for='soundsignal1') Default
+                  .theme-pickers.d-flex.flex-row
+                    .text-picker.default-text.mx-1 Aa
+                    .static-color-picker.default-green.mx-1
+                    .static-color-picker.default-red.mx-1
     hr(
       style='width: 90%; text-align: center; background-color: gray; margin-top: -9px; margin-bottom: 9px'
     )
@@ -123,19 +57,53 @@
               )
       .el-footer.module-footer.default-settings-part
         .return-default-setting(@click='initiateState()') Return to Default Settings
+    hr(
+      style='width: 90%; text-align: center; background-color: gray; margin-top: -9px; margin-bottom: 9px'
+    )
+    .el-container.setting-nodes.d-flex.flex-column
+      .active-nodes-box
+        .nodes-label.pb-1 Nodes
+        .nodes-switch.inline-flex.pr-2.py-2
+          el-switch.pr-2(
+            v-model='nodes',
+            @change='',
+            active-color='#13ce66',
+            inactive-color='#161617'
+          )
+          .node-label Automatically select(5)
+        .node-active-label.pb-2 Active node
+        .node-active.d-flex.flex-row.justify-content-between
+          .current-node-name-link.d-flex.flex-column
+            .node-active-name Western Europe-Germany-Falkenstein
+            .node-active-link wss://node.gph.ai
+          .node-active-time.active-standard 424.2ms
+          .active-node-status.d-flex
+            img.logo(height='44', src='~/assets/logos/nodeactive.svg', alt='')
+      el-tabs.h-100(type='border-card', size='small')
+        el-tab-pane(label='Available Nodes')
+          AvailableNodes
+        el-tab-pane(label='Personal Nodes')
+          PersonalNodes
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import Vue from 'vue'
+import BootstrapVue from 'bootstrap-vue'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import AvailableNodes from '~/components/trade/AvailableNodes'
+import PersonalNodes from '~/components/trade/PersonalNodes'
+Vue.use(BootstrapVue)
 
 export default {
   scrollToTop: false,
 
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
+    AvailableNodes,
+    PersonalNodes,
   },
 
   data() {
@@ -146,11 +114,35 @@ export default {
         'time-sale': 'Times and Sales',
         'limit-market': 'Limit Trade/Market Trade',
         'open-order': 'Open Orders',
-        markets: 'Markets'
+        markets: 'Markets',
+        favorites: 'Favorites',
       },
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false
+      checkedorange: false,
+      selected: null,
+      options: [
+        {
+          value: null,
+          text: 'default',
+        },
+        {
+          value: 'a',
+          text: 'This is First option',
+        },
+        {
+          value: 'b',
+          text: 'Default Selected Option',
+        },
+        {
+          value: 'c',
+          text: 'This is another option',
+        },
+        {
+          value: 'd',
+          text: 'This one is disabled',
+        },
+      ],
     }
   },
   computed: {
@@ -170,7 +162,7 @@ export default {
               i: 'chart',
               status: true,
               mw: 9,
-              mh: 9
+              mh: 9,
             },
             {
               x: 14,
@@ -180,7 +172,7 @@ export default {
               i: 'order-depth',
               status: true,
               mw: 5,
-              mh: 9
+              mh: 9,
             },
             {
               x: 19,
@@ -190,7 +182,7 @@ export default {
               i: 'time-sale',
               status: true,
               mw: 3,
-              mh: 9
+              mh: 9,
             },
             {
               x: 0,
@@ -200,7 +192,7 @@ export default {
               i: 'open-order',
               status: true,
               mw: 10,
-              mh: 7
+              mh: 7,
             },
             {
               x: 14,
@@ -210,7 +202,7 @@ export default {
               i: 'limit-market',
               status: true,
               mw: 8,
-              mh: 8
+              mh: 8,
             },
             {
               x: 14,
@@ -220,8 +212,8 @@ export default {
               i: 'markets',
               status: false,
               mw: 5,
-              mh: 5
-            }
+              mh: 5,
+            },
           ]
           return defaultlayout
         }
@@ -229,13 +221,22 @@ export default {
 
       set(value) {
         this.$store.commit('market/setMarketLayout', value)
-      }
-    }
+      },
+    },
+  },
+  mounted() {
+    document.getElementsByClassName(
+      'btn dropdown-toggle btn-secondary'
+    )[0].innerHTML =
+      '<div class="theme-list d-flex flex-row justify-content-between"><label for="soundsignal1">Default</label><div class="theme-pickers d-flex flex-row"><div class="text-picker default-text mx-1">Aa</div><div class="static-color-picker default-green mx-1"></div><div class="static-color-picker default-red mx-1"></div></div></div>'
   },
   methods: {
     onChange(e) {
       this.$store.dispatch('dynamicTheme', e.target.value)
       if (e.target.value == 'oranger') this.checkedorange = true
+    },
+    select(option) {
+      this.selected = option
     },
     updateState() {
       this.$store.commit('market/setMarketLayout', this.markets_layout)
@@ -250,7 +251,7 @@ export default {
           i: 'chart',
           status: true,
           mw: 9,
-          mh: 9
+          mh: 9,
         },
         {
           x: 14,
@@ -260,7 +261,7 @@ export default {
           i: 'order-depth',
           status: true,
           mw: 5,
-          mh: 9
+          mh: 9,
         },
         {
           x: 19,
@@ -270,7 +271,7 @@ export default {
           i: 'time-sale',
           status: true,
           mw: 5,
-          mh: 9
+          mh: 9,
         },
         {
           x: 0,
@@ -280,7 +281,7 @@ export default {
           i: 'open-order',
           status: true,
           mw: 10,
-          mh: 7
+          mh: 7,
         },
         {
           x: 14,
@@ -290,7 +291,7 @@ export default {
           i: 'limit-market',
           status: true,
           mw: 6,
-          mh: 7
+          mh: 7,
         },
         {
           x: 14,
@@ -300,11 +301,21 @@ export default {
           i: 'markets',
           status: false,
           mw: 5,
-          mh: 5
-        }
+          mh: 5,
+        },
+        {
+          x: 14,
+          y: 14,
+          w: 5,
+          h: 8,
+          i: 'favorites',
+          status: false,
+          mw: 5,
+          mh: 5,
+        },
       ]
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -342,7 +353,7 @@ export default {
 
 .setting-modal {
   height: auto;
-  width: 288px;
+  width: 360px;
   background-color: white;
 }
 
@@ -359,6 +370,9 @@ el-container.setting-theme {
   flex-direction: column;
 }
 
+.el-container.setting-theme {
+  margin-bottom: 16px;
+}
 /* radio button */
 /* completely hiding radio button */
 input[type='radio'] {
@@ -429,6 +443,11 @@ input[type='radio']:checked + label:before {
   padding: 3px 0px 3px 0px;
 }
 
+.theme-list.option-theme {
+  margin: 6px 0px 6px 0px;
+  padding: 3px 0px 3px 0px;
+}
+
 .theme-dark .el-footer {
   padding: 0px 12px;
   box-sizing: border-box;
@@ -466,6 +485,8 @@ input[type='radio']:checked + label:before {
 }
 
 .theme-pickers {
+  justify-content: center;
+  align-items: center;
   .default-green {
     background-color: #66c167;
   }
@@ -701,5 +722,98 @@ input[type='radio']:checked + label:before {
 .module-list {
   padding: 2px 0px 2px 0px;
   margin: 2px 0px 2px 0px;
+}
+
+.node-active {
+  .node-active-name {
+    font-size: 14px;
+    color: #f2f2f2;
+  }
+  .node-active-link {
+    font-size: 10px;
+    color: #bdbdbd;
+  }
+  .node-active-time {
+    font-size: 12px;
+    &.active-standard {
+      color: #d0da59;
+    }
+    &.active-warning {
+      color: #f96c6c;
+    }
+  }
+  .active-node-status {
+    margin-top: 3px;
+    img {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+.active-nodes-box {
+  padding: 8px 12px 26px 12px;
+}
+
+.nodes-label {
+  font-size: 12px;
+  line-height: 14.06px;
+  color: #c4c4c4;
+  line-height: 16.41px;
+}
+
+.node-label {
+  font-size: 14px;
+  color: #f2f2f2;
+}
+.node-active-label {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: #c4c4c4;
+}
+.nodes-switch.inline-flex {
+  display: inline-flex;
+}
+.theme-list.option-theme {
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    width: 100%;
+    background: #282828;
+  }
+  a {
+    color: #42b983;
+  }
+  button::after {
+    position: absolute;
+    right: 9px;
+    top: 9px;
+  }
+  button {
+    background: #161617 !important;
+    border-radius: 2px !important;
+    height: 24px;
+    border: none;
+    .theme-list {
+      width: 95%;
+    }
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  .dropdown {
+    width: 100% !important;
+    background: #282828;
+  }
+}
+
+.theme-main-settings {
+  overflow: inherit !important;
 }
 </style>

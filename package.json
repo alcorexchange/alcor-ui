@@ -61,6 +61,7 @@
     "vue-moment": "^4.0.0",
     "vue-no-ssr": "^1.1.1",
     "vue-scrollto": "^2.20.0",
+    "vue-select": "^3.18.3",
     "vue-slick-carousel": "^1.0.6",
     "vuex-persistedstate": "^3.0.1",
     "web3-utils": "^1.6.0"
