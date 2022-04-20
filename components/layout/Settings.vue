@@ -5,34 +5,34 @@
       .setting-theme-footer.el-footer.text-white
         span.theme-title Theme
       .el-main.theme-main-settings
-        .theme-selection.d-flex.flex-column
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal1(
-                type='radio',
-                value='dark',
-                name='soundsignal',
-                checked=checked,
-                @change='onChange($event)'
-              )
-              label(for='soundsignal1') Default
-            .theme-pickers.d-flex.flex-row
+        el-dropdown(trigger="click").theme-dropdown
+          .active
+            span Default
+
+            .theme-pickers.d-flex.flex-row.ml-auto
               .text-picker.default-text.mx-1 Aa
               .static-color-picker.default-green.mx-1
               .static-color-picker.default-red.mx-1
-          .theme-list.d-flex.flex-row.justify-content-between
-            .default-radio
-              input#soundsignal2(
-                type='radio',
-                value='contrast',
-                name='soundsignal',
-                @change='onChange($event)'
-              )
-              label(for='soundsignal2') Contrast
-            .theme-pickers.d-flex.flex-row
-              .text-picker.contrast-text.mx-1 Aa
-              .static-color-picker.contrast-green.mx-1
-              .static-color-picker.contrast-red.mx-1
+
+            i.el-icon-arrow-down
+
+          template(#dropdown='')
+            el-dropdown-menu.theme-dropdown-container
+              .d-item
+                span Contrast
+                .theme-pickers.d-flex.flex-row.ml-auto
+                  .text-picker.contrast-text.mx-1 Aa
+                  .static-color-picker.contrast-green.mx-1
+                  .static-color-picker.contrast-red.mx-1
+
+              .d-item
+                span Oranger
+                .theme-pickers.d-flex.flex-row.ml-auto
+                  .text-picker.oranger-text.mx-1 Aa
+                  .static-color-picker.oranger-blue.mx-1
+                  .static-color-picker.oranger-brown.mx-1
+
+        //.theme-selection.d-flex.flex-column
           .theme-list.d-flex.flex-row.justify-content-between
             .default-radio
               input#soundsignal3(
@@ -148,6 +148,8 @@ export default {
         'open-order': 'Open Orders',
         markets: 'Markets'
       },
+
+      theme: 'dark',
       marketswitchvalue: false,
       favoritesswitchvalue: false,
       checkedorange: false
@@ -701,5 +703,37 @@ input[type='radio']:checked + label:before {
 .module-list {
   padding: 2px 0px 2px 0px;
   margin: 2px 0px 2px 0px;
+}
+
+.theme-dropdown {
+  width: 100%;
+
+  .el-dropdown-selfdefine {
+    width: 100%;
+    display: flex;
+    padding: 2px 10px;
+    background: var(--bg-alter-1);
+    align-items: center;
+  }
+}
+
+.el-dropdown-menu.theme-dropdown-container {
+  padding: 0px;
+  background: var(--bg-alter-1);
+  border: 2px solid rgb(63, 63, 63);
+}
+
+.theme-dropdown-container {
+  .d-item {
+    display: flex;
+    cursor: pointer;
+    width: 260px;
+    padding: 3px 10px;
+    align-items: center;
+  }
+
+  .d-item:hover {
+    background: var(--btn-default);
+  }
 }
 </style>

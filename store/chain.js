@@ -97,7 +97,6 @@ export const actions = {
     commit('setUser', { name, authorization }, { root: true })
     dispatch('afterLoginHook')
 
-
     commit('setLastWallet', wallet_name)
 
     //if (state.loginPromise) state.loginPromise.resolve(true)

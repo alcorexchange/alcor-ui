@@ -244,7 +244,7 @@ export default {
   position: absolute;
   top: 60px;
   right: 10px;
-  background: #282828;
+  background: var(--btn-default);
   border: 2px solid rgb(63, 63, 63);
   border-radius: 2px;
   z-index: 9;
