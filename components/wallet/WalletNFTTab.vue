@@ -1,8 +1,8 @@
 <template lang="pug">
-.d-flex.justify-content-between.tabar-container
-  .search-input-group.border-bottom--gray
-    img.search-icon(:src='data.searchIcon', alt='')
-    input.search-input(
+.d-flex.justify-content-between.tabar-container.tradeoffertab.row.mb-4.wallet-nft-tab
+  label.search-input-group.border-bottom--gray.d-flex.align-items-center
+    img.search-icon(src='~/assets/images/search.svg', alt='')
+    input.search-input.w-100(
       type='text',
       :value='searchValue',
       @input='debounceSearch',
@@ -10,11 +10,11 @@
       @blur='blurInput',
       placeholder='Search name or address'
     )
-    img.down-icon(:src='data.downIcon', alt='')
-  b-dropdown.filter-input-group.border-bottom--gray
+    img.down-icon(src='~/assets/images/down.svg', alt='')
+  b-dropdown.filter-input-group.border-bottom--gray.d-flex.align-items-center
     template(#button-content)
-      img.me-1(:src='data.filterIcon', alt='')
-      p Filter
+      img.me-1(src='~/assets/images/filter.svg', alt='')
+      p.m-0 Filter
     button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
       @click='() => handleCollection("")'
     )
@@ -29,95 +29,111 @@
       img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
       img(v-else, src='~/assets/images/default.png')
       p.ml-1.flex-fill.text-left.collection-name {{ item.name }}
-  .tab-btn.border-bottom--green(v-if='currentTab === "sales"') Sales
-  .tab-btn.border-bottom--gray(v-else='', @click='handleTab("sales")') Sales
-  .tab-btn.border-bottom--green(v-if='currentTab === "auctions"') Auctions
-  .tab-btn.border-bottom--gray(v-else='', @click='handleTab("auctions")') Auctions
+  .tab-btn.border-bottom--green(
+    v-for='(tab, index) in tabData',
+    :key='index',
+    v-if='currentTab === tab.slug'
+  ) {{ tab.title }}
+  .tab-btn.border-bottom--gray(v-else='', @click='handleTab(tab.slug)') {{ tab.title }}
 </template>
 
 <style scoped lang="scss">
-.tabar-container {
-  margin-bottom: 35px;
-}
-.border-bottom--gray {
-  border-bottom: 1px solid #333;
-  width: 225px;
-}
-.border-bottom--green {
-  border-bottom: 1px solid var(--main-green);
-  width: 225px;
-}
-.border-bottom--cancel {
-  border-bottom: 1px solid var(--cancel);
-}
-.search-input-group,
-.filter-input-group {
-  position: relative;
-}
-.filter-input-group {
-  width: 87px;
-  .btn-collection {
-    background-color: transparent;
-    height: 37px;
+.tradeoffertab {
+  .create-collection-btn {
+    float: right;
+    text-align: center;
+    padding: 19px 3px;
+    width: 220px;
+    padding: 13px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    background: #67c23a;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .tabar-container {
+    margin-bottom: 35px;
+  }
+  .down-icon,
+  .filter-icon,
+  .search-icon {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+  }
+  .tab-btn {
     color: #bec6cb;
-    white-space: nowrap;
-    overflow: hidden;
-    img {
-      min-width: 35px;
-      width: 35px;
-      height: 35px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-    &:hover {
-      background-color: rgb(65, 65, 65);
-    }
-    .collection-name {
+  }
+  .border-bottom--gray {
+    border-bottom: 1px solid #333;
+  }
+  .border-bottom--green {
+    border-bottom: 1px solid #67c23a;
+  }
+  .border-bottom--cancel {
+    border-bottom: 1px solid var(--cancel);
+  }
+  .search-input-group,
+  .filter-input-group {
+    position: relative;
+  }
+  .filter-input-group {
+    width: 87px;
+    .btn-collection {
+      background-color: transparent;
+      height: 37px;
+      color: #bec6cb;
+      white-space: nowrap;
       overflow: hidden;
+      img {
+        min-width: 35px;
+        width: 35px;
+        height: 35px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+      &:hover {
+        background-color: rgb(65, 65, 65);
+      }
+      .collection-name {
+        overflow: hidden;
+      }
     }
   }
-}
-.filter-input,
-.search-input {
-  color: var(--cancel);
-}
-.filter-input-group .search-input {
-  width: 80px !important;
-}
-.tab-btn {
-  cursor: pointer;
-  padding: 5px;
-  font-size: 18px;
-  text-align: center;
-  width: 293px;
-}
-.search-icon,
-.filter-icon,
-.down-icon {
-  position: absolute;
-  top: 50%;
-  transform: translate(25%, -50%);
-  width: 15px;
-  height: 15px;
-}
-.search-icon {
-  left: 0;
-}
-.down-icon {
-  right: 0;
-  top: 50%;
-  transform: translate(-25%, -50%);
-}
-.search-input {
-  padding: 5px 25px;
-  outline: none;
-  border: none;
-  background-color: transparent;
+
+  .filter-input-group .search-input {
+    width: 80px !important;
+  }
+  .filter-input,
+  .search-input {
+    color: var(--cancel);
+  }
+  .tab-btn {
+    cursor: pointer;
+    padding: 12px 0;
+    font-size: 15px;
+    text-align: center;
+    width: 130px;
+  }
+  .search-icon {
+    left: 0;
+  }
+  .down-icon {
+    left: auto;
+    right: 10px;
+  }
+  .search-input {
+    padding: 5px 25px;
+    outline: none;
+    border: none;
+    background-color: transparent;
+  }
 }
 </style>
-
 <style lang="scss">
-.tabar-container {
+.wallet-nft-tab {
   .filter-input-group {
     .dropdown-toggle {
       height: 37px;
@@ -142,17 +158,14 @@
   }
 }
 </style>
-
 <script>
-import { mapState } from 'vuex'
 import { BDropdown } from 'bootstrap-vue'
-
 export default {
   components: {
     BDropdown,
   },
   props: [
-    'data',
+    'tabData',
     'currentTab',
     'handleTab',
     'handleSearch',
@@ -166,11 +179,6 @@ export default {
       search: null,
       sellOrders: [],
     }
-  },
-  watch: {
-    search(newSearch, oldSearch) {
-      console.log(newSearch)
-    },
   },
   methods: {
     debounceSearch(event) {

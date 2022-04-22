@@ -4,15 +4,15 @@
     a(href="#") Transfer
   .col-6.d-flex.p-2.align-items-center.row
     .col-5.d-flex.align-items-center
-      img.mr-1(:src="require('~/assets/images/' + this.data.org_token)")
-      a(href="#") {{this.data.org_owner}}
+      img.mr-1.coin-icon(src='~/assets/icons/wax.png')
+      a(href="#") {{data.sender_name}}
     .col-2.text-center
-     img.pl-2(src='~/assets/images/double_arrow.svg')
+     img.mx-2(src='~/assets/images/double_arrow.svg')
     .col-5.d-flex.align-items-center
-      img.mr-1(:src="require('~/assets/images/' + this.data.new_token)")
-      a(href="#") {{this.data.new_owner}}
-  .col-4.d-flex.p-2.align-items-center
-    div.tab-content-date {{this.data.date}}
+      img.mr-1.coin-icon(src='~/assets/icons/wax.png')
+      a(href="#") {{data.recipient_name}}
+  .d-flex.flex-fill.p-2.align-items-center
+    div.tab-content-date {{ +data.created_at_time | moment('MM/DD/YYYY HH:mm a') }}
 </template>
 <script>
 export default {
@@ -39,6 +39,10 @@ export default {
   a {
     color: #67C23A !important;
     font-size: 14px !important;
+  }
+  .coin-icon {
+    width: 24px;
+    height: 24px;
   }
 }
 

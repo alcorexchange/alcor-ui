@@ -1,40 +1,35 @@
 <template lang="pug">
 .wallet-header.alcor-card
   .item
-    .title.cancel Portfolio value
+    .title.cancel NFT inventory
     .value
-      span.main {{ systemBalance.split(' ')[0] | commaFloat }}
-      span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel = ${{ $systemToUSD(systemBalance) }}
+      span.main 37
+      span.symbol.cancel NFTs
+    .info.cancel = $28.72
   .item
-    .title.cancel Active positions
-      el-tooltip(class="item" effect="dark" content="Scanning for active positions might take some time"
-      placement="right-start" v-if="$store.state.userOrdersLoading")
-        i.el-icon-loading.ml-1.pointer
+    .title.cancel Active Auctions
     .value
-      span.main
-        span.buy.green {{ buyPositionsCount }} Buy
-        span.cancel.line |
-        span.sell.red {{ sellPositionsCount }} Sell
-    .info.cancel {{ pairsCount }} Pairs
+      span.main 37 NFTs
+      span.symbol.cancel NFTs
+    .info.cancel = $28.72
   .item
-    .title.cancel Available funds
+    .title.cancel Active Listings
     .value
-      span.main {{ systemBalance.split(' ')[0] | commaFloat }}
-      span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel = ${{ $systemToUSD(systemBalance) }}
+      span.main 37
+      span.symbol.cancel NFTs
+    .info.cancel = $28.72
   .item
-    .title.cancel Staking rewards
+    .title.cancel Total Bought
     .value
-      span.main 0.0000
-      span.symbol.cancel WAX
-    .info.cancel Last Claim: 0.00000
+      span.main 374
+      span.symbol.cancel.wax WAX
+    .info.cancel = ${{ $systemToUSD(374) }}
   .item
-    .title.cancel LP rewards
+    .title.cancel Total Sold
     .value
-      span.main.green +0.0000
-      span.symbol.cancel WAX
-    .info.cancel 0 Liquidity Pools
+      span.main 230
+      span.symbol.cancel.wax WAX
+    .info.cancel = ${{ $systemToUSD(230) }}
 </template>
 
 <script>

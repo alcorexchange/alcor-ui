@@ -5,7 +5,7 @@ nuxt-link(:to='data.to' :exact="false")
       source(:src='imageBackground' type='video/webm')
     .image-title
       p {{data.title}}
-      .d-flex.align-items-center
+      .d-flex.align-items-center(v-if="data.subTItle")
         img.mr-2(v-if='data.subImage' :src='data.subImage' alt='nft card icon')
         h5.mb-0 {{data.subTItle}}
 </template>

@@ -63,33 +63,6 @@ export default {
   data() {
     return {
       title: 'ABC',
-      cardData: [
-        {
-          title: 'ALCOR',
-          subTItle: 'NFT MARKETPLACE',
-          img: Img1,
-          to: '/nft-market/marketplace',
-        },
-        {
-          title: 'WALLET',
-          subTItle: 'flfum.wam',
-          img: Img2,
-          subImage: subImg,
-          to: '/nft-market/walletinventory',
-        },
-        {
-          title: 'ALCOR',
-          subTItle: 'NFT EXPLORER',
-          img: Img3,
-          to: '/nft-market/nftexplorer',
-        },
-        {
-          title: 'ALCOR',
-          subTItle: 'CREATE NFT',
-          img: Img4,
-          to: '/nft-market/createnft',
-        },
-      ],
       relationData: '',
       normalcardData: [
         {
@@ -161,9 +134,40 @@ export default {
   },
 
   computed: {
-    ...mapState(['network']),
+    ...mapState(['network', 'user']),
     ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
     ...mapState('wallet', ['systemPrice']),
+
+    cardData() {
+      let data = [
+        {
+          title: 'ALCOR',
+          subTItle: 'NFT MARKETPLACE',
+          img: Img1,
+          to: '/nft-market/marketplace',
+        },
+        {
+          title: 'WALLET',
+          subTItle: this.user ? this.user.name : '',
+          img: Img2,
+          subImage: subImg,
+          to: '/wallet-inventory',
+        },
+        {
+          title: 'ALCOR',
+          subTItle: 'NFT EXPLORER',
+          img: Img3,
+          to: '/nft-market/nftexplorer',
+        },
+        {
+          title: 'ALCOR',
+          subTItle: 'CREATE NFT',
+          img: Img4,
+          to: '/nft-market/createnft',
+        },
+      ]
+      return data
+    },
 
     filteredOrders() {
       let orders = this.orders
@@ -271,7 +275,7 @@ export default {
     async getSymbolInfo() {
       const data = await this.$store.dispatch('api/getSymbolInfo')
       this.relationData = data
-    }
+    },
   },
 
   head() {

@@ -35,6 +35,11 @@ export default {
       sellOrders: [],
     }
   },
+  computed: {
+    imageBackground() {
+      return false
+    }
+  },
   methods: {
     debug() {
       console.log('this.data', this.data.buy.quantity.replaceAll('WAX', ''))
