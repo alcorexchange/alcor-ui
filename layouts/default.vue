@@ -46,6 +46,28 @@ div
               src='~/assets/logos/alcorwhite.svg',
               alt=''
             )
+
+        //el-dropdown(v-if="isMobile")
+          .network-selection
+            img.mr-2(:src='require("~/assets/icons/" + current_chain.name + ".png")' height=25)
+            //span(v-if='isMobile') {{ current_chain.name }}
+            //span(v-else) {{ current_chain.desc }}
+
+          //i.el-icon-arrow-down
+
+          template(#dropdown='')
+            el-dropdown-menu.dropdown-container
+              .d-item(
+                v-for='network in networks',
+                :key='network.name',
+                :value='network.name',
+                :label='network.name',
+                @click='changeChain(network.name)'
+              )
+                img(:src='require("~/assets/icons/" + network.name + ".png")' height=25)
+                span.ml-2 {{ network.name }}
+
+
         AlcorButton(@click='openMenu', :icononlyalt='true')
           i.el-icon-more
         nav(:class='["menu", { menuActive }]')
@@ -103,18 +125,23 @@ export default {
   data() {
     return {
       netError: false,
-
-      networks: [],
-      current_chain: '',
-
       app_name: config.APP_NAME,
-
       menuActive: false,
     }
   },
 
   computed: {
     ...mapGetters(['user']),
+
+    current_chain() {
+      return this.$store.state.network
+    },
+
+    networks() {
+      return Object.values(config.networks).filter((n) =>
+        ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
+      )
+    },
 
     menuItems() {
       const items = []
@@ -198,7 +225,18 @@ export default {
     closeMenu() {
       this.menuActive = false
     },
-  },
+
+    changeChain(chain) {
+      // TODO Move to config: APP_DOMAIN
+      const location =
+        chain == 'wax'
+          ? 'https://alcor.exchange/'
+          : `https://${chain}.alcor.exchange/`
+
+      this.loading = true
+      window.location = location + window.location.pathname.split('/')[1] || ''
+    }
+  }
 }
 </script>
 

@@ -11,8 +11,6 @@
     .change
       .red(v-if="market.change24 < 0") {{ market.last_price | commaFloat(5) }} ({{ market.change24 | commaFloat(2) }}%)
       .green(v-else) {{ market.last_price | commaFloat(5) }} ({{ market.change24 | commaFloat(2) }}%)
-
-  .right-shadow
 </template>
 
 <script>
@@ -39,11 +37,11 @@ export default {
 
 <style lang="scss">
 .top-favorite-markets {
-  height: 60px;
-
   border: 1px solid #212124;
   box-sizing: border-box;
   border-radius: 2px;
+
+  background-color: var(--table-background);
 
   width: 100%;
   display: flex;
@@ -61,7 +59,7 @@ export default {
   .market {
     padding: 5px;
     border-right: 1px solid rgba(60, 60, 67, 0.36);
-    min-width: 160px;
+    min-width: 120px;
   }
 
   .right-shadow {

@@ -2,7 +2,9 @@
 .mobile-trade-inner
   favorites-top-line
 
-  .chart
+  top-line.mt-2
+
+  .chart.mt-2
     chart
 
   .row.mt-1.orderbook
@@ -358,14 +360,32 @@ export default {
 
 <style lang="scss">
 .mobile-trade-inner {
-  font-size: 12px !important;
-}
-
-
-.mobile-trade-inner {
   width: 100%;
   background: #121212;
   padding: 10px;
+  font-size: 12px !important;
+
+  .header-items-container {
+    scroll-behavior: none;
+  }
+
+  .trade-top-line {
+    background: var(--table-background);
+
+    width: 100%;
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    overflow: scroll;
+
+    .show-markets {
+      width: 110px;
+    }
+  }
+
+  .trade-top-line::-webkit-scrollbar {
+    display: none;
+  }
 
   .chart {
     height: 400px;

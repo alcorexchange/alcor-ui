@@ -1,5 +1,6 @@
 <template lang="pug">
 .connect-nav
+  .connection-status.ml-auto
   .left
     el-dropdown
       .network-selection
@@ -7,10 +8,10 @@
           :src='require("~/assets/icons/" + current_chain.name + ".png")',
           height=25
         )
-        span(v-if='isMobile') {{ current_chain.name }}
-        span(v-else) {{ current_chain.desc }}
 
-        i.el-icon-arrow-down
+        //span(v-if='isMobile') {{ current_chain.name }}
+        //span(v-else) {{ current_chain.desc }}
+        //i.el-icon-arrow-down
       template(#dropdown='')
         el-dropdown-menu.dropdown-container
           .d-item(
@@ -31,7 +32,7 @@
       .balance(@click='openInNewTab(monitorAccount(user.name))') {{ systemBalance | commaFloat }}
       el-dropdown
         .user-name {{ user.name }}
-        //template(#dropdown='')
+          i.el-icon-arrow-down.text-muted.ml-1
         el-dropdown-menu.dropdown-container
           .d-item(@click='logout') Logout
     AlcorButton.connect-button(
@@ -174,6 +175,17 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.connection-status {
+  /* TODO Add connection status logic */
+  width: 5px;
+  height: 5px;
+  left: 18px;
+  top: 12px;
+
+  background: var(--main-green);
+  border-radius: 5px;
+}
+
 .connect-nav {
   display: flex;
   align-items: center;
@@ -234,7 +246,7 @@ export default {
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding: 4px 14px;
+  padding: 4px 5px;
   color: var(--text-default);
   span {
     margin-right: 4px;

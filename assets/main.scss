@@ -738,7 +738,33 @@ a {
   }
 }
 
+.horisontal-scrollbox {
+	overflow: auto;
+	max-width: 400px;
+	max-height: 200px;
+	margin: 50px auto;
 
+  background-image: 
+	
+    /* Shadows */ 
+    linear-gradient(to right, #212121, #212121),
+    linear-gradient(to right, #212121, #212121),
+  
+/* Shadow covers */ 
+    linear-gradient(to right, black, #212124),
+    linear-gradient(to left, black, #212124);
+
+    //linear-gradient(to right, green, red),
+    //linear-gradient(to left, green, red);   
+
+  background-position: left center, right center, left center, right center;
+	background-repeat: no-repeat;
+	//background-color: white;
+	background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
+	
+	/* Opera doesn't support this in the shorthand */
+	background-attachment: local, local, scroll, scroll;
+}
 
 
 
