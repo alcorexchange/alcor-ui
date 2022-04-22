@@ -340,6 +340,8 @@ export default {
     },
 
     setBids() {
+      if (!this.$refs.chart.chart) return
+
       const topPrice = this.sorted_bids[0]
 
       const bids = {}
@@ -375,6 +377,8 @@ export default {
     },
 
     setAsks() {
+      if (!this.$refs.chart.chart) return
+
       const topPrice = this.sorted_asks[0]
       if (!topPrice) return
 

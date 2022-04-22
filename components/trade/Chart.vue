@@ -171,6 +171,8 @@ export default {
     },
 
     async moveOrder(order, orderdata) {
+      // FIXME Не добавляет нулей для мемо при отправкe
+      // TODO При перемещении менять динамически тотал текст, будет удобно
       const actions = [
         { // Cancel current order
           account: this.network.contract,
@@ -532,7 +534,7 @@ export default {
           'control_bar',
 
           'symbol_search_hot_key',
-          //'left_toolbar',
+          this.isMobile ? 'left_toolbar' : undefined,
 
           //'legend_widget',
           'cropped_tick_marks',
@@ -597,7 +599,7 @@ export default {
 
 <style>
 #tv_chart_container {
-  height: calc(100% - 56px) !important;
+  height: calc(100%) !important;
 }
 @media only screen and (max-width: 1000px) {
   #tv_chart_container {

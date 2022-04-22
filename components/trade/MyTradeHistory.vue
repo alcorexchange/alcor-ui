@@ -22,7 +22,7 @@ el-table.my-trade-history(
     template(slot-scope='{ row }')
       span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
 
-  el-table-column(label='Price')
+  el-table-column(label='Price' width=100)
     template(slot-scope='scope')
       span {{ scope.row.unit_price | commaFloat(6) }}
 

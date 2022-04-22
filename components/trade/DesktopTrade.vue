@@ -69,7 +69,7 @@
             span Times and Sales
           //LatestDeals(:timeformat='timeformat')
         //- markets(v-if="item.i=='3'")
-        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card").trade-tabs
+        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
           template(slot='right')
             .d-flex.pairs-switch-right
               //- el-button.red.hover-opacity.ml-3.mt-1(
@@ -541,6 +541,10 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  #tv_chart_container {
+    height: calc(100% - 56px) !important;
+  }
+
   //padding: 2px 0px;
   background: #121212;
 

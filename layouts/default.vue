@@ -332,12 +332,6 @@ export default {
   padding: 8px;
   z-index: 230;
 }
-@media only screen and (max-width: 800px) {
-  .layout {
-    // TODO: something is causeing horizontal overflow I don't know what - Saeed
-    padding: 0 8px;
-  }
-}
 </style>
 
 <style lang="scss">

@@ -30,7 +30,7 @@
         i(:class='`el-icon-caret-${isLastTradeSell ? "bottom" : "top"}`')
 
       div
-        .price.small(:class='{ red: isLastTradeSell }')
+        .price(:class='{ red: isLastTradeSell }')
           span {{ price }} &nbsp;
           .text-muted(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
 
@@ -193,12 +193,10 @@ export default {
     // }
     @media (max-width: 480px) {
       & {
-        flex-direction: column;
         .price {
           margin-right: auto;
         }
         .spread {
-          flex-direction: row;
           margin-right: auto;
 
           .num {

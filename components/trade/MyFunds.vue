@@ -1,10 +1,10 @@
 <template lang="pug">
 //el-table.my-funds(:data='balances' row-class-name='pointer' @row-click='rowClick' style="height: calc(100vh - 5px);overflow: auto;")
 el-table.my-funds(:data='balances' row-class-name='pointer' @row-click='rowClick')
-  el-table-column(:label="'Token (' + balances.length + ')'", v-if='!isMobile' width=50)
+  el-table-column(:label="'Token (' + balances.length + ')'" width=100)
     template(slot-scope='{ row }')
       span {{ row.currency }}
-  el-table-column(label='Total Amount', v-if='!isMobile' width=300)
+  el-table-column(label='Total Amount' width=200)
     template(slot-scope='{ row }')
       .d-flex
         span.amount {{ row.amount | commaFloat(4) }}
@@ -29,14 +29,9 @@ el-table.my-funds(:data='balances' row-class-name='pointer' @row-click='rowClick
 
 <script>
 import { mapState } from 'vuex'
-import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
   props: ['onlyCurrentPair'],
-
-  components: {
-    InfiniteLoading,
-  },
 
   data() {
     return {
