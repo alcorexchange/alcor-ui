@@ -31,7 +31,14 @@ const MarketSchema = mongoose.Schema({
   volumeWeek: { type: Number },
   volumeMonth: { type: Number },
   change24: { type: Number },
-  changeWeek: { type: Number }
+  changeWeek: { type: Number },
+  high24: { type: Number },
+  low24: { type: Number }
+
+  // TODO
+  // Volume 24H USD
+  // Weekly Volume (WAX, USD)
+  // All Time High/Low
 })
 MarketSchema.index({ chain: 1, id: 1 })
 
