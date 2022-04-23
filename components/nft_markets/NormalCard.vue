@@ -10,7 +10,7 @@
       .card_number.d-flex.align-items-center.ml-1 {{ "#" + mintCount }}
   video.main-img.radius10(v-if='videoBackground', autoplay='', loop='')
     source(
-      :src='"https://ipfs.io/ipfs/" + videoBackground.video',
+      :src='"https://ipfs.atomichub.io/ipfs/" + videoBackground.video',
       type='video/mp4'
     )
   .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
@@ -131,7 +131,7 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.assets[0].data.img.includes('https://')
               ? this.data.assets[0].data.img
-              : 'url(https://ipfs.io/ipfs/' +
+              : 'url(https://ipfs.atomichub.io/ipfs/' +
                 this.data.assets[0].data.img +
                 ')',
           }
@@ -143,7 +143,7 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
-              : 'url(https://ipfs.io/ipfs/' + this.data.data.img + ')',
+              : 'url(https://ipfs.atomichub.io/ipfs/' + this.data.data.img + ')',
           }
         } else return false
       } else if (this.mode === 'assets') {
@@ -153,7 +153,7 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
-              : 'url(https://ipfs.io/ipfs/' + this.data.data.img + ')',
+              : 'url(https://ipfs.atomichub.io/ipfs/' + this.data.data.img + ')',
           }
         } else return false
       } else if (this.mode === 'templates') {
@@ -163,7 +163,7 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.immutable_data.img.includes('https://')
               ? this.data.immutable_data.img
-              : 'url(https://ipfs.io/ipfs/' +
+              : 'url(https://ipfs.atomichub.io/ipfs/' +
                 this.data.immutable_data.img +
                 ')',
           }
@@ -175,7 +175,7 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.collection.img.includes('https://')
               ? this.data.collection.img
-              : 'url(https://ipfs.io/ipfs/' + this.data.collection.img + ')',
+              : 'url(https://ipfs.atomichub.io/ipfs/' + this.data.collection.img + ')',
           }
         } else return false
       } else if (this.data.sell && this.data.sell[0].mdata) {

@@ -218,8 +218,8 @@ export const actions = {
   async getAssets({ getters, rootState }, { owner }) {
     try {
       const { data } = await axios.get(
-        'https://wax.api.atomicassets.io/atomicassets/v1/assets?collection_name=stf.capcom' +
-          '&owner=' +
+        'https://wax.api.atomicassets.io/atomicassets/v1/assets' +
+          '?owner=' +
           owner +
           '&page=1&limit=1000&order=desc&sort=asset_id'
       )
