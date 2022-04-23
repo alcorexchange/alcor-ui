@@ -8,21 +8,18 @@
       .item-container(v-for="nft in nfts" :key="nft.id")
         NftCard(v-bind="nft" @showDetails="onShowDetails" @send="send")
     NftDetailPopup(ref="detailPopup")
-    Tradeoffer
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import NftCard from '@/components/wallet/NftCard'
 import NftDetailPopup from '@/components/wallet/NftDetailPopup'
-import Tradeoffer from '@/components/wallet/Tradeoffer'
 import { prepareNFT } from '~/utils'
 export default {
   name: 'NFTs',
   components: {
     NftCard,
-    NftDetailPopup,
-    Tradeoffer
+    NftDetailPopup
   },
   data: () => ({
     search: '',
