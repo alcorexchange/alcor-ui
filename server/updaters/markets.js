@@ -122,8 +122,8 @@ export async function getMarketStats(network, market_id) {
   const high24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: -1 } })
   const low24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: 1 } })
 
-  if (high24_deal) stats.high24 = high24_deal.last_price
-  if (low24_deal) stats.low24 = low24_deal.last_price
+  if (high24_deal) stats.high24 = parseFloat(high24_deal.unit_price)
+  if (low24_deal) stats.low24 = parseFloat(low24_deal.unit_price)
 
   return stats
 }
