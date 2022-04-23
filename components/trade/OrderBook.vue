@@ -132,8 +132,8 @@ export default {
       this.setPrecisionPrice(price)
       this.changeAmount({ amount, type: 'buy' })
       this.changeAmount({ amount, type: 'sell' })
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -149,8 +149,8 @@ export default {
     align-items: center;
     background: var(--btn-default);
 
-    font-style: normal;
-    font-weight: 500;
+    font-size: 0.8rem;
+    font-weight: normal;
     line-height: 14px;
 
     .price {
@@ -161,8 +161,6 @@ export default {
     }
 
     .spread {
-      font-size: 0.8rem;
-      font-weight: normal;
       color: #80a1c5;
       text-align: right;
       //text-align-last: end;

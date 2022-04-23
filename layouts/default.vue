@@ -47,26 +47,33 @@ div
               alt=''
             )
 
-        //el-dropdown(v-if="isMobile")
-          .network-selection
-            img.mr-2(:src='require("~/assets/icons/" + current_chain.name + ".png")' height=25)
-            //span(v-if='isMobile') {{ current_chain.name }}
-            //span(v-else) {{ current_chain.desc }}
-
-          //i.el-icon-arrow-down
-
-          template(#dropdown='')
-            el-dropdown-menu.dropdown-container
-              .d-item(
-                v-for='network in networks',
-                :key='network.name',
-                :value='network.name',
-                :label='network.name',
-                @click='changeChain(network.name)'
+        .mobile-chain-select
+          .connection-status.mr-2
+          el-dropdown
+            .network-selection
+              img.mr-2(
+                :src='require("~/assets/icons/" + current_chain.name + ".png")',
+                height=25
               )
-                img(:src='require("~/assets/icons/" + network.name + ".png")' height=25)
-                span.ml-2 {{ network.name }}
 
+              //span(v-if='isMobile') {{ current_chain.name }}
+              //span(v-else) {{ current_chain.desc }}
+              //i.el-icon-arrow-down
+            template(#dropdown='')
+              el-dropdown-menu.dropdown-container
+                .d-item(
+                  v-for='network in networks',
+                  :key='network.name',
+                  :value='network.name',
+                  :label='network.name',
+                  @click='changeChain(network.name)'
+                )
+                  img(
+                    :src='require("~/assets/icons/" + network.name + ".png")',
+                    height=25
+                  )
+                  span.ml-2(v-if='isMobile') {{ network.name }}
+                  span.ml-2(v-else) {{ network.desc }}
 
         AlcorButton(@click='openMenu', :icononlyalt='true')
           i.el-icon-more
@@ -241,6 +248,22 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.mobile-chain-select {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.connection-status {
+  /* TODO Add connection status logic */
+  width: 5px;
+  height: 5px;
+  left: 18px;
+  top: 12px;
+
+  background: var(--main-green);
+  border-radius: 5px;
+}
 .layout {
   background: var(--background-color-base);
 }
@@ -307,7 +330,7 @@ export default {
 
 .menu-header {
   display: flex;
-  justify-content: space-between;
+  //justify-content: space-between;
   align-items: center;
   padding: 8px;
 }

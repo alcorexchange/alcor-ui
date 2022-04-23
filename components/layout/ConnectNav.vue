@@ -1,7 +1,7 @@
 <template lang="pug">
 .connect-nav
   .connection-status.ml-auto
-  .left
+  .left(v-if="!isMobile")
     el-dropdown
       .network-selection
         img.mr-2(
@@ -11,7 +11,7 @@
 
         //span(v-if='isMobile') {{ current_chain.name }}
         //span(v-else) {{ current_chain.desc }}
-        //i.el-icon-arrow-down
+        i.el-icon-arrow-down
       template(#dropdown='')
         el-dropdown-menu.dropdown-container
           .d-item(
@@ -175,17 +175,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.connection-status {
-  /* TODO Add connection status logic */
-  width: 5px;
-  height: 5px;
-  left: 18px;
-  top: 12px;
-
-  background: var(--main-green);
-  border-radius: 5px;
-}
-
 .connect-nav {
   display: flex;
   align-items: center;
@@ -263,6 +252,11 @@ export default {
 }
 
 @media only screen and (max-width: 600px) {
+  //.connect-nav {
+  //  .left {
+  //    margin-right: auto;
+  //  }
+  //}
   .connect-button {
     font-size: 0.8rem;
     padding: 4px;

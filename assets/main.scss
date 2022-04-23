@@ -672,6 +672,14 @@ a {
 //}
 
 @media only screen and (max-width: 640px) {
+  .el-table {
+    font-size: 11px;
+  }
+
+  .alcor-inner {
+    padding: 0 8px;
+  }
+
   .market-table {
     .cell {
       padding-left: 8px !important;
