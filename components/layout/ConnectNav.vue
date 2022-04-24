@@ -1,32 +1,7 @@
 <template lang="pug">
 .connect-nav
-  .connection-status.ml-auto
-  .left(v-if="!isMobile")
-    el-dropdown
-      .network-selection
-        img.mr-2(
-          :src='require("~/assets/icons/" + current_chain.name + ".png")',
-          height=25
-        )
-
-        //span(v-if='isMobile') {{ current_chain.name }}
-        //span(v-else) {{ current_chain.desc }}
-        i.el-icon-arrow-down
-      template(#dropdown='')
-        el-dropdown-menu.dropdown-container
-          .d-item(
-            v-for='network in networks',
-            :key='network.name',
-            :value='network.name',
-            :label='network.name',
-            @click='changeChain(network.name)'
-          )
-            img(
-              :src='require("~/assets/icons/" + network.name + ".png")',
-              height=25
-            )
-            span.ml-2(v-if='isMobile') {{ network.name }}
-            span.ml-2(v-else) {{ network.desc }}
+  .left(v-if="!isMobile").mr-2
+    chain-select
   .right
     .user-detail(v-if='user')
       .balance(@click='openInNewTab(monitorAccount(user.name))') {{ systemBalance | commaFloat }}
@@ -92,6 +67,7 @@ import AlcorButton from '@/components/AlcorButton'
 
 import config from '~/config'
 import Settings from '~/components/layout/Settings'
+import ChainSelect from '~/components/elements/ChainSelect'
 
 // import AlcorLink from '@/components/AlcorLink'
 
@@ -119,6 +95,7 @@ export default {
   components: {
     AlcorButton,
     Settings,
+    ChainSelect
     // AlcorLink
   },
   data() {
@@ -231,16 +208,7 @@ export default {
   //   font-size: 0.75rem;
   // }
 }
-.network-selection {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 4px 5px;
-  color: var(--text-default);
-  span {
-    margin-right: 4px;
-  }
-}
+
 .settings {
   position: absolute;
   top: 60px;

@@ -48,32 +48,7 @@ div
             )
 
         .mobile-chain-select
-          .connection-status.mr-2
-          el-dropdown
-            .network-selection
-              img.mr-2(
-                :src='require("~/assets/icons/" + current_chain.name + ".png")',
-                height=25
-              )
-
-              //span(v-if='isMobile') {{ current_chain.name }}
-              //span(v-else) {{ current_chain.desc }}
-              //i.el-icon-arrow-down
-            template(#dropdown='')
-              el-dropdown-menu.dropdown-container
-                .d-item(
-                  v-for='network in networks',
-                  :key='network.name',
-                  :value='network.name',
-                  :label='network.name',
-                  @click='changeChain(network.name)'
-                )
-                  img(
-                    :src='require("~/assets/icons/" + network.name + ".png")',
-                    height=25
-                  )
-                  span.ml-2(v-if='isMobile') {{ network.name }}
-                  span.ml-2(v-else) {{ network.desc }}
+          chain-select
 
         AlcorButton(@click='openMenu', :icononlyalt='true')
           i.el-icon-more
@@ -109,7 +84,7 @@ import { mapGetters } from 'vuex'
 import config from '~/config'
 
 import ModalsDialog from '~/components/modals/ModalsDialog'
-// import ChainSelect from '~/components/elements/ChainSelect'
+import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
@@ -120,7 +95,7 @@ import ResourcesModal from '~/components/modals/Resources.vue'
 export default {
   components: {
     ModalsDialog,
-    // ChainSelect,
+    ChainSelect,
     FooterBlock: Footer,
     AlcorLink,
     AlcorButton,
@@ -252,17 +227,7 @@ export default {
   display: flex;
   align-items: center;
   margin-left: auto;
-}
-
-.connection-status {
-  /* TODO Add connection status logic */
-  width: 5px;
-  height: 5px;
-  left: 18px;
-  top: 12px;
-
-  background: var(--main-green);
-  border-radius: 5px;
+  margin-right: 10px;
 }
 .layout {
   background: var(--background-color-base);
@@ -299,32 +264,6 @@ export default {
       background: var(--btn-active);
       color: var(--text-default) !important;
     }
-  }
-}
-.nav-right {
-  .network-selection {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 4px 14px;
-    color: var(--text-default);
-    span {
-      margin-right: 4px;
-    }
-  }
-  .connect-button {
-    margin: 0 4px;
-  }
-}
-.d-item {
-  display: flex;
-  text-align: center;
-  padding: 4px 12px;
-  min-width: 150px;
-  color: var(--text-default);
-  cursor: pointer;
-  &:hover {
-    background: var(--hover);
   }
 }
 
