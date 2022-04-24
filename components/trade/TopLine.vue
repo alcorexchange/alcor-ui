@@ -30,7 +30,7 @@ client-only
       //.d-flex.ml-3.w-100.justify-content-around.desctop
       .d-flex.align-items-center.ml-3.small.topline-container
         .d-flex.align-items-center.ml-3.header-items-container
-          .d-flex.flex-column(v-if="header_settings.change_24")
+          .d-flex.flex-column
             div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
             div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
 
@@ -42,29 +42,32 @@ client-only
             span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
           .d-flex.flex-column(v-if="header_settings.high_24")
             span.text-muted 24H High:
-            span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
+            span {{ stats.high24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
           .d-flex.flex-column(v-if="header_settings.low_24")
             span.text-muted 24H Low:
-            span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
-          .d-flex.flex-column(v-if="header_settings.volume_24_usd")
+            span {{ stats.low24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
+          .d-flex.flex-column(v-if="header_settings.volume_24_usd & base_token.contract == network.baseToken.contract")
             span.text-muted 24H USD:
-            span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
+            span $ {{ $systemToUSD(stats.volume24) }}
           .d-flex.flex-column(v-if="header_settings.weekly_volume")
-            span.text-muted Weekly Volume (WAX, USD):
-            span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
-          .d-flex.flex-column(v-if="header_settings.all_time")
+            span.text-muted Weekly Volume (WAX / USD):
+
+            span {{ stats.volumeWeek | commaFloat(2) }} {{ base_token.symbol.name }}
+              span(v-if="base_token.contract == network.baseToken.contract")  / $ {{ $systemToUSD(stats.volumeWeek) }}
+
+          //.d-flex.flex-column(v-if="header_settings.all_time")
             span.text-muted All Time High/Low:
             span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
 
-          .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile")
-            i.el-icon-right(v-if="arrowRight")
-            i.el-icon-back(v-else)
+        .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile & showArrow")
+          i.el-icon-right(v-if="arrowRight")
+          i.el-icon-back(v-else)
 
-          .pointer.ml-3.pr-4
-            i.el-icon-star-off(
-              :class='{ "el-icon-star-on": isFavorite }',
-              @click='toggleFav'
-            )
+        .pointer.ml-3.pr-4
+          i.el-icon-star-off(
+            :class='{ "el-icon-star-on": isFavorite }',
+            @click='toggleFav'
+          )
           //i.el-icon-star-off.ml-2
     //div(v-else)
       .overflowbox.items
@@ -154,18 +157,30 @@ export default {
     TokenImage,
     ChangePercent,
     Withdraw,
-    Markets,
-    //BOSIbc
+    Markets
+  },
+
+  mounted() {
+    this.setArrow()
   },
 
   data() {
     return {
       showMarkets: false,
-      arrowRight: true,
+      showArrow: false,
+      arrowRight: true
     }
   },
 
   watch: {
+    header_settings: {
+      handler(val) {
+        this.setArrow()
+        console.log(document.getElementsByClassName('header-items-container')[0].scrollWidth)
+      },
+      deep: true
+    },
+
     id() {
       this.showMarkets = false
     }
@@ -177,7 +192,6 @@ export default {
     ...mapState('settings', ['favMarkets']),
     ...mapGetters('market', ['price']),
 
-
     hasWithdraw() {
       return Object.keys(this.network.withdraw).includes(this.quote_token.str)
     },
@@ -188,6 +202,16 @@ export default {
   },
 
   methods: {
+    setArrow() {
+      setTimeout(() => {
+        if (document.getElementsByClassName('header-items-container')[0].scrollWidth > 560) {
+          this.showArrow = true
+        } else {
+          this.showArrow = false
+        }
+      }, 100)
+    },
+
     arrowClickfunc() {
       if (this.arrowRight)
         document.getElementsByClassName('header-items-container')[0].scrollLeft = document.getElementsByClassName('header-items-container')[0].scrollWidth
@@ -196,9 +220,7 @@ export default {
       this.arrowRight = !this.arrowRight
     },
     onClickOutside(event) {
-      console.log(event)
       if (this.showMarkets) {
-        console.log(event)
         this.showMarkets = false
       }
     },
@@ -221,6 +243,9 @@ export default {
 
 <style scoped lang="scss">
 .header-items-container {
+  width: 560px;
+  overflow: auto;
+
   //scroll-behavior: smooth;
   //overflow-x: auto;
   .flex-column {

@@ -1,8 +1,8 @@
 <template lang="pug">
 .mobile-trade-inner
-  favorites-top-line
+  //favorites-top-line
 
-  top-line.mt-2
+  top-line
 
   .chart.mt-2
     chart
@@ -189,102 +189,6 @@
           my-trade-history(:only-current-pair="hideOtherPairs")
         el-tab-pane(label='Funds')
           my-funds(:only-current-pair="hideOtherPairs")
-
-  //.row
-    .col
-      top-line(v-if="!isMobile")
-      favorites-top-line(v-else)
-    //chart
-
-    //.text.item
-      MobileTrade
-
-    //.row.mt-2
-      .col-6.pr-0
-        .row.mb-2
-          .col
-            el-radio-group.el-radio-full-width(v-model='side', size='small')
-              el-radio-button(label='buy') Buy
-              el-radio-button(label='sell') Sell
-
-        .row
-          .col
-            el-select(v-model='trade', placeholder='Trade', size='small')
-              el-option(label='Limit Trade', value='limit')
-              el-option(label='Market Trade', value='market')
-
-        .row.mt-2
-          .col
-            span.capitalize(:class='textColor(side)') {{ side }} {{ quote_token.symbol.name }}
-            br
-            small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
-              @click='setAmount(side)'
-            ) {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
-              i.el-icon-wallet.ml-1
-            br
-
-            div(v-else)
-              label.small Price
-              el-input(
-                type='number',
-                disabled,
-                placeholder='Buy at best price'
-              )
-
-              label.small Amount
-              el-input(
-                v-if='side == "buy"',
-                type='number',
-                v-model='totalBuy',
-                placeholder='0',
-                clearable
-              )
-                span.mr-1(slot='suffix') {{ base_token.symbol.name }}
-
-              el-input(
-                v-if='side == "sell"',
-                type='number',
-                v-model='amountSell',
-                placeholder='0',
-                clearable
-              )
-                span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
-
-              el-slider(
-                v-if='side == "buy"',
-                :step='25',
-                v-model='percentBuyMarket',
-                show-stops
-              )
-              el-slider(
-                v-if='side == "sell"',
-                :step='25',
-                v-model='percentSell',
-                show-stops
-              )
-
-            el-button.w-100.mt-2.capitalize(
-              :type='side == "buy" ? "success" : "danger"',
-              size='small',
-              @click='actionOrder(trade, side)'
-            ) {{ side }}
-
-      .col-6.pl-0.mb-4
-        OrderBook
-
-    //.row.mt-2.mobile-terminal
-      .col
-        //.overflowbox.low-height.overflow-hidden
-        el-tabs.h-100
-          el-tab-pane(label='Open order')
-            my-orders(v-if='user')
-
-          el-tab-pane(label='Order history')
-            my-history(v-if='user')
-
-    //.row.mt-3
-      .col
-        LatestDeals
 </template>
 
 <script>
