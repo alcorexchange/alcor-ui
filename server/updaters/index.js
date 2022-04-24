@@ -15,7 +15,7 @@ export function startUpdaters() {
   if (process.env.NETWORK) {
     //updater('wax', app, 'node', ['markets', 'pools'])
     //updater(process.env.NETWORK, 'node', ['pools', 'markets'])
-    updater(process.env.NETWORK, 'node', ['markets'])
+    updater(process.env.NETWORK, 'node', ['markets', 'pools'])
     //updater(process.env.NETWORK, app, 'node', ['pools'])
   } else {
     updater('eos', 'node', ['markets', 'pools'])
@@ -37,11 +37,15 @@ export async function updater(chain, provider, services) {
 
     await updateMarkets(network)
     setInterval(() => updateMarkets(network), 1 * 60 * 1000)
+
     streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
+      // Production PM2 should restart updater after it
+      .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`); process.exit(1) })
   }
 
   if (services.includes('pools')) {
     console.log('start pools updater for', chain)
     streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
+      .catch(e => { console.log(`${network.name} (${network.pools.contract}) Updater Error!`); process.exit(1) })
   }
 }

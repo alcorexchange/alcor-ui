@@ -117,7 +117,7 @@ export const actions = {
         this._vm.$notify({
           ...notify_options,
           title: `Order match - ${market.symbol}`,
-          message: `${match.bid} ${market.base_token.symbol.name} at ${match.price}`,
+          message: `${match.bid} ${market.quote_token.symbol.name} at ${match.price}`,
           type: 'success'
         })
       } else {
