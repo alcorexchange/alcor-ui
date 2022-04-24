@@ -141,7 +141,7 @@ export default {
         this.orders.map(o => {
           const order = this.widget
             .activeChart()
-            .createOrderLine() // FIXME Value is none how to fix?
+            .createOrderLine() // FIXME Value is none how to fix? (seems was fixed)
             .setLineColor(o.type == 'buy' ? green : red)
             .setBodyBackgroundColor(o.type == 'buy' ? '#212121' : '#212121')
             .setBodyBorderColor(o.type == 'buy' ? green : red)
@@ -152,7 +152,6 @@ export default {
             .setCancelButtonBorderColor(o.type == 'buy' ? green : red)
             .setCancelButtonBackgroundColor('#212121')
             .setCancelButtonIconColor('#f2fff2')
-            //.setLineStyle(3)
             .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
             .setText(o.type == 'sell' ? 'Sell' : 'Buy')
           if (this.chart_orders_settings.show_labels) {
