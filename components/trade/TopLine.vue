@@ -4,7 +4,7 @@ client-only
     markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
     //.d-flex.align-items-center.desktop(v-if='!isMobile')
     .d-flex.align-items-center.desktop
-      .d-flex.flex-column.justify-content-center.show-markets
+      .d-flex.flex-column.justify-content-center.show-markets.select-market
         .d-flex.align-items-center.cursor-pointer.show-markets(@click='showMarkets = !showMarkets')
           TokenImage(
             :src='$tokenLogo(quote_token.symbol.name, quote_token.contract)',
@@ -222,6 +222,10 @@ export default {
 </style>
 
 <style lang="scss">
+.select-market {
+  width: 130px;
+}
+
 .trade-top-line {
   //border-bottom: solid;
   margin-bottom: 2px;
