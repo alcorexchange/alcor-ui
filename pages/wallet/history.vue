@@ -1,7 +1,8 @@
 <template lang="pug">
-  div.wallet
+  .wallet
     .table-header
-      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small")
+      // TODO
+      //el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small")
       //- TODO: add date selecting
       //el-checkbox() show trades
       //el-checkbox() show deposits
