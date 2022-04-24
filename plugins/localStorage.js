@@ -7,7 +7,8 @@ export default ({ store }) => {
       'chain.payForUser', 'swap.slippage', 'swap.tab', 'chain.lastWallet',
       'market.showVolumeInUSD', 'market.markets_active_tab', 'market.markets_layout',
       'settings.sideMaretsTab', 'settings.favMarkets', 'settings.twChart',
-      'settings.hideOtherPairs', 'settings.timesAndSales'
+      'settings.hideOtherPairs', 'settings.timesAndSales', 'market.header_settings',
+      'settings.chart_orders_settings'
     ]
   })(store)
 }

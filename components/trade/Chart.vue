@@ -125,44 +125,49 @@ export default {
     },
 
     drawOrders() {
-      //console.log('drawOrders..', this.isReady)
-
       if (!this.isReady) return
 
-      if (this.chart_orders_settings.show_open_orders) {
-        // Clean all orders
-        while (this.orderLines.length != 0) {
-          const order = this.orderLines.pop()
-          order.remove()
-        }
+      // TODO Get current from CSS by JS
+      const green = '#66C167'
+      const red = '#F96C6C'
 
+      // Clean all orders
+      while (this.orderLines.length != 0) {
+        const order = this.orderLines.pop()
+        order.remove()
+      }
+
+      if (this.chart_orders_settings.show_open_orders) {
         this.orders.map(o => {
           const order = this.widget
             .activeChart()
             .createOrderLine() // FIXME Value is none how to fix?
-            .setLineLength(3)
-            .setLineColor(o.type == 'buy' ? '#1FC780' : '#E74747')
-            .setBodyBackgroundColor(o.type == 'buy' ? '#1FC780' : '#E74747')
-            .setBodyBorderColor(o.type == 'buy' ? '#1FC780' : '#E74747')
-            .setQuantityBackgroundColor(o.type == 'buy' ? '#1FC780' : '#E74747')
-            .setBodyTextColor('#000')
-            .setQuantityTextColor('#000')
-            .setQuantityBorderColor(o.type == 'buy' ? '#1FC780' : '#E74747')
-            .setCancelButtonBorderColor(o.type == 'buy' ? '#1FC780' : '#E74747')
-            .setCancelButtonBackgroundColor('#FFF')
-            .setCancelButtonIconColor('#000')
-            .setLineStyle(3)
-
+            .setLineColor(o.type == 'buy' ? green : red)
+            .setBodyBackgroundColor(o.type == 'buy' ? '#212121' : '#212121')
+            .setBodyBorderColor(o.type == 'buy' ? green : red)
+            .setQuantityBackgroundColor(o.type == 'buy' ? green : red)
+            .setBodyTextColor('#f2fff2')
+            .setQuantityTextColor('#161617')
+            .setQuantityBorderColor(o.type == 'buy' ? green : red)
+            .setCancelButtonBorderColor(o.type == 'buy' ? green : red)
+            .setCancelButtonBackgroundColor('#212121')
+            .setCancelButtonIconColor('#f2fff2')
+            //.setLineStyle(3)
+            .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
+            .setText(o.type == 'sell' ? 'Sell' : 'Buy')
           if (this.chart_orders_settings.show_labels) {
             order
               .setQuantity(o.type == 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
-              .setText(o.type == 'sell' ? 'Sell Line' : 'Buy Line')
               .setLineLength(3)
+          } else {
+            order
+              .setQuantity('')
+          }
 
+          if (this.chart_orders_settings.chart_order_interactivity) {
+            order
               .onCancel(() => this.cancelOrder(order, o))
               .onMove(() => this.moveOrder(order, o))
-
-              .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
           }
 
           this.orderLines.push(order)
