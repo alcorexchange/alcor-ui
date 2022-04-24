@@ -1,7 +1,7 @@
 <template lang="pug">
 
 //el-table.w-100.my-orders(:data='orders', max-height='260' empty-text='No open orders')
-el-table.w-100.my-orders(:data='filledPositions' empty-text='No open orders')
+el-table.my-orders(:data='filledPositions' empty-text='No open orders')
   template(slot="empty")
     span(v-if="user") No open orders
     el-button(v-else type="default" @click='$store.dispatch("modal/login")') Connect Wallet
@@ -9,17 +9,17 @@ el-table.w-100.my-orders(:data='filledPositions' empty-text='No open orders')
   el-table-column(label='Time', width='100', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ scope.row.timestamp | moment("MM-DD HH:mm:ss") }}
-  el-table-column(label='Pair', v-if='!isMobile')
+  el-table-column(label='Pair', v-if='!isMobile' width=100)
     template(slot-scope='{ row }')
       span {{ row.market_symbol }}
-  el-table-column(label='Type' width="60")
+  el-table-column(label='Type' width="70")
     template.text-success(slot-scope='{ row }')
       span.green(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
       span.red(v-else) {{ row.type.toUpperCase() }}
   el-table-column(label='Price' width="90")
     template(slot-scope='scope')
       span {{ scope.row.unit_price | humanPrice }}
-  el-table-column(label="Amount" width=140)
+  el-table-column(label="Amount" :width="isMobile ? 140 : ''")
     template(slot-scope='{ row }')
       span(v-if="isMobile") {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
       span(v-else) {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
@@ -118,9 +118,5 @@ export default {
 <style>
 .market-row div {
   font-size: 13px;
-}
-
-.my-orders {
-  width: 100% !important;
 }
 </style>

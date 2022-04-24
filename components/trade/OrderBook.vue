@@ -298,14 +298,20 @@ export default {
 .orders-list.asks {
   height: calc(50% - 41px);
   flex-direction: column-reverse;
-  color: var(--main-red);
   padding-bottom: 1px;
+
+  span {
+    color: var(--main-red);
+  }
 }
 
 .orders-list.bids {
-  color: var(--main-green);
   height: calc(50% - 18px);
   padding-top: 1px;
+
+  span {
+    color: var(--main-green);
+  }
 }
 
 .orders-list.blist .ltd:hover {
@@ -317,6 +323,14 @@ export default {
 .blist .ltd span {
   width: 40%;
   font-size: 11.5px;
+  //color: #d9d9d9;
+}
+
+.orders-list {
+  .blist .ltd span {
+    //color: #d9d9d9;
+    //color: #d9d9d9;
+  }
 }
 
 .blist .ltd span:first-child {

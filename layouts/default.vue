@@ -115,10 +115,6 @@ export default {
   computed: {
     ...mapGetters(['user']),
 
-    current_chain() {
-      return this.$store.state.network
-    },
-
     networks() {
       return Object.values(config.networks).filter((n) =>
         ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
@@ -175,8 +171,6 @@ export default {
   },
 
   async mounted() {
-    this.current_chain = this.$store.state.network.name
-
     try {
       await this.$rpc.get_info()
     } catch (e) {

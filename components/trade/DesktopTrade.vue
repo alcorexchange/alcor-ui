@@ -29,7 +29,7 @@
         drag-allow-from='.el-tabs__header, .box-card, .times-and-sales'
       )
         .right-icons
-          .icon-btn(v-if='item.i != "open-order"')
+          .icon-btn(v-if='item.i != "open-order" && item.i != "limit-market"')
             i.el-icon-setting(
               v-if='item.i == "chart"',
               @click='show_modal = !show_modal'
@@ -310,6 +310,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.limit-market {
+  .tabs-right {
+    right: 21px;
+  }
+}
+
 #price_cancel_modal,
 #price_move_modal {
   width: 100vw;
@@ -541,6 +547,12 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .deals-history {
+    .orders-list {
+      height: calc(100% - 23px);
+    }
+  }
+
   #tv_chart_container {
     height: calc(100% - 56px) !important;
   }
@@ -741,8 +753,8 @@ export default {
             height: 100%;
 
             .el-table__body-wrapper {
-              height: 100%;
-              overflow: auto;
+              height: calc(100% - 30px);
+              overflow-y: auto;
             }
           }
         }

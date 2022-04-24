@@ -64,8 +64,6 @@ export default {
     ClickOutside
   },
 
-  //props: ['value', 'tokens', 'token', 'readonly', 'static'],
-
   props: {
     value: {
       type: [String, Number],

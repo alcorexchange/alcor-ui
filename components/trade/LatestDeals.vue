@@ -12,8 +12,8 @@
       :href='monitorTx(deal.trx_id)',
       target='_blank'
     )
-      .ltd.d-flex.justify-content-around.deal-list(:class='deal.cls + "-deal"')
-        span(:class='deal.cls') {{ deal.unit_price }}
+      .ltd.d-flex.justify-content-around.deal-list(:class='deal.cls')
+        span {{ deal.unit_price }}
         //span {{ deal.bid | humanFloat(base_token.symbol.precision) }}
         span {{ showAmount(deal) | commaFloat(3) }}
         span {{ deal.time | moment((timesAndSales[id] || {}).timeformat || 'MM/DD hh:mm:ss') }}
@@ -42,18 +42,16 @@ export default {
         .sort((a, b) => b.time - a.time)
         .map((h) => {
           if (h.type == 'buymatch') {
-            if ((maxBid && h.bid >= maxBid) || (maxAsk && h.ask >= maxAsk)) {
-              h.cls = 'max-buymatch'
-            } else {
-              h.cls = 'green'
-            }
+            h.cls = 'buy'
+
+            if ((maxBid && h.bid >= maxBid) || (maxAsk && h.ask >= maxAsk)) h.cls += ' max-buymatch'
+
             h.amount = h.bid
           } else {
-            if ((maxAsk && h.bid >= maxAsk) || (maxBid && h.ask >= maxBid)) {
-              h.cls = 'max-sellmatch'
-            } else {
-              h.cls = 'red'
-            }
+            h.cls = 'sell'
+
+            if ((maxAsk && h.bid >= maxAsk) || (maxBid && h.ask >= maxBid)) h.cls += ' max-sellmatch'
+
             h.amount = h.ask
           }
           return h
@@ -74,8 +72,37 @@ export default {
 </script>
 
 <style lang="scss">
+
+.deals-history {
+  .sell {
+    span:first-child {
+      color: var(--main-red);
+    }
+  }
+
+  .buy {
+    span:first-child {
+      color: var(--main-green);
+    }
+  }
+}
+
+
+.max-buymatch {
+  background:  linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%), #212121;
+}
+
+.max-sellmatch {
+  background: linear-gradient(180deg, rgba(237, 66, 69, 0.1) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
+}
+
 .blist a {
   all: unset;
+
+  span {
+    color: #80a1c5;
+  }
+
 }
 
 .deals-history {

@@ -281,10 +281,6 @@ export default {
     flex-flow: row;
     flex-wrap: nowrap;
     overflow: scroll;
-
-    .show-markets {
-      width: 110px;
-    }
   }
 
   .trade-top-line::-webkit-scrollbar {
