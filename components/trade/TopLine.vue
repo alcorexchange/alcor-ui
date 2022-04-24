@@ -6,13 +6,8 @@ client-only
     .d-flex.align-items-center.desktop
       .d-flex.flex-column.justify-content-center.show-markets.select-market
         .d-flex.align-items-center.cursor-pointer.show-markets(@click='showMarkets = !showMarkets')
-          TokenImage(
-            :src='$tokenLogo(quote_token.symbol.name, quote_token.contract)',
-            height='20'
-          ).mr-2
-
-          b {{ quote_token.symbol.name }}
-          span.ml-1 / {{ base_token.symbol.name }}
+          TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
+          span {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
           i.el-icon-caret-bottom.ml-1.text-muted
         //span
           a.text-muted(
