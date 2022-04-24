@@ -71,7 +71,7 @@
         :label='`Last price`',
         sort-by='last_price',
         align='right',
-        :width='isMobile ? 110 : 150',
+        :width='isMobile ? 90 : 150',
         header-align='right',
         sortable,
         :sort-orders='["descending", null]'
@@ -113,7 +113,7 @@
         align='right',
         header-align='right',
         sortable,
-        :width='isMobile ? 157 : 200',
+        :width='isMobile ? 130 : 200',
         sort-by='volumeWeek',
         :sort-orders='["descending", null]',
       )
