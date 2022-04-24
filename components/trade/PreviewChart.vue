@@ -66,6 +66,7 @@ export default {
       this.gridExecution()
     },
     'chart_orders_settings.show_trade_executions_price'() {
+      // TODO Можно поставить минималку на выполненые ордера по сумме
       if (!this.isReady) return
       this.executionshape_flg = false
       if (this.chart_orders_settings.show_trade_executions && this.executionshape.remove)
@@ -97,16 +98,13 @@ export default {
     save() {
       const twChart = JSON.parse(JSON.stringify(this.$store.state.settings.twChart))
       this.widget.save((o) => {
-        console.log('save chart for', this.id)
         twChart[this.id] = o
         this.$store.commit('settings/setTwChart', twChart)
       })
     },
 
     load() {
-      // FIXME Not workin in production
       const twChart = this.$store.state.settings.twChart[this.id]
-      console.log('load chart for', this.id)
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
     },
@@ -353,7 +351,6 @@ export default {
       this.widget.onChartReady(() => {
         this.load()
         this.widget.subscribe('onAutoSaveNeeded', () => {
-          console.log('chart save..')
           this.save()
           this.gridLabels()
           this.gridExecution()

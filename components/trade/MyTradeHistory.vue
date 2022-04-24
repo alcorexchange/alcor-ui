@@ -12,15 +12,15 @@ el-table.my-trade-history(
       span {{ row.market_symbol }}
   el-table-column(label='Side', width='60')
     template.text-success(slot-scope='scope')
-      span.text-success(v-if='scope.row.type == "buy"') BUY
+      span.text-success(v-if='scope.row.side == "buy"') BUY
       span.text-danger(v-else) SELL
-  el-table-column(label='Bid', v-if='!isMobile')
+  el-table-column(label='Amount', v-if='!isMobile')
     template(slot-scope='{ row }')
-      span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
+      span {{ row.amount | commaFloat }} {{ quote_token.symbol.name }}
 
-  el-table-column(label='Ask')
+  el-table-column(:label="'Total ( ' + base_token.symbol.name + ' )'")
     template(slot-scope='{ row }')
-      span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
+      span {{ row.total | commaFloat }} {{ base_token.symbol.name }}
 
   el-table-column(label='Price' width=100)
     template(slot-scope='scope')
@@ -97,22 +97,6 @@ export default {
       this.openInNewTab(this.monitorTx(row.trx_id))
     },
 
-    getAskSymbol(deal) {
-      const market = this.markets_obj[deal.market]
-
-      return deal.type == 'buy'
-        ? market.base_token.symbol.name
-        : market.quote_token.symbol.name
-    },
-
-    getBidSymbol(deal) {
-      const market = this.markets_obj[deal.market]
-
-      return deal.type == 'buy'
-        ? market.quote_token.symbol.name
-        : market.base_token.symbol.name
-    },
-
     async infiniteHandler($state) {
       if (!this.user || !this.user.name) return
 
@@ -132,8 +116,11 @@ export default {
 
       if (deals.length) {
         deals.map((d) => {
-          d.type = this.user.name == d.bidder ? 'buy' : 'sell'
+          d.side = this.user.name == d.bidder ? 'buy' : 'sell'
           d.market_symbol = this.markets_obj[d.market].symbol
+
+          d.amount = d.type == 'sellmatch' ? d.bid : d.ask
+          d.total = d.type == 'sellmatch' ? d.ask : d.bid
         })
 
         this.deals.push(...deals)

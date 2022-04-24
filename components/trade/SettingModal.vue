@@ -66,22 +66,23 @@ export default {
         { key: 'low_24', name: '24H Low' },
         { key: 'volume_24_usd', name: 'Volume 24H USD' },
         { key: 'weekly_volume', name: 'Weekly Volume (WAX, USD)' },
-        { key: 'all_time', name: 'All Time High/Low' },
+        //{ key: 'all_time', name: 'All Time High/Low' }, TODO
       ],
       chart_orders_title: [
         { key: 'show_open_orders', name: 'Show open orders' },
         { key: 'show_labels', name: 'Show labels' },
         { key: 'chart_order_interactivity', name: 'Chart order interactivity' },
-        { key: 'chart_executions', name: 'Chart Executions' },
-        { key: 'show_trade_executions', name: 'Show trade executions' },
-        {
-          key: 'show_trade_executions_price',
-          name: 'Show trade execution price',
-        },
-        {
-          key: 'show_trade_execution_amount',
-          name: 'Show_trade_execution_amount',
-        },
+        //{ key: 'chart_executions', name: 'Chart Executions' },
+        //{ key: 'show_trade_executions', name: 'Show trade executions' },
+        // TODO
+        //{
+        //  key: 'show_trade_executions_price',
+        //  name: 'Show trade execution price',
+        //},
+        //{
+        //  key: 'show_trade_execution_amount',
+        //  name: 'Show_trade_execution_amount',
+        //},
       ],
       settingBtnTitles: {
         chart: 'Chart',
