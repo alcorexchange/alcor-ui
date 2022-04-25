@@ -105,7 +105,7 @@ export default {
       this.skip = 0
     },
 
-    markets_active_tab() {
+    sideMaretsTab() {
       this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
