@@ -1,6 +1,10 @@
 <template lang="pug">
 .markets-bar
-  el-tabs(v-model='sideMaretsTab', size='mini' type="border-card")
+  alcor-tabs(v-model='sideMaretsTab', size='mini' type="border-card")
+    template(slot="right")
+      .mobile-close(@click="$emit('close')")
+        i.el-icon-close
+
     el-tab-pane(name='fav')
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
@@ -294,6 +298,16 @@ export default {
 </script>
 
 <style lang="scss">
+.mobile-close {
+  cursor: pointer;
+
+  i {
+    right: 7px;
+    position: absolute;
+    top: 6px;
+    font-size: 16px;
+  }
+}
 .theme-dark {
   .markets-bar .el-table {
     th,

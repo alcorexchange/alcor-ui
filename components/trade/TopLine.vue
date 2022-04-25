@@ -1,10 +1,10 @@
 <template lang="pug">
 client-only
   .trade-top-line.box-card
-    markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
+    markets.markets(v-if='showMarkets', v-click-outside='onClickOutside' @close="showMarkets = false")
 
     .d-flex.align-items-center.header-items-container.pl-3
-      .d-flex.flex-column(@click='showMarkets = !showMarkets')
+      .d-flex.flex-column.pointer(@click='showMarkets = !showMarkets')
         .d-flex.align-items-center
           TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
           div {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
