@@ -107,12 +107,14 @@ export default {
       this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
+      this.lazyloadMarkets(null, true)
     },
 
     sideMaretsTab() {
       this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
+      this.lazyloadMarkets(null, true)
     }
   },
 
@@ -311,15 +313,17 @@ export default {
 
 .theme-dark {
   .markets-bar {
+    background-color: var(--background-color-secondary);
+
     .el-input__inner {
-      background-color: var(--background-color-secondary) !important;
+      background-color: var(--background-color-base) !important;
     }
   }
 
   .markets-bar .el-table {
     th,
     tr {
-      background: var(--background-color-base);
+      background: var(--background-color-secondary);
     }
 
     .el-table__row {

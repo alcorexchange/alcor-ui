@@ -315,33 +315,6 @@ export default {
   height: 100%;
 }
 
-.theme-dark {
-  .markets-bar .el-table {
-    th,
-    tr {
-      background: var(--background-color-base);
-    }
-
-    .el-table__row {
-      &:hover {
-        & td,
-        & th,
-        & tr {
-          background: var(--btn-active) !important;
-        }
-      }
-    }
-
-    .active-row {
-      & td,
-      & th,
-      & tr {
-        background: var(--btn-active) !important;
-      }
-    }
-  }
-}
-
 .setting-modal {
   height: auto;
   width: 288px;

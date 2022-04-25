@@ -145,32 +145,7 @@ export default {
   font-size: 12px;
   color: var(--cancel);
 }
-.theme-dark {
-  .markets-bar .el-table {
-    th,
-    tr {
-      background: var(--background-color-base);
-    }
 
-    .el-table__row {
-      &:hover {
-        & td,
-        & th,
-        & tr {
-          background: var(--btn-active) !important;
-        }
-      }
-    }
-
-    .active-row {
-      & td,
-      & th,
-      & tr {
-        background: var(--btn-active) !important;
-      }
-    }
-  }
-}
 .module-name {
   margin: 3px 0;
 }
