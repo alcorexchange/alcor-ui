@@ -323,6 +323,7 @@ export default {
 
 .markets-bar {
   height: 100%;
+  z-index: 3;
 
   .el-table--fit {
     height: calc(100% - 70px);

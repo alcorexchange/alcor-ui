@@ -1,60 +1,58 @@
 <template lang="pug">
 client-only
-  .trade-top-line.box-card.pl-3
-    //.d-flex.align-items-center.desktop(v-if='!isMobile')
-    .d-flex.align-items-center.desktop
-      .d-flex.show-markets.select-market(@click='showMarkets = !showMarkets')
-        TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
-        span {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
-        i.el-icon-caret-bottom.ml-1.text-muted
-        //span
-          a.text-muted(
-            :href='monitorAccount(quote_token.contract)',
-            target='_blank'
-          ) {{ quote_token.contract }}
+  .trade-top-line.box-card
+    markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
 
-      markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
+    .d-flex.align-items-center.header-items-container.pl-3
+      .d-flex.flex-column(@click='showMarkets = !showMarkets')
+        .d-flex.align-items-center
+          TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
+          div {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
+          i.el-icon-caret-bottom.ml-1.text-muted
+          //span
+            a.text-muted(
+              :href='monitorAccount(quote_token.contract)',
+              target='_blank'
+            ) {{ quote_token.contract }}
 
-      .d-flex.align-items-center.ml-3.small.topline-container
-        .d-flex.align-items-center.ml-3.header-items-container
-          .d-flex.flex-column
-            div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
-            div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
+      .d-flex.flex-column
+        div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
+        div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
 
-          .d-flex.flex-column(v-if="header_settings.change_24")
-            span.text-muted Change 24H
-            change-percent(:change='stats.change24')
-          .d-flex.flex-column(v-if="header_settings.volume_24")
-            span.text-muted Volume 24H:
-            span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
-          .d-flex.flex-column(v-if="header_settings.high_24")
-            span.text-muted 24H High:
-            span {{ stats.high24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
-          .d-flex.flex-column(v-if="header_settings.low_24")
-            span.text-muted 24H Low:
-            span {{ stats.low24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
-          .d-flex.flex-column(v-if="header_settings.volume_24_usd & base_token.contract == network.baseToken.contract")
-            span.text-muted 24H USD:
-            span $ {{ $systemToUSD(stats.volume24) }}
-          .d-flex.flex-column(v-if="header_settings.weekly_volume")
-            span.text-muted Weekly Volume (WAX / USD):
+      .d-flex.flex-column(v-if="header_settings.change_24")
+        span.text-muted Change 24H
+        change-percent(:change='stats.change24')
+      .d-flex.flex-column(v-if="header_settings.volume_24")
+        span.text-muted Volume 24H:
+        span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
+      .d-flex.flex-column(v-if="header_settings.high_24")
+        span.text-muted 24H High:
+        span {{ stats.high24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
+      .d-flex.flex-column(v-if="header_settings.low_24")
+        span.text-muted 24H Low:
+        span {{ stats.low24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
+      .d-flex.flex-column(v-if="header_settings.volume_24_usd & base_token.contract == network.baseToken.contract")
+        span.text-muted 24H USD:
+        span $ {{ $systemToUSD(stats.volume24) }}
+      .d-flex.flex-column(v-if="header_settings.weekly_volume")
+        span.text-muted Weekly Volume (WAX / USD):
 
-            span {{ stats.volumeWeek | commaFloat(2) }} {{ base_token.symbol.name }}
-              span(v-if="base_token.contract == network.baseToken.contract")  / $ {{ $systemToUSD(stats.volumeWeek) }}
+        span {{ stats.volumeWeek | commaFloat(2) }} {{ base_token.symbol.name }}
+          span(v-if="base_token.contract == network.baseToken.contract")  / $ {{ $systemToUSD(stats.volumeWeek) }}
 
-          //.d-flex.flex-column(v-if="header_settings.all_time")
-            span.text-muted All Time High/Low:
-            span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
+        //.d-flex.flex-column(v-if="header_settings.all_time")
+          span.text-muted All Time High/Low:
+          span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
 
-        .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile & showArrow")
-          i.el-icon-right(v-if="arrowRight")
-          i.el-icon-back(v-else)
+      .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile & showArrow")
+        i.el-icon-right(v-if="arrowRight")
+        i.el-icon-back(v-else)
 
-        .pointer.ml-3.pr-4
-          i.el-icon-star-off(
-            :class='{ "el-icon-star-on": isFavorite }',
-            @click='toggleFav'
-          )
+      .pointer.ml-3.pr-4
+        i.el-icon-star-off(
+          :class='{ "el-icon-star-on": isFavorite }',
+          @click='toggleFav'
+        )
 </template>
 
 <script>
@@ -155,6 +153,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.show-markets {
+  cursor: pointer;
+}
 .show-markets:hover {
   color: #6c757d;
 }
@@ -180,10 +181,6 @@ export default {
   }
 }
 
-.desctop span {
-  font-size: 10px;
-  padding-right: 10px;
-}
 .items {
   > * {
     padding: 2px;
@@ -208,16 +205,15 @@ export default {
 </style>
 
 <style lang="scss">
-.select-market {
-  width: 130px;
+.header-items-container {
+  height: 50px;
+  display: flex;
 }
 
 .trade-top-line {
-  //border-bottom: solid;
   margin-bottom: 2px;
 
   font-weight: 700;
-  font-size: 14px;
-  //line-height: 16px;
+  font-size: 12px;
 }
 </style>
