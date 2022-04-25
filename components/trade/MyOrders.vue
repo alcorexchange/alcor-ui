@@ -12,7 +12,7 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders')
   el-table-column(label='Pair', v-if='!isMobile' width=100)
     template(slot-scope='{ row }')
       span {{ row.market_symbol }}
-  el-table-column(label='Type' width="70")
+  el-table-column(label='Type' :width="isMobile ? 50 : 70")
     template.text-success(slot-scope='{ row }')
       span.green(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
       span.red(v-else) {{ row.type.toUpperCase() }}

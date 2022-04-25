@@ -1,6 +1,6 @@
 <template lang="pug">
 .markets-bar
-  alcor-tabs(v-model='sideMaretsTab', size='mini' type="border-card")
+  alcor-tabs(v-model='sideMaretsTab', size='mini' type="border-card").border-tabs
     template(slot="right")
       .mobile-close(@click="$emit('close')")
         i.el-icon-close
@@ -308,7 +308,14 @@ export default {
     font-size: 16px;
   }
 }
+
 .theme-dark {
+  .markets-bar {
+    .el-input__inner {
+      background-color: var(--background-color-secondary) !important;
+    }
+  }
+
   .markets-bar .el-table {
     th,
     tr {
@@ -344,7 +351,7 @@ export default {
   }
 
   .el-table__body-wrapper{
-    height: calc(100% - 52px);
+    height: calc(100% - 45px);
     overflow-y: auto;
     overflow-x: hidden;
   }

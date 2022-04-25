@@ -29,7 +29,7 @@
         drag-allow-from='.el-tabs__header, .box-card, .times-and-sales'
       )
         .right-icons
-          .icon-btn(v-if='item.i != "open-order" && item.i != "limit-market"')
+          .icon-btn(v-if='item.i != "open-order" && item.i != "limit-market" && item.i != "markets"')
             i.el-icon-setting(
               v-if='item.i == "chart"',
               @click='show_modal = !show_modal'
@@ -64,20 +64,9 @@
               LatestDeals(:timeformat='timeformat')
             el-tab-pane(label='Markets')
               Markets.mt-2
-
-          //.times-and-sales
-            span Times and Sales
-          //LatestDeals(:timeformat='timeformat')
-        //- markets(v-if="item.i=='3'")
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
           template(slot='right')
             .d-flex.pairs-switch-right
-              //- el-button.red.hover-opacity.ml-3.mt-1(
-              //-   type='text',
-              //-   v-show='tab == 0',
-              //-   size='small',
-              //-   @click='cancelAll'
-              //- ) Hide other pairs
               .module-name.mr-2 Hide other pairs
               .module-pickers.d-flex.flex-row
                 el-switch(

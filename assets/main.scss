@@ -686,6 +686,12 @@ pre {
   .el-tabs__item {
     height: 30px;
     line-height: 25px;
+    padding: 0 10px;
+  }
+
+  .el-tabs__item:last-child {
+    padding-right: 10px !important;
+
   }
 
   .el-tabs__content {

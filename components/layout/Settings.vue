@@ -192,7 +192,7 @@ export default {
               i: 'time-sale',
               status: true,
               mw: 3,
-              mh: 9
+              mh: 4
             },
             {
               x: 0,
@@ -222,7 +222,7 @@ export default {
               i: 'markets',
               status: false,
               mw: 5,
-              mh: 5
+              mh: 4
             }
           ]
           return defaultlayout
@@ -262,7 +262,7 @@ export default {
           i: 'order-depth',
           status: true,
           mw: 5,
-          mh: 9
+          mh: 4
         },
         {
           x: 19,
@@ -272,7 +272,7 @@ export default {
           i: 'time-sale',
           status: true,
           mw: 5,
-          mh: 9
+          mh: 4
         },
         {
           x: 0,
@@ -302,7 +302,7 @@ export default {
           i: 'markets',
           status: false,
           mw: 5,
-          mh: 5
+          mh: 3
         }
       ]
     }
