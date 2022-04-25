@@ -3,11 +3,10 @@ client-only
   .trade-top-line.box-card.pl-3
     //.d-flex.align-items-center.desktop(v-if='!isMobile')
     .d-flex.align-items-center.desktop
-      .d-flex.flex-column.justify-content-center.show-markets.select-market
-        .d-flex.align-items-center.cursor-pointer.show-markets(@click='showMarkets = !showMarkets')
-          TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
-          span {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
-          i.el-icon-caret-bottom.ml-1.text-muted
+      .d-flex.show-markets.select-market(@click='showMarkets = !showMarkets')
+        TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
+        span {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
+        i.el-icon-caret-bottom.ml-1.text-muted
         //span
           a.text-muted(
             :href='monitorAccount(quote_token.contract)',
@@ -164,8 +163,6 @@ export default {
   width: 560px;
   overflow: auto;
 
-  //scroll-behavior: smooth;
-  //overflow-x: auto;
   .flex-column {
     margin-right: 20px;
     flex-shrink: 0;
