@@ -591,11 +591,9 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
-        //this.isReady = true
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
           this.save()
-          //this.gridExecution()
         })
       })
     },

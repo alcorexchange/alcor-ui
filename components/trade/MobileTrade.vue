@@ -22,8 +22,8 @@
             :use-css-transforms='false',
           )
     .col.pl-0
-      el-tabs.h-100(type="border-card" size="small").border-tabs
-        el-tab-pane(label='Limit Trade').p-2
+      el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs
+        el-tab-pane(label='Limit Trade' name="limit").p-2
           el-radio-group.el-radio-full-width(v-model='side', size='small').mt-2
             el-radio-button(label='buy').buy Buy
             el-radio-button(label='sell').sell Sell
@@ -113,7 +113,7 @@
             @click='actionOrder(trade, side)'
           ) {{ side }}
 
-        el-tab-pane(label='Market').p-2
+        el-tab-pane(label='Market' name="market").p-2
           el-radio-group.el-radio-full-width(v-model='side', size='small').mt-2
             el-radio-button(label='buy').buy Buy
             el-radio-button(label='sell').sell Sell
