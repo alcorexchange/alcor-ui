@@ -25,7 +25,9 @@ export default {
       return redirect({ name: 'markets' })
     }
 
-    await store.dispatch('loadMarkets')
+    if (store.state.markets.length == 0) {
+      await store.dispatch('loadMarkets')
+    }
 
     params.id = params.id.toLowerCase()
     const market = store.state.markets.filter(m => m.slug == params.id)[0]

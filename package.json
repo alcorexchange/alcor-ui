@@ -44,7 +44,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^5.13.12",
     "node-fetch": "^2.6.0",
-    "nuxt": "^2.15.7",
+    "nuxt": "^2.15.8",
     "nuxt-highcharts": "^2.0.3",
     "nuxt-imagemin": "^1.0.0",
     "redis": "^4.0.0-rc.3",

@@ -21,9 +21,6 @@
       el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
 
-      //el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
-        span  Terraformers
-
     .search-container
       el-input(
         v-model='search',
@@ -42,22 +39,16 @@
   .table.el-card.is-always-shadow
     el-table.market-table(
       :data='filteredMarkets',
+      row-key="id"
       style='width: 100%',
       @row-click='clickOrder',
-      :default-sort='{ prop: "weekVolume", order: "descending" }'
-    )
+      :default-sort='{ prop: "weekVolume", order: "descending" }')
       el-table-column(label='Pair', prop='date')
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
             :height="isMobile? '20' : '30'"
           )
-
-          //span TODO
-          //  PairIcons(
-          //    :token1="{symbol: scope.row.quote_token.symbol.name, contract: scope.row.quote_token.contract}"
-          //    :token2="{symbol: scope.row.base_token.symbol.name, contract: scope.row.base_token.contract}"
-          //  )
 
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
@@ -137,8 +128,6 @@
 </template>
 
 <script>
-import { captureException } from '@sentry/browser'
-
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
@@ -153,10 +142,11 @@ export default {
 
   async fetch({ store, error }) {
     if (store.state.markets.length == 0) {
+      console.log('fetch markets because not fetched...')
+
       try {
         await store.dispatch('loadMarkets')
       } catch (e) {
-        captureException(e)
         return error({ message: e, statusCode: 500 })
       }
     }
@@ -239,11 +229,11 @@ export default {
         })
       }
 
-      markets = markets.filter((i) =>
-        i.slug.includes(this.search.toLowerCase()) && !i.scam
-      )
+      markets = markets
+        .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
+        //.sort((a, b) => b.weekVolume - a.weekVolume)
 
-      return markets.reverse()
+      return markets
     }
   },
 

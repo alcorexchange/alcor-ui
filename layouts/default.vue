@@ -113,14 +113,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
-
-    networks() {
-      return Object.values(config.networks).filter((n) =>
-        ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
-      )
-    },
-
     menuItems() {
       const items = []
 
@@ -134,34 +126,17 @@ export default {
 
       items.push({ index: '/markets', name: 'Markets' })
 
-      //if (['eos'].includes(this.$store.state.network.name)) {
-      //  items.push({ index: '/swap', name: 'Swap' })
-      //}
-
       items.push({ index: '/otc', name: 'OTC' })
 
       if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {
         items.push({ index: '/nft-market', name: 'NFT' })
       }
 
-      //items.push({ index: '/about', name: 'About' })
-
       items.push({ index: '/wallet', name: 'Wallet' })
-
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
-    },
-
-    payForUser: {
-      get() {
-        return this.$store.state.chain.payForUser
-      },
-
-      set(value) {
-        this.$store.commit('chain/setPayForUser', value)
-      },
-    },
+    }
   },
 
   watch: {

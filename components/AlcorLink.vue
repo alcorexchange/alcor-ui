@@ -1,14 +1,7 @@
-<template>
-  <nuxt-link
-    :to="to"
-    :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]"
-    :exact="exact"
-    @click.prevent="$emit('click')"
-  >
-    <div class="inner">
-      <slot />
-    </div>
-  </nuxt-link>
+<template lang="pug">
+nuxt-link(:to='to' :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]" :exact='exact' @click.prevent="$emit('click')")
+  .inner
+    slot
 </template>
 
 <script>

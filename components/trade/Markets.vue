@@ -23,6 +23,7 @@
         el-checkbox(v-model="showVolumeInUSD") USD
   el-table(
     :data='filteredItems',
+    row-key="id"
     style='width: 100%',
     @row-click='setMarket',
     :default-sort='{ prop: "volume24", order: "descending" }',
@@ -170,9 +171,13 @@ export default {
         this.$store.dispatch('market/unsubscribe', this.id)
       }
 
+      console.log('start change market..')
       this.$router.push(
         { name: 'trade-index-id', params: { id: market.slug } },
-        () => (this.loading = false),
+        () => {
+          this.loading = false
+          console.log('market changed..')
+        },
         () => (this.loading = false)
       )
     },

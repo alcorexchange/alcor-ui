@@ -1,6 +1,5 @@
 <template lang="pug">
 #tv_chart_container
-  el-table.w-100(:data='orders', max-height='260')
 </template>
 
 <script>
@@ -451,6 +450,7 @@ export default {
               //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
               //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
               //type: symbolItem.type,
+              timezone: 'UTC',
               session: '24x7',
               //exchange: symbolItem.exchange,
               minmov: 1,
@@ -472,7 +472,7 @@ export default {
               data_status: 'streaming',
             }
 
-            onSymbolResolvedCallback(symbolInfo)
+            setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
           },
 
           getBars: async (

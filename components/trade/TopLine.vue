@@ -1,7 +1,6 @@
 <template lang="pug">
 client-only
   .trade-top-line.box-card.pl-3
-    markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
     //.d-flex.align-items-center.desktop(v-if='!isMobile')
     .d-flex.align-items-center.desktop
       .d-flex.flex-column.justify-content-center.show-markets.select-market
@@ -15,6 +14,7 @@ client-only
             target='_blank'
           ) {{ quote_token.contract }}
 
+      markets.markets(v-if='showMarkets', v-click-outside='onClickOutside')
 
       .d-flex.align-items-center.ml-3.small.topline-container
         .d-flex.align-items-center.ml-3.header-items-container
@@ -140,6 +140,7 @@ export default {
       this.arrowRight = !this.arrowRight
     },
     onClickOutside(event) {
+      console.log('event')
       if (!event.target.parentNode.className.includes('show-markets') && this.showMarkets) {
         this.showMarkets = false
       }
@@ -201,7 +202,7 @@ export default {
 
 .markets {
   width: 360px;
-  position: fixed;
+  position: absolute;
   top: 30px;
   background: #282828;
   border: 2px solid rgb(63, 63, 63);
