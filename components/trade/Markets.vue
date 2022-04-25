@@ -73,7 +73,7 @@
         span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
     template(slot="append")
-      infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
+      infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite" force-use-infinite-wrapper=".markets-bar .el-table__body-wrapper")
 </template>
 
 <script>
@@ -110,6 +110,10 @@ export default {
       this.lazyMarkets = []
       this.skip = 0
     }
+  },
+
+  mounted() {
+    this.lazyloadMarkets(null, true)
   },
 
   computed: {
@@ -270,12 +274,15 @@ export default {
       }
     },
 
-    lazyloadMarkets($state) {
+    lazyloadMarkets($state, first = false) {
       const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
 
       if (append.length > 0) {
         this.skip += 20
         this.lazyMarkets.push(...append)
+
+        // КОстыль, само не тригерится
+        if (first) return
 
         $state.loaded()
       } else {
@@ -320,8 +327,9 @@ export default {
   .el-table--fit {
     height: calc(100% - 70px);
   }
+
   .el-table__body-wrapper{
-    height: calc(100% - 50px);
+    height: calc(100% - 52px);
     overflow-y: auto;
     overflow-x: hidden;
   }
