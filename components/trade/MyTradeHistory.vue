@@ -36,13 +36,8 @@ el-table.my-trade-history(
 
 <script>
 import { mapState } from 'vuex'
-import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
-  components: {
-    InfiniteLoading
-  },
-
   props: ['onlyCurrentPair'],
 
   data() {

@@ -543,6 +543,10 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .chart {
+    touch-action: none;
+  }
+
   .deals-history {
     .orders-list {
       height: calc(100% - 23px);

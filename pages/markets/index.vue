@@ -38,7 +38,7 @@
 
   .table.el-card.is-always-shadow
     el-table.market-table(
-      :data='filteredMarkets',
+      :data='lazyMarkets',
       row-key="id"
       style='width: 100%',
       @row-click='clickOrder',
@@ -125,6 +125,9 @@
       )
         template(slot-scope='scope')
           change-percent(:change='scope.row.changeWeek')
+
+      template(slot="append")
+        infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
 <script>
@@ -156,6 +159,8 @@ export default {
     return {
       search: '',
 
+      skip: 0,
+      lazyMarkets: [],
       to_assets: [],
       select: {
         from: '',
@@ -231,7 +236,7 @@ export default {
 
       markets = markets
         .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
-        //.sort((a, b) => b.weekVolume - a.weekVolume)
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
 
       return markets
     }
@@ -239,6 +244,9 @@ export default {
 
   watch: {
     search() {
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
     }
   },
@@ -254,6 +262,19 @@ export default {
   },
 
   methods: {
+    lazyloadMarkets($state) {
+      const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
+
+      if (append.length > 0) {
+        this.skip += 20
+        this.lazyMarkets.push(...append)
+
+        $state.loaded()
+      } else {
+        $state.complete()
+      }
+    },
+
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 

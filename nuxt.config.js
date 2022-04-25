@@ -82,6 +82,7 @@ module.exports = {
     '@/plugins/global',
     '@/plugins/vClickOutside.js',
 
+    { ssr: false, src: '@/plugins/infinite.js' },
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },

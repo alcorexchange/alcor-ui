@@ -22,7 +22,7 @@
        template(v-if="sideMaretsTab == network.baseToken.symbol" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
   el-table(
-    :data='filteredItems',
+    :data='lazyMarkets',
     row-key="id"
     style='width: 100%',
     @row-click='setMarket',
@@ -71,6 +71,9 @@
       template(slot-scope='scope')
         span.text-mutted(v-if="showVolumeInUSD && sideMaretsTab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
         span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
+
+    template(slot="append")
+      infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
 <script>
@@ -89,7 +92,17 @@ export default {
   data() {
     return {
       search: '',
+      skip: 0,
+      lazyMarkets: [],
       loading: false,
+    }
+  },
+
+  watch: {
+    search() {
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
     }
   },
 
@@ -122,7 +135,7 @@ export default {
       return this.favMarkets.includes(this.id)
     },
 
-    filteredItems() {
+    filteredMarkets() {
       if (!this.markets) return []
 
       let markets = []
@@ -157,11 +170,11 @@ export default {
         return !this.network.SCAM_CONTRACTS.includes(i.quote_token.contract)
       })
 
-      markets = markets.filter((i) =>
-        i.slug.includes(this.search.toLowerCase())
-      )
+      markets = markets
+        .filter((i) => i.slug.includes(this.search.toLowerCase()))
+        .sort((a, b) => b.volume24 - a.volume24)
 
-      return markets.reverse()
+      return markets
     },
   },
 
@@ -248,6 +261,19 @@ export default {
           'settings/setFavMarkets',
           this.favMarkets.concat([id])
         )
+      }
+    },
+
+    lazyloadMarkets($state) {
+      const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
+
+      if (append.length > 0) {
+        this.skip += 20
+        this.lazyMarkets.push(...append)
+
+        $state.loaded()
+      } else {
+        $state.complete()
       }
     },
   },

@@ -44,13 +44,8 @@
 
 <script>
 import { mapState } from 'vuex'
-import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
-  components: {
-    InfiniteLoading
-  },
-
   data() {
     return {
       deals: [],
