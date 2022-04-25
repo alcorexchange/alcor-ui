@@ -87,8 +87,6 @@
                 )
           el-tab-pane(label='Open order')
             my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
-          //el-tab-pane(label='Order history')
-            my-history(v-if='user', v-loading='loading')
           el-tab-pane(label='Trade History')
             my-trade-history(:only-current-pair="hideOtherPairs")
           el-tab-pane(label='Funds')
@@ -165,7 +163,6 @@ import { mapGetters, mapState } from 'vuex'
 import MarketTrade from '~/components/trade/MarketTrade'
 import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
-import MyHistory from '~/components/trade/MyHistory'
 import MyTradeHistory from '~/components/trade/MyTradeHistory'
 import MyFunds from '~/components/trade/MyFunds'
 import OrderBook from '~/components/trade/OrderBook'
@@ -185,7 +182,6 @@ export default {
   name: 'Desktoptrade',
   components: {
     MarketTrade,
-    MyHistory,
     MyTradeHistory,
     MyFunds,
     MyOrders,

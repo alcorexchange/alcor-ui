@@ -196,7 +196,6 @@ import { mapGetters } from 'vuex'
 
 import { trade } from '~/mixins/trade'
 
-import MyHistory from '~/components/trade/MyHistory'
 import OrderBook from '~/components/trade/OrderBook'
 import Chart from '~/components/trade/Chart'
 import TokenImage from '~/components/elements/TokenImage'
@@ -214,7 +213,6 @@ export default {
     Chart,
     TokenImage,
     MyOrders,
-    MyHistory,
     TopLine,
     LatestDeals,
     FavoritesTopLine,
