@@ -44,15 +44,17 @@ client-only
           span.text-muted All Time High/Low:
           span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
 
-      .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile & showArrow")
-        i.el-icon-right(v-if="arrowRight")
-        i.el-icon-back(v-else)
+    //.d-flex.align-items-center.header-items-container.pl-3
+      .d-flex.flex-column
+        .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile & showArrow")
+          i.el-icon-right(v-if="arrowRight")
+          i.el-icon-back(v-else)
 
-      .pointer.ml-3.pr-4
-        i.el-icon-star-off(
-          :class='{ "el-icon-star-on": isFavorite }',
-          @click='toggleFav'
-        )
+        .pointer.ml-3.pr-4
+          i.el-icon-star-off(
+            :class='{ "el-icon-star-on": isFavorite }',
+            @click='toggleFav'
+          )
 </template>
 
 <script>
@@ -161,7 +163,7 @@ export default {
 }
 
 .header-items-container {
-  width: 560px;
+  //width: 560px;
   overflow: auto;
 
   .flex-column {
