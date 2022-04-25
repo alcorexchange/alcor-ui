@@ -103,6 +103,12 @@ export default {
       this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
+    },
+
+    markets_active_tab() {
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
     }
   },
 

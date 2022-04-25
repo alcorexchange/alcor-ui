@@ -69,12 +69,6 @@ export default {
     }
   },
 
-  mounted() {
-    setTimeout(() => {
-      console.log('myorders', this.orders, this.userOrders)
-    }, 100)
-  },
-
   methods: {
     async cancel(order) {
       if (!this.user)

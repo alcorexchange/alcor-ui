@@ -248,6 +248,12 @@ export default {
       this.lazyMarkets = []
       this.skip = 0
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
+    },
+
+    markets_active_tab() {
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
     }
   },
 

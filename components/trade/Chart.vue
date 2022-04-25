@@ -490,17 +490,18 @@ export default {
             const { data: charts } = await this.$axios.get(
               `/markets/${this.id}/charts`,
               {
-                params: { resolution, from, to },
+                params: { resolution, from, to }
               }
             )
+
             onHistoryCallback(charts, { noData: charts.length == 0 })
 
-            this.widget.activeChart().resetData()
-            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+            //this.widget.activeChart().resetData()
+            //this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
 
             this.isReady = true
+            setTimeout(() => this.drawOrders(), 50) // FIXME Sometime it crashes
 
-            this.drawOrders()
             //this.loadHistory().then(() => this.gridExecution()) TODO History on chart
           },
 
