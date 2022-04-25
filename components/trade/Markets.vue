@@ -171,14 +171,10 @@ export default {
         this.$store.dispatch('market/unsubscribe', this.id)
       }
 
-      console.log('start change market..')
       this.$router.push(
         { name: 'trade-index-id', params: { id: market.slug } },
-        () => {
-          this.loading = false
-          console.log('market changed..')
-        },
-        () => (this.loading = false)
+        () => this.loading = false,
+        () => this.loading = false
       )
     },
 

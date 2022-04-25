@@ -61,12 +61,11 @@ client-only
 <script>
 import { mapState, mapGetters } from 'vuex'
 
-import ClickOutside from 'vue-click-outside'
-
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import Withdraw from '~/components/withdraw/Withdraw'
 import Markets from '~/components/trade/Markets'
+
 
 export default {
   components: {
@@ -74,10 +73,6 @@ export default {
     ChangePercent,
     Withdraw,
     Markets
-  },
-
-  directives: {
-    ClickOutside
   },
 
   mounted() {
@@ -96,7 +91,6 @@ export default {
     header_settings: {
       handler(val) {
         this.setArrow()
-        console.log(document.getElementsByClassName('header-items-container')[0].scrollWidth)
       },
       deep: true
     },
@@ -140,8 +134,7 @@ export default {
       this.arrowRight = !this.arrowRight
     },
     onClickOutside(event) {
-      console.log('event')
-      if (!event.target.parentNode.className.includes('show-markets') && this.showMarkets) {
+      if (this.showMarkets) {
         this.showMarkets = false
       }
     },

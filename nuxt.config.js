@@ -80,6 +80,7 @@ module.exports = {
     '@/plugins/mixins',
     '@/plugins/filters',
     '@/plugins/global',
+    '@/plugins/vClickOutside.js',
 
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' },

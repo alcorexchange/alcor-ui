@@ -411,11 +411,12 @@ export default {
                 '240',
                 'D',
                 'W',
-                'M',
+                'M'
               ],
-              symbols_types: [{ name: 'crypto', value: 1 }],
+              symbols_types: [{ name: 'crypto', value: 1 }]
             }
-            callback(data)
+
+            setTimeout(() => callback(data), 0)
           },
 
           subscribeBars: (

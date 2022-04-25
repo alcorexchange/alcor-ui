@@ -49,7 +49,6 @@
 </template>
 
 <script>
-import ClickOutside from 'vue-click-outside'
 import { mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
@@ -57,10 +56,6 @@ import TokenImage from '~/components/elements/TokenImage'
 export default {
   components: {
     TokenImage
-  },
-
-  directives: {
-    ClickOutside
   },
 
   props: {

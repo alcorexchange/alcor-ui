@@ -31,7 +31,8 @@
     )
       i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
       i.el-icon-setting.show-settings(v-else='')
-    settings.settings(v-if='showSetting', v-click-outside1='onClickOutside')
+
+    settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
     //el-dropdown
       div
         //AlcorButton(:iconOnlyAlt='true')
@@ -61,35 +62,12 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
 
 import config from '~/config'
 import Settings from '~/components/layout/Settings'
 import ChainSelect from '~/components/elements/ChainSelect'
-
-// import AlcorLink from '@/components/AlcorLink'
-
-Vue.directive('click-outside1', {
-  bind(el, binding, vnode) {
-    el.clickOutsideEvent = (event) => {
-      if (
-        !(
-          el === event.target ||
-          el.contains(event.target) ||
-          event.target.className.includes('show-settings')
-        )
-      ) {
-        vnode.context[binding.expression](event)
-      }
-    }
-    document.body.addEventListener('click', el.clickOutsideEvent)
-  },
-  unbind(el) {
-    document.body.removeEventListener('click', el.clickOutsideEvent)
-  },
-})
 
 export default {
   components: {
@@ -98,6 +76,7 @@ export default {
     ChainSelect
     // AlcorLink
   },
+
   data() {
     return {
       loading: false,

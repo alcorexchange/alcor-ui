@@ -2,7 +2,7 @@
 // TODO This part need FUCKING REFACTORING, as swap module at all
 .swap-token-select
   .row
-    .col
+    .col(v-click-outside="hide")
       .multi-input-wrapper(v-bind:style="visible ? 'z-index: 2;' : ''")
         el-input(type="number" v-model="content" :clearable="!static" placeholder="0.0" @input="handleInput" @change="inputChange" :readonly="readonly || static")
           template(slot="append")
@@ -30,7 +30,7 @@
               i.el-icon-bottom.ml-1(v-if="!static")
               i.ml-2(v-else="!static")
 
-      .dropdown(v-show="visible" v-click-outside="hide")
+      .dropdown(v-show="visible")
         el-input(placeholder="Search by name or contract" :clearable="!static" v-model="search" size="small" ref="searchInput")
 
         .pairs.mt-2
@@ -50,7 +50,6 @@
 </template>
 
 <script>
-import ClickOutside from 'vue-click-outside'
 import { mapState, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
@@ -58,10 +57,6 @@ import TokenImage from '~/components/elements/TokenImage'
 export default {
   components: {
     TokenImage
-  },
-
-  directives: {
-    ClickOutside
   },
 
   props: {
@@ -152,6 +147,7 @@ export default {
 
   methods: {
     hide() {
+      console.log('hide')
       this.visible = false
     },
 
@@ -159,6 +155,7 @@ export default {
       if (this.static) return
 
       this.visible = !this.visible
+      console.log('this.visible', this.visible)
 
       if (this.visible) {
         setTimeout(() => {
