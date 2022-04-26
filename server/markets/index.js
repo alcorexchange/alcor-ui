@@ -46,7 +46,7 @@ markets.get('/:market_id/charts', async (req, res) => {
 
   const q = [
     { $match: where },
-    { $sort: { time: 1 } },
+    { $sort: { time: -1 } },
     {
       $project: {
         time: { $toLong: '$time' },
