@@ -21,6 +21,7 @@
         :w='item.w',
         :h='item.h',
         :i='item.i',
+        :static="current_market_layout != 'advanced'"
         :min-w='parseInt(item.mw)',
         :min-h='parseInt(item.mh)',
         :class='item.i',
@@ -165,6 +166,8 @@ import FeeRate from '~/components/trade/FeeRate'
 import SettingModal from '~/components/trade/SettingModal'
 import TimeSaleModal from '~/components/trade/TimeSaleModal'
 
+import { TRADE_LAYOUTS } from '~/config'
+
 export default {
   layout: 'embed',
   path: 'desktoptrade',
@@ -209,11 +212,21 @@ export default {
       'id',
       'stats',
       'base_token',
-      'markets_layout',
-      'orderdata'
+      'orderdata',
+      'current_market_layout'
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
+
+    markets_layout() {
+      if (this.current_market_layout == 'classic') {
+        return TRADE_LAYOUTS.classic
+      } else if (this.current_market_layout == 'full') {
+        return TRADE_LAYOUTS.full
+      } else {
+        return this.$store.state.market.markets_layout
+      }
+    },
 
     hideOtherPairs: {
       get() {
@@ -287,10 +300,11 @@ export default {
       this.$router.push('/swap')
     },
     layoutUpdatedEvent(e) {
-      if (e.i != 'order-depth') return
-      this.depthChartUpdated = !this.depthChartUpdated
-    },
-  },
+      if (e.i == 'order-depth') this.depthChartUpdated = !this.depthChartUpdated
+
+      console.log('this.markets_layout', JSON.stringify(this.markets_layout))
+    }
+  }
 }
 </script>
 
@@ -543,10 +557,9 @@ export default {
   }
 
   #tv_chart_container {
-    height: calc(100% - 56px) !important;
+    height: calc(100% - 52px) !important;
   }
 
-  //padding: 2px 0px;
   background: #121212;
 
   .el-tabs--border-card {

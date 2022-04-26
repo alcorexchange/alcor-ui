@@ -43,58 +43,9 @@ export const state = () => ({
   total_sell: null,
 
   markets_active_tab: null,
-  markets_layout: [
-    {
-      x: 0,
-      y: 0,
-      w: 14,
-      h: 14,
-      i: 'chart',
-      status: true,
-      mw: 9,
-      mh: 9,
-    },
-    {
-      x: 14,
-      y: 0,
-      w: 5,
-      h: 14,
-      i: 'order-depth',
-      status: true,
-      mw: 5,
-      mh: 9,
-    },
-    {
-      x: 19,
-      y: 0,
-      w: 5,
-      h: 14,
-      i: 'time-sale',
-      status: true,
-      mw: 3,
-      mh: 9,
-    },
-    {
-      x: 0,
-      y: 14,
-      w: 14,
-      h: 8,
-      i: 'open-order',
-      status: true,
-      mw: 10,
-      mh: 7,
-    },
-    {
-      x: 14,
-      y: 14,
-      w: 10,
-      h: 8,
-      i: 'limit-market',
-      status: true,
-      mw: 8,
-      mh: 8,
-    }
-  ],
+  current_market_layout: 'classic',
+  markets_layout: config.TRADE_LAYOUTS.classic,
+
   header_settings: {
     change_24: true,
     volume_24: true,
@@ -117,9 +68,9 @@ export const state = () => ({
     order: {},
     show_cancel_modal: false,
     show_move_modal: false,
-    order_to: "",
-    price: "",
-    new_price: "",
+    order_to: '',
+    price: '',
+    new_price: ''
   }
 })
 
@@ -134,7 +85,7 @@ export const mutations = {
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
   setMarketLayout: (state, layout) => state.markets_layout = layout,
   setHeaderSettings: (state, list) => state.header_settings = list,
-  // setOrderdata: (state, list) => state.orderdata = list,
+  setCurrentMarketLayout: (state, value) => state.current_market_layout = value,
   setHeaderSettingsDefault: (state) => state.header_settings = {
     change_24: true,
     volume_24: true,

@@ -86,10 +86,24 @@
               .text-picker.bloom-text.mx-1 Aa
               .static-color-picker.bloom-green.mx-1
               .static-color-picker.bloom-red.mx-1
-    hr(
-      style='width: 90%; text-align: center; background-color: gray; margin-top: -9px; margin-bottom: 9px'
-    )
+
     .el-container.setting-layout.d-flex.flex-column
+      .setting-module-footer.el-footer.text-white
+        span.module-title Layouts
+      .el-main.module-main-settings
+        .layout-selection
+          .d-flex.flex-column(@click="setMarketLayout('classic')")
+            img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'classic' }")
+            span Classic
+          .d-flex.flex-column(@click="setMarketLayout('advanced')")
+            img(src="~/assets/icons/modern_layout.svg" height=70 :class="{ active: current_market_layout == 'advanced' }")
+            span Advanced
+          .d-flex.flex-column(@click="setMarketLayout('full')")
+            img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'full' }")
+            span FullScreen
+
+    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced'")
+      hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
         span.module-title Layout Modules
       .el-main.module-main-settings
@@ -130,6 +144,9 @@ import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 
+import { TRADE_LAYOUTS } from '~/config'
+
+
 export default {
   scrollToTop: false,
 
@@ -157,158 +174,65 @@ export default {
   },
   computed: {
     ...mapState(['markets']),
-    ...mapState(['checked']),
-    markets_layout: {
-      get() {
-        if (this.$store.state.market.markets_layout != null) {
-          return this.$store.state.market.markets_layout
-        } else {
-          const defaultlayout = [
-            {
-              x: 0,
-              y: 0,
-              w: 14,
-              h: 14,
-              i: 'chart',
-              status: true,
-              mw: 9,
-              mh: 9
-            },
-            {
-              x: 14,
-              y: 0,
-              w: 5,
-              h: 14,
-              i: 'order-depth',
-              status: true,
-              mw: 5,
-              mh: 9
-            },
-            {
-              x: 19,
-              y: 0,
-              w: 5,
-              h: 14,
-              i: 'time-sale',
-              status: true,
-              mw: 3,
-              mh: 4
-            },
-            {
-              x: 0,
-              y: 14,
-              w: 14,
-              h: 7,
-              i: 'open-order',
-              status: true,
-              mw: 10,
-              mh: 7
-            },
-            {
-              x: 14,
-              y: 14,
-              w: 10,
-              h: 7,
-              i: 'limit-market',
-              status: true,
-              mw: 8,
-              mh: 8
-            },
-            {
-              x: 14,
-              y: 14,
-              w: 5,
-              h: 8,
-              i: 'markets',
-              status: false,
-              mw: 5,
-              mh: 4
-            }
-          ]
-          return defaultlayout
-        }
-      },
-
-      set(value) {
-        this.$store.commit('market/setMarketLayout', value)
-      }
-    }
+    ...mapState('market', ['current_market_layout', 'markets_layout'])
   },
+
   methods: {
+    setMarketLayout(value) {
+      this.$store.commit('market/setCurrentMarketLayout', value)
+    },
+
     onChange(e) {
       this.$store.dispatch('dynamicTheme', e.target.value)
       if (e.target.value == 'oranger') this.checkedorange = true
     },
+
     updateState() {
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     },
+
     initiateState() {
-      this.markets_layout = [
-        {
-          x: 0,
-          y: 0,
-          w: 14,
-          h: 14,
-          i: 'chart',
-          status: true,
-          mw: 9,
-          mh: 9
-        },
-        {
-          x: 14,
-          y: 0,
-          w: 5,
-          h: 14,
-          i: 'order-depth',
-          status: true,
-          mw: 5,
-          mh: 4
-        },
-        {
-          x: 19,
-          y: 0,
-          w: 5,
-          h: 14,
-          i: 'time-sale',
-          status: true,
-          mw: 5,
-          mh: 4
-        },
-        {
-          x: 0,
-          y: 14,
-          w: 14,
-          h: 7,
-          i: 'open-order',
-          status: true,
-          mw: 10,
-          mh: 7
-        },
-        {
-          x: 14,
-          y: 14,
-          w: 10,
-          h: 7,
-          i: 'limit-market',
-          status: true,
-          mw: 6,
-          mh: 7
-        },
-        {
-          x: 14,
-          y: 14,
-          w: 5,
-          h: 8,
-          i: 'markets',
-          status: false,
-          mw: 5,
-          mh: 3
-        }
-      ]
+      this.$store.commit('market/setMarketLayout', TRADE_LAYOUTS.advanced)
     }
   }
 }
 </script>
+
+<style scoped lang="scss">
+.layout-selection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+
+  img {
+    cursor: pointer;
+
+    &:hover {
+      border: 1px solid #1fc7816e;
+      border-radius: 2px;
+    }
+
+    &.active {
+      border: 1px solid #1FC781;
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+  }
+
+  span {
+    margin-top: 5px;
+
+    color: #f2f2f2;
+
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+  }
+}
+</style>
 
 <style lang="scss">
 .markets-bar {
