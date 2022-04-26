@@ -496,8 +496,8 @@ export default {
 
             onHistoryCallback(charts, { noData: charts.length == 0 })
 
-            //this.widget.activeChart().resetData()
-            //this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+            this.widget.activeChart().resetData()
+            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
 
             this.isReady = true
             setTimeout(() => this.drawOrders(), 50) // FIXME Sometime it crashes
