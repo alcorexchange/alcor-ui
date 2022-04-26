@@ -127,7 +127,7 @@
           change-percent(:change='scope.row.changeWeek')
 
       template(slot="append")
-        infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
+        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".markets .el-table__body-wrapper" spinner="spiral" ref="infinite")
 </template>
 
 <script>

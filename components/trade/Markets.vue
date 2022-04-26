@@ -196,6 +196,8 @@ export default {
 
   methods: {
     setMarket(market) {
+      if (this.id == market.id) return
+
       if (this.id) {
         this.$store.dispatch('market/unsubscribe', this.id)
       }
