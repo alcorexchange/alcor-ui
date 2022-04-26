@@ -404,13 +404,21 @@ export default {
             console.log('get bars called...', { from, to, countBack, firstDataRequest })
             this.resolution = resolution
 
-            return this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
-              .then(({ data: charts }) => {
-                onHistoryCallback(charts, { noData: charts.length == 0 })
-              }).catch(e => {
-                onErrorCallback('Charts loading error..', e)
-              })
+            if (firstDataRequest) {
+              // Using countBack
+              this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, limit: countBack } })
+                .then(({ data: charts }) => {
+                  onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+                }).catch(e => onErrorCallback('Charts loading error..', e))
+            } else {
+              this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+                .then(({ data: charts }) => {
+                  onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+                }).catch(e => onErrorCallback('Charts loading error..', e))
+            }
 
+            this.widget.activeChart().resetData()
+            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
 
             //try {
             //  const { data: charts } = await this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
@@ -637,10 +645,10 @@ export default {
 
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
-        //this.load()
+        this.load()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
-          //this.save()
+          this.save()
         })
       })
     },
