@@ -51,13 +51,14 @@ export default {
     },
 
     userOrders() {
-      this.drawOrders()
+      //this.drawOrders()
     },
 
     id(to, from) {
+      console.log('market changed!!')
       this.isReady = false
       this.reset()
-      this.load()
+      //this.load()
     },
 
     'chart_orders_settings.chart_order_interactivity'() {
@@ -121,6 +122,7 @@ export default {
     },
 
     drawOrders() {
+      console.log('drawOrders...')
       if (!this.isReady) return
 
       // TODO Get current from CSS by JS
@@ -135,9 +137,12 @@ export default {
 
       if (this.chart_orders_settings.show_open_orders) {
         this.orders.map(o => {
+          console.log('draw order..')
           const order = this.widget
             .activeChart()
             .createOrderLine() // FIXME Value is none how to fix? (seems was fixed)
+            .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
+            .setText(o.type == 'sell' ? 'Sell' : 'Buy')
             .setLineColor(o.type == 'buy' ? green : red)
             .setBodyBackgroundColor(o.type == 'buy' ? '#212121' : '#212121')
             .setBodyBorderColor(o.type == 'buy' ? green : red)
@@ -148,8 +153,6 @@ export default {
             .setCancelButtonBorderColor(o.type == 'buy' ? green : red)
             .setCancelButtonBackgroundColor('#212121')
             .setCancelButtonIconColor('#f2fff2')
-            .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
-            .setText(o.type == 'sell' ? 'Sell' : 'Buy')
           if (this.chart_orders_settings.show_labels) {
             order
               .setQuantity(o.type == 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
@@ -325,7 +328,6 @@ export default {
           _deals.push(...Object.values(byPrice))
         }
 
-
         for (const deal of _deals) {
           const execution = this.widget
             .activeChart()
@@ -406,7 +408,7 @@ export default {
 
             if (firstDataRequest) {
               // Using countBack
-              this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, limit: countBack } })
+              this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, limit: countBack + 1 } })
                 .then(({ data: charts }) => {
                   onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
 
@@ -414,7 +416,8 @@ export default {
                   this.widget.activeChart().resetData()
                   this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
 
-                  this.drawOrders()
+                  this.isReady = true
+                  setTimeout(() => this.drawOrders(), 1000)
                 }).catch(e => onErrorCallback('Charts loading error..', e))
             } else {
               this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
@@ -425,6 +428,7 @@ export default {
           },
 
           subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
+            console.log('subscribeBars called...')
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
             this.$socket.emit('subscribe', {
@@ -477,6 +481,7 @@ export default {
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
+          'symbol_search_hot_key',
           'header_symbol_search',
           //'header_chart_type',
           'header_settings',
@@ -495,8 +500,7 @@ export default {
           'main_series_scale_menu',
           'trading_notifications',
           'show_trading_notifications_history',
-          'cropped_tick_marks',
-          'end_of_period_timescale_marks',
+          //'end_of_period_timescale_marks',
           'datasource_copypaste',
           'chart_crosshair_menu',
 
@@ -544,10 +548,10 @@ export default {
 
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
-        this.load()
+        //this.load()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
-          this.save()
+          //this.save()
         })
       })
     },

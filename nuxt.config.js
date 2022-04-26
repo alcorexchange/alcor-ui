@@ -36,9 +36,9 @@ module.exports = {
       //{ name: 'viewport', content: 'user-scalable = yes' }
     ],
 
-    script: [
-      { src: '/datafeeds/udf/dist/bundle.js' }
-    ],
+    //script: [
+    //  { src: '/datafeeds/udf/dist/bundle.js' }
+    //],
 
     link: [
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
