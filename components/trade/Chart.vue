@@ -82,12 +82,8 @@ export default {
   },
 
   mounted() {
-    //this.$nuxt.$on('loadUserOrdersFinish', () => {
-    //  this.isReady = true
-    //  this.drawOrders()
-    //  console.log('on loadUserOrdersFinish!!')
-    //})
     this.mountChart()
+
     this.$socket.on('tick', (candle) => {
       this.onRealtimeCallback(candle)
     })
@@ -116,6 +112,7 @@ export default {
     },
 
     reset() {
+      console.log('reset called..', this.onResetCacheNeededCallback)
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
       } else {
@@ -250,8 +247,6 @@ export default {
           order_id: order.id
         })
 
-        //position.remove()
-
         this.$notify({
           title: 'Success',
           message: `Order canceled ${order.id}`,
@@ -349,83 +344,91 @@ export default {
             .setArrowSpacing(0)
             .setFont('bold 15pt Verdana')
 
-          //if (!this.chart_orders_settings.show_trade_executions_price)
-          //  this.executionshape.setText('0000')
-          //if (!this.chart_orders_settings.show_trade_execution_amount)
-          //  this.executionshape.setText('0000.7VOID')
-          //if (
-          //  !this.chart_orders_settings.show_trade_executions_price &&
-          //  !this.chart_orders_settings.show_trade_execution_amount
-          //)
-          //  this.executionshape.setText('')
-
-          //gridExecutions.push
-
-
           this.gridExecutions.push(execution)
         }
-        //for
-        //this.executionshape = this.widget
-        //  .chart()
-        //  .createExecutionShape()
-        //  .setTooltip('@1,320.75 Limit Buy 1')
-        //  .setText('0000 - 0000.7VOID')
-        //  .setTextColor('#f96c6c')
-        //  .setArrowColor('#f96c6c')
-        //  //.setFont('18pt Verdana')
-        //  //.setArrowSpacing(25)
-        //  //.setArrowHeight(25)
-        //  .setDirection('buy')
-        //  .setLineStyle(2)
-        //  // .setTime(1648772490411)
-        //  .setPrice(0.007)
-        //  .setArrowHeight(20)
-        //  .setArrowSpacing(0)
-        //  .setFont('bold 15pt Verdana')
-
-        //if (!this.chart_orders_settings.show_trade_executions_price)
-        //  this.executionshape.setText('0000')
-        //if (!this.chart_orders_settings.show_trade_execution_amount)
-        //  this.executionshape.setText('0000.7VOID')
-        //if (
-        //  !this.chart_orders_settings.show_trade_executions_price &&
-        //  !this.chart_orders_settings.show_trade_execution_amount
-        //)
-        //  this.executionshape.setText('')
       }
     },
 
     mountChart() {
-      const Widget = require('~/assets/charts/charting_library.min.js').widget
+      console.log('mountChart called...')
+      const { $TVChart: { Widget } } = this
 
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
-        datafeed: {
-          onReady: (callback) => {
-            const data = {
-              supported_resolutions: [
-                '1',
-                '15',
-                '30',
-                '60',
-                '240',
-                'D',
-                'W',
-                'M'
-              ],
-              symbols_types: [{ name: 'crypto', value: 1 }]
-            }
 
-            setTimeout(() => callback(data), 0)
+        datafeed: {
+          onReady: (cb) => {
+            console.log('onReady called...')
+            setTimeout(() => {
+              cb({
+                //exchanges: [{ value: 'asdfasdf', name: 'aaaa', desc: 'df' }],
+                symbols_types: [{ value: 'asdfasdf', name: 'aaaa' }],
+                supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+                //currency_codes: [{ id: 'asdf', code: 'SDF', logoUrl: 'asdf', description: 'asdfasdf' }]
+                // TODO https://github.com/tradingview/charting_library/wiki/JS-Api do more
+                supports_time: false
+              })
+            }, 0)
           },
 
-          subscribeBars: (
-            symbolInfo,
-            resolution,
-            onRealtimeCallback,
-            subscriberUID,
-            onResetCacheNeededCallback
-          ) => {
+          searchSymbols: (userInput, exchange, symbolType, onResultReadyCallback) => {
+            console.log('searchSymbols callback....')
+          },
+
+          //resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) {
+          //  console.log('resolveSymbol called...')
+          //},
+
+          resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
+            const symbolInfo = {
+              name: this.quote_token.symbol.name,
+              //description: 'ololol', TODO
+              type: 'crypto',
+              timezone: 'UTC',
+              session: '24x7',
+              minmov: 1,
+              pricescale: 100000000,
+              has_intraday: true,
+              has_no_volume: false,
+              has_weekly_and_monthly: true,
+              supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+              volume_precision: 5,
+              data_status: 'streaming'
+            }
+
+            setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
+          },
+
+          getBars: (symbolInfo, resolution, { from, to, countBack, firstDataRequest }, onHistoryCallback, onErrorCallback) => {
+            // FIXME Called 2 times
+            console.log('get bars called...', { from, to, countBack, firstDataRequest })
+            this.resolution = resolution
+
+            return this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+              .then(({ data: charts }) => {
+                onHistoryCallback(charts, { noData: charts.length == 0 })
+              }).catch(e => {
+                onErrorCallback('Charts loading error..', e)
+              })
+
+
+            //try {
+            //  const { data: charts } = await this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+            //  onHistoryCallback(charts, { noData: charts.length == 0 })
+
+            //  // FIXME May be not need
+            //  //this.widget.activeChart().resetData()
+            //  //this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+
+            //  // TODO
+            //  //this.isReady = true
+            //  //this.drawOrders()
+            //} catch (e) {
+            //  onErrorCallback('Charts loading error..', e)
+            //}
+          },
+
+          subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
             this.$socket.emit('subscribe', {
@@ -433,96 +436,139 @@ export default {
               params: {
                 chain: this.network.name,
                 market: this.id,
-                resolution: this.resolution,
-              },
+                resolution: this.resolution
+              }
             })
 
             this.onRealtimeCallback = onRealtimeCallback
             this.resolution = resolution
           },
 
-          resolveSymbol: (
-            symbolName,
-            onSymbolResolvedCallback,
-            onResolveErrorCallback
-          ) => {
-            const symbolInfo = {
-              name: this.quote_token.symbol.name,
-              //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
-              //description: `${this.quote_token.symbol.name}/${this.base_token.symbol.name}`,
-              //type: symbolItem.type,
-              timezone: 'UTC',
-              session: '24x7',
-              //exchange: symbolItem.exchange,
-              minmov: 1,
-              pricescale: 100000000,
-              has_intraday: true,
-              has_no_volume: false,
-              has_weekly_and_monthly: true,
-              supported_resolutions: [
-                '1',
-                '15',
-                '30',
-                '60',
-                '240',
-                'D',
-                'W',
-                'M',
-              ],
-              volume_precision: 5,
-              data_status: 'streaming',
-            }
-
-            setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
-          },
-
-          getBars: async (
-            symbolInfo,
-            resolution,
-            from,
-            to,
-            onHistoryCallback,
-            onErrorCallback,
-            firstDataRequest
-          ) => {
-            this.resolution = resolution
-
-            const { data: charts } = await this.$axios.get(
-              `/markets/${this.id}/charts`,
-              {
-                params: { resolution, from, to }
-              }
-            )
-
-            onHistoryCallback(charts, { noData: charts.length == 0 })
-
-            this.widget.activeChart().resetData()
-            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-
-            this.isReady = true
-            setTimeout(() => this.drawOrders(), 50) // FIXME Sometime it crashes
-
-            //this.loadHistory().then(() => this.gridExecution()) TODO History on chart
-          },
-
           unsubscribeBars: (subscriberUID) => {
+            console.log('unsubscribeBars called...')
             this.$socket.emit('unsubscribe', {
               room: 'ticker',
               params: {
                 chain: this.network.name,
                 market: this.id,
-                resolution: this.resolution,
-              },
+                resolution: this.resolution
+              }
             })
           },
+
+          getMarks: (symbolInfo, from, to, onDataCallback, resolution) => {
+            console.log('getMarks called...')
+          },
+
+          getTimescaleMarks: (symbolInfo, from, to, onDataCallback, resolution) => {
+            console.log('getTimescaleMarks called...')
+          },
+
+          getServerTime: callback => {
+            console.log('getServerTime called..')
+          },
+
+          getVolumeProfileResolutionForPeriod: (currentResolution, from, to, symbolInfo) => {
+            console.log('getVolumeProfileResolutionForPeriod called...')
+          }
+
+          //subscribeBars: (
+          //  symbolInfo,
+          //  resolution,
+          //  onRealtimeCallback,
+          //  subscriberUID,
+          //  onResetCacheNeededCallback
+          //) => {
+          //  this.onResetCacheNeededCallback = onResetCacheNeededCallback
+
+          //  this.$socket.emit('subscribe', {
+          //    room: 'ticker',
+          //    params: {
+          //      chain: this.network.name,
+          //      market: this.id,
+          //      resolution: this.resolution,
+          //    },
+          //  })
+
+          //  this.onRealtimeCallback = onRealtimeCallback
+          //  this.resolution = resolution
+          //},
+
+          //resolveSymbol: (
+          //  symbolName,
+          //  onSymbolResolvedCallback,
+          //  onResolveErrorCallback
+          //) => {
+          //  const symbolInfo = {
+          //    name: this.quote_token.symbol.name,
+          //    timezone: 'UTC',
+          //    session: '24x7',
+          //    minmov: 1,
+          //    pricescale: 100000000,
+          //    has_intraday: true,
+          //    has_no_volume: false,
+          //    has_weekly_and_monthly: true,
+          //    supported_resolutions: [
+          //      '1',
+          //      '15',
+          //      '30',
+          //      '60',
+          //      '240',
+          //      'D',
+          //      'W',
+          //      'M',
+          //    ],
+          //    volume_precision: 5,
+          //    data_status: 'streaming',
+          //  }
+
+          //  setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
+          //},
+
+          //getBars: async (
+          //  symbolInfo,
+          //  resolution,
+          //  from,
+          //  to,
+          //  onHistoryCallback,
+          //  onErrorCallback,
+          //  firstDataRequest
+          //) => {
+          //  this.resolution = resolution
+
+          //  const { data: charts } = await this.$axios.get(
+          //    `/markets/${this.id}/charts`,
+          //    {
+          //      params: { resolution, from, to }
+          //    }
+          //  )
+
+          //  onHistoryCallback(charts, { noData: charts.length == 0 })
+
+          //  this.widget.activeChart().resetData()
+          //  this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+
+          //  this.isReady = true
+          //  setTimeout(() => this.drawOrders(), 50) // FIXME Sometime it crashes
+          //},
+
+          //unsubscribeBars: (subscriberUID) => {
+          //  this.$socket.emit('unsubscribe', {
+          //    room: 'ticker',
+          //    params: {
+          //      chain: this.network.name,
+          //      market: this.id,
+          //      resolution: this.resolution
+          //    }
+          //  })
+          //}
         },
-        //datafeed: new window.Datafeeds.UDFCompatibleDatafeed(this.datafeedUrl), for test
         interval: '240',
-        container_id: 'tv_chart_container',
+        container: 'tv_chart_container',
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
@@ -573,9 +619,10 @@ export default {
         //charts_storage_api_version: this.chartsStorageApiVersion,
         //client_id: this.clientId,
         //user_id: this.userId,
+        client_id: 'alcor.exchange',
         fullscreen: false,
         autosize: true,
-        studies_overrides: this.studiesOverrides,
+        studies_overrides: () => ({}),
 
         // Styles
         theme: this.$colorMode.value,
@@ -584,16 +631,16 @@ export default {
           'paneProperties.background':
             this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
           'scalesProperties.textColor':
-            this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
-        },
+            this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
+        }
       }
 
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
-        this.load()
+        //this.load()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
-          this.save()
+          //this.save()
         })
       })
     },

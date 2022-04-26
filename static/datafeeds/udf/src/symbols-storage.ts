@@ -24,6 +24,8 @@ interface ExchangeDataResponseSymbolData {
 	'exchange-traded': string;
 
 	'session-regular': string;
+	'corrections'?: string;
+	'session-holidays'?: string;
 
 	'fractional': boolean;
 
@@ -37,8 +39,6 @@ interface ExchangeDataResponseSymbolData {
 	'minmov'?: number;
 	'minmovement'?: number;
 
-	'force-session-rebuild'?: boolean;
-
 	'supported-resolutions'?: ResolutionString[];
 	'intraday-multipliers'?: string[];
 
@@ -47,6 +47,11 @@ interface ExchangeDataResponseSymbolData {
 	'has-weekly-and-monthly'?: boolean;
 	'has-empty-bars'?: boolean;
 	'has-no-volume'?: boolean;
+	'currency-code'?: string;
+	'original-currency-code'?: string;
+	'unit-id'?: string;
+	'original-unit-id'?: string;
+	'unit-conversion-types'?: string[];
 
 	'volume-precision'?: number;
 }
@@ -80,6 +85,11 @@ function extractField<Field extends keyof ExchangeDataResponseSymbolData>(data: 
 	return value as ExchangeDataResponseSymbolData[Field];
 }
 
+function symbolKey(symbol: string, currency?: string, unit?: string): string {
+	// here we're using a separator that quite possible shouldn't be in a real symbol name
+	return symbol + (currency !== undefined ? '_%|#|%_' + currency : '') + (unit !== undefined ? '_%|#|%_' + unit : '');
+}
+
 export class SymbolsStorage {
 	private readonly _exchangesList: string[] = ['NYSE', 'FOREX', 'AMEX'];
 	private readonly _symbolsInfo: SymbolInfoMap = {};
@@ -102,9 +112,9 @@ export class SymbolsStorage {
 	}
 
 	// BEWARE: this function does not consider symbol's exchange
-	public resolveSymbol(symbolName: string): Promise<LibrarySymbolInfo> {
+	public resolveSymbol(symbolName: string, currencyCode?: string, unitId?: string): Promise<LibrarySymbolInfo> {
 		return this._readyPromise.then(() => {
-			const symbolInfo = this._symbolsInfo[symbolName];
+			const symbolInfo = this._symbolsInfo[symbolKey(symbolName, currencyCode, unitId)];
 			if (symbolInfo === undefined) {
 				return Promise.reject('invalid symbol');
 			}
@@ -228,6 +238,8 @@ export class SymbolsStorage {
 				const listedExchange = extractField(data, 'exchange-listed', symbolIndex);
 				const tradedExchange = extractField(data, 'exchange-traded', symbolIndex);
 				const fullName = tradedExchange + ':' + symbolName;
+				const currencyCode = extractField(data, 'currency-code', symbolIndex);
+				const unitId = extractField(data, 'unit-id', symbolIndex);
 
 				const ticker = tickerPresent ? (extractField(data, 'ticker', symbolIndex) as string) : symbolName;
 
@@ -238,6 +250,11 @@ export class SymbolsStorage {
 					full_name: fullName,
 					listed_exchange: listedExchange,
 					exchange: tradedExchange,
+					currency_code: currencyCode,
+					original_currency_code: extractField(data, 'original-currency-code', symbolIndex),
+					unit_id: unitId,
+					original_unit_id: extractField(data, 'original-unit-id', symbolIndex),
+					unit_conversion_types: extractField(data, 'unit-conversion-types', symbolIndex, true),
 					description: extractField(data, 'description', symbolIndex),
 					has_intraday: definedValueOrDefault(extractField(data, 'has-intraday', symbolIndex), false),
 					has_no_volume: definedValueOrDefault(extractField(data, 'has-no-volume', symbolIndex), false),
@@ -247,9 +264,10 @@ export class SymbolsStorage {
 					pricescale: extractField(data, 'pricescale', symbolIndex),
 					type: extractField(data, 'type', symbolIndex),
 					session: extractField(data, 'session-regular', symbolIndex),
+					session_holidays: extractField(data, 'session-holidays', symbolIndex),
+					corrections: extractField(data, 'corrections', symbolIndex),
 					timezone: extractField(data, 'timezone', symbolIndex),
 					supported_resolutions: definedValueOrDefault(extractField(data, 'supported-resolutions', symbolIndex, true), this._datafeedSupportedResolutions),
-					force_session_rebuild: extractField(data, 'force-session-rebuild', symbolIndex),
 					has_daily: definedValueOrDefault(extractField(data, 'has-daily', symbolIndex), true),
 					intraday_multipliers: definedValueOrDefault(extractField(data, 'intraday-multipliers', symbolIndex, true), ['1', '5', '15', '30', '60']),
 					has_weekly_and_monthly: extractField(data, 'has-weekly-and-monthly', symbolIndex),
@@ -261,6 +279,11 @@ export class SymbolsStorage {
 				this._symbolsInfo[ticker] = symbolInfo;
 				this._symbolsInfo[symbolName] = symbolInfo;
 				this._symbolsInfo[fullName] = symbolInfo;
+				if (currencyCode !== undefined || unitId !== undefined) {
+					this._symbolsInfo[symbolKey(ticker, currencyCode, unitId)] = symbolInfo;
+					this._symbolsInfo[symbolKey(symbolName, currencyCode, unitId)] = symbolInfo;
+					this._symbolsInfo[symbolKey(fullName, currencyCode, unitId)] = symbolInfo;
+				}
 
 				this._symbolsList.push(symbolName);
 			}
