@@ -17,6 +17,7 @@ import SupportedChains from '@/components/landing/SupportedChains'
 import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 import Partners from '@/components/landing/Partners'
 export default {
+  layout: 'landing',
   colorMode: 'dark',
 
   components: {

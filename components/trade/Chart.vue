@@ -132,8 +132,6 @@ export default {
 
     drawOrders() {
       this.cleanOrders() // Just in case
-
-      console.log('drawOrders...')
       if (!this.isReady) return
 
       // TODO Get current from CSS by JS
@@ -142,7 +140,6 @@ export default {
 
       if (this.chart_orders_settings.show_open_orders) {
         this.orders.map(o => {
-          console.log('draw order..')
           const order = this.widget
             .activeChart()
             .createOrderLine() // FIXME Value is none how to fix? (seems was fixed)
