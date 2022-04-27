@@ -564,7 +564,7 @@ export default {
           'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
 
           'paneProperties.vertGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          'paneProperties.horzGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#303130'
+          'paneProperties.horzGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#303130e4'
         },
 
         loading_screen: {
