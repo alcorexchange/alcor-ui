@@ -3,7 +3,7 @@
 export declare type DomeCallback = (data: DOMData) => void;
 export declare type ErrorCallback = (reason: string) => void;
 export declare type GetMarksCallback<T> = (marks: T[]) => void;
-export declare type HistoryCallback = (bars: Bar[], meta?: HistoryMetadata) => void;
+export declare type HistoryCallback = (bars: Bar[], meta: HistoryMetadata) => void;
 export declare type MarkConstColors = "red" | "green" | "blue" | "yellow";
 /**
  * This is the generic type useful for declaring a nominal type,
@@ -24,6 +24,7 @@ export declare type Nominal<T, Name extends string> = T & {
 export declare type OnReadyCallback = (configuration: DatafeedConfiguration) => void;
 export declare type QuoteData = QuoteOkData | QuoteErrorData;
 export declare type QuotesCallback = (data: QuoteData[]) => void;
+export declare type ResolutionBackValues = "D" | "M";
 export declare type ResolutionString = Nominal<string, "ResolutionString">;
 export declare type ResolveCallback = (symbolInfo: LibrarySymbolInfo) => void;
 export declare type SearchSymbolsCallback = (items: SearchSymbolResultItem[]) => void;
@@ -84,11 +85,16 @@ export interface Exchange {
 	name: string;
 	desc: string;
 }
+export interface HistoryDepth {
+	resolutionBack: ResolutionBackValues;
+	intervalBack: number;
+}
 export interface HistoryMetadata {
-	noData?: boolean;
+	noData: boolean;
 	nextTime?: number | null;
 }
 export interface IDatafeedChartApi {
+	calculateHistoryDepth?(resolution: ResolutionString, resolutionBack: ResolutionBackValues, intervalBack: number): HistoryDepth | undefined;
 	getMarks?(symbolInfo: LibrarySymbolInfo, from: number, to: number, onDataCallback: GetMarksCallback<Mark>, resolution: ResolutionString): void;
 	getTimescaleMarks?(symbolInfo: LibrarySymbolInfo, from: number, to: number, onDataCallback: GetMarksCallback<TimescaleMark>, resolution: ResolutionString): void;
 	/**
@@ -98,13 +104,12 @@ export interface IDatafeedChartApi {
 	 */
 	getServerTime?(callback: ServerTimeCallback): void;
 	searchSymbols(userInput: string, exchange: string, symbolType: string, onResult: SearchSymbolsCallback): void;
-	resolveSymbol(symbolName: string, onResolve: ResolveCallback, onError: ErrorCallback, extension?: SymbolResolveExtension): void;
-	getBars(symbolInfo: LibrarySymbolInfo, resolution: ResolutionString, periodParams: PeriodParams, onResult: HistoryCallback, onError: ErrorCallback): void;
+	resolveSymbol(symbolName: string, onResolve: ResolveCallback, onError: ErrorCallback): void;
+	getBars(symbolInfo: LibrarySymbolInfo, resolution: ResolutionString, rangeStartDate: number, rangeEndDate: number, onResult: HistoryCallback, onError: ErrorCallback, isFirstCall: boolean): void;
 	subscribeBars(symbolInfo: LibrarySymbolInfo, resolution: ResolutionString, onTick: SubscribeBarsCallback, listenerGuid: string, onResetCacheNeededCallback: () => void): void;
 	unsubscribeBars(listenerGuid: string): void;
 	subscribeDepth?(symbol: string, callback: DomeCallback): string;
 	unsubscribeDepth?(subscriberUID: string): void;
-	getVolumeProfileResolutionForPeriod?(currentResolution: ResolutionString, from: number, to: number, symbolInfo: LibrarySymbolInfo): ResolutionString;
 }
 export interface IDatafeedQuotesApi {
 	getQuotes(symbols: string[], onDataCallback: QuotesCallback, onErrorCallback: (msg: string) => void): void;
@@ -120,9 +125,7 @@ export interface LibrarySymbolInfo {
 	 */
 	name: string;
 	full_name: string;
-	base_name?: [
-		string
-	];
+	base_name?: [string];
 	/**
 	 * Unique symbol id
 	 */
@@ -181,7 +184,6 @@ export interface LibrarySymbolInfo {
 	 */
 	intraday_multipliers?: string[];
 	has_seconds?: boolean;
-	has_ticks?: boolean;
 	/**
 	 * It is an array containing seconds resolutions (in seconds without a postfix) the datafeed builds by itself.
 	 */
@@ -189,6 +191,7 @@ export interface LibrarySymbolInfo {
 	has_daily?: boolean;
 	has_weekly_and_monthly?: boolean;
 	has_empty_bars?: boolean;
+	force_session_rebuild?: boolean;
 	has_no_volume?: boolean;
 	/**
 	 * Integer showing typical volume value decimal places for this symbol
@@ -220,12 +223,6 @@ export interface Mark {
 export interface MarkCustomColor {
 	color: string;
 	background: string;
-}
-export interface PeriodParams {
-	from: number;
-	to: number;
-	countBack: number;
-	firstDataRequest: boolean;
 }
 export interface QuoteErrorData {
 	s: "error";

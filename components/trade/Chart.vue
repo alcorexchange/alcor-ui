@@ -51,7 +51,7 @@ export default {
     },
 
     userOrders() {
-      //this.drawOrders()
+      this.drawOrders()
     },
 
     id(to, from) {
@@ -400,31 +400,48 @@ export default {
 
             setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
           },
+          //getBars: (symbolInfo, resolution, { from, to, countBack, firstDataRequest }, onHistoryCallback, onErrorCallback) => {
 
-          getBars: (symbolInfo, resolution, { from, to, countBack, firstDataRequest }, onHistoryCallback, onErrorCallback) => {
-            // FIXME Called 2 times, why?
-            console.log('get bars called...', { from, to, countBack, firstDataRequest })
+          getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+            console.log('get bars called...', from, to, firstDataRequest)
             this.resolution = resolution
 
-            if (firstDataRequest) {
-              // Using countBack
-              this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, limit: countBack + 1 } })
-                .then(({ data: charts }) => {
-                  onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+            this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+              .then(({ data: charts }) => {
+                onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
 
-                  // Rerender chart Because market changed
+                if (firstDataRequest) {
                   this.widget.activeChart().resetData()
                   this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
 
                   this.isReady = true
                   setTimeout(() => this.drawOrders(), 1000)
-                }).catch(e => onErrorCallback('Charts loading error..', e))
-            } else {
-              this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
-                .then(({ data: charts }) => {
-                  onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
-                }).catch(e => onErrorCallback('Charts loading error..', e))
-            }
+                }
+              }).catch(e => onErrorCallback('Charts loading error..', e))
+
+            // FIXME Called 2 times, why? (Downgraded to old version as fix)
+            //console.log('get bars called...', from, to, firstDataRequest)
+            //this.resolution = resolution
+
+            //if (firstDataRequest) {
+            //  // Using countBack
+            //  this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, limit: countBack + 1 } })
+            //    .then(({ data: charts }) => {
+            //      onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+
+            //      // Rerender chart Because market changed
+            //      this.widget.activeChart().resetData()
+            //      this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+
+            //      this.isReady = true
+            //      setTimeout(() => this.drawOrders(), 1000)
+            //    }).catch(e => onErrorCallback('Charts loading error..', e))
+            //} else {
+            //  this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+            //    .then(({ data: charts }) => {
+            //      onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+            //    }).catch(e => onErrorCallback('Charts loading error..', e))
+            //}
           },
 
           subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
@@ -473,11 +490,12 @@ export default {
           }
         },
         interval: '240',
-        container: 'tv_chart_container',
+        container_id: 'tv_chart_container',
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
+          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+          //chartTypes: ["Area", "Line"]
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
@@ -510,9 +528,11 @@ export default {
           'timeframes_toolbar',
           'countdown',
 
-          'popup_hints'
+          'popup_hints',
 
-          //'use_localstorage_for_settings',
+          'save_chart_properties_to_local_storage',
+          //'use_localstorage_for_settings'
+
           //'header_resolutions',
           //'header_fullscreen_button',
           //'legend_widget',
@@ -524,7 +544,6 @@ export default {
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
           'header_in_fullscreen_mode',
-          'save_chart_properties_to_local_storage'
         ],
 
         //fullscreen: false,
@@ -534,10 +553,23 @@ export default {
         // Styles
         theme: this.$colorMode.value,
         custom_css_url: '/tv_themed.css',
+
         overrides: {
           'paneProperties.backgroundType': 'solid',
           'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
+          'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
+
+          'paneProperties.horzGridProperties.color:': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
+          'paneProperties.vertGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
+          //'paneProperties.horzGridProperties.style': 2,
+
+          //'mainSeriesProperties.lineStyle.color': "red",
+          //'mainSeriesProperties.areaStyle.linecolor': "red",
+
+
+          //'paneProperties.crossHairProperties.color': "red",
+          //'scalesProperties.lineColor': "red",
+          //'mainSeriesProperties.baseLineColor': "red"
         },
 
         loading_screen: {
