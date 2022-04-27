@@ -499,7 +499,7 @@ export default {
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+          intervals: this.isMobile ? ['4'] : ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
           //chartTypes: ["Area", "Line"]
         },
         locale: 'en', // TODO Change lang
