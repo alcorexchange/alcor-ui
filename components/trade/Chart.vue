@@ -557,16 +557,23 @@ export default {
 
         // Styles
         theme: this.$colorMode.value,
-        custom_css_url: '/tv_themed.css',
+        //custom_css_url: '/tv_themed.css',
 
         overrides: {
-          'paneProperties.backgroundType': 'solid',
-          'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
+          //'paneProperties.backgroundType': 'solid',
+          //'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
+          //'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
+          //'paneProperties.background': 'white',
 
-          'paneProperties.horzGridProperties.color:': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          'paneProperties.vertGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          //'paneProperties.horzGridProperties.style': 2,
+          //'paneProperties.horzGridProperties.color:': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
+
+          //'paneProperties.vertGridProperties.style': 1,
+          'paneProperties.vertGridProperties.color': 'red',
+
+          'paneProperties.horzGridProperties.color:': 'red',
+          //'paneProperties.horzGridProperties.style': 0,
+
+          //'paneProperties.gridProperties.color:': 'red',
 
           //'mainSeriesProperties.lineStyle.color': "red",
           //'mainSeriesProperties.areaStyle.linecolor': "red",
