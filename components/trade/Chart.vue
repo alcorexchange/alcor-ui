@@ -366,7 +366,7 @@ export default {
             setTimeout(() => {
               cb({
                 //exchanges: [{ value: 'asdfasdf', name: 'aaaa', desc: 'df' }],
-                symbols_types: [{ value: 'asdfasdf', name: 'aaaa' }],
+                //symbols_types: [{ value: 'asdfasdf', name: 'aaaa' }],
                 supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
                 //currency_codes: [{ id: 'asdf', code: 'SDF', logoUrl: 'asdf', description: 'asdfasdf' }]
                 // TODO https://github.com/tradingview/charting_library/wiki/JS-Api do more
@@ -414,11 +414,12 @@ export default {
 
                 if (firstDataRequest) {
                   this.widget.activeChart().resetData()
-                  this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
 
                   this.isReady = true
                   setTimeout(() => this.drawOrders(), 1000)
                 }
+
+                this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
               }).catch(e => onErrorCallback('Charts loading error..', e))
 
             // FIXME Called 2 times, why? (Downgraded to old version as fix)

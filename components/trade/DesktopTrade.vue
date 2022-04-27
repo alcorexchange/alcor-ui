@@ -64,7 +64,7 @@
             el-tab-pane.h-10(label='Times & Sales')
               LatestDeals(:timeformat='timeformat')
             el-tab-pane(label='Markets')
-              Markets.mt-2
+              Markets.mt-1
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
           template(slot='right')
             .d-flex.pairs-switch-right
