@@ -115,25 +115,30 @@ export default {
     reset() {
       console.log('reset called..', this.onResetCacheNeededCallback)
       if (this.widget && this.onResetCacheNeededCallback) {
+        this.cleanOrders()
         this.onResetCacheNeededCallback()
       } else {
         this.mountChart()
       }
     },
 
+    cleanOrders() {
+      // Clean all orders
+      while (this.orderLines.length != 0) {
+        const order = this.orderLines.pop()
+        order.remove()
+      }
+    },
+
     drawOrders() {
+      this.cleanOrders() // Just in case
+
       console.log('drawOrders...')
       if (!this.isReady) return
 
       // TODO Get current from CSS by JS
       const green = '#66C167'
       const red = '#F96C6C'
-
-      // Clean all orders
-      while (this.orderLines.length != 0) {
-        const order = this.orderLines.pop()
-        order.remove()
-      }
 
       if (this.chart_orders_settings.show_open_orders) {
         this.orders.map(o => {
