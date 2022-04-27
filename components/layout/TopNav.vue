@@ -153,7 +153,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
   z-index: 2;
   position: relative;
   .nav-side {
@@ -162,7 +161,7 @@ export default {
   }
 }
 
-.is-market {
+.full-width {
   max-width: 1920px;
   padding: 0px;
 
