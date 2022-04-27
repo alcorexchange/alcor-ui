@@ -624,7 +624,7 @@ const TRADE_LAYOUTS = {
       i: 'chart',
       status: true,
       mw: 9,
-      mh: 9,
+      mh: 5,
       moved: false,
     },
     {
@@ -657,7 +657,7 @@ const TRADE_LAYOUTS = {
       i: 'open-order',
       status: true,
       mw: 10,
-      mh: 7,
+      mh: 4,
       moved: false,
     },
     {
@@ -668,7 +668,7 @@ const TRADE_LAYOUTS = {
       i: 'limit-market',
       status: true,
       mw: 6,
-      mh: 7,
+      mh: 4,
       moved: false,
     },
     {
@@ -693,7 +693,7 @@ const TRADE_LAYOUTS = {
       i: 'chart',
       status: true,
       mw: 9,
-      mh: 9,
+      mh: 5,
     },
     {
       x: 14,
@@ -723,7 +723,7 @@ const TRADE_LAYOUTS = {
       i: 'open-order',
       status: true,
       mw: 10,
-      mh: 7,
+      mh: 4,
     },
     {
       x: 14,
@@ -733,7 +733,7 @@ const TRADE_LAYOUTS = {
       i: 'limit-market',
       status: true,
       mw: 6,
-      mh: 7,
+      mh: 4,
     },
     {
       x: 14,
