@@ -38,9 +38,6 @@ export default {
     canShowCircles() {
       return !this.$device.isAndroid
     }
-  },
-  mounted() {
-    console.log(this.$device.isAndroid)
   }
 }
 </script>

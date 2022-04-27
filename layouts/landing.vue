@@ -1,5 +1,8 @@
 <template lang="pug">
-.main.landing
+.layout
+  ModalsDialog
+  AlcorLoading
+
   top-nav.alcor-inner
   nuxt
   FooterBlock
@@ -9,10 +12,15 @@
 import TopNav from '~/components/layout/TopNav'
 import FooterBlock from '~/components/footer/Footer'
 
+import ModalsDialog from '~/components/modals/ModalsDialog'
+import AlcorLoading from '~/components/AlcorLoading.vue'
+
 export default {
   components: {
     FooterBlock,
-    TopNav
+    TopNav,
+    ModalsDialog,
+    AlcorLoading
   }
 }
 </script>

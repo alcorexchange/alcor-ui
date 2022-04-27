@@ -1,6 +1,6 @@
 <template lang="pug">
 .supported-chains
-  .alcor-inner.is-market
+  .alcor-inner
     SectionTitle.section-title Supported & Upcoming Chains
     .chains
       img.chain(src='~/assets/images/supportedchain-4.svg')

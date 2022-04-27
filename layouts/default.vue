@@ -1,88 +1,20 @@
 <template lang="pug">
-div
+.alcor-inner(:class="{ 'full-width': fullWidth }")
+  top-nav(:class="{ 'alcor-inner': $route.name == 'index' }")
+
   AlcorLoading
   ResourcesModal
   ModalsDialog
-  .layout.alcor-inner(
-    :class='$route.name == "trade-index-id" ? "is-market" : ""',
-    ref='top'
-  )
-    nav.nav(v-if='!isMobile')
-      .nav-side.nav-left
-        nuxt-link(to='/')
-          img.logo(
-            v-if='$colorMode.value == "light"',
-            src='~/assets/logos/alcorblack.svg',
-            height='44'
-          )
-          img.logo(
-            v-else='',
-            height='44',
-            src='~/assets/logos/alcorwhite.svg',
-            alt=''
-          )
-        ul.nav-items
-          li(v-for='item in menuItems', :key='item.index')
-            AlcorLink.item(
-              :to='item.index',
-              flat,
-              :class='{ active: isActive(item.index) }'
-            )
-              | {{ item.name }}
-      .nav-side.nav-right
-        ConnectNav
-    .menu-and-menu-header(v-else)
-      .menu-header
-        .logo
-          nuxt-link(to='/')
-            img.logo(
-              v-if='$colorMode.value == "light"',
-              src='~/assets/logos/alcorblack.svg',
-              height='34'
-            )
-            img.logo(
-              v-else='',
-              height='34',
-              src='~/assets/logos/alcorwhite.svg',
-              alt=''
-            )
 
-        .mobile-chain-select
-          chain-select
-
-        AlcorButton(@click='openMenu', :icononlyalt='true')
-          i.el-icon-more
-        nav(:class='["menu", { menuActive }]')
-          .logo
-            img(
-              v-if='$colorMode.value == "light"',
-              src='~/assets/logos/alcorblack.svg',
-              height='50'
-            )
-            img(
-              v-else='',
-              height='50',
-              src='~/assets/logos/alcorwhite.svg',
-              alt=''
-            )
-          ul.menu-items
-            li(v-for='item in menuItems', :key='item.index')
-              AlcorLink.item(:to='item.index', flat='')
-                | {{ item.name }}
-        .menu-underlay(@click='closeMenu', v-if='menuActive')
-      .fixed-menu
-        ConnectNav
-
-    .main
-      nuxt
-    FooterBlock
+  .main
+    nuxt
+  FooterBlock
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 import config from '~/config'
 
+import TopNav from '~/components/layout/TopNav'
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
@@ -102,6 +34,7 @@ export default {
     ConnectNav,
     AlcorLoading,
     ResourcesModal,
+    TopNav
   },
 
   data() {
@@ -113,6 +46,11 @@ export default {
   },
 
   computed: {
+    fullWidth() {
+      // Full with for this pages
+      return ['trade-index-id', 'index'].includes(this.$route.name)
+    },
+
     menuItems() {
       const items = []
 
@@ -198,9 +136,6 @@ export default {
   margin-left: auto;
   margin-right: 10px;
 }
-.layout {
-  background: var(--background-color-base);
-}
 .nav {
   display: flex;
   align-items: center;
@@ -212,7 +147,7 @@ export default {
   }
 }
 
-.is-market {
+.full-width {
   max-width: 1920px;
   padding: 0px;
 
