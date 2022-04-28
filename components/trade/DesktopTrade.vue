@@ -192,6 +192,8 @@ export default {
 
   data() {
     return {
+      screenWidth: 1200,
+
       tab: 0,
       price: 0.0,
       amount: 0.0,
@@ -220,7 +222,7 @@ export default {
 
     markets_layout() {
       if (this.current_market_layout == 'classic') {
-        return TRADE_LAYOUTS.classic
+        return this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
       } else if (this.current_market_layout == 'full') {
         return TRADE_LAYOUTS.full
       } else {
@@ -245,9 +247,22 @@ export default {
 
       set(value) {
         this.$store.commit('chain/setPayForUser', value)
-      },
-    },
+      }
+    }
   },
+
+  mounted() {
+    this.$nextTick(() => {
+      window.addEventListener('resize', () => {
+        this.screenWidth = window.innerWidth
+      })
+    })
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  },
+
   methods: {
     cancel_confirm_order(isCancel) {
       this.orderdata.show_cancel_modal = false

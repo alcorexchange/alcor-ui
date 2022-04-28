@@ -259,9 +259,7 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: [
-      'BRWL@brawlertoken'
-    ],
+    RECOMMENDED_MARKETS: ['BRWL@brawlertoken'],
     PROMOTED_MARKETS: [424],
 
     SCAM_CONTRACTS: [
@@ -672,6 +670,75 @@ const TRADE_LAYOUTS = {
     {
       x: 14,
       y: 21,
+      w: 5,
+      h: 8,
+      i: 'markets',
+      status: false,
+      mw: 5,
+      mh: 3,
+      moved: false,
+    },
+  ],
+
+  classic_small: [
+    {
+      x: 6,
+      y: 0,
+      w: 12,
+      h: 12,
+      i: 'chart',
+      status: true,
+      mw: 9,
+      mh: 5,
+      moved: false,
+    },
+    {
+      x: 0,
+      y: 0,
+      w: 6,
+      h: 12,
+      i: 'order-depth',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 18,
+      y: 0,
+      w: 6,
+      h: 12,
+      i: 'time-sale',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 0,
+      y: 12,
+      w: 14,
+      h: 7,
+      i: 'open-order',
+      status: true,
+      mw: 10,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 14,
+      y: 12,
+      w: 10,
+      h: 7,
+      i: 'limit-market',
+      status: true,
+      mw: 6,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 14,
+      y: 19,
       w: 5,
       h: 8,
       i: 'markets',
