@@ -260,9 +260,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: [
-      'BABE@babe.hodl',
-      'BLUX@bluxbluxblux',
-      'PURPLE@purplepurple',
+      'BRWL@brawlertoken'
     ],
     PROMOTED_MARKETS: [424],
 
