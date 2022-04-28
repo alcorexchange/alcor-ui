@@ -26,7 +26,12 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders')
   el-table-column(:label="'Total(' + base_token.symbol.name + ')'", v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
-  el-table-column(label='Action', align='right' width="60")
+  //el-table-column(label='Action', align='right' width="60")
+  el-table-column(label='Action', align='right' :width="isMobile ? 60 : 120")
+    template(v-if="!isMobile" slot="header")
+      span.mr-1 Action
+      el-button(type="text" size="mini" @click="cancelAll").red (cancel all)
+
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
 
@@ -39,7 +44,7 @@ import AlcorButton from '~/components/AlcorButton.vue'
 
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
   },
 
   props: ['onlyCurrentPair'],
@@ -47,7 +52,7 @@ export default {
   computed: {
     ...mapGetters({
       user: 'user',
-      allOrders: 'wallet/allOrders'
+      allOrders: 'wallet/allOrders',
     }),
     ...mapGetters(['network', 'userOrders']),
     ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'quote_token']),
@@ -62,14 +67,52 @@ export default {
 
     filledPositions() {
       if (this.onlyCurrentPair) {
-        return this.allOrders.filter(p => p.market_id == this.id)
+        return this.allOrders.filter((p) => p.market_id == this.id)
       }
 
       return this.allOrders
-    }
+    },
   },
 
   methods: {
+    cancelAll() {
+      let confirmTitle = 'Cancel all orders'
+      let confirmText = 'Are you sure you want to cancel all current orders throughout all pairs on Alcor?'
+
+      let ordersToCalcel = []
+
+      if (this.$store.state.settings.hideOtherPairs) {
+        // Only cancel for current market
+        ordersToCalcel = this.userOrders.filter(o => o.account === this.user.name && o.market_id == this.id)
+        confirmTitle = 'Cancel all current pair orders'
+        confirmText = 'Are you sure you want to cancel all current orders for the current pair?'
+      } else {
+        ordersToCalcel = this.userOrders.filter(o => o.account === this.user.name)
+      }
+
+      console.log('ordersToCalcel', ordersToCalcel)
+      const h = this.$createElement
+      this.$confirm(
+        h('div', null, [
+          h('div', null, confirmText),
+          h('div', { class: 'red mt-2' }, 'This action cannot be reverted!')
+        ]),
+        confirmTitle,
+        {
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No',
+          type: 'error'
+        }
+      ).then(async () => {
+        try {
+          await this.$store.dispatch('market/cancelAll', ordersToCalcel)
+          this.$notify({ type: 'success', message: 'Orders canceled' })
+        } catch (e) {
+          this.$notify({ type: 'error', message: 'Orders cancelation error: ' + e })
+        }
+      })
+    },
+
     async cancel(order) {
       if (!this.user)
         return this.$notify({

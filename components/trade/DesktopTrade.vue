@@ -187,7 +187,7 @@ export default {
     FeeRate,
     DepthChart,
     SettingModal,
-    TimeSaleModal,
+    TimeSaleModal
   },
 
   data() {
@@ -302,14 +302,6 @@ export default {
     closemodal(event) {
       // if (event.target.classList.contains('body-timesale-container'))
       this.show_timesale_modal = false
-    },
-    cancelAll() {
-      this.$store.dispatch(
-        'market/cancelAll',
-        this.userOrders.filter(
-          (a) => a.account === this.user.name && a.market_id == this.id
-        )
-      )
     },
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
