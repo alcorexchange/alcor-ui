@@ -21,7 +21,6 @@ export default {
       isReady: false,
       orderLines: [],
       gridExecutions: [],
-      skip: 0,
       deals: []
     }
   },
@@ -55,6 +54,11 @@ export default {
       this.drawOrders()
     },
 
+    deals(to, from, x) {
+      console.log(to.length, from.length)
+      if (to.length > from.length) this.gridExecution()
+    },
+
     id(to, from) {
       console.log('market changed!!')
       this.isReady = false
@@ -72,14 +76,18 @@ export default {
     'chart_orders_settings.show_open_orders'() {
       this.drawOrders()
     },
-    'chart_orders_settings.show_trade_execution_amount'() {
-      this.drawOrders()
-    },
-    'chart_orders_settings.show_trade_executions_price'() {
-      this.gridExecution()
-    },
-    'chart_orders_settings.show_trade_executions'() {
-      this.gridExecution()
+    //'chart_orders_settings.show_trade_execution_amount'() {
+    //  this.drawOrders()
+    //},
+    //'chart_orders_settings.show_trade_executions_price'() {
+    //  this.gridExecution()
+    //},
+    'chart_orders_settings.show_trade_executions'(to) {
+      if (to == false) {
+        this.widget.activeChart().removeAllShapes()
+      } else {
+        this.gridExecution()
+      }
     },
   },
 
@@ -271,35 +279,28 @@ export default {
 
     async loadHistory({ from, to }) {
       if (!this.user || !this.user.name) return
+      console.log('loadHistory..')
 
       const { data: deals } = await this.$axios.get(
         `/account/${this.user.name}/deals`,
         {
           params: {
-            limit: 100,
-            skip: this.skip,
+            from,
+            to,
             market: this.id
           }
         }
       )
 
-      this.skip += deals.length
+      deals.map((d) => {
+        d.type = this.user.name == d.bidder ? 'buy' : 'sell'
+      })
 
-      if (deals.length) {
-        deals.map((d) => {
-          d.type = this.user.name == d.bidder ? 'buy' : 'sell'
-        })
-
-        //this.deals.push(...deals)
-        this.deals = deals
-        console.log('loaded')
-      } else {
-        console.log('complete')
-      }
+      this.deals = [].concat(this.deals, deals)
     },
 
     gridExecution() {
-      if (!this.user || !this.widget) return
+      if (!this.user || !this.widget || !this.chart_orders_settings.show_trade_executions) return
 
       console.log('Grid execution...')
 
@@ -341,13 +342,13 @@ export default {
               price: deal.unit_price
             },
             {
-              overrides: { color: '#BE55E5', fontsize: 12 },
               shape: deal.type == 'buy' ? 'arrow_up' : 'arrow_down',
-              zOrder: 'top'
+              overrides: { color: '#BE55E5', fontsize: 12, fixedSize: false, wordWrapWidth: 200 },
+              zOrder: 'top',
+              disableSelection: true,
+              disableSave: true
             }
             )
-          console.log('deal', deal.type)
-
           //.createExecutionShape()
           //.setTooltip('@1,320.75 Limit Buy 1')
           //.setTooltip(`${deal.unit_price} ` + deal.type == 'buy' ? `@${deal.bid}` : `@${deal.ask}` + ' WAX')
@@ -434,7 +435,7 @@ export default {
                   setTimeout(() => this.drawOrders(), 1000)
                 }
 
-                this.loadHistory({ from, to }).then(() => this.gridExecution())
+                if (this.user) this.loadHistory({ from, to })
               }).catch(e => onErrorCallback('Charts loading error..', e))
 
             // FIXME Called 2 times, why? (Downgraded to old version as fix)
