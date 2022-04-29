@@ -30,6 +30,29 @@
         drag-allow-from='.el-tabs__header, .box-card, .times-and-sales'
       )
         .right-icons
+          .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
+            .module-name.mr-2 Hide other pairs
+            .module-pickers.d-flex.flex-row
+              el-switch(
+                v-model='hideOtherPairs',
+                active-color='#13ce66',
+                inactive-color='#161617'
+              )
+
+          el-switch.mr-2(
+            v-if="item.i == 'limit-market'"
+            v-model='payForUser',
+            inactive-text=' Free CPU'
+          )
+
+          el-button.swap-button(
+            v-if="item.i == 'limit-market' && relatedPool",
+            type='button',
+            @click='goToPool'
+          ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+
+          FeeRate.feebutton(v-if="item.i == 'limit-market'")
+
           .icon-btn(v-if='item.i != "open-order" && item.i != "limit-market" && item.i != "markets"')
             i.el-icon-setting(
               v-if='item.i == "chart"',
@@ -40,8 +63,11 @@
               @click='show_timesale_modal = !show_timesale_modal'
             )
             i.el-icon-setting(v-else)
-          .icon-btn
+          .icon-btn(v-if="isAdvanced")
             i.el-icon-close(@click='closegriditem(item.i)')
+
+
+
         top-line(v-if='item.i == "chart"')
         chart(v-if='item.i == "chart"')
 
@@ -66,7 +92,7 @@
             el-tab-pane(label='Markets')
               Markets.mt-1
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          template(slot='right')
+          //template(slot='right')
             .d-flex.pairs-switch-right
               .module-name.mr-2 Hide other pairs
               .module-pickers.d-flex.flex-row
@@ -85,18 +111,7 @@
           v-if='item.i == "limit-market"',
           :min-h='10'
         )
-          .tabs-right
-            el-switch.mr-2(
-              v-if='["eos"].includes(network.name) && user',
-              v-model='payForUser',
-              inactive-text=' Free CPU'
-            )
-            el-button.swap-button.rounded-0(
-              v-if='relatedPool',
-              type='button',
-              @click='goToPool'
-            ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
-            FeeRate.feebutton
+          //.right-icons
           el-tabs(type="border-card").h-100.no_drag
             el-tab-pane.h-10(label='Limit trade')
               .trade-box
@@ -219,6 +234,10 @@ export default {
     ]),
     ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user']),
+
+    isAdvanced() {
+      return this.current_market_layout == 'advanced'
+    },
 
     markets_layout() {
       if (this.current_market_layout == 'classic') {
@@ -503,23 +522,15 @@ export default {
   line-height: 1;
 }
 
-.tabs-right {
-  display: flex;
+.swap-button {
+  background: #3f3f3f;
+  //border: 0px 0px 0px 2px !important;
+  border-radius: 0px;
+  border: none !important;
+  padding: 0px 10px !important;
+  margin-right: 2px;
+  color: #bdbdbd !important;
   height: 20px;
-  margin: 1px 1px;
-  align-items: center;
-  position: absolute;
-  top: 1px;
-  right: 43px;
-  z-index: 123;
-  .swap-button {
-    background: #3f3f3f;
-    border: 0px 0px 0px 2px !important;
-    padding: 0px 10px !important;
-    margin-right: 2px;
-    color: #bdbdbd !important;
-    height: 100% !important;
-  }
 }
 .feebutton {
   background: #3f3f3f;

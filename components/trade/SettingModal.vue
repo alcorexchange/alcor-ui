@@ -2,9 +2,14 @@
 .body-container(@click='outofmodalClick')
   .table-setting-modal
     .el-container.setting-container.pt-2.d-flex.flex-column
-      .el-container.setting-layout.d-flex.flex-row.justify-content-around
+      .el-container.setting-layout.d-flex.flex-row
         h4.preview-title Chart Preview
-        preview-chart
+        //preview-chart
+      .el-container.setting-layout.d-flex.flex-row.mt-30
+        .el-main.module-main-settings.main-settings-left
+          .module-selection.d-flex.flex-column
+            preview-chart
+
       .el-container.setting-layout.d-flex.flex-row.mt-30
         .el-main.module-main-settings.main-settings-left
           .module-selection.d-flex.flex-column
@@ -46,7 +51,8 @@
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-import PreviewChart from '~/components/trade/PreviewChart'
+//import PreviewChart from '~/components/trade/PreviewChart'
+import PreviewChart from '~/components/trade/Chart.vue'
 
 export default {
   props: ['outofmodalClick'],
@@ -54,7 +60,7 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    PreviewChart,
+    PreviewChart
   },
 
   data() {
