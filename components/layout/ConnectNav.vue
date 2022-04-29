@@ -16,13 +16,13 @@
     )
       | Connect Wallet
 
-    AlcorButton.theme-toggle-button.desktop(
-      v-if='$route.name != "index"',
-      :icon-only-alt='true',
-      @click='$store.dispatch("toggleTheme")'
-    )
-      i.el-icon-sunny(v-if='$colorMode.value == "dark"')
-      i.el-icon-moon(v-else='')
+    //AlcorButton.theme-toggle-button.desktop(
+    //  v-if='$route.name != "index"',
+    //  :icon-only-alt='true',
+    //  @click='$store.dispatch("toggleTheme")'
+    //)
+    //  i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+    //  i.el-icon-moon(v-else='')
 
     AlcorButton.theme-toggle-button.desktop.show-settings(
       v-if='$route.name != "index"',

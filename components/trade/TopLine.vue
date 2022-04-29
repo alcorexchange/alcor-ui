@@ -170,6 +170,10 @@ export default {
     margin-right: 20px;
     flex-shrink: 0;
   }
+
+  :hover {
+    color: #6c757d;
+  }
 }
 .header-items-container::-webkit-scrollbar {
   display: none;

@@ -1,7 +1,7 @@
 <template lang="pug">
 .setting-modal
   .el-container.setting-container.pt-2.d-flex.flex-column
-    .el-container.setting-theme.d-flex.flex-column
+    //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
         span.theme-title Theme
       .el-main.theme-main-settings

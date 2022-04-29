@@ -39,11 +39,11 @@
                 inactive-color='#161617'
               )
 
-          el-switch.mr-2(
-            v-if="item.i == 'limit-market'"
-            v-model='payForUser',
-            inactive-text=' Free CPU'
-          )
+          //el-switch.mr-2(
+          //  v-if="item.i == 'limit-market'"
+          //  v-model='payForUser',
+          //  inactive-text=' Free CPU'
+          //)
 
           el-button.swap-button(
             v-if="item.i == 'limit-market' && relatedPool",
