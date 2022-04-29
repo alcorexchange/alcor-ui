@@ -269,7 +269,7 @@ export default {
       }
     },
 
-    async loadHistory() {
+    async loadHistory({ from, to }) {
       if (!this.user || !this.user.name) return
 
       const { data: deals } = await this.$axios.get(
@@ -299,10 +299,12 @@ export default {
     },
 
     gridExecution() {
+      if (!this.user || !this.widget) return
+
       console.log('Grid execution...')
 
-      this.gridExecutions.map(e => e.remove())
-      this.gridExecutions = []
+      //this.gridExecutions.map(e => e.remove())
+      //this.gridExecutions = []
 
       if (this.chart_orders_settings.show_trade_executions) {
         const _deals = []
@@ -334,20 +336,31 @@ export default {
         for (const deal of _deals) {
           const execution = this.widget
             .activeChart()
-            .createExecutionShape()
-            //.setTooltip('@1,320.75 Limit Buy 1')
-            //.setTooltip(`${deal.unit_price} ` + deal.type == 'buy' ? `@${deal.bid}` : `@${deal.ask}`)
-            .setTooltip(deal.buy)
+            .createShape({
+              time: new Date(deal.time).getTime() / 1000,
+              price: deal.unit_price
+            },
+            {
+              overrides: { color: '#BE55E5', fontsize: 12 },
+              shape: deal.type == 'buy' ? 'arrow_up' : 'arrow_down',
+              zOrder: 'top'
+            }
+            )
+          console.log('deal', deal.type)
 
-            .setText(deal.unit_price)
-            .setTextColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
-            .setArrowColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
-            .setDirection(deal.type)
-            .setTime(new Date(deal.time).getTime() / 1000)
-            .setPrice(deal.unit_price)
-            .setArrowHeight(10)
-            .setArrowSpacing(0)
-            .setFont('bold 15pt Verdana')
+          //.createExecutionShape()
+          //.setTooltip('@1,320.75 Limit Buy 1')
+          //.setTooltip(`${deal.unit_price} ` + deal.type == 'buy' ? `@${deal.bid}` : `@${deal.ask}` + ' WAX')
+          //.setTooltip(deal.buy)
+          //.setText(deal.unit_price)
+          //.setTextColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
+          //.setArrowColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
+          //.setDirection(deal.type)
+          //.setTime(new Date(deal.time).getTime() / 1000)
+          //.setPrice(deal.unit_price)
+          //.setArrowHeight(10)
+          //.setArrowSpacing(10)
+          //.setFont('bold 15pt Verdana')
 
           this.gridExecutions.push(execution)
         }
@@ -355,7 +368,6 @@ export default {
     },
 
     mountChart() {
-      console.log('mountChart called...')
       const { $TVChart: { Widget } } = this
 
       const widgetOptions = {
@@ -403,8 +415,6 @@ export default {
 
             setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
           },
-          //getBars: (symbolInfo, resolution, { from, to, countBack, firstDataRequest }, onHistoryCallback, onErrorCallback) => {
-
           getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             console.log('get bars called...', from, to, firstDataRequest)
             this.resolution = resolution
@@ -414,13 +424,17 @@ export default {
                 onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
+                  this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+                  this.widget.activeChart().removeAllShapes()
                   this.widget.activeChart().resetData()
+                  this.deals = []
 
                   this.isReady = true
+
                   setTimeout(() => this.drawOrders(), 1000)
                 }
 
-                this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
+                this.loadHistory({ from, to }).then(() => this.gridExecution())
               }).catch(e => onErrorCallback('Charts loading error..', e))
 
             // FIXME Called 2 times, why? (Downgraded to old version as fix)

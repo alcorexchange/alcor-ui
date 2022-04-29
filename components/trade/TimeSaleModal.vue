@@ -238,15 +238,16 @@ export default {
 
 .close-timesale {
   position: fixed;
-  right: 0px;
-  top: 0px;
   width: 20px;
   height: 20px;
+  right: 1px;
+  top: 1px;
   background-color: #3f3f3f;
   color: white;
+  border-radius: 0px 0px 0px 2px;
   .close {
     position: absolute;
-    right: 1px;
+    right: 3px;
     top: -6px;
     color: #ffffff;
     font-weight: 100;
