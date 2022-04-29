@@ -70,6 +70,7 @@
 
         top-line(v-if='item.i == "chart"')
         chart(v-if='item.i == "chart"')
+          #tv_chart_container
 
         el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small")
           el-tab-pane(label='Orderbook')

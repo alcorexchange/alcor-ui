@@ -5,12 +5,13 @@
       .el-container.setting-layout.d-flex.flex-row
         h4.preview-title Chart Preview
         //preview-chart
-      .el-container.setting-layout.d-flex.flex-row.mt-30
+      .el-container.setting-layout.d-flex.flex-row
         .el-main.module-main-settings.main-settings-left
           .module-selection.d-flex.flex-column
             preview-chart
+              #preview_chart_container
 
-      .el-container.setting-layout.d-flex.flex-row.mt-30
+      .el-container.setting-layout.d-flex.flex-row.mt-20
         .el-main.module-main-settings.main-settings-left
           .module-selection.d-flex.flex-column
             .settings-title Header Settings
@@ -44,7 +45,11 @@
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
-      .el-footer.module-footer(@click='initiateState()') Reset to Default
+
+      .el-container.setting-layout.d-flex.flex-row
+        .el-main.module-main-settings.main-settings-left
+          .module-selection.d-flex
+            .el-button(type="text" @click='initiateState()') Reset to Default
 </template>
 
 <script>
@@ -545,5 +550,14 @@ input[type='radio']:checked + label:before {
 .module-list {
   padding: 2px 0px 2px 0px;
   margin: 2px 0px 2px 0px;
+}
+
+#preview_chart_container {
+  height: 250px;
+}
+@media only screen and (max-width: 1000px) {
+  #preview_chart_container {
+    height: 360px;
+  }
 }
 </style>

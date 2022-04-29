@@ -1,5 +1,6 @@
 <template lang="pug">
-#tv_chart_container
+.h-100
+  slot
 </template>
 
 <script>
@@ -493,7 +494,7 @@ export default {
           }
         },
         interval: '240',
-        container_id: 'tv_chart_container',
+        container_id: this.$slots.default[0].elm.id,
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
