@@ -3,7 +3,10 @@ export const state = () => ({
   sideMaretsTab: 'all',
   favMarkets: [],
   twChart: {},
-  timesAndSales: {}
+  timesAndSales: {},
+
+  current_node: '',
+  auto_node_select: true
 })
 
 export const mutations = {
@@ -11,7 +14,8 @@ export const mutations = {
   setSideMaretsTab: (state, tab) => state.sideMaretsTab = tab,
   setTwChart: (state, config) => state.twChart = config,
   setHideOtherPairs: (state, value) => state.hideOtherPairs = value,
-  setTimesAndSales: (state, value) => state.timesAndSales = value
+  setTimesAndSales: (state, value) => state.timesAndSales = value,
+  setAutoNodeSelect: (state, value) => state.auto_node_select = value
 }
 
 export const actions = {

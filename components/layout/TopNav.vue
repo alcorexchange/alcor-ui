@@ -69,13 +69,15 @@ nav.nav(v-if='!isMobile')
 <script>
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
-import ConnectNav from '~/components/layout/ConnectNav.vue'
+import ConnectNav from '~/components/layout/ConnectNav'
+import ChainSelect from '~/components/elements/ChainSelect'
 
 export default {
   components: {
     AlcorLink,
     AlcorButton,
-    ConnectNav
+    ConnectNav,
+    ChainSelect
   },
 
   data() {

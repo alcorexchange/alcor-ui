@@ -232,6 +232,11 @@ pre {
 
   .markets-bar {
     // height: 500px;
+    // 
+  }
+
+  .el-switch__label.is-active {
+      color: var(--text-default) !important;
   }
 }
 

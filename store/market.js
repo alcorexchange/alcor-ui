@@ -56,13 +56,13 @@ export const state = () => ({
     all_time: false
   },
   chart_orders_settings: {
-    show_open_orders: true,
-    show_labels: true,
-    chart_order_interactivity: true,
-    chart_executions: true,
-    show_trade_executions: true,
-    show_trade_executions_price: true,
-    show_trade_execution_amount: true
+    show_open_orders: false,
+    show_labels: false,
+    chart_order_interactivity: false,
+    chart_executions: false,
+    show_trade_executions: false,
+    show_trade_executions_price: false,
+    show_trade_execution_amount: false
   },
   orderdata: {
     order: {},

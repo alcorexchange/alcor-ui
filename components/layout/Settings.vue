@@ -87,7 +87,7 @@
               .static-color-picker.bloom-green.mx-1
               .static-color-picker.bloom-red.mx-1
 
-    .el-container.setting-layout.d-flex.flex-column
+    .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == 'trade-index-id'")
       .setting-module-footer.el-footer.text-white
         span.module-title Layouts
       .el-main.module-main-settings
@@ -102,7 +102,7 @@
             img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'full' }")
             span FullScreen
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced'")
+    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == 'trade-index-id'")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
         span.module-title Layout Modules
@@ -137,6 +137,17 @@
               )
       .el-footer.module-footer.default-settings-part
         .return-default-setting(@click='initiateState()') Return to Default Settings
+
+    .el-container.setting-layout.d-flex.flex-column
+      .setting-module-footer.el-footer.text-white
+        span.module-title Nodes
+      .el-main.module-main-settings
+        .layout-selection
+          el-switch(v-model='auto_select_node' active-color='#13ce66' active-text=' Automatically select')
+
+      .setting-module-footer.el-footer.text-white
+        span.module-title Active node
+
 </template>
 
 <script>
@@ -174,7 +185,17 @@ export default {
   },
   computed: {
     ...mapState(['markets']),
-    ...mapState('market', ['current_market_layout', 'markets_layout'])
+    ...mapState('market', ['current_market_layout', 'markets_layout']),
+
+    auto_select_node: {
+      get() {
+        return this.$store.state.settings.auto_node_select
+      },
+
+      set(value) {
+        return this.$store.commit('settings/setAutoNodeSelect', value)
+      }
+    }
   },
 
   methods: {
@@ -243,6 +264,10 @@ export default {
   height: auto;
   width: 288px;
   background-color: white;
+
+  .el-switch__label {
+    color: var(--text-default);
+  }
 }
 
 .setting-container {

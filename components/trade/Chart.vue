@@ -370,6 +370,7 @@ export default {
 
     mountChart() {
       const { $TVChart: { Widget } } = this
+      console.log('mountChart', this.$slots)
 
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
@@ -422,10 +423,10 @@ export default {
 
             this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
               .then(({ data: charts }) => {
+                this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
                 onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
-                  this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
                   this.widget.activeChart().removeAllShapes()
                   this.widget.activeChart().resetData()
                   this.deals = []

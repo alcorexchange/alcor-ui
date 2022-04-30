@@ -6,6 +6,7 @@
 
   .chart.mt-2
     chart
+      #tv_chart_container
 
   .row.mt-1.orderbook
     .col.pr-1
