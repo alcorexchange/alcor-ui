@@ -148,6 +148,21 @@
       .setting-module-footer.el-footer.text-white
         span.module-title Active node
 
+        .module-selection.d-flex.flex-column.mt-2
+          div
+            div Node
+
+          //.module-list.d-flex.flex-row.justify-content-between(
+            v-for='settingBtn in markets_layout')
+            .module-name {{ settingBtnTitles[settingBtn.i] }}
+            .module-pickers.d-flex.flex-row
+              el-switch(
+                v-model='settingBtn.status',
+                @change='updateState()',
+                active-color='#13ce66',
+                inactive-color='#161617'
+              )
+
 </template>
 
 <script>
@@ -156,7 +171,6 @@ import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 
 import { TRADE_LAYOUTS } from '~/config'
-
 
 export default {
   scrollToTop: false,

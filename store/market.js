@@ -97,11 +97,11 @@ export const mutations = {
   },
   setChartOrdersSettings: (state, list) => state.chart_orders_settings = list,
   setChartOrdersSettingsDefault: (state) => state.chart_orders_settings = {
-    show_open_orders: true,
-    show_labels: true,
-    chart_order_interactivity: true,
-    chart_executions: true,
-    show_trade_executions: true,
+    show_open_orders: false,
+    show_labels: false,
+    chart_order_interactivity: false,
+    chart_executions: false,
+    show_trade_executions: false,
     show_trade_executions_price: false,
     show_trade_execution_amount: false
   },

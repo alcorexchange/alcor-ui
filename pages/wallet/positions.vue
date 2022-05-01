@@ -180,7 +180,11 @@ export default {
     },
 
     async cancelAll({ orders }) {
-      await this.$store.dispatch('market/cancelAll', orders)
+      try {
+        await this.$store.dispatch('market/cancelAll', orders)
+      } catch (e) {
+        this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
+      }
     }
   }
 }
