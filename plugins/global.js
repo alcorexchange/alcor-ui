@@ -10,7 +10,7 @@ import config from '~/config'
 
 const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
 
-export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
+export default ({ app: { store: { rootState, state, commit }, $axios }, req }, inject) => {
   if (process.env.DISABLE_DB) {
     if (!process.env.NETWORK) throw new Error('Set NETWORK env!')
     const subdomain = process.env.NETWORK == 'wax' ? '' : process.env.NETWORK + '.'
@@ -43,9 +43,37 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
         //? 'localhost:7002' : state.baseUrl
         ? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] }
     )
-    const nodes = state.network.client_nodes
-    shuffleArray(nodes)
-    nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+    // Managing nodes
+    if (rootState.settings.rpc_nodes.length == 0) {
+      commit('settings/setRpcNodes', Object.keys(state.network.client_nodes))
+    }
+
+    const nodes = []
+    if (state.settings.auto_node_select || !state.settings.current_node) {
+      if (!state.settings.auto_node_select && !state.settings.current_node) {
+        commit('settings/setAutoNodeSelect', true)
+
+        //this._vm.$notify({
+        //  ...notify_options,
+        //  title: `Order match - ${market.symbol}`,
+        //  message: `${match.bid} ${market.quote_token.symbol.name} at ${match.price}`,
+        //  type: 'success'
+        //})
+
+        // Notification
+        // TODO Set current node
+        //commit('settings')
+      }
+
+      const all_nodes = state.settings.rpc_nodes
+      shuffleArray(all_nodes)
+      all_nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+      nodes.push(...all_nodes)
+    } else {
+      nodes.push(state.settings.current_node)
+    }
 
     const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 

@@ -56,7 +56,6 @@
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-//import PreviewChart from '~/components/trade/PreviewChart'
 import PreviewChart from '~/components/trade/Chart.vue'
 
 export default {
@@ -65,7 +64,7 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    PreviewChart
+    PreviewChart,
   },
 
   data() {

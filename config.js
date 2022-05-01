@@ -42,13 +42,13 @@ const networks = {
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://eos.greymass.com',
-      'https://mainnet.genereos.io',
-      'https://mainnet.eosamsterdam.net',
-      'https://api.eosn.io',
-      'https://eos.dfuse.eosnation.io',
-    ],
+    client_nodes: {
+      'https://eos.greymass.com': 'Greymass',
+      'https://mainnet.genereos.io': 'Generos',
+      'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
+      'https://api.eosn.io': 'EOS N',
+      'https://eos.dfuse.eosnation.io': 'Dfuse'
+    },
 
     otc: {
       contract: 'alcorotcswap',
@@ -165,19 +165,18 @@ const networks = {
     hyperion: 'https://proton.eu.eosamsterdam.net',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://nodeproton.alcor.exchange',
-      'https://proton.greymass.com',
-      'https://proton.pink.gg',
-      'https://proton.eu.eosamsterdam.net',
-      'https://api.protonnz.com',
-      'https://proton.eoscafeblock.com',
-      'https://proton.protonuk.io',
-      'https://api.proton.eossweden.org',
-      'https://proton.genereos.io',
-      'https://api.eostribe.io',
-      'https://eoscafeblock.com',
-    ],
+    client_nodes: {
+      'https://nodeproton.alcor.exchange': 'Alcor Proton node',
+      'https://proton.greymass.com': 'Greymass',
+      'https://proton.pink.gg': 'Pink GG',
+      'https://proton.eu.eosamsterdam.net': 'EOS Amsterdam',
+      'https://api.protonnz.com': 'Protonnz',
+      'https://proton.eoscafeblock.com': 'EOS Cafe',
+      'https://proton.protonuk.io': 'Protonuk',
+      'https://api.proton.eossweden.org': 'EOS Sweden',
+      'https://proton.genereos.io': 'Generos',
+      'https://api.eostribe.io': 'EOS Tribe'
+    },
 
     otc: {
       contract: 'alcorotc',
@@ -231,21 +230,15 @@ const networks = {
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://waxnode01.alcor.exchange',
-      'https://waxnode02.alcor.exchange',
+    client_nodes: {
+      'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
+      'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
 
-      'https://wax.greymass.com',
-      'https://wax.eu.eosamsterdam.net',
-      'https://wax.eosn.io',
-      'https://wax.pink.gg', // OK
-
-      //'https://wax.cryptolions.io', CORS
-      //'https://api.waxsweden.org', CORS
-      // 'https://api.wax.liquidstudios.io', NOT WORKING
-      // 'https://wax.eoseoul.io' CORS
-      // 'https://wax.eosusa.news/' CORS
-    ],
+      'https://wax.greymass.com': 'Greymass - Canada',
+      'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
+      'https://wax.eosn.io': 'EOS Nation - Canada',
+      'https://wax.pink.gg': 'Pink GG - Germany'
+    },
 
     otc: {
       contract: 'alcorotcswap',
@@ -314,7 +307,9 @@ const networks = {
     hyperion: 'http://api.kainosbp.com',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: ['https://telos.greymass.com'],
+    client_nodes: {
+      'https://telos.greymass.com': 'Greymass - Canada'
+    },
 
     otc: {
       contract: 'alcorotcswap',
@@ -397,7 +392,7 @@ const networks = {
     hyperion: 'https://api.bossweden.org/',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'alcorotcswap',
@@ -449,7 +444,7 @@ const networks = {
     hyperion: 'https://resurces.com:17555/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
@@ -494,7 +489,7 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
@@ -540,7 +535,7 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
@@ -586,7 +581,7 @@ const networks = {
     hyperion: 'https://api.eossweden.org/v2/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',

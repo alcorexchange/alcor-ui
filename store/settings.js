@@ -5,8 +5,9 @@ export const state = () => ({
   twChart: {},
   timesAndSales: {},
 
-  current_node: '',
-  auto_node_select: true
+  current_node: null,
+  auto_node_select: true,
+  rpc_nodes: []
 })
 
 export const mutations = {
@@ -15,7 +16,9 @@ export const mutations = {
   setTwChart: (state, config) => state.twChart = config,
   setHideOtherPairs: (state, value) => state.hideOtherPairs = value,
   setTimesAndSales: (state, value) => state.timesAndSales = value,
-  setAutoNodeSelect: (state, value) => state.auto_node_select = value
+  setAutoNodeSelect: (state, value) => state.auto_node_select = value,
+  setRpcNodes: (state, value) => state.rpc_nodes = value,
+  setCurrentNode: (state, value) => state.current_node = value
 }
 
 export const actions = {
