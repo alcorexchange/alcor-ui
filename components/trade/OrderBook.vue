@@ -1,23 +1,26 @@
 <template lang="pug">
 .order-book
   // https://v3.vuejs.org/guide/transitions-list.html#list-entering-leaving-transitions
-  .blist
-    .ltd.first.d-flex.justify-content-around
+  .blist.first
+    .ltd.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
       span Amount ({{ quote_token.symbol.name }})
       span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
-    .ltd.d-flex(
+    .ltd.orderbook-progress(
       v-for='ask in sorted_asks',
       @click='setBid(ask)',
       :class='{ "pl-0": isMyOrder(ask, "sell") }'
     )
-      span
-        i.el-icon-caret-right(v-if='isMyOrder(ask, "sell")')
-        | {{ ask[0] | humanPrice }}
-      span(:class='isMobile ? "text-right" : "text-center"') {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
-      span(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
+      i.el-icon-caret-right.red(v-if='isMyOrder(ask, "sell")')
+      .progress-container
+        .order-row
+          .red.text-left {{ ask[0] | humanPrice }}
+          .text-right {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
+          .text-right(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
+
+        .progress-bar.sell(:style="'transform: translateX(' + getAskProgress(ask) + '%);'")
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
@@ -41,17 +44,19 @@
           .text-muted(:class='percentWarn') {{ getSpreadNum ? getSpreadNum : "0.00" | humanPrice(6) }}
 
   .orders-list.blist.bids
-    .ltd.d-flex(
+    .ltd.orderbook-progress(
       v-for='bid in sorted_bids',
       @click='setAsk(bid)',
       :class='{ "pl-0": isMyOrder(bid, "buy") }'
     )
-      span
-        i.el-icon-caret-right(v-if='isMyOrder(bid, "buy")')
-        | {{ bid[0] | humanPrice }}
-      span(:class='isMobile ? "text-right" : "text-center"') {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
+      i.el-icon-caret-right.red(v-if='isMyOrder(bid, "buy")')
+      .progress-container
+        .order-row
+          .green.text-left {{ bid[0] | humanPrice }}
+          .text-right {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
+          .text-right(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
-      span(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
+        .progress-bar.buy(:style="'transform: translateX(' + getBidProgress(bid) + '%);'")
 
     .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
@@ -70,11 +75,7 @@ export default {
 
   data() {
     return {
-      bids: [],
-      asks: [],
-
-      asksL: 0,
-      loading: false,
+      loading: false
     }
   },
 
@@ -91,9 +92,29 @@ export default {
     percentWarn() {
       return this.getSpreadPercent > 5 ? 'warn' : ''
     },
+
+    askSumVolume() {
+      return this.sorted_asks.reduce((a, b) => {
+        return a + b[1]
+      }, 0)
+    },
+
+    bidSumVolume() {
+      return this.sorted_bids.reduce((a, b) => {
+        return a + b[1]
+      }, 0)
+    }
   },
 
   methods: {
+    getAskProgress(ask) {
+      return (100 * ask[1]) / this.askSumVolume
+    },
+
+    getBidProgress(bid) {
+      return (100 * bid[1]) / this.bidSumVolume
+    },
+
     isMyOrder(ask, side) {
       for (const o of this.userOrders.filter((o) => o.market_id == this.id)) {
         if (ask[0] == parseInt(o.unit_price) && side == o.type) return true
@@ -163,7 +184,6 @@ export default {
     .spread {
       color: #80a1c5;
       text-align: right;
-      //text-align-last: end;
       .prec.warn {
         color: var(--main-red);
       }
@@ -181,14 +201,6 @@ export default {
         }
       }
     }
-    // @media (max-width: 480px) {
-    //   & {
-    //     flex-direction: column;
-    //     .spread {
-    //       flex-direction: row;
-    //     }
-    //   }
-    // }
     @media (max-width: 480px) {
       & {
         .price {
@@ -203,53 +215,6 @@ export default {
         }
       }
     }
-    //   display: grid;
-    //   grid-template-columns: 1fr 1fr;
-    //   .price {
-    //     display: grid;
-    //     grid-template-columns: auto 1fr;
-    //     grid-column-gap: 5px;
-    //     align-items: center;
-    //     i {
-    //       grid-row: 1/3;
-    //     }
-    //     .num {
-    //       grid-row: 1;
-    //     }
-    //     .token {
-    //       grid-row: 2;
-    //     }
-    //   }
-    //   .spread {
-    //     justify-items: end;
-    //     display: grid;
-    //     font-size: 11px;
-    //     .num {
-    //       grid-row: 1;
-    //     }
-    //     .perc {
-    //       grid-row: 2;
-    //     }
-    //   }
-    // }
-    // @media (max-width: 1200px) and (min-width: 983px) {
-    //   .price, .spread {
-    //     font-size: 11px;
-    //   }
-    // }
-    // @media (max-width: 600px) {
-    //   .price, .spread {
-    //     font-size: 11px;
-    //   }
-    // }
-    // @media (max-width: 468px) {
-    //   .price, .spread {
-    //     font-size: 9px;
-    //   }
-    // }
-    // i {
-    //   margin-right: 2px;
-    // }
   }
 }
 
@@ -259,40 +224,92 @@ export default {
   overflow: auto;
   flex-direction: column;
   text-align: right;
+  padding: 0px 10px;
+
 }
 
 .blist .ltd {
-  height: 21px;
+  height: 20px;
   width: 100%;
   min-height: 18px;
   position: relative;
   align-items: center;
-  overflow: hidden;
-  padding: 0px 10px;
   justify-content: space-between;
-
-
-  span {
-    // TODO This font seem not workin now
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 10px;
-    line-height: 12px;
-  }
-
-  i {
-    font-size: 10px;
-  }
 }
 
-.blist .ltd.first {
-  height: 23px;
+.blist.first {
   background: var(--btn-default);
+
+  .ltd {
+    height: 23px;
+  }
 }
 
 .orders-list {
   background: var(--table-background) !important;
+
+  .orderbook-progress {
+    display: flex;
+
+    .el-icon-caret-right {
+      position: absolute;
+      left: -11px;
+      font-size: 11px;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      overflow: hidden;
+
+      position: relative;
+
+      .order-row {
+        display: flex;
+        box-sizing: border-box;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        line-height: 22px;
+        cursor: pointer;
+        align-items: center;
+
+        div {
+          // TODO This font seem not workin now
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 400;
+          font-size: 11.5px;
+          line-height: 12px;
+
+          flex: 1 1 0%;
+          color: var(--text-grey-thirdly);
+        }
+
+        i {
+          font-size: 10px;
+        }
+      }
+
+      .progress-bar {
+        position: absolute;
+        z-index: 1;
+        height: 20px;
+        opacity: 0.15;
+        width: 100%;
+        right: 100%;
+
+        &.sell {
+          background-color: #F96C6C;;
+        }
+
+        &.buy {
+          background-color: #66C167;
+        }
+      }
+    }
+  }
 }
 
 .orders-list.asks {
@@ -323,14 +340,6 @@ export default {
 .blist .ltd span {
   width: 40%;
   font-size: 11.5px;
-  //color: #d9d9d9;
-}
-
-.orders-list {
-  .blist .ltd span {
-    //color: #d9d9d9;
-    //color: #d9d9d9;
-  }
 }
 
 .blist .ltd span:first-child {
