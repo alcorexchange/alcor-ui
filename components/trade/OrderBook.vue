@@ -17,7 +17,7 @@
       .progress-container
         .order-row
           .red.text-left {{ ask[0] | humanPrice }}
-          .text-right {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
+          .text-right.px-1 {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
           .text-right(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
         .progress-bar.sell(:style="'transform: translateX(' + getAskProgress(ask) + '%);'")
@@ -49,11 +49,11 @@
       @click='setAsk(bid)',
       :class='{ "pl-0": isMyOrder(bid, "buy") }'
     )
-      i.el-icon-caret-right.red(v-if='isMyOrder(bid, "buy")')
+      i.el-icon-caret-right.green(v-if='isMyOrder(bid, "buy")')
       .progress-container
         .order-row
           .green.text-left {{ bid[0] | humanPrice }}
-          .text-right {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
+          .text-right.px-1 {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
           .text-right(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
         .progress-bar.buy(:style="'transform: translateX(' + getBidProgress(bid) + '%);'")
@@ -229,7 +229,6 @@ export default {
 }
 
 .blist .ltd {
-  height: 20px;
   width: 100%;
   min-height: 18px;
   position: relative;
@@ -239,6 +238,7 @@ export default {
 
 .blist.first {
   background: var(--btn-default);
+  overflow: hidden;
 
   .ltd {
     height: 23px;

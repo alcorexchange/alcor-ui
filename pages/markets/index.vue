@@ -146,8 +146,6 @@ export default {
 
   async fetch({ store, error }) {
     if (store.state.markets.length == 0) {
-      console.log('fetch markets because not fetched...')
-
       try {
         await store.dispatch('loadMarkets')
       } catch (e) {
