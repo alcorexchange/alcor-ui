@@ -517,8 +517,11 @@ export const actions = {
 
     const actions = []
 
+    const markets_to_update = []
     orders.map(order => {
       const { account, market_id, id } = order
+
+      if (!markets_to_update.includes(market_id)) markets_to_update.push(market_id)
 
       actions.push({
         account: rootState.network.contract,
@@ -529,9 +532,10 @@ export const actions = {
     })
 
     await dispatch('chain/sendTransaction', actions, { root: true })
+
     setTimeout(() => {
       dispatch('updatePairBalances')
-      dispatch('loadOrders', orders[0].market_id, { root: true })
+      markets_to_update.map(id => dispatch('loadOrders', id, { root: true }))
     }, 1000)
   }
 }
