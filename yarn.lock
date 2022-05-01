@@ -1060,6 +1060,13 @@
     hash.js "^1.0.0"
     tslib "^2.0.3"
 
+"@greymass/miniaes@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@greymass/miniaes/-/miniaes-1.0.0.tgz#2337a4637edbb49289f3c977c5891bb6bef1ba75"
+  integrity sha512-xKYTnAyyoq3gpJS11JvU4dkju28M8Zbp06CuP3aKR4DMH6B2z64LauGGGzKksKh5Qd770JA/dzhLbImnBlymbg==
+  dependencies:
+    tslib "^2.1.0"
+
 "@highcharts/map-collection@^1.1.3":
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/@highcharts/map-collection/-/map-collection-1.1.4.tgz#8958e89979175e414c8d60b93de8054703e1b191"
@@ -2484,13 +2491,13 @@ anchor-link-browser-transport@^3.2.5:
   dependencies:
     tslib "^2.0.3"
 
-anchor-link@^3.3.4:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/anchor-link/-/anchor-link-3.4.0.tgz#ca2eaa3d9695a3a14b3111628d1447c777490825"
-  integrity sha512-W67zZhQtRpA/fdWht7pUnfTCluYk7Mk+ugA+4mppH1VvYO3EqbV5kER20KS+wVw1XiyfnpXEHrEtghhzXqONqw==
+anchor-link@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/anchor-link/-/anchor-link-3.4.1.tgz#ffd725ee8e570ba944de000f5fdc21a0176d8e4c"
+  integrity sha512-Fe0rNXjMcNV5DY6eSnjWdgjOniF8GloP/ZKlRWJW9z7dh6BINfjKJWxYd/cLYrykL1vNZMRKX3zWGJkLWqxFZw==
   dependencies:
     "@greymass/eosio" "^0.5.0"
-    asmcrypto.js "^2.3.2"
+    "@greymass/miniaes" "^1.0.0"
     eosio-signing-request "^2.2.0"
     fetch-ponyfill "^7.1.0"
     isomorphic-ws "^4.0.1"
@@ -2704,11 +2711,6 @@ asap@~2.0.3:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
   integrity sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=
-
-asmcrypto.js@^2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/asmcrypto.js/-/asmcrypto.js-2.3.2.tgz#b9f84bd0a1fb82f21f8c29cc284a707ad17bba2e"
-  integrity sha512-3FgFARf7RupsZETQ1nHnhLUUvpcttcCq1iZCaVAbJZbCZ5VNRrNyvpDyHTOb0KC3llFcsyOT/a99NZcCbeiEsA==
 
 asn1.js@^5.2.0:
   version "5.4.1"
@@ -9246,6 +9248,11 @@ pify@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-5.0.0.tgz#1f5eca3f5e87ebec28cc6d54a0e4aaf00acc127f"
   integrity sha512-eW/gHNMlxdSP6dmG6uJip6FXN0EQBwm2clYYd8Wul42Cwu/DK8HEftzsapcNdYe2MfLiIwZqsDk2RDEsTE79hA==
+
+ping.js@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/ping.js/-/ping.js-0.3.0.tgz#3e90615159785114fa1bc550f69136a593c49315"
+  integrity sha512-qisFwio7j0cwYbOcRL4BlTdxKALcpGPTkpl8ichGASgkrVqfI3sZfQDsP8wETR5rfutXZJLjlJ117aLkRnk2mA==
 
 pinkie-promise@^2.0.0:
   version "2.0.1"

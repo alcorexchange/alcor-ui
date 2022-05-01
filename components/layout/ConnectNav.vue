@@ -109,10 +109,7 @@ export default {
       await this.$store.dispatch('chain/logout')
     },
     onClickOutside(event) {
-      console.log('this is click setting modal:', this.showSetting)
-      console.log(event)
       if (this.showSetting) {
-        console.log(event)
         this.showSetting = false
       }
     },

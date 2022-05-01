@@ -370,7 +370,6 @@ export default {
 
     mountChart() {
       const { $TVChart: { Widget } } = this
-      console.log('mountChart', this.$slots)
 
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
