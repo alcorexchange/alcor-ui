@@ -90,7 +90,6 @@ export default {
         ordersToCalcel = this.userOrders.filter(o => o.account === this.user.name)
       }
 
-      console.log('ordersToCalcel', ordersToCalcel)
       const h = this.$createElement
       this.$confirm(
         h('div', null, [
@@ -126,9 +125,9 @@ export default {
       try {
         await this.$store.dispatch('chain/cancelorder', {
           account: this.user.name,
-          market_id: this.id,
+          market_id: order.market_id,
           type: order.type,
-          order_id: order.id,
+          order_id: order.id
         })
 
         this.$notify({

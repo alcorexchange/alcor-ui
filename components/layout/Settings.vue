@@ -138,7 +138,8 @@
       .el-footer.module-footer.default-settings-part
         .return-default-setting(@click='initiateState()') Return to Default Settings
 
-    .el-container.setting-layout.d-flex.flex-column
+    // TODO
+    //.el-container.setting-layout.d-flex.flex-column
       .setting-module-footer.el-footer.text-white
         span.module-title Nodes
       .el-main.module-main-settings

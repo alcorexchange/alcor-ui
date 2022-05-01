@@ -242,7 +242,6 @@ export default {
 
     markets_layout() {
       if (this.current_market_layout == 'classic') {
-        console.log('this.screenWidth', this.screenWidth)
         return this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
       } else if (this.current_market_layout == 'full') {
         return TRADE_LAYOUTS.full

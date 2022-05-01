@@ -417,7 +417,6 @@ export default {
             setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
           },
           getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
-            console.log('get bars called...', from, to, firstDataRequest)
             this.resolution = resolution
 
             this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
@@ -437,30 +436,6 @@ export default {
 
                 if (this.user) this.loadHistory({ from, to })
               }).catch(e => onErrorCallback('Charts loading error..', e))
-
-            // FIXME Called 2 times, why? (Downgraded to old version as fix)
-            //console.log('get bars called...', from, to, firstDataRequest)
-            //this.resolution = resolution
-
-            //if (firstDataRequest) {
-            //  // Using countBack
-            //  this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, limit: countBack + 1 } })
-            //    .then(({ data: charts }) => {
-            //      onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
-
-            //      // Rerender chart Because market changed
-            //      this.widget.activeChart().resetData()
-            //      this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-
-            //      this.isReady = true
-            //      setTimeout(() => this.drawOrders(), 1000)
-            //    }).catch(e => onErrorCallback('Charts loading error..', e))
-            //} else {
-            //  this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
-            //    .then(({ data: charts }) => {
-            //      onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
-            //    }).catch(e => onErrorCallback('Charts loading error..', e))
-            //}
           },
 
           subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {

@@ -34,18 +34,19 @@ export const mutations = {
 
 export const actions = {
   init({ state, commit, dispatch }) {
-    window.addEventListener('eosjsRpcSwitched', e => {
-      commit('setCurrentNode', e.detail)
-      this._vm.$notify({ type: 'warning', title: 'Node Connection CHANGED!', message: e.detail })
-    })
+    //window.addEventListener('eosjsRpcSwitched', e => {
+    //  commit('setCurrentNode', e.detail)
+    //  this._vm.$notify({ type: 'warning', title: 'Node Connection CHANGED!', message: e.detail })
+    //})
 
-    dispatch('checkNodes')
+    //dispatch('checkNodes')
     // TODO Current rpc check
   },
 
   checkNodes({ state, commit }) {
-    console.log('RPC SET!')
-    this.$rpc.setEndpoints(['https://api2.hivebp.io'])
+    // TODO
+    //console.log('RPC SET!')
+    //this.$rpc.setEndpoints(['https://api2.hivebp.io'])
 
     //this._vm.prototype.$rpc = JsonRpc('https://api2.hivebp.io/', { fetch })
     //const all_nodes = [...]
