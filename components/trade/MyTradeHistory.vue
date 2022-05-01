@@ -16,11 +16,11 @@ el-table.my-trade-history(
       span.text-danger(v-else) SELL
   el-table-column(label='Amount', v-if='!isMobile')
     template(slot-scope='{ row }')
-      span {{ row.amount | commaFloat }} {{ quote_token.symbol.name }}
+      span {{ row.amount | commaFloat }}
 
   el-table-column(:label="'Total ( ' + base_token.symbol.name + ' )'")
     template(slot-scope='{ row }')
-      span {{ row.total | commaFloat }} {{ base_token.symbol.name }}
+      span {{ row.total | commaFloat }}
 
   el-table-column(label='Price' width=100)
     template(slot-scope='scope')
@@ -114,8 +114,8 @@ export default {
           d.side = this.user.name == d.bidder ? 'buy' : 'sell'
           d.market_symbol = this.markets_obj[d.market].symbol
 
-          d.amount = d.type == 'sellmatch' ? d.bid : d.ask
-          d.total = d.type == 'sellmatch' ? d.ask : d.bid
+          d.amount = (d.type == 'sellmatch' ? d.bid : d.ask) + ' ' + this.markets_obj[d.market].quote_token.symbol.name
+          d.total = (d.type == 'sellmatch' ? d.ask : d.bid) + ' ' + this.markets_obj[d.market].base_token.symbol.name
         })
 
         this.deals.push(...deals)
@@ -138,10 +138,6 @@ export default {
 .my-order-history {
   table {
     width: 100% !important;
-  }
-
-  .el-table__append-wrapper {
-    //overflow: auto;
   }
 }
 </style>
