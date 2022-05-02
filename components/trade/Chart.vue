@@ -161,7 +161,7 @@ export default {
               }
             )
 
-            onHistoryCallback(charts, { noData: charts.length == 0 })
+            onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
             this.widget.activeChart().resetData()
             this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
           },

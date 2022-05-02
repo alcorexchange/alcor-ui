@@ -7,13 +7,22 @@ account.get('/:account/deals', async (req, res) => {
   const network = req.app.get('network')
   const { account } = req.params
 
-  const { limit, skip, market } = req.query
+  const { from, to, limit, skip, market } = req.query
 
   const $match = { chain: network.name, $or: [{ asker: account }, { bidder: account }] }
+
   if (market) $match.market = parseInt(market)
+
+  if (from && to) {
+    $match.time = {
+      $gte: new Date(parseFloat(from) * 1000),
+      $lte: new Date(parseFloat(to) * 1000)
+    }
+  }
 
   const q = [
     { $match },
+    { $sort: { time: -1 } },
     {
       $project: {
         time: 1,
@@ -25,8 +34,7 @@ account.get('/:account/deals', async (req, res) => {
         type: 1,
         bidder: 1
       }
-    },
-    { $sort: { time: -1 } }
+    }
   ]
 
   if (skip) q.push({ $skip: parseInt(skip) })

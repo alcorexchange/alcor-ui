@@ -112,6 +112,19 @@ export async function getMarketStats(network, market_id) {
   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
 
+  // Calc 24 high/low
+  stats.high24 = stats.last_price
+  stats.low24 = stats.last_price
+
+  const chain = network.name
+  const market = market_id
+
+  const high24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: -1 } })
+  const low24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: 1 } })
+
+  if (high24_deal) stats.high24 = parseFloat(high24_deal.unit_price)
+  if (low24_deal) stats.low24 = parseFloat(low24_deal.unit_price)
+
   return stats
 }
 

@@ -32,9 +32,7 @@ markets.get('/:market_id/charts', async (req, res) => {
     return res.status(404).send(`Market with id ${market_id} not found or closed :(`)
   }
 
-  const { from, to } = req.query
-  const { resolution } = req.query
-
+  const { from, to, resolution, limit } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
 
   const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market_id) }
@@ -46,9 +44,9 @@ markets.get('/:market_id/charts', async (req, res) => {
     }
   }
 
-  const charts = await Bar.aggregate([
+  const q = [
     { $match: where },
-    { $sort: { time: 1 } },
+    { $sort: { time: -1 } },
     {
       $project: {
         time: { $toLong: '$time' },
@@ -59,7 +57,11 @@ markets.get('/:market_id/charts', async (req, res) => {
         volume: 1
       }
     }
-  ])
+  ]
+
+  if (limit) q.push({ $limit: parseInt(limit) })
+
+  const charts = await Bar.aggregate(q)
 
   res.json(charts)
 })
