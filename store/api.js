@@ -273,5 +273,83 @@ export const actions = {
     } catch (e) {
       console.error('Get accounts error', e)
     }
-  }
+  },
+  // get NFT inventory, auctions, listings, bought, sold counts
+  async getInventoryCounts({ getters, rootState }, { owner }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicassets/v1/assets/_count?owner=' +
+          owner
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  async getInventorySuggestedmedian({ getters, rootState }, { owner }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/prices/assets?owner=' +
+          owner
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  async getAuctionsCounts({ getters, rootState }, { owner }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/auctions/_count?owner=' +
+          owner
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  async getSalesCounts({ getters, rootState }, { owner }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v2/sales/_count?owner=' +
+          owner
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  async getBoughtCounts({ getters, rootState }, { owner }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/buyoff ers/_count?owner=' +
+          owner
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  async getAccountValue({ getters, rootState }, { owner }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/stats/accounts/' +
+          owner + '?symbol=WAX'
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  // price on tempchart
+  async getTemplatePrice({ getters, rootState }, { templateID }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/prices/templates?template_id=' + templateID + '&page=1&limit=100&order=desc'
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
 }
