@@ -44,7 +44,7 @@ export const state = () => ({
 
   markets_active_tab: null,
   current_market_layout: 'classic',
-  markets_layout: config.TRADE_LAYOUTS.classic,
+  markets_layout: config.TRADE_LAYOUTS.advanced,
 
   orderbook_settings: {
     totalSum: true

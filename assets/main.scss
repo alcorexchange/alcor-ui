@@ -719,6 +719,10 @@ pre {
   }
 }
 
+.el-tabs__nav.is-top {
+  transform: unset !important;
+}
+
 .border-tabs {
   .el-tabs--border-card {
     background: transparent;

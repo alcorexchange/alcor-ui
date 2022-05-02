@@ -419,9 +419,9 @@ export default {
           getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
 
+            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
             this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
               .then(({ data: charts }) => {
-                this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
                 onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
@@ -509,7 +509,6 @@ export default {
           this.isMobile ? 'left_toolbar' : undefined,
 
           'cropped_tick_marks',
-          'main_series_scale_menu',
           'trading_notifications',
           'show_trading_notifications_history',
           //'end_of_period_timescale_marks',
@@ -532,7 +531,8 @@ export default {
           //'legend_widget',
           //'context_menus',
           //'edit_buttons_in_legend',
-          //'volume_force_overlay',
+          'volume_force_overlay',
+          'delete_button_in_legend',
           //'property_pages',
         ],
         enabled_features: [
@@ -549,6 +549,7 @@ export default {
         custom_css_url: '/tv_themed.css',
 
         overrides: {
+          volumePaneSize: 'medium',
           'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
           'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
 
