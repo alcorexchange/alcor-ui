@@ -41,6 +41,7 @@
           :step='1',
           v-model='percentBuy',
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+          :show-tooltip="false"
         )
 
       el-form-item.mt-4(prop='totalBuy', :inline-message='true')
@@ -102,7 +103,8 @@
           :step='1',
           v-model='percentSell',
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
-        )
+          :show-tooltip="false"
+        ).red
 
       el-form-item.mt-4(prop='totalSell', :inline-message='true')
         el-input(

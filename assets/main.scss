@@ -60,6 +60,12 @@ label {
   cursor: pointer;
 }
 
+.hoverable {
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
 @media (min-width: 1200px) {
   .container {
     max-width: 1260px;
@@ -219,17 +225,6 @@ pre {
     color: #b56150 !important;
   }
 
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
   .markets-bar {
     // height: 500px;
     // 
@@ -256,21 +251,6 @@ pre {
   .text-danger {
     color: #b56150 !important;
   }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
-  }
 }
 
 .theme-oranger {
@@ -288,21 +268,6 @@ pre {
 
   .text-danger {
     color: #b56150 !important;
-  }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
   }
 }
 
@@ -322,21 +287,6 @@ pre {
   .text-danger {
     color: #b56150 !important;
   }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
-  }
 }
 
 .theme-cyber {
@@ -355,21 +305,6 @@ pre {
   .text-danger {
     color: #b56150 !important;
   }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
-  }
 }
 
 .theme-bloom {
@@ -387,21 +322,6 @@ pre {
 
   .text-danger {
     color: #b56150 !important;
-  }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
   }
 }
 
@@ -455,6 +375,17 @@ pre {
 
 .red {
   color: var(--main-red) !important;
+
+  .el-slider__runway {
+    background-color: #553838;
+  }
+
+  .el-slider__button,
+  .el-slider__stop,
+  .el-slider__bar {
+    border: 2px solid var(--main-red);
+    background-color: var(--main-red);
+  }
 }
 
 .alcor-inner {

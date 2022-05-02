@@ -626,7 +626,7 @@ export default {
   }
 
   .vue-grid-item {
-    background: var(--bg-alter-1);
+    background: var(--table-background);
     border: 2px solid #3F3F3F;
     box-sizing: border-box;
     border-radius: 2px;

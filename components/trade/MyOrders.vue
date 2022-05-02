@@ -30,7 +30,7 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders')
   el-table-column(label='Action', align='right' :width="isMobile ? 60 : 120")
     template(v-if="!isMobile" slot="header")
       span.mr-1 Action
-      el-button(type="text" size="mini" @click="cancelAll").red (cancel all)
+      span(@click="cancelAll").red.pointer.hoverable (cancel all)
 
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
