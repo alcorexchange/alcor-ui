@@ -20,7 +20,7 @@
           .text-right.px-1 {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
           .text-right(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
-        .progress-bar.sell(:style="'transform: translateX(' + getAskProgress(ask) + '%);'" v-if="!isMobile")
+        .progress-bar.sell(:style="'transform: translateX(' + -getAskProgress(ask) + '%);'" v-if="!isMobile")
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
@@ -56,7 +56,7 @@
           .text-right.px-1 {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
           .text-right(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
-        .progress-bar.buy(:style="'transform: translateX(' + getBidProgress(bid) + '%);'"  v-if="!isMobile")
+        .progress-bar.buy(:style="'transform: translateX(' + -getBidProgress(bid) + '%);'"  v-if="!isMobile")
 
     .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
@@ -310,7 +310,8 @@ export default {
         height: 20px;
         opacity: 0.15;
         width: 100%;
-        right: 100%;
+        right: 0px;
+        left: 100%;
 
         &.sell {
           background-color: #F96C6C;;
