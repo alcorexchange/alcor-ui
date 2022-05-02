@@ -2,7 +2,6 @@
 .trading-terminal
   client-only
     grid-layout(
-      autoSize
       :layout.sync='markets_layout',
       :col-num='24',
       :row-height='40',
