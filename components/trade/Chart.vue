@@ -76,19 +76,21 @@ export default {
     'chart_orders_settings.show_open_orders'() {
       this.drawOrders()
     },
-    //'chart_orders_settings.show_trade_execution_amount'() {
-    //  this.drawOrders()
-    //},
-    //'chart_orders_settings.show_trade_executions_price'() {
-    //  this.gridExecution()
-    //},
+    'chart_orders_settings.show_trade_execution_amount'() {
+      this.widget.activeChart().removeAllShapes()
+      this.gridExecution()
+    },
+    'chart_orders_settings.show_trade_executions_price'() {
+      this.widget.activeChart().removeAllShapes()
+      this.gridExecution()
+    },
     'chart_orders_settings.show_trade_executions'(to) {
       if (to == false) {
         this.widget.activeChart().removeAllShapes()
       } else {
-        this.gridExecution()
+        this.reset()
       }
-    },
+    }
   },
 
   mounted() {
@@ -104,6 +106,11 @@ export default {
   },
 
   methods: {
+    lol() {
+      console.log('lol called')
+      this.widget.activeChart().removeAllShapes()
+    },
+
     save() {
       const twChart = JSON.parse(
         JSON.stringify(this.$store.state.settings.twChart)
@@ -335,20 +342,23 @@ export default {
         }
 
         for (const deal of _deals) {
+          const options = {
+            shape: deal.type == 'buy' ? 'arrow_up' : 'arrow_down',
+            overrides: { color: deal.type == 'sell' ? '#f96c6c' : '#009688', fontsize: 12, fixedSize: false, wordWrapWidth: 200 },
+            zOrder: 'top',
+            disableSelection: false,
+            disableSave: true
+          }
+
+          const text = (deal.type == 'buy' ? `${deal.bid}` : `@${deal.ask}`) + ' WAX'
+          if (this.chart_orders_settings.show_trade_execution_amount) {
+            options.text = text
+          }
+
           const execution = this.widget
             .activeChart()
-            .createShape({
-              time: new Date(deal.time).getTime() / 1000,
-              price: deal.unit_price
-            },
-            {
-              shape: deal.type == 'buy' ? 'arrow_up' : 'arrow_down',
-              overrides: { color: '#BE55E5', fontsize: 12, fixedSize: false, wordWrapWidth: 200 },
-              zOrder: 'top',
-              disableSelection: true,
-              disableSave: true
-            }
-            )
+            .createShape({ time: new Date(deal.time).getTime() / 1000, price: deal.unit_price }, options)
+
           //.createExecutionShape()
           //.setTooltip('@1,320.75 Limit Buy 1')
           //.setTooltip(`${deal.unit_price} ` + deal.type == 'buy' ? `@${deal.bid}` : `@${deal.ask}` + ' WAX')
