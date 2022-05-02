@@ -46,6 +46,10 @@ export const state = () => ({
   current_market_layout: 'classic',
   markets_layout: config.TRADE_LAYOUTS.classic,
 
+  orderbook_settings: {
+    totalSum: true
+  },
+
   header_settings: {
     change_24: true,
     volume_24: true,
@@ -55,6 +59,7 @@ export const state = () => ({
     weekly_volume: false,
     all_time: false
   },
+
   chart_orders_settings: {
     show_open_orders: false,
     show_labels: false,
@@ -64,6 +69,7 @@ export const state = () => ({
     show_trade_executions_price: false,
     show_trade_execution_amount: false
   },
+
   orderdata: {
     order: {},
     show_cancel_modal: false,
@@ -115,6 +121,8 @@ export const mutations = {
     state.quote_token = quote_token
     state.stats = market
   },
+
+  setOrderbookSettings: (state, settings) => state.orderbook_settings = settings,
 
   SET_PRICE: (state, price) => state.price_bid = price,
 
@@ -574,11 +582,35 @@ export const getters = {
   },
 
   sorted_asks(state, getters, rootState) {
-    return state.asks.sort(sortByPrice).reverse()
+    const asks = state.asks.sort(sortByPrice).reverse()
+
+    asks.reduce((a, b) => {
+      if (a) {
+        b[3] = a[3] + b[1]
+      } else {
+        b[3] = b[1]
+      }
+
+      return b
+    }, 0)
+
+    return asks
   },
 
   sorted_bids(state, getters, rootState) {
-    return state.bids.sort(sortByPrice)
+    const bids = state.bids.sort(sortByPrice)
+
+    bids.reduce((a, b) => {
+      if (a) {
+        b[3] = a[3] + b[1]
+      } else {
+        b[3] = b[1]
+      }
+
+      return b
+    }, 0)
+
+    return bids
   },
 
   baseBalance(state, getters, rootState) {

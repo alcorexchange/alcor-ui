@@ -2,6 +2,7 @@
 .trading-terminal
   client-only
     grid-layout(
+      autoSize
       :layout.sync='markets_layout',
       :col-num='24',
       :row-height='40',
@@ -14,7 +15,7 @@
       v-if="markets_layout.length > 0")
 
       grid-item.overflowbox(
-        v-for='item in markets_layout.filter((item) => item.status)',
+        v-for='item in markets_layout',
         :key="item.i",
         :x='item.x',
         :y='item.y',
@@ -62,11 +63,12 @@
               v-else-if='item.i == "time-sale"',
               @click='show_timesale_modal = !show_timesale_modal'
             )
+            OrderbookModel(:visible="showOrderSettingsModal" v-else-if='item.i == "order-depth"')
             i.el-icon-setting(v-else)
+
+
           .icon-btn(v-if="isAdvanced")
             i.el-icon-close(@click='closegriditem(item.i)')
-
-
 
         top-line(v-if='item.i == "chart"')
         chart(v-if='item.i == "chart"')
@@ -123,6 +125,7 @@
 
         .h-100(v-if='item.i == "markets"')
           Markets
+
   SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
   TimeSaleModal(
     v-if='show_timesale_modal',
@@ -166,6 +169,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 
+import OrderbookModel from '~/components/trade/modals/OrderbookModel'
 import MarketTrade from '~/components/trade/MarketTrade'
 import LimitTrade from '~/components/trade/LimitTrade'
 import MyOrders from '~/components/trade/MyOrders'
@@ -203,7 +207,8 @@ export default {
     FeeRate,
     DepthChart,
     SettingModal,
-    TimeSaleModal
+    TimeSaleModal,
+    OrderbookModel
   },
 
   data() {
@@ -217,6 +222,7 @@ export default {
       loading: false,
       show_modal: false,
       show_timesale_modal: false,
+      showOrderSettingsModal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
       depthChartUpdated: false
@@ -241,13 +247,16 @@ export default {
     },
 
     markets_layout() {
+      let layout
       if (this.current_market_layout == 'classic') {
-        return this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
+        layout = this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
       } else if (this.current_market_layout == 'full') {
-        return TRADE_LAYOUTS.full
+        layout = TRADE_LAYOUTS.full
       } else {
-        return this.$store.state.market.markets_layout
+        layout = this.$store.state.market.markets_layout
       }
+
+      return layout.filter((item) => item.status)
     },
 
     hideOtherPairs: {
@@ -607,22 +616,27 @@ export default {
     margin: 0;
   }
 
+  .vue-resizable-handle {
+    display: none;
+
+    width: 15px;
+    height: 15px;
+
+    background: url('@/assets/icons/resize.png');
+    background-repeat: no-repeat;
+  }
+
   .vue-grid-item {
     background: var(--bg-alter-1);
     border: 2px solid #3F3F3F;
     box-sizing: border-box;
     border-radius: 2px;
 
-    //overflow: auto;
-    //overflow-x: hidden;
-  }
-
-  .vue-resizable-handle {
-    width: 15px;
-    height: 15px;
-
-    background: url('@/assets/icons/resize.png');
-    background-repeat: no-repeat;
+    &:hover {
+      .vue-resizable-handle {
+        display: block;
+      }
+    }
   }
 
   .vue-grid-item.vue-grid-placeholder {

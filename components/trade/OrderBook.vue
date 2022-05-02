@@ -9,7 +9,7 @@
 
   .orders-list.blist.asks(ref='asks')
     .ltd.orderbook-progress(
-      v-for='ask in sorted_asks',
+      v-for='ask in asks',
       @click='setBid(ask)',
       :class='{ "pl-0": isMyOrder(ask, "sell") }'
     )
@@ -45,7 +45,7 @@
 
   .orders-list.blist.bids
     .ltd.orderbook-progress(
-      v-for='bid in sorted_bids',
+      v-for='bid in bids',
       @click='setAsk(bid)',
       :class='{ "pl-0": isMyOrder(bid, "buy") }'
     )
@@ -65,8 +65,6 @@
 </template>
 
 <script>
-//import { find } from 'lodash/fp'
-
 import { mapGetters, mapState } from 'vuex'
 import { trade } from '~/mixins/trade'
 
@@ -82,8 +80,16 @@ export default {
   computed: {
     ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
-    ...mapState('market', ['quote_token', 'base_token', 'id', 'deals']),
+    ...mapState('market', ['quote_token', 'base_token', 'id', 'deals', 'orderbook_settings']),
     ...mapGetters(['user']),
+
+    asks() {
+      return this.sorted_asks
+    },
+
+    bids() {
+      return this.sorted_bids
+    },
 
     isLastTradeSell() {
       return this.deals.length > 0 && this.deals[0].type === 'sellmatch'
@@ -94,9 +100,7 @@ export default {
     },
 
     askSumVolume() {
-      return this.sorted_asks.reduce((a, b) => {
-        return a + b[1]
-      }, 0)
+      return this.sorted_asks[this.sorted_asks.length - 1][3]
     },
 
     bidSumVolume() {
@@ -108,11 +112,19 @@ export default {
 
   methods: {
     getAskProgress(ask) {
-      return (100 * ask[1]) / this.askSumVolume
+      if (this.orderbook_settings.totalSum) {
+        return (100 * ask[3]) / this.askSumVolume
+      } else {
+        return (100 * ask[1]) / this.askSumVolume
+      }
     },
 
     getBidProgress(bid) {
-      return (100 * bid[1]) / this.bidSumVolume
+      if (this.orderbook_settings.totalSum) {
+        return (100 * bid[3]) / this.bidSumVolume
+      } else {
+        return (100 * bid[1]) / this.bidSumVolume
+      }
     },
 
     isMyOrder(ask, side) {
@@ -230,7 +242,7 @@ export default {
 
 .blist .ltd {
   width: 100%;
-  min-height: 18px;
+  min-height: 20px;
   position: relative;
   align-items: center;
   justify-content: space-between;
