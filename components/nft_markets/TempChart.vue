@@ -10,11 +10,10 @@ export default {
   data() {
     return {
       resolution: 240,
-
       onRealtimeCallback: () => {},
       widget: null,
       onResetCacheNeededCallback: null,
-      quote_token_symbol_name: 'FWW',
+      quote_token_symbol_name: 'WAX',
       id: 104,
     }
   },
@@ -76,19 +75,12 @@ export default {
       const Widget = require('~/assets/charts/charting_library.min.js').widget
 
       const widgetOptions = {
-        symbol: this.quote_token_symbol_name,
+        symbol: "this.quote_token_symbol_name",
         datafeed: {
           onReady: (callback) => {
             const data = {
               supported_resolutions: [
-                '1',
-                '15',
-                '30',
-                '60',
-                '240',
                 'D',
-                'W',
-                'M'
               ],
               symbols_types: [{ name: 'crypto', value: 1 }]
             }
@@ -128,14 +120,7 @@ export default {
               has_no_volume: false,
               has_weekly_and_monthly: true,
               supported_resolutions: [
-                '1',
-                '15',
-                '30',
-                '60',
-                '240',
                 'D',
-                'W',
-                'M'
               ],
               volume_precision: 5,
               data_status: 'streaming'
@@ -177,25 +162,25 @@ export default {
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: ['1', '15', '30', '60', '240', 'D', 'W', 'M']
+          intervals: ['D']
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
-          //'header_resolutions',
+          // 'header_resolutions',
           'header_symbol_search',
-          'header_chart_type',
-          'header_settings',
-          'header_compare',
-          'header_undo_redo',
-          'header_screenshot',
+          // 'header_chart_type',
+          // 'header_settings',
+          // 'header_compare',
+          // 'header_undo_redo',
+          // 'header_screenshot',
           //'header_fullscreen_button',
           'compare_symbol',
           'border_around_the_chart',
-          'header_saveload',
+          // 'header_saveload',
           'control_bar',
 
           'symbol_search_hot_key',
-          //'left_toolbar',
+          'left_toolbar',
 
           //'legend_widget',
           'cropped_tick_marks',
@@ -212,7 +197,7 @@ export default {
           'chart_crosshair_menu',
           'shift_visible_range_on_new_bar',
           'go_to_date',
-          'timezone_menu',
+          // 'timezone_menu',
           //'property_pages',
           'timeframes_toolbar',
           'countdown'

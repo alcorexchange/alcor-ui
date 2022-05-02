@@ -89,10 +89,11 @@
               wave-color='rgba(150, 150, 150, 0.1)'
             )
             p.token-exchange(
-              v-else,
-              v-for='(item, index) in assetData.backed_tokens',
+              v-else-if='!loading && backedToken',
+              v-for='(item, index) in backedToken',
               :key='index'
-            ) {{ item }}
+            ) {{ item.amount + ' ' + item.token_symbol }}
+            p.token-exchange(v-else) None
         .description-info
           .nft
             label.description-title Owner
@@ -235,27 +236,27 @@
         .chart-items
           p.text-white.mb-0 Lowest Listing:
           p.weight-400
-            span.color-yellow 1.90 WAX
+            span.color-yellow {{lowestSales}} WAX
             | &nbsp;/&nbsp;
-            span.color-green $1.34
+            span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
           p.text-white.mb-0 Lowest Sale:
           p.weight-400
-            span.color-yellow 1.90 WAX
+            span.color-yellow {{lowestSales}} WAX
             | &nbsp;/&nbsp;
-            span.color-green $1.34
+            span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
           p.text-white.mb-0 Highest Listing:
           p.weight-400
-            span.color-yellow 1.90 WAX
+            span.color-yellow {{highestSales}} WAX
             | &nbsp;/&nbsp;
-            span.color-green $1.34
+            span.color-green ${{ $systemToUSD(highestSales) }}
         .chart-items
           p.text-white.mb-0 Highest Sale:
           p.weight-400
-            span.color-yellow 1.90 WAX
+            span.color-yellow {{highestSales}} WAX
             | &nbsp;/&nbsp;
-            span.color-green $1.34
+            span.color-green ${{ $systemToUSD(highestSales) }}
   NFTBackModal(
     :show_modal='show_modal',
     :outofmodalclick='outofmodalclick',
@@ -293,6 +294,7 @@ export default {
       salesData: [],
       transferData: [],
       logsData: [],
+      templatePrice: []
     }
   },
   computed: {
@@ -303,7 +305,7 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.io/ipfs/' + this.assetData.data.img + ')',
+            : 'url(https://ipfs.atomichub.io/ipfs/' + this.assetData.data.img + ')',
         }
       } else return false
     },
@@ -314,10 +316,31 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.io/ipfs/' + this.assetData.data.img + ')',
+            : 'url(https://ipfs.atomichub.io/ipfs/' + this.assetData.data.img + ')',
         }
       } else return false
     },
+    lowestSales() {
+      if (this.templatePrice.length) {
+        return (this.templatePrice[0].min / (Math.pow(10, this.templatePrice[0].token_precision))).toFixed(2)
+      } else return 0
+    },
+    highestSales() {
+      if (this.templatePrice.length) {
+        return (this.templatePrice[0].max / (Math.pow(10, this.templatePrice[0].token_precision))).toFixed(2)
+      } else return 0
+    },
+    backedToken() {
+      if (this.assetData.backed_tokens && this.assetData.backed_tokens.length) {
+        return this.assetData.backed_tokens.map(item => {
+          return {
+            token_contract: item.token_contract,
+            amount: item.amount / Math.pow(10, item.token_precision),
+            token_symbol: item.token_symbol
+          }
+        })
+      } else return []
+    }
   },
   mounted() {
     const asset_id = this.$route.params.asset_id
@@ -333,7 +356,6 @@ export default {
     },
     handleCloseModal() {
       this.show_modal = false
-      console.log(123)
     },
     async getSpecificAsset(asset_id) {
       this.loading = true
@@ -341,6 +363,7 @@ export default {
         asset_id,
       })
       this.assetData = data
+      this.getTemplatePrice(data.template.template_id)
       this.attributeKeys = Object.keys(data.data)
       this.loading = false
     },
@@ -367,6 +390,15 @@ export default {
         asset_id,
       })
       this.logsData = data
+    },
+
+    async getTemplatePrice(templateID) {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getTemplatePrice', {
+        templateID,
+      })
+      this.templatePrice = data
+      console.log(templateID, data)
     },
   },
 }
@@ -623,7 +655,7 @@ export default {
   }
   .nft-info.border-radius5 {
     width: 595px;
-    height: 395px;
+    min-height: 395px;
   }
   .nft-image {
     width: 249px;

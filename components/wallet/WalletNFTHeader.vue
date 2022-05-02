@@ -3,42 +3,53 @@
   .item
     .title.cancel NFT inventory
     .value
-      span.main 37
+      span.main {{inventoryCount}}
       span.symbol.cancel NFTs
-    .info.cancel = $28.72
+    .info.cancel = ${{ $systemToUSD(suggestedmedian) }}
   .item
     .title.cancel Active Auctions
     .value
-      span.main 37 NFTs
+      span.main {{auctionsCount}}
       span.symbol.cancel NFTs
-    .info.cancel = $28.72
+    .info.cancel = ${{ $systemToUSD(saleVolume) }}
   .item
     .title.cancel Active Listings
     .value
-      span.main 37
+      span.main {{+auctionsCount + +salesCount}}
       span.symbol.cancel NFTs
-    .info.cancel = $28.72
+    .info.cancel = ${{ $systemToUSD(saleVolume) }}
   .item
     .title.cancel Total Bought
     .value
-      span.main 374
+      span.main {{boughtVolume}}
       span.symbol.cancel.wax WAX
-    .info.cancel = ${{ $systemToUSD(374) }}
+    .info.cancel = ${{ $systemToUSD(boughtVolume) }}
   .item
     .title.cancel Total Sold
     .value
-      span.main 230
+    span.main {{saleVolume}}
       span.symbol.cancel.wax WAX
-    .info.cancel = ${{ $systemToUSD(230) }}
+    .info.cancel = ${{ $systemToUSD(saleVolume) }}
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'WalletHeader',
+  data() {
+    return {
+      inventoryCount: 0,
+      auctionsCount: 0,
+      salesCount: 0,
+      boughtVolume: 0,
+      saleVolume: 0,
+      suggestedmedian: 0
+    }
+  },
 
   computed: {
+    ...mapState(['network', 'user']),
     ...mapGetters({
       buyPositionsCount: 'wallet/buyPositionsCount',
       sellPositionsCount: 'wallet/sellPositionsCount',
@@ -46,6 +57,65 @@ export default {
       systemBalance: 'systemBalance',
       network: 'network'
     })
+  },
+  watch: {
+    user(newUser, oldUser) {
+      if (!oldUser && newUser) {
+        this.getInventoryCounts(this.user.name)
+        this.getAuctionsCounts(this.user.name)
+        this.getInventoryValue(this.user.name)
+        this.getSalesCounts(this.user.name)
+        this.getInventorySuggestedmedian(this.user.name)
+      }
+    }
+  },
+  mounted() {
+    if (this.user) {
+      this.getInventoryCounts(this.user.name)
+      this.getAuctionsCounts(this.user.name)
+      this.getInventoryValue(this.user.name)
+      this.getSalesCounts(this.user.name)
+      this.getInventorySuggestedmedian(this.user.name)
+    }
+  },
+  methods: {
+    async getInventoryCounts(owner) {
+      const data = await this.$store.dispatch('api/getInventoryCounts', {
+        owner
+      })
+      this.inventoryCount = data
+    },
+    async getAuctionsCounts(owner) {
+      const data = await this.$store.dispatch('api/getAuctionsCounts', {
+        owner
+      })
+      this.auctionsCount = data
+    },
+    async getSalesCounts(owner) {
+      const data = await this.$store.dispatch('api/getSalesCounts', {
+        owner
+      })
+      this.salesCount = data
+    },
+    async getInventoryValue(owner) {
+      const data = await this.$store.dispatch('api/getAccountValue', {
+        owner
+      })
+      this.boughtVolume =
+        data.result.buy_volume / Math.pow(10, data.symbol.token_precision)
+      this.saleVolume =
+        data.result.sell_volume / Math.pow(10, data.symbol.token_precision)
+    },
+    async getInventorySuggestedmedian(owner) {
+      const data = await this.$store.dispatch(
+        'api/getInventorySuggestedmedian',
+        {
+          owner
+        }
+      )
+      this.suggestedmedian =
+        data[0].suggested_median / Math.pow(10, data[0].token_precision)
+    }
   }
 }
 </script>
