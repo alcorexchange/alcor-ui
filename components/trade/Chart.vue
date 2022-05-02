@@ -350,7 +350,7 @@ export default {
             disableSave: true
           }
 
-          const text = (deal.type == 'buy' ? `${deal.bid}` : `@${deal.ask}`) + ' WAX'
+          const text = (deal.type == 'buy' ? `${deal.bid}` : `${deal.ask}`) + ' WAX'
           if (this.chart_orders_settings.show_trade_execution_amount) {
             options.text = text
           }
