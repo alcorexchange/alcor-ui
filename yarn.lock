@@ -2230,9 +2230,9 @@
     eslint-import-resolver-node "^0.3.3"
     eslint-import-resolver-webpack "^0.12.1"
 
-"@waxio/waxjs@https://github.com/pinknetworkx/waxjs#develop":
-  version "1.0.2"
-  resolved "https://github.com/pinknetworkx/waxjs#0c6b1a955931bef55bb0a7e36145deebcc9a4e0e"
+"@waxio/waxjs@https://github.com/worldwide-asset-exchange/waxjs#develop":
+  version "1.0.4"
+  resolved "https://github.com/worldwide-asset-exchange/waxjs#905420f85d41ed094fcf8787813d5587ea249235"
   dependencies:
     eosjs "^22.1.0"
 
