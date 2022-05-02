@@ -112,7 +112,7 @@ export default {
 
   methods: {
     getAskProgress(ask) {
-      if (this.orderbook_settings.totalSum) {
+      if (this.orderbook_settings.totalSum == 'Total Sum') {
         return (100 * ask[3]) / this.askSumVolume
       } else {
         return (100 * ask[1]) / this.askSumVolume
@@ -120,7 +120,7 @@ export default {
     },
 
     getBidProgress(bid) {
-      if (this.orderbook_settings.totalSum) {
+      if (this.orderbook_settings.totalSum == 'Total Sum') {
         return (100 * bid[3]) / this.bidSumVolume
       } else {
         return (100 * bid[1]) / this.bidSumVolume

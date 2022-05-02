@@ -13,7 +13,7 @@ div
               .red.text-left 0.00036
               .text-right 953,803.2766
               .text-right 343.36917957
-            .progress-bar.sell(:style="'transform: translateX(-' + (sum ? '70' : '25') + '%);'")
+            .progress-bar.sell(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '70' : '25') + '%);'")
 
         .ltd.orderbook-progress
           .progress-container
@@ -21,7 +21,7 @@ div
               .red.text-left 0.000358
               .text-right 4,279,378.8064
               .text-right 1,532.01761269
-            .progress-bar.sell(:style="'transform: translateX(-' + (sum ? '60' : '70') + '%);'")
+            .progress-bar.sell(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '60' : '70') + '%);'")
 
         .ltd.orderbook-progress
           .progress-container
@@ -29,7 +29,7 @@ div
               .red.text-left 0.00035797
               .text-right 42,346.077
               .text-right 15.15862518
-            .progress-bar.sell(:style="'transform: translateX(-' + (sum ? '20' : '5') + '%);'")
+            .progress-bar.sell(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '20' : '5') + '%);'")
 
       .latest-price
         .left.d-flex.align-items-center.green
@@ -54,7 +54,7 @@ div
               .green.text-left 0.00035001
               .text-right 258,165.00
               .text-right 23.28944077
-            .progress-bar.buy(:style="'transform: translateX(-' + (sum ? '10' : '20') + '%);'")
+            .progress-bar.buy(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '10' : '20') + '%);'")
 
         .ltd.orderbook-progress
           .progress-container
@@ -62,7 +62,7 @@ div
               .green.text-left 0.00035
               .text-right 32,201.11
               .text-right 10.00
-            .progress-bar.buy(:style="'transform: translateX(-' + (sum ? '20' : '10') + '%);'")
+            .progress-bar.buy(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '20' : '10') + '%);'")
 
         .ltd.orderbook-progress
           .progress-container
@@ -70,33 +70,24 @@ div
               .green.text-left 0.00034427
               .text-right 911,341.6727
               .text-right 313.74759766
-            .progress-bar.buy(:style="'transform: translateX(-' + (sum ? '50' : '70') + '%);'")
+            .progress-bar.buy(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '50' : '70') + '%);'")
 
     .text-muted.mt-2 Orderbook Settings
 
-    .d-flex.mt-1
+    .d-flex.mt-1.align-items-end
       span Orderbook Visualization
 
-      el-switch(
-        v-model='sum',
-        active-text='Total Sum',
-        inactive-text='% Total'
-      ).ml-auto
-      //label.toggle-format
-        input(type='checkbox' v-model="sum")
-        .slider
-        .option.token-option
-          span  % Total
-        span.slash /
-        .option.quote-option
-          span Total Sum
+      el-radio-group.alcor-radio(v-model="sum" size="mini").ml-auto
+        el-radio-button(label='% Total')
+        el-radio-button(label='Total Sum')
+
 </template>
 
 <script>
 export default {
   data() {
     return {
-      visible: false
+      visible: true
     }
   },
 
@@ -117,7 +108,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .orderbook-preview.order-book {
     padding: 10px 20px;
 }

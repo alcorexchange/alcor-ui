@@ -47,7 +47,7 @@ export const state = () => ({
   markets_layout: config.TRADE_LAYOUTS.advanced,
 
   orderbook_settings: {
-    totalSum: true
+    totalSum: 'Total Sum'
   },
 
   header_settings: {

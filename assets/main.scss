@@ -727,6 +727,21 @@ pre {
   font-weight: 700;
 }
 
+.alcor-radio {
+  background: var(--btn-active);
+  border-radius: 6px;
+  padding: 2px;
+
+  .el-radio-button__inner {
+    background: var(--btn-active);
+    padding: 5px 15px !important;
+  }
+
+  .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+    background-color: var(--bg-alter-2) !important;
+  }
+
+}
 
 
 
