@@ -62,10 +62,10 @@ export const actions = {
     }
   },
 
-  async getCollectionData() {
+  async getCollectionData({ getters, rootState }, { author }) {
     try {
       const { data } = await axios.get(
-        'https://wax.api.atomicassets.io/atomicassets/v1/collections?order=desc&sort=created'
+        'https://wax.api.atomicassets.io/atomicassets/v1/collections?order=desc&sort=created' + (author ? '&author=' + author : '')
       )
       return data.data
     } catch (e) {

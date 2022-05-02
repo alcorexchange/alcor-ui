@@ -10,7 +10,7 @@
         |
         | to an existing one.
     MemoryPanel
-  .card-group.d-flex.align-items-start
+  .grid-container.row
     nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
       .nftcard.create-collections.border-radius5
         .card-content
@@ -18,20 +18,73 @@
             :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
           )
           h4 Create <br>Collection
-    .nftcard.almemes.border-radius5
-      .card-content
-        .almemes-background(
-          :style='{ backgroundImage: `url(${require("~/assets/images/almemes_icon.svg")})` }'
-        )
-        h4 Almemes
+    vue-skeleton-loader(
+      v-if='loading'
+      :width='220',
+      :height='300',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    CollectionCard(
+      v-else
+      v-for='(item, index) in collectionData',
+      :key='index',
+      :data='item'
+    )
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
+import CollectionCard from '~/components/nft_markets/CollectionCard'
 
 export default {
   components: {
-    MemoryPanel
+    MemoryPanel,
+    CollectionCard,
+    VueSkeletonLoader,
+  },
+
+  data() {
+    return {
+      collectionData: [],
+      loading: true,
+    }
+  },
+
+  computed: {
+    ...mapState(['network', 'user']),
+
+    userData() {
+      return this.user
+    },
+  },
+
+  watch: {
+    userData(newUserData, oldUserData) {
+      if (!oldUserData && newUserData) {
+        this.getCollectionData(this.user.name)
+      }
+    },
+  },
+
+  mounted() {
+    if (this.user) {
+      this.getCollectionData(this.user.name)
+    }
+  },
+
+  methods: {
+    async getCollectionData(author) {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getCollectionData', {
+        author,
+      })
+      this.collectionData = data
+      this.loading = false
+    },
   },
 }
 </script>
@@ -44,11 +97,6 @@ export default {
   .plus-round-background {
     width: 70px;
     height: 70px;
-    margin: auto;
-  }
-  .almemes-background {
-    width: 100px;
-    height: 117px;
     margin: auto;
   }
   .almemes h4 {
@@ -90,8 +138,10 @@ export default {
     height: 300px;
     border: 1px solid #67c23a;
   }
-  .create-collections {
-    margin-right: 25px;
+  .grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    gap: 25px;
   }
 }
 </style>
