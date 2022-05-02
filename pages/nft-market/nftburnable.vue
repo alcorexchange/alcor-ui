@@ -116,7 +116,7 @@
                       h5.pl-2 Data
                     .col-4.pl-0
                       h5 Date
-                TransferRow(v-for="item in [{org_token:'fire.svg', new_token:'fire.svg',org_owner:'gchad.wam', new_owner:'flfum.wam', date:'10/25/2021, 6:49 PM'}]" :key="item.org_token" :data="item")
+                TransferRow(v-for="item in [{org_token:'fire.svg', new_token:'fire.svg',org_owner:'gchad.wam', new_owner:'flfum.wam', date:'10/25/2021, 6:49 PM'}]" :key="item" :data="item")
             el-tab-pane(label="Sales")
                 .row
                     .col-2
@@ -125,7 +125,7 @@
                       h5.pl-2 Data
                     .col-4.pl-0
                       h5 Date
-                SalesRow(v-for="item in [{org_token:'fire.svg', new_token:'fire.svg',org_owner:'gchad.wam', new_owner:'flfum.wam', date:'10/25/2021, 6:49 PM'}]" :key="item.org_token" :data="item")
+                SalesRow(v-for="item in [{org_token:'fire.svg', new_token:'fire.svg',org_owner:'gchad.wam', new_owner:'flfum.wam', date:'10/25/2021, 6:49 PM'}]" :key="item" :data="item")
             el-tab-pane(label="Updates")
                 h1 Updates
             el-tab-pane(label="Logs")

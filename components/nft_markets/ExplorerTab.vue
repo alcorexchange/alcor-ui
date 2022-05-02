@@ -144,7 +144,7 @@
       border: 0;
       box-shadow: none !important;
       outline: none !important;
-      color: #bec6cb;
+      color: var(--color-text-primary);
       background: transparent !important;
     }
     .dropdown-menu {

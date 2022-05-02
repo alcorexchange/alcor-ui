@@ -1,49 +1,90 @@
 <template lang="pug">
 .j-container.createnft
   div
-    nuxt-link(:to='"/nft-market"' :exact="true")
+    nuxt-link(:to='"/nft-market"', :exact='true')
       a#return-btn Return
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 My Collections
       p All NFTs are a part of a larger collection, please create a new collection or add
-        |  to an existing one.
-    .page-header-progress.lg-4.md-4.sm-12.xm-12
-      .progress-info
-        .info-capacity.d-flex.justify-content-between
-          div
-            span.ques-symbol.border-radius5 ?
-            span RAM: 72.27 / 99 KB
-          div
-            span.more-button Buy more
-            span.plus-icon.border-radius5 +
-        b-progress(:max='100')
-          b-progress-bar(:value='value' :label='`${value}%`')
-  .card-group.d-flex.align-items-start
-    nuxt-link(:to='"/nft-market/createcollection"' :exact="true")
+        |
+        | to an existing one.
+    MemoryPanel
+  .grid-container.row
+    nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
       .nftcard.create-collections.border-radius5
         .card-content
-          .plus-round-background(:style="{ backgroundImage:`url(${require('~/assets/images/plus_round_icon.svg')})`}")
+          .plus-round-background(
+            :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
+          )
           h4 Create <br>Collection
-    .nftcard.almemes.border-radius5
-      .card-content
-        .almemes-background(:style="{ backgroundImage:`url(${require('~/assets/images/almemes_icon.svg')})`}")
-        h4 Almemes
+    vue-skeleton-loader(
+      v-if='loading'
+      :width='220',
+      :height='300',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    CollectionCard(
+      v-else
+      v-for='(item, index) in collectionData',
+      :key='index',
+      :data='item'
+    )
 </template>
 
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
+import { mapState } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
+import MemoryPanel from '~/components/nft_markets/MemoryPanel'
+import CollectionCard from '~/components/nft_markets/CollectionCard'
 
 export default {
   components: {
-    BProgress,
-    BProgressBar
+    MemoryPanel,
+    CollectionCard,
+    VueSkeletonLoader,
   },
 
   data() {
     return {
-      value: 73,
+      collectionData: [],
+      loading: true,
     }
+  },
+
+  computed: {
+    ...mapState(['network', 'user']),
+
+    userData() {
+      return this.user
+    },
+  },
+
+  watch: {
+    userData(newUserData, oldUserData) {
+      if (!oldUserData && newUserData) {
+        this.getCollectionData(this.user.name)
+      }
+    },
+  },
+
+  mounted() {
+    if (this.user) {
+      this.getCollectionData(this.user.name)
+    }
+  },
+
+  methods: {
+    async getCollectionData(author) {
+      this.loading = true
+      const data = await this.$store.dispatch('api/getCollectionData', {
+        author,
+      })
+      this.collectionData = data
+      this.loading = false
+    },
   },
 }
 </script>
@@ -53,20 +94,14 @@ export default {
   .border-radius5 {
     border-radius: 5px;
   }
-  .plus-round-background
-  {
+  .plus-round-background {
     width: 70px;
     height: 70px;
     margin: auto;
   }
-  .almemes-background {
-    width: 100px;
-    height: 117px;
-    margin: auto;
-  }
   .almemes h4 {
     margin: 30px 0 0 !important;
-    color: #67C23A !important;
+    color: #67c23a !important;
   }
   .card-content {
     margin-top: 50%;
@@ -95,55 +130,18 @@ export default {
   .page-header {
     margin: 32px 0 9px 0;
   }
-  .info-capacity {
-    width: 257px;
-  }
   .card-group {
     margin-top: 32px;
-  }
-  .progress {
-    margin-top: 4px;
-    background-color: #161617;
-    .progress-bar {
-      background-color: #67C23A;
-      color: black;
-    }
-  }
-  .ques-symbol {
-    padding: 6px;
-    margin-right: 6px;
-    color: #9F979A;
-    background-color: #202021;
-    margin-right: 6px;
-    font-weight: 700;
-  }
-  div.progress-bar {
-    text-align: right;
-    font-weight: 500;
-    font-size: 14px;
-    padding-right: 5px;
-  }
-  .capacity-info {
-    margin-bottom: 6px;
-  }
-  .more-button {
-    color: #67C23A;
-    margin-right: 8px;
-    font-size: 14px;
-  }
-  .plus-icon {
-    font-size: 16px;
-    padding: 3px 4px;
-    color: black;
-    background-color: #67C23A;
   }
   .nftcard {
     width: 220px;
     height: 300px;
-    border: 1px solid #67C23A;
+    border: 1px solid #67c23a;
   }
-  .create-collections {
-    margin-right: 25px;
+  .grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    gap: 25px;
   }
 }
 </style>
