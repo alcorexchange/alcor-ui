@@ -100,7 +100,7 @@ export default {
   all: unset;
 
   span {
-    color: var(--text-grey-thirdly);
+    color: #80A1C5;
   }
 
 }

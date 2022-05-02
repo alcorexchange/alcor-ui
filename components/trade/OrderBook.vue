@@ -296,7 +296,7 @@ export default {
           line-height: 12px;
 
           flex: 1 1 0%;
-          color: var(--text-grey-thirdly);
+          //color: var(--text-grey-thirdly);
         }
 
         i {
@@ -330,7 +330,7 @@ export default {
   flex-direction: column-reverse;
   padding-bottom: 1px;
 
-  span {
+  div {
     color: var(--main-red);
   }
 }
@@ -339,7 +339,7 @@ export default {
   height: calc(50% - 18px);
   padding-top: 1px;
 
-  span {
+  div {
     color: var(--main-green);
   }
 }

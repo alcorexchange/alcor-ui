@@ -5,7 +5,7 @@ client-only
 
     .d-flex.align-items-center.header-items-container.pl-3
       .d-flex.flex-column.pointer(@click='showMarkets = !showMarkets')
-        .d-flex.align-items-center
+        .d-flex.align-items-center.show-markets
           TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
           div {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
           i.el-icon-caret-bottom.ml-1.text-muted
@@ -157,22 +157,18 @@ export default {
 <style scoped lang="scss">
 .show-markets {
   cursor: pointer;
-}
-.show-markets:hover {
-  color: #6c757d;
+
+  :hover {
+    color: #6c757d;
+  }
 }
 
 .header-items-container {
-  //width: 560px;
   overflow: auto;
 
   .flex-column {
     margin-right: 20px;
     flex-shrink: 0;
-  }
-
-  :hover {
-    color: #6c757d;
   }
 }
 .header-items-container::-webkit-scrollbar {
