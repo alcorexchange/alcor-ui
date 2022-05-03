@@ -1,7 +1,7 @@
 <template lang="pug">
 // Переделать как табличку element
 .deals-history(v-loading='loading')
-  .blist
+  .blist.first
     .ltd.first.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
       span Amount ({{ (timesAndSales[id] || {}).showQuote == 'Token' ? base_token.symbol.name : quote_token.symbol.name }})
