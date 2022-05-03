@@ -219,7 +219,7 @@ export const actions = {
     commit('setAsks', [])
   },
 
-  startStream({ state, rootState, commit, dispatch }, market) {
+  startStream({ rootState, commit }, market) {
     if (market === undefined) return
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
@@ -561,10 +561,10 @@ export const getters = {
     return rootState.markets.filter(m => m.id == state.id)[0] || {}
   },
 
-  relatedPool(state, getters, rootState) {
+  relatedPool(state, getters, rootState, rootGetters) {
     const current = rootState.markets.filter(m => m.id == state.id)[0]
     if (!current) return null
-    const pool = rootState.swap.pairs.filter(p => p.i256 == current.i256)[0]
+    const pool = rootGetters['swap/pairs'].filter(p => p.i256 == current.i256)[0]
     if (!pool) return null
 
     if (pool.pool1.contract == current.quote_token.contract &&
@@ -573,6 +573,7 @@ export const getters = {
     } else {
       pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
     }
+
 
     return pool
   },

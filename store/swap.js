@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import findIndex from 'lodash/findIndex'
 
 import { asset } from 'eos-common'
@@ -33,7 +34,9 @@ export const mutations = {
   setStream: (state, stream) => state.stream = stream,
   setSlippage: (state, slippage) => state.slippage = slippage,
 
-  updatePair: (state, pair) => state.pairs[pair.id] = pair
+  updatePair: (state, pair) => {
+    Vue.set(state.pairs, pair.id, pair)
+  }
 }
 
 export const actions = {
@@ -56,10 +59,12 @@ export const actions = {
     if (output) commit('setOutput', output)
   },
 
-  startStream({ state, commit, dispatch, getters, rootState }) {
+  startStream({ state, commit, dispatch, getters, rootState }, pool_id) {
+    if (state.stream != null) dispatch('stopStream')
+
     const stream = setInterval(() => {
-      if (!getters.current) return
-      dispatch('updatePair', getters.current.id)
+      if (!(pool_id || getters.current)) return
+      dispatch('updatePair', pool_id || getters.current.id)
     }, 1000)
 
     commit('setStream', stream)
@@ -171,15 +176,15 @@ export const actions = {
   //},
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
-    if (!this._vm.$nuxt.$route.name.includes('swap')) return // TODO Убрать когда будем обновлять прайс для своп кнопки через старт апдейта на каждом маркете
+    //if (!this._vm.$nuxt.$route.name.includes('swap')) return // We update pair from trade page for swap button
 
     const { rows: [new_pair] } = await this.$rpc.get_table_rows({
       code: rootState.network.pools.contract,
       scope: rootState.network.pools.contract,
       table: 'pairs',
       limit: 1,
-      lower_bound: getters.current.id,
-      upper_bound: getters.current.id
+      lower_bound: pair_id,
+      upper_bound: pair_id
     })
 
     if (!new_pair) {

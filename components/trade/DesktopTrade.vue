@@ -39,17 +39,8 @@
                 inactive-color='#161617'
               )
 
-          //el-switch.mr-2(
-          //  v-if="item.i == 'limit-market'"
-          //  v-model='payForUser',
-          //  inactive-text=' Free CPU'
-          //)
-
-          el-button.swap-button(
-            v-if="item.i == 'limit-market' && relatedPool",
-            type='button',
-            @click='goToPool'
-          ) SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+          swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")
+            | SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
@@ -90,15 +81,6 @@
             el-tab-pane(label='Markets')
               Markets.mt-1
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          //template(slot='right')
-            .d-flex.pairs-switch-right
-              .module-name.mr-2 Hide other pairs
-              .module-pickers.d-flex.flex-row
-                el-switch(
-                  v-model='hideOtherPairs',
-                  active-color='#13ce66',
-                  inactive-color='#161617'
-                )
           el-tab-pane(label='Open order')
             my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
           el-tab-pane(label='Trade History')
@@ -174,6 +156,7 @@ import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
 import SettingModal from '~/components/trade/SettingModal'
 import TimeSaleModal from '~/components/trade/TimeSaleModal'
+import SwapButton from '~/components/trade/SwapButton.vue'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -197,7 +180,8 @@ export default {
     DepthChart,
     SettingModal,
     TimeSaleModal,
-    OrderbookModel
+    OrderbookModel,
+    SwapButton
   },
 
   data() {
@@ -303,12 +287,6 @@ export default {
           item.status = false
         }
       })
-    },
-    goToPool() {
-      this.$store.dispatch('swap/setPair', this.relatedPool.id)
-      this.$store.dispatch('swap/updatePair', this.relatedPool.id)
-      this.$store.commit('swap/setTab', 'Swap')
-      this.$router.push('/swap')
     },
     layoutUpdatedEvent(e) {
       if (e.i == 'order-depth') this.depthChartUpdated = !this.depthChartUpdated
