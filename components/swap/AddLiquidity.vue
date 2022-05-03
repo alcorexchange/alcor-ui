@@ -82,7 +82,8 @@ export default {
     ...mapGetters(['user']),
     ...mapState(['network']),
 
-    ...mapState('swap', ['input', 'output', 'pairs']),
+    ...mapState('swap', ['input', 'output']),
+
     ...mapGetters({
       current: 'swap/current',
       inputBalance: 'swap/inputBalance',
@@ -91,7 +92,8 @@ export default {
       poolTwo: 'swap/poolTwo',
       tokens0: 'swap/tokens0',
       tokens1: 'swap/tokens1',
-      isReverted: 'swap/isReverted'
+      isReverted: 'swap/isReverted',
+      pairs: 'swap/pairs'
     }),
 
     tokenReceive() {

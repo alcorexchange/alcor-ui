@@ -1,11 +1,11 @@
 import findIndex from 'lodash/findIndex'
 
 import { asset } from 'eos-common'
-import { parseAsset, make256key } from '~/utils'
+import { make256key } from '~/utils'
 import { preparePair, get_second_tokens, get_all_tokens } from '~/utils/pools'
 
 export const state = () => ({
-  pairs: [],
+  pairs: {},
 
   input: null,
   output: null,
@@ -33,12 +33,7 @@ export const mutations = {
   setStream: (state, stream) => state.stream = stream,
   setSlippage: (state, slippage) => state.slippage = slippage,
 
-  updatePair: (state, pair) => {
-    const index = findIndex(state.pairs, { id: pair.id })
-    if (index === -1) return console.log('not updated pair: ', pair.id)
-
-    state.pairs.splice(index, 1, pair)
-  }
+  updatePair: (state, pair) => state.pairs[pair.id] = pair
 }
 
 export const actions = {
@@ -77,8 +72,8 @@ export const actions = {
     }
   },
 
-  setPair({ state, commit }, pair_id) {
-    const pair = state.pairs.filter(p => p.id == pair_id)[0]
+  setPair({ state, commit, getters }, pair_id) {
+    const pair = getters.pairs.filter(p => p.id == pair_id)[0]
 
     if (!pair) return // TODO ERROR
 
@@ -157,26 +152,26 @@ export const actions = {
     )
   },
 
-  updatePairOnPush({ state, commit }, data) {
-    const { pair_id, supply, pool1, pool2 } = data
+  //updatePairOnPush({ state, commit, getters }, data) {
+  //  const { pair_id, supply, pool1, pool2 } = data
 
-    const pair = state.pairs.filter(p => p.id == pair_id)[0]
-    if (!pair) return console.log('NOT FOUND PAIR FOR UPDATE BY PUSH:', pair_id)
+  //  const pair = getters.pairs.filter(p => p.id == pair_id)[0]
+  //  if (!pair) return console.log('NOT FOUND PAIR FOR UPDATE BY PUSH:', pair_id)
 
-    const update = {
-      pool1: { contract: pair.pool1.contract, quantity: pool1 },
-      pool2: { contract: pair.pool2.contract, quantity: pool2 }
-    }
+  //  const update = {
+  //    pool1: { contract: pair.pool1.contract, quantity: pool1 },
+  //    pool2: { contract: pair.pool2.contract, quantity: pool2 }
+  //  }
 
-    if (supply) {
-      update.supply = supply
-    }
+  //  if (supply) {
+  //    update.supply = supply
+  //  }
 
-    this._vm.$set(state.pairs, pair_id, preparePair({ ...pair, ...update }))
-  },
+  //  this._vm.$set(getters.pairs, pair_id, preparePair({ ...pair, ...update }))
+  //},
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
-    if (!this._vm.$nuxt.$route.name.includes('swap')) return
+    if (!this._vm.$nuxt.$route.name.includes('swap')) return // TODO Убрать когда будем обновлять прайс для своп кнопки через старт апдейта на каждом маркете
 
     const { rows: [new_pair] } = await this.$rpc.get_table_rows({
       code: rootState.network.pools.contract,
@@ -197,23 +192,23 @@ export const actions = {
 
 export const getters = {
   pairs(state) {
-    return state.pairs
+    return Object.values(state.pairs)
   },
 
   tokens0(state, getters, rootState) {
-    return get_all_tokens(state.pairs)
+    return get_all_tokens(getters.pairs)
   },
 
   tokens1(state, getters, rootState) {
     if (!state.input) {
       return getters.tokens0
     } else {
-      return get_second_tokens(state.pairs, state.input)
+      return get_second_tokens(getters.pairs, state.input)
     }
   },
 
-  current(state) {
-    const pair = state.pairs.filter(p => {
+  current(state, getters) {
+    const pair = getters.pairs.filter(p => {
       if (!state.input || !state.output) return null
 
       return (

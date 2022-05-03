@@ -61,8 +61,9 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
+    ...mapGetters('swap', ['pairs']),
     ...mapState(['network']),
-    ...mapState('swap', ['pairs', 'withdraw_token']),
+    ...mapState('swap', ['withdraw_token']),
 
     pair() {
       if (!this.withdraw_token.symbol) return null
