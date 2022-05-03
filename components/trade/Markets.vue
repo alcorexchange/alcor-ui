@@ -283,6 +283,7 @@ export default {
     },
 
     lazyloadMarkets($state, first = false) {
+      console.log('state', $state)
       const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
 
       if (append.length > 0) {
@@ -294,6 +295,7 @@ export default {
 
         $state.loaded()
       } else {
+        if (first) return
         $state.complete()
       }
     },
