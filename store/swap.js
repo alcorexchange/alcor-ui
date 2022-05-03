@@ -134,6 +134,8 @@ export const actions = {
         lower_bound
       })
 
+      if (lower_bound) rows.shift()
+
       pairs.push(...rows)
       if (rows.length != 1000) break
       lower_bound = rows[rows.length - 1].id

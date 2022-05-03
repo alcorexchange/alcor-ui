@@ -36,6 +36,7 @@
         .pairs.mt-2
           .pair(
             v-for="token in tokensFiltered"
+            :key="token.id"
             @click="setToken(token)" :class="{ isActive: isActiveToken(token) }"
           )
             TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
@@ -124,6 +125,7 @@ export default {
         return s.includes(this.search.toLowerCase())
       }).map(t => {
         t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
+        t.id = t.symbol + '@' + t.contract
         return t
       }).sort((a, b) => {
         return a.balance == '0.0000' ? 1 : -1
