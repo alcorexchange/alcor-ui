@@ -1,68 +1,46 @@
 <template lang="pug">
-.body-timesale-container(@click='outoftimesalemodalClick', v-loading='loading')
-  .timesale-settings.d-flex.flex-column.px-2.py-3.justify-content-around
-    .close-timesale
-      button.close(type='button', @click='closemodal', data-dismiss='modal') &times;
-    .time-sale-list.amount-in.d-flex.flex-row.justify-content-between
-      .amount-title.mt-auto.mb-auto
-        label.amount-label Amount in:
-      .token-quote.d-flex.flex-row.justify-content-center
-        //- el-button.token-btn.text-center(type='info') Token
-        //- span /
-        //- el-button.quote-btn(type='info') Quote
-        label.toggle-format
-          input(type='checkbox' v-model="showQuote")
-          .slider
-          .option.token-option
-            span Token
-          span.slash /
-          .option.quote-option
-            span Quote
-    .time-sale-list.time-format.d-flex.flex-row.justify-content-between
-      .time-format-title.mt-auto.mb-auto
-        label.time-format-label Time format:
-      .time-format-menu.d-flex.flex-row
-        el-select.time-format-selection(
-          v-model='timeformat',
-          placeholder='choose time format'
-        )
-          el-option(
-            v-for='item in options',
-            :key='item.value',
-            :label='item.label',
-            :value='item.timeformat'
-          )
-    .time-sale-list.large-trade-threshold.d-flex.flex-row.justify-content-between
-      .threshold-title.mt-auto.mb-auto
-        label.threshold-label Large trade threshold:
-      .trade-threshold-value.mt-auto.mb-auto.mr-1
-        el-input.threshold-input(v-model='largeThreshold')
-      .trade-type-menu.d-flex.flex-row
-        el-select.trade-type-selection(
-          v-model='thresholdCurrency',
-          placeholder='Currency'
-        )
-          el-option(:value="base_token.symbol.name") {{ base_token.symbol.name }}
-          el-option(:value="quote_token.symbol.name") {{ quote_token.symbol.name }}
-    .time-sale-list.timesale-preview.d-flex.flex-column.justify-content-between(
-      v-if='coloredDeals'
-    )
-      .preview-deal-title
-        span Preview:
-      .display-preview-element
-        .deals-preview(v-loading='loading')
-          .max-orders-list.blist
-            a(
-              v-for='deal in coloredDeals',
-              :href='monitorTx(deal.trx_id)',
-              target='_blank'
-            )
-              .ltd.d-flex.justify-content-around(:class='deal.cls + "-deal"')
-                .col-md-3.span.max-buymatch-first.text-left(
-                  :class='deal.cls + "-preview"'
-                ) {{ deal.unit_price }}
-                .col-md-3.span.text-white.text-left {{ deal.amount | commaFloat(3) }}
-                .col-md-6.span.text-white.text-left {{ deal.time | moment(timeformat) }}
+div
+  i.el-icon-setting(@click='visible = true')
+
+  el-dialog(title='Times and sales settings' :visible.sync='visible' append-to-body width="350px" custom-class="trading-page-dialog")
+    .d-flex.align-items-center
+      span Amount in:
+
+      el-radio-group.alcor-radio(v-model="showQuote" size="mini").ml-auto
+        el-radio-button(label='Token')
+        el-radio-button(label='Quote')
+
+    .d-flex.align-items-center.mt-2
+      span Time format:
+
+      el-select.time-format-selection(v-model='timeformat', placeholder='choose time format' size="mini").ml-auto
+        el-option(v-for='item in options', :key='item.value', :label='item.label', :value='item.timeformat')
+
+    .d-flex.align-items-center.mt-2
+      span Large trade threshold:
+
+      el-input.threshold-input(v-model='largeThreshold' size="mini").w-25.ml-auto
+
+      el-select.trade-type-selection(v-model='thresholdCurrency' placeholder='Currency' size="mini").w-25.ml-2
+        el-option(:value="base_token.symbol.name") {{ base_token.symbol.name }}
+        el-option(:value="quote_token.symbol.name") {{ quote_token.symbol.name }}
+
+    .d-flex.align-items-center.mt-2
+      span Preview:
+
+    .d-flex.align-items-center.mt-2
+      .orders-list.blist.px-0
+        a
+          .ltd.d-flex.justify-content-around.sell.max-sellmatch
+            span.green 0.00035001
+            span 12,771,693.4181
+            span 04-02 14:14:12
+
+        a
+          .ltd.d-flex.justify-content-around.buy.max-buymatch
+            span.green 0.00029645
+            span 33,344,876
+            span 04-02 13:55:52
 </template>
 
 <script>
@@ -74,7 +52,8 @@ export default {
 
   data() {
     return {
-      loading: false,
+      visible: false,
+
       deals: [],
       options: [
         {
@@ -118,7 +97,7 @@ export default {
 
     showQuote: {
       get() {
-        return (this.timesAndSales[this.id] || {}).showQuote || false
+        return (this.timesAndSales[this.id] || {}).showQuote || 'Token'
       },
 
       set(showQuote) {
@@ -158,7 +137,6 @@ export default {
     },
 
     coloredDeals() {
-      // let amArry = this.$store.state.market.deals
       let maxBuy = 0
       let maxSell = 0
       const maxarry = []
@@ -198,7 +176,7 @@ export default {
           }
         })
       return maxarry
-    },
+    }
   },
   methods: {
     handleCommand(command) {
@@ -207,279 +185,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.body-timesale-container {
-  position: fixed !important;
-  left: 0 !important;
-  top: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background-color: rgba(22, 22, 23, 0.8) !important;
-}
-
-.timesale-settings {
-  width: 387px;
-  height: auto;
-  position: absolute;
-  padding: 0 0 0 18px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #e5e5e5;
-  /* bg-dark-card */
-
-  background: #212121;
-  border: 2px solid #3f3f3f;
-  box-sizing: border-box;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  border-radius: 2px;
-}
-
-.close-timesale {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  right: 1px;
-  top: 1px;
-  background-color: #3f3f3f;
-  color: white;
-  border-radius: 0px 0px 0px 2px;
-  .close {
-    position: absolute;
-    right: 3px;
-    top: -6px;
-    color: #ffffff;
-    font-weight: 100;
-  }
-}
-
-.time-sale-list {
-  margin: 4px;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 14px;
-  z-index: -1;
-  /* text-dark-default */
-
-  color: #f2f2f2;
-  &.amount-in {
-    padding-right: 55px;
-  }
-  &.large-trade-threshold {
-    // padding-right: 55px;
-  }
-}
-
-.token-quote {
-  width: 128px;
-  height: 24px;
-  z-index: -1;
-  /* black-primary */
-
-  background: #161617;
-  border-radius: 4px;
-  .token-btn,
-  .quote-btn {
-    width: 48px;
-    height: 20px;
-    background: #161617;
-    font-size: 14px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2px 5px;
-    align-items: center;
-    color: #f2f2f2;
-    border: 1px solid #161617;
-  }
-}
-
-.time-format-menu {
-  width: 182px;
-  height: 24px;
-  background: #333333;
-  border-radius: 2px;
-  .time-format-selection {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 14px;
-  }
-  .el-input {
-    width: 182px;
-    height: 24px;
-    background: #333333;
-    border-radius: 2px;
-  }
-  .el-input__inner {
-    -webkit-appearance: none;
-    background-color: #282828;
-    background-image: none;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    box-sizing: border-box;
-    color: #fff;
-    display: inline-block;
-    font-size: inherit;
-    height: 24px;
-    // line-height: 40px;
-    outline: 0;
-    padding: 0 15px;
-    transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-    width: 100%;
-  }
-  .el-select__caret.el-input__icon.el-icon-arrow-up {
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-    display: flex;
-  }
-}
-
-.trade-threshold-value {
-  width: 128px;
-  height: 24px;
-  // background-color: #161617;
-  border-radius: 2px;
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 14px;
-  align-items: center;
-  display: flex;
-  justify-content: flex-start;
-  padding-left: 5px;
-  .threshold-input {
-    background-color: #2a2a2b !important;
-    width: 110px;
-    // height: 80%;
-    .el-input__inner {
-      background-color: #2a2a2b !important;
-      height: 30px !important;
-    }
-  }
-}
-
-.threshold-title {
-  width: 145px !important;
-}
-.trade-type-menu {
-  width: 130px;
-  background-color: #2a2a2b !important;
-  .el-input__inner {
-    background-color: #2a2a2b !important;
-    height: 30px;
-  }
-}
-
-.blist a {
-  all: unset;
-}
-.max-buymatch-preview {
-  color: #66c167;
-}
-.max-sellmatch-preview {
-  color: #f96c6c;
-}
-
-.preview-deal-title {
-  padding: 3px 0px;
-}
-.deals-history {
-  .max-orders-list {
-    height: 350px;
-  }
-}
-
-.toggle-format {
-  color: white;
-  position: relative;
-  font-family: 'Raleway', sans-serif;
-  display: flex;
-  align-items: center;
-  .slash {
-    font-size: 1.2em;
-    font-weight: bold;
-    display: inline-block;
-    text-align: start;
-    padding: 2px;
-  }
-  @keyframes switch-right {
-    0% {
-      max-width: 6.1em;
-    }
-    33% {
-      max-width: 14.4em;
-    }
-    66% {
-      max-width: 14.4em;
-      transform: translateX(0em);
-    }
-    100% {
-      max-width: 7.9em;
-      transform: translateX(5.8em);
-    }
-  }
-  @keyframes switch-left {
-    0% {
-      max-width: 7.9em;
-      transform: translateX(6.4em);
-    }
-    33% {
-      max-width: 14.4em;
-      transform: translateX(0em);
-    }
-    66% {
-      max-width: 14.4em;
-    }
-    100% {
-      max-width: 6.1em;
-    }
-  }
-
-  input {
-    display: none;
-    z-index: 2;
-  }
-
-  input + .slider {
-    animation: switch-left 0.5s ease forwards;
-  }
-
-  input:checked + .slider {
-    animation: switch-right 0.5s ease forwards;
-  }
-
-  .slider {
-    position: absolute;
-    display: block;
-    border-radius: 2px;
-    background-color: #333333;
-    width: 48px;
-    max-width: 50px;
-    height: 20px;
-    z-index: -1;
-  }
-
-  .option {
-    padding: 2px;
-    margin: 0px 5px;
-    font-size: 1.2em;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .token-option {
-    position: relative;
-    left: -2px;
-  }
-
-  .quote-option {
-    position: relative;
-    left: 3px;
-  }
-}
-</style>

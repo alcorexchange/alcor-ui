@@ -58,13 +58,9 @@
               v-if='item.i == "chart"',
               @click='show_modal = !show_modal'
             )
-            i.el-icon-setting(
-              v-else-if='item.i == "time-sale"',
-              @click='show_timesale_modal = !show_timesale_modal'
-            )
-            OrderbookModel(:visible="showOrderSettingsModal" v-else-if='item.i == "order-depth"')
-            i.el-icon-setting(v-else)
 
+            TimeSaleModal(v-else-if='item.i == "time-sale"')
+            OrderbookModel(:visible="showOrderSettingsModal" v-else-if='item.i == "order-depth"')
 
           .icon-btn(v-if="isAdvanced")
             i.el-icon-close(@click='closegriditem(item.i)')
@@ -126,12 +122,6 @@
           Markets
 
   SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
-  TimeSaleModal(
-    v-if='show_timesale_modal',
-    :outoftimesalemodalClick='outoftimesalemodalClick',
-    :closemodal='closemodal',
-    @changedtimeformat='showtimeformat'
-  )
   #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
     .cancel-modal-content
       .price-info
@@ -220,7 +210,6 @@ export default {
       no_found: false,
       loading: false,
       show_modal: false,
-      show_timesale_modal: false,
       showOrderSettingsModal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
@@ -303,9 +292,6 @@ export default {
       if (isMove) this.orderdata.price = this.orderdata.new_price
       //
     },
-    showtimeformat(value) {
-      this.timeformat = value
-    },
     resize(iname, newH, newW, newHPx, newWPx) {
       if (iname == 'order-depth') {
         this.resizestatus = { i: iname, height: newH * 40, width: newW }
@@ -317,18 +303,6 @@ export default {
           item.status = false
         }
       })
-    },
-    outofmodalClick(event) {
-      if (event.target.classList.contains('body-container'))
-        this.show_modal = false
-    },
-    outoftimesalemodalClick(event) {
-      if (event.target.classList.contains('body-timesale-container'))
-        this.show_timesale_modal = false
-    },
-    closemodal(event) {
-      // if (event.target.classList.contains('body-timesale-container'))
-      this.show_timesale_modal = false
     },
     goToPool() {
       this.$store.dispatch('swap/setPair', this.relatedPool.id)
