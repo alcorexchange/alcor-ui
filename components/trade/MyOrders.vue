@@ -11,7 +11,7 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders')
       span {{ scope.row.timestamp | moment("MM-DD HH:mm:ss") }}
   el-table-column(label='Pair', v-if='!isMobile' width=100)
     template(slot-scope='{ row }')
-      span {{ row.market_symbol }}
+      span.hoverable.pointer(:class="{ underline: id != row.market.id }" @click="setMarket(row.market)") {{ row.market_symbol }}
   el-table-column(label='Type' :width="isMobile ? 50 : 50")
     template.text-success(slot-scope='{ row }')
       span.green(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
@@ -75,6 +75,20 @@ export default {
   },
 
   methods: {
+    setMarket(market) {
+      if (this.id == market.id) return
+
+      if (this.id) {
+        this.$store.dispatch('market/unsubscribe', this.id)
+      }
+
+      this.$router.push(
+        { name: 'trade-index-id', params: { id: market.slug } },
+        () => this.loading = false,
+        () => this.loading = false
+      )
+    },
+
     cancelAll() {
       let confirmTitle = 'Cancel all orders'
       let confirmText = 'Are you sure you want to cancel all current orders throughout all pairs on Alcor?'

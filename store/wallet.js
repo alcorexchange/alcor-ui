@@ -65,7 +65,7 @@ export const getters = {
 
     for (const position of getters.pairPositions) {
       for (const order of position.orders) {
-        orders.unshift({ ...order, market_id: position.id, market_symbol: position.symbol })
+        orders.unshift({ ...order, market_id: position.id, market_symbol: position.symbol, market: { id: position.id, slug: position.slug } })
       }
     }
 
