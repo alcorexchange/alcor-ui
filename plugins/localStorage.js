@@ -2,7 +2,7 @@ import createPersistedState from 'vuex-persistedstate'
 
 export default ({ store }) => {
   createPersistedState({
-    key: 'presist_v0.3.01',
+    key: 'presist_v0.3.02',
 
     paths: [
       'chain.payForUser', 'chain.lastWallet',
