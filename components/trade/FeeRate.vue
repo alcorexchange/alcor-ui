@@ -1,7 +1,7 @@
 <template lang="pug">
 .pointer
   el-tooltip.item(
-    effect='white',
+    effect='dark',
     placement='top-start',
     popper-class='popup-dialog'
   )

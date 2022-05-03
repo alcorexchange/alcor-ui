@@ -209,6 +209,19 @@ pre {
 
 // Dark
 .theme-dark {
+  .el-tooltip__popper.is-dark {
+    background: var(--btn-active);
+    color: var(--text-grey-thirdly);
+
+    .popper__arrow {
+      border-top-color: var(--btn-active) !important;
+    }
+
+    .popper__arrow::after {
+      border-top-color: var(--btn-active) !important;
+    }
+  }
+
   .el-table::before {
     height: 0px;
   }
@@ -643,16 +656,6 @@ pre {
 //in fee rate component
 .tabs-right .swap-button {
   border: 0px 0px 0px 2px !important;
-}
-
-.popup-dialog {
-  background: #121212;
-  border: 2px solid #282828;
-
-  .popper__arrow {
-    // display:none !important;
-    background: #121212 !important;
-  }
 }
 
 .el-tabs__nav.is-top {
