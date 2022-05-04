@@ -21,7 +21,8 @@
           .text-right(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
         //.progress-bar.sell(:style="'transform: translateX(' + -getAskProgress(ask) + '%);'")
-        .progress-bar.sell(style="transform: translateX(-100%);")
+        //.progress-bar.sell(style="transform: translateX(-100%);")
+        .progress-bar.sell
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
@@ -58,7 +59,8 @@
           .text-right(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
         //.progress-bar.buy(:style="'transform: translateX(' + -getBidProgress(bid) + '%);'")
-        .progress-bar.sell(style="transform: translateX(-100%);")
+        //.progress-bar.sell(style="transform: translateX(-100%);")
+        .progress-bar.buy
 
     .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
@@ -296,13 +298,13 @@ export default {
         height: 20px;
         opacity: 0.15;
         width: 100%;
-        right: 0px;
-        left: 100%;
+        //right: 0px;
+        //left: 100%;
 
-        transform: translateX(0);
-        -webkit-transform: translateX(-100%);
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
+        //transform: translateX(0);
+        //-webkit-transform: translateX(-100%);
+        //backface-visibility: hidden;
+        //-webkit-backface-visibility: hidden;
 
         &.sell {
           background-color: #F96C6C;;
