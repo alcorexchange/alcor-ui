@@ -9,10 +9,15 @@ export default {
 
   methods: {
     goToPool() {
-      this.$store.dispatch('swap/setPair', this.pool)
-      this.$store.dispatch('swap/updatePair', this.pool)
-      this.$store.commit('swap/setTab', 'Swap')
-      this.$router.push('/swap')
+      const pair = this.$store.state.swap.pairs[this.pool]
+
+      if (!pair) return
+
+      const input = `${pair.pool1.quantity.symbol.code().to_string()}-${pair.pool1.contract}`
+      const output = `${pair.pool2.quantity.symbol.code().to_string()}-${pair.pool2.contract}`
+
+      const q = new URLSearchParams({ input, output })
+      this.openInNewTab('/swap?' + q)
     }
   }
 }
