@@ -1,11 +1,9 @@
 // Import variables for light/dark theme
 @import '~/assets/_variables.scss';
-@import './base.scss';
 
 // Add elements scss (themed by variables)
 @import './element.scss';
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import './base.scss';
 
 @font-face {
   font-family: element-icons;

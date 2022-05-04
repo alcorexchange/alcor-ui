@@ -32,6 +32,7 @@
       i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
       i.el-icon-setting.show-settings(v-else='')
 
+    settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
     //el-dropdown
       div
         //AlcorButton(:iconOnlyAlt='true')
