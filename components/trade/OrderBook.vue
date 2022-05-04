@@ -297,6 +297,8 @@ export default {
         right: 0px;
         left: 100%;
 
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
 
