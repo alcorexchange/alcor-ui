@@ -243,16 +243,19 @@ export default {
 
   watch: {
     search() {
+      this.$router.replace({ name: this.$route.name, query: { search: this.search } })
+
       this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
-      this.$router.replace({ name: this.$route.name, query: { search: this.search } })
+      this.lazyloadMarkets(null, true)
     },
 
     markets_active_tab() {
       this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
+      this.lazyloadMarkets(null, true)
     }
   },
 
@@ -263,28 +266,27 @@ export default {
       this.markets_active_tab = tab
     }
 
-    if (search) this.search = search
-  },
+    if (search) {
+      this.search = search
+    }
 
-  created() {
-    // Preload first time markets
-
-    const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
-
-    this.skip += append.length
-    this.lazyMarkets.push(...append)
+    this.lazyloadMarkets(null, true)
   },
 
   methods: {
-    lazyloadMarkets($state) {
+    lazyloadMarkets($state, first = false) {
       const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
 
       if (append.length > 0) {
         this.skip += 20
         this.lazyMarkets.push(...append)
 
+        // КОстыль, само не тригерится
+        if (first) return
+
         $state.loaded()
       } else {
+        if (first) return
         $state.complete()
       }
     },
