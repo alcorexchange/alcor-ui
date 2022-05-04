@@ -25,14 +25,13 @@
     //  i.el-icon-moon(v-else='')
 
     AlcorButton.theme-toggle-button.desktop.show-settings(
-      v-if='$route.name != "index"',
+      v-if='$route.name == "trade-index-id"',
       :icon-only-alt='true',
       @click='showSetting = !showSetting'
     )
       i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
       i.el-icon-setting.show-settings(v-else='')
 
-    settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
     //el-dropdown
       div
         //AlcorButton(:iconOnlyAlt='true')
