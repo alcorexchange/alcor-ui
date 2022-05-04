@@ -279,15 +279,8 @@ export default {
         align-items: center;
 
         div {
-          // TODO This font seem not workin now
-          font-family: 'Roboto';
-          font-style: normal;
-          font-weight: 400;
           font-size: 11.5px;
-          line-height: 12px;
-
           flex: 1 1 0%;
-          //color: var(--text-grey-thirdly);
         }
 
         i {
@@ -303,6 +296,9 @@ export default {
         width: 100%;
         right: 0px;
         left: 100%;
+
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
 
         &.sell {
           background-color: #F96C6C;;

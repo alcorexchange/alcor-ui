@@ -189,7 +189,6 @@ export default {
   .dropdown {
     border-radius: 7px;
 
-    //will-change: transform;
     position: absolute;
     padding: 20px 10px;
 
