@@ -20,9 +20,9 @@
           .text-right.px-1 {{ ask[1] | humanFloat(quote_token.symbol.precision) }}
           .text-right(v-if='!isMobile') {{ ask[2] | humanFloat(base_token.symbol.precision) }}
 
-        //.progress-bar.sell(:style="'transform: translateX(' + -getAskProgress(ask) + '%);'")
+        .progress-bar.sell(:style="'transform: translateX(' + -getAskProgress(ask) + '%);'")
         //.progress-bar.sell(style="transform: translateX(-100%);")
-        .progress-bar.sell
+        //.progress-bar.sell
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
@@ -58,9 +58,9 @@
           .text-right.px-1 {{ bid[2] | humanFloat(quote_token.symbol.precision) }}
           .text-right(v-if='!isMobile') {{ bid[1] | humanFloat(base_token.symbol.precision) }}
 
-        //.progress-bar.buy(:style="'transform: translateX(' + -getBidProgress(bid) + '%);'")
+        .progress-bar.buy(:style="'transform: translateX(' + -getBidProgress(bid) + '%);'")
         //.progress-bar.sell(style="transform: translateX(-100%);")
-        .progress-bar.buy
+        //.progress-bar.buy
 
     .ltd.d-flex.justify-content-around(v-if='sorted_bids.length == 0')
       span
@@ -254,6 +254,7 @@ export default {
 
 .orders-list {
   background: var(--table-background) !important;
+  will-change: transform;
 
   .orderbook-progress {
     display: flex;
@@ -267,10 +268,12 @@ export default {
     .progress-container {
       width: 100%;
       height: 100%;
+      left: 0px;
       display: flex;
       overflow: hidden;
-
       position: relative;
+      flex-direction: row;
+      animation: 0.3s ease-out 0s 1 normal none running none;
 
       .order-row {
         display: flex;
@@ -298,13 +301,13 @@ export default {
         height: 20px;
         opacity: 0.15;
         width: 100%;
-        //right: 0px;
-        //left: 100%;
+        right: 0px;
+        left: 100%;
 
-        //transform: translateX(0);
-        //-webkit-transform: translateX(-100%);
-        //backface-visibility: hidden;
-        //-webkit-backface-visibility: hidden;
+        transform: translateX(0%);
+        -webkit-transform: translateX(0%);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
 
         &.sell {
           background-color: #F96C6C;;
