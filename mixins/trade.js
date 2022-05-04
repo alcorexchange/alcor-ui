@@ -86,7 +86,8 @@ export const trade = {
       'changePercentBuy',
       'changePercentSell',
       'fetchBuy',
-      'fetchSell'
+      'fetchSell',
+      'calcAndSetTotal'
     ]),
     setAmount(bid) {
       if (bid == 'buy') {

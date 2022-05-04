@@ -139,32 +139,23 @@ export default {
       const price = this.$options.filters.humanPrice(ask[0]).replaceAll(',', '')
 
       const amount = this.$options.filters
-        .humanFloat(ask[1], this.quote_token.symbol.precision)
+        .humanFloat(ask[3], this.quote_token.symbol.precision) // token total sum of orderbook
         .replaceAll(',', '')
-
-      this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', amount)
 
       // Price and amount for marked moved to VUEX
       this.setPrecisionPrice(price)
       this.changeAmount({ amount, type: 'buy' })
-      this.changeAmount({ amount, type: 'sell' })
     },
 
     setAsk(bid) {
       const price = this.$options.filters.humanPrice(bid[0]).replaceAll(',', '')
 
-      const amount = this.$options.filters
-        .humanFloat(bid[2], this.quote_token.symbol.precision)
+      const total = this.$options.filters
+        .humanFloat(bid[3], this.base_token.symbol.precision)
         .replaceAll(',', '')
 
-      this.$nuxt.$emit('setPrice', price)
-      this.$nuxt.$emit('setAmount', amount)
-
-      // Price and amount for marked moved to VUEX
       this.setPrecisionPrice(price)
-      this.changeAmount({ amount, type: 'buy' })
-      this.changeAmount({ amount, type: 'sell' })
+      this.changeTotal({ total, type: 'sell' })
     }
   }
 }

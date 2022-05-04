@@ -340,7 +340,7 @@ export const actions = {
     const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
     const floatPrice = correctPrice.toFixed(precision)
     commit('SET_PRICE', floatPrice)
-    dispatch('calcAndSetTotal')
+    //dispatch('calcAndSetTotal')
   },
   calculateAmount({ state }, params) {
     if (!state.price_bid || !params.total) return null
