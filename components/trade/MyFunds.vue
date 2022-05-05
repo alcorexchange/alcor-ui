@@ -46,8 +46,10 @@ export default {
   },
 
   methods: {
-    rowClick(row) {
-      this.openInNewTab(this.monitorTx(row.trx_id))
+    rowClick(token) {
+      this.$router.push({
+        name: 'markets', query: { tab: 'all', search: `${token.currency}-${token.contract}` }
+      })
     }
   }
 }
