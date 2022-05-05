@@ -148,9 +148,10 @@ export default {
   methods: {
     filledPositions() {
       return this.pairPositions.filter(el => {
-        if (!el.slug.includes(this.search.toLowerCase())) return false
+        if (el.slug && !el.slug.includes(this.search.toLowerCase())) return false
         if (this.onlyBuy && !el.orderCount.buy) return false
         if (this.onlySell && !el.orderCount.sell) return false
+        if (!el.quote_token || !el.base_token) return false
         return el
       })
     },
