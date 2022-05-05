@@ -1,55 +1,58 @@
 <template lang="pug">
-.body-container(@click='outofmodalClick')
-  .table-setting-modal
-    .el-container.setting-container.pt-2.d-flex.flex-column
-      .el-container.setting-layout.d-flex.flex-row
-        h4.preview-title Chart Preview
-        //preview-chart
-      .el-container.setting-layout.d-flex.flex-row
-        .el-main.module-main-settings.main-settings-left
-          .module-selection.d-flex.flex-column
-            preview-chart
-              #preview_chart_container
+div
+  i.el-icon-setting(@click='visible = true')
 
-      .el-container.setting-layout.d-flex.flex-row.mt-20
-        .el-main.module-main-settings.main-settings-left
-          .module-selection.d-flex.flex-column
-            .settings-title Header Settings
-            .module-list.d-flex.flex-row.justify-content-between(
-              v-for='settingBtn in header_settings_title'
-            )
-              .module-name {{ settingBtn.name }}
-              .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='header_settings_change[settingBtn.key]',
-                @change='headerUpdateState()',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-        .el-main.module-main-settings.main-settings-right
-          .module-selection.d-flex.flex-column
-            .settings-title Chart Orders
-            .module-list.d-flex.flex-row.justify-content-between(
-              v-for='settingBtn in chart_orders_title'
-            )
-              .module-name {{ settingBtn.name }}
-                p.tooltip-desc(
-                  v-if='settingBtn.key == "chart_order_interactivity"'
-                ) Order Interactivity allows you to move or cancel orders directly from the chart,
-                  | just drag the lavel to move the order or click the "X" button to cancel the orther
-              .module-pickers.d-flex.flex-row
-              el-switch(
-                v-if='settingBtn.key != "chart_executions"',
-                v-model='chart_orders_settings_change[settingBtn.key]',
-                @change='chartOrdersUpdateState()',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
+  el-dialog(title='Times and sales settings' :visible.sync='visible' append-to-body width="700px" custom-class="trading-page-dialog")
+    .table-setting-modal
+      .el-container.setting-container.pt-2.d-flex.flex-column
+        .el-container.setting-layout.d-flex.flex-row
+          h4.preview-title Chart Preview
+          //preview-chart
+        .el-container.setting-layout.d-flex.flex-row
+          .el-main.module-main-settings.main-settings-left
+            .module-selection.d-flex.flex-column
+              preview-chart
+                #preview_chart_container
 
-      .el-container.setting-layout.d-flex.flex-row
-        .el-main.module-main-settings.main-settings-left
-          .module-selection.d-flex
-            .el-button(type="text" @click='initiateState()') Reset to Default
+        .el-container.setting-layout.d-flex.flex-row.mt-20
+          .el-main.module-main-settings.main-settings-left
+            .module-selection.d-flex.flex-column
+              .settings-title Header Settings
+              .module-list.d-flex.flex-row.justify-content-between(
+                v-for='settingBtn in header_settings_title'
+              )
+                .module-name {{ settingBtn.name }}
+                .module-pickers.d-flex.flex-row
+                el-switch(
+                  v-model='header_settings_change[settingBtn.key]',
+                  @change='headerUpdateState()',
+                  active-color='#13ce66',
+                  inactive-color='#161617'
+                )
+          .el-main.module-main-settings.main-settings-right
+            .module-selection.d-flex.flex-column
+              .settings-title Chart Orders
+              .module-list.d-flex.flex-row.justify-content-between(
+                v-for='settingBtn in chart_orders_title'
+              )
+                .module-name {{ settingBtn.name }}
+                  p.tooltip-desc(
+                    v-if='settingBtn.key == "chart_order_interactivity"'
+                  ) Order Interactivity allows you to move or cancel orders directly from the chart,
+                    | just drag the lavel to move the order or click the "X" button to cancel the orther
+                .module-pickers.d-flex.flex-row
+                el-switch(
+                  v-if='settingBtn.key != "chart_executions"',
+                  v-model='chart_orders_settings_change[settingBtn.key]',
+                  @change='chartOrdersUpdateState()',
+                  active-color='#13ce66',
+                  inactive-color='#161617'
+                )
+
+        .el-container.setting-layout.d-flex.flex-row
+          .el-main.module-main-settings.main-settings-left
+            .module-selection.d-flex
+              .el-button(type="text" @click='initiateState()') Reset to Default
 </template>
 
 <script>
@@ -59,16 +62,16 @@ import ChangePercent from '~/components/trade/ChangePercent'
 import PreviewChart from '~/components/trade/Chart.vue'
 
 export default {
-  props: ['outofmodalClick'],
-  scrollToTop: false,
   components: {
     TokenImage,
     ChangePercent,
-    PreviewChart,
+    PreviewChart
   },
 
   data() {
     return {
+      visible: false,
+
       header_settings_title: [
         { key: 'change_24', name: 'Change 24H' },
         { key: 'volume_24', name: 'Volume 24H' },
@@ -109,9 +112,11 @@ export default {
     ...mapState('market', ['header_settings', 'chart_orders_settings']),
     ...mapState(['checked']),
     header_settings_change() {
+      console.log('get computed header_settings_change')
       return this.$store.state.market.header_settings
     },
     chart_orders_settings_change() {
+      console.log('get computed chart_orders_settings_change')
       return this.$store.state.market.chart_orders_settings
     },
   },
@@ -131,8 +136,8 @@ export default {
         'market/setChartOrdersSettingsDefault',
         this.header_settings
       )
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -190,15 +195,8 @@ export default {
 }
 
 .table-setting-modal {
-  width: 649px;
-  height: 630px;
-  position: absolute;
-  padding: 0 0 0 18px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--table-background);
 }
+
 .settings-title {
   font-size: 12px;
   color: var(--cancel);

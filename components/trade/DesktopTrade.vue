@@ -45,13 +45,9 @@
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
           .icon-btn(v-if="['chart', 'order-depth', 'time-sale'].includes(item.i)")
-            i.el-icon-setting(
-              v-if='item.i == "chart"',
-              @click='show_modal = !show_modal'
-            )
-
-            TimeSaleModal(v-else-if='item.i == "time-sale"')
-            OrderbookModel(:visible="showOrderSettingsModal" v-else-if='item.i == "order-depth"')
+            TimeSaleModal(v-if='item.i == "time-sale"')
+            OrderbookModel(v-else-if='item.i == "order-depth"')
+            SettingModal(v-else-if='item.i == "chart"')
 
           .icon-btn(v-if="isAdvanced")
             i.el-icon-close(@click='closegriditem(item.i)')
@@ -105,7 +101,6 @@
         .h-100(v-if='item.i == "markets"')
           Markets
 
-  SettingModal(v-if='show_modal', :outofmodalClick='outofmodalClick')
   #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
     .cancel-modal-content
       .price-info
@@ -197,7 +192,6 @@ export default {
       amount: 0.0,
       no_found: false,
       loading: false,
-      show_modal: false,
       showOrderSettingsModal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
