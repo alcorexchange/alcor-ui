@@ -149,9 +149,12 @@ export default {
       // Price and amount for marked moved to VUEX
       this.setPrecisionPrice(price)
       this.changeAmount({ amount, type: 'buy' })
+
+      this.$nuxt.$emit('setTradeSide', 'buy')
     },
 
     setAsk(bid) {
+      // TODO Переключать таб для мобилки
       const price = this.$options.filters.humanPrice(bid[0]).replaceAll(',', '')
 
       const total = this.$options.filters
@@ -160,6 +163,8 @@ export default {
 
       this.setPrecisionPrice(price)
       this.changeTotal({ total, type: 'sell' })
+
+      this.$nuxt.$emit('setTradeSide', 'sell')
     }
   }
 }

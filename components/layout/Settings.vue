@@ -187,9 +187,10 @@ export default {
         chart: 'Chart',
         'order-depth': 'Orderbook/Depth Chart',
         'time-sale': 'Times and Sales',
-        'limit-market': 'Limit Trade/Market Trade',
+        'limit-market': 'Horisontal Order Form',
         'open-order': 'Open Orders',
-        markets: 'Markets'
+        markets: 'Markets',
+        'order-form-vertical': 'Vertical Order Form'
       },
 
       theme: 'dark',

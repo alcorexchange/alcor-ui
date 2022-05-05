@@ -235,6 +235,7 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
+
     percentBuy: {
       get() {
         return this.percent_buy
@@ -314,12 +315,6 @@ export default {
 
   .el-slider__marks-text, .el-input, .el-input__inner {
     font-size: 10px;
-  }
-
-  .buy, .sell {
-    .el-radio-button__inner {
-      padding: 5px 15px !important;
-    }
   }
 
   label.buy.is-active {

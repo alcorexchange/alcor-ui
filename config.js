@@ -47,7 +47,7 @@ const networks = {
       'https://mainnet.genereos.io': 'Generos',
       'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
       'https://api.eosn.io': 'EOS N',
-      'https://eos.dfuse.eosnation.io': 'Dfuse'
+      'https://eos.dfuse.eosnation.io': 'Dfuse',
     },
 
     otc: {
@@ -175,7 +175,7 @@ const networks = {
       'https://proton.protonuk.io': 'Protonuk',
       'https://api.proton.eossweden.org': 'EOS Sweden',
       'https://proton.genereos.io': 'Generos',
-      'https://api.eostribe.io': 'EOS Tribe'
+      'https://api.eostribe.io': 'EOS Tribe',
     },
 
     otc: {
@@ -237,7 +237,7 @@ const networks = {
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
       'https://wax.eosn.io': 'EOS Nation - Canada',
-      'https://wax.pink.gg': 'Pink GG - Germany'
+      'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
     otc: {
@@ -308,7 +308,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://telos.greymass.com': 'Greymass - Canada'
+      'https://telos.greymass.com': 'Greymass - Canada',
     },
 
     otc: {
@@ -749,61 +749,56 @@ const TRADE_LAYOUTS = {
       x: 0,
       y: 0,
       w: 14,
-      h: 14,
+      h: 12,
       i: 'chart',
       status: true,
       mw: 9,
       mh: 5,
+      moved: false,
     },
     {
       x: 14,
       y: 0,
       w: 5,
-      h: 14,
+      h: 19,
       i: 'order-depth',
       status: true,
       mw: 5,
       mh: 4,
+      moved: false,
     },
     {
       x: 19,
-      y: 0,
+      y: 11,
       w: 5,
-      h: 14,
+      h: 9,
       i: 'time-sale',
       status: true,
       mw: 5,
       mh: 4,
+      moved: false,
     },
     {
       x: 0,
-      y: 14,
+      y: 12,
       w: 14,
       h: 7,
       i: 'open-order',
       status: true,
       mw: 10,
       mh: 4,
+      moved: false,
     },
     {
-      x: 14,
-      y: 14,
-      w: 10,
-      h: 7,
-      i: 'limit-market',
-      status: true,
-      mw: 6,
-      mh: 4,
-    },
-    {
-      x: 14,
-      y: 14,
+      x: 19,
+      y: 0,
       w: 5,
-      h: 8,
-      i: 'markets',
-      status: false,
+      h: 11,
+      i: 'order-form-vertical',
+      status: true,
       mw: 5,
-      mh: 3,
+      mh: 10,
+      moved: false,
     },
   ],
 

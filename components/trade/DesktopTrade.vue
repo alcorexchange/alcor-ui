@@ -44,7 +44,7 @@
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
-          .icon-btn(v-if='item.i != "open-order" && item.i != "limit-market" && item.i != "markets"')
+          .icon-btn(v-if="['chart', 'order-depth', 'time-sale'].includes(item.i)")
             i.el-icon-setting(
               v-if='item.i == "chart"',
               @click='show_modal = !show_modal'
@@ -59,6 +59,8 @@
         top-line(v-if='item.i == "chart"')
         chart(v-if='item.i == "chart"')
           #tv_chart_container
+
+        order-form-vertical(v-if="item.i == 'order-form-vertical'")
 
         el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small")
           el-tab-pane(label='Orderbook')
@@ -156,7 +158,8 @@ import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
 import SettingModal from '~/components/trade/SettingModal'
 import TimeSaleModal from '~/components/trade/TimeSaleModal'
-import SwapButton from '~/components/trade/SwapButton.vue'
+import SwapButton from '~/components/trade/SwapButton'
+import OrderFormVertical from '~/components/trade/OrderFormVertical'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -181,7 +184,8 @@ export default {
     SettingModal,
     TimeSaleModal,
     OrderbookModel,
-    SwapButton
+    SwapButton,
+    OrderFormVertical
   },
 
   data() {
