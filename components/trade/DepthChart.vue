@@ -39,6 +39,11 @@ export default {
         //  align: 'right',
         //  verticalAlign: 'bottom'
         //},
+        mapNavigation: {
+          enabled: true,
+          enableMouseWheelZoom: true
+        },
+
         type: 'column',
         colors: [
           '#058DC7',
@@ -209,10 +214,10 @@ export default {
           tickLength: 0,
           tickPosition: 'inside',
           labels: {
-            align: 'left',
-            step: 0.001,
-            x: -5,
-            padding: 10
+            //align: 'left',
+            //step: 0.001,
+            //x: -5,
+            //padding: 10
           }
         },
         legend: {
