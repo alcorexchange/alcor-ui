@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { captureException } from '@sentry/browser'
 import { Big } from 'big.js'
+import { percentage } from '~/utils'
 
 import config from '~/config'
 
@@ -282,7 +283,10 @@ export const actions = {
     commit('SET_PRICE', price)
     dispatch('calcAndSetTotal')
   },
-  changeAmount({ commit, dispatch }, params) {
+
+  changeAmount({ commit, dispatch, getters, state }, params) {
+    //console.log('changeAmount..')
+
     const amount = params.amount.toString() ? params.amount.toString().replace(/[^\d.]/g, '') : null
     const type = params.type
 
@@ -294,6 +298,11 @@ export const actions = {
     if (type == 'sell') {
       commit('SET_AMOUNT_SELL', amount)
       dispatch('calcAndSetTotal')
+    }
+
+    if (type == 'buy') {
+      //const percent = percentage(state.total_buy, getters.baseBalance)
+      //commit('SET_PERCENT_BUY', percent)
     }
   },
   async changeTotal({ state, commit, dispatch }, params) {
@@ -392,6 +401,7 @@ export const actions = {
       commit('SET_TOTAL_SELL', null)
     }
   },
+
   calculatePercent({ state }, params) {
     if (parseFloat(!params.balance) || params.percent == 0) return false
 

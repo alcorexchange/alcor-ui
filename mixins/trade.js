@@ -1,21 +1,9 @@
-import { captureException } from '@sentry/browser'
-
-import { asset } from 'eos-common'
 import { mapActions, mapState, mapGetters } from 'vuex'
-
-import config from '~/config'
-import { amountToFloat } from '~/utils'
 
 import { popup } from '~/mixins/popup'
 
 export const trade = {
   mixins: [popup],
-
-  watch: {
-    side() {
-      console.log('side', this.side)
-    }
-  },
 
   computed: {
     ...mapState('market', [
@@ -142,7 +130,7 @@ export const trade = {
       } else {
         this.$notify({ title: bid == 'buy' ? 'Buy' : 'Sell', message: 'Order placed!', type: 'success' })
       }
-    },
+    }
   }
 }
 

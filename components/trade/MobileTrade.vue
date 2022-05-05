@@ -242,7 +242,7 @@ export default {
       },
       set(val) {
         this.changePercentBuy({ percent: val, trade: 'limit' })
-      },
+      }
     },
     percentBuyMarket: {
       get() {
@@ -250,15 +250,15 @@ export default {
       },
       set(val) {
         this.changePercentBuy({ percent: val, trade: 'market' })
-      },
-    },
+      }
+    }
   },
 
   methods: {
     textColor(side) {
       return side == 'buy' ? 'text-success' : 'text-danger'
-    },
-  },
+    }
+  }
 }
 </script>
 
