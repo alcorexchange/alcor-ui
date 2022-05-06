@@ -800,6 +800,17 @@ const TRADE_LAYOUTS = {
       mh: 7,
       moved: false,
     },
+    {
+      x: 14,
+      y: 21,
+      w: 5,
+      h: 10,
+      i: 'order-form-vertical',
+      status: false,
+      mw: 5,
+      mh: 3,
+      moved: false,
+    },
   ],
 
   full: [
