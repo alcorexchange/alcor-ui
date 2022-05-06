@@ -44,7 +44,7 @@
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
-          TimeSaleModal(v-if='item.i == "time-sale"')
+          TimeSaleModal(v-if='item.i == "time-sale" && markets_tab == 1')
           OrderbookModel(v-else-if='item.i == "order-depth" && orderbok_tab == 0')
           SettingModal(v-else-if='item.i == "chart"')
 
@@ -72,7 +72,7 @@
             )
 
         .h-100(v-if='item.i == "time-sale"', :min-w='3')
-          el-tabs(type="border-card").h-100.no_drag
+          el-tabs(type="border-card" v-model="markets_tab").h-100.no_drag
             el-tab-pane(label='Markets')
               Markets.mt-1
             el-tab-pane.h-10(label='Times & Sales')
@@ -195,7 +195,8 @@ export default {
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
       depthChartUpdated: false,
-      orderbok_tab: 0
+      orderbok_tab: 0,
+      markets_tab: 0
     }
   },
 

@@ -138,9 +138,9 @@ export default {
       },
       set(val) {
         this.changePercentBuy({ percent: val, trade: 'limit' })
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>
 

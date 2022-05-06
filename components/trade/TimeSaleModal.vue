@@ -32,7 +32,7 @@
       .orders-list.blist.px-0
         a
           .ltd.d-flex.justify-content-around.sell.max-sellmatch
-            span.green 0.00035001
+            span.red 0.00035001
             span 12,771,693.4181
             span 04-02 14:14:12
 

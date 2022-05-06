@@ -2,7 +2,7 @@
 .icon-btn
   i.el-icon-setting(@click='visible = true')
 
-  el-dialog(title='Times and sales settings' :visible.sync='visible' append-to-body width="700px" custom-class="trading-page-dialog")
+  el-dialog(title='Chart Settings' :visible.sync='visible' append-to-body width="700px" custom-class="trading-page-dialog")
     .table-setting-modal
       .el-container.setting-container.pt-2.d-flex.flex-column
         .el-container.setting-layout.d-flex.flex-row
@@ -87,14 +87,8 @@ export default {
         { key: 'chart_order_interactivity', name: 'Chart order interactivity' },
         { key: 'chart_executions', name: 'Chart Executions' },
         { key: 'show_trade_executions', name: 'Show trade executions' },
-        {
-          key: 'show_trade_executions_price',
-          name: 'Show trade execution price',
-        },
-        {
-          key: 'show_trade_execution_amount',
-          name: 'Show_trade_execution_amount',
-        },
+        //{ key: 'show_trade_executions_price', name: 'Show trade execution price' }, TODO
+        { key: 'show_trade_execution_amount', name: 'Show_trade_execution_amount' }
       ],
       settingBtnTitles: {
         chart: 'Chart',
@@ -112,11 +106,9 @@ export default {
     ...mapState('market', ['header_settings', 'chart_orders_settings']),
     ...mapState(['checked']),
     header_settings_change() {
-      console.log('get computed header_settings_change')
       return this.$store.state.market.header_settings
     },
     chart_orders_settings_change() {
-      console.log('get computed chart_orders_settings_change')
       return this.$store.state.market.chart_orders_settings
     },
   },
