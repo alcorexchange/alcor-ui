@@ -26,8 +26,8 @@
         :min-h='parseInt(item.mh)',
         :class='item.i',
         @resized='layoutUpdatedEvent(item)',
-        drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list .desktop',
-        drag-allow-from='.el-tabs__header, .box-card, .times-and-sales'
+        drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
+        drag-allow-from='.el-tabs__header, .times-and-sales, .box-card'
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
@@ -44,10 +44,9 @@
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
-          .icon-btn(v-if="['chart', 'order-depth', 'time-sale'].includes(item.i)")
-            TimeSaleModal(v-if='item.i == "time-sale"')
-            OrderbookModel(v-else-if='item.i == "order-depth"')
-            SettingModal(v-else-if='item.i == "chart"')
+          TimeSaleModal(v-if='item.i == "time-sale"')
+          OrderbookModel(v-else-if='item.i == "order-depth" && orderbok_tab == 0')
+          SettingModal(v-else-if='item.i == "chart"')
 
           .icon-btn(v-if="isAdvanced")
             i.el-icon-close(@click='closegriditem(item.i)')
@@ -58,7 +57,7 @@
 
         order-form-vertical(v-if="item.i == 'order-form-vertical'")
 
-        el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small")
+        el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
           el-tab-pane(label='Orderbook')
             order-book
           el-tab-pane(label='Depth Chart')
@@ -195,7 +194,8 @@ export default {
       showOrderSettingsModal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
-      depthChartUpdated: false
+      depthChartUpdated: false,
+      orderbok_tab: 0
     }
   },
 

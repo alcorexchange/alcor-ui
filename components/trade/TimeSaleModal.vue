@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+.icon-btn
   i.el-icon-setting(@click='visible = true')
 
   el-dialog(title='Times and sales settings' :visible.sync='visible' append-to-body width="350px" custom-class="trading-page-dialog")

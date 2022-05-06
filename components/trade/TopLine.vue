@@ -15,6 +15,10 @@ client-only
           a.text-muted(:href='monitorAccount(quote_token.contract)', target='_blank')
             u {{ quote_token.contract }}
 
+          //i.el-icon-question.ml-2
+          //img(src="~/assets/icons/question.svg").ml-2
+
+
       .d-flex.flex-column
         div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
         div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
