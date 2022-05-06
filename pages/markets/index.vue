@@ -127,8 +127,8 @@
           change-percent(:change='scope.row.changeWeek')
 
       template(slot="append")
-        //infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table .el-table__body-wrapper" spinner="spiral" ref="infinite")
-        infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
+        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite")
+        //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
 <script>
@@ -275,6 +275,7 @@ export default {
 
   methods: {
     lazyloadMarkets($state, first = false) {
+      console.log('lazyloadMarkets..')
       const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
 
       if (append.length > 0) {

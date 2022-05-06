@@ -6,9 +6,9 @@
       | Alcor is a lego of decentralized finance built on multi-chain, and a
       | provider of solutions in one tap.
     .actions
-      alcorlink.start(to='/markets')
+      alcor-link.start(to='/markets')
         | Start Trading
-      alcorbutton(@click="openInNewTab('https://docs.alcor.exchange/')")
+      alcor-button(@click="openInNewTab('https://docs.alcor.exchange/')")
         | Read docs
   .right
     circles(v-if='canShowCircles')
