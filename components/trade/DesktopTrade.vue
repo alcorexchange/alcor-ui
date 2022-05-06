@@ -78,7 +78,7 @@
             el-tab-pane.h-10(label='Times & Sales')
               LatestDeals(:timeformat='timeformat')
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          el-tab-pane(label='Open order')
+          el-tab-pane(label='Open orders')
             my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
           el-tab-pane(label='Trade History')
             my-trade-history(:only-current-pair="hideOtherPairs")

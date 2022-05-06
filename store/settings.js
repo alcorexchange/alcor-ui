@@ -10,7 +10,7 @@ const ping = new Ping()
 
 export const state = () => ({
   hideOtherPairs: false,
-  sideMaretsTab: 'all',
+  sideMaretsTab: 'system', // System token
   favMarkets: [],
   twChart: {},
   timesAndSales: {},

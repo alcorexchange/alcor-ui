@@ -8,11 +8,9 @@
     el-tab-pane(name='fav')
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
+
     el-tab-pane(label='All', name='all')
-    el-tab-pane(
-      :label='network.baseToken.symbol',
-      :name='network.baseToken.symbol'
-    )
+    el-tab-pane(:label='network.baseToken.symbol' name='system')
     el-tab-pane(label='Wrapped', name='wrapped')
 
   .px-2.mt-2
@@ -23,7 +21,7 @@
       clearable
       width="60%"
     )
-       template(v-if="sideMaretsTab == network.baseToken.symbol" slot="append")
+       template(v-if="sideMaretsTab == 'system'" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
   el-table(
     :data='lazyMarkets',
@@ -73,7 +71,7 @@
       sortable,
     )
       template(slot-scope='scope')
-        span.text-mutted(v-if="showVolumeInUSD && sideMaretsTab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
+        span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(scope.row.volume24) }}
         span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
     template(slot="append")
@@ -118,10 +116,6 @@ export default {
     }
   },
 
-  mounted() {
-    this.lazyloadMarkets(null, true)
-  },
-
   computed: {
     ...mapState(['markets', 'network']),
     ...mapState('market', ['id', 'quote_token']),
@@ -144,7 +138,7 @@ export default {
 
       set(value) {
         this.$store.commit('settings/setSideMaretsTab', value)
-      },
+      }
     },
 
     isFavorite() {
@@ -157,7 +151,7 @@ export default {
       let markets = []
       if (this.sideMaretsTab == 'all') {
         markets = this.markets
-      } else if (this.sideMaretsTab == this.network.baseToken.symbol) {
+      } else if (this.sideMaretsTab == 'system') {
         markets = this.markets.filter(
           (i) => i.base_token.contract == this.network.baseToken.contract
         )
@@ -192,6 +186,10 @@ export default {
 
       return markets
     },
+  },
+
+  mounted() {
+    this.lazyloadMarkets(null, true)
   },
 
   methods: {
