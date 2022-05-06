@@ -125,7 +125,6 @@ export default {
         return s.includes(this.search.toLowerCase())
       }).map(t => {
         t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
-        t.id = t.symbol + '@' + t.contract
         return t
       }).sort((a, b) => {
         return a.balance == '0.0000' ? 1 : -1

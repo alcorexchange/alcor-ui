@@ -126,19 +126,29 @@ export const actions = {
 
     let lower_bound
     while (true) {
-      const { rows } = await this.$rpc.get_table_rows({
-        code: rootState.network.pools.contract,
-        scope: rootState.network.pools.contract,
-        table: 'pairs',
-        limit: 1000,
-        lower_bound
-      })
+      let r
+      try {
+        r = await this.$rpc.get_table_rows({
+          code: rootState.network.pools.contract,
+          scope: rootState.network.pools.contract,
+          table: 'pairs',
+          limit: 1000,
+          lower_bound
+        })
+      } catch (e) {
+        console.log('err to get paris', lower_bound)
+        continue
+      }
 
-      if (lower_bound) rows.shift()
+      const { rows, more, next_key } = r
 
       pairs.push(...rows)
-      if (rows.length != 1000) break
-      lower_bound = rows[rows.length - 1].id
+
+      if (more) {
+        lower_bound = next_key
+      } else {
+        break
+      }
     }
 
     pairs.map(r => {
