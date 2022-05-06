@@ -20,7 +20,6 @@
         :is-mirrored='false',
         :vertical-compact='false',
         :use-css-transforms='false',
-        v-loading='loading',
         v-on:click.stop
       )
 </template>
@@ -70,7 +69,12 @@ export default {
             ]
           },
           type: 'area',
-          zoomType: 'xy'
+          zoomType: 'xy',
+          //event: {
+          //  redraw(event) {
+          //    alert('Chart loaded')
+          //  }
+          //}
         },
         title: {
           text: '',
@@ -256,7 +260,6 @@ export default {
       },
       bids: [],
       asks: [],
-      loading: false,
       parentHeight: 0
     }
   },
@@ -289,6 +292,7 @@ export default {
 
   watch: {
     markets_layout(_new, old) {
+      console.log('chartContainer', this.$refs.chartContainer)
       this.$refs.chart.chart.setSize(
         this.$refs.chartContainer.offsetWidth,
         this.$refs.chartContainer.offsetHeight
@@ -296,6 +300,8 @@ export default {
     },
 
     depthChartUpdated(newData, oldData) {
+      console.log('chartContainer', this.$refs.chartContainer)
+
       this.$refs.chart.chart.setSize(
         this.$refs.chartContainer.offsetWidth,
         this.$refs.chartContainer.offsetHeight
@@ -304,17 +310,18 @@ export default {
 
     sorted_asks(newAsks, oldAsks) {
       this.setAsks()
-
-      //this.updateChartData(this.asks, this.bids)
     },
 
     sorted_bids(newBids, oldBids) {
       this.setBids()
     }
   },
+
   mounted() {
-    this.setAsks()
-    this.setBids()
+    setTimeout(() => {
+      this.setAsks()
+      this.setBids()
+    }, 1)
 
     this.$nextTick(() => {
       let chartContrainerInterval = null
@@ -330,11 +337,6 @@ export default {
     })
   },
   methods: {
-    updateChartData(asks, bids) {
-      // this.$refs.chart.chart.series[0].update({ data: asks.slice(0, 5) })
-      // this.$refs.chart.chart.series[1].update({ data: bids.slice(0, 5) })
-    },
-
     showmessage(e) {
       e.stopPropagations
     },

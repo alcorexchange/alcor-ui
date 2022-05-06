@@ -68,7 +68,6 @@
               :vertical-compact='false',
               :margin='[10, 10]',
               :use-css-transforms='false',
-              :depthChartUpdated='depthChartUpdated'
             )
 
         .h-100(v-if='item.i == "time-sale"', :min-w='3')
@@ -194,7 +193,6 @@ export default {
       showOrderSettingsModal: false,
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
-      depthChartUpdated: false,
       orderbok_tab: 0,
       markets_tab: 0
     }
@@ -287,9 +285,8 @@ export default {
         }
       })
     },
-    layoutUpdatedEvent(e) {
-      if (e.i == 'order-depth') this.depthChartUpdated = !this.depthChartUpdated
 
+    layoutUpdatedEvent(e) {
       console.log('this.markets_layout', JSON.stringify(this.markets_layout))
     }
   }
