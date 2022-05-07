@@ -79,7 +79,7 @@
         el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_tab")
           el-tab-pane(label='Markets')
             Markets.mt-1
-          el-tab-pane.h-10(label='Times & Sales')
+          el-tab-pane(label='Times & Sales')
             LatestDeals(:timeformat='timeformat')
 
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")

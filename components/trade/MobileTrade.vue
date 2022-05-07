@@ -190,6 +190,9 @@
           my-trade-history(:only-current-pair="hideOtherPairs")
         el-tab-pane(label='Funds')
           my-funds(:only-current-pair="hideOtherPairs")
+
+  .latest-deals.mt-2
+    LatestDeals
 </template>
 
 <script>
@@ -268,6 +271,10 @@ export default {
   background: #121212;
   padding: 10px;
   font-size: 12px !important;
+
+  .latest-deals {
+    height: 250px;
+  }
 
   .header-items-container {
     scroll-behavior: none;
