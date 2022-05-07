@@ -22,6 +22,22 @@
           )
     .col.pl-0
       order-form-vertical
+
+  .row.mt-2
+    .col
+      alcor-tabs(type="border-card").border-tabs
+        template(slot='right')
+          .d-flex.pairs-switch-right
+            .module-name.mr-2 Hide other pairs
+            .module-pickers.d-flex.flex-row
+              el-switch(v-model='hideOtherPairs', active-color='#13ce66', inactive-color='#161617')
+        el-tab-pane(label='Open orders')
+          my-orders(:only-current-pair="hideOtherPairs")
+        el-tab-pane(label='Trade History')
+          my-trade-history(:only-current-pair="hideOtherPairs")
+        el-tab-pane(label='Funds')
+          my-funds(:only-current-pair="hideOtherPairs")
+
   .latest-deals.mt-2.mb-4
     LatestDeals
 </template>
@@ -59,6 +75,12 @@ export default {
   },
 
   mixins: [trade],
+
+  data() {
+    return {
+      hideOtherPairs: false
+    }
+  }
 }
 </script>
 
