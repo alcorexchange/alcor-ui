@@ -72,7 +72,7 @@
     )
       template(slot-scope='scope')
         span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(scope.row.volume24) }}
-        span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
+        span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat(0) }} {{ scope.row.base_token.symbol.name }}
 
     template(slot="append")
       infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite" force-use-infinite-wrapper=".markets-bar .el-table__body-wrapper")
