@@ -114,24 +114,8 @@
             .module-name {{ settingBtnTitles[settingBtn.i] }}
             .module-pickers.d-flex.flex-row
               el-switch(
-                v-model='settingBtn.status',
-                @change='updateState()',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-          //.module-list.d-flex.flex-row.justify-content-between
-            .module-name Markets
-            .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='marketswitchvalue',
-                active-color='#13ce66',
-                inactive-color='#161617'
-              )
-          //.module-list.d-flex.flex-row.justify-content-between
-            .module-name Favorites
-            .module-pickers.d-flex.flex-row
-              el-switch(
-                v-model='favoritesswitchvalue',
+                :value='settingBtn.status',
+                @change='setStatus(settingBtn.i, !settingBtn.status)',
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
@@ -224,8 +208,13 @@ export default {
       if (e.target.value == 'oranger') this.checkedorange = true
     },
 
-    updateState() {
-      this.$store.commit('market/setMarketLayout', this.markets_layout)
+    setStatus(i, status) {
+      const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
+
+      const current = JSON.parse(JSON.stringify(this.markets_layout))
+      current[existsAtIndex] = { ...this.markets_layout[existsAtIndex], status }
+
+      this.$store.commit('market/setMarketLayout', current)
     },
 
     initiateState() {
