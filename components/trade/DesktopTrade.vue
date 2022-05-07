@@ -12,6 +12,7 @@
       :margin='[4, 4]',
       :use-css-transforms='true'
       @layout-updated="layoutUpdatedEvent"
+      @breakpoint-changed="layoutUpdatedEvent"
       v-if="markets_layout.length > 0")
 
       grid-item.overflowbox(
@@ -30,6 +31,7 @@
         @resized='itemUpdatedEvent(item)',
         @move="itemUpdatedEvent(item)"
         @moved='itemUpdatedEvent(item)',
+        @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
         drag-allow-from='.el-tabs__header, .times-and-sales, .box-card'
       )
@@ -227,7 +229,8 @@ export default {
         } else if (this.current_market_layout == 'full') {
           return TRADE_LAYOUTS.full
         } else {
-          return JSON.parse(JSON.stringify(this.$store.state.market.markets_layout))
+          //return JSON.parse(JSON.stringify(this.$store.state.market.markets_layout))
+          return this.$store.state.market.markets_layout
         }
       },
 
@@ -292,27 +295,35 @@ export default {
     },
 
     closegriditem(i) {
-      const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
+      if (this.current_market_layout != 'advanced') return
+      this.$store.commit('market/setMarketLayout', this.markets_layout)
+      //const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
 
-      const current = JSON.parse(JSON.stringify(this.markets_layout))
-      current[existsAtIndex] = { ...this.markets_layout[existsAtIndex], status: false }
+      //const current = JSON.parse(JSON.stringify(this.markets_layout))
+      //current[existsAtIndex] = { ...this.markets_layout[existsAtIndex], status: false }
 
-      this.$store.commit('market/setMarketLayout', current)
+      //this.$store.commit('market/setMarketLayout', current)
     },
 
     layoutUpdatedEvent(layout) {
-      if (isEqual(layout, this.$store.state.market.markets_layout)) return // Or will be recursive
+      if (this.current_market_layout != 'advanced') return
+      this.$store.commit('market/setMarketLayout', this.markets_layout)
+      //if (this.current_market_layout != 'advanced') return
+      //if (isEqual(layout, this.$store.state.market.markets_layout)) return // Or will be recursive
 
-      this.$store.commit('market/setMarketLayout', layout)
+      //this.$store.commit('market/setMarketLayout', layout)
     },
 
     itemUpdatedEvent(item) {
-      const existsAtIndex = this.markets_layout.findIndex(u => u.i === item.i)
+      if (this.current_market_layout != 'advanced') return
+      this.$store.commit('market/setMarketLayout', this.markets_layout)
 
-      const current = JSON.parse(JSON.stringify(this.markets_layout))
+      //const existsAtIndex = this.markets_layout.findIndex(u => u.i === item.i)
 
-      current[existsAtIndex] = item
-      this.$store.commit('market/setMarketLayout', current)
+      //const current = JSON.parse(JSON.stringify(this.markets_layout))
+
+      //current[existsAtIndex] = item
+      //this.$store.commit('market/setMarketLayout', current)
     }
   }
 }
