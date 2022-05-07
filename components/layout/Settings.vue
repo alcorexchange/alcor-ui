@@ -136,7 +136,7 @@
                 inactive-color='#161617'
               )
       .el-footer.module-footer.default-settings-part
-        .return-default-setting(@click='initiateState()') Return to Default Settings
+        .return-default-setting.hoverable(@click='initiateState()') Return to Default Settings
 
     // TODO
     //.el-container.setting-layout.d-flex.flex-column
@@ -634,8 +634,8 @@ input[type='radio']:checked + label:before {
   padding: 16px 16px !important;
 }
 
-.return-default-setting:hover {
-  color: #1fc781;
+.return-default-setting {
+  color: var(--secondary-green);
 }
 
 .module-list {
