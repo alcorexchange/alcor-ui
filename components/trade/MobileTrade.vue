@@ -191,7 +191,7 @@
         el-tab-pane(label='Funds')
           my-funds(:only-current-pair="hideOtherPairs")
 
-  .latest-deals.mt-2
+  .latest-deals.mt-2.mb-4
     LatestDeals
 </template>
 

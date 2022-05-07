@@ -313,6 +313,12 @@ export default {
   }
 }
 
+.time-sale {
+  .mobile-close {
+    display: none;
+  }
+}
+
 .theme-dark {
   .markets-bar {
     background-color: var(--background-color-secondary);

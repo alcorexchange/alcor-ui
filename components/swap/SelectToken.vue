@@ -155,7 +155,6 @@ export default {
       if (this.static) return
 
       this.visible = !this.visible
-      console.log('this.visible', this.visible)
 
       if (this.visible) {
         setTimeout(() => {

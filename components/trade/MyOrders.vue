@@ -25,17 +25,17 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-if="isM
       el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
 
 
-// DESCTOP
+// DESKTOP
 el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-else)
   template(slot="empty")
     span(v-if="user") No open orders
     el-button(v-else type="default" @click='$store.dispatch("modal/login")') Connect Wallet
 
-  el-table-column(label='Time', width='100')
+  el-table-column(label='Time', width='110')
     template(slot-scope='scope')
       span {{ scope.row.timestamp | moment("MM-DD HH:mm:ss") }}
 
-  el-table-column(label='Pair' width=100)
+  el-table-column(label='Pair' width=110)
     template(slot-scope='{ row }')
       span.hoverable.pointer(:class="{ underline: id != row.market.id }" @click="setMarket(row.market)") {{ row.market_symbol }}
 
@@ -44,7 +44,7 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-else)
       span.green(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
       span.red(v-else) {{ row.type.toUpperCase() }}
 
-  el-table-column(label='Price' width="90")
+  el-table-column(label='Price' width="100")
     template(slot-scope='scope')
       span {{ scope.row.unit_price | humanPrice }}
 

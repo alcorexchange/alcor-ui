@@ -303,10 +303,9 @@ export default {
   },
 
   mounted() {
-    this.layouts = cloneDeep(this.markets_layout)
-
     this.$nextTick(() => {
       this.screenWidth = window.innerWidth
+      this.layouts = cloneDeep(this.markets_layout)
 
       window.addEventListener('resize', () => {
         this.screenWidth = window.innerWidth
