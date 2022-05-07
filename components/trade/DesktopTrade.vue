@@ -11,6 +11,7 @@
       :vertical-compact='true',
       :margin='[4, 4]',
       :use-css-transforms='true'
+      @layout-updated="layoutUpdatedEvent"
       v-if="markets_layout.length > 0")
 
       grid-item.overflowbox(
@@ -25,7 +26,10 @@
         :min-w='parseInt(item.mw)',
         :min-h='parseInt(item.mh)',
         :class='item.i',
-        @resized='layoutUpdatedEvent(item)',
+        @resize="itemUpdatedEvent(item)"
+        @resized='itemUpdatedEvent(item)',
+        @move="itemUpdatedEvent(item)"
+        @moved='itemUpdatedEvent(item)',
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
         drag-allow-from='.el-tabs__header, .times-and-sales, .box-card'
       )
@@ -134,6 +138,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import { isEqual } from 'lodash'
 
 import OrderbookModel from '~/components/trade/modals/OrderbookModel'
 import MarketTrade from '~/components/trade/MarketTrade'
@@ -267,20 +272,25 @@ export default {
   },
 
   methods: {
+    test(data) {
+      console.log('data', data)
+    },
+
     cancel_confirm_order(isCancel) {
       this.orderdata.show_cancel_modal = false
-      //
     },
+
     move_confirm_order(isMove) {
       this.orderdata.show_move_modal = false
       if (isMove) this.orderdata.price = this.orderdata.new_price
-      //
     },
+
     resize(iname, newH, newW, newHPx, newWPx) {
       if (iname == 'order-depth') {
         this.resizestatus = { i: iname, height: newH * 40, width: newW }
       }
     },
+
     closegriditem(i) {
       const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
 
@@ -290,7 +300,13 @@ export default {
       this.$store.commit('market/setMarketLayout', current)
     },
 
-    layoutUpdatedEvent(item) {
+    layoutUpdatedEvent(layout) {
+      if (isEqual(layout, this.$store.state.market.markets_layout)) return // Or will be recursive
+
+      this.$store.commit('market/setMarketLayout', layout)
+    },
+
+    itemUpdatedEvent(item) {
       const existsAtIndex = this.markets_layout.findIndex(u => u.i === item.i)
 
       const current = JSON.parse(JSON.stringify(this.markets_layout))

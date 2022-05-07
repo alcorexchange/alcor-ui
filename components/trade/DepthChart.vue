@@ -292,20 +292,13 @@ export default {
 
   watch: {
     markets_layout(_new, old) {
-      console.log('chartContainer', this.$refs.chartContainer)
-      this.$refs.chart.chart.setSize(
-        this.$refs.chartContainer.offsetWidth,
-        this.$refs.chartContainer.offsetHeight
-      )
+      this.resize()
     },
 
     depthChartUpdated(newData, oldData) {
       console.log('chartContainer', this.$refs.chartContainer)
 
-      this.$refs.chart.chart.setSize(
-        this.$refs.chartContainer.offsetWidth,
-        this.$refs.chartContainer.offsetHeight
-      )
+      this.resize()
     },
 
     sorted_asks(newAsks, oldAsks) {
@@ -336,7 +329,17 @@ export default {
       }, 100)
     })
   },
+
   methods: {
+    resize() {
+      setTimeout(() => {
+        this.$refs.chart.chart.setSize(
+          this.$refs.chartContainer.offsetWidth,
+          this.$refs.chartContainer.offsetHeight
+        )
+      }, 1)
+    },
+
     showmessage(e) {
       e.stopPropagations
     },

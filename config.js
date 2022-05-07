@@ -808,7 +808,7 @@ const TRADE_LAYOUTS = {
       i: 'order-form-vertical',
       status: false,
       mw: 5,
-      mh: 3,
+      mh: 10,
       moved: false,
     },
   ],
