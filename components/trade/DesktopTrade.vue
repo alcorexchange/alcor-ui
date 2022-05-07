@@ -2,7 +2,7 @@
 .trading-terminal
   client-only
     grid-layout(
-      :layout.sync='markets_layout',
+      :layout='markets_layout',
       :col-num='24',
       :row-height='40',
       :is-draggable='true',
@@ -14,7 +14,7 @@
       v-if="markets_layout.length > 0")
 
       grid-item.overflowbox(
-        v-for='item in markets_layout',
+        v-for='item in markets_layout.filter((item) => item.status)',
         :key="item.i",
         :x='item.x',
         :y='item.y',
@@ -215,17 +215,20 @@ export default {
       return this.current_market_layout == 'advanced'
     },
 
-    markets_layout() {
-      let layout
-      if (this.current_market_layout == 'classic') {
-        layout = this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
-      } else if (this.current_market_layout == 'full') {
-        layout = TRADE_LAYOUTS.full
-      } else {
-        layout = this.$store.state.market.markets_layout
-      }
+    markets_layout: {
+      get() {
+        if (this.current_market_layout == 'classic') {
+          return this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
+        } else if (this.current_market_layout == 'full') {
+          return TRADE_LAYOUTS.full
+        } else {
+          return JSON.parse(JSON.stringify(this.$store.state.market.markets_layout))
+        }
+      },
 
-      return layout.filter((item) => item.status)
+      set() {
+        console.log('try set layout')
+      }
     },
 
     hideOtherPairs: {
@@ -278,16 +281,22 @@ export default {
         this.resizestatus = { i: iname, height: newH * 40, width: newW }
       }
     },
-    closegriditem(item_name) {
-      this.markets_layout.map((item) => {
-        if (item.i == item_name) {
-          item.status = false
-        }
-      })
+    closegriditem(i) {
+      const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
+
+      const current = JSON.parse(JSON.stringify(this.markets_layout))
+      current[existsAtIndex] = { ...this.markets_layout[existsAtIndex], status: false }
+
+      this.$store.commit('market/setMarketLayout', current)
     },
 
-    layoutUpdatedEvent(e) {
-      console.log('this.markets_layout', JSON.stringify(this.markets_layout))
+    layoutUpdatedEvent(item) {
+      const existsAtIndex = this.markets_layout.findIndex(u => u.i === item.i)
+
+      const current = JSON.parse(JSON.stringify(this.markets_layout))
+
+      current[existsAtIndex] = item
+      this.$store.commit('market/setMarketLayout', current)
     }
   }
 }
