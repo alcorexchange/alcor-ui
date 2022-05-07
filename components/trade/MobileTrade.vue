@@ -23,7 +23,7 @@
     .col.pl-0
       order-form-vertical
 
-  .row.mt-2
+  .row.mt-1
     .col
       alcor-tabs(type="border-card").border-tabs
         template(slot='right')
@@ -38,22 +38,18 @@
         el-tab-pane(label='Funds')
           my-funds(:only-current-pair="hideOtherPairs")
 
-  .latest-deals.mt-2.mb-4
+  .latest-deals.mt-1.mb-4
     LatestDeals
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 import { trade } from '~/mixins/trade'
 
 import OrderBook from '~/components/trade/OrderBook'
 import Chart from '~/components/trade/Chart'
-import TokenImage from '~/components/elements/TokenImage'
 import MyOrders from '~/components/trade/MyOrders'
 import TopLine from '~/components/trade/TopLine'
 import LatestDeals from '~/components/trade/LatestDeals'
-import FavoritesTopLine from '~/components/trade/FavoritesTopLine'
 import MyTradeHistory from '~/components/trade/MyTradeHistory'
 import MyFunds from '~/components/trade/MyFunds'
 import DepthChart from '~/components/trade/DepthChart'
@@ -63,11 +59,9 @@ export default {
   components: {
     OrderBook,
     Chart,
-    TokenImage,
     MyOrders,
     TopLine,
     LatestDeals,
-    FavoritesTopLine,
     MyFunds,
     MyTradeHistory,
     DepthChart,
