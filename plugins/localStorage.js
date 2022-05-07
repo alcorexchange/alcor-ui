@@ -14,7 +14,8 @@ export default ({ store }) => {
       'market.orderbook_settings',
 
       'settings.sideMaretsTab', 'settings.favMarkets', 'settings.twChart',
-      'settings.hideOtherPairs', 'settings.timesAndSales', 'settings.rpc_nodes'
+      'settings.hideOtherPairs', 'settings.timesAndSales', 'settings.rpc_nodes',
+      'settings.markets_timesale_tab'
     ]
   })(store)
 }

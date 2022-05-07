@@ -11,6 +11,7 @@ const ping = new Ping()
 export const state = () => ({
   hideOtherPairs: false,
   sideMaretsTab: 'system', // System token
+  markets_timesale_tab: 1,
   favMarkets: [],
   twChart: {},
   timesAndSales: {},
@@ -29,7 +30,8 @@ export const mutations = {
   setAutoNodeSelect: (state, value) => state.auto_node_select = value,
   setRpcNodes: (state, value) => state.rpc_nodes = value,
   updateRpcNode: (state, { key, value }) => state.rpc_nodes[key] = value,
-  setCurrentNode: (state, value) => state.current_node = value
+  setCurrentNode: (state, value) => state.current_node = value,
+  setMarketsTimesaleTab: (state, value) => state.markets_timesale_tab = value
 }
 
 export const actions = {

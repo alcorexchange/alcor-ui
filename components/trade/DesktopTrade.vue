@@ -50,7 +50,7 @@
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
-          TimeSaleModal(v-if='item.i == "time-sale" && markets_tab == 1')
+          TimeSaleModal(v-if='item.i == "time-sale" && markets_timesale_tab == 1')
           OrderbookModel(v-else-if='item.i == "order-depth" && orderbok_tab == 0')
           SettingModal(v-else-if='item.i == "chart"')
 
@@ -76,7 +76,7 @@
               :use-css-transforms='false',
             )
 
-        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_tab")
+        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
           el-tab-pane(label='Markets')
             Markets.mt-1
           el-tab-pane(label='Times & Sales')
@@ -201,7 +201,6 @@ export default {
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
       orderbok_tab: 0,
-      markets_tab: 0,
 
       layouts: []
     }
@@ -226,6 +225,16 @@ export default {
 
     layouts_grid() {
       return this.layouts.filter(i => i.status)
+    },
+
+    markets_timesale_tab: {
+      get() {
+        return this.$store.state.settings.markets_timesale_tab
+      },
+
+      set(value) {
+        this.$store.commit('settings/setMarketsTimesaleTab', value)
+      }
     },
 
     markets_layout: {
@@ -272,7 +281,6 @@ export default {
   watch: {
     '$store.state.market.markets_layout'() {
       if (this.current_market_layout != 'advanced') return
-      console.log('layout обновлен после обновления стра')
       this.layouts = this.$store.state.market.markets_layout
     },
 
@@ -285,11 +293,8 @@ export default {
         // We update only for advanced mode
         if (this.current_market_layout != 'advanced') return
 
-        //console.log('try to update store layout')
-
         if (!isEqual(newValue, this.markets_layout)) {
           this.$store.commit('market/setMarketLayout', this.layouts)
-          console.log('layouts updated in watch')
         }
       },
 
