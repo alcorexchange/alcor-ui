@@ -224,6 +224,7 @@ export default {
 
     markets_layout: {
       get() {
+        let l
         if (this.current_market_layout == 'classic') {
           return this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
         } else if (this.current_market_layout == 'full') {
@@ -294,36 +295,29 @@ export default {
       }
     },
 
-    closegriditem(i) {
+    closegriditem(item_name) {
+      this.markets_layout.map((item) => {
+        if (item.i == item_name) {
+          item.status = false
+        }
+      })
+
       if (this.current_market_layout != 'advanced') return
+      if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
       this.$store.commit('market/setMarketLayout', this.markets_layout)
-      //const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
-
-      //const current = JSON.parse(JSON.stringify(this.markets_layout))
-      //current[existsAtIndex] = { ...this.markets_layout[existsAtIndex], status: false }
-
-      //this.$store.commit('market/setMarketLayout', current)
     },
 
     layoutUpdatedEvent(layout) {
       if (this.current_market_layout != 'advanced') return
-      this.$store.commit('market/setMarketLayout', this.markets_layout)
-      //if (this.current_market_layout != 'advanced') return
-      //if (isEqual(layout, this.$store.state.market.markets_layout)) return // Or will be recursive
+      if (isEqual(layout, this.$store.state.market.markets_layout)) return
 
-      //this.$store.commit('market/setMarketLayout', layout)
+      this.$store.commit('market/setMarketLayout', this.markets_layout)
     },
 
     itemUpdatedEvent(item) {
       if (this.current_market_layout != 'advanced') return
+      if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
       this.$store.commit('market/setMarketLayout', this.markets_layout)
-
-      //const existsAtIndex = this.markets_layout.findIndex(u => u.i === item.i)
-
-      //const current = JSON.parse(JSON.stringify(this.markets_layout))
-
-      //current[existsAtIndex] = item
-      //this.$store.commit('market/setMarketLayout', current)
     }
   }
 }
