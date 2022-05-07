@@ -2,7 +2,7 @@
 .trading-terminal
   client-only
     grid-layout(
-      :layout='markets_layout',
+      :layout='layouts_grid',
       :col-num='24',
       :row-height='40',
       :is-draggable='true',
@@ -13,10 +13,10 @@
       :use-css-transforms='true'
       @layout-updated="layoutUpdatedEvent"
       @breakpoint-changed="layoutUpdatedEvent"
-      v-if="markets_layout.length > 0")
+      v-if="layouts.length > 0")
 
       grid-item.overflowbox(
-        v-for='item in markets_layout.filter((item) => item.status)',
+        v-for='item in layouts.filter(i => i.status)',
         :key="item.i",
         :x='item.x',
         :y='item.y',
@@ -140,7 +140,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash'
 
 import OrderbookModel from '~/components/trade/modals/OrderbookModel'
 import MarketTrade from '~/components/trade/MarketTrade'
@@ -201,7 +201,9 @@ export default {
       timeformat: 'DD-MM HH:mm',
       resizestatus: null,
       orderbok_tab: 0,
-      markets_tab: 0
+      markets_tab: 0,
+
+      layouts: []
     }
   },
 
@@ -222,20 +224,26 @@ export default {
       return this.current_market_layout == 'advanced'
     },
 
+    layouts_grid() {
+      return this.layouts.filter(i => i.status)
+    },
+
     markets_layout: {
       get() {
         let l
         if (this.current_market_layout == 'classic') {
-          return this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
+          l = this.screenWidth > 1350 ? TRADE_LAYOUTS.classic : TRADE_LAYOUTS.classic_small
         } else if (this.current_market_layout == 'full') {
-          return TRADE_LAYOUTS.full
+          l = TRADE_LAYOUTS.full
         } else {
-          //return JSON.parse(JSON.stringify(this.$store.state.market.markets_layout))
-          return this.$store.state.market.markets_layout
+          l = this.$store.state.market.markets_layout
         }
+
+        return l
       },
 
       set() {
+        // TODO No need
         console.log('try set layout')
       }
     },
@@ -261,7 +269,37 @@ export default {
     }
   },
 
+  watch: {
+    '$store.state.market.markets_layout'() {
+      if (this.current_market_layout != 'advanced') return
+      console.log('layout обновлен после обновления стра')
+      this.layouts = this.$store.state.market.markets_layout
+    },
+
+    current_market_layout() {
+      this.layouts = cloneDeep(this.markets_layout)
+    },
+
+    layouts: {
+      handler(newValue) {
+        // We update only for advanced mode
+        if (this.current_market_layout != 'advanced') return
+
+        //console.log('try to update store layout')
+
+        if (!isEqual(newValue, this.markets_layout)) {
+          this.$store.commit('market/setMarketLayout', this.layouts)
+          console.log('layouts updated in watch')
+        }
+      },
+
+      deep: true
+    }
+  },
+
   mounted() {
+    this.layouts = cloneDeep(this.markets_layout)
+
     this.$nextTick(() => {
       this.screenWidth = window.innerWidth
 
@@ -296,27 +334,28 @@ export default {
     },
 
     closegriditem(item_name) {
-      this.markets_layout.map((item) => {
+      this.layouts.map((item) => {
         if (item.i == item_name) {
           item.status = false
         }
       })
 
-      if (this.current_market_layout != 'advanced') return
-      if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
-      this.$store.commit('market/setMarketLayout', this.markets_layout)
+      //if (this.current_market_layout != 'advanced') return
+      //if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
+      //this.$store.commit('market/setMarketLayout', this.markets_layout)
     },
 
     layoutUpdatedEvent(layout) {
       if (this.current_market_layout != 'advanced') return
-      if (isEqual(layout, this.$store.state.market.markets_layout)) return
+      //if (isEqual(layout, this.$store.state.market.markets_layout)) return
 
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     },
 
     itemUpdatedEvent(item) {
       if (this.current_market_layout != 'advanced') return
-      if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
+      //if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
+
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     }
   }

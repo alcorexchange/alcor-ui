@@ -754,7 +754,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 9,
       mh: 5,
-      moved: false,
+      moved: false
     },
     {
       x: 14,
@@ -765,7 +765,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 5,
       mh: 4,
-      moved: false,
+      moved: false
     },
     {
       x: 19,
@@ -776,7 +776,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 5,
       mh: 4,
-      moved: false,
+      moved: false
     },
     {
       x: 0,
@@ -787,7 +787,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 10,
       mh: 4,
-      moved: false,
+      moved: false
     },
     {
       x: 14,
@@ -798,19 +798,19 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 6,
       mh: 7,
-      moved: false,
+      moved: false
     },
     {
-      x: 14,
-      y: 21,
+      x: 19,
+      y: 0,
       w: 5,
       h: 10,
       i: 'order-form-vertical',
       status: false,
       mw: 5,
       mh: 10,
-      moved: false,
-    },
+      moved: false
+    }
   ],
 
   full: [

@@ -109,13 +109,13 @@
       .el-main.module-main-settings
         .module-selection.d-flex.flex-column
           .module-list.d-flex.flex-row.justify-content-between(
-            v-for='settingBtn in markets_layout'
+            v-for='layout in markets_layout'
           )
-            .module-name {{ settingBtnTitles[settingBtn.i] }}
+            .module-name {{ settingBtnTitles[layout.i] }}
             .module-pickers.d-flex.flex-row
               el-switch(
-                :value='settingBtn.status',
-                @change='setStatus(settingBtn.i, !settingBtn.status)',
+                :value='layout.status',
+                @change='setStatus(layout, !layout.status)',
                 active-color='#13ce66',
                 inactive-color='#161617'
               )
@@ -195,6 +195,22 @@ export default {
       set(value) {
         return this.$store.commit('settings/setAutoNodeSelect', value)
       }
+    },
+
+    markets_layout_settings() {
+      return TRADE_LAYOUTS.advanced.map(item => {
+        const existed = this.markets_layout.filter(i => i.i == item.i)[0]
+
+        if (item.status && !existed) {
+          item.status = false
+        }
+
+        if (existed) {
+          item.status = existed.status
+        }
+
+        return item
+      })
     }
   },
 
@@ -208,17 +224,19 @@ export default {
       if (e.target.value == 'oranger') this.checkedorange = true
     },
 
-    setStatus(i, status) {
-      const existsAtIndex = this.markets_layout.findIndex(u => u.i === i)
-
+    setStatus(layout, status) {
       const current = JSON.parse(JSON.stringify(this.markets_layout))
-      current[existsAtIndex] = { ...this.markets_layout[existsAtIndex], status }
+
+      current.map((item) => {
+        if (item.i == layout.i) {
+          item.status = status
+        }
+      })
 
       this.$store.commit('market/setMarketLayout', current)
     },
 
     initiateState() {
-      this.$store.commit('market/setMarketLayout', [])
       this.$store.commit('market/setMarketLayout', TRADE_LAYOUTS.advanced)
     }
   }

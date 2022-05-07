@@ -19,6 +19,7 @@ body {
   color: var(--color-text-primary);
 
   overflow-x: hidden; // Is that correct?
+  min-height: 600px;
 }
 
 *:focus {
