@@ -70,12 +70,12 @@
               :use-css-transforms='false',
             )
 
-        .h-100(v-if='item.i == "time-sale"', :min-w='3')
-          el-tabs(type="border-card" v-model="markets_tab").h-100.no_drag
-            el-tab-pane(label='Markets')
-              Markets.mt-1
-            el-tab-pane.h-10(label='Times & Sales')
-              LatestDeals(:timeformat='timeformat')
+        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_tab")
+          el-tab-pane(label='Markets')
+            Markets.mt-1
+          el-tab-pane.h-10(label='Times & Sales')
+            LatestDeals(:timeformat='timeformat')
+
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
           el-tab-pane(label='Open orders')
             my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
@@ -88,7 +88,7 @@
           :min-h='10'
         )
           //.right-icons
-          el-tabs(type="border-card").h-100.no_drag
+          el-tabs(type="border-card").h-100
             el-tab-pane.h-10(label='Limit trade')
               .trade-box
                 limit-trade
@@ -607,11 +607,6 @@ export default {
       font-size: 14px;
       font-weight: 500;
     }
-  }
-
-  .time-sale {
-    min-width: 165px;
-    max-height: 730px;
   }
 
   .pairs-switch-right {
