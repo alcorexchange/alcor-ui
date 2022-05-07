@@ -1,40 +1,38 @@
 <template lang="pug">
 .connect-nav
-  .left
-    el-dropdown
-      .network-selection
-        img(:src="require('~/assets/icons/' + current_chain.name + '.png')" height=25).mr-2
-        span(v-if="isMobile") {{ current_chain.name }}
-        span(v-else) {{ current_chain.desc }}
-
-        i.el-icon-arrow-down
-      template(#dropdown='')
-        el-dropdown-menu.dropdown-container
-          .d-item(v-for='network in networks', :key='network.name', :value='network.name' :label="network.name" @click="changeChain(network.name)")
-            img(:src="require('~/assets/icons/' + network.name + '.png')" height=25)
-            span.ml-2(v-if="isMobile") {{ network.name }}
-            span.ml-2(v-else) {{ network.desc }}
+  .left(v-if="!isMobile").mr-2
+    chain-select
   .right
     .user-detail(v-if='user')
-      .balance(@click="openInNewTab(monitorAccount(user.name))") {{ systemBalance |commaFloat }}
+      .balance(@click='openInNewTab(monitorAccount(user.name))') {{ systemBalance | commaFloat }}
       el-dropdown
         .user-name {{ user.name }}
-        //template(#dropdown='')
+          i.el-icon-arrow-down.text-muted.ml-1
         el-dropdown-menu.dropdown-container
-          .d-item(@click="logout") Logout
+          .d-item(@click='logout') Logout
     AlcorButton.connect-button(
       v-else='',
       @click='$store.dispatch("modal/login")'
     )
       | Connect Wallet
 
-    AlcorButton.theme-toggle-button.desktop(
-      v-if="$route.name != 'index'"
+    //AlcorButton.theme-toggle-button.desktop(
+    //  v-if='$route.name != "index"',
+    //  :icon-only-alt='true',
+    //  @click='$store.dispatch("toggleTheme")'
+    //)
+    //  i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+    //  i.el-icon-moon(v-else='')
+
+    AlcorButton.theme-toggle-button.desktop.show-settings(
+      v-if='$route.name == "trade-index-id"',
       :icon-only-alt='true',
-      @click='$store.dispatch("toggleTheme")'
+      @click='showSetting = !showSetting'
     )
-      i.el-icon-sunny(v-if='$colorMode.value == "dark"')
-      i.el-icon-moon(v-else='')
+      i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
+      i.el-icon-setting.show-settings(v-else='')
+
+    settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
     //el-dropdown
       div
         //AlcorButton(:iconOnlyAlt='true')
@@ -68,15 +66,21 @@ import { mapGetters, mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
 
 import config from '~/config'
-// import AlcorLink from '@/components/AlcorLink'
+import Settings from '~/components/layout/Settings'
+import ChainSelect from '~/components/elements/ChainSelect'
+
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
+    Settings,
+    ChainSelect
     // AlcorLink
   },
+
   data() {
     return {
-      loading: false
+      loading: false,
+      showSetting: false, //to show settings modal
     }
   },
 
@@ -92,7 +96,7 @@ export default {
       return Object.values(config.networks).filter((n) =>
         ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
       )
-    }
+    },
   },
   //   props: {
   //     isFooter: {
@@ -104,7 +108,11 @@ export default {
     async logout() {
       await this.$store.dispatch('chain/logout')
     },
-
+    onClickOutside(event) {
+      if (this.showSetting) {
+        this.showSetting = false
+      }
+    },
     changeChain(chain) {
       // TODO Move to config: APP_DOMAIN
       const location =
@@ -114,8 +122,8 @@ export default {
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -176,18 +184,23 @@ export default {
   //   font-size: 0.75rem;
   // }
 }
-.network-selection {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 4px 14px;
-  color: var(--text-default);
-  span {
-    margin-right: 4px;
-  }
+
+.settings {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  background: var(--btn-default);
+  border: 2px solid rgb(63, 63, 63);
+  border-radius: 2px;
+  z-index: 9;
 }
 
 @media only screen and (max-width: 600px) {
+  //.connect-nav {
+  //  .left {
+  //    margin-right: auto;
+  //  }
+  //}
   .connect-button {
     font-size: 0.8rem;
     padding: 4px;

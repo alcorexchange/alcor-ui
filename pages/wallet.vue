@@ -1,15 +1,10 @@
-<template>
-  <div class="wallet-layout">
-    <WalletName />
-    <SSpacer high />
-    <WalletHeader />
-    <SSpacer high />
-    <SSpacer high />
-    <WalletTabBar />
-    <div class="content">
-      <nuxt-child />
-    </div>
-  </div>
+<template lang="pug">
+  .wallet-layout
+    WalletName
+    WalletHeader.mt-3
+    WalletTabBar.mt-3
+    .content
+      nuxt-child
 </template>
 
 <script>
@@ -17,6 +12,7 @@ import WalletName from '~/components/wallet/WalletName.vue'
 import WalletHeader from '~/components/wallet/WalletHeader.vue'
 import SSpacer from '~/components/SSpacer.vue'
 import WalletTabBar from '~/components/wallet/WalletTabBar.vue'
+
 export default {
   components: { WalletName, WalletHeader, SSpacer, WalletTabBar }
 }

@@ -133,8 +133,8 @@ export default {
   computed: {
     ...mapState(['network', 'liquidityPositions']),
     ...mapGetters(['user']),
-    ...mapGetters('swap', ['current']),
-    ...mapState('swap', ['pairs', 'withdraw_token']),
+    ...mapGetters('swap', ['current', 'pairs']),
+    ...mapState('swap', ['withdraw_token']),
 
     lpTokens() {
       if (!this.user || !this.user.balances) return []

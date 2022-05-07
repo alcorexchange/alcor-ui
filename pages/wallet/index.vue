@@ -121,14 +121,13 @@ export default {
     },
 
     trade(token) {
-      this.$router.push({
-        name: 'markets',
-        query: { tab: 'all', search: `${token.currency}-${token.contract}` }
-      })
+      this.openInNewTab('/markets?tab=all&search=' + `${token.currency}-${token.contract}`)
     },
+
     openDeposit() {
       this.$refs.depositPopup.openPopup({})
     },
+
     openWithdraw(row) {
       this.$refs.withdrawPopup.openPopup({
         token: {

@@ -35,6 +35,7 @@ export default class AnchoWallet extends WalletBase {
       chains: [
         {
           chainId: this.network.chainId,
+          // TODO Add RPC
           nodeUrl: `${network.protocol}://${network.host}:${network.port}`
         }
       ]

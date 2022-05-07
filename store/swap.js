@@ -1,11 +1,12 @@
+import Vue from 'vue'
 import findIndex from 'lodash/findIndex'
 
 import { asset } from 'eos-common'
-import { parseAsset, make256key } from '~/utils'
+import { make256key } from '~/utils'
 import { preparePair, get_second_tokens, get_all_tokens } from '~/utils/pools'
 
 export const state = () => ({
-  pairs: [],
+  pairs: {},
 
   input: null,
   output: null,
@@ -34,10 +35,7 @@ export const mutations = {
   setSlippage: (state, slippage) => state.slippage = slippage,
 
   updatePair: (state, pair) => {
-    const index = findIndex(state.pairs, { id: pair.id })
-    if (index === -1) return console.log('not updated pair: ', pair.id)
-
-    state.pairs.splice(index, 1, pair)
+    Vue.set(state.pairs, pair.id, pair)
   }
 }
 
@@ -61,10 +59,12 @@ export const actions = {
     if (output) commit('setOutput', output)
   },
 
-  startStream({ state, commit, dispatch, getters, rootState }) {
+  startStream({ state, commit, dispatch, getters, rootState }, pool_id) {
+    if (state.stream != null) dispatch('stopStream')
+
     const stream = setInterval(() => {
-      if (!getters.current) return
-      dispatch('updatePair', getters.current.id)
+      if (!(pool_id || getters.current)) return
+      dispatch('updatePair', pool_id || getters.current.id)
     }, 1000)
 
     commit('setStream', stream)
@@ -77,8 +77,8 @@ export const actions = {
     }
   },
 
-  setPair({ state, commit }, pair_id) {
-    const pair = state.pairs.filter(p => p.id == pair_id)[0]
+  setPair({ state, commit, getters }, pair_id) {
+    const pair = getters.pairs.filter(p => p.id == pair_id)[0]
 
     if (!pair) return // TODO ERROR
 
@@ -126,17 +126,29 @@ export const actions = {
 
     let lower_bound
     while (true) {
-      const { rows } = await this.$rpc.get_table_rows({
-        code: rootState.network.pools.contract,
-        scope: rootState.network.pools.contract,
-        table: 'pairs',
-        limit: 1000,
-        lower_bound
-      })
+      let r
+      try {
+        r = await this.$rpc.get_table_rows({
+          code: rootState.network.pools.contract,
+          scope: rootState.network.pools.contract,
+          table: 'pairs',
+          limit: 1000,
+          lower_bound
+        })
+      } catch (e) {
+        console.log('err to get paris', lower_bound)
+        continue
+      }
+
+      const { rows, more, next_key } = r
 
       pairs.push(...rows)
-      if (rows.length != 1000) break
-      lower_bound = rows[rows.length - 1].id
+
+      if (more) {
+        lower_bound = next_key
+      } else {
+        break
+      }
     }
 
     pairs.map(r => {
@@ -157,34 +169,34 @@ export const actions = {
     )
   },
 
-  updatePairOnPush({ state, commit }, data) {
-    const { pair_id, supply, pool1, pool2 } = data
+  //updatePairOnPush({ state, commit, getters }, data) {
+  //  const { pair_id, supply, pool1, pool2 } = data
 
-    const pair = state.pairs.filter(p => p.id == pair_id)[0]
-    if (!pair) return console.log('NOT FOUND PAIR FOR UPDATE BY PUSH:', pair_id)
+  //  const pair = getters.pairs.filter(p => p.id == pair_id)[0]
+  //  if (!pair) return console.log('NOT FOUND PAIR FOR UPDATE BY PUSH:', pair_id)
 
-    const update = {
-      pool1: { contract: pair.pool1.contract, quantity: pool1 },
-      pool2: { contract: pair.pool2.contract, quantity: pool2 }
-    }
+  //  const update = {
+  //    pool1: { contract: pair.pool1.contract, quantity: pool1 },
+  //    pool2: { contract: pair.pool2.contract, quantity: pool2 }
+  //  }
 
-    if (supply) {
-      update.supply = supply
-    }
+  //  if (supply) {
+  //    update.supply = supply
+  //  }
 
-    this._vm.$set(state.pairs, pair_id, preparePair({ ...pair, ...update }))
-  },
+  //  this._vm.$set(getters.pairs, pair_id, preparePair({ ...pair, ...update }))
+  //},
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
-    if (!this._vm.$nuxt.$route.name.includes('swap')) return
+    //if (!this._vm.$nuxt.$route.name.includes('swap')) return // We update pair from trade page for swap button
 
     const { rows: [new_pair] } = await this.$rpc.get_table_rows({
       code: rootState.network.pools.contract,
       scope: rootState.network.pools.contract,
       table: 'pairs',
       limit: 1,
-      lower_bound: getters.current.id,
-      upper_bound: getters.current.id
+      lower_bound: pair_id,
+      upper_bound: pair_id
     })
 
     if (!new_pair) {
@@ -197,23 +209,23 @@ export const actions = {
 
 export const getters = {
   pairs(state) {
-    return state.pairs
+    return Object.values(state.pairs)
   },
 
   tokens0(state, getters, rootState) {
-    return get_all_tokens(state.pairs)
+    return get_all_tokens(getters.pairs)
   },
 
   tokens1(state, getters, rootState) {
     if (!state.input) {
       return getters.tokens0
     } else {
-      return get_second_tokens(state.pairs, state.input)
+      return get_second_tokens(getters.pairs, state.input)
     }
   },
 
-  current(state) {
-    const pair = state.pairs.filter(p => {
+  current(state, getters) {
+    const pair = getters.pairs.filter(p => {
       if (!state.input || !state.output) return null
 
       return (

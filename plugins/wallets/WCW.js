@@ -23,8 +23,10 @@ export default class WCWWallet extends WalletBase {
 
   async checkLogin() {
     const isAutoLoginAvailable = await this.wax.isAutoLoginAvailable()
+    console.log('check wax autoLogin')
 
     if (isAutoLoginAvailable) {
+      console.log('wcw auto logined')
       return {
         name: this.wax.user.account,
         authorization: {

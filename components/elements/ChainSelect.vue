@@ -1,23 +1,32 @@
 <template lang="pug">
-el-radio-group(
-  v-if="!isMobile"
-  v-model="current_chain"
-  @change="changeChain"
-  size="small"
-  v-loading="loading"
-  ).radio-chain-select
+.d-flex.align-items-center.chain-select
+  .connection-status.mr-2
+  el-dropdown
+    .network-selection
+      img.mr-2(
+        :src='require("~/assets/icons/" + current_chain.name + ".png")',
+        height=25
+      )
 
-  el-radio-button(v-for='network in networks', :key='network.name', :value='network.name' :label="network.name")
-    img(:src="require('~/assets/icons/' + network.name + '.png')" height=12)
-    span.ml-2 {{ network.name }}
+      span(v-if='isMobile') {{ current_chain.name }}
+      span(v-else) {{ current_chain.desc }}
+      i.el-icon-arrow-down.ml-1
 
-.d-flex.align-items-center(v-else)
-  img(:src="require('~/assets/icons/' + current_chain + '.png')" height=30).mr-1
-
-  el-select(v-model='current_chain', placeholder='Select', size="small" @change="changeChain").chain-select
-    el-option(v-for='network in networks', :key='network.name', :value='network.name')
-      img(:src="require('~/assets/icons/' + network.name + '.png')" height=30)
-      span.ml-2 {{ network.desc }}
+    template(#dropdown='')
+      el-dropdown-menu.dropdown-container.chain-select-dropdown
+        .d-item(
+          v-for='network in networks',
+          :key='network.name',
+          :value='network.name',
+          :label='network.name',
+          @click='changeChain(network.name)'
+        )
+          img(
+            :src='require("~/assets/icons/" + network.name + ".png")',
+            height=25
+          )
+          span.ml-2(v-if='isMobile') {{ network.name }}
+          span.ml-2(v-else) {{ network.desc }}
 </template>
 
 <script>
@@ -26,8 +35,6 @@ import { mapState } from 'vuex'
 import config from '~/config'
 
 export default {
-  props: ['current_chain'],
-
   data() {
     return {
       loading: false
@@ -36,6 +43,10 @@ export default {
 
   computed: {
     ...mapState(['network']),
+
+    current_chain() {
+      return this.$store.state.network
+    },
 
     networks() {
       return Object.values(config.networks).filter((n) =>
@@ -60,9 +71,47 @@ export default {
 </script>
 
 <style lang="scss">
-.radio-chain-select {
-  label {
-    margin-bottom: 0px;
+.chain-select-dropdown {
+  .d-item {
+    display: flex;
+    text-align: center;
+    padding: 4px 12px;
+    min-width: 150px;
+    color: var(--text-default);
+    cursor: pointer;
+    &:hover {
+      background: var(--hover);
+    }
   }
 }
+
+.chain-select {
+  .network-selection {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--text-default);
+    span {
+      margin-right: 2px;
+    }
+  }
+
+  .connection-status {
+    /* TODO Add connection status logic */
+    width: 5px;
+    height: 5px;
+    left: 18px;
+    top: 12px;
+
+    background: var(--main-green);
+    border-radius: 5px;
+  }
+
+  .radio-chain-select {
+    label {
+      margin-bottom: 0px;
+    }
+  }
+}
+
 </style>

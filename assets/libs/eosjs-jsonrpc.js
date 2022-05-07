@@ -83,6 +83,14 @@ var JsonRpc = /** @class */ (function () {
             })
         ]);
     };
+
+    JsonRpc.prototype.setEndpoints = function (endpoints) {
+      console.log('endpoints before ', this.endpoints)
+      this.endpoints = endpoints
+      this.nextEndpoint();
+      console.log('endpoints after ', this.endpoints)
+    };
+
     JsonRpc.prototype.nextEndpoint = function () {
         if (this.endpoints.length) {
             if (this.currentEndpoint) {
@@ -90,6 +98,11 @@ var JsonRpc = /** @class */ (function () {
                 this.endpoints = this.endpoints.concat(removed || []);
             }
             this.currentEndpoint = this.endpoints[0];
+
+            // Dispatch the event.
+            const event = new CustomEvent('eosjsRpcSwitched', { detail: this.currentEndpoint });
+            window.dispatchEvent(event);
+
             console.log('Switched to API:', this.currentEndpoint);
         }
     };

@@ -138,6 +138,10 @@ export const actions = {
     this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : 'light'
   },
 
+  dynamicTheme({ state, commit }, radio_value) {
+    this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : radio_value
+  },
+
   async fetchTokens({ commit }) {
     try {
       const { data } = await this.$axios.get(
