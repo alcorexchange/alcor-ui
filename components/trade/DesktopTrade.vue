@@ -230,7 +230,7 @@ export default {
     markets_timesale_tab: {
       get() {
         console.log('this.$store.state.settings.markets_timesale_tab', this.$store.state.settings.markets_timesale_tab)
-        return this.$store.state.settings.markets_timesale_tab
+        return this.$store.state.settings.markets_timesale_tab || 1
       },
 
       set(value) {
@@ -304,7 +304,7 @@ export default {
   },
 
   mounted() {
-    if (!this.markets_timesale_tab) this.markets_timesale_tab = 0
+    if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0
 
     this.$nextTick(() => {
       this.screenWidth = window.innerWidth
@@ -320,11 +320,7 @@ export default {
     window.removeEventListener('resize', this.onResize)
   },
 
-  ethods: {
-    test(data) {
-      console.log('data', data)
-    },
-
+  methods: {
     cancel_confirm_order(isCancel) {
       this.orderdata.show_cancel_modal = false
     },
