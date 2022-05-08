@@ -11,7 +11,7 @@ const ping = new Ping()
 export const state = () => ({
   hideOtherPairs: false,
   sideMaretsTab: 'system', // System token
-  markets_timesale_tab: 1,
+  markets_timesale_tab: '1',
   favMarkets: [],
   twChart: {},
   timesAndSales: {},
