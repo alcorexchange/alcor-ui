@@ -56,12 +56,11 @@ export default {
   },
 
   methods: {
-    changeChain(v) {
-      // TODO Move to config: APP_DOMAIN
+    changeChain(to) {
       const location =
-        this.current_chain == 'wax'
+        to == 'wax'
           ? 'https://alcor.exchange/'
-          : `https://${this.current_chain}.alcor.exchange/`
+          : `https://${to}.alcor.exchange/`
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
