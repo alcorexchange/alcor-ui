@@ -2,7 +2,17 @@
 div
   el-button(type="primary" size="small" @click="open") Create pool
 
-  el-dialog(title="New pool creation", :visible="visible" @close="visible = false" width="50%" :append-to-body="true")
+  el-dialog(
+    title="New pool creation"
+    :visible="visible"
+    @close="visible = false"
+    width="50%"
+    :append-to-body="true"
+
+    :before-close="beforeDialogClose"
+    @mousedown.native="dialogMousedown"
+    @mouseup.native="dialogMouseup"
+  )
     .row
       .col
         PleaseLoginButton

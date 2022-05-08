@@ -3,9 +3,14 @@ import Vue from 'vue'
 import { asset } from 'eos-common'
 
 Vue.mixin({
-  data: () => ({
-    windowWidth: 0
-  }),
+  data() {
+    return {
+      windowWidth: 0,
+
+      mousedownCls: [],
+      mouseupCls: []
+    }
+  },
 
   computed: {
     isMobile() {
@@ -41,6 +46,24 @@ Vue.mixin({
     openInNewTab(url) {
       const win = window.open(url, '_blank')
       win.focus()
+    },
+
+    // El-dialog fix
+    dialogMousedown(e) {
+      this.mousedownCls = [...e.target.classList]
+    },
+
+    dialogMouseup(e) {
+      this.mouseupCls = [...e.target.classList]
+    },
+
+    beforeDialogClose(done) {
+      console.log('beforeDialogClose')
+      const isWrapper = this.mousedownCls.includes('el-dialog__wrapper') && this.mouseupCls.includes('el-dialog__wrapper')
+      const isClose = this.mousedownCls.includes('el-dialog__close') && this.mouseupCls.includes('el-dialog__close')
+      if (isWrapper || isClose) {
+        done()
+      }
     }
   }
 })

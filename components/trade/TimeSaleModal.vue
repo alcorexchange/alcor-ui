@@ -2,7 +2,16 @@
 .icon-btn
   i.el-icon-setting(@click='visible = true')
 
-  el-dialog(title='Times and sales settings' :visible.sync='visible' append-to-body width="350px" custom-class="trading-page-dialog")
+  el-dialog(
+    title='Times and sales settings'
+    :visible.sync='visible'
+    append-to-body width="350px"
+    custom-class="trading-page-dialog"
+
+    :before-close="beforeDialogClose"
+    @mousedown.native="dialogMousedown"
+    @mouseup.native="dialogMouseup"
+  )
     .d-flex.align-items-center
       span Amount in:
 
