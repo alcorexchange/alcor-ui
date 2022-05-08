@@ -230,7 +230,7 @@ export default {
     markets_timesale_tab: {
       get() {
         console.log('this.$store.state.settings.markets_timesale_tab', this.$store.state.settings.markets_timesale_tab)
-        return this.$store.state.settings.markets_timesale_tab || 0
+        return this.$store.state.settings.markets_timesale_tab
       },
 
       set(value) {
