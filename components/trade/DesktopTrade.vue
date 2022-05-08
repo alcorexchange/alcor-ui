@@ -229,6 +229,7 @@ export default {
 
     markets_timesale_tab: {
       get() {
+        console.log('this.$store.state.settings.markets_timesale_tab', this.$store.state.settings.markets_timesale_tab)
         return this.$store.state.settings.markets_timesale_tab || 0
       },
 
@@ -303,6 +304,8 @@ export default {
   },
 
   mounted() {
+    if (!this.markets_timesale_tab) this.markets_timesale_tab = 0
+
     this.$nextTick(() => {
       this.screenWidth = window.innerWidth
       this.layouts = cloneDeep(this.markets_layout)
@@ -317,7 +320,7 @@ export default {
     window.removeEventListener('resize', this.onResize)
   },
 
-  methods: {
+  ethods: {
     test(data) {
       console.log('data', data)
     },
