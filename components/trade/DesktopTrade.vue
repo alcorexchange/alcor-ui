@@ -229,13 +229,11 @@ export default {
 
     markets_timesale_tab: {
       get() {
-        return this.$store.state.settings.markets_timesale_tab
-
-        //if (typeof this.$store.state.settings.markets_timesale_tab === 'string') {
-        //  return this.$store.state.settings.markets_timesale_tab
-        //} else {
-        //  return '1'
-        //}
+        if (typeof this.$store.state.settings.markets_timesale_tab === 'string') {
+          return this.$store.state.settings.markets_timesale_tab
+        } else {
+          return '1'
+        }
       },
 
       set(value) {
