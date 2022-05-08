@@ -76,7 +76,7 @@
               :use-css-transforms='false',
             )
 
-        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" :value="markets_timesale_tab")
+        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
           el-tab-pane(label='Markets')
             Markets.mt-1
           el-tab-pane(label='Times & Sales')
@@ -229,8 +229,7 @@ export default {
 
     markets_timesale_tab: {
       get() {
-        console.log('this.$store.state.settings.markets_timesale_tab', this.$store.state.settings.markets_timesale_tab)
-        return this.$store.state.settings.markets_timesale_tab || 1
+        return this.$store.state.settings.markets_timesale_tab || '1'
       },
 
       set(value) {
@@ -304,10 +303,10 @@ export default {
   },
 
   mounted() {
-    if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0
-    setTimeout(() => {
-      console.log('timeout this.markets_timesale_tab', this.markets_timesale_tab)
-    }, 5000)
+    //if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0
+    //setTimeout(() => {
+    //  console.log('timeout this.markets_timesale_tab', this.markets_timesale_tab)
+    //}, 5000)
 
     this.$nextTick(() => {
       this.screenWidth = window.innerWidth
