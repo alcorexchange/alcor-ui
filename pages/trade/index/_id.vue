@@ -58,9 +58,17 @@ export default {
         limit: 1
       })
 
-      if (rows.length == 0) {
-        return error(`market ${params.id} found`)
-      }
+      if (rows.length == 0) return error(`market ${params.id} found`)
+
+      const b_token = rows[0].base_token
+      const q_token = rows[0].quote_token
+
+      if (
+        !b_token.sym.includes(b_sym) ||
+        !q_token.sym.includes(q_sym) ||
+        b_contract != b_token.contract ||
+        q_contract != q_token.contract
+      ) { return error({ statusCode: 404, message: `market ${params.id} found` }) }
 
       store.dispatch('market/setMarket', { id: rows[0].id })
       await Promise.all([
