@@ -4,7 +4,7 @@
   .blist.first
     .ltd.first.d-flex.justify-content-around
       span Price ({{ base_token.symbol.name }})
-      span Amount ({{ (timesAndSales[id] || {}).showQuote == 'Quote' ? base_token.symbol.name : quote_token.symbol.name }})
+      span Amount ({{ (timesAndSales[id] || {}).showQuote == 'Token' ? quote_token.symbol.name : base_token.symbol.name }})
       span Time
   .orders-list.blist
     a(
@@ -61,10 +61,10 @@ export default {
 
   methods: {
     showAmount(deal) {
-      if ((this.timesAndSales[this.id] || {}).showQuote == 'Quote') {
-        return deal.type == 'sellmatch' ? deal.ask : deal.bid
-      } else {
+      if ((this.timesAndSales[this.id] || {}).showQuote == 'Token') {
         return deal.type == 'sellmatch' ? deal.bid : deal.ask
+      } else {
+        return deal.type == 'sellmatch' ? deal.ask : deal.bid
       }
     }
   }

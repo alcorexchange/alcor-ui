@@ -106,7 +106,7 @@ export default {
 
     showQuote: {
       get() {
-        return (this.timesAndSales[this.id] || {}).showQuote || 'Token'
+        return (this.timesAndSales[this.id] || {}).showQuote || 'Quote'
       },
 
       set(showQuote) {
