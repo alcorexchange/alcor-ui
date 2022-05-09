@@ -196,7 +196,7 @@ export default {
     setMarket(market) {
       if (this.id == market.id) return
 
-      if (this.id) {
+      if (!isNaN(this.id)) {
         this.$store.dispatch('market/unsubscribe', this.id)
       }
 
