@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 import { io } from 'socket.io-client'
+import { isEmpty } from 'lodash'
 
 import { JsonRpc } from 'eosjs'
 import { shuffleArray } from '../utils'
@@ -40,14 +41,36 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     // Тут RPC с возможностью менять эндпоинт
     const socket = io(
       (process.env.isDev && !process.env.DISABLE_DB)
-        //? 'localhost:7002' : state.baseUrl
         ? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] }
     )
-    const nodes = state.network.client_nodes
-    shuffleArray(nodes)
-    nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
 
-    const rpc = new JsonRpcMultiEnds(nodes, { fetch })
+    const all_nodes = Object.keys(state.network.client_nodes)
+    shuffleArray(all_nodes)
+    all_nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+    const rpc = new JsonRpcMultiEnds(all_nodes, { fetch })
+
+    // Trying to implement node selection. (anchorLink is not use jsonrpc from eosjs so not possible for now)
+    //if (isEmpty(state.settings.rpc_nodes)) commit('settings/setRpcNodes', state.network.client_nodes)
+
+    //let rpc
+    //const nodes = []
+    //if (state.settings.auto_node_select || !state.settings.current_node) {
+
+    //  if (!state.settings.auto_node_select && !state.settings.current_node) {
+    //    commit('settings/setAutoNodeSelect', true)
+    //  }
+
+    //  const all_nodes = Object.keys(state.settings.rpc_nodes)
+    //  shuffleArray(all_nodes)
+    //  all_nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+    //  nodes.push(...all_nodes)
+    //  console.log('nodes', nodes)
+    //  rpc = new JsonRpcMultiEnds(nodes, { fetch })
+    //} else {
+    //  rpc = new JsonRpc(state.settings.current_node, { fetch })
+    //}
 
     inject('socket', socket)
     inject('rpc', rpc)

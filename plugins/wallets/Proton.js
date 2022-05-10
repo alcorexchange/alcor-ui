@@ -17,7 +17,7 @@ export default class AnchoWallet extends WalletBase {
 
   async checkLogin() {
     const { link, session } = await ConnectWallet({
-      linkOptions: { chainId: this.network.chainId, endpoints: ['https://proton.greymass.com'], restoreSession: true },
+      linkOptions: { chainId: this.network.chainId, endpoints: Object.keys(this.network.client_nodes), restoreSession: true },
       transportOptions: { requestAccount: this.network.contract },
       selectorOptions: {
         appName: 'Alcor',

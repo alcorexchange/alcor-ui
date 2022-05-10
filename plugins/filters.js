@@ -43,7 +43,7 @@ Vue.filter('commaFloat', function(num, precision = 4) {
   const fixed = rounded.toFixed(precision)
 
   const [int, dec] = fixed.split('.')
-  return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + '.' + dec + sym
+  return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + (dec ? '.' + dec : '') + sym
 })
 
 Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {

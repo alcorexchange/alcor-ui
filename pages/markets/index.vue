@@ -21,9 +21,6 @@
       el-radio-button(value='cross-chain', label='Cross-Chain')
         span Cross-Chain
 
-      //el-radio-button(value='terraformers', label='Terraformers' v-if="network.name == 'wax'")
-        span  Terraformers
-
     .search-container
       el-input(
         v-model='search',
@@ -41,23 +38,17 @@
 
   .table.el-card.is-always-shadow
     el-table.market-table(
-      :data='filteredMarkets',
+      :data='lazyMarkets',
+      row-key="id"
       style='width: 100%',
       @row-click='clickOrder',
-      :default-sort='{ prop: "weekVolume", order: "descending" }'
-    )
+      :default-sort='{ prop: "weekVolume", order: "descending" }')
       el-table-column(label='Pair', prop='date')
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
             :height="isMobile? '20' : '30'"
           )
-
-          //span TODO
-          //  PairIcons(
-          //    :token1="{symbol: scope.row.quote_token.symbol.name, contract: scope.row.quote_token.contract}"
-          //    :token2="{symbol: scope.row.base_token.symbol.name, contract: scope.row.base_token.contract}"
-          //  )
 
           span.ml-2
             | {{ scope.row.quote_token.symbol.name }}
@@ -71,7 +62,7 @@
         :label='`Last price`',
         sort-by='last_price',
         align='right',
-        :width='isMobile ? 110 : 150',
+        :width='isMobile ? 90 : 150',
         header-align='right',
         sortable,
         :sort-orders='["descending", null]'
@@ -113,7 +104,7 @@
         align='right',
         header-align='right',
         sortable,
-        :width='isMobile ? 157 : 200',
+        :width='isMobile ? 130 : 200',
         sort-by='volumeWeek',
         :sort-orders='["descending", null]',
       )
@@ -134,11 +125,13 @@
       )
         template(slot-scope='scope')
           change-percent(:change='scope.row.changeWeek')
+
+      template(slot="append")
+        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite")
+        //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
 <script>
-import { captureException } from '@sentry/browser'
-
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
@@ -156,7 +149,6 @@ export default {
       try {
         await store.dispatch('loadMarkets')
       } catch (e) {
-        captureException(e)
         return error({ message: e, statusCode: 500 })
       }
     }
@@ -166,6 +158,8 @@ export default {
     return {
       search: '',
 
+      skip: 0,
+      lazyMarkets: [],
       to_assets: [],
       select: {
         from: '',
@@ -239,17 +233,29 @@ export default {
         })
       }
 
-      markets = markets.filter((i) =>
-        i.slug.includes(this.search.toLowerCase()) && !i.scam
-      )
+      markets = markets
+        .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
 
-      return markets.reverse()
+      return markets
     }
   },
 
   watch: {
     search() {
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
+
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
+      this.lazyloadMarkets(null, true)
+    },
+
+    markets_active_tab() {
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
+      this.lazyloadMarkets(null, true)
     }
   },
 
@@ -260,10 +266,32 @@ export default {
       this.markets_active_tab = tab
     }
 
-    if (search) this.search = search
+    if (search) {
+      this.search = search
+    }
+
+    this.lazyloadMarkets(null, true)
   },
 
   methods: {
+    lazyloadMarkets($state, first = false) {
+      console.log('lazyloadMarkets..')
+      const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
+
+      if (append.length > 0) {
+        this.skip += 20
+        this.lazyMarkets.push(...append)
+
+        // КОстыль, само не тригерится
+        if (first) return
+
+        $state.loaded()
+      } else {
+        if (first) return
+        $state.complete()
+      }
+    },
+
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 

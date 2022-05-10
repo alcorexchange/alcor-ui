@@ -1,7 +1,8 @@
 <template lang="pug">
-  div.wallet
+  .wallet
     .table-header
-      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small")
+      // TODO
+      //el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small")
       //- TODO: add date selecting
       //el-checkbox() show trades
       //el-checkbox() show deposits
@@ -10,7 +11,7 @@
       el-table.market-table(:data='deals', style='width: 100%')
         el-table-column(label='Side' width="70")
           template(slot-scope='scope').text-success
-            span.text-success(v-if="scope.row.type == 'buy'") BUY
+            span.text-success(v-if="scope.row.side == 'buy'") BUY
             span.text-danger(v-else) SELL
 
         el-table-column(label='Asset')
@@ -20,13 +21,13 @@
           template(slot-scope='scope')
             span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
 
-        el-table-column(label='Ask' v-if="!isMobile")
+        el-table-column(label='Amount' v-if="!isMobile")
           template(slot-scope='{ row }')
-            span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
+            span {{ row.amount | commaFloat }}
 
-        el-table-column(label='Bid')
+        el-table-column(label='Total')
           template(slot-scope='{ row }')
-            span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
+            span {{ row.total | commaFloat }}
 
         el-table-column(label='Price')
           template(slot-scope='scope')
@@ -39,50 +40,12 @@
 
         template(slot="append")
           infinite-loading(@infinite='infiniteHandler' spinner="spiral")
-
-    //.table.el-card.is-always-shadow
-      el-table.market-table(
-        :data='deals',
-        style='width: 100%',
-      )
-        el-table-column(label='Date')
-          template(slot-scope='{row}') {{row.date}}
-
-        el-table-column(label='Asset',)
-          template(slot-scope='{row}') {{row.asset}}
-        el-table-column(
-          label='Action',
-        )
-          template(slot-scope='{row}') {{ row.type }}
-        el-table-column(
-          label='Price',
-        )
-          //- TODO: dynamic
-          template(slot-scope='{row}') {{ row.price }}
-        el-table-column(
-          label='Fill',
-        )
-          template(slot-scope='{row}') {{row.fill}}
-        el-table-column(
-          label='Fee',
-        )
-          template(slot-scope='{row}') {{row.fee}} WAX
-        el-table-column(
-          label='Total',
-          align="right"
-        )
-          template(slot-scope='{row}') {{row.total}}
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
-  components: {
-    InfiniteLoading
-  },
-
   data() {
     return {
       deals: [],
@@ -123,26 +86,12 @@ export default {
   },
 
   methods: {
-    getAskSymbol(deal) {
-      const market = this.markets_obj[deal.market]
-
-      return deal.type == 'buy' ? market.quote_token.symbol.name : market.base_token.symbol.name
-    },
-
-    getBidSymbol(deal) {
-      const market = this.markets_obj[deal.market]
-
-      return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
-    },
-
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
     },
 
     async infiniteHandler($state) {
-      console.log('start loading...1')
-      if (!this.user || !this.user.name) return
-      console.log('start loading...2')
+      if (!this.user || !this.user.name || Object.keys(this.markets_obj).length == 0) return
 
       const { data: deals } = await this.$axios.get(
         `/account/${this.user.name}/deals`,
@@ -158,15 +107,17 @@ export default {
 
       if (deals.length) {
         deals.map(d => {
-          d.type = this.user.name == d.bidder ? 'buy' : 'sell'
+          d.side = this.user.name == d.bidder ? 'buy' : 'sell'
+          d.market_symbol = this.markets_obj[d.market].symbol
+
+          d.amount = (d.type == 'sellmatch' ? d.bid : d.ask) + ' ' + this.markets_obj[d.market].quote_token.symbol.name
+          d.total = (d.type == 'sellmatch' ? d.ask : d.bid) + ' ' + this.markets_obj[d.market].base_token.symbol.name
         })
 
         this.deals.push(...deals)
         $state.loaded()
-        console.log('loaded')
       } else {
         $state.complete()
-        console.log('complete')
       }
     }
   }

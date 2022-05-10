@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { captureException } from '@sentry/browser'
 import { Big } from 'big.js'
+import { percentage } from '~/utils'
 
 import config from '~/config'
 
@@ -33,7 +34,7 @@ export const state = () => ({
 
   orderLoading: false,
 
-  showVolumeInUSD: false,
+  showVolumeInUSD: true,
   price_bid: null,
   amount_buy: null,
   amount_sell: null,
@@ -42,7 +43,42 @@ export const state = () => ({
   total_buy: null,
   total_sell: null,
 
-  markets_active_tab: null
+  markets_active_tab: null,
+  current_market_layout: 'classic',
+  markets_layout: config.TRADE_LAYOUTS.advanced,
+
+  orderbook_settings: {
+    totalSum: 'Total Sum'
+  },
+
+  header_settings: {
+    change_24: true,
+    volume_24: true,
+    high_24: true,
+    low_24: true,
+    volume_24_usd: false,
+    weekly_volume: false,
+    all_time: false
+  },
+
+  chart_orders_settings: {
+    show_open_orders: false,
+    show_labels: false,
+    chart_order_interactivity: false,
+    chart_executions: false,
+    show_trade_executions: false,
+    show_trade_executions_price: false,
+    show_trade_execution_amount: false
+  },
+
+  orderdata: {
+    order: {},
+    show_cancel_modal: false,
+    show_move_modal: false,
+    order_to: '',
+    price: '',
+    new_price: ''
+  }
 })
 
 export const mutations = {
@@ -54,7 +90,28 @@ export const mutations = {
   setDeals: (state, deals) => state.deals = deals,
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
-
+  setMarketLayout: (state, layout) => state.markets_layout = layout,
+  setHeaderSettings: (state, list) => state.header_settings = list,
+  setCurrentMarketLayout: (state, value) => state.current_market_layout = value,
+  setHeaderSettingsDefault: (state) => state.header_settings = {
+    change_24: true,
+    volume_24: true,
+    high_24: true,
+    low_24: true,
+    volume_24_usd: false,
+    weekly_volume: false,
+    all_time: false
+  },
+  setChartOrdersSettings: (state, list) => state.chart_orders_settings = list,
+  setChartOrdersSettingsDefault: (state) => state.chart_orders_settings = {
+    show_open_orders: false,
+    show_labels: false,
+    chart_order_interactivity: false,
+    chart_executions: false,
+    show_trade_executions: false,
+    show_trade_executions_price: false,
+    show_trade_execution_amount: false
+  },
   setMarket: (state, market) => {
     const { id, base_token, quote_token, slug } = market
 
@@ -65,6 +122,8 @@ export const mutations = {
     state.quote_token = quote_token
     state.stats = market
   },
+
+  setOrderbookSettings: (state, settings) => state.orderbook_settings = settings,
 
   SET_PRICE: (state, price) => state.price_bid = price,
 
@@ -161,7 +220,7 @@ export const actions = {
     commit('setAsks', [])
   },
 
-  startStream({ state, rootState, commit, dispatch }, market) {
+  startStream({ rootState, commit }, market) {
     if (market === undefined) return
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
@@ -224,7 +283,10 @@ export const actions = {
     commit('SET_PRICE', price)
     dispatch('calcAndSetTotal')
   },
-  changeAmount({ commit, dispatch }, params) {
+
+  changeAmount({ commit, dispatch, getters, state }, params) {
+    //console.log('changeAmount..')
+
     const amount = params.amount.toString() ? params.amount.toString().replace(/[^\d.]/g, '') : null
     const type = params.type
 
@@ -236,6 +298,11 @@ export const actions = {
     if (type == 'sell') {
       commit('SET_AMOUNT_SELL', amount)
       dispatch('calcAndSetTotal')
+    }
+
+    if (type == 'buy') {
+      //const percent = percentage(state.total_buy, getters.baseBalance)
+      //commit('SET_PERCENT_BUY', percent)
     }
   },
   async changeTotal({ state, commit, dispatch }, params) {
@@ -282,7 +349,7 @@ export const actions = {
     const correctPrice = Math.max(parseFloat(price) || 0, 1 / 10 ** precision)
     const floatPrice = correctPrice.toFixed(precision)
     commit('SET_PRICE', floatPrice)
-    dispatch('calcAndSetTotal')
+    //dispatch('calcAndSetTotal')
   },
   calculateAmount({ state }, params) {
     if (!state.price_bid || !params.total) return null
@@ -334,6 +401,7 @@ export const actions = {
       commit('SET_TOTAL_SELL', null)
     }
   },
+
   calculatePercent({ state }, params) {
     if (parseFloat(!params.balance) || params.percent == 0) return false
 
@@ -467,8 +535,11 @@ export const actions = {
 
     const actions = []
 
+    const markets_to_update = []
     orders.map(order => {
       const { account, market_id, id } = order
+
+      if (!markets_to_update.includes(market_id)) markets_to_update.push(market_id)
 
       actions.push({
         account: rootState.network.contract,
@@ -479,9 +550,10 @@ export const actions = {
     })
 
     await dispatch('chain/sendTransaction', actions, { root: true })
+
     setTimeout(() => {
       dispatch('updatePairBalances')
-      dispatch('loadOrders', orders[0].market_id, { root: true })
+      markets_to_update.map(id => dispatch('loadOrders', id, { root: true }))
     }, 1000)
   }
 }
@@ -499,10 +571,10 @@ export const getters = {
     return rootState.markets.filter(m => m.id == state.id)[0] || {}
   },
 
-  relatedPool(state, getters, rootState) {
+  relatedPool(state, getters, rootState, rootGetters) {
     const current = rootState.markets.filter(m => m.id == state.id)[0]
     if (!current) return null
-    const pool = rootState.swap.pairs.filter(p => p.i256 == current.i256)[0]
+    const pool = rootGetters['swap/pairs'].filter(p => p.i256 == current.i256)[0]
     if (!pool) return null
 
     if (pool.pool1.contract == current.quote_token.contract &&
@@ -512,6 +584,7 @@ export const getters = {
       pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
     }
 
+
     return pool
   },
 
@@ -520,11 +593,35 @@ export const getters = {
   },
 
   sorted_asks(state, getters, rootState) {
-    return state.asks.sort(sortByPrice).reverse()
+    const asks = state.asks.sort(sortByPrice).reverse()
+
+    asks.reduce((a, b) => {
+      if (a) {
+        b[3] = a[3] + b[1]
+      } else {
+        b[3] = b[1]
+      }
+
+      return b
+    }, 0)
+
+    return asks
   },
 
   sorted_bids(state, getters, rootState) {
-    return state.bids.sort(sortByPrice)
+    const bids = state.bids.sort(sortByPrice)
+
+    bids.reduce((a, b) => {
+      if (a) {
+        b[3] = a[3] + b[1]
+      } else {
+        b[3] = b[1]
+      }
+
+      return b
+    }, 0)
+
+    return bids
   },
 
   baseBalance(state, getters, rootState) {

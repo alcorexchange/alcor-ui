@@ -8,7 +8,8 @@ export function get_all_tokens(pairs) {
     let token = {
       symbol: p.pool1.quantity.symbol.code().to_string(),
       precision: p.pool1.quantity.symbol.precision(),
-      contract: p.pool1.contract
+      contract: p.pool1.contract,
+      id: p.pool1.quantity.symbol.code().to_string() + '@' + p.pool1.contract
     }
 
     if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
@@ -16,7 +17,8 @@ export function get_all_tokens(pairs) {
     token = {
       symbol: p.pool2.quantity.symbol.code().to_string(),
       precision: p.pool2.quantity.symbol.precision(),
-      contract: p.pool2.contract
+      contract: p.pool2.contract,
+      id: p.pool2.quantity.symbol.code().to_string() + '@' + p.pool2.contract
     }
 
     if (tokens.filter(t => t.contract == token.contract && t.symbol == token.symbol).length == 0) tokens.push(token)
