@@ -1,25 +1,17 @@
-<template>
-  <div class="hero">
-    <div class="left">
-      <h1>All in one DEX</h1>
-      <p class="desc">
-        Alcor is a lego of decentralized finance built on multi-chain, and a
-        provider of solutions in one tap.
-      </p>
-      <div class="actions">
-        <AlcorLink to="/markets" class="start">
-          Start Trading
-        </AlcorLink>
-        <AlcorButton @click="openInNewTab('https://docs.alcor.exchange/')">
-          Read docs
-        </AlcorButton>
-      </div>
-    </div>
-    <div class="right">
-      <Circles v-if="canShowCircles" />
-      <!-- <img src="~/assets/images/frame_logo.svg" class="frame_logo"> -->
-    </div>
-  </div>
+<template lang="pug">
+.hero
+  .left
+    h1 All in one DEX
+    p.desc
+      | Alcor is a lego of decentralized finance built on multi-chain, and a
+      | provider of solutions in one tap.
+    .actions
+      alcor-link.start(to='/markets')
+        | Start Trading
+      alcor-button(@click="openInNewTab('https://docs.alcor.exchange/')")
+        | Read docs
+  .right
+    circles(v-if='canShowCircles')
 </template>
 
 <script>
@@ -38,9 +30,6 @@ export default {
     canShowCircles() {
       return !this.$device.isAndroid
     }
-  },
-  mounted() {
-    console.log(this.$device.isAndroid)
   }
 }
 </script>

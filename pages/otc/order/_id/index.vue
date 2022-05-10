@@ -58,6 +58,7 @@ export default {
   async asyncData({ store, error, params, $rpc }) {
     const contract = store.state.network.otc.contract
 
+    // FIXME Server call
     try {
       const {
         rows: [order]
@@ -74,7 +75,7 @@ export default {
       } else {
         // TODO Redirect if order in history
         error({
-          message: `Order ${params.id} not found or finished`,
+          message: `Order ${params.id} wa sold, canceled or not created yet`,
           statusCode: 404
         })
       }

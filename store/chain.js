@@ -41,6 +41,7 @@ export const actions = {
   },
 
   async autoLogin({ state, dispatch, commit, getters }) {
+    console.log('try autoLogin..')
     const loginned = await getters.wallet.checkLogin()
     if (loginned) {
       const { name, authorization } = loginned
@@ -56,7 +57,9 @@ export const actions = {
     dispatch('loadAccountData', {}, { root: true })
 
     dispatch('loadUserBalances', {}, { root: true }).then(() => dispatch('market/updatePairBalances', {}, { root: true }))
-    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true }))
+    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true })).then(() => {
+      this._vm.$nuxt.$emit('loadUserOrdersFinish')
+    })
 
     dispatch('loadOrders', rootState.market.id, { root: true })
 
@@ -94,7 +97,6 @@ export const actions = {
     const { name, authorization } = await getters.wallet.login()
     commit('setUser', { name, authorization }, { root: true })
     dispatch('afterLoginHook')
-
 
     commit('setLastWallet', wallet_name)
 

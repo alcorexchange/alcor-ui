@@ -6,6 +6,10 @@ import config from '../config'
 
 const types = Serialize.createInitialTypes()
 
+export function percentage(partialValue, totalValue) {
+  return Math.round((100 * parseFloat(partialValue)) / parseFloat(totalValue))
+}
+
 export const isToday = (someDate) => {
   const today = new Date()
   return someDate.getDate() == today.getDate() &&

@@ -164,7 +164,7 @@ export default {
 
   computed: {
     ...mapState(['network', 'user', 'ibcTokens']),
-    ...mapState('swap', ['input', 'output', 'pairs']),
+    ...mapState('swap', ['input', 'output']),
     ...mapGetters({
       pair: 'swap/current',
       inputBalance: 'swap/inputBalance',

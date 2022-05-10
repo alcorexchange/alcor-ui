@@ -36,6 +36,10 @@ module.exports = {
       //{ name: 'viewport', content: 'user-scalable = yes' }
     ],
 
+    //script: [
+    //  { src: '/datafeeds/udf/dist/bundle.js' }
+    //],
+
     link: [
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
       { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
@@ -76,14 +80,19 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '@/plugins/element-ui',
-    '@/plugins/mixins',
-    '@/plugins/filters',
-    '@/plugins/global',
+    '~/plugins/element-ui',
+    '~/plugins/mixins',
+    '~/plugins/filters',
+    '~/plugins/global',
+    '~/plugins/vClickOutside.js',
 
+    { ssr: false, src: '~/plugins/TVChart.js' },
+    { ssr: false, src: '~/plugins/infinite.js' },
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
+    { ssr: false, src: '~/plugins/vue-grid.js' },
+    { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' }
   ],
 
   /*
@@ -93,11 +102,15 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
+    'nuxt-highcharts',
     //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
+  highcharts: {
+    /* module options */
+  },
 
   axios: {
   },

@@ -61,25 +61,6 @@ async function main() {
     io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
   })
 
-  // TODO Lagacy rm it
-  const timeout = {}
-  subscriber.subscribe('market_action', message => {
-    const [chain, market, action] = message.split('_')
-
-    if (timeout[message]) {
-      clearTimeout(timeout[message])
-    }
-    timeout[message] = setTimeout(() => {
-      if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
-        io.to(`orders:${chain}.${market}`).emit('update_bids')
-      }
-
-      if (['sellreceipt', 'cancelsell', 'buymatch'].includes(action)) {
-        io.to(`orders:${chain}.${market}`).emit('update_asks')
-      }
-    }, 400)
-  })
-
   subscriber.subscribe('orderbook_update', msg => {
     const { key, update } = JSON.parse(msg)
     const [chain, side, market] = key.split('_')

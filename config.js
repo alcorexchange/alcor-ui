@@ -1,7 +1,15 @@
 const PRICE_SCALE = 100000000
-const CONTRACT_ACTIONS = ['sellmatch', 'buymatch', 'cancelbuy', 'cancelsell', 'sellreceipt', 'buyreceipt']
+const CONTRACT_ACTIONS = [
+  'sellmatch',
+  'buymatch',
+  'cancelbuy',
+  'cancelsell',
+  'sellreceipt',
+  'buyreceipt',
+]
 const MARKET_STATS_CACHE_TIME = 60 * 30
 
+// TODO Check is all chains configs is the same structure
 const networks = {
   eos: {
     name: 'eos',
@@ -11,7 +19,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'EOS',
-      precision: 4
+      precision: 4,
     },
 
     marketCreationFee: '10.0000 EOS',
@@ -34,22 +42,22 @@ const networks = {
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://eos.greymass.com',
-      'https://mainnet.genereos.io',
-      'https://mainnet.eosamsterdam.net',
-      'https://api.eosn.io',
-      'https://eos.dfuse.eosnation.io'
-    ],
+    client_nodes: {
+      'https://eos.greymass.com': 'Greymass',
+      'https://mainnet.genereos.io': 'Generos',
+      'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
+      'https://api.eosn.io': 'EOS N',
+      'https://eos.dfuse.eosnation.io': 'Dfuse',
+    },
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'avral.pro'
+      divs: 'avral.pro',
     },
 
     pools: {
       contract: 'alcorammswap',
-      fee: 'avral.pro'
+      fee: 'avral.pro',
     },
 
     withdraw: {
@@ -57,51 +65,51 @@ const networks = {
         desc: 'Telos peged token. You can buy it for EOS and withdraw to Telos 1:1',
         network: {
           name: 'Telos',
-          symbol: 'TLOS'
+          symbol: 'TLOS',
         },
         withdrawMemo: 'TLOS {account}',
-        gateway: 'steemenginex'
+        gateway: 'steemenginex',
       },
 
       'BTCP@steemenginex': {
         desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address. 1% fee and 0.0001 BTCP Minimum requirement!',
         network: {
           name: 'Bitcoin',
-          symbol: 'BTC'
+          symbol: 'BTC',
         },
         withdrawMemo: 'BTC {account}',
-        gateway: 'steemenginex'
+        gateway: 'steemenginex',
       },
 
       'SAND@sandiegocoin': {
         desc: 'SAND peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
         network: {
           name: 'Hive-Engine',
-          symbol: 'Hive'
+          symbol: 'Hive',
         },
         withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin'
+        gateway: 'sandiegocoin',
       },
 
       'WEED@weedcashntwk': {
         desc: 'WEED peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
         network: {
           name: 'Hive-Engine',
-          symbol: 'Hive'
+          symbol: 'Hive',
         },
         withdrawMemo: 'WEED {account}',
-        gateway: 'weedcashntwk'
+        gateway: 'weedcashntwk',
       },
 
       'PBTC@btc.ptokens': {
         desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address 1:1',
         network: {
           name: 'Bitcoin',
-          symbol: 'BTC'
+          symbol: 'BTC',
         },
         withdrawMemo: '{account}',
-        gateway: 'cross.chain'
-      }
+        gateway: 'cross.chain',
+      },
 
       //'PETH@eth.ptokens': {
       //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
@@ -114,16 +122,22 @@ const networks = {
       //},
     },
 
-    RECOMMENDED_MARKETS: ['WAX@bosibc.io', 'SAND@sandiegocoin', 'TCN@capitaltatch', 'HASH@eoshashcoins', 'JOKER@joker.eos'],
+    RECOMMENDED_MARKETS: [
+      'WAX@bosibc.io',
+      'SAND@sandiegocoin',
+      'TCN@capitaltatch',
+      'HASH@eoshashcoins',
+      'JOKER@joker.eos',
+    ],
     PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
+      contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'USDT@tethertether'
+    USD_TOKEN: 'USDT@tethertether',
   },
 
   proton: {
@@ -134,7 +148,7 @@ const networks = {
     baseToken: {
       contract: 'xtokens',
       symbol: 'XUSDT',
-      precision: 6
+      precision: 6,
     },
 
     marketCreationFee: '1.000000 XUSDT',
@@ -151,28 +165,27 @@ const networks = {
     hyperion: 'https://proton.eu.eosamsterdam.net',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://nodeproton.alcor.exchange',
-      'https://proton.greymass.com',
-      'https://proton.pink.gg',
-      'https://proton.eu.eosamsterdam.net',
-      'https://api.protonnz.com',
-      'https://proton.eoscafeblock.com',
-      'https://proton.protonuk.io',
-      'https://api.proton.eossweden.org',
-      'https://proton.genereos.io',
-      'https://api.eostribe.io',
-      'https://eoscafeblock.com'
-    ],
+    client_nodes: {
+      'https://nodeproton.alcor.exchange': 'Alcor Proton node',
+      'https://proton.greymass.com': 'Greymass',
+      'https://proton.pink.gg': 'Pink GG',
+      'https://proton.eu.eosamsterdam.net': 'EOS Amsterdam',
+      'https://api.protonnz.com': 'Protonnz',
+      'https://proton.eoscafeblock.com': 'EOS Cafe',
+      'https://proton.protonuk.io': 'Protonuk',
+      'https://api.proton.eossweden.org': 'EOS Sweden',
+      'https://proton.genereos.io': 'Generos',
+      'https://api.eostribe.io': 'EOS Tribe',
+    },
 
     otc: {
       contract: 'alcorotc',
-      divs: 'avral'
+      divs: 'avral',
     },
 
     pools: {
       contract: 'alcordexpool',
-      fee: 'aw.aq.waa'
+      fee: 'aw.aq.waa',
     },
 
     withdraw: {},
@@ -183,10 +196,10 @@ const networks = {
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
+      contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'XUSDC@xtokens'
+    USD_TOKEN: 'XUSDC@xtokens',
   },
 
   wax: {
@@ -197,7 +210,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'WAX',
-      precision: 8
+      precision: 8,
     },
 
     marketCreationFee: '150.00000000 WAX',
@@ -217,48 +230,54 @@ const networks = {
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://waxnode01.alcor.exchange',
-      'https://waxnode02.alcor.exchange',
+    client_nodes: {
+      'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
+      'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
 
-      'https://wax.greymass.com',
-      'https://wax.eu.eosamsterdam.net',
-      'https://wax.eosn.io',
-      'https://wax.pink.gg' // OK
-
-      //'https://wax.cryptolions.io', CORS
-      //'https://api.waxsweden.org', CORS
-      // 'https://api.wax.liquidstudios.io', NOT WORKING
-      // 'https://wax.eoseoul.io' CORS
-      // 'https://wax.eosusa.news/' CORS
-    ],
+      'https://wax.greymass.com': 'Greymass - Canada',
+      'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
+      'https://wax.eosn.io': 'EOS Nation - Canada',
+      'https://wax.pink.gg': 'Pink GG - Germany',
+    },
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'aw.aq.waa'
+      divs: 'aw.aq.waa',
     },
 
     pools: {
       contract: 'alcorammswap',
-      fee: 'aw.aq.waa'
+      fee: 'aw.aq.waa',
     },
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['BABE@babe.hodl', 'BLUX@bluxbluxblux', 'PURPLE@purplepurple'],
+    RECOMMENDED_MARKETS: ['BRWL@brawlertoken'],
     PROMOTED_MARKETS: [424],
 
     SCAM_CONTRACTS: [
-      'usdcoinchain', 'pornhubgames', 'createtokens', 'getweedtoken', 'machine.army',
-      'onfederation', 'martaintoken', 'martiantoken'],
+      'usdcoinchain',
+      'pornhubgames',
+      'createtokens',
+      'getweedtoken',
+      'machine.army',
+      'onfederation',
+      'martaintoken',
+      'martiantoken',
+    ],
 
-    CEX_CONTRACTS: ['huobiwaxdepo', 'waxonbinance', 'kcstothemoon', 'bithumbwaxr1'],
+    CEX_CONTRACTS: [
+      'huobiwaxdepo',
+      'waxonbinance',
+      'kcstothemoon',
+      'bithumbwaxr1',
+    ],
 
     nftMarket: {
-      contract: 'alcornftswap'
+      contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'XUSDC@xtokens'
+    USD_TOKEN: 'XUSDC@xtokens',
   },
 
   telos: {
@@ -269,7 +288,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'TLOS',
-      precision: 4
+      precision: 4,
     },
 
     marketCreationFee: '100.0000 TLOS',
@@ -288,27 +307,31 @@ const networks = {
     hyperion: 'http://api.kainosbp.com',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [
-      'https://telos.greymass.com'
-    ],
+    client_nodes: {
+      'https://telos.greymass.com': 'Greymass - Canada',
+    },
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'alcordexdivs'
+      divs: 'alcordexdivs',
     },
 
     pools: {
       contract: 'alcorammswap',
-      fee: 'alcordexdivs'
+      fee: 'alcordexdivs',
     },
 
-    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'KANDA@telokandaone', 'GUX@vapaeetokens'],
+    RECOMMENDED_MARKETS: [
+      'EOS@bosibc.io',
+      'KANDA@telokandaone',
+      'GUX@vapaeetokens',
+    ],
     PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
+      contract: 'alcornftswap',
     },
 
     withdraw: {
@@ -318,8 +341,8 @@ const networks = {
         gateway: 'steemenginex',
         network: {
           name: 'EOS Mainnet',
-          symbol: 'EOS'
-        }
+          symbol: 'EOS',
+        },
       },
 
       'KANDA@telokandaone': {
@@ -328,20 +351,20 @@ const networks = {
         gateway: 'telokandaone',
         network: {
           name: 'Hive-Engine',
-          symbol: 'Hive'
-        }
+          symbol: 'Hive',
+        },
       },
 
       'SAND@sandiegocoin': {
         desc: 'SAND peged token. You can buy it for TLOS and withdraw to Hive-Engine address 1:1',
         network: {
           name: 'Hive-Engine',
-          symbol: 'Hive'
+          symbol: 'Hive',
         },
         withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin'
-      }
-    }
+        gateway: 'sandiegocoin',
+      },
+    },
   },
 
   bos: {
@@ -352,7 +375,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'BOS',
-      precision: 4
+      precision: 4,
     },
 
     marketCreationFee: '500.0000 BOS',
@@ -369,26 +392,31 @@ const networks = {
     hyperion: 'https://api.bossweden.org/',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'alcorotcswap',
-      divs: 'avraldigital'
+      divs: 'avraldigital',
     },
 
     pools: {
-      contract: 'lp'
+      contract: 'lp',
     },
 
     withdraw: {},
-    RECOMMENDED_MARKETS: ['EOS@bosibc.io', 'WAX@bosibc.io', 'TLOS@bosibc.io', ''],
+    RECOMMENDED_MARKETS: [
+      'EOS@bosibc.io',
+      'WAX@bosibc.io',
+      'TLOS@bosibc.io',
+      '',
+    ],
     PROMOTED_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'nft'
-    }
+      contract: 'nft',
+    },
   },
 
   coffe: {
@@ -399,7 +427,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'CFF',
-      precision: 4
+      precision: 4,
     },
     marketCreationFee: '20.0000 CFF',
     feeAccount: 'avral.pro',
@@ -410,20 +438,21 @@ const networks = {
     port: 8888,
     protocol: 'https',
     monitor: 'http://local.bloks.io',
-    monitor_params: 'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
+    monitor_params:
+      'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
     lightapi: 'http://coffe.io:5001',
     hyperion: 'https://resurces.com:17555/v2/',
     backEnd: 'https://alcor.exchange/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
-      divs: 'eosswapdivs1'
+      divs: 'eosswapdivs1',
     },
 
     pools: {
-      contract: 'lp'
+      contract: 'lp',
     },
 
     withdraw: {},
@@ -433,8 +462,8 @@ const networks = {
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'nft'
-    }
+      contract: 'nft',
+    },
   },
 
   waxtest: {
@@ -445,7 +474,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'WAX',
-      precision: 8
+      precision: 8,
     },
     marketCreationFee: '3.00000000 WAX',
     feeAccount: '',
@@ -460,16 +489,16 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
-      divs: 'eosswapdivs1'
+      divs: 'eosswapdivs1',
     },
 
     pools: {
       contract: 'alcordexswap',
-      fee: 'evodextester'
+      fee: 'evodextester',
     },
 
     withdraw: {},
@@ -479,8 +508,8 @@ const networks = {
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
-    }
+      contract: 'alcornftswap',
+    },
   },
 
   jungle: {
@@ -491,7 +520,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'EOS',
-      precision: 4
+      precision: 4,
     },
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'evodextester',
@@ -506,16 +535,16 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
-      divs: 'eosswapdivs1'
+      divs: 'eosswapdivs1',
     },
 
     pools: {
       contract: 'alcorammswap',
-      fee: 'evodextester'
+      fee: 'evodextester',
     },
 
     withdraw: {},
@@ -525,8 +554,8 @@ const networks = {
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
-    }
+      contract: 'alcornftswap',
+    },
   },
 
   local: {
@@ -537,7 +566,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'EOS',
-      precision: 4
+      precision: 4,
     },
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'avral.pro',
@@ -552,15 +581,15 @@ const networks = {
     hyperion: 'https://api.eossweden.org/v2/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: [],
+    client_nodes: {},
 
     otc: {
       contract: 'wwweosswapio',
-      divs: 'eosswapdivs1'
+      divs: 'eosswapdivs1',
     },
 
     pools: {
-      contract: 'pools'
+      contract: 'pools',
     },
 
     withdraw: {},
@@ -570,12 +599,283 @@ const networks = {
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'nft'
-    }
-  }
+      contract: 'nft',
+    },
+  },
 }
 
-// TODO Check is all chains configs is the same structure
+// Default markes layouts
+const TRADE_LAYOUTS = {
+  classic: [
+    {
+      x: 5,
+      y: 0,
+      w: 14,
+      h: 14,
+      i: 'chart',
+      status: true,
+      mw: 9,
+      mh: 5,
+      moved: false,
+    },
+    {
+      x: 0,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'order-depth',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 19,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'time-sale',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 0,
+      y: 14,
+      w: 14,
+      h: 7,
+      i: 'open-order',
+      status: true,
+      mw: 10,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 14,
+      y: 14,
+      w: 10,
+      h: 7,
+      i: 'limit-market',
+      status: true,
+      mw: 6,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 14,
+      y: 21,
+      w: 5,
+      h: 8,
+      i: 'markets',
+      status: false,
+      mw: 5,
+      mh: 3,
+      moved: false,
+    },
+  ],
+
+  classic_small: [
+    {
+      x: 6,
+      y: 0,
+      w: 12,
+      h: 12,
+      i: 'chart',
+      status: true,
+      mw: 9,
+      mh: 5,
+      moved: false,
+    },
+    {
+      x: 0,
+      y: 0,
+      w: 6,
+      h: 12,
+      i: 'order-depth',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 18,
+      y: 0,
+      w: 6,
+      h: 12,
+      i: 'time-sale',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 0,
+      y: 12,
+      w: 14,
+      h: 7,
+      i: 'open-order',
+      status: true,
+      mw: 10,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 14,
+      y: 12,
+      w: 10,
+      h: 7,
+      i: 'limit-market',
+      status: true,
+      mw: 6,
+      mh: 4,
+      moved: false,
+    },
+    {
+      x: 14,
+      y: 19,
+      w: 5,
+      h: 8,
+      i: 'markets',
+      status: false,
+      mw: 5,
+      mh: 3,
+      moved: false,
+    },
+  ],
+
+  advanced: [
+    {
+      x: 0,
+      y: 0,
+      w: 14,
+      h: 14,
+      i: 'chart',
+      status: true,
+      mw: 9,
+      mh: 5,
+      moved: false
+    },
+    {
+      x: 14,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'order-depth',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false
+    },
+    {
+      x: 19,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'time-sale',
+      status: true,
+      mw: 5,
+      mh: 4,
+      moved: false
+    },
+    {
+      x: 0,
+      y: 14,
+      w: 14,
+      h: 7,
+      i: 'open-order',
+      status: true,
+      mw: 10,
+      mh: 4,
+      moved: false
+    },
+    {
+      x: 14,
+      y: 14,
+      w: 10,
+      h: 7,
+      i: 'limit-market',
+      status: true,
+      mw: 6,
+      mh: 7,
+      moved: false
+    },
+    {
+      x: 19,
+      y: 0,
+      w: 5,
+      h: 10,
+      i: 'order-form-vertical',
+      status: false,
+      mw: 5,
+      mh: 10,
+      moved: false
+    }
+  ],
+
+  full: [
+    {
+      x: 0,
+      y: 0,
+      w: 14,
+      h: 14,
+      i: 'chart',
+      status: true,
+      mw: 9,
+      mh: 9,
+    },
+    {
+      x: 14,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'order-depth',
+      status: true,
+      mw: 5,
+      mh: 4,
+    },
+    {
+      x: 19,
+      y: 0,
+      w: 5,
+      h: 14,
+      i: 'time-sale',
+      status: true,
+      mw: 5,
+      mh: 4,
+    },
+    {
+      x: 0,
+      y: 14,
+      w: 14,
+      h: 7,
+      i: 'open-order',
+      status: true,
+      mw: 10,
+      mh: 7,
+    },
+    {
+      x: 14,
+      y: 14,
+      w: 10,
+      h: 7,
+      i: 'limit-market',
+      status: true,
+      mw: 6,
+      mh: 7,
+    },
+    {
+      x: 14,
+      y: 14,
+      w: 5,
+      h: 8,
+      i: 'markets',
+      status: false,
+      mw: 5,
+      mh: 3,
+    },
+  ],
+}
 
 module.exports = {
   APP_NAME: 'Alcor Exchange',
@@ -583,6 +883,7 @@ module.exports = {
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
+  TRADE_LAYOUTS,
 
-  networks
+  networks,
 }
