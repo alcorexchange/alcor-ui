@@ -171,7 +171,7 @@ export default {
         chart: 'Chart',
         'order-depth': 'Orderbook/Depth Chart',
         'time-sale': 'Times and Sales',
-        'limit-market': 'Horisontal Order Form',
+        'limit-market': 'Horizontal Order Form',
         'open-order': 'Open Orders',
         markets: 'Markets',
         'order-form-vertical': 'Vertical Order Form'
