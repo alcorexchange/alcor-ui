@@ -92,7 +92,7 @@
               v-else-if='!loading && backedToken',
               v-for='(item, index) in backedToken',
               :key='index'
-            ) {{ item.amount + ' ' + item.token_symbol }}
+            ) {{ item.amount + " " + item.token_symbol }}
             p.token-exchange(v-else) None
         .description-info
           .nft
@@ -149,7 +149,7 @@
         .burn-btn
           img(src='~/assets/images/fire.svg')
           span Burn
-        button.btn.tokens-btn(@click='() => this.show_modal = true') Back tokens
+        button.btn.tokens-btn(@click='() => (this.show_modal = true)') Back tokens
         .create-collection-btn
           img(src='~/assets/images/tag.svg')
           | List On Market
@@ -236,25 +236,25 @@
         .chart-items
           p.text-white.mb-0 Lowest Listing:
           p.weight-400
-            span.color-yellow {{lowestSales}} WAX
+            span.color-yellow {{ lowestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
           p.text-white.mb-0 Lowest Sale:
           p.weight-400
-            span.color-yellow {{lowestSales}} WAX
+            span.color-yellow {{ lowestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
           p.text-white.mb-0 Highest Listing:
           p.weight-400
-            span.color-yellow {{highestSales}} WAX
+            span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(highestSales) }}
         .chart-items
           p.text-white.mb-0 Highest Sale:
           p.weight-400
-            span.color-yellow {{highestSales}} WAX
+            span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(highestSales) }}
   NFTBackModal(
@@ -263,7 +263,7 @@
     :handleCloseModal='handleCloseModal'
   )
   .d-flex.justify-content-between
-    TempChart
+    Chart(:charts='chartData', v-if='chartData.length', tab="Price", period="24H")
 </template>
 <script>
 import { BProgress, BProgressBar } from 'bootstrap-vue'
@@ -272,7 +272,8 @@ import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
 import LogsRow from '~/components/nft_markets/LogsRow'
 import NFTBackModal from '~/components/modals/NFTBack'
-import TempChart from '~/components/nft_markets/TempChart'
+import Chart from '~/components/nft_markets/Chart'
+
 export default {
   components: {
     BProgress,
@@ -280,9 +281,9 @@ export default {
     TransferRow,
     SalesRow,
     NFTBackModal,
-    TempChart,
+    Chart,
     VueSkeletonLoader,
-    LogsRow
+    LogsRow,
   },
 
   data() {
@@ -294,7 +295,8 @@ export default {
       salesData: [],
       transferData: [],
       logsData: [],
-      templatePrice: []
+      templatePrice: [],
+      chartData: [],
     }
   },
   computed: {
@@ -305,7 +307,9 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' + this.assetData.data.img + ')',
+            : 'url(https://ipfs.atomichub.io/ipfs/' +
+              this.assetData.data.img +
+              ')',
         }
       } else return false
     },
@@ -316,37 +320,46 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' + this.assetData.data.img + ')',
+            : 'url(https://ipfs.atomichub.io/ipfs/' +
+              this.assetData.data.img +
+              ')',
         }
       } else return false
     },
     lowestSales() {
       if (this.templatePrice.length) {
-        return (this.templatePrice[0].min / (Math.pow(10, this.templatePrice[0].token_precision))).toFixed(2)
+        return (
+          this.templatePrice[0].min /
+          Math.pow(10, this.templatePrice[0].token_precision)
+        ).toFixed(2)
       } else return 0
     },
     highestSales() {
       if (this.templatePrice.length) {
-        return (this.templatePrice[0].max / (Math.pow(10, this.templatePrice[0].token_precision))).toFixed(2)
+        return (
+          this.templatePrice[0].max /
+          Math.pow(10, this.templatePrice[0].token_precision)
+        ).toFixed(2)
       } else return 0
     },
     backedToken() {
       if (this.assetData.backed_tokens && this.assetData.backed_tokens.length) {
-        return this.assetData.backed_tokens.map(item => {
+        return this.assetData.backed_tokens.map((item) => {
           return {
             token_contract: item.token_contract,
             amount: item.amount / Math.pow(10, item.token_precision),
-            token_symbol: item.token_symbol
+            token_symbol: item.token_symbol,
           }
         })
       } else return []
-    }
+    },
   },
   mounted() {
     const asset_id = this.$route.params.asset_id
     this.asset_id = asset_id
     this.getSpecificAsset(asset_id)
     this.getAssetsTransfer(asset_id)
+    this.getAssetsSales(asset_id)
     this.getAssetsLog(asset_id)
   },
   methods: {
@@ -364,6 +377,11 @@ export default {
       })
       this.assetData = data
       this.getTemplatePrice(data.template.template_id)
+      this.getChartData(
+        data.template.template_id,
+        data.schema.schema_name,
+        data.is_burnable
+      )
       this.attributeKeys = Object.keys(data.data)
       this.loading = false
     },
@@ -382,6 +400,7 @@ export default {
         asset_id,
       })
       this.salesData = data
+      console.log(data)
     },
 
     async getAssetsLog(asset_id) {
@@ -398,7 +417,15 @@ export default {
         templateID,
       })
       this.templatePrice = data
-      console.log(templateID, data)
+    },
+    // get price history for a template for NFT sale chart
+    async getChartData(template_id, schema_name, burned) {
+      const data = await this.$store.dispatch('api/getChartData', {
+        template_id,
+        schema_name,
+        burned,
+      })
+      this.chartData = data
     },
   },
 }
