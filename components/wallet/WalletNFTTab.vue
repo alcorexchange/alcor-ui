@@ -29,12 +29,17 @@
       img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
       img(v-else, src='~/assets/images/default.png')
       p.ml-1.flex-fill.text-left.collection-name {{ item.name }}
-  .tab-btn.border-bottom--green(
+  nuxt-link.tab-btn.border-bottom--green(
+    :to='"#" + tab.slug',
     v-for='(tab, index) in tabData',
     :key='index',
     v-if='currentTab === tab.slug'
   ) {{ tab.title }}
-  .tab-btn.border-bottom--gray(v-else='', @click='handleTab(tab.slug)') {{ tab.title }}
+  nuxt-link.tab-btn.border-bottom--gray.text-white(
+    :to='"#" + tab.slug',
+    v-else='',
+    @click='handleTab(tab.slug)'
+  ) {{ tab.title }}
 </template>
 
 <style scoped lang="scss">
