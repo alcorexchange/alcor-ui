@@ -303,8 +303,10 @@ export default {
 
 <style lang="scss">
 .theme-dark {
-  .el-input__inner {
-    background-color: var(--bg-alter-2);
+  .markets {
+    .el-input__inner {
+      background-color: var(--bg-alter-2);
+    }
   }
 }
 

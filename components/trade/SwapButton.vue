@@ -9,7 +9,7 @@ export default {
 
   methods: {
     goToPool() {
-      const pair = this.$store.state.swap.pairs[this.pool]
+      const pair = this.$store.state.swap.pairs.filter(p => p.id == this.pool)[0]
 
       if (!pair) return
 

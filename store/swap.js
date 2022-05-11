@@ -1,12 +1,11 @@
 import Vue from 'vue'
-import findIndex from 'lodash/findIndex'
 
 import { asset } from 'eos-common'
 import { make256key } from '~/utils'
 import { preparePair, get_second_tokens, get_all_tokens } from '~/utils/pools'
 
 export const state = () => ({
-  pairs: {},
+  pairs: [],
 
   input: null,
   output: null,
@@ -35,7 +34,15 @@ export const mutations = {
   setSlippage: (state, slippage) => state.slippage = slippage,
 
   updatePair: (state, pair) => {
-    Vue.set(state.pairs, pair.id, pair)
+    const existsAtIndex = state.pairs.findIndex(p => p.id === pair.id)
+
+    if (existsAtIndex !== -1) {
+      state.pairs[existsAtIndex] = pair
+    } else {
+      state.pairs.push(pair)
+    }
+
+    state.pairs = [...state.pairs]
   }
 }
 
@@ -60,12 +67,15 @@ export const actions = {
   },
 
   startStream({ state, commit, dispatch, getters, rootState }, pool_id) {
-    if (state.stream != null) dispatch('stopStream')
+    if (state.stream != null) clearInterval(state.stream)
 
     const stream = setInterval(() => {
-      if (!(pool_id || getters.current)) return
-      dispatch('updatePair', pool_id || getters.current.id)
-    }, 1000)
+      if (!isNaN(pool_id)) {
+        dispatch('updatePair', pool_id)
+      } else if (getters.current) {
+        dispatch('updatePair', getters.current.id)
+      }
+    }, 2000)
 
     commit('setStream', stream)
   },
@@ -122,6 +132,7 @@ export const actions = {
   },
 
   async getPairs({ commit, rootState, rootGetters }) {
+    // TODO May be code function for recursive getting all rows
     const pairs = []
 
     let lower_bound
@@ -188,7 +199,13 @@ export const actions = {
   //},
 
   async updatePair({ state, getters, commit, rootGetters, rootState }, pair_id) {
-    //if (!this._vm.$nuxt.$route.name.includes('swap')) return // We update pair from trade page for swap button
+    // We update pair from trade page for swap button and for swap
+    if (
+      !(
+        this._vm.$nuxt.$route.name.includes('swap') ||
+        this._vm.$nuxt.$route.name.includes('trade')
+      )
+    ) return
 
     const { rows: [new_pair] } = await this.$rpc.get_table_rows({
       code: rootState.network.pools.contract,
@@ -209,7 +226,7 @@ export const actions = {
 
 export const getters = {
   pairs(state) {
-    return Object.values(state.pairs)
+    return state.pairs
   },
 
   tokens0(state, getters, rootState) {
@@ -225,6 +242,7 @@ export const getters = {
   },
 
   current(state, getters) {
+    // FIXME !!! so big loop
     const pair = getters.pairs.filter(p => {
       if (!state.input || !state.output) return null
 
@@ -239,9 +257,9 @@ export const getters = {
         p.pool1.contract == state.output.contract &&
         p.pool1.quantity.symbol.code().to_string() == state.output.symbol
       )
-    })[0]
+    })
 
-    return pair
+    return pair[0]
   },
 
   isReverted(state, { current }) {

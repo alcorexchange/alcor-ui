@@ -584,6 +584,7 @@ export const getters = {
       pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
     }
 
+    console.log('new pool price:', pool.pool2.quantity.to_string())
 
     return pool
   },

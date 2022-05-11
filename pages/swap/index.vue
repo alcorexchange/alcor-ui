@@ -172,7 +172,8 @@ export default {
   },
 
   destroyed() {
-    this.$store.dispatch('swap/stopStream')
+    // Actually thanks to updatePair function no need it
+    //this.$store.dispatch('swap/stopStream')
   },
 
   methods: {
