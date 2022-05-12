@@ -1,4 +1,4 @@
-Project is Hiring Smart Contract Dev NOW! Good payment in cryptocurrency(10k$/m+)! Contact: [@avral](https://t.me/avral)
+Project is Hiring Full Stack(nodejs/vuejs) Dev NOW! Good payment in cryptocurrency(hourly/mounthly)! Contact: [@avral](https://t.me/avral)
 --
 # The first listing free decentralized exchange.
 Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)

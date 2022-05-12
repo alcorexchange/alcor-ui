@@ -56,7 +56,9 @@ export const actions = {
     dispatch('loadAccountData', {}, { root: true })
 
     dispatch('loadUserBalances', {}, { root: true }).then(() => dispatch('market/updatePairBalances', {}, { root: true }))
-    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true }))
+    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true })).then(() => {
+      this._vm.$nuxt.$emit('loadUserOrdersFinish')
+    })
 
     dispatch('loadOrders', rootState.market.id, { root: true })
 
@@ -70,6 +72,7 @@ export const actions = {
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
+    console.log('logout..')
     getters.wallet.logout()
     commit('setLastWallet', null)
     this.$socket.emit('unsubscribe', {
@@ -85,6 +88,7 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters, rootState }, wallet_name) {
+    console.log('login..')
     commit('setCurrentWallet', wallet_name)
     const wasAutoLoginned = await dispatch('autoLogin')
     if (wasAutoLoginned) return commit('setLastWallet', wallet_name)
@@ -92,6 +96,7 @@ export const actions = {
     const { name, authorization } = await getters.wallet.login()
     commit('setUser', { name, authorization }, { root: true })
     dispatch('afterLoginHook')
+
 
     commit('setLastWallet', wallet_name)
 

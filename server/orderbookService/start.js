@@ -98,6 +98,7 @@ const rpcs = {}
 function getRpc(network) {
   if (network.name in rpcs) return rpcs[network.name]
 
+  // Try alcore's node first for updating orderbook
   const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
   nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
 

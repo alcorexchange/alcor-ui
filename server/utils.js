@@ -11,9 +11,9 @@ export function serverInit(req, res, next) {
   const subdomain = req.headers.host.split('.')
 
   if (IP_REGEX.test(req.headers.host)) {
-    req.app.set('network', config.networks.eos)
+    req.app.set('network', config.networks.wax)
   } else if (subdomain.length <= 2) {
-    req.app.set('network', config.networks.eos)
+    req.app.set('network', config.networks.wax)
   } else {
     req.app.set('network', config.networks[subdomain[0]])
   }

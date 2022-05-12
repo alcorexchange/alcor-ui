@@ -259,7 +259,6 @@
             span.color-green ${{ $systemToUSD(highestSales) }}
   NFTBackModal(
     :show_modal='show_modal',
-    :outofmodalclick='outofmodalclick',
     :handleCloseModal='handleCloseModal'
   )
   .d-flex.justify-content-between
@@ -368,6 +367,7 @@ export default {
         this.show_modal = false
     },
     handleCloseModal() {
+      console.log("handleCloseModal")
       this.show_modal = false
     },
     async getSpecificAsset(asset_id) {

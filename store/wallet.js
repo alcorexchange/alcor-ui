@@ -60,6 +60,18 @@ export const getters = {
     })
   },
 
+  allOrders(state, getters, rootState) {
+    const orders = []
+
+    for (const position of getters.pairPositions) {
+      for (const order of position.orders) {
+        orders.unshift({ ...order, market_id: position.id, market_symbol: position.symbol })
+      }
+    }
+
+    return orders
+  },
+
   pairsCount(state, getters, rootState) {
     return getters.pairPositions.length
   }

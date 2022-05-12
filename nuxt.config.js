@@ -84,6 +84,8 @@ module.exports = {
     { ssr: false, src: '~/plugins/startapp.js' },
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
+    { ssr: false, src: '~/plugins/vue-grid.js' },
+    { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' },
   ],
 
   /*
@@ -93,11 +95,15 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
+    'nuxt-highcharts',
     //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
+  highcharts: {
+    /* module options */
+  },
 
   axios: {
   },
