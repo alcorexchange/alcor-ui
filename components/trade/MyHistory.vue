@@ -1,34 +1,43 @@
 <template lang="pug">
-  el-table(:data='deals' max-height="245" row-class-name="pointer" @row-click="rowClick").my-history
-    el-table-column(label='Side' width="60")
-      template(slot-scope='scope').text-success
-        span.text-success(v-if="scope.row.type == 'buy'") BUY
-        span.text-danger(v-else) SELL
+el-table.my-order-history(
+  :data='deals',
+  max-height='245',
+  row-class-name='pointer',
+  @row-click='rowClick'
+)
+  el-table-column(label='Time', v-if='!isMobile')
+    template(slot-scope='scope')
+      span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
+  el-table-column(label='Pair', v-if='!isMobile')
+    template(slot-scope='scope')
+      span {{ quote_token.symbol.name }}/{{ base_token.symbol.name }}
+  el-table-column(label='Side', width='60')
+    template.text-success(slot-scope='scope')
+      span.text-success(v-if='scope.row.type == "buy"') BUY
+      span.text-danger(v-else) SELL
+  el-table-column(label='Bid', v-if='!isMobile')
+    template(slot-scope='{ row }')
+      span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
 
-    el-table-column(label='Date' v-if="!isMobile")
-      template(slot-scope='scope')
-        span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
+  el-table-column(label='Ask')
+    template(slot-scope='{ row }')
+      span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
 
-    el-table-column(label='Bid' v-if="!isMobile")
-      template(slot-scope='{ row }')
-        span {{ row.ask | commaFloat }} {{ getAskSymbol(row) }}
+  el-table-column(label='Price')
+    template(slot-scope='scope')
+      span {{ scope.row.unit_price | commaFloat(6) }}
 
-    el-table-column(label='Ask')
-      template(slot-scope='{ row }')
-        span {{ row.bid | commaFloat }} {{ getBidSymbol(row) }}
+  //el-table-column(label='Manage' align="right")
+    template(slot-scope='scope')
+      el-button(size="mini" type="text")
+        a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
 
-    el-table-column(label='Price')
-      template(slot-scope='scope')
-        span {{ scope.row.unit_price | commaFloat(6)  }}
-
-    //el-table-column(label='Manage' align="right")
-      template(slot-scope='scope')
-        el-button(size="mini" type="text")
-          a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
-
-    template(slot="append")
-      infinite-loading(@infinite='infiniteHandler' spinner="spiral" force-use-infinite-wrapper=".my-history .el-table__body-wrapper")
-
+  template(slot='append')
+    infinite-loading(
+      @infinite='infiniteHandler',
+      spinner='spiral',
+      force-use-infinite-wrapper='.my-order-history .el-table__body-wrapper'
+    )
 </template>
 
 <script>
@@ -88,13 +97,17 @@ export default {
     getAskSymbol(deal) {
       const market = this.markets_obj[deal.market]
 
-      return deal.type == 'buy' ? market.base_token.symbol.name : market.quote_token.symbol.name
+      return deal.type == 'buy'
+        ? market.base_token.symbol.name
+        : market.quote_token.symbol.name
     },
 
     getBidSymbol(deal) {
       const market = this.markets_obj[deal.market]
 
-      return deal.type == 'buy' ? market.quote_token.symbol.name : market.base_token.symbol.name
+      return deal.type == 'buy'
+        ? market.quote_token.symbol.name
+        : market.base_token.symbol.name
     },
 
     async infiniteHandler($state) {
@@ -116,14 +129,8 @@ export default {
       this.skip += deals.length
 
       if (deals.length) {
-        deals.map(d => {
+        deals.map((d) => {
           d.type = this.user.name == d.bidder ? 'buy' : 'sell'
-          //if ((this.user.name == d.bidder && d.type != 'buymatch') || (this.user.name != d.bidder && d.type == 'buymatch')) [d.ask, d.bid] = [d.bid, d.ask]
-          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
-          //if ((this.user.name == d.bidder && d.type != 'buymatch')) {
-          //  [d.ask, d.bid] = [d.bid, d.ask]
-          //  console.log('change bid/ask', d.ask, d.bid)
-          //}
         })
 
         this.deals.push(...deals)
@@ -143,7 +150,7 @@ export default {
   font-size: 13px;
 }
 
-.my-history {
+.my-order-history {
   table {
     width: 100% !important;
   }

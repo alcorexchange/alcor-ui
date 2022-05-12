@@ -2,136 +2,124 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.text-success Buy {{ quote_token.symbol.name }}
-      small(
-        class="text-mutted small align-self-end ml-auto cursor-pointer"
-        @click="setAmount('buy')"
+      small.green Buy {{ quote_token.symbol.name }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
+        @click='setAmount("buy")'
       ) {{ baseBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
     el-form
       el-form-item
         el-input(
-          type="number"
-          min="0.00000001"
-          step="0.00000001"
-          v-model="priceBid"
-          @change="setPrecisionPrice()"
-          size="medium"
-          align="right"
-          placeholder="0"
+          type='number',
+          min='0.00000001',
+          step='0.00000001',
+          v-model='priceBid',
+          @change='setPrecisionPrice()',
+          size='medium',
+          align='right',
+          placeholder='0',
           clearable
         )
-          span(slot="prefix").mr-1 PRICE
-          span(slot="suffix").mr-1 {{ base_token.symbol.name }}
+          span.mr-1(slot='prefix') PRICE
+          span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item
         el-input(
-          type="number"
-          v-model="amountBuy"
-          @change="setPrecisionAmountBuy()"
-          size="medium"
-          placeholder="0"
+          type='number',
+          v-model='amountBuy',
+          @change='setPrecisionAmountBuy()',
+          size='medium',
+          placeholder='0',
           clearable
         )
-          span(slot="prefix").mr-1 AMOUNT
-          span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
+          span.mr-1(slot='prefix') AMOUNT
+          span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
 
       .px-3
         el-slider(
-          :step="1"
-          v-model="percentBuy"
-          :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}"
+          :step='1',
+          v-model='percentBuy',
+          :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
         )
 
-      el-form-item(
-        class="mt-4"
-        prop="totalBuy"
-        :inline-message="true"
-      )
+      el-form-item.mt-4(prop='totalBuy', :inline-message='true')
         el-input(
-          type="number"
-          v-model="totalBuy"
-          @change="setPrecisionTotalBuy()"
-          placeholder="0"
-          size="medium"
+          type='number',
+          v-model='totalBuy',
+          @change='setPrecisionTotalBuy()',
+          placeholder='0',
+          size='medium'
         )
-          span(slot="prefix").mr-1 TOTAL
-          span(slot="suffix").mr-1 {{ base_token.symbol.name }}
+          span.mr-1(slot='prefix') TOTAL
+          span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item.mt-1
-        el-button(
-          class="w-100"
-          size="small"
-          type="success"
-          @click="actionOrder('limit', 'buy')"
+        el-button.w-100(
+          size='small',
+          type='success',
+          @click='actionOrder("limit", "buy")'
         ) Buy {{ quote_token.str }}
 
   .col-lg-6
     .d-flex.mb-1
-      small.text-danger Sell {{ quote_token.symbol.name }}
-      small(
-        class="text-mutted small align-self-end ml-auto cursor-pointer"
-        @click="setAmount('sell')"
+      small.red Sell {{ quote_token.symbol.name }}
+      small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
+        @click='setAmount("sell")'
       ) {{ tokenBalance | commaFloat }}
         i.el-icon-wallet.ml-1
 
     el-form
       el-form-item
         el-input(
-          type="number"
-          min="0"
-          step="0.0001"
-          value="0"
-          v-model="priceBid"
-          @change="setPrecisionPrice()"
-          size="medium"
-          placeholder="0"
+          type='number',
+          min='0',
+          step='0.0001',
+          value='0',
+          v-model='priceBid',
+          @change='setPrecisionPrice()',
+          size='medium',
+          placeholder='0',
           clearable
         )
-          span(slot="prefix").mr-1 PRICE
-          span(slot="suffix").mr-1.ml-2 {{ base_token.symbol.name }}
+          span.mr-1(slot='prefix') PRICE
+          span.mr-1.ml-2(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item
         el-input(
-          type="number"
-          v-model="amountSell"
-          @change="setPrecisionAmountSell()"
-          size="medium"
-          placeholder="0"
+          type='number',
+          v-model='amountSell',
+          @change='setPrecisionAmountSell()',
+          size='medium',
+          placeholder='0',
           clearable
         )
-          span(slot="prefix").mr-1 AMOUNT
-          span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
+          span.mr-1(slot='prefix') AMOUNT
+          span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
 
       .px-3
         el-slider(
-          :step="1"
-          v-model="percentSell"
-          :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}"
+          :step='1',
+          v-model='percentSell',
+          :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
         )
 
-      el-form-item(
-        class="mt-4"
-        prop="totalSell"
-        :inline-message="true"
-      )
+      el-form-item.mt-4(prop='totalSell', :inline-message='true')
         el-input(
-          type="number"
-          v-model="totalSell"
-          @change="setPrecisionTotalSell()"
-          placeholder="0"
-          size="medium"
+          type='number',
+          v-model='totalSell',
+          @change='setPrecisionTotalSell()',
+          placeholder='0',
+          size='medium'
         )
-          span(slot="prefix").mr-1 TOTAL
-          span(slot="suffix").mr-1 {{ base_token.symbol.name }}
+          span.mr-1(slot='prefix') TOTAL
+          span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item.mt-1
-        el-button(
-          class="w-100"
-          size="small"
-          type="danger"
-          @click="actionOrder('limit', 'sell')"
+        el-button.w-100(
+          size='small',
+          type='danger',
+          @click='actionOrder("limit", "sell")'
         ) Sell {{ quote_token.str }}
 </template>
 
@@ -143,10 +131,14 @@ export default {
 
   computed: {
     percentBuy: {
-      get() { return this.percent_buy },
-      set(val) { this.changePercentBuy({ percent: val, trade: 'limit' }) }
-    }
-  }
+      get() {
+        return this.percent_buy
+      },
+      set(val) {
+        this.changePercentBuy({ percent: val, trade: 'limit' })
+      },
+    },
+  },
 }
 </script>
 
