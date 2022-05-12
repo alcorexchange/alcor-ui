@@ -36,7 +36,7 @@
           :data='item',
           :mode='currentTab === "sets" && detailCollectionMode ? "setsList" : ""',
           :kindBut='currentTab != "inventory" ? "all" : ""'
-      )
+        )
   div(v-else)
     div(
       v-if='currentTab === "inventory" || currentTab === "listings" || currentTab === "auctions" || currentTab === "sets"'
@@ -223,12 +223,14 @@ export default {
   mounted() {
     this.getCollectionData()
     if (this.user) {
-      if (this.$route.hash.includes('#set-')) {
-        this.currentTab = 'sets'
-      } else {
-        this.currentTab = this.$route.hash.split('#')[1]
-        this.getData(this.$route.hash.split('#')[1])
-      }
+      if (this.$route.hash.includes('#')) {
+        if (this.$route.hash.includes('#set-')) {
+          this.currentTab = 'sets'
+        } else {
+          this.currentTab = this.$route.hash.split('#')[1]
+          this.getData(this.$route.hash.split('#')[1])
+        }
+      } else this.currentTab = 'inventory'
     }
   },
   methods: {
