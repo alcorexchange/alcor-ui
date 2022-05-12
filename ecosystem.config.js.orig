@@ -23,7 +23,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         DISABLE_UI: true,
-        NUXT_PORT: 7001
+        PORT: 7001
       }
     },
     {

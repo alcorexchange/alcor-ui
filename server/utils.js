@@ -1,22 +1,60 @@
-import config from '../config'
+//import config from '../config'
+// TODO
+//export const fetchAllRows = (network: NetworkName) => async <T>(
+//  options: GetTableRowsOptions,
+//  indexName = `id`
+//): Promise<T[]> => {
+//  const rpc = getRpc(network);
+//  const mergedOptions = {
+//    json: true,
+//    lower_bound: 0,
+//    upper_bound: undefined,
+//    limit: 9999,
+//    ...options,
+//  };
+//
+//  let rows: T[] = [];
+//  let lowerBound = mergedOptions.lower_bound;
+//
+//  /* eslint-disable no-await-in-loop */
+//  for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
+//    const result = await rpc.get_table_rows({
+//      ...mergedOptions,
+//      lower_bound: lowerBound,
+//    });
+//    rows = rows.concat(result.rows);
+//
+//    if (!result.more || result.rows.length === 0) break;
+//
+//    // EOS 2.0 api
+//    if (typeof result.next_key !== `undefined`) {
+//      lowerBound = result.next_key;
+//    } else {
+//      lowerBound =
+//        Number.parseInt(
+//          `${result.rows[result.rows.length - 1][indexName]}`,
+//          10
+//        ) + 1;
+//    }
+//  }
+//
+//  return rows;
+//};
 
-const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
-
-export function serverInit(req, res, next) {
-  if (process.env.NETWORK) {
-    req.app.set('network', config.networks[process.env.NETWORK])
-    return next()
-  }
-
-  const subdomain = req.headers.host.split('.')
-
-  if (IP_REGEX.test(req.headers.host)) {
-    req.app.set('network', config.networks.wax)
-  } else if (subdomain.length <= 2) {
-    req.app.set('network', config.networks.wax)
-  } else {
-    req.app.set('network', config.networks[subdomain[0]])
-  }
-
-  next()
-}
+//export const fetchAllScopes = (network: NetworkName) => async (
+//  contract: string,
+//  table: string
+//): Promise<string[]> => {
+//  const rpc = getRpc(network);
+//  const mergedOptions = {
+//    json: true,
+//    lower_bound: undefined,
+//    upper_bound: undefined,
+//    limit: 9999,
+//    code: contract,
+//    table,
+//  };
+//  const rows = (await rpc.get_table_by_scope(mergedOptions))
+//    .rows as ScopeResult[];
+//  return rows.map((row) => row.scope);
+//};
