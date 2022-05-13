@@ -10,8 +10,8 @@ import AlcorLink from '../AlcorLink.vue'
 export default {
   name: 'WalletTabBar',
   components: { AlcorLink },
-  currentTab: 'default',
   data: () => ({
+    currentTab: 'default',
     buttonData: [
       { name: 'Default', slug: 'default' },
       { name: 'Golden', slug: 'golden' },
@@ -27,9 +27,6 @@ export default {
         this.funcScrollTo()
       })
     },
-    currentTab(newd, oldd) {
-      console.log(newd, oldd)
-    }
   },
   mounted() {
     this.funcScrollTo()
