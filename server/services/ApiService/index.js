@@ -48,7 +48,7 @@ async function start () {
   app.use('/api/pools', pools)
 
   // Listen the server
-  const PORT = process.env.PORT | 8000
+  const PORT = process.env.PORT || 8000
 
   app.listen(PORT, () => {
     consola.ready({ message: `API Server listening on ${PORT}`, badge: true })
