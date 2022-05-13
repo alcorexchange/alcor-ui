@@ -1,7 +1,9 @@
 :root {
   --main-green: #66c167;
+  --main-action-green: #67C23A;
   --main-red: #f96c6c;
   --secondary-green: #1fc781;
+  --main-wax: #F89022;
   --cancel: #c4c4c4;
   --radius: 4px;
   --radius-2: 8px;
@@ -60,7 +62,7 @@
   --landing-card-bg: rgba(40, 40, 40, 0.3);
   --landing-icon-bg: #111111;
   --table-background: #212121;
-  --dialog-background: #212121;
+  --dialog-background: #282828;
 
   // buttons
   --btn-default: #333333;
@@ -76,8 +78,8 @@
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
   --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
 
-  --color-text-primary: #F2F2F2;
-  --border-color: #3F3F3F;
+  --color-text-primary: #f2fff2;
+  --border-color: #3f4144;
 
   --color-success: #8cc176;
   --color-danger: #b82c0d;
