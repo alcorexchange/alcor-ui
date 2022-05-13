@@ -16,39 +16,35 @@ module.exports = {
     },
     {
       name: 'Alcor-api-server',
-      script: './server/index.js',
+      script: './server/services/ApiService/index.js',
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 6,
       env: {
         NODE_ENV: 'production',
-        DISABLE_UI: true,
         PORT: 7001
       }
     },
     {
       name: 'Alcor-ws-server',
-      script: './server/socketService/index.js',
+      script: './server/services/SocketService/index.js',
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 10,
       env: {
         NODE_ENV: 'production',
-        DISABLE_UI: true,
         PORT: 7002
       }
     },
     {
       name: 'Alcor-updater',
-      script: './server/updater.js',
-      node_args: '-r esm',
-      env: {
-
-      }
+      script: './server/services/UpdaterService/index.js',
+      node_args: '-r esm'
     },
+
     {
       name: 'Alcor-orderbook-service',
-      script: './server/orderbookService/index.js',
+      script: './server/services/OrderbookService/index.js',
       node_args: '-r esm'
     }
   ]
