@@ -3,7 +3,7 @@ require('dotenv').config()
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { startUpdaters } from './updaters'
+import { startUpdaters } from './start'
 
 async function start () {
   // Trying to connect all service here before start

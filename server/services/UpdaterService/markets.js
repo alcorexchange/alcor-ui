@@ -1,9 +1,9 @@
 import { createClient } from 'redis'
 import fetch from 'node-fetch'
-import { JsonRpc } from '../../assets/libs/eosjs-jsonrpc'
-import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../utils'
-import { Match, Market } from '../models'
-import config from '../../config'
+import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
+import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
+import { Match, Market } from '../../models'
+import config from '../../../config'
 import { markeBars } from './charts'
 
 // TODO Тут от докера прокидываем
@@ -131,7 +131,8 @@ export async function getMarketStats(network, market_id) {
 export async function updateMarkets(network) {
   console.log('update market for ', network.name)
 
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
+  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
+
   const rpc = new JsonRpc(nodes, { fetch })
 
   let r

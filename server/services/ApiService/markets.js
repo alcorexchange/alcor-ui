@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { Bar, Match, Market } from '../models'
+import { Bar, Match, Market } from '../../models'
 
 export const markets = Router()
 

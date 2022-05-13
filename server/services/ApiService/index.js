@@ -9,20 +9,17 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
-import config from '../nuxt.config.js'
-import upload from './upload/ipfs'
+import upload from './upload'
 
 import { networkResolver } from './middleware'
 
 import { markets } from './markets'
-import { pools } from './swap'
+import { pools } from './pools'
 import { account } from './account'
 
 const app = express()
 
 // Import and Set Nuxt.js options
-config.dev = process.env.NODE_ENV !== 'production'
-
 async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {

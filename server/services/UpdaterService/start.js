@@ -1,7 +1,7 @@
-import config from '../../config'
+import config from '../../../config'
 
-import { getSettings } from '../models'
-import { newPoolsAction } from '../pools'
+import { getSettings } from '../../models'
+import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 
 import { streamHyperion, streamByNode } from './streamers'

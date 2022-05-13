@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Match, Liquidity } from '../models'
+import { Match, Liquidity } from '../../models'
 
 export const account = Router()
 

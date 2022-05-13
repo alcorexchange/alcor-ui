@@ -3,8 +3,7 @@ import fetch from 'node-fetch'
 import { JsonRpc } from 'eosjs'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 
-//import config from '../../config'
-import { Match, Settings, getSettings } from '../models'
+import { Match, Settings, getSettings } from '../../models'
 
 export async function streamByNode(network, account, callback, actions) {
   console.info(`Start NODE updater for ${network.name} (${account})...`)

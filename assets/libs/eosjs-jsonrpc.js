@@ -100,8 +100,10 @@ var JsonRpc = /** @class */ (function () {
             this.currentEndpoint = this.endpoints[0];
 
             // Dispatch the event.
-            const event = new CustomEvent('eosjsRpcSwitched', { detail: this.currentEndpoint });
-            window.dispatchEvent(event);
+            if (typeof window !== 'undefined') {
+              const event = new CustomEvent('eosjsRpcSwitched', { detail: this.currentEndpoint });
+              window.dispatchEvent(event);
+            }
 
             console.log('Switched to API:', this.currentEndpoint);
         }

@@ -1,4 +1,4 @@
-import { Bar, Match } from '../models'
+import { Bar, Match } from '../../models'
 
 export const resolutions = {
   1: 1 * 60,

@@ -1,4 +1,4 @@
-import { Match } from '../models'
+import { Match } from '../../models'
 
 export const resolutions = {
   1: 1 * 60,

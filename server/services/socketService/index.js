@@ -4,7 +4,7 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
-import { Match, Bar } from '../models'
+import { Match, Bar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
@@ -23,7 +23,7 @@ const io = new Server(httpServer, {
 })
 
 httpServer.listen(PORT, function () {
-  console.log(`WS Listening on port ${PORT}`)
+  console.log(`SocketService Listening on port ${PORT}`)
 })
 
 async function main() {

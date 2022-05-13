@@ -4,11 +4,11 @@ import lodash from 'lodash'
 import fetch from 'node-fetch'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
-import { JsonRpc } from '../../assets/libs/eosjs-jsonrpc'
+import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 
-import { Market } from '../models'
-import { networks } from '../../config'
-import { littleEndianToDesimal, parseAsset } from '../../utils'
+import { Market } from '../../models'
+import { networks } from '../../../config'
+import { littleEndianToDesimal, parseAsset } from '../../../utils'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -99,7 +99,7 @@ function getRpc(network) {
   if (network.name in rpcs) return rpcs[network.name]
 
   // Try alcore's node first for updating orderbook
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(network.client_nodes)
+  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
   nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
 
   const rpc = new JsonRpc(nodes, { fetch })
