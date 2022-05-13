@@ -3,7 +3,7 @@
   .item
     .title.cancel Portfolio value
     .value
-      span.main {{ systemBalance.split(' ')[0] | commaFloat(4) }}
+      span.main {{ systemBalance.split(' ')[0] | commaFloat }}
       span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
     .info.cancel = ${{ $systemToUSD(systemBalance) }}
   .item
