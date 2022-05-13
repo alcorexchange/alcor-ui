@@ -135,18 +135,17 @@ nuxt-link.normalcard.radius10(
       :to='"/nfts/" + data.asset_id'
     ) Details
 
-    button.btn-border--green.mr10.radius6(v-if='kindBut == "sales"') Details
-    button.btn-fill--green.radius6(v-if='kindBut == "sales"') Buy
     button.btn-border--green.mr10.radius6.smaller-btn(
-      v-if='kindBut != "sales" && mode != "inventory" && mode != "bought" && mode != "setsList"'
+      v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
     ) Details
+    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
     button.btn-border--green.w-100.radius6.mb-2(v-if='mode == "bought" || mode === "setsList"') Detail
     button.btn-fill--green.bigger-btn.radius6(
       v-if='kindBut != "sales" && kindBut != "auctions" && mode != "inventory" && mode != "listings" && mode != "auctions" && mode != "sold" && mode != "bought" && mode != "setsList"'
     ) Send Offer
     button.btn-border--green.bigger-btn.radius6(v-if='mode === "setsList"') Inventory
-    button.btn-fill--green.radius6(v-if='kindBut == "sales" || mode == "setsList"') Market
+    button.btn-fill--green.radius6(v-if='mode == "setsList"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "sold"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions"') Make Offer

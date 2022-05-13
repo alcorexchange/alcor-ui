@@ -144,7 +144,7 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: '/nft-market/marketplace',
+          to: '/nft-market/nft-marketplace',
         },
         {
           title: 'WALLET',

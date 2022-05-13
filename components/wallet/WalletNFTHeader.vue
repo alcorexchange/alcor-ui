@@ -27,7 +27,7 @@
   .item
     .title.cancel Total Sold
     .value
-    span.main {{saleVolume}}
+      span.main {{saleVolume}}
       span.symbol.cancel.wax WAX
     .info.cancel = ${{ $systemToUSD(saleVolume) }}
 </template>
