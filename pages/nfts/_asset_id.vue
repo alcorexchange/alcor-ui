@@ -265,7 +265,6 @@
     Chart(:charts='chartData', v-if='chartData.length', tab="Price", period="24H")
 </template>
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
@@ -275,8 +274,6 @@ import Chart from '~/components/nft_markets/Chart'
 
 export default {
   components: {
-    BProgress,
-    BProgressBar,
     TransferRow,
     SalesRow,
     NFTBackModal,

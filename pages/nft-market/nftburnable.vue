@@ -163,15 +163,12 @@
     TempChart
 </template>
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
 import TradeOfferCard from '~/components/nft_markets/TradeOfferCard'
 import TempChart from '~/components/nft_markets/TempChart'
 export default {
   components: {
-    BProgress,
-    BProgressBar,
     TransferRow,
     SalesRow,
     TradeOfferCard,

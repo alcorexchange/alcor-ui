@@ -54,13 +54,10 @@
 </template>
 
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 import UploadImages from "vue-upload-drop-images"
 
 export default {
   components: {
-    BProgress,
-    BProgressBar,
     UploadImages,
   },
 
