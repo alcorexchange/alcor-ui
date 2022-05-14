@@ -16,8 +16,12 @@
         button.btn.plus-icon.border-radius5.p-0.d-flex.align-items-center.justify-content-center(
           @click='() => (onDialog = true)'
         ) +
-    b-progress(:max='100')
-      b-progress-bar(:value='value', :label='`${value}%`')
+    el-progress.completed-sets-progress(
+      :text-inside='true',
+      :stroke-width='26',
+      :percentage='value',
+      color='#67C23A'
+    )
     el-dialog.buy-ram-dialog(:visible.sync='onDialog')
       el-progress(
         type='circle',
@@ -47,13 +51,8 @@
 
 <script>
 import { mapState } from 'vuex'
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 
 export default {
-  components: {
-    BProgress,
-    BProgressBar,
-  },
   data() {
     return {
       onDialog: false,
@@ -119,8 +118,18 @@ export default {
   },
 }
 </script>
-
 <style lang="scss">
+.el-progress.completed-sets-progress {
+  width: 288px;
+  background: #161617;
+  border-radius: 4px;
+  .el-progress-bar__outer {
+    border-radius: 4px;
+    .el-progress-bar__inner {
+      border-radius: 4px;
+    }
+  }
+}
 .theme-dark .el-tooltip__popper.is-light {
   border: 0;
   max-width: 230px;
@@ -194,9 +203,6 @@ export default {
       font-size: 14px;
       padding-right: 5px;
     }
-  }
-  .info-capacity {
-    width: 257px;
   }
   .capacity-info {
     margin-bottom: 6px;

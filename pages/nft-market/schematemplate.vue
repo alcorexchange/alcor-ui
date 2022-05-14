@@ -45,13 +45,10 @@
 </template>
 
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 import TemplateCard from '~/components/nft_markets/TemplateCard'
 
 export default {
   components: {
-    BProgress,
-    BProgressBar,
     TemplateCard,
   },
 
