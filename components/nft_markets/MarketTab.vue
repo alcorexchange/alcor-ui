@@ -11,24 +11,28 @@
       placeholder='Search name or address'
     )
     img.down-icon(:src='data.downIcon', alt='')
-  b-dropdown.filter-input-group.border-bottom--gray
-    template(#button-content)
+  el-dropdown.filter-input-group.border-bottom--gray.d-flex.flex-column.justify-content-center(
+    trigger='click'
+  )
+    .el-dropdown-link.d-flex.align-items-center.justify-content-between
       img.me-1(:src='data.filterIcon', alt='')
-      p Filter
-    button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
-      @click='() => handleCollection("")'
-    )
-      img(src='~/assets/images/default.png')
-      p.ml-1.flex-fill.text-left.collection-name All
-    button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
-      v-for='(item, index) in collectionData',
-      :key='index',
-      @click='() => handleCollection(item.collection_name)'
-    )
-      img(v-if='item.img && item.img.includes("https://")', :src='item.img')
-      img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
-      img(v-else, src='~/assets/images/default.png')
-      p.ml-1.flex-fill.text-left.collection-name {{ item.name }}
+      p.m-0 Filter
+      i.el-icon-arrow-down.el-icon--right
+    el-dropdown-menu.collection-dropdown(slot='dropdown')
+      button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+        @click='() => handleCollection("")'
+      )
+        img(src='~/assets/images/default.png')
+        p.ml-1.flex-fill.text-left.collection-name.mb-0 All
+      button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+        v-for='(item, index) in collectionData',
+        :key='index',
+        @click='() => handleCollection(item.collection_name)'
+      )
+        img(v-if='item.img && item.img.includes("https://")', :src='item.img')
+        img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
+        img(v-else, src='~/assets/images/default.png')
+        p.ml-1.flex-fill.text-left.collection-name.mb-0 {{ item.name }}
   .tab-btn.border-bottom--green(v-if='currentTab === "sales"') Sales
   .tab-btn.border-bottom--gray(v-else='', @click='handleTab("sales")') Sales
   .tab-btn.border-bottom--green(v-if='currentTab === "auctions"') Auctions
@@ -115,9 +119,35 @@
   background-color: transparent;
 }
 </style>
-
 <style lang="scss">
-.tabar-container {
+.el-dropdown-menu.collection-dropdown {
+  background: #333;
+  border: 1px dashed var(--main-green) !important;
+  max-height: 400px;
+  width: 250px;
+  overflow: auto;
+  .btn-collection {
+    background-color: transparent;
+    height: 37px;
+    color: #bec6cb;
+    white-space: nowrap;
+    overflow: hidden;
+    img {
+      min-width: 35px;
+      width: 35px;
+      height: 35px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    &:hover {
+      background-color: rgb(65, 65, 65);
+    }
+    .collection-name {
+      overflow: hidden;
+    }
+  }
+}
+.wallet-nft-tab {
   .filter-input-group {
     .dropdown-toggle {
       height: 37px;
@@ -132,25 +162,14 @@
       color: var(--color-text-primary);
       background: transparent !important;
     }
-    .dropdown-menu {
-      background: #333;
-      border: 1px dashed var(--main-green);
-      max-height: 400px;
-      width: 250px;
-      overflow: auto;
-    }
   }
 }
 </style>
 
 <script>
 import { mapState } from 'vuex'
-import { BDropdown } from 'bootstrap-vue'
 
 export default {
-  components: {
-    BDropdown,
-  },
   props: [
     'data',
     'currentTab',

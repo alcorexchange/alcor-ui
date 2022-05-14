@@ -47,14 +47,8 @@
 </template>
 
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 
 export default {
-  components: {
-    BProgress,
-    BProgressBar
-  },
-
   data() {
     return {
       value: 73,

@@ -31,7 +31,9 @@ nuxt-link.normalcard.radius10(
   .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
   .main-img.radius10(v-else, :style='defaultBackground')
   .offer-information
-    .d-flex.justify-content-between(v-if='mode != "sold" && mode != "bought" && mode != "setsList"')
+    .d-flex.justify-content-between(
+      v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
+    )
       p(v-if='mode != "schemas"')
         | Alcorex
         img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
@@ -52,7 +54,9 @@ nuxt-link.normalcard.radius10(
         v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
       )
         | {{ new Intl.NumberFormat().format(waxPrice) }}WAX
-    .d-flex.justify-content-between(v-if='mode != "sold" && mode != "bought" && mode != "setsList"')
+    .d-flex.justify-content-between(
+      v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
+    )
       p(v-if='mode != "schemas"') Default
       p.default-price(
         v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
@@ -95,41 +99,52 @@ nuxt-link.normalcard.radius10(
           span )
   .btn-group.justify-content-between.flex-wrap.w-100(v-if='mode != "sets"')
     button.btn-fill--grey.w-50.mr10.radius6(v-if='mode == "inventory"') Sell NFT
-    b-dropdown.btn-fill--green.dropdown-more.radius6.p-0(
-      v-if='mode == "inventory"',
-      text='More'
+    el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
+      trigger='click'
+    )(
+      v-if='mode == "inventory"'
     )
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        p.pl-2 Craft
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        p.pl-2 Transfer
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        p.pl-2 New Trade
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        p.pl-2 Create Gift Link
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        p.pl-2 Burn
-    b-dropdown.btn-fill--green.dropdown-more.radius6.p-0(
-      v-if='mode == "friends"',
-      text='More'
+      span.el-dropdown-link
+        span More
+        i.el-icon-arrow-down.el-icon--right
+      el-dropdown-menu(slot='dropdown')
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          p.pl-2 Craft
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          p.pl-2 Transfer
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          p.pl-2 New Trade
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          p.pl-2 Create Gift Link
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          p.pl-2 Burn
+    el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
+      trigger='click'
+    )(
+      v-if='mode == "friends"'
     )
-      nuxt-link.dropdown-item.d-flex.align-items-center(
-        to='/wallet-inventory/trade-offer'
-      )
-        img.mr-1(src='~/assets/icons/Handshake.svg')
-        p Send Trade Offer
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        img.mr-1(src='~/assets/icons/ArrowsLeftRight.svg')
-        p Transfer
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        img.mr-1(src='~/assets/icons/Storefront.svg')
-        p Seller Page
-      nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-        img.mr-1(src='~/assets/icons/UserMinus.svg')
-        p Remove Friend
-      nuxt-link.dropdown-item.d-flex.align-items-center.block-item(to='#')
-        img.mr-1(src='~/assets/icons/SmileyXEyes.svg')
-        p Block
+      span.el-dropdown-link
+        span More
+        i.el-icon-arrow-down.el-icon--right
+      span
+      el-dropdown-menu(slot='dropdown')
+        nuxt-link.dropdown-item.d-flex.align-items-center(
+          to='/wallet-inventory/trade-offer'
+        )
+          img.mr-1(src='~/assets/icons/Handshake.svg')
+          p Send Trade Offer
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          img.mr-1(src='~/assets/icons/ArrowsLeftRight.svg')
+          p Transfer
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          img.mr-1(src='~/assets/icons/Storefront.svg')
+          p Seller Page
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          img.mr-1(src='~/assets/icons/UserMinus.svg')
+          p Remove Friend
+        nuxt-link.dropdown-item.d-flex.align-items-center.block-item(to='#')
+          img.mr-1(src='~/assets/icons/SmileyXEyes.svg')
+          p Block
     nuxt-link.btn-border--green.w-100.mt-2.radius6.text-white.text-center(
       v-if='mode == "inventory"',
       :to='"/nfts/" + data.asset_id'
@@ -140,7 +155,9 @@ nuxt-link.normalcard.radius10(
     ) Details
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
-    button.btn-border--green.w-100.radius6.mb-2(v-if='mode == "bought" || mode === "setsList"') Detail
+    button.btn-border--green.w-100.radius6.mb-2(
+      v-if='mode == "bought" || mode === "setsList"'
+    ) Detail
     button.btn-fill--green.bigger-btn.radius6(
       v-if='kindBut != "sales" && kindBut != "auctions" && mode != "inventory" && mode != "listings" && mode != "auctions" && mode != "sold" && mode != "bought" && mode != "setsList"'
     ) Send Offer
@@ -152,13 +169,9 @@ nuxt-link.normalcard.radius10(
 </template>
 
 <script>
-import { BDropdown } from 'bootstrap-vue'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  components: {
-    BDropdown
-  },
   props: ['data', 'price', 'kindBut', 'mode'],
 
   data() {
@@ -167,10 +180,10 @@ export default {
       defaultBackground: {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundImage: 'url(' + defaultImg + ')'
+        backgroundImage: 'url(' + defaultImg + ')',
       },
       defaultPrice: 0,
-      sellOrders: []
+      sellOrders: [],
     }
   },
   computed: {
@@ -218,7 +231,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' + this.data.data.img + ')'
+              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              this.data.data.img +
+              ')',
           }
         } else return false
       } else if (
@@ -235,7 +250,7 @@ export default {
               ? this.data.assets[0].data.img
               : 'url(https://ipfs.atomichub.io/ipfs/' +
               this.data.assets[0].data.img +
-              ')'
+              ')',
           }
         } else return false
       } else if (this.mode === 'assets') {
@@ -245,7 +260,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' + this.data.data.img + ')'
+              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              this.data.data.img +
+              ')',
           }
         } else return false
       } else if (this.mode === 'templates' || this.mode === 'setsList') {
@@ -269,13 +286,13 @@ export default {
               ? this.data.collection.img
               : 'url(https://ipfs.atomichub.io/ipfs/' +
               this.data.collection.img +
-              ')'
+              ')',
           }
         } else return false
       } else if (this.data.sell && this.data.sell[0].mdata) {
         return {
           backgroundSize: 'cover',
-          backgroundImage: 'url(' + this.data.sell[0].mdata.img + ')'
+          backgroundImage: 'url(' + this.data.sell[0].mdata.img + ')',
         }
       } else return false
     },
@@ -420,8 +437,8 @@ export default {
         return this.data.issued_supply
       }
       return 0
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -431,6 +448,16 @@ export default {
   padding: 6px 10px;
   background-color: #202021;
   border-radius: 10px;
+
+  .el-dropdown-link {
+    color: #000;
+
+    &:hover {
+      * {
+        color: #000 !important;
+      }
+    }
+  }
 
   p {
     margin: 0;

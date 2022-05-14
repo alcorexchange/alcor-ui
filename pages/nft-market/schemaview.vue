@@ -51,13 +51,10 @@
 </template>
 
 <script>
-import { BProgress, BProgressBar } from 'bootstrap-vue'
 import SchemaCard from '~/components/nft_markets/SchemaCard'
 
 export default {
   components: {
-    BProgress,
-    BProgressBar,
     SchemaCard,
   },
 

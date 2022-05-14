@@ -3,7 +3,7 @@
   div
     nuxt-link(:to='"/nft-market"', :exact='true')
       a#return-btn Return
-  .page-header.d-flex.justify-content-between.row
+  .page-header.d-flex.justify-content-between
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 My Collections
       p All NFTs are a part of a larger collection, please create a new collection or add

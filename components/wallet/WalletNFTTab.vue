@@ -11,24 +11,28 @@
       placeholder='Search name or address'
     )
     img.down-icon(src='~/assets/images/down.svg', alt='')
-  b-dropdown.filter-input-group.border-bottom--gray.d-flex.align-items-center
-    template(#button-content)
+  el-dropdown.filter-input-group.border-bottom--gray.d-flex.flex-column.justify-content-center(
+    trigger='click'
+  )
+    .el-dropdown-link.d-flex.align-items-center.justify-content-between
       img.me-1(src='~/assets/images/filter.svg', alt='')
       p.m-0 Filter
-    button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
-      @click='() => handleCollection("")'
-    )
-      img(src='~/assets/images/default.png')
-      p.ml-1.flex-fill.text-left.collection-name All
-    button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
-      v-for='(item, index) in collectionData',
-      :key='index',
-      @click='() => handleCollection(item.collection_name)'
-    )
-      img(v-if='item.img && item.img.includes("https://")', :src='item.img')
-      img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
-      img(v-else, src='~/assets/images/default.png')
-      p.ml-1.flex-fill.text-left.collection-name {{ item.name }}
+      i.el-icon-arrow-down.el-icon--right
+    el-dropdown-menu.collection-dropdown(slot='dropdown')
+      button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+        @click='() => handleCollection("")'
+      )
+        img(src='~/assets/images/default.png')
+        p.ml-1.flex-fill.text-left.collection-name All
+      button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+        v-for='(item, index) in collectionData',
+        :key='index',
+        @click='() => handleCollection(item.collection_name)'
+      )
+        img(v-if='item.img && item.img.includes("https://")', :src='item.img')
+        img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
+        img(v-else, src='~/assets/images/default.png')
+        p.ml-1.flex-fill.text-left.collection-name {{ item.name }}
   nuxt-link.tab-btn.border-bottom--green(
     :to='"#" + tab.slug',
     v-for='(tab, index) in tabData',
@@ -155,6 +159,38 @@
 }
 </style>
 <style lang="scss">
+.el-dropdown-menu.collection-dropdown {
+  background: #333;
+  border: 1px dashed var(--main-green) !important;
+  max-height: 400px;
+  width: 250px;
+  overflow: auto;
+
+  .btn-collection {
+    background-color: transparent;
+    height: 37px;
+    color: #bec6cb;
+    white-space: nowrap;
+    overflow: hidden;
+
+    img {
+      min-width: 35px;
+      width: 35px;
+      height: 35px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    &:hover {
+      background-color: rgb(65, 65, 65);
+    }
+
+    .collection-name {
+      overflow: hidden;
+    }
+  }
+}
+
 .wallet-nft-tab {
   .filter-input-group {
     .dropdown-toggle {
@@ -182,11 +218,7 @@
 }
 </style>
 <script>
-import { BDropdown } from 'bootstrap-vue'
 export default {
-  components: {
-    BDropdown,
-  },
   props: [
     'tabData',
     'currentTab',
