@@ -1,9 +1,11 @@
 // Import variables for light/dark theme
 @import '~/assets/_variables.scss';
+@import './base.scss';
 
 // Add elements scss (themed by variables)
 @import './element.scss';
-@import './base.scss';
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
 
 @font-face {
   font-family: element-icons;
@@ -18,8 +20,13 @@ body {
   background-color: var(--background-color-base);
   color: var(--color-text-primary);
 
-  overflow-x: hidden; // Is that correct?
-  min-height: 600px;
+  transition: 0.3s;
+}
+
+.j-container {
+  width: 100%;
+  margin: auto;
+  max-width: 970px;
 }
 
 *:focus {
@@ -45,18 +52,18 @@ button:focus {
   outline: 0;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 label {
   margin: 0px;
 }
 
 .pointer {
   cursor: pointer;
-}
-
-.hoverable {
-  &:hover {
-    opacity: 0.8;
-  }
 }
 
 @media (min-width: 1200px) {
@@ -200,21 +207,45 @@ pre {
     inset 0 4px 4px rgba(0, 0, 0, 0.05);
 }
 
+// Light (default styles)
+.text-danger,
+.max-sellmatch {
+  color: #b82d0d !important;
+}
+
+.text-success,
+.max-buymatch {
+  color: #66C167 !important;
+}
+
+.text-danger-deal,
+.text-success-deal,
+.max-buymatch-deal span {
+  color: #FFFFFF;
+}
+
+.text-success {
+  color: #53a95b !important;
+}
+
+.max-buymatch-deal {
+  background: linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%)
+}
+
+.max-sellmatch-deal {
+  background: linear-gradient(180deg, rgba(237, 66, 69, 0.1) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
+
+  span {
+    color: #FFFFFF;
+  }
+}
+
+a {
+  color: #80a1c5 !important;
+}
+
 // Dark
 .theme-dark {
-  .el-tooltip__popper.is-dark {
-    background: var(--btn-active);
-    color: var(--text-grey-thirdly);
-
-    .popper__arrow {
-      border-top-color: var(--btn-active) !important;
-    }
-
-    .popper__arrow::after {
-      border-top-color: var(--btn-active) !important;
-    }
-  }
-
   .el-table::before {
     height: 0px;
   }
@@ -231,13 +262,19 @@ pre {
     color: #b56150 !important;
   }
 
-  .markets-bar {
-    // height: 500px;
-    // 
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
   }
 
-  .el-switch__label.is-active {
-      color: var(--text-default) !important;
+  .markets-bar {
+    // height: 500px;
   }
 }
 
@@ -257,6 +294,21 @@ pre {
   .text-danger {
     color: #b56150 !important;
   }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
 }
 
 .theme-oranger {
@@ -274,6 +326,21 @@ pre {
 
   .text-danger {
     color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
   }
 }
 
@@ -293,6 +360,21 @@ pre {
   .text-danger {
     color: #b56150 !important;
   }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
 }
 
 .theme-cyber {
@@ -311,6 +393,21 @@ pre {
   .text-danger {
     color: #b56150 !important;
   }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
+  }
 }
 
 .theme-bloom {
@@ -328,6 +425,21 @@ pre {
 
   .text-danger {
     color: #b56150 !important;
+  }
+
+  .trading-terminal {
+    .el-input__inner {
+      background-color: var(--background-color-secondary);
+    }
+
+    //.el-table th,
+    //tr {
+    //  background-color: var(--background-color-base);
+    //}
+  }
+
+  .markets-bar {
+    // height: 500px;
   }
 }
 
@@ -381,17 +493,9 @@ pre {
 
 .red {
   color: var(--main-red) !important;
-
-  .el-slider__runway {
-    background-color: #553838;
-  }
-
-  .el-slider__button,
-  .el-slider__stop,
-  .el-slider__bar {
-    border: 2px solid var(--main-red);
-    background-color: var(--main-red);
-  }
+}
+.wax {
+  color: var(--main-wax);
 }
 
 .alcor-inner {
@@ -430,48 +534,6 @@ pre {
   background: var(--dialog-background) !important;
   border-radius: 16px !important;
 }
-
-.trading-page-dialog.el-dialog {
-  background: var(--dialog-background) !important;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  border: 2px solid var(--border-color);
-  border-radius: 2px !important;
-  
-  .el-dialog__body {
-    padding: 10px 20px 20px;
-  }
-
-  .el-dialog__header {
-    padding: 18px 18px 0px;
-
-    .el-dialog__headerbtn {
-      width: 23px;
-      height: 23px;
-      right: 1px;
-      top: 1px;
-
-      background: var(--border-color);
-      border-radius: 0px 0px 0px 2px;
-
-      &:hover {
-        color: #fff;
-
-        i {
-          color: #fff;
-        }
-      }
-    }
-  }
-}
-
-.el-popup-parent--hidden {
-  padding-right: 0 !important;
-}
-
-.el-slider__button-wrapper {
-  z-index: 3 !important;
-}
-
 
 .custom-radio {
   box-shadow: none !important;
@@ -606,21 +668,13 @@ pre {
   }
 }
 
-//@media only screen and (max-width: 1240px) {
-//  .alcor-inner {
-//    padding: 0 8px;
-//  }
-//}
-
-@media only screen and (max-width: 640px) {
-  .el-table {
-    font-size: 11px !important;
-  }
-
+@media only screen and (max-width: 1240px) {
   .alcor-inner {
     padding: 0 8px;
   }
+}
 
+@media only screen and (max-width: 640px) {
   .market-table {
     .cell {
       padding-left: 8px !important;
@@ -651,102 +705,12 @@ pre {
   border: 0px 0px 0px 2px !important;
 }
 
-.el-tabs__nav.is-top {
-  transform: unset !important;
-}
+.popup-dialog {
+  background: #121212;
+  border: 2px solid #282828;
 
-.border-tabs {
-  .el-tabs--border-card {
-    background: transparent;
-    border: none;
+  .popper__arrow {
+    // display:none !important;
+    background: #121212 !important;
   }
-
-  .el-tabs__item {
-    height: 30px;
-    line-height: 25px;
-    padding: 0 10px;
-  }
-
-  .el-tabs__item:last-child {
-    padding-right: 10px !important;
-
-  }
-
-  .el-tabs__content {
-    padding: 0px !important;
-  }
-
-  .el-tabs__item.is-active {
-    background-color: transparent !important;
-    border-bottom: solid !important;
-  }
-
-  .el-tabs__header {
-    background-color: var(--table-background) !important;
-    margin: 0;
-  }
-}
-
-.horisontal-scrollbox {
-	overflow: auto;
-	max-width: 400px;
-	max-height: 200px;
-	margin: 50px auto;
-
-  background-image: 
-	
-    /* Shadows */ 
-    linear-gradient(to right, #212121, #212121),
-    linear-gradient(to right, #212121, #212121),
-  
-/* Shadow covers */ 
-    linear-gradient(to right, black, #212124),
-    linear-gradient(to left, black, #212124);
-
-    //linear-gradient(to right, green, red),
-    //linear-gradient(to left, green, red);   
-
-  background-position: left center, right center, left center, right center;
-	background-repeat: no-repeat;
-	//background-color: white;
-	background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
-	
-	/* Opera doesn't support this in the shorthand */
-	background-attachment: local, local, scroll, scroll;
-}
-
-.text-grey {
-  color: var(--text-grey-thirdly) !important;
-}
-
-.weight-700 {
-  font-weight: 700;
-}
-
-.alcor-radio {
-  background: var(--btn-active);
-  border-radius: 3px;
-  padding: 2px;
-
-  .el-radio-button:first-child .el-radio-button__inner {
-    border-radius: 2px 0 0 2px !important;
-  }
-
-  .el-radio-button:last-child .el-radio-button__inner {
-    border-radius: 0 2px 2px 0;
-  }
-
-  .el-radio-button__inner {
-    background: var(--btn-active);
-    padding: 5px 15px !important;
-  }
-
-  .el-radio-button__orig-radio:checked + .el-radio-button__inner {
-    background-color: var(--bg-alter-2) !important;
-  }
-
-}
-
-.underline {
-  text-decoration: underline;
 }
