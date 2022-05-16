@@ -50,24 +50,33 @@ export default {
 
   computed: {
     ...mapState(['user', 'markets_obj']),
-    ...mapState('market', ['base_token', 'quote_token', 'id']),
+    ...mapState('market', ['base_token', 'quote_token', 'id'])
   },
 
   watch: {
+    id (to, from) {
+      if (to == from) return
+
+      this.reload()
+    },
+
     user(to, from) {
       if (from == null) {
-        this.deals = []
-        this.skip = 0
-
-        // Initial fill
-        this.infiniteHandler({
-          loaded: () => {},
-          complete: () => {}
-        })
+        this.reload()
       }
     },
 
     onlyCurrentPair() {
+      this.reload()
+    }
+  },
+
+  mounted() {
+    this.reload()
+  },
+
+  methods: {
+    reload() {
       this.deals = []
       this.skip = 0
 
@@ -76,18 +85,8 @@ export default {
         loaded: () => {},
         complete: () => {}
       })
-    }
-  },
+    },
 
-  mounted() {
-    // Initial fill
-    this.infiniteHandler({
-      loaded: () => {},
-      complete: () => {}
-    })
-  },
-
-  methods: {
     rowClick(row) {
       this.openInNewTab(this.monitorTx(row.trx_id))
     },
