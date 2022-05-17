@@ -673,6 +673,17 @@ const TRADE_LAYOUTS = {
       mh: 3,
       moved: false,
     },
+    {
+      x: 0,
+      y: 20,
+      w: 15,
+      h: 1.68,
+      i: 'favorites-top-line',
+      status: true,
+      mw: 10,
+      mh: 2,
+      moved: false
+    }
   ],
 
   classic_small: [
@@ -742,12 +753,23 @@ const TRADE_LAYOUTS = {
       mh: 3,
       moved: false,
     },
+    {
+      x: 0,
+      y: 20,
+      w: 15,
+      h: 1.68,
+      i: 'favorites-top-line',
+      status: true,
+      mw: 10,
+      mh: 2,
+      moved: false
+    }
   ],
 
   advanced: [
     {
       x: 0,
-      y: 0,
+      y: 2,
       w: 14,
       h: 14,
       i: 'chart',
@@ -780,9 +802,9 @@ const TRADE_LAYOUTS = {
     },
     {
       x: 0,
-      y: 14,
+      y: 16,
       w: 14,
-      h: 7,
+      h: 5,
       i: 'open-order',
       status: true,
       mw: 10,
@@ -801,14 +823,14 @@ const TRADE_LAYOUTS = {
       moved: false
     },
     {
-      x: 19,
+      x: 0,
       y: 0,
-      w: 5,
-      h: 10,
-      i: 'order-form-vertical',
-      status: false,
-      mw: 5,
-      mh: 10,
+      w: 14,
+      h: 1.68,
+      i: 'favorites-top-line',
+      status: true,
+      mw: 10,
+      mh: 2,
       moved: false
     }
   ],
@@ -874,6 +896,17 @@ const TRADE_LAYOUTS = {
       mw: 5,
       mh: 3,
     },
+    {
+      x: 0,
+      y: 15,
+      w: 15,
+      h: 1.68,
+      i: 'favorites-top-line',
+      status: true,
+      mw: 10,
+      mh: 2,
+      moved: false
+    }
   ],
 }
 

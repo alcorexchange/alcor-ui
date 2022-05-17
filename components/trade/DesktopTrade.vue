@@ -58,6 +58,9 @@
             i.el-icon-close(@click='closegriditem(item.i)')
 
         top-line(v-if='item.i == "chart"')
+
+        favorites-top-line.box-card.h-100(v-loading='loading' v-if='item.i == "favorites-top-line"')
+
         chart(v-if='item.i == "chart"')
           #tv_chart_container
 
@@ -153,6 +156,7 @@ import DepthChart from '~/components/trade/DepthChart'
 import Markets from '~/components/trade/Markets'
 import LatestDeals from '~/components/trade/LatestDeals'
 import Chart from '~/components/trade/Chart'
+import FavoritesTopLine from '~/components/trade/FavoritesTopLine'
 import TopLine from '~/components/trade/TopLine'
 import MobileTrade from '~/components/trade/MobileTrade'
 import FeeRate from '~/components/trade/FeeRate'
@@ -185,7 +189,8 @@ export default {
     TimeSaleModal,
     OrderbookModel,
     SwapButton,
-    OrderFormVertical
+    OrderFormVertical,
+    FavoritesTopLine
   },
 
   data() {
@@ -387,6 +392,7 @@ export default {
   left: 0;
   font-size: 14px;
   background-color: rgba(0, 0, 0, 0.7);
+
   .cancel-modal-content {
     width: 300px;
     border: 2px solid #333 !important;
@@ -399,22 +405,27 @@ export default {
     background-color: #212121;
     border-radius: 5px;
     color: white;
+
     .color-green {
       color: #00a308;
     }
+
     .price-info span {
       background-color: #282828;
       padding: 3px;
       border-radius: 5px;
       margin-left: 5px;
     }
+
     .price-info p {
       width: 87px;
       display: inline-block;
     }
+
     .color-red {
       color: #f96c6c;
     }
+
     .alert-btn-group div {
       border-radius: 5px;
       width: 47%;
@@ -423,6 +434,7 @@ export default {
       text-align: center;
       cursor: pointer;
     }
+
     .el-icon-close {
       background-color: #333;
       position: absolute;
@@ -431,6 +443,7 @@ export default {
       top: 1px;
       cursor: pointer;
     }
+
     .price-info p.width-auto {
       width: auto;
     }
@@ -490,6 +503,7 @@ export default {
     color: var(--main-red);
   }
 }
+
 .top-level {
   display: flex;
   height: 500px;
@@ -515,10 +529,12 @@ export default {
   .low-left {
     flex: 5;
   }
+
   .not-history {
     flex: 9;
     display: flex;
   }
+
   .low-center {
     min-width: 490px;
     margin: 0 10px;
@@ -566,22 +582,27 @@ export default {
   color: #bdbdbd !important;
   height: 20px;
 }
+
 .feebutton {
   background: #3f3f3f;
   padding: 0px 2px !important;
   margin-right: 2px !important;
   height: 100% !important;
 }
+
 @media screen and (max-width: 1350px) {
   .top-level {
     height: auto;
   }
+
   .low-level {
     flex-direction: column-reverse;
     height: auto;
+
     .low-center {
       margin: 0px 10px 0px 0px;
     }
+
     .low-left {
       margin-top: 10px;
     }
