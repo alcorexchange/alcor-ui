@@ -4,7 +4,7 @@
     grid-layout(
       :layout='layouts_grid',
       :col-num='24',
-      :row-height='40',
+      :row-height='50',
       :is-draggable='true',
       :is-resizable='true',
       :is-mirrored='false',
@@ -27,6 +27,7 @@
         :min-w='parseInt(item.mw)',
         :min-h='parseInt(item.mh)',
         :class='item.i',
+        :is-resizable="item.i !== 'favorites-top-line'"
         @resize="itemUpdatedEvent(item)"
         @resized='itemUpdatedEvent(item)',
         @move="itemUpdatedEvent(item)"
