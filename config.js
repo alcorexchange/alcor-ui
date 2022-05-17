@@ -769,7 +769,18 @@ const TRADE_LAYOUTS = {
   advanced: [
     {
       x: 0,
-      y: 2,
+      y: 0,
+      w: 14,
+      h: 1,
+      i: 'favorites-top-line',
+      status: true,
+      mw: 10,
+      mh: 1,
+      moved: false
+    },
+    {
+      x: 0,
+      y: 1,
       w: 14,
       h: 14,
       i: 'chart',
@@ -820,17 +831,6 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 6,
       mh: 7,
-      moved: false
-    },
-    {
-      x: 0,
-      y: 0,
-      w: 14,
-      h: 1.2,
-      i: 'favorites-top-line',
-      status: true,
-      mw: 10,
-      mh: 1,
       moved: false
     }
   ],
