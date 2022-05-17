@@ -826,11 +826,11 @@ const TRADE_LAYOUTS = {
       x: 0,
       y: 0,
       w: 14,
-      h: 1.68,
+      h: 1.2,
       i: 'favorites-top-line',
       status: true,
       mw: 10,
-      mh: 2,
+      mh: 1,
       moved: false
     }
   ],

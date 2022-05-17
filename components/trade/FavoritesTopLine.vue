@@ -98,12 +98,17 @@ export default {
 
   .name {
     margin-left: 6px;
+    font-size: 14px;
+  }
+
+  .change {
+    font-size: 12px;
   }
 
   .market {
     padding: 8px 16px 8px 8px;
     border-right: 1px solid rgba(60, 60, 67, 0.36);
-    min-width: 170px;
+    min-width: 157px;
     height: 100%;
     display: flex;
     flex-direction: column;
