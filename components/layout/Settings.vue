@@ -168,14 +168,14 @@ export default {
   data() {
     return {
       settingBtnTitles: {
+        'favorites-top-line': 'Favorite Top Line',
         chart: 'Chart',
         'order-depth': 'Orderbook/Depth Chart',
         'time-sale': 'Times and Sales',
         'limit-market': 'Horizontal Order Form',
         'open-order': 'Open Orders',
         markets: 'Markets',
-        'order-form-vertical': 'Vertical Order Form',
-        'favorites-top-line': 'Favorite Top Line'
+        'order-form-vertical': 'Vertical Order Form'
       },
 
       theme: 'dark',

@@ -664,6 +664,7 @@ export default {
 
   .vue-resizable-handle {
     display: none;
+    z-index: 20;
 
     width: 15px;
     height: 15px;
