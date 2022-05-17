@@ -99,6 +99,7 @@ export default {
   .name {
     margin-left: 6px;
     font-size: 14px;
+    align-self: center;
   }
 
   .change {
