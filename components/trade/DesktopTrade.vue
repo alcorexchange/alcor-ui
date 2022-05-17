@@ -3,8 +3,8 @@
   client-only
     grid-layout(
       :layout='layouts_grid',
-      :col-num='24',
-      :row-height='50',
+      :col-num="layouts[0].i == 'favorites-top-line' ? 50 : 24",
+      :row-height="layouts[0].i == 'favorites-top-line' ? 10 : 40"
       :is-draggable='true',
       :is-resizable='true',
       :is-mirrored='false',
@@ -300,6 +300,7 @@ export default {
 
     layouts: {
       handler(newValue) {
+        console.log('layouts: ', JSON.stringify(newValue))
         // We update only for advanced mode
         if (this.current_market_layout != 'advanced') return
 
