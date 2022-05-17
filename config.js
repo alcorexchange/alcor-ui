@@ -682,8 +682,8 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 10,
       mh: 2,
-      moved: false
-    }
+      moved: false,
+    },
   ],
 
   classic_small: [
@@ -762,8 +762,8 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 10,
       mh: 2,
-      moved: false
-    }
+      moved: false,
+    },
   ],
 
   advanced: [
@@ -776,7 +776,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 10,
       mh: 1,
-      moved: false
+      moved: false,
     },
     {
       x: 0,
@@ -787,7 +787,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 9,
       mh: 5,
-      moved: false
+      moved: false,
     },
     {
       x: 14,
@@ -798,7 +798,7 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 5,
       mh: 4,
-      moved: false
+      moved: false,
     },
     {
       x: 19,
@@ -809,18 +809,18 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 5,
       mh: 4,
-      moved: false
+      moved: false,
     },
     {
       x: 0,
       y: 11,
       w: 14,
-      h: 5,
+      h: 7,
       i: 'open-order',
       status: true,
       mw: 10,
       mh: 4,
-      moved: false
+      moved: false,
     },
     {
       x: 14,
@@ -831,8 +831,8 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 6,
       mh: 7,
-      moved: false
-    }
+      moved: false,
+    },
   ],
 
   full: [
@@ -905,8 +905,8 @@ const TRADE_LAYOUTS = {
       status: true,
       mw: 10,
       mh: 2,
-      moved: false
-    }
+      moved: false,
+    },
   ],
 }
 
