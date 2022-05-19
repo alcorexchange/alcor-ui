@@ -47,7 +47,7 @@
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
-            :height="isMobile? '20' : '30'"
+            :height="isMobile ? '20' : '30'"
           )
 
           span.ml-2
@@ -295,7 +295,7 @@ export default {
     clickOrder(a, b, event) {
       if (event && event.target.tagName.toLowerCase() === 'a') return
 
-      this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
+      this.$router.push({ name: `trade-index-id___${this.$i18n.locale}`, params: { id: a.slug } })
     }
   }
 }
@@ -329,20 +329,25 @@ export default {
   //justify-content: space-between;
   flex-wrap: wrap;
   padding: 20px 0;
+
   .search-container {
     width: 450px;
   }
 }
+
 .table td,
 .table th {
   border: 0 !important;
 }
+
 .last-price-item {
   width: 180px !important;
 }
+
 .pair-item {
   width: 300px !important;
 }
+
 .theme-dark {
   .markets {
     .el-card__body {
@@ -372,6 +377,7 @@ export default {
     }
 
     padding: 14px 0;
+
     .search-container {
       width: 70%;
     }
