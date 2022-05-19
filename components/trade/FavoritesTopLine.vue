@@ -59,7 +59,7 @@ export default {
   .market {
     padding: 5px;
     border-right: 1px solid rgba(60, 60, 67, 0.36);
-    min-width: 120px;
+    min-width: max-content;
   }
 
   .right-shadow {
@@ -78,5 +78,4 @@ export default {
 .top-favorite-markets::-webkit-scrollbar {
   display: none;
 }
-
 </style>
