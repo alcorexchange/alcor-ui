@@ -20,10 +20,10 @@
           //span  Create markets in one click, list your dapp token for one click, trade whatever you want.
         .row
           .col-auto.pr-0.py-1
-            nuxt-link(to="markets")
+            nuxt-link(:to="localePath('markets', $i18n.locale)")
               el-button(tag="el-button" type="primary" size="big") Trade now
           .col.py-1.mb-2
-            nuxt-link(to="new_market")
+            nuxt-link(:to="localePath('new_market', $i18n.locale)")
               el-button(tag="el-button" size="big" icon="el-icon-circle-plus-outline" plain) Open new market
 
       .col-lg-6
@@ -90,8 +90,8 @@
         .row.mt-2
           .col
             .lead With Alcor you can trade any EOS.IO tokens for system EOS tokens,
-                 | atomically, without the participation of third parties! The tokens should comply with the
-                 | standard eosio.token of the contract.
+              | atomically, without the participation of third parties! The tokens should comply with the
+              | standard eosio.token of the contract.
 
         .row
           .col

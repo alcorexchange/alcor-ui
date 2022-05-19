@@ -1,21 +1,21 @@
 <template lang="pug">
 .recommented-markets
-    SectionTitle.section-title Recommended Markets
-    .items
-        .item-container(:key="market.id" v-for="market in markets")
-            nuxt-link.item(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
-              .top
-                  TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
-                  span.ml-2 {{ market.symbol }}
+  SectionTitle.section-title Recommended Markets
+  .items
+    .item-container(:key="market.id" v-for="market in markets")
+      nuxt-link.item(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } }")
+        .top
+          TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
+          span.ml-2 {{ market.symbol }}
 
-              .bottom
-                  span {{ market.last_price }}
-                  ChangePercent(:change="market.changeWeek")
+        .bottom
+          span {{ market.last_price }}
+          ChangePercent(:change="market.changeWeek")
 
-        .item-container
-            .col-lg-2.col-md-4.col-sm-6
-                el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
-    Spacer
+    .item-container
+      .col-lg-2.col-md-4.col-sm-6
+        el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
+  Spacer
 </template>
 
 <script>
@@ -61,15 +61,18 @@ export default {
 .section-title {
   margin-bottom: 25px !important;
 }
+
 .items {
   display: flex;
   flex-wrap: wrap;
 }
+
 .item-container {
   padding: 8px;
   padding-left: 0;
   width: 25%;
 }
+
 .item {
   display: flex;
   flex-direction: column;
@@ -80,34 +83,41 @@ export default {
   //   background: var(--bg-big-card);
   color: var(--text-default) !important;
   transition: all 0.3s;
+
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--card-shadow);
   }
 }
+
 .top {
   margin-bottom: 12px;
 }
+
 .bottom {
   display: flex;
   justify-content: space-between;
 }
+
 @media only screen and (max-width: 940px) {
   .item-container {
     width: 33.3334%;
   }
 }
+
 @media only screen and (max-width: 600px) {
   .item-container {
     width: 50%;
     padding-left: 8px;
   }
 }
+
 @media only screen and (max-width: 440px) {
   .item-container {
     width: 100%;
     padding: 8px;
   }
+
   //   .item{
   //       border: ;
   //   }

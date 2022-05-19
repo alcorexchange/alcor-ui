@@ -33,7 +33,7 @@
     el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
     .ml-auto(v-if="!isMobile")
-      nuxt-link(to="new_market")
+      nuxt-link(:to="localePath('new_market', $i18n.locale)")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
 
   .table.el-card.is-always-shadow

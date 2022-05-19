@@ -63,7 +63,7 @@ export default {
 
   methods: {
     open() {
-      this.$router.push({ name: 'nft-market-order-id', params: { id: this.order.id } })
+      this.$router.push({ name: `nft-market-order-id___${this.$i18n.locale}`, params: { id: this.order.id } })
     },
 
     setOriginalSrc(event) {

@@ -9,7 +9,7 @@ div.alcor-card
       //span Page 1 of 4
       //i.el-icon-right
       .lead
-        nuxt-link(to="/swap/create").float-right
+        nuxt-link(:to="localePath('swap/create', $i18n.locale)").float-right
           el-button(size="mini") Create pool
       //create.float-right
   .table-header.portionated
@@ -31,14 +31,14 @@ div.alcor-card
     .item-container.portionated(v-for="lpToken in lpTokens")
       .pair-container.pools
         PairIcons(
-          :token1="{symbol: lpToken.pair.pool1.quantity.symbol.code().to_string(), contract: lpToken.pair.pool1.contract}"
-          :token2="{symbol: lpToken.pair.pool2.quantity.symbol.code().to_string(), contract: lpToken.pair.pool2.contract}"
+          :token1="{ symbol: lpToken.pair.pool1.quantity.symbol.code().to_string(), contract: lpToken.pair.pool1.contract }"
+          :token2="{ symbol: lpToken.pair.pool2.quantity.symbol.code().to_string(), contract: lpToken.pair.pool2.contract }"
         )
         //- .icons
         //-   TokenImage(:src="$tokenLogo(lpToken.pair.pool1.quantity.symbol.code().to_string(), lpToken.pair.pool1.contract)" height="15").icon.icon-1
         //-   TokenImage(:src="$tokenLogo(lpToken.pair.pool2.quantity.symbol.code().to_string(), lpToken.pair.pool2.contract)" height="15").icon.icon-2
         .name-container
-          .names {{lpToken.pair.name}}
+          .names {{ lpToken.pair.name }}
           .detail.muted alcor.dex
       .deposit.p20
         .label.mobile-only Deposit
@@ -46,8 +46,8 @@ div.alcor-card
           //.amount 102,121.01$ TODO
           //span.detail.muted {{lpToken.asset1}}
           //span.detail.muted {{lpToken.asset2}}
-          span.detail.muted {{lpToken.deposit1 | commaFloat }}
-          span.detail.muted {{lpToken.deposit2 | commaFloat }}
+          span.detail.muted {{ lpToken.deposit1 | commaFloat }}
+          span.detail.muted {{ lpToken.deposit2 | commaFloat }}
       .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
         .label.mobile-only Earning (Fees)
         .main
@@ -193,13 +193,13 @@ export default {
 
             const lp1 = asset(
               lposition.liquidity1.toFixed(s1.precision()) +
-                ' ' +
-                s1.code().to_string()
+              ' ' +
+              s1.code().to_string()
             )
             const lp2 = asset(
               lposition.liquidity2.toFixed(s2.precision()) +
-                ' ' +
-                s2.code().to_string()
+              ' ' +
+              s2.code().to_string()
             )
 
             position.earn1 = asset(
@@ -305,40 +305,51 @@ export default {
   align-items: flex-end;
   margin-bottom: 12px;
   margin-top: 13px;
+
   .title {
     font-size: 1.375rem;
   }
+
   .pagination {
     display: flex;
     align-items: center;
   }
 }
+
 .table-header {
   margin-bottom: 12px;
   font-size: 0.8rem;
 }
+
 .portionated {
   display: flex;
+
   .pools {
     flex: 1;
   }
+
   .p20 {
     width: 24%;
   }
+
   .p10 {
     width: 10%;
   }
+
   .actions {
     width: 120px;
   }
+
   .end {
     display: flex;
     justify-content: flex-end;
   }
 }
+
 .table-content {
   display: flex;
   flex-direction: column;
+
   .item-container {
     display: flex;
     //border: 1px solid #373b3d;
@@ -347,6 +358,7 @@ export default {
     padding: 6px;
     margin-bottom: 8px;
   }
+
   .deposit .main,
   .earning .main,
   .share .main {
@@ -354,36 +366,44 @@ export default {
     flex-direction: column;
     align-items: flex-end;
     font-size: 0.8rem;
+
     .detail {
       display: flex;
       justify-content: flex-end;
     }
   }
+
   .actions {
     display: flex;
     align-items: center;
     justify-content: center;
+
     .alcor-button {
       width: 30px;
       height: 30px;
     }
+
     .add {
       background: #1fc781;
       margin-right: 8px;
+
       &:hover {
         opacity: 0.8;
       }
     }
   }
 }
+
 .pair-container {
   display: flex;
   align-items: center;
+
   .icons {
     position: relative;
     display: flex;
     height: 40px;
     width: 40px;
+
     .icon {
       position: absolute;
       width: 25px;
@@ -391,59 +411,75 @@ export default {
       object-fit: cover;
       border-radius: 50%;
     }
+
     .icon-1 {
       top: 0;
       left: 0;
     }
+
     .icon-2 {
       bottom: 0;
       right: 0;
     }
   }
+
   .name-container {
     padding-left: 10px;
     display: flex;
     flex-direction: column;
+
     .detail {
       font-size: 0.8rem;
     }
   }
 }
+
 .mobile-only {
   display: none;
 }
+
 @media only screen and (max-width: 840px) {
   .mobile-only {
     display: block;
   }
+
   .table-header {
     display: none;
   }
+
   .portionated {
+
     .p20,
     .p10 {
       width: 100%;
     }
+
     .actions {
       width: 100%;
     }
   }
+
   .item-container {
     position: relative;
     flex-direction: column;
+
     .names {
       font-size: 1.2rem;
     }
-    > * {
+
+    >* {
       width: 100%;
     }
+
     .actions {
       justify-content: flex-end;
     }
   }
+
   .pair-container {
     margin-bottom: 12px;
   }
+
   .deposit,
   .earning,
   .share {
@@ -451,9 +487,11 @@ export default {
     justify-content: space-between;
     margin-bottom: 12px;
   }
+
   .actions {
     width: auto;
-    > * {
+
+    >* {
       width: 50% !important;
       height: 35px !important;
     }

@@ -33,7 +33,7 @@
                   el-table-column(label="ID" width="70")
                     template(slot-scope='scope')
                       //i.el-icon-time
-                      nuxt-link(:to="{name: 'otc-order-id', params: {id: scope.row.id }}" style='margin-left: 10px') {{ scope.row.id }}
+                      nuxt-link(:to="{ name: `otc-order-id___${$i18n.locale}`, params: { id: scope.row.id } }" style='margin-left: 10px') {{ scope.row.id }}
 
                   el-table-column(label="Owner" width="130")
                     template(slot-scope="scope")
@@ -68,8 +68,8 @@
 
           el-tab-pane(label='Rules & Information')
             h2.lead.ml-3.mt-3 With TOKENSWAP you can exchange any EOS.IO tokens, for any other EOS.IO tokens,
-                 | atomically, without the participation of third parties! The tokens should comply with the
-                 | standard eosio.token of the contract.
+              | atomically, without the participation of third parties! The tokens should comply with the
+              | standard eosio.token of the contract.
 
             h4.ml-3.mt-3 Properties:
               ul.mt-1
@@ -195,7 +195,7 @@ export default {
     },
 
     clickOrder(a) {
-      this.$router.push({ name: 'otc-order-id', params: { id: a.id } })
+      this.$router.push({ name: `otc-order-id___${this.$i18n.locale}`, params: { id: a.id } })
     },
 
     async buy({ id, buy }) {
