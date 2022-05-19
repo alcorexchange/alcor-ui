@@ -13,8 +13,7 @@ module.exports = {
     isDev,
     isSPA,
     NETWORK: process.env.NETWORK,
-    DISABLE_DB: process.env.DISABLE_DB,
-    APP_NAME: process.env.APP_NAME
+    DISABLE_DB: process.env.DISABLE_DB
   },
 
   version: pkg.version,
@@ -24,8 +23,8 @@ module.exports = {
   */
   head() {
     const i18nHead = this.$nuxtI18nHead({ addSeoAttributes: true })
-    const desc = `${process.env.APP_NAME} ${this.$t('META_DESCRIPTION')}`
-    const title = `${process.env.APP_NAME} | ${this.$t('META_TITLE')}`
+    const desc = `Alcor Exchange ${this.$t('META_DESCRIPTION')}`
+    const title = `Alcor Exchange | ${this.$t('META_TITLE')}`
 
     return {
       title,
