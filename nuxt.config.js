@@ -106,23 +106,16 @@ module.exports = {
     //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
-    '@nuxtjs/i18n',
+    '@nuxtjs/i18n'
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
   i18n: {
-    locales: ['en', 'ru'],
-    defaultLocale: 'en',
-    vueI18n: {
-      fallbackLocale: 'en',
-      messages: {
-        en: {
-          welcome: 'Welcome'
-        },
-        ru: {
-          welcome: 'Добро пожаловать'
-        }
-      }
-    }
+    langDir: '~/locales',
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en.js' },
+      { code: 'ru', iso: 'ru-RU', file: 'ru.js' }
+    ],
+    defaultLocale: 'en'
   },
   highcharts: {
     /* module options */
