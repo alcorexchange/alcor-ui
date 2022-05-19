@@ -87,7 +87,7 @@
               .static-color-picker.bloom-green.mx-1
               .static-color-picker.bloom-red.mx-1
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == 'trade-index-id'")
+    .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
       .setting-module-footer.el-footer.text-white
         span.module-title Layouts
       .el-main.module-main-settings
@@ -102,7 +102,7 @@
             img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'full' }")
             span FullScreen
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == 'trade-index-id'")
+    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
         span.module-title Layout Modules
@@ -314,7 +314,7 @@ input[type='radio'] {
 }
 
 /* simulate radiobutton appearance using pseudoselector */
-input[type='radio'] + label:before {
+input[type='radio']+label:before {
   content: '';
   /* create custom radiobutton appearance */
   display: inline-block;
@@ -329,7 +329,7 @@ input[type='radio'] + label:before {
 }
 
 /* appearance of checked radiobutton */
-input[type='radio']:checked + label:before {
+input[type='radio']:checked+label:before {
   background-color: #67c23a;
 }
 
@@ -417,36 +417,47 @@ input[type='radio']:checked + label:before {
   .default-green {
     background-color: #66c167;
   }
+
   .default-red {
     background-color: #f96c6c;
   }
+
   .contrast-green {
     background-color: #00b909;
   }
+
   .contrast-red {
     background-color: #c60606;
   }
+
   .oranger-blue {
     background-color: #1f8df9;
   }
+
   .oranger-brown {
     background-color: #dd7a2b;
   }
+
   .oceano-blue {
     background-color: #136b9a;
   }
+
   .oceano-white {
     background-color: #ffffff;
   }
+
   .cyber-green {
     background-color: #0cb825;
   }
+
   .cyber-red {
     background-color: #e80015;
   }
+
   .bloom-green {
     background-color: #00a308;
   }
+
   .bloom-red {
     background-color: #d62834;
   }
@@ -457,26 +468,32 @@ input[type='radio']:checked + label:before {
     border: 1px solid #f2f2f2;
     color: #f2f2f2;
   }
+
   &.contrast-text {
     border: 1px solid #b2b2b2;
     color: #b2b2b2;
   }
+
   &.oranger-text {
     border: 1px solid #bbbbbb;
     color: #363d52;
   }
+
   &.oceano-text {
     border: 1px solid #17a3e8;
     color: #bbbbbb;
   }
+
   &.cyber-text {
     border: 1px solid #01494d;
     color: #01494d;
   }
+
   &.bloom-text {
     border: 1px solid #3b4959;
     color: #fc9d31;
   }
+
   background-color: #0c0c11;
   width: 16px;
   height: 16px;

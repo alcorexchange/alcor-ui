@@ -25,7 +25,7 @@
     //  i.el-icon-moon(v-else='')
 
     AlcorButton.theme-toggle-button.desktop.show-settings(
-      v-if='$route.name == "trade-index-id"',
+      v-if='$route.name == `trade-index-id___${this.$i18n.locale}`',
       :icon-only-alt='true',
       @click='showSetting = !showSetting'
     )
@@ -133,19 +133,23 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
+
 .right {
   display: flex;
   align-items: center;
 }
+
 .theme-toggle-button {
   border-radius: 50% !important;
   margin: 4px 8px;
   margin-right: 0;
   color: var(--text-default) !important;
+
   &.mobile {
     display: none !important;
   }
 }
+
 .d-item {
   display: flex;
   text-align: center;
@@ -153,14 +157,17 @@ export default {
   min-width: 150px;
   color: var(--text-default);
   cursor: pointer;
+
   &:hover {
     background: var(--hover);
   }
 }
+
 .connect-button {
   margin: 0 4px;
   height: 36px;
 }
+
 .user-detail {
   border-radius: var(--radius);
   background: var(--btn-default);
@@ -170,11 +177,13 @@ export default {
   margin: 0 4px;
   height: 36px;
 }
+
 .balance {
   padding: 4px 8px;
   cursor: pointer;
   // font-size: 0.75rem;
 }
+
 .user-name {
   padding: 4px 8px;
   background: var(--background-color-base);
@@ -196,6 +205,7 @@ export default {
 }
 
 @media only screen and (max-width: 600px) {
+
   //.connect-nav {
   //  .left {
   //    margin-right: auto;
@@ -205,19 +215,24 @@ export default {
     font-size: 0.8rem;
     padding: 4px;
   }
+
   .network-selection {
     padding: 4px;
+
     span {
       font-size: 0.8rem;
     }
+
     i {
       font-size: 0.8rem;
     }
   }
+
   .theme-toggle-button {
     &.desktop {
       display: none !important;
     }
+
     &.mobile {
       display: block !important;
     }
