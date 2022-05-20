@@ -1091,6 +1091,11 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
+"@iconify/vue2@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@iconify/vue2/-/vue2-1.2.1.tgz#f858bcfe8554970cca6d8f4c7a7e8015c7933fbb"
+  integrity sha512-aJy/PLs0mqKF5wv6vMc+Pf2+v4TkrlLP15tTU15Tbyw5OSnIGZa64eCkEEJnag2h8+XIf/mx6MOf7m2DE58pHw==
+
 "@interactjs/actions@1.10.11", "@interactjs/actions@^1.10.2":
   version "1.10.11"
   resolved "https://registry.yarnpkg.com/@interactjs/actions/-/actions-1.10.11.tgz#ec68fd60bee751f80c650964b5ba299eb6afe78c"
@@ -12648,6 +12653,11 @@ vue-scrollto@^2.20.0:
   integrity sha512-7i+AGKJTThZnMEkhIPgrZjyAX+fXV7/rGdg+CV283uZZwCxwiMXaBLTmIc5RTA4uwGnT+E6eJle3mXQfM2OD3A==
   dependencies:
     bezier-easing "2.1.0"
+
+vue-select@^3.18.3:
+  version "3.18.3"
+  resolved "https://registry.yarnpkg.com/vue-select/-/vue-select-3.18.3.tgz#31f188d7181a4a86d07b937303c457efe863c4bc"
+  integrity sha512-nKmwxEDO4RRoZ6lWkkVE2bpgne7IJSRzSh1pIawLI7dJLZbtJuSgA0xGaLrT0pUp+JYHBDul242PwOBDHi28vg==
 
 vue-server-renderer@^2.6.12:
   version "2.6.14"

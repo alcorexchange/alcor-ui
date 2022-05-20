@@ -1,6 +1,13 @@
 <template lang="pug">
 .setting-modal
   .el-container.setting-container.pt-2.d-flex.flex-column
+    .el-container.setting-lang.d-flex.flex-column
+      alcor-select(:options="$i18n.locales" :selected="$i18n.locale")
+        template(#option="{ option }")
+          lang-option(:code="option.code")
+        template(#selected)
+          lang-option(:code="$i18n.locale")
+
     //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
         span.theme-title Theme
@@ -154,6 +161,8 @@
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import AlcorSelect from '~/components/AlcorSelect'
+import LangOption from '~/components/LangOption'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -162,7 +171,9 @@ export default {
 
   components: {
     TokenImage,
-    ChangePercent
+    ChangePercent,
+    AlcorSelect,
+    LangOption
   },
 
   data() {
@@ -280,6 +291,10 @@ export default {
 </style>
 
 <style lang="scss">
+.setting-lang {
+  padding: 0 12px;
+}
+
 .markets-bar {
   height: 100%;
 }

@@ -60,10 +60,12 @@
     "vue-moment": "^4.0.0",
     "vue-no-ssr": "^1.1.1",
     "vue-scrollto": "^2.20.0",
+    "vue-select": "^3.18.3",
     "vuex-persistedstate": "^3.0.1",
     "web3-utils": "^1.6.0"
   },
   "devDependencies": {
+    "@iconify/vue2": "^1.2.1",
     "@nuxtjs/color-mode": "^2.0.5",
     "@nuxtjs/device": "^2.0.1",
     "@nuxtjs/eslint-config": "^3.1.0",

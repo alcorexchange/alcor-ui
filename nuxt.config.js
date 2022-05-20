@@ -98,6 +98,7 @@ module.exports = {
     'bootstrap/dist/css/bootstrap-reboot.min.css',
 
     'bootstrap-utilities/bootstrap-utilities.css',
+    'vue-select/dist/vue-select.css',
 
     //'element-ui/lib/theme-chalk/index.css',
     //'~/assets/theme/_variables.scss',
@@ -121,6 +122,7 @@ module.exports = {
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
     { ssr: false, src: '~/plugins/vue-grid.js' },
+    { ssr: false, src: '~/plugins/vue-select.js' },
     { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' }
   ],
 
