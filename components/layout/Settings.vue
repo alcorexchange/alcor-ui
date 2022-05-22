@@ -271,9 +271,6 @@ export default {
 
     color: #f2f2f2;
 
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
     font-size: 12px;
     line-height: 14px;
   }
