@@ -1,6 +1,10 @@
 <template lang="pug">
 .top-favorite-markets
-  .market(v-for="market in favorites")
+  .market.pointer(
+    v-for="market in favorites",
+    @click="() => setMarket(market)",
+    :class='activeFavClassName(market.id)',
+    )
     .d-flex
       .icon
         TokenImage(
@@ -31,6 +35,26 @@ export default {
     favorites() {
       return this.markets.filter((i) => this.favMarkets.includes(i.id))
     }
+  },
+
+  methods: {
+    setMarket(market) {
+      if (this.id == market.id) return
+
+      if (!isNaN(this.id)) {
+        this.$store.dispatch('market/unsubscribe', this.id)
+      }
+
+      this.$router.push(
+        { name: 'trade-index-id', params: { id: market.slug } },
+        () => this.loading = false,
+        () => this.loading = false
+      )
+    },
+
+    activeFavClassName(id) {
+      return this.id === id ? 'active' : ''
+    }
   }
 }
 </script>
@@ -51,13 +75,39 @@ export default {
 
   // TODO
   //position: relative;
+  &::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 100%;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
+  }
 
   .name {
     margin-left: 6px;
+    font-size: 14px;
+    align-self: center;
+  }
+
+  .change {
+    font-size: 12px;
   }
 
   .market {
-    padding: 5px;
+    padding: 8px 16px 8px 8px;
     border-right: 1px solid rgba(60, 60, 67, 0.36);
     min-width: max-content;
   }
