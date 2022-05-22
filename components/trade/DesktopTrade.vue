@@ -27,7 +27,6 @@
         :min-w='parseInt(item.mw)',
         :min-h='parseInt(item.mh)',
         :class='item.i',
-        :is-resizable="item.i !== 'favorites-top-line'"
         @resize="itemUpdatedEvent(item)"
         @resized='itemUpdatedEvent(item)',
         @move="itemUpdatedEvent(item)"
