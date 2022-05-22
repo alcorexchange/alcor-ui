@@ -133,6 +133,8 @@ export const actions = {
 
   async getPairs({ commit, rootState, rootGetters }) {
     // TODO May be code function for recursive getting all rows
+    if (rootState.network.pools.contract == null) return
+
     const pairs = []
 
     let lower_bound

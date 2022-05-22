@@ -184,7 +184,7 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcordexpool',
+      contract: null,
       fee: 'aw.aq.waa',
     },
 
