@@ -18,7 +18,7 @@ export default {
       },
       labels: {
         en: 'English (US)',
-        ru: 'Russia (RU)'
+        ru: 'Russian (RU)'
       }
     }
   },
