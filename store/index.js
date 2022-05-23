@@ -452,6 +452,10 @@ export const getters = {
     return state.user
   },
 
+  promoted(state) {
+    return state.network.PROMOTED_MARKETS
+  },
+
   systemBalance(state) {
     const { symbol, contract } = state.network.baseToken
 
