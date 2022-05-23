@@ -32,5 +32,6 @@ export default {
 <style>
 .lang-option {
   gap: 8px;
+  font-size: 12px;
 }
 </style>
