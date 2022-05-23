@@ -243,6 +243,10 @@ export const getters = {
     }
   },
 
+  getById: (_, getters) => id => {
+    return getters.pairs.find(p => p.id === id)
+  },
+
   current(state, getters) {
     // FIXME !!! so big loop
     const pair = getters.pairs.filter(p => {
@@ -253,12 +257,13 @@ export const getters = {
         p.pool1.quantity.symbol.code().to_string() == state.input.symbol &&
         p.pool2.contract == state.output.contract &&
         p.pool2.quantity.symbol.code().to_string() == state.output.symbol
-      ) || (
-        p.pool2.contract == state.input.contract &&
-        p.pool2.quantity.symbol.code().to_string() == state.input.symbol &&
-        p.pool1.contract == state.output.contract &&
-        p.pool1.quantity.symbol.code().to_string() == state.output.symbol
-      )
+      ) ||
+        (
+          p.pool2.contract == state.input.contract &&
+          p.pool2.quantity.symbol.code().to_string() == state.input.symbol &&
+          p.pool1.contract == state.output.contract &&
+          p.pool1.quantity.symbol.code().to_string() == state.output.symbol
+        )
     })
 
     return pair[0]
