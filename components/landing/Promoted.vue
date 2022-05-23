@@ -1,6 +1,6 @@
 <template lang="pug">
 .promouted-markets
-  | promouted market
+  pre promote {{ promoPair }}
 
   Spacer
 </template>
@@ -11,20 +11,34 @@ import Spacer from '@/components/Spacer.vue'
 
 export default {
   components: { Spacer },
-  props: ['id'],
+  props: ['id', 'period'],
+  data() {
+    return {
+      promoPair: null,
+      charts: []
+    }
+  },
   computed: {
     ...mapGetters({
       pair: 'swap/getById',
       promoted: 'promoted'
     })
   },
-  mounted() {
-  },
   watch: {
     '$store.state.swap.pairs'() {
-      console.log(this.pair(this.promoted[0]))
+      console.log(this.promoted)
+      this.promoPair = this.pair(this.promoted[0])
+      //this.fetchCharts
+    }
+  },
+  methods: {
+    async fetchCharts(animate = false) {
+      console.log(this.promoPair.id)
+      if (this.promoPair) {
+        this.charts = (await this.$axios.get(`/pools/${this.promoPair.id}/charts`, { params: { period: this.period } })).data
+        console.log(this.charts)
+      }
     }
   }
-
 }
 </script>

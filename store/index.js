@@ -453,7 +453,7 @@ export const getters = {
   },
 
   promoted(state) {
-    return state.network.PROMOTED_MARKETS
+    return state.network.RECOMMENDED_MARKETS
   },
 
   systemBalance(state) {
