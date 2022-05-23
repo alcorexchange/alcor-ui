@@ -107,7 +107,7 @@ export default {
   }
 
   .market {
-    padding: 8px 16px 8px 8px;
+    padding: 3px 16px 5px 8px;
     border-right: 1px solid rgba(60, 60, 67, 0.36);
     min-width: max-content;
   }
