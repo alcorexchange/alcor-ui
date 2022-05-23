@@ -149,6 +149,9 @@ export default {
           type: 'datetime',
           tooltip: {
             enabled: false
+          },
+          labels: {
+            datetimeUTC: false
           }
         },
 
