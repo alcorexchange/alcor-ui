@@ -37,7 +37,7 @@
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
-            .module-name.mr-2 Hide other pairs
+            .module-name.mr-2 {{ $t('Hide other pairs') }}
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
@@ -64,9 +64,9 @@
         order-form-vertical(v-if="item.i == 'order-form-vertical'")
 
         el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
-          el-tab-pane(label='Orderbook')
+          el-tab-pane(:label='$t("Orderbook")')
             order-book
-          el-tab-pane(label='Depth Chart')
+          el-tab-pane(:label='$t("Depth Chart")')
             depth-chart(
               :is-draggable='false',
               :is-resizable='false',
@@ -77,17 +77,17 @@
             )
 
         el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
-          el-tab-pane(label='Markets')
+          el-tab-pane(:label='$t("Markets")')
             Markets.mt-1
-          el-tab-pane(label='Times & Sales')
+          el-tab-pane(:label='$t("Times & Sales")')
             LatestDeals(:timeformat='timeformat')
 
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          el-tab-pane(label='Open orders')
+          el-tab-pane(:label='$t("Open orders")')
             my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
-          el-tab-pane(label='Trade History')
+          el-tab-pane(:label='$t("Trade History")')
             my-trade-history(:only-current-pair="hideOtherPairs")
-          el-tab-pane(label='Funds')
+          el-tab-pane(:label='$t("Funds")')
             my-funds(:only-current-pair="hideOtherPairs")
         .not-history.limit-market(
           v-if='item.i == "limit-market"',
@@ -95,10 +95,10 @@
         )
           //.right-icons
           el-tabs(type="border-card").h-100
-            el-tab-pane.h-10(label='Limit trade')
+            el-tab-pane.h-10(:label='$t("Limit trade")')
               .trade-box
                 limit-trade
-            el-tab-pane(label='Market trade')
+            el-tab-pane(:label='$t("Market trade")')
               .trade-box
                 market-trade
 
@@ -108,14 +108,14 @@
   #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
     .cancel-modal-content
       .price-info
-        p Your order to:
+        p {{ $t('Your order to:') }}
         span.color-green &nbsp;{{ orderdata.order_to }}
       .price-info
-        p At a price of:
+        p {{ $t('At a price of:') }}
         span &nbsp;{{ orderdata.price }}
-      p Will be
+      p {{ $t('Will be') }}
         span.color-red &nbsp;cancelled
-        | , do you wish to proceed?
+        | , {{ $t('do you wish to proceed?') }}
       .alert-btn-group.d-flex.justify-content-between
         div(@click='cancel_confirm_order(true)') Yes
         div(@click='cancel_confirm_order(false)') No
@@ -123,18 +123,18 @@
   #price_move_modal(v-if='orderdata.show_move_modal')
     .cancel-modal-content
       .price-info
-        p Your order to:
+        p {{ $t('Your order to:') }}
         span.color-green &nbsp;{{ orderdata.order_to }}
       .price-info
-        p At a price of:
+        p {{ $t('At a price of:') }}
         span &nbsp;{{ orderdata.price }}
       .price-info
-        p.width-auto Will be moved to:
+        p.width-auto {{ $t('Will be moved to:') }}
         span &nbsp;{{ orderdata.new_price }}
-      p Do you wish to proceed?
+      p {{ $t('do you wish to proceed?') }}
       .alert-btn-group.d-flex.justify-content-between
-        div(@click='move_confirm_order(true)') Yes
-        div(@click='move_confirm_order(false)') No
+        div(@click='move_confirm_order(true)') {{ $t('Yes') }}
+        div(@click='move_confirm_order(false)') {{ $t('No') }}
       i.el-icon-close(@click='move_confirm_order(false)')
 </template>
 
@@ -387,6 +387,7 @@ export default {
   left: 0;
   font-size: 14px;
   background-color: rgba(0, 0, 0, 0.7);
+
   .cancel-modal-content {
     width: 300px;
     border: 2px solid #333 !important;
@@ -399,22 +400,27 @@ export default {
     background-color: #212121;
     border-radius: 5px;
     color: white;
+
     .color-green {
       color: #00a308;
     }
+
     .price-info span {
       background-color: #282828;
       padding: 3px;
       border-radius: 5px;
       margin-left: 5px;
     }
+
     .price-info p {
       width: 87px;
       display: inline-block;
     }
+
     .color-red {
       color: #f96c6c;
     }
+
     .alert-btn-group div {
       border-radius: 5px;
       width: 47%;
@@ -423,6 +429,7 @@ export default {
       text-align: center;
       cursor: pointer;
     }
+
     .el-icon-close {
       background-color: #333;
       position: absolute;
@@ -431,6 +438,7 @@ export default {
       top: 1px;
       cursor: pointer;
     }
+
     .price-info p.width-auto {
       width: auto;
     }
@@ -490,6 +498,7 @@ export default {
     color: var(--main-red);
   }
 }
+
 .top-level {
   display: flex;
   height: 500px;
@@ -515,10 +524,12 @@ export default {
   .low-left {
     flex: 5;
   }
+
   .not-history {
     flex: 9;
     display: flex;
   }
+
   .low-center {
     min-width: 490px;
     margin: 0 10px;
@@ -566,22 +577,27 @@ export default {
   color: #bdbdbd !important;
   height: 20px;
 }
+
 .feebutton {
   background: #3f3f3f;
   padding: 0px 2px !important;
   margin-right: 2px !important;
   height: 100% !important;
 }
+
 @media screen and (max-width: 1350px) {
   .top-level {
     height: auto;
   }
+
   .low-level {
     flex-direction: column-reverse;
     height: auto;
+
     .low-center {
       margin: 0px 10px 0px 0px;
     }
+
     .low-left {
       margin-top: 10px;
     }

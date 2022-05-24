@@ -1,6 +1,6 @@
 <template lang="pug">
 .recommented-markets
-  SectionTitle.section-title Recommended Markets
+  SectionTitle.section-title {{ $t('RECOMMENDED_MARKETS_TITLE') }}
   .items
     .item-container(:key="market.id" v-for="market in markets")
       nuxt-link.item(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } }")

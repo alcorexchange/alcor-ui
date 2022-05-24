@@ -1,7 +1,7 @@
 <template lang="pug">
 div.alcor-card
   .header
-    h2.title Liquidity Positions
+    h2.title {{ $t('Liquidity Positions') }}
       i.el-icon-question.ml-2.pointer(@click="openInNewTab('https://www.youtube.com/watch?v=cizLhxSKrAc&t=34s')")
 
     .pagination
@@ -10,11 +10,11 @@ div.alcor-card
       //i.el-icon-right
       .lead
         nuxt-link(:to="localePath('swap/create', $i18n.locale)").float-right
-          el-button(size="mini") Create pool
+          el-button(size="mini") {{ $t('Create pool') }}
       //create.float-right
   .table-header.portionated
-    .pools Pools
-    .deposit.p20.end Deposit
+    .pools {{ $t('Pools') }}
+    .deposit.p20.end {{ $t('Deposit') }}
       el-popover(placement='top-start' title='Deposit' width='400' trigger='hover')
         template
           .text-break
@@ -23,8 +23,8 @@ div.alcor-card
             p There may be a difference in statistics, for reference only.
 
         .el-icon-info(slot="reference").ml-2.pointer
-    .earning.p20.end Earning (Fees)
-    .share.p10.end Pool Share
+    .earning.p20.end {{ $t('Earning (Fees)') }}
+    .share.p10.end {{ $t('Pool Share') }}
     .actions
 
   .table-content
@@ -41,7 +41,7 @@ div.alcor-card
           .names {{ lpToken.pair.name }}
           .detail.muted alcor.dex
       .deposit.p20
-        .label.mobile-only Deposit
+        .label.mobile-only {{ $t('Deposit') }}
         .main
           //.amount 102,121.01$ TODO
           //span.detail.muted {{lpToken.asset1}}
@@ -49,14 +49,14 @@ div.alcor-card
           span.detail.muted {{ lpToken.deposit1 | commaFloat }}
           span.detail.muted {{ lpToken.deposit2 | commaFloat }}
       .earning.p20(v-if="lpToken.earn1 && lpToken.earn2")
-        .label.mobile-only Earning (Fees)
+        .label.mobile-only {{ $t('Earning (Fees)') }}
         .main
           //.amount 102,121.01$ TODO
           //- TODO: add .toString()
           span.detail.muted {{ String(lpToken.earn1) | commaFloat }}
           span.detail.muted {{ String(lpToken.earn2) | commaFloat }}
       .share.p10
-        .label.mobile-only Pool Share
+        .label.mobile-only {{ $t('Pool Share') }}
         .main
           //.amount 102,121.01$ TODO
           //- TODO: add .toString()
@@ -69,23 +69,23 @@ div.alcor-card
   //.row
     .col(:class="{ 'p-0': isMobile }")
       el-table(:data='lpTokens' style='width: 100%').liquidity-table
-        el-table-column(label='Pairs' width="120")
+        el-table-column(:label='$t("Pairs")' width="120")
           template(slot-scope='scope')
             // TODO Double token i.el-icon-time
             span {{ scope.row.pair.name }}
-        el-table-column(label='Deposit' width="200")
+        el-table-column(:label='$t("Deposit")' width="200")
           template(slot-scope='scope')
             .small {{ scope.row.asset1 }}
             .small {{ scope.row.asset2 }}
 
-        el-table-column(label='Pool Share' width="130")
+        el-table-column(:label='$t("Pool Share")' width="130")
           template(slot-scope='scope')
             span {{ scope.row.share }}%
 
         el-table-column
           template(slot="header" slot-scope="scope")
             .d-flex
-              span Earnings
+              span {{$t('Earnings')}}
               el-checkbox(v-model="net" v-if="user && user.name == 'aw.aq.waa'" active-text="Net Profit").ml-auto Net Profit
                 small.text-muted.ml-1 (Experimental)
           template(slot-scope='scope')

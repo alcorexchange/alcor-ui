@@ -4,10 +4,10 @@
     el-menu(:default-active='defaultActiveLink' router)
       el-menu-item(index='wallet-index-tokens' :route="{ name: 'wallet-index-tokens' }")
         i.el-icon-coin
-        span Tokens
+        span {{ $t('Tokens') }}
       el-menu-item(index='wallet-index-nfts' :route="{ name: 'wallet-index-nfts' }")
         i.el-icon-setting
-        span NFT's
+        span {{ $t("NFT's") }}
 
   .col-lg-10
     PleaseLoginButton

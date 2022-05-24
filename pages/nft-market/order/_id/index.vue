@@ -3,16 +3,14 @@ el-card.box-card.mt-3(v-if='!no_found')
   .row.mb-2
     .col
       el-alert(type='error', title='Beware of scammers!', show-icon)
-        p
-          | Anyone can create SimpleAssets NFTs and freely choose attributes such as name and image, including fake versions of existing NFTs or stolen intellectual property.
-          | Before buying an NFT, always do your own research about the collection and double check the collection name to ensure that you are buying genuine NFTs.
+        p {{ $t('NFT_ALERT') }}
 
   .clearfix(slot='header')
     el-page-header(@back='goBack')
       template(slot='content')
         .d-flex
           .lead.mr-5 {{ order.buy.quantity }}
-          span.mr-1 Order {{ order.id }} created by
+          span.mr-1 {{ $t('Order') }} {{ order.id }} {{ $t('created by') }}
           a(:href='monitorAccount(order.maker)', target='_blank') {{ order.maker }}
   .text.item(v-loading='loading')
     .row.mb-3
@@ -61,7 +59,7 @@ el-card.box-card.mt-3(v-if='!no_found')
         .lead {{ order.sell.quantity }}@
           a(:href="monitorAccount(order.sell.contract)" target="_blank") {{ order.sell.contract }}
       .col-6.text-center
-        h2 Buy
+        h2 {{ $t('Buy') }}
 
         hr
 

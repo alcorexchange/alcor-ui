@@ -4,11 +4,11 @@
     .row.mt-2
       .col
         el-tabs(type='border-card')
-          el-tab-pane(label="Orders" v-loading="loading")
+          el-tab-pane(:label="$t('Orders')" v-loading="loading")
             //.row.mb-3(v-if="$store.state.network.name == 'eos'")
               .col
-                el-alert(title="The OTC contract was changed(updated)!" type="warning")
-                  span Old orders can be found and canceled(recommended) here:
+                el-alert(:title="$t('The OTC contract was changed(updated)!')" type="warning")
+                  span {{$t('Old orders can be found and canceled(recommended) here:')}}
                     a(href="https://eosswap.io" target="_blank")  EOSSWAP
 
             .row
@@ -20,27 +20,27 @@
                     el-option(
                       v-for="token in tokens"
                       :key="token"
-                      :label="token"
+                      :label="$t('token')"
                       :value="token"
                     )
                       TokenImage(:src="$tokenLogo(token.split('@')[0], token.split('@')[1])" height="25").mr-2
                       span  {{ token }}
 
-                  el-input(size="medium" v-model="search" placeholder="Filter by token").ml-2.mr-3.w-75
+                  el-input(size="medium" v-model="search" :placeholder="$t('Filter by token')").ml-2.mr-3.w-75
             .row
               .col
                 el-table(:data="filteredItems" @row-click="clickOrder" row-class-name="order-row")
-                  el-table-column(label="ID" width="70")
+                  el-table-column(:label="$t('ID')" width="70")
                     template(slot-scope='scope')
                       //i.el-icon-time
                       nuxt-link(:to="{ name: `otc-order-id___${$i18n.locale}`, params: { id: scope.row.id } }" style='margin-left: 10px') {{ scope.row.id }}
 
-                  el-table-column(label="Owner" width="130")
+                  el-table-column(:label="$t('Owner')" width="130")
                     template(slot-scope="scope")
                       .name-wrapper(slot="reference")
                         el-tag(size="medium") {{ scope.row.maker }}
 
-                  el-table-column(label="Sell" sortable :sort-method="sortBySell")
+                  el-table-column(:label="$t('Sell')" sortable :sort-method="sortBySell")
                     template(slot-scope="scope")
                       TokenImage(:src="$tokenLogo(scope.row.sell.quantity.split(' ')[1], scope.row.sell.contract)" height="25")
                       span.ml-2(v-if="scope.row.sell.symbol == 'EOS' && scope.row.sell.contract != 'eosio.token'")
@@ -49,7 +49,7 @@
 
                       span.ml-2(v-else) {{ scope.row.sell.quantity }}@{{ scope.row.sell.contract }}
 
-                  el-table-column(label="Buy" sortable :sort-method="sortByBuy")
+                  el-table-column(:label="$t('Buy')" sortable :sort-method="sortByBuy")
                     template(slot-scope="scope")
                       TokenImage(:src="$tokenLogo(scope.row.buy.symbol, scope.row.buy.contract)" height="25")
                       //span.ml-2(v-if="symbol == 'EOS'") {{ scope.row.buy.quantity }}@{{ scope.row.buy.contract }}
@@ -59,48 +59,45 @@
 
                       span.ml-2(v-else) {{ scope.row.buy.quantity }}@{{ scope.row.buy.contract }}
 
-                  el-table-column(label="Price" width="250" sortable :sort-method="sortByPrice")
+                  el-table-column(:label="$t('Price')" width="250" sortable :sort-method="sortByPrice")
                     template(slot-scope="scope")
                       b.ml-2 {{ scope.row.price }}
 
-          el-tab-pane(label='History')
+          el-tab-pane(:label='$t("History")')
             history
 
-          el-tab-pane(label='Rules & Information')
-            h2.lead.ml-3.mt-3 With TOKENSWAP you can exchange any EOS.IO tokens, for any other EOS.IO tokens,
-              | atomically, without the participation of third parties! The tokens should comply with the
-              | standard eosio.token of the contract.
-
-            h4.ml-3.mt-3 Properties:
+          el-tab-pane(:label='$t("Rules & Information")')
+            h2.lead.ml-3.mt-3 {{ $t('RULES_INFO_1') }}
+            h4.ml-3.mt-3 {{ $t('Properties:') }}
               ul.mt-1
-                li.lead All the logic of order storage and exchange takes place in the contract, without any additional centralized solutions.
-                li.lead The exchange works automatically, without the possibility of third parties to influence the work of the contract.
-                li.lead This application works without centralized back-end and uses only the public EOS node.
-                li.lead Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged.
+                li.lead {{ $t("RULES_INFO_2") }}
+                li.lead {{ $t("RULES_INFO_3") }}
+                li.lead {{ $t("RULES_INFO_4") }}
+                li.lead {{ $t("RULES_INFO_5") }}
 
-            h4.ml-3 Roadmap:
+            h4.ml-3 {{ $t('Roadmap') }}:
               ul.mt-1
-                li.lead Global redesign of the application.
-                li.lead The web application will be published in open source. And contract later.
-                li.lead Development of additional services for easy search, sorting and working with orders.
+                li.lead {{ $t('RULES_INFO_6') }}
+                li.lead {{ $t('RULES_INFO_7') }}
+                li.lead {{ $t('RULES_INFO_8') }}
 
-            h4.ml-3 Audit:
+            h4.ml-3 {{ $t('Audit:') }}
               ul.mt-1
-                li.lead Exchange contract:
+                li.lead {{ $t('Exchange contract:') }}
                   a(:href="monitorAccount(contract)" target="_blank")  {{ contract }}
 
-                li.lead Comission account:
+                li.lead {{ $t('Comission account:') }}
                   a(:href="monitorAccount(divContract)" target="_blank")  {{ divContract }}
 
           el-tab-pane(label='Partners').p-3
-            .lead.mb-4 Friends and partners of the project. By any collaborations you can send your suggestions to telegram chat!
+            .lead.mb-4 {{ $t('RULES_INFO_9') }}
 
             hr
             .d-flex
               a(href="https://eosnameswaps.com" target="_blank").btn
                 .d-flex.align-items-center.span
                   img(src="https://www.eosnameswaps.com/images/ens_logo.jpg" height="80").mr-3
-                  .lead A decentralized EOS account exchange.
+                  .lead {{ $t('RULES_INFO_10') }}
 
 </template>
 

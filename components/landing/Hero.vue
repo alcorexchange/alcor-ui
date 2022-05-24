@@ -1,15 +1,14 @@
 <template lang="pug">
 .hero
   .left
-    h1 All in one DEX
+    h1 {{ $t('HERO_TITLE') }}
     p.desc
-      | Alcor is a lego of decentralized finance built on multi-chain, and a
-      | provider of solutions in one tap.
+      | {{ $t('HERO_DESCRIPTION') }}
     .actions
       alcor-link.start(to='/markets')
-        | {{ $t('Start traiding') }}
+        | {{ $t('START_TRAIDING_BTN') }}
       alcor-button(@click="openInNewTab('https://docs.alcor.exchange/')")
-        | {{ $t('Read docs') }}
+        | {{ $t('READ_DOCS_BTN') }}
   .right
     circles(v-if='canShowCircles')
 </template>

@@ -7,24 +7,24 @@
     ).mr-3
       el-radio-button(label='fav')
         i.el-icon-star-on
-        span Fav
+        span {{ $t('Fav') }}
 
       el-radio-button(label='all')
-        span All
+        span {{ $t('All') }}
 
       el-radio-button(:label='network.baseToken.symbol')
         span {{ network.baseToken.symbol }}
 
       el-radio-button(v-if='network.name == "eos"', label='USDT')
-        span USDT
+        span {{ $t('USDT') }}
 
       el-radio-button(value='cross-chain', label='Cross-Chain')
-        span Cross-Chain
+        span {{ $t('Cross-Chain') }}
 
     .search-container
       el-input(
         v-model='search',
-        placeholder='Search market',
+        :placeholder='$t("Search market")',
         size='small',
         prefix-icon='el-icon-search'
         clearable
@@ -34,8 +34,7 @@
 
     .ml-auto(v-if="!isMobile")
       nuxt-link(:to="localePath('new_market', $i18n.locale)")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
-
+        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
   .table.el-card.is-always-shadow
     el-table.market-table(
       :data='lazyMarkets',
@@ -43,7 +42,7 @@
       style='width: 100%',
       @row-click='clickOrder',
       :default-sort='{ prop: "weekVolume", order: "descending" }')
-      el-table-column(label='Pair', prop='date')
+      el-table-column(:label='$t("Pair")', prop='date')
         template(slot-scope='scope')
           TokenImage(
             :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
@@ -59,7 +58,7 @@
             img(src="~/assets/icons/badge-promoted.svg")
 
       el-table-column(
-        :label='`Last price`',
+        :label='$t("Last price")',
         sort-by='last_price',
         align='right',
         :width='isMobile ? 90 : 150',
@@ -71,7 +70,7 @@
           .text-success(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
           .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
       el-table-column(
-        :label='`24H Vol.`',
+        :label='$t("24H Vol.")',
         align='right',
         header-align='right',
         sortable,
@@ -85,7 +84,7 @@
           span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='24H',
+        :label='$t("24H")',
         prop='name',
         align='right',
         header-align='right',
@@ -99,7 +98,7 @@
           change-percent(:change='scope.row.change24')
 
       el-table-column(
-        label='7D Volume',
+        :label='$t("7D Volume")',
         prop='weekVolume',
         align='right',
         header-align='right',
@@ -113,7 +112,7 @@
           span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
 
       el-table-column(
-        label='7D Change',
+        :label='$t("7D Change")',
         prop='weekChange',
         align='right',
         header-align='right',

@@ -14,7 +14,7 @@
       v-else='',
       @click='$store.dispatch("modal/login")'
     )
-      | Connect Wallet
+      | {{ $t('Connect Wallet') }}
 
     //AlcorButton.theme-toggle-button.desktop(
     //  v-if='$route.name != "index"',

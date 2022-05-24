@@ -22,7 +22,7 @@
               .col
                 .d-flex.flex-column
                   b ID: {{ nft.id }}
-                  span Category: {{ nft.category }}
+                  span {{ $t('Category') }}: {{ nft.category }}
                   span Author
                     b.ml-1 {{ nft.author }}
             .row
@@ -37,7 +37,7 @@
                 .d-flex.flex-column
                   span {{ nft.mdata.name }}
                   b ID: {{ nft.id }}
-                  span Category: {{ nft.category }}
+                  span {{ $t('Category') }}: {{ nft.category }}
                   span Author
                     b.ml-1 {{ nft.author }}
             hr.m-0

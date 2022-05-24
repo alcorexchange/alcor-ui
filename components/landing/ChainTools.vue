@@ -1,13 +1,13 @@
 <template lang="pug">
 .chain-tools
-  SectionTitle.section-title On-Chain Tools
+  SectionTitle.section-title {{ $t('ONCHAIN_TOOLS_TITLE') }}
   .items
     .item(v-for='{ icon, name, description, to } in chainTools')
       nuxt-link.item-inner(:to="localePath(to, $i18n.locale)")
         .icon-container
           img.icon(:src='icon')
-        .h3 {{ name }}
-        .desc {{ description }}
+        .h3 {{ $t(name) }}
+        .desc {{ $t(description) }}
   Spacer
 </template>
 
