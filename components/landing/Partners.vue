@@ -1,9 +1,9 @@
 <template lang="pug">
 .partners-section.alcor-inner
-    SectionTitle.section-title Partners & API Providers
-    .items
-      a.item(v-for="{image, url, padding} in items" :href="url" target="_blank" :style="{padding}")
-        img(:src="image")
+  SectionTitle.section-title {{ $t('PARTNERS_PROVIDERS') }}
+  .items
+    a.item(v-for="{ image, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
+      img(:src="image")
 </template>
 
 <script>
@@ -33,12 +33,15 @@ export default {
 .section-title {
   padding-top: 20px;
 }
+
 .items {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+
   .item {
     display: flex;
+
     img {
       width: 100%;
       height: 100%;

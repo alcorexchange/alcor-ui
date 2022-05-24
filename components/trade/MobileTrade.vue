@@ -11,7 +11,7 @@
       el-tabs.h-100(type="border-card" size="small").border-tabs
         el-tab-pane(label='Orderbook')
           order-book
-        el-tab-pane(label='Depth Chart')
+        el-tab-pane(:label='$t("Depth Chart")')
           depth-chart(
             :is-draggable='false',
             :is-resizable='false',
@@ -117,7 +117,8 @@ export default {
     padding: 0px 10px !important;
   }
 
-  .el-tabs__item, .el-table {
+  .el-tabs__item,
+  .el-table {
     font-size: 11px !important;
   }
 
@@ -134,7 +135,9 @@ export default {
     height: 380px;
   }
 
-  .el-slider__marks-text, .el-input, .el-input__inner {
+  .el-slider__marks-text,
+  .el-input,
+  .el-input__inner {
     font-size: 10px;
   }
 
@@ -162,9 +165,11 @@ export default {
     }
   }
 }
+
 .cursor-pointer {
   cursor: pointer;
 }
+
 .capitalize {
   text-transform: capitalize;
 }

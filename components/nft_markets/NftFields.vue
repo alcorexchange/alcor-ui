@@ -9,7 +9,7 @@
 
   .row.mb-1
     .col
-      b Immutable data:
+      b {{ $t('Immutable data:') }}
       ul
         li(v-for="item in iRows" v-if="item[1]")
           span.text-muted {{ item[0] }}:
