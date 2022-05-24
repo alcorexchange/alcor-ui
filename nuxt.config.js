@@ -4,7 +4,7 @@ const pkg = require('./package')
 const isSPA = process.argv.includes('--spa')
 const isDev = process.env.npm_lifecycle_event == 'dev' || process.argv.includes('--dev') || process.env.NODE_ENV !== 'production'
 
-const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
+// const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
 
 module.exports = {
   telemetry: false,
@@ -21,34 +21,63 @@ module.exports = {
   /*
   ** Headers of the page
   */
-  head: {
-    title: config.APP_NAME + ' | EOS Trustless DEX.',
+  head() {
+    const i18nHead = this.$nuxtI18nHead({ addSeoAttributes: true })
+    const desc = `Alcor Exchange ${this.$t('META_DESCRIPTION')}`
+    const title = `Alcor Exchange | ${this.$t('META_TITLE')}`
 
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: desc },
-      { name: 'msapplication-TileColor', content: '#da532c' },
-
-      { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' }
-
-      //{ name: 'theme-color', content: '#ffffff' }
-      //{ name: 'viewport', content: 'user-scalable = yes' }
-    ],
-
-    //script: [
-    //  { src: '/datafeeds/udf/dist/bundle.js' }
-    //],
-
-    link: [
-      { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-      { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-      { rel: 'manifest', href: '/site.webmanifest' },
-      { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    return {
+      title,
+      htmlAttrs: { ...i18nHead.htmlAttrs },
+      meta: [
+        { charset: 'utf-8' },
+        { hid: 'description', name: 'description', content: desc },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'msapplication-TileColor', content: '#da532c' },
+        { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' },
+        ...i18nHead.meta
+      ],
+      link: [
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'manifest', href: '/site.webmanifest' },
+        { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        ...i18nHead.link
+      ]
+    }
   },
+
+  // head.old
+  // head: {
+  //   title: config.APP_NAME + ' | EOS Trustless DEX.',
+
+  //   meta: [
+  //     { charset: 'utf-8' },
+  //     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+  //     { hid: 'description', name: 'description', content: desc },
+  //     { name: 'msapplication-TileColor', content: '#da532c' },
+
+  //     { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' }
+
+  //     //{ name: 'theme-color', content: '#ffffff' }
+  //     //{ name: 'viewport', content: 'user-scalable = yes' }
+  //   ],
+
+  //   //script: [
+  //   //  { src: '/datafeeds/udf/dist/bundle.js' }
+  //   //],
+
+  //   link: [
+  //     { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+  //     { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+  //     { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+  //     { rel: 'manifest', href: '/site.webmanifest' },
+  //     { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
+  //     { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+  //   ]
+  // },
 
   /*
   ** Customize the progress-bar color
@@ -106,8 +135,17 @@ module.exports = {
     //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
+    '@nuxtjs/i18n'
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
+  i18n: {
+    langDir: '~/locales',
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en.js' },
+      { code: 'ru', iso: 'ru-RU', file: 'ru.js' }
+    ],
+    defaultLocale: 'en'
+  },
   highcharts: {
     /* module options */
   },

@@ -4,7 +4,7 @@
 el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-if="isMobile")
   template(slot="empty")
     span(v-if="user") No open orders
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') Connect Wallet
+    el-button(v-else type="default" @click='$store.dispatch("modal/login")') $t('Connect Wallet')
 
   el-table-column(label='Type' width="50")
     template(slot-scope='{ row }')
@@ -29,7 +29,7 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-if="isM
 el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-else)
   template(slot="empty")
     span(v-if="user") No open orders
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') Connect Wallet
+    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
 
   el-table-column(label='Time', width='110')
     template(slot-scope='scope')

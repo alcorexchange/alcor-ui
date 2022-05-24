@@ -57,26 +57,26 @@
     .row.mt-3
       .col
         .d-flex.justify-content-between
-          small Minimum Received
+          small {{ $t('Minimum Received') }}
           .small {{ minOutput }}
 
         .d-flex.justify-content-between
-          small Rate
+          small {{ $t('Rate') }}
           .small {{ price }}
 
         .d-flex.justify-content-between
-          small Price Impact
-          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
-          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
-          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
-          .small(v-else).font-weight-bold {{ priceImpact}} %
+          small {{ $t('Price Impact') }}
+          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact }}%
+          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact }}%
+          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact }}%
+          .small(v-else).font-weight-bold {{ priceImpact }} %
 
         .d-flex.justify-content-between
-          small Slippage
+          small {{ $t('Slippage') }}
           .small 3%
 
         .d-flex.justify-content-between
-          small Liquidity Source Fee
+          small {{ $t('Liquidity Source Fee') }}
           .small {{ fee }}%
 
 </template>
