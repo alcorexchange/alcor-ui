@@ -1,15 +1,15 @@
 <template lang="pug">
   div.wallet
     .table-header
-      el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')" size="small" clearable)
-      el-checkbox() {{$t('Hide small balances')}}
+      el-input(v-model='search' prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small" clearable)
+      el-checkbox() Hide small balances
     .el-card.is-always-shadow
       el-table.alcor-table.noHover(
         :data='balances',
         style='width: 100%',
         :default-sort='{ prop: "weekVolume", order: "descending" }'
       )
-        el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
+        el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
           template(slot-scope='{row}')
             .asset-container
               TokenImage(
@@ -22,7 +22,7 @@
                 span.asset-contract.cancel {{ row.contract }}
 
         el-table-column(
-          :label='$t("Total")',
+          label='Total',
           sort-by='amount',
           sortable,
         )
@@ -31,7 +31,7 @@
               .amount {{row.amount}}
               .val.cancel = $130.43
         el-table-column(
-          :label='$t("Available")',
+          label='Available',
           sort-by='amount',
           sortable,
         )
@@ -40,7 +40,7 @@
               .amount {{row.amount}}
               .val.cancel = $130.43
         el-table-column(
-          :label='$t("In Order")',
+          label='In Order',
         )
           //- TODO: dynamic
           template(slot-scope='{row}')
@@ -48,22 +48,22 @@
               .amount {{row.amount}}
               .val.cancel = $130.43
         el-table-column(
-          :label='$t("WAX Value")',
+          label='WAX Value',
         )
           template(slot-scope='{row}')
             div.amount-val
               .amount {{row.amount}}
               .val.cancel = $130.43
         el-table-column(
-          :label='$t("Actions")',
+          label='Actions',
           width="260"
         )
           template(slot-scope='{row}')
             .actions
-              el-button(type="text" @click="openDeposit").hover-opacity {{$t('Deposit')}}
-              el-button(type="text" @click="openWithdraw(row)").hover-opacity {{ $t('Withdraw') }}
-              el-button(type="text").hover-opacity {{ $t('Pools') }}
-              el-button.hover-opacity(type="text" @click="trade(row)") {{ $t('Trade') }}
+              el-button(type="text" @click="openDeposit").hover-opacity Deposit
+              el-button(type="text" @click="openWithdraw(row)").hover-opacity Withdraw
+              el-button(type="text").hover-opacity Pools
+              el-button.hover-opacity(type="text" @click="trade(row)") Trade
     DepositPopup(ref="depositPopup")
     WithdrawPopup(ref="withdrawPopup")
 </template>
@@ -132,52 +132,42 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-
   .el-input {
     width: auto;
     min-width: 300px;
     margin-right: 8px;
   }
-
   .el-input__inner {
     background: transparent !important;
   }
 }
-
 .el-card {
   border: none;
 }
-
 .asset-container {
   display: flex;
   align-items: center;
-
   .asset {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
-
   .asset-name {
     font-weight: bold;
   }
 }
-
 .amount-val {
   .amount {
     color: var(--text-default);
     font-size: 0.9rem;
   }
-
   .val {
     color: var(--cancel);
     font-size: 0.8rem;
   }
 }
-
 .actions {
   display: flex;
-
   .el-button--text {
     color: var(--main-green) !important;
     font-weight: 400;

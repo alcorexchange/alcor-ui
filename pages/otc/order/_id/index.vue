@@ -4,12 +4,12 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .clearfix(slot='header')
     el-page-header(@back="goBack")
       template(slot="content")
-        span {{ $t('Order') }} {{ order.id }} {{ $t('created by') }}
+        span Order {{ order.id }} created by
         a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
   .text.item(v-if="order.maker")
     .row.mb-3
       .col-6.text-center.bordered
-        h2 {{ $t('Sell') }}
+        h2 Sell
 
         hr
 
@@ -18,7 +18,7 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
         .lead {{ order.sell.quantity }}@
           a(:href="monitorAccount(order.sell.contract)" target="_blank") {{ order.sell.contract }}
       .col-6.text-center
-        h2 {{ $t('Buy') }}
+        h2 Buy
 
         hr
 
@@ -35,9 +35,9 @@ el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
 el-card(v-else).box-card.mt-3
   .clearfix(slot='header')
     span Order: {{ id }}
-    el-button(@click="$router.push({ name: 'index' })" style='float: right; padding: 3px 0', type='text') Go to main page
+    el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
   .text.item.text-center
-    h1.display-4 {{ $t('Order') }} {{ id }} {{ $t('not found or finished') }}
+    h1.display-4 Order {{ id }} not found or finished
 </template>
 
 <script>

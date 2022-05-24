@@ -1,16 +1,6 @@
 <template lang="pug">
 .setting-modal
   .el-container.setting-container.pt-2.d-flex.flex-column
-    .el-container.d-flex.flex-column
-      .setting-theme-footer.el-footer.text-white
-        span.theme-title Language
-      .el-main.theme-main-settings
-        element-select(:options="$i18n.locales" :selected="$i18n.locale")
-          template(#option="{ option }")
-            lang-option(:code="option.code")
-          template(#selected)
-            lang-option(:code="$i18n.locale")
-
     //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
         span.theme-title Theme
@@ -97,7 +87,7 @@
               .static-color-picker.bloom-green.mx-1
               .static-color-picker.bloom-red.mx-1
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
+    .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == 'trade-index-id'")
       .setting-module-footer.el-footer.text-white
         span.module-title Layouts
       .el-main.module-main-settings
@@ -112,7 +102,7 @@
             img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'full' }")
             span FullScreen
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
+    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == 'trade-index-id'")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
         span.module-title Layout Modules
@@ -164,8 +154,6 @@
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-import ElementSelect from '~/components/elements/ElementSelect'
-import LangOption from '~/components/LangOption'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -174,9 +162,7 @@ export default {
 
   components: {
     TokenImage,
-    ChangePercent,
-    ElementSelect,
-    LangOption
+    ChangePercent
   },
 
   data() {
@@ -292,10 +278,6 @@ export default {
 </style>
 
 <style lang="scss">
-.setting-lang {
-  padding: 0 12px;
-}
-
 .markets-bar {
   height: 100%;
 }

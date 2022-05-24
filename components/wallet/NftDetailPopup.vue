@@ -1,11 +1,11 @@
 <template lang="pug">
   el-dialog(:visible.sync="visible"  width="400px").dialog
     template(#title)
-      .title-container
-        i.el-icon-info
-        .text NFT Details
+        .title-container
+            i.el-icon-info
+            .text NFT Details
     .main
-      .title {{ $t('Immutable data:') }}
+      .title Immutable data:
       .item(v-for="value, key, i in fields.idata")
         span.key {{key}}:&nbsp;
         span.value {{value}}
@@ -46,17 +46,14 @@ export default {
     padding-top: 0;
   }
 }
-
 .title-container {
   display: flex;
   align-items: center;
-
   .text {
     font-weight: 500;
     padding-left: 8px;
   }
 }
-
 .main {
   display: flex;
   flex-direction: column;
@@ -64,22 +61,18 @@ export default {
   color: var(--text-default);
   font-size: 1rem;
 }
-
 .title {
   font-size: 1.2rem;
   text-align: center;
   margin: 10px 0;
   font-weight: 500;
 }
-
 .item {
   width: 100%;
-
   .key {
     opacity: 0.8;
   }
 }
-
 .done {
   width: 100%;
   color: var(--main-green);

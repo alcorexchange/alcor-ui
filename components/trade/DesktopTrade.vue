@@ -37,7 +37,7 @@
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
-            .module-name.mr-2 {{ $t('Hide other pairs') }}
+            .module-name.mr-2 Hide other pairs
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
@@ -67,9 +67,9 @@
         order-form-vertical(v-if="item.i == 'order-form-vertical'")
 
         el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
-          el-tab-pane(:label='$t("Orderbook")')
+          el-tab-pane(label='Orderbook')
             order-book
-          el-tab-pane(:label='$t("Depth Chart")')
+          el-tab-pane(label='Depth Chart')
             depth-chart(
               :is-draggable='false',
               :is-resizable='false',
@@ -80,17 +80,17 @@
             )
 
         el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
-          el-tab-pane(:label='$t("Markets")')
+          el-tab-pane(label='Markets')
             Markets.mt-1
-          el-tab-pane(:label='$t("Times & Sales")')
+          el-tab-pane(label='Times & Sales')
             LatestDeals(:timeformat='timeformat')
 
         alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          el-tab-pane(:label='$t("Open orders")')
+          el-tab-pane(label='Open orders')
             my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
-          el-tab-pane(:label='$t("Trade History")')
+          el-tab-pane(label='Trade History')
             my-trade-history(:only-current-pair="hideOtherPairs")
-          el-tab-pane(:label='$t("Funds")')
+          el-tab-pane(label='Funds')
             my-funds(:only-current-pair="hideOtherPairs")
         .not-history.limit-market(
           v-if='item.i == "limit-market"',
@@ -98,10 +98,10 @@
         )
           //.right-icons
           el-tabs(type="border-card").h-100
-            el-tab-pane.h-10(:label='$t("Limit trade")')
+            el-tab-pane.h-10(label='Limit trade')
               .trade-box
                 limit-trade
-            el-tab-pane(:label='$t("Market trade")')
+            el-tab-pane(label='Market trade')
               .trade-box
                 market-trade
 
@@ -111,14 +111,14 @@
   #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
     .cancel-modal-content
       .price-info
-        p {{ $t('Your order to:') }}
+        p Your order to:
         span.color-green &nbsp;{{ orderdata.order_to }}
       .price-info
-        p {{ $t('At a price of:') }}
+        p At a price of:
         span &nbsp;{{ orderdata.price }}
-      p {{ $t('Will be') }}
+      p Will be
         span.color-red &nbsp;cancelled
-        | , {{ $t('do you wish to proceed?') }}
+        | , do you wish to proceed?
       .alert-btn-group.d-flex.justify-content-between
         div(@click='cancel_confirm_order(true)') Yes
         div(@click='cancel_confirm_order(false)') No
@@ -126,18 +126,18 @@
   #price_move_modal(v-if='orderdata.show_move_modal')
     .cancel-modal-content
       .price-info
-        p {{ $t('Your order to:') }}
+        p Your order to:
         span.color-green &nbsp;{{ orderdata.order_to }}
       .price-info
-        p {{ $t('At a price of:') }}
+        p At a price of:
         span &nbsp;{{ orderdata.price }}
       .price-info
-        p.width-auto {{ $t('Will be moved to:') }}
+        p.width-auto Will be moved to:
         span &nbsp;{{ orderdata.new_price }}
-      p {{ $t('do you wish to proceed?') }}
+      p Do you wish to proceed?
       .alert-btn-group.d-flex.justify-content-between
-        div(@click='move_confirm_order(true)') {{ $t('Yes') }}
-        div(@click='move_confirm_order(false)') {{ $t('No') }}
+        div(@click='move_confirm_order(true)') Yes
+        div(@click='move_confirm_order(false)') No
       i.el-icon-close(@click='move_confirm_order(false)')
 </template>
 

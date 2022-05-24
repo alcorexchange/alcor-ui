@@ -17,11 +17,11 @@
     el-input(
       size='small',
       v-model='search',
-      :placeholder='$t("Filter by token")',
+      placeholder='Filter by token',
       clearable
       width="60%"
     )
-      template(v-if="sideMaretsTab == 'system'" slot="append")
+       template(v-if="sideMaretsTab == 'system'" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
   el-table(
     :data='lazyMarkets',
@@ -329,7 +329,6 @@ export default {
   }
 
   .markets-bar .el-table {
-
     th,
     tr {
       background: var(--background-color-secondary);
@@ -337,7 +336,6 @@ export default {
 
     .el-table__row {
       &:hover {
-
         & td,
         & th,
         & tr {
@@ -347,7 +345,6 @@ export default {
     }
 
     .active-row {
-
       & td,
       & th,
       & tr {
@@ -365,7 +362,7 @@ export default {
     height: calc(100% - 70px);
   }
 
-  .el-table__body-wrapper {
+  .el-table__body-wrapper{
     height: calc(100% - 45px);
     overflow-y: auto;
     overflow-x: hidden;

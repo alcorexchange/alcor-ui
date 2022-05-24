@@ -109,8 +109,7 @@ export default {
     }
   }
 
-  .el-menu-item,
-  .el-submenu__title {
+  .el-menu-item, .el-submenu__title {
     padding-left: 0px !important;
   }
 }
