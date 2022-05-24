@@ -49,7 +49,7 @@ export default {
     fullWidth() {
       // Full with for this pages
       const tradeLocales = this.$i18n.locales.map(({ code }) => `trade-index-id___${code}`)
-      return [...tradeLocales, 'index'].includes(this.$route.name)
+      return [...tradeLocales, 'index___ru', 'index___en'].includes(this.$route.name)
     },
 
     menuItems() {
