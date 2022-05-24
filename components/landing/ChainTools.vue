@@ -1,13 +1,13 @@
 <template lang="pug">
 .chain-tools
-  SectionTitle.section-title {{ $t('ONCHAIN_TOOLS_TITLE') }}
+  SectionTitle.section-title On-Chain Tools
   .items
     .item(v-for='{ icon, name, description, to } in chainTools')
-      nuxt-link.item-inner(:to="localePath(to, $i18n.locale)")
+      nuxt-link.item-inner(:to="to")
         .icon-container
           img.icon(:src='icon')
-        .h3 {{ $t(name) }}
-        .desc {{ $t(description) }}
+        .h3 {{ name }}
+        .desc {{ description }}
   Spacer
 </template>
 
@@ -55,12 +55,10 @@ export default {
 .section-title {
   margin-bottom: 25px !important;
 }
-
 .items {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-
   .item-inner {
     display: flex;
     flex-direction: column;
@@ -91,7 +89,6 @@ export default {
       transform: translateY(-4px);
       box-shadow: var(--card-shadow);
     }
-
     .icon-container {
       width: 60px;
       height: 60px;
@@ -100,43 +97,36 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-
       .icon {
         width: 32px;
         height: 32px;
       }
     }
-
     .h3 {
       font-size: 1.4rem;
       margin: 10px 0;
       color: var(--text-default);
     }
-
     .desc {
       color: var(--text-grey-thirdly);
     }
   }
 }
-
 @media only screen and (max-width: 940px) {
   .items {
     justify-content: center;
-
     .item {
       padding: 8px;
     }
   }
 }
-
 @media only screen and (max-width: 640px) {
   .items {
     .item {
       width: 100%;
-
       .item-inner {
         height: 160px;
-        border: none !important;
+        border: none !important ;
         width: 100%;
       }
     }

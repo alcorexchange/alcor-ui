@@ -2,11 +2,11 @@
 .icon-btn
   i.el-icon-setting(@click='visible = true')
 
-  el-dialog(:title='$t("Chart Settings")' :visible.sync='visible' append-to-body width="700px" custom-class="trading-page-dialog")
+  el-dialog(title='Chart Settings' :visible.sync='visible' append-to-body width="700px" custom-class="trading-page-dialog")
     .table-setting-modal
       .el-container.setting-container.pt-2.d-flex.flex-column
         .el-container.setting-layout.d-flex.flex-row
-          h4.preview-title {{ $t('Chart Preview') }}
+          h4.preview-title Chart Preview
           //preview-chart
         .el-container.setting-layout.d-flex.flex-row
           .el-main.module-main-settings.main-settings-left
@@ -17,11 +17,11 @@
         .el-container.setting-layout.d-flex.flex-row.mt-20
           .el-main.module-main-settings.main-settings-left
             .module-selection.d-flex.flex-column
-              .settings-title {{ $t('Header Settings') }}
+              .settings-title Header Settings
               .module-list.d-flex.flex-row.justify-content-between(
                 v-for='settingBtn in header_settings_title'
               )
-                .module-name {{ $t(settingBtn.name) }}
+                .module-name {{ settingBtn.name }}
                 .module-pickers.d-flex.flex-row
                 el-switch(
                   v-model='header_settings_change[settingBtn.key]',
@@ -31,14 +31,15 @@
                 )
           .el-main.module-main-settings.main-settings-right
             .module-selection.d-flex.flex-column
-              .settings-title {{ $t('Chart Orders') }}
+              .settings-title Chart Orders
               .module-list.d-flex.flex-row.justify-content-between(
                 v-for='settingBtn in chart_orders_title'
               )
-                .module-name {{ $t(settingBtn.name) }}
+                .module-name {{ settingBtn.name }}
                   p.tooltip-desc(
                     v-if='settingBtn.key == "chart_order_interactivity"'
-                  ) {{ $t('SETTING_MODAL_TEXT1') }}
+                  ) Order Interactivity allows you to move or cancel orders directly from the chart,
+                    | just drag the lavel to move the order or click the "X" button to cancel the orther
                 .module-pickers.d-flex.flex-row
                 el-switch(
                   v-if='settingBtn.key != "chart_executions"',
@@ -51,7 +52,7 @@
         .el-container.setting-layout.d-flex.flex-row
           .el-main.module-main-settings.main-settings-left
             .module-selection.d-flex
-              .el-button(type="text" @click='initiateState()') {{ $t('Reset to Default') }}
+              .el-button(type="text" @click='initiateState()') Reset to Default
 </template>
 
 <script>
@@ -141,11 +142,9 @@ export default {
   height: 100vh;
   background-color: rgba(22, 22, 23, 0.8);
 }
-
 .mt-30 {
   margin-top: 30px;
 }
-
 .preview-title {
   padding-top: 10px;
   padding-right: 10px;
@@ -156,7 +155,6 @@ export default {
 .module-name {
   margin: 3px 0;
 }
-
 .tooltip-desc {
   border-radius: 10px;
   color: white;
@@ -169,11 +167,9 @@ export default {
   display: none;
   font-size: 14px;
 }
-
 .module-name:hover p {
   display: block;
 }
-
 .tooltip-desc {
   border-radius: 10px;
   color: white;
@@ -186,12 +182,12 @@ export default {
   display: none;
   font-size: 14px;
 }
-
 .module-name:hover p {
   display: block;
 }
 
-.table-setting-modal {}
+.table-setting-modal {
+}
 
 .settings-title {
   font-size: 12px;
@@ -218,7 +214,7 @@ input[type='radio'] {
 }
 
 /* simulate radiobutton appearance using pseudoselector */
-input[type='radio']+label:before {
+input[type='radio'] + label:before {
   content: '';
   /* create custom radiobutton appearance */
   display: inline-block;
@@ -233,7 +229,7 @@ input[type='radio']+label:before {
 }
 
 /* appearance of checked radiobutton */
-input[type='radio']:checked+label:before {
+input[type='radio']:checked + label:before {
   background-color: #67c23a;
 }
 
@@ -259,11 +255,9 @@ input[type='radio']:checked+label:before {
 .theme-cyber .el-main,
 .theme-bloom .el-main {
   padding: 8px 12px 8px 12px !important;
-
   &.main-settings-left {
     padding-right: 33px !important;
   }
-
   &.main-settings-right {
     margin-right: 18px !important;
   }
@@ -314,47 +308,36 @@ input[type='radio']:checked+label:before {
   .default-green {
     background-color: #66c167;
   }
-
   .default-red {
     background-color: #f96c6c;
   }
-
   .contrast-green {
     background-color: #00b909;
   }
-
   .contrast-red {
     background-color: #c60606;
   }
-
   .oranger-blue {
     background-color: #1f8df9;
   }
-
   .oranger-brown {
     background-color: #dd7a2b;
   }
-
   .oceano-blue {
     background-color: #136b9a;
   }
-
   .oceano-white {
     background-color: #ffffff;
   }
-
   .cyber-green {
     background-color: #0cb825;
   }
-
   .cyber-red {
     background-color: #e80015;
   }
-
   .bloom-green {
     background-color: #00a308;
   }
-
   .bloom-red {
     background-color: #d62834;
   }
@@ -365,32 +348,26 @@ input[type='radio']:checked+label:before {
     border: 1px solid #f2f2f2;
     color: #f2f2f2;
   }
-
   &.contrast-text {
     border: 1px solid #b2b2b2;
     color: #b2b2b2;
   }
-
   &.oranger-text {
     border: 1px solid #bbbbbb;
     color: #363d52;
   }
-
   &.oceano-text {
     border: 1px solid #17a3e8;
     color: #bbbbbb;
   }
-
   &.cyber-text {
     border: 1px solid #01494d;
     color: #01494d;
   }
-
   &.bloom-text {
     border: 1px solid #3b4959;
     color: #fc9d31;
   }
-
   background-color: #0c0c11;
   width: 16px;
   height: 16px;
@@ -566,7 +543,6 @@ input[type='radio']:checked+label:before {
 #preview_chart_container {
   height: 250px;
 }
-
 @media only screen and (max-width: 1000px) {
   #preview_chart_container {
     height: 360px;

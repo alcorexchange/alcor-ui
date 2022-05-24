@@ -1,7 +1,7 @@
 <template lang="pug">
   div.pools
     .table-header
-      el-input(prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')")
+      el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
     .table.el-card.is-always-shadow
       el-table.market-table(
         :data='lpTokens',
@@ -32,8 +32,8 @@
               span.cancel.fontSmall {{ String(row.earn1) | commaFloat }}
               span.cancel.fontSmall {{ String(row.earn2) | commaFloat }}
         //el-table-column(label='Earnings WAX Value')
-        //- TODO: dynamic
-        template(slot-scope='{row}') 123 WAX
+          //- TODO: dynamic
+          template(slot-scope='{row}') 123 WAX
         el-table-column(label='Actions')
           template(slot-scope='{row}')
             .actions
@@ -140,13 +140,13 @@ export default {
 
             const lp1 = asset(
               lposition.liquidity1.toFixed(s1.precision()) +
-              ' ' +
-              s1.code().to_string()
+                ' ' +
+                s1.code().to_string()
             )
             const lp2 = asset(
               lposition.liquidity2.toFixed(s2.precision()) +
-              ' ' +
-              s2.code().to_string()
+                ' ' +
+                s2.code().to_string()
             )
 
             position.earn1 = asset(
@@ -244,60 +244,48 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.table-header {
+.table-header{
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-
-  .el-input {
+  .el-input{
     max-width: 300px;
     margin-right: 8px;
   }
-
-  .el-input__inner {
+  .el-input__inner{
     background: transparent !important;
   }
 }
-
-.el-card {
+.el-card{
   border: none;
 }
-
-.asset-container {
+.asset-container{
   display: flex;
   align-items: center;
-
-  .asset {
+  .asset{
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
-
-  .asset-name {
+  .asset-name{
     font-weight: bold;
   }
 }
-
-.detailed-item-container {
+.detailed-item-container{
   display: flex;
   flex-direction: column;
 }
-
-.actions {
+.actions{
   display: flex;
-
   .add {
-    background: var(--main-green);
+    background:var(--main-green);
     margin-right: 8px;
-
     &:hover {
       opacity: 0.8;
     }
   }
-
   .remove {
-    background: var(--main-red);
-
+    background:var(--main-red);
     &:hover {
       opacity: 0.8;
     }
