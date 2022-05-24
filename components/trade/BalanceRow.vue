@@ -1,8 +1,8 @@
 <template lang="pug">
 // TODO Not used
 .d-flex.label.mb-3
-  span.text-success Buy {{ token.symbol.name }}
-  span.text-mutted.small.align-self-end.ml-auto balance: {{ baseBalance }}
+  span.text-success {{ $t('Buy') }} {{ token.symbol.name }}
+  span.text-mutted.small.align-self-end.ml-auto {{ $t('balance:') }} {{ baseBalance }}
 </template>
 
 <script>

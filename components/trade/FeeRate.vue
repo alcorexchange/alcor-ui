@@ -6,14 +6,14 @@
     popper-class='popup-dialog'
   )
     template(slot='content')
-      span.title.muted Maker Fee
+      span.title.muted {{ $t('Maker Fee') }}
       span.value.ml-1 {{ (meta.fee / 100).toFixed(4) }}%
-      span.title.muted.ml-2 Taker Fee
+      span.title.muted.ml-2 {{ $t('Taker Fee') }}
       span.value.ml-1 {{ (meta.fee / 100).toFixed(4) }}%
-    el-button.muted.px-1 % Fee
+    el-button.muted.px-1 % {{ $t('Fee') }}
 
   //el-dropdown(placement="top").fee-rate
-    AlcorButton(flat) Fee Rate
+    AlcorButton(flat) {{$t('Fee Rate')}}
     el-dropdown-menu(slot="dropdown").dropdown-content
 </template>
 
@@ -38,13 +38,16 @@ export default {
   display: flex;
   padding: 8px;
 }
+
 .item {
   display: flex;
   align-items: center;
+
   .title {
     padding-right: 2px;
   }
 }
+
 .el-button.muted {
   font-size: 12px !important;
   background: #3f3f3f;
@@ -52,6 +55,7 @@ export default {
   margin-top: 3px !important;
   margin-bottom: 3px !important;
 }
+
 .popup-fee {
   background-color: black !important;
 }

@@ -60,7 +60,7 @@
           size='small',
           type='success',
           @click='actionOrder("limit", "buy")'
-        ) Buy {{ quote_token.str }}
+        ) {{ $t('Buy') }} {{ quote_token.str }}
 
   .col-lg-6
     .d-flex.mb-1
@@ -122,7 +122,7 @@
           size='small',
           type='danger',
           @click='actionOrder("limit", "sell")'
-        ) $t('Sell') {{ quote_token.str }}
+        ) {{ $t('Sell') }} {{ quote_token.str }}
 </template>
 
 <script>

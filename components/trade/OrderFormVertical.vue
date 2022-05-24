@@ -106,7 +106,7 @@
       el-input(
         type='number',
         disabled,
-        placeholder='Buy at best price'
+        :placeholder='$t("Buy at best price")'
       )
 
       label.small.mt-3 Amount
@@ -204,7 +204,9 @@ export default {
 
 <style lang="scss">
 .order-form-vertical {
-  .buy, .sell {
+
+  .buy,
+  .sell {
     .el-radio-button__inner {
       padding: 5px 15px !important;
     }

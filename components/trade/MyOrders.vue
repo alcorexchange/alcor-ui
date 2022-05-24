@@ -1,69 +1,69 @@
 <template lang="pug">
 
 // MOBILE
-el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-if="isMobile")
+el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile")
   template(slot="empty")
-    span(v-if="user") No open orders
+    span(v-if="user") {{ $t('No open orders') }}
     el-button(v-else type="default" @click='$store.dispatch("modal/login")') $t('Connect Wallet')
 
-  el-table-column(label='Type' width="50")
+  el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
       span.green(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
       span.red(v-else) {{ row.type.toUpperCase() }}
 
-  el-table-column(label='Price' width="90")
+  el-table-column(:label='$t("Price")' width="90")
     template(slot-scope='scope')
       span {{ scope.row.unit_price | humanPrice }}
 
-  el-table-column(label="Amount")
+  el-table-column(:label="$t('Amount')")
     template(slot-scope='{ row }')
       span(v-if="isMobile") {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
       span(v-else) {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
 
-  el-table-column(label='Action', align='right' width=60)
+  el-table-column(:label='$t("Action")', align='right' width=60)
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
 
 
 // DESKTOP
-el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-else)
+el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-else)
   template(slot="empty")
-    span(v-if="user") No open orders
+    span(v-if="user") {{ $t('No open orders') }}
     el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
 
-  el-table-column(label='Time', width='110')
+  el-table-column(:label='$t("Time")', width='110')
     template(slot-scope='scope')
       span {{ scope.row.timestamp | moment("MM-DD HH:mm:ss") }}
 
-  el-table-column(label='Pair' width=110)
+  el-table-column(:label='$t("Pair")' width=110)
     template(slot-scope='{ row }')
       span.hoverable.pointer(:class="{ underline: id != row.market.id }" @click="setMarket(row.market)") {{ row.market_symbol }}
 
-  el-table-column(label='Type' width="50")
+  el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
       span.green(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
       span.red(v-else) {{ row.type.toUpperCase() }}
 
-  el-table-column(label='Price' width="100")
+  el-table-column(:label='$t("Price")' width="100")
     template(slot-scope='scope')
       span {{ scope.row.unit_price | humanPrice }}
 
-  el-table-column(label="Amount")
+  el-table-column(:label="$t('Amount')")
     template(slot-scope='{ row }')
       span(v-if="isMobile") {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
       span(v-else) {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
 
-  el-table-column(:label="'Total(' + base_token.symbol.name + ')'")
+  el-table-column(:label="$t('Total') + '(' + base_token.symbol.name + ')'")
     template(slot-scope='{ row }')
       span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
 
-  el-table-column(label='Action', align='right' width="120")
+  el-table-column(:label='$t("Action")', align='right' width="120")
     template(v-if="!isMobile" slot="header")
-      span.mr-1 Action
+      span.mr-1 {{ $t('Action') }}
       span(@click="cancelAll").red.pointer.hoverable (cancel all)
 
     template(slot-scope='scope')
-      el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
+      el-button(size='mini', type='text', @click='cancel(scope.row)').red {{ $t('Cancel') }}
 
 </template>
 
