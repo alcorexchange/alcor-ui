@@ -16,7 +16,7 @@
 
       .row.mt-2
         .col
-          small {{ $t('Category') }}
+          small Category
           el-input(v-model='category', placeholder='Category' maxlength="12" show-word-limit)
 
       hr
@@ -24,7 +24,7 @@
         .col
           .row
             .col
-              pre {{ $t('Immutable data:') }}
+              pre Immutable data
               small Data that can never be changed again.
               el-input(v-model="iKey" placeholder="key" size="small")
           .row.mt-1
@@ -71,12 +71,12 @@
         .col-lg-8
           .row.mb-1
             .col
-              b.text-muted {{ $t('Category') }}:
+              b.text-muted Category:
               |  {{ preview.category }}
 
           .row.mb-1
             .col
-              b.text-muted {{ $t('Immutable data:') }}
+              b.text-muted Immutable data:
               ul
                 li(v-for="item in iRows" v-if="item[1]")
                   span.text-muted {{ item[0] }}:
@@ -243,7 +243,7 @@ export default {
 
 .market-cards {
   display: flex;
-  flex-wrap: wrap !important;
+  flex-wrap: wrap!important;
   justify-content: space-between;
 }
 
@@ -269,11 +269,9 @@ export default {
   position: relative;
   overflow: hidden;
 }
-
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
-
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -282,10 +280,10 @@ export default {
   line-height: 178px !important;
   text-align: center;
 }
-
 .avatar {
   width: 178px;
   height: 178px;
   display: block;
 }
+
 </style>

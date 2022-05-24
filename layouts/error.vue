@@ -8,7 +8,7 @@
           span.display-1.d-block Error {{ error.statusCode }}
           .mb-4.lead(v-if="error.statusCode === 404 && error.messag == ''") Oops! We can't seem to find the page you are looking for.
           .mb-4.lead(v-else) {{ error.message }}
-          nuxt-link(:to='localePath("index", $i18n.locale)').btn.btn-link Back to Home
+          nuxt-link(to='/').btn.btn-link Back to Home
 
 </template>
 
@@ -23,7 +23,7 @@ export default {
   props: {
     error: {
       type: Object,
-      default: () => { }
+      default: () => {}
     }
   },
 

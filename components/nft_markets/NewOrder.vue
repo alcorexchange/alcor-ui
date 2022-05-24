@@ -34,7 +34,7 @@ div
           el-select(v-model="buyToken", slot="append", placeholder="Select" value-key="str")
             el-option(
               :label="`${network.baseToken.symbol}@${network.baseToken.contract}`"
-              :value="{ str: 'base', symbol: { name: network.baseToken.symbol, precision: network.baseToken.precision }, contract: network.baseToken.contract }"
+              :value="{str: 'base', symbol: { name: network.baseToken.symbol, precision: network.baseToken.precision }, contract: network.baseToken.contract }"
               )
               TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="25")
               span.ml-3 {{ network.baseToken.symbol }}@{{ network.baseToken.contract }}
@@ -73,7 +73,7 @@ div
           .d-flex.flex-column
             .lead {{ nft.mdata.name }}
             b ID: {{ nft.id }}
-            span {{ $t('Category') }}: {{ nft.category }}
+            span Category: {{ nft.category }}
             div.ml-auto
               span.mr-1 Author
               a(:href="monitorAccount(nft.author)" target="_blank") {{ nft.author }}
@@ -219,7 +219,7 @@ export default {
 .sell-nft-box {
   display: flex;
   min-height: 50px;
-  flex-wrap: wrap !important;
+  flex-wrap: wrap!important;
 }
 
 .sell-nft-box .el-card__body {

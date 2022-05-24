@@ -2,7 +2,7 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.green {{ $t('Buy') }} {{ quote_token.symbol.name }}
+      small.green Buy {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("buy")'
       ) {{ baseBalance | commaFloat }}
@@ -21,7 +21,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') {{ $t('PRICE') }}
+          span.mr-1(slot='prefix') PRICE
           span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item
@@ -33,7 +33,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') {{ $t('AMOUNT') }}
+          span.mr-1(slot='prefix') AMOUNT
           span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
 
       .px-3
@@ -52,7 +52,7 @@
           placeholder='0',
           size='medium'
         )
-          span.mr-1(slot='prefix') {{ $t('TOTAL') }}
+          span.mr-1(slot='prefix') TOTAL
           span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item.mt-1
@@ -83,7 +83,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') {{ $t('PRICE') }}
+          span.mr-1(slot='prefix') PRICE
           span.mr-1.ml-2(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item
@@ -95,7 +95,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') {{ $t('AMOUNT') }}
+          span.mr-1(slot='prefix') AMOUNT
           span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
 
       .px-3
@@ -114,7 +114,7 @@
           placeholder='0',
           size='medium'
         )
-          span.mr-1(slot='prefix') {{ $t('TOTAL') }}
+          span.mr-1(slot='prefix') TOTAL
           span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item.mt-1
@@ -122,7 +122,7 @@
           size='small',
           type='danger',
           @click='actionOrder("limit", "sell")'
-        ) $t('Sell') {{ quote_token.str }}
+        ) Sell {{ quote_token.str }}
 </template>
 
 <script>
