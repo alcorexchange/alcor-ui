@@ -253,7 +253,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['BRWL@brawlertoken'],
-    PROMOTED_MARKETS: [424],
+    PROMOTED_MARKETS: [424, 495],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
