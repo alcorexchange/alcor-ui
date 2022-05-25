@@ -3,9 +3,9 @@
   // https://v3.vuejs.org/guide/transitions-list.html#list-entering-leaving-transitions
   .blist.first
     .ltd.d-flex.justify-content-around
-      span Price ({{ base_token.symbol.name }})
-      span Amount ({{ quote_token.symbol.name }})
-      span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
+      span {{ $t('Price') }} ({{ base_token.symbol.name }})
+      span {{ $t('Amount') }} ({{ quote_token.symbol.name }})
+      span(v-if='!isMobile') {{ $t('Total') }} ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
     .ltd.orderbook-progress(
@@ -188,6 +188,7 @@ export default {
 
     .price {
       color: var(--main-green);
+
       &.red {
         color: var(--main-red);
       }
@@ -196,28 +197,34 @@ export default {
     .spread {
       color: #80a1c5;
       text-align: right;
+
       .prec.warn {
         color: var(--main-red);
       }
     }
+
     @media (max-width: 1180px) {
       .spread {
         display: flex;
         flex-direction: column-reverse;
         align-items: flex-end;
+
         .num {
           font-size: 0.7rem;
         }
+
         .parant {
           display: none;
         }
       }
     }
+
     @media (max-width: 480px) {
       & {
         .price {
           margin-right: auto;
         }
+
         .spread {
           margin-right: auto;
 
@@ -315,7 +322,8 @@ export default {
         -webkit-backface-visibility: hidden;
 
         &.sell {
-          background-color: #F96C6C;;
+          background-color: #F96C6C;
+          ;
         }
 
         &.buy {

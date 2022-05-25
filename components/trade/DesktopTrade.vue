@@ -46,7 +46,7 @@
               )
 
           swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")
-            | SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+            | {{ $t('SWAP') }} ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 

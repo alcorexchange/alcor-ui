@@ -24,7 +24,7 @@ div.wallet
 
       .cancel.ml-3 Order slot limit: {{ accountLimits.orders_limit }}
 
-      el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 Buy more order slots
+      el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 {{ $t('Buy more order slots') }}
 
   .table.el-card.is-always-shadow
     el-table.alcor-table(
@@ -32,7 +32,7 @@ div.wallet
       style='width: 100%',
     )
       el-table-column(type="expand")
-        template(#default="{row}")
+        template(#default="{ row }")
           .orders-container.table
             el-table(
               :data="row.orders"
@@ -41,31 +41,31 @@ div.wallet
               el-table-column(
                 label="Order",
               )
-                template(#default="{row}")
-                  span.order-type(:class="row.type === 'buy' ? 'green': 'red'") {{row.type}}
+                template(#default="{ row }")
+                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
               el-table-column(
                 label="Date",
               )
-                template(#default="{row}") {{ row.timestamp | moment('DD-MM HH:mm') }}
+                template(#default="{ row }") {{ row.timestamp | moment('DD-MM HH:mm') }}
               el-table-column(
                 label="Price",
               )
-                template(#default="{row}") {{ row.unit_price | humanPrice }}
+                template(#default="{ row }") {{ row.unit_price | humanPrice }}
               el-table-column(
                 label="Bid",
               )
-                template(#default="{row}") {{ row.bid.quantity | commaFloat }}
+                template(#default="{ row }") {{ row.bid.quantity | commaFloat }}
               //el-table-column(label="Filled")
                 template(#default="{row}") {{row.filled}}%
               el-table-column(
                 label="Ask",
               )
-                template(#default="{row}")
+                template(#default="{ row }")
                   .wax-value {{ row.ask.quantity | commaFloat }}
               el-table-column(
                 label="Action",
               )
-                template(#default="{row}")
+                template(#default="{ row }")
                   .actions
                     el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
       el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
@@ -73,7 +73,7 @@ div.wallet
           .asset-container
             TokenImage(
               :src='$tokenLogo(row.quote_token.symbol.name, row.quote_token.contract)',
-              :height="isMobile? '20' : '30'"
+              :height="isMobile ? '20' : '30'"
             )
 
             div.asset
@@ -85,9 +85,9 @@ div.wallet
       )
         template(slot-scope='{row}')
           .current-orders
-            span.green {{row.orderCount.buy}} Buy
+            span.green {{ row.orderCount.buy }} Buy
             span.cancel &nbsp;|&nbsp;
-            span.red {{row.orderCount.sell}} sell
+            span.red {{ row.orderCount.sell }} sell
       el-table-column(
         label='Total Quote',
       )
@@ -192,57 +192,70 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.table-header{
+.table-header {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
   gap: 30px;
+
   .el-input {
     max-width: 300px;
     margin-right: 8px;
     margin-bottom: 8px;
   }
-  .el-input__inner{
+
+  .el-input__inner {
     background: transparent !important;
   }
 }
-td.el-table__expanded-cell{
+
+td.el-table__expanded-cell {
   background: var(--bg-alter-2) !important;
 }
-.el-card{
+
+.el-card {
   border: none;
 }
-.asset-container{
+
+.asset-container {
   display: flex;
   align-items: center;
-  .asset{
+
+  .asset {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
-  .asset-name{
+
+  .asset-name {
     font-weight: bold;
   }
 }
-.el-table__expanded-cell{
+
+.el-table__expanded-cell {
   padding: 10px !important;
 }
-.order-type{
-  &.green{
+
+.order-type {
+  &.green {
     color: var(--main-green);
   }
-  &.red{
+
+  &.red {
     color: var(--main-red);
   }
 }
-.actions{
+
+.actions {
   display: flex;
-  .el-button{
-    &.red{
+
+  .el-button {
+    &.red {
       color: var(--main-red) !important;
     }
-    &.green{
+
+    &.green {
       color: var(--main-green) !important;
     }
   }

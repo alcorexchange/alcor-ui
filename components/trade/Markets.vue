@@ -9,9 +9,9 @@
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
 
-    el-tab-pane(label='All', name='all')
+    el-tab-pane(:label='$t("All")', name='all')
     el-tab-pane(:label='network.baseToken.symbol' name='system')
-    el-tab-pane(label='Wrapped', name='wrapped')
+    el-tab-pane(:label='$t("Wrapped")', name='wrapped')
 
   .px-2.mt-2
     el-input(
@@ -35,7 +35,7 @@
   )
     el-table-column(
       prop='quote_token.symbol.name',
-      label='Pair(a-z)',
+      :label='$t("Pair(a-z)")',
       width='130',
       sortable,
       :sort-orders='["descending", "ascending"]'
@@ -54,7 +54,7 @@
 
     el-table-column(
       prop='last_price',
-      label='Price',
+      :label='$t("Price")',
       align='right',
       sortable,
       :sort-orders='["descending", null]'
@@ -66,7 +66,7 @@
     el-table-column(
       prop='volume24',
       :sort-orders='["descending", "ascending"]',
-      label='Vol 24H',
+      :label='$t("Vol 24H")',
       align='right',
       sortable,
     )

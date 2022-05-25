@@ -44,13 +44,13 @@ el-card.box-card.mt-3(v-if='!no_found')
         v-if='user && order.maker == user.name',
         type='warning',
         @click='cancelOrder'
-      ) Cancel order
-      el-button.w-100(v-else, type='primary', @click='buy') Buy for {{ order.buy.quantity }}
+      ) {{ $t('Cancel order') }}
+      el-button.w-100(v-else, type='primary', @click='buy') {{ $t('Buy for') }} {{ order.buy.quantity }}
 
   //.text.item(v-if="order.maker")
     .row.mb-3
       .col-6.text-center.bordered
-        h2 Sell
+        h2 {{$t('Sell')}}
 
         hr
 
@@ -69,16 +69,16 @@ el-card.box-card.mt-3(v-if='!no_found')
           a(:href="monitorAccount(order.buy.contract)" target="_blank") {{ order.buy.contract }}
 
     PleaseLoginButton
-      el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
-      el-button(v-else type="primary" @click="buy").w-100 Buy
+      el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 {{$t('Cancel order')}}
+      el-button(v-else type="primary" @click="buy").w-100 {{$t('Buy')}}
         |  {{ order.sell.quantity }}@{{ order.sell.contract }}
 
 //el-card(v-else).box-card.mt-3
   .clearfix(slot='header')
-    span Order: {{ id }}
-    el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') Go to main page
+    span {{$t('Order'}}: {{ id }}
+    el-button(@click="$router.push({name: 'index'})" style='float: right; padding: 3px 0', type='text') {{$t('Go to main page')}}
   .text.item.text-center
-    h1.display-4 Order {{ id }} not found or finished
+    h1.display-4 {{$t('Order')}} {{ id }} {{$t('not found or finished')}}
 </template>
 
 <script>
