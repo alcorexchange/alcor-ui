@@ -452,8 +452,9 @@ export const getters = {
     return state.user
   },
 
-  promoted(state) {
-    return state.network.RECOMMENDED_MARKETS
+  promoted(state, getters) {
+    // TODO mock data!
+    return ['1627', '1831']
   },
 
   systemBalance(state) {

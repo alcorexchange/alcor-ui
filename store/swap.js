@@ -243,11 +243,6 @@ export const getters = {
     }
   },
 
-  getById: (_, getters) => id => {
-    console.log(id, getters.pairs)
-    return getters.pairs.find(p => p.id === id)
-  },
-
   current(state, getters) {
     // FIXME !!! so big loop
     const pair = getters.pairs.filter(p => {
