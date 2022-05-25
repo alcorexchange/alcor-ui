@@ -1,5 +1,5 @@
 <template lang="pug">
-.top-favorite-markets
+.top-favorite-markets(ref="panel")
   .market.pointer(
     v-for="market in favorites",
     @click="() => setMarket(market)",
@@ -34,6 +34,13 @@ export default {
 
     favorites() {
       return this.markets.filter((i) => this.favMarkets.includes(i.id))
+    }
+  },
+
+  mounted() {
+    this.$refs.panel.onwheel = e => {
+      this.$refs.panel.scrollLeft += e.deltaY
+      e.preventDefault()
     }
   },
 
