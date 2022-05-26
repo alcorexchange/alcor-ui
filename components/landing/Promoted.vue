@@ -1,44 +1,35 @@
 <template lang="pug">
-.promouted-markets
-  pre promote {{ promoPair }}
+.promoted-markets
+  | promo
 
-  Spacer
+  el-carousel(indicator-position="outside" arrow="never" interval="5000")
+    el-carousel-item(v-for="promo in promoted" :key="promo")
+      promo(:promo="promo")
+
+  spacer
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import Spacer from '@/components/Spacer.vue'
+import Promo from '@/components/landing/Promo'
 
 export default {
-  components: { Spacer },
-  props: ['id', 'period'],
-  data() {
-    return {
-      promoPair: null,
-      charts: []
-    }
-  },
+  components: { Spacer, Promo },
   computed: {
     ...mapGetters({
-      pair: 'swap/getById',
       promoted: 'promoted'
     })
-  },
-  watch: {
-    '$store.state.swap.pairs'() {
-      console.log(this.promoted)
-      this.promoPair = this.pair(this.promoted[0])
-      //this.fetchCharts
-    }
-  },
-  methods: {
-    async fetchCharts(animate = false) {
-      console.log(this.promoPair.id)
-      if (this.promoPair) {
-        this.charts = (await this.$axios.get(`/pools/${this.promoPair.id}/charts`, { params: { period: this.period } })).data
-        console.log(this.charts)
-      }
-    }
   }
 }
 </script>
+
+<style>
+.el-carousel__indicator,
+.el-carousel__indicator>.el-carousel__button {
+  width: 112px;
+  height: 4px;
+  margin: 0 12px;
+  border-radius: 6px;
+}
+</style>
