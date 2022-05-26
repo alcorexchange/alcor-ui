@@ -1,7 +1,7 @@
 <template lang="pug">
 router-link(:to="{ name: 'trade-index-id', params: { id: promo.slug } }")
   .promo
-    .chart
+    .chart(v-if="series[0].data")
       .header
         token-image(:src="$tokenLogo(promo.quote_token.symbol.name, promo.quote_token.contract)")
         .title {{ promo.symbol }}
@@ -138,6 +138,7 @@ export default {
 <style scoped>
 .promo {
   display: flex;
+  justify-content: center;
   gap: 16px;
   box-sizing: border-box;
 }
@@ -149,7 +150,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 344px;
+  width: 774px;
 }
 
 .header {

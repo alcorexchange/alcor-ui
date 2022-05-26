@@ -1,21 +1,18 @@
 <template lang="pug">
 .recommented-markets
-    SectionTitle.section-title Recommended Markets
-    .items
-        .item-container(:key="market.id" v-for="market in markets")
-            nuxt-link.item(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
-              .top
-                  TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
-                  span.ml-2 {{ market.symbol }}
+  .items
+    .item-container(:key="market.id" v-for="market in markets")
+      nuxt-link.item(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
+        .top
+          TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="20")
+          span.ml-2 {{ market.symbol }}
 
-              .bottom
-                  span {{ market.last_price }}
-                  ChangePercent(:change="market.changeWeek")
+        .bottom
+          span {{ market.last_price }}
+          ChangePercent(:change="market.changeWeek")
 
-        .item-container
-            .col-lg-2.col-md-4.col-sm-6
-                el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
-    Spacer
+  el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline").token-promotion Token promotion
+  Spacer
 </template>
 
 <script>
@@ -58,56 +55,81 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.token-promotion {
+  border: 1px solid var(--dark-btn-sm);
+  padding: 11px 16px;
+  margin-top: 16px;
+
+  &:hover {
+    background-color: rgba(21, 21, 21, .3);
+    border: 1px solid var(--dark-btn-sm);
+  }
+
+}
+
 .section-title {
   margin-bottom: 25px !important;
 }
+
 .items {
   display: flex;
+  gap: 34px;
   flex-wrap: wrap;
 }
+
 .item-container {
-  padding: 8px;
   padding-left: 0;
-  width: 25%;
 }
+
 .item {
+  width: 254px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
-  border-radius: 12px;
+  border-radius: 4px;
+  height: 64px;
+  box-sizing: border-box;
   padding: 12px;
   border: 1px solid var(--dark-btn-sm);
   //   background: var(--bg-big-card);
   color: var(--text-default) !important;
   transition: all 0.3s;
+
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--card-shadow);
+    background-color: rgba(21, 21, 21, .3);
   }
 }
+
 .top {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
+  font-size: 12px;
 }
+
 .bottom {
   display: flex;
   justify-content: space-between;
+  font-size: 12px;
 }
+
 @media only screen and (max-width: 940px) {
   .item-container {
-    width: 33.3334%;
+    height: 64px;
   }
 }
+
 @media only screen and (max-width: 600px) {
   .item-container {
     width: 50%;
     padding-left: 8px;
   }
 }
+
 @media only screen and (max-width: 440px) {
   .item-container {
     width: 100%;
     padding: 8px;
   }
+
   //   .item{
   //       border: ;
   //   }

@@ -6,7 +6,6 @@
   RecommendedMarkets.alcor-inner
   //Participate
   SupportedChains
-  Partners
 </template>
 
 <script>
