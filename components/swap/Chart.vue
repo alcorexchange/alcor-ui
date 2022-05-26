@@ -192,18 +192,18 @@ export default {
     renderFirstPair() {
       return `1 ${this.pair.pool1.quantity.symbol.code().to_string()} =
          ${(
-           parseFloat(this.pair.pool2.quantity) /
-           parseFloat(this.pair.pool1.quantity)
-         ).toFixed(8)}
+          parseFloat(this.pair.pool2.quantity) /
+          parseFloat(this.pair.pool1.quantity)
+        ).toFixed(8)}
          ${this.pair.pool2.quantity.symbol.code().to_string()}
        `
     },
     renderSecondPair() {
       return `1 ${this.pair.pool2.quantity.symbol.code().to_string()} =
          ${(
-           parseFloat(this.pair.pool1.quantity) /
-           parseFloat(this.pair.pool2.quantity)
-         ).toFixed(8)}
+          parseFloat(this.pair.pool1.quantity) /
+          parseFloat(this.pair.pool2.quantity)
+        ).toFixed(8)}
          ${this.pair.pool1.quantity.symbol.code().to_string()}
        `
     }
@@ -333,6 +333,7 @@ export default {
 .each-item-price-container {
   display: flex;
   flex-wrap: wrap;
+
   .item {
     padding: 2px;
     display: flex;
@@ -342,6 +343,7 @@ export default {
     border: var(--border-1);
     margin-right: 4px;
     margin-bottom: 4px;
+
     .icon {
       width: 15px;
       height: 15px;
@@ -350,6 +352,7 @@ export default {
     }
   }
 }
+
 .price-container {
   display: flex;
   align-items: center;
@@ -366,9 +369,11 @@ export default {
     align-items: center;
     color: var(--main-green);
     padding: 0 4px;
+
     &.isRed {
       color: var(--main-red);
     }
+
     &.isZero {
       color: var(--text-default);
     }

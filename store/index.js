@@ -453,8 +453,13 @@ export const getters = {
   },
 
   promoted(state, getters) {
-    // TODO mock data!
-    return ['1627', '1831']
+    // TODO mock poolId now
+    return getters.markets
+      .filter(market => state.network.PROMOTED_MARKETS.includes(market.id))
+      .map(market => ({
+        ...market,
+        poolId: market.id === 424 ? 1627 : market.id === 495 ? 1831 : undefined
+      }))
   },
 
   systemBalance(state) {
