@@ -27,7 +27,18 @@ export default {
 
 <style>
 .el-carousel__container {
-  height: 273px !important;
+  height: 295px !important;
+}
+
+.el-carousel__indicators {
+  padding: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-carousel__indicator--horizontal {
+  padding: 0px !important;
 }
 
 .el-carousel__indicator,
