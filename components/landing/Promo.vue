@@ -12,20 +12,32 @@ router-link(:to="{ name: 'trade-index-id', params: { id: promo.slug } }")
       ).graphic
       .indicators
         span
-          .label {{ promo.last_price }}
+          .label {{ promo.last_price | commaFloat }}
           .data(:class="{ isRed, isZero }") ({{ pricePercent }}%)
         span
           .label
-            .gray 7D Volume
-            span {{ promo.volume24.toFixed(2) }}
-          .data ({{ liquidityPercent }} %)
+            .gray 1D Volume
+            span {{ promo.volume24.toFixed(2).replace('.', ',') }}
+          .data(:class="{ isRed: isVolRed, isZero: isVolZero }") ({{ liquidityPercent }} %)
     .banner
       img(:src="bannerSrc")
+      img(:src="bannerSrc").blur
 </template>
 
 <script>
 import AlcorChart from '@/components/AlcorChart'
 import TokenImage from '@/components/elements/TokenImage.vue'
+const COLORS = {
+  light: {
+    up: '#58ab8b',
+    down: '#F96C6C'
+  },
+
+  dark: {
+    up: '#30B27C',
+    down: '#F96C6C'
+  }
+}
 
 export default {
   components: { AlcorChart, TokenImage },
@@ -37,13 +49,14 @@ export default {
     pricePercent: null,
     liquidityPercent: null,
     options: {
+      colors: [],
       title: {
-        text: '2D Daily Chart',
+        text: 'Daily Chart',
         align: 'left',
         margin: 0,
         offsetY: 20,
         style: {
-          color: '#fff',
+          color: '#f2f2f2',
           fontSize: '10px',
           fontWeight: 400,
           fontFamily: 'Roboto, Arial, sans-serif'
@@ -66,9 +79,12 @@ export default {
         labels: {
           datetimeUTC: false,
           style: {
-            colors: '#fff',
+            colors: '#f2f2f2',
             fontSize: '10px',
             fontFamily: 'Roboto, Arial, sans-serif'
+          },
+          datetimeFormatter: {
+            hour: 'HH:mm'
           }
         }
       },
@@ -92,8 +108,10 @@ export default {
   }),
   computed: {
     bannerSrc() { return require(`@/assets/promo/${this.promo.quote_token.contract}.png`) },
-    isRed() { return this.percent(this.series.data) <= 0 },
-    isZero() { return this.percent(this.series.data) === 0 }
+    isRed() { return this.pricePercent <= 0 },
+    isZero() { return this.pricePercent === 0 },
+    isVolRed() { return this.liquidityPercent <= 0 },
+    isVolZero() { return this.liquidityPercent === 0 }
   },
   watch: {
     liquidity(data) {
@@ -111,14 +129,15 @@ export default {
   methods: {
     async fetchCharts() {
       if (this.promo) {
-        const charts = (await this.$axios.get(`/pools/${this.promo.poolId}/charts`, { params: { period: '7D' } })).data
+        const charts = (await this.$axios.get(`/pools/${this.promo.poolId}/charts`, { params: { period: '24H' } })).data
         const newData = charts.map(point =>
-          ({ x: point.time, y: +point.price.toFixed(6) })
+          ({ x: point.time, y: this.$options.filters.commaFloat(point.price) })
         )
         this.liquidity = charts.map(point =>
           ({ x: point.time, y: point.liquidity1.toFixed(6) })
         )
         this.series = [{ ...this.series, data: newData }]
+        this.options.colors = [COLORS[this.$colorMode.value][this.isRed ? 'down' : 'up']]
       }
     },
     percent(data) {
@@ -146,11 +165,11 @@ export default {
 .chart {
   border: 1px solid #333;
   border-radius: 4px;
-  padding: 16px 12px;
+  padding: 16px 15px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 774px;
+  width: 776px;
 }
 
 .header {
@@ -192,8 +211,22 @@ export default {
   border-radius: 4px;
 }
 
+.banner {
+  position: relative;
+}
+
+.banner img.blur {
+  position: absolute;
+  z-index: -1;
+  height: 96%;
+  top: 6px;
+  left: 0;
+  filter: blur(.6rem);
+  overflow: visible;
+}
+
 a {
   text-decoration: none;
-  color: #fff;
+  color: var(--text-default);
 }
 </style>

@@ -53,7 +53,7 @@ export default {
   data: () => ({
     items: [
       {
-        image: require('@/assets/images/partner-greymass.png'),
+        image: 'https://bloks.io/img/history/greymass.svg',
         url: 'https://greymass.com/en/'
       },
       {
@@ -188,7 +188,7 @@ export default {
     display: flex;
 
     img {
-      height: 61px;
+      height: 46px;
     }
   }
 }
