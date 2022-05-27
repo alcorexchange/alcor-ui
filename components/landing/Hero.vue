@@ -41,6 +41,7 @@ export default {
   flex-wrap: wrap;
   position: relative;
 }
+
 .left {
   display: flex;
   flex-direction: column;
@@ -50,39 +51,48 @@ export default {
   position: relative;
   z-index: 2;
 }
+
 h1 {
   font-size: 3rem;
 }
+
 .desc {
   width: 100%;
   max-width: 360px;
 }
+
 .actions {
   margin-top: 20px;
-  & > * {
+
+  &>* {
     padding: 6px 20px !important;
   }
+
   .start {
     margin-right: 15px;
     background: var(--main-green);
     color: white !important;
+
     &:hover {
       opacity: 0.8;
     }
   }
 }
+
 .theme-dark .actions {
   .start {
     background: var(--btn-active);
     color: var(--main-green) !important;
   }
 }
+
 .right {
   position: relative;
   width: 50%;
   height: 100%;
   z-index: 0;
 }
+
 .frame {
   position: absolute;
   pointer-events: none;
@@ -102,20 +112,25 @@ h1 {
     right: -40%;
   }
 }
+
 @media only screen and (max-width: 840px) {
+
   .left,
   .right {
     width: 100%;
     align-items: center;
   }
+
   .right {
     position: absolute;
     opacity: 0.4;
   }
+
   .frame {
     right: 50%;
     transform: translate(50%, -50%);
   }
+
   h2,
   .desc {
     text-align: center;
