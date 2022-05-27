@@ -38,17 +38,22 @@
       .items
         a.item(v-for="{ image, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
           img(:src="image")
+        a(href="https://eosamsterdam.net/")
+          EOS
+
 
 </template>
 
 <script>
 import SectionTitle from '@/components/landing/SectionTitle'
 import SSpacer from '@/components/SSpacer'
+import EOS from '@/components/partners/EOS'
 export default {
   name: 'SupportedChains',
   components: {
     SectionTitle,
-    SSpacer
+    SSpacer,
+    EOS
   },
   data: () => ({
     items: [
@@ -56,11 +61,7 @@ export default {
         image: 'https://bloks.io/img/history/greymass.svg',
         url: 'https://greymass.com/en/'
       },
-      {
-        image: require('@/assets/images/partner-eos-amesterdam.png'),
-        url: 'https://eosamsterdam.net/',
-        padding: '40px'
-      }]
+    ]
   })
 }
 </script>
