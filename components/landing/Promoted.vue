@@ -2,7 +2,7 @@
 .promoted-markets
   SectionTitle.section-title Promotions
 
-  el-carousel(indicator-position="outside" arrow="never" :interval="5000")
+  el-carousel(indicator-position="outside" arrow="never" :interval="7000")
     el-carousel-item(v-for="promo in promoted" :key="promo")
       promo(:promo="promo")
 
