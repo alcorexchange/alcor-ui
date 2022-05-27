@@ -43,8 +43,7 @@ export default {
           return this.$store.state.network.RECOMMENDED_MARKETS.includes(
             m.quote_token.str
           )
-          // || this.$store.state.network.RECOMMENDED_MARKETS.includes(m.base_token.str)
-        })
+        }).reverse()
       } catch (e) {
         console.log(e, 'Error getting markets in recomendations!!!')
         return []
