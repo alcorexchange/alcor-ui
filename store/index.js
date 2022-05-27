@@ -459,7 +459,7 @@ export const getters = {
       .map(market => ({
         ...market,
         poolId: market.id === 424 ? 1627 : market.id === 495 ? 1831 : undefined
-      }))
+      })).reverse()
   },
 
   systemBalance(state) {
