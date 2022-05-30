@@ -118,7 +118,6 @@ h1 {
   .left,
   .right {
     width: 100%;
-    align-items: center;
   }
 
   .right {
@@ -131,9 +130,5 @@ h1 {
     transform: translate(50%, -50%);
   }
 
-  h2,
-  .desc {
-    text-align: center;
-  }
 }
 </style>

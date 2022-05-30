@@ -18,7 +18,7 @@
           .icon
             img(src='~/assets/icons/Telegram.svg')
           span.name Telegram
-          span.desc Support & Trading Talks
+          span.desc Support & Talks
         a.item(href="https://avral.medium.com/" target="_blank")
           .icon
             img(src='~/assets/icons/Monogram.svg')
@@ -131,6 +131,11 @@ export default {
       transition: opacity 0.3s;
       padding: 8px 12px;
 
+      @media only screen and (max-width: 600px) {
+        width: 50%;
+      }
+
+
       &:hover {
         opacity: 0.8;
       }
@@ -160,6 +165,7 @@ export default {
 
     .desc {
       color: var(--text-grey-thirdly);
+      text-align: center;
     }
   }
 }
@@ -179,17 +185,43 @@ export default {
   }
 }
 
+@media only screen and (max-width: 640px) {
+  .chains {
+    flex-direction: column;
+  }
+
+  .chain {
+    max-width: 90%;
+
+  }
+
+  .more {
+    margin-top: 15px;
+  }
+}
+
+
 .items {
   margin-top: 40px;
   display: flex;
   align-items: center;
   gap: 70px;
 
+  @media only screen and (max-width: 600px) {
+    gap: 36px;
+  }
+
+
   .item {
     display: flex;
 
     img {
       height: 46px;
+
+      @media only screen and (max-width: 600px) {
+        height: 26px;
+      }
+
     }
   }
 }

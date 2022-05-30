@@ -162,6 +162,19 @@ export default {
   box-sizing: border-box;
 }
 
+@media only screen and (max-width: 1040px) {
+  .promo {
+    flex-direction: column-reverse;
+  }
+
+  .banner,
+  .banner img {
+    width: 100%;
+    height: auto;
+  }
+
+}
+
 .chart {
   border: 1px solid #333;
   border-radius: 4px;
@@ -170,6 +183,13 @@ export default {
   flex-direction: column;
   gap: 8px;
   width: 776px;
+}
+
+@media only screen and (max-width: 1040px) {
+  .chart {
+    width: 100%;
+    padding: 4px 8px;
+  }
 }
 
 .header {
@@ -207,7 +227,7 @@ export default {
 }
 
 .banner img {
-  height: 263px;
+  height: 100%;
   border-radius: 4px;
 }
 

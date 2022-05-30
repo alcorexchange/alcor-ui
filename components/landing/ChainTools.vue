@@ -121,22 +121,42 @@ export default {
 @media only screen and (max-width: 940px) {
   .items {
     justify-content: center;
-
-    .item {
-      padding: 8px;
-    }
+    gap: 20px;
   }
 }
 
 @media only screen and (max-width: 640px) {
   .items {
+    gap: 20px;
+
     .item {
-      width: 100%;
+      width: 154px;
+      height: 142px;
 
       .item-inner {
-        height: 160px;
-        border: none !important;
         width: 100%;
+        height: 100%;
+        border-radius: 12px;
+
+
+        .h3 {
+          font-size: 19px;
+        }
+
+        .desc {
+          font-size: 14px;
+        }
+
+        .icon-container {
+          width: 42px;
+          height: 42px;
+
+          .icon {
+            width: 24px;
+            height: 24px;
+          }
+
+        }
       }
     }
   }

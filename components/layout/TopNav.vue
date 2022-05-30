@@ -148,15 +148,18 @@ export default {
   margin-left: auto;
   margin-right: 10px;
 }
+
 .layout {
   background: var(--background-color-base);
 }
+
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: 2;
   position: relative;
+
   .nav-side {
     display: flex;
     align-items: center;
@@ -171,15 +174,18 @@ export default {
     padding: 12px 20px;
   }
 }
+
 .nav-items {
   list-style: none;
   margin: 0;
   padding: 0;
   margin-left: 14px;
   display: flex;
+
   .item {
     padding: 4px 14px;
     margin-right: 4px;
+
     &.active {
       background: var(--btn-active);
       color: var(--text-default) !important;
@@ -193,11 +199,13 @@ export default {
   align-items: center;
   padding: 8px;
 }
+
 .menu {
   position: fixed;
   top: 0;
   right: 0;
 }
+
 .menu-underlay {
   position: fixed;
   right: 0;
@@ -208,6 +216,7 @@ export default {
   opacity: 0.5;
   z-index: 238;
 }
+
 .menu {
   position: fixed;
   right: -280px;
@@ -219,6 +228,7 @@ export default {
   box-shadow: 0px 0px 14px 0px rgba(black, 0.4);
   transition: all 0.4s;
   overflow-y: auto;
+
   .logo {
     padding: 20px 0;
     display: flex;
@@ -226,22 +236,27 @@ export default {
     justify-content: center;
   }
 }
+
 .menu-items {
   display: flex;
   flex-direction: column;
+
   .item {
     padding: 4px 14px;
     margin: 2px 8px;
     display: flex;
+
     &.active {
       background: #161617;
       color: #f2f2f2 !important;
     }
   }
 }
+
 .menuActive {
   right: 0px;
 }
+
 .fixed-menu {
   background: var(--background-color-base);
   position: fixed;
@@ -259,29 +274,35 @@ export default {
 a {
   text-decoration: none !important;
 }
+
 ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
+
 .always-dark {
   background: var(--btn-active) !important;
   color: #f2f2f2 !important;
 }
+
 .el-dropdown-menu {
   background: var(--bg-big-card);
   border: 1px solid var(--bg-big-card);
   border-radius: var(--radius-2);
 }
+
 .el-popper[x-placement^='bottom'] .popper__arrow::after,
 .el-popper[x-placement^='top'] .popper__arrow::after {
   border-bottom-color: var(--bg-big-card);
   border-top-color: var(--bg-big-card);
 }
+
 .el-dropdown-selfdefine {
   font-size: 1rem;
   color: var(--text-default);
 }
+
 .top-menu {
   .logo {
     height: 4em;
@@ -333,6 +354,7 @@ ul {
   }
 
   @media only screen and (max-width: 600px) {
+
     .el-dialog,
     .el-message-box,
     .el-notification {
