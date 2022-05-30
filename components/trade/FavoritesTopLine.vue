@@ -1,5 +1,5 @@
 <template lang="pug">
-.top-favorite-markets(ref="panel")
+.top-favorite-markets.start(ref="panel")
   .market.pointer(
     v-for="market in favorites",
     @click="() => setMarket(market)",
@@ -40,6 +40,9 @@ export default {
   mounted() {
     this.$refs.panel.onwheel = e => {
       this.$refs.panel.scrollLeft += e.deltaY
+      if (this.$refs.panel.scrollLeft == 0) {
+        this.$refs.panel.classList.add('start')
+      } else this.$refs.panel.classList.remove('start')
       e.preventDefault()
     }
   },
@@ -82,7 +85,7 @@ export default {
 
   // TODO
   //position: relative;
-  &::after {
+  &:not(.start)::after {
     pointer-events: none;
     /* ignore clicks */
     content: "";
@@ -98,6 +101,27 @@ export default {
     background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
     /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(90deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
+  }
+
+  &.start::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 100%;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
     /* IE6-9 fallback on horizontal gradient */
