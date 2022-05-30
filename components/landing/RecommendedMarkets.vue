@@ -78,10 +78,14 @@ export default {
 
 .item-container {
   padding-left: 0;
+  width: 254px;
+
+  @media only screen and (max-width: 600px) {
+    width: 154px;
+  }
 }
 
 .item {
-  width: 254px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
@@ -111,26 +115,21 @@ export default {
 }
 
 @media only screen and (max-width: 940px) {
-  .item-container {
-    height: 64px;
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .item-container {
-    width: 50%;
-    padding-left: 8px;
-  }
-}
-
-@media only screen and (max-width: 440px) {
-  .item-container {
-    width: 100%;
-    padding: 8px;
+  .items {
+    gap: 16px;
+    justify-content: center;
   }
 
-  //   .item{
-  //       border: ;
-  //   }
+  .recommented-markets {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
 }
+
+@media only screen and (max-width: 600px) {}
+
+@media only screen and (max-width: 440px) {}
 </style>

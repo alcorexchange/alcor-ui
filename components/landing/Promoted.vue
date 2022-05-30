@@ -26,8 +26,14 @@ export default {
 </script>
 
 <style>
-.el-carousel__container {
-  height: 295px !important;
+.el-carousel .el-carousel__container {
+  height: 295px;
+}
+
+@media only screen and (max-width: 840px) {
+  .el-carousel .el-carousel__container {
+    height: 600px;
+  }
 }
 
 .el-carousel__indicators {
@@ -49,7 +55,48 @@ export default {
   border-radius: 6px;
 }
 
-.section-title {
-  margin-bottom: 48px !important;
+.promoted-markets .section-title {
+  margin-bottom: 48px;
+}
+
+.token-promotion {
+  width: 157px;
+}
+
+@media only screen and (max-width: 1040px) {
+  .el-carousel .el-carousel__container {
+    height: 660px;
+  }
+}
+
+
+@media only screen and (max-width: 840px) {
+  .el-carousel .el-carousel__container {
+    height: 565px;
+  }
+}
+
+@media only screen and (max-width: 640px) {
+  .el-carousel .el-carousel__container {
+    height: 475px;
+  }
+
+  .el-carousel__indicator,
+  .el-carousel__indicator>.el-carousel__button {
+    width: 70px;
+    margin: 0 8px;
+  }
+
+}
+
+@media only screen and (max-width: 440px) {
+  .el-carousel .el-carousel__container {
+    height: 420px;
+  }
+
+  .promoted-markets .section-title {
+    margin-bottom: 24px;
+  }
+
 }
 </style>

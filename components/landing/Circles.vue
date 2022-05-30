@@ -3,7 +3,7 @@
 
   <!-- This animation is made by: https://twitter.com/yuanchuan23 -->
   <div class="circles">
-    <svg viewBox="0 0 100 100" width="1200px" height="1200px">
+    <svg viewBox="0 0 100 100">
       <defs data-v-e215fa34="">
         <linearGradient id="g1">
           <stop stop-color="#949494" offset="0"></stop>
@@ -14,13 +14,7 @@
           <stop stop-color="#49b054" offset="1"></stop>
         </linearGradient>
       </defs>
-      <g
-        transform-origin="50% 50%"
-        stroke-width=".3"
-        fill="none"
-        stroke-dashoffset="0"
-        stroke-linecap="round"
-      ></g>
+      <g transform-origin="50% 50%" stroke-width=".3" fill="none" stroke-dashoffset="0" stroke-linecap="round"></g>
     </svg>
     <img id="logo" class="logo" src="~/assets/images/frame_logo.svg" alt="" />
   </div>
@@ -62,6 +56,16 @@ export default {
 
 <style lang="scss">
 .circles {
+  svg {
+    width: 1200px;
+    height: 1200px;
+
+    @media only screen and (max-width: 640px) {
+      width: 500px;
+      height: 500px;
+    }
+  }
+
   circle {
     stroke: url(#g1);
     animation-name: r;
@@ -72,13 +76,15 @@ export default {
     animation-timing-function: linear;
 
     opacity: 0;
-    transition: all 6s;
-    -webkit-transition: all 6s;
+    transition: opacity 6s;
+    -webkit-transition: opacity 6s;
   }
+
   circle:nth-child(even) {
     stroke: url(#g2);
     animation-direction: reverse;
   }
+
   @keyframes r {
     to {
       transform: rotate(1turn);
@@ -102,6 +108,11 @@ export default {
 
   top: -100%;
   right: -50%;
+
+  @media only screen and (max-width: 640px) {
+    top: 25%;
+    left: -25%;
+  }
 }
 
 .logo {
@@ -113,22 +124,30 @@ export default {
 
   height: 130px;
   opacity: 0.1;
+
+  @media only screen and (max-width: 640px) {
+    left: 250px;
+    height: 50px;
+  }
+
 }
 
 .is-load {
-  transition: all 6s;
-  -webkit-transition: all 6s;
+  transition: opacity 6s;
+  -webkit-transition: opacity 6s;
   opacity: 1;
 
   circle {
     opacity: 1 !important;
   }
 }
+
 @media only screen and (max-width: 1040px) {
   .circles {
     right: -40%;
   }
 }
+
 @media only screen and (max-width: 840px) {
   .circles {
     right: 50%;
