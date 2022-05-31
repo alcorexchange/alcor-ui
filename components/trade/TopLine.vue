@@ -48,14 +48,14 @@ client-only
           span.text-muted All Time High/Low:
           span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
 
-        .arrow.d-flex.justify-content-center.align-items-center(:style="{ cursor: 'pointer' }" @click='arrowClickfunc' v-if="!isMobile & showArrow")
-          i.el-icon-right(v-if="arrowRight")
-          i.el-icon-back(v-else)
+      .arrow.d-flex.justify-content-center.align-items-center(:style="{ cursor: 'pointer' }" @click='arrowClickfunc' v-if="!isMobile & showArrow")
+        i.el-icon-right(v-if="arrowRight")
+        i.el-icon-back(v-else)
 
-        .fav.pointer(@click='toggleFav')
-          i.el-icon-star-off(
-            :class='{ "el-icon-star-on": isFavorite }',
-          )
+      .fav.pointer(@click='toggleFav')
+        i.el-icon-star-off(
+          :class='{ "el-icon-star-on": isFavorite }',
+        )
 </template>
 
 <script>
@@ -243,6 +243,7 @@ export default {
 .header-items-container {
   height: 50px;
   display: flex;
+  padding-right: 75px;
 
   &:not(.start)::after {
     pointer-events: none;
