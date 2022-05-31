@@ -129,7 +129,7 @@ export default {
       flex-direction: column;
       align-items: center;
       transition: opacity 0.3s;
-      padding: 8px 12px;
+      padding: 12px;
 
       @media only screen and (max-width: 600px) {
         width: 50%;

@@ -78,6 +78,7 @@ export default {
     min-width: 150px;
     color: var(--text-default);
     cursor: pointer;
+
     &:hover {
       background: var(--hover);
     }
@@ -90,8 +91,10 @@ export default {
     display: flex;
     align-items: center;
     color: var(--text-default);
+
     span {
       margin-right: 2px;
+      white-space: nowrap;
     }
   }
 
@@ -112,5 +115,4 @@ export default {
     }
   }
 }
-
 </style>
