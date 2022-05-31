@@ -167,6 +167,10 @@ export default {
     flex-direction: column-reverse;
   }
 
+  .banner {
+    margin-bottom: 16px;
+  }
+
   .banner,
   .banner img {
     width: 100%;

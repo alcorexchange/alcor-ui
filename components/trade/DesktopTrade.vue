@@ -490,7 +490,7 @@ export default {
   align-items: center;
   justify-content: center;
   background-color: #3f3f3f;
-  border-radius: 0px 0px 0px 3px;
+  font-size: 14px;
   cursor: pointer;
   margin: 1px;
 }

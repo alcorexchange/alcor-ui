@@ -3,7 +3,7 @@ client-only
   .trade-top-line.box-card
     markets.markets(v-if='showMarkets', v-click-outside='onClickOutside' @close="showMarkets = false")
 
-    .d-flex.align-items-center.header-items-container.pl-3
+    .d-flex.align-items-center.header-items-container.pl-3.start(ref="panel")
       .d-flex.flex-column.pointer(@click='showMarkets = !showMarkets').pr-0
         .d-flex.align-items-center.show-markets
           TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
@@ -48,16 +48,13 @@ client-only
           span.text-muted All Time High/Low:
           span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
 
-    //.d-flex.align-items-center.header-items-container.pl-3
-      .d-flex.flex-column
-        .arrow.ml-3.mr-2.d-flex.justify-content-center.align-items-center(:style="{cursor: 'pointer'}" @click='arrowClickfunc' v-if="!isMobile & showArrow")
+        .arrow.d-flex.justify-content-center.align-items-center(:style="{ cursor: 'pointer' }" @click='arrowClickfunc' v-if="!isMobile & showArrow")
           i.el-icon-right(v-if="arrowRight")
           i.el-icon-back(v-else)
 
-        .pointer.ml-3.pr-4
+        .fav.pointer(@click='toggleFav')
           i.el-icon-star-off(
             :class='{ "el-icon-star-on": isFavorite }',
-            @click='toggleFav'
           )
 </template>
 
@@ -80,6 +77,21 @@ export default {
 
   mounted() {
     this.setArrow()
+
+    setTimeout(() => {
+      this.$refs.panel.onwheel = e => {
+        this.$refs.panel.scrollLeft += e.deltaY
+        if (this.$refs.panel.scrollLeft == 0) {
+          this.$refs.panel.classList.add('start')
+          this.arrowRight = true
+        } else {
+          this.$refs.panel.classList.remove('start')
+          this.arrowRight = false
+        }
+        e.preventDefault()
+      }
+
+    })
   },
 
   data() {
@@ -100,7 +112,7 @@ export default {
 
     id() {
       this.showMarkets = false
-    }
+    },
   },
 
   computed: {
@@ -121,19 +133,19 @@ export default {
   methods: {
     setArrow() {
       setTimeout(() => {
-        if (document.getElementsByClassName('header-items-container')[0].scrollWidth > 560) {
-          this.showArrow = true
-        } else {
-          this.showArrow = false
-        }
+        if (this.$refs.panel.scrollWidth - this.$refs.panel.clientWidth === 0) this.showArrow = false
+        else this.showArrow = true
       }, 100)
     },
 
     arrowClickfunc() {
-      if (this.arrowRight)
+      if (this.arrowRight) {
         document.getElementsByClassName('header-items-container')[0].scrollLeft = document.getElementsByClassName('header-items-container')[0].scrollWidth
-      else
+        this.$refs.panel.classList.remove('start')
+      } else {
         document.getElementsByClassName('header-items-container')[0].scrollLeft = 0
+        this.$refs.panel.classList.add('start')
+      }
       this.arrowRight = !this.arrowRight
     },
     onClickOutside(event) {
@@ -168,16 +180,18 @@ export default {
 }
 
 .header-items-container {
-  overflow: auto;
+  overflow: hidden;
 
   .flex-column {
     margin-right: 20px;
     flex-shrink: 0;
   }
 }
+
 .header-items-container::-webkit-scrollbar {
   display: none;
 }
+
 .desktop {
   height: 54px;
   font-size: 14px;
@@ -188,7 +202,7 @@ export default {
 }
 
 .items {
-  > * {
+  >* {
     padding: 2px;
   }
 }
@@ -203,10 +217,25 @@ export default {
 }
 
 .arrow {
-  background-color: #333333;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
+  background-color: #3f3f3f;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 2px;
+  right: 68px;
+}
+
+.fav {
+  background-color: #3f3f3f;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 2px;
+  right: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 </style>
 
@@ -214,6 +243,49 @@ export default {
 .header-items-container {
   height: 50px;
   display: flex;
+
+  &:not(.start)::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
+  }
+
+  &.start::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
+  }
+
 }
 
 .trade-top-line {

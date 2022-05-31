@@ -132,6 +132,7 @@ export default {
   display: flex;
   width: 100%;
   align-items: center;
+  gap: 8px;
   justify-content: space-between;
 }
 
@@ -139,6 +140,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   width: 100%;
 }
 
@@ -167,7 +169,6 @@ export default {
 }
 
 .connect-button {
-  margin: 0 4px;
   height: 36px;
 }
 
@@ -177,7 +178,6 @@ export default {
   display: flex;
   align-items: center;
   padding: 2px;
-  margin: 0 4px;
   height: 36px;
 }
 

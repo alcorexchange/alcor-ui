@@ -141,6 +141,10 @@ export default {
     padding: 3px 16px 5px 8px;
     border-right: 1px solid rgba(60, 60, 67, 0.36);
     min-width: max-content;
+
+    &.active {
+      background-color: var(--btn-alternative);
+    }
   }
 
   .right-shadow {
