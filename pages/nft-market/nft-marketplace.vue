@@ -15,15 +15,7 @@
     :handleSearchValue='handleSearchValue'
   )
   .grid-container(v-if='loading')
-    vue-skeleton-loader(
-      :width='220',
-      :height='380',
-      animation='wave',
-      wave-color='rgba(150, 150, 150, 0.1)',
-      :rounded='true',
-      v-for='item in 40',
-      :key='item'
-    )
+    CustomSkeletonVue(v-for='item in 10', :key='item', :height="330")
   .grid-container(v-else)
     .d-flex.justify-content-center(
       v-for='(item, index) in marketData',
@@ -41,18 +33,18 @@
 <script>
 // import Vue from 'vue'
 import { mapState } from 'vuex'
-import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import MarketTab from '~/components/nft_markets/MarketTab'
 import searchImg from '~/assets/images/search.svg'
 import filterImg from '~/assets/images/filter.svg'
 import downImg from '~/assets/images/down.svg'
+import CustomSkeletonVue from '~/components/CustomSkeleton'
 
 export default {
   components: {
     NormalCard,
     MarketTab,
-    VueSkeletonLoader,
+    CustomSkeletonVue,
   },
 
   data() {
@@ -112,7 +104,9 @@ export default {
     },
 
     async getCollectionData() {
-      const data = await this.$store.dispatch('api/getCollectionData')
+      const data = await this.$store.dispatch('api/getCollectionData', {
+        author: '',
+      })
       this.collectionData = data
     },
 

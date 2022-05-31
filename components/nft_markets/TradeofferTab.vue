@@ -1,23 +1,75 @@
 <template lang="pug">
 .d-flex.justify-content-between.tabar-container.tradeoffertab.row.mb-4
-  .col-4.d-flex.justify-content-between
+  .col-4.d-flex.justify-content-between.align-items-end
     .search-input-group.border-bottom--gray
       img.search-icon(:src='data.searchIcon' alt='')
-      input.search-input(type='text' @input='debounceSearch' @focus='focusInput' @blur='blurInput' placeholder='Search name or address')
-      img.down-icon(:src='data.downIcon' alt='')
-    .filter-input-group.border-bottom--gray
-      img.filter-icon(:src='data.filterIcon' alt='')
-      input.search-input(type='text' @focus='focusInput' @blur='blurInput' placeholder='Filter')
-      img.down-icon(:src='data.downIcon' alt='')
+      input.search-input.pb-1(type='text' @input='debounceSearch' @focus='focusInput' @blur='blurInput' placeholder='Search name or address')
+    el-dropdown.filter-input-group.border-bottom--gray.d-flex.flex-column.justify-content-center.pb-1(
+      trigger='click'
+    )
+      .el-dropdown-link.d-flex.align-items-center.justify-content-between
+        img.me-1(:src='data.filterIcon', alt='')
+        p.m-0 Filter
+        i.el-icon-arrow-down.el-icon--right
+      el-dropdown-menu.collection-dropdown(slot='dropdown')
+        button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+          @click='() => handleCollection("")'
+        )
+          img(src='~/assets/images/default.png')
+          p.ml-1.flex-fill.text-left.collection-name.mb-0 All
+        button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+          v-for='(item, index) in collectionData',
+          :key='index',
+          @click='() => handleCollection(item.collection_name)'
+        )
+          img(v-if='item.img && item.img.includes("https://")', :src='item.img')
+          img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
+          img(v-else, src='~/assets/images/default.png')
+          p.ml-1.flex-fill.text-left.collection-name.mb-0 {{ item.name }}
   .col-6.d-flex.justify-content-between
     .tab-btn.border-bottom--green(v-if="currentTab === 'your'") Your Inventory
     .tab-btn.border-bottom--gray(v-else='' @click="handleTab('your')") Your Inventory
     .tab-btn.border-bottom--green(v-if="currentTab === 'their'") Their Inventory
     .tab-btn.border-bottom--gray(v-else='' @click="handleTab('their')") Their Inventory
-    .create-collection-btn
+    button.btn.create-collection-btn(@click="sendTradeOffer")
       img(src='~/assets/images/handshake.svg')
       |Send Trade Offer
 </template>
+
+<script>
+import { mapState } from 'vuex'
+
+export default {
+  props: [
+    'data',
+    'currentTab',
+    'handleTab',
+    'handleSearch',
+    'collectionData',
+    'handleCollection',
+    'sendTradeOffer'
+  ],
+  data() {
+    return {
+      sellOrders: [],
+    }
+  },
+  methods: {
+    debounceSearch(event) {
+      clearTimeout(this.debounce)
+      this.debounce = setTimeout(() => {
+        this.handleSearch(event.target.value)
+      }, 600)
+    },
+    focusInput(event) {
+      event.target.parentElement.classList.add('border-bottom--cancel')
+    },
+    blurInput(event) {
+      event.target.parentElement.classList.remove('border-bottom--cancel')
+    },
+  },
+}
+</script>
 
 <style scoped lang="scss">
 .tradeoffertab {
@@ -30,7 +82,7 @@
     color: #000;
     font-size: 14px;
     font-weight: 700;
-    background: #67C23A;
+    background: #67c23a;
     border-radius: 8px;
     cursor: pointer;
   }
@@ -38,14 +90,14 @@
     margin-bottom: 35px;
   }
   .tab-btn {
-    color: #BEC6CB;
+    color: #bec6cb;
   }
   .border-bottom--gray {
     border-bottom: 1px solid #333;
     width: 225px;
   }
   .border-bottom--green {
-    border-bottom: 1px solid #67C23A;
+    border-bottom: 1px solid #67c23a;
     width: 225px;
   }
   .border-bottom--cancel {
@@ -71,7 +123,7 @@
     padding: 12px 0;
     font-size: 15px;
     text-align: center;
-    width:130px;
+    width: 130px;
   }
   .search-icon,
   .filter-icon,
@@ -98,36 +150,49 @@
 }
 </style>
 
-<script>
-import { mapState } from 'vuex'
-
-export default {
-  props: [
-    'data',
-    'currentTab',
-    'handleTab'
-  ],
-  data() {
-    return {
-      search: null,
-      sellOrders: [],
+<style lang="scss">
+.el-dropdown-menu.collection-dropdown {
+  background: #333;
+  border: 1px dashed var(--main-green) !important;
+  max-height: 400px;
+  width: 250px;
+  overflow: auto;
+  .btn-collection {
+    background-color: transparent;
+    height: 37px;
+    color: #bec6cb;
+    white-space: nowrap;
+    overflow: hidden;
+    img {
+      min-width: 35px;
+      width: 35px;
+      height: 35px;
+      object-fit: cover;
+      border-radius: 5px;
     }
-  },
-  methods: {
-    debounceSearch(event) {
-      this.search = null
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(() => {
-        this.search = event.target.value
-        // search function
-      }, 600)
-    },
-    focusInput(event) {
-      event.target.parentElement.classList.add('border-bottom--cancel')
-    },
-    blurInput(event) {
-      event.target.parentElement.classList.remove('border-bottom--cancel')
+    &:hover {
+      background-color: rgb(65, 65, 65);
+    }
+    .collection-name {
+      overflow: hidden;
     }
   }
 }
-</script>
+.wallet-nft-tab {
+  .filter-input-group {
+    .dropdown-toggle {
+      height: 37px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 0;
+      padding: 5px;
+      border: 0;
+      box-shadow: none !important;
+      outline: none !important;
+      color: var(--color-text-primary);
+      background: transparent !important;
+    }
+  }
+}
+</style>

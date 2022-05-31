@@ -3,11 +3,11 @@
   header.d-flex.justify-content-between.mb-2
     div
       img(src='~/assets/images/small_shape.svg' style="width:21px;height:21px")
-      span.card-title {{data.maker}}
+      span.card-title qwewqee
     div
       img(src='~/assets/images/double_arrow.svg' alt='')
       img.card-title-img(src='~/assets/images/fire.svg' alt='')
-      span.card-number {{data.id}}
+      span.card-number fgdgf
   .main-img.radius10(v-if='imageBackground' :style='imageBackground')
   .main-img.radius10(v-else='' :style='defaultBackground')
   .d-flex.justify-content-between.align-items-end.mt-2.mb-2
@@ -23,7 +23,7 @@ import { mapState } from 'vuex'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data', 'price', 'kindBut'],
+  props: ['data'],
 
   data() {
     return {
@@ -39,11 +39,6 @@ export default {
     imageBackground() {
       return false
     }
-  },
-  methods: {
-    debug() {
-      console.log('this.data', this.data.buy.quantity.replaceAll('WAX', ''))
-    },
   },
 }
 </script>

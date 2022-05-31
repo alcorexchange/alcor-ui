@@ -111,7 +111,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        'https://wax.api.atomicassets.io/atomicassets/v1/collections?order=desc&sort=created' + (author ? '&author=' + author : '')
+        'https://wax.api.atomicassets.io/atomicassets/v1/collections?order=desc&sort=created' + (author ? ('&author=' + author) : '')
       )
       return data.data
     } catch (e) {
@@ -267,9 +267,7 @@ export const actions = {
       const {
         data
       } = await axios.post(
-        'https://wax.pink.gg/v1/chain/get_account', {
-          account_name: accountName
-        }
+        'https://wax.pink.gg/v1/chain/get_account', { account_name: accountName }
       )
       return data
     } catch (e) {
@@ -450,6 +448,42 @@ export const actions = {
     }
   },
 
+  async getAssetsInventory({
+    getters,
+    rootState
+  }, {
+    owner,
+    search,
+    collection,
+  }) {
+    try {
+      const {
+        data
+      } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/assets?owner=' +
+        owner +
+        (search ? '&search=' + search : '') +
+        (collection ? '&collection_name=' + collection : '') +
+        '&page=1&limit=100&order=desc&sort=asset_id'
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get accounts error', e)
+    }
+  },
+
+  async transferOffer({
+    getters,
+    rootState
+  }, { actions }) {
+    try {
+      const { data } = await axios.post('https://wax-mainnet-signer.api.atomichub.io/v1/available', {
+        actions
+      })
+    } catch (e) {
+      console.error('Get accounts error', e)
+    }
+  },
   async getAssetsLog({
     getters,
     rootState

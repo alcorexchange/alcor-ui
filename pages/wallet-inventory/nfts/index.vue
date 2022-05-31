@@ -42,14 +42,11 @@
       v-if='currentTab === "inventory" || currentTab === "listings" || currentTab === "auctions" || currentTab === "sets"'
     )
       .grid-container(v-if='loading')
-        vue-skeleton-loader(
+        CustomSkeletonVue(
+          v-for='item in 12',
+          :key='12',
           :width='220',
-          :height='380',
-          animation='wave',
-          wave-color='rgba(150, 150, 150, 0.1)',
-          :rounded='true',
-          v-for='item in 40',
-          :key='item'
+          :height='380'
         )
       .grid-container(v-else)
         .d-flex.justify-content-center(
@@ -63,20 +60,8 @@
           )
     div(v-else-if='currentTab === "sold" || currentTab === "bought"')
       .d-flex.justify-content-between(v-if='loading')
-        vue-skeleton-loader(
-          :width='600',
-          :height='380',
-          animation='wave',
-          wave-color='rgba(150, 150, 150, 0.1)',
-          :rounded='true'
-        )
-        vue-skeleton-loader(
-          :width='220',
-          :height='380',
-          animation='wave',
-          wave-color='rgba(150, 150, 150, 0.1)',
-          :rounded='true'
-        )
+        CustomSkeletonVue(:width='600', :height='380')
+        CustomSkeletonVue(:width='220', :height='380')
       div(v-else)
         DetailWithCardPanel(
           v-for='(item, index) in inventoryData',
@@ -88,8 +73,8 @@
 
 <script>
 import { mapState } from 'vuex'
-import VueSkeletonLoader from 'skeleton-loader-vue'
 import WalletNFTTab from '~/components/wallet/WalletNFTTab'
+import CustomSkeletonVue from '~/components/CustomSkeleton'
 import HorizontalMenu from '~/components/wallet/HorizontalMenu'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import DetailWithCardPanel from '~/components/nft_markets/DetailWithCardPanel'
@@ -100,10 +85,10 @@ export default {
   components: {
     WalletNFTTab,
     NormalCard,
-    VueSkeletonLoader,
     HorizontalMenu,
     DetailWithCardPanel,
     WalletSetTab,
+    CustomSkeletonVue,
   },
   data: () => ({
     search: '',

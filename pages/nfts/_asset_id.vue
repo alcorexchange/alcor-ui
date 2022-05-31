@@ -10,26 +10,17 @@
   .d-flex.justify-content-between
     .nft-image-container.border-radius5
       .nft-image(v-if='loading')
-        vue-skeleton-loader(
+        CustomSkeletonVue.mt-2.mx-auto(
+          v-if='loading',
           :width='249',
-          :height='249',
-          animation='wave',
-          wave-color='rgba(150, 150, 150, 0.1)',
-          :rounded='true'
+          :height='249'
         )
       .nft-image(v-else-if='imageBackground', :style='imageBackground')
       .nft-image(
         v-else,
         :style='{ backgroundImage: `url(${require("~/assets/images/nft.svg")})` }'
       )
-      vue-skeleton-loader.mt-2.mx-auto(
-        v-if='loading',
-        :width='65',
-        :height='65',
-        animation='wave',
-        wave-color='rgba(150, 150, 150, 0.1)',
-        :rounded='true'
-      )
+      CustomSkeletonVue.mt-2.mx-auto(v-if='loading', :width='65', :height='65')
       button.btn.nft1-container(v-else)
         .nft1-image(v-if='thumbnailImage', :style='thumbnailImage')
         .nft1-image(
@@ -41,53 +32,23 @@
         .other-info
           .nft
             label.description-title NFT Name
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             h4.description-name(v-else) {{ assetData.name }}
           .nft
             label.description-title ID
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             h4(v-else) {{ assetData.asset_id }}
           .nft
             label.description-fee Collection Name
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             p.wax-exchange(v-else) {{ assetData.collection.name }}
           .nft
             label.description-fee Schema Name
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             p.wax-exchange(v-else) {{ assetData.schema.schema_name }}
           .nft
             label.description-fee Backed Tokens
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             p.token-exchange(
               v-else-if='!loading && backedToken',
               v-for='(item, index) in backedToken',
@@ -97,47 +58,23 @@
         .description-info
           .nft
             label.description-title Owner
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             p.wax-exchange(v-else) {{ assetData.owner }}
           .nft
             label.description-title Mint Number
             br
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             span.wax-exchange.mr-2.d-flex.align-items-center(v-else)
               span {{ assetData.template_mint }} of {{ assetData.template.issued_supply }} (max: {{ assetData.template.max_supply }}) -
               span.color-red.ml-1 {{ assetData.template.issued_supply - assetData.template_mint }}
               img(src='~/assets/images/fire.svg')
           .nft.mt-2
             label.description-title Template ID
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             p.wax-exchange(v-else) {{ "#" + assetData.template.template_id }}
           .nft
             p.description-title.mb-0 Propertise
-            vue-skeleton-loader(
-              v-if='loading',
-              :width='120',
-              :height='20',
-              animation='wave',
-              wave-color='rgba(150, 150, 150, 0.1)'
-            )
+            CustomSkeletonVue(v-if='loading', :width='120', :height='20')
             div(v-else)
               div(v-if='assetData.template.is_transferable')
                 img(src='~/assets/images/double_arrow.svg')
@@ -162,18 +99,8 @@
     .nft-Name-container.border-radius5
       div(v-if='loading')
         .d-flex.align-items-center.attr(v-for='item in 4', :key='item')
-          vue-skeleton-loader(
-            :width='80',
-            :height='20',
-            animation='wave',
-            wave-color='rgba(150, 150, 150, 0.1)'
-          )
-          vue-skeleton-loader(
-            :width='200',
-            :height='20',
-            animation='wave',
-            wave-color='rgba(150, 150, 150, 0.1)'
-          )
+          CustomSkeletonVue(:width='80', :height='20')
+          CustomSkeletonVue(:width='200', :height='20')
       .d-flex.attr(
         v-else,
         v-for='(item, index) in attributeKeys',
@@ -257,20 +184,23 @@
             span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(highestSales) }}
-  NFTBackModal(
-    :show_modal='show_modal',
-    :handleCloseModal='handleCloseModal'
-  )
+  NFTBackModal(:show_modal='show_modal', :handleCloseModal='handleCloseModal')
   .d-flex.justify-content-between
-    Chart(:charts='chartData', v-if='chartData.length', tab="Price", period="24H")
+    Chart(
+      :charts='chartData',
+      v-if='chartData.length',
+      tab='Price',
+      period='24H'
+    )
+    CustomSkeletonVue(v-else, :width='970', :height='588')
 </template>
 <script>
-import VueSkeletonLoader from 'skeleton-loader-vue'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
 import LogsRow from '~/components/nft_markets/LogsRow'
 import NFTBackModal from '~/components/modals/NFTBack'
 import Chart from '~/components/nft_markets/Chart'
+import CustomSkeletonVue from '~/components/CustomSkeleton'
 
 export default {
   components: {
@@ -278,8 +208,8 @@ export default {
     SalesRow,
     NFTBackModal,
     Chart,
-    VueSkeletonLoader,
     LogsRow,
+    CustomSkeletonVue,
   },
 
   data() {
@@ -364,7 +294,7 @@ export default {
         this.show_modal = false
     },
     handleCloseModal() {
-      console.log("handleCloseModal")
+      console.log('handleCloseModal')
       this.show_modal = false
     },
     async getSpecificAsset(asset_id) {

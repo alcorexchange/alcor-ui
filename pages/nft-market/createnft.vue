@@ -18,16 +18,9 @@
             :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
           )
           h4 Create <br>Collection
-    vue-skeleton-loader(
-      v-if='loading'
-      :width='220',
-      :height='300',
-      animation='wave',
-      wave-color='rgba(150, 150, 150, 0.1)',
-      :rounded='true',
-    )
+    CustomSkeletonVue(v-if='loading', v-for='item in 3', :key='item')
     CollectionCard(
-      v-else
+      v-else,
       v-for='(item, index) in collectionData',
       :key='index',
       :data='item'
@@ -36,7 +29,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import VueSkeletonLoader from 'skeleton-loader-vue'
+import CustomSkeletonVue from '~/components/CustomSkeleton'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
 import CollectionCard from '~/components/nft_markets/CollectionCard'
 
@@ -44,7 +37,7 @@ export default {
   components: {
     MemoryPanel,
     CollectionCard,
-    VueSkeletonLoader,
+    CustomSkeletonVue,
   },
 
   data() {
