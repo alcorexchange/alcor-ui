@@ -9,7 +9,7 @@
         style='width: 100%',
         :default-sort='{ prop: "weekVolume", order: "descending" }'
       )
-        el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
+        el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
           template(slot-scope='{row}')
             .asset-container
               TokenImage(
@@ -22,7 +22,7 @@
                 span.asset-contract.cancel {{ row.contract }}
 
         el-table-column(
-          label='Total',
+          :label='$t("Total")',
           sort-by='amount',
           sortable,
         )
@@ -31,7 +31,7 @@
               .amount {{ row.amount | commaFloat(4) }}
               .val.cancel = ${{ row.usd_value | commaFloat }}
         el-table-column(
-          label='Available',
+          :label='$t("Available")',
           sort-by='amount',
           sortable,
         )
@@ -39,21 +39,21 @@
             div.amount-val
               .amount {{ row.amount | commaFloat(4) }}
               .val.cancel = ${{ row.usd_value | commaFloat }}
-        //el-table-column(label='In Order')
-          //- TODO: dynamic
+        //el-table-column(:label='$t("In Order')
+        //- TODO: dynamic
           template(slot-scope='{row}')
             div.amount-val
               .amount {{row.amount}}
               .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
               .val.cancel(v-else) = $0.00
-        //el-table-column(label='WAX Value')
+        //el-table-column(:label='$t("WAX Value")')
           template(slot-scope='{row}')
             div.amount-val
               .amount {{row.amount}}
               .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
               .val.cancel(v-else) = $0.00
         el-table-column(
-          label='Actions',
+          :label='$t("Actions")',
           width="260"
         )
           template(slot-scope='{row}')
@@ -147,42 +147,52 @@ export default {
   flex-wrap: wrap;
   align-items: center;
   margin-bottom: 10px;
+
   .el-input {
     max-width: 300px;
     margin-right: 8px;
     margin-bottom: 8px;
   }
+
   .el-input__inner {
     background: transparent !important;
   }
 }
+
 .el-card {
   border: none;
 }
+
 .asset-container {
   display: flex;
   align-items: center;
+
   .asset {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
+
   .asset-name {
     font-weight: bold;
   }
 }
+
 .amount-val {
   .amount {
     color: var(--text-default);
     font-size: 0.9rem;
   }
+
   .val {
     color: var(--cancel);
     font-size: 0.8rem;
   }
 }
+
 .actions {
   display: flex;
+
   .el-button--text {
     color: var(--main-green) !important;
     font-weight: 400;

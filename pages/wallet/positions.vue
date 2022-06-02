@@ -39,36 +39,36 @@ div.wallet
               style="width: 100%"
             )
               el-table-column(
-                label="Order",
+                :label="$t('Order')",
               )
                 template(#default="{ row }")
                   span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
               el-table-column(
-                label="Date",
+                :label="$t('Date')",
               )
                 template(#default="{ row }") {{ row.timestamp | moment('DD-MM HH:mm') }}
               el-table-column(
-                label="Price",
+                :label="$t('Price')",
               )
                 template(#default="{ row }") {{ row.unit_price | humanPrice }}
               el-table-column(
-                label="Bid",
+                :label="$t('Bid')",
               )
                 template(#default="{ row }") {{ row.bid.quantity | commaFloat }}
-              //el-table-column(label="Filled")
+              //el-table-column(:label="$t('Filled')")
                 template(#default="{row}") {{row.filled}}%
               el-table-column(
-                label="Ask",
+                :label="$t('Ask')",
               )
                 template(#default="{ row }")
                   .wax-value {{ row.ask.quantity | commaFloat }}
               el-table-column(
-                label="Action",
+                :label="$t('Action')",
               )
                 template(#default="{ row }")
                   .actions
                     el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
-      el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
+      el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
         template(slot-scope='{row}')
           .asset-container
             TokenImage(
@@ -81,7 +81,7 @@ div.wallet
               span.asset-contract.cancel {{ row.quote_token.contract }}
 
       el-table-column(
-        label='Current Orders',
+        :label='$t("Current Orders")',
       )
         template(slot-scope='{row}')
           .current-orders
@@ -89,15 +89,15 @@ div.wallet
             span.cancel &nbsp;|&nbsp;
             span.red {{ row.orderCount.sell }} sell
       el-table-column(
-        label='Total Quote',
+        :label='$t("Total Quote")',
       )
         template(slot-scope='{row}') {{ row.totalBase | commaFloat(row.base_token.symbol.precision) }} {{ row.base_token.symbol.name }}
       el-table-column(
-        label='Total Base',
+        :label='$t("Total Base")',
       )
         template(slot-scope='{row}') {{ row.totalQuote | commaFloat(row.quote_token.symbol.precision) }} {{ row.quote_token.symbol.name }}
       el-table-column(
-        label='Actions',
+        :label='$t("Actions")',
         width="260"
       )
         template(slot-scope='{row}')

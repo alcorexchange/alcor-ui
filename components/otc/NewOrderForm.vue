@@ -12,14 +12,14 @@ div
       span  You can cancel the transaction at any time and return the tokens.
       h1.leader Sell
 
-      el-form-item(label="Sell token")
-        el-select(v-model="tokenSelect", value-key="id" filterable clearable placeholder='Sell token' @change="sellSellToken").w-100
+      el-form-item(:label="$t('Sell token')")
+        el-select(v-model="tokenSelect", value-key="id" filterable clearable :placeholder='$t("Sell token")' @change="sellSellToken").w-100
           el-option(v-for="b in user.balances.filter(t => t.currency != 'TLM')" :key="b.id", :value="b" :label="`${b.id} ->  ${b.amount} ${b.currency}`")
             TokenImage(:src="$tokenLogo(b.currency, b.contract)" height="25")
             span.ml-3 {{ b.id }}
             span.float-right {{ `${b.amount} ${b.currency}` }}
 
-      el-form-item(v-if="tokenSelect" label="Token amount")
+      el-form-item(v-if="tokenSelect" :label="$t('Token amount')")
         el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
 
         //el-input-number(v-model="form.buy.amount" :precision="4" :step="1").mt-2.w-100
@@ -27,13 +27,13 @@ div
       div(v-if="form.sell.amount > 0")
         hr
 
-        h1.leader Buy
+        h1.leader {{ $t("Buy") }}
 
         el-tabs
-          el-tab-pane(label="Auto select")
-            el-select(v-model='sellSelect' value-key="id" filterable placeholder='Select' clearable @change="setBuyToken").w-100
+          el-tab-pane(:label="$t('Auto select')")
+            el-select(v-model='sellSelect' value-key="id" filterable :placeholder='$t("Select")' clearable @change="setBuyToken").w-100
               el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
-                        :value="{symbol: baseToken.symbol, contract: baseToken.contract, precision: baseToken.precision}")
+                :value="{ symbol: baseToken.symbol, contract: baseToken.contract, precision: baseToken.precision }")
                 TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
                 span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
@@ -46,18 +46,18 @@ div
                 TokenImage(:src="$tokenLogo(t.symbol, t.contract)" height="25")
                 span.ml-3 {{ t.symbol + '@' + t.contract }}
 
-          el-tab-pane(label="Manually")
-            el-form-item(label="Token contract" prop="buy.contract")
+          el-tab-pane(:label="$t('Manually')")
+            el-form-item(:label="$t('Token contract')" prop="buy.contract")
               el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.buy.contract")
 
-            el-form-item(v-if="form.buy.contract" label="Token symbol" prop="buy.symbol")
+            el-form-item(v-if="form.buy.contract" :label="$t('Token symbol')" prop="buy.symbol")
               // TODO Uppercase
-              el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.buy.symbol").upperinput
+              el-input(:placeholder="$t('DICE TRYBE CAT EOS etc..')" v-model="form.buy.symbol").upperinput
 
-        el-form-item(v-if="form.buy.symbol" label="Token amount")
+        el-form-item(v-if="form.buy.symbol" :label="$t('Token amount')")
           //el-input-number(v-model="form.sell.amount" :max="form.sell.maxAmount" :precision="form.sell.precision" :step="1").mt-2.w-100
           el-input-number(v-model="form.buy.amount" :precision="form.buy.precision" :step="1").mt-2.w-100
-          .lead.mt-2 Price: {{ price }}
+          .lead.mt-2 {{ $t('Price') }}: {{ price }}
 
         span.dialog-footer
           el-button(type='primary' v-if="form.buy.amount > 0" @click="submit").w-100 Create order
@@ -248,5 +248,4 @@ export default {
 .el-form {
   padding: 10px 70px;
 }
-
 </style>

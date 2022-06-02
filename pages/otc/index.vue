@@ -89,7 +89,7 @@
                 li.lead {{ $t('Comission account:') }}
                   a(:href="monitorAccount(divContract)" target="_blank")  {{ divContract }}
 
-          el-tab-pane(label='Partners').p-3
+          el-tab-pane(:label='$t("Partners")').p-3
             .lead.mb-4 {{ $t('RULES_INFO_9') }}
 
             hr

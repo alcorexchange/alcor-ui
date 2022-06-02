@@ -4,7 +4,7 @@
     .row
       .col
         .d-flex.mb-1.select-label
-          small.text-muted Sell
+          small.text-muted {{ $t("Sell") }}
 
           el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
@@ -28,7 +28,7 @@
               el-dropdown-menu.dropdown(slot="dropdown")
                 .section
                   .section-label {{ $t('Transaction Setting') }}
-                  label Slippage Tolerance %
+                  label {{ $t('Slippage Tolerance') }} %
                   .section-content
                     AlcorButton(@click="resetSlippageTolerance" round compact) {{ $t('Auto') }}
                     .section-input

@@ -13,9 +13,9 @@
         i.el-icon-loading.ml-1.pointer
     .value
       span.main
-        span.buy.green {{ buyPositionsCount }} Buy
+        span.buy.green {{ buyPositionsCount }} {{ $t("Buy") }}
         span.cancel.line |
-        span.sell.red {{ sellPositionsCount }} Sell
+        span.sell.red {{ sellPositionsCount }} {{ $t("Sell") }}
     .info.cancel {{ pairsCount }} Pairs
   .item
     .title.cancel {{ $t('Available funds') }}
@@ -34,7 +34,7 @@
     .value
       span.main.green +0.0000
       span.symbol.cancel WAX
-    .info.cancel 0 Liquidity Pools
+    .info.cancel 0 {{ $t("Liquidity Pools") }}
 </template>
 
 <script>
