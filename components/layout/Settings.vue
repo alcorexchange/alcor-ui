@@ -5,11 +5,20 @@
       .setting-theme-footer.el-footer.text-white
         span.theme-title Language
       .el-main.theme-main-settings
-        element-select(:options="$i18n.locales" :selected="$i18n.locale")
+        element-select(:options="$i18n.locales")
           template(#option="{ option }")
             lang-option(:code="option.code")
           template(#selected)
             lang-option(:code="$i18n.locale")
+
+      .setting-theme-footer.el-footer.text-white
+        span.theme-title Theme
+      .el-main.theme-main-settings
+        element-select(:options="Object.values(themes)")
+          template(#option="{ option }")
+            theme-option(:theme="option")
+          template(#selected)
+            theme-option(:theme="themes[$colorMode.value]")
 
     //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
@@ -166,6 +175,7 @@ import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import ElementSelect from '~/components/elements/ElementSelect'
 import LangOption from '~/components/LangOption'
+import ThemeOption from '~/components/ThemeOption'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -176,7 +186,8 @@ export default {
     TokenImage,
     ChangePercent,
     ElementSelect,
-    LangOption
+    LangOption,
+    ThemeOption
   },
 
   data() {
@@ -194,7 +205,20 @@ export default {
       theme: 'dark',
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false
+      checkedorange: false,
+
+      themes: {
+        dark: {
+          value: 'dark',
+          colors: ['#eff', '#291'],
+          textPicker: { border: '#3f3f3f', color: '#f2f2f2' }
+        },
+        light: {
+          value: 'light',
+          colors: ['#faa', '#e11'],
+          textPicker: { border: '#3f3f3f', color: '#363d52' }
+        }
+      }
     }
   },
   computed: {

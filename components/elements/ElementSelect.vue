@@ -1,12 +1,12 @@
 <template lang="pug">
-  el-dropdown.element-select(trigger="click")
-    .selected
-      span.selected-slot
-        slot(name="selected")
-      ChevronIcon
-    el-dropdown-menu.element-options(slot="dropdown")
-      el-dropdown-item.element-item(v-for="option in options")
-        slot(name="option" :option="option")
+el-dropdown.element-select(trigger="click")
+  .selected
+    span.selected-slot
+      slot(name="selected")
+    ChevronIcon
+  el-dropdown-menu.element-options(slot="dropdown")
+    el-dropdown-item.element-item(v-for="option in options")
+      slot(name="option" :option="option")
 </template>
 
 <script>
@@ -44,7 +44,6 @@ export default {
   padding: 5px 0;
 
   .element-item {
-    display: flex;
     cursor: pointer;
     width: 260px;
     box-sizing: border-box;
@@ -59,4 +58,3 @@ export default {
   }
 }
 </style>
-
