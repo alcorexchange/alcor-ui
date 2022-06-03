@@ -148,4 +148,8 @@ export default {
 .cursor-pointer {
   cursor: pointer;
 }
+
+.green {
+  color: var(--color-primary)
+}
 </style>

@@ -319,34 +319,27 @@ export default {
   }
 }
 
-.theme-dark {
-  .markets-bar {
-    background-color: var(--background-color-secondary);
+.markets-bar {
+  background-color: var(--table-header-background) !important;
 
-    .el-input__inner {
-      background-color: var(--background-color-base) !important;
-    }
+  .el-input__inner {
+    background-color: var(--background-color-base) !important;
+  }
+}
+
+.markets-bar .el-table {
+
+  th {
+    background: var(--table-header-background);
   }
 
-  .markets-bar .el-table {
+  tr {
+    background: var(--background-color-base);
+  }
 
-    th,
-    tr {
-      background: var(--background-color-secondary);
-    }
 
-    .el-table__row {
-      &:hover {
-
-        & td,
-        & th,
-        & tr {
-          background: var(--btn-active) !important;
-        }
-      }
-    }
-
-    .active-row {
+  .el-table__row {
+    &:hover {
 
       & td,
       & th,
@@ -355,7 +348,17 @@ export default {
       }
     }
   }
+
+  .active-row {
+
+    & td,
+    & th,
+    & tr {
+      background: var(--btn-active) !important;
+    }
+  }
 }
+
 
 .markets-bar {
   height: 100%;
@@ -373,6 +376,6 @@ export default {
 }
 
 .markets-bar .el-table .active-row {
-  background: #e6eef1;
+  background: var(--btn-active);
 }
 </style>

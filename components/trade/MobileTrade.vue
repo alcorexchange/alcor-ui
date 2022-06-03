@@ -81,7 +81,7 @@ export default {
 <style lang="scss">
 .mobile-trade-inner {
   width: 100%;
-  background: #121212;
+  background: var(--background-color-third);
   padding: 10px;
   font-size: 12px !important;
 
@@ -94,7 +94,8 @@ export default {
   }
 
   .trade-top-line {
-    background: var(--table-background);
+    background: var(--background-color-base);
+    border-bottom: 1px solid var(--background-color-secondary);
 
     width: 100%;
     display: flex;

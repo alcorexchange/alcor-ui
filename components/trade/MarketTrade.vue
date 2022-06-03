@@ -2,7 +2,7 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.text-success {{ $t('Buy') }} {{ quote_token.symbol.name }}
+      small.green {{ $t('Buy') }} {{ quote_token.symbol.name }}
       span(
         @click="setAmount('buy')"
         class="text-mutted small align-self-end ml-auto cursor-pointer"
@@ -49,7 +49,7 @@
 
   .col-lg-6
     .d-flex.mb-1
-      small.text-danger {{ $t('Sell') }} {{ quote_token.symbol.name }}
+      small.red {{ $t('Sell') }} {{ quote_token.symbol.name }}
       span(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
         @click="setAmount('sell')"
@@ -114,5 +114,13 @@ export default {
 <style scoped lang="scss">
 .cursor-pointer {
   cursor: pointer;
+}
+
+.green {
+  color: var(--color-primary)
+}
+
+.red {
+  color: var(--color-primary)
 }
 </style>

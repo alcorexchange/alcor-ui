@@ -75,13 +75,13 @@ export default {
 .deals-history {
   .sell {
     span:first-child {
-      color: var(--main-red);
+      color: var(--color-secondary);
     }
   }
 
   .buy {
     span:first-child {
-      color: var(--main-green);
+      color: var(--color-primary);
     }
   }
 }

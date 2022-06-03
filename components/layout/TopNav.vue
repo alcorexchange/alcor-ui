@@ -5,11 +5,11 @@ nav.nav(v-if='!isMobile')
       img.logo(
         v-if='$colorMode.value == "light"',
         src='~/assets/logos/alcorblack.svg',
-        height='44'
+        height='28'
       )
       img.logo(
         v-else='',
-        height='44',
+        height='28',
         src='~/assets/logos/alcorwhite.svg',
         alt=''
       )
@@ -247,8 +247,8 @@ export default {
     display: flex;
 
     &.active {
-      background: #161617;
-      color: #f2f2f2 !important;
+      background: var(--btn-active);
+      color: var(--text-default) !important;
     }
   }
 }

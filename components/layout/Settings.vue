@@ -343,6 +343,7 @@ export default {
 span.theme-title,
 .module-title {
   font-size: 12px;
+  color:var(--text-default);
 }
 
 el-container.setting-theme {
@@ -390,7 +391,7 @@ input[type='radio']:checked+label:before {
   background-color: white;
 }
 
-.theme-dark .el-main {
+.el-main {
   padding: 8px 12px 8px 12px !important;
 }
 
@@ -419,7 +420,7 @@ input[type='radio']:checked+label:before {
   padding: 3px 0px 3px 0px;
 }
 
-.theme-dark .el-footer {
+.el-footer {
   padding: 0px 12px;
   box-sizing: border-box;
   flex-shrink: 0;

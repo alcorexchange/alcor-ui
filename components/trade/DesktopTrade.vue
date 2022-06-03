@@ -33,7 +33,7 @@
         @moved='itemUpdatedEvent(item)',
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
-        drag-allow-from='.el-tabs__header, .times-and-sales, .box-card'
+        drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line'
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
@@ -41,7 +41,7 @@
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
-                active-color='#13ce66',
+                active-color='#66C167',
                 inactive-color='#161617'
               )
 
@@ -94,7 +94,7 @@
           :min-h='10'
         )
           //.right-icons
-          el-tabs(type="border-card").h-100
+          el-tabs.trade-tabs(type="border-card").h-100
             el-tab-pane.h-10(:label='$t("Limit trade")')
               .trade-box
                 limit-trade
@@ -471,6 +471,7 @@ export default {
   right: 0;
   z-index: 100;
   margin: 1px;
+  height: 22px;
 }
 
 .alcor-inner .main .box-card {
@@ -483,10 +484,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #3f3f3f;
+  background-color: var(--btn-default);
   border-radius: 0px 0px 0px 3px;
   cursor: pointer;
   margin: 1px;
+  font-size: 12px;
 }
 
 .red {
@@ -553,6 +555,10 @@ export default {
   min-height: 650px;
 }
 
+.trade-tabs {
+  background-color: var(--table-background) !important;
+}
+
 .el-form-item {
   margin-bottom: 0px;
 }
@@ -568,21 +574,22 @@ export default {
 }
 
 .swap-button {
-  background: #3f3f3f;
+  background: var(--btn-default);
   //border: 0px 0px 0px 2px !important;
-  border-radius: 0px;
+  border-radius: 0 0 3px 3px;
   border: none !important;
   padding: 0px 10px !important;
   margin-right: 2px;
-  color: #bdbdbd !important;
+  color: var(--text-default) !important;
   height: 20px;
 }
 
 .feebutton {
-  background: #3f3f3f;
+  background: var(--btn-default);
   padding: 0px 2px !important;
-  margin-right: 2px !important;
-  height: 100% !important;
+  margin-right: 1px !important;
+  height: 90% !important;
+  border-radius: 0 0 3px 3px;
 }
 
 @media screen and (max-width: 1350px) {
@@ -617,6 +624,10 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .vue-grid-layout {
+    background-color: var(--background-color-third);
+  }
+
   .chart {
     touch-action: none;
   }
@@ -634,13 +645,14 @@ export default {
   background: #121212;
 
   .el-tabs--border-card {
-    background: transparent;
+    background: var(--table-header-background);
     border: none;
   }
 
   .el-tabs__item {
-    height: 30px;
-    line-height: 25px;
+    height: 25px;
+    font-size: 12px;
+    line-height: 20px;
   }
 
   .el-tabs__content {
@@ -653,7 +665,7 @@ export default {
   }
 
   .el-tabs__header {
-    background-color: var(--table-background) !important;
+    background-color: var(--table-tabs-background) !important;
     margin: 0;
   }
 
@@ -668,8 +680,8 @@ export default {
   }
 
   .vue-grid-item {
-    background: var(--table-background);
-    border: 2px solid #3F3F3F;
+    background: var(--background-color-base);
+    border: var(--border-2);
     box-sizing: border-box;
     border-radius: 2px;
 
@@ -783,7 +795,7 @@ export default {
   }
 
   .el-table__header th {
-    background-color: var(--btn-default);
+    background-color: var(--table-header-background);
   }
 
   .el-table {

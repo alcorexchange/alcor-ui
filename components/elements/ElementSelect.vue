@@ -21,7 +21,7 @@ export default {
 <style lang="scss" scoped>
 .el-dropdown.element-select {
   width: 100%;
-  background-color: #282828;
+  background-color: var(--btn-active);
   border-radius: 2px;
   box-sizing: border-box;
   padding: 8px 10px;
@@ -39,8 +39,8 @@ export default {
 }
 
 .el-dropdown-menu.element-options {
-  background: var(--bg-alter-1);
-  border: 2px solid rgb(63, 63, 63);
+  background: var(--background-color-base);
+  border: var(--border-2);
   padding: 5px 0;
 
   .element-item {
@@ -53,7 +53,7 @@ export default {
 
     &:hover {
       background: var(--btn-default);
-      color: #fff
+      color: var(--text-grey-thirdly);
     }
   }
 }

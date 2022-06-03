@@ -13,7 +13,7 @@
 
             .row
               .col
-                .d-flex
+                .d-flex.mb-3
                   new-order-form.mr-2 Create new order
 
                   el-select(v-model="search" clearable placeholder="Select token" size="medium").ml-2.mr-2.w-25
@@ -250,12 +250,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .order-row {
   cursor: pointer;
 }
 
 .select-token {
   width: 200px;
+}
+
+.el-table table.el-table__body {
+  width: 100% !important;
 }
 </style>
