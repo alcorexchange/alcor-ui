@@ -7,7 +7,7 @@
         :data='lpTokens',
         style='width: 100%',
       )
-        el-table-column(label='Pools')
+        el-table-column(:label='$t("Pools")')
           template(slot-scope='{row}')
             .asset-container
               PairIcons(
@@ -19,22 +19,22 @@
                 span.asset-name {{ row.pair.name }}
                 span.asset-contract.cancel alcor.dex
 
-        el-table-column(label='Deposit',)
+        el-table-column(:label='$t("Deposit")',)
           template(slot-scope='{row}')
             .detailed-item-container
               //span.main.fwr {{row.deposit.usd}} $
               span.cancel.fontSmall {{row.deposit1 | commaFloat }}
               span.cancel.fontSmall {{row.deposit2 | commaFloat }}
-        el-table-column(label='Earnings')
+        el-table-column(:label='$t("Earnings")')
           template(slot-scope='{row}')
             .detailed-item-container
               //span.main.fwr {{row.deposit.usd}} $
               span.cancel.fontSmall {{ String(row.earn1) | commaFloat }}
               span.cancel.fontSmall {{ String(row.earn2) | commaFloat }}
-        //el-table-column(label='Earnings WAX Value')
+        //el-table-column(:label='$t("Earnings WAX Value")')
         //- TODO: dynamic
         template(slot-scope='{row}') 123 WAX
-        el-table-column(label='Actions')
+        el-table-column(:label='$t("Actions")')
           template(slot-scope='{row}')
             .actions
               AlcorButton.add(@click="addLiquidity(row)" :disabled="isActiveAdd(row)")

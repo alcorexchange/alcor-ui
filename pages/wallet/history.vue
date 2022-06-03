@@ -9,31 +9,31 @@
       //el-checkbox() show withdraws
     .table.el-card.is-always-shadow
       el-table.market-table(:data='deals', style='width: 100%')
-        el-table-column(label='Side' width="70")
+        el-table-column(:label='$t("Side")' width="70")
           template(slot-scope='scope').text-success
             span.text-success(v-if="scope.row.side == 'buy'") BUY
             span.text-danger(v-else) SELL
 
-        el-table-column(label='Asset')
+        el-table-column(:label='$t("Asset")')
           template(slot-scope='{row}') {{ getSymbol(row.market) }}
 
-        el-table-column(label='Date' v-if="!isMobile")
+        el-table-column(:label='$t("Date")' v-if="!isMobile")
           template(slot-scope='scope')
             span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
 
-        el-table-column(label='Amount' v-if="!isMobile")
+        el-table-column(:label='$t("Amount")' v-if="!isMobile")
           template(slot-scope='{ row }')
             span {{ row.amount | commaFloat }}
 
-        el-table-column(label='Total')
+        el-table-column(:label='$t("Total")')
           template(slot-scope='{ row }')
             span {{ row.total | commaFloat }}
 
-        el-table-column(label='Price')
+        el-table-column(:label='$t("Price")')
           template(slot-scope='scope')
             span {{ scope.row.unit_price }}
 
-        el-table-column(label='Manage' align="right")
+        el-table-column(:label='$t("Manage")' align="right")
           template(slot-scope='scope')
             el-button(size="mini" type="text")
               a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
@@ -70,8 +70,8 @@ export default {
 
         // Initial fill
         this.infiniteHandler({
-          loaded: () => {},
-          complete: () => {}
+          loaded: () => { },
+          complete: () => { }
         })
       }
     }
@@ -80,8 +80,8 @@ export default {
   mounted() {
     // Initial fill
     this.infiniteHandler({
-      loaded: () => {},
-      complete: () => {}
+      loaded: () => { },
+      complete: () => { }
     })
   },
 
@@ -125,48 +125,59 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.table-header{
+.table-header {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
   flex-wrap: wrap;
+
   .el-input {
     max-width: 300px;
     margin-right: 8px;
     margin-bottom: 8px;
   }
-  .el-input__inner{
+
+  .el-input__inner {
     background: transparent !important;
   }
 }
-td.el-table__expanded-cell{
+
+td.el-table__expanded-cell {
   background: var(--bg-alter-2) !important;
 }
-.el-card{
+
+.el-card {
   border: none;
 }
-.asset-container{
+
+.asset-container {
   display: flex;
   align-items: center;
-  .asset{
+
+  .asset {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
-  .asset-name{
+
+  .asset-name {
     font-weight: bold;
   }
 }
-.el-table__expanded-cell{
+
+.el-table__expanded-cell {
   padding: 10px !important;
 }
-.actions{
+
+.actions {
   display: flex;
-  .el-button{
-    &.red{
+
+  .el-button {
+    &.red {
       color: var(--main-red) !important;
     }
-    &.green{
+
+    &.green {
       color: var(--main-green) !important;
     }
   }

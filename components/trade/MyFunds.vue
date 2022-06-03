@@ -3,7 +3,7 @@ el-table.my-funds(:data='balances' row-class-name='pointer' @row-click='rowClick
   el-table-column(:label="'Token (' + balances.length + ')'" width=100)
     template(slot-scope='{ row }')
       span {{ row.currency }}
-  el-table-column(label='Total Amount' width=200)
+  el-table-column(:label='$t("Total Amount")' width=200)
     template(slot-scope='{ row }')
       .d-flex
         span.amount {{ row.amount | commaFloat(4) }}

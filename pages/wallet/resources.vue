@@ -3,31 +3,31 @@
   .resources-container(v-if="account")
     .resource-item-container
       .el-card.resource-item
-          span.title.fwr Ram
-          alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="#333333" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
-          .details
-              .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
-              .staked
-                  span.cancel Staked:&nbsp;
-                  span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
+        span.title.fwr Ram
+        alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="#333333" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
+        .details
+          .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
+          .staked
+            span.cancel Staked:&nbsp;
+            span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
     .resource-item-container
       .el-card.resource-item
-          span.title.fwr CPU
-          alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="#333333" color="#66C167" :stroke-width="32" stroke-linecap="butt")
-          .details
-              .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
-              .staked
-                  span.cancel Staked:&nbsp;
-                  span.fwr {{ account.total_resources.cpu_weight }}
+        span.title.fwr CPU
+        alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="#333333" color="#66C167" :stroke-width="32" stroke-linecap="butt")
+        .details
+          .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
+          .staked
+            span.cancel Staked:&nbsp;
+            span.fwr {{ account.total_resources.cpu_weight }}
     .resource-item-container
       .el-card.resource-item
-          span.title.fwr NET
-          alcor-progress(:percentage="netPercent" :width="154" type="circle" background="#333333" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
-          .details
-              .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
-              .staked
-                  span.cancel Staked:&nbsp;
-                  span.fwr {{ account.total_resources.net_weight }}
+        span.title.fwr NET
+        alcor-progress(:percentage="netPercent" :width="154" type="circle" background="#333333" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
+        .details
+          .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
+          .staked
+            span.cancel Staked:&nbsp;
+            span.fwr {{ account.total_resources.net_weight }}
   .rewards-and-actions
     .rewards-card
       RewardsCard
@@ -40,7 +40,6 @@
   Validators
   //SSpacer(:high="true")
   //Proxies
-</div>
 </template>
 
 <script>
@@ -117,16 +116,20 @@ export default {
 </style>
 
 <style scoped lang="scss">
-.resources-container, .rewards-and-actions{
+.resources-container,
+.rewards-and-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 40px;
 }
-.rewards-and-actions{
+
+.rewards-and-actions {
   margin-top: 40px;
 }
+
 .resource-item-container {
   flex: 1;
+
   .resource-item {
     display: flex;
     flex-direction: column;
@@ -142,24 +145,34 @@ export default {
     margin-top: 14px;
   }
 }
-.action-item, .rewards-card{
+
+.action-item,
+.rewards-card {
   flex: 1;
 }
-@media only screen and (max-width: 940px){
-  .resources-container, .rewards-and-actions{
+
+@media only screen and (max-width: 940px) {
+
+  .resources-container,
+  .rewards-and-actions {
     gap: 10px;
   }
-.rewards-and-actions{
-  margin-top: 10px;
+
+  .rewards-and-actions {
+    margin-top: 10px;
+  }
 }
-}
-@media only screen and (max-width: 740px){
-  .resources-container, .rewards-and-actions{
+
+@media only screen and (max-width: 740px) {
+
+  .resources-container,
+  .rewards-and-actions {
     flex-direction: column;
     max-width: 400px;
     margin: auto;
   }
-  .rewards-and-actions{
+
+  .rewards-and-actions {
     margin-top: 10px;
   }
 }

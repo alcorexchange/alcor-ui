@@ -16,8 +16,8 @@
       span Amount in:
 
       el-radio-group.alcor-radio(v-model="showQuote" size="mini").ml-auto
-        el-radio-button(label='Token')
-        el-radio-button(label='Quote')
+        el-radio-button(:label='$t("Token")')
+        el-radio-button(:label='$t("Quote")')
 
     .d-flex.align-items-center.mt-2
       span Time format:

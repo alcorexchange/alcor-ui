@@ -20,9 +20,9 @@
             .clearfix(slot="header")
               b.text-muted BASE TOKEN
 
-            el-form-item(label="System token or USDT is recommended" prop="quote_token.contract")
+            el-form-item(:label="$t('System token or USDT is recommended')" prop="quote_token.contract")
               el-select(v-model='base_select' v-if="user && user.balances"
-     value-key="id" filterable placeholder='Select' clearable @change="selectBaseToken")
+                value-key="id" filterable placeholder='Select' clearable @change="selectBaseToken")
                 el-option(
                   :label="network.baseToken.symbol + '@' + network.baseToken.contract",
                   :value="network.baseToken"
@@ -45,13 +45,13 @@
 
             //el-tabs(@tab-click="quote_select = ''" type="border-card")
             el-tabs(@tab-click="quote_select = ''")
-              el-tab-pane(label="Auto select")
+              el-tab-pane(:label="$t('Auto select')")
                 el-alert(v-if="user && !user.balances" type="warning")
                   .lead Unable to fetch user tokens.. use manually method
 
-                el-form-item(label="Select token for new market" prop="quote_token.contract")
+                el-form-item(:label="$t('Select token for new market')" prop="quote_token.contract")
                   el-select(v-model='quote_select' v-if="user && user.balances"
-         value-key="id" filterable placeholder='Select' clearable @change="selectToken")
+                    value-key="id" filterable placeholder='Select' clearable @change="selectToken")
                     el-option(
                       v-for="t in tokens",
                       :key="t.id",
@@ -61,11 +61,11 @@
                       TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
                       span.ml-3 {{ t.currency + '@' + t.contract }}
 
-              el-tab-pane(label="Manually")
-                el-form-item(label="Token contract" prop="quote_token.contract")
+              el-tab-pane(:label="$t('Manually')")
+                el-form-item(:label="$('Token contract')" prop="quote_token.contract")
                   el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.quote_token.contract")
 
-                el-form-item(v-if="form.quote_token.contract" label="Token symbol" prop="quote_token.symbol")
+                el-form-item(v-if="form.quote_token.contract" :label="$t('Token symbol')" prop="quote_token.symbol")
                   el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.quote_token.symbol").upperinput
 
               .row(v-if="form.quote_token.contract && form.quote_token.symbol").mt-3

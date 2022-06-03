@@ -78,8 +78,8 @@
       span Orderbook Visualization
 
       el-radio-group.alcor-radio(v-model="sum" size="mini").ml-auto
-        el-radio-button(label='% Total')
-        el-radio-button(label='Total Sum')
+        el-radio-button(:label="'% ' + $t('Total')")
+        el-radio-button(:label='$t("Total Sum")')
 
 </template>
 
@@ -110,7 +110,7 @@ export default {
 
 <style lang="scss">
 .orderbook-preview.order-book {
-    padding: 10px 20px;
+  padding: 10px 20px;
 }
 
 .orderbook-preview {
@@ -124,5 +124,4 @@ export default {
     }
   }
 }
-
 </style>

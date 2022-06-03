@@ -1,9 +1,9 @@
 <template lang="pug">
   el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order-form-vertical
-    el-tab-pane(label='Limit Trade' name="limit").p-2
+    el-tab-pane(:label='$t("Limit Trade")' name="limit").p-2
       el-radio-group.el-radio-full-width(v-model='side', size='small').mt-2
-        el-radio-button(label='buy').buy Buy
-        el-radio-button(label='sell').sell Sell
+        el-radio-button(:label='$t("buy")').buy {{$t("Buy")}}
+        el-radio-button(:label='$t("sell")').sell {{$t("Sell")}}
 
       .d-flex.mt-4
         span.capitalize(:class='textColor(side)') {{ side }} {{ quote_token.symbol.name }}
@@ -12,7 +12,7 @@
           | {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
           i.el-icon-wallet.ml-1
 
-      label.small Price
+            label.small {{$t("Price")}}
       el-input(
         type='number',
         :min='side == "buy" ? "0.00000001" : "0"',
@@ -24,7 +24,7 @@
       )
         span.mr-1.ml-2(slot='suffix') {{ base_token.symbol.name }}
 
-      label.small Amount
+      label.small {{$t("Amount")}}
       el-input(
         v-if='side == "buy"',
         type='number',
@@ -63,7 +63,7 @@
           :show-tooltip="false"
         )
 
-      label.small.mt-4 Total
+      label.small.mt-4 {{ $t("Total") }}
       el-input(
         v-if='side == "buy"',
         type='number',
@@ -90,10 +90,10 @@
         @click='actionOrder(trade, side)'
       ) {{ side }}
 
-    el-tab-pane(label='Market' name="market").p-2
+    el-tab-pane(:label='$t("Market")' name="market").p-2
       el-radio-group.el-radio-full-width(v-model='side', size='small').mt-2
-        el-radio-button(label='buy').buy Buy
-        el-radio-button(label='sell').sell Sell
+        el-radio-button(:label='$t("buy")').buy {{$t("Buy")}}
+        el-radio-button(:label='$t("sell")').sell {{$t("Sell")}}
 
       .d-flex.mt-4
         span.capitalize(:class='textColor(side)') {{ side }} {{ quote_token.symbol.name }}
@@ -102,14 +102,14 @@
           | {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
           i.el-icon-wallet.ml-1
 
-      label.small.mt-3 Price
+          label.small.mt-3 {{$t("Price")}}
       el-input(
         type='number',
         disabled,
         :placeholder='$t("Buy at best price")'
       )
 
-      label.small.mt-3 Amount
+      label.small.mt-3 {{$t("Amount")}}
       el-input(
         v-if='side == "buy"',
         type='number',

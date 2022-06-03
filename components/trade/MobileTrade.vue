@@ -9,7 +9,7 @@
   .row.mt-1.orderbook
     .col.pr-1
       el-tabs.h-100(type="border-card" size="small").border-tabs
-        el-tab-pane(label='Orderbook')
+        el-tab-pane(:label='$t("Orderbook")')
           order-book
         el-tab-pane(:label='$t("Depth Chart")')
           depth-chart(
@@ -31,11 +31,11 @@
             .module-name.mr-2 Hide other pairs
             .module-pickers.d-flex.flex-row
               el-switch(v-model='hideOtherPairs', active-color='#13ce66', inactive-color='#161617')
-        el-tab-pane(label='Open orders')
+        el-tab-pane(:label='$t("Open orders")')
           my-orders(:only-current-pair="hideOtherPairs")
-        el-tab-pane(label='Trade History')
+        el-tab-pane(:label='$t("Trade History")')
           my-trade-history(:only-current-pair="hideOtherPairs")
-        el-tab-pane(label='Funds')
+        el-tab-pane(:label='$t("Funds")')
           my-funds(:only-current-pair="hideOtherPairs")
 
   .latest-deals.mt-1.mb-4
