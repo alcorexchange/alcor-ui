@@ -1,9 +1,5 @@
 <template lang="pug">
 .tradeoffer
-  //- .row
-  //-   .col-6.d-flex
-  //-     img.flfum-img(src='~/assets/images/small_shape.svg')
-  //-     p.flfum-title flfum.wam
   .nft-container.j-container
     .row
       .col-6.d-flex

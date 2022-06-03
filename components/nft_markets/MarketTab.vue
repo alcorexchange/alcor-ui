@@ -39,6 +39,50 @@
   .tab-btn.border-bottom--gray(v-else='', @click='handleTab("auctions")') Auctions
 </template>
 
+<script>
+import { mapState } from 'vuex'
+
+export default {
+  props: [
+    'data',
+    'currentTab',
+    'handleTab',
+    'handleSearch',
+    'collectionData',
+    'handleCollection',
+    'searchValue',
+    'handleSearchValue',
+  ],
+  data() {
+    return {
+      search: null,
+      sellOrders: [],
+    }
+  },
+  watch: {
+    search(newSearch, oldSearch) {
+      console.log(newSearch)
+    },
+  },
+  methods: {
+    debounceSearch(event) {
+      this.handleSearchValue(event.target.value)
+      clearTimeout(this.debounce)
+      this.debounce = setTimeout(() => {
+        this.handleSearch(event.target.value)
+        // search function
+      }, 600)
+    },
+    focusInput(event) {
+      event.target.parentElement.classList.add('border-bottom--cancel')
+    },
+    blurInput(event) {
+      event.target.parentElement.classList.remove('border-bottom--cancel')
+    },
+  },
+}
+</script>
+
 <style scoped lang="scss">
 .tabar-container {
   margin-bottom: 35px;
@@ -119,6 +163,7 @@
   background-color: transparent;
 }
 </style>
+
 <style lang="scss">
 .el-dropdown-menu.collection-dropdown {
   background: #333;
@@ -165,47 +210,3 @@
   }
 }
 </style>
-
-<script>
-import { mapState } from 'vuex'
-
-export default {
-  props: [
-    'data',
-    'currentTab',
-    'handleTab',
-    'handleSearch',
-    'collectionData',
-    'handleCollection',
-    'searchValue',
-    'handleSearchValue',
-  ],
-  data() {
-    return {
-      search: null,
-      sellOrders: [],
-    }
-  },
-  watch: {
-    search(newSearch, oldSearch) {
-      console.log(newSearch)
-    },
-  },
-  methods: {
-    debounceSearch(event) {
-      this.handleSearchValue(event.target.value)
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(() => {
-        this.handleSearch(event.target.value)
-        // search function
-      }, 600)
-    },
-    focusInput(event) {
-      event.target.parentElement.classList.add('border-bottom--cancel')
-    },
-    blurInput(event) {
-      event.target.parentElement.classList.remove('border-bottom--cancel')
-    },
-  },
-}
-</script>

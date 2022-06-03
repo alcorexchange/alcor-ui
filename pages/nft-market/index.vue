@@ -12,35 +12,39 @@
     .spinner-border(role='status')
       span.sr-only Loading...
   h1.recent-title(v-if='filteredOrders.length') Recent Listenings
-  VueSlickCarousel(v-if='filteredOrders.length', v-bind='settings')
-    .d-flex.justify-content-center(
-      v-for='(item, index) in filteredOrders.slice(0, 5)',
-      :key='index'
-    )
-      NormalCard(
-        v-if='item',
-        :data='item',
-        :price='getPrice',
-        :kindBut='"sales"'
-      )
+  CatCarousel.nft-market-carousel(
+    v-if='filteredOrders.length',
+    :items='filteredOrders.slice(0, 5)',
+    :item-per-page='4',
+    :indicators-config='{ hideIndicators: true }'
+  )
+    template(slot='item', slot-scope='{ data, index }')
+        NormalCard(
+          v-if='data',
+          :data='data',
+          :price='getPrice',
+          :kindBut='"sendoffer"'
+        )
   h1.recent-title(v-if='filteredOrders.length') New NFTs
-  VueSlickCarousel(v-if='filteredOrders.length', v-bind='settings')
-    .d-flex.justify-content-center(
-      v-for='(item, index) in filteredOrders.reverse().slice(0, 5)',
-      :key='index'
-    )
-      NormalCard(
-        v-if='item',
-        :data='item',
-        :price='getPrice',
-        :kindBut='"sendoffer"'
-      )
+  CatCarousel.nft-market-carousel(
+    v-if='filteredOrders.length',
+    :items='filteredOrders.reverse().slice(0, 5)',
+    :item-per-page='4',
+    :indicators-config='{ hideIndicators: true }'
+  )
+    template(slot='item', slot-scope='{ data, index }')
+        NormalCard(
+          v-if='data',
+          :data='data',
+          :price='getPrice',
+          :kindBut='"sendoffer"'
+        )
 </template>
 
 <script>
 import { mapState } from 'vuex'
 // import axios from 'axios'
-import VueSlickCarousel from 'vue-slick-carousel'
+import { CatCarousel } from 'vue-cat-carousel'
 import NftCard from '~/components/nft_markets/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
 import NormalCard from '~/components/nft_markets/NormalCard'
@@ -49,15 +53,13 @@ import Img2 from '~/assets/images/wallet.webm'
 import Img3 from '~/assets/images/nft_explorer.webm'
 import Img4 from '~/assets/images/nft.webm'
 import subImg from '~/assets/icons/wax.png'
-import 'vue-slick-carousel/dist/vue-slick-carousel.css'
-import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
 
 export default {
   components: {
     NftCard,
     NftRelation,
     NormalCard,
-    VueSlickCarousel,
+    CatCarousel,
   },
 
   data() {
@@ -294,10 +296,41 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .nft-container {
   margin-top: 30px;
 }
+.nft-market-carousel {
+  .cat-carousel__navigation {
+    display: block !important;
+    .cat-carousel__default-nav {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      width: 17px;
+      height: 29px;
+      img {
+        display: none;
+      }
+    }
+    &.cat-carousel__navigation {
+      left: -38px;
+      .cat-carousel__default-nav {
+        background: url('~/assets/images/LeftArrow.svg') !important;
+        background-size: cover;
+      }
+      &.cat-carousel__navigation__next {
+        left: auto;
+        right: -38px;
+        .cat-carousel__default-nav {
+          background: url('~/assets/images/RightArrow.svg') !important;
+          background-size: cover;
+        }
+      }
+    }
+  }
+}
+
 .nft-container .grid-container {
   display: flex;
   justify-content: space-between;

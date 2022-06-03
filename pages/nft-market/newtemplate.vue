@@ -1,7 +1,7 @@
 <template lang="pug">
 .j-container.createcollection
   div
-    nuxt-link(:to='"/nft-market/schemaview"' :exact="true")
+    nuxt-link(:to='"/nft-market/schemaview"', :exact='true')
       a#return-btn Return - Schema: Diamnd
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
@@ -17,50 +17,76 @@
             span.more-button Buy more
             span.plus-icon.border-radius5 +
         b-progress(:max='100')
-          b-progress-bar(:value='value' :label='`${value}%`')
+          b-progress-bar(:value='value', :label='`${value}%`')
   .card-group.d-flex.justify-content-between
     .d-flex.align-items-start
       .nftcard.create-collections.border-radius5
-        .border-radius5(style='position:relative;height:100%;overflow-y:auto;' @dragover.prevent='' @drop.prevent='')
-          UploadImages(@change="handleImages")
-          label.card-content
-            .creation-background(:style="{ backgroundImage:`url(${require('~/assets/images/createcollection.svg')})`}")
-            h4 Add Template image
-            h5 (set image attribute))
+        //- .border-radius5(style='position:relative;height:100%;overflow-y:auto;' @dragover.prevent='' @drop.prevent='')
+        //-   UploadImages(@change="handleImages")
+        //-   label.card-content
+        //-     .creation-background(:style="{ backgroundImage:`url(${require('~/assets/images/createcollection.svg')})`}")
+        //-     h4 Add Template image
+        //-     h5 (set image attribute))
+        el-upload.avatar-uploader(
+          action='#',
+          :auto-upload='false',
+          :show-file-list='fileList.length ? true : false',
+          :on-change='handleUpload',
+          :loading='loading',
+          :file-list='fileList',
+          :on-remove='handleFileRemove',
+          list-type='picture',
+          drag
+        )
+        label.card-content
+          .creation-background(
+            :style='{ backgroundImage: `url(${require("~/assets/images/createcollection.svg")})` }'
+          )
+          h4 Add collection image
+          h5 (click to browse)
       .nftcard.nft-form-group
         .nft-input-group
           h4 Max Supply
-          input(:type="'text'" placeholder="Infinite ∞")
+          input(:type='"text"', placeholder='Infinite ∞')
     .nft-form-group
       .nft-checkbox-item.d-flex.align-items-center
-        .nft-checkbox(@click="transfered_state = !transfered_state")
-          .checked-img(v-if="transfered_state" :style="{ backgroundImage:`url(${require('~/assets/images/checked.svg')})`}")
+        .nft-checkbox(@click='transfered_state = !transfered_state')
+          .checked-img(
+            v-if='transfered_state',
+            :style='{ backgroundImage: `url(${require("~/assets/images/checked.svg")})` }'
+          )
         p NFTs can be Transferred
-        .form-group_image(:style="{ backgroundImage:`url(${require('~/assets/images/fire.svg')})`}")
+        .form-group_image(
+          :style='{ backgroundImage: `url(${require("~/assets/images/fire.svg")})` }'
+        )
       .nft-checkbox-item.d-flex.align-items-center
-        .nft-checkbox(@click="burned_state = !burned_state")
-          .checked-img(v-if="burned_state" :style="{ backgroundImage:`url(${require('~/assets/images/checked.svg')})`}")
+        .nft-checkbox(@click='burned_state = !burned_state')
+          .checked-img(
+            v-if='burned_state',
+            :style='{ backgroundImage: `url(${require("~/assets/images/checked.svg")})` }'
+          )
         p NFTs can be Burned
-        .form-group_image(:style="{ backgroundImage:`url(${require('~/assets/images/double_arrow.svg')})`}")
+        .form-group_image(
+          :style='{ backgroundImage: `url(${require("~/assets/images/double_arrow.svg")})` }'
+        )
       .create-template-btn Create Template
   .add-attribute_header
     .row.add-attribute_header.d-flex
       p Attributes
   .add-attribute_content
-    .row.d-flex.align-items-center.justify-content-between(v-for='(item, index) in attribute_data' :key='index')
-      p.name-button {{item['name']}}
+    .row.d-flex.align-items-center.justify-content-between(
+      v-for='(item, index) in attribute_data',
+      :key='index'
+    )
+      p.name-button {{ item["name"] }}
       p :
       input.input-attribute(placeholder='insert attribute name')
 </template>
 
 <script>
-import UploadImages from "vue-upload-drop-images"
+import axios from 'axios'
 
 export default {
-  components: {
-    UploadImages,
-  },
-
   data() {
     return {
       value: 73,
@@ -68,22 +94,100 @@ export default {
       transfered_state: true,
       burned_state: true,
       attribute_data: [
-        { id: 0, name: 'name', },
-        { id: 1, name: 'image', },
-        { id: 2, name: 'Clean', },
-        { id: 3, name: 'Back', },
-      ]
+        { id: 0, name: 'name' },
+        { id: 1, name: 'image' },
+        { id: 2, name: 'Clean' },
+        { id: 3, name: 'Back' },
+      ],
+      loading: false,
+      fileList: [],
     }
   },
   methods: {
     handleImages(e) {
-      console.log("came here")
-    }
-  }
+      console.log('came here')
+    },
+    handleFileRemove(file, fileList) {
+      const fileArray = []
+      fileList.map((item) => fileArray.push({ url: item.url }))
+      this.fileList = fileArray
+    },
+    async handleUpload(e) {
+      const formData = new FormData()
+      formData.append('image', e.raw)
+      try {
+        const data = await axios.put(
+          'https://ipfs-gateway.pink.gg/v1/upload',
+          formData
+        )
+        this.fileList.push({
+          url: 'https://gateway.pinata.cloud/ipfs/' + data.data.data,
+        })
+      } catch (e) {
+        console.error('Get symbol info error', e)
+      }
+    },
+  },
 }
 </script>
 
 <style lang="scss">
+.avatar-uploader {
+  width: 100%;
+  height: calc(100% - 6px);
+  .el-upload {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    :hover {
+      border-color: #409eff;
+    }
+  }
+  .el-upload-list__item {
+    border: 0;
+  }
+  .el-upload-dragger {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .el-upload-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background-color: #202021;
+    overflow-y: auto;
+    li {
+      background-color: transparent;
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      &:first-child {
+        margin-top: 0;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-left: 0;
+      }
+    }
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+}
 .createcollection {
   .row.add-attribute_header.d-flex {
     margin: 32px 0 21px;
@@ -161,7 +265,8 @@ export default {
     background: #202021 !important;
   }
   .beforeUpload {
-    svg, p {
+    svg,
+    p {
       display: none !important;
     }
   }
@@ -180,7 +285,7 @@ export default {
   }
   label.card-content {
     position: absolute;
-    background-color:#202021;
+    background-color: #202021;
     top: 0;
     height: 100%;
   }
@@ -220,15 +325,14 @@ export default {
     color: #000;
     font-size: 13px;
     font-weight: 500;
-    background: #67C23A;
+    background: #67c23a;
     border-radius: 8px;
     cursor: pointer;
   }
   .color-red {
     color: red;
   }
-  .creation-background
-  {
+  .creation-background {
     width: 110px;
     height: 107px;
     margin: auto;
@@ -240,7 +344,7 @@ export default {
   }
   .almemes h4 {
     margin: 30px 0 0 !important;
-    color: #67C23A;
+    color: #67c23a;
   }
   .card-content {
     width: 100%;
@@ -252,7 +356,7 @@ export default {
       margin: 10px 0 !important;
     }
     h5 {
-      color: #9F979A;
+      color: #9f979a;
     }
   }
   #return-btn::before {
@@ -281,14 +385,14 @@ export default {
     margin-top: 4px;
     background-color: #161617;
     .progress-bar {
-      background-color: #67C23A;
+      background-color: #67c23a;
       color: black;
     }
   }
   .ques-symbol {
     padding: 6px;
     margin-right: 6px;
-    color: #9F979A;
+    color: #9f979a;
     background-color: #202021;
     margin-right: 6px;
     font-weight: 700;
@@ -303,7 +407,7 @@ export default {
     margin-bottom: 6px;
   }
   .more-button {
-    color: #67C23A;
+    color: #67c23a;
     margin-right: 8px;
     font-size: 14px;
   }
@@ -311,15 +415,17 @@ export default {
     font-size: 16px;
     padding: 3px 4px;
     color: black;
-    background-color: #67C23A;
+    background-color: #67c23a;
   }
   .nftcard {
     width: 300px;
     height: 300px;
-    border: 1px solid #67C23A;
+    border: 1px solid #67c23a;
   }
   .create-collections {
     margin-right: 25px;
+    position: relative;
+    overflow: hidden;
   }
 }
 </style>

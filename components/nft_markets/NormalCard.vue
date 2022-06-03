@@ -12,7 +12,7 @@ nuxt-link.normalcard.radius10(
   .main-img.radius10(v-else, :style='defaultBackground')
   .offer-information(v-if='mode === "sets"')
     p.wax-name.text-center.mt-3.text-white {{ cardName }}
-.normalcard.radius10(v-else)
+div(v-else, :class="['normalcard', 'radius10', (mode === 'assetsInventory' && cardState === 'disable') ? 'grey-mode' : '']")
   header.d-flex.justify-content-between.mb-1(
     v-if='mode != "templates" && mode != "sets" && mode != "setsList"'
   )
@@ -44,12 +44,12 @@ nuxt-link.normalcard.radius10(
       p(v-else-if='mode === "inventory"') Purchase price
       p(v-else-if='mode === "listings"') Listed Price
     .d-flex.justify-content-between(
-      v-if='mode === "sold" || mode === "bought" || mode === "setsList"'
+      v-if='mode === "sold" || mode === "bought" || mode === "setsList" || mode === "assetsInventory"'
     )
       p.default-price {{ cardName }}
       p {{ collectionName }}
     .d-flex.justify-content-between(
-      v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
+      v-if='mode != "sold" && mode != "bought" && mode != "setsList" && mode != "assetsInventory"'
     )
       p.wax-name {{ cardName }}
       p.wax-price(
@@ -57,7 +57,7 @@ nuxt-link.normalcard.radius10(
       )
         | {{ new Intl.NumberFormat().format(waxPrice) }}WAX
     .d-flex.justify-content-between(
-      v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
+      v-if='mode != "sold" && mode != "bought" && mode != "setsList" && mode != "assetsInventory"'
     )
       p(v-if='mode != "schemas"') Default
       p.default-price(
@@ -110,16 +110,22 @@ nuxt-link.normalcard.radius10(
         span More
         i.el-icon-arrow-down.el-icon--right
       el-dropdown-menu(slot='dropdown')
+        nuxt-link.dropdown-item.d-flex.align-items-center(to='/wallet-inventory/trade-offer')
+          .d-flex.align-items-center
+            img(src='~/assets/images/SendOffer.svg')
+            p.mb-0 Send Trade Offer
         nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Craft
+          .d-flex.align-items-center
+            img(src='~/assets/images/Transfer.svg')
+            p.mb-0 Transfer
         nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Transfer
+          .d-flex.align-items-center
+            img(src='~/assets/images/GiftLink.svg')
+            p.mb-0 Create Gift Link
         nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 New Trade
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Create Gift Link
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Burn
+          .d-flex.align-items-center
+            img(src='~/assets/images/Burn.svg')
+            p.mb-0 Burn
     el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
       trigger='click'
     )(
@@ -153,7 +159,7 @@ nuxt-link.normalcard.radius10(
     ) Details
 
     button.btn-border--green.mr10.radius6.smaller-btn(
-      v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
+      v-if='mode != "inventory" && mode != "bought" && mode != "setsList" && mode != "assetsInventory"'
     ) Details
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
@@ -161,20 +167,22 @@ nuxt-link.normalcard.radius10(
       v-if='mode == "bought" || mode === "setsList"'
     ) Detail
     button.btn-fill--green.bigger-btn.radius6(
-      v-if='kindBut != "sales" && kindBut != "auctions" && mode != "inventory" && mode != "listings" && mode != "auctions" && mode != "sold" && mode != "bought" && mode != "setsList"'
+      v-if='kindBut != "sales" && kindBut != "auctions" && mode != "inventory" && mode != "listings" && mode != "auctions" && mode != "sold" && mode != "bought" && mode != "setsList" && mode != "setsList" && mode != "assetsInventory"'
     ) Send Offer
     button.btn-border--green.bigger-btn.radius6(v-if='mode === "setsList"') Inventory
     button.btn-fill--green.radius6(v-if='mode == "setsList"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "sold"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions"') Make Offer
+    button.btn-border--green.bigger-btn.radius6(v-if='mode === "assetsInventory"') Details
+    button.btn-fill--green.smaller-btn.radius6(v-if='mode === "assetsInventory"', @click="() => addTrade(data)") Add
 </template>
 
 <script>
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data', 'price', 'kindBut', 'mode'],
+  props: ['data', 'price', 'kindBut', 'mode', 'addTrade', 'cardState'],
 
   data() {
     return {
@@ -198,7 +206,11 @@ export default {
         if (this.data.immutable_data.video) {
           return this.data.immutable_data
         } else return false
-      } else if (this.mode === 'inventory' || this.mode === 'sets') {
+      } else if (
+        this.mode === 'inventory' ||
+        this.mode === 'sets' ||
+        this.mode === 'assetsInventory'
+      ) {
         if (this.data.data.video) {
           return this.data.data
         } else return false
@@ -226,7 +238,11 @@ export default {
                 ')',
           }
         } else return false
-      } else if (this.mode === 'inventory' || this.mode === 'sets') {
+      } else if (
+        this.mode === 'inventory' ||
+        this.mode === 'sets' ||
+        this.mode === 'assetsInventory'
+      ) {
         if (this.data.data.img) {
           return {
             backgroundSize: 'cover',
@@ -301,17 +317,18 @@ export default {
     mintCount() {
       let string = ''
       if (this.mode === 'market') {
-        string = this.data.assets[0].template_mint
-      } else if (this.mode === 'assets' || this.mode === 'inventory') {
-        string = this.data.template_mint
+        string = this.data.assets[0].template_mint || 0
+      } else if (this.mode === 'assets' || this.mode === 'inventory' || this.mode === 'assetsInventory') {
+        string = this.data.template_mint || 0
       } else if (
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
         this.mode === 'sold' ||
         this.mode === 'bought'
       ) {
-        string = this.data.assets[0]?.template_mint
+        string = this.data.template_mint || 0
       } else string = this.data.id || 0
+      console.log("====================================> ", string)
       if (string.length > 4) {
         return string.substr(0, 1) + '...' + string.substr(-3)
       } else {
@@ -321,12 +338,14 @@ export default {
     cardTitle() {
       if (this.mode === 'market') {
         return this.data.seller
-      } else if (this.mode === 'assets') {
+      } else if (
+        this.mode === 'assets' ||
+        this.mode === 'inventory' ||
+        this.mode === 'assetsInventory'
+      ) {
         return this.data.owner
       } else if (this.mode === 'schemas') {
         return this.data.collection.author
-      } else if (this.mode === 'inventory') {
-        return this.data.owner
       } else if (
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
@@ -383,14 +402,16 @@ export default {
         this.mode === 'assets' ||
         this.mode === 'templates' ||
         this.mode === 'inventory' ||
+        this.mode === 'assetsInventory' ||
         this.mode === 'sets' ||
         this.mode === 'setsList'
       ) {
         return this.data.name
       } else if (this.mode === 'schemas') {
         return this.data.collection.name
-      }
-      return this.data.sell[0].owner
+      } else if (this.data.sell[0].owner) {
+        return this.data.sell[0].owner
+      } else return 'None'
     },
     bestOffer() {
       if (this.mode === 'listings' || this.mode === 'auctions') {
@@ -426,6 +447,8 @@ export default {
     collectionName() {
       if (this.mode === 'setsList') {
         return this.data.collection.name
+      } else if (this.mode === 'assetsInventory') {
+        return this.data.contract
       } else return 'Alcorex'
     },
     maxSupply() {
@@ -445,7 +468,33 @@ export default {
 </script>
 
 <style lang="scss">
+.el-dropdown-menu {
+  width: 130px;
+  padding: 0 !important;
+  border: 1px solid rgba(60, 60, 67, 0.36) !important;
+  .popper__arrow {
+    display: none !important;
+  }
+  .dropdown-item {
+    height: 30px;
+    padding: 0 8px;
+    &:not(.dropdown-item:last-of-type) {
+      border-bottom: 1px solid rgba(60, 60, 67, 0.36);
+    }
+    &:hover {
+      background-color: #3c3c43;
+    }
+    p {
+      font-size: 12px;
+      color: #ffffff;
+      margin-left: 8px;
+    }
+  }
+}
 .normalcard {
+  &.grey-mode {
+    filter: grayscale(1);
+  }
   width: 220px;
   padding: 6px 10px;
   background-color: #202021;
