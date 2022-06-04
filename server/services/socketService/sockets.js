@@ -54,7 +54,7 @@ export function subscribe(io, socket, client) {
         throw e
       }
 
-      const orderbook = Object.values(Object.fromEntries(entries))
+      const orderbook = Object.values(Object.fromEntries(entries)).slice(0, 1000) // Limit for now
 
       socket.emit(`orderbook_${side}`, orderbook)
       socket.join(`orderbook:${chain}.${side}.${market}`)
