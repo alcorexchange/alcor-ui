@@ -9,6 +9,7 @@ import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { Market } from '../../models'
 import { networks } from '../../../config'
 import { littleEndianToDesimal, parseAsset } from '../../../utils'
+import { fetchAllRows } from '../../../utils/eosjs'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -112,14 +113,13 @@ async function getOrders({ chain, market_id, side }) {
   const network = networks[chain]
   const rpc = getRpc(network)
 
-  const { rows } = await rpc.get_table_rows({
+  const rows = await fetchAllRows(rpc, {
     code: network.contract,
     scope: market_id,
-    table: `${side}order`,
-    limit: 1000,
-    key_type: 'i128',
-    index_position: 2
+    table: `${side}order`
   })
+
+  console.log('rows', rows.length)
 
   return rows.map((b) => {
     b.ask = parseAsset(b.ask)
@@ -152,6 +152,8 @@ export async function main() {
   await subscriber.connect()
 
   //initialUpdate()
+  // FIXME JUST FOR TEST
+  updateOrders('sell', 'wax', 106)
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')

@@ -1,7 +1,7 @@
-const MAX_PAGINATION_FETCHES = 999999
+const MAX_PAGINATION_FETCHES = 5
 
 export const fetchAllRows =
-  (network) => async (rpc, options, indexName = 'id') => {
+  async (rpc, options, indexName = 'id') => {
     const mergedOptions = {
       json: true,
       lower_bound: 0,
@@ -15,6 +15,7 @@ export const fetchAllRows =
 
     /* eslint-disable no-await-in-loop */
     for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
+      console.log('get rows call: ', i)
       const result = await rpc.get_table_rows({
         ...mergedOptions,
         lower_bound: lowerBound
@@ -38,7 +39,7 @@ export const fetchAllRows =
     return rows
   }
 
-export const fetchAllScopes = (network) => async (rpc, contract, table) => {
+export const fetchAllScopes = async (rpc, contract, table) => {
   const mergedOptions = {
     json: true,
     lower_bound: undefined,
