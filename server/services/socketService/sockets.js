@@ -54,6 +54,7 @@ export function subscribe(io, socket, client) {
         throw e
       }
 
+      // TODO Implement with http query (with limit by user)
       const orderbook = Object.values(Object.fromEntries(entries)).slice(0, 1000) // Limit for now
 
       socket.emit(`orderbook_${side}`, orderbook)
