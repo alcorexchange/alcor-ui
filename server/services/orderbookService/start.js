@@ -119,8 +119,6 @@ async function getOrders({ chain, market_id, side }) {
     table: `${side}order`
   })
 
-  console.log('rows', rows.length)
-
   return rows.map((b) => {
     b.ask = parseAsset(b.ask)
     b.bid = parseAsset(b.bid)
@@ -153,7 +151,7 @@ export async function main() {
 
   //initialUpdate()
   // FIXME JUST FOR TEST
-  updateOrders('sell', 'wax', 106)
+  //updateOrders('sell', 'wax', 126)
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')

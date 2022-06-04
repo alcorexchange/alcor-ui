@@ -4,6 +4,7 @@ import express from 'express'
 import consola from 'consola'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
+import { createClient } from 'redis'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -31,6 +32,11 @@ async function start () {
       console.log(e)
       throw new Error('MongoDB connect err')
     }
+
+    // REDIS client shared globally
+    const redis = createClient()
+    await redis.connect()
+    app.set('redisClient', redis)
   }
 
   app.use(networkResolver)
