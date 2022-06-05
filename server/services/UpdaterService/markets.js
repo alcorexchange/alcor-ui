@@ -81,7 +81,7 @@ export async function getChangeFrom(date, market, chain) {
     const price_before = date_deal.unit_price
     const price_after = last_deal.unit_price
 
-    return ((price_after - price_before) / price_before) * 100
+    return (((price_after - price_before) / price_before) * 100).toFixed(2)
   } else {
     return 0
   }
