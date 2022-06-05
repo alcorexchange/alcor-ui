@@ -1,45 +1,51 @@
-<template lang="pug">
-.j-container
-  div
-    nuxt-link(:to='"/nft-market"', :exact='true')
-      a#return-btn Return
-    h4 Explorer
-  ExplorerTab(
-    :data='data',
-    :currentTab='currentTab',
-    :handleTab='handleTab',
-    :collectionData='collectionData',
-    :handleCollection='handleCollection',
-    :searchValue='search',
-    :handleSearch='handleSearch',
-    :handleSearchValue='handleSearchValue'
-  )
-  .grid-container(v-if='loading')
-    CustomSkeletonVue(v-for='item in 12', :key='item', :width='220', :height='380',)
-  .grid-container(v-else)
-    .d-flex.justify-content-center(
-      v-if='currentTab === "all" || currentTab === "assets"',
-      v-for='(item, index) in assetsData',
-      :key='"assets-" + index'
+<template lang='pug'>
+  .j-container
+    div
+      nuxt-link(:to='"/nft-market"', :exact='true')
+        a#return-btn Return
+      h4 Explorer
+    ExplorerTab(
+      :data='data',
+      :currentTab='currentTab',
+      :handleTab='handleTab',
+      :collectionData='collectionData',
+      :handleCollection='handleCollection',
+      :searchValue='search',
+      :handleSearch='handleSearch',
+      :handleSearchValue='handleSearchValue'
     )
-      NormalCard(v-if='item', :data='item', :price='getPrice', mode='assets')
-    .d-flex.justify-content-center(
-      v-if='currentTab === "all" || currentTab === "templates"',
-      v-for='(item, index) in templatesData',
-      :key='"templates-" + index'
-    )
-      NormalCard(
-        v-if='item',
-        :data='item',
-        :price='getPrice',
-        mode='templates'
+    .grid-container(v-if='loading')
+      CustomSkeletonVue(v-for='item in 12', :key='item', :width='220', :height='380',)
+    .grid-container(v-else)
+      .d-flex.justify-content-center(
+        v-if='currentTab === "all" || currentTab === "assets"',
+        v-for='(item, index) in assetsData',
+        :key='"assets-" + index'
       )
-    .d-flex.justify-content-center(
-      v-if='currentTab === "all" || currentTab === "schemas"',
-      v-for='(item, index) in schemasData',
-      :key='"schemas-" + index'
-    )
-      NormalCard(v-if='item', :data='item', :price='getPrice', mode='schemas')
+        NormalCard(v-if='item', :data='item', :price='getPrice', mode='assets',
+          :getOverData='getInventoryOverData'
+          :overData='overData')
+      .d-flex.justify-content-center(
+        v-if='currentTab === "all" || currentTab === "templates"',
+        v-for='(item, index) in templatesData',
+        :key='"templates-" + index'
+      )
+        NormalCard(
+          v-if='item',
+          :data='item',
+          :price='getPrice',
+          mode='templates',
+          :getOverData='getInventoryOverData'
+          :overData='overData'
+        )
+      .d-flex.justify-content-center(
+        v-if='currentTab === "all" || currentTab === "schemas"',
+        v-for='(item, index) in schemasData',
+        :key='"schemas-" + index'
+      )
+        NormalCard(v-if='item', :data='item', :price='getPrice', mode='schemas',
+          :getOverData='getInventoryOverData'
+          :overData='overData')
 </template>
 
 <script>
@@ -73,11 +79,12 @@ export default {
       schemasData: [],
       currentCollectionName: '',
       limit: 40,
+      overData: '',
       data: {
         searchIcon: searchImg,
         filterIcon: filterImg,
-        downIcon: downImg,
-      },
+        downIcon: downImg
+      }
     }
   },
 
@@ -86,17 +93,18 @@ export default {
       this.currentCollectionName = ''
       this.search = ''
       this.getData()
-    },
+    }
   },
 
+  // eslint-disable-next-line vue/order-in-components
   computed: {
-    ...mapState(['network']),
+    ...mapState(['network', 'user']),
     ...mapState('wallet', ['systemPrice']),
 
     getPrice() {
       let price = this.systemPrice
       return price
-    },
+    }
   },
 
   mounted() {
@@ -107,6 +115,45 @@ export default {
   methods: {
     handleTab(value) {
       this.currentTab = value
+    },
+    async getInventoryOverData(params) {
+      this.overData = ''
+      const templateStats = await this.getTemplateStats(params.collection_name, params.template_id)
+      const specificAsset = await this.getSpecificAsset(params.collection_name, params.template_id)
+      const assetsSales = await this.getAssetsSales(params.asset_id)
+      const saleData = await this.getOverSale(params.collection_name, params.template_id)
+      this.overData = {
+        templateStats,
+        specificAsset,
+        assetsSales,
+        saleData
+      }
+    },
+
+    async getTemplateStats(collection_name, template_id) {
+      return await this.$store.dispatch('api/getTemplateStats', {
+        collection_name, template_id
+      })
+    },
+
+    async getSpecificAsset(collection_name, template_id) {
+      return await this.$store.dispatch('api/getAssets', {
+        owner: this.user.name,
+        collection_name,
+        template_id
+      })
+    },
+
+    async getAssetsSales(asset_id) {
+      return await this.$store.dispatch('api/getAssetsSales', {
+        asset_id
+      })
+    },
+
+    async getOverSale(collectionName, template_id) {
+      return await this.$store.dispatch('api/getSaleData', {
+        collectionName, template_id, symbol: 'WAX', state: 1, limit: 1
+      })
     },
 
     handleSearchValue(value) {
@@ -141,7 +188,7 @@ export default {
 
     async getCollectionData() {
       const data = await this.$store.dispatch('api/getCollectionData', {
-        author: '',
+        author: ''
       })
       this.collectionData = data
     },
@@ -151,7 +198,7 @@ export default {
       const data = await this.$store.dispatch('api/getAssetsData', {
         limit: this.limit,
         search: this.search,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.assetsData = data
       this.loading = false
@@ -162,7 +209,7 @@ export default {
       const data = await this.$store.dispatch('api/getTemplatesData', {
         limit: this.limit,
         search: this.search,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.templatesData = data
       this.loading = false
@@ -173,7 +220,7 @@ export default {
       const data = await this.$store.dispatch('api/getSchemasData', {
         limit: this.limit,
         search: this.search,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.schemasData = data
       this.loading = false
@@ -184,11 +231,11 @@ export default {
       const data = await this.$store.dispatch('api/getAccountsData', {
         limit: this.limit,
         search: this.search,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.accountsData = data
       this.loading = false
-    },
+    }
   },
 
   head() {
@@ -199,18 +246,19 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: 'Atomic, no fee, NFT marketplace.',
-        },
-      ],
+          content: 'Atomic, no fee, NFT marketplace.'
+        }
+      ]
     }
-  },
+  }
 }
 </script>
 
-<style lang="scss">
+<style lang='scss'>
 #return-btn::before {
   content: '←';
 }
+
 #return-btn {
   font-weight: 500;
   font-size: 14px;
@@ -218,9 +266,11 @@ export default {
   cursor: pointer;
   padding-left: 10px;
 }
+
 h4 {
   margin: 32px 0;
 }
+
 div.grid-container {
   display: grid;
   grid-template-columns: auto auto auto auto;
