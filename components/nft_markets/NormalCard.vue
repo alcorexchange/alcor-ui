@@ -130,9 +130,7 @@
     .btn-group.justify-content-between.flex-wrap.w-100
       button.btn-fill--grey.w-50.mr10.radius6(v-if='mode === "inventory"') Sell NFT
       el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
-        trigger='click'
-      )(
-        v-if='mode === "inventory"'
+        trigger='click', v-if='mode === "inventory"'
       )
         span.el-dropdown-link
           span More
@@ -155,9 +153,7 @@
               img(src='~/assets/images/Burn.svg')
               p.mb-0 Burn
       el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
-        trigger='click'
-      )(
-        v-if='mode === "friends"'
+        trigger='click', v-if='mode === "friends"'
       )
         span.el-dropdown-link
           span More
@@ -186,13 +182,17 @@
         :to='"/nfts/" + data.asset_id'
       ) Details
       nuxt-link.btn-border--green.w-100.radius6.mb-2.text-white.text-center(
-        v-if='mode === "listings" || mode === "auctions" || mode === "sold" || mode === "bought"'
+        v-if=' mode === "bought"'
+        :to='"/nfts/" + data.assets[0].asset_id'
+      ) Detail
+      nuxt-link.btn-border--green.mr10.radius6.smaller-btn.text-white.text-center(
+        v-if='mode === "listings" || mode === "auctions" || mode === "sold"'
         :to='"/nfts/" + data.assets[0].asset_id'
       ) Detail
       nuxt-link.btn-border--green.w-100.radius6.text-white.text-center(v-if='mode === "sets"', :to='"#sets-" + data.collection_name') View Set
 
       button.btn-border--green.mr10.radius6.smaller-btn(
-        v-if='mode !== "inventory" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
+        v-if='mode !== "inventory" && mode !== "listings" && mode !== "auctions" && mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
       ) Details
       button.btn-fill--green.bigger-btn.radius6(v-if='mode === "market-sales"') Buy
       button.btn-fill--green.bigger-btn.radius6(v-if='mode === "market-auctions"') Make Offer
@@ -323,7 +323,7 @@ export default {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundImage: this.data.immutable_data.img.includes('https://')
-              ? this.data.immutable_data.img
+              ? 'url(' + this.data.immutable_data.img + ')'
               : 'url(https://ipfs.atomichub.io/ipfs/' +
               this.data.immutable_data.img +
               ')'
@@ -896,6 +896,7 @@ export default {
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.25);
   padding: 16px;
   overflow-y: auto;
+
   .popover__top-panel {
     .main-img {
       min-width: 156px;
