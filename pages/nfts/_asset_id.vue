@@ -228,30 +228,16 @@ export default {
   },
   computed: {
     imageBackground() {
-      if (this.detailType === 'inventory') {
-        if (this.assetData && this.assetData.data.img) {
-          return {
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundImage: this.assetData.data.img.includes('https://')
-              ? this.assetData.data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
-              this.assetData.data.img +
-              ')'
-          }
-        } else return false
-      } else if (this.detailType === 'sales') {
-        if (this.assetData && this.assetData.data.img) {
-          return {
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundImage: this.assetData.data.img.includes('https://')
-              ? this.assetData.data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
-              this.assetData.data.img +
-              ')'
-          }
-        } else return false
+      if (this.assetData && this.assetData.data.img) {
+        return {
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundImage: this.assetData.data.img.includes('https://')
+            ? this.assetData.data.img
+            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            this.assetData.data.img +
+            ')'
+        }
       } else return false
     },
     thumbnailImage() {
@@ -269,79 +255,57 @@ export default {
     },
     nftName() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.name
-        } else return ''
+        return this.assetData.name
       } else return ''
     },
     id() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.asset_id
-        } else return ''
+        return this.assetData.asset_id
       } else return ''
     },
     collectionName() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.collection.name
-        } else return ''
+        return this.assetData.collection.name
       } else return ''
     },
     schemaName() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.schema.schema_name
-        } else return ''
+        return this.assetData.schema.schema_name
       } else return ''
     },
     owner() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.owner
-        } else return ''
+        return this.assetData.owner
       } else return ''
     },
     template_mint() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.template_mint
-        } else return ''
+        return this.assetData.template_mint
       } else return ''
     },
     issued_supply() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.template.issued_supply
-        } else return ''
+        return this.assetData.template.issued_supply
       } else return ''
     },
     max_supply() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.template.max_supply
-        } else return ''
+        return this.assetData.template.max_supply
       } else return ''
     },
     template_id() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.template.template_id
-        } else return ''
+        return this.assetData.template.template_id
       } else return ''
     },
     is_transferable() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.template.is_transferable
-        } else return ''
+        return this.assetData.template.is_transferable
       } else return ''
     },
     is_burnable() {
       if (this.assetData) {
-        if (this.detailType === 'inventory') {
-          return this.assetData.template.is_burnable
-        } else return ''
+        return this.assetData.template.is_burnable
       } else return ''
     },
     backedToken() {
@@ -375,13 +339,7 @@ export default {
   mounted() {
     console.log(this.$route.params)
     this.asset_id = this.$route.params.asset_id
-    const detailType = this.$route.params.detail_type
-    this.detailType = detailType
-    if (detailType === 'inventory') {
-      this.getAssetData()
-    } else if (detailType === 'sales') {
-      this.getAssetData()
-    }
+    this.getAssetData()
   },
   methods: {
     outofmodalclick(event) {

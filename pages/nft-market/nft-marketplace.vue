@@ -25,8 +25,7 @@
           v-if='item',
           :data='item',
           :price='getPrice',
-          :kindBut='currentTab',
-          mode='market',
+          :mode='currentTab',
           :getOverData='getInventoryOverData'
           :overData='overData'
         )
@@ -52,7 +51,7 @@ export default {
   data() {
     return {
       search: '',
-      currentTab: 'sales',
+      currentTab: 'market-sales',
       marketData: [],
       loading: true,
       collectionData: [],
@@ -79,7 +78,7 @@ export default {
     currentTab(newCurrnetTab, oldCurrentTab) {
       this.currentCollectionName = ''
       this.search = ''
-      if (newCurrnetTab === 'sales') {
+      if (newCurrnetTab === 'market-sales') {
         this.getSaleData()
       } else {
         this.getAuctionData()

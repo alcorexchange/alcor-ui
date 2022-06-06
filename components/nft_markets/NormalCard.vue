@@ -1,6 +1,6 @@
 <template lang='pug'>
   div(:class="['normalcard', 'radius10', (mode === 'assetsInventory' && cardState === 'disable') ? 'grey-mode' : (mode === 'sets') ? 'middle-width' : '']")
-    el-popover(placement='right', trigger="hover", :disabled='!(mode === "inventory" || mode === "templates" || mode === "assets" || mode === "market" || mode === "setsList" || mode === "listings" || this.mode === "sold" || this.mode === "auctions" || this.mode === "bought")', :openDelay='500' )
+    el-popover(placement='right', trigger="hover", :disabled='!(mode === "inventory" || mode === "templates" || mode === "assets" || mode === "market-sales" || mode === "market-auctions" || mode === "setsList" || mode === "listings" || this.mode === "sold" || this.mode === "auctions" || this.mode === "bought")', :openDelay='500' )
       .popover-panel
         .popover__top-panel.d-flex
           video(:class="['main-img', 'radius10', (mode === 'setsList' ? 'sets-list-mode' : '')]", v-if='videoBackground', autoplay='true', loop='true')
@@ -67,7 +67,7 @@
               img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
             p(v-if='mode === "auctions"') Last Offer
             p(
-              v-else-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
+              v-else-if='mode === "market-sales" || mode === "market-auctions" || mode === "setList" || mode === "listings" || mode === "auctions" || mode === "sold" || mode === "bought"'
             ) price
             p(v-else-if='mode === "inventory"') Purchase price
             p(v-else-if='mode === "listings"') Listed Price
@@ -77,19 +77,19 @@
             p.default-price {{ cardName }}
             p {{ collectionName }}
           .d-flex.justify-content-between(
-            v-if='mode != "sold" && mode != "bought" && mode != "setsList" && mode != "assetsInventory"'
+            v-if='mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory"'
           )
             p.wax-name {{ cardName }}
             p.wax-price(
-              v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
+              v-if='mode === "market-sales" || mode === "market-auctions" || mode === "setList" || mode === "listings" || mode === "auctions" || mode === "sold" || mode === "bought"'
             )
               | {{ new Intl.NumberFormat().format(waxPrice) }}WAX
           .d-flex.justify-content-between(
             v-if='mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory"'
           )
-            p(v-if='mode != "schemas"') Default
+            p(v-if='mode !== "schemas"') Default
             p.default-price(
-              v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
+              v-if='mode === "market-sales" || mode === "market-auctions" || mode === "setList" || mode === "listings" || mode === "auctions" || mode === "sold" || mode === "bought"'
             )
               | (${{ $systemToUSD(waxPrice) }})
           .mt-2(v-if='mode === "auctions"')
@@ -128,11 +128,11 @@
                 img.ml-1(src='~/assets/images/fire.svg', alt='')
                 span )
     .btn-group.justify-content-between.flex-wrap.w-100
-      button.btn-fill--grey.w-50.mr10.radius6(v-if='mode == "inventory"') Sell NFT
+      button.btn-fill--grey.w-50.mr10.radius6(v-if='mode === "inventory"') Sell NFT
       el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
         trigger='click'
       )(
-        v-if='mode == "inventory"'
+        v-if='mode === "inventory"'
       )
         span.el-dropdown-link
           span More
@@ -183,25 +183,25 @@
             p Block
       nuxt-link.btn-border--green.w-100.mt-2.radius6.text-white.text-center(
         v-if='mode === "inventory"',
-        :to='"/nfts/inventory/" + data.asset_id'
+        :to='"/nfts/" + data.asset_id'
       ) Details
       nuxt-link.btn-border--green.w-100.radius6.mb-2.text-white.text-center(
-        v-if='mode === "bought"'
-        :to='"/nfts/bought/" + data.asset_id'
+        v-if='mode === "listings" || mode === "auctions" || mode === "sold" || mode === "bought"'
+        :to='"/nfts/" + data.assets[0].asset_id'
       ) Detail
       nuxt-link.btn-border--green.w-100.radius6.text-white.text-center(v-if='mode === "sets"', :to='"#sets-" + data.collection_name') View Set
 
       button.btn-border--green.mr10.radius6.smaller-btn(
         v-if='mode !== "inventory" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
       ) Details
-      button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"') Buy
-      button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
+      button.btn-fill--green.bigger-btn.radius6(v-if='mode === "market-sales"') Buy
+      button.btn-fill--green.bigger-btn.radius6(v-if='mode === "market-auctions"') Make Offer
       button.btn-border--green.w-100.radius6.mb-2(
         v-if='mode === "setsList"'
         @click='debug'
       ) Detail
       button.btn-fill--green.bigger-btn.radius6(
-        v-if='kindBut !== "sales" && kindBut !== "auctions" && mode !== "inventory" && mode !== "listings" && mode !== "auctions" && mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
+        v-if='mode !== "market-sales" && mode !== "market-auctions" && mode !== "inventory" && mode !== "listings" && mode !== "auctions" && mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
       ) Send Offer
       button.btn-border--green.bigger-btn.radius6(v-if='mode === "setsList"') Inventory
       button.btn-fill--green.radius6(v-if='mode === "setsList"') Market
@@ -216,7 +216,7 @@
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data', 'price', 'kindBut', 'mode', 'addTrade', 'cardState', 'getOverData', 'overData'],
+  props: ['data', 'price', 'mode', 'addTrade', 'cardState', 'getOverData', 'overData'],
 
   data() {
     return {
@@ -232,7 +232,7 @@ export default {
   },
   computed: {
     videoBackground() {
-      if (this.mode === 'market') {
+      if (this.mode === 'market-sales' || this.mode === 'market-auctions') {
         if (this.data.assets[0].data.video) {
           return this.data.assets[0].data
         } else return false
@@ -260,7 +260,7 @@ export default {
       } else return false
     },
     imageBackground() {
-      if (this.mode === 'market') {
+      if (this.mode === 'market-sales' || this.mode === 'market-auctions') {
         if (this.data.assets[0].data.img) {
           return {
             backgroundSize: 'cover',
@@ -350,7 +350,7 @@ export default {
     },
     mintCount() {
       let string = ''
-      if (this.mode === 'market' || this.mode === 'listings' || this.mode === 'bought' ||
+      if (this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'listings' || this.mode === 'bought' ||
         this.mode === 'auctions' ||
         this.mode === 'sold') {
         string = this.data.assets[0].template_mint || 0
@@ -364,7 +364,7 @@ export default {
       }
     },
     cardTitle() {
-      if (this.mode === 'market') {
+      if (this.mode === 'market-sales' || this.mode === 'market-auctions') {
         return this.data.seller
       } else if (
         this.mode === 'assets' ||
@@ -395,7 +395,7 @@ export default {
       return 0
     },
     waxPrice() {
-      if (this.mode === 'market') {
+      if (this.mode === 'market-sales' || this.mode === 'market-auctions') {
         return (
           this.data.price.amount / Math.pow(10, this.data.price.token_precision)
         )
@@ -433,7 +433,7 @@ export default {
           )
         }
         return 0
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         if (this.data.assets[0].prices && this.data.assets[0].prices[0]) {
           return (
             this.data.assets[0].prices[0].max /
@@ -446,7 +446,8 @@ export default {
     },
     cardName() {
       if (
-        this.mode === 'market' ||
+        this.mode === 'market-sales' ||
+        this.mode === 'market-auctions' ||
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
         this.mode === 'sold' ||
@@ -500,8 +501,7 @@ export default {
       return 0
     },
     collectionName() {
-      console.log(this.data)
-      if (this.mode === 'setsList' || this.mode === 'assets' || this.mode === 'market' || this.mode === 'inventory' || this.mode === 'bought' || this.mode === 'listings' || this.mode === 'sold' || this.mode === 'auctions') {
+      if (this.mode === 'setsList' || this.mode === 'assets' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'inventory' || this.mode === 'bought' || this.mode === 'listings' || this.mode === 'sold' || this.mode === 'auctions') {
         return this.data.collection.name
       } else if (this.mode === 'assetsInventory') {
         return this.data.contract
@@ -510,7 +510,7 @@ export default {
     schemaName() {
       if (this.mode === 'inventory' || this.mode === 'assets' || this.mode === 'setsList' || this.mode === 'templates' || this.mode === 'assets') {
         return this.data.schema.schema_name
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         return this.data.assets[0].schema.schema_name
       } else return 'Alcorex'
     },
@@ -519,7 +519,7 @@ export default {
         return this.data.max_supply
       } else if (this.mode === 'inventory' || this.mode === 'assets') {
         return this.data.template.max_supply
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         return this.data.assets[0].template.max_supply
       }
       return 0
@@ -529,7 +529,7 @@ export default {
         return this.data.issued_supply
       } else if (this.mode === 'inventory' || this.mode === 'assets') {
         return this.data.template.issued_supply
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         return this.data.assets[0].template.issued_supply
       }
       return 0
@@ -537,7 +537,7 @@ export default {
     assetId() {
       if (this.mode === 'inventory' || this.mode === 'assets') {
         return this.data.asset_id
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         return this.data.assets[0].asset_id
       } else if (this.mode === 'setsList' || this.mode === 'templates') {
         return this.data.template_id
@@ -547,7 +547,7 @@ export default {
     owner() {
       if (this.mode === 'inventory' || this.mode === 'assets') {
         return this.data.owner
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         return this.data.assets[0].owner
       }
       return ''
@@ -557,7 +557,7 @@ export default {
         if (this.data.backed_tokens.length) {
           return this.data.backed_tokens.join()
         } else return 'None'
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         if (this.data.assets[0].backed_tokens.length) {
           return this.data.assets[0].backed_tokens.join()
         } else return 'None'
@@ -576,7 +576,7 @@ export default {
           return arr
         }
         return []
-      } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
         if (this.data.assets[0]) {
           const arr = []
           Object.keys(this.data.assets[0].data).map((item) => {
@@ -610,7 +610,7 @@ export default {
             asset_id: this.data.asset_id
           }
           this.getOverData(params)
-        } else if (this.mode === 'listings' || this.mode === 'market' || this.mode === 'sold' || this.mode === 'auctions' || this.mode === 'bought') {
+        } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'sold' || this.mode === 'auctions' || this.mode === 'bought') {
           const params = {
             template_id: this.data.assets[0].template.template_id,
             collection_name: this.data.assets[0].collection.collection_name,
