@@ -193,7 +193,10 @@ export const actions = {
   }, {
     limit,
     search,
-    collectionName
+    collectionName,
+    state,
+    template_id,
+    symbol
   }) {
     try {
       const {
@@ -202,6 +205,9 @@ export const actions = {
         'https://wax.api.atomicassets.io/atomicmarket/v2/sales?order=desc&sort=created&limit=' +
         limit +
         (search ? '&search=' + search : '') +
+        (state ? '&state=' + state : '') +
+        (template_id ? '&template_id=' + template_id : '') +
+        (symbol ? '&symbol=' + symbol : '') +
         (collectionName ? '&collection_name=' + collectionName : '')
       )
       return data.data
@@ -347,15 +353,18 @@ export const actions = {
     getters,
     rootState
   }, {
-    owner
+    owner,
+    collection_name,
+    template_id
   }) {
     try {
       const {
         data
       } = await axios.get(
         'https://wax.api.atomicassets.io/atomicassets/v1/assets' +
-        '?owner=' +
-        owner +
+        '?owner=' + owner +
+        (collection_name ? '&collection_name=' + collection_name : '') +
+        (template_id ? '&template_id=' + template_id : '') +
         '&page=1&limit=1000&order=desc&sort=asset_id'
       )
 
@@ -402,6 +411,19 @@ export const actions = {
         data
       } = await axios.get(
         'https://wax.api.atomicassets.io/atomicmarket/v1/assets/' + asset_id
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get accounts error', e)
+    }
+  },
+
+  async getSpecificSales({ getters, rootState }, { sales_id }) {
+    try {
+      const {
+        data
+      } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicmarket/v1/sales/' + sales_id
       )
       return data.data
     } catch (e) {
@@ -661,6 +683,22 @@ export const actions = {
     try {
       const data = await axios.get(
         'https://wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=' + collection_name + '&page=1&limit=100&order=desc&sort=created'
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+    }
+  },
+  async getTemplateStats({
+    getters,
+    rootState
+  }, {
+    collection_name,
+    template_id
+  }) {
+    try {
+      const { data } = await axios.get(
+        'https://wax.api.atomicassets.io/atomicassets/v1/templates/' + collection_name + '/' + template_id + '/stats'
       )
       return data.data
     } catch (e) {
