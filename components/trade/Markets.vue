@@ -201,7 +201,7 @@ export default {
       }
 
       this.$router.push(
-        { name: 'trade-index-id', params: { id: market.slug } },
+        { name: `trade-index-id___${this.$i18n.locale}`, params: { id: market.slug } },
         () => this.loading = false,
         () => this.loading = false
       )
