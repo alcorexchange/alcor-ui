@@ -10,7 +10,9 @@ spot.get('/pairs', cacheSeconds(3, (req, res) => {
   const network = req.app.get('network')
 
   const markets = await Market.find({ chain: network.name })
-  res.json(markets)
+    .select('base_token quote_token')
+
+  res.json(markets.slice(0, 2))
 })
 
 //spot.get('/:market_id/deals', cacheSeconds(3, (req, res) => {

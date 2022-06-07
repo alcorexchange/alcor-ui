@@ -11,8 +11,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
-import { networkResolver } from './middleware'
-
+import { networkResolver } from '../ApiService/middleware'
 import { spot } from './spot'
 
 const app = express()
