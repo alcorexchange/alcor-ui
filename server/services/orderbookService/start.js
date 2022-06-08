@@ -15,15 +15,25 @@ const client = createClient()
 const publisher = client.duplicate()
 const subscriber = client.duplicate()
 
+async function updateBidAsk(chain, side, market_id, orders) {
+  if (orders.size != 0) {
+    if (side == 'buy') {
+      await Market.updateOne({ id: market_id, chain }, { bid: Math.max(...orders.keys()) / 100000000 })
+    } else {
+      await Market.updateOne({ id: market_id, chain }, { ask: Math.min(...orders.keys()) / 100000000 })
+    }
+  }
+}
+
 export async function getOrderbook(chain, side, market) {
   const entries = await client.get(`orderbook_${chain}_${side}_${market}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }
 
 async function setOrderbook(chain, side, market, orderbook) {
-  await client.set(
-    `orderbook_${chain}_${side}_${market}`, JSON.stringify(Array.from(orderbook))
-  )
+  // Orderbook style sort
+  const orders = Array.from(orderbook).sort((a, b) => side == 'buy' ? b[0] - a[0] : a[0] - b[0])
+  await client.set(`orderbook_${chain}_${side}_${market}`, JSON.stringify(orders))
 }
 
 export function mergeSamePriceOrders(ords) {
@@ -88,6 +98,7 @@ async function updateOrders(side, chain, market_id) {
   })
 
   await setOrderbook(chain, side, market_id, orders)
+  updateBidAsk(chain, side, market_id, orders)
 
   if (update.length == 0) return
 
@@ -136,7 +147,8 @@ async function initialUpdate() {
     updateOrders('buy', chain, market)
     updateOrders('sell', chain, market)
 
-    await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
+    // Chain that we have our own nodes
+    if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
   }
 }
 
@@ -151,7 +163,8 @@ export async function main() {
 
   //initialUpdate()
   // FIXME JUST FOR TEST
-  //updateOrders('sell', 'wax', 126)
+  updateOrders('sell', 'wax', 0)
+  updateOrders('buy', 'wax', 0)
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')

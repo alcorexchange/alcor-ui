@@ -157,6 +157,7 @@ export async function updateMarkets(network) {
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)
+    r.ticker_id = r.quote_token.str.replace('@', '-') + '_' + r.base_token.str.replace('@', '-')
   })
 
   const requests = rows.map(d => {

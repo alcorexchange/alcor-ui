@@ -204,7 +204,7 @@ export const actions = {
       const { base_token, quote_token } = m
 
       m.symbol = quote_token.symbol.name + ' / ' + base_token.symbol.name
-      m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-')
+      m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-') // TODO change to ticker_id
       m.promoted = state.network.PROMOTED_MARKETS.includes(m.id)
       m.scam = state.network.SCAM_CONTRACTS.includes(quote_token.contract)
 
