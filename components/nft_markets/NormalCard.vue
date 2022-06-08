@@ -520,7 +520,9 @@ export default {
       } else if (this.mode === 'inventory' || this.mode === 'assets') {
         return this.data.template.max_supply
       } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
-        return this.data.assets[0].template.max_supply
+        if (this.data.assets[0].template) {
+          return this.data.assets[0].template.max_supply
+        } return 0
       }
       return 0
     },
@@ -530,7 +532,9 @@ export default {
       } else if (this.mode === 'inventory' || this.mode === 'assets') {
         return this.data.template.issued_supply
       } else if (this.mode === 'listings' || this.mode === 'market-sales' || this.mode === 'market-auctions' || this.mode === 'bought' || this.mode === 'sold' || this.mode === 'auctions') {
-        return this.data.assets[0].template.issued_supply
+        if (this.data.assets[0].template) {
+          return this.data.assets[0].template.issued_supply
+        } return 0
       }
       return 0
     },
