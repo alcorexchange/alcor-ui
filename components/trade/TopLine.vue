@@ -236,6 +236,10 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 14px;
+
+  @media only screen and (max-width: 1000px) {
+    display: none;
+  }
 }
 </style>
 
