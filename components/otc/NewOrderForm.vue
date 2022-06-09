@@ -8,9 +8,9 @@ div
   el-dialog(title="Create new order", :visible.sync="visible" width="50%" v-if="user && user.balances")
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       // TODO Bit symbol and amount here
-      span Tokens are locked in the contract until the transaction is completed.
-      span  You can cancel the transaction at any time and return the tokens.
-      h1.leader Sell
+      span {{ $t('Tokens are locked in the contract until the transaction is completed') }}.
+      span  {{ $t('You can cancel the transaction at any time and return the tokens') }}.
+      h1.leader {{ $t('Sell') }}
 
       el-form-item(:label="$t('Sell token')")
         el-select(v-model="tokenSelect", value-key="id" filterable clearable :placeholder='$t("Sell token")' @change="sellSellToken").w-100
@@ -60,7 +60,7 @@ div
           .lead.mt-2 {{ $t('Price') }}: {{ price }}
 
         span.dialog-footer
-          el-button(type='primary' v-if="form.buy.amount > 0" @click="submit").w-100 Create order
+          el-button(type='primary' v-if="form.buy.amount > 0" @click="submit").w-100 {{ $t('Create order') }}
 </template>
 
 <script>

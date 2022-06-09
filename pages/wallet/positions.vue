@@ -4,7 +4,7 @@ div.wallet
     el-input(
       v-model="search"
       prefix-icon="el-icon-search"
-      placeholder="Search market.."
+      :placeholder="$t('Search market') + ' ..'"
       size="small"
       clearable
     )
@@ -12,17 +12,17 @@ div.wallet
     el-checkbox(
       v-model="onlyBuy"
       id="onlyBuy"
-    ) Only buy orders
+    ) {{ $t('Only buy orders') }}
 
     el-checkbox(
       v-model="onlySell"
       id="onlySell"
-    ) Only sell orders
+    ) {{ $t('Only sell orders') }}
 
     .d-flex.ml-auto
-      .cancel Total orders: {{ accountLimits.orders_total }}
+      .cancel {{ $t('Total orders') }}: {{ accountLimits.orders_total }}
 
-      .cancel.ml-3 Order slot limit: {{ accountLimits.orders_limit }}
+      .cancel.ml-3 {{ $t('Order slot limit') }}: {{ accountLimits.orders_limit }}
 
       el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 {{ $t('Buy more order slots') }}
 

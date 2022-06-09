@@ -4,7 +4,7 @@
     .row
       .col
         .d-flex.mb-1.select-label
-          small.text-muted Asset 1
+          small.text-muted {{ $t('Asset') }} 1
           el-button(type="text" size="mini" @click="amount1Input(inputBalance)").ml-auto.pr-0 {{ inputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
@@ -16,7 +16,7 @@
     .row.mt-1
       .col
         .d-flex.mb-1.select-label
-          small.text-muted Asset 2
+          small.text-muted {{ $t('Asset') }} 2
           el-button(type="text" size="mini" @click="amount2Input(outputBalance)").ml-auto.pr-0 {{ outputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
 
@@ -26,26 +26,26 @@
       .col
         PleaseLoginButton
           .confirm-button(v-if="amount1 && amount2")
-            el-button(type="primary" @click="submit" v-loading="loading").w-100 Provide liquidity
+            el-button(type="primary" @click="submit" v-loading="loading").w-100 {{ $t('Provide liquidity') }}
           .confirm-button(v-else)
-            el-button(type="primary" disabled).w-100 Select amounts
+            el-button(type="primary" disabled).w-100 {{ $t('Select amounts') }}
 
     .row.mt-3
       .col
         .d-flex.justify-content-between
-          small Position (LP-T)
+          small {{ $t('Position (LP-T)') }}
           b.small {{ tokenReceive }}
         SSpacer
         .d-flex.justify-content-between
-          small Pool Share
-          b.small {{ poolShare  }}%
+          small {{ $t('Pool Share') }}
+          b.small {{ poolShare }}%
         SSpacer
         .d-flex.justify-content-between(v-if="this.current")
-          small Asset 1
+          small {{ $t('Asset') }} 1
           b.small {{ this.current.pool1.quantity }}
         SSpacer
         .d-flex.justify-content-between(v-if="this.current")
-          small Asset 2
+          small {{ $t('Asset') }} 2
           b.small {{ this.current.pool2.quantity }}
 </template>
 

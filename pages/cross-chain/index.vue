@@ -5,9 +5,9 @@
     el-menu.el-menu-vertical-demo(router default-active='2')
       el-menu-item(index='/cross-chain/swap')
         i.el-icon-refresh
-        span Swap
+        span {{ $t('Swap') }}
       el-menu-item(index='/cross-chain/second')
-        span Second
+        span {{ $t('Second') }}
 
   .col-lg-10
     router-view

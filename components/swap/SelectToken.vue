@@ -31,7 +31,7 @@
               i.ml-2(v-else="!static")
 
       .dropdown(v-show="visible")
-        el-input(placeholder="Search by name or contract" :clearable="!static" v-model="search" size="small" ref="searchInput")
+        el-input(:placeholder="$t('Search by name or contract')" :clearable="!static" v-model="search" size="small" ref="searchInput")
 
         .pairs.mt-2
           .pair(

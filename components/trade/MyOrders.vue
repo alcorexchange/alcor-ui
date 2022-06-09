@@ -4,7 +4,7 @@
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile")
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') $t('Connect Wallet')
+    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
@@ -22,7 +22,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 
   el-table-column(:label='$t("Action")', align='right' width=60)
     template(slot-scope='scope')
-      el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
+      el-button(size='mini', type='text', @click='cancel(scope.row)').red {{ $t('Cancel') }}
 
 
 // DESKTOP
