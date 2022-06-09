@@ -144,13 +144,13 @@ export default {
 
   label.buy.is-active {
     .el-radio-button__inner {
-      background-color: var(--main-green) !important;
+      background-color: var(--color-primary) !important;
     }
   }
 
   label.sell.is-active {
     .el-radio-button__inner {
-      background-color: var(--main-red) !important;
+      background-color: var(--color-secondary) !important;
     }
   }
 }

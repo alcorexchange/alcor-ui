@@ -34,10 +34,18 @@ export default {
         dark: {
           background: '#161617',
           textColor: '#E0E0E0',
+          gridColor: '#1A2027',
+          candleUpColor: '#66C167',
+          candleDownColor: '#F96C6C',
+          scaleLineColor: '#444444'
+        },
+        bloom: {
+          background: '#0A0A0A',
+          textColor: '#DBDBDB',
           gridColor: '#292929',
           candleUpColor: '#277DFA',
           candleDownColor: '#FFAB2E',
-          scaleLineColor: '#0A0A0A'
+          scaleLineColor: '#3F3F3F'
         }
       }
     }

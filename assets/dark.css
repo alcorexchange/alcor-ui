@@ -2307,8 +2307,8 @@
 }
 
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-    color: #FFF;
-    background-color: #000;
+    color: var(--black-primary);
+    background-color: var(--btn-active);
     border-color: transparent;
     -webkit-box-shadow: -1px 0 0 0 transparent;
     box-shadow: -1px 0 0 0 transparent
@@ -2892,7 +2892,7 @@
 
 .el-table th,
 .el-table tr {
-    background-color: #212121
+    background-color: var(--table-header-background)
 }
 
 .el-table td,
@@ -5263,7 +5263,7 @@
 }
 
 .el-tabs--border-card {
-    background: #212121;
+    background: var(--table-background);
     border: 1px solid transparent;
     -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .12), 0 0 6px 0 rgba(0, 0, 0, .04);
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .12), 0 0 6px 0 rgba(0, 0, 0, .04)
@@ -6514,7 +6514,7 @@
 
 .el-slider__runway {
     width: 100%;
-    height: 6px;
+    height: 4px;
     margin: 16px 0;
     background-color: var(--color-primary-op);
     border-radius: 3px;
@@ -6573,8 +6573,8 @@
 }
 
 .el-slider__bar {
-    height: 6px;
-    background-color: #1FC781;
+    height: 4px;
+    background-color: var(--color-primary);
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
     position: absolute
@@ -6658,7 +6658,7 @@
     top: -1px;
     position: absolute;
     height: 6px;
-    width: 2px;
+    width: 6px;
     border-radius: 100%;
     background-color: var(--color-primary);
     -webkit-transform: translateX(-50%);
@@ -12815,10 +12815,10 @@
 
 .el-input__inner {
     -webkit-appearance: none;
-    background-color: var(--background-color-base);
+    background-color: var(--btn-alternative);
     background-image: none;
     border-radius: 4px;
-    border: 1px solid var(--background-color-base);
+    border: 1px solid var(--btn-alternative);
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     color: #FFF;
@@ -13929,7 +13929,7 @@
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
-    background: #363535;
+    background: var(--btn-default);
     border: 1px solid transparent;
     color: #F2F2F2;
     -webkit-appearance: none;
@@ -13953,7 +13953,7 @@
 .el-button:hover {
     color: #000;
     border-color: #171717;
-    background-color: #252525
+    background-color: var(--btn-active)
 }
 
 .el-button:active {
@@ -14041,7 +14041,7 @@
 .el-button--primary {
     color: var(--text-default);
     background-color: var(--btn-active);
-    border-color: var(--btn-active)
+    border-color: var(--btn-default)
 }
 
 .el-button--primary:focus,

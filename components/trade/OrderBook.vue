@@ -255,7 +255,7 @@ export default {
   justify-content: space-between;
 
   &:hover {
-    background-color: var(--btn-active) !important;
+    background-color: var(--hover) !important;
     font-weight: 400 !important;
   }
 }

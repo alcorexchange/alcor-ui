@@ -132,7 +132,6 @@ DARK END */
     &:hover,
     &:focus {
       color: var(--text-default);
-      border-color: transparent;
     }
   }
 
@@ -540,6 +539,6 @@ DARK END */
 
   // TABLE
   .el-table {
-    background-color: #222222;
+    background-color: var(--table-background);
   }
 }

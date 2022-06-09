@@ -202,21 +202,26 @@ export default {
         'order-form-vertical': 'Vertical Order Form'
       },
 
-      theme: 'dark',
+      theme: 'bloom',
       marketswitchvalue: false,
       favoritesswitchvalue: false,
       checkedorange: false,
 
       themes: {
-        dark: {
-          value: 'dark',
-          colors: ['#eff', '#291'],
-          textPicker: { border: '#3f3f3f', color: '#f2f2f2' }
-        },
         light: {
           value: 'light',
-          colors: ['#faa', '#e11'],
-          textPicker: { border: '#3f3f3f', color: '#363d52' }
+          colors: ['#67C23A', '#F56C6C'],
+          textPicker: { bg: '#F2F0F5', color: '#606266' }
+        },
+        dark: {
+          value: 'dark',
+          colors: ['#66C167', '#F96C6C'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        bloom: {
+          value: 'bloom',
+          colors: ['#277DFA', '#FFAB2E'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
         }
       }
     }
@@ -343,7 +348,7 @@ export default {
 span.theme-title,
 .module-title {
   font-size: 12px;
-  color:var(--text-default);
+  color: var(--text-default);
 }
 
 el-container.setting-theme {

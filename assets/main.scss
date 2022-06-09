@@ -223,7 +223,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 
   .markets-bar {
@@ -250,7 +250,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -268,7 +268,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -286,7 +286,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -304,7 +304,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -322,7 +322,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -399,10 +399,10 @@ pre {
 }
 
 .theme-dark .confirm-button button {
-  background: #161617;
+  background: var(--btn-default);
 
   &:hover {
-    background: #161617;
+    background: var(--btn-active);
   }
 }
 

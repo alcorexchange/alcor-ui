@@ -2328,7 +2328,7 @@
 }
 
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-    color: var(--text-default);
+    color: var(--color-white);
     background-color: var(--btn-default);
     border-color: var(--btn-default);
     -webkit-box-shadow: -1px 0 0 0 var(--btn-default);
@@ -6657,7 +6657,7 @@
 
 .el-slider__stop {
     height: 6px;
-    width: 2px ;
+    width: 6px ;
     border-radius: 100%;
     background-color: var(--color-primary);
     top: -1px;
@@ -11603,14 +11603,14 @@
     left: 50%;
     margin-right: 3px;
     border-top-width: 0;
-      border-bottom-color: var(--background-color-base);
+      border-bottom-color: var(--border-color);
 }
 
 .el-popper[x-placement^=bottom] .popper__arrow::after {
     top: 1px;
     margin-left: -6px;
     border-top-width: 0;
-    border-bottom-color: var(--background-color-base);
+    border-bottom-color: var(--border-color);
 }
 
 .el-popper[x-placement^=right] {

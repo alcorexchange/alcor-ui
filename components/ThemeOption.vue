@@ -3,7 +3,7 @@
   .theme-option__name {{ theme.value }}
   .theme-option__pickers
     .picker-text(
-      :style="{ border: `1px solid ${theme.textPicker.border}`, color: `${theme.textPicker.color}` }"
+      :style="{ background: `${theme.textPicker.bg}`, color: `${theme.textPicker.color}` }"
     ) Aa
     .picker-color(v-for="color in theme.colors" :style="{ 'background-color': color }")
 </template>

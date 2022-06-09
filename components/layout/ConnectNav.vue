@@ -203,7 +203,7 @@ export default {
   position: absolute;
   top: 60px;
   right: 10px;
-  background: var(--background-color-base);
+  background: var(--table-background);
   border: var(--border-2);
   border-radius: 2px;
   z-index: 9;
