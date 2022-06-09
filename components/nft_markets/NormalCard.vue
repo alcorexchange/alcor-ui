@@ -186,13 +186,13 @@
         :to='"/nfts/" + data.assets[0].asset_id'
       ) Detail
       nuxt-link.btn-border--green.mr10.radius6.smaller-btn.text-white.text-center(
-        v-if='mode === "listings" || mode === "auctions" || mode === "sold"'
+        v-if='mode === "listings" || mode === "auctions" || mode === "sold" || mode === "market-sales" || mode === "market-auctions"'
         :to='"/nfts/" + data.assets[0].asset_id'
       ) Detail
       nuxt-link.btn-border--green.w-100.radius6.text-white.text-center(v-if='mode === "sets"', :to='"#sets-" + data.collection_name') View Set
-
+      //below for the static button that should be removed
       button.btn-border--green.mr10.radius6.smaller-btn(
-        v-if='mode !== "inventory" && mode !== "listings" && mode !== "auctions" && mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
+        v-if='mode !== "market-auctions" && mode !== "market-sales" && mode !== "inventory" && mode !== "listings" && mode !== "auctions" && mode !== "sold" && mode !== "bought" && mode !== "setsList" && mode !== "assetsInventory" && mode !== "sets"'
       ) Details
       button.btn-fill--green.bigger-btn.radius6(v-if='mode === "market-sales"') Buy
       button.btn-fill--green.bigger-btn.radius6(v-if='mode === "market-auctions"') Make Offer
