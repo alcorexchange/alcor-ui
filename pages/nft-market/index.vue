@@ -33,7 +33,7 @@
     .row
       .col
         .d-flex
-          el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable size="medium")
+          el-input(v-model="search" :placeholder="$t('Search NFT') + ' : ID/Name/Category/Author'" clearable size="medium")
 
           nuxt-link(:to="localePath('/nft-market/create', $i18n.locale)").ml-3
             el-button(tag="el-button" icon="el-icon-plus" size="medium") {{ $t('Create NFT token') }}

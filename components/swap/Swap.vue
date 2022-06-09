@@ -13,7 +13,7 @@
           template(slot="end")
             .pair(@click="$router.push('/swap/create')").text-muted
               i.el-icon-plus.mr-2
-              span Create pool
+              span {{ $t('Create pool') }}
 
     .row.mt-3
       .col.text-center
@@ -32,7 +32,7 @@
                   .section-content
                     AlcorButton(@click="resetSlippageTolerance" round compact) {{ $t('Auto') }}
                     .section-input
-                      el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
+                      el-input(:placeholder="$t('Slippage Tolerance %')" size="small" v-model="slippageTolerance")
                         //- template(#prepend) %
           small.text-mutted.small.ml-auto.with-padding {{ outputBalance | commaFloat }}
             i.el-icon-wallet.ml-1
@@ -58,13 +58,13 @@
         PleaseLoginButton
           div(v-loading="loading").confirm-button
             .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
-              el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
+              el-button(type="primary" disabled).w-100 {{ $t('Invalid') }} {{ this.ibcChain.toUpperCase() }} Account
             //.div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
             //  el-button(type="primary" disabled).w-100 Insufficient Funds
             .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
-              el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+              el-button(type="primary" @click="submit").w-100 {{ $t('Swap') }} {{ input.symbol }} to {{ output.symbol }}
             .div(v-else)
-              el-button(type="primary" disabled).w-100 Select amounts
+              el-button(type="primary" disabled).w-100 {{ $t('Select amounts') }}
 
     .row.mt-3
       .col
@@ -73,7 +73,7 @@
           .small {{ minOutput | commaFloat }}
         SSpacer
         .d-flex.justify-content-between
-          small Rate
+          small {{ $t('Rate') }}
           .small {{ price }}
             .el-icon-refresh(@click="priceReverse = !priceReverse").ml-1.pointer
         SSpacer

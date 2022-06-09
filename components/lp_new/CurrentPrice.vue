@@ -1,6 +1,6 @@
 <template lang="pug">
   LPCard.current-price
-    .name Current Price
+    .name {{$t('Current Price')}}
     .price {{price}}
     .desc {{description}}
 </template>
@@ -42,6 +42,7 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+
 .price {
   color: var(--text-default);
   font-size: 1.4rem;

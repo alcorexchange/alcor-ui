@@ -5,7 +5,7 @@
     .details
         .amount.cancel 3.91 KB / 5.37 KB
         .staked
-            span.cancel Staked:&nbsp;
+            span.cancel {{$t('Staked')}}:&nbsp;
             span.fwr 3.24803955 WAX
 </template>
 

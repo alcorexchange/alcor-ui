@@ -11,8 +11,8 @@ LPCard
   SSpacer
   .details
     .left
-      span Balance: 0 {{token.symbol}}
-      AlcorButton(flat, compact) Max
+      span {{ $t('Balance') }}: 0 {{ token.symbol }}
+      AlcorButton(flat, compact) {{ $t('Max') }}
     .right
       span ~ $999.6
 </template>
@@ -43,8 +43,10 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+
 .amount-and-token {
   display: flex;
+
   input {
     background: transparent;
     border: none;
@@ -54,6 +56,7 @@ export default {
     text-align: right;
   }
 }
+
 .token {
   display: flex;
   align-items: center;
@@ -61,13 +64,16 @@ export default {
   border-radius: var(--radius-2);
   padding: 4px 8px;
 }
+
 .token-image {
   margin-right: 4px;
 }
+
 .details {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   .left {
     .alcor-button {
       font-size: 0.9rem;

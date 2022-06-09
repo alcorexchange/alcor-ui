@@ -18,9 +18,9 @@ div.alcor-card
       el-popover(placement='top-start' title='Deposit' width='400' trigger='hover')
         template
           .text-break
-            p When the deposit becomes negative, it means that your liquidity has been profitable, and you have withdrawn the deposit and part of dividend.
-            p When you receive or transfer LP Tokens, the system will increase or decrease your deposit in proportion according to the total liquidity volume of liquidity pool.
-            p There may be a difference in statistics, for reference only.
+            p {{ $t('When the deposit becomes negative, it means that your liquidity has been profitable, and you have withdrawn the deposit and part of dividend') }}.
+            p {{ $t('When you receive or transfer LP Tokens, the system will increase or decrease your deposit in proportion according to the total liquidity volume of liquidity pool') }}.
+            p {{ $t('There may be a difference in statistics, for reference only') }}.
 
         .el-icon-info(slot="reference").ml-2.pointer
     .earning.p20.end {{ $t('Earning (Fees)') }}

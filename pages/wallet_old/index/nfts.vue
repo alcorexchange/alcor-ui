@@ -1,9 +1,9 @@
 <template lang="pug">
   .nft-wallet
-    small.text-muted(v-if="nfts.length == 0") There is no NFT's yet..
+    small.text-muted(v-if="nfts.length == 0") {{$t("There is no NFT's yet")}}..
     el-card(v-for="(nft, i) in nfts" :key="nft.id + i").mb-2
       .float-right
-        el-button(size="mini" type="primary" @click="send(nft)").mb-1 Send
+        el-button(size="mini" type="primary" @click="send(nft)").mb-1 {{$t('Send')}}
           i.el-icon-s-promotion.ml-2
 
       .row
@@ -116,4 +116,5 @@ export default {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+</style>
