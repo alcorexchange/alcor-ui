@@ -125,7 +125,7 @@ spot.get('/historical_trades/:ticker_id', tickerHandler, cacheSeconds(1, (req, r
       price: m.unit_price,
       base_volume: m.type == 'buymatch' ? m.ask : m.bid,
       target_volume: m.type == 'buymatch' ? m.bid : m.ask,
-      time: m.time,
+      time: m.time.getTime(),
       type: m.type == 'buymatch' ? 'buy' : 'sell'
     }
   }))
