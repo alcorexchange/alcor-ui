@@ -117,8 +117,8 @@ export async function getMarketStats(network, market_id) {
   stats.quote_volume = quote_volume
   stats.base_volume = base_volume
 
-  stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[0]
-  stats.volumeMonth = (await getVolumeFrom(oneMonthAgo, market_id, network.name))[0]
+  stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[1]
+  stats.volumeMonth = (await getVolumeFrom(oneMonthAgo, market_id, network.name))[1]
 
   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
