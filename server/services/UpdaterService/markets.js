@@ -76,7 +76,7 @@ export async function getVolumeFrom(date, market, chain) {
     { $group: { _id: '$market', quote_volume: { $sum: '$quote_volume' }, base_volume: { $sum: '$base_volume' } } }
   ])
 
-  return volume.length == 1 ? [volume[0].quote_volume, volume[0].base_volume] : [0, 0]
+  return volume.length == 1 ? [volume[0].base_volume, volume[0].quote_volume] : [0, 0]
 }
 
 export async function getChangeFrom(date, market, chain) {
