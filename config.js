@@ -264,6 +264,7 @@ const networks = {
       'onfederation',
       'martaintoken',
       'martiantoken',
+      'superruncoin'
     ],
 
     CEX_CONTRACTS: [
