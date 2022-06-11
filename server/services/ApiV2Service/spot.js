@@ -32,46 +32,40 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   const markets = (await Market.find({ chain: network.name }).select('base_token quote_token'))
     .map(i => {
       const base = i.quote_token.str.replace('@', '-')
-      const target = i.base_token.str.replace('@', '-')
+      const quote = i.base_token.str.replace('@', '-')
 
       return {
-        ticker_id: base + '_' + target,
+        ticker_id: base + '_' + quote,
         base,
-        target
+        quote
       }
     })
 
   res.json(markets)
 })
 
-// TODO Route for single ticker
 spot.get('/tickers', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const markets = (await Market.find({ chain: network.name })
-    .select('last_price bid ask volume24 high24 low24 base_token quote_token'))
-    .map(i => {
-      const base = i.quote_token.str.replace('@', '-')
-      const target = i.base_token.str.replace('@', '-')
-
-      return {
-        ticker_id: base + '_' + target,
-        base_currency: base,
-        target_currency: target,
-        last_price: i.last_price,
-        base_volume: i.volume24 / i.last_price,
-        target_volume: i.volume24,
-        bid: i.bid,
-        ask: i.ask,
-        high: i.high24,
-        low: i.low24
-      }
-    })
-
-  res.json(markets.slice(1))
+  const markets = await Market.find({ chain: network.name }).select('-_id -__v -chain -quote_token -base_token')
+  res.json(markets)
 })
+
+spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network = req.app.get('network')
+
+  const { ticker_id } = req.params
+
+  const market = await Market.findOne({ ticker_id, chain: network.name }).select('-_id -__v -chain -quote_token -base_token')
+  if (!market) return res.status(404).send(`Ticker with id ${ticker_id} not found or closed :(`)
+
+  res.json(market)
+})
+
 
 spot.get('/orderbook', tickerHandler, depthHandler, async (req, res) => {
   const network = req.app.get('network')
@@ -79,7 +73,7 @@ spot.get('/orderbook', tickerHandler, depthHandler, async (req, res) => {
 
   const { depth, ticker_id } = req.query
 
-  const market = await Market.findOne({ ticker_id: normalizeTickerId(ticker_id), chain: network.name })
+  const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   const bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
