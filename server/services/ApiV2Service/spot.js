@@ -49,7 +49,7 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const markets = await Market.find({ chain: network.name }).select('-_id -__v -chain -quote_token -base_token')
+  const markets = await Market.find({ chain: network.name }).select('-_id -__v -chain -quote_token -base_token -changeWeek')
   res.json(markets)
 })
 
