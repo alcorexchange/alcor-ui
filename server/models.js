@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 const MarketSchema = mongoose.Schema({
   id: { type: Number, index: true },
+  ticker_id: { type: String, index: true },
   chain: { type: String, index: true },
 
   base_token: {
@@ -26,21 +27,26 @@ const MarketSchema = mongoose.Schema({
   min_sell: { type: String },
   frozen: { type: Boolean },
   fee: { type: Number },
+
   last_price: { type: Number },
+  bid: { type: Number },
+  ask: { type: Number },
+
+  // New Fields
+  base_volume: { type: Number },
+  quote_volume: { type: Number },
+
   volume24: { type: Number },
   volumeWeek: { type: Number },
   volumeMonth: { type: Number },
+
   change24: { type: Number },
   changeWeek: { type: Number },
   high24: { type: Number },
   low24: { type: Number }
-
-  // TODO
-  // Volume 24H USD
-  // Weekly Volume (WAX, USD)
-  // All Time High/Low
 })
 MarketSchema.index({ chain: 1, id: 1 })
+MarketSchema.index({ chain: 1, ticker_id: 1 })
 
 const PoolPairSchema = mongoose.Schema({
   chain: { type: String, index: true },

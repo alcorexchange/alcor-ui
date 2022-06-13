@@ -15,7 +15,6 @@ export const fetchAllRows =
 
     /* eslint-disable no-await-in-loop */
     for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
-      console.log('get rows call: ', i)
       const result = await rpc.get_table_rows({
         ...mergedOptions,
         lower_bound: lowerBound
