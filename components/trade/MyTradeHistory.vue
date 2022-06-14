@@ -7,7 +7,7 @@ el-table.my-trade-history(
   el-table-column(label='Time', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
-  el-table-column(label='Pair', v-if='!isMobile')
+  el-table-column(label='Pair')
     template(slot-scope='{ row }')
       span {{ row.market_symbol }}
   el-table-column(label='Side', width='60')
@@ -54,7 +54,7 @@ export default {
   },
 
   watch: {
-    id (to, from) {
+    id(to, from) {
       if (to == from) return
 
       this.reload()
@@ -82,8 +82,8 @@ export default {
 
       // Initial fill
       this.infiniteHandler({
-        loaded: () => {},
-        complete: () => {}
+        loaded: () => { },
+        complete: () => { }
       })
     },
 
