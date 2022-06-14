@@ -1,6 +1,6 @@
 <template lang="pug">
 .alcor-inner(:class="{ 'full-width': fullWidth }")
-  top-nav(:class="{ 'alcor-inner': $route.name == 'index' }")
+  top-nav(:class="{ 'alcor-inner': $route.name == 'index___ru' || $route.name == 'index___en' }")
 
   AlcorLoading
   ResourcesModal

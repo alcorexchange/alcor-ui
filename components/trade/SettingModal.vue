@@ -413,7 +413,7 @@ input[type='radio']:checked+label:before {
   border-radius: 4px;
   transition: all 0.3s;
   width: 12px;
-  height: 12px;
+  height: 11px;
 }
 
 .theme-contrast .el-switch__core:after {
@@ -545,7 +545,7 @@ input[type='radio']:checked+label:before {
 .module-name,
 .module-footer {
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .theme-dark .el-footer.module-footer {

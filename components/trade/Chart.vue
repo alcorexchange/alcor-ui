@@ -13,7 +13,7 @@ export default {
     return {
       resolution: 240,
 
-      onRealtimeCallback: () => {},
+      onRealtimeCallback: () => { },
       widget: null,
       onResetCacheNeededCallback: null,
       executionshape: '',
@@ -21,7 +21,33 @@ export default {
       isReady: false,
       orderLines: [],
       gridExecutions: [],
-      deals: []
+      deals: [],
+      chartThemes: {
+        light: {
+          background: '#F0F2F5',
+          textColor: '#303133',
+          gridColor: '#CDD0D6',
+          candleUpColor: '#67C23A',
+          candleDownColor: '#F56C6C',
+          scaleLineColor: '#CDD0D6'
+        },
+        dark: {
+          background: '#161617',
+          textColor: '#E0E0E0',
+          gridColor: '#1A2027',
+          candleUpColor: '#66C167',
+          candleDownColor: '#F96C6C',
+          scaleLineColor: '#444444'
+        },
+        bloom: {
+          background: '#0A0A0A',
+          textColor: '#DBDBDB',
+          gridColor: '#292929',
+          candleUpColor: '#277DFA',
+          candleDownColor: '#FFAB2E',
+          scaleLineColor: '#3F3F3F'
+        }
+      }
     }
   },
 
@@ -126,6 +152,31 @@ export default {
       const twChart = this.$store.state.settings.twChart[this.id]
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
+      this.applyTheme()
+    },
+
+    applyTheme() {
+      const theme = this.chartThemes[this.$colorMode.value]
+      this.widget.applyOverrides({
+        volumePaneSize: 'medium',
+        'paneProperties.background': theme.background,
+        'scalesProperties.textColor': theme.textColor,
+
+        'paneProperties.vertGridProperties.color': theme.gridColor,
+        'paneProperties.horzGridProperties.color': theme.gridColor,
+
+        'mainSeriesProperties.candleStyle.upColor': theme.candleUpColor,
+        'mainSeriesProperties.candleStyle.downColor': theme.candleDownColor,
+        'mainSeriesProperties.candleStyle.drawBorder': false,
+        'mainSeriesProperties.candleStyle.wickUpColor': theme.candleUpColor,
+        'mainSeriesProperties.candleStyle.wickDownColor': theme.candleDownColor,
+        'mainSeriesProperties.hollowCandleStyle.upColor': theme.candleUpColor,
+        'mainSeriesProperties.hollowCandleStyle.downColor': theme.candleDownColor,
+        'mainSeriesProperties.hollowCandleStyle.wickUpColor': theme.candleUpColor,
+        'mainSeriesProperties.hollowCandleStyle.wickDownColor': theme.candleDownColor,
+
+        'scalesProperties.lineColor': theme.scaleLineColor
+      })
     },
 
     reset() {
@@ -380,6 +431,7 @@ export default {
 
     mountChart() {
       const { $TVChart: { Widget } } = this
+      console.log('mountChart')
 
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
@@ -542,12 +594,12 @@ export default {
           //'context_menus',
           //'edit_buttons_in_legend',
           'volume_force_overlay',
-          'delete_button_in_legend',
+          'delete_button_in_legend'
           //'property_pages',
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
-          'header_in_fullscreen_mode',
+          'header_in_fullscreen_mode'
         ],
 
         //fullscreen: false,
@@ -557,15 +609,6 @@ export default {
         // Styles
         theme: this.$colorMode.value,
         custom_css_url: '/tv_themed.css',
-
-        overrides: {
-          volumePaneSize: 'medium',
-          'paneProperties.background': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          'scalesProperties.textColor': this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3',
-
-          'paneProperties.vertGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-          'paneProperties.horzGridProperties.color': this.$colorMode.value == 'light' ? '#F3FAFC' : '#303130e4'
-        },
 
         loading_screen: {
           backgroundColor: this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
@@ -581,8 +624,8 @@ export default {
           this.save()
         })
       })
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -590,6 +633,7 @@ export default {
 #tv_chart_container {
   height: calc(100%) !important;
 }
+
 @media only screen and (max-width: 1000px) {
   #tv_chart_container {
     height: 360px;

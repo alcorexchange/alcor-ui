@@ -327,7 +327,7 @@ export default {
 
 .multi-input-wrapper {
   padding: 8px 15px;
-  background: var(--background-color-base);
+  background: var(--btn-active);
   border-radius: 6px;
   position: relative;
 
@@ -366,7 +366,7 @@ export default {
 
 .theme-light {
   .multi-input-wrapper {
-    background: var(--background-color-secondary);
+    background: var(--btn-active);
   }
 }
 

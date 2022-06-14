@@ -5,11 +5,20 @@
       .setting-theme-footer.el-footer.text-white
         span.theme-title {{ $t('Language') }}
       .el-main.theme-main-settings
-        element-select(:options="$i18n.locales" :selected="$i18n.locale")
+        element-select(:options="$i18n.locales")
           template(#option="{ option }")
             lang-option(:code="option.code")
           template(#selected)
             lang-option(:code="$i18n.locale")
+
+      .setting-theme-footer.el-footer.text-white
+        span.theme-title Theme
+      .el-main.theme-main-settings
+        element-select(:options="Object.values(themes)")
+          template(#option="{ option }")
+            theme-option(:theme="option")
+          template(#selected)
+            theme-option(:theme="themes[$colorMode.value]")
 
     //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
@@ -166,6 +175,7 @@ import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import ElementSelect from '~/components/elements/ElementSelect'
 import LangOption from '~/components/LangOption'
+import ThemeOption from '~/components/ThemeOption'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -176,7 +186,8 @@ export default {
     TokenImage,
     ChangePercent,
     ElementSelect,
-    LangOption
+    LangOption,
+    ThemeOption
   },
 
   data() {
@@ -191,10 +202,28 @@ export default {
         'order-form-vertical': 'Vertical Order Form'
       },
 
-      theme: 'dark',
+      theme: 'bloom',
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false
+      checkedorange: false,
+
+      themes: {
+        light: {
+          value: 'light',
+          colors: ['#67C23A', '#F56C6C'],
+          textPicker: { bg: '#F2F0F5', color: '#606266' }
+        },
+        dark: {
+          value: 'dark',
+          colors: ['#66C167', '#F96C6C'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        bloom: {
+          value: 'bloom',
+          colors: ['#277DFA', '#FFAB2E'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        }
+      }
     }
   },
   computed: {
@@ -319,6 +348,7 @@ export default {
 span.theme-title,
 .module-title {
   font-size: 12px;
+  color: var(--text-default);
 }
 
 el-container.setting-theme {
@@ -366,7 +396,7 @@ input[type='radio']:checked+label:before {
   background-color: white;
 }
 
-.theme-dark .el-main {
+.el-main {
   padding: 8px 12px 8px 12px !important;
 }
 
@@ -395,7 +425,7 @@ input[type='radio']:checked+label:before {
   padding: 3px 0px 3px 0px;
 }
 
-.theme-dark .el-footer {
+.el-footer {
   padding: 0px 12px;
   box-sizing: border-box;
   flex-shrink: 0;

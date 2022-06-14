@@ -28,8 +28,7 @@
       :icon-only-alt='true',
       @click='showSetting = !showSetting'
     )
-      i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
-      i.el-icon-setting.show-settings(v-else='')
+      i.el-icon-setting.show-settings
 
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
     //el-dropdown
@@ -164,7 +163,14 @@ export default {
 
 .connect-button {
   margin: 0 4px;
-  height: 36px;
+  height: 28px;
+  background: var(--btn-default);
+  color: var(--text-default) !important;
+}
+
+.show-settings {
+  background: var(--btn-default);
+  color: var(--text-default) !important;
 }
 
 .user-detail {
@@ -197,8 +203,8 @@ export default {
   position: absolute;
   top: 60px;
   right: 10px;
-  background: var(--btn-default);
-  border: 2px solid rgb(63, 63, 63);
+  background: var(--table-background);
+  border: var(--border-2);
   border-radius: 2px;
   z-index: 9;
 }

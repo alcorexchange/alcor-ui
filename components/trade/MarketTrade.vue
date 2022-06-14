@@ -2,7 +2,7 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.text-success {{ $t('Buy') }} {{ quote_token.symbol.name }}
+      small.green {{ $t('Buy') }} {{ quote_token.symbol.name }}
       span(
         @click="setAmount('buy')"
         class="text-mutted small align-self-end ml-auto cursor-pointer"
@@ -37,7 +37,7 @@
           v-model="percentBuy"
           :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
-        )
+        ).slider-buy
 
       el-form-item.mt-5
         el-button(
@@ -49,7 +49,7 @@
 
   .col-lg-6
     .d-flex.mb-1
-      small.text-danger {{ $t('Sell') }} {{ quote_token.symbol.name }}
+      small.red {{ $t('Sell') }} {{ quote_token.symbol.name }}
       span(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
         @click="setAmount('sell')"
@@ -84,7 +84,7 @@
           v-model="percentSell"
           :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
-        ).red
+        ).slider-sell
 
       el-form-item.mt-5
         el-button(
@@ -114,5 +114,13 @@ export default {
 <style scoped lang="scss">
 .cursor-pointer {
   cursor: pointer;
+}
+
+.green {
+  color: var(--color-primary)
+}
+
+.red {
+  color: var(--color-primary)
 }
 </style>
