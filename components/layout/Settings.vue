@@ -16,9 +16,9 @@
       .el-main.theme-main-settings
         element-select(:options="Object.values(themes)")
           template(#option="{ option }")
-            theme-option(:theme="option")
+            theme-option(:theme="option" @click="changeSelected")
           template(#selected)
-            theme-option(:theme="themes[$colorMode.value]")
+            theme-option(:theme="tradeTheme")
 
     //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
@@ -202,25 +202,29 @@ export default {
         'order-form-vertical': 'Vertical Order Form'
       },
 
-      theme: 'bloom',
       marketswitchvalue: false,
       favoritesswitchvalue: false,
       checkedorange: false,
 
       themes: {
-        light: {
-          value: 'light',
-          colors: ['#67C23A', '#F56C6C'],
-          textPicker: { bg: '#F2F0F5', color: '#606266' }
-        },
-        dark: {
-          value: 'dark',
+        default: {
+          value: 'Default',
           colors: ['#66C167', '#F96C6C'],
           textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
         },
         bloom: {
-          value: 'bloom',
+          value: 'Bloom',
           colors: ['#277DFA', '#FFAB2E'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        cyber: {
+          value: 'Cyber',
+          colors: ['#F22B55', '#00AB4A'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        contrast: {
+          value: 'Contrast',
+          colors: ['#C60606', '#00B909'],
           textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
         }
       }
@@ -229,6 +233,11 @@ export default {
   computed: {
     ...mapState(['markets']),
     ...mapState('market', ['current_market_layout', 'markets_layout']),
+    ...mapState('settings', ['tradeColor']),
+
+    tradeTheme() {
+      return this.themes[this.tradeColor]
+    },
 
     auto_select_node: {
       get() {
@@ -257,9 +266,19 @@ export default {
     }
   },
 
+  mounted() {
+    this.tradeColor = window.localStorage.getItem('trade-theme')
+  },
+
   methods: {
     setMarketLayout(value) {
       this.$store.commit('market/setCurrentMarketLayout', value)
+    },
+
+    changeSelected(value) {
+      this.$store.commit('settings/setTradeColor', value)
+      window.localStorage.setItem('trade-theme', value)
+      document.querySelector('html').setAttribute('trade-theme', window.localStorage.getItem('trade-theme'))
     },
 
     onChange(e) {
@@ -282,7 +301,7 @@ export default {
     initiateState() {
       this.$store.commit('market/setMarketLayout', TRADE_LAYOUTS.advanced)
     }
-  }
+  },
 }
 </script>
 

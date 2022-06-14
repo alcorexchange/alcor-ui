@@ -264,13 +264,17 @@ export default {
   background: var(--table-header-background);
   overflow: hidden;
 
+  &:hover {
+    background: var(--table-header-background) !important;
+  }
+
   .ltd {
     height: 23px;
   }
 }
 
 .orders-list {
-  background: var(--background-color-base) !important;
+  background: var(--trade-bg) !important;
   will-change: transform;
 
   .orderbook-progress {
@@ -373,7 +377,7 @@ export default {
 .orders-list.blist .ltd:hover {
   cursor: pointer;
   font-weight: bold;
-  background: var(--active-row);
+  background: var(--hover);
 }
 
 .blist .ltd span {

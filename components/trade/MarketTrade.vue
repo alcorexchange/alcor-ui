@@ -37,7 +37,7 @@
           v-model="percentBuy"
           :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
-        )
+        ).slider-buy
 
       el-form-item.mt-5
         el-button(
@@ -84,7 +84,7 @@
           v-model="percentSell"
           :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
-        ).red
+        ).slider-sell
 
       el-form-item.mt-5
         el-button(

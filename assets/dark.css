@@ -2307,7 +2307,7 @@
 }
 
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-    color: var(--black-primary);
+    color: var(--text-default);
     background-color: var(--btn-active);
     border-color: transparent;
     -webkit-box-shadow: -1px 0 0 0 transparent;
@@ -2892,12 +2892,12 @@
 
 .el-table th,
 .el-table tr {
-    background-color: var(--table-header-background)
+    background-color: var(--table-background)
 }
 
 .el-table td,
 .el-table th {
-    padding: 12px 0;
+    padding: 10px 0;
     min-width: 0;
     box-sizing: border-box;
     text-overflow: ellipsis;
@@ -3270,7 +3270,7 @@
 .el-table__body tr.hover-row.el-table__row--striped.current-row>td,
 .el-table__body tr.hover-row.el-table__row--striped>td,
 .el-table__body tr.hover-row>td {
-    background-color: var(--btn-active) !important;
+    background-color: var(--hover) !important;
 }
 
 .el-table__column-resize-proxy {
@@ -6516,12 +6516,20 @@
     width: 100%;
     height: 4px;
     margin: 16px 0;
-    background-color: var(--color-primary-op);
     border-radius: 3px;
     position: relative;
     cursor: pointer;
     vertical-align: middle
 }
+
+.slider-buy .el-slider__runway {
+  background-color: var(--color-primary-op);
+}
+
+.slider-sell  .el-slider__runway {
+  background-color: var(--color-secondary-op);
+}
+
 
 .el-slider__runway.show-input {
     margin-right: 160px;
@@ -6627,7 +6635,6 @@
 .el-slider__button {
     width: 16px;
     height: 16px;
-    border: 2px solid var(--color-primary);
     background-color: var(--background-color-base);
     border-radius: 50%;
     -webkit-transition: .2s;
@@ -6635,6 +6642,15 @@
     -webkit-user-select: none;
     user-select: none
 }
+
+.slider-buy .el-slider__button {
+  border: 2px solid var(--color-primary);
+}
+
+.slider-sell  .el-slider__button {
+    border: 2px solid var(--color-secondary);
+}
+
 
 .el-slider__button.dragging,
 .el-slider__button.hover,
@@ -6660,10 +6676,18 @@
     height: 6px;
     width: 6px;
     border-radius: 100%;
-    background-color: var(--color-primary);
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%)
 }
+
+.slider-buy .el-slider__stop {
+  background-color: var(--color-primary);
+}
+
+.slider-sell  .el-slider__stop {
+  background-color: var(--color-secondary);
+}
+
 
 .el-slider__marks {
     top: 0;
@@ -11651,7 +11675,7 @@
     top: 1px;
     margin-left: -6px;
     border-top-width: 0;
-    border-bottom-color: var(--border-color)
+    border-bottom-color: var(--bg-alter-1)
 }
 
 .el-popper[x-placement^=right] {
@@ -12838,27 +12862,27 @@
     top: 0;
     -webkit-transition: all .3s;
     height: 100%;
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::-webkit-input-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::-moz-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner:-ms-input-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::-ms-input-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input.is-active .el-input__inner,
@@ -14039,23 +14063,23 @@
 }
 
 .el-button--primary {
-    color: var(--text-default);
-    background-color: var(--btn-active);
-    border-color: var(--btn-default)
+    background: #070707 !important;
+    border-color: #070707 !important;
+    color: #1fc781;
 }
 
 .el-button--primary:focus,
 .el-button--primary:hover {
-    color: var(--text-default);
-    background-color: var(--btn-active);
-    border-color: var(--btn-active)
+    color: #15a268 !important;
+    background-color: #171717 !important;
+    border-color: #171717 !important;
 }
 
 .el-button--primary.is-active,
 .el-button--primary:active {
     color: var(--text-default);
-    background-color: var(--btn-active);
-    border-color: var(--btn-active)
+    background-color: #252525;
+    border-color: #252525;
 }
 
 .el-button--primary:active {

@@ -110,4 +110,12 @@ export default {
     border-radius: var(--radius);
   }
 }
+
+.green {
+  color: var(--main-green) !important;
+}
+
+.red {
+  color: var(--main-red) !important;
+}
 </style>

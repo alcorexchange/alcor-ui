@@ -366,6 +366,8 @@ export default {
 
   .el-table--fit {
     height: calc(100% - 70px);
+    margin-top: 10px;
+
   }
 
   .el-table__body-wrapper {

@@ -21,7 +21,7 @@ export default {
 <style lang="scss" scoped>
 .el-dropdown.element-select {
   width: 100%;
-  background-color: var(--btn-active);
+  background-color: var(--selector-bg);
   border-radius: 2px;
   box-sizing: border-box;
   padding: 8px 10px;
