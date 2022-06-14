@@ -5,7 +5,7 @@
       .row
         .col
           .d-flex.mb-1
-            small.text-muted Send
+            small.text-muted {{ $t('Send') }}
 
             //el-button(type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto {{ inputBalance }}
               i.el-icon-wallet.ml-1
@@ -14,7 +14,7 @@
             template(slot="end")
               .pair(@click="$router.push('/swap/create')").text-muted
                 i.el-icon-plus.mr-2
-                span Create pool
+                  span {{ $t('Create pool') }}
 
       .row.mt-3
         .col.text-center
@@ -22,7 +22,7 @@
       .row.mt-1
         .col
           .d-flex.mb-1
-            small.text-muted Estimated Get
+            small.text-muted {{ $t('Estimated Get') }}
             //small.text-mutted.small.ml-auto {{ outputBalance }}
               i.el-icon-wallet.ml-1
 
@@ -30,7 +30,7 @@
             template(slot="end")
               .pair(@click="$router.push('/swap/create')").text-muted
                 i.el-icon-plus.mr-2
-                span Create pool
+                  span {{ $t('Create pool') }}
 
       //.row.mt-4(v-if="output && ibcChain")
         .col
@@ -47,9 +47,9 @@
           PleaseLoginButton
             div(v-loading="loading")
               .div(v-if="(input && inputAmount) && (output && outputAmount)")
-                el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+                el-button(type="primary" @click="submit").w-100 {{ $t('Swap') }} {{ input.symbol }} {{ $t('to') }} {{ output.symbol }}
               .div(v-else)
-                el-button(type="primary" disabled).w-100 Select amounts
+                el-button(type="primary" disabled).w-100 {{ $t('Select amounts') }}
 
       //.row.mt-3
         .col

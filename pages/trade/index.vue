@@ -11,13 +11,13 @@ div
       .row.mb-2
         .col
           el-alert(type='error', show-icon)
-            .lead Potential SCAM token!
+            .lead {{ $t('Potential SCAM token') }}!
 
     .col(v-if='$store.state.market.quote_token.str == "DMT@shmothership"')
       .row.mb-2
         .col
           el-alert(type='error', show-icon)
-            .lead The DMT token has been hacked. Any movement of the token (including cancellation of the order) takes 99% of the transfer amount. For any questions, please contact the DMT team!
+            .lead {{ $t('The DMT token has been hacked. Any movement of the token (including cancellation of the order) takes 99% of the transfer amount. For any questions, please contact the DMT team') }} !
 
     .col(
       v-if='$store.state.market.base_token.contract == "bosibc.io" || $store.state.market.quote_token.contract == "bosibc.io"'
@@ -25,7 +25,7 @@ div
       .row.mb-2
         .col
           el-alert(type='warning', show-icon)
-            .lead Cross Chain transfers of BOSIBC tokens are temporary stopped! It is recommended to wait for the news before continuing trading.
+            .lead {{ $t('Cross Chain transfers of BOSIBC tokens are temporary stopped! It is recommended to wait for the news before continuing trading') }}.
 
   client-only
     DesktopTrade(v-if='!isMobile')

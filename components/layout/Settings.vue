@@ -3,7 +3,7 @@
   .el-container.setting-container.pt-2.d-flex.flex-column
     .el-container.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
-        span.theme-title Language
+        span.theme-title {{ $t('Language') }}
       .el-main.theme-main-settings
         element-select(:options="$i18n.locales")
           template(#option="{ option }")
@@ -108,7 +108,7 @@
 
     .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
       .setting-module-footer.el-footer.text-white
-        span.module-title Layouts
+        span.module-title {{ $t('Layouts') }}
       .el-main.module-main-settings
         .layout-selection
           .d-flex.flex-column(@click="setMarketLayout('classic')")
@@ -124,7 +124,7 @@
     .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
-        span.module-title Layout Modules
+        span.module-title {{ $t('Layout Modules') }}
       .el-main.module-main-settings
         .module-selection.d-flex.flex-column
           .module-list.d-flex.flex-row.justify-content-between(
@@ -139,7 +139,7 @@
                 inactive-color='#161617'
               )
       .el-footer.module-footer.default-settings-part
-        .return-default-setting.hoverable(@click='initiateState()') Return to Default Settings
+        .return-default-setting.hoverable(@click='initiateState()') {{ $t('Return to Default Settings') }}
 
     // TODO
     //.el-container.setting-layout.d-flex.flex-column

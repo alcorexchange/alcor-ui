@@ -1,12 +1,12 @@
 <template lang="pug">
 .lp-new
   .main-card.alcor-card
-    .card-title Add Liquidity
+    .card-title {{ $t('Add Liquidity') }}
     .section
       .section-header
-        .title Select pair
+        .title {{ $t('Select pair') }}
         .actions
-          el-button(type='text', @click='onClearTokens') Clear All
+          el-button(type='text', @click='onClearTokens') {{ $t('Clear All') }}
       .pair-select-container
         PairSelectItem.first-pair(
           @click='onSelectToken("firstToken")',
@@ -19,8 +19,8 @@
     Spacer(low)
     .section(:class='{ deactive: !isSelectPoolActive }')
       .section-header
-        .title Select Pool
-      .desc Select a pool type based on your preferred liquidity provider fee.
+        .title {{ $t('Select Pool') }}
+      .desc {{ $t("Select a pool type based on your preferred liquidity provider fee") }}.
       .pool-select-container
         PoolSelectItem(
           v-model='selectedPool',
@@ -43,20 +43,20 @@
     Spacer(low)
     .section(:class='{ deactive: !isSettingPriceActive }')
       .section-header
-        .title Set Price Range
+        .title {{ $t("Set Price Range") }}
         .actions.range-actions
           .item.first(
             @click='selectedRangeToken = "first"',
             :class='{ active: selectedRangeToken === "first" }'
-          ) {{ firstToken.symbol }} price
+          ) {{ firstToken.symbol }} {{ $t('price') }}
           .item.second(
             @click='selectedRangeToken = "second"',
             :class='{ active: selectedRangeToken === "second" }'
-          ) {{ secondToken.symbol }} price
-      .desc Select a pool type based on your preferred liquidity provider fee.Your liquidity will only earn fees when the market price of the pair is within your range.
+          ) {{ secondToken.symbol }} {{ $t('price') }}
+      .desc $t('Select a pool type based on your preferred liquidity provider fee.Your liquidity will only earn fees when the market price of the pair is within your range')}}.
       .ranges
         PriceRangeItem.max-card(
-          title='Max Price',
+          :title='$t("Max Price")',
           :percentage='selectedPool',
           v-model='maxPrice',
           :selectedRangeToken='selectedRangeToken',
@@ -64,7 +64,7 @@
           :secondToken='secondToken'
         )
         PriceRangeItem.min-card(
-          title='Min Price',
+          :title='$t("Min Price")',
           :percentage='selectedPool',
           v-model='minPrice',
           :selectedRangeToken='selectedRangeToken',
@@ -80,14 +80,14 @@
     Spacer(low)
     .section(:class='{ deactive: !isDepositAmountsActive }')
       .section-header
-        .title Deposit Amounts
-        pre {{firstAmount}}
+        .title {{ $t('Deposit Amounts') }}
+        pre {{ firstAmount }}
       DepositAmountItem(v-model='firstAmount', :token='firstToken')
       SSpacer
       DepositAmountItem(v-model='secondAmount', :token='secondToken')
     Spacer(low)
     .submit-container
-      AlcorButton.submit(round) Submit Test
+      AlcorButton.submit(round) {{ $t('Submit Test') }}
   TokenSelectDialog(ref='tokenSelect')
 </template>
 
@@ -172,50 +172,62 @@ export default {
   padding: 14px;
   background: var(--bg-big-card);
 }
+
 .card-title {
   text-align: center;
 }
+
 .section {
   &.deactive {
     opacity: 0.6;
     pointer-events: none;
   }
 }
+
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .desc {
   opacity: 0.6;
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
+
 .pair-select-container {
   display: flex;
   align-items: center;
-  > * {
+
+  >* {
     flex: 1;
   }
+
   .first-pair {
     margin-right: 4px;
   }
+
   .second-pair {
     margin-left: 4px;
   }
 }
+
 .pool-select-container {
   display: flex;
-  > * {
+
+  >* {
     flex: 1;
     margin: 2px;
   }
 }
+
 .range-actions {
   display: flex;
   padding: 2px;
   border-radius: var(--radius);
   border: 1px solid var(--border-color);
+
   .item {
     border-radius: var(--radius);
     padding: 2px 4px;
@@ -223,21 +235,26 @@ export default {
     cursor: pointer;
     user-select: none;
     transition: all 0.3s;
+
     &.second {
       margin-left: 2px;
     }
+
     &.active {
       background: var(--hover);
     }
   }
 }
+
 .ranges {
   display: flex;
   margin-bottom: 16px;
 }
+
 .min-card {
   margin-left: 8px;
 }
+
 .max-card {
   margin-right: 8px;
 }

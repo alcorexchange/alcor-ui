@@ -3,17 +3,17 @@
     template(#title)
       .title-container
         i.el-icon-info
-        .text NFT Details
+        .text {{$t('NFT Details')}}
     .main
       .title {{ $t('Immutable data:') }}
       .item(v-for="value, key, i in fields.idata")
         span.key {{key}}:&nbsp;
         span.value {{value}}
-      .title.mt-4 Mutable data:
+      .title.mt-4 {{$t('Mutable data')}}:
       .item(v-for="value, key, i in fields.mdata")
         span.key {{key}}:&nbsp;
         span.value {{value}}
-      AlcorButton.done(@click="closePopup") Done
+      AlcorButton.done(@click="closePopup") {{$t('Done')}}
 </template>
 
 <script>

@@ -9,7 +9,7 @@
         .user-name {{ user.name }}
           i.el-icon-arrow-down.text-muted.ml-1
         el-dropdown-menu.dropdown-container
-          .d-item(@click='logout') Logout
+          .d-item(@click='logout') {{ $t('Logout') }}
     AlcorButton.connect-button(
       v-else='',
       @click='$store.dispatch("modal/login")'

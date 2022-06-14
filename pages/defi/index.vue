@@ -4,10 +4,10 @@
     el-menu(:default-active='defaultActiveLink' router)
       el-menu-item(index='defi-index-swap' :route="{ name: 'defi-index-swap' }" v-if="this.$store.state.network.name == 'eos'")
         i.el-icon-coin
-        span DefiBox Swap
+        span {{ $t('DefiBox Swap') }}
       el-menu-item(index='defi-index-pools' :route="{ name: 'defi-index-pools' }")
         i.el-icon-setting
-        span Evodex
+        span {{ $t('Evodex') }}
 
   .col-lg-10
     nuxt-child

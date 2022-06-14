@@ -11,8 +11,8 @@
       el-table.market-table(:data='deals', style='width: 100%')
         el-table-column(:label='$t("Side")' width="70")
           template(slot-scope='scope').text-success
-            span.text-success(v-if="scope.row.side == 'buy'") BUY
-            span.text-danger(v-else) SELL
+            span.text-success(v-if="scope.row.side == 'buy'") {{ $t('BUY') }}
+            span.text-danger(v-else) {{$t('SELL')}}
 
         el-table-column(:label='$t("Asset")')
           template(slot-scope='{row}') {{ getSymbol(row.market) }}
@@ -36,7 +36,7 @@
         el-table-column(:label='$t("Manage")' align="right")
           template(slot-scope='scope')
             el-button(size="mini" type="text")
-              a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset view
+              a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset {{$t('view')}}
 
         template(slot="append")
           infinite-loading(@infinite='infiniteHandler' spinner="spiral")
