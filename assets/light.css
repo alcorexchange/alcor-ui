@@ -2916,7 +2916,7 @@
 
 .el-table td,
 .el-table th {
-    padding: 12px 0;
+    padding: 4px 0;
     min-width: 0;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -6520,13 +6520,20 @@
 
 .el-slider__runway {
     width: 100%;
-    height: 6px;
+    height: 4px;
     margin: 16px 0;
-    background-color: var(--color-primary-op);
     border-radius: 3px;
     position: relative;
     cursor: pointer;
     vertical-align: middle
+}
+
+.slider-buy .el-slider__runway {
+  background-color: var(--color-primary-op);
+}
+
+.slider-sell  .el-slider__runway {
+  background-color: var(--color-secondary-op);
 }
 
 .el-slider__runway.show-input {
@@ -6585,7 +6592,7 @@
 }
 
 .el-slider__bar {
-    height: 6px;
+    height: 4px;
     background-color: var(--color-primary);
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
@@ -6622,12 +6629,19 @@
 .el-slider__button {
     width: 14px;
     height: 14px;
-    border: 2px solid var(--color-primary);
     background-color: var(--background-color-base);
     border-radius: 50%;
     -webkit-transition: .2s;
     transition: .2s;
     user-select: none
+}
+
+.slider-buy .el-slider__button {
+  border: 2px solid var(--color-primary);
+}
+
+.slider-sell  .el-slider__button {
+    border: 2px solid var(--color-secondary);
 }
 
 .el-image-viewer__btn,
@@ -6659,9 +6673,16 @@
     height: 6px;
     width: 6px ;
     border-radius: 100%;
-    background-color: var(--color-primary);
     top: -1px;
     transform: translateX(-50%)
+}
+
+.slider-buy .el-slider__stop {
+  background-color: var(--color-primary);
+}
+
+.slider-sell  .el-slider__stop {
+  background-color: var(--color-secondary);
 }
 
 .el-slider__marks {

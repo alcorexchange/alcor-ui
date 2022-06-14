@@ -265,7 +265,7 @@ export default {
   overflow: hidden;
 
   .ltd {
-    height: 23px;
+    padding: 2px 0;
   }
 }
 

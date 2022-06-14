@@ -2897,7 +2897,7 @@
 
 .el-table td,
 .el-table th {
-    padding: 12px 0;
+    padding: 4px 0;
     min-width: 0;
     box-sizing: border-box;
     text-overflow: ellipsis;
@@ -6516,12 +6516,20 @@
     width: 100%;
     height: 4px;
     margin: 16px 0;
-    background-color: var(--color-primary-op);
     border-radius: 3px;
     position: relative;
     cursor: pointer;
     vertical-align: middle
 }
+
+.slider-buy .el-slider__runway {
+  background-color: var(--color-primary-op);
+}
+
+.slider-sell  .el-slider__runway {
+  background-color: var(--color-secondary-op);
+}
+
 
 .el-slider__runway.show-input {
     margin-right: 160px;
@@ -6627,7 +6635,6 @@
 .el-slider__button {
     width: 16px;
     height: 16px;
-    border: 2px solid var(--color-primary);
     background-color: var(--background-color-base);
     border-radius: 50%;
     -webkit-transition: .2s;
@@ -6635,6 +6642,15 @@
     -webkit-user-select: none;
     user-select: none
 }
+
+.slider-buy .el-slider__button {
+  border: 2px solid var(--color-primary);
+}
+
+.slider-sell  .el-slider__button {
+    border: 2px solid var(--color-secondary);
+}
+
 
 .el-slider__button.dragging,
 .el-slider__button.hover,
@@ -6660,10 +6676,18 @@
     height: 6px;
     width: 6px;
     border-radius: 100%;
-    background-color: var(--color-primary);
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%)
 }
+
+.slider-buy .el-slider__stop {
+  background-color: var(--color-primary);
+}
+
+.slider-sell  .el-slider__stop {
+  background-color: var(--color-secondary);
+}
+
 
 .el-slider__marks {
     top: 0;
