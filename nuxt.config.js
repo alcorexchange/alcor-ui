@@ -144,7 +144,12 @@ module.exports = {
       { code: 'en', iso: 'en-US', file: 'en.js' },
       { code: 'ru', iso: 'ru-RU', file: 'ru.js' }
     ],
-    defaultLocale: 'en'
+    defaultLocale: 'en',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root'
+    }
   },
   highcharts: {
     /* module options */
