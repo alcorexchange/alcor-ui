@@ -2307,7 +2307,7 @@
 }
 
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-    color: var(--black-primary);
+    color: var(--text-default);
     background-color: var(--btn-active);
     border-color: transparent;
     -webkit-box-shadow: -1px 0 0 0 transparent;
@@ -2892,12 +2892,12 @@
 
 .el-table th,
 .el-table tr {
-    background-color: var(--table-header-background)
+    background-color: var(--table-background)
 }
 
 .el-table td,
 .el-table th {
-    padding: 4px 0;
+    padding: 10px 0;
     min-width: 0;
     box-sizing: border-box;
     text-overflow: ellipsis;
@@ -3270,7 +3270,7 @@
 .el-table__body tr.hover-row.el-table__row--striped.current-row>td,
 .el-table__body tr.hover-row.el-table__row--striped>td,
 .el-table__body tr.hover-row>td {
-    background-color: var(--btn-active) !important;
+    background-color: var(--hover) !important;
 }
 
 .el-table__column-resize-proxy {
@@ -11675,7 +11675,7 @@
     top: 1px;
     margin-left: -6px;
     border-top-width: 0;
-    border-bottom-color: var(--border-color)
+    border-bottom-color: var(--bg-alter-1)
 }
 
 .el-popper[x-placement^=right] {
@@ -12862,27 +12862,27 @@
     top: 0;
     -webkit-transition: all .3s;
     height: 100%;
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::-webkit-input-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::-moz-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner:-ms-input-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::-ms-input-placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input__inner::placeholder {
-    color: #C0C4CC
+    color: #C2C2C2;
 }
 
 .el-input.is-active .el-input__inner,
@@ -14063,23 +14063,23 @@
 }
 
 .el-button--primary {
-    color: var(--text-default);
-    background-color: var(--btn-active);
-    border-color: var(--btn-default)
+    background: #070707 !important;
+    border-color: #070707 !important;
+    color: #1fc781;
 }
 
 .el-button--primary:focus,
 .el-button--primary:hover {
-    color: var(--text-default);
-    background-color: var(--btn-active);
-    border-color: var(--btn-active)
+    color: #15a268 !important;
+    background-color: #171717 !important;
+    border-color: #171717 !important;
 }
 
 .el-button--primary.is-active,
 .el-button--primary:active {
     color: var(--text-default);
-    background-color: var(--btn-active);
-    border-color: var(--btn-active)
+    background-color: #252525;
+    border-color: #252525;
 }
 
 .el-button--primary:active {

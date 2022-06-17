@@ -91,6 +91,15 @@ export default {
       this.netError = true
       console.log('Net error', e)
     }
+
+    if (!document.querySelector('html').getAttribute('trade-theme')) {
+      if (!window.localStorage.getItem('trade-theme')) window.localStorage.setItem('trade-theme', 'default')
+      document.querySelector('html').setAttribute('trade-theme', window.localStorage.getItem('trade-theme'))
+      this.$store.commit(
+        'settings/setTradeColor',
+        window.localStorage.getItem('trade-theme')
+      )
+    }
   },
 
   methods: {

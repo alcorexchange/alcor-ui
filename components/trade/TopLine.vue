@@ -229,6 +229,6 @@ export default {
   font-size: 12px;
 
   background: var(--background-color-base);
-  border-bottom: 1px solid var(--background-color-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 </style>

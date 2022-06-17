@@ -8,17 +8,90 @@
   --radius-2: 8px;
 }
 
-.theme-light {
-  --color-primary: rgba(103, 194, 58, 1);
-  --color-primary-op: rgba(103, 194, 58, .25);
-  --primary-darker: #529B2E;
-  --color-secondary: #F56C6C;
-  --color-secondary-op: rgba(245, 108, 108, 0.25);
-  --secondary-darker: #C45656;
+[trade-theme="default"] {
+  --color-primary: #66C167;
+  --color-primary-op: rgba(102, 193, 103, .5);
+  --primary-darker: #46A147;
+  --color-secondary: #F96C6C;
+  --color-secondary-op: rgba(249, 108, 108, .5);
+  --secondary-darker: #D94C4C;
+}
+
+[trade-theme="bloom"] {
+  --color-primary: #277DFA;
+  --color-primary-op: rgba(39, 125, 250, .5);
+  --primary-darker: #055AD6;
+  --color-secondary: #FFAB2E;
+  --color-secondary-op: rgba(250, 149, 0, .5);
+  --secondary-darker: #D68000;
+}
+
+[trade-theme="cyber"] {
+  --color-primary: #00AB4A;
+  --color-primary-op: rgba(0, 153, 66, .5);
+  --primary-darker: #009942;
+  --color-secondary: #F22B55;
+  --color-secondary-op: rgba(242, 43, 85, .5);
+  --secondary-darker: #D40D37;
+}
+
+[trade-theme="contrast"] {
+  --color-primary: #00B909;
+  --color-primary-op: rgba(0, 185, 9, .5);
+  --primary-darker: #10C919;
+  --color-secondary: #C60606;
+  --color-secondary-op: rgba(0, 185, 9, .5);
+  --color-secondary-op: rgba(198, 6, 6, .5);
+  --secondary-darker: #D61616;
+}
+
+.theme-dark {
+  // backgrounds
+  --background-color-base: #282828;
+  --background-color-secondary: #212121;
+  --background-color-third: #161617;
+  --bg-big-card: #212121;
+  --bg-alter-1: #282828;
+  --bg-alter-2: #363535;
+  --landing-card-bg: rgba(40, 40, 40, 0.3);
+  --landing-icon-bg: #111111;
+  --table-background: #212121;
+  --dialog-background: #212121;
+
+  // buttons
+  --btn-default: #333333;
+  --btn-alternative: #333333;
+  --btn-active: #161617;
+  --hover: rgba(150, 150, 150, 0.1);
+  --dark-btn-sm: #383838;
+  --swap-tab-active: #141415;
+
+  --text-default: #f2f2f2;
+  --text-grey-thirdly: #bdbdbd;
+
+  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
+  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
+
+  --color-text-primary: #F2F2F2;
+  --border-color: #3F3F3F;
+
   --color-success: #8cc176;
   --color-danger: #b82c0d;
-  --color-white: #f3fafc;
-  --color-text-secondary: #5a5356;
+
+  --active-row: #282828;
+
+  --border-1: 1px solid rgba(60, 60, 67, 0.36);
+  --border-2: 2px solid #3F3F3F;
+
+  --selector-bg: #282828;
+
+  //trade 
+  --trade-bg: #282828;
+  --trade-tab-bg: #212121;
+  --trade-header-bg: #333333;
+}
+
+.theme-light {
 
   // backgrounds
   --background-color-base: #f0f2f5;
@@ -26,7 +99,7 @@
   --background-color-third: #fff;
   --bg-big-card: #f0f2f5;
   --bg-alter-1: #e6eef1;
-  --bg-alter-2: #dee6e8;
+  --bg-alter-2: #dcdfe6;
   --landing-card-bg: rgba(250, 250, 250, 0.3);
   --landing-icon-bg: #ededed;
   --table-background: #f0f2f5;
@@ -56,261 +129,13 @@
 
   --border-1: 1px solid rgba(60, 60, 67, 0.36);
   --border-2: 2px solid #CDD0D6;
-}
 
-.theme-bloom{
-  --color-primary: #277DFA;
-  --color-primary-op: rgba(5, 99, 234, 0.5);
-  --primary-darker: #055AD6;
-  --color-secondary: #FA9500;
-  --color-secondary-op: rgba(255, 171, 46, 0.5);
-  --secondary-darker: #D68000;
+  --selector-bg: #dcdfe6;
 
-  // backgrounds
-  --background-color-base: #1D1B1B;
-  --background-color-secondary: #3F3F3F;
-  --background-color-third: #0A0A0A;
-  --bg-big-card: #282828;
-  --bg-alter-1: #282828;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #212121;
-  --table-tabs-background: #2A2727;
-  --table-header-background: #454040;
-  --dialog-background: #212121;
-  --chart-actions-background: #212121;
+    //trade 
+  --trade-bg: #F0F2F5;
+  --trade-tab-bg: #D4D7DE;
+  --trade-header-bg: #DCDFE6;
 
-  // buttons
-  --btn-default: #303030;
-  --btn-alternative: #0A0A0A;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #DDDADA;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #F2F2F2;
-  --border-color: #3F3F3F;
-  --hover: rgba(255, 255, 255, .05);
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-
-  --border-1: 1px solid rgba(60, 60, 67, 0.36);
-  --border-2: 2px solid #3F3F3F;
-}
-
-.theme-dark{
-  --color-primary: #66C167;
-  --color-primary-op: rgba(102, 193, 103, .5);
-  --primary-darker: #51A751;
-  --color-secondary: #F96C6C;
-  --color-secondary-op: rgba(249, 108, 108, 0.5);
-  --secondary-darker: #C45656;
-
-  // backgrounds
-  --background-color-base: #212121;
-  --background-color-secondary: #3F3F3F;
-  --background-color-third: #161617;
-  --bg-big-card: #282828;
-  --bg-alter-1: #212121;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #282828;
-  --table-tabs-background: #212121;
-  --table-header-background: #333333;
-  --dialog-background: #212121;
-  --chart-actions-background: #212121;
-
-  // buttons
-  --btn-default: #333333;
-  --btn-alternative: #212121;
-  --btn-active: #444444;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #DDDADA;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #F2F2F2;
-  --border-color: #3F3F3F;
-  --hover: rgba(255, 255, 255, .05);
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-
-  --border-1: 1px solid rgba(60, 60, 67, 0.36);
-  --border-2: 2px solid #3F3F3F;
-}
-
-
-.theme-contrast {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #a01d1d;
-  --background-color-third: #161617;
-  --bg-big-card: #212121;
-  --bg-alter-1: #282828;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #212121;
-  --dialog-background: #282828;
-
-  // buttons
-  --btn-default: #333333;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}
-
-//oranger
-.theme-oranger {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #ffd104;
-  --background-color-third: #161617;
-  --bg-big-card: #6d6605;
-  --bg-alter-1: #9faf0a;
-  --bg-alter-2: #839904;
-  --landing-card-bg: rgba(117, 106, 4, 0.3);
-  --landing-icon-bg: #56850b;
-  --table-background: #212121;;
-  --dialog-background: #5d6309;
-
-  // buttons
-  --btn-default: #7e9906;
-  --btn-alternative: #9baf29;
-  --btn-active: #555403;
-  --hover: rgba(189, 189, 27, 0.6);
-  --dark-btn-sm: #c2af09;
-  --swap-tab-active: #8b8a35;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}
-
-//oceano
-.theme-oceano {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #067ec4;
-  --background-color-third: #13afec;
-  --bg-big-card: #038ac9;
-  --bg-alter-1: #086a97;
-  --bg-alter-2: #2583af;
-  --landing-card-bg: rgba(7, 106, 163, 0.3);
-  --landing-icon-bg: #07508b;
-  --table-background: #212121;
-  --dialog-background: #282828;
-
-  // buttons
-  --btn-default: #0f6ead;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}
-
-//cyber
-.theme-cyber {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #09c952;
-  --background-color-third: #161617;
-  --bg-big-card: #212121;
-  --bg-alter-1: #282828;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #212121;
-  --dialog-background: #282828;
-
-  // buttons
-  --btn-default: #08af6f;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
 }
 

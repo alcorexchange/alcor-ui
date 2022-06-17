@@ -327,7 +327,7 @@ export default {
 
 .multi-input-wrapper {
   padding: 8px 15px;
-  background: var(--btn-active);
+  background: #282828;
   border-radius: 6px;
   position: relative;
 

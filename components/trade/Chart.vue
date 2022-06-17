@@ -27,25 +27,31 @@ export default {
           background: '#F0F2F5',
           textColor: '#303133',
           gridColor: '#CDD0D6',
-          candleUpColor: '#67C23A',
-          candleDownColor: '#F56C6C',
           scaleLineColor: '#CDD0D6'
         },
         dark: {
           background: '#161617',
           textColor: '#E0E0E0',
           gridColor: '#1A2027',
-          candleUpColor: '#66C167',
-          candleDownColor: '#F96C6C',
           scaleLineColor: '#444444'
+        }
+      },
+      chartColors: {
+        default: {
+          candleUpColor: '#66C167',
+          candleDownColor: '#F96C6C'
         },
         bloom: {
-          background: '#0A0A0A',
-          textColor: '#DBDBDB',
-          gridColor: '#292929',
           candleUpColor: '#277DFA',
-          candleDownColor: '#FFAB2E',
-          scaleLineColor: '#3F3F3F'
+          candleDownColor: '#FFAB2E'
+        },
+        cyber: {
+          candleUpColor: '#00AB4A',
+          candleDownColor: '#F22B55'
+        },
+        contrast: {
+          candleUpColor: '#00B909',
+          candleDownColor: '#C60606'
         }
       }
     }
@@ -74,6 +80,9 @@ export default {
   watch: {
     '$colorMode.value'() {
       this.mountChart()
+    },
+    '$store.state.settings.tradeColor'() {
+      this.applyTheme()
     },
 
     userOrders() {
@@ -157,6 +166,7 @@ export default {
 
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
       this.widget.applyOverrides({
         volumePaneSize: 'medium',
         'paneProperties.background': theme.background,
@@ -165,15 +175,15 @@ export default {
         'paneProperties.vertGridProperties.color': theme.gridColor,
         'paneProperties.horzGridProperties.color': theme.gridColor,
 
-        'mainSeriesProperties.candleStyle.upColor': theme.candleUpColor,
-        'mainSeriesProperties.candleStyle.downColor': theme.candleDownColor,
+        'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
+        'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
         'mainSeriesProperties.candleStyle.drawBorder': false,
-        'mainSeriesProperties.candleStyle.wickUpColor': theme.candleUpColor,
-        'mainSeriesProperties.candleStyle.wickDownColor': theme.candleDownColor,
-        'mainSeriesProperties.hollowCandleStyle.upColor': theme.candleUpColor,
-        'mainSeriesProperties.hollowCandleStyle.downColor': theme.candleDownColor,
-        'mainSeriesProperties.hollowCandleStyle.wickUpColor': theme.candleUpColor,
-        'mainSeriesProperties.hollowCandleStyle.wickDownColor': theme.candleDownColor,
+        'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
+        'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
+        'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
+        'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
+        'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
+        'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
 
         'scalesProperties.lineColor': theme.scaleLineColor
       })

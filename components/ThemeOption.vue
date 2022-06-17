@@ -13,8 +13,7 @@ export default {
   props: ['theme'],
   methods: {
     changeTheme() {
-      if (this.$colorMode.preference !== this.theme.value)
-        this.$colorMode.preference = this.theme.value
+      this.$emit('click', this.theme.value.toLowerCase())
     }
   }
 }

@@ -63,10 +63,10 @@
 
         order-form-vertical(v-if="item.i == 'order-form-vertical'")
 
-        el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
-          el-tab-pane(:label='$t("Orderbook")')
+        el-tabs.h-100.trade-tab(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
+          el-tab-pane.trade-header(:label='$t("Orderbook")')
             order-book
-          el-tab-pane(:label='$t("Depth Chart")')
+          el-tab-pane.trade-header(:label='$t("Depth Chart")')
             depth-chart(
               :is-draggable='false',
               :is-resizable='false',
@@ -76,25 +76,25 @@
               :use-css-transforms='false',
             )
 
-        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
-          el-tab-pane(:label='$t("Markets")')
+        el-tabs.h-100.trade-tab(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
+          el-tab-pane.trade-tab(:label='$t("Markets")')
             Markets.mt-1
-          el-tab-pane(:label='$t("Times & Sales")')
+          el-tab-pane.trade-header(:label='$t("Times & Sales")')
             LatestDeals(:timeformat='timeformat')
 
-        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          el-tab-pane(:label='$t("Open orders")')
-            my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
-          el-tab-pane(:label='$t("Trade History")')
-            my-trade-history(:only-current-pair="hideOtherPairs")
-          el-tab-pane(:label='$t("Funds")')
-            my-funds(:only-current-pair="hideOtherPairs")
+        alcor-tabs.h-100.trade-tab(v-if='item.i == "open-order"' v-model='tab' type="border-card")
+          el-tab-pane.trade-header(:label='$t("Open orders")')
+            my-orders.trade-bg(v-loading='loading' :only-current-pair="hideOtherPairs")
+          el-tab-pane.trade-header(:label='$t("Trade History")')
+            my-trade-history.trade-bg(:only-current-pair="hideOtherPairs")
+          el-tab-pane.trade-header(:label='$t("Funds")')
+            my-funds.trade-bg(:only-current-pair="hideOtherPairs")
         .not-history.limit-market(
           v-if='item.i == "limit-market"',
           :min-h='10'
         )
           //.right-icons
-          el-tabs.trade-tabs(type="border-card").h-100
+          el-tabs.trade-tab(type="border-card").h-100
             el-tab-pane.h-10(:label='$t("Limit trade")')
               .trade-box
                 limit-trade
@@ -737,9 +737,22 @@ export default {
     }
   }
 
+  .trade-bg {
+    background-color: var(--trade-bg);
+  }
+
+  .trade-header,
+  .trade-header th {
+    background-color: var(--trade-header-bg) !important;
+  }
+
+  .trade-tab {
+    background-color: var(--trade-tab-bg);
+  }
+
   .trade-box {
-    margin-top: 20px;
-    padding: 0 15px;
+    padding: 20px 15px;
+    background-color: var(--trade-bg);
 
     .el-input--prefix .el-input__inner {
       padding-left: 35% !important;
@@ -795,7 +808,7 @@ export default {
   }
 
   .el-table__header th {
-    background-color: var(--table-header-background);
+    background-color: var(--trade-bg);
   }
 
   .el-table {

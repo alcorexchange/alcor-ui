@@ -153,3 +153,13 @@ export default {
   color: var(--color-primary)
 }
 </style>
+
+<style>
+.slider-sell .el-slider__bar {
+  background-color: var(--color-secondary);
+}
+
+.slider-buy .el-slider__bar {
+  background-color: var(--color-primary);
+}
+</style>

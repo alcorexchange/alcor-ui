@@ -16,7 +16,7 @@
 
 :root:not(.theme-light) {
     --tv-color-platform-background: #3F3F3F;
-    --tv-color-pane-background: #212121;
+    --tv-color-pane-background: #282828;
     --tv-color-pane-background-secondary: rgb(249, 185, 233);
     --tv-color-toolbar-button-background-hover: #3333339e;
     --tv-color-toolbar-button-background-secondary-hover: green;
