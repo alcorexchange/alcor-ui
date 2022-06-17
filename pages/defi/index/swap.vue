@@ -2,7 +2,7 @@
 .row.justify-content-center.mt-3
   .col-lg-10
     el-card
-      .lead Swap tokens using Defibox
+      .lead {{ $t('Swap tokens using Defibox') }}
 
       swap(v-if="tab == 'Swap'")
 

@@ -13,10 +13,10 @@
 
             .row
               .col
-                .d-flex.mb-3
-                  new-order-form.mr-2 Create new order
+                .d-flex
+                  new-order-form.mr-2 {{ $t('Create new order') }}
 
-                  el-select(v-model="search" clearable placeholder="Select token" size="medium").ml-2.mr-2.w-25
+                  el-select(v-model="search" clearable :placeholder="$t('Select token')" size="medium").ml-2.mr-2.w-25
                     el-option(
                       v-for="token in tokens"
                       :key="token"

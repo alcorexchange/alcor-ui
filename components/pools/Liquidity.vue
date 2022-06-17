@@ -1,15 +1,14 @@
 <template lang="pug">
 div
-  el-button(size="medium" @click="open" icon="el-icon-money" type="primary") Provide liquidity
+  el-button(size="medium" @click="open" icon="el-icon-money" type="primary") {{ $t('Provide liquidity') }}
 
   el-dialog(title="Add liquidity", :visible.sync="visible" width="50%").pool-withdraw
     .row
       .col
         .text.item(v-if="current.pool1")
-          p You can earn money on commissions from exchanges.
-            |  Be sure to familiarize yourself with the principle of operation of liquidity pools.
+          p {{ $t('You can earn money on commissions from exchanges. Be sure to familiarize yourself with the principle of operation of liquidity pools') }}.
 
-          pre Liquidity provider fee: {{ current.fee / 100 }}%
+          pre {{ $t('Liquidity provider fee') }}: {{ current.fee / 100 }}%
           .row.mb-3.mt-2
             .col-6.bordered
               .row
@@ -17,11 +16,11 @@ div
                   TokenImage(:src="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)" height="50").ml-2
                 .col-lg-10
                   .lead {{ current.pool1.quantity.symbol.code().to_string() }}@{{ current.pool1.contract }}
-                  b Pool size: {{ current.pool1.quantity }}
+                  b {{ $t('Pool size') }}: {{ current.pool1.quantity }}
 
               hr
 
-              pre Balance: {{ baseBalance }}
+              pre {{ $t('Balance') }}: {{ baseBalance }}
               el-input(type="number" v-model="amount1" clearable @input="amount1Input" @change="amountChange")
                 span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
 
@@ -33,11 +32,11 @@ div
                   TokenImage(:src="$tokenLogo(poolTwo.quantity.symbol.code().to_string(), poolTwo.contract)" height="50").mr-2
                 .col-lg-10
                   .lead {{ poolTwo.quantity.symbol.code().to_string() }}@{{ poolTwo.contract }}
-                  b Pool size: {{ poolTwo.quantity }}
+                  b {{ $t('Pool size') }}: {{ poolTwo.quantity }}
 
               hr
 
-              pre Balance: {{ quoteBalance }}
+              pre {{ $t('Balance') }}: {{ quoteBalance }}
               el-input(type="number" v-model="amount2" clearable @input="amount2Input" @change="amountChange")
                 span(slot="suffix").mr-1 {{ poolTwo.quantity.symbol.code().to_string() }}
           .row.mb-3(v-if="current.pool1")
@@ -46,21 +45,21 @@ div
                 .col
                   .row
                     .col
-                      pre Pool price: {{ poolPrice }} {{ current.pool1.quantity.symbol.code().to_string() }}
+                      pre {{$t('Pool price')}}: {{ poolPrice }} {{ current.pool1.quantity.symbol.code().to_string() }}
                         | /{{ current.pool2.quantity.symbol.code().to_string() }}
 
                   .row
                     .col
-                      pre Pool token supply: {{ current.supply }}
+                      pre {{$t('Pool token supply')}}: {{ current.supply }}
 
                   .row
                     .col
-                      .big Liquidity token receive:
+                      .big {{$t('Liquidity token receive')}}:
                         |  {{ tokenReceive | humanFloat(this.current.supply.symbol.precision(), this.current.supply.symbol.precision(), this.current.supply.symbol.precision()) }} {{ this.current.supply.symbol.code().to_string() }}
           .row
             .col
               PleaseLoginButton
-                el-button(type="primary" @click="provide" :loading="loading").w-100 Provide
+                el-button(type="primary" @click="provide" :loading="loading").w-100 {{$t('Provide')}}
 
 </template>
 

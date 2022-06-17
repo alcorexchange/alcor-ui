@@ -4,7 +4,7 @@
 
   .row.mb-1
     .col
-      small category:
+      small {{ $t('category') }}:
       |  {{ nft.category }}
 
   .row.mb-1
@@ -16,7 +16,7 @@
           span  {{ item[1] }}
   .row
     .col
-      b Mutable data:
+      b {{ $t('Mutable data') }}:
       ul
         li(v-for="item in mRows" v-if="item[1]")
           span.text-muted {{ item[0] }}:

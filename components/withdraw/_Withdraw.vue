@@ -2,7 +2,7 @@
 // TODO Refactor with walidators for form
 // TODO boscore withdraws https://boscore.gitbook.io/docs/essentials/bos-essentials/ibc-inter-blockchain-communication/user-guide
 .text-left
-  el-button(type="primary" icon="el-icon-wallet" size="mini" @click="open").ml-auto Withdraw
+  el-button(type="primary" icon="el-icon-wallet" size="mini" @click="open").ml-auto {{ $t('Withdraw') }}
 
   el-dialog(title="Withdraw", :visible.sync="visible" width="25%" v-if="user")
     el-form(ref="form" label-position="left")
@@ -13,13 +13,13 @@
         .col-10
           .row
             .col
-              b Network: {{ peg.network.name }}
+              b {{ $t('Network') }}: {{ peg.network.name }}
           .row
             .col
-              b Symbol: {{ peg.network.symbol }}
+              b {{ $t('Symbol') }}: {{ peg.network.symbol }}
           .row
             .col
-              b Balance: {{ tokenBalance }}
+              b {{ $t('Balance') }}: {{ tokenBalance }}
 
       .row.mt-3
         .col
@@ -28,18 +28,18 @@
 
       el-form-item.mt-2
         template(slot="label")
-          b Withdraw amount:
+          b {{ $t('Withdraw amount') }}:
         el-input-number(v-model="amount" :precision="token.precision" :step="1").w-100
 
       el-form-item.mt-1
         template(slot="label")
-          b {{ peg.network.name }} address:
+          b {{ peg.network.name }} {{ $t('address') }}:
           .text-info No validation of address yet, be careful!
-        el-input(v-model="account" placeholder="address..").w-100
+        el-input(v-model="account" :placeholder="$t('address..')").w-100
 
 
     span.dialog-footer
-      el-button(type='primary' @click="submit").w-100 Withdraw
+      el-button(type='primary' @click="submit").w-100 {{ $t('Withdraw') }}
 </template>
 
 <script>
@@ -56,7 +56,7 @@ export default {
   props: {
     token: {
       type: Object,
-      default: () => {}
+      default: () => { }
     }
   },
 
@@ -138,9 +138,10 @@ export default {
 
 <style scoped>
 .upperinput {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
+
 .upperinput:placeholder-shown {
-    text-transform: none;
+  text-transform: none;
 }
 </style>

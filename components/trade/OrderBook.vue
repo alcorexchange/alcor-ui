@@ -26,7 +26,7 @@
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
-      span No asks
+      span {{ $t('No asks') }}
       span
 
   .latest-price
@@ -269,7 +269,7 @@ export default {
   }
 
   .ltd {
-    height: 23px;
+    padding: 2px 0;
   }
 }
 

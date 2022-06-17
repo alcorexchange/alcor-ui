@@ -1,13 +1,14 @@
 <template lang="pug">
-.card-title Add Liquidity
+.card-title {{ $t('Add Liquidity') }}
   .section
-      .section-header
-          .title Select pair
-          .actions
-              el-button(type="text") Clear All
-      .pair-select-container
-          PairSelectItem.first-pair(@click="onSelectToken('firstToken')" :token="firstToken")
-          PairSelectItem.second-pair(@click="onSelectToken('secondToken')" :token="secondToken")
+    .section-header
+      .title {{ $t('Select pair') }}
+      .actions
+        el-button(type="text")
+          | {{ $t('Clear All') }}
+    .pair-select-container
+      PairSelectItem.first-pair(@click="onSelectToken('firstToken')" :token="firstToken")
+      PairSelectItem.second-pair(@click="onSelectToken('secondToken')" :token="secondToken")
 </template>
 
 <script>
@@ -21,4 +22,5 @@ export default {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+</style>
