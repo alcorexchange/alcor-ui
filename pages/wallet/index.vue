@@ -1,8 +1,5 @@
 <template lang="pug">
   div.wallet
-    .table-header
-      el-input(v-model='search' prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small" clearable)
-      el-checkbox() Hide small balances
     .el-card.is-always-shadow
       el-table.alcor-table.noHover(
         :data='balances',
@@ -121,13 +118,14 @@ export default {
     },
 
     trade(token) {
-      this.openInNewTab('/markets?tab=all&search=' + `${token.currency}-${token.contract}`)
+      this.$router.push({
+        name: 'markets',
+        query: { tab: 'all', search: `${token.currency}-${token.contract}` }
+      })
     },
-
     openDeposit() {
       this.$refs.depositPopup.openPopup({})
     },
-
     openWithdraw(row) {
       this.$refs.withdrawPopup.openPopup({
         token: {

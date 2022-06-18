@@ -37,7 +37,7 @@
               span.cross-btn(@click="deleteTheirTradeItem(item.asset_id)" :style="{ backgroundImage:`url(${require('~/assets/images/cross.svg')})`}")
     TradeofferTab(:data='data' :currentTab='currentTab' :handleTab='handleTab', :handleSearch='handleSearch', :collectionData='collectionData', :handleCollection='handleCollection', :sendTradeOffer="sendTradeOffer")
     .grid-container(v-if='loading')
-      .d-flex.justify-content-center(v-for='(item, index) in 12' :key='index')
+      .d-flex.justify-content-center(v-for='item in 12' :key='item')
         CustomSkeletonVue(:width='220', :height='370')
     .grid-container(v-else)
       .d-flex.justify-content-center(v-for='(item, index) in (currentTab === "your" ? assetsData : recipientData)' :key='index')
@@ -133,34 +133,31 @@ export default {
       }, 600)
     },
     deleteMyTradeItem(id) {
-      this.myTrade = this.myTrade.filter((item) => item.asset_id != id)
+      this.myTrade = this.myTrade.filter((item) => item.asset_id !== id)
     },
     deleteTheirTradeItem(id) {
-      this.theirTrade = this.theirTrade.filter((item) => item.asset_id != id)
+      this.theirTrade = this.theirTrade.filter((item) => item.asset_id !== id)
     },
     handleTab(value) {
       this.currentTab = value
     },
     async getCollectionData() {
-      const data = await this.$store.dispatch('api/getCollectionData', {
+      this.collectionData = await this.$store.dispatch('api/getCollectionData', {
         author: ''
       })
-      this.collectionData = data
     },
     async handleSearch(key) {
       this.loading = true
       if (this.currentTab === 'your' && this.user.name) {
-        const data = await this.$store.dispatch('api/getAssetsInventory', {
+        this.assetsData = await this.$store.dispatch('api/getAssetsInventory', {
           owner: this.user.name,
           search: key
         })
-        this.assetsData = data
       } else if (this.currentTab === 'their' && this.recipientName) {
-        const data = await this.$store.dispatch('api/getAssetsInventory', {
+        this.recipientData = await this.$store.dispatch('api/getAssetsInventory', {
           owner: this.recipientName,
           search: key
         })
-        this.recipientData = data
       }
       this.loading = false
     },
@@ -197,8 +194,8 @@ export default {
       this.loading = false
     },
     async sendTradeOffer() {
-      let recipientAssetsIds = []
-      let senderAssetsIds = []
+      const recipientAssetsIds = []
+      const senderAssetsIds = []
       this.theirTrade.map((item) => {
         recipientAssetsIds.push(item.asset_id)
       })
@@ -219,7 +216,7 @@ export default {
         }
       ]
       if (this.myTrade.length && this.theirTrade.length) {
-        const data = await this.$store.dispatch('api/transferOffer', {
+        await this.$store.dispatch('api/transferOffer', {
           actions
         })
         this.$notify({ title: 'Send Trade Offer', message: 'Sent Trade!', type: 'success' })
@@ -344,7 +341,6 @@ export default {
   }
 
   #return-btn {
-    font-weight: 500;
     font-size: 16px;
     font-weight: 700;
     color: #9f979a !important;

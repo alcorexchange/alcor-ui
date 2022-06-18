@@ -33,10 +33,10 @@
         img(v-else-if='item.img', :src='"https://ipfs.io/ipfs/" + item.img')
         img(v-else, src='~/assets/images/default.png')
         p.ml-1.flex-fill.text-left.collection-name.mb-0 {{ item.name }}
-  .tab-btn.border-bottom--green(v-if='currentTab === "sales"') Sales
-  .tab-btn.border-bottom--gray(v-else='', @click='handleTab("sales")') Sales
-  .tab-btn.border-bottom--green(v-if='currentTab === "auctions"') Auctions
-  .tab-btn.border-bottom--gray(v-else='', @click='handleTab("auctions")') Auctions
+  .tab-btn.border-bottom--green(v-if='currentTab === "market-sales"') Sales
+  .tab-btn.border-bottom--gray(v-else='', @click='handleTab("market-sales")') Sales
+  .tab-btn.border-bottom--green(v-if='currentTab === "market-auctions"') Auctions
+  .tab-btn.border-bottom--gray(v-else='', @click='handleTab("market-auctions")') Auctions
 </template>
 
 <script>

@@ -36,15 +36,15 @@
           :data='item',
           :mode='currentTab === "sets" && detailCollectionMode ? "setsList" : ""',
           :kindBut='currentTab != "inventory" ? "all" : ""'
+          :getOverData='getInventoryOverData'
+          :overData='overData'
         )
   div(v-else)
-    div(
-      v-if='currentTab === "inventory" || currentTab === "listings" || currentTab === "auctions" || currentTab === "sets"'
-    )
+    div(v-if='currentTab === "inventory" || currentTab === "listings" || currentTab === "auctions" || currentTab === "sets"')
       .grid-container(v-if='loading')
         CustomSkeletonVue(
           v-for='item in 12',
-          :key='12',
+          :key='item',
           :width='220',
           :height='380'
         )
@@ -57,6 +57,8 @@
             :data='item',
             :mode='currentTab',
             :kindBut='currentTab != "inventory" ? "all" : ""'
+            :getOverData='getInventoryOverData'
+            :overData='overData'
           )
     div(v-else-if='currentTab === "sold" || currentTab === "bought"')
       .d-flex.justify-content-between(v-if='loading')
@@ -151,6 +153,7 @@ export default {
     ],
     selectedCollectionName: '',
     collectionSets: [],
+    overData: '',
     detailCollectionMode: false,
   }),
   computed: {
@@ -226,6 +229,45 @@ export default {
       this.currentHorizontalTab = value
     },
 
+    async getInventoryOverData(params) {
+      this.overData = ''
+      const templateStats = await this.getTemplateStats(params.collection_name, params.template_id)
+      const specificAsset = await this.getSpecificAsset(params.collection_name, params.template_id)
+      const assetsSales = await this.getAssetsSales(params.asset_id)
+      const saleData = await this.getOverSale(params.collection_name, params.template_id)
+      this.overData = {
+        templateStats,
+        specificAsset,
+        assetsSales,
+        saleData
+      }
+    },
+
+    async getTemplateStats(collection_name, template_id) {
+      return await this.$store.dispatch('api/getTemplateStats', {
+        collection_name, template_id
+      })
+    },
+
+    async getSpecificAsset(collection_name, template_id) {
+      return await this.$store.dispatch('api/getAssets', {
+        owner: this.user.name,
+        collection_name,
+        template_id
+      })
+    },
+
+    async getAssetsSales(asset_id) {
+      return await this.$store.dispatch('api/getAssetsSales', {
+        asset_id
+      })
+    },
+
+    async getOverSale(collectionName, template_id) {
+      return await this.$store.dispatch('api/getSaleData', {
+        collectionName, template_id, symbol: 'WAX', state: 1, limit: 1
+      })
+    },
     getData(value) {
       if (value === 'inventory') {
         this.getAssets()

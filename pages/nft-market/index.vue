@@ -23,7 +23,6 @@
           v-if='data',
           :data='data',
           :price='getPrice',
-          :kindBut='"sendoffer"'
         )
   h1.recent-title(v-if='filteredOrders.length') New NFTs
   CatCarousel.nft-market-carousel(
@@ -37,13 +36,11 @@
           v-if='data',
           :data='data',
           :price='getPrice',
-          :kindBut='"sendoffer"'
         )
 </template>
 
 <script>
 import { mapState } from 'vuex'
-// import axios from 'axios'
 import { CatCarousel } from 'vue-cat-carousel'
 import NftCard from '~/components/nft_markets/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
