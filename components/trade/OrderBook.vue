@@ -186,13 +186,14 @@ export default {
     font-weight: normal;
     line-height: 14px;
 
-    .price {
-      color: var(--color-primary);
-
-      &.red {
-        color: var(--color-secondary);
-      }
+    & .green {
+      color: var(--color-primary)
     }
+
+    & .red {
+      color: var(--color-secondary);
+    }
+
 
     .spread {
       color: var(--text-default);

@@ -30,9 +30,9 @@ export default {
           scaleLineColor: '#CDD0D6'
         },
         dark: {
-          background: '#161617',
+          background: '#282828',
           textColor: '#E0E0E0',
-          gridColor: '#1A2027',
+          gridColor: '#333333',
           scaleLineColor: '#444444'
         }
       },

@@ -11,6 +11,7 @@
           template(#selected)
             lang-option(:code="$i18n.locale")
 
+    div(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
       .setting-theme-footer.el-footer.text-white
         span.theme-title Theme
       .el-main.theme-main-settings

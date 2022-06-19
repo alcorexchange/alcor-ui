@@ -319,6 +319,14 @@ export default {
   }
 
 }
+
+.red {
+  color: var(--main-red);
+}
+
+.green {
+  color: var(--main-green);
+}
 </style>
 
 <style lang="scss" scoped>

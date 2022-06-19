@@ -1726,7 +1726,7 @@
     display: inline-block;
     position: relative;
     color: #c4c4c4;
-    font-size: 12px
+    font-size: 1rem;
 }
 
 .el-dropdown .el-button-group {
