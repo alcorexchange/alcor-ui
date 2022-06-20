@@ -44,8 +44,7 @@ Vue.mixin({
     },
 
     openInNewTab(url) {
-      const win = window.open(url, '_blank')
-      win.focus()
+      window.open(url, '_blank')
     },
 
     // El-dialog fix
