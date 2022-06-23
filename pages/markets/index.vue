@@ -36,7 +36,11 @@
       nuxt-link(to="new_market")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
 
-  .table.el-card.is-always-shadow
+  virtual-table(:table="virtualTableData")
+    template(#row="{ item }")
+      market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
+
+  //.table.el-card.is-always-shadow
     el-table.market-table(
       :data='lazyMarkets',
       row-key="id"
@@ -134,12 +138,16 @@ import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import PairIcons from '~/components/PairIcons'
+import VirtualTable from '~/components/VirtualTable'
+import MarketRow from '~/components/MarketRow'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
-    PairIcons
+    PairIcons,
+    VirtualTable,
+    MarketRow
   },
 
   async fetch({ store, error }) {
@@ -195,39 +203,50 @@ export default {
     },
 
     virtualTableData() {
-      const headers = [
+      const header = [
         {
           label: 'Pair',
-          value: 'quote_name'
+          value: 'quote_name',
+          width: '340px'
         },
         {
           label: 'Last price',
           value: 'last_price',
+          width: '155px',
           sortable: true
         },
         {
           label: '24H Vol.',
           value: 'volume24',
-          sortable: true
+          width: '165px',
+          sortable: true,
+          desktopOnly: true
         },
         {
           label: '24H',
           value: 'change24',
-          sortable: true
+          width: '80px',
+          sortable: true,
+          desktopOnly: true
         },
         {
           label: '7D Volume',
           value: 'volume_week',
+          width: '180px',
           sortable: true
         },
         {
           label: '7D Change',
           value: 'change_week',
-          sortable: true
+          width: '165px',
+          sortable: true,
+          desktopOnly: true
         }
       ]
 
       const data = this.filteredMarkets.map(market => ({
+        id: market.id,
+        slug: market.slug,
         quote_name: market.quote_token.symbol.name,
         contract: market.quote_token.contract,
         base_name: market.base_token.symbol.name,
@@ -239,7 +258,7 @@ export default {
         last_price: market.last_price
       }))
 
-      return { headers, data }
+      return { header, data }
     },
 
     filteredMarkets() {
@@ -307,14 +326,12 @@ export default {
     search() {
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
 
-      this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
       this.lazyloadMarkets(null, true)
     },
 
     markets_active_tab() {
-      this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
       this.lazyloadMarkets(null, true)
