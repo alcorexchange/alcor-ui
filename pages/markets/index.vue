@@ -41,8 +41,7 @@
       :data='lazyMarkets',
       row-key="id"
       style='width: 100%',
-      @row-click='clickOrder',
-      :default-sort='{ prop: "weekVolume", order: "descending" }')
+      @row-click='clickOrder')
       el-table-column(label='Pair', prop='date')
         template(slot-scope='scope')
           TokenImage(
@@ -126,8 +125,7 @@
         template(slot-scope='scope')
           change-percent(:change='scope.row.changeWeek')
 
-      template(slot="append")
-        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite")
+      infinite-loading(slot="append" @infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite")
         //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
@@ -196,46 +194,110 @@ export default {
       }
     },
 
+    virtualTableData() {
+      const headers = [
+        {
+          label: 'Pair',
+          value: 'quote_name'
+        },
+        {
+          label: 'Last price',
+          value: 'last_price',
+          sortable: true
+        },
+        {
+          label: '24H Vol.',
+          value: 'volume24',
+          sortable: true
+        },
+        {
+          label: '24H',
+          value: 'change24',
+          sortable: true
+        },
+        {
+          label: '7D Volume',
+          value: 'volume_week',
+          sortable: true
+        },
+        {
+          label: '7D Change',
+          value: 'change_week',
+          sortable: true
+        }
+      ]
+
+      const data = this.filteredMarkets.map(market => ({
+        quote_name: market.quote_token.symbol.name,
+        contract: market.quote_token.contract,
+        base_name: market.base_token.symbol.name,
+        promoted: market.promoted,
+        change_week: market.changeWeek,
+        volume_week: market.volumeWeek,
+        change24: market.change24,
+        volume24: market.volume24,
+        last_price: market.last_price
+      }))
+
+      return { headers, data }
+    },
+
     filteredMarkets() {
       if (!this.markets) return []
-      console.log(this.markets)
-      let markets = []
-      if (this.markets_active_tab == 'all') {
-        markets = this.markets
-      } else if (this.markets_active_tab == this.network.baseToken.symbol) {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == this.network.baseToken.contract
-        )
-      } else if (this.markets_active_tab == 'USDT') {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == 'tethertether'
-        )
-      } else if (this.markets_active_tab == 'fav') {
-        markets = this.markets.filter(
-          (i) => this.favMarkets.includes(i.id)
-        )
-      } else if (this.markets_active_tab == 'Terraformers') {
-        markets = this.markets.filter(
-          (i) => i.quote_token.contract == 'unboundtoken'
-        )
-      } else {
-        const ibcTokens = this.$store.state.ibcTokens.filter(
-          (i) => i != this.network.baseToken.contract
-        )
 
-        markets = this.markets.filter((i) => {
-          return (
-            ibcTokens.includes(i.base_token.contract) ||
-            ibcTokens.includes(i.quote_token.contract) ||
-            Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-            Object.keys(this.network.withdraw).includes(i.base_token.str)
+      let markets = []
+
+      switch (this.markets_active_tab) {
+        case 'all':
+          markets = this.markets
+          break
+
+        case this.network.baseToken.symbol:
+          markets = this.markets.filter(
+            i => i.base_token.contract == this.network.baseToken.contract)
+          break
+
+        case 'USDT':
+          markets = this.markets.filter(
+            i => i.base_token.contract == 'tethertether'
           )
-        })
+          break
+
+        case 'fav':
+          markets = this.markets.filter(
+            i => this.favMarkets.includes(i.id)
+          )
+          break
+
+        case 'Terraformers':
+          markets = this.markets.filter(
+            i => i.quote_token.contract == 'unboundtoken'
+          )
+          break
+
+        default: {
+          const ibcTokens = this.$store.state.ibcTokens.filter(
+            i => i != this.network.baseToken.contract
+          )
+          markets = this.markets.filter((i) => {
+            return (
+              ibcTokens.includes(i.base_token.contract) ||
+              ibcTokens.includes(i.quote_token.contract) ||
+              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
+              Object.keys(this.network.withdraw).includes(i.base_token.str)
+            )
+          })
+          break
+        }
       }
 
       markets = markets
         .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
         .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .reduce((res, i) => {
+          i.promoted ? res.unshift(i) : res.push(i)
+          return res
+        }, [])
 
       return markets
     }
