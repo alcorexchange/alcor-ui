@@ -5,11 +5,11 @@ nav.nav(v-if='!isMobile')
       img.logo(
         v-if='$colorMode.value == "light"',
         src='~/assets/logos/alcorblack.svg',
-        height='28'
+        height='44'
       )
       img.logo(
         v-else='',
-        height='28',
+        height='44',
         src='~/assets/logos/alcorwhite.svg',
         alt=''
       )

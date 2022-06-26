@@ -163,7 +163,7 @@ export default {
 
 .connect-button {
   margin: 0 4px;
-  height: 28px;
+  height: 32px;
   background: var(--btn-default);
   color: var(--text-default) !important;
 }

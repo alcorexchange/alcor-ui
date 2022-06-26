@@ -103,8 +103,8 @@ button {
 }
 
 .iconOnlyAlt {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   display: flex;
   justify-content: center;
   align-items: center;

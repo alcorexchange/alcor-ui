@@ -12,7 +12,7 @@
           | {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
           i.el-icon-wallet.ml-1
 
-            label.small {{$t("Price")}}
+      label.small {{$t("Price")}}
       el-input(
         type='number',
         :min='side == "buy" ? "0.00000001" : "0"',
@@ -102,7 +102,7 @@
           | {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
           i.el-icon-wallet.ml-1
 
-          label.small.mt-3 {{$t("Price")}}
+      label.small.mt-3 {{$t("Price")}}
       el-input(
         type='number',
         disabled,
