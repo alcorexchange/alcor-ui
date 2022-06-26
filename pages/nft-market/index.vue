@@ -42,9 +42,9 @@
 <script>
 import { mapState } from 'vuex'
 import { CatCarousel } from 'vue-cat-carousel'
-import NftCard from '~/components/nft_markets/NftCard'
+import NftCard from '~/components/nft_markets/cards/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
-import NormalCard from '~/components/nft_markets/NormalCard'
+import NormalCard from '~/components/nft_markets/cards/NormalCard'
 import Img1 from '~/assets/images/nft_marketplace.webm'
 import Img2 from '~/assets/images/wallet.webm'
 import Img3 from '~/assets/images/nft_explorer.webm'

@@ -81,7 +81,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import TemplateCard from '~/components/nft_markets/TemplateCard'
+import TemplateCard from '~/components/nft_markets/cards/TemplateCard'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
 
 export default {

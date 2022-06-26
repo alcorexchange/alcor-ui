@@ -115,7 +115,7 @@
 <script>
 import axios from 'axios'
 import { mapState } from 'vuex'
-import SchemaCard from '~/components/nft_markets/SchemaCard'
+import SchemaCard from '~/components/nft_markets/cards/SchemaCard'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
 
 export default {

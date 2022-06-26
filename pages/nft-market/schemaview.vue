@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import SchemaCard from '~/components/nft_markets/SchemaCard'
+import SchemaCard from '~/components/nft_markets/cards/SchemaCard'
 
 export default {
   components: {

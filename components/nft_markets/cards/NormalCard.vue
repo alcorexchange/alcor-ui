@@ -140,7 +140,7 @@
             .d-flex.align-items-center
               img(src='~/assets/images/SendOffer.svg')
               p.mb-0 Send Trade Offer
-          nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
+          nuxt-link.dropdown-item.d-flex.align-items-center(:to="/transfer/+data.asset_id")
             .d-flex.align-items-center
               img(src='~/assets/images/Transfer.svg')
               p.mb-0 Transfer

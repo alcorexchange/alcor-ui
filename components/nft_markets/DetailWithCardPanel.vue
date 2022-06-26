@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import NormalCard from '~/components/nft_markets/NormalCard'
+import NormalCard from '~/components/nft_markets/cards/NormalCard'
 
 export default {
   components: { NormalCard },

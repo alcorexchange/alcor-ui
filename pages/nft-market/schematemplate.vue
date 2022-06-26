@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import TemplateCard from '~/components/nft_markets/TemplateCard'
+import TemplateCard from '~/components/nft_markets/cards/TemplateCard'
 
 export default {
   components: {

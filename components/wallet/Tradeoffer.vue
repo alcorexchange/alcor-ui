@@ -42,7 +42,7 @@
 
 // import Vue from 'vue'
 import { mapState } from 'vuex'
-import TradeOfferCard from '~/components/nft_markets/TradeOfferCard'
+import TradeOfferCard from '~/components/nft_markets/cards/TradeOfferCard'
 import TradeofferTab from '~/components/nft_markets/TradeofferTab'
 import searchImg from '~/assets/images/search.svg'
 import filterImg from '~/assets/images/filter.svg'

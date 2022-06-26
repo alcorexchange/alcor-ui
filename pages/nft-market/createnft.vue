@@ -31,7 +31,7 @@
 import { mapState } from 'vuex'
 import CustomSkeletonVue from '~/components/CustomSkeleton'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
-import CollectionCard from '~/components/nft_markets/CollectionCard'
+import CollectionCard from '~/components/nft_markets/cards/CollectionCard'
 
 export default {
   components: {

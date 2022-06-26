@@ -22,7 +22,7 @@ el-dialog.nft-modal-container(:visible='is_modal')
 </template>
 
 <script>
-import TradeOfferCard from '~/components/nft_markets/TradeOfferCard'
+import TradeOfferCard from '~/components/nft_markets/cards/TradeOfferCard'
 export default {
   components: { TradeOfferCard },
   props: ['show_modal', 'handleCloseModal'],

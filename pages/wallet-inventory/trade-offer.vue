@@ -53,7 +53,7 @@
 import { mapState } from 'vuex'
 import TradeofferTab from '~/components/nft_markets/TradeofferTab'
 import CustomSkeletonVue from '~/components/CustomSkeleton'
-import NormalCard from '~/components/nft_markets/NormalCard'
+import NormalCard from '~/components/nft_markets/cards/NormalCard'
 import searchImg from '~/assets/images/search.svg'
 import filterImg from '~/assets/images/filter.svg'
 import downImg from '~/assets/images/down.svg'

@@ -20,7 +20,7 @@ export default {
             ? this.data.data.img
             : 'url(https://ipfs.atomichub.io/ipfs/' +
               this.data.data.img +
-              ')',
+              ')'
         }
       } else return false
     },

@@ -165,7 +165,7 @@
 <script>
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
-import TradeOfferCard from '~/components/nft_markets/TradeOfferCard'
+import TradeOfferCard from '~/components/nft_markets/cards/TradeOfferCard'
 import TempChart from '~/components/nft_markets/TempChart'
 export default {
   components: {

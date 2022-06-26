@@ -78,7 +78,7 @@ import { mapState } from 'vuex'
 import WalletNFTTab from '~/components/wallet/WalletNFTTab'
 import CustomSkeletonVue from '~/components/CustomSkeleton'
 import HorizontalMenu from '~/components/wallet/HorizontalMenu'
-import NormalCard from '~/components/nft_markets/NormalCard'
+import NormalCard from '~/components/nft_markets/cards/NormalCard'
 import DetailWithCardPanel from '~/components/nft_markets/DetailWithCardPanel'
 import WalletSetTab from '~/components/wallet/WalletSetTab.vue'
 

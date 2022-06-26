@@ -51,7 +51,7 @@
 <script>
 // import Vue from 'vue'
 import { mapState } from 'vuex'
-import NormalCard from '~/components/nft_markets/NormalCard'
+import NormalCard from '~/components/nft_markets/cards/NormalCard'
 import ExplorerTab from '~/components/nft_markets/ExplorerTab'
 import searchImg from '~/assets/images/search.svg'
 import filterImg from '~/assets/images/filter.svg'
