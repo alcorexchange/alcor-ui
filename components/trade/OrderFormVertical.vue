@@ -64,6 +64,7 @@
         )
 
       label.small.mt-4 Total
+
       el-input(
         v-if='side == "buy"',
         type='number',
@@ -84,7 +85,11 @@
       )
         span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
-      el-button.w-100.mt-4.capitalize(
+      swap-button.swap-link(v-if="relatedPool" :pool="relatedPool.id")
+        | SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+
+
+      el-button.w-100.mt-5.capitalize(
         :type='side == "buy" ? "success" : "danger"',
         size='small',
         @click='actionOrder(trade, side)'
@@ -156,8 +161,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import { trade } from '~/mixins/trade'
+import SwapButton from '~/components/trade/SwapButton'
 
 export default {
+  components: {
+    SwapButton
+  },
+
   mixins: [trade],
 
   data() {
@@ -169,6 +179,7 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
+    ...mapGetters('market', ['relatedPool']),
 
     percentBuy: {
       get() {
@@ -204,7 +215,9 @@ export default {
 
 <style lang="scss">
 .order-form-vertical {
-  .buy, .sell {
+
+  .buy,
+  .sell {
     .el-radio-button__inner {
       padding: 5px 15px !important;
     }
@@ -221,5 +234,22 @@ export default {
       background-color: var(--main-red) !important;
     }
   }
+
+  .swap-link {
+    position: absolute;
+    background: none;
+    box-shadow: none;
+    height: auto;
+    display: block;
+    padding: 15px 0px;
+    font-size: 10px;
+
+    &:focus,
+    &:active,
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
 }
 </style>
