@@ -243,6 +243,7 @@ export default {
     display: block;
     padding: 15px 0px;
     font-size: 10px;
+    border: none;
 
     &:focus,
     &:active,
