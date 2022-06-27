@@ -20,6 +20,10 @@ el-table.my-orders(:data='filledPositions' empty-text='No open orders' v-if="isM
       span(v-if="isMobile") {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
       span(v-else) {{ row.type == 'buy' ? row.ask.quantity : row.bid.quantity | commaFloat }}
 
+  el-table-column(:label="'Total(' + base_token.symbol.name + ')'")
+    template(slot-scope='{ row }')
+      span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
+
   el-table-column(label='Action', align='right' width=60)
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').red Cancel
@@ -99,7 +103,6 @@ export default {
       if (this.onlyCurrentPair) {
         return this.allOrders.filter((p) => p.market_id == this.id)
       }
-
       return this.allOrders
     },
   },
