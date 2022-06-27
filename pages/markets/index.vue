@@ -129,7 +129,10 @@
         template(slot-scope='scope')
           change-percent(:change='scope.row.changeWeek')
 
-      infinite-loading(slot="append" @infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite")
+
+      template(slot="append")
+        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite" :identifier="skip")
+
         //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
@@ -325,15 +328,12 @@ export default {
   watch: {
     search() {
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
-
-      this.lazyMarkets = []
-      this.skip = 0
+      this.resetMarkets()
       this.lazyloadMarkets(null, true)
     },
 
     markets_active_tab() {
-      this.lazyMarkets = []
-      this.skip = 0
+      this.resetMarkets()
       this.lazyloadMarkets(null, true)
     }
   },
@@ -349,10 +349,17 @@ export default {
       this.search = search
     }
 
+    this.resetMarkets()
     this.lazyloadMarkets(null, true)
   },
 
   methods: {
+    resetMarkets() {
+      this.$refs.infinite.stateChanger.reset()
+      this.lazyMarkets = []
+      this.skip = 0
+      this.lazyloadMarkets(null, true)
+    },
     lazyloadMarkets($state, first = false) {
       console.log('lazyloadMarkets..')
       const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
