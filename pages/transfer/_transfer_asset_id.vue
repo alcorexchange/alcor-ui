@@ -12,14 +12,16 @@
     )
   p.font-label.font-input Memo
     el-input.bg-input-black(placeholder='Transfer Memo', v-model='memo')
-  .card-frame
+  .InventorySelection
     customSkeletonVue(v-if='loading', :width='220', :height='325')
     simpleCard(
       v-else,
-      :data='assetData',
-      :mintNum='template_mint',
-      :collectionName='collectionName',
-      :immutableName='immutableName'
+      v-for='(item, index) in bulkTransfer',
+      :key='index',
+      :data='item',
+      :mintNum='item.template_mint',
+      :collectionName='item.collection.collection_name',
+      :immutableName='item.template.immutable_data.name'
     )
   el-input.bg-input-grey.my-4(
     placeholder='Search NFTs',
@@ -57,6 +59,8 @@
       v-for='(item, index) in invData',
       :key='index',
       :data='item',
+      :addTrade="addTrade",
+      :cardState="(bulkTransfer.find(data => data.asset_id === item.asset_id) ? 'disable' : 'enable')",
       :mintNum='item.template_mint',
       :collectionName='item.collection.collection_name',
       :immutableName='item.template.immutable_data.name'
@@ -80,6 +84,7 @@ export default {
       memo: '',
       asset_id: 0,
       assetData: '',
+      bulkTransfer: [],
       invData: [],
       options: [],
       value: '',
@@ -121,13 +126,48 @@ export default {
     },
   },
   methods: {
+    debounceSearch(event) {
+      clearTimeout(this.debounce)
+      this.debounce = setTimeout(() => {
+        this.recipientName = event.target.value
+      }, 600)
+    },
+    deletebulkTransferItem(id) {
+      this.bulkTransfer = this.bulkTransfer.filter((item) => item.asset_id !== id)
+    },
+    async handleSearch(key) {
+      this.loading = true
+      if (this.currentTab === 'your' && this.user.name) {
+        this.assetsData = await this.$store.dispatch('api/getAssetsInventory', {
+          owner: this.user.name,
+          search: key,
+        })
+      } else if (this.currentTab === 'their' && this.recipientName) {
+        this.recipientData = await this.$store.dispatch(
+          'api/getAssetsInventory',
+          {
+            owner: this.recipientName,
+            search: key,
+          }
+        )
+      }
+      this.loading = false
+    },
+    addTrade(item, cardState) {
+      console.log(item, 'this is addtrade event')
+      if (cardState != 'disable' && !this.bulkTransfer.find((data) => data.asset_id === item.asset_id)) {
+        this.bulkTransfer.push(item)
+      } else {
+        console.log(item, 'this is addtrade event')
+        this.bulkTransfer = this.bulkTransfer.filter((data) => data.asset_id !== item.asset_id)
+      }
+    },
     async getAssetData() {
       this.loading = true
       await this.getSpecificAsset(this.asset_id)
       // this.getAssetsTransfer(this.asset_id)
       // this.getAssetsSales(this.asset_id)
       // this.getAssetsLog(this.asset_id)
-      console.log(this.loading, '++++++++++++++++++++++++++')
       this.loading = false
     },
     async getAssetsInventory(owner) {
@@ -144,6 +184,7 @@ export default {
         asset_id,
       })
       this.assetData = data
+      this.bulkTransfer.push(data)
       this.attributeKeys = Object.keys(data.data)
       this.loading = false
     },
@@ -222,13 +263,17 @@ export default {
     font-size: 18px;
     line-height: 21px;
   }
-  .card-frame {
+  .InventorySelection {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    height: 350px;
     border: 1px solid #67c23a;
     border-radius: 4px;
     padding: 20px;
+    text-align: center;
+    overflow-y: auto;
   }
   width: 100%;
   margin: auto;

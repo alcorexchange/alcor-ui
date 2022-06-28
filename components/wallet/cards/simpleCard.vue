@@ -1,7 +1,7 @@
 <template lang="pug">
-el-card(:style='{width: cardWidth, height: cardHeight}' :body-style='{ padding: "0px" }')
-  div.d-flex.p-1.justify-content-end
-    div.float-right.p-1.bg-black.text-success # {{ mintNum }}
+.el-card(:class="cardState === 'disable'? 'grey-mode' : ''", :style='{width: cardWidth, height: cardHeight, margin: auto}', :body-style='{ padding: "0px" }', @click="() => addTrade(data, cardState)")
+  .d-flex.p-1.justify-content-end
+    .float-right.p-1.bg-black.text-success # {{ mintNum }}
   .main-img(v-if='videoBackground')
     video(autoplay='true', loop='true', :class="['main-img']", :style='{width: imgWidth, height: imgHeight}')
       source(
@@ -48,6 +48,12 @@ export default {
     data: {
       search: '',
       default: {}
+    },
+    addTrade: {
+      default: null
+    },
+    cardState: {
+      default: 'enable'
     }
   },
   data() {
@@ -90,6 +96,11 @@ export default {
 }
 </script>
 <style lang="scss">
+.grey-mode{
+  filter: grayscale(1);
+  border: solid 1px #67C23A !important;
+  border-radius: 2px !important;
+}
 .main-img {
     height: 229.9px;
     object-fit: cover;
