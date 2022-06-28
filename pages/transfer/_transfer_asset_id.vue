@@ -83,6 +83,7 @@ export default {
       to: '',
       memo: '',
       asset_id: 0,
+      asset_ids: [],
       assetData: '',
       bulkTransfer: [],
       invData: [],
@@ -157,6 +158,7 @@ export default {
       console.log(item, 'this is addtrade event')
       if (cardState != 'disable' && !this.bulkTransfer.find((data) => data.asset_id === item.asset_id)) {
         this.bulkTransfer.push(item)
+        this.asset_ids.push(item.asset_id)
       } else {
         console.log(item, 'this is addtrade event')
         this.bulkTransfer = this.bulkTransfer.filter((data) => data.asset_id !== item.asset_id)
@@ -203,7 +205,7 @@ export default {
             data: {
               from: this.assetData.owner,
               to: this.to,
-              asset_ids: [this.asset_id],
+              asset_ids: this.asset_ids,
               memo: this.memo,
             },
           },

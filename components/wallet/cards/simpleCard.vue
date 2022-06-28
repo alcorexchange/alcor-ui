@@ -1,5 +1,5 @@
 <template lang="pug">
-.el-card(:class="cardState === 'disable'? 'grey-mode' : ''", :style='{width: cardWidth, height: cardHeight, margin: auto}', :body-style='{ padding: "0px" }', @click="() => addTrade(data, cardState)")
+.el-card(:class="cardState === 'disable'? 'grey-mode' : ''", :style='{width: cardWidth, height: cardHeight, margin: "5px"}', :body-style='{ padding: "0px" }', @click="() => addTrade(data, cardState)")
   .d-flex.p-1.justify-content-end
     .float-right.p-1.bg-black.text-success # {{ mintNum }}
   .main-img(v-if='videoBackground')
