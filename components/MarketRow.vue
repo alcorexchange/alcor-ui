@@ -10,7 +10,7 @@
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price
-    span.text-success(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price) }}
+    span.text-success(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
     span.text-success(v-else)
       | {{ item.last_price }}
       span(v-if="!isMobile") {{ item.base_name }}
@@ -20,7 +20,7 @@
   .day-change(v-if='!isMobile')
     change-percent(:change='item.change24')
   .week-vol
-    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volumeWeek) }}
+    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume_week) }}
     span.text-mutted(v-else)
       | {{ item.volume_week.toFixed(2) | commaFloat }}
       span(v-if="!isMobile") {{ item.base_name }}
