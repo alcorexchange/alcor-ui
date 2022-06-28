@@ -36,13 +36,16 @@
       nuxt-link(to="new_market")
         el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
 
-  .table.el-card.is-always-shadow
+  virtual-table(:table="virtualTableData")
+    template(#row="{ item }")
+      market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
+
+  //.table.el-card.is-always-shadow
     el-table.market-table(
       :data='lazyMarkets',
       row-key="id"
       style='width: 100%',
-      @row-click='clickOrder',
-      :default-sort='{ prop: "weekVolume", order: "descending" }')
+      @row-click='clickOrder')
       el-table-column(label='Pair', prop='date')
         template(slot-scope='scope')
           TokenImage(
@@ -126,8 +129,10 @@
         template(slot-scope='scope')
           change-percent(:change='scope.row.changeWeek')
 
+
       template(slot="append")
         infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite" :identifier="skip")
+
         //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
@@ -136,12 +141,16 @@ import { mapGetters, mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import PairIcons from '~/components/PairIcons'
+import VirtualTable from '~/components/VirtualTable'
+import MarketRow from '~/components/MarketRow'
 
 export default {
   components: {
     TokenImage,
     ChangePercent,
-    PairIcons
+    PairIcons,
+    VirtualTable,
+    MarketRow
   },
 
   async fetch({ store, error }) {
@@ -196,46 +205,121 @@ export default {
       }
     },
 
+    virtualTableData() {
+      const header = [
+        {
+          label: 'Pair',
+          value: 'quote_name',
+          width: '340px'
+        },
+        {
+          label: 'Last price',
+          value: 'last_price',
+          width: '155px',
+          sortable: true
+        },
+        {
+          label: '24H Vol.',
+          value: 'volume24',
+          width: '165px',
+          sortable: true,
+          desktopOnly: true
+        },
+        {
+          label: '24H',
+          value: 'change24',
+          width: '80px',
+          sortable: true,
+          desktopOnly: true
+        },
+        {
+          label: '7D Volume',
+          value: 'volume_week',
+          width: '180px',
+          sortable: true
+        },
+        {
+          label: '7D Change',
+          value: 'change_week',
+          width: '165px',
+          sortable: true,
+          desktopOnly: true
+        }
+      ]
+
+      const data = this.filteredMarkets.map(market => ({
+        id: market.id,
+        slug: market.slug,
+        quote_name: market.quote_token.symbol.name,
+        contract: market.quote_token.contract,
+        base_name: market.base_token.symbol.name,
+        promoted: market.promoted,
+        change_week: market.changeWeek,
+        volume_week: market.volumeWeek,
+        change24: market.change24,
+        volume24: market.volume24,
+        last_price: market.last_price
+      }))
+
+      return { header, data }
+    },
+
     filteredMarkets() {
       if (!this.markets) return []
-      console.log(this.markets)
-      let markets = []
-      if (this.markets_active_tab == 'all') {
-        markets = this.markets
-      } else if (this.markets_active_tab == this.network.baseToken.symbol) {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == this.network.baseToken.contract
-        )
-      } else if (this.markets_active_tab == 'USDT') {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == 'tethertether'
-        )
-      } else if (this.markets_active_tab == 'fav') {
-        markets = this.markets.filter(
-          (i) => this.favMarkets.includes(i.id)
-        )
-      } else if (this.markets_active_tab == 'Terraformers') {
-        markets = this.markets.filter(
-          (i) => i.quote_token.contract == 'unboundtoken'
-        )
-      } else {
-        const ibcTokens = this.$store.state.ibcTokens.filter(
-          (i) => i != this.network.baseToken.contract
-        )
 
-        markets = this.markets.filter((i) => {
-          return (
-            ibcTokens.includes(i.base_token.contract) ||
-            ibcTokens.includes(i.quote_token.contract) ||
-            Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-            Object.keys(this.network.withdraw).includes(i.base_token.str)
+      let markets = []
+
+      switch (this.markets_active_tab) {
+        case 'all':
+          markets = this.markets
+          break
+
+        case this.network.baseToken.symbol:
+          markets = this.markets.filter(
+            i => i.base_token.contract == this.network.baseToken.contract)
+          break
+
+        case 'USDT':
+          markets = this.markets.filter(
+            i => i.base_token.contract == 'tethertether'
           )
-        })
+          break
+
+        case 'fav':
+          markets = this.markets.filter(
+            i => this.favMarkets.includes(i.id)
+          )
+          break
+
+        case 'Terraformers':
+          markets = this.markets.filter(
+            i => i.quote_token.contract == 'unboundtoken'
+          )
+          break
+
+        default: {
+          const ibcTokens = this.$store.state.ibcTokens.filter(
+            i => i != this.network.baseToken.contract
+          )
+          markets = this.markets.filter((i) => {
+            return (
+              ibcTokens.includes(i.base_token.contract) ||
+              ibcTokens.includes(i.quote_token.contract) ||
+              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
+              Object.keys(this.network.withdraw).includes(i.base_token.str)
+            )
+          })
+          break
+        }
       }
 
       markets = markets
         .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
         .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .reduce((res, i) => {
+          i.promoted ? res.unshift(i) : res.push(i)
+          return res
+        }, [])
 
       return markets
     }
