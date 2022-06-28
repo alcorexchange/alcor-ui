@@ -355,7 +355,6 @@ export default {
 
   methods: {
     resetMarkets() {
-      this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
       this.lazyloadMarkets(null, true)
