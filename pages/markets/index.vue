@@ -137,18 +137,12 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import TokenImage from '~/components/elements/TokenImage'
-import ChangePercent from '~/components/trade/ChangePercent'
-import PairIcons from '~/components/PairIcons'
+import { mapState } from 'vuex'
 import VirtualTable from '~/components/VirtualTable'
 import MarketRow from '~/components/MarketRow'
 
 export default {
   components: {
-    TokenImage,
-    ChangePercent,
-    PairIcons,
     VirtualTable,
     MarketRow
   },
@@ -165,23 +159,12 @@ export default {
 
   data() {
     return {
-      search: '',
-
-      skip: 0,
-      lazyMarkets: [],
-      to_assets: [],
-      select: {
-        from: '',
-        to: ''
-      },
-
-      loading: true
+      search: ''
     }
   },
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters(['user']),
     ...mapState(['markets']),
     ...mapState('settings', ['favMarkets']),
 
@@ -328,13 +311,6 @@ export default {
   watch: {
     search() {
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
-      this.resetMarkets()
-      this.lazyloadMarkets(null, true)
-    },
-
-    markets_active_tab() {
-      this.resetMarkets()
-      this.lazyloadMarkets(null, true)
     }
   },
 
@@ -347,40 +323,6 @@ export default {
 
     if (search) {
       this.search = search
-    }
-
-    this.resetMarkets()
-    this.lazyloadMarkets(null, true)
-  },
-
-  methods: {
-    resetMarkets() {
-      this.lazyMarkets = []
-      this.skip = 0
-      this.lazyloadMarkets(null, true)
-    },
-    lazyloadMarkets($state, first = false) {
-      console.log('lazyloadMarkets..')
-      const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
-
-      if (append.length > 0) {
-        this.skip += 20
-        this.lazyMarkets.push(...append)
-
-        // КОстыль, само не тригерится
-        if (first) return
-
-        $state.loaded()
-      } else {
-        if (first) return
-        $state.complete()
-      }
-    },
-
-    clickOrder(a, b, event) {
-      if (event && event.target.tagName.toLowerCase() === 'a') return
-
-      this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
     }
   }
 }
