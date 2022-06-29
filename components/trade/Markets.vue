@@ -23,15 +23,40 @@
     )
       template(v-if="sideMaretsTab == 'system'" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
-  el-table(
-    :data='lazyMarkets',
-    row-key="id"
-    style='width: 100%',
-    @row-click='setMarket',
-    :default-sort='{ prop: "volume24", order: "descending" }',
-    :row-class-name='activeRowClassName',
-    width='100%',
-    v-loading='loading'
+
+  virtual-table.market-table(:table="virtualTableData")
+    template(#row="{ item }")
+      .market-table-row(@click="() => setMarket(item)")
+        .pair-name
+          i.el-icon-star-off.mr-1(
+            :class='{ "el-icon-star-on": isFavoriteId(item.id) }',
+            @click='toggleFav($event, item.id)'
+          )
+          TokenImage(
+            :src='$tokenLogo(item.quote_name, item.contract)',
+            height='20'
+          )
+          span
+            small.ml-1 {{ item.quote_name }}
+            small.ml-1 / {{ item.base_name }}
+
+        .pair-price {{ item.last_price | commaFloat(5) }}
+        .pair-volume
+          span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(item.volume24) }}
+          span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat(0) }} {{ item.base_name }}
+
+
+
+
+//  el-table(
+  :data='lazyMarkets',
+  row-key="id"
+  style='width: 100%',
+  @row-click='setMarket',
+  :default-sort='{ prop: "volume24", order: "descending" }',
+  :row-class-name='activeRowClassName',
+  width='100%',
+  v-loading='loading'
   )
     el-table-column(
       prop='quote_token.symbol.name',
@@ -82,6 +107,7 @@
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import VirtualTable from '~/components/VirtualTable'
 
 export default {
   scrollToTop: false,
@@ -89,6 +115,7 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
+    VirtualTable
   },
 
   data() {
@@ -96,20 +123,18 @@ export default {
       search: '',
       skip: 0,
       lazyMarkets: [],
-      loading: false,
+      loading: false
     }
   },
 
   watch: {
     search() {
-      this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
       this.lazyloadMarkets(null, true)
     },
 
     sideMaretsTab() {
-      this.$refs.infinite.stateChanger.reset()
       this.lazyMarkets = []
       this.skip = 0
       this.lazyloadMarkets(null, true)
@@ -149,43 +174,104 @@ export default {
       if (!this.markets) return []
 
       let markets = []
-      if (this.sideMaretsTab == 'all') {
-        markets = this.markets
-      } else if (this.sideMaretsTab == 'system') {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == this.network.baseToken.contract
-        )
-      } else if (this.sideMaretsTab == 'USDT') {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == 'tethertether'
-        )
-      } else if (this.sideMaretsTab == 'fav') {
-        markets = this.markets.filter((i) => this.favMarkets.includes(i.id))
-      } else {
-        const ibcTokens = this.$store.state.ibcTokens.filter(
-          (i) => i != this.network.baseToken.contract
-        )
 
-        markets = this.markets.filter((i) => {
-          return (
-            ibcTokens.includes(i.base_token.contract) ||
-            ibcTokens.includes(i.quote_token.contract) ||
-            Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-            Object.keys(this.network.withdraw).includes(i.base_token.str)
+      switch (this.sideMaretsTab) {
+        case 'all':
+          markets = this.markets
+          break
+
+        case this.network.baseToken.symbol:
+          markets = this.markets.filter(
+            i => i.base_token.contract == this.network.baseToken.contract)
+          break
+
+        case 'USDT':
+          markets = this.markets.filter(
+            i => i.base_token.contract == 'tethertether'
           )
-        })
+          break
+
+        case 'fav':
+          markets = this.markets.filter(
+            i => this.favMarkets.includes(i.id)
+          )
+          break
+
+        case 'Terraformers':
+          markets = this.markets.filter(
+            i => i.quote_token.contract == 'unboundtoken'
+          )
+          break
+
+        default: {
+          const ibcTokens = this.$store.state.ibcTokens.filter(
+            i => i != this.network.baseToken.contract
+          )
+          markets = this.markets.filter((i) => {
+            return (
+              ibcTokens.includes(i.base_token.contract) ||
+              ibcTokens.includes(i.quote_token.contract) ||
+              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
+              Object.keys(this.network.withdraw).includes(i.base_token.str)
+            )
+          })
+          break
+        }
       }
 
-      markets = markets.filter((i) => {
-        return !this.network.SCAM_CONTRACTS.includes(i.quote_token.contract)
-      })
-
       markets = markets
-        .filter((i) => i.slug.includes(this.search.toLowerCase()))
-        .sort((a, b) => b.volume24 - a.volume24)
+        .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .reduce((res, i) => {
+          i.promoted ? res.unshift(i) : res.push(i)
+          return res
+        }, [])
 
       return markets
     },
+
+    virtualTableData() {
+      const header = [
+        {
+          label: 'Pair(a-z)',
+          value: 'quote_name',
+          width: '40%'
+        },
+        {
+          label: 'Price',
+          value: 'last_price',
+          width: '37%',
+          sortable: true
+        },
+        {
+          label: 'Vol 24',
+          value: 'volume24',
+          width: '23%',
+          sortable: true,
+          desktopOnly: true
+        }
+      ]
+
+      const data = this.filteredMarkets.map(market => ({
+        id: market.id,
+        slug: market.slug,
+        quote_name: market.quote_token.symbol.name,
+        contract: market.quote_token.contract,
+        base_name: market.base_token.symbol.name,
+        promoted: market.promoted,
+        change_week: market.changeWeek,
+        volume_week: market.volumeWeek,
+        change24: market.change24,
+        volume24: market.volume24,
+        last_price: market.last_price
+      }))
+
+      const itemSize = 30
+      const pageMode = false
+
+      return { pageMode, itemSize, header, data }
+    }
+
   },
 
   mounted() {
@@ -374,5 +460,56 @@ export default {
 
 .markets-bar .el-table .active-row {
   background: #e6eef1;
+}
+
+.market-table * {
+  font-size: 12px;
+}
+
+.market-table tr.header {
+  padding: 5px;
+}
+
+.market-table th.header__column span {
+  color: #bdbdbd;
+}
+
+.market-table-row {
+  cursor: pointer;
+  display: flex;
+  padding: 4px 2px;
+  border-bottom: 1px solid #282828;
+}
+
+.market-table-row:hover {
+  background-color: #282828;
+}
+
+.market-table-row * {
+  font-size: 10px;
+}
+
+.pair-name,
+.pair-price,
+.pair-volume {
+  display: flex;
+  align-items: center;
+}
+
+.pair-name {
+  width: 50%;
+  gap: 2px;
+}
+
+.pair-price {
+  width: 25%;
+  text-align: right;
+  justify-content: end;
+}
+
+.pair-volume {
+  width: 25%;
+  text-align: right;
+  justify-content: end;
 }
 </style>
