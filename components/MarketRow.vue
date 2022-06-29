@@ -13,7 +13,8 @@
     span.text-success(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
     span.text-success(v-else)
       | {{ item.last_price }}
-      span(v-if="!isMobile") {{ item.base_name }}
+      span(v-if="!isMobile")
+        |  {{ item.base_name }}
   .day-vol(v-if='!isMobile')
     span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume24) }}
     span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat }} {{ item.base_name }}
@@ -23,7 +24,8 @@
     span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume_week) }}
     span.text-mutted(v-else)
       | {{ item.volume_week.toFixed(2) | commaFloat }}
-      span(v-if="!isMobile") {{ item.base_name }}
+      span(v-if="!isMobile")
+        |  {{ item.base_name }}
   .week-change(v-if='!isMobile')
     change-percent(:change='item.change_week')
 </template>
@@ -106,19 +108,16 @@ export default {
   width: 75px;
 }
 
-.day-change {
-  width: 70px;
-}
-
 .last-price,
 .day-vol,
-.week-change {
+.week-vol {
   justify-content: end;
-  width: 160px;
+  width: 190px;
 }
 
-.week-vol {
-  width: 180px;
+.week-change,
+.day-change {
+  width: 100px;
 }
 
 .name {

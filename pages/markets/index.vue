@@ -1,5 +1,6 @@
 <template lang="pug">
 .markets
+  market-top(:newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
       v-model='markets_active_tab',
@@ -39,112 +40,19 @@
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
       market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
-
-  //.table.el-card.is-always-shadow
-    el-table.market-table(
-      :data='lazyMarkets',
-      row-key="id"
-      style='width: 100%',
-      @row-click='clickOrder')
-      el-table-column(label='Pair', prop='date')
-        template(slot-scope='scope')
-          TokenImage(
-            :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
-            :height="isMobile ? '20' : '30'"
-          )
-
-          span.ml-2
-            | {{ scope.row.quote_token.symbol.name }}
-            span.text-muted.ml-2(v-if='!isMobile') {{ scope.row.quote_token.contract }}
-            |  / {{ scope.row.base_token.symbol.name }}
-
-          span.promoted(v-if="scope.row.promoted")
-            img(src="~/assets/icons/badge-promoted.svg")
-
-      el-table-column(
-        :label='`Last price`',
-        sort-by='last_price',
-        align='right',
-        :width='isMobile ? 90 : 150',
-        header-align='right',
-        sortable,
-        :sort-orders='["descending", null]'
-      )
-        template(slot-scope='scope')
-          .text-success(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
-          .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
-      el-table-column(
-        :label='`24H Vol.`',
-        align='right',
-        header-align='right',
-        sortable,
-        width='200',
-        sort-by='volume24',
-        :sort-orders='["descending", null]'
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
-          span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
-
-      el-table-column(
-        label='24H',
-        prop='name',
-        align='right',
-        header-align='right',
-        sortable,
-        width='100',
-        sort-by='change24',
-        :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope', align='right', header-align='right')
-          change-percent(:change='scope.row.change24')
-
-      el-table-column(
-        label='7D Volume',
-        prop='weekVolume',
-        align='right',
-        header-align='right',
-        sortable,
-        :width='isMobile ? 130 : 200',
-        sort-by='volumeWeek',
-        :sort-orders='["descending", null]',
-      )
-        template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
-          span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
-
-      el-table-column(
-        label='7D Change',
-        prop='weekChange',
-        align='right',
-        header-align='right',
-        sortable,
-        width='150',
-        sort-by='changeWeek',
-        :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope')
-          change-percent(:change='scope.row.changeWeek')
-
-
-      template(slot="append")
-        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite" :identifier="skip")
-
-        //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import VirtualTable from '~/components/VirtualTable'
 import MarketRow from '~/components/MarketRow'
+import MarketTop from '~/components/MarketTop'
 
 export default {
   components: {
     VirtualTable,
-    MarketRow
+    MarketRow,
+    MarketTop
   },
 
   async fetch({ store, error }) {
@@ -159,7 +67,9 @@ export default {
 
   data() {
     return {
-      search: ''
+      search: '',
+      newListingIDs: [495, 455, 173],
+      topGaindersIDs: [475, 422, 416]
     }
   },
 
@@ -188,47 +98,64 @@ export default {
       }
     },
 
+    newListings() {
+      return this.markets.filter(({ id }) => this.newListingIDs.includes(id))
+    },
+
+    topGainers() {
+      return this.markets.filter(({ id }) => this.topGaindersIDs.includes(id))
+    },
+
+    topVolume() {
+      const tmp = [...this.markets]
+      return tmp
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .slice(0, 3)
+    },
+
     virtualTableData() {
       const header = [
         {
           label: 'Pair',
           value: 'quote_name',
-          width: '340px'
+          width: '335px'
         },
         {
           label: 'Last price',
           value: 'last_price',
-          width: '155px',
+          width: '165px',
           sortable: true
         },
         {
           label: '24H Vol.',
           value: 'volume24',
-          width: '165px',
+          width: '190px',
           sortable: true,
           desktopOnly: true
         },
         {
           label: '24H',
           value: 'change24',
-          width: '80px',
+          width: '100px',
           sortable: true,
           desktopOnly: true
         },
         {
           label: '7D Volume',
           value: 'volume_week',
-          width: '180px',
+          width: '190px',
           sortable: true
         },
         {
           label: '7D Change',
           value: 'change_week',
-          width: '165px',
+          width: '100px',
           sortable: true,
           desktopOnly: true
         }
       ]
+
+      console.log(this.markets)
 
       const data = this.filteredMarkets.map(market => ({
         id: market.id,
