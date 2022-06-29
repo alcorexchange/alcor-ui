@@ -247,8 +247,8 @@ export default {
     display: flex;
 
     &.active {
-      background: #161617;
-      color: #f2f2f2 !important;
+      background: var(--btn-active);
+      color: var(--text-default) !important;
     }
   }
 }

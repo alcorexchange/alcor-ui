@@ -50,10 +50,15 @@ export default {
 
 .el-button.muted {
   font-size: 12px !important;
-  background: #3f3f3f;
+  background: var(--btn-default);
+  color: var(--text-default);
   padding: 0px 1px !important;
   margin-top: 3px !important;
   margin-bottom: 3px !important;
+
+  span {
+    color: var(--text-default) !important;
+  }
 }
 
 .popup-fee {
@@ -62,7 +67,7 @@ export default {
 
 .el-tooltip__popper.is-white {
   display: block;
-  background: #303133 !important;
+  background: var(--btn-default) !important;
   color: #fff !important;
   border-radius: 1px solid red;
 }

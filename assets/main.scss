@@ -194,11 +194,6 @@ pre {
 //    }
 //}
 //
-.el-button:not(.el-button--text),
-.el-radio-group {
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05),
-    inset 0 4px 4px rgba(0, 0, 0, 0.05);
-}
 
 // Dark
 .theme-dark {
@@ -228,7 +223,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 
   .markets-bar {
@@ -255,7 +250,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -273,7 +268,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -291,7 +286,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -309,7 +304,7 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -327,18 +322,10 @@ pre {
   }
 
   .text-danger {
-    color: #b56150 !important;
+    color: var(--color-primary) !important;
   }
 }
 
-:root {
-  --color: #243746;
-  --color-primary: #158876;
-  --color-secondary: #0e2233;
-  --bg: #f3f5f4;
-  --bg-secondary: #fff;
-  --border-color: #3F3F3F;
-}
 
 .dark-mode {
   --color: #ebf4f1;
@@ -375,22 +362,21 @@ pre {
   color: var(--cancel);
 }
 
-.green {
-  color: var(--main-green) !important;
-}
-
 .red {
-  color: var(--main-red) !important;
+  color: var(--color-secondary);
 
   .el-slider__runway {
-    background-color: #553838;
+    background-color: var(--color-secondary-op);
   }
 
-  .el-slider__button,
+  .el-slider__button {
+    border: 2px solid var(--color-secondary);
+    background-color: var(--background-color-base);
+  }
+
   .el-slider__stop,
   .el-slider__bar {
-    border: 2px solid var(--main-red);
-    background-color: var(--main-red);
+    background-color: var(--color-secondary);
   }
 }
 
@@ -413,10 +399,10 @@ pre {
 }
 
 .theme-dark .confirm-button button {
-  background: #161617;
+  background: var(--btn-default);
 
   &:hover {
-    background: #161617;
+    background: var(--btn-active);
   }
 }
 
@@ -434,7 +420,7 @@ pre {
 .trading-page-dialog.el-dialog {
   background: var(--dialog-background) !important;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  border: 2px solid var(--border-color);
+  border: var(--border-2);
   border-radius: 2px !important;
   
   .el-dialog__body {
@@ -450,14 +436,14 @@ pre {
       right: 1px;
       top: 1px;
 
-      background: var(--border-color);
+      background: var(--btn-default);
       border-radius: 0px 0px 0px 2px;
 
       &:hover {
-        color: #fff;
+        color: var(--text-default);
 
         i {
-          color: #fff;
+          color: var(--text-default);
         }
       }
     }
@@ -530,7 +516,7 @@ pre {
     }
 
     &:hover {
-      background: var(--background-color-third) !important;
+      background: var(--hover) !important;
     }
   }
 }
@@ -682,7 +668,7 @@ pre {
   }
 
   .el-tabs__header {
-    background-color: var(--table-background) !important;
+    background-color: var(--table-tabs-background) !important;
     margin: 0;
   }
 }

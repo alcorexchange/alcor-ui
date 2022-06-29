@@ -1,6 +1,6 @@
 <template lang="pug">
 .alcor-inner(:class="{ 'full-width': fullWidth }")
-  top-nav(:class="{ 'alcor-inner': $route.name == 'index' }")
+  top-nav(:class="{ 'alcor-inner': $route.name == 'index___ru' || $route.name == 'index___en' }")
 
   AlcorLoading
   ResourcesModal
@@ -90,6 +90,15 @@ export default {
     } catch (e) {
       this.netError = true
       console.log('Net error', e)
+    }
+
+    if (!document.querySelector('html').getAttribute('trade-theme')) {
+      if (!window.localStorage.getItem('trade-theme')) window.localStorage.setItem('trade-theme', 'default')
+      document.querySelector('html').setAttribute('trade-theme', window.localStorage.getItem('trade-theme'))
+      this.$store.commit(
+        'settings/setTradeColor',
+        window.localStorage.getItem('trade-theme')
+      )
     }
   },
 

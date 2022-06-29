@@ -62,7 +62,6 @@ export default {
           minPadding: 0,
           maxPadding: 0,
           backgroundColor: {
-            linearGradient: [0, 0, 500, 500],
             stops: [
               [0, 'rgb(40, 40, 40)'],
               [1, 'rgb(40, 40, 40)']

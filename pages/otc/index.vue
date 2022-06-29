@@ -250,12 +250,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .order-row {
   cursor: pointer;
 }
 
 .select-token {
   width: 200px;
+}
+
+.el-table table.el-table__body {
+  width: 100% !important;
 }
 </style>

@@ -12,7 +12,7 @@
           | {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
           i.el-icon-wallet.ml-1
 
-            label.small {{$t("Price")}}
+      label.small {{$t("Price")}}
       el-input(
         type='number',
         :min='side == "buy" ? "0.00000001" : "0"',
@@ -54,14 +54,14 @@
           v-model='percentBuy'
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        )
+        ).slider-buy
         el-slider(
           v-if='side == "sell"',
           :step='1',
           v-model='percentSell'
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        )
+        ).slider-sell
 
       label.small.mt-4 {{ $t("Total") }}
       el-input(
@@ -102,7 +102,7 @@
           | {{ side == "buy" ? baseBalance : tokenBalance | commaFloat }}
           i.el-icon-wallet.ml-1
 
-          label.small.mt-3 {{$t("Price")}}
+      label.small.mt-3 {{$t("Price")}}
       el-input(
         type='number',
         disabled,
@@ -136,7 +136,7 @@
           show-stops
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        )
+        ).slider-buy
         el-slider(
           v-if='side == "sell"',
           :step='25',
@@ -144,7 +144,7 @@
           show-stops
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        )
+        ).slider-sell
 
       el-button.w-100.mt-5.capitalize(
         :type='side == "buy" ? "success" : "danger"',
@@ -204,6 +204,14 @@ export default {
 
 <style lang="scss">
 .order-form-vertical {
+
+  .text-success {
+    color: var(--color-primary) !important;
+  }
+
+  .text-danger {
+    color: var(--color-secondary) !important;
+  }
 
   .buy,
   .sell {

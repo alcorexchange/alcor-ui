@@ -17,8 +17,6 @@ import SupportedChains from '@/components/landing/SupportedChains'
 import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 import Partners from '@/components/landing/Partners'
 export default {
-  colorMode: 'dark',
-
   components: {
     SectionTitle,
     ChainTools,

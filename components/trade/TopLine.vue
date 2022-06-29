@@ -1,13 +1,13 @@
 <template lang="pug">
 client-only
-  .trade-top-line.box-card
+  .trade-top-line
     markets.markets(v-if='showMarkets', v-click-outside='onClickOutside' @close="showMarkets = false")
 
     .d-flex.align-items-center.header-items-container.pl-3
       .d-flex.flex-column.pointer(@click='showMarkets = !showMarkets').pr-0
         .d-flex.align-items-center.show-markets
           TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
-          .weight-700 {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
+          .weight-700.token-name {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
           i.el-icon-caret-bottom.ml-1.text-muted
 
       .d-flex.flex-column
@@ -170,6 +170,10 @@ export default {
 .header-items-container {
   overflow: auto;
 
+  .token-name {
+    font-size: 14px;
+  }
+
   .flex-column {
     margin-right: 20px;
     flex-shrink: 0;
@@ -223,5 +227,8 @@ export default {
 
   font-weight: 400;
   font-size: 12px;
+
+  background: var(--background-color-base);
+  border-bottom: 1px solid var(--border-color);
 }
 </style>

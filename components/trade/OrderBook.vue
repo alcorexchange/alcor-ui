@@ -186,16 +186,17 @@ export default {
     font-weight: normal;
     line-height: 14px;
 
-    .price {
-      color: var(--main-green);
-
-      &.red {
-        color: var(--main-red);
-      }
+    & .green {
+      color: var(--color-primary)
     }
 
+    & .red {
+      color: var(--color-secondary);
+    }
+
+
     .spread {
-      color: #80a1c5;
+      color: var(--text-default);
       text-align: right;
 
       .prec.warn {
@@ -253,11 +254,20 @@ export default {
   position: relative;
   align-items: center;
   justify-content: space-between;
+
+  &:hover {
+    background-color: var(--hover) !important;
+    font-weight: 400 !important;
+  }
 }
 
 .blist.first {
-  background: var(--btn-default);
+  background: var(--table-header-background);
   overflow: hidden;
+
+  &:hover {
+    background: var(--table-header-background) !important;
+  }
 
   .ltd {
     height: 23px;
@@ -265,7 +275,7 @@ export default {
 }
 
 .orders-list {
-  background: var(--table-background) !important;
+  background: var(--trade-bg) !important;
   will-change: transform;
 
   .orderbook-progress {
@@ -287,15 +297,27 @@ export default {
       flex-direction: row;
       animation: 0.3s ease-out 0s 1 normal none running none;
 
+      &:hover {
+        background-color: var(--hover) !important;
+        font-weight: 400;
+      }
+
+
       .order-row {
         display: flex;
         box-sizing: border-box;
-        z-index: 2;
+        z-index: 0;
         width: 100%;
         height: 100%;
         line-height: 22px;
         cursor: pointer;
         align-items: center;
+
+        &:hover {
+          background-color: var(--hover) !important;
+          font-weight: 400;
+        }
+
 
         div {
           font-size: 11.5px;
@@ -322,12 +344,12 @@ export default {
         -webkit-backface-visibility: hidden;
 
         &.sell {
-          background-color: #F96C6C;
+          background-color: var(--color-secondary);
           ;
         }
 
         &.buy {
-          background-color: #66C167;
+          background-color: var(--color-primary);
         }
       }
     }
@@ -340,7 +362,7 @@ export default {
   padding-bottom: 1px;
 
   div {
-    color: var(--main-red);
+    color: var(--color-secondary);
   }
 }
 
@@ -349,14 +371,14 @@ export default {
   padding-top: 1px;
 
   div {
-    color: var(--main-green);
+    color: var(--color-primary);
   }
 }
 
 .orders-list.blist .ltd:hover {
   cursor: pointer;
   font-weight: bold;
-  background: var(--active-row);
+  background: var(--hover);
 }
 
 .blist .ltd span {

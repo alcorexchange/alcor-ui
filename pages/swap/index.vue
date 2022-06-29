@@ -226,7 +226,7 @@ export default {
 
 .tab-bar {
   display: flex;
-  background: var(--bg-alter-2);
+  background: var(--btn-default);
   display: flex;
   align-items: center;
   padding: 2px;
