@@ -7,6 +7,7 @@
       a.link.text-muted(v-if='!isMobile' :href='monitorAccount(item.contract)', target='_blank') {{ item.contract }}
       span /
       span {{ item.base_name }}
+      span.promo-label(v-if="isMobile && item.promoted") top
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price
@@ -73,7 +74,7 @@ export default {
 }
 
 .wrapper.mobile {
-  padding: 15px 10px;
+  padding: 20px 10px;
   gap: 5px;
 }
 
@@ -124,9 +125,23 @@ export default {
 .name {
   display: flex;
   gap: .3rem;
+  position: relative;
 }
 
 .name .link:hover {
   text-decoration: underline !important;
+}
+
+.promo-label {
+  color: #1FC781;
+  border: 1px solid #66C167;
+  border-radius: 4px;
+  padding: 0 4px;
+  position: absolute;
+  font-size: 10px;
+  text-transform: uppercase;
+
+  right: -35px;
+  top: -14px;
 }
 </style>
