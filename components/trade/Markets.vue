@@ -45,62 +45,6 @@
           span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(item.volume24) }}
           span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat(0) }} {{ item.base_name }}
 
-
-
-
-//  el-table(
-  :data='lazyMarkets',
-  row-key="id"
-  style='width: 100%',
-  @row-click='setMarket',
-  :default-sort='{ prop: "volume24", order: "descending" }',
-  :row-class-name='activeRowClassName',
-  width='100%',
-  v-loading='loading'
-  )
-    el-table-column(
-      prop='quote_token.symbol.name',
-      label='Pair(a-z)',
-      width='130',
-      sortable,
-      :sort-orders='["descending", "ascending"]'
-    )
-      template(slot-scope='scope')
-        i.el-icon-star-off.mr-1(
-          :class='{ "el-icon-star-on": isFavoriteId(scope.row.id) }',
-          @click='toggleFav($event, scope.row.id)'
-        )
-        TokenImage(
-          :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
-          height='20'
-        )
-        small.ml-1 {{ scope.row.quote_token.symbol.name }}
-        small.ml-1 / {{ scope.row.base_token.symbol.name }}
-
-    el-table-column(
-      prop='last_price',
-      label='Price',
-      align='right',
-      sortable,
-      :sort-orders='["descending", null]'
-      width="70"
-    )
-      template(slot-scope='scope')
-        | {{ scope.row.last_price | commaFloat(5) }}
-
-    el-table-column(
-      prop='volume24',
-      :sort-orders='["descending", "ascending"]',
-      label='Vol 24H',
-      align='right',
-      sortable,
-    )
-      template(slot-scope='scope')
-        span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(scope.row.volume24) }}
-        span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat(0) }} {{ scope.row.base_token.symbol.name }}
-
-    template(slot="append")
-      infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite" force-use-infinite-wrapper=".markets-bar .el-table__body-wrapper")
 </template>
 
 <script>
@@ -110,8 +54,6 @@ import ChangePercent from '~/components/trade/ChangePercent'
 import VirtualTable from '~/components/VirtualTable'
 
 export default {
-  scrollToTop: false,
-
   components: {
     TokenImage,
     ChangePercent,
@@ -120,24 +62,7 @@ export default {
 
   data() {
     return {
-      search: '',
-      skip: 0,
-      lazyMarkets: [],
-      loading: false
-    }
-  },
-
-  watch: {
-    search() {
-      this.lazyMarkets = []
-      this.skip = 0
-      this.lazyloadMarkets(null, true)
-    },
-
-    sideMaretsTab() {
-      this.lazyMarkets = []
-      this.skip = 0
-      this.lazyloadMarkets(null, true)
+      search: ''
     }
   },
 
@@ -235,18 +160,18 @@ export default {
         {
           label: 'Pair(a-z)',
           value: 'quote_name',
-          width: '40%'
+          width: '30%'
         },
         {
           label: 'Price',
           value: 'last_price',
-          width: '37%',
+          width: '35%',
           sortable: true
         },
         {
           label: 'Vol 24',
           value: 'volume24',
-          width: '23%',
+          width: '35%',
           sortable: true,
           desktopOnly: true
         }
@@ -266,16 +191,12 @@ export default {
         last_price: market.last_price
       }))
 
-      const itemSize = 30
+      const itemSize = 29
       const pageMode = false
 
       return { pageMode, itemSize, header, data }
     }
 
-  },
-
-  mounted() {
-    this.lazyloadMarkets(null, true)
   },
 
   methods: {
@@ -291,15 +212,6 @@ export default {
         () => this.loading = false,
         () => this.loading = false
       )
-    },
-
-    activeRowClassName({ row }) {
-      let c = 'pointer'
-      if (row.id == this.id) {
-        c += ' active-row'
-      }
-
-      return c
     },
 
     isFavoriteId(id) {
@@ -331,8 +243,8 @@ export default {
             rotate: { 270: 0 },
             duration: 2000,
             radius: { 0: 'rand(8, 12)' },
-            delay: 'stagger( rand(0, 100) )',
-          },
+            delay: 'stagger( rand(0, 100) )'
+          }
         })
 
         const circle = this.$vuemo.Shape({
@@ -343,12 +255,12 @@ export default {
           stroke: 'white',
           strokeWidth: { 10: 0 },
           duration: 450,
-          easing: 'cubic.out',
+          easing: 'cubic.out'
         })
         burst
           .tune({
             x: e.clientX - width / 2 + 8,
-            y: e.clientY - height / 2,
+            y: e.clientY - height / 2
           })
           .setSpeed(3)
           .replay()
@@ -356,7 +268,7 @@ export default {
         circle
           .tune({
             x: e.clientX - width / 2 + 8,
-            y: e.clientY - height / 2,
+            y: e.clientY - height / 2
           })
           .replay()
         this.$store.commit(
@@ -364,26 +276,8 @@ export default {
           this.favMarkets.concat([id])
         )
       }
-    },
-
-    lazyloadMarkets($state, first = false) {
-      console.log('state', $state)
-      const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
-
-      if (append.length > 0) {
-        this.skip += 20
-        this.lazyMarkets.push(...append)
-
-        // КОстыль, само не тригерится
-        if (first) return
-
-        $state.loaded()
-      } else {
-        if (first) return
-        $state.complete()
-      }
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -477,7 +371,7 @@ export default {
 .market-table-row {
   cursor: pointer;
   display: flex;
-  padding: 4px 2px;
+  padding: 4px 6px;
   border-bottom: 1px solid #282828;
 }
 
@@ -503,8 +397,8 @@ export default {
 
 .pair-price {
   width: 25%;
-  text-align: right;
-  justify-content: end;
+  text-align: left;
+  justify-content: start;
 }
 
 .pair-volume {
