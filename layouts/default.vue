@@ -1,6 +1,6 @@
 <template lang="pug">
 .alcor-inner(:class="{ 'full-width': fullWidth }")
-  top-nav(:class="{ 'alcor-inner': $route.name == 'index' }")
+  top-nav(:class="{ 'alcor-inner': $route.name == `index___${$i18n.locale}` }")
 
   AlcorLoading
   ResourcesModal
@@ -48,7 +48,8 @@ export default {
   computed: {
     fullWidth() {
       // Full with for this pages
-      return ['trade-index-id', 'index'].includes(this.$route.name)
+      const tradeLocales = this.$i18n.locales.map(({ code }) => `trade-index-id___${code}`)
+      return [...tradeLocales, 'index___ru', 'index___en'].includes(this.$route.name)
     },
 
     menuItems() {

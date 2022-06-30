@@ -21,16 +21,16 @@
     .row.mt-1
       .col
         .d-flex.mb-1.select-label.align-items-center
-          small.text-muted Buy (Estimated)
+          small.text-muted {{ $t('Buy (Estimated)') }}
           .swap-setting.ml-1
             el-dropdown(trigger="click")
               i.el-icon-setting
               el-dropdown-menu.dropdown(slot="dropdown")
                 .section
-                  .section-label Transaction Setting
+                  .section-label {{ $t('Transaction Setting') }}
                   label Slippage Tolerance %
                   .section-content
-                    AlcorButton(@click="resetSlippageTolerance" round compact) Auto
+                    AlcorButton(@click="resetSlippageTolerance" round compact) {{ $t('Auto') }}
                     .section-input
                       el-input(placeholder="Slippage Tolerance %" size="small" v-model="slippageTolerance")
                         //- template(#prepend) %
@@ -41,7 +41,7 @@
           template(slot="end")
             .pair(@click="$router.push('/swap/create')").text-muted
               i.el-icon-plus.mr-2
-              span Create pool
+              span {{ $t('Create pool') }}
 
     //.row.mt-4(v-if="output && ibcChain")
       .col
@@ -69,7 +69,7 @@
     .row.mt-3
       .col
         .d-flex.justify-content-between
-          small Minimum Received
+          small {{ $t('Minimum Received') }}
           .small {{ minOutput | commaFloat }}
         SSpacer
         .d-flex.justify-content-between
@@ -78,18 +78,18 @@
             .el-icon-refresh(@click="priceReverse = !priceReverse").ml-1.pointer
         SSpacer
         .d-flex.justify-content-between
-          small Price Impact
-          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
-          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
-          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
-          .small(v-else).font-weight-bold {{ priceImpact}} %
+          small {{ $t('Price Impact') }}
+          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact }}%
+          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact }}%
+          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact }}%
+          .small(v-else).font-weight-bold {{ priceImpact }} %
         SSpacer
         .d-flex.justify-content-between
-          small Slippage
+          small {{ $t('Slippage') }}
           .small {{ slippageTolerance }}%
         SSpacer
         .d-flex.justify-content-between
-          small Liquidity Source Fee
+          small {{ $t('Liquidity Source Fee') }}
           .small {{ fee }}%
 
 </template>
@@ -461,43 +461,54 @@ export default {
   padding: 20px;
   border: none;
   border-radius: var(--radius-2);
+
   &:hover {
     background: rgba(46, 46, 49, 0.6);
   }
 }
+
 .theme-dark .confirm-button button {
   background: #161617;
+
   &:hover {
     background: #161617;
   }
 }
+
 .dropdown {
   padding: 14px;
   // .el-input-group__append {
   //   padding: 0 !important;
   // }
 }
+
 .swap-setting {
   display: flex;
   justify-content: flex-end;
+
   .el-icon-setting {
     font-size: 1rem;
   }
 }
+
 .section-label {
   font-weight: bold;
   margin-bottom: 8px;
 }
+
 .section-content {
   display: flex;
   align-items: flex-end;
+
   .alcor-button {
     margin-right: 4px;
   }
 }
+
 label {
   margin-bottom: 4px;
 }
+
 .section-input {
   width: 200px;
 }

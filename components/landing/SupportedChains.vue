@@ -1,46 +1,43 @@
 <template lang="pug">
 .supported-chains
   .alcor-inner
-    SectionTitle.section-title Supported & Upcoming Chains
+    SectionTitle.section-title {{ $t('SUPPORTED_UPCOMING_CHAINS_TITLE') }}
     .chains
       img.chain(src='~/assets/images/supportedchain-4.svg')
       img.chain(src='~/assets/images/supportedchain-1.svg')
       img.chain(src='~/assets/images/supportedchain-2.svg')
       img.chain(src='~/assets/images/supportedchain-3.svg')
-      span.more and more...
+      span.more {{ $t('and more...') }}
     .inner-container
-      span.title Building a global community.
-      p.text Learn more about Alcor, chat with the community,
-        br
-        | and get announcements faster than anyone.
+      span.title {{ $t('BUILDINGGLOBALCOMMUNITY') }}
+      p.text {{ $t('LEARNMORE') }}
       .social-items
         a.item(href="https://t.me/alcorexchange" target="_blank")
           .icon
             img(src='~/assets/icons/Telegram.svg')
           span.name Telegram
-          span.desc Support & Talks
+          span.desc {{ $t('TRAIDING_TALKS') }}
         a.item(href="https://avral.medium.com/" target="_blank")
           .icon
             img(src='~/assets/icons/Monogram.svg')
           span.name Medium
-          span.desc Reviews & News
-        a.item(href="https://twitter.com/alcorexchange" target="_blank")
-          .icon
-            img(src='~/assets/icons/Twitter.svg')
-          span.name Twitter
-          span.desc Announcements
+          span.desc {{ $t('REVIEW_NEWS') }}
         a.item(href="https://github.com/avral/alcor-ui" target="_blank")
           .icon
             img(src='~/assets/icons/Github.svg')
           span.name Github
-          span.desc Code & Contribuion
+          span.desc {{ $t('CODE_CONTIBUTE') }}
+        a.item(href="https://twitter.com/alcorexchange" target="_blank")
+          .icon
+            img(src='~/assets/icons/Twitter.svg')
+          span.name Twitter
+          span.desc {{ $t('ANOUNCEMENT') }}
       span.title Partners & API Providers
       .items
         a.item(v-for="{ image, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
           img(:src="image")
         a(href="https://eosamsterdam.net/")
           EOS
-
 
 </template>
 
@@ -100,7 +97,6 @@ export default {
   flex-direction: column;
   align-items: center;
 
-
   .title {
     font-size: 2rem;
     text-align: center;
@@ -129,12 +125,12 @@ export default {
       flex-direction: column;
       align-items: center;
       transition: opacity 0.3s;
-      padding: 12px;
 
       @media only screen and (max-width: 600px) {
         width: 50%;
       }
 
+      padding: 8px 12px;
 
       &:hover {
         opacity: 0.8;

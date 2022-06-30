@@ -1,17 +1,19 @@
 <template lang="pug">
-.recommented-markets
+SectionTitle.section-title {{ $t('RECOMMENDED_MARKETS_TITLE') }}
   .items
     .item-container(:key="market.id" v-for="market in markets")
-      nuxt-link.item(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
+      nuxt-link.item(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } }")
         .top
-          TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="20")
+          TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
           span.ml-2 {{ market.symbol }}
 
         .bottom
           span {{ market.last_price }}
           ChangePercent(:change="market.changeWeek")
 
-  el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline").token-promotion Token promotion
+    .item-container
+      .col-lg-2.col-md-4.col-sm-6
+        el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
   Spacer
 </template>
 
@@ -126,7 +128,24 @@ export default {
     align-items: center;
     gap: 16px;
   }
+}
 
+@media only screen and (max-width: 600px) {
+  .item-container {
+    width: 50%;
+    padding-left: 8px;
+  }
+}
+
+@media only screen and (max-width: 440px) {
+  .item-container {
+    width: 100%;
+    padding: 8px;
+  }
+
+  //   .item{
+  //       border: ;
+  //   }
 }
 
 @media only screen and (max-width: 600px) {}

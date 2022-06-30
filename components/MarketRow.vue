@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     redirect() {
-      this.$router.push({ name: 'trade-index-id', params: { id: this.item.slug } })
+      this.$router.push({ name: `trade-index-id___${this.$i18n.locale}`, params: { id: this.item.slug } })
     }
   }
 }

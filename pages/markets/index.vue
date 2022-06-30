@@ -7,24 +7,24 @@
     ).mr-3
       el-radio-button(label='fav')
         i.el-icon-star-on
-        span Fav
+        span {{ $t('Fav') }}
 
       el-radio-button(label='all')
-        span All
+        span {{ $t('All') }}
 
       el-radio-button(:label='network.baseToken.symbol')
         span {{ network.baseToken.symbol }}
 
       el-radio-button(v-if='network.name == "eos"', label='USDT')
-        span USDT
+        span {{ $t('USDT') }}
 
       el-radio-button(value='cross-chain', label='Cross-Chain')
-        span Cross-Chain
+        span {{ $t('Cross-Chain') }}
 
     .search-container
       el-input(
         v-model='search',
-        placeholder='Search market',
+        :placeholder='$t("Search market")',
         size='small',
         prefix-icon='el-icon-search'
         clearable
@@ -33,107 +33,13 @@
     el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
     .ml-auto(v-if="!isMobile")
-      nuxt-link(to="new_market")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
+      nuxt-link(:to="localePath('new_market', $i18n.locale)")
+        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
 
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
       market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
 
-  //.table.el-card.is-always-shadow
-    el-table.market-table(
-      :data='lazyMarkets',
-      row-key="id"
-      style='width: 100%',
-      @row-click='clickOrder')
-      el-table-column(label='Pair', prop='date')
-        template(slot-scope='scope')
-          TokenImage(
-            :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
-            :height="isMobile ? '20' : '30'"
-          )
-
-          span.ml-2
-            | {{ scope.row.quote_token.symbol.name }}
-            span.text-muted.ml-2(v-if='!isMobile') {{ scope.row.quote_token.contract }}
-            |  / {{ scope.row.base_token.symbol.name }}
-
-          span.promoted(v-if="scope.row.promoted")
-            img(src="~/assets/icons/badge-promoted.svg")
-
-      el-table-column(
-        :label='`Last price`',
-        sort-by='last_price',
-        align='right',
-        :width='isMobile ? 90 : 150',
-        header-align='right',
-        sortable,
-        :sort-orders='["descending", null]'
-      )
-        template(slot-scope='scope')
-          .text-success(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
-          .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
-      el-table-column(
-        :label='`24H Vol.`',
-        align='right',
-        header-align='right',
-        sortable,
-        width='200',
-        sort-by='volume24',
-        :sort-orders='["descending", null]'
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
-          span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
-
-      el-table-column(
-        label='24H',
-        prop='name',
-        align='right',
-        header-align='right',
-        sortable,
-        width='100',
-        sort-by='change24',
-        :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope', align='right', header-align='right')
-          change-percent(:change='scope.row.change24')
-
-      el-table-column(
-        label='7D Volume',
-        prop='weekVolume',
-        align='right',
-        header-align='right',
-        sortable,
-        :width='isMobile ? 130 : 200',
-        sort-by='volumeWeek',
-        :sort-orders='["descending", null]',
-      )
-        template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
-          span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
-
-      el-table-column(
-        label='7D Change',
-        prop='weekChange',
-        align='right',
-        header-align='right',
-        sortable,
-        width='150',
-        sort-by='changeWeek',
-        :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope')
-          change-percent(:change='scope.row.changeWeek')
-
-
-      template(slot="append")
-        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite" :identifier="skip")
-
-        //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
 </template>
 
 <script>

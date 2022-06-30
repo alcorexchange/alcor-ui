@@ -14,7 +14,7 @@
       v-else='',
       @click='$store.dispatch("modal/login")'
     )
-      | Connect Wallet
+      | {{ $t('Connect Wallet') }}
 
     //AlcorButton.theme-toggle-button.desktop(
     //  v-if='$route.name != "index"',
@@ -25,7 +25,7 @@
     //  i.el-icon-moon(v-else='')
 
     AlcorButton.theme-toggle-button.desktop.show-settings(
-      v-if='$route.name == "trade-index-id"',
+      v-if='$route.name == `trade-index-id___${this.$i18n.locale}`',
       :icon-only-alt='true',
       @click='showSetting = !showSetting'
     )

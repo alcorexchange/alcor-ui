@@ -8,7 +8,7 @@
       .col
         el-card
           div(slot="header")
-            span Authors
+            span {{ $t('Authors') }}
             // FIXME el-button(style="float: right;" size="mini" type="text" @click="clearAuthorFilters") CLEAR
           el-checkbox(
             v-for="author in authors"
@@ -21,7 +21,7 @@
       .col
         el-card
           div(slot="header")
-            span Categories
+            span {{ $t('Categories') }}
           el-checkbox(
             v-for="category in categories"
             :key="category"
@@ -35,19 +35,17 @@
         .d-flex
           el-input(v-model="search" placeholder="Search NFT: ID/Name/Category/Author" clearable size="medium")
 
-          nuxt-link(to="/nft-market/create").ml-3
-            el-button(tag="el-button" icon="el-icon-plus" size="medium") Create NFT token
+          nuxt-link(:to="localePath('/nft-market/create', $i18n.locale)").ml-3
+            el-button(tag="el-button" icon="el-icon-plus" size="medium") {{ $t('Create NFT token') }}
 
-          nuxt-link(to="/wallet/nfts").ml-3
-            el-button(type="info" icon="el-icon-wallet" size="medium") NFT Wallet
+          nuxt-link(:to="localePath('/wallet/nfts', $i18n.locale)").ml-3
+            el-button(type="info" icon="el-icon-wallet" size="medium") {{ $t('NFT Wallet') }}
     hr
 
     .row
       .col
         el-alert(type="error" title="Beware of scammers!" show-icon)
-          p
-            | Anyone can create SimpleAssets NFTs and freely choose attributes such as name and image, including fake versions of existing NFTs or stolen intellectual property.
-            | Before buying an NFT, always do your own research about the collection and double check the collection name to ensure that you are buying genuine NFTs.
+          p {{ $t('NFT_ALERT') }}
 
     .row.mt-3
       .col
@@ -165,10 +163,10 @@ export default {
 
   head() {
     return {
-      title: `Alcor NFT Market | Trustless NFT market on ${this.network.name.toUpperCase()} chain`,
+      title: `Alcor NFT Market | ${this.$t('META_NFT_MARKET_TITLE')} on ${this.network.name.toUpperCase()} chain`,
 
       meta: [
-        { hid: 'description', name: 'description', content: 'Atomic, no fee, NFT marketplace.' }
+        { hid: 'description', name: 'description', content: this.$t('META_NFT_MARKET_DESCRIPTION') }
       ]
     }
   }
@@ -182,7 +180,7 @@ export default {
 
 .market-cards {
   display: flex;
-  flex-wrap: wrap!important;
+  flex-wrap: wrap !important;
   justify-content: space-between;
 }
 
@@ -196,5 +194,4 @@ export default {
     width: 100%;
   }
 }
-
 </style>

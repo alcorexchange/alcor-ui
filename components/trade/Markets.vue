@@ -17,7 +17,7 @@
     el-input(
       size='small',
       v-model='search',
-      placeholder='Filter by token',
+      :placeholder='$t("Filter by token")',
       clearable
       width="60%"
     )
