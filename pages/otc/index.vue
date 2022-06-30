@@ -14,9 +14,9 @@
             .row
               .col
                 .d-flex
-                  new-order-form.mr-2 Create new order
+                  new-order-form.mr-2 {{ $t('Create new order') }}
 
-                  el-select(v-model="search" clearable placeholder="Select token" size="medium").ml-2.mr-2.w-25
+                  el-select(v-model="search" clearable :placeholder="$t('Select token')" size="medium").ml-2.mr-2.w-25
                     el-option(
                       v-for="token in tokens"
                       :key="token"
@@ -89,7 +89,7 @@
                 li.lead {{ $t('Comission account:') }}
                   a(:href="monitorAccount(divContract)" target="_blank")  {{ divContract }}
 
-          el-tab-pane(label='Partners').p-3
+          el-tab-pane(:label='$t("Partners")').p-3
             .lead.mb-4 {{ $t('RULES_INFO_9') }}
 
             hr
@@ -250,12 +250,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .order-row {
   cursor: pointer;
 }
 
 .select-token {
   width: 200px;
+}
+
+.el-table table.el-table__body {
+  width: 100% !important;
 }
 </style>

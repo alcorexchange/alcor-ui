@@ -3,26 +3,25 @@
   .col
     el-card.box-card.mt-3
       .el-form
-        .lead.font-weight-bold  This is not a verification or request listing form!
+        .lead.font-weight-bold  {{ $t('This is not a verification or request listing form') }}!
 
         br
 
-        p By selecting a token from the list below, you will be offered to sign a transaction
-          |  that instantly opens a new market that will immediately be ready for placing orders.
+        p {{ $t('By selecting a token from the list below, you will be offered to sign a transaction that instantly opens a new market that will immediately be ready for placing orders') }}.
           br
-          | This happens on smart contract, without the participation of third parties.
+          | {{ $t('This happens on smart contract, without the participation of third parties') }}.
 
-        small *You will buy 530(~0.02 {{ network.baseToken.symbol }}) RAM bytes for new market creation
+        small *{{ $t('You will buy') }} 530(~0.02 {{ network.baseToken.symbol }}) {{ $t('RAM bytes for new market creation') }}
 
       PleaseLoginButton
         el-form(ref="form" :model="form" label-position="left" :rules="rules")
           el-card.mb-2
             .clearfix(slot="header")
-              b.text-muted BASE TOKEN
+              b.text-muted {{ $t('BASE TOKEN') }}
 
-            el-form-item(label="System token or USDT is recommended" prop="quote_token.contract")
+            el-form-item(:label="$t('System token or USDT is recommended')" prop="quote_token.contract")
               el-select(v-model='base_select' v-if="user && user.balances"
-     value-key="id" filterable placeholder='Select' clearable @change="selectBaseToken")
+                value-key="id" filterable :placeholder='$t("Select")' clearable @change="selectBaseToken")
                 el-option(
                   :label="network.baseToken.symbol + '@' + network.baseToken.contract",
                   :value="network.baseToken"
@@ -41,17 +40,17 @@
 
           el-card.mb-2
             .clearfix(slot="header")
-              b.text-muted QUOTE TOKEN
+              b.text-muted {{ $t('QUOTE TOKEN') }}
 
             //el-tabs(@tab-click="quote_select = ''" type="border-card")
             el-tabs(@tab-click="quote_select = ''")
-              el-tab-pane(label="Auto select")
+              el-tab-pane(:label="$t('Auto select')")
                 el-alert(v-if="user && !user.balances" type="warning")
-                  .lead Unable to fetch user tokens.. use manually method
+                  .lead {{ $t('Unable to fetch user tokens.. use manually method') }}
 
-                el-form-item(label="Select token for new market" prop="quote_token.contract")
+                el-form-item(:label="$t('Select token for new market')" prop="quote_token.contract")
                   el-select(v-model='quote_select' v-if="user && user.balances"
-         value-key="id" filterable placeholder='Select' clearable @change="selectToken")
+                    value-key="id" filterable :placeholder='$t("Select")' clearable @change="selectToken")
                     el-option(
                       v-for="t in tokens",
                       :key="t.id",
@@ -61,19 +60,19 @@
                       TokenImage(:src="$tokenLogo(t.currency, t.contract)" height="25")
                       span.ml-3 {{ t.currency + '@' + t.contract }}
 
-              el-tab-pane(label="Manually")
-                el-form-item(label="Token contract" prop="quote_token.contract")
-                  el-input(placeholder="eosio.token betdicetoken ridlridlcoin eosiomeetone etc.." v-model="form.quote_token.contract")
+              el-tab-pane(:label="$t('Manually')")
+                el-form-item(:label="$('Token contract')" prop="quote_token.contract")
+                  el-input(:placeholder="$t('eosio.token betdicetoken ridlridlcoin eosiomeetone etc..')" v-model="form.quote_token.contract")
 
-                el-form-item(v-if="form.quote_token.contract" label="Token symbol" prop="quote_token.symbol")
-                  el-input(placeholder="DICE TRYBE CAT EOS etc.." v-model="form.quote_token.symbol").upperinput
+                el-form-item(v-if="form.quote_token.contract" :label="$t('Token symbol')" prop="quote_token.symbol")
+                  el-input(:placeholder="$t('DICE TRYBE CAT EOS etc..')" v-model="form.quote_token.symbol").upperinput
 
               .row(v-if="form.quote_token.contract && form.quote_token.symbol").mt-3
                 .col
                   .lead
                     TokenImage(:src="$tokenLogo(form.quote_token.symbol, form.quote_token.contract)" height="40")
                     span  {{ form.quote_token.symbol }}@{{ form.quote_token.contract }}
-                  small.text-muted.ml-1.mt-2   Creation new market fee is:
+                  small.text-muted.ml-1.mt-2   {{ $t("Creation new market fee is") }}:
                     span(v-if="network.baseToken.contract != base_token.contract")  (x2 for custom base token)
                   b  {{ creation_fee }}
 

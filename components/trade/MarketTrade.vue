@@ -2,7 +2,7 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.text-success Buy {{ quote_token.symbol.name }}
+      small.green {{ $t('Buy') }} {{ quote_token.symbol.name }}
       span(
         @click="setAmount('buy')"
         class="text-mutted small align-self-end ml-auto cursor-pointer"
@@ -13,7 +13,7 @@
       el-form-item
         el-input(
           type="number"
-          placeholder="Buy at best price"
+          :placeholder="$t('Buy at best price')"
           size="medium"
           disabled
         )
@@ -28,16 +28,16 @@
           placeholder="0"
           clearable
         )
-          span(slot="prefix").mr-1 AMOUNT
+          span(slot="prefix").mr-1 {{ $t('AMOUNT') }}
           span(slot="suffix").mr-1 {{ base_token.symbol.name }}
 
       .px-3
         el-slider(
           :step="1"
           v-model="percentBuy"
-          :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}"
+          :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
-        )
+        ).slider-buy
 
       el-form-item.mt-5
         el-button(
@@ -45,11 +45,11 @@
           type="success"
           size="small"
           @click="actionOrder('market', 'buy')"
-        ) Buy {{ quote_token.str }}
+        ) {{ $t('Buy') }} {{ quote_token.str }}
 
   .col-lg-6
     .d-flex.mb-1
-      small.text-danger Sell {{ quote_token.symbol.name }}
+      small.red {{ $t('Sell') }} {{ quote_token.symbol.name }}
       span(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
         @click="setAmount('sell')"
@@ -60,7 +60,7 @@
       el-form-item
         el-input(
           type="number"
-          placeholder="Sell at best price"
+          :placeholder="$t('Sell at best price')"
           size="medium"
           disabled
         )
@@ -75,16 +75,16 @@
           placeholder="0"
           clearable
         )
-          span(slot="prefix").mr-1 AMOUNT
+          span(slot="prefix").mr-1 {{ $t('AMOUNT') }}
           span(slot="suffix").mr-1 {{ quote_token.symbol.name }}
 
       .px-3
         el-slider(
           :step="1"
           v-model="percentSell"
-          :marks="{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}"
+          :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
-        ).red
+        ).slider-sell
 
       el-form-item.mt-5
         el-button(
@@ -92,7 +92,7 @@
           type="danger"
           size="small"
           @click="actionOrder('market', 'sell')"
-        ) Sell {{ quote_token.str }}
+        ) {{ $t('Sell') }} {{ quote_token.str }}
 </template>
 
 <script>
@@ -114,5 +114,13 @@ export default {
 <style scoped lang="scss">
 .cursor-pointer {
   cursor: pointer;
+}
+
+.green {
+  color: var(--color-primary)
+}
+
+.red {
+  color: var(--color-primary)
 }
 </style>

@@ -9,9 +9,9 @@
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
 
-    el-tab-pane(label='All', name='all')
+    el-tab-pane(:label='$t("All")', name='all')
     el-tab-pane(:label='network.baseToken.symbol' name='system')
-    el-tab-pane(label='Wrapped', name='wrapped')
+    el-tab-pane(:label='$t("Wrapped")', name='wrapped')
 
   .px-2.mt-2
     el-input(
@@ -35,7 +35,7 @@
   )
     el-table-column(
       prop='quote_token.symbol.name',
-      label='Pair(a-z)',
+      :label='$t("Pair(a-z)")',
       width='130',
       sortable,
       :sort-orders='["descending", "ascending"]'
@@ -54,7 +54,7 @@
 
     el-table-column(
       prop='last_price',
-      label='Price',
+      :label='$t("Price")',
       align='right',
       sortable,
       :sort-orders='["descending", null]'
@@ -66,7 +66,7 @@
     el-table-column(
       prop='volume24',
       :sort-orders='["descending", "ascending"]',
-      label='Vol 24H',
+      :label='$t("Vol 24H")',
       align='right',
       sortable,
     )
@@ -201,7 +201,7 @@ export default {
       }
 
       this.$router.push(
-        { name: 'trade-index-id', params: { id: market.slug } },
+        { name: `trade-index-id___${this.$i18n.locale}`, params: { id: market.slug } },
         () => this.loading = false,
         () => this.loading = false
       )
@@ -319,34 +319,27 @@ export default {
   }
 }
 
-.theme-dark {
-  .markets-bar {
-    background-color: var(--background-color-secondary);
+.markets-bar {
+  background-color: var(--table-header-background) !important;
 
-    .el-input__inner {
-      background-color: var(--background-color-base) !important;
-    }
+  .el-input__inner {
+    background-color: var(--background-color-base) !important;
+  }
+}
+
+.markets-bar .el-table {
+
+  th {
+    background: var(--table-header-background);
   }
 
-  .markets-bar .el-table {
+  tr {
+    background: var(--background-color-base);
+  }
 
-    th,
-    tr {
-      background: var(--background-color-secondary);
-    }
 
-    .el-table__row {
-      &:hover {
-
-        & td,
-        & th,
-        & tr {
-          background: var(--btn-active) !important;
-        }
-      }
-    }
-
-    .active-row {
+  .el-table__row {
+    &:hover {
 
       & td,
       & th,
@@ -355,7 +348,17 @@ export default {
       }
     }
   }
+
+  .active-row {
+
+    & td,
+    & th,
+    & tr {
+      background: var(--btn-active) !important;
+    }
+  }
 }
+
 
 .markets-bar {
   height: 100%;
@@ -363,6 +366,8 @@ export default {
 
   .el-table--fit {
     height: calc(100% - 70px);
+    margin-top: 10px;
+
   }
 
   .el-table__body-wrapper {
@@ -373,6 +378,6 @@ export default {
 }
 
 .markets-bar .el-table .active-row {
-  background: #e6eef1;
+  background: var(--btn-active);
 }
 </style>

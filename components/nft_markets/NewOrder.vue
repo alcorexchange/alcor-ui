@@ -1,15 +1,15 @@
 <template lang="pug">
 // TODO Refactor with walidators for form
 div
-  el-button(size="medium" type="primary" @click="open").w-100  Sell NFT's
+  el-button(size="medium" type="primary" @click="open").w-100  {{ $t("Sell NFT's") }}
 
   el-dialog(title="Create new order", :visible.sync="visible" width="70%" v-if="user")
     .row
       .col
-        .lead This form allow you to sell one or multiple NFT's at once by fixed price in {{ network.baseToken.symbol }}
+        .lead {{ $t('NEW_ORDER_MESSAGE') }} {{ network.baseToken.symbol }}
     .row
       .col
-        h4 Sell {{ sell.length }} items
+        h4 {{ $t('Sell') }} {{ sell.length }} {{ $t('items') }}
         .sell-nft-box
           el-card(
             v-for="(nft, i) in sell"
@@ -26,10 +26,10 @@ div
                   .lead {{ nft.mdata.name }}
                   b ID: {{ nft.id }}
                   //span Category: {{ nft.category }}
-                  span Author
+                  span {{ $t('Author') }}
                     b.ml-1 {{ nft.author }}
 
-        .label Sell all items for({{ network.baseToken.symbol }} amount):
+        .label {{ $t('Sell all items for') }} ({{ network.baseToken.symbol }} {{ $t('amount') }}):
         el-input.input-with-select(type="number" v-model="buyAmount" @change="buyChange" clearable).nft-buy-input
           el-select(v-model="buyToken", slot="append", placeholder="Select" value-key="str")
             el-option(
@@ -56,9 +56,9 @@ div
 
     .row
       .col-4
-        .lead Select NFT's
+        .lead {{ $t("Select NFT's") }}
       .col-8
-        el-input(placeholder="Filter NFT's" size="small" v-model="search" clearable)
+        el-input(:placeholder="$t(`Filter NFT's`)" size="small" v-model="search" clearable)
     hr
     el-card(
       v-for="(nft, i) in userNfts"

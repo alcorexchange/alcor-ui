@@ -4,25 +4,25 @@ el-table.my-trade-history(
   row-class-name='pointer',
   @row-click='rowClick'
 )
-  el-table-column(label='Time', v-if='!isMobile')
+  el-table-column(:label='$t("Time")', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
-  el-table-column(label='Pair')
+  el-table-column(:label='$t("Pair")', v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.market_symbol }}
-  el-table-column(label='Side', width='60')
+  el-table-column(:label='$t("Side")', width='60')
     template.text-success(slot-scope='scope')
       span.text-success(v-if='scope.row.side == "buy"') BUY
       span.text-danger(v-else) SELL
-  el-table-column(label='Amount', v-if='!isMobile')
+  el-table-column(:label='$t("Amount")', v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.amount | commaFloat }}
 
-  el-table-column(:label="'Total ( ' + base_token.symbol.name + ' )'")
+  el-table-column(:label="$t('Total') + '( ' + base_token.symbol.name + ' )'")
     template(slot-scope='{ row }')
       span {{ row.total | commaFloat }}
 
-  el-table-column(label='Price' width=100)
+  el-table-column(:label='$t("Price")' width=100)
     template(slot-scope='scope')
       span {{ scope.row.unit_price | commaFloat(6) }}
 

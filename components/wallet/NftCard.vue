@@ -8,7 +8,7 @@
     .details
       h3.name {{mdata.name}}
       .item
-        span.key.cancel Author:&nbsp;
+        span.key.cancel {{$t('Author')}}:&nbsp;
         span.value {{author}}
       .item
         span.key.cancel {{ $t('Category') }}:&nbsp;
@@ -17,9 +17,9 @@
       //-   span.key.cancel Created:&nbsp;
       //-   span.value 01, December 2020
       .actions
-        AlcorButton(@click="$emit('showDetails', $props)").action Details
+        AlcorButton(@click="$emit('showDetails', $props)").action {{$t('Details')}}
         AlcorButton(@click="$emit('send', {nft: $props})").action
-          span Send
+          span {{$t('Send')}}
           i.el-icon-s-promotion.ml-2
       //- .right
       //-   .item

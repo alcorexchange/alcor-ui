@@ -3,13 +3,23 @@
   .el-container.setting-container.pt-2.d-flex.flex-column
     .el-container.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
-        span.theme-title Language
+        span.theme-title {{ $t('Language') }}
       .el-main.theme-main-settings
-        element-select(:options="$i18n.locales" :selected="$i18n.locale")
+        element-select(:options="$i18n.locales")
           template(#option="{ option }")
             lang-option(:code="option.code")
           template(#selected)
             lang-option(:code="$i18n.locale")
+
+    div(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
+      .setting-theme-footer.el-footer.text-white
+        span.theme-title Theme
+      .el-main.theme-main-settings
+        element-select(:options="Object.values(themes)")
+          template(#option="{ option }")
+            theme-option(:theme="option" @click="changeSelected")
+          template(#selected)
+            theme-option(:theme="tradeTheme")
 
     //.el-container.setting-theme.d-flex.flex-column
       .setting-theme-footer.el-footer.text-white
@@ -99,7 +109,7 @@
 
     .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
       .setting-module-footer.el-footer.text-white
-        span.module-title Layouts
+        span.module-title {{ $t('Layouts') }}
       .el-main.module-main-settings
         .layout-selection
           .d-flex.flex-column(@click="setMarketLayout('classic')")
@@ -115,7 +125,7 @@
     .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
-        span.module-title Layout Modules
+        span.module-title {{ $t('Layout Modules') }}
       .el-main.module-main-settings
         .module-selection.d-flex.flex-column
           .module-list.d-flex.flex-row.justify-content-between(
@@ -130,7 +140,7 @@
                 inactive-color='#161617'
               )
       .el-footer.module-footer.default-settings-part
-        .return-default-setting.hoverable(@click='initiateState()') Return to Default Settings
+        .return-default-setting.hoverable(@click='initiateState()') {{ $t('Return to Default Settings') }}
 
     // TODO
     //.el-container.setting-layout.d-flex.flex-column
@@ -166,6 +176,7 @@ import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import ElementSelect from '~/components/elements/ElementSelect'
 import LangOption from '~/components/LangOption'
+import ThemeOption from '~/components/ThemeOption'
 
 import { TRADE_LAYOUTS } from '~/config'
 
@@ -176,7 +187,8 @@ export default {
     TokenImage,
     ChangePercent,
     ElementSelect,
-    LangOption
+    LangOption,
+    ThemeOption
   },
 
   data() {
@@ -192,15 +204,42 @@ export default {
         'order-form-vertical': 'Vertical Order Form'
       },
 
-      theme: 'dark',
       marketswitchvalue: false,
       favoritesswitchvalue: false,
-      checkedorange: false
+      checkedorange: false,
+
+      themes: {
+        default: {
+          value: 'Default',
+          colors: ['#66C167', '#F96C6C'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        bloom: {
+          value: 'Bloom',
+          colors: ['#277DFA', '#FFAB2E'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        cyber: {
+          value: 'Cyber',
+          colors: ['#F22B55', '#00AB4A'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        },
+        contrast: {
+          value: 'Contrast',
+          colors: ['#C60606', '#00B909'],
+          textPicker: { bg: '#3F3F3F', color: '#f2f2f2' }
+        }
+      }
     }
   },
   computed: {
     ...mapState(['markets']),
     ...mapState('market', ['current_market_layout', 'markets_layout']),
+    ...mapState('settings', ['tradeColor']),
+
+    tradeTheme() {
+      return this.themes[this.tradeColor]
+    },
 
     auto_select_node: {
       get() {
@@ -229,9 +268,19 @@ export default {
     }
   },
 
+  mounted() {
+    this.tradeColor = window.localStorage.getItem('trade-theme')
+  },
+
   methods: {
     setMarketLayout(value) {
       this.$store.commit('market/setCurrentMarketLayout', value)
+    },
+
+    changeSelected(value) {
+      this.$store.commit('settings/setTradeColor', value)
+      window.localStorage.setItem('trade-theme', value)
+      document.querySelector('html').setAttribute('trade-theme', window.localStorage.getItem('trade-theme'))
     },
 
     onChange(e) {
@@ -254,7 +303,7 @@ export default {
     initiateState() {
       this.$store.commit('market/setMarketLayout', TRADE_LAYOUTS.advanced)
     }
-  }
+  },
 }
 </script>
 
@@ -317,6 +366,7 @@ export default {
 span.theme-title,
 .module-title {
   font-size: 12px;
+  color: var(--text-default);
 }
 
 el-container.setting-theme {
@@ -364,7 +414,7 @@ input[type='radio']:checked+label:before {
   background-color: white;
 }
 
-.theme-dark .el-main {
+.el-main {
   padding: 8px 12px 8px 12px !important;
 }
 
@@ -393,7 +443,7 @@ input[type='radio']:checked+label:before {
   padding: 3px 0px 3px 0px;
 }
 
-.theme-dark .el-footer {
+.el-footer {
   padding: 0px 12px;
   box-sizing: border-box;
   flex-shrink: 0;

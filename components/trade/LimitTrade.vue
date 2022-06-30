@@ -42,7 +42,7 @@
           v-model='percentBuy',
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        )
+        ).slider-buy
 
       el-form-item.mt-4(prop='totalBuy', :inline-message='true')
         el-input(
@@ -60,7 +60,7 @@
           size='small',
           type='success',
           @click='actionOrder("limit", "buy")'
-        ) Buy {{ quote_token.str }}
+        ) {{ $t('Buy') }} {{ quote_token.str }}
 
   .col-lg-6
     .d-flex.mb-1
@@ -104,7 +104,7 @@
           v-model='percentSell',
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        ).red
+        ).slider-sell
 
       el-form-item.mt-4(prop='totalSell', :inline-message='true')
         el-input(
@@ -122,7 +122,7 @@
           size='small',
           type='danger',
           @click='actionOrder("limit", "sell")'
-        ) $t('Sell') {{ quote_token.str }}
+        ) {{ $t('Sell') }} {{ quote_token.str }}
 </template>
 
 <script>
@@ -147,5 +147,19 @@ export default {
 <style scoped lang="scss">
 .cursor-pointer {
   cursor: pointer;
+}
+
+.green {
+  color: var(--color-primary)
+}
+</style>
+
+<style>
+.slider-sell .el-slider__bar {
+  background-color: var(--color-secondary);
+}
+
+.slider-buy .el-slider__bar {
+  background-color: var(--color-primary);
 }
 </style>

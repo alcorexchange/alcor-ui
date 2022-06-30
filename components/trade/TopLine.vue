@@ -1,13 +1,13 @@
 <template lang="pug">
 client-only
-  .trade-top-line.box-card
+  .trade-top-line
     markets.markets(v-if='showMarkets', v-click-outside='onClickOutside' @close="showMarkets = false")
 
     .d-flex.align-items-center.header-items-container.pl-3.start(ref="panel")
       .d-flex.flex-column.pointer(@click='showMarkets = !showMarkets').pr-0
         .d-flex.align-items-center.show-markets
           TokenImage(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)' height='20').mr-2
-          .weight-700 {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
+          .weight-700.token-name {{ quote_token.symbol.name }} / {{ base_token.symbol.name }}
           i.el-icon-caret-bottom.ml-1.text-muted
 
       .d-flex.flex-column
@@ -24,28 +24,28 @@ client-only
         div(v-if="base_token.contract == network.baseToken.contract") $ {{ $systemToUSD(price, 8) }}
 
       .d-flex.flex-column(v-if="header_settings.change_24")
-        span.text-grey Change 24H
+        span.text-grey {{ $t('Change 24H') }}
         change-percent(:change='stats.change24')
       .d-flex.flex-column(v-if="header_settings.volume_24")
-        span.text-grey Volume 24H:
+        span.text-grey {{ $t('Volume 24H:') }}
         span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.high_24")
-        span.text-grey 24H High:
+        span.text-grey {{ $t('24H High:') }}
         span {{ stats.high24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.low_24")
-        span.text-grey 24H Low:
+        span.text-grey {{ $t('24H Low:') }}
         span {{ stats.low24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.volume_24_usd & base_token.contract == network.baseToken.contract")
-        span.text-grey 24H USD:
+        span.text-grey {{ $t('24H USD:') }}
         span $ {{ $systemToUSD(stats.volume24) }}
       .d-flex.flex-column(v-if="header_settings.weekly_volume")
-        span.text-grey Weekly Volume (WAX / USD):
+        span.text-grey {{ $t('Weekly Volume (WAX / USD):') }}
 
         span {{ stats.volumeWeek | commaFloat(2) }} {{ base_token.symbol.name }}
           span(v-if="base_token.contract == network.baseToken.contract")  / $ {{ $systemToUSD(stats.volumeWeek) }}
 
         //.d-flex.flex-column(v-if="header_settings.all_time")
-          span.text-muted All Time High/Low:
+          span.text-muted {{ $t('All Time High/Low:') }}
           span {{ stats.volume24.toFixed(2) }} {{ base_token.symbol.name }}
 
       .arrow.d-flex.justify-content-center.align-items-center(:style="{ cursor: 'pointer' }" @click='arrowClickfunc' v-if="!isMobile & showArrow")
@@ -182,6 +182,10 @@ export default {
 .header-items-container {
   overflow: hidden;
 
+  .token-name {
+    font-size: 14px;
+  }
+
   .flex-column {
     margin-right: 20px;
     flex-shrink: 0;
@@ -298,5 +302,8 @@ export default {
 
   font-weight: 400;
   font-size: 12px;
+
+  background: var(--background-color-base);
+  border-bottom: 1px solid var(--border-color);
 }
 </style>

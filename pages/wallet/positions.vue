@@ -4,7 +4,7 @@ div.wallet
     el-input(
       v-model="search"
       prefix-icon="el-icon-search"
-      placeholder="Search market.."
+      :placeholder="$t('Search market') + ' ..'"
       size="small"
       clearable
     )
@@ -12,19 +12,19 @@ div.wallet
     el-checkbox(
       v-model="onlyBuy"
       id="onlyBuy"
-    ) Only buy orders
+    ) {{ $t('Only buy orders') }}
 
     el-checkbox(
       v-model="onlySell"
       id="onlySell"
-    ) Only sell orders
+    ) {{ $t('Only sell orders') }}
 
     .d-flex.ml-auto
-      .cancel Total orders: {{ accountLimits.orders_total }}
+      .cancel {{ $t('Total orders') }}: {{ accountLimits.orders_total }}
 
-      .cancel.ml-3 Order slot limit: {{ accountLimits.orders_limit }}
+      .cancel.ml-3 {{ $t('Order slot limit') }}: {{ accountLimits.orders_limit }}
 
-      el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 Buy more order slots
+      el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 {{ $t('Buy more order slots') }}
 
   .table.el-card.is-always-shadow
     el-table.alcor-table(
@@ -32,48 +32,48 @@ div.wallet
       style='width: 100%',
     )
       el-table-column(type="expand")
-        template(#default="{row}")
+        template(#default="{ row }")
           .orders-container.table
             el-table(
               :data="row.orders"
               style="width: 100%"
             )
               el-table-column(
-                label="Order",
+                :label="$t('Order')",
               )
-                template(#default="{row}")
-                  span.order-type(:class="row.type === 'buy' ? 'green': 'red'") {{row.type}}
+                template(#default="{ row }")
+                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
               el-table-column(
-                label="Date",
+                :label="$t('Date')",
               )
-                template(#default="{row}") {{ row.timestamp | moment('DD-MM HH:mm') }}
+                template(#default="{ row }") {{ row.timestamp | moment('DD-MM HH:mm') }}
               el-table-column(
-                label="Price",
+                :label="$t('Price')",
               )
-                template(#default="{row}") {{ row.unit_price | humanPrice }}
+                template(#default="{ row }") {{ row.unit_price | humanPrice }}
               el-table-column(
-                label="Bid",
+                :label="$t('Bid')",
               )
-                template(#default="{row}") {{ row.bid.quantity | commaFloat }}
-              //el-table-column(label="Filled")
+                template(#default="{ row }") {{ row.bid.quantity | commaFloat }}
+              //el-table-column(:label="$t('Filled')")
                 template(#default="{row}") {{row.filled}}%
               el-table-column(
-                label="Ask",
+                :label="$t('Ask')",
               )
-                template(#default="{row}")
+                template(#default="{ row }")
                   .wax-value {{ row.ask.quantity | commaFloat }}
               el-table-column(
-                label="Action",
+                :label="$t('Action')",
               )
-                template(#default="{row}")
+                template(#default="{ row }")
                   .actions
                     el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
-      el-table-column(label='Asset', prop='date', :width='isMobile ? 150 : 280')
+      el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
         template(slot-scope='{row}')
           .asset-container
             TokenImage(
               :src='$tokenLogo(row.quote_token.symbol.name, row.quote_token.contract)',
-              :height="isMobile? '20' : '30'"
+              :height="isMobile ? '20' : '30'"
             )
 
             div.asset
@@ -81,23 +81,23 @@ div.wallet
               span.asset-contract.cancel {{ row.quote_token.contract }}
 
       el-table-column(
-        label='Current Orders',
+        :label='$t("Current Orders")',
       )
         template(slot-scope='{row}')
           .current-orders
-            span.green {{row.orderCount.buy}} Buy
+            span.green {{ row.orderCount.buy }} Buy
             span.cancel &nbsp;|&nbsp;
-            span.red {{row.orderCount.sell}} sell
+            span.red {{ row.orderCount.sell }} sell
       el-table-column(
-        label='Total Quote',
+        :label='$t("Total Quote")',
       )
         template(slot-scope='{row}') {{ row.totalBase | commaFloat(row.base_token.symbol.precision) }} {{ row.base_token.symbol.name }}
       el-table-column(
-        label='Total Base',
+        :label='$t("Total Base")',
       )
         template(slot-scope='{row}') {{ row.totalQuote | commaFloat(row.quote_token.symbol.precision) }} {{ row.quote_token.symbol.name }}
       el-table-column(
-        label='Actions',
+        :label='$t("Actions")',
         width="260"
       )
         template(slot-scope='{row}')
@@ -192,57 +192,70 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.table-header{
+.table-header {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
   gap: 30px;
+
   .el-input {
     max-width: 300px;
     margin-right: 8px;
     margin-bottom: 8px;
   }
-  .el-input__inner{
+
+  .el-input__inner {
     background: transparent !important;
   }
 }
-td.el-table__expanded-cell{
+
+td.el-table__expanded-cell {
   background: var(--bg-alter-2) !important;
 }
-.el-card{
+
+.el-card {
   border: none;
 }
-.asset-container{
+
+.asset-container {
   display: flex;
   align-items: center;
-  .asset{
+
+  .asset {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
   }
-  .asset-name{
+
+  .asset-name {
     font-weight: bold;
   }
 }
-.el-table__expanded-cell{
+
+.el-table__expanded-cell {
   padding: 10px !important;
 }
-.order-type{
-  &.green{
+
+.order-type {
+  &.green {
     color: var(--main-green);
   }
-  &.red{
+
+  &.red {
     color: var(--main-red);
   }
 }
-.actions{
+
+.actions {
   display: flex;
-  .el-button{
-    &.red{
+
+  .el-button {
+    &.red {
       color: var(--main-red) !important;
     }
-    &.green{
+
+    &.green {
       color: var(--main-green) !important;
     }
   }

@@ -1,17 +1,17 @@
 <template lang="pug">
 el-table(:data="history", row-key="block_num'" style='width: 100%' v-loading="loading")
-    el-table-column(prop='maker', label='Seller', width='125')
-    el-table-column(prop='buyer', label='Buyer', width='125')
-    el-table-column(label='Sell' width='200')
-      template(slot-scope='scope')
-        ShortToken(:token="scope.row.sell")
+  el-table-column(prop='maker', :label='$t("Seller")', width='125')
+  el-table-column(prop='buyer', :label='$t("Buyer")', width='125')
+  el-table-column(:label='$t("Sell")' width='200')
+    template(slot-scope='scope')
+      ShortToken(:token="scope.row.sell")
 
-    el-table-column(label='Buy' width='200')
-      template(slot-scope='scope')
-        ShortToken(:token="scope.row.buy")
+  el-table-column(:label='$t("Buy")' width='200')
+    template(slot-scope='scope')
+      ShortToken(:token="scope.row.buy")
 
-    el-table-column(prop='time', label='Time')
-    el-table-column(prop='price', label='Price')
+  el-table-column(prop='time', :label='$t("Time")')
+  el-table-column(prop='price', :label='$t("Price")')
 </template>
 
 <script>

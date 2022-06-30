@@ -1,32 +1,32 @@
 <template lang="pug">
 .el-card.resource-page-card
-    .header
-        i.el-icon-present
-        span.text Unstake
-    .main
-      .input-label
-        .dot.green
-        span CPU Unstake Amount
-      el-input(v-model="CPU" @change="toFixed")
-        span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
-      .percentages-container
-        AlcorButton(@click="setCPUpercent(5)") 5%
-        AlcorButton(@click="setCPUpercent(10)") 10%
-        AlcorButton(@click="setCPUpercent(15)") 15%
-        AlcorButton(@click="setCPUpercent(20)") 20%
-      .divider
-      .input-label
-        .dot.red
-        span NET Unstake Amount
-      el-input(v-model="NET" @change="toFixed")
-      .percentages-container
-        AlcorButton(@click="setNETpercent(5)") 5%
-        AlcorButton(@click="setNETpercent(10)") 10%
-        AlcorButton(@click="setNETpercent(15)") 15%
-        AlcorButton(@click="setNETpercent(20)") 20%
-      SSpacer(:high="true")
-      .submit
-        AlcorButton(@click="submit" v-loading="loading") Unstake
+  .header
+    i.el-icon-present
+    span.text {{ $t("Unstake") }}
+  .main
+    .input-label
+      .dot.green
+      span {{ $t("CPU Unstake Amount") }}
+    el-input(v-model="CPU" @change="toFixed")
+      span(slot="suffix").mr-1 {{ network.baseToken.symbol }}
+    .percentages-container
+      AlcorButton(@click="setCPUpercent(5)") 5%
+      AlcorButton(@click="setCPUpercent(10)") 10%
+      AlcorButton(@click="setCPUpercent(15)") 15%
+      AlcorButton(@click="setCPUpercent(20)") 20%
+    .divider
+    .input-label
+      .dot.red
+      span {{ $t("NET Unstake Amount") }}
+    el-input(v-model="NET" @change="toFixed")
+    .percentages-container
+      AlcorButton(@click="setNETpercent(5)") 5%
+      AlcorButton(@click="setNETpercent(10)") 10%
+      AlcorButton(@click="setNETpercent(15)") 15%
+      AlcorButton(@click="setNETpercent(20)") 20%
+    SSpacer(:high="true")
+    .submit
+      AlcorButton(@click="submit" v-loading="loading") {{ $t("Unstake") }}
 </template>
 
 <script>
@@ -117,46 +117,57 @@ export default {
   flex-direction: column;
   flex-wrap: wrap;
 }
+
 .input-label {
   display: flex;
   align-items: center;
+
   .dot {
     width: 8px;
     height: 8px;
     border-radius: 8px;
     margin-right: 4px;
+
     &.red {
       background: var(--main-red);
     }
+
     &.green {
       background: var(--main-green);
     }
   }
 }
+
 .divider {
   margin: 8px 0;
   height: 2px;
   width: 100%;
   background: var(--background-color-base);
 }
+
 .el-input {
   margin: 4px 0;
 }
+
 .percentages-container {
   display: flex;
+
   .alcor-button {
     flex: 1;
     margin: 4px;
     font-size: 0.9rem;
     padding: 4px;
+
     &:first-child {
       margin-left: 0;
     }
+
     &:last-child {
       margin-right: 0;
     }
   }
 }
+
 .submit {
   .alcor-button {
     width: 100%;

@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  el-button(size="medium" @click="open" icon="el-icon-wallet").ml-auto Withdraw liquidity
+  el-button(size="medium" @click="open" icon="el-icon-wallet").ml-auto {{ $t('Withdraw liquidity') }}
 
   el-dialog(title="Withdraw liquidity", :visible.sync="visible" width="50%" v-if="user")
     .row
@@ -9,26 +9,26 @@ div
           .col
             .row
               .col
-                .lead Pool price: {{ poolPrice.toFixed(5) }}
+                .lead {{ $t('Pool price') }}: {{ poolPrice.toFixed(5) }}
                   |  {{ current.pool1.quantity.symbol.code().to_string() }}
 
             .row
               .col
-                .lead Pool token supply: {{ current.supply }}
+                .lead {{ $t('Pool token supply') }}: {{ current.supply }}
 
             .row.mt-2
               .col
-                .lead Backed token balance: {{ tokenBalance }}
+                .lead {{ $t('Backed token balance') }}: {{ tokenBalance }}
 
             hr
 
             .row.mt-2
               .col
-                .lead Will receive {{ poolOne.quantity.symbol.code().to_string() }}: {{ baseReceive }}
+                .lead {{ $t('Will receive') }} {{ poolOne.quantity.symbol.code().to_string() }}: {{ baseReceive }}
 
             .row.mt-2
               .col
-                .lead Will receive {{ poolTwo.quantity.symbol.code().to_string() }}: {{ quoteReceive }}
+                .lead $t('Will receive')}} {{ poolTwo.quantity.symbol.code().to_string() }}: {{ quoteReceive }}
             .row.mt-2
               .col
                 el-input(type="number" v-model="amount" clearable @change="amountChange")
@@ -36,7 +36,7 @@ div
         .row
           .col
             PleaseLoginButton
-              el-button(type="primary" @click="withdraw" :loading="loading").w-100 Withdraw
+              el-button(type="primary" @click="withdraw" :loading="loading").w-100 {{ $t('Withdraw') }}
 
 </template>
 
