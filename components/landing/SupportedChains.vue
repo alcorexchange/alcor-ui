@@ -90,8 +90,7 @@ export default {
 
 .inner-container {
   padding: 40px 10px;
-  background: rgba(33, 33, 33, 0.6);
-  background: var(--hover);
+  background-color: rgba(21, 21, 21, .3);
   border-radius: 24px;
   display: flex;
   flex-direction: column;
