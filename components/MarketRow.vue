@@ -7,13 +7,15 @@
       a.link.text-muted(v-if='!isMobile' :href='monitorAccount(item.contract)', target='_blank') {{ item.contract }}
       span /
       span {{ item.base_name }}
+      span.promo-label(v-if="isMobile && item.promoted") top
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price
     span.text-success(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
     span.text-success(v-else)
       | {{ item.last_price }}
-      span(v-if="!isMobile") {{ item.base_name }}
+      span(v-if="!isMobile")
+        |  {{ item.base_name }}
   .day-vol(v-if='!isMobile')
     span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume24) }}
     span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat }} {{ item.base_name }}
@@ -23,7 +25,8 @@
     span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume_week) }}
     span.text-mutted(v-else)
       | {{ item.volume_week.toFixed(2) | commaFloat }}
-      span(v-if="!isMobile") {{ item.base_name }}
+      span(v-if="!isMobile")
+        |  {{ item.base_name }}
   .week-change(v-if='!isMobile')
     change-percent(:change='item.change_week')
 </template>
@@ -73,7 +76,7 @@ export default {
 }
 
 .wrapper.mobile {
-  padding: 15px 10px;
+  padding: 20px 10px;
   gap: 5px;
 }
 
@@ -106,27 +109,38 @@ export default {
   width: 75px;
 }
 
-.day-change {
-  width: 70px;
-}
-
 .last-price,
 .day-vol,
-.week-change {
+.week-vol {
   justify-content: end;
-  width: 160px;
+  width: 190px;
 }
 
-.week-vol {
-  width: 180px;
+.week-change,
+.day-change {
+  width: 100px;
 }
 
 .name {
   display: flex;
   gap: .3rem;
+  position: relative;
 }
 
 .name .link:hover {
   text-decoration: underline !important;
+}
+
+.promo-label {
+  color: #1FC781;
+  border: 1px solid #66C167;
+  border-radius: 4px;
+  padding: 0 4px;
+  position: absolute;
+  font-size: 10px;
+  text-transform: uppercase;
+
+  right: -35px;
+  top: -14px;
 }
 </style>

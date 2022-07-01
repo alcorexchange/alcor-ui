@@ -1,5 +1,6 @@
 <template lang="pug">
 .markets
+  market-top(:newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
       v-model='markets_active_tab',
@@ -39,18 +40,19 @@
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
       market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
-
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import VirtualTable from '~/components/VirtualTable'
 import MarketRow from '~/components/MarketRow'
+import MarketTop from '~/components/MarketTop'
 
 export default {
   components: {
     VirtualTable,
-    MarketRow
+    MarketRow,
+    MarketTop
   },
 
   async fetch({ store, error }) {
@@ -65,7 +67,9 @@ export default {
 
   data() {
     return {
-      search: ''
+      search: '',
+      newListingIDs: [495, 455, 173],
+      topGaindersIDs: [475, 422, 416]
     }
   },
 
@@ -94,47 +98,64 @@ export default {
       }
     },
 
+    newListings() {
+      return this.markets.filter(({ id }) => this.newListingIDs.includes(id))
+    },
+
+    topGainers() {
+      return this.markets.filter(({ id }) => this.topGaindersIDs.includes(id))
+    },
+
+    topVolume() {
+      const tmp = [...this.markets]
+      return tmp
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .slice(0, 3)
+    },
+
     virtualTableData() {
       const header = [
         {
           label: 'Pair',
           value: 'quote_name',
-          width: '340px'
+          width: '335px'
         },
         {
           label: 'Last price',
           value: 'last_price',
-          width: '155px',
+          width: '165px',
           sortable: true
         },
         {
           label: '24H Vol.',
           value: 'volume24',
-          width: '165px',
+          width: '190px',
           sortable: true,
           desktopOnly: true
         },
         {
           label: '24H',
           value: 'change24',
-          width: '80px',
+          width: '100px',
           sortable: true,
           desktopOnly: true
         },
         {
           label: '7D Volume',
           value: 'volume_week',
-          width: '180px',
+          width: '190px',
           sortable: true
         },
         {
           label: '7D Change',
           value: 'change_week',
-          width: '165px',
+          width: '100px',
           sortable: true,
           desktopOnly: true
         }
       ]
+
+      console.log(this.markets)
 
       const data = this.filteredMarkets.map(market => ({
         id: market.id,
@@ -150,7 +171,10 @@ export default {
         last_price: market.last_price
       }))
 
-      return { header, data }
+      const itemSize = 55
+      const pageMode = true
+
+      return { pageMode, itemSize, header, data }
     },
 
     filteredMarkets() {
