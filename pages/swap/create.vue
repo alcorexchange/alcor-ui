@@ -4,20 +4,20 @@
     el-card
       PleaseLoginButton
         .px-3.mt-2
-          h1 Create new pool
-          .lead To create a pool, select the quote token and provide the initial liquidity ratio.
-          b.text-muted You are the first liquidity provider. The ratio of tokens you add will set the price of this pool.
+          h1 {{ $t("Create new pool") }}
+          .lead {{ $t("To create a pool, select the quote token and provide the initial liquidity ratio") }}.
+          b.text-muted {{ $t("You are the first liquidity provider. The ratio of tokens you add will set the price of this pool") }}.
         el-form(ref="form" label-position="left" v-if="user").px-3.mt-4
           el-form-item
-            b Base token:
+            b {{ $t("Base token") }}:
             span(v-if="base.currency")
               TokenImage(:src="$tokenLogo(base.currency, base.contract)" height="25").ml-2
               span.ml-1 {{ base.currency + '@' + base.contract }}
 
             el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
-              el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
+              el-select(v-model="base_select", slot='append', :placeholder='$t("Select")' @change="setBaseToken" value-key="id")
                 //el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
-                          :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
+                  :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
                   TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
                   span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
@@ -41,18 +41,18 @@
                   span.float-right.ml-4 {{ `${b.amount} ${b.currency}` }}
 
           el-form-item(v-if="this.base.symbol && this.quote.symbol")
-            .lead Backed token symbol (Automatically set recommended)
+            .lead {{ $t("Backed token symbol (Automatically set recommended)") }}
             el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
 
-          pre Price {{ price }}
+            pre {{ $t("Price") }} {{ price }}
           el-form-item
             //span.text-mutted.mt-2   Pool creation fee is:
             //b  {{ network.marketCreationFee }}
-            span.text-mutted.mt-2   Pool creation is
-            b  FREE
+            span.text-mutted.mt-2   {{ $t("Pool creation is") }}
+            b  {{ $t("FREE") }}
             //b  {{ network.marketCreationFee }}
 
-            el-button(@click="create" type="primary" :loading="loading").w-100 Create
+            el-button(@click="create" type="primary" :loading="loading").w-100 {{ $t("Create") }}
 
 </template>
 

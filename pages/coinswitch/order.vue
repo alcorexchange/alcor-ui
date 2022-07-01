@@ -1,50 +1,50 @@
 <template lang="pug">
 .row.mt-3
   .col
-    .lead Exchanging 12 ETH to 7234 EOS
+    .lead {{ $t('Exchanging 12 ETH to 7234 EOS') }}
 
     .row.mt-3
       .col
         el-steps(:space='200' :active='step' simple)
-          el-step(title='Enter Address' icon='el-icon-edit' description="Some description")
-          el-step(title='Send Coin' icon='el-icon-upload')
-          el-step(title='Exchange Status' icon='el-icon-picture')
+          el-step(:title='$t("Enter Address")' icon='el-icon-edit' :description="$t('Some description')")
+          el-step(:title='$t("Send Coin")' icon='el-icon-upload')
+          el-step(:title='$t("Exchange Status")' icon='el-icon-picture')
 
     .row(v-if="step == 0").mt-4
       .col-8
         el-card
-          h4 Enter your EOS wallet address
-          span Address for the wallet in which EOS will be deposited
+          h4 {{ $t('Enter your EOS wallet address') }}
+          span {{ $t('Address for the wallet in which EOS will be deposited') }}
 
           .row.mt-3
             .col
-              el-input(v-model="walletAddress" placeholder="Enter your EOS wallet address" clearable)
+              el-input(v-model="walletAddress" :placeholder="$t('Enter your EOS wallet address')" clearable)
 
           .row.mt-3
             .col
               .row
                 .col
-                  el-button(type="text") Don't have wallet yet?
-              el-button(type="primary" @click="createOrder" v-loading="loading").w-100 Next
+                  el-button(type="text") {{ $t("Don't have wallet yet?") }}
+              el-button(type="primary" @click="createOrder" v-loading="loading").w-100 {{ $t('Next') }}
 
       .col-4
         el-card.box-card.h-100
           .test-center(slot="header" class="clearfix")
-            .lead EOS ORDERS
+            .lead {{ $t('EOS ORDERS') }}
 
           .row
             .col-2.p-3.text-center
               .lead.el-icon-time
             .col-6
-              b 6 Minutes
-              div avg completion time
+              b {{ $t('6 Minutes') }}
+              div {{ $t('avg completion time') }}
 
           .row.mt-2
             .col-2.p-3.text-center
               .lead.el-icon-trophy-1
             .col-6
-              b 21% faster
-              div than other exchanges
+              b {{ $t('21% faster') }}
+              div {{ $t('than other exchanges') }}
 
     .row(v-if="step == 1")
       .col

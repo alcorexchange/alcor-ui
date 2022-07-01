@@ -2,7 +2,7 @@
 div(v-if='user')
   slot
 div.confirm-button(v-else)
-  el-button.w-100(@click='login', type='primary') Connect Wallet
+  el-button.w-100(@click='login', type='primary') {{ $t('Connect Wallet') }}
 </template>
 
 <script>

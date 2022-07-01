@@ -33,20 +33,20 @@
         @moved='itemUpdatedEvent(item)',
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
-        drag-allow-from='.el-tabs__header, .times-and-sales, .box-card'
+        drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line'
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
-            .module-name.mr-2 Hide other pairs
+            .module-name.mr-2 {{ $t('Hide other pairs') }}
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
-                active-color='#13ce66',
+                active-color='#66C167',
                 inactive-color='#161617'
               )
 
           swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")
-            | SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+            | {{ $t('SWAP') }} ({{ relatedPool.rate }} {{ base_token.symbol.name }})
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 
@@ -66,10 +66,10 @@
 
         order-form-vertical(v-if="item.i == 'order-form-vertical'")
 
-        el-tabs.h-100(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
-          el-tab-pane(label='Orderbook')
+        el-tabs.h-100.trade-tab(v-loading='loading', v-if='item.i == "order-depth"' type="border-card" size="small" v-model="orderbok_tab")
+          el-tab-pane.trade-header(:label='$t("Orderbook")')
             order-book
-          el-tab-pane(label='Depth Chart')
+          el-tab-pane.trade-header(:label='$t("Depth Chart")')
             depth-chart(
               :is-draggable='false',
               :is-resizable='false',
@@ -79,29 +79,29 @@
               :use-css-transforms='false',
             )
 
-        el-tabs.h-100(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
-          el-tab-pane(label='Markets')
+        el-tabs.h-100.trade-tab(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
+          el-tab-pane.trade-tab(:label='$t("Markets")')
             Markets.mt-1
-          el-tab-pane(label='Times & Sales')
+          el-tab-pane.trade-header(:label='$t("Times & Sales")')
             LatestDeals(:timeformat='timeformat')
 
-        alcor-tabs.h-100(v-if='item.i == "open-order"' v-model='tab' type="border-card")
-          el-tab-pane(label='Open orders')
-            my-orders(v-loading='loading' :only-current-pair="hideOtherPairs")
-          el-tab-pane(label='Trade History')
-            my-trade-history(:only-current-pair="hideOtherPairs")
-          el-tab-pane(label='Funds')
-            my-funds(:only-current-pair="hideOtherPairs")
+        alcor-tabs.h-100.trade-tab(v-if='item.i == "open-order"' v-model='tab' type="border-card")
+          el-tab-pane.trade-header(:label='$t("Open orders")')
+            my-orders.trade-bg(v-loading='loading' :only-current-pair="hideOtherPairs")
+          el-tab-pane.trade-header(:label='$t("Trade History")')
+            my-trade-history.trade-bg(:only-current-pair="hideOtherPairs")
+          el-tab-pane.trade-header(:label='$t("Funds")')
+            my-funds.trade-bg(:only-current-pair="hideOtherPairs")
         .not-history.limit-market(
           v-if='item.i == "limit-market"',
           :min-h='10'
         )
           //.right-icons
-          el-tabs(type="border-card").h-100
-            el-tab-pane.h-10(label='Limit trade')
+          el-tabs.trade-tab(type="border-card").h-100
+            el-tab-pane.h-10(:label='$t("Limit trade")')
               .trade-box
                 limit-trade
-            el-tab-pane(label='Market trade')
+            el-tab-pane(:label='$t("Market trade")')
               .trade-box
                 market-trade
 
@@ -111,14 +111,14 @@
   #price_cancel_modal(v-if='orderdata && orderdata.show_cancel_modal')
     .cancel-modal-content
       .price-info
-        p Your order to:
+        p {{ $t('Your order to:') }}
         span.color-green &nbsp;{{ orderdata.order_to }}
       .price-info
-        p At a price of:
+        p {{ $t('At a price of:') }}
         span &nbsp;{{ orderdata.price }}
-      p Will be
+      p {{ $t('Will be') }}
         span.color-red &nbsp;cancelled
-        | , do you wish to proceed?
+        | , {{ $t('do you wish to proceed?') }}
       .alert-btn-group.d-flex.justify-content-between
         div(@click='cancel_confirm_order(true)') Yes
         div(@click='cancel_confirm_order(false)') No
@@ -126,18 +126,18 @@
   #price_move_modal(v-if='orderdata.show_move_modal')
     .cancel-modal-content
       .price-info
-        p Your order to:
+        p {{ $t('Your order to:') }}
         span.color-green &nbsp;{{ orderdata.order_to }}
       .price-info
-        p At a price of:
+        p {{ $t('At a price of:') }}
         span &nbsp;{{ orderdata.price }}
       .price-info
-        p.width-auto Will be moved to:
+        p.width-auto {{ $t('Will be moved to:') }}
         span &nbsp;{{ orderdata.new_price }}
-      p Do you wish to proceed?
+      p {{ $t('do you wish to proceed?') }}
       .alert-btn-group.d-flex.justify-content-between
-        div(@click='move_confirm_order(true)') Yes
-        div(@click='move_confirm_order(false)') No
+        div(@click='move_confirm_order(true)') {{ $t('Yes') }}
+        div(@click='move_confirm_order(false)') {{ $t('No') }}
       i.el-icon-close(@click='move_confirm_order(false)')
 </template>
 
@@ -477,6 +477,7 @@ export default {
   right: 0;
   z-index: 100;
   margin: 1px;
+  height: 22px;
 }
 
 .alcor-inner .main .box-card {
@@ -489,10 +490,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #3f3f3f;
-  font-size: 14px;
+  background-color: var(--btn-default);
+  border-radius: 0px 0px 0px 3px;
   cursor: pointer;
   margin: 1px;
+  font-size: 12px;
 }
 
 .red {
@@ -559,6 +561,10 @@ export default {
   min-height: 650px;
 }
 
+.trade-tabs {
+  background-color: var(--table-background) !important;
+}
+
 .el-form-item {
   margin-bottom: 0px;
 }
@@ -574,21 +580,22 @@ export default {
 }
 
 .swap-button {
-  background: #3f3f3f;
+  background: var(--btn-default);
   //border: 0px 0px 0px 2px !important;
-  border-radius: 0px;
+  border-radius: 0 0 3px 3px;
   border: none !important;
   padding: 0px 10px !important;
   margin-right: 2px;
-  color: #bdbdbd !important;
+  color: var(--text-default) !important;
   height: 20px;
 }
 
 .feebutton {
-  background: #3f3f3f;
+  background: var(--btn-default);
   padding: 0px 2px !important;
-  margin-right: 2px !important;
-  height: 100% !important;
+  margin-right: 1px !important;
+  height: 90% !important;
+  border-radius: 0 0 3px 3px;
 }
 
 @media screen and (max-width: 1350px) {
@@ -623,6 +630,10 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .vue-grid-layout {
+    background-color: var(--background-color-third);
+  }
+
   .chart {
     touch-action: none;
   }
@@ -640,13 +651,14 @@ export default {
   background: #121212;
 
   .el-tabs--border-card {
-    background: transparent;
+    background: var(--table-header-background);
     border: none;
   }
 
   .el-tabs__item {
-    height: 30px;
-    line-height: 25px;
+    height: 25px;
+    font-size: 12px;
+    line-height: 20px;
   }
 
   .el-tabs__content {
@@ -659,7 +671,7 @@ export default {
   }
 
   .el-tabs__header {
-    background-color: var(--table-background) !important;
+    background-color: var(--table-tabs-background) !important;
     margin: 0;
   }
 
@@ -675,8 +687,8 @@ export default {
   }
 
   .vue-grid-item {
-    background: var(--table-background);
-    border: 2px solid #3F3F3F;
+    background: var(--background-color-base);
+    border: var(--border-2);
     box-sizing: border-box;
     border-radius: 2px;
 
@@ -732,9 +744,22 @@ export default {
     }
   }
 
+  .trade-bg {
+    background-color: var(--trade-bg);
+  }
+
+  .trade-header,
+  .trade-header th {
+    background-color: var(--trade-header-bg) !important;
+  }
+
+  .trade-tab {
+    background-color: var(--trade-tab-bg);
+  }
+
   .trade-box {
-    margin-top: 20px;
-    padding: 0 15px;
+    padding: 20px 15px;
+    background-color: var(--trade-bg);
 
     .el-input--prefix .el-input__inner {
       padding-left: 35% !important;
@@ -790,7 +815,7 @@ export default {
   }
 
   .el-table__header th {
-    background-color: var(--btn-default);
+    background-color: var(--trade-bg);
   }
 
   .el-table {

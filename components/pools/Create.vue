@@ -17,8 +17,8 @@ div
       .col
         PleaseLoginButton
           .px-3.mt-2
-            h1 Create new pool
-            .lead To create a pool, select the quote token and provide the initial liquidity ratio.
+            h1 {{ $t('Create new pool') }}
+            .lead {{ $t('To create a pool, select the quote token and provide the initial liquidity ratio') }}.
           el-form(ref="form" label-position="left" v-if="user").px-3
             el-form-item
               b Base token:
@@ -29,7 +29,7 @@ div
               el-input(type="number" placeholder='0.0' v-model="amount1" clearable @change="amountChange").input-with-select
                 el-select(v-model="base_select", slot='append', placeholder='Select' @change="setBaseToken" value-key="id")
                   el-option(:label="`${baseToken.symbol}@${baseToken.contract}`"
-                            :value="{currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision}")
+                    :value="{ currency: baseToken.symbol, contract: baseToken.contract, decimals: baseToken.precision }")
                     TokenImage(:src="$tokenLogo(baseToken.symbol, baseToken.contract)" height="25")
                     span.ml-3 {{ baseToken.symbol }}@{{ baseToken.contract }}
 
@@ -53,15 +53,15 @@ div
                     span.float-right {{ `${b.amount} ${b.currency}` }}
 
             el-form-item(v-if="this.base.symbol && this.quote.symbol")
-              .lead Backed token symbol (Automatically set recommended)
+              .lead {{ $t('Backed token symbol (Automatically set recommended)') }}
               el-input(:loading="loading" placeholder='SYMBOL' v-model="tokenSymbol" clearable @input="tokenSymbol = tokenSymbol.toUpperCase();")
 
-            pre Price {{ price }}
+              pre {{ $t('Price') }} {{ price }}
             el-form-item
-              span.text-mutted.mt-2   Pool creation fee is:
+              span.text-mutted.mt-2   {{ $t('Pool creation fee is') }}:
               b  {{ network.marketCreationFee }}
 
-              el-button(@click="create" :loading="loading").w-100 Create
+              el-button(@click="create" :loading="loading").w-100 {{ $t('Create') }}
 
 </template>
 

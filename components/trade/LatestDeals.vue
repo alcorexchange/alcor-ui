@@ -3,9 +3,9 @@
 .deals-history(v-loading='loading')
   .blist.first
     .ltd.first.d-flex.justify-content-around
-      span Price ({{ base_token.symbol.name }})
-      span Amount ({{ (timesAndSales[id] || {}).showQuote == 'Token' ? quote_token.symbol.name : base_token.symbol.name }})
-      span Time
+      span {{ $t('Price') }} ({{ base_token.symbol.name }})
+      span {{ $t('Amount') }} ({{ (timesAndSales[id] || {}).showQuote == 'Token' ? quote_token.symbol.name : base_token.symbol.name }})
+      span {{ $t('Time') }}
   .orders-list.blist
     a(
       v-for='deal in coloredDeals',
@@ -72,24 +72,23 @@ export default {
 </script>
 
 <style lang="scss">
-
 .deals-history {
   .sell {
     span:first-child {
-      color: var(--main-red);
+      color: var(--color-secondary);
     }
   }
 
   .buy {
     span:first-child {
-      color: var(--main-green);
+      color: var(--color-primary);
     }
   }
 }
 
 
 .max-buymatch {
-  background:  linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%), #212121;
+  background: linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%), #212121;
 }
 
 .max-sellmatch {
@@ -119,9 +118,11 @@ export default {
   .el-tabs__content {
     height: calc(100% - 30px);
   }
+
   .el-tab-pane {
     height: 100%;
   }
+
   .deals-history {
     height: 100%;
   }

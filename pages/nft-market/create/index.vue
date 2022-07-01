@@ -3,33 +3,33 @@
   .col-lg-5.mb-2
     el-card
       div(slot="header")
-        .lead NFT creation
-          small.text-muted.float-right (Alpha version)
+        .lead {{ $t('NFT creation') }}
+          small.text-muted.float-right ({{ $t('Alpha version') }})
 
-        small This form allow you to create an NFT.
-          |  You will be the owner of the NFT immediately after creation and will be able to transfer or sell the NFT.
+        small {{ $t('This form allow you to create an NFT') }}.
+          |  {{ $t('You will be the owner of the NFT immediately after creation and will be able to transfer or sell the NFT') }}.
 
       .row
         .col
-          small Name
-          el-input(v-model='mdata.name', placeholder='Name of the NFT' show-word-limit)
+          small {{ $t('Name') }}
+          el-input(v-model='mdata.name', :placeholder='$t("Name of the NFT")' show-word-limit)
 
       .row.mt-2
         .col
-          small Category
-          el-input(v-model='category', placeholder='Category' maxlength="12" show-word-limit)
+          small {{ $t('Category') }}
+          el-input(v-model='category', :placeholder='$t("Category")' maxlength="12" show-word-limit)
 
       hr
       .row
         .col
           .row
             .col
-              pre Immutable data
+              pre {{ $t('Immutable data:') }}
               small Data that can never be changed again.
-              el-input(v-model="iKey" placeholder="key" size="small")
+              el-input(v-model="iKey" :placeholder="$t('key')" size="small")
           .row.mt-1
             .col
-              el-input(v-model="iValue" placeholder="value" size="small")
+              el-input(v-model="iValue" :placeholder="$t('value')" size="small")
       .row.mt-1
         .col
           el-button(size="mini" type="primary" @click="addI") Add
@@ -39,17 +39,17 @@
         .col
           .row
             .col
-              b.text-muted Mutable data
+              b.text-muted {{ $t('Mutable data') }}
               p
-                small.text-muted Data that you can change(as the author of the NFT).
+                small.text-muted {{ $t('Data that you can change(as the author of the NFT)') }}.
 
-              el-input(v-model="mKey" placeholder="key" size="small").mt-1
+              el-input(v-model="mKey" :placeholder="$t('key')" size="small").mt-1
           .row.mt-1
             .col
-              el-input(v-model="mValue" placeholder="value" size="small")
+              el-input(v-model="mValue" :placeholder="$t('value')" size="small")
       .row.mt-1
         .col
-          el-button(size="mini" type="primary" @click="addM") Add
+          el-button(size="mini" type="primary" @click="addM") {{ $t('Add') }}
 
   .col-lg-7
     el-card.preview-wrap
@@ -71,12 +71,12 @@
         .col-lg-8
           .row.mb-1
             .col
-              b.text-muted Category:
+              b.text-muted {{ $t('Category') }}:
               |  {{ preview.category }}
 
           .row.mb-1
             .col
-              b.text-muted Immutable data:
+              b.text-muted {{ $t('Immutable data:') }}
               ul
                 li(v-for="item in iRows" v-if="item[1]")
                   span.text-muted {{ item[0] }}:
@@ -85,7 +85,7 @@
                   i.el-icon-close.pointer.ml-1(@click="delI(item[0])")
           .row
             .col
-              b.text-muted Mutable data:
+              b.text-muted {{ $t('Mutable data') }}:
               ul
                 li(v-for="item in mRows" v-if="item[1]")
                   span.text-muted {{ item[0] }}:
@@ -94,7 +94,7 @@
                   i.el-icon-close.pointer.ml-1(@click="delM(item[0])")
 
       PleaseLoginButton
-        el-button(type="primary" :loading="loading" @click="create").w-100.mt-2 Create NFT
+        el-button(type="primary" :loading="loading" @click="create").w-100.mt-2 $t('Create NFT') }}
 
 </template>
 
@@ -243,7 +243,7 @@ export default {
 
 .market-cards {
   display: flex;
-  flex-wrap: wrap!important;
+  flex-wrap: wrap !important;
   justify-content: space-between;
 }
 
@@ -269,9 +269,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -280,10 +282,10 @@ export default {
   line-height: 178px !important;
   text-align: center;
 }
+
 .avatar {
   width: 178px;
   height: 178px;
   display: block;
 }
-
 </style>

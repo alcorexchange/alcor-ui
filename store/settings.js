@@ -15,6 +15,7 @@ export const state = () => ({
   favMarkets: [],
   twChart: {},
   timesAndSales: {},
+  tradeColor: '',
 
   current_node: null,
   auto_node_select: true,
@@ -27,6 +28,7 @@ export const mutations = {
   setTwChart: (state, config) => state.twChart = config,
   setHideOtherPairs: (state, value) => state.hideOtherPairs = value,
   setTimesAndSales: (state, value) => state.timesAndSales = value,
+  setTradeColor: (state, value) => state.tradeColor = value,
   setAutoNodeSelect: (state, value) => state.auto_node_select = value,
   setRpcNodes: (state, value) => state.rpc_nodes = value,
   updateRpcNode: (state, { key, value }) => state.rpc_nodes[key] = value,

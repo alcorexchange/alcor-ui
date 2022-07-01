@@ -1,12 +1,12 @@
 <template lang="pug">
 el-card
-  .lead Cross-Chain token swap.
-  span No-fee, fully decentralized(Yes. no gateway)
+  .lead {{ $t('Cross-Chain token swap') }}.
+  span {{ $t('No-fee, fully decentralized(Yes. no gateway)') }}
   hr
 
   .row
     .col-4
-      el-input.input-with-select(placeholder='Amount', v-model='input' clearable @change="updateReceive")
+      el-input.input-with-select(:placeholder='$t("Amount")', v-model='input' clearable @change="updateReceive")
         div(slot='prepend')
           TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="25")
           span {{ network.baseToken.symbol }}
@@ -24,10 +24,10 @@ el-card
         b.text-muted Receive: 1.3242 TELOS
 
       hr
-      el-input(placeholder='Account name', v-model='input3')
+      el-input(:placeholder='$t("Account name")', v-model='input3')
 
       PleaseLoginButton
-        el-button(type="primary").w-100.mt-2 Swap
+        el-button(type="primary").w-100.mt-2 {{ $t('Swap') }}
 
   //TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="50").ml-2
   //span {{ network.baseToken.symbol }}@{{ network.baseToken.contract }}

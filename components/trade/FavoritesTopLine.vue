@@ -75,7 +75,7 @@ export default {
   box-sizing: border-box;
   border-radius: 2px;
 
-  background-color: var(--table-background);
+  background-color: var(--background-color-base);
 
   width: 100%;
   display: flex;

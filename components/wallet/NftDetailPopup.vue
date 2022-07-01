@@ -1,19 +1,19 @@
 <template lang="pug">
   el-dialog(:visible.sync="visible"  width="400px").dialog
     template(#title)
-        .title-container
-            i.el-icon-info
-            .text NFT Details
+      .title-container
+        i.el-icon-info
+        .text {{$t('NFT Details')}}
     .main
-      .title Immutable data:
+      .title {{ $t('Immutable data:') }}
       .item(v-for="value, key, i in fields.idata")
         span.key {{key}}:&nbsp;
         span.value {{value}}
-      .title.mt-4 Mutable data:
+      .title.mt-4 {{$t('Mutable data')}}:
       .item(v-for="value, key, i in fields.mdata")
         span.key {{key}}:&nbsp;
         span.value {{value}}
-      AlcorButton.done(@click="closePopup") Done
+      AlcorButton.done(@click="closePopup") {{$t('Done')}}
 </template>
 
 <script>
@@ -46,14 +46,17 @@ export default {
     padding-top: 0;
   }
 }
+
 .title-container {
   display: flex;
   align-items: center;
+
   .text {
     font-weight: 500;
     padding-left: 8px;
   }
 }
+
 .main {
   display: flex;
   flex-direction: column;
@@ -61,18 +64,22 @@ export default {
   color: var(--text-default);
   font-size: 1rem;
 }
+
 .title {
   font-size: 1.2rem;
   text-align: center;
   margin: 10px 0;
   font-weight: 500;
 }
+
 .item {
   width: 100%;
+
   .key {
     opacity: 0.8;
   }
 }
+
 .done {
   width: 100%;
   color: var(--main-green);

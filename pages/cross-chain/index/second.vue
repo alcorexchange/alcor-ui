@@ -1,4 +1,4 @@
 <template lang="pug">
 el-card
-  .lead Second
+  .lead {{ $t('Second') }}
 </template>

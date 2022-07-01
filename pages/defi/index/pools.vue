@@ -3,7 +3,7 @@
   .col-md-3.pr-1
     .row
       .col
-        el-input(placeholder="Search pool" size="small" v-model="search" clearable).mb-2
+        el-input(:placeholder="$t('Search pool')" size="small" v-model="search" clearable).mb-2
       .col-lg-5
         create.mb-2
     .row
@@ -11,8 +11,8 @@
         .pools-list.pr-1
           .mb-2(v-for="pool in filteredPools")
             el-button(plain size="small"
-                      @click="setPool(pool)"
-                      :class="{ 'is-active': current_sym == pool.supply.symbol.code().to_string() }").w-100
+              @click="setPool(pool)"
+              :class="{ 'is-active': current_sym == pool.supply.symbol.code().to_string() }").w-100
               .row
                 .col-6
                   TokenImage(:src="$tokenLogo(pool.pool1.quantity.symbol.code().to_string(), pool.pool1.contract)" height="25")

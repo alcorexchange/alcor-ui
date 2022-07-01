@@ -1,7 +1,7 @@
 <template lang="pug">
 nav.nav(v-if='!isMobile')
   .nav-side.nav-left
-    nuxt-link(to='/')
+    nuxt-link(:to="localePath('index', $i18n.locale)")
       img.logo(
         v-if='$colorMode.value == "light"',
         src='~/assets/logos/alcorblack.svg',
@@ -16,7 +16,7 @@ nav.nav(v-if='!isMobile')
     ul.nav-items
       li(v-for='item in menuItems', :key='item.index')
         AlcorLink.item(
-          :to='item.index',
+          :to="localePath(item.index, $i18n.locale)",
           flat,
           :class='{ active: isActive(item.index) }'
         )
@@ -26,7 +26,7 @@ nav.nav(v-if='!isMobile')
 .menu-and-menu-header(v-else)
   .menu-header
     .logo
-      nuxt-link(to='/')
+      nuxt-link(:to="localePath('index', $i18n.locale)")
         img.logo(
           v-if='$colorMode.value == "light"',
           src='~/assets/logos/alcorblack.svg',
@@ -247,8 +247,8 @@ export default {
     display: flex;
 
     &.active {
-      background: #161617;
-      color: #f2f2f2 !important;
+      background: var(--btn-active);
+      color: var(--text-default) !important;
     }
   }
 }

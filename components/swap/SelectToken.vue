@@ -31,7 +31,7 @@
               i.ml-2(v-else="!static")
 
       .dropdown(v-show="visible")
-        el-input(placeholder="Search by name or contract" :clearable="!static" v-model="search" size="small" ref="searchInput")
+        el-input(:placeholder="$t('Search by name or contract')" :clearable="!static" v-model="search" size="small" ref="searchInput")
 
         .pairs.mt-2
           .pair(
@@ -327,7 +327,7 @@ export default {
 
 .multi-input-wrapper {
   padding: 8px 15px;
-  background: var(--background-color-base);
+  background: #282828;
   border-radius: 6px;
   position: relative;
 
@@ -366,7 +366,7 @@ export default {
 
 .theme-light {
   .multi-input-wrapper {
-    background: var(--background-color-secondary);
+    background: var(--btn-active);
   }
 }
 

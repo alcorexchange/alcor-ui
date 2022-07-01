@@ -1,17 +1,17 @@
 <template lang="pug">
-.recommented-markets
-  .items
-    .item-container(:key="market.id" v-for="market in markets")
-      nuxt-link.item(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
-        .top
-          TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="20")
-          span.ml-2 {{ market.symbol }}
+.items.mb-5
+  .item-container(:key="market.id" v-for="market in markets")
+    nuxt-link.item(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } }")
+      .top
+        TokenImage(:src="$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)" height="25")
+        span.ml-2 {{ market.symbol }}
 
-        .bottom
-          span {{ market.last_price }}
-          ChangePercent(:change="market.changeWeek")
+      .bottom
+        span {{ market.last_price }}
+        ChangePercent(:change="market.changeWeek")
 
-  el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline").token-promotion Token promotion
+  .item-container
+    el-button.token-promotion(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
   Spacer
 </template>
 
@@ -57,7 +57,6 @@ export default {
 .token-promotion {
   border: 1px solid var(--dark-btn-sm);
   padding: 11px 16px;
-  margin-top: 16px;
 
   &:hover {
     background-color: rgba(21, 21, 21, .3);
@@ -72,7 +71,8 @@ export default {
 
 .items {
   display: flex;
-  gap: 34px;
+  justify-content: space-between;
+  gap: 24px;
   flex-wrap: wrap;
 }
 
@@ -91,12 +91,16 @@ export default {
   text-decoration: none;
   border-radius: 4px;
   height: 64px;
+  font-size: 12px;
   box-sizing: border-box;
   padding: 12px;
   border: 1px solid var(--dark-btn-sm);
-  //   background: var(--bg-big-card);
   color: var(--text-default) !important;
-  transition: all 0.3s;
+  transition: all .3s;
+
+  img {
+    height: 20px;
+  }
 
   &:hover {
     background-color: rgba(21, 21, 21, .3);
@@ -126,7 +130,24 @@ export default {
     align-items: center;
     gap: 16px;
   }
+}
 
+@media only screen and (max-width: 600px) {
+  .item-container {
+    width: 50%;
+    padding-left: 8px;
+  }
+}
+
+@media only screen and (max-width: 440px) {
+  .item-container {
+    width: 100%;
+    padding: 8px;
+  }
+
+  //   .item{
+  //       border: ;
+  //   }
 }
 
 @media only screen and (max-width: 600px) {}

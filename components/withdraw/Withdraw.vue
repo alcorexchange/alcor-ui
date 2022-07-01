@@ -5,21 +5,21 @@
   el-dialog(title="Withdraw", :visible.sync="visible" width="50%" v-if="user").text-left
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mb-2
-        b Your token will be transferred to {{ peg.network }}
+        b {{ $t('Your token will be transferred to') }} {{ peg.network }}
         div {{ peg.desc }}
 
       el-form-item.mt-1(prop="address")
         template(slot="label")
           b {{ chain.name }} address:
-        el-input(v-model="form.address" placeholder="address.." clearable).w-100
+        el-input(v-model="form.address" :placeholder="$t('address..')" clearable).w-100
 
       el-form-item(prop="amount")
         span
-          b Withdraw amount
+          b {{ $t('Withdraw amount') }}
 
           br
 
-          span Balance
+          span {{ $t('Balance') }}
             el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
         //small.float-right min: {{ ibcMinAccept }} {{ token.symbol }}
@@ -30,7 +30,7 @@
       el-form-item.mt-1(v-if="addressValid")
         span.dialog-footer.mb-4
           el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100
-            | Transfer {{ token.symbol }} to {{ peg.network }}
+            | {{ $t('Transfer') }} {{ token.symbol }} {{$t('to')}} {{ peg.network }}
 </template>
 
 <script>
@@ -191,10 +191,11 @@ export default {
 
 <style>
 .upperinput {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
+
 .upperinput:placeholder-shown {
-    text-transform: none;
+  text-transform: none;
 }
 
 .ibc-withdraw .el-dialog__body {

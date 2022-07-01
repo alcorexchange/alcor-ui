@@ -6,26 +6,26 @@
       v-model='markets_active_tab',
       size='small'
     ).mr-3
-      el-radio-button(label='fav')
+      el-radio-button(:label='$t("fav")')
         i.el-icon-star-on
-        span Fav
+        span {{ $t('Fav') }}
 
-      el-radio-button(label='all')
-        span All
+      el-radio-button(:label='$t("all")')
+        span {{ $t('All') }}
 
       el-radio-button(:label='network.baseToken.symbol')
         span {{ network.baseToken.symbol }}
 
       el-radio-button(v-if='network.name == "eos"', label='USDT')
-        span USDT
+        span {{ $t('USDT') }}
 
-      el-radio-button(value='cross-chain', label='Cross-Chain')
-        span Cross-Chain
+      el-radio-button(value='cross-chain', :label='$t("Cross-Chain")')
+        span {{ $t('Cross-Chain') }}
 
     .search-container
       el-input(
         v-model='search',
-        placeholder='Search market',
+        :placeholder='$t("Search market")',
         size='small',
         prefix-icon='el-icon-search'
         clearable
@@ -34,8 +34,8 @@
     el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
     .ml-auto(v-if="!isMobile")
-      nuxt-link(to="new_market")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
+      nuxt-link(:to="localePath('new_market', $i18n.locale)")
+        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
 
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
@@ -276,6 +276,14 @@ export default {
     padding: 8px 15px !important;
   }
 
+}
+
+.red {
+  color: var(--main-red);
+}
+
+.green {
+  color: var(--main-green);
 }
 </style>
 
