@@ -171,7 +171,10 @@ export default {
         last_price: market.last_price
       }))
 
-      return { header, data }
+      const itemSize = 55
+      const pageMode = true
+
+      return { pageMode, itemSize, header, data }
     },
 
     filteredMarkets() {

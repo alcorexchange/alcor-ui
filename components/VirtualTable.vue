@@ -4,7 +4,7 @@ table.wrapper
     th.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
       span {{ head.label }}
       sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
-  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :items="sortedData" :item-size="55" pageMode)
+  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :class="{ window: !table.pageMode }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode")
     template(v-slot="{ item }")
       slot(name="row" :item="item")
   span.no-data(v-else) No Data
@@ -51,6 +51,10 @@ export default {
 
 .scroller {
   border: 1px solid var(--table-background);
+}
+
+.scroller.window {
+  height: 100vh;
 }
 
 .scroller::-webkit-scrollbar {
