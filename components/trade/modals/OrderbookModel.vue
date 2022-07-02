@@ -108,7 +108,16 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.red {
+  color: var(--color-secondary);
+}
+
+.green {
+  color: var(--color-primary);
+}
+
+
 .orderbook-preview.order-book {
   padding: 10px 20px;
 }

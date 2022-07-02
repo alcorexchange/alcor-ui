@@ -171,6 +171,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.green {
+  color: var(--color-primary);
+}
+
+.red {
+  color: var(--color-secondary);
+}
+
 .show-markets {
   cursor: pointer;
 
@@ -221,7 +229,7 @@ export default {
 }
 
 .arrow {
-  background-color: #3f3f3f;
+  background-color: var(--btn-default);
   width: 20px;
   height: 20px;
   position: absolute;
@@ -230,7 +238,7 @@ export default {
 }
 
 .fav {
-  background-color: #3f3f3f;
+  background-color: var(--btn-default);
   width: 20px;
   height: 20px;
   position: absolute;
@@ -264,14 +272,15 @@ export default {
     top: 0;
     width: 100%;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
     /* IE6-9 fallback on horizontal gradient */
+
   }
 
   &.start::after {
@@ -284,15 +293,17 @@ export default {
     left: 0;
     top: 0;
     width: 100%;
+
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: -moz-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: -webkit-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, rgba(33, 33, 33, 0) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: linear-gradient(90deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
     /* IE6-9 fallback on horizontal gradient */
+
   }
 
 }
@@ -303,7 +314,7 @@ export default {
   font-weight: 400;
   font-size: 12px;
 
-  background: var(--background-color-base);
+  background: var(--trade-bg);
   border-bottom: 1px solid var(--border-color);
 }
 </style>

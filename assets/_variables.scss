@@ -3,7 +3,6 @@
   --main-red: #f96c6c;
   --secondary-green: #1fc781;
   --black-primary: #161617;
-  --cancel: #c4c4c4;
   --radius: 4px;
   --radius-2: 8px;
 }
@@ -40,7 +39,6 @@
   --color-primary-op: rgba(0, 185, 9, .5);
   --primary-darker: #10C919;
   --color-secondary: #C60606;
-  --color-secondary-op: rgba(0, 185, 9, .5);
   --color-secondary-op: rgba(198, 6, 6, .5);
   --secondary-darker: #D61616;
 }
@@ -49,7 +47,7 @@
   // backgrounds
   --background-color-base: #282828;
   --background-color-secondary: #212121;
-  --background-color-third: #161617;
+  --background-color-third: #212121;
   --bg-big-card: #212121;
   --bg-alter-1: #282828;
   --bg-alter-2: #363535;
@@ -62,7 +60,7 @@
   --btn-default: #333333;
   --btn-alternative: #333333;
   --btn-active: #161617;
-  --hover: rgba(150, 150, 150, 0.1);
+  --hover: rgba(21, 21, 21, 0.3);
   --dark-btn-sm: #383838;
   --swap-tab-active: #141415;
 
@@ -88,9 +86,15 @@
   --table-header-background: #333333;
 
   //trade 
-  --trade-bg: #282828;
+  --trade-bg: #212121;
   --trade-tab-bg: #212121;
   --trade-header-bg: #333333;
+
+  //gradient
+  --start-bg: rgba(33, 33, 33, 1);
+  --end-bg: rgba(0, 0, 0, 0);
+
+  --cancel: #c4c4c4;
 }
 
 .theme-light {
@@ -100,7 +104,7 @@
   --background-color-secondary: #CDD0D6;
   --background-color-third: #fff;
   --bg-big-card: #f0f2f5;
-  --bg-alter-1: #e6eef1;
+  --bg-alter-1: #dcdfe6;
   --bg-alter-2: #dcdfe6;
   --landing-card-bg: rgba(250, 250, 250, 0.3);
   --landing-icon-bg: #ededed;
@@ -114,7 +118,7 @@
   --btn-default: #E6E8EB;
   --btn-alternative: #fff;
   --btn-active: #dcdfe6;
-  --hover: #dcdfe6; // dark hover row
+  --hover: rgba(200, 200, 200, 0.3);
   --dark-btn-sm: #e0e0e0;
   --swap-tab-active: #e0e0e0;
 
@@ -139,5 +143,9 @@
   --trade-tab-bg: #D4D7DE;
   --trade-header-bg: #DCDFE6;
 
+    //gradient
+  --start-bg: rgba(222, 222, 222, 1);
+  --end-bg: rgba(0, 0, 0, 0); 
+  --cancel: #303133;
 }
 

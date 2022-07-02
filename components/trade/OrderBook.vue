@@ -255,7 +255,7 @@ export default {
   align-items: center;
   justify-content: space-between;
 
-  &:hover {
+  &:not(.firts):hover {
     background-color: var(--hover) !important;
     font-weight: 400 !important;
   }
@@ -265,12 +265,14 @@ export default {
   background: var(--table-header-background);
   overflow: hidden;
 
-  &:hover {
-    background: var(--table-header-background) !important;
-  }
 
   .ltd {
     padding: 2px 0;
+
+    &:hover {
+      background: var(--table-header-background) !important;
+    }
+
   }
 }
 

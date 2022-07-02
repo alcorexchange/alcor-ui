@@ -59,7 +59,7 @@ export default {
   padding: 11px 16px;
 
   &:hover {
-    background-color: rgba(21, 21, 21, .3);
+    background-color: var(--hover);
     border: 1px solid var(--dark-btn-sm);
   }
 
@@ -103,7 +103,7 @@ export default {
   }
 
   &:hover {
-    background-color: rgba(21, 21, 21, .3);
+    background-color: var(--hover);
   }
 }
 

@@ -4,7 +4,7 @@
     .resource-item-container
       .el-card.resource-item
         span.title.fwr Ram
-        alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="#333333" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
+        alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
         .details
           .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
           .staked
@@ -13,7 +13,7 @@
     .resource-item-container
       .el-card.resource-item
         span.title.fwr CPU
-        alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="#333333" color="#66C167" :stroke-width="32" stroke-linecap="butt")
+        alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#66C167" :stroke-width="32" stroke-linecap="butt")
         .details
           .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
           .staked
@@ -22,7 +22,7 @@
     .resource-item-container
       .el-card.resource-item
         span.title.fwr NET
-        alcor-progress(:percentage="netPercent" :width="154" type="circle" background="#333333" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
+        alcor-progress(:percentage="netPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
         .details
           .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
           .staked

@@ -34,6 +34,10 @@ export default {
 </script>
 
 <style  lang="scss" scoped>
+.muted {
+  opacity: 1 !important;
+}
+
 .dropdown-content {
   display: flex;
   padding: 8px;

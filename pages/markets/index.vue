@@ -103,12 +103,16 @@ export default {
     },
 
     topGainers() {
-      return this.markets.filter(({ id }) => this.topGaindersIDs.includes(id))
+      const tmp = [...this.markets]
+      return tmp
+        .sort((a, b) => b.change24 - a.change24)
+        .slice(0, 3)
     },
 
     topVolume() {
       const tmp = [...this.markets]
       return tmp
+        .filter(i => i.base_token.contract == this.network.baseToken.contract)
         .sort((a, b) => b.volumeWeek - a.volumeWeek)
         .slice(0, 3)
     },

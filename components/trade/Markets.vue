@@ -13,7 +13,7 @@
     el-tab-pane(:label='network.baseToken.symbol' name='system')
     el-tab-pane(:label='$t("Wrapped")', name='wrapped')
 
-  .px-2.mt-2
+  .px-2.pt-2
     el-input(
       size='small',
       v-model='search',
@@ -100,12 +100,14 @@ export default {
 
       let markets = []
 
+      console.log(this.sideMaretsTab)
+
       switch (this.sideMaretsTab) {
         case 'all':
           markets = this.markets
           break
 
-        case this.network.baseToken.symbol:
+        case 'system':
           markets = this.markets.filter(
             i => i.base_token.contract == this.network.baseToken.contract)
           break
@@ -282,6 +284,12 @@ export default {
 </script>
 
 <style lang="scss">
+.markets-bar {
+  .vue-recycle-scroller {
+    background-color: var(--bg-big-card);
+  }
+}
+
 .mobile-close {
   cursor: pointer;
 
@@ -300,7 +308,7 @@ export default {
 }
 
 .markets-bar {
-  background-color: var(--table-header-background) !important;
+  background-color: var(--table-background) !important;
 
   .el-input__inner {
     background-color: var(--background-color-base) !important;
@@ -343,6 +351,7 @@ export default {
 .markets-bar {
   height: 100%;
   z-index: 3;
+  margin-top: 0 !important;
 
   .el-table--fit {
     height: calc(100% - 70px);
@@ -370,22 +379,23 @@ export default {
 }
 
 .market-table th.header__column span {
-  color: #bdbdbd;
+  color: var(--text-default);
 }
 
 .market-table-row {
   cursor: pointer;
   display: flex;
+  gap: 4px;
   padding: 4px 6px;
-  border-bottom: 1px solid #282828;
+  border-bottom: 1px solid var(--bg-alter-1);
 }
 
 .market-table-row:hover {
-  background-color: #282828;
+  background-color: var(--bg-alter-1);
 }
 
 .market-table-row * {
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .pair-name,
@@ -398,6 +408,10 @@ export default {
 .pair-name {
   width: 50%;
   gap: 2px;
+}
+
+.market-table-row * {
+  line-height: 11px;
 }
 
 .pair-price {

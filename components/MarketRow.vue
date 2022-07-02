@@ -11,8 +11,8 @@
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price
-    span.text-success(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
-    span.text-success(v-else)
+    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
+    span(v-else)
       | {{ item.last_price }}
       span(v-if="!isMobile")
         |  {{ item.base_name }}
@@ -56,12 +56,12 @@ export default {
   padding: 15px 20px;
   font-size: 14px;
   gap: 10px;
-  border-bottom: 1px solid #282828;
+  border-bottom: 1px solid var(--background-color-base);
   cursor: pointer;
 }
 
 .wrapper:hover {
-  background-color: #282828;
+  background-color: var(--background-color-base);
 }
 
 .wrapper>* {

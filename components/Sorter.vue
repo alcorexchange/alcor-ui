@@ -38,6 +38,6 @@ i {
 }
 
 i.active {
-  color: #f2f2f2;
+  color: var(--text-grey-thirdly);
 }
 </style>
