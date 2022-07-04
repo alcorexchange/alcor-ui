@@ -1,7 +1,7 @@
 <template lang="pug">
 
 // MOBILE
-el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile")
+el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile" max-height="350")
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
     el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
@@ -26,7 +26,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 
   el-table-column(:label='$t("Action")', align='right' width=60)
     template(slot-scope='scope')
-      el-button(size='mini', type='text', @click='cancel(scope.row)').red {{ $t('Cancel') }}
+      el-button(size='mini', type='text', @click='cancel(scope.row)').cancel {{ $t('Cancel') }}
 
 
 // DESKTOP
@@ -208,10 +208,10 @@ export default {
 }
 
 .text-secondary {
-  color: var(--color-primary) !important;
+  color: var(--color-secondary) !important;
 }
 
 .text-primary {
-  color: var(--color-secondary) !important;
+  color: var(--color-primary) !important;
 }
 </style>

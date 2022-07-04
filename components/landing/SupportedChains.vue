@@ -3,10 +3,12 @@
   .alcor-inner
     SectionTitle.section-title {{ $t('SUPPORTED_UPCOMING_CHAINS_TITLE') }}
     .chains
-      img.chain(src='~/assets/images/supportedchain-4.svg')
+      img.chain(v-if="$colorMode.value == 'light'" src='~/assets/images/supportedchain-4-dark.svg')
+      img.chain(v-else src='~/assets/images/supportedchain-4.svg')
       img.chain(src='~/assets/images/supportedchain-1.svg')
       img.chain(src='~/assets/images/supportedchain-2.svg')
-      img.chain(src='~/assets/images/supportedchain-3.svg')
+      img.chain(v-if="$colorMode.value == 'light'" src='~/assets/images/supportedchain-3-dark.svg')
+      img.chain(v-else src='~/assets/images/supportedchain-3.svg')
       span.more {{ $t('and more...') }}
     .inner-container
       span.title {{ $t('BUILDINGGLOBALCOMMUNITY') }}
@@ -187,6 +189,8 @@ export default {
 
   .chain {
     max-width: 90%;
+    fill: red;
+    color:red;
 
   }
 

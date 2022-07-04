@@ -25,12 +25,17 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .market-top {
   display: flex;
   flex-direction: row;
   width: 100%;
   gap: 2px;
+
+  @media (max-width: 600px) {
+    flex-direction: column
+  }
+
 }
 
 .market-list {
@@ -38,9 +43,15 @@ export default {
   width: 33.33%;
   padding: 24px 0;
   font-weight: 400;
-  color: var(--text-default);
+  color: var(--text-secondary);
   font-size: 14px;
   margin-top: 4px;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    border-radius: 8px;
+  }
+
 }
 
 .market-item {
@@ -57,10 +68,20 @@ export default {
 
 .market-list:first-of-type {
   border-radius: 8px 0 0 8px;
+
+  @media (max-width: 600px) {
+    border-radius: 8px;
+  }
+
 }
 
 .market-list:last-of-type {
   border-radius: 0 8px 8px 0;
+
+  @media (max-width: 600px) {
+    border-radius: 8px;
+  }
+
 }
 
 .title,

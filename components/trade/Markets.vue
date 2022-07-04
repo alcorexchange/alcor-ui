@@ -19,6 +19,7 @@
       v-model='search',
       :placeholder='$t("Filter by token")',
       clearable
+      autofocus
       width="60%"
     )
       template(v-if="sideMaretsTab == 'system'" slot="append")
@@ -26,7 +27,7 @@
 
   virtual-table.market-table(:table="virtualTableData")
     template(#row="{ item }")
-      .market-table-row(@click="() => setMarket(item)")
+      .market-table-row(@click="() => setMarket(item)" :class="{ 'active-row': id === item.id }")
         .pair-name
           i.el-icon-star-off.mr-1(
             :class='{ "el-icon-star-on": isFavoriteId(item.id) }',
@@ -175,7 +176,6 @@ export default {
           value: 'volume24',
           width: '35%',
           sortable: true,
-          desktopOnly: true
         }
       ]
 
@@ -347,11 +347,11 @@ export default {
   }
 }
 
-
 .markets-bar {
   height: 100%;
   z-index: 3;
   margin-top: 0 !important;
+  padding-top: 2px;
 
   .el-table--fit {
     height: calc(100% - 70px);
@@ -370,6 +370,10 @@ export default {
   background: var(--btn-active);
 }
 
+.market-table-row.active-row {
+  background-color: var(--btn-active);
+}
+
 .market-table * {
   font-size: 12px;
 }
@@ -379,8 +383,13 @@ export default {
 }
 
 .market-table th.header__column span {
-  color: var(--text-default);
+  color: var(--text-grey-thirdly);
 }
+
+.market-table .market-table-row {
+  color: var(--text-secondary);
+}
+
 
 .market-table-row {
   cursor: pointer;

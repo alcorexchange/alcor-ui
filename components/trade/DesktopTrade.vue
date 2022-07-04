@@ -586,7 +586,7 @@ export default {
   border: none !important;
   padding: 0px 10px !important;
   margin-right: 2px;
-  color: var(--text-default) !important;
+  color: var(--text-grey-thirdly) !important;
   height: 20px;
 }
 
@@ -631,7 +631,7 @@ export default {
 <style lang="scss">
 .trading-terminal {
   .vue-grid-layout {
-    background-color: var(--background-color-third);
+    background-color: var(--background-grid-layout);
   }
 
   .chart {

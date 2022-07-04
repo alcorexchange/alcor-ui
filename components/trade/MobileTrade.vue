@@ -81,7 +81,7 @@ export default {
 <style lang="scss">
 .mobile-trade-inner {
   width: 100%;
-  background: var(--background-color-third);
+  background: var(--background-grid-layout);
   padding: 10px;
   font-size: 12px !important;
 

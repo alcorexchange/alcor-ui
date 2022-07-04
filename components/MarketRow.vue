@@ -10,10 +10,10 @@
       span.promo-label(v-if="isMobile && item.promoted") top
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
-  .last-price
+  .last-price(:class="{ down: item.change24 < 0 }")
     span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
     span(v-else)
-      | {{ item.last_price }}
+      span {{ item.last_price }}
       span(v-if="!isMobile")
         |  {{ item.base_name }}
   .day-vol(v-if='!isMobile')
@@ -142,5 +142,13 @@ export default {
 
   right: -35px;
   top: -14px;
+}
+
+.last-price {
+  color: var(--main-green)
+}
+
+.last-price.down {
+  color: var(--main-red);
 }
 </style>
