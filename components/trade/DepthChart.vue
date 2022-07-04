@@ -444,9 +444,11 @@ export default {
   -moz-user-select: none;
   -o-user-select: none;
   user-select: none;
+
   .highcharts-container {
     height: 100% !important;
     width: 100% !important;
+
     .highcharts-root {
       height: 100% !important;
       width: 100% !important;
@@ -456,10 +458,12 @@ export default {
 
 .chart-nav.scale-value-nav {
   width: 100% !important;
+  background-color: var(--background-color-base);
 }
 
 .order-depth .el-tabs__content {
   height: calc(100% - 30px);
+
   .el-tab-pane,
   .chart-nav,
   .chart-part,

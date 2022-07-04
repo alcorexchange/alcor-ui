@@ -651,13 +651,13 @@ export default {
   background: #121212;
 
   .el-tabs--border-card {
-    background: var(--table-header-background);
+    background: #212121;
     border: none;
   }
 
   .el-tabs__item {
     height: 25px;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 20px;
   }
 
@@ -691,6 +691,7 @@ export default {
     border: var(--border-2);
     box-sizing: border-box;
     border-radius: 2px;
+    overflow: hidden;
 
     &:hover {
       .vue-resizable-handle {

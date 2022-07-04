@@ -2,7 +2,7 @@
 table.wrapper
   tr.header(:class="{ 'mobile': isMobile }")
     th.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
-      span {{ head.label }}
+      span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ head.label }}
       sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
   recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :class="{ window: !table.pageMode }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode")
     template(v-slot="{ item }")
@@ -30,6 +30,7 @@ export default {
   },
   methods: {
     sort(updated) {
+      console.log(updated)
       if (this.sortKey == updated.key && this.route == updated.route) {
         this.sortKey = null
         this.route = null
@@ -44,13 +45,13 @@ export default {
 
 <style scoped>
 .wrapper {
-  background: var(--table-background);
+  background: var(--background-color-third);
   border-radius: 8px;
   width: 100%;
 }
 
 .scroller {
-  border: 1px solid var(--table-background);
+  border: 1px solid var(--background-color-third);
 }
 
 .scroller.window {
@@ -69,15 +70,18 @@ export default {
   display: flex;
   line-height: 20px;
   padding: 15px 20px;
-  border-bottom: 1px solid #282828;
+  border-bottom: 1px solid var(--hover);
 }
 
 .header__column {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-weight: 400;
+  font-weight: 500;
   justify-content: end;
+
+
+  text-overflow: ellipsis;
 }
 
 .header.mobile {

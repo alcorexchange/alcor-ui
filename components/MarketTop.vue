@@ -2,7 +2,7 @@
 .market-top
   .market-list(v-for="(marketList, idx) in [newListings, topGainers, topVolume]")
     .title {{ titles[idx] }}
-    .market-item(v-for="market in marketList" @click="() => $router.push({ name: 'trade-index-id', params: { id: market.slug } })")
+    .market-item(v-for="market in marketList" @click="() => $router.push({ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } })")
       .item-name
         token-image.token(:src='$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)')
         .token-name  {{ market.quote_token.symbol.name }} / {{ market.base_token.symbol.name }}
@@ -34,11 +34,11 @@ export default {
 }
 
 .market-list {
-  background-color: #212121;
+  background-color: var(--background-color-third);
   width: 33.33%;
   padding: 24px 0;
   font-weight: 400;
-  color: #c4c4c4;
+  color: var(--text-default);
   font-size: 14px;
   margin-top: 4px;
 }
@@ -52,7 +52,7 @@ export default {
 }
 
 .market-item:hover {
-  background-color: #282828;
+  background-color: var(--background-color-base);
 }
 
 .market-list:first-of-type {

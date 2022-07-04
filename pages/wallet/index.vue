@@ -110,7 +110,7 @@ export default {
     pools(token) {
       this.$router.push({
         //query: { input: token.id.replace('@', '-') }
-        name: 'swap'
+        name: `swap___${this.$i18n.locale}`
       })
 
       this.$store.commit('swap/setInput', {

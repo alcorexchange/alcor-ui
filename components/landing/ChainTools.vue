@@ -88,7 +88,7 @@ export default {
     transition: all 0.3s;
 
     &:hover {
-      background-color: rgba(21, 21, 21, .3);
+      background-color: var(--hover);
     }
 
     .icon-container {

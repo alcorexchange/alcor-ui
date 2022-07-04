@@ -194,8 +194,7 @@ export default {
 .table-setting-modal {}
 
 .settings-title {
-  font-size: 12px;
-  color: var(--cancel);
+  font-size: 16px;
 }
 
 .setting-container {

@@ -7,10 +7,10 @@
         span {{ wallet.name }}
   .divider
     span.line
-      .text {{ $t("Don't have any wallet yet") }} ?
-      span.li n e
+    .text {{ $t("Don't have any wallet yet") }} ?
+    span.line
   .footer-actions
-  .item s(v-if='wallets.length > 0')
+  .items(v-if='wallets.length > 0')
     .item
       AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
         img.mr-2(:src='wallets[0].logo', height='30')

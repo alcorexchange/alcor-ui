@@ -152,6 +152,10 @@ export default {
 .green {
   color: var(--color-primary)
 }
+
+.red {
+  color: var(--color-secondary)
+}
 </style>
 
 <style>
