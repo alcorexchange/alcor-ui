@@ -1,8 +1,10 @@
 <template lang="pug">
-#tv_chart_container.nft-price-chart
+#tv_chart_container.nft-price-chart(
+  :style='{ minHeight : minHeight ? minHeight + "px" : "100%" }'
+)
   client-only
     .h-100.mt-2(@mouseleave='setCurrentPrice')
-      .price-container
+      .price-container(v-if='showPrice')
         .price {{ price }} WAX
       VueApexCharts.swap-chart(
         :width='width',
@@ -34,7 +36,7 @@ const COLORS = {
 let timeout
 
 export default {
-  props: ['tab', 'charts'],
+  props: ['tab', 'charts', 'minHeight', 'showPrice'],
 
   data() {
     return {
@@ -217,10 +219,12 @@ export default {
   },
 
   methods: {
+    showPriceText() {
+      return this.showPrice
+    },
     setCurrentPrice() {
       this.price = this.data.length ? this.data[this.data.length - 1].y : 0
     },
-
     updateChartOptions(options) {
       if (!this.$refs.chart) {
         console.log('LP CHART NOT FOUND..')

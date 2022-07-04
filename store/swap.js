@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 import { asset } from 'eos-common'
 import { make256key } from '~/utils'
 import { preparePair, get_second_tokens, get_all_tokens } from '~/utils/pools'
