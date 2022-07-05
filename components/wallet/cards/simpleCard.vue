@@ -63,12 +63,12 @@ export default {
   },
   computed: {
     videoBackground() {
-      if (this.data && this.data.data) {
+      if (this.data && this.data.data && this.data.data.video) {
         return this.data.data
       } else return false
     },
     imageBackground() {
-      if (this.data && this.data.data) {
+      if (this.data && this.data.data && this.data.data.img) {
         return this.data.data.img.includes('https://')
           ? this.data.data.img
           : 'https://ipfs.atomichub.io/ipfs/' + this.data.data.img
