@@ -359,7 +359,7 @@ export default {
 }
 
 .orders-list.asks {
-  height: calc(50% - 41px);
+  height: calc(50% - 30px);
   flex-direction: column-reverse;
   padding-bottom: 1px;
 
@@ -369,7 +369,7 @@ export default {
 }
 
 .orders-list.bids {
-  height: calc(50% - 18px);
+  height: calc(50% - 30px);
   padding-top: 1px;
 
   div {

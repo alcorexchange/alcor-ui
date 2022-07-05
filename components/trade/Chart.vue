@@ -31,15 +31,15 @@ export default {
         },
         dark: {
           background: '#212121',
-          textColor: '#E0E0E0',
+          textColor: '#bdbdbd',
           gridColor: '#333333',
           scaleLineColor: '#444444'
         }
       },
       chartColors: {
         default: {
-          candleUpColor: '#66C167',
-          candleDownColor: '#F96C6C'
+          candleUpColor: '#26a69a',
+          candleDownColor: '#f96c6c'
         },
         bloom: {
           candleUpColor: '#277DFA',
@@ -80,6 +80,7 @@ export default {
   watch: {
     '$colorMode.value'() {
       this.mountChart()
+      this.$forceUpdate()
     },
     '$store.state.settings.tradeColor'() {
       this.applyTheme()

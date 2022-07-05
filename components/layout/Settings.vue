@@ -113,13 +113,18 @@
       .el-main.module-main-settings
         .layout-selection
           .d-flex.flex-column(@click="setMarketLayout('classic')")
-            img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'classic' }")
+            img(v-if="$colorMode.value === 'dark'" src=`~/assets/icons/classic_layout.svg` height=70 :class="{ active: current_market_layout == 'classic' }")
+            img(v-else src=`~/assets/icons/classic_layout_light.svg` height=70 :class="{ active: current_market_layout == 'classic' }")
             span Classic
           .d-flex.flex-column(@click="setMarketLayout('advanced')")
-            img(src="~/assets/icons/modern_layout.svg" height=70 :class="{ active: current_market_layout == 'advanced' }")
+            img(v-if="$colorMode.value === 'dark'" src=`~/assets/icons/modern_layout.svg` height=70 :class="{ active: current_market_layout == 'advanced' }")
+            img(v-else src=`~/assets/icons/modern_layout_light.svg` height=70 :class="{ active: current_market_layout == 'advanced' }")
+
             span Advanced
           .d-flex.flex-column(@click="setMarketLayout('full')")
-            img(src="~/assets/icons/classic_layout.svg" height=70 :class="{ active: current_market_layout == 'full' }")
+            img(v-if="$colorMode.value === 'dark'" src=`~/assets/icons/classic_layout.svg` height=70 :class="{ active: current_market_layout == 'full' }")
+            img(v-else src=`~/assets/icons/classic_layout_light.svg` height=70 :class="{ active: current_market_layout == 'full' }")
+
             span FullScreen
 
     .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
@@ -313,19 +318,18 @@ export default {
   justify-content: space-between;
   align-items: center;
   text-align: center;
+  border-radius: 2px;
+  box-sizing: border-box;
 
   img {
     cursor: pointer;
 
     &:hover {
       border: 1px solid #1fc7816e;
-      border-radius: 2px;
     }
 
     &.active {
       border: 1px solid #1FC781;
-      box-sizing: border-box;
-      border-radius: 2px;
     }
   }
 

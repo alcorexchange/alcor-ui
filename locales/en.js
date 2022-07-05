@@ -157,7 +157,7 @@ export default {
   'Chart order interactivity': 'Chart order interactivity',
   'Chart Executions': 'Chart Executions',
   'Show trade executions': 'Show trade executions',
-  Show_trade_execution_amount: 'Show_trade_execution_amount',
+  'Show tradee xecution amount': 'Show trade executionamount',
   TOTAL: 'TOTAL',
   AMOUNT: 'AMOUNT',
   PRICE: 'PRICE',

@@ -52,11 +52,13 @@ export default {
 
 .scroller {
   border: 1px solid var(--background-color-third);
+  color: var(--text-secondary);
 }
 
 .scroller.window {
   height: 100vh;
 }
+
 
 .scroller::-webkit-scrollbar {
   display: none;

@@ -14,7 +14,7 @@ Vue.mixin({
 
   computed: {
     isMobile() {
-      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1150)
+      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175)
     }
   },
 

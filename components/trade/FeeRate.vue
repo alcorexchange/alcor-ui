@@ -55,7 +55,7 @@ export default {
 .el-button.muted {
   font-size: 12px !important;
   background: var(--btn-default);
-  color: var(--text-default);
+  color: var(--text-grey-thirdly);
   padding: 0px 1px !important;
   margin-top: 3px !important;
   margin-bottom: 3px !important;

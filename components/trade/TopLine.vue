@@ -224,9 +224,17 @@ export default {
   position: absolute;
   top: 30px;
   background: #282828;
-  border: 2px solid rgb(63, 63, 63);
+  border: var(--border-2);
   border-radius: 2px;
 }
+
+.mobile-trade-inner .markets {
+  top: 50px;
+  left: 0px;
+  height: calc(100vh - 110px);
+  width: 100%;
+}
+
 
 .arrow {
   background-color: var(--btn-default);
