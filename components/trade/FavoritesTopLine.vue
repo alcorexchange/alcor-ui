@@ -37,17 +37,44 @@ export default {
     }
   },
 
+  watch: {
+    'favorites.length'() {
+      this.assignClass()
+    }
+  },
+
   mounted() {
+    this.assignClass()
     this.$refs.panel.onwheel = e => {
-      this.$refs.panel.scrollLeft += e.deltaY
+      if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
+        this.$refs.panel.classList.add('end')
+      } else {
+        this.$refs.panel.classList.remove('end')
+      }
+
       if (this.$refs.panel.scrollLeft == 0) {
         this.$refs.panel.classList.add('start')
       } else this.$refs.panel.classList.remove('start')
+
+      this.$refs.panel.scrollLeft += e.deltaY
       e.preventDefault()
     }
   },
 
   methods: {
+    getInnerWidth() {
+      return Array.from(this.$refs.panel.children).reduce((sumW, child) => sumW + child.clientWidth, 0)
+    },
+    assignClass() {
+      setTimeout(() => {
+        if (this.getInnerWidth() > this.$refs.panel.clientWidth) {
+          this.$refs.panel.classList.add('shadow')
+        } else {
+          this.$refs.panel.classList.remove('shadow')
+          this.$refs.panel.classList.add('start')
+        }
+      })
+    },
     setMarket(market) {
       if (this.id == market.id) return
 
@@ -85,28 +112,7 @@ export default {
 
   // TODO
   //position: relative;
-  &:not(.start)::after {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 100%;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
-    /* IE6-9 fallback on horizontal gradient */
-  }
-
-  &.start::after {
+  &.shadow::after {
     pointer-events: none;
     /* ignore clicks */
     content: "";
@@ -125,7 +131,43 @@ export default {
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
     /* IE6-9 fallback on horizontal gradient */
+  }
 
+  &.end::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+
+    background: none;
+  }
+
+
+  &:not(.start)::before {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 100%;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
   }
 
   .name {
