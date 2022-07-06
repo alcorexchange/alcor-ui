@@ -306,7 +306,7 @@ export default {
     },
 
     initiateState() {
-      this.$store.commit('market/setMarketLayout', TRADE_LAYOUTS.advanced)
+      this.$store.commit('market/setMarketToDefault')
     }
   },
 }
