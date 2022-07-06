@@ -35,7 +35,8 @@
               .module-list.d-flex.flex-row.justify-content-between(
                 v-for='settingBtn in chart_orders_title'
               )
-                .module-name {{ $t(settingBtn.name) }}
+                .module-name
+                  span(:class="{ title: settingBtn.name == 'Chart Executions' }") {{ $t(settingBtn.name) }}
                   p.tooltip-desc(
                     v-if='settingBtn.key == "chart_order_interactivity"'
                   ) {{ $t('SETTING_MODAL_TEXT1') }}
@@ -103,9 +104,8 @@ export default {
     }
   },
   watch: {
-    '$colorMode.value'() {
+    visible() {
       this.renderComponent = false
-
       this.$nextTick(() => {
         this.renderComponent = true
       })
@@ -199,6 +199,10 @@ export default {
 
 .module-name:hover p {
   display: block;
+}
+
+.module-name .title {
+  font-size: 16px;
 }
 
 .table-setting-modal {}
