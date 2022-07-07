@@ -83,7 +83,7 @@ export default {
   }
 
   &.active {
-    background: var(--hover);
+    background: var(--btn-active);
   }
 }
 

@@ -117,7 +117,6 @@ export default {
   color: var(--color-primary);
 }
 
-
 .orderbook-preview.order-book {
   padding: 10px 20px;
 }

@@ -26,13 +26,13 @@ export default {
         light: {
           background: '#F0F2F5',
           textColor: '#303133',
-          gridColor: '#CDD0D6',
+          gridColor: 'rgba(50, 50, 50, .03)',
           scaleLineColor: '#CDD0D6'
         },
         dark: {
           background: '#212121',
           textColor: '#bdbdbd',
-          gridColor: '#333333',
+          gridColor: 'rgba(200, 200, 200, .03)',
           scaleLineColor: '#444444'
         }
       },
@@ -576,10 +576,9 @@ export default {
           'compare_symbol',
           'border_around_the_chart',
           'header_saveload',
-          'control_bar',
+          //'control_bar',
 
           //'symbol_search_hot_key',
-          this.isMobile ? 'left_toolbar' : undefined,
 
           'cropped_tick_marks',
           'trading_notifications',
@@ -587,6 +586,7 @@ export default {
           //'end_of_period_timescale_marks',
           'datasource_copypaste',
           'chart_crosshair_menu',
+          'show_zoom_and_move_buttons_on_touch',
 
           //'shift_visible_range_on_new_bar',
           'go_to_date',
@@ -610,6 +610,7 @@ export default {
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
+          this.isMobile ? 'hide_left_toolbar_by_default' : null,
           'header_in_fullscreen_mode'
         ],
 

@@ -2,7 +2,7 @@
 .mobile-trade-inner
   top-line
 
-  .chart.mt-2
+  .chart.mt-1
     chart
       #tv_chart_container
 
@@ -81,8 +81,8 @@ export default {
 <style lang="scss">
 .mobile-trade-inner {
   width: 100%;
-  background: var(--background-grid-layout);
-  padding: 10px;
+  background: var(--border-color);
+  padding-bottom: 2px;
   font-size: 12px !important;
 
   .latest-deals {

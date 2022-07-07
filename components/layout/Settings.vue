@@ -279,6 +279,11 @@ export default {
 
   methods: {
     setMarketLayout(value) {
+      if (value === 'advanced')
+        document.querySelector('.full-width').classList.add('unlim-width')
+      else
+        document.querySelector('.full-width').classList.remove('unlim-width')
+
       this.$store.commit('market/setCurrentMarketLayout', value)
     },
 
@@ -345,6 +350,10 @@ export default {
 </style>
 
 <style lang="scss">
+.unlim-width {
+  max-width: 100% !important;
+}
+
 .setting-lang {
   padding: 0 12px;
 }

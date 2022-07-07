@@ -57,6 +57,7 @@ export default {
 .token-promotion {
   border: 1px solid var(--dark-btn-sm);
   padding: 11px 16px;
+  margin-top: 16px;
 
   &:hover {
     background-color: var(--hover);
@@ -134,15 +135,14 @@ export default {
 
 @media only screen and (max-width: 600px) {
   .item-container {
-    width: 50%;
-    padding-left: 8px;
+    width: 154px;
+    padding-left: 0px;
   }
 }
 
 @media only screen and (max-width: 440px) {
   .item-container {
-    width: 100%;
-    padding: 8px;
+    width: 154px;
   }
 
   //   .item{
