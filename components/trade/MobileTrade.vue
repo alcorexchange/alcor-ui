@@ -30,7 +30,7 @@
           .d-flex.pairs-switch-right
             .module-name.mr-2 Hide other pairs
             .module-pickers.d-flex.flex-row
-              el-switch(v-model='hideOtherPairs', active-color='#13ce66', inactive-color='#161617')
+              el-switch(v-model='hideOtherPairs')
         el-tab-pane(:label='$t("Open orders")')
           my-orders(:only-current-pair="hideOtherPairs")
         el-tab-pane(:label='$t("Trade History")')

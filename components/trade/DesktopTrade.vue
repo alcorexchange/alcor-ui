@@ -41,8 +41,6 @@
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
-                active-color='#66C167',
-                inactive-color='#161617'
               )
 
           swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")

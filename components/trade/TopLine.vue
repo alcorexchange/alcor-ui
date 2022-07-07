@@ -77,10 +77,16 @@ export default {
 
   mounted() {
     this.setArrow()
+    this.assignClass()
 
     setTimeout(() => {
       this.$refs.panel.onwheel = e => {
         this.$refs.panel.scrollLeft += e.deltaY
+        if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
+          this.$refs.panel.classList.add('end')
+        } else {
+          this.$refs.panel.classList.remove('end')
+        }
         if (this.$refs.panel.scrollLeft == 0) {
           this.$refs.panel.classList.add('start')
           this.arrowRight = true
@@ -90,7 +96,6 @@ export default {
         }
         e.preventDefault()
       }
-
     })
   },
 
@@ -111,6 +116,8 @@ export default {
     },
 
     id() {
+      this.assignClass()
+      this.setArrow()
       this.showMarkets = false
     },
   },
@@ -131,20 +138,40 @@ export default {
   },
 
   methods: {
+    getInnerWidth() {
+      return Array.from(this.$refs.panel.children).reduce((sumW, child) => sumW + child.clientWidth + 20, 0)
+    },
+
+    assignClass() {
+      setTimeout(() => {
+        if (this.getInnerWidth() > this.$refs.panel.clientWidth) {
+          this.$refs.panel.classList.add('shadow')
+        } else {
+          this.$refs.panel.classList.remove('shadow')
+          this.$refs.panel.classList.add('start')
+        }
+      })
+    },
     setArrow() {
       setTimeout(() => {
-        if (this.$refs.panel.scrollWidth - this.$refs.panel.clientWidth === 0) this.showArrow = false
-        else this.showArrow = true
+        this.assignClass()
+        if (this.$refs.panel.scrollWidth - this.$refs.panel.clientWidth === 0) {
+          this.showArrow = false
+        } else {
+          this.showArrow = true
+        }
       }, 100)
     },
 
     arrowClickfunc() {
       if (this.arrowRight) {
         document.getElementsByClassName('header-items-container')[0].scrollLeft = document.getElementsByClassName('header-items-container')[0].scrollWidth
+        this.$refs.panel.classList.add('end')
         this.$refs.panel.classList.remove('start')
       } else {
         document.getElementsByClassName('header-items-container')[0].scrollLeft = 0
         this.$refs.panel.classList.add('start')
+        this.$refs.panel.classList.remove('end')
       }
       this.arrowRight = !this.arrowRight
     },
@@ -269,29 +296,7 @@ export default {
   display: flex;
   padding-right: 75px;
 
-  &:not(.start)::after {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
-    /* IE6-9 fallback on horizontal gradient */
-
-  }
-
-  &.start::after {
+  &.shadow::after {
     pointer-events: none;
     /* ignore clicks */
     content: "";
@@ -312,6 +317,43 @@ export default {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
     /* IE6-9 fallback on horizontal gradient */
 
+  }
+
+  &.end::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+
+    background: none;
+  }
+
+
+  &:not(.start)::before {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
   }
 
 }
