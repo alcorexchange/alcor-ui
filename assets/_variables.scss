@@ -2,58 +2,53 @@
   --main-green: #66c167;
   --main-red: #f96c6c;
   --secondary-green: #1fc781;
-  --cancel: #c4c4c4;
+  --black-primary: #161617;
   --radius: 4px;
   --radius-2: 8px;
 }
 
-.theme-light {
-  --color-primary: #3e3a3b;
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-  --color-white: #f3fafc;
-  --color-text-secondary: #5a5356;
+[trade-theme="default"] {
+  --color-primary: #66C167;
+  --color-primary-op: rgba(102, 193, 103, .5);
+  --primary-darker: #46A147;
+  --color-secondary: #F96C6C;
+  --color-secondary-op: rgba(249, 108, 108, .5);
+  --secondary-darker: #D94C4C;
+}
 
-  // backgrounds
-  --background-color-base: #f3fafc;
-  --background-color-secondary: #e6eef1;
-  --background-color-third: #e6eef1;
-  --bg-big-card: #f3fafc;
-  --bg-alter-1: #e6eef1;
-  --bg-alter-2: #dee6e8;
-  --landing-card-bg: rgba(250, 250, 250, 0.3);
-  --landing-icon-bg: #ededed;
-  --table-background: #e6eef1;
-  --dialog-background: #f5f5f9;
+[trade-theme="bloom"] {
+  --color-primary: #277DFA;
+  --color-primary-op: rgba(39, 125, 250, .5);
+  --primary-darker: #055AD6;
+  --color-secondary: #FFAB2E;
+  --color-secondary-op: rgba(250, 149, 0, .5);
+  --secondary-darker: #D68000;
+}
 
-  // buttons
-  --btn-default: #dce4e6;
-  --btn-alternative: #fff;
-  --btn-active: #dce4e6;
-  --hover: #e9eeef; // dark hover row
-  --dark-btn-sm: #e0e0e0;
-  --swap-tab-active: #e0e0e0;
+[trade-theme="cyber"] {
+  --color-primary: #00AB4A;
+  --color-primary-op: rgba(0, 153, 66, .5);
+  --primary-darker: #009942;
+  --color-secondary: #F22B55;
+  --color-secondary-op: rgba(242, 43, 85, .5);
+  --secondary-darker: #D40D37;
+}
 
-  --text-default: #161617;
-  --text-grey-thirdly: #787878;
-
-  --border-color: #dadbdc;
-
-  --card-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
-  --dropdown-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
-
-  --active-row: #c2deff;
-
-  --border-1: 1px solid rgba(60, 60, 67, 0.36);
+[trade-theme="contrast"] {
+  --color-primary: #00B909;
+  --color-primary-op: rgba(0, 185, 9, .5);
+  --primary-darker: #10C919;
+  --color-secondary: #C60606;
+  --color-secondary-op: rgba(198, 6, 6, .5);
+  --secondary-darker: #D61616;
 }
 
 .theme-dark {
-  --color-primary: #9eaba3;
-
   // backgrounds
   --background-color-base: #282828;
   --background-color-secondary: #212121;
-  --background-color-third: #161617;
+  --background-color-third: #212121;
+  --background-grid-layout: #000;
   --bg-big-card: #212121;
   --bg-alter-1: #282828;
   --bg-alter-2: #363535;
@@ -66,11 +61,12 @@
   --btn-default: #333333;
   --btn-alternative: #333333;
   --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
+  --hover: rgba(21, 21, 21, 0.3);
   --dark-btn-sm: #383838;
   --swap-tab-active: #141415;
 
   --text-default: #f2f2f2;
+  --text-secondary: #d9d9d9;
   --text-grey-thirdly: #bdbdbd;
 
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
@@ -83,198 +79,76 @@
   --color-danger: #b82c0d;
 
   --active-row: #282828;
+
+  --border-1: 1px solid rgba(60, 60, 67, 0.36);
+  --border-2: 2px solid #3F3F3F;
+
+  --selector-bg: #282828;
+
+  --table-header-background: #333333;
+
+  //trade 
+  --trade-bg: #212121;
+  --trade-tab-bg: #212121;
+  --trade-header-bg: #333333;
+
+  //gradient
+  --start-bg: rgba(33, 33, 33, 1);
+  --end-bg: rgba(0, 0, 0, 0);
+
+  --cancel: #c4c4c4;
 }
 
-.theme-contrast {
-  --color-primary: #9eaba3;
+.theme-light {
 
   // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #a01d1d;
-  --background-color-third: #161617;
-  --bg-big-card: #212121;
-  --bg-alter-1: #282828;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #212121;
-  --dialog-background: #282828;
+  --background-color-base: #f0f2f5;
+  --background-color-secondary: #CDD0D6;
+  --background-color-third: #fff;
+  --background-grid-layout: #fff;
+  --bg-big-card: #f0f2f5;
+  --bg-alter-1: #dcdfe6;
+  --bg-alter-2: #dcdfe6;
+  --landing-card-bg: rgba(250, 250, 250, 0.3);
+  --landing-icon-bg: #ededed;
+  --table-background: #f0f2f5;
+  --table-tabs-background: #D4D7DE;
+  --table-header-background: #dcdfe6;
+  --dialog-background: #f5f5f9;
+  --chart-actions-background: #d4d7dE;
 
   // buttons
-  --btn-default: #333333;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
+  --btn-default: #E6E8EB;
+  --btn-alternative: #fff;
+  --btn-active: #dcdfe6;
+  --hover: rgba(200, 200, 200, 0.3);
+  --dark-btn-sm: #e0e0e0;
+  --swap-tab-active: #e0e0e0;
 
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
+  --text-default: #303133;
+  --text-secondary: #606266;
+  --text-grey-thirdly: #787878;
 
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
+  --border-color: #CDD0D6;
 
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
+  --card-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
+  --dropdown-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
 
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
+  --active-row: #c2deff;
 
-  --active-row: #282828;
+  --border-1: 1px solid rgba(60, 60, 67, 0.36);
+  --border-2: 2px solid #CDD0D6;
+
+  --selector-bg: #dcdfe6;
+
+    //trade 
+  --trade-bg: #F0F2F5;
+  --trade-tab-bg: #D4D7DE;
+  --trade-header-bg: #DCDFE6;
+
+    //gradient
+  --start-bg: rgba(222, 222, 222, 1);
+  --end-bg: rgba(0, 0, 0, 0); 
+  --cancel: #303133;
 }
 
-//oranger
-.theme-oranger {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #ffd104;
-  --background-color-third: #161617;
-  --bg-big-card: #6d6605;
-  --bg-alter-1: #9faf0a;
-  --bg-alter-2: #839904;
-  --landing-card-bg: rgba(117, 106, 4, 0.3);
-  --landing-icon-bg: #56850b;
-  --table-background: #212121;;
-  --dialog-background: #5d6309;
-
-  // buttons
-  --btn-default: #7e9906;
-  --btn-alternative: #9baf29;
-  --btn-active: #555403;
-  --hover: rgba(189, 189, 27, 0.6);
-  --dark-btn-sm: #c2af09;
-  --swap-tab-active: #8b8a35;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}
-
-//oceano
-.theme-oceano {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #067ec4;
-  --background-color-third: #13afec;
-  --bg-big-card: #038ac9;
-  --bg-alter-1: #086a97;
-  --bg-alter-2: #2583af;
-  --landing-card-bg: rgba(7, 106, 163, 0.3);
-  --landing-icon-bg: #07508b;
-  --table-background: #212121;
-  --dialog-background: #282828;
-
-  // buttons
-  --btn-default: #0f6ead;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}
-
-//cyber
-.theme-cyber {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #09c952;
-  --background-color-third: #161617;
-  --bg-big-card: #212121;
-  --bg-alter-1: #282828;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #212121;
-  --dialog-background: #282828;
-
-  // buttons
-  --btn-default: #08af6f;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}
-
-//bloom
-.theme-bloom {
-  --color-primary: #9eaba3;
-
-  // backgrounds
-  --background-color-base: #282828;
-  --background-color-secondary: #f78f08;
-  --background-color-third: #161617;
-  --bg-big-card: #212121;
-  --bg-alter-1: #282828;
-  --bg-alter-2: #363535;
-  --landing-card-bg: rgba(40, 40, 40, 0.3);
-  --landing-icon-bg: #111111;
-  --table-background: #212121;
-  --dialog-background: #282828;
-
-  // buttons
-  --btn-default: #e9bd2d;
-  --btn-alternative: #333333;
-  --btn-active: #161617;
-  --hover: rgba(22, 22, 23, 0.6);
-  --dark-btn-sm: #383838;
-  --swap-tab-active: #141415;
-
-  --text-default: #f2f2f2;
-  --text-grey-thirdly: #bdbdbd;
-
-  --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
-  --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
-
-  --color-text-primary: #f2fff2;
-  --border-color: #3f4144;
-
-  --color-success: #8cc176;
-  --color-danger: #b82c0d;
-
-  --active-row: #282828;
-}

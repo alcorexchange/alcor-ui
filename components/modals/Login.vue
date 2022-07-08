@@ -7,18 +7,18 @@
         span {{ wallet.name }}
   .divider
     span.line
-    .text Don't have any wallet yet ?
+    .text {{ $t("Don't have any wallet yet") }} ?
     span.line
   .footer-actions
   .items(v-if='wallets.length > 0')
     .item
       AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
         img.mr-2(:src='wallets[0].logo', height='30')
-        span Get {{ wallets[0].name }}
+        span {{ $t('Get') }} {{ wallets[0].name }}
     .item
       AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
         img.mr-2(:src='wallets[1].logo', height='30')
-        span Get {{ wallets[1].name }}
+        span {{ $t('Get') }} {{ wallets[1].name }}
 </template>
 
 <script>
@@ -134,40 +134,48 @@ export default {
   flex-wrap: wrap;
   padding: 14px;
   width: 100%;
+
   .item {
     width: 50%;
     padding: 6px;
   }
 }
+
 .button {
   width: 100% !important;
   flex: 1;
   padding: 8px;
   justify-content: flex-start;
   border-radius: 12px !important;
+
   img {
     padding: 0 8px;
   }
+
   span {
     display: flex;
     justify-content: center;
     flex: 1;
   }
 }
+
 .divider {
   display: flex;
   align-items: center;
   padding: 8px 18px;
   width: 100%;
+
   .text {
     padding: 0 8px;
   }
+
   .line {
     flex: 1;
     height: 2px;
     background: rgba(100, 100, 100, 0.5);
   }
 }
+
 @media only screen and (max-width: 840px) {
   .items {
     .item {

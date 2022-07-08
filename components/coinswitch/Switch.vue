@@ -21,7 +21,7 @@
     .row.mt-1
       .col
         .d-flex.mb-1
-          small.text-muted Estimated Receive
+          small.text-muted {{ $t('Estimated Receive') }}
           small.text-mutted.small.ml-auto {{ outputBalance }}
             i.el-icon-wallet.ml-1
 
@@ -29,7 +29,7 @@
           template(slot="end")
             .pair(@click="$router.push('/swap/create')").text-muted
               i.el-icon-plus.mr-2
-              span Create pool
+              span {{ $t('Create pool') }}
 
     .row.mt-4(v-if="output && ibcChain")
       .col
@@ -46,37 +46,37 @@
         PleaseLoginButton
           div(v-loading="loading")
             .div(v-if="(ibcForm.transfer && (!ibcForm.valid || !ibcForm.address))")
-              el-button(type="primary" disabled).w-100 Invalid {{ this.ibcChain.toUpperCase() }} Account
+              el-button(type="primary" disabled).w-100 {{ $t('Invalid') }} {{ this.ibcChain.toUpperCase() }} {{ $t('Account') }}
             .div(v-else-if="(input && inputAmount) && inputAmount > parseFloat(inputBalance)")
-              el-button(type="primary" disabled).w-100 Insufficient Funds
+              el-button(type="primary" disabled).w-100 {{ $t('Insufficient Funds') }}
             .div(v-else-if="(input && inputAmount) && (output && outputAmount)")
-              el-button(type="primary" @click="submit").w-100 Swap {{ input.symbol }} to {{ output.symbol }}
+              el-button(type="primary" @click="submit").w-100 {{ $t('Swap') }} {{ input.symbol }} {{ $t('to') }} {{ output.symbol }}
             .div(v-else)
-              el-button(type="primary" disabled).w-100 Select amounts
+              el-button(type="primary" disabled).w-100 {{ $t('Select amounts') }}
 
     .row.mt-3
       .col
         .d-flex.justify-content-between
-          small Minimum Received
+          small {{ $t('Minimum Received') }}
           .small {{ minOutput }}
 
         .d-flex.justify-content-between
-          small Rate
+          small {{ $t('Rate') }}
           .small {{ price }}
 
         .d-flex.justify-content-between
-          small Price Impact
-          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact}}%
-          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact}}%
-          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact}}%
-          .small(v-else).font-weight-bold {{ priceImpact}} %
+          small {{ $t('Price Impact') }}
+          .small(v-if="priceImpact >= 5").text-danger.font-weight-bold {{ priceImpact }}%
+          .small(v-else-if="priceImpact >= 2").text-warning.font-weight-bold {{ priceImpact }}%
+          .small(v-else-if="priceImpact < 2").text-success.font-weight-bold {{ priceImpact }}%
+          .small(v-else).font-weight-bold {{ priceImpact }} %
 
         .d-flex.justify-content-between
-          small Slippage
+          small {{ $t('Slippage') }}
           .small 3%
 
         .d-flex.justify-content-between
-          small Liquidity Source Fee
+          small {{ $t('Liquidity Source Fee') }}
           .small {{ fee }}%
 
 </template>

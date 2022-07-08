@@ -3,9 +3,9 @@
     .swap-card
       .alcor-card
         .tab-bar
-          .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") Swap
-          .item.center(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + liquidity
-          .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - liquidity
+          .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") {{ $t('Swap') }}
+          .item.center(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + {{ $t('liquidity') }}
+          .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - {{ $t('liquidity') }}
         SSpacer(high)
         .tab-item
           keep-alive
@@ -28,9 +28,9 @@
               .names(v-if="!isReverted") {{ current.pool1.quantity.symbol.code().to_string() }}/{{ current.pool2.quantity.symbol.code().to_string() }}
               .names(v-else) {{ current.pool2.quantity.symbol.code().to_string() }}/{{ current.pool1.quantity.symbol.code().to_string() }}
 
-              .detail.muted Liquidity alcor.dex
+              .detail.muted {{ $t('Liquidity') }} alcor.dex
           .right
-            AlcorButton.eol(@click="openInNewTab('https://docs.alcor.exchange/liquidity-pools/understanding-returns')") Earn On Liquidity
+            AlcorButton.eol(@click="openInNewTab('https://docs.alcor.exchange/liquidity-pools/understanding-returns')") {{ $t('Earn On Liquidity') }}
       SSpacer(high)
       .chart
         Chart(:tab="chart_tab" :period="period")
@@ -38,15 +38,15 @@
       .footer
         .left
           el-radio-group.custom-radio(v-model="chart_tab" size="small")
-            el-radio-button(label="Price")
-            el-radio-button(label="Liquidity")
-            el-radio-button(label="Volume")
+            el-radio-button(:label="$t('Price')")
+            el-radio-button(:label="$t('Liquidity')")
+            el-radio-button(:label="$t('Volume')")
         .right
           el-radio-group.custom-radio(v-model="period" size="small")
-            el-radio-button(label="24H")
-            el-radio-button(label="7D")
-            el-radio-button(label="30D")
-            el-radio-button(label="All")
+            el-radio-button(:label="$t('24H')")
+            el-radio-button(:label="$t('7D')")
+            el-radio-button(:label="$t('30D')")
+            el-radio-button(:label="$t('All')")
     LiquidityPositions.liquidity-positions(v-else)
 </template>
 
@@ -219,17 +219,20 @@ export default {
   display: flex;
   padding-top: 20px;
 }
+
 .swap-card {
   width: 33.3333%;
 }
+
 .tab-bar {
   display: flex;
-  background: var(--bg-alter-2);
+  background: var(--btn-default);
   display: flex;
   align-items: center;
   padding: 2px;
   border-radius: var(--radius-2);
   overflow: hidden;
+
   .item {
     flex: 1;
     text-align: center;
@@ -238,12 +241,15 @@ export default {
     cursor: pointer;
     user-select: none;
     transition: all 0.2s;
+
     &.center {
       margin: 0 2px;
     }
+
     &:hover {
       background: var(--hover);
     }
+
     &.active {
       background: var(--btn-active);
       box-shadow: 0px 3px 28px -1px rgba(0, 0, 0, 0.4);
@@ -251,6 +257,7 @@ export default {
     }
   }
 }
+
 .chart-card,
 .liquidity-positions {
   flex: 1;
@@ -258,26 +265,32 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .header {
   display: flex;
   flex-direction: column;
+
   .pair-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     .left {
       display: flex;
       align-items: center;
     }
+
     .eol {
       border-radius: var(--radius);
       padding: 6px 24px;
     }
+
     .icons {
       position: relative;
       display: flex;
       height: 40px;
       width: 40px;
+
       .icon {
         position: absolute;
         width: 25px;
@@ -285,26 +298,32 @@ export default {
         object-fit: cover;
         border-radius: 50%;
       }
+
       .icon-1 {
         top: 0;
         left: 0;
       }
+
       .icon-2 {
         bottom: 0;
         right: 0;
       }
     }
+
     .name-container {
       padding-left: 10px;
+
       .names {
         font-size: 1.6rem;
         font-weight: bold;
       }
+
       display: flex;
       flex-direction: column;
     }
   }
 }
+
 .chart {
   min-height: 200px;
   flex: 1;
@@ -313,56 +332,68 @@ export default {
 .footer {
   display: flex;
   justify-content: space-between;
+
   .left,
   .right {
     display: flex;
     align-items: center;
+
     .item {
       user-select: none;
       display: flex;
       padding: 4px 6px;
       border-radius: var(--radius);
       cursor: pointer;
+
       &.active {
         background: var(--btn-active);
       }
     }
   }
 }
+
 @media only screen and (max-width: 980px) {
   .swap-container {
     flex-direction: column;
   }
+
   .swap-card {
     width: 100%;
     margin-bottom: 20px;
   }
+
   .chart-card,
   .liquidity-positions {
     margin-left: 0;
   }
 }
+
 @media only screen and (max-width: 680px) {
   .tab-bar {
     .item {
       font-size: 0.9rem;
     }
   }
+
   .header {
     .pair-container {
       flex-direction: column;
       align-items: flex-start;
+
       .right {
         margin: 8px 0;
       }
     }
   }
+
   .footer {
     flex-direction: column;
+
     .left {
       margin-bottom: 8px;
     }
   }
+
   .alcor-card {
     padding: 8px;
   }
@@ -389,6 +420,7 @@ export default {
 .theme-light {
   .tab-bar {
     .item {
+
       //&:hover,
       &.active {
         background: var(--background-color-base);

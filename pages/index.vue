@@ -2,10 +2,10 @@
 .home-page
   Hero.alcor-inner
   ChainTools.alcor-inner
+  Promoted.alcor-inner
   RecommendedMarkets.alcor-inner
   //Participate
   SupportedChains
-  Partners
 </template>
 
 <script>
@@ -16,9 +16,8 @@ import Hero from '@/components/landing/Hero'
 import SupportedChains from '@/components/landing/SupportedChains'
 import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 import Partners from '@/components/landing/Partners'
+import Promoted from '~/components/landing/Promoted.vue'
 export default {
-  colorMode: 'dark',
-
   components: {
     SectionTitle,
     ChainTools,
@@ -26,7 +25,8 @@ export default {
     Hero,
     SupportedChains,
     RecommendedMarkets,
-    Partners
+    Partners,
+    Promoted
   }
 }
 </script>

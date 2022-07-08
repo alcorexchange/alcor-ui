@@ -64,13 +64,19 @@ export async function newMatch(match, network) {
 }
 
 export async function getVolumeFrom(date, market, chain) {
-  const day_volume = await Match.aggregate([
+  const volume = await Match.aggregate([
     { $match: { chain, market, time: { $gte: new Date(date) } } },
-    { $project: { market: 1, value: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } } } },
-    { $group: { _id: '$market', volume: { $sum: '$value' } } }
+    {
+      $project: {
+        market: 1,
+        quote_volume: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } },
+        base_volume: { $cond: { if: { $eq: ['$type', 'sellmatch'] }, then: '$bid', else: '$ask' } }
+      }
+    },
+    { $group: { _id: '$market', quote_volume: { $sum: '$quote_volume' }, base_volume: { $sum: '$base_volume' } } }
   ])
 
-  return day_volume.length == 1 ? day_volume[0].volume : 0
+  return volume.length == 1 ? [volume[0].base_volume, volume[0].quote_volume] : [0, 0]
 }
 
 export async function getChangeFrom(date, market, chain) {
@@ -81,7 +87,7 @@ export async function getChangeFrom(date, market, chain) {
     const price_before = date_deal.unit_price
     const price_after = last_deal.unit_price
 
-    return ((price_after - price_before) / price_before) * 100
+    return (((price_after - price_before) / price_before) * 100).toFixed(2)
   } else {
     return 0
   }
@@ -105,9 +111,14 @@ export async function getMarketStats(network, market_id) {
     new Date().getDate()
   )
 
-  stats.volume24 = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
-  stats.volumeWeek = await getVolumeFrom(Date.now() - WEEK, market_id, network.name)
-  stats.volumeMonth = await getVolumeFrom(oneMonthAgo, market_id, network.name)
+  const [base_volume, quote_volume] = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
+
+  stats.volume24 = quote_volume
+  stats.quote_volume = quote_volume
+  stats.base_volume = base_volume
+
+  stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[1]
+  stats.volumeMonth = (await getVolumeFrom(oneMonthAgo, market_id, network.name))[1]
 
   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
@@ -157,6 +168,7 @@ export async function updateMarkets(network) {
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)
+    r.ticker_id = r.quote_token.str.replace('@', '-') + '_' + r.base_token.str.replace('@', '-')
   })
 
   const requests = rows.map(d => {

@@ -204,7 +204,7 @@ export const actions = {
       const { base_token, quote_token } = m
 
       m.symbol = quote_token.symbol.name + ' / ' + base_token.symbol.name
-      m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-')
+      m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-') // TODO change to ticker_id
       m.promoted = state.network.PROMOTED_MARKETS.includes(m.id)
       m.scam = state.network.SCAM_CONTRACTS.includes(quote_token.contract)
 
@@ -450,6 +450,16 @@ export const getters = {
 
   user(state) {
     return state.user
+  },
+
+  promoted(state, getters) {
+    // TODO mock poolId now
+    return getters.markets
+      .filter(market => state.network.BANNER_MARKETS.includes(market.id))
+      .map(market => ({
+        ...market,
+        poolId: market.id === 424 ? 1627 : market.id === 495 ? 1831 : undefined
+      })).reverse()
   },
 
   systemBalance(state) {

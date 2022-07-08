@@ -3,7 +3,7 @@
   i.el-icon-setting(@click='visible = true')
 
   el-dialog(title='Orderbook settings' :visible.sync='visible' append-to-body width="400px" custom-class="trading-page-dialog")
-    .text-muted Orderbook Preview
+    .text-muted {{ $t('Orderbook Preview') }}
 
     .order-book.orderbook-preview
       .orders-list
@@ -72,14 +72,14 @@
               .text-right 313.74759766
             .progress-bar.buy(:style="'transform: translateX(-' + (sum == 'Total Sum' ? '50' : '70') + '%);'")
 
-    .text-muted.mt-2 Orderbook Settings
+    .text-muted.mt-2  {{ $t('Orderbook Settings') }}
 
     .d-flex.mt-1.align-items-end
-      span Orderbook Visualization
+      span {{ $t('Orderbook Visualization') }}
 
       el-radio-group.alcor-radio(v-model="sum" size="mini").ml-auto
-        el-radio-button(label='% Total')
-        el-radio-button(label='Total Sum')
+        el-radio-button(:label="'% ' + $t('Total')")
+        el-radio-button(:label='$t("Total Sum")')
 
 </template>
 
@@ -108,9 +108,18 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.red {
+  color: var(--color-secondary);
+}
+
+.green {
+  color: var(--color-primary);
+}
+
+
 .orderbook-preview.order-book {
-    padding: 10px 20px;
+  padding: 10px 20px;
 }
 
 .orderbook-preview {
@@ -124,5 +133,4 @@ export default {
     }
   }
 }
-
 </style>

@@ -6,7 +6,7 @@ div
         .row
           .col
             .p-2
-              p Quick swap or make money on providing liquidity.
+              p {{ $t("Quick swap or make money on providing liquidity") }}.
           .col
             .d-flex.justify-content-end
               .row
@@ -22,18 +22,18 @@ div
                 TokenImage(:src="$tokenLogo(poolOne.quantity.symbol.code().to_string(), poolOne.contract)" height="50").ml-2
               .col-lg-10
                 .lead {{ poolOne.quantity.symbol.code().to_string() }}@{{ poolOne.contract }}
-                b Pool size: {{ poolOne.quantity }}
+                b {{ $t("Pool size") }}: {{ poolOne.quantity }}
 
             hr
 
             .row.mt-4
               .col.border-right
                 .text-center
-                  .lead Input
-                  p The amount that you give
+                  .lead {{ $t('Input') }}
+                  p {{ $t('The amount that you give') }}
 
-                pre(v-if="input == 'pool1'") Balance: {{ baseBalance }}
-                pre(v-else) Balance: {{ quoteBalance }}
+                pre(v-if="input == 'pool1'") {{ $t('Balance') }}: {{ baseBalance }}
+                pre(v-else) {{ $t('Balance') }}: {{ quoteBalance }}
 
                 el-input(type="number" v-model="amount1" clearable @change="amountChange" @input="inputAmount")
                   span(slot="suffix").mr-1 {{ poolOne.quantity.symbol.code().to_string() }}
@@ -55,20 +55,20 @@ div
                 TokenImage(:src="$tokenLogo(poolTwo.quantity.symbol.code().to_string(), poolTwo.contract)" height="50")
                 .ml-3
                   .lead {{ poolTwo.quantity.symbol.code().to_string() }}@{{ poolTwo.contract }}
-                  b Pool size: {{ poolTwo.quantity }}
+                  b {{ $t('Pool size') }}: {{ poolTwo.quantity }}
 
             hr
 
             .row.mt-4
               .col.border-left
                 .text-center
-                  .lead Output
+                  .lead {{ $t('Output') }}
 
-                  p The amount that you will receive
+                  p {{ $t('The amount that you will receive') }}
 
                   .lead {{ amount2 }}  {{ poolTwo.quantity.symbol.code().to_string() }}
 
-                  pre(v-if="input == 'pool2'") Balance: {{ baseBalance }}
+                  pre(v-if="input == 'pool2'") {{ $t('Balance') }}: {{ baseBalance }}
                   pre(v-else) Balance: {{ quoteBalance }}
 
         .row.mb-3(v-if="current.pool1")
@@ -76,7 +76,7 @@ div
             .row
               .col
                 pre
-                  span Price for current amount: {{ price }} {{ poolOne.quantity.symbol.code().to_string() }}
+                  span {{ $t('Price for current amount') }}: {{ price }} {{ poolOne.quantity.symbol.code().to_string() }}
                     | /{{ poolTwo.quantity.symbol.code().to_string() }}
 
                   //span
@@ -84,13 +84,13 @@ div
         .row
           .col
             PleaseLoginButton
-              el-button(type="primary" @click="swap" :loading="loading").w-100 Swap
+              el-button(type="primary" @click="swap" :loading="loading").w-100 {{ $t('Swap') }}
 
       .text.item(v-else)
         .row.mb-3
           .col-6.bordered
             .p-3
-              .lead No pools yet
+              .lead {{ $t('No pools yet') }}
 </template>
 
 <script>

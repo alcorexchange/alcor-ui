@@ -3,11 +3,11 @@
   .col
     .row.mb-2
       .col
-        .badge.text-wrap Recommended tokens
+        .badge.text-wrap {{ $t('Recommended tokens') }}
     .row
       .col-lg-2.col-md-4.col-sm-6(:key="market.id" v-for="market in markets").mb-2
         .small
-          nuxt-link(:to="{ name: 'trade-index-id', params: { id: market.slug } }")
+          nuxt-link(:to="{ name: `trade-index-id___${this.$i18n.locale}`, params: { id: market.slug } }")
             el-card(shadow="hover")
               .row
                 .col
@@ -46,12 +46,11 @@ export default {
 <style lang="scss">
 .recommended {
   .el-card__body {
-      padding: 10px;
+    padding: 10px;
   }
 
   a {
     text-decoration: none;
   }
 }
-
 </style>

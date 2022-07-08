@@ -1,15 +1,15 @@
 <template lang="pug">
 // TODO Refactor with walidators for form
 div
-  el-button(size="medium" type="primary" @click="open").w-100  Sell NFT's
+  el-button(size="medium" type="primary" @click="open").w-100  {{ $t("Sell NFT's") }}
 
   el-dialog(title="Create new order", :visible.sync="visible" width="70%" v-if="user")
     .row
       .col
-        .lead This form allow you to sell one or multiple NFT's at once by fixed price in {{ network.baseToken.symbol }}
+        .lead {{ $t('NEW_ORDER_MESSAGE') }} {{ network.baseToken.symbol }}
     .row
       .col
-        h4 Sell {{ sell.length }} items
+        h4 {{ $t('Sell') }} {{ sell.length }} {{ $t('items') }}
         .sell-nft-box
           el-card(
             v-for="(nft, i) in sell"
@@ -26,15 +26,15 @@ div
                   .lead {{ nft.mdata.name }}
                   b ID: {{ nft.id }}
                   //span Category: {{ nft.category }}
-                  span Author
+                  span {{ $t('Author') }}
                     b.ml-1 {{ nft.author }}
 
-        .label Sell all items for({{ network.baseToken.symbol }} amount):
+        .label {{ $t('Sell all items for') }} ({{ network.baseToken.symbol }} {{ $t('amount') }}):
         el-input.input-with-select(type="number" v-model="buyAmount" @change="buyChange" clearable).nft-buy-input
           el-select(v-model="buyToken", slot="append", placeholder="Select" value-key="str")
             el-option(
               :label="`${network.baseToken.symbol}@${network.baseToken.contract}`"
-              :value="{str: 'base', symbol: { name: network.baseToken.symbol, precision: network.baseToken.precision }, contract: network.baseToken.contract }"
+              :value="{ str: 'base', symbol: { name: network.baseToken.symbol, precision: network.baseToken.precision }, contract: network.baseToken.contract }"
               )
               TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="25")
               span.ml-3 {{ network.baseToken.symbol }}@{{ network.baseToken.contract }}
@@ -56,9 +56,9 @@ div
 
     .row
       .col-4
-        .lead Select NFT's
+        .lead {{ $t("Select NFT's") }}
       .col-8
-        el-input(placeholder="Filter NFT's" size="small" v-model="search" clearable)
+        el-input(:placeholder="$t(`Filter NFT's`)" size="small" v-model="search" clearable)
     hr
     el-card(
       v-for="(nft, i) in userNfts"
@@ -73,7 +73,7 @@ div
           .d-flex.flex-column
             .lead {{ nft.mdata.name }}
             b ID: {{ nft.id }}
-            span Category: {{ nft.category }}
+            span {{ $t('Category') }}: {{ nft.category }}
             div.ml-auto
               span.mr-1 Author
               a(:href="monitorAccount(nft.author)" target="_blank") {{ nft.author }}
@@ -219,7 +219,7 @@ export default {
 .sell-nft-box {
   display: flex;
   min-height: 50px;
-  flex-wrap: wrap!important;
+  flex-wrap: wrap !important;
 }
 
 .sell-nft-box .el-card__body {

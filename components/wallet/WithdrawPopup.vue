@@ -14,16 +14,16 @@
         i.el-icon-wallet
         .text Transfer
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
-      span Before transferring to exchange, you have to withdraw it to it's original chain using BOS IBC Transfer button!
+      span {{ $t('WITHDRAW_POPUP_MESSAGE') }}
 
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mt-1(prop="address")
-        .label Transfer to
+        .label {{ $t('Transfer to') }}
         el-input(v-model="form.address" placeholder="address..").w-100
 
       el-form-item(prop="amount")
-        .label Amount
-        span Balance
+        .label {{$t('Amount') }}
+        span {{$t('Balance') }}
           el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
@@ -36,7 +36,7 @@
       el-form-item.mt-1.mb-0
         span.dialog-footer.mb-4
           el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100.done
-            | Transfer {{ token.currency }} to {{ form.address }}
+            | {{ $t('Transfer') }} {{ token.currency }} {{$t('to')}} {{ form.address }}
 </template>
 
 <script>
@@ -224,6 +224,7 @@ export default {
 .upperinput {
   text-transform: uppercase;
 }
+
 .upperinput:placeholder-shown {
   text-transform: none;
 }
@@ -235,37 +236,45 @@ export default {
 .title-container {
   display: flex;
   align-items: center;
+
   .text {
     font-weight: 500;
     padding-left: 8px;
   }
 }
+
 .done {
   width: 100%;
   color: var(--main-green);
   padding: 14px 10px;
   border-radius: 10px;
 }
+
 .label {
   font-size: 1rem;
   color: var(--text-default);
   // padding-bottom: 20px;
 }
+
 .balance {
   color: var(--text-default);
   padding: 6px;
   padding-left: 0;
   cursor: pointer;
+
   &:hover {
     opacity: 0.8;
   }
 }
+
 .el-input::v-deep {
+
   // margin-bottom: 26px;
   input {
     background: var(--btn-active);
   }
 }
+
 .el-form-item {
   width: 100%;
 }

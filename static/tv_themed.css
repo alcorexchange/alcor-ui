@@ -1,10 +1,10 @@
-:root:not(.theme-dark) {
-    --tv-color-platform-background: #F3FAFC;
-    --tv-color-pane-background: rgb(#F3FAFC, 223, 244);
+:root.theme-light {
+    --tv-color-platform-background: #CDD0D6;
+    --tv-color-pane-background: #f0f2f5;
     --tv-color-pane-background-secondary: rgb(249, 185, 233);
     --tv-color-toolbar-button-background-hover: rgb(#bdc0c2, 143, 177);
     --tv-color-toolbar-button-background-secondary-hover: #f2f3f5;
-    --tv-color-toolbar-button-text: #babac5;
+    --tv-color-toolbar-button-text: #303133;
     --tv-color-toolbar-button-text-hover: black;
     --tv-color-toolbar-button-text-active: black;
     --tv-color-toolbar-button-text-active-hover: black;
@@ -14,9 +14,9 @@
     --tv-color-toolbar-button-background-expanded: #333333;
 }
 
-.theme-dark:root {
-    --tv-color-platform-background: #212121;
-    --tv-color-pane-background: rgb(#212121, 223, 244);
+:root:not(.theme-light) {
+    --tv-color-platform-background: #3F3F3F;
+    --tv-color-pane-background: #212121;
     --tv-color-pane-background-secondary: rgb(249, 185, 233);
     --tv-color-toolbar-button-background-hover: #3333339e;
     --tv-color-toolbar-button-background-secondary-hover: green;
@@ -28,4 +28,29 @@
     --tv-color-item-active-text: rgb(6, 255, 6);
     --tv-color-toolbar-toggle-button-background-active: red;
     --tv-color-toolbar-toggle-button-background-active-hover: magenta;
+}
+
+:root:not(.theme-light):not(.theme-dark) {
+    --tv-color-platform-background: #3F3F3F;
+    --tv-color-pane-background: #212121;
+    --tv-color-pane-background-secondary: rgb(249, 185, 233);
+    --tv-color-toolbar-button-background-hover: #3333339e;
+    --tv-color-toolbar-button-background-secondary-hover: green;
+    --tv-color-toolbar-button-background-expanded: #333333;
+    --tv-color-toolbar-button-text: #6c757d;
+    --tv-color-toolbar-button-text-hover: #cfdbe9;
+    --tv-color-toolbar-button-text-active: #cfdbe9;
+    --tv-color-toolbar-button-text-active-hover: #cfdbe9;
+    --tv-color-item-active-text: rgb(6, 255, 6);
+    --tv-color-toolbar-toggle-button-background-active: red;
+    --tv-color-toolbar-toggle-button-background-active-hover: magenta;
+}
+
+
+.layout__area--left {
+  width: 55px !important;
+}
+
+.inner-1xuW-gY4 {
+  width: 100%;
 }

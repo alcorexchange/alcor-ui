@@ -1,23 +1,23 @@
 <template lang="pug">
 .el-card.resource-page-card(v-if="account")
   .header
-      i.el-icon-present
-      span.text Genesis and Voting Rewards
+    i.el-icon-present
+    span.text {{ $t("Genesis and Voting Rewards") }}
   .main
     .item
-      span.key.fwr Available Balance:
+      span.key.fwr {{ $t("Available Balance") }}:
       span.value  {{ account.core_liquid_balance }}
     .item
-      span.key.fwr Refunding CPU:
+      span.key.fwr {{ $t("Refunding CPU") }}:
       span.value  {{ account.refund_request && account.refund_request.cpu_amount }}
     .item
-      span.key.fwr Refunding NET:
+      span.key.fwr {{ $t("Refunding NET") }}:
       span.value  {{ account.refund_request && account.refund_request.net_amount }}
 
     .item.mt-2(v-if="account.refund_request")
       el-popover(:disabled="isRefundAvailable" placement='top-start' title='Refund' trigger='hover')
         template
-          span Your refund will be available at {{ availableAt | moment('DD-MM HH:mm') }}
+          span {{ $t("Your refund will be available at") }} {{ availableAt | moment('DD-MM HH:mm') }}
         div(slot="reference")
           el-button(v-loading="loading" size="big" @click="refund" :disabled="!isRefundAvailable").w-100 Refund
 
@@ -84,6 +84,7 @@ export default {
   flex-direction: column;
   flex-wrap: wrap;
 }
+
 .item {
   padding-bottom: 10px;
 }

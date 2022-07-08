@@ -77,6 +77,25 @@ markets.get('/:market_id', cacheSeconds(60, (req, res) => {
   return market ? res.json(market) : res.status(404).send('Market not found')
 })
 
+markets.get('/:market_id/orderbook', async (req, res) => {
+  const market_id = parseInt(req.params.market_id)
+  if (isNaN(market_id)) return res.status(403).send('Invalid market id')
+
+  const redisClient = req.app.get('redisClient')
+
+  const network = req.app.get('network')
+  const depth = parseInt(req.query.depth) || 100
+
+  const bids = JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market_id}`)).slice(0, depth)
+  const asks = JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market_id}`)).slice(0, depth)
+
+  return res.json({
+    market_id,
+    bids,
+    asks
+  })
+})
+
 markets.get('/', cacheSeconds(3, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {

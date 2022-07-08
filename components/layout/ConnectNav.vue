@@ -9,28 +9,26 @@
         .user-name {{ user.name }}
           i.el-icon-arrow-down.text-muted.ml-1
         el-dropdown-menu.dropdown-container
-          .d-item(@click='logout') Logout
+          .d-item(@click='logout') {{ $t('Logout') }}
     AlcorButton.connect-button(
       v-else='',
       @click='$store.dispatch("modal/login")'
     )
-      | Connect Wallet
+      | {{ $t('Connect Wallet') }}
 
-    //AlcorButton.theme-toggle-button.desktop(
-    //  v-if='$route.name != "index"',
-    //  :icon-only-alt='true',
-    //  @click='$store.dispatch("toggleTheme")'
-    //)
-    //  i.el-icon-sunny(v-if='$colorMode.value == "dark"')
-    //  i.el-icon-moon(v-else='')
+    AlcorButton.theme-toggle-button.desktop(
+      v-if='$route.name != "index"',
+      :icon-only-alt='true',
+      @click='$store.dispatch("toggleTheme")'
+    )
+      i.el-icon-sunny(v-if='$colorMode.value == "dark"')
+      i.el-icon-moon(v-else='')
 
     AlcorButton.theme-toggle-button.desktop.show-settings(
-      v-if='$route.name == "trade-index-id"',
       :icon-only-alt='true',
       @click='showSetting = !showSetting'
     )
-      i.el-icon-setting.show-settings(v-if='$colorMode.value == "dark"')
-      i.el-icon-setting.show-settings(v-else='')
+      i.el-icon-setting.show-settings
 
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
     //el-dropdown
@@ -130,22 +128,31 @@ export default {
 <style scoped lang="scss">
 .connect-nav {
   display: flex;
+  width: 100%;
   align-items: center;
+  gap: 8px;
   justify-content: space-between;
 }
+
 .right {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
 }
+
 .theme-toggle-button {
   border-radius: 50% !important;
   margin: 4px 8px;
   margin-right: 0;
   color: var(--text-default) !important;
+
   &.mobile {
     display: none !important;
   }
 }
+
 .d-item {
   display: flex;
   text-align: center;
@@ -153,28 +160,39 @@ export default {
   min-width: 150px;
   color: var(--text-default);
   cursor: pointer;
+
   &:hover {
     background: var(--hover);
   }
 }
+
 .connect-button {
   margin: 0 4px;
-  height: 36px;
+  height: 32px;
+  background: var(--btn-default);
+  color: var(--text-default) !important;
 }
+
+.show-settings {
+  background: var(--btn-default);
+  color: var(--text-default) !important;
+}
+
 .user-detail {
   border-radius: var(--radius);
   background: var(--btn-default);
   display: flex;
   align-items: center;
   padding: 2px;
-  margin: 0 4px;
   height: 36px;
 }
+
 .balance {
   padding: 4px 8px;
   cursor: pointer;
   // font-size: 0.75rem;
 }
+
 .user-name {
   padding: 4px 8px;
   background: var(--background-color-base);
@@ -189,13 +207,14 @@ export default {
   position: absolute;
   top: 60px;
   right: 10px;
-  background: var(--btn-default);
-  border: 2px solid rgb(63, 63, 63);
+  background: var(--table-background);
+  border: var(--border-2);
   border-radius: 2px;
   z-index: 9;
 }
 
 @media only screen and (max-width: 600px) {
+
   //.connect-nav {
   //  .left {
   //    margin-right: auto;
@@ -203,21 +222,26 @@ export default {
   //}
   .connect-button {
     font-size: 0.8rem;
-    padding: 4px;
+    padding: 4px 24px;
   }
+
   .network-selection {
     padding: 4px;
+
     span {
       font-size: 0.8rem;
     }
+
     i {
       font-size: 0.8rem;
     }
   }
+
   .theme-toggle-button {
     &.desktop {
       display: none !important;
     }
+
     &.mobile {
       display: block !important;
     }

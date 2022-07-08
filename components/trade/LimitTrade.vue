@@ -2,7 +2,7 @@
 .row
   .col-lg-6
     .d-flex.mb-1
-      small.green Buy {{ quote_token.symbol.name }}
+      small.green {{ $t('Buy') }} {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("buy")'
       ) {{ baseBalance | commaFloat }}
@@ -21,7 +21,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') PRICE
+          span.mr-1(slot='prefix') {{ $t('PRICE') }}
           span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item
@@ -33,7 +33,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') AMOUNT
+          span.mr-1(slot='prefix') {{ $t('AMOUNT') }}
           span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
 
       .px-3
@@ -42,7 +42,7 @@
           v-model='percentBuy',
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        )
+        ).slider-buy
 
       el-form-item.mt-4(prop='totalBuy', :inline-message='true')
         el-input(
@@ -52,7 +52,7 @@
           placeholder='0',
           size='medium'
         )
-          span.mr-1(slot='prefix') TOTAL
+          span.mr-1(slot='prefix') {{ $t('TOTAL') }}
           span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item.mt-1
@@ -60,7 +60,7 @@
           size='small',
           type='success',
           @click='actionOrder("limit", "buy")'
-        ) Buy {{ quote_token.str }}
+        ) {{ $t('Buy') }} {{ quote_token.str }}
 
   .col-lg-6
     .d-flex.mb-1
@@ -83,7 +83,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') PRICE
+          span.mr-1(slot='prefix') {{ $t('PRICE') }}
           span.mr-1.ml-2(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item
@@ -95,7 +95,7 @@
           placeholder='0',
           clearable
         )
-          span.mr-1(slot='prefix') AMOUNT
+          span.mr-1(slot='prefix') {{ $t('AMOUNT') }}
           span.mr-1(slot='suffix') {{ quote_token.symbol.name }}
 
       .px-3
@@ -104,7 +104,7 @@
           v-model='percentSell',
           :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
           :show-tooltip="false"
-        ).red
+        ).slider-sell
 
       el-form-item.mt-4(prop='totalSell', :inline-message='true')
         el-input(
@@ -114,7 +114,7 @@
           placeholder='0',
           size='medium'
         )
-          span.mr-1(slot='prefix') TOTAL
+          span.mr-1(slot='prefix') {{ $t('TOTAL') }}
           span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
       el-form-item.mt-1
@@ -122,7 +122,7 @@
           size='small',
           type='danger',
           @click='actionOrder("limit", "sell")'
-        ) Sell {{ quote_token.str }}
+        ) {{ $t('Sell') }} {{ quote_token.str }}
 </template>
 
 <script>
@@ -147,5 +147,23 @@ export default {
 <style scoped lang="scss">
 .cursor-pointer {
   cursor: pointer;
+}
+
+.green {
+  color: var(--color-primary)
+}
+
+.red {
+  color: var(--color-secondary)
+}
+</style>
+
+<style>
+.slider-sell .el-slider__bar {
+  background-color: var(--color-secondary);
+}
+
+.slider-buy .el-slider__bar {
+  background-color: var(--color-primary);
 }
 </style>

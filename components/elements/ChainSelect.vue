@@ -1,7 +1,7 @@
 <template lang="pug">
 .d-flex.align-items-center.chain-select
   .connection-status.mr-2
-  el-dropdown
+  el-dropdown(trigger="click")
     .network-selection
       img.mr-2(
         :src='require("~/assets/icons/" + current_chain.name + ".png")',
@@ -37,7 +37,8 @@ import config from '~/config'
 export default {
   data() {
     return {
-      loading: false
+      loading: false,
+      show: true
     }
   },
 
@@ -56,6 +57,10 @@ export default {
   },
 
   methods: {
+    toggle() {
+      console.log(this.show)
+      this.show = !this.show
+    },
     changeChain(to) {
       const location =
         to == 'wax'
@@ -78,6 +83,7 @@ export default {
     min-width: 150px;
     color: var(--text-default);
     cursor: pointer;
+
     &:hover {
       background: var(--hover);
     }
@@ -90,8 +96,10 @@ export default {
     display: flex;
     align-items: center;
     color: var(--text-default);
+
     span {
       margin-right: 2px;
+      white-space: nowrap;
     }
   }
 
@@ -112,5 +120,4 @@ export default {
     }
   }
 }
-
 </style>

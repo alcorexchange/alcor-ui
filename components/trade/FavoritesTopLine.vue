@@ -1,5 +1,5 @@
 <template lang="pug">
-.top-favorite-markets
+.top-favorite-markets.start(ref="panel")
   .market.pointer(
     v-for="market in favorites",
     @click="() => setMarket(market)",
@@ -37,7 +37,44 @@ export default {
     }
   },
 
+  watch: {
+    'favorites.length'() {
+      this.assignClass()
+    }
+  },
+
+  mounted() {
+    this.assignClass()
+    this.$refs.panel.onwheel = e => {
+      if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
+        this.$refs.panel.classList.add('end')
+      } else {
+        this.$refs.panel.classList.remove('end')
+      }
+
+      if (this.$refs.panel.scrollLeft == 0) {
+        this.$refs.panel.classList.add('start')
+      } else this.$refs.panel.classList.remove('start')
+
+      this.$refs.panel.scrollLeft += e.deltaY
+      e.preventDefault()
+    }
+  },
+
   methods: {
+    getInnerWidth() {
+      return Array.from(this.$refs.panel.children).reduce((sumW, child) => sumW + child.clientWidth, 0)
+    },
+    assignClass() {
+      setTimeout(() => {
+        if (this.getInnerWidth() > this.$refs.panel.clientWidth) {
+          this.$refs.panel.classList.add('shadow')
+        } else {
+          this.$refs.panel.classList.remove('shadow')
+          this.$refs.panel.classList.add('start')
+        }
+      })
+    },
     setMarket(market) {
       if (this.id == market.id) return
 
@@ -46,7 +83,7 @@ export default {
       }
 
       this.$router.push(
-        { name: 'trade-index-id', params: { id: market.slug } },
+        { name: `trade-index-id___${this.$i18n.locale}`, params: { id: market.slug } },
         () => this.loading = false,
         () => this.loading = false
       )
@@ -65,7 +102,7 @@ export default {
   box-sizing: border-box;
   border-radius: 2px;
 
-  background-color: var(--table-background);
+  background-color: var(--background-color-base);
 
   width: 100%;
   display: flex;
@@ -75,7 +112,7 @@ export default {
 
   // TODO
   //position: relative;
-  &::after {
+  &.shadow::after {
     pointer-events: none;
     /* ignore clicks */
     content: "";
@@ -86,11 +123,48 @@ export default {
     bottom: 0;
     width: 100%;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: -moz-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: -webkit-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
     /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, rgba(33, 33, 33, 1) 0%, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0) 95%, rgba(33, 33, 33, 1) 100%);
+    background: linear-gradient(90deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
+  }
+
+  &.end::after {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+
+    background: none;
+  }
+
+
+  &:not(.start)::before {
+    pointer-events: none;
+    /* ignore clicks */
+    content: "";
+    position: absolute;
+    z-index: 10;
+    height: 100%;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
     /* IE6-9 fallback on horizontal gradient */
@@ -107,17 +181,13 @@ export default {
   }
 
   .market {
-    padding: 8px 16px 8px 8px;
-    border-right: 1px solid rgba(60, 60, 67, 0.36);
-    min-width: 157px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
+    padding: 3px 16px 5px 8px;
+    border-right: 1px solid var(--border-color);
+    min-width: max-content;
 
-  .market.active {
-    background: #282828;
+    &.active {
+      background-color: var(--btn-alternative);
+    }
   }
 
   .right-shadow {
@@ -133,7 +203,22 @@ export default {
   }
 }
 
+.top-favorite-markets {
+  background-color: var(--trade-bg) !important;
+  border: none !important;
+}
+
 .top-favorite-markets::-webkit-scrollbar {
   display: none;
+}
+
+.change {
+  .green {
+    color: var(--color-primary);
+  }
+
+  .red {
+    color: var(--color-secondary);
+  }
 }
 </style>

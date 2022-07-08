@@ -17,8 +17,20 @@ export default class AnchoWallet extends WalletBase {
 
   constructor(network, rpc) {
     super(network)
+    this.rpc = rpc
 
     this.createLink()
+
+    window.addEventListener('eosjsRpcSwitched', async e => {
+      this.createLink()
+
+      const session = await this.link.restoreSession('Alcor Exchange')
+
+      if (session) {
+        this.session = session
+        console.log('Anchor Provider session updated during rpc change')
+      }
+    })
   }
 
   logout() {
@@ -26,17 +38,12 @@ export default class AnchoWallet extends WalletBase {
   }
 
   createLink() {
-    if (this.link) return null
-
-    const { network } = this
-
     this.link = new AnchorLink({
       transport: new AnchorLinkBrowserTransport(),
       chains: [
         {
           chainId: this.network.chainId,
-          // TODO Add RPC
-          nodeUrl: `${network.protocol}://${network.host}:${network.port}`
+          nodeUrl: this.rpc.currentEndpoint
         }
       ]
     })

@@ -9,9 +9,9 @@
   .row.mt-1.orderbook
     .col.pr-1
       el-tabs.h-100(type="border-card" size="small").border-tabs
-        el-tab-pane(label='Orderbook')
+        el-tab-pane(:label='$t("Orderbook")')
           order-book
-        el-tab-pane(label='Depth Chart')
+        el-tab-pane(:label='$t("Depth Chart")')
           depth-chart(
             :is-draggable='false',
             :is-resizable='false',
@@ -30,12 +30,12 @@
           .d-flex.pairs-switch-right
             .module-name.mr-2 Hide other pairs
             .module-pickers.d-flex.flex-row
-              el-switch(v-model='hideOtherPairs', active-color='#13ce66', inactive-color='#161617')
-        el-tab-pane(label='Open orders')
+              el-switch(v-model='hideOtherPairs')
+        el-tab-pane(:label='$t("Open orders")')
           my-orders(:only-current-pair="hideOtherPairs")
-        el-tab-pane(label='Trade History')
+        el-tab-pane(:label='$t("Trade History")')
           my-trade-history(:only-current-pair="hideOtherPairs")
-        el-tab-pane(label='Funds')
+        el-tab-pane(:label='$t("Funds")')
           my-funds(:only-current-pair="hideOtherPairs")
 
   .latest-deals.mt-1.mb-4
@@ -81,7 +81,7 @@ export default {
 <style lang="scss">
 .mobile-trade-inner {
   width: 100%;
-  background: #121212;
+  background: var(--background-grid-layout);
   padding: 10px;
   font-size: 12px !important;
 
@@ -94,7 +94,8 @@ export default {
   }
 
   .trade-top-line {
-    background: var(--table-background);
+    background: var(--background-color-base);
+    border-bottom: 1px solid var(--background-color-secondary);
 
     width: 100%;
     display: flex;
@@ -117,7 +118,8 @@ export default {
     padding: 0px 10px !important;
   }
 
-  .el-tabs__item, .el-table {
+  .el-tabs__item,
+  .el-table {
     font-size: 11px !important;
   }
 
@@ -134,19 +136,21 @@ export default {
     height: 380px;
   }
 
-  .el-slider__marks-text, .el-input, .el-input__inner {
+  .el-slider__marks-text,
+  .el-input,
+  .el-input__inner {
     font-size: 10px;
   }
 
   label.buy.is-active {
     .el-radio-button__inner {
-      background-color: var(--main-green) !important;
+      background-color: var(--color-primary) !important;
     }
   }
 
   label.sell.is-active {
     .el-radio-button__inner {
-      background-color: var(--main-red) !important;
+      background-color: var(--color-secondary) !important;
     }
   }
 }
@@ -162,9 +166,11 @@ export default {
     }
   }
 }
+
 .cursor-pointer {
   cursor: pointer;
 }
+
 .capitalize {
   text-transform: capitalize;
 }

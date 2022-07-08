@@ -14,7 +14,7 @@ Vue.mixin({
 
   computed: {
     isMobile() {
-      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1000)
+      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175)
     }
   },
 
@@ -44,8 +44,7 @@ Vue.mixin({
     },
 
     openInNewTab(url) {
-      const win = window.open(url, '_blank')
-      win.focus()
+      window.open(url, '_blank')
     },
 
     // El-dialog fix

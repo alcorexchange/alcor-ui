@@ -3,9 +3,9 @@
   // https://v3.vuejs.org/guide/transitions-list.html#list-entering-leaving-transitions
   .blist.first
     .ltd.d-flex.justify-content-around
-      span Price ({{ base_token.symbol.name }})
-      span Amount ({{ quote_token.symbol.name }})
-      span(v-if='!isMobile') Total ({{ base_token.symbol.name }})
+      span {{ $t('Price') }} ({{ base_token.symbol.name }})
+      span {{ $t('Amount') }} ({{ quote_token.symbol.name }})
+      span(v-if='!isMobile') {{ $t('Total') }} ({{ base_token.symbol.name }})
 
   .orders-list.blist.asks(ref='asks')
     .ltd.orderbook-progress(
@@ -26,7 +26,7 @@
 
     .ltd.d-flex.justify-content-around(v-if='sorted_asks.length == 0')
       span
-      span No asks
+      span {{ $t('No asks') }}
       span
 
   .latest-price
@@ -186,38 +186,46 @@ export default {
     font-weight: normal;
     line-height: 14px;
 
-    .price {
-      color: var(--main-green);
-      &.red {
-        color: var(--main-red);
-      }
+    & .green {
+      color: var(--color-primary)
     }
 
+    & .red {
+      color: var(--color-secondary);
+    }
+
+
     .spread {
-      color: #80a1c5;
+      color: var(--text-default);
       text-align: right;
+
       .prec.warn {
         color: var(--main-red);
       }
     }
+
     @media (max-width: 1180px) {
       .spread {
         display: flex;
         flex-direction: column-reverse;
         align-items: flex-end;
+
         .num {
           font-size: 0.7rem;
         }
+
         .parant {
           display: none;
         }
       }
     }
+
     @media (max-width: 480px) {
       & {
         .price {
           margin-right: auto;
         }
+
         .spread {
           margin-right: auto;
 
@@ -246,19 +254,30 @@ export default {
   position: relative;
   align-items: center;
   justify-content: space-between;
+
+  &:not(.firts):hover {
+    background-color: var(--hover) !important;
+    font-weight: 400 !important;
+  }
 }
 
 .blist.first {
-  background: var(--btn-default);
+  background: var(--table-header-background);
   overflow: hidden;
 
+
   .ltd {
-    height: 23px;
+    padding: 2px 0;
+
+    &:hover {
+      background: var(--table-header-background) !important;
+    }
+
   }
 }
 
 .orders-list {
-  background: var(--table-background) !important;
+  background: var(--trade-bg) !important;
   will-change: transform;
 
   .orderbook-progress {
@@ -280,15 +299,27 @@ export default {
       flex-direction: row;
       animation: 0.3s ease-out 0s 1 normal none running none;
 
+      &:hover {
+        background-color: var(--hover) !important;
+        font-weight: 400;
+      }
+
+
       .order-row {
         display: flex;
         box-sizing: border-box;
-        z-index: 2;
+        z-index: 0;
         width: 100%;
         height: 100%;
         line-height: 22px;
         cursor: pointer;
         align-items: center;
+
+        &:hover {
+          background-color: var(--hover) !important;
+          font-weight: 400;
+        }
+
 
         div {
           font-size: 11.5px;
@@ -315,11 +346,12 @@ export default {
         -webkit-backface-visibility: hidden;
 
         &.sell {
-          background-color: #F96C6C;;
+          background-color: var(--color-secondary);
+          ;
         }
 
         &.buy {
-          background-color: #66C167;
+          background-color: var(--color-primary);
         }
       }
     }
@@ -327,28 +359,28 @@ export default {
 }
 
 .orders-list.asks {
-  height: calc(50% - 41px);
+  height: calc(50% - 30px);
   flex-direction: column-reverse;
   padding-bottom: 1px;
 
   div {
-    color: var(--main-red);
+    color: var(--color-secondary);
   }
 }
 
 .orders-list.bids {
-  height: calc(50% - 18px);
+  height: calc(50% - 30px);
   padding-top: 1px;
 
   div {
-    color: var(--main-green);
+    color: var(--color-primary);
   }
 }
 
 .orders-list.blist .ltd:hover {
   cursor: pointer;
   font-weight: bold;
-  background: var(--active-row);
+  background: var(--hover);
 }
 
 .blist .ltd span {

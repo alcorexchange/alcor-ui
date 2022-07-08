@@ -130,6 +130,7 @@ const networks = {
       'JOKER@joker.eos',
     ],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
     CEX_CONTRACTS: [],
 
@@ -184,7 +185,7 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcordexpool',
+      contract: null,
       fee: 'aw.aq.waa',
     },
 
@@ -192,6 +193,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: [],
     CEX_CONTRACTS: [],
 
@@ -252,8 +254,9 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['BRWL@brawlertoken'],
-    PROMOTED_MARKETS: [424],
+    RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
+    PROMOTED_MARKETS: [495, 424],
+    BANNER_MARKETS: [495, 424],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
@@ -264,6 +267,7 @@ const networks = {
       'onfederation',
       'martaintoken',
       'martiantoken',
+      'superruncoin'
     ],
 
     CEX_CONTRACTS: [
@@ -327,6 +331,7 @@ const networks = {
       'GUX@vapaeetokens',
     ],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -411,6 +416,7 @@ const networks = {
       '',
     ],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -458,6 +464,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -504,6 +511,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -550,6 +558,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -595,6 +604,7 @@ const networks = {
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     PROMOTED_MARKETS: [],
+    BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -748,7 +758,7 @@ const TRADE_LAYOUTS = {
     {
       x: 0,
       y: 0,
-      w: 28,
+      w: 30,
       h: 4,
       i: 'favorites-top-line',
       status: true,
@@ -759,7 +769,7 @@ const TRADE_LAYOUTS = {
     {
       x: 0,
       y: 4,
-      w: 28,
+      w: 30,
       h: 39,
       i: 'chart',
       status: true,
@@ -768,9 +778,9 @@ const TRADE_LAYOUTS = {
       moved: false,
     },
     {
-      x: 28,
+      x: 30,
       y: 0,
-      w: 11,
+      w: 10,
       h: 43,
       i: 'order-depth',
       status: true,
@@ -779,9 +789,9 @@ const TRADE_LAYOUTS = {
       moved: false,
     },
     {
-      x: 39,
+      x: 40,
       y: 0,
-      w: 11,
+      w: 10,
       h: 43,
       i: 'time-sale',
       status: true,

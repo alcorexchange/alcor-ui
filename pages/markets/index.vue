@@ -1,30 +1,31 @@
 <template lang="pug">
 .markets
+  market-top(:newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
       v-model='markets_active_tab',
       size='small'
     ).mr-3
-      el-radio-button(label='fav')
+      el-radio-button(:label='$t("fav")')
         i.el-icon-star-on
-        span Fav
+        span {{ $t('Fav') }}
 
-      el-radio-button(label='all')
-        span All
+      el-radio-button(:label='$t("all")')
+        span {{ $t('All') }}
 
       el-radio-button(:label='network.baseToken.symbol')
         span {{ network.baseToken.symbol }}
 
       el-radio-button(v-if='network.name == "eos"', label='USDT')
-        span USDT
+        span {{ $t('USDT') }}
 
-      el-radio-button(value='cross-chain', label='Cross-Chain')
-        span Cross-Chain
+      el-radio-button(value='cross-chain', :label='$t("Cross-Chain")')
+        span {{ $t('Cross-Chain') }}
 
     .search-container
       el-input(
         v-model='search',
-        placeholder='Search market',
+        :placeholder='$t("Search market")',
         size='small',
         prefix-icon='el-icon-search'
         clearable
@@ -33,115 +34,25 @@
     el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
     .ml-auto(v-if="!isMobile")
-      nuxt-link(to="new_market")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") Open new market
+      nuxt-link(:to="localePath('new_market', $i18n.locale)")
+        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
 
-  .table.el-card.is-always-shadow
-    el-table.market-table(
-      :data='lazyMarkets',
-      row-key="id"
-      style='width: 100%',
-      @row-click='clickOrder',
-      :default-sort='{ prop: "weekVolume", order: "descending" }')
-      el-table-column(label='Pair', prop='date')
-        template(slot-scope='scope')
-          TokenImage(
-            :src='$tokenLogo(scope.row.quote_token.symbol.name, scope.row.quote_token.contract)',
-            :height="isMobile? '20' : '30'"
-          )
-
-          span.ml-2
-            | {{ scope.row.quote_token.symbol.name }}
-            span.text-muted.ml-2(v-if='!isMobile') {{ scope.row.quote_token.contract }}
-            |  / {{ scope.row.base_token.symbol.name }}
-
-          span.promoted(v-if="scope.row.promoted")
-            img(src="~/assets/icons/badge-promoted.svg")
-
-      el-table-column(
-        :label='`Last price`',
-        sort-by='last_price',
-        align='right',
-        :width='isMobile ? 90 : 150',
-        header-align='right',
-        sortable,
-        :sort-orders='["descending", null]'
-      )
-        template(slot-scope='scope')
-          .text-success(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.last_price, 8) }}
-          .text-success(v-else) {{ scope.row.last_price }} {{ !isMobile ? scope.row.base_token.symbol.name : "" }}
-      el-table-column(
-        :label='`24H Vol.`',
-        align='right',
-        header-align='right',
-        sortable,
-        width='200',
-        sort-by='volume24',
-        :sort-orders='["descending", null]'
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volume24) }}
-          span.text-mutted(v-else) {{ scope.row.volume24.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
-
-      el-table-column(
-        label='24H',
-        prop='name',
-        align='right',
-        header-align='right',
-        sortable,
-        width='100',
-        sort-by='change24',
-        :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope', align='right', header-align='right')
-          change-percent(:change='scope.row.change24')
-
-      el-table-column(
-        label='7D Volume',
-        prop='weekVolume',
-        align='right',
-        header-align='right',
-        sortable,
-        :width='isMobile ? 130 : 200',
-        sort-by='volumeWeek',
-        :sort-orders='["descending", null]',
-      )
-        template(slot-scope='scope')
-          span.text-mutted(v-if="showVolumeInUSD && markets_active_tab == network.baseToken.symbol") ${{ $systemToUSD(scope.row.volumeWeek) }}
-          span.text-mutted(v-else) {{ scope.row.volumeWeek.toFixed(2) | commaFloat }} {{ scope.row.base_token.symbol.name }}
-
-      el-table-column(
-        label='7D Change',
-        prop='weekChange',
-        align='right',
-        header-align='right',
-        sortable,
-        width='150',
-        sort-by='changeWeek',
-        :sort-orders='["descending", null]',
-        v-if='!isMobile'
-      )
-        template(slot-scope='scope')
-          change-percent(:change='scope.row.changeWeek')
-
-      template(slot="append")
-        infinite-loading(@infinite='lazyloadMarkets' force-use-infinite-wrapper=".market-table.el-table__body-wrapper" spinner="spiral" ref="infinite")
-        //infinite-loading(@infinite='lazyloadMarkets' spinner="spiral" ref="infinite")
+  virtual-table(:table="virtualTableData")
+    template(#row="{ item }")
+      market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import TokenImage from '~/components/elements/TokenImage'
-import ChangePercent from '~/components/trade/ChangePercent'
-import PairIcons from '~/components/PairIcons'
+import { mapState } from 'vuex'
+import VirtualTable from '~/components/VirtualTable'
+import MarketRow from '~/components/MarketRow'
+import MarketTop from '~/components/MarketTop'
 
 export default {
   components: {
-    TokenImage,
-    ChangePercent,
-    PairIcons
+    VirtualTable,
+    MarketRow,
+    MarketTop
   },
 
   async fetch({ store, error }) {
@@ -157,22 +68,13 @@ export default {
   data() {
     return {
       search: '',
-
-      skip: 0,
-      lazyMarkets: [],
-      to_assets: [],
-      select: {
-        from: '',
-        to: ''
-      },
-
-      loading: true
+      newListingIDs: [495, 455, 173],
+      topGaindersIDs: [475, 422, 416]
     }
   },
 
   computed: {
     ...mapState(['network']),
-    ...mapGetters(['user']),
     ...mapState(['markets']),
     ...mapState('settings', ['favMarkets']),
 
@@ -196,46 +98,145 @@ export default {
       }
     },
 
+    newListings() {
+      return this.markets.filter(({ id }) => this.newListingIDs.includes(id))
+    },
+
+    topGainers() {
+      const tmp = [...this.markets]
+      return tmp
+        .sort((a, b) => b.change24 - a.change24)
+        .slice(0, 3)
+    },
+
+    topVolume() {
+      const tmp = [...this.markets]
+      return tmp
+        .filter(i => i.base_token.contract == this.network.baseToken.contract)
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .slice(0, 3)
+    },
+
+    virtualTableData() {
+      const header = [
+        {
+          label: 'Pair',
+          value: 'quote_name',
+          width: '335px'
+        },
+        {
+          label: 'Last price',
+          value: 'last_price',
+          width: '165px',
+          sortable: true
+        },
+        {
+          label: '24H Vol.',
+          value: 'volume24',
+          width: '190px',
+          sortable: true,
+          desktopOnly: true
+        },
+        {
+          label: '24H',
+          value: 'change24',
+          width: '100px',
+          sortable: true,
+          desktopOnly: true
+        },
+        {
+          label: '7D Volume',
+          value: 'volume_week',
+          width: '190px',
+          sortable: true
+        },
+        {
+          label: '7D Change',
+          value: 'change_week',
+          width: '100px',
+          sortable: true,
+          desktopOnly: true
+        }
+      ]
+
+      console.log(this.markets)
+
+      const data = this.filteredMarkets.map(market => ({
+        id: market.id,
+        slug: market.slug,
+        quote_name: market.quote_token.symbol.name,
+        contract: market.quote_token.contract,
+        base_name: market.base_token.symbol.name,
+        promoted: market.promoted,
+        change_week: market.changeWeek,
+        volume_week: market.volumeWeek,
+        change24: market.change24,
+        volume24: market.volume24,
+        last_price: market.last_price
+      }))
+
+      const itemSize = 55
+      const pageMode = true
+
+      return { pageMode, itemSize, header, data }
+    },
+
     filteredMarkets() {
       if (!this.markets) return []
 
       let markets = []
-      if (this.markets_active_tab == 'all') {
-        markets = this.markets
-      } else if (this.markets_active_tab == this.network.baseToken.symbol) {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == this.network.baseToken.contract
-        )
-      } else if (this.markets_active_tab == 'USDT') {
-        markets = this.markets.filter(
-          (i) => i.base_token.contract == 'tethertether'
-        )
-      } else if (this.markets_active_tab == 'fav') {
-        markets = this.markets.filter(
-          (i) => this.favMarkets.includes(i.id)
-        )
-      } else if (this.markets_active_tab == 'Terraformers') {
-        markets = this.markets.filter(
-          (i) => i.quote_token.contract == 'unboundtoken'
-        )
-      } else {
-        const ibcTokens = this.$store.state.ibcTokens.filter(
-          (i) => i != this.network.baseToken.contract
-        )
 
-        markets = this.markets.filter((i) => {
-          return (
-            ibcTokens.includes(i.base_token.contract) ||
-            ibcTokens.includes(i.quote_token.contract) ||
-            Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-            Object.keys(this.network.withdraw).includes(i.base_token.str)
+      switch (this.markets_active_tab) {
+        case 'all':
+          markets = this.markets
+          break
+
+        case this.network.baseToken.symbol:
+          markets = this.markets.filter(
+            i => i.base_token.contract == this.network.baseToken.contract)
+          break
+
+        case 'USDT':
+          markets = this.markets.filter(
+            i => i.base_token.contract == 'tethertether'
           )
-        })
+          break
+
+        case 'fav':
+          markets = this.markets.filter(
+            i => this.favMarkets.includes(i.id)
+          )
+          break
+
+        case 'Terraformers':
+          markets = this.markets.filter(
+            i => i.quote_token.contract == 'unboundtoken'
+          )
+          break
+
+        default: {
+          const ibcTokens = this.$store.state.ibcTokens.filter(
+            i => i != this.network.baseToken.contract
+          )
+          markets = this.markets.filter((i) => {
+            return (
+              ibcTokens.includes(i.base_token.contract) ||
+              ibcTokens.includes(i.quote_token.contract) ||
+              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
+              Object.keys(this.network.withdraw).includes(i.base_token.str)
+            )
+          })
+          break
+        }
       }
 
       markets = markets
         .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
         .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .reduce((res, i) => {
+          i.promoted ? res.unshift(i) : res.push(i)
+          return res
+        }, [])
 
       return markets
     }
@@ -244,18 +245,6 @@ export default {
   watch: {
     search() {
       this.$router.replace({ name: this.$route.name, query: { search: this.search } })
-
-      this.$refs.infinite.stateChanger.reset()
-      this.lazyMarkets = []
-      this.skip = 0
-      this.lazyloadMarkets(null, true)
-    },
-
-    markets_active_tab() {
-      this.$refs.infinite.stateChanger.reset()
-      this.lazyMarkets = []
-      this.skip = 0
-      this.lazyloadMarkets(null, true)
     }
   },
 
@@ -268,34 +257,6 @@ export default {
 
     if (search) {
       this.search = search
-    }
-
-    this.lazyloadMarkets(null, true)
-  },
-
-  methods: {
-    lazyloadMarkets($state, first = false) {
-      console.log('lazyloadMarkets..')
-      const append = this.filteredMarkets.slice(this.skip, this.skip + 20)
-
-      if (append.length > 0) {
-        this.skip += 20
-        this.lazyMarkets.push(...append)
-
-        // КОстыль, само не тригерится
-        if (first) return
-
-        $state.loaded()
-      } else {
-        if (first) return
-        $state.complete()
-      }
-    },
-
-    clickOrder(a, b, event) {
-      if (event && event.target.tagName.toLowerCase() === 'a') return
-
-      this.$router.push({ name: 'trade-index-id', params: { id: a.slug } })
     }
   }
 }
@@ -320,6 +281,14 @@ export default {
   }
 
 }
+
+.red {
+  color: var(--main-red);
+}
+
+.green {
+  color: var(--main-green);
+}
 </style>
 
 <style lang="scss" scoped>
@@ -329,20 +298,25 @@ export default {
   //justify-content: space-between;
   flex-wrap: wrap;
   padding: 20px 0;
+
   .search-container {
     width: 450px;
   }
 }
+
 .table td,
 .table th {
   border: 0 !important;
 }
+
 .last-price-item {
   width: 180px !important;
 }
+
 .pair-item {
   width: 300px !important;
 }
+
 .theme-dark {
   .markets {
     .el-card__body {
@@ -372,6 +346,7 @@ export default {
     }
 
     padding: 14px 0;
+
     .search-container {
       width: 70%;
     }

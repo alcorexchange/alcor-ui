@@ -1,13 +1,13 @@
 <template lang="pug">
 .chain-tools
-  SectionTitle.section-title On-Chain Tools
+  SectionTitle.section-title {{ $t('ONCHAIN_TOOLS_TITLE') }}
   .items
     .item(v-for='{ icon, name, description, to } in chainTools')
-      nuxt-link.item-inner(:to="to")
+      nuxt-link.item-inner(:to="localePath(to, $i18n.locale)")
         .icon-container
           img.icon(:src='icon')
-        .h3 {{ name }}
-        .desc {{ description }}
+        .h3 {{ $t(name) }}
+        .desc {{ $t(description) }}
   Spacer
 </template>
 
@@ -55,10 +55,12 @@ export default {
 .section-title {
   margin-bottom: 25px !important;
 }
+
 .items {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+
   .item-inner {
     display: flex;
     flex-direction: column;
@@ -86,9 +88,9 @@ export default {
     transition: all 0.3s;
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--card-shadow);
+      background-color: var(--hover);
     }
+
     .icon-container {
       width: 60px;
       height: 60px;
@@ -97,37 +99,74 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+
       .icon {
         width: 32px;
         height: 32px;
       }
     }
+
     .h3 {
       font-size: 1.4rem;
       margin: 10px 0;
       color: var(--text-default);
     }
+
     .desc {
       color: var(--text-grey-thirdly);
     }
   }
 }
+
 @media only screen and (max-width: 940px) {
   .items {
     justify-content: center;
+    gap: 20px;
+
     .item {
       padding: 8px;
     }
   }
 }
+
 @media only screen and (max-width: 640px) {
   .items {
+    gap: 20px;
+
     .item {
-      width: 100%;
+      width: 154px;
+      height: 142px;
+
       .item-inner {
-        height: 160px;
-        border: none !important ;
         width: 100%;
+
+        .item-inner {
+          height: 160px;
+          border: none !important;
+          width: 100%;
+          height: 100%;
+          border-radius: 12px;
+
+
+          .h3 {
+            font-size: 19px;
+          }
+
+          .desc {
+            font-size: 14px;
+          }
+
+          .icon-container {
+            width: 42px;
+            height: 42px;
+
+            .icon {
+              width: 24px;
+              height: 24px;
+            }
+
+          }
+        }
       }
     }
   }

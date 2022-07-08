@@ -1,17 +1,17 @@
 <template lang="pug">
 el-dialog(:visible.sync="active" width="40%" title="Select Token").token-select-dialog
-    el-input.search(v-model="search" placeholder="Search name")
-    SSpacer
-    .list
-        .item(v-for="{symbol, contract} in tokensList" @click="onItemClick({symbol, contract})")
-            //- img.token-logo(src="https://cdn.worldvectorlogo.com/logos/ethereum-eth.svg")
-            TokenImage.token-image(:src="$tokenLogo(symbol, contract)" height="24")
-            .main
-                .left
-                    span.symbol {{symbol}}
-                    span.name {{contract}}
-                .right
-                    span.balance 0
+  el-input.search(v-model="search" :placeholder="$t('Search name')")
+  SSpacer
+  .list
+    .item(v-for="{ symbol, contract } in tokensList" @click="onItemClick({ symbol, contract })")
+      //- img.token-logo(src="https://cdn.worldvectorlogo.com/logos/ethereum-eth.svg")
+      TokenImage.token-image(:src="$tokenLogo(symbol, contract)" height="24")
+      .main
+        .left
+          span.symbol {{ symbol }}
+          span.name {{ contract }}
+        .right
+          span.balance 0
 </template>
 
 <script>
@@ -68,6 +68,7 @@ export default {
   max-height: 300px;
   overflow-y: auto;
 }
+
 .item {
   display: flex;
   align-items: center;
@@ -76,21 +77,26 @@ export default {
   transition: background 0.3s;
   cursor: pointer;
   margin-bottom: 2px;
+
   &:hover {
     background: var(--hover);
   }
 }
+
 .token-image {
   margin-right: 12px;
 }
+
 .main {
   flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .left {
     display: flex;
     flex-direction: column;
+
     .name {
       opacity: 0.6;
       font-size: 0.9rem;
