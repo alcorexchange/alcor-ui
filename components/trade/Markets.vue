@@ -312,6 +312,11 @@ export default {
 
   .el-input__inner {
     background-color: var(--background-color-base) !important;
+
+    @media screen and (max-width: 767px) {
+      // prevent zoomin in mobile devices
+      font-size: 16px !important;
+    }
   }
 }
 

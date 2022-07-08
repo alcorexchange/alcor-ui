@@ -190,6 +190,7 @@ export default {
 .balance {
   padding: 4px 8px;
   cursor: pointer;
+  white-space: nowrap;
   // font-size: 0.75rem;
 }
 
@@ -198,6 +199,7 @@ export default {
   background: var(--background-color-base);
   border-radius: var(--radius);
   cursor: pointer;
+  white-space: nowrap;
   // @media only screen and (max-width: 310px) {
   //   font-size: 0.75rem;
   // }

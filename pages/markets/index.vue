@@ -1,6 +1,6 @@
 <template lang="pug">
 .markets
-  market-top(:newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
+  market-top(v-if="!isMobile" :newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
       v-model='markets_active_tab',
@@ -158,8 +158,6 @@ export default {
           desktopOnly: true
         }
       ]
-
-      console.log(this.markets)
 
       const data = this.filteredMarkets.map(market => ({
         id: market.id,

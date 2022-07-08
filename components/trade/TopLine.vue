@@ -79,24 +79,25 @@ export default {
     this.setArrow()
     this.assignClass()
 
-    setTimeout(() => {
-      this.$refs.panel.onwheel = e => {
-        this.$refs.panel.scrollLeft += e.deltaY
-        if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
-          this.$refs.panel.classList.add('end')
-        } else {
-          this.$refs.panel.classList.remove('end')
+    if (!this.isMobile)
+      setTimeout(() => {
+        this.$refs.panel.onwheel = e => {
+          this.$refs.panel.scrollLeft += e.deltaY
+          if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
+            this.$refs.panel.classList.add('end')
+          } else {
+            this.$refs.panel.classList.remove('end')
+          }
+          if (this.$refs.panel.scrollLeft == 0) {
+            this.$refs.panel.classList.add('start')
+            this.arrowRight = true
+          } else {
+            this.$refs.panel.classList.remove('start')
+            this.arrowRight = false
+          }
+          e.preventDefault()
         }
-        if (this.$refs.panel.scrollLeft == 0) {
-          this.$refs.panel.classList.add('start')
-          this.arrowRight = true
-        } else {
-          this.$refs.panel.classList.remove('start')
-          this.arrowRight = false
-        }
-        e.preventDefault()
-      }
-    })
+      })
   },
 
   data() {
@@ -144,7 +145,7 @@ export default {
 
     assignClass() {
       setTimeout(() => {
-        if (this.getInnerWidth() > this.$refs.panel.clientWidth) {
+        if (!this.isMobile && this.getInnerWidth() > this.$refs.panel.clientWidth) {
           this.$refs.panel.classList.add('shadow')
         } else {
           this.$refs.panel.classList.remove('shadow')
@@ -216,6 +217,10 @@ export default {
 
 .header-items-container {
   overflow: hidden;
+
+  @media only screen and (max-width: 1175px) {
+    overflow: scroll;
+  }
 
   .token-name {
     font-size: 14px;

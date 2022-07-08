@@ -6,7 +6,8 @@
       .item-name
         token-image.token(:src='$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)')
         .token-name  {{ market.quote_token.symbol.name }} / {{ market.base_token.symbol.name }}
-      .item-price {{ market.last_price.toFixed(5) }}
+      .item-price(v-if="titles[idx] === 'Top Volume'") {{ $systemToUSD(market.base_volume) }}$
+      .item-price(v-else) {{ market.last_price.toFixed(5) }}
       change-percent.item-change(:change='market.change24')
 </template>
 

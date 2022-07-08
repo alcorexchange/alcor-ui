@@ -80,9 +80,7 @@ export default {
   gap: 5px;
   align-items: center;
   font-weight: 500;
-  justify-content: end;
-
-
+  justify-content: flex-end;
   text-overflow: ellipsis;
 }
 
@@ -96,7 +94,7 @@ export default {
 }
 
 .header__column:first-of-type {
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 .user {

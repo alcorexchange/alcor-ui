@@ -123,9 +123,6 @@ export default {
     justify-content: center;
     gap: 20px;
 
-    .item {
-      padding: 8px;
-    }
   }
 }
 
@@ -139,33 +136,27 @@ export default {
 
       .item-inner {
         width: 100%;
-
-        .item-inner {
-          height: 160px;
-          border: none !important;
-          width: 100%;
-          height: 100%;
-          border-radius: 12px;
+        height: 100%;
+        border-radius: 12px;
 
 
-          .h3 {
-            font-size: 19px;
+        .h3 {
+          font-size: 19px;
+        }
+
+        .desc {
+          font-size: 14px;
+        }
+
+        .icon-container {
+          width: 42px;
+          height: 42px;
+
+          .icon {
+            width: 24px;
+            height: 24px;
           }
 
-          .desc {
-            font-size: 14px;
-          }
-
-          .icon-container {
-            width: 42px;
-            height: 42px;
-
-            .icon {
-              width: 24px;
-              height: 24px;
-            }
-
-          }
         }
       }
     }

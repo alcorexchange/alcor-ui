@@ -64,10 +64,8 @@ export default {
   background-color: var(--background-color-base);
 }
 
-.wrapper>* {
+.wrapper .label {
   display: flex;
-  align-items: center;
-  justify-content: end;
 }
 
 .wrapper.mobile .token {
@@ -87,7 +85,7 @@ export default {
 
 .wrapper.mobile>.last-price,
 .wrapper.mobile>.week-vol {
-  width: 33% !important;
+  width: 33%;
 }
 
 .wrapper.mobile>.label,
@@ -112,12 +110,15 @@ export default {
 .last-price,
 .day-vol,
 .week-vol {
-  justify-content: end;
+  display: flex;
+  justify-content: flex-end;
   width: 190px;
 }
 
 .week-change,
 .day-change {
+  display: flex;
+  justify-content: flex-end;
   width: 100px;
 }
 
