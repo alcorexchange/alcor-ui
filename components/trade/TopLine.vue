@@ -274,7 +274,14 @@ export default {
   height: 20px;
   position: absolute;
   top: 2px;
-  right: 68px;
+}
+
+.arrow {
+  right: 46px;
+}
+
+.unlim-width .arrow {
+  right: 70px;
 }
 
 .fav {
@@ -283,7 +290,6 @@ export default {
   height: 20px;
   position: absolute;
   top: 2px;
-  right: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -292,6 +298,14 @@ export default {
   @media only screen and (max-width: 1000px) {
     display: none;
   }
+}
+
+.fav {
+  right: 24px;
+}
+
+.unlim-width .fav {
+  right: 47px;
 }
 </style>
 

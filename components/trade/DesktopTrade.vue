@@ -85,11 +85,11 @@
 
         alcor-tabs.h-100.trade-tab(v-if='item.i == "open-order"' v-model='tab' type="border-card")
           el-tab-pane.trade-header(:label='$t("Open orders")')
-            my-orders.trade-bg(v-loading='loading' :only-current-pair="hideOtherPairs")
+            my-orders.trade-bg-secondary(v-loading='loading' :only-current-pair="hideOtherPairs")
           el-tab-pane.trade-header(:label='$t("Trade History")')
-            my-trade-history.trade-bg(:only-current-pair="hideOtherPairs")
+            my-trade-history.trade-bg-secondary(:only-current-pair="hideOtherPairs")
           el-tab-pane.trade-header(:label='$t("Funds")')
-            my-funds.trade-bg(:only-current-pair="hideOtherPairs")
+            my-funds.trade-bg-secondary(:only-current-pair="hideOtherPairs")
         .not-history.limit-market(
           v-if='item.i == "limit-market"',
           :min-h='10'
@@ -628,6 +628,10 @@ export default {
 
 <style lang="scss">
 .trading-terminal {
+  .el-table__row {
+    background-color: var(--trade-bg-secondary) !important;
+  }
+
   .vue-grid-layout {
     background-color: var(--background-grid-layout);
   }
@@ -747,6 +751,10 @@ export default {
     background-color: var(--trade-bg);
   }
 
+  .trade-bg-secondary {
+    background-color: var(--trade-bg-secondary);
+  }
+
   .trade-header,
   .trade-header th {
     background-color: var(--trade-header-bg) !important;
@@ -758,7 +766,7 @@ export default {
 
   .trade-box {
     padding: 20px 15px;
-    background-color: var(--trade-bg);
+    background-color: var(--trade-bg-secondary);
 
     .el-input--prefix .el-input__inner {
       padding-left: 35% !important;

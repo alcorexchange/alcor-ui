@@ -80,7 +80,6 @@ export default {
   watch: {
     '$colorMode.value'() {
       this.mountChart()
-      this.$forceUpdate()
     },
     '$store.state.settings.tradeColor'() {
       this.applyTheme()
@@ -577,6 +576,7 @@ export default {
           'border_around_the_chart',
           'header_saveload',
           //'control_bar',
+          this.isMobile ? 'left_toolbar' : undefined,
 
           //'symbol_search_hot_key',
 
