@@ -16,7 +16,7 @@ router-link(:to="{ name: 'trade-index-id', params: { id: promo.slug } }")
           .data(:class="{ isRed, isZero }") ({{ pricePercent }}%)
         span
           .label
-            .gray 1D Volume
+            .gray {{ $t('1D Volume') }}
             span {{ promo.volume24.toFixed(2).replace('.', ',') }}
           .data(:class="{ isRed: isVolRed, isZero: isVolZero }") ({{ liquidityPercent }} %)
     .banner

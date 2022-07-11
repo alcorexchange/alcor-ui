@@ -172,7 +172,7 @@ export default {
           sortable: true
         },
         {
-          label: 'Vol 24',
+          label: 'Vol 24h',
           value: 'volume24',
           width: '35%',
           sortable: true,

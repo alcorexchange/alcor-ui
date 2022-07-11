@@ -13,7 +13,7 @@
 
     div(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
       .setting-theme-footer.el-footer.text-white
-        span.theme-title Theme
+        span.theme-title {{ $t('Theme') }}
       .el-main.theme-main-settings
         element-select(:options="Object.values(themes)")
           template(#option="{ option }")
@@ -115,17 +115,17 @@
           .d-flex.flex-column(@click="setMarketLayout('classic')")
             img(v-if="$colorMode.value === 'dark'" src=`~/assets/icons/classic_layout.svg` height=70 :class="{ active: current_market_layout == 'classic' }")
             img(v-else src=`~/assets/icons/classic_layout_light.svg` height=70 :class="{ active: current_market_layout == 'classic' }")
-            span Classic
+            span {{ $t('Classic') }}
           .d-flex.flex-column(@click="setMarketLayout('advanced')")
             img(v-if="$colorMode.value === 'dark'" src=`~/assets/icons/modern_layout.svg` height=70 :class="{ active: current_market_layout == 'advanced' }")
             img(v-else src=`~/assets/icons/modern_layout_light.svg` height=70 :class="{ active: current_market_layout == 'advanced' }")
 
-            span Advanced
+            span {{ $t('Advanced') }}
           .d-flex.flex-column(@click="setMarketLayout('full')")
             img(v-if="$colorMode.value === 'dark'" src=`~/assets/icons/classic_layout.svg` height=70 :class="{ active: current_market_layout == 'full' }")
             img(v-else src=`~/assets/icons/classic_layout_light.svg` height=70 :class="{ active: current_market_layout == 'full' }")
 
-            span FullScreen
+            span {{ $t('FullScreen') }}
 
     .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
@@ -136,7 +136,7 @@
           .module-list.d-flex.flex-row.justify-content-between(
             v-for='layout in markets_layout'
           )
-            .module-name {{ settingBtnTitles[layout.i] }}
+            .module-name {{ $t(settingBtnTitles[layout.i]) }}
             .module-pickers.d-flex.flex-row
               el-switch(
                 :value='layout.status',

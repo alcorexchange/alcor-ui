@@ -12,8 +12,8 @@ el-table.my-trade-history(
       span {{ row.market_symbol }}
   el-table-column(:label='$t("Side")', width='60')
     template.text-success(slot-scope='scope')
-      span.text-primary(v-if='scope.row.side == "buy"') BUY
-      span.text-secondary(v-else) SELL
+      span.text-primary(v-if='scope.row.side == "buy"') {{ $t('BUY') }}
+      span.text-secondary(v-else) {{ $t('SELL') }}
   el-table-column(:label='$t("Amount")', v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.amount | commaFloat }}

@@ -3,7 +3,7 @@
   i.el-icon-setting(@click='visible = true')
 
   el-dialog(
-    title='Times and sales settings'
+    :title='$t("Times and sales settings")'
     :visible.sync='visible'
     append-to-body width="350px"
     custom-class="trading-page-dialog"
@@ -13,29 +13,29 @@
     @mouseup.native="dialogMouseup"
   )
     .d-flex.align-items-center
-      span Amount in:
+      span {{ $t('Amount in') }}:
 
       el-radio-group.alcor-radio(v-model="showQuote" size="mini").ml-auto
         el-radio-button(:label='$t("Token")')
         el-radio-button(:label='$t("Quote")')
 
     .d-flex.align-items-center.mt-2
-      span Time format:
+      span {{ $t('Time format') }}:
 
-      el-select.time-format-selection(v-model='timeformat', placeholder='choose time format' size="mini").ml-auto
+      el-select.time-format-selection(v-model='timeformat', :placeholder='$t("choose time format")' size="mini").ml-auto
         el-option(v-for='item in options', :key='item.value', :label='item.label', :value='item.timeformat')
 
     .d-flex.align-items-center.mt-2
-      span Large trade threshold:
+      span {{ $t('Large trade threshold') }}:
 
       el-input.threshold-input(v-model='largeThreshold' size="mini").w-25.ml-auto
 
-      el-select.trade-type-selection(v-model='thresholdCurrency' placeholder='Currency' size="mini").w-25.ml-2
+      el-select.trade-type-selection(v-model='thresholdCurrency' :placeholder='$t("Currency")' size="mini").w-25.ml-2
         el-option(:value="base_token.symbol.name") {{ base_token.symbol.name }}
         el-option(:value="quote_token.symbol.name") {{ quote_token.symbol.name }}
 
     .d-flex.align-items-center.mt-2
-      span Preview:
+      span {{ $t('Preview') }}:
 
     .d-flex.align-items-center.mt-2
       .orders-list.blist.px-0
