@@ -113,7 +113,7 @@ export default {
       const tmp = [...this.markets]
       return tmp
         .filter(i => i.base_token.contract == this.network.baseToken.contract)
-        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .sort((a, b) => b.volume24 - a.volume24)
         .slice(0, 3)
     },
 
