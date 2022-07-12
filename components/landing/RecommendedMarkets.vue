@@ -11,7 +11,7 @@
         ChangePercent(:change="market.changeWeek")
 
   .item-container
-    el-button.token-promotion(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
+    el-button.token-promotion(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") {{ $t('Token promotion') }}
   Spacer
 </template>
 

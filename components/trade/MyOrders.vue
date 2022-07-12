@@ -8,8 +8,8 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 
   el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
-      span.text-primary(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
-      span.text-secondary(v-else) {{ row.type.toUpperCase() }}
+      span.text-primary(v-if='row.type == "buy"') {{ $t(row.type.toUpperCase()) }}
+      span.text-secondary(v-else) {{ $t(row.type.toUpperCase()) }}
 
   el-table-column(:label='$t("Price")' width="90")
     template(slot-scope='scope')
@@ -45,8 +45,8 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 
   el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
-      span.text-primary(v-if='row.type == "buy"') {{ row.type.toUpperCase() }}
-      span.text-secondary(v-else) {{ row.type.toUpperCase() }}
+      span.text-primary(v-if='row.type == "buy"') {{ $t(row.type.toUpperCase()) }}
+      span.text-secondary(v-else) {{ $t(row.type.toUpperCase()) }}
 
   el-table-column(:label='$t("Price")' width="100")
     template(slot-scope='scope')

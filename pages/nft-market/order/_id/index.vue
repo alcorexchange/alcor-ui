@@ -2,7 +2,7 @@
 el-card.box-card.mt-3(v-if='!no_found')
   .row.mb-2
     .col
-      el-alert(type='error', title='Beware of scammers!', show-icon)
+      el-alert(type='error', :title='$t("Beware of scammers!")', show-icon)
         p {{ $t('NFT_ALERT') }}
 
   .clearfix(slot='header')

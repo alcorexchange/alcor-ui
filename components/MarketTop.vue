@@ -1,7 +1,7 @@
 <template lang="pug">
 .market-top
   .market-list(v-for="(marketList, idx) in [newListings, topGainers, topVolume]")
-    .title {{ titles[idx] }}
+    .title {{ $t(titles[idx]) }}
     .market-item(v-for="market in marketList" @click="() => $router.push({ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } })")
       .item-name
         token-image.token(:src='$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)')

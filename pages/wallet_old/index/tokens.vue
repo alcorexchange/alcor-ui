@@ -6,7 +6,7 @@
           TokenImage(:src="$tokenLogo(scope.row.currency, scope.row.contract)" height="25")
           span.ml-2 {{ scope.row.currency }}
           a(:href="monitorAccount(scope.row.contract)" target="_blank").text-muted.ml-2 {{ scope.row.contract }}
-          el-tag(v-if="hasMarket(scope.row)" size="small").float-right Trade
+          el-tag(v-if="hasMarket(scope.row)" size="small").float-right {{$t('Trade')}}
 
       el-table-column(:label='$t("Amount")' align="right" width="150" :sort-method="sortByAmount"
       sortable :sort-orders="['descending', null]")

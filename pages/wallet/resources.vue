@@ -8,7 +8,7 @@
         .details
           .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
           .staked
-            span.cancel Staked:&nbsp;
+            span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
     .resource-item-container
       .el-card.resource-item
@@ -17,7 +17,7 @@
         .details
           .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
           .staked
-            span.cancel Staked:&nbsp;
+            span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.cpu_weight }}
     .resource-item-container
       .el-card.resource-item
@@ -26,7 +26,7 @@
         .details
           .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
           .staked
-            span.cancel Staked:&nbsp;
+            span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.net_weight }}
   .rewards-and-actions
     .rewards-card
