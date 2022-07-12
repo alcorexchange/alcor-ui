@@ -232,7 +232,11 @@ export default {
         .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
         .sort((a, b) => b.volumeWeek - a.volumeWeek)
         .reduce((res, i) => {
-          i.promoted ? res.unshift(i) : res.push(i)
+          i.promoted ? res[0].push(i) : res[1].push(i)
+          return res
+        }, [[], []])
+        .reduce((res, subArr) => {
+          res.push(...subArr)
           return res
         }, [])
 
