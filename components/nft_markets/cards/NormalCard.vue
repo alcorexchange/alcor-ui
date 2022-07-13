@@ -334,9 +334,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.assets[0].data.img.includes('https://')
               ? this.data.assets[0].data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data.assets[0].data.img +
-                ')',
+                '&size=370)',
           }
         } else return false
       } else if (
@@ -350,9 +350,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data.data.img +
-                ')',
+                '&size=370)',
           }
         } else return false
       } else if (
@@ -367,9 +367,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.assets[0].data.img.includes('https://')
               ? this.data.assets[0].data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data.assets[0].data.img +
-                ')',
+                '&size=370)',
           }
         } else return false
       } else if (this.mode === 'assets') {
@@ -379,9 +379,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data.data.img +
-                ')',
+                '&size=370)',
           }
         } else return false
       } else if (this.mode === 'templates' || this.mode === 'setsList') {
@@ -391,9 +391,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.immutable_data.img.includes('https://')
               ? 'url(' + this.data.immutable_data.img + ')'
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data.immutable_data.img +
-                ')',
+                '&size=370)',
           }
         } else return false
       } else if (this.mode === 'schemas') {
@@ -403,9 +403,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data.collection.img.includes('https://')
               ? this.data.collection.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data.collection.img +
-                ')',
+                '&size=370)',
           }
         } else return false
       } else if (this.data.sell && this.data.sell[0].mdata) {
