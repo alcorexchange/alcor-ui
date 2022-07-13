@@ -49,7 +49,6 @@ export default {
     save() {
       const twChart = JSON.parse(JSON.stringify(this.$store.state.settings.twChart))
       this.widget.save((o) => {
-        console.log('save chart for', this.id)
         twChart[this.id] = o
         this.$store.commit('settings/setTwChart', twChart)
       })
@@ -58,7 +57,6 @@ export default {
     load() {
       // FIXME Not workin in production
       const twChart = this.$store.state.settings.twChart[this.id]
-      console.log('load chart for', this.id)
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
     },
@@ -232,7 +230,6 @@ export default {
       this.widget.onChartReady(() => {
         this.load()
         this.widget.subscribe('onAutoSaveNeeded', () => {
-          console.log('chart save..')
           this.save()
         })
       })

@@ -35,7 +35,6 @@ export default {
   },
   methods: {
     toggleModal() {
-      console.log('toggle')
       this.handleCloseModal()
     },
   },

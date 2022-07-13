@@ -43,8 +43,6 @@ export default {
   },
 
   mounted() {
-    console.log('login mounted')
-
     const wallets = [
       {
         id: 'anchor',

@@ -19,7 +19,7 @@
       v-for='(item, index) in bulkTransfer',
       :key='index',
       :data='item',
-      :addTrade='addTrade',
+      :addTrade="addTrade",
       :mintNum='item.template_mint',
       :collectionName='item.collection.collection_name',
       :immutableName='item.template.immutable_data.name'
@@ -32,52 +32,49 @@
       @focus='focusInput',
       @blur='blurInput',
       placeholder='Search NFTs',
-      prefix-icon='el-icon-search',
+      prefix-icon='el-icon-search'
       clearable
+
     )
     el-dropdown.filter-input-group.border-bottom--gray.d-flex.flex-column.justify-content-center(
-      trigger='click'
-    )
-      .el-dropdown-link.d-flex.align-items-center.justify-content-between
-        img.me-1(src='~/assets/images/filter.svg', alt='')
-        p.m-0 Collections ({{ invData.length }})
-        i.el-icon-arrow-down.el-icon--right
-      el-dropdown-menu.collection-dropdown(slot='dropdown')
-        button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
-          @click='() => handleCollection("")'
+          trigger='click'
         )
-          img(src='~/assets/images/default.png')
-          p.ml-1.flex-fill.text-left.collection-name All
-        button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
-          v-for='(item, index) in invData',
-          :key='index',
-          @click='() => handleCollection(item.collection.collection_name)'
-        )
-          img(
-            v-if='item.collection.img && item.collection.img.includes("https://")',
-            :src='item.collection.img'
-          )
-          img(
-            v-else-if='item.collection.img',
-            :src='"https://ipfs.io/ipfs/" + item.collection.img'
-          )
-          img(v-else, src='~/assets/images/default.png')
-          p.ml-1.flex-fill.text-left.collection-name {{ item.collection.name }}
+          .el-dropdown-link.d-flex.align-items-center.justify-content-between
+            img.me-1(src='~/assets/images/filter.svg', alt='')
+            p.m-0 Collections ({{invData.length}})
+            i.el-icon-arrow-down.el-icon--right
+          el-dropdown-menu.collection-dropdown(slot='dropdown')
+            button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+              @click='() => handleCollection("")'
+            )
+              img(src='~/assets/images/default.png')
+              p.ml-1.flex-fill.text-left.collection-name All
+            button.btn.btn-collection.w-100.mb-1.d-flex.align-items-center(
+              v-for='(item, index) in invData',
+              :key='index',
+              @click='() => handleCollection(item.collection.collection_name)'
+            )
+              img(v-if='item.collection.img && item.collection.img.includes("https://")', :src='item.collection.img')
+              img(v-else-if='item.collection.img', :src='"https://ipfs.io/ipfs/" + item.collection.img')
+              img(v-else, src='~/assets/images/default.png')
+              p.ml-1.flex-fill.text-left.collection-name {{ item.collection.name }}
+  //- el-select.bg-input-grey.mb-4.w-100(
+  //-   v-model='value',
+  //-   large,
+  //-   placeholder='Choose Collection',
+  //-   @change="updateDropDwon"
+  //- )
+  //-   el-option(
+  //-     v-for='item in invData',
+  //-     :key='item.asset_id',
+  //-     :label='item.name',
+  //-     :value='item.name'
+  //-   )
   el-row.mb-4
     el-col.pr-1(:span='12')
-      el-input.bg-input-black(
-        type='number',
-        v-model='minMint',
-        placeholder='Min Mint',
-        @input='minMintSearch'
-      )
+      el-input.bg-input-black(type="number" v-model="minMint" placeholder='Min Mint' @input='minMintSearch')
     el-col.pl-1(:span='12')
-      el-input.bg-input-black(
-        type='number',
-        v-model='maxMint',
-        placeholder='Max Mint',
-        @input='maxMintSearch'
-      )
+      el-input.bg-input-black(type="number" v-model="maxMint" placeholder='Max Mint' @input='maxMintSearch' )
   el-checkbox-group.mb-4(v-model='checkList')
     el-checkbox(size='medium', label='Only Duplicates')
     el-checkbox(label='Only backed NFTs')
@@ -94,8 +91,8 @@
       v-for='(item, index) in invData',
       :key='index',
       :data='item',
-      :addTrade='addTrade',
-      :cardState='bulkTransfer.find((data) => data.asset_id === item.asset_id) ? "disable" : "enable"',
+      :addTrade="addTrade",
+      :cardState="(bulkTransfer.find(data => data.asset_id === item.asset_id) ? 'disable' : 'enable')",
       :mintNum='item.template_mint',
       :collectionName='item.collection.collection_name',
       :immutableName='item.template.immutable_data.name'
@@ -129,7 +126,7 @@ export default {
       searchValue: '',
       currentCollectionName: '',
       minMint: '',
-      maxMint: '',
+      maxMint: ''
     }
   },
   computed: {
@@ -168,6 +165,7 @@ export default {
   },
   methods: {
     debounceSearch(event) {
+      this.searchValue = event
       this.handleSearch(event)
     },
     handleCollection(event) {
@@ -177,13 +175,11 @@ export default {
     async searchCollectionName() {
       this.invData = await this.$store.dispatch('api/getAssetsInventory', {
         owner: this.assetData.owner,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
     },
     deletebulkTransferItem(id) {
-      this.bulkTransfer = this.bulkTransfer.filter(
-        (item) => item.asset_id !== id
-      )
+      this.bulkTransfer = this.bulkTransfer.filter((item) => item.asset_id !== id)
     },
     focusInput(event) {
       event.target.parentElement.classList.add('border-bottom--cancel')
@@ -206,29 +202,33 @@ export default {
       this.invData = this.invData.filter((data, id) => {
         data.template_mint > this.minMint
       })
+      console.log(this.invData, "1111111")
       if (this.invData.length == 0)
         this.getAssetsInventory(this.assetData.owner)
+      // if (this.minMint != '')
+      //   this.invData = this.invData.filter((data, id) => {
+      //     data.template_mint < this.minMint
+      //   })
+      // else
+      //   this.getAssetsInventory(this.assetData.owner)
     },
     async handleSearch(key) {
       this.loading = true
       this.invData = await this.$store.dispatch('api/getAssetsInventory', {
         owner: this.assetData.owner,
         search: key,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.loading = false
     },
     addTrade(item, cardState) {
-      if (
-        cardState != 'disable' &&
-        !this.bulkTransfer.find((data) => data.asset_id === item.asset_id)
-      ) {
+      console.log(item, 'this is addtrade event')
+      if (cardState != 'disable' && !this.bulkTransfer.find((data) => data.asset_id === item.asset_id)) {
         this.bulkTransfer.push(item)
         this.asset_ids.push(item.asset_id)
       } else {
-        this.bulkTransfer = this.bulkTransfer.filter(
-          (data) => data.asset_id !== item.asset_id
-        )
+
+        this.bulkTransfer = this.bulkTransfer.filter((data) => data.asset_id !== item.asset_id)
       }
     },
     async getAssetData() {
@@ -279,7 +279,7 @@ export default {
           },
         ]
         try {
-          await this.$store.dispatch('chain/sendTransaction', actions)
+          const tx = await this.$store.dispatch('chain/sendTransaction', actions)
           this.$notify({
             title: 'Asset Transfer',
             message: 'Asset Transferred!',
@@ -294,6 +294,8 @@ export default {
         } finally {
           this.to = ''
           this.memo = ''
+          this.bulkTransfer = []
+          transfer_assets_id.map((asset_id, id) => this.invData = this.invData.filter((data, id) => data.asset_id != asset_id))
         }
       } else {
         this.$notify({
@@ -308,7 +310,7 @@ export default {
 </script>
 
 <style lang="scss">
-.filter-input-group {
+  .filter-input-group {
     width: 250px;
   }
   .filter-input-group .search-input {

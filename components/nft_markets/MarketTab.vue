@@ -61,7 +61,6 @@ export default {
   },
   watch: {
     search(newSearch, oldSearch) {
-      console.log(newSearch)
     },
   },
   methods: {

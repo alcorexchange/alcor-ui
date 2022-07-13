@@ -1,27 +1,32 @@
 <template lang="pug">
 el-dialog.nft-modal-container(:visible='is_modal')
+  i.el-icon-close(@click='toggleModal')
   .nft-modal
-    i.el-icon-close(@click='this.toggleModal')
     .row
-      .d-flex.justify-content-between.w-100
+      .d-flex.justify-content-center.align-items-center.w-100
         .col-5
-          .main-img(v-if='videoBackground')
-            video(:class="['main-img', 'radius10', (mode === 'setsList' ? 'sets-list-mode' : '')]", autoplay='true', loop='true')
-              source(
-                :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
-                type='video/mp4'
-              )
-          div(:class="['main-img', 'radius10', (mode === 'setsList' || mode === 'templates' ? 'sets-list-mode' : '')]", v-else-if='imageBackground', :style='imageBackground')
-          div(
-            :class='["main-img", "radius10", mode === "setsList" || mode === "templates" ? "sets-list-mode" : ""]',
-            v-else,
-            :style='defaultBackground'
-          )
+          //- .main-img(v-if='videoBackground')
+          //-   video(:class="['main-img', 'radius10', (mode === 'setsList' ? 'sets-list-mode' : '')]", autoplay='true', loop='true')
+          //-     source(
+          //-       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
+          //-       type='video/mp4'
+          //-     )
+          //- div(:class="['main-img', 'radius10', (mode === 'setsList' || mode === 'templates' ? 'sets-list-mode' : '')]", v-else-if='imageBackground', :style='imageBackground')
+          //- div(
+          //-   :class='["main-img", "radius10", mode === "setsList" || mode === "templates" ? "sets-list-mode" : ""]',
+          //-   v-else,
+          //-   :style='defaultBackground'
+          //- )
           TradeOfferCard(
-            :data='{ maker: "gchad.wam", id: "50", nobtngroup: true }',
+            :data='{ maker: "gchad.wam", id: "50", nobtngroup: true}',
+            :mint='getSeller',
+            :mintCount='getMintCount',
+            :imageBackground='imageBackground',
+            :videoBackground='videoBackground',
+            :mode='mode',
             price=0
           )
-        .col-7
+        .col-7.mt-5
           .nft-info
             h5 Summary
             .d-flex.justify-content-between.w-100
@@ -44,12 +49,14 @@ el-dialog.nft-modal-container(:visible='is_modal')
             .d-flex.align-items-start
               el-checkbox.pr-2.pb-2
               span I understand that this NFT is not whitelisted/verified and I made sure the collection is not a fake of another collection.
-            .buy-nft-btn.text-center Buy NFT
+            .buy-nft-btn.text-center(@click='buyNFT') Buy NFT
+            .make-offer.text-center.mt-3.text-decoration-underline(@click='makeOffer') Make Offer
 </template>
 
 <script>
 import TradeOfferCard from '~/components/nft_markets/cards/TradeOfferCard'
 import defaultImg from '~/assets/images/default.png'
+import { trade } from '~/mixins/trade'
 
 export default {
   components: { TradeOfferCard },
@@ -69,6 +76,12 @@ export default {
     is_modal() {
       return this.show_modal
     },
+    getSeller() {
+      return this.data ? this.data[0].seller : ''
+    },
+    getMintCount() {
+      return this.data ? this.data[0].assets[0].template_mint : 0
+    },
     videoBackground() {
       if (this.mode === 'market-sales' || this.mode === 'market-auctions') {
         if (this.data && this.data[0].assets[0] && this.data[0].assets[0].data.video) {
@@ -82,7 +95,7 @@ export default {
           return {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundImage: this.data[0].assets[0].data.img.includes('https://')
+            backgroundImage: this.data[0].assets[0].data.img?.includes('https://')
               ? this.data[0].assets[0].data.img
               : 'url(https://ipfs.atomichub.io/ipfs/' +
                 this.data[0].assets[0].data.img +
@@ -136,14 +149,57 @@ export default {
   },
   watch: {
     data(new_data, old_data) {
-      console.log(new_data, old_data)
     },
   },
   methods: {
     toggleModal() {
-      console.log('toggle')
       this.handleCloseModal()
     },
+    async buyNFT() {
+      console.log(this.data[0], "dddd")
+      const amount = parseFloat(this.data[0].listing_price).toFixed(this.data[0].price.token_precision)
+      const total = parseFloat(this.data[0].price.amount).toFixed(this.data[0].price.token_precision)
+      // return
+      const actions = [
+        {
+          account: 'atomicassets',
+          name: 'transfer',
+          authorization: [
+            {
+              actor: this.data[0].assets[0].owner,
+              permission: 'active',
+            },
+          ],
+          data: {
+            from: this.data[0].sale_id,
+            asset_ids_to_assert: this.data[0].assets[0].asset_id,
+            listing_price_to_assert: `${amount} ${this.data[0].price.token_symbol}`,
+            settlement_symbol_to_assert: `${this.data[0].price.token_precision} ${this.data[0].price.token_symbol}`
+          },
+        },
+      ]
+      console.log(actions, "Aaaaaa")
+      // return
+      try {
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        this.$notify({
+          title: 'Asset Transfer',
+          message: 'Asset Transferred!',
+          type: 'success',
+        })
+      } catch (e) {
+        console.log(e, "wwwwwww")
+        this.$notify({
+          title: 'Asset Transfer',
+          message: e,
+          type: 'error',
+        })
+      } finally {
+      }
+    },
+    makeOffer() {
+      this.$router.push(`/nft-market/make_buy_offer/${this.assetId}`)
+    }
   },
 }
 </script>
@@ -176,6 +232,7 @@ export default {
   }
   .main-img {
     height: 100%;
+    widows: 200px;
   }
   .modal-header {
     border-color: #3c3c43;
@@ -184,6 +241,7 @@ export default {
     padding: 5px 0;
   }
   .nft-info {
+    margin-top: 20px;
     h5 {
       font-size: 14px;
     }
@@ -224,6 +282,10 @@ export default {
   div.modal-header > .main-img {
     width: 235px;
     height: 235px;
+  }
+  .make-offer:hover {
+    cursor: pointer;
+    color:#67c23a;
   }
 }
 </style>

@@ -279,7 +279,7 @@ export default {
 
 <style lang="scss">
 #tv_chart_container.nft-price-chart {
-  min-height: 450px;
+  max-height: 200px;
 }
 .swap-chart {
   .apexcharts-tooltip {

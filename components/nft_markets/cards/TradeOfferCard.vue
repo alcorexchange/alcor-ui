@@ -1,16 +1,37 @@
 <template lang="pug">
 .normalcard.radius10.tradeoffercard
-  header.d-flex.justify-content-between.mb-2
-    div
-      img(src='~/assets/images/small_shape.svg' style="width:21px;height:21px")
-      span.card-title qwewqee
-    div
-      img(src='~/assets/images/double_arrow.svg' alt='')
-      img.card-title-img(src='~/assets/images/fire.svg' alt='')
-      span.card-number fgdgf
-  .main-img.radius10(v-if='imageBackground' :style='imageBackground')
-  .main-img.radius10(v-else='' :style='defaultBackground')
-  .d-flex.justify-content-between.align-items-end.mt-2.mb-2
+  header.d-flex.flex-column.justify-content-between.mb-2
+    div.d-flex.justify-content-between
+      div
+        img(src='~/assets/images/small_shape.svg' style="width:21px;height:21px")
+        span.card-title {{mint}}
+      div
+        img(src='~/assets/images/double_arrow.svg' alt='')
+        img.card-title-img(src='~/assets/images/fire.svg' alt='')
+        span.card-number # {{mintCount}}
+    video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
+      source(
+        :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
+        type='video/mp4'
+      )
+    .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
+      img(:src='imageBackground.backgroundImage' alt='')
+    .main-img.radius10(v-else, :style='defaultBackground')
+    //- .main-img(v-if='videoBackground')
+    //-   video(:class="['main-img', 'radius10', (mode === 'setsList' ? 'sets-list-mode' : '')]", autoplay='true', loop='true')
+    //-     source(
+    //-       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
+    //-       type='video/mp4'
+    //-     )
+    //- div(:class="['main-img', 'radius10', (mode === 'setsList' || mode === 'templates' ? 'sets-list-mode' : '')]", v-else-if='imageBackground', :style='imageBackground')
+    //-    img(:src='imageBackground.backgroundImage' alt='')
+    //- div(
+    //-   :class='["main-img", "radius10", mode === "setsList" || mode === "templates" ? "sets-list-mode" : ""]',
+    //-   v-else,
+    //-   :style='defaultBackground'
+    //- )
+    //- .main-img.radius10(v-else='' :style='defaultBackground')
+  //- .d-flex.justify-content-between.align-items-end.mt-2.mb-2
     p.token-info--title Sword
     p.token-group Almemes
   .btn-group.justify-content-between.pb-2(v-if="!this.data.nobtngroup")
@@ -23,7 +44,7 @@ import { mapState } from 'vuex'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data'],
+  props: ['data', 'mint', 'mintCount', 'imageBackground', 'videoBackground', 'mode'],
 
   data() {
     return {
@@ -36,9 +57,6 @@ export default {
     }
   },
   computed: {
-    imageBackground() {
-      return false
-    }
   },
 }
 </script>
@@ -134,7 +152,7 @@ export default {
 
   .main-img {
     width: 194px;
-    height: 223px;
+    height: 250px !important;
     object-fit: cover;
     margin: auto;
   }

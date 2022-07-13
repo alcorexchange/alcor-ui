@@ -202,7 +202,6 @@ export default {
       } catch (e) {
         captureException(e, { extra: { buy: this.buy, sell: this.sell } })
         this.$notify({ title: 'Place order', message: e.message, type: 'error' })
-        console.log(e)
       } finally {
         this.loading = false
       }
