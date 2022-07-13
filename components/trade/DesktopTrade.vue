@@ -6,7 +6,7 @@
       :col-num="layouts[0].i == 'favorites-top-line' ? 50 : 24",
       :row-height="layouts[0].i == 'favorites-top-line' ? 10 : 40"
       :is-draggable='true',
-      :is-resizable='true',
+      :is-resizable='layouts[0].i == "favorites-top-line" ? false : true',
       :is-mirrored='false',
       :vertical-compact='true',
       :margin='[4, 4]',
@@ -41,6 +41,8 @@
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
+                active-color='#13ce66',
+                inactive-color='#161617'
               )
 
           swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")
@@ -367,6 +369,8 @@ export default {
 
     itemUpdatedEvent(item) {
       if (this.current_market_layout != 'advanced') return
+      // prevent resizing favorite line
+      if (item.i === 'favorites-top-line') return
       //if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
 
       this.$store.commit('market/setMarketLayout', this.markets_layout)

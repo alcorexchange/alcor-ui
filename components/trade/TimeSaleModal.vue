@@ -194,3 +194,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.el-scrollbar__wrap {
+  margin-bottom: -15px !important;
+}
+</style>

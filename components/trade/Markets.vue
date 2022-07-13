@@ -43,7 +43,7 @@
 
         .pair-price {{ item.last_price | commaFloat(5) }}
         .pair-volume
-          span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(item.volume24) }}
+          span.text-mutted(v-if="showVolumeInUSD && sideMaretsTab == 'system'") ${{ $systemToUSD(item.volume24) }}
           span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat(0) }} {{ item.base_name }}
 
 </template>
