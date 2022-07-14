@@ -84,6 +84,13 @@ export default {
   text-overflow: ellipsis;
 }
 
+.header__column>span {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .header.mobile {
   padding: 10px 10px;
 }
