@@ -236,9 +236,9 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
             this.assetData.data.img +
-            ')'
+            '&size=370)'
         }
       } else return false
     },
@@ -249,9 +249,9 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
             this.assetData.data.img +
-            ')'
+            '&size=370)'
         }
       } else return false
     },

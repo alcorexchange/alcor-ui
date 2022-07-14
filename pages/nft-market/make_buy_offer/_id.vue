@@ -88,7 +88,6 @@ export default {
   },
   async created() {
     await this.getChartData(441285, "passes", true)
-    console.log(this.$route.params, "pppppppppp")
   },
   methods: {
     // get price history for a template for NFT sale chart

@@ -71,7 +71,7 @@ export default {
       if (this.data && this.data.data && this.data.data.img) {
         return this.data.data.img.includes('https://')
           ? this.data.data.img
-          : 'https://ipfs.atomichub.io/ipfs/' + this.data.data.img
+          : 'https://resizer.atomichub.io/images/v1/preview?ipfs=' + this.data.data.img + '&size=370'
       } else return false
     },
     collectionAbbrName() {

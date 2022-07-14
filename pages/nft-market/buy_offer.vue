@@ -58,7 +58,7 @@ import LogsRow from '~/components/nft_markets/LogsRow'
 import NFTBackModal from '~/components/modals/NFTBack'
 import Chart from '~/components/nft_markets/Chart'
 import CustomSkeletonVue from '~/components/CustomSkeleton'
-import Transfer_card from '~/components/wallet/cards/transfer_card.vue'
+import Transfer_card from '~/components/wallet/cards/transfer_card'
 
 export default {
   components: {
@@ -93,7 +93,7 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
             this.assetData.data.img +
             ')'
         }
@@ -106,7 +106,7 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
             this.assetData.data.img +
             ')'
         }
