@@ -8,7 +8,7 @@
       div
         img(src='~/assets/images/double_arrow.svg' alt='')
         img.card-title-img(src='~/assets/images/fire.svg' alt='')
-        span.card-number # {{mintCount}}
+        span.card-number # {{abbrMintnum}}
     video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
       source(
         :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
@@ -17,23 +17,6 @@
     .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
       img(:src='imageBackground.backgroundImage' alt='')
     .main-img.radius10(v-else, :style='defaultBackground')
-    //- .main-img(v-if='videoBackground')
-    //-   video(:class="['main-img', 'radius10', (mode === 'setsList' ? 'sets-list-mode' : '')]", autoplay='true', loop='true')
-    //-     source(
-    //-       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
-    //-       type='video/mp4'
-    //-     )
-    //- div(:class="['main-img', 'radius10', (mode === 'setsList' || mode === 'templates' ? 'sets-list-mode' : '')]", v-else-if='imageBackground', :style='imageBackground')
-    //-    img(:src='imageBackground.backgroundImage' alt='')
-    //- div(
-    //-   :class='["main-img", "radius10", mode === "setsList" || mode === "templates" ? "sets-list-mode" : ""]',
-    //-   v-else,
-    //-   :style='defaultBackground'
-    //- )
-    //- .main-img.radius10(v-else='' :style='defaultBackground')
-  //- .d-flex.justify-content-between.align-items-end.mt-2.mb-2
-    p.token-info--title Sword
-    p.token-group Almemes
   .btn-group.justify-content-between.pb-2(v-if="!this.data.nobtngroup")
     button.btn-border--green.mr10.radius6 Details
     button.btn-fill--green.radius6 Add
@@ -57,6 +40,15 @@ export default {
     }
   },
   computed: {
+    abbrMintnum() {
+      let abbrMintnumber = ''
+      if (this.mintCount) {
+        abbrMintnumber = this.mintCount
+      } else abbrMintnumber = ''
+      if (abbrMintnumber.length > 7) {
+        return abbrMintnumber.substr(0, 3) + '...' + abbrMintnumber.substr(-2)
+      } else return abbrMintnumber
+    }
   },
 }
 </script>

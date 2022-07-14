@@ -5,18 +5,6 @@ el-dialog.nft-modal-container(:visible='is_modal')
     .row
       .d-flex.justify-content-center.align-items-center.w-100
         .col-5
-          //- .main-img(v-if='videoBackground')
-          //-   video(:class="['main-img', 'radius10', (mode === 'setsList' ? 'sets-list-mode' : '')]", autoplay='true', loop='true')
-          //-     source(
-          //-       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
-          //-       type='video/mp4'
-          //-     )
-          //- div(:class="['main-img', 'radius10', (mode === 'setsList' || mode === 'templates' ? 'sets-list-mode' : '')]", v-else-if='imageBackground', :style='imageBackground')
-          //- div(
-          //-   :class='["main-img", "radius10", mode === "setsList" || mode === "templates" ? "sets-list-mode" : ""]',
-          //-   v-else,
-          //-   :style='defaultBackground'
-          //- )
           TradeOfferCard(
             :data='{ maker: "gchad.wam", id: "50", nobtngroup: true}',
             :mint='getSeller',
@@ -56,7 +44,6 @@ el-dialog.nft-modal-container(:visible='is_modal')
 <script>
 import TradeOfferCard from '~/components/nft_markets/cards/TradeOfferCard'
 import defaultImg from '~/assets/images/default.png'
-import { trade } from '~/mixins/trade'
 
 export default {
   components: { TradeOfferCard },
@@ -97,9 +84,9 @@ export default {
             backgroundPosition: 'center',
             backgroundImage: this.data[0].assets[0].data.img?.includes('https://')
               ? this.data[0].assets[0].data.img
-              : 'url(https://ipfs.atomichub.io/ipfs/' +
+              : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
                 this.data[0].assets[0].data.img +
-                ')',
+                '&size=370)',
           }
         } return false
       }
@@ -156,7 +143,6 @@ export default {
       this.handleCloseModal()
     },
     async buyNFT() {
-      console.log(this.data[0], "dddd")
       const amount = parseFloat(this.data[0].listing_price).toFixed(this.data[0].price.token_precision)
       const total = parseFloat(this.data[0].price.amount).toFixed(this.data[0].price.token_precision)
       // return
@@ -178,7 +164,6 @@ export default {
           },
         },
       ]
-      console.log(actions, "Aaaaaa")
       // return
       try {
         await this.$store.dispatch('chain/sendTransaction', actions)
@@ -188,7 +173,6 @@ export default {
           type: 'success',
         })
       } catch (e) {
-        console.log(e, "wwwwwww")
         this.$notify({
           title: 'Asset Transfer',
           message: e,
