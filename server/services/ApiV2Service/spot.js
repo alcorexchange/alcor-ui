@@ -104,8 +104,8 @@ spot.get('/historical_trades/:ticker_id', tickerHandler, cacheSeconds(1, (req, r
   if (start_time || end_time) {
     q.time = {}
 
-    if (start_time) q.time.$gte = new Date(start_time)
-    if (end_time) q.time.$gte = new Date(end_time)
+    if (start_time) q.time.$gte = new Date(Number(start_time))
+    if (end_time) q.time.$lte = new Date(Number(end_time))
   }
 
   const matches = await Match.find(q)
