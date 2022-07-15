@@ -1,5 +1,6 @@
 const config = require('./config')
 const pkg = require('./package')
+const tokenFundamentals = require(`./token_fundamentals/${process.env.NETWORK}/data.json`)
 
 const isSPA = process.argv.includes('--spa')
 const isDev = process.env.npm_lifecycle_event == 'dev' || process.argv.includes('--dev') || process.env.NODE_ENV !== 'production'
@@ -13,7 +14,8 @@ module.exports = {
     isDev,
     isSPA,
     NETWORK: process.env.NETWORK,
-    DISABLE_DB: process.env.DISABLE_DB
+    DISABLE_DB: process.env.DISABLE_DB,
+    tokenFundamentals
   },
 
   version: pkg.version,

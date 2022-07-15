@@ -1806,7 +1806,6 @@
 .el-dropdown-menu__item:focus,
 .el-dropdown-menu__item:not(.is-disabled):hover {
     background-color: #252525;
-    color: #070707
 }
 
 .el-dropdown-menu__item i {
@@ -13982,7 +13981,6 @@
 
 .el-button:active {
     color: #000;
-    border-color: #000;
     outline: 0
 }
 
