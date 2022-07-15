@@ -289,7 +289,12 @@ export default {
 
   watch: {
     '$store.state.market.markets_layout'() {
-      if (this.current_market_layout != 'advanced') return
+      if (this.current_market_layout != 'advanced') {
+        document.querySelector('.full-width').classList.add('unlim-width')
+        return
+      } else {
+        document.querySelector('.full-width').classList.remove('unlim-width')
+      }
       this.layouts = this.$store.state.market.markets_layout
     },
 
@@ -313,6 +318,10 @@ export default {
   },
 
   mounted() {
+    if (this.$store.state.market.current_market_layout) {
+      document.querySelector('.full-width').classList.add('unlim-width')
+    }
+
     //if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0
     //setTimeout(() => {
     //  console.log('timeout this.markets_timesale_tab', this.markets_timesale_tab)
@@ -774,6 +783,7 @@ export default {
 
     .el-input--prefix .el-input__inner {
       padding-left: 35% !important;
+      background-color: var(--background-color-secondary);
     }
 
     .el-form-item__content {
