@@ -245,7 +245,7 @@ export default {
               enabled: false
             },
             data: [],
-            color: '#fc5857'
+            color: 'var(--color-secondary-op)'
           },
           {
             name: 'WAX',
@@ -253,7 +253,7 @@ export default {
               enabled: false
             },
             data: [],
-            color: '#66C167'
+            color: 'var(--color-primary-op)'
           }
         ]
       },
