@@ -1,6 +1,6 @@
 <template lang="pug">
 el-dialog(
-  title='Select Wallet',
+  :title='$t("Select Wallet")',
   :visible='visible',
   @close='close',
   width='50%',

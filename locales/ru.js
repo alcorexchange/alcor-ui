@@ -465,5 +465,9 @@ export default {
   'Vertical Order Form': 'Vertical Order Form',
   FullScreen: 'FullScreen',
   Advanced: 'Advanced',
-  Classic: 'Classic'
+  Classic: 'Classic',
+  'Select Wallet': 'Select Wallet',
+  'Wax Cloud Wallet': 'Wax Cloud Wallet',
+  From: 'From',
+  'Select Token': 'Select Token'
 }

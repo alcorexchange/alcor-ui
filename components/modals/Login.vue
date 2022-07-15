@@ -14,11 +14,11 @@
     .item
       AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
         img.mr-2(:src='wallets[0].logo', height='30')
-        span {{ $t('Get') }} {{ wallets[0].name }}
+        span {{ $t('Get') }} {{ $t(wallets[0].name) }}
     .item
       AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
         img.mr-2(:src='wallets[1].logo', height='30')
-        span {{ $t('Get') }} {{ wallets[1].name }}
+        span {{ $t('Get') }} {{ $t(wallets[1].name) }}
 </template>
 
 <script>
