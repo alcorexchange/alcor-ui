@@ -11,8 +11,8 @@
       el-table.market-table(:data='deals', style='width: 100%')
         el-table-column(:label='$t("Side")' width="70")
           template(slot-scope='scope').text-success
-            span.text-success(v-if="scope.row.side == 'buy'") {{ $t('BUY') }}
-            span.text-danger(v-else) {{$t('SELL')}}
+            span.success(v-if="scope.row.side == 'buy'") {{ $t('BUY') }}
+            span.danger(v-else) {{$t('SELL')}}
 
         el-table-column(:label='$t("Asset")')
           template(slot-scope='{row}') {{ getSymbol(row.market) }}
@@ -181,5 +181,13 @@ td.el-table__expanded-cell {
       color: var(--main-green) !important;
     }
   }
+}
+
+.success {
+  color: var(--main-green)
+}
+
+.danger {
+  color: var(--main-red)
 }
 </style>

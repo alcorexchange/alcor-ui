@@ -1,5 +1,5 @@
 <template lang="pug">
-el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order-form-vertical
+el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order-form-vertical.trade-bg
   el-tab-pane(:label='$t("Limit Trade")' name="limit").p-2
     el-radio-group.el-radio-full-width(v-model='side', size='small').mt-2
       el-radio-button(:label='$t("buy")').buy {{ $t("Buy") }}
@@ -214,6 +214,9 @@ export default {
 
 <style lang="scss">
 .order-form-vertical {
+  .el-tabs__content {
+    background-color: var(--trade-bg-secondary) !important;
+  }
 
   .text-success {
     color: var(--color-primary) !important;

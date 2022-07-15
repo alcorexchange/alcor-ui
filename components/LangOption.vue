@@ -14,11 +14,13 @@ export default {
     return {
       icons: {
         en: 'twemoji:flag-for-flag-united-states',
-        ru: 'twemoji:flag-russia'
+        ru: 'twemoji:flag-russia',
+        cn: 'twemoji:flag-china'
       },
       labels: {
         en: 'English (US)',
-        ru: 'Russian (RU)'
+        ru: 'Russian (RU)',
+        cn: 'China (CN)'
       }
     }
   },

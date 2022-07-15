@@ -25,7 +25,7 @@ div.pools
             //span.main.fwr {{row.deposit.usd}} $
             span.cancel.fontSmall {{ row.deposit1 | commaFloat }}
             span.cancel.fontSmall {{ row.deposit2 | commaFloat }}
-      el-table-column(:label='$t("Earnings")')
+      el-table-column(:label='$t("Earning")')
         template(slot-scope='{row}')
           .detailed-item-container
             //span.main.fwr {{row.deposit.usd}} $

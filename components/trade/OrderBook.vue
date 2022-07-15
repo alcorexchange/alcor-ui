@@ -178,7 +178,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    padding: 4px;
+    padding: 6px;
     align-items: center;
     background: var(--btn-default);
 
@@ -300,7 +300,7 @@ export default {
       animation: 0.3s ease-out 0s 1 normal none running none;
 
       &:hover {
-        background-color: var(--hover) !important;
+        background-color: var(--hove) !important;
         font-weight: 400;
       }
 

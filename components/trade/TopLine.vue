@@ -27,19 +27,19 @@ client-only
         span.text-grey {{ $t('Change 24H') }}
         change-percent(:change='stats.change24')
       .d-flex.flex-column(v-if="header_settings.volume_24")
-        span.text-grey {{ $t('Volume 24H:') }}
+        span.text-grey {{ $t('Volume 24H') }}:
         span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.high_24")
-        span.text-grey {{ $t('24H High:') }}
+        span.text-grey {{ $t('24H High') }}:
         span {{ stats.high24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.low_24")
-        span.text-grey {{ $t('24H Low:') }}
+        span.text-grey {{ $t('24H Low') }}:
         span {{ stats.low24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.volume_24_usd & base_token.contract == network.baseToken.contract")
-        span.text-grey {{ $t('24H USD:') }}
+        span.text-grey {{ $t('24H USD') }}:
         span $ {{ $systemToUSD(stats.volume24) }}
       .d-flex.flex-column(v-if="header_settings.weekly_volume")
-        span.text-grey {{ $t('Weekly Volume (WAX / USD):') }}
+        span.text-grey {{ $t('Weekly Volume (WAX / USD)') }}:
 
         span {{ stats.volumeWeek | commaFloat(2) }} {{ base_token.symbol.name }}
           span(v-if="base_token.contract == network.baseToken.contract")  / $ {{ $systemToUSD(stats.volumeWeek) }}
@@ -274,7 +274,14 @@ export default {
   height: 20px;
   position: absolute;
   top: 2px;
-  right: 68px;
+}
+
+.arrow {
+  right: 46px;
+}
+
+.unlim-width .arrow {
+  right: 70px;
 }
 
 .fav {
@@ -283,7 +290,6 @@ export default {
   height: 20px;
   position: absolute;
   top: 2px;
-  right: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -292,6 +298,14 @@ export default {
   @media only screen and (max-width: 1000px) {
     display: none;
   }
+}
+
+.fav {
+  right: 24px;
+}
+
+.unlim-width .fav {
+  right: 47px;
 }
 </style>
 

@@ -20,7 +20,7 @@ nav.nav(v-if='!isMobile')
           flat,
           :class='{ active: isActive(item.index) }'
         )
-          | {{ item.name }}
+          | {{ $t(item.name) }}
   .nav-side.nav-right
     ConnectNav
 .menu-and-menu-header(v-else)

@@ -16,7 +16,7 @@
         span.buy.green {{ buyPositionsCount }} {{ $t("Buy") }}
         span.cancel.line |
         span.sell.red {{ sellPositionsCount }} {{ $t("Sell") }}
-    .info.cancel {{ pairsCount }} Pairs
+    .info.cancel {{ pairsCount }} {{ $t('Pairs') }}
   .item
     .title.cancel {{ $t('Available funds') }}
     .value
@@ -28,7 +28,7 @@
     .value
       span.main 0.0000
       span.symbol.cancel WAX
-    .info.cancel Last Claim: 0.00000
+    .info.cancel {{ $t('Last Claim') }}: 0.00000
   .item
     .title.cancel {{ $t('LP rewards') }}
     .value

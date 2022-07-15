@@ -143,7 +143,8 @@ module.exports = {
     langDir: '~/locales',
     locales: [
       { code: 'en', iso: 'en-US', file: 'en.js' },
-      { code: 'ru', iso: 'ru-RU', file: 'ru.js' }
+      { code: 'ru', iso: 'ru-RU', file: 'ru.js' },
+      { code: 'cn', iso: 'zh_CN', file: 'cn.js' }
     ],
     defaultLocale: 'en',
     detectBrowserLanguage: {
