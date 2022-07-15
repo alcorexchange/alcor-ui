@@ -3,7 +3,7 @@
 div
   el-button(size="medium" type="primary" @click="open").w-100  {{ $t("Sell NFT's") }}
 
-  el-dialog(title="Create new order", :visible.sync="visible" width="70%" v-if="user")
+  el-dialog(:title="$t('Create new order')", :visible.sync="visible" width="70%" v-if="user")
     .row
       .col
         .lead {{ $t('NEW_ORDER_MESSAGE') }} {{ network.baseToken.symbol }}

@@ -1,5 +1,5 @@
 <template lang="pug">
-el-dialog(:visible.sync="active" width="40%" title="Select Token").token-select-dialog
+el-dialog(:visible.sync="active" width="40%" :title="$t('Select Token')").token-select-dialog
   el-input.search(v-model="search" :placeholder="$t('Search name')")
   SSpacer
   .list
