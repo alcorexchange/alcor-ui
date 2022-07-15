@@ -8,6 +8,7 @@ import { shuffleArray } from '../utils'
 import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
 
 import config from '~/config'
+import * as fundamentals from '~/assets/fundamentals'
 
 const IP_REGEX = RegExp(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/)
 
@@ -36,6 +37,8 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
   }
 
   $axios.setBaseURL(state.baseUrl.replace('https', 'http') + '/api')
+
+  inject('fundamentals', fundamentals)
 
   if (process.client) {
     // Тут RPC с возможностью менять эндпоинт

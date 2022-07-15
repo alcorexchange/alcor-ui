@@ -533,7 +533,7 @@ export default {
   Socials: 'Socials',
   'Listing time': 'Listing time',
   Contract: 'Contract',
-  website: 'website',
+  Website: 'Website',
   'Source Code': 'Source Code',
   'Listing Tags': 'Listing Tags',
   'Fully Diluted Market Cap': 'Fully Diluted Market Cap',
@@ -552,5 +552,6 @@ export default {
   'Total Supply': 'Total Supply',
   'The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market': 'The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market',
   'If this data has not been submitted by the project or verified by the CMC team, total supply shows - -': 'If this data has not been submitted by the project or verified by the CMC team, total supply shows - -',
-  Description: 'Description'
+  Description: 'Description',
+  Return: 'Return'
 }

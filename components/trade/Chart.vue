@@ -166,25 +166,28 @@ export default {
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
-      this.widget.applyOverrides({
-        volumePaneSize: 'medium',
-        'paneProperties.background': theme.background,
-        'scalesProperties.textColor': theme.textColor,
 
-        'paneProperties.vertGridProperties.color': theme.gridColor,
-        'paneProperties.horzGridProperties.color': theme.gridColor,
+      this.widget.onChartReady(() => {
+        this.widget.applyOverrides({
+          volumePaneSize: 'medium',
+          'paneProperties.background': theme.background,
+          'scalesProperties.textColor': theme.textColor,
 
-        'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
-        'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
-        'mainSeriesProperties.candleStyle.drawBorder': false,
-        'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
-        'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
-        'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
-        'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
-        'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
-        'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
+          'paneProperties.vertGridProperties.color': theme.gridColor,
+          'paneProperties.horzGridProperties.color': theme.gridColor,
 
-        'scalesProperties.lineColor': theme.scaleLineColor
+          'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.candleStyle.drawBorder': false,
+          'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
+
+          'scalesProperties.lineColor': theme.scaleLineColor
+        })
       })
     },
 
