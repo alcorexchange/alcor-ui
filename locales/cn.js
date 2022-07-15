@@ -468,7 +468,7 @@ export default {
   'Wax Cloud Wallet': 'WAX 账户',
   From: '从',
   'Select Token': '选择代币',
-  'ID/Name/Category/Author': 'ID/名称/类别/作者'
+  'ID/Name/Category/Author': 'ID/名称/类别/作者',
   'Trading Fees': 'Trading Fees',
   'Alcor has different fees based on the type of transaction you want to do': 'Alcor has different fees based on the type of transaction you want to do',
   'When using the swap there is a .3% liquidity provider fee. This fee gets distributed between those providing liquidity in the pool': 'When using the swap there is a .3% liquidity provider fee. This fee gets distributed between those providing liquidity in the pool',
