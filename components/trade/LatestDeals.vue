@@ -99,7 +99,7 @@ export default {
   all: unset;
 
   span {
-    color: var(--text-default);
+    color: var(--text-grey-thirdly);
   }
 
 }
