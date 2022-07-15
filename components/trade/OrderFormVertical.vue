@@ -216,6 +216,10 @@ export default {
 .order-form-vertical {
   .el-tabs__content {
     background-color: var(--trade-bg-secondary) !important;
+
+    .el-input__inner {
+      background-color: var(--btn-default);
+    }
   }
 
   .text-success {

@@ -4,7 +4,7 @@
     token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
     .name
       span {{ item.quote_name }}
-      a.link.text-muted(v-if='!isMobile' :href='monitorAccount(item.contract)', target='_blank') {{ item.contract }}
+      .text-muted(v-if='!isMobile') {{ item.contract }}
       span /
       span {{ item.base_name }}
       span.promo-label(v-if="isMobile && item.promoted") top
