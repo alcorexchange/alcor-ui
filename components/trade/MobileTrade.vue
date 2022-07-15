@@ -28,7 +28,7 @@
       alcor-tabs(type="border-card").border-tabs
         template(slot='right')
           .d-flex.pairs-switch-right
-            .module-name.mr-2 Hide other pairs
+            .module-name.mr-2 {{ $t('Hide other pairs') }}
             .module-pickers.d-flex.flex-row
               el-switch(v-model='hideOtherPairs')
         el-tab-pane(:label='$t("Open orders")')

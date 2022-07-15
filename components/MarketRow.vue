@@ -53,7 +53,8 @@ export default {
 <style scoped>
 .wrapper {
   display: flex;
-  padding: 15px 20px;
+  align-items: center;
+  padding: 12px 20px;
   font-size: 14px;
   gap: 10px;
   border-bottom: 1px solid var(--background-color-base);
@@ -66,6 +67,7 @@ export default {
 
 .wrapper .label {
   display: flex;
+  align-items: center;
 }
 
 .wrapper.mobile .token {

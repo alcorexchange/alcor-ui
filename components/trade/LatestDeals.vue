@@ -88,18 +88,18 @@ export default {
 
 
 .max-buymatch {
-  background: linear-gradient(180deg, var(--color-primary-op) 0%, rgba(4, 134, 33, 0.1) 100%), #212121;
+  background: linear-gradient(180deg, var(--background-color-base) 0%, var(--color-primary) 100%), #212121;
 }
 
 .max-sellmatch {
-  background: linear-gradient(180deg, var(--color-secondary-op) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
+  background: linear-gradient(180deg, var(--background-color-base) 0%, var(--color-secondary) 100%), #212121;
 }
 
 .blist a {
   all: unset;
 
   span {
-    color: var(--text-grey-thirdly);
+    color: var(--text-default);
   }
 
 }
@@ -124,7 +124,7 @@ export default {
   }
 
   .deals-history {
-    height: 100%;
+    height: 101%;
   }
 }
 </style>

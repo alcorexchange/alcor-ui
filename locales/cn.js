@@ -469,4 +469,18 @@ export default {
   From: '从',
   'Select Token': '选择代币',
   'ID/Name/Category/Author': 'ID/名称/类别/作者'
+  'Trading Fees': 'Trading Fees',
+  'Alcor has different fees based on the type of transaction you want to do': 'Alcor has different fees based on the type of transaction you want to do',
+  'When using the swap there is a .3% liquidity provider fee. This fee gets distributed between those providing liquidity in the pool': 'When using the swap there is a .3% liquidity provider fee. This fee gets distributed between those providing liquidity in the pool',
+  'Market Exchange': 'Market Exchange',
+  'When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund': 'When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund',
+  'OTC Transaction': 'OTC Transaction',
+  'Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund': 'Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund',
+  'Fees table': 'Fees table',
+  'Market Maker': 'Market Maker',
+  'Market Taker': 'Market Taker',
+  Maker: 'Maker',
+  Taker: 'Taker',
+  'Token Pair': 'Token Pair',
+  'Search name or address': 'Search name or address'
 }
