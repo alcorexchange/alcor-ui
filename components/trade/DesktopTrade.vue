@@ -6,7 +6,6 @@
       :col-num="layouts[0].i == 'favorites-top-line' ? 50 : 24",
       :row-height="layouts[0].i == 'favorites-top-line' ? 10 : 40"
       :is-draggable='true',
-      :is-resizable='layouts[0].i == "favorites-top-line" ? false : true',
       :is-mirrored='false',
       :vertical-compact='true',
       :margin='[4, 4]',
@@ -33,7 +32,8 @@
         @moved='itemUpdatedEvent(item)',
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
-        drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line'
+        drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line, .top-favorite-markets'
+        :is-resizable="item.i === 'favorites-top-line' ? false : true"
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
@@ -318,7 +318,7 @@ export default {
   },
 
   mounted() {
-    if (this.$store.state.market.current_market_layout) {
+    if (this.$store.state.market.current_market_layout === 'advanced') {
       document.querySelector('.full-width').classList.add('unlim-width')
     }
 

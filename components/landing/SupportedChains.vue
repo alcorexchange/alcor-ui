@@ -81,11 +81,11 @@ export default {
 }
 
 .section-title {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .chains {
-  margin-bottom: 30px;
+  margin-bottom: 60px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;

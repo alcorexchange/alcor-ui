@@ -1,5 +1,5 @@
 <template lang="pug">
-router-link(:to="{ name: 'trade-index-id', params: { id: promo.slug } }")
+router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo.slug } }")
   .promo
     .chart(v-if="series[0].data")
       .header
@@ -231,7 +231,6 @@ export default {
 }
 
 .banner img {
-  height: 100%;
   border-radius: 4px;
 }
 
