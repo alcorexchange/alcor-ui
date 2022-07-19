@@ -88,11 +88,11 @@ export default {
 
 
 .max-buymatch {
-  background: linear-gradient(180deg, var(--background-color-base) 0%, var(--color-primary) 100%), #212121;
+  background: linear-gradient(180deg, var(--color-primary-op) 0%, rgba(192, 219, 178, 0.2) 100%);
 }
 
 .max-sellmatch {
-  background: linear-gradient(180deg, var(--background-color-base) 0%, var(--color-secondary) 100%), #212121;
+  background: linear-gradient(180deg, var(--color-secondary-op) 0%, rgba(255, 0, 0, 0.2) 100%);
 }
 
 .blist a {
