@@ -6,7 +6,6 @@
       :col-num="layouts[0].i == 'favorites-top-line' ? 50 : 24",
       :row-height="layouts[0].i == 'favorites-top-line' ? 10 : 40"
       :is-draggable='true',
-      :is-resizable='true',
       :is-mirrored='false',
       :vertical-compact='true',
       :margin='[4, 4]',
@@ -33,7 +32,8 @@
         @moved='itemUpdatedEvent(item)',
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
-        drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line'
+        drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line, .top-favorite-markets'
+        :is-resizable="item.i === 'favorites-top-line' ? false : true"
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
@@ -41,6 +41,8 @@
             .module-pickers.d-flex.flex-row
               el-switch(
                 v-model='hideOtherPairs',
+                active-color='#13ce66',
+                inactive-color='#161617'
               )
 
           swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")
@@ -287,7 +289,12 @@ export default {
 
   watch: {
     '$store.state.market.markets_layout'() {
-      if (this.current_market_layout != 'advanced') return
+      if (this.current_market_layout != 'advanced') {
+        document.querySelector('.full-width').classList.add('unlim-width')
+        return
+      } else {
+        document.querySelector('.full-width').classList.remove('unlim-width')
+      }
       this.layouts = this.$store.state.market.markets_layout
     },
 
@@ -311,6 +318,10 @@ export default {
   },
 
   mounted() {
+    if (this.$store.state.market.current_market_layout === 'advanced') {
+      document.querySelector('.full-width').classList.add('unlim-width')
+    }
+
     //if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0
     //setTimeout(() => {
     //  console.log('timeout this.markets_timesale_tab', this.markets_timesale_tab)
@@ -367,6 +378,8 @@ export default {
 
     itemUpdatedEvent(item) {
       if (this.current_market_layout != 'advanced') return
+      // prevent resizing favorite line
+      if (item.i === 'favorites-top-line') return
       //if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
 
       this.$store.commit('market/setMarketLayout', this.markets_layout)
@@ -770,6 +783,7 @@ export default {
 
     .el-input--prefix .el-input__inner {
       padding-left: 35% !important;
+      background-color: var(--background-color-secondary);
     }
 
     .el-form-item__content {

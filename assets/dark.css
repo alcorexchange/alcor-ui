@@ -12838,10 +12838,10 @@
 
 .el-input__inner {
     -webkit-appearance: none;
-    background-color: var(--background-color-secondary);
+    background-color: var(--background-color-base);
     background-image: none;
     border-radius: 4px;
-    border: 1px solid var(--background-color-secondary);
+    border: 1px solid var(--background-color-base);
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     color: #FFF;

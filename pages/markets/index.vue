@@ -105,6 +105,9 @@ export default {
     topGainers() {
       const tmp = [...this.markets]
       return tmp
+        .filter(i => i.base_token.contract == this.network.baseToken.contract)
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .slice(0, 50)
         .sort((a, b) => b.change24 - a.change24)
         .slice(0, 3)
     },

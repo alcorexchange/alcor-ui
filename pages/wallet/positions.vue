@@ -158,7 +158,7 @@ export default {
 
     trade(position) {
       this.$router.push({
-        name: 'trade-index-id',
+        name: `trade-index-id___${this.$i18n.locale}`,
         params: {
           id: position.slug
         }
