@@ -163,7 +163,8 @@ export default {
         {
           label: 'Pair(a-z)',
           value: 'quote_name',
-          width: '30%'
+          width: '30%',
+          sortable: true
         },
         {
           label: 'Price',

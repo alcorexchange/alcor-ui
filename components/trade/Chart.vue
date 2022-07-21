@@ -161,7 +161,6 @@ export default {
       const twChart = this.$store.state.settings.twChart[this.id]
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
-      this.applyTheme()
     },
 
     applyTheme() {
@@ -631,6 +630,7 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
+        this.applyTheme()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
           this.save()
