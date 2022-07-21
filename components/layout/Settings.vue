@@ -107,7 +107,7 @@
               .static-color-picker.bloom-green.mx-1
               .static-color-picker.bloom-red.mx-1
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="$route.name == `trade-index-id___${$i18n.locale}`")
+    .el-container.setting-layout.d-flex.flex-column(v-if="!isMobile && $route.name == `trade-index-id___${$i18n.locale}`")
       .setting-module-footer.el-footer.text-white
         span.module-title {{ $t('Layouts') }}
       .el-main.module-main-settings
@@ -127,7 +127,7 @@
 
             span {{ $t('FullScreen') }}
 
-    .el-container.setting-layout.d-flex.flex-column(v-if="current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
+    .el-container.setting-layout.d-flex.flex-column(v-if="!isMobile && current_market_layout == 'advanced' && $route.name == `trade-index-id___${$i18n.locale}`")
       hr(style='width: 90%; text-align: center; background-color: rgba(120, 120, 135, 0.36); margin-top: 5px; margin-bottom: 9px')
       .setting-module-footer.el-footer.text-white
         span.module-title {{ $t('Layout Modules') }}

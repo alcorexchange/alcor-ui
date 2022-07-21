@@ -57,9 +57,9 @@
           .icon-btn(v-if="isAdvanced")
             i.el-icon-close(@click='closegriditem(item.i)')
 
-        top-line(v-if='item.i == "chart"')
-
         favorites-top-line.box-card.h-100(v-loading='loading' v-if='item.i == "favorites-top-line"')
+
+        top-line(v-if='item.i == "chart"')
 
         chart(v-if='item.i == "chart"')
           #tv_chart_container
