@@ -220,7 +220,7 @@ export const actions = {
         dispatch('unsubscribe', state.last_market_subscribed)
       }
 
-      if (state.id && this._vm.$nuxt.$route.name == 'trade-index-id') {
+      if (state.id && this._vm.$nuxt.$route.name.includes('trade-index-id')) {
         dispatch('startStream', state.id)
       }
     })
