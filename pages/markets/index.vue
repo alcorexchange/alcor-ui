@@ -125,7 +125,8 @@ export default {
         {
           label: 'Pair',
           value: 'quote_name',
-          width: '335px'
+          width: '335px',
+          sortable: true
         },
         {
           label: 'Last price',
