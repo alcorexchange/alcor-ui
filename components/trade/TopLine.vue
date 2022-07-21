@@ -315,66 +315,66 @@ export default {
   display: flex;
   padding-right: 75px;
 
-  &.shadow::after {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
+  @media (min-width: 600px) {
+    &.shadow::after {
+      pointer-events: none;
+      /* ignore clicks */
+      content: "";
+      position: absolute;
+      z-index: 10;
+      height: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
 
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
-    /* IE6-9 fallback on horizontal gradient */
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+      background: -moz-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+      /* FF3.6-15 */
+      background: -webkit-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+      /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(90deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+      /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+      /* IE6-9 fallback on horizontal gradient */
 
+    }
+
+    &.end::after {
+      pointer-events: none;
+      /* ignore clicks */
+      content: "";
+      position: absolute;
+      z-index: 10;
+      height: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
+
+      background: none;
+    }
+
+    &:not(.start)::before {
+      pointer-events: none;
+      /* ignore clicks */
+      content: "";
+      position: absolute;
+      z-index: 10;
+      height: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
+
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+      background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+      /* FF3.6-15 */
+      background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+      /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+      /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+      /* IE6-9 fallback on horizontal gradient */
+    }
   }
-
-  &.end::after {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
-
-    background: none;
-  }
-
-
-  &:not(.start)::before {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
-
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
-    /* IE6-9 fallback on horizontal gradient */
-  }
-
 }
 
 .trade-top-line {

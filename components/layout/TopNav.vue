@@ -42,6 +42,15 @@ nav.nav(v-if='!isMobile')
     .mobile-chain-select
       chain-select
 
+    AlcorButton(
+      :icon-only-alt='true',
+      @click='showSetting = !showSetting'
+    )
+      i.el-icon-setting.show-settings
+
+    settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
+
+
     AlcorButton(@click='openMenu', :icononlyalt='true')
       i.el-icon-more
     nav(:class='["menu", { menuActive }]')
@@ -71,18 +80,21 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav'
 import ChainSelect from '~/components/elements/ChainSelect'
+import Settings from '~/components/layout/Settings'
 
 export default {
   components: {
     AlcorLink,
     AlcorButton,
     ConnectNav,
-    ChainSelect
+    ChainSelect,
+    Settings
   },
 
   data() {
     return {
       menuActive: false,
+      showSetting: false
     }
   },
 
@@ -120,6 +132,12 @@ export default {
   },
 
   methods: {
+    onClickOutside(event) {
+      if (this.showSetting) {
+        this.showSetting = false
+      }
+    },
+
     isActive(index) {
       const { path } = this.$route
 
@@ -142,6 +160,20 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.alcor-button {
+  height: 26px;
+}
+
+.settings {
+  position: absolute;
+  top: 50px;
+  right: 0px;
+  background: var(--table-background);
+  border: var(--border-2);
+  border-radius: 2px;
+  z-index: 9;
+}
+
 .mobile-chain-select {
   display: flex;
   align-items: center;
@@ -198,6 +230,7 @@ export default {
   //justify-content: space-between;
   align-items: center;
   padding: 8px;
+  gap: 5px;
 }
 
 .menu {
