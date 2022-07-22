@@ -33,21 +33,20 @@
       .dropdown(v-show="visible")
         el-input(:placeholder="$t('Search by name or contract')" :clearable="!static" v-model="search" size="small" ref="searchInput")
 
-        .pairs.mt-2
-          .pair(
-            v-for="token in tokensFiltered"
-            :key="token.id"
-            @click="setToken(token)" :class="{ isActive: isActiveToken(token) }"
-          )
-            TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
-            span.ml-2 {{ token.symbol }}
-            //a(:href="monitorAccount(token.contract)" target="_blank" v-on:click.stop).text-muted.ml-2.small {{ token.contract }}
-            .text-muted.ml-2.small {{ token.contract }}
+        recycle-scroller(:emit-update="true" class="scroller" :items="tokensFiltered" item-size="45" keyField="symbol")
+          template(v-slot="{ item: token }")
+            .pair(
+              :key="token.symbol"
+              @click="setToken(token)" :class="{ isActive: isActiveToken(token) }"
+            )
+              TokenImage(:src="$tokenLogo(token.symbol, token.contract)" height="25")
+              span.ml-2 {{ token.symbol }}
+              .text-muted.ml-2.small {{ token.contract }}
 
-            .ml-auto(v-if="user")
-              span.text-muted {{ token.balance | commaFloat }}
+              .ml-auto(v-if="user")
+                span.text-muted {{ token.balance | commaFloat }}
 
-          slot(name="end")
+              slot(name="end")
 </template>
 
 <script>
@@ -57,7 +56,7 @@ import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
   },
 
   props: {
@@ -270,6 +269,10 @@ export default {
 </script>
 
 <style lang="scss">
+.scroller {
+  height: 100%;
+}
+
 .swap-token-select {
   .dropdown {
     border-radius: var(--radius);
