@@ -52,6 +52,7 @@ export default {
 
 .scroller {
   border: 1px solid var(--background-color-third);
+  border-top: none;
   color: var(--text-secondary);
 }
 
@@ -72,7 +73,7 @@ export default {
   display: flex;
   line-height: 20px;
   padding: 15px 20px;
-  border-bottom: 1px solid var(--hover);
+  border-bottom: 1px solid var(--background-color-base);
 }
 
 .header__column {
