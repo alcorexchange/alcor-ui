@@ -12,8 +12,10 @@ client-only
 
       .d-flex.flex-column
         .text-grey
-          a.text-muted(:href='monitorAccount(quote_token.contract)', target='_blank')
-            u {{ quote_token.contract }}
+          .contract-info(:href='monitorAccount(quote_token.contract)', target='_blank')
+            a.underline(:href='monitorAccount(quote_token.contract)', target='_blank') {{ quote_token.contract }}
+            nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
+
 
           //i.el-icon-question.ml-2
           //img(src="~/assets/icons/question.svg").ml-2
@@ -306,6 +308,33 @@ export default {
 
 .unlim-width .fav {
   right: 47px;
+}
+
+.contract-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-disable);
+
+  a.underline {
+    text-decoration: underline !important;
+    color: var(--text-disable);
+  }
+}
+
+.token-info {
+  border: 0.2em solid var(--text-disable);
+  box-sizing: border-box;
+  display: inline-block;
+  text-align: center;
+  font-size: 9px;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 50%;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-disable);
+
 }
 </style>
 

@@ -17,7 +17,7 @@ export default {
       const output = `${pair.pool2.quantity.symbol.code().to_string()}-${pair.pool2.contract}`
 
       const q = new URLSearchParams({ input, output })
-      this.openInNewTab('/swap?' + q)
+      this.openInNewTab(`${this.$i18n.locale === 'en' ? '' : '/' + this.$i18n.locale}/swap/?` + q)
     }
   }
 }
