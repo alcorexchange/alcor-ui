@@ -273,10 +273,6 @@ export default {
     }
   },
 
-  mounted() {
-    this.tradeColor = window.localStorage.getItem('trade-theme')
-  },
-
   methods: {
     setMarketLayout(value) {
       if (value === 'advanced')
