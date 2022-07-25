@@ -1,5 +1,5 @@
 <template lang="pug">
-.theme-option.d-flex.align-items-center.theme-option(@click="changeTheme")
+.theme-option.d-flex.align-items-center.theme-option(@click="changeTheme" @touchstart="changeTheme")
   .theme-option__name {{ theme.value }}
   .theme-option__pickers
     .picker-text(

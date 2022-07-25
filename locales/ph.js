@@ -157,7 +157,7 @@ export default {
   AMOUNT: 'HALAGA',
   PRICE: 'PRESYO',
   '24H USD': '24H USD',
-  'Weekly Volume (WAX / USD):': 'Lingguhang Dami (WAX / USD):',
+  'Weekly Volume (WAX / USD)': 'Lingguhang Dami (WAX / USD)',
   'All Time High/Low:': 'Pinaka Mataas/Mababa:',
   Amount: 'Halaga',
   Balance: 'Balanse',
@@ -479,5 +479,7 @@ export default {
   Maker: 'Maker',
   Taker: 'Taker',
   'Token Pair': 'Token Pair',
-  'Search name or address': 'Search name or address'
+  'Search name or address': 'Search name or address',
+  'cancel all': 'cancel all',
+  'Cancel All Orders': 'Cancel All Orders'
 }

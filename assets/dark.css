@@ -12971,7 +12971,8 @@
 }
 
 .el-input--prefix .el-input__inner {
-    padding-left: 30px
+    padding-left: 30px;
+    background: var(--background-color-secondary);
 }
 
 .el-input--medium {
@@ -12993,7 +12994,8 @@
 
 .el-input--small .el-input__inner {
     height: 32px;
-    line-height: 32px
+    line-height: 32px;
+    background: var(--background-color-secondary);
 }
 
 .el-input--small .el-input__icon {

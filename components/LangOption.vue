@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-items-center lang-option" @click="changeLang">
+  <div class="d-flex align-items-center lang-option" @click="changeLang" @touchstart="changeLang">
     <icon :icon="icons[code]" />
     <span>{{ labels[code] }}</span>
   </div>
@@ -28,7 +28,8 @@ export default {
   },
   methods: {
     changeLang() {
-      this.$router.push(this.switchLocalePath(this.code))
+      if (this.code !== this.$i18n.local)
+        this.$router.push(this.switchLocalePath(this.code))
     }
   }
 }
