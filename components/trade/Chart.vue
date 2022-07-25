@@ -445,6 +445,9 @@ export default {
       const { $TVChart: { Widget } } = this
       console.log('mountChart')
 
+      const theme = this.chartThemes[this.$colorMode.value]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
 
@@ -623,6 +626,27 @@ export default {
         // Styles
         theme: this.$colorMode.value,
         custom_css_url: '/tv_themed.css',
+
+        overrides: {
+          volumePaneSize: 'medium',
+          'paneProperties.background': theme.background,
+          'scalesProperties.textColor': theme.textColor,
+
+          'paneProperties.vertGridProperties.color': theme.gridColor,
+          'paneProperties.horzGridProperties.color': theme.gridColor,
+
+          'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.candleStyle.drawBorder': false,
+          'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
+
+          'scalesProperties.lineColor': theme.scaleLineColor,
+        },
 
         loading_screen: {
           backgroundColor: this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
