@@ -479,7 +479,7 @@ export default {
   Memo: 'Memo',
   'Withdraw amount': 'Сумма вывода',
   address: 'адрес',
-  'Your token will be transferred to': 'Ваши токены будут отправлены на'
+  'Your token will be transferred to': 'Ваши токены будут отправлены на',
   Promotions: 'Promotions',
   '1D Volume': '1D Volume',
   'Token promotion': 'Token promotion',

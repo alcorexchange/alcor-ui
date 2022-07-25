@@ -77,7 +77,7 @@
       .stat
         .title.disable
           span {{ $t('Fully Diluted Market Cap') }}
-          el-popover(placement='bottom-start' width='400' trigger='hover')
+          el-popover(placement='bottom-start' width='300' trigger='hover')
             template
               .text-break
                 p {{ $t('The market cap if the max supply was in circulation') }}.
@@ -91,7 +91,7 @@
       .stat
         .title.disable
           span {{ $t('Market Cap') }}
-          el-popover(placement='bottom-start' width='400' trigger='hover')
+          el-popover(placement='bottom-start' width='300' trigger='hover')
             template
               .text-break
                 p {{ $t("The total market value of a cryptocurrency's circulating supply.It is analogous to the free - float capitalization in the stock market") }}.
@@ -105,7 +105,7 @@
       .stat
         .title.disable
           span {{ $t('Volume 24h') }}
-          el-popover(placement='bottom-start' width='400' trigger='hover')
+          el-popover(placement='bottom-start' width='300' trigger='hover')
             template
               .text-break
                 p {{ $t('A measure of how much of a cryptocurrency was traded in the last 24 hours') }}.
@@ -119,7 +119,7 @@
       .stat
         .title.disable
           span {{ $t('Circulating Supply') }}
-          el-popover(placement='bottom-start' width='400' trigger='hover')
+          el-popover(placement='bottom-start' width='300' trigger='hover')
             template
               .text-break
                 p {{ $t('The amount of coins that are circulating in the market and are in public hands. It is analogous to the flowing shares in the stock market') }}.
@@ -131,7 +131,7 @@
       .stat
         .title.disable
           span {{ $t('Max Supply') }}
-          el-popover(placement='bottom-start' width='400' trigger='hover')
+          el-popover(placement='bottom-start' width='300' trigger='hover')
             template
               .text-break
                 p {{ $t('The maximum amount of coins that will ever exist in the lifetime of the cryptocurrency. It is analogous to the fully diluted shares in the stock market') }}.
@@ -144,7 +144,7 @@
       .stat
         .title.disable
           span {{ $t('Total Supply') }}
-          el-popover(placement='bottom-start' width='400' trigger='hover')
+          el-popover(placement='bottom-start' width='300' trigger='hover')
             template
               .text-break
                 p {{ $t('The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market') }}.
@@ -187,11 +187,7 @@ export default {
       return this.contractMarkets.find(({ quote_token }) => quote_token.symbol.name === this.$route.params.slug.split('@')[0])
     },
     fundamental() {
-<<<<<<< HEAD
-      return process.env.tokenFundamentals[this.$route.params.slug]
-=======
       return this.$fundamentals[this.$store.state.network.name][this.$route.params.slug]
->>>>>>> 488fb98c (Fundamental page)
     }
   },
   watch: {
@@ -228,199 +224,191 @@ export default {
 }
 
 .fund {
+  &__back {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 24px;
+  }
 
   &__title {
     font-size: 25px;
+    margin-top: 12px;
+  }
+
+  &__header {
+
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+
+    @media only screen and (max-width: 600px) {
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .label {
+      font-size: 20px;
+
+      @media only screen and (max-width: 600px) {
+        font-size: 14px;
+      }
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      @media only screen and (max-width: 600px) {
+        gap: 8px;
+      }
+
+    }
+
+    .value {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 34px;
+
+      @media only screen and (max-width: 600px) {
+        font-size: 18px;
+
+        img {
+          height: 18px;
+        }
+      }
+    }
+
+    .actions {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .link {
+      text-decoration: none;
+    }
+
+  }
+
+  &__info {
+    margin-top: 64px;
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: var(--background-color-third);
+    border-radius: 8px;
+
+    @media only screen and (max-width: 600px) {
+      margin-top: 32px;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      @media only screen and (max-width: 600px) {
+        gap: 0px;
+      }
+
+    }
+
+    .label {
+      display: flex;
+      gap: 10px;
+    }
+
+    .bold {
+      font-weight: 700;
+    }
+
+    .value {
+      display: flex;
+      gap: 8px;
+      font-size: 20px;
+    }
+
+    .link {
+      text-decoration: underline !important;
+      cursor: pointer;
+      font-weight: 700;
+      color: #80A1C5;
+    }
+  }
+
+  &__advance {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 36px;
+
+    @media only screen and (max-width: 600px) {
+      flex-direction: column;
+    }
+
+    .list-tags {
+      border-radius: 8px;
+      padding: 18px;
+      background-color: var(--background-color-third);
+      width: 265px;
+      height: 182px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tags {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      background-color: var(--btn-active);
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .bold {
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--text-default)
+    }
+  }
+
+  #fund__chart {
+    margin-top: 64px;
+    height: 550px;
+
+    @media only screen and (max-width: 600px) {
+      margin-top: 32px;
+    }
+
+  }
+
+  &__description {
     margin-top: 64px;
 
-    &__back {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      margin-top: 24px;
-    }
-
-    &__title {
-      font-size: 25px;
-      margin-top: 12px;
-    }
-
-    &__header {
-
-      display: flex;
-      justify-content: space-between;
-      margin-top: 40px;
-
-      @media only screen and (max-width: 600px) {
-        flex-direction: column;
-        gap: 16px;
-        margin-top: 20px;
-      }
-
-      .label {
-        font-size: 20px;
-
-        @media only screen and (max-width: 600px) {
-          font-size: 14px;
-        }
-      }
-
-      .column {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        @media only screen and (max-width: 600px) {
-          gap: 8px;
-        }
-
-      }
-
-      .value {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 700;
-        font-size: 34px;
-
-        @media only screen and (max-width: 600px) {
-          font-size: 18px;
-
-          img {
-            height: 18px;
-          }
-        }
-      }
-
-      .actions {
-        display: flex;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 16px;
-      }
-
-      .link {
-        text-decoration: none;
-      }
-
-    }
-
-    &__info {
-      margin-top: 64px;
-      display: flex;
-      justify-content: space-between;
-      padding: 16px;
-      background-color: var(--background-color-third);
-      border-radius: 8px;
-
-      @media only screen and (max-width: 600px) {
-        margin-top: 32px;
-        flex-direction: column;
-        gap: 32px;
-      }
-
-
-      .column {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        @media only screen and (max-width: 600px) {
-          gap: 0px;
-        }
-
-      }
-
-      .label {
-        display: flex;
-        gap: 10px;
-      }
-
-      .bold {
-        font-weight: 700;
-      }
-
-      .value {
-        display: flex;
-        gap: 8px;
-        font-size: 20px;
-      }
-
-      .link {
-        text-decoration: underline !important;
-        cursor: pointer;
-        font-weight: 700;
-        color: #80A1C5;
-      }
-    }
-
-    &__advance {
+    @media only screen and (max-width: 600px) {
       margin-top: 32px;
-      display: flex;
-      justify-content: flex-start;
-      gap: 36px;
-
-      @media only screen and (max-width: 600px) {
-        flex-direction: column;
-      }
-
-
-      .list-tags {
-        border-radius: 8px;
-        padding: 18px;
-        background-color: var(--background-color-third);
-        width: 265px;
-        height: 182px;
-      }
-
-      .title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .tags {
-        margin-top: 8px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .tag {
-        background-color: var(--btn-active);
-        padding: 8px 16px;
-        border-radius: 8px;
-      }
-
-      .column {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .bold {
-        font-weight: 600;
-        font-size: 18px;
-        color: var(--text-default)
-      }
-    }
-
-    #fund__chart {
-      margin-top: 64px;
-      height: 550px;
-
-      @media only screen and (max-width: 600px) {
-        margin-top: 32px;
-      }
-
-    }
-
-    &__description {
-      margin-top: 64px;
-
-      @media only screen and (max-width: 600px) {
-        margin-top: 32px;
-      }
     }
   }
 }
