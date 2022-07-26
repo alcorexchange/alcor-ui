@@ -217,6 +217,8 @@ export default {
   .item {
     padding: 4px 14px;
     margin-right: 4px;
+    display: flex;
+    align-items: center;
 
     &.active {
       background: var(--btn-active);
