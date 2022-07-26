@@ -12,8 +12,10 @@ client-only
 
       .d-flex.flex-column
         .text-grey
-          a.text-muted(:href='monitorAccount(quote_token.contract)', target='_blank')
-            u {{ quote_token.contract }}
+          .contract-info(:href='monitorAccount(quote_token.contract)', target='_blank')
+            a.underline(:href='monitorAccount(quote_token.contract)', target='_blank') {{ quote_token.contract }}
+            nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
+
 
           //i.el-icon-question.ml-2
           //img(src="~/assets/icons/question.svg").ml-2
@@ -27,19 +29,19 @@ client-only
         span.text-grey {{ $t('Change 24H') }}
         change-percent(:change='stats.change24')
       .d-flex.flex-column(v-if="header_settings.volume_24")
-        span.text-grey {{ $t('Volume 24H:') }}
+        span.text-grey {{ $t('Volume 24H') }}:
         span {{ stats.volume24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.high_24")
-        span.text-grey {{ $t('24H High:') }}
+        span.text-grey {{ $t('24H High') }}:
         span {{ stats.high24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.low_24")
-        span.text-grey {{ $t('24H Low:') }}
+        span.text-grey {{ $t('24H Low') }}:
         span {{ stats.low24.toFixed(2) | commaFloat }} {{ base_token.symbol.name }}
       .d-flex.flex-column(v-if="header_settings.volume_24_usd & base_token.contract == network.baseToken.contract")
-        span.text-grey {{ $t('24H USD:') }}
+        span.text-grey {{ $t('24H USD') }}:
         span $ {{ $systemToUSD(stats.volume24) }}
       .d-flex.flex-column(v-if="header_settings.weekly_volume")
-        span.text-grey {{ $t('Weekly Volume (WAX / USD):') }}
+        span.text-grey {{ $t('Weekly Volume (WAX / USD)') }}:
 
         span {{ stats.volumeWeek | commaFloat(2) }} {{ base_token.symbol.name }}
           span(v-if="base_token.contract == network.baseToken.contract")  / $ {{ $systemToUSD(stats.volumeWeek) }}
@@ -79,24 +81,25 @@ export default {
     this.setArrow()
     this.assignClass()
 
-    setTimeout(() => {
-      this.$refs.panel.onwheel = e => {
-        this.$refs.panel.scrollLeft += e.deltaY
-        if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
-          this.$refs.panel.classList.add('end')
-        } else {
-          this.$refs.panel.classList.remove('end')
+    if (!this.isMobile)
+      setTimeout(() => {
+        this.$refs.panel.onwheel = e => {
+          this.$refs.panel.scrollLeft += e.deltaY
+          if (this.getInnerWidth() - this.$refs.panel.clientWidth < this.$refs.panel.scrollLeft) {
+            this.$refs.panel.classList.add('end')
+          } else {
+            this.$refs.panel.classList.remove('end')
+          }
+          if (this.$refs.panel.scrollLeft == 0) {
+            this.$refs.panel.classList.add('start')
+            this.arrowRight = true
+          } else {
+            this.$refs.panel.classList.remove('start')
+            this.arrowRight = false
+          }
+          e.preventDefault()
         }
-        if (this.$refs.panel.scrollLeft == 0) {
-          this.$refs.panel.classList.add('start')
-          this.arrowRight = true
-        } else {
-          this.$refs.panel.classList.remove('start')
-          this.arrowRight = false
-        }
-        e.preventDefault()
-      }
-    })
+      })
   },
 
   data() {
@@ -144,7 +147,7 @@ export default {
 
     assignClass() {
       setTimeout(() => {
-        if (this.getInnerWidth() > this.$refs.panel.clientWidth) {
+        if (!this.isMobile && this.getInnerWidth() > this.$refs.panel.clientWidth) {
           this.$refs.panel.classList.add('shadow')
         } else {
           this.$refs.panel.classList.remove('shadow')
@@ -217,6 +220,10 @@ export default {
 .header-items-container {
   overflow: hidden;
 
+  @media only screen and (max-width: 1175px) {
+    overflow: scroll;
+  }
+
   .token-name {
     font-size: 14px;
   }
@@ -269,7 +276,14 @@ export default {
   height: 20px;
   position: absolute;
   top: 2px;
-  right: 68px;
+}
+
+.arrow {
+  right: 46px;
+}
+
+.unlim-width .arrow {
+  right: 70px;
 }
 
 .fav {
@@ -278,7 +292,6 @@ export default {
   height: 20px;
   position: absolute;
   top: 2px;
-  right: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,6 +301,41 @@ export default {
     display: none;
   }
 }
+
+.fav {
+  right: 24px;
+}
+
+.unlim-width .fav {
+  right: 47px;
+}
+
+.contract-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-disable);
+
+  a.underline {
+    text-decoration: underline !important;
+    color: var(--text-disable);
+  }
+}
+
+.token-info {
+  border: 0.2em solid var(--text-disable);
+  box-sizing: border-box;
+  display: inline-block;
+  text-align: center;
+  font-size: 9px;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 50%;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-disable);
+
+}
 </style>
 
 <style lang="scss">
@@ -296,66 +344,66 @@ export default {
   display: flex;
   padding-right: 75px;
 
-  &.shadow::after {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
+  @media (min-width: 600px) {
+    &.shadow::after {
+      pointer-events: none;
+      /* ignore clicks */
+      content: "";
+      position: absolute;
+      z-index: 10;
+      height: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
 
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
-    /* IE6-9 fallback on horizontal gradient */
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+      background: -moz-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+      /* FF3.6-15 */
+      background: -webkit-linear-gradient(-45deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+      /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(90deg, var(--end-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--start-bg) 100%);
+      /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+      /* IE6-9 fallback on horizontal gradient */
 
+    }
+
+    &.end::after {
+      pointer-events: none;
+      /* ignore clicks */
+      content: "";
+      position: absolute;
+      z-index: 10;
+      height: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
+
+      background: none;
+    }
+
+    &:not(.start)::before {
+      pointer-events: none;
+      /* ignore clicks */
+      content: "";
+      position: absolute;
+      z-index: 10;
+      height: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
+
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
+      background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+      /* FF3.6-15 */
+      background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+      /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
+      /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
+      /* IE6-9 fallback on horizontal gradient */
+    }
   }
-
-  &.end::after {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
-
-    background: none;
-  }
-
-
-  &:not(.start)::before {
-    pointer-events: none;
-    /* ignore clicks */
-    content: "";
-    position: absolute;
-    z-index: 10;
-    height: 50px;
-    left: 0;
-    top: 0;
-    width: 100%;
-
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+50,000000+100&1+0,0+50,1+100 */
-    background: -moz-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(90deg, var(--start-bg) 0%, var(--end-bg) 5%, var(--end-bg) 95%, var(--end-bg) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=1);
-    /* IE6-9 fallback on horizontal gradient */
-  }
-
 }
 
 .trade-top-line {

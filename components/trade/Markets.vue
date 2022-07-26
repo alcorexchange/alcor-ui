@@ -43,7 +43,7 @@
 
         .pair-price {{ item.last_price | commaFloat(5) }}
         .pair-volume
-          span.text-mutted(v-if="showVolumeInUSD && 1") ${{ $systemToUSD(item.volume24) }}
+          span.text-mutted(v-if="showVolumeInUSD && sideMaretsTab == 'system'") ${{ $systemToUSD(item.volume24) }}
           span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat(0) }} {{ item.base_name }}
 
 </template>
@@ -163,7 +163,8 @@ export default {
         {
           label: 'Pair(a-z)',
           value: 'quote_name',
-          width: '30%'
+          width: '30%',
+          sortable: true
         },
         {
           label: 'Price',
@@ -172,7 +173,7 @@ export default {
           sortable: true
         },
         {
-          label: 'Vol 24',
+          label: 'Vol 24h',
           value: 'volume24',
           width: '35%',
           sortable: true,
@@ -312,6 +313,11 @@ export default {
 
   .el-input__inner {
     background-color: var(--background-color-base) !important;
+
+    @media screen and (max-width: 767px) {
+      // prevent zoomin in mobile devices
+      font-size: 16px !important;
+    }
   }
 }
 

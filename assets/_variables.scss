@@ -9,37 +9,37 @@
 
 [trade-theme="default"] {
   --color-primary: #66C167;
-  --color-primary-op: rgba(102, 193, 103, .5);
+  --color-primary-op: rgba(102, 193, 103, .2);
   --primary-darker: #46A147;
   --color-secondary: #F96C6C;
-  --color-secondary-op: rgba(249, 108, 108, .5);
+  --color-secondary-op: rgba(249, 108, 108, .2);
   --secondary-darker: #D94C4C;
 }
 
 [trade-theme="bloom"] {
   --color-primary: #277DFA;
-  --color-primary-op: rgba(39, 125, 250, .5);
+  --color-primary-op: rgba(39, 125, 250, .2);
   --primary-darker: #055AD6;
   --color-secondary: #FFAB2E;
-  --color-secondary-op: rgba(250, 149, 0, .5);
+  --color-secondary-op: rgba(250, 149, 0, .2);
   --secondary-darker: #D68000;
 }
 
 [trade-theme="cyber"] {
-  --color-primary: #00AB4A;
-  --color-primary-op: rgba(0, 153, 66, .5);
+  --color-primary: #00D65D;
+  --color-primary-op: rgba(0, 153, 66, 0.2);
   --primary-darker: #009942;
-  --color-secondary: #F22B55;
-  --color-secondary-op: rgba(242, 43, 85, .5);
+  --color-secondary:  #F4486C;
+  --color-secondary-op: rgba(212, 13, 55, 0.2);
   --secondary-darker: #D40D37;
 }
 
 [trade-theme="contrast"] {
   --color-primary: #00B909;
-  --color-primary-op: rgba(0, 185, 9, .5);
+  --color-primary-op: rgba(0, 185, 9, .2);
   --primary-darker: #10C919;
   --color-secondary: #C60606;
-  --color-secondary-op: rgba(198, 6, 6, .5);
+  --color-secondary-op: rgba(198, 6, 6, .2);
   --secondary-darker: #D61616;
 }
 
@@ -68,6 +68,7 @@
   --text-default: #f2f2f2;
   --text-secondary: #d9d9d9;
   --text-grey-thirdly: #bdbdbd;
+  --text-disable: #c4c4c4;
 
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
   --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
@@ -89,6 +90,7 @@
 
   //trade 
   --trade-bg: #212121;
+  --trade-bg-secondary: #282828;
   --trade-tab-bg: #212121;
   --trade-header-bg: #333333;
 
@@ -128,6 +130,7 @@
   --text-default: #303133;
   --text-secondary: #606266;
   --text-grey-thirdly: #787878;
+  --text-disable: #c4c4c4;
 
   --border-color: #CDD0D6;
 
@@ -143,6 +146,7 @@
 
     //trade 
   --trade-bg: #F0F2F5;
+  --trade-bg-secondary: #F0F2F5;
   --trade-tab-bg: #D4D7DE;
   --trade-header-bg: #DCDFE6;
 

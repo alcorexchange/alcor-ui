@@ -134,7 +134,7 @@ h1 {
 
   h2,
   .desc {
-    text-align: center;
+    text-align: left;
   }
 }
 </style>

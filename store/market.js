@@ -183,6 +183,7 @@ export const mutations = {
     show_trade_execution_amount: false
   },
   setMarket: (state, market) => {
+    console.log('ssss', market)
     const { id, base_token, quote_token, slug } = market
 
     state.id = id
@@ -220,7 +221,7 @@ export const actions = {
         dispatch('unsubscribe', state.last_market_subscribed)
       }
 
-      if (state.id && this._vm.$nuxt.$route.name == 'trade-index-id') {
+      if (state.id && this._vm.$nuxt.$route.name.includes('trade-index-id')) {
         dispatch('startStream', state.id)
       }
     })

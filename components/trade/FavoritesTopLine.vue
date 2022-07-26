@@ -186,7 +186,7 @@ export default {
     min-width: max-content;
 
     &.active {
-      background-color: var(--btn-alternative);
+      background-color: var(--btn-default);
     }
   }
 

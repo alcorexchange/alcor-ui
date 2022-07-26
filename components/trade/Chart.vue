@@ -26,13 +26,13 @@ export default {
         light: {
           background: '#F0F2F5',
           textColor: '#303133',
-          gridColor: '#CDD0D6',
+          gridColor: 'rgba(50, 50, 50, .03)',
           scaleLineColor: '#CDD0D6'
         },
         dark: {
           background: '#212121',
           textColor: '#bdbdbd',
-          gridColor: '#333333',
+          gridColor: 'rgba(200, 200, 200, .03)',
           scaleLineColor: '#444444'
         }
       },
@@ -80,7 +80,6 @@ export default {
   watch: {
     '$colorMode.value'() {
       this.mountChart()
-      this.$forceUpdate()
     },
     '$store.state.settings.tradeColor'() {
       this.applyTheme()
@@ -162,31 +161,33 @@ export default {
       const twChart = this.$store.state.settings.twChart[this.id]
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
-      this.applyTheme()
     },
 
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
-      this.widget.applyOverrides({
-        volumePaneSize: 'medium',
-        'paneProperties.background': theme.background,
-        'scalesProperties.textColor': theme.textColor,
 
-        'paneProperties.vertGridProperties.color': theme.gridColor,
-        'paneProperties.horzGridProperties.color': theme.gridColor,
+      this.widget.onChartReady(() => {
+        this.widget.applyOverrides({
+          volumePaneSize: 'medium',
+          'paneProperties.background': theme.background,
+          'scalesProperties.textColor': theme.textColor,
 
-        'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
-        'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
-        'mainSeriesProperties.candleStyle.drawBorder': false,
-        'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
-        'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
-        'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
-        'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
-        'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
-        'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
+          'paneProperties.vertGridProperties.color': theme.gridColor,
+          'paneProperties.horzGridProperties.color': theme.gridColor,
 
-        'scalesProperties.lineColor': theme.scaleLineColor
+          'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.candleStyle.drawBorder': false,
+          'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
+
+          'scalesProperties.lineColor': theme.scaleLineColor
+        })
       })
     },
 
@@ -444,6 +445,9 @@ export default {
       const { $TVChart: { Widget } } = this
       console.log('mountChart')
 
+      const theme = this.chartThemes[this.$colorMode.value]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
 
@@ -576,10 +580,10 @@ export default {
           'compare_symbol',
           'border_around_the_chart',
           'header_saveload',
-          'control_bar',
+          //'control_bar',
+          this.isMobile ? 'left_toolbar' : undefined,
 
           //'symbol_search_hot_key',
-          this.isMobile ? 'left_toolbar' : undefined,
 
           'cropped_tick_marks',
           'trading_notifications',
@@ -587,6 +591,7 @@ export default {
           //'end_of_period_timescale_marks',
           'datasource_copypaste',
           'chart_crosshair_menu',
+          'show_zoom_and_move_buttons_on_touch',
 
           //'shift_visible_range_on_new_bar',
           'go_to_date',
@@ -610,6 +615,7 @@ export default {
         ],
         enabled_features: [
           'side_toolbar_in_fullscreen_mode',
+          this.isMobile ? 'hide_left_toolbar_by_default' : null,
           'header_in_fullscreen_mode'
         ],
 
@@ -621,6 +627,27 @@ export default {
         theme: this.$colorMode.value,
         custom_css_url: '/tv_themed.css',
 
+        overrides: {
+          volumePaneSize: 'medium',
+          'paneProperties.background': theme.background,
+          'scalesProperties.textColor': theme.textColor,
+
+          'paneProperties.vertGridProperties.color': theme.gridColor,
+          'paneProperties.horzGridProperties.color': theme.gridColor,
+
+          'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.candleStyle.drawBorder': false,
+          'mainSeriesProperties.candleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.candleStyle.wickDownColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.upColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.downColor': colors.candleDownColor,
+          'mainSeriesProperties.hollowCandleStyle.wickUpColor': colors.candleUpColor,
+          'mainSeriesProperties.hollowCandleStyle.wickDownColor': colors.candleDownColor,
+
+          'scalesProperties.lineColor': theme.scaleLineColor,
+        },
+
         loading_screen: {
           backgroundColor: this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
           foregroundColor: this.$colorMode.value == 'light' ? '#4a4a4a' : '#9EABA3'
@@ -630,6 +657,7 @@ export default {
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
         this.load()
+        this.applyTheme()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
           this.save()

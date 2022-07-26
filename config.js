@@ -129,7 +129,7 @@ const networks = {
       'HASH@eoshashcoins',
       'JOKER@joker.eos',
     ],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
     CEX_CONTRACTS: [],
@@ -192,7 +192,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: [],
     CEX_CONTRACTS: [],
@@ -255,7 +255,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
-    PROMOTED_MARKETS: [495, 424],
+    PINNED_MARKETS: [424],
     BANNER_MARKETS: [495, 424],
 
     SCAM_CONTRACTS: [
@@ -330,7 +330,7 @@ const networks = {
       'KANDA@telokandaone',
       'GUX@vapaeetokens',
     ],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
@@ -415,7 +415,7 @@ const networks = {
       'TLOS@bosibc.io',
       '',
     ],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
@@ -463,7 +463,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
@@ -510,7 +510,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
@@ -557,7 +557,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
@@ -603,7 +603,7 @@ const networks = {
 
     withdraw: {},
     RECOMMENDED_MARKETS: [],
-    PROMOTED_MARKETS: [],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],

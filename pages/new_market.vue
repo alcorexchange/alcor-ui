@@ -61,7 +61,7 @@
                       span.ml-3 {{ t.currency + '@' + t.contract }}
 
               el-tab-pane(:label="$t('Manually')")
-                el-form-item(:label="$('Token contract')" prop="quote_token.contract")
+                el-form-item(:label="$t('Token contract')" prop="quote_token.contract")
                   el-input(:placeholder="$t('eosio.token betdicetoken ridlridlcoin eosiomeetone etc..')" v-model="form.quote_token.contract")
 
                 el-form-item(v-if="form.quote_token.contract" :label="$t('Token symbol')" prop="quote_token.symbol")

@@ -2,7 +2,7 @@
 .mobile-trade-inner
   top-line
 
-  .chart.mt-2
+  .chart.mt-1
     chart
       #tv_chart_container
 
@@ -28,7 +28,7 @@
       alcor-tabs(type="border-card").border-tabs
         template(slot='right')
           .d-flex.pairs-switch-right
-            .module-name.mr-2 Hide other pairs
+            .module-name.mr-2 {{ $t('Hide other pairs') }}
             .module-pickers.d-flex.flex-row
               el-switch(v-model='hideOtherPairs')
         el-tab-pane(:label='$t("Open orders")')
@@ -81,8 +81,8 @@ export default {
 <style lang="scss">
 .mobile-trade-inner {
   width: 100%;
-  background: var(--background-grid-layout);
-  padding: 10px;
+  background: var(--border-color);
+  padding-bottom: 2px;
   font-size: 12px !important;
 
   .latest-deals {

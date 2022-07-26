@@ -64,7 +64,7 @@
 
   .col-lg-6
     .d-flex.mb-1
-      small.red Sell {{ quote_token.symbol.name }}
+      small.red {{ $t('Sell') }} {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("sell")'
       ) {{ tokenBalance | commaFloat }}

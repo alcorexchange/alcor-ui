@@ -1,6 +1,6 @@
 <template lang="pug">
 .markets
-  market-top(:newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
+  market-top(v-if="!isMobile" :newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
   .table-intro
     el-radio-group.radio-chain-select.custom-radio(
       v-model='markets_active_tab',
@@ -105,6 +105,9 @@ export default {
     topGainers() {
       const tmp = [...this.markets]
       return tmp
+        .filter(i => i.base_token.contract == this.network.baseToken.contract)
+        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .slice(0, 50)
         .sort((a, b) => b.change24 - a.change24)
         .slice(0, 3)
     },
@@ -113,7 +116,7 @@ export default {
       const tmp = [...this.markets]
       return tmp
         .filter(i => i.base_token.contract == this.network.baseToken.contract)
-        .sort((a, b) => b.volumeWeek - a.volumeWeek)
+        .sort((a, b) => b.volume24 - a.volume24)
         .slice(0, 3)
     },
 
@@ -122,7 +125,8 @@ export default {
         {
           label: 'Pair',
           value: 'quote_name',
-          width: '335px'
+          width: '335px',
+          sortable: true
         },
         {
           label: 'Last price',
@@ -158,8 +162,6 @@ export default {
           desktopOnly: true
         }
       ]
-
-      console.log(this.markets)
 
       const data = this.filteredMarkets.map(market => ({
         id: market.id,
@@ -234,7 +236,11 @@ export default {
         .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
         .sort((a, b) => b.volumeWeek - a.volumeWeek)
         .reduce((res, i) => {
-          i.promoted ? res.unshift(i) : res.push(i)
+          i.promoted ? res[0].push(i) : res[1].push(i)
+          return res
+        }, [[], []])
+        .reduce((res, subArr) => {
+          res.push(...subArr)
           return res
         }, [])
 

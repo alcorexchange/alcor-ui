@@ -9,7 +9,7 @@ div.alcor-card
       //span Page 1 of 4
       //i.el-icon-right
       .lead
-        nuxt-link(:to="localePath('swap/create', $i18n.locale)").float-right
+        nuxt-link(:to="localePath('/swap/create', $i18n.locale)").float-right
           el-button(size="mini") {{ $t('Create pool') }}
       //create.float-right
   .table-header.portionated

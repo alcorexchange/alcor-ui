@@ -34,7 +34,7 @@
             img(src='~/assets/icons/Twitter.svg')
           span.name Twitter
           span.desc {{ $t('ANOUNCEMENT') }}
-      span.title Partners & API Providers
+      span.title {{ $t('PARTNERS_PROVIDERS') }}
       .items
         a.item(v-for="{ image, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
           img(:src="image")
@@ -81,11 +81,11 @@ export default {
 }
 
 .section-title {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .chains {
-  margin-bottom: 30px;
+  margin-bottom: 60px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;

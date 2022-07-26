@@ -4,7 +4,7 @@
     token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
     .name
       span {{ item.quote_name }}
-      a.link.text-muted(v-if='!isMobile' :href='monitorAccount(item.contract)', target='_blank') {{ item.contract }}
+      .text-muted(v-if='!isMobile') {{ item.contract }}
       span /
       span {{ item.base_name }}
       span.promo-label(v-if="isMobile && item.promoted") top
@@ -53,7 +53,8 @@ export default {
 <style scoped>
 .wrapper {
   display: flex;
-  padding: 15px 20px;
+  align-items: center;
+  padding: 12px 20px;
   font-size: 14px;
   gap: 10px;
   border-bottom: 1px solid var(--background-color-base);
@@ -64,10 +65,9 @@ export default {
   background-color: var(--background-color-base);
 }
 
-.wrapper>* {
+.wrapper .label {
   display: flex;
   align-items: center;
-  justify-content: end;
 }
 
 .wrapper.mobile .token {
@@ -87,7 +87,7 @@ export default {
 
 .wrapper.mobile>.last-price,
 .wrapper.mobile>.week-vol {
-  width: 33% !important;
+  width: 33%;
 }
 
 .wrapper.mobile>.label,
@@ -112,12 +112,15 @@ export default {
 .last-price,
 .day-vol,
 .week-vol {
-  justify-content: end;
+  display: flex;
+  justify-content: flex-end;
   width: 190px;
 }
 
 .week-change,
 .day-change {
+  display: flex;
+  justify-content: flex-end;
   width: 100px;
 }
 

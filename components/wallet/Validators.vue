@@ -57,7 +57,7 @@
       )
         //- TODO: dynamic
         template(slot-scope='{row}')
-          el-button.vote(type="text") Vote
+          el-button.vote(type="text") {{ $t('Vote') }}
 </template>
 
 <script>
