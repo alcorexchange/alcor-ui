@@ -162,7 +162,7 @@ export default {
   AMOUNT: 'AMOUNT',
   PRICE: 'PRICE',
   '24H USD': '24H USD',
-  'Weekly Volume (WAX / USD):': 'Weekly Volume (WAX / USD):',
+  'Weekly Volume (WAX / USD)': 'Weekly Volume (WAX / USD)',
   'All Time High/Low:': 'All Time High/Low:',
   Amount: 'Amount',
   Balance: 'Balance',
@@ -512,5 +512,7 @@ export default {
   'The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market': 'The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market',
   'If this data has not been submitted by the project or verified by the CMC team, total supply shows - -': 'If this data has not been submitted by the project or verified by the CMC team, total supply shows - -',
   Description: 'Description',
-  Return: 'Return'
+  Return: 'Return',
+  'cancel all': 'cancel all',
+  'Cancel All Orders': 'Cancel All Orders'
 }

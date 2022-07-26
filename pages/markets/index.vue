@@ -6,11 +6,11 @@
       v-model='markets_active_tab',
       size='small'
     ).mr-3
-      el-radio-button(:label='$t("fav")')
+      el-radio-button(label='fav')
         i.el-icon-star-on
         span {{ $t('Fav') }}
 
-      el-radio-button(:label='$t("all")')
+      el-radio-button(label='all')
         span {{ $t('All') }}
 
       el-radio-button(:label='network.baseToken.symbol')
@@ -19,7 +19,7 @@
       el-radio-button(v-if='network.name == "eos"', label='USDT')
         span {{ $t('USDT') }}
 
-      el-radio-button(value='cross-chain', :label='$t("Cross-Chain")')
+      el-radio-button(value='cross-chain', label='Cross-Chain')
         span {{ $t('Cross-Chain') }}
 
     .search-container

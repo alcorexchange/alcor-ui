@@ -65,13 +65,15 @@ h1 {
 
 .actions {
   margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 
   &>* {
     padding: 6px 20px !important;
   }
 
   .start {
-    margin-right: 15px;
     background: var(--main-green);
     color: white !important;
 

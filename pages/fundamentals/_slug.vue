@@ -324,6 +324,12 @@ export default {
     .label {
       display: flex;
       gap: 10px;
+      align-items: center;
+
+      img {
+        height: 14px;
+      }
+
     }
 
     .bold {

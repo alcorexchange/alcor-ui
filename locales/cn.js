@@ -159,7 +159,7 @@ export default {
   AMOUNT: '数量',
   PRICE: '价格',
   '24H USD': '24小时 USD',
-  'Weekly Volume (WAX / USD):': '周交易额 (WAX / USD):',
+  'Weekly Volume (WAX / USD)': '周交易额 (WAX / USD)',
   'All Time High/Low:': '历史最高/最低:',
   Amount: '数量',
   Balance: '余额',
@@ -510,5 +510,7 @@ export default {
   'The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market': 'The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market',
   'If this data has not been submitted by the project or verified by the CMC team, total supply shows - -': 'If this data has not been submitted by the project or verified by the CMC team, total supply shows - -',
   Description: 'Description',
-  Return: 'Return'
+  Return: 'Return',
+  'cancel all': 'cancel all',
+  'Cancel All Orders': 'Cancel All Orders'
 }

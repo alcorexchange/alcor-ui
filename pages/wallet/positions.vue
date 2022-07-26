@@ -85,9 +85,9 @@ div.wallet
       )
         template(slot-scope='{row}')
           .current-orders
-            span.green {{ row.orderCount.buy }} Buy
+            span.green {{ row.orderCount.buy }} {{ $t('Buy') }}
             span.cancel &nbsp;|&nbsp;
-            span.red {{ row.orderCount.sell }} sell
+            span.red {{ row.orderCount.sell }} {{ $t('Sell') }}
       el-table-column(
         :label='$t("Total Quote")',
       )
@@ -102,8 +102,8 @@ div.wallet
       )
         template(slot-scope='{row}')
           .actions
-            el-button(type="text" @click="trade(row)").green.hover-opacity Trade
-            el-button(type="text" @click="cancelAll(row)").red.hover-opacity Cancel All Orders
+            el-button(type="text" @click="trade(row)").green.hover-opacity {{ $t('Trade') }}
+            el-button(type="text" @click="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
 </template>
 
 <script>

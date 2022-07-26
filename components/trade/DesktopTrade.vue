@@ -292,8 +292,6 @@ export default {
       if (this.current_market_layout != 'advanced') {
         document.querySelector('.full-width').classList.add('unlim-width')
         return
-      } else {
-        document.querySelector('.full-width').classList.remove('unlim-width')
       }
       this.layouts = this.$store.state.market.markets_layout
     },
