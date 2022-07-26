@@ -19,102 +19,33 @@ div.wallet
       id="onlySell"
     ) {{ $t('Only sell orders') }}
 
-    .d-flex.ml-auto
+    .d-flex.flex-wrap.justify-content-between.w-100
       .cancel {{ $t('Total orders') }}: {{ accountLimits.orders_total }}
 
-      .cancel.ml-3 {{ $t('Order slot limit') }}: {{ accountLimits.orders_limit }}
+      .cancel {{ $t('Order slot limit') }}: {{ accountLimits.orders_limit }}
 
-      el-button(size="mini" @click="openInNewTab('https://t.me/alcorexchange')").ml-3 {{ $t('Buy more order slots') }}
+      el-button.btn(size="mini" @click="openInNewTab('https://t.me/alcorexchange')") {{ $t('Buy more order slots') }}
 
-  .table.el-card.is-always-shadow
-    el-table.alcor-table(
-      :data='filledPositions()',
-      style='width: 100%',
-    )
-      el-table-column(type="expand")
-        template(#default="{ row }")
-          .orders-container.table
-            el-table(
-              :data="row.orders"
-              style="width: 100%"
-            )
-              el-table-column(
-                :label="$t('Order')",
-              )
-                template(#default="{ row }")
-                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
-              el-table-column(
-                :label="$t('Date')",
-              )
-                template(#default="{ row }") {{ row.timestamp | moment('DD-MM HH:mm') }}
-              el-table-column(
-                :label="$t('Price')",
-              )
-                template(#default="{ row }") {{ row.unit_price | humanPrice }}
-              el-table-column(
-                :label="$t('Bid')",
-              )
-                template(#default="{ row }") {{ row.bid.quantity | commaFloat }}
-              //el-table-column(:label="$t('Filled')")
-                template(#default="{row}") {{row.filled}}%
-              el-table-column(
-                :label="$t('Ask')",
-              )
-                template(#default="{ row }")
-                  .wax-value {{ row.ask.quantity | commaFloat }}
-              el-table-column(
-                :label="$t('Action')",
-              )
-                template(#default="{ row }")
-                  .actions
-                    el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
-      el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
-        template(slot-scope='{row}')
-          .asset-container
-            TokenImage(
-              :src='$tokenLogo(row.quote_token.symbol.name, row.quote_token.contract)',
-              :height="isMobile ? '20' : '30'"
-            )
+  virtual-table(:table="virtualTableData")
+    template(#row="{ item }")
+      wallet-position-row(:item="item")
 
-            div.asset
-              span.asset-name {{ row.symbol }}
-              span.asset-contract.cancel {{ row.quote_token.contract }}
-
-      el-table-column(
-        :label='$t("Current Orders")',
-      )
-        template(slot-scope='{row}')
-          .current-orders
-            span.green {{ row.orderCount.buy }} {{ $t('Buy') }}
-            span.cancel &nbsp;|&nbsp;
-            span.red {{ row.orderCount.sell }} {{ $t('Sell') }}
-      el-table-column(
-        :label='$t("Total Quote")',
-      )
-        template(slot-scope='{row}') {{ row.totalBase | commaFloat(row.base_token.symbol.precision) }} {{ row.base_token.symbol.name }}
-      el-table-column(
-        :label='$t("Total Base")',
-      )
-        template(slot-scope='{row}') {{ row.totalQuote | commaFloat(row.quote_token.symbol.precision) }} {{ row.quote_token.symbol.name }}
-      el-table-column(
-        :label='$t("Actions")',
-        width="260"
-      )
-        template(slot-scope='{row}')
-          .actions
-            el-button(type="text" @click="trade(row)").green.hover-opacity {{ $t('Trade') }}
-            el-button(type="text" @click="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
+import VirtualTable from '@/components/VirtualTable'
+import WalletPositionRow from '@/components/wallet/WalletPositionRow'
 import SelectUI from '~/components/UI/input/selectUI.vue'
+
 export default {
   name: 'Wallet',
   components: {
     TokenImage,
-    SelectUI
+    SelectUI,
+    VirtualTable,
+    WalletPositionRow
   },
   data: () => ({
     search: '',
@@ -128,6 +59,43 @@ export default {
       pairPositions: 'wallet/pairPositions'
     }),
     ...mapState(['network', 'markets', 'accountLimits']),
+
+    filteredPositions() {
+      return this.pairPositions.filter(el => {
+        if (el.slug && !el.slug.includes(this.search.toLowerCase())) return false
+        if (this.onlyBuy && !el.orderCount.buy) return false
+        if (this.onlySell && !el.orderCount.sell) return false
+        if (!el.quote_token || !el.base_token) return false
+        return el
+      })
+    },
+
+    virtualTableData() {
+      const header = [
+        {
+          label: 'Type',
+          value: 'type',
+          width: '120px',
+          sortable: true
+        },
+        {
+          label: 'Order',
+          value: 'type',
+          width: '610px'
+        },
+        {
+          label: 'Action',
+          value: 'type',
+          width: '345px'
+        }
+      ]
+
+      const data = this.filteredPositions.map(({ orders }) => orders).flat()
+      const itemSize = this.isMobile ? 95 : 84
+      const pageMode = true
+
+      return { pageMode, itemSize, header, data }
+    },
 
     balances() {
       if (!this.user) return []
@@ -146,16 +114,6 @@ export default {
   },
 
   methods: {
-    filledPositions() {
-      return this.pairPositions.filter(el => {
-        if (el.slug && !el.slug.includes(this.search.toLowerCase())) return false
-        if (this.onlyBuy && !el.orderCount.buy) return false
-        if (this.onlySell && !el.orderCount.sell) return false
-        if (!el.quote_token || !el.base_token) return false
-        return el
-      })
-    },
-
     trade(position) {
       this.$router.push({
         name: `trade-index-id___${this.$i18n.locale}`,
@@ -192,6 +150,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.btn {
+  height: 40px;
+}
+
 .table-header {
   display: flex;
   align-items: center;

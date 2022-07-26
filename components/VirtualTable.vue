@@ -51,7 +51,6 @@ export default {
 }
 
 .scroller {
-  border: 1px solid var(--background-color-third);
   border-top: none;
   color: var(--text-secondary);
 }
