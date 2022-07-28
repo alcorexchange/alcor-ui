@@ -166,6 +166,7 @@ export default {
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+      const isFundamentalPage = this.$route.name.startsWith('fundamentals-slug')
 
       this.widget.onChartReady(() => {
         this.widget.applyOverrides({
@@ -175,6 +176,12 @@ export default {
 
           'paneProperties.vertGridProperties.color': theme.gridColor,
           'paneProperties.horzGridProperties.color': theme.gridColor,
+
+          'mainSeriesProperties.style': isFundamentalPage ? 3 : 1,
+
+          'mainSeriesProperties.areaStyle.color1': 'rgba(88, 177, 75, .28)',
+          'mainSeriesProperties.areaStyle.color2': 'rgba(88, 177, 75, 0)',
+          'mainSeriesProperties.areaStyle.linecolor': 'rgba(88, 177, 75, 1)',
 
           'mainSeriesProperties.candleStyle.upColor': colors.candleUpColor,
           'mainSeriesProperties.candleStyle.downColor': colors.candleDownColor,

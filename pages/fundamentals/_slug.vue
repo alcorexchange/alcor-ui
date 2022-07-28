@@ -10,7 +10,7 @@
       .value(v-if="(fundamental && fundamental.name) || currentMarket")
         TokenImage(:src='$tokenLogo($route.params.slug.split(`@`)[0], $route.params.slug.split(`@`)[1])')
         span(v-if="fundamental && fundamental.name") {{ fundamental.name }}
-        span(v-else) {{ currentMarket.quote_token.str }}
+        span(v-else) --
     .column
       .label.disable {{ $t('Price') }}
       .value(v-if="currentMarket") {{ currentMarket.last_price.toFixed(5) }} WAX
@@ -58,13 +58,16 @@
         img(src="~/assets/icons/website.svg")
         span {{ $t('Website') }}
       a.value.link(v-if="fundamental && fundamental.website" :href="fundamental.website.link") {{ fundamental.website.name }}
+      span.value(v-else) --
     .column
       .label.disable
-        img(src="~/assets/icons/website.svg")
+        img(src="~/assets/icons/source-code.svg")
         span {{ $t('Source Code') }}
       a.value.link(v-if="fundamental && fundamental.github" :href="fundamental.github")
         img(src='~/assets/icons/gh.svg')
         span Github
+      span.value(v-else) --
+
   .fund__advance
     .list-tags
       .title.disable
@@ -72,6 +75,7 @@
         span {{ $t('Listing Tags') }}
       .tags(v-if="fundamental && fundamental.tags")
         .tag(v-for="tag in fundamental.tags") {{ tag }}
+      span.value(v-else) --
 
     .column
       .stat
@@ -79,7 +83,7 @@
           span {{ $t('Fully Diluted Market Cap') }}
           el-popover(placement='bottom-start' width='300' trigger='hover')
             template
-              .text-break
+              .text
                 p {{ $t('The market cap if the max supply was in circulation') }}.
                 p {{ $t('Fully-diluted market cap (FDMC) = price x max supply. If max supply is null, FDMC = price x total supply. if max supply and total supply are infinite or not available, fully-diluted market cap shows - -') }}.
             .el-icon-info(slot="reference").ml-2.pointer
@@ -93,7 +97,7 @@
           span {{ $t('Market Cap') }}
           el-popover(placement='bottom-start' width='300' trigger='hover')
             template
-              .text-break
+              .text
                 p {{ $t("The total market value of a cryptocurrency's circulating supply.It is analogous to the free - float capitalization in the stock market") }}.
                 p {{ $t('Market Cap = Current Price x Circulating Supply') }}.
             .el-icon-info(slot="reference").ml-2.pointer
@@ -107,7 +111,7 @@
           span {{ $t('Volume 24h') }}
           el-popover(placement='bottom-start' width='300' trigger='hover')
             template
-              .text-break
+              .text
                 p {{ $t('A measure of how much of a cryptocurrency was traded in the last 24 hours') }}.
             .el-icon-info(slot="reference").ml-2.pointer
 
@@ -121,7 +125,7 @@
           span {{ $t('Circulating Supply') }}
           el-popover(placement='bottom-start' width='300' trigger='hover')
             template
-              .text-break
+              .text
                 p {{ $t('The amount of coins that are circulating in the market and are in public hands. It is analogous to the flowing shares in the stock market') }}.
             .el-icon-info(slot="reference").ml-2.pointer
 
@@ -133,9 +137,8 @@
           span {{ $t('Max Supply') }}
           el-popover(placement='bottom-start' width='300' trigger='hover')
             template
-              .text-break
+              .text
                 p {{ $t('The maximum amount of coins that will ever exist in the lifetime of the cryptocurrency. It is analogous to the fully diluted shares in the stock market') }}.
-                p {{ $t('If this data has not been submitted by the project or verified by the CMC team, max supply shows - -') }}.
             .el-icon-info(slot="reference").ml-2.pointer
 
         .value(v-if="stat && stat.max_supply")
@@ -146,9 +149,8 @@
           span {{ $t('Total Supply') }}
           el-popover(placement='bottom-start' width='300' trigger='hover')
             template
-              .text-break
+              .text
                 p {{ $t('The amount of coins that have been already created, minus any coins that have been burned. It is analogous to the outstanding shares in the stock market') }}.
-                p {{ $t('If this data has not been submitted by the project or verified by the CMC team, total supply shows - -') }}.
             .el-icon-info(slot="reference").ml-2.pointer
 
         .value(v-if="stat && stat.max_supply")
@@ -178,7 +180,6 @@ export default {
     contractMarkets() {
       return this.markets
         .filter(market => market.quote_token.contract == this.$route.params.slug.split('@')[1])
-        .filter(market => market.base_token.symbol.name === this.network.name.toUpperCase())
     },
     contractDayVolume() {
       return this.contractMarkets.reduce((sum, { volume24 }) => sum + volume24, 0)
@@ -229,6 +230,9 @@ export default {
     gap: 4px;
     align-items: center;
     margin-top: 24px;
+    span:hover {
+      text-decoration: underline;
+    }
   }
 
   &__title {
