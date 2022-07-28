@@ -314,16 +314,16 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--text-disable);
+  color: var(--cancel);
 
   a.underline {
     text-decoration: underline !important;
-    color: var(--text-disable);
+    color: var(--cancel);
   }
 }
 
 .token-info {
-  border: 0.2em solid var(--text-disable);
+  border: 0.2em solid var(--cancel);
   box-sizing: border-box;
   display: inline-block;
   text-align: center;
@@ -333,7 +333,7 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   text-decoration: none;
-  color: var(--text-disable);
+  color: var(--cancel);
 
 }
 </style>

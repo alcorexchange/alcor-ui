@@ -48,7 +48,7 @@ export default {
   methods: {
     rowClick(token) {
       this.$router.push({
-        name: 'markets', query: { tab: 'all', search: `${token.currency}-${token.contract}` }
+        name: `markets___${this.$i18n.locale}`, query: { tab: 'all', search: `${token.currency}-${token.contract}` }
       })
     }
   }
