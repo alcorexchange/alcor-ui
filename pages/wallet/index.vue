@@ -1,69 +1,14 @@
 <template lang="pug">
-  div.wallet
-    .table-header
-      el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')" size="small" clearable)
-      el-checkbox() {{$t('Hide small balances') }}
-    .el-card.is-always-shadow
-      el-table.alcor-table.noHover(
-        :data='balances',
-        style='width: 100%',
-        :default-sort='{ prop: "weekVolume", order: "descending" }'
-      )
-        el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
-          template(slot-scope='{row}')
-            .asset-container
-              TokenImage(
-                :src='$tokenLogo(row.currency, row.contract)',
-                :height="isMobile? '20' : '30'"
-              )
+.wallet
+  .table-header
+    el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')" size="small" clearable)
+    el-checkbox() {{ $t('Hide small balances') }}
+  virtual-table(:table="virtualTableData")
+    template(#row="{ item }")
+      wallet-row(:item="item" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
 
-              div.asset
-                span.asset-name {{ row.currency }}
-                span.asset-contract.cancel {{ row.contract }}
-
-        el-table-column(
-          :label='$t("Total")',
-          sort-by='amount',
-          sortable,
-        )
-          template(slot-scope='{row}')
-            div.amount-val
-              .amount {{ row.amount | commaFloat(4) }}
-              .val.cancel = ${{ row.usd_value | commaFloat }}
-        el-table-column(
-          :label='$t("Available")',
-          sort-by='amount',
-          sortable,
-        )
-          template(slot-scope='{row}')
-            div.amount-val
-              .amount {{ row.amount | commaFloat(4) }}
-              .val.cancel = ${{ row.usd_value | commaFloat }}
-        //el-table-column(:label='$t("In Order')
-        //- TODO: dynamic
-          template(slot-scope='{row}')
-            div.amount-val
-              .amount {{row.amount}}
-              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
-              .val.cancel(v-else) = $0.00
-        //el-table-column(:label='$t("WAX Value")')
-          template(slot-scope='{row}')
-            div.amount-val
-              .amount {{row.amount}}
-              .val.cancel(v-if="row.contract == network.baseToken.contract") = ${{ $systemToUSD(row.amount) }}
-              .val.cancel(v-else) = $0.00
-        el-table-column(
-          :label='$t("Actions")',
-          width="260"
-        )
-          template(slot-scope='{row}')
-            .actions
-              el-button(type="text" @click="openDeposit").hover-opacity {{ $t('Deposit') }}
-              el-button(type="text" @click="openWithdraw(row)").hover-opacity {{$t('Transfer') }}
-              el-button(type="text" @click="pools(row)").hover-opacity {{$t('Pools') }}
-              el-button.hover-opacity(type="text" @click="trade(row)") {{$t('Trade')}}
-    DepositPopup(ref="depositPopup")
-    WithdrawPopup(ref="withdrawPopup")
+  DepositPopup(ref="depositPopup")
+  WithdrawPopup(ref="withdrawPopup")
 </template>
 
 <script>
@@ -71,12 +16,17 @@ import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 import DepositPopup from '@/components/wallet/DepositPopup'
 import WithdrawPopup from '@/components/wallet/WithdrawPopup'
+import VirtualTable from '@/components/VirtualTable'
+import WalletRow from '@/components/wallet/WalletRow'
+
 export default {
   name: 'Wallet',
   components: {
     TokenImage,
     DepositPopup,
-    WithdrawPopup
+    WithdrawPopup,
+    VirtualTable,
+    WalletRow
   },
   data: () => ({
     search: ''
@@ -84,6 +34,40 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapState(['network', 'markets']),
+    virtualTableData() {
+      const header = [
+        {
+          label: 'Asset',
+          value: 'currency',
+          width: '220px',
+          sortable: true
+        },
+        {
+          label: 'Total',
+          value: 'amount',
+          width: '235px',
+          sortable: true
+        },
+        {
+          label: 'Available',
+          value: 'amount',
+          width: '215px',
+          sortable: true
+        },
+        {
+          label: 'Actions',
+          value: 'change24',
+          width: '410px',
+          desktopOnly: true
+        }
+      ]
+
+      const data = this.balances
+      const itemSize = 59
+      const pageMode = true
+
+      return { pageMode, itemSize, header, data }
+    },
 
     balances() {
       if (!this.user) return []
@@ -161,41 +145,5 @@ export default {
 
 .el-card {
   border: none;
-}
-
-.asset-container {
-  display: flex;
-  align-items: center;
-
-  .asset {
-    display: flex;
-    flex-direction: column;
-    margin-left: 10px;
-  }
-
-  .asset-name {
-    font-weight: bold;
-  }
-}
-
-.amount-val {
-  .amount {
-    color: var(--text-default);
-    font-size: 0.9rem;
-  }
-
-  .val {
-    color: var(--cancel);
-    font-size: 0.8rem;
-  }
-}
-
-.actions {
-  display: flex;
-
-  .el-button--text {
-    color: var(--main-green) !important;
-    font-weight: 400;
-  }
 }
 </style>
