@@ -1,51 +1,27 @@
 <template lang="pug">
-  .wallet
-    .table-header
-      // TODO
-      //el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address" size="small")
-      //- TODO: add date selecting
-      //el-checkbox() show trades
-      //el-checkbox() show deposits
-      //el-checkbox() show withdraws
-    .table.el-card.is-always-shadow
-      el-table.market-table(:data='deals', style='width: 100%')
-        el-table-column(:label='$t("Side")' width="70")
-          template(slot-scope='scope').text-success
-            span.success(v-if="scope.row.side == 'buy'") {{ $t('BUY') }}
-            span.danger(v-else) {{$t('SELL')}}
-
-        el-table-column(:label='$t("Asset")')
-          template(slot-scope='{row}') {{ getSymbol(row.market) }}
-
-        el-table-column(:label='$t("Date")' v-if="!isMobile")
-          template(slot-scope='scope')
-            span {{ scope.row.time | moment('YYYY-MM-DD HH:mm') }}
-
-        el-table-column(:label='$t("Amount")' v-if="!isMobile")
-          template(slot-scope='{ row }')
-            span {{ row.amount | commaFloat }}
-
-        el-table-column(:label='$t("Total")')
-          template(slot-scope='{ row }')
-            span {{ row.total | commaFloat }}
-
-        el-table-column(:label='$t("Price")')
-          template(slot-scope='scope')
-            span {{ scope.row.unit_price }}
-
-        el-table-column(:label='$t("Manage")' align="right")
-          template(slot-scope='scope')
-            el-button(size="mini" type="text")
-              a(:href="monitorTx(scope.row.trx_id)" target="_blank").a-reset {{$t('view')}}
-
-        template(slot="append")
-          infinite-loading(@infinite='infiniteHandler' spinner="spiral")
+.wallet
+  virtual-table(v-if="loaded" :table="virtualTableData")
+    template(#row="{ item }")
+      .history-row(@touch="() => redirect(item)" @click="() => redirect(item)")
+        .type
+          span.success(v-if="item.side == 'buy'") {{ $t('BUY') }}
+          span.danger(v-else) {{ $t('SELL') }}
+        .asset {{ getSymbol(item.market) }}
+        .date(v-if="!isMobile") {{ item.time | moment('YYYY-MM-DD HH:mm') }}
+        .amount(v-if="!isMobile") {{ item.amount | commaFloat }}
+        .total {{ item.total | commaFloat }}
+        .unit-price {{ item.unit_price }}
+        .action(v-if="!isMobile")
+          el-button.success(size="medium" type="text")
+            a(:href="monitorTx(item.trx_id)" target="_blank").a-reset {{ $t('view') }}
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import VirtualTable from '@/components/VirtualTable'
 
 export default {
+  components: { VirtualTable },
   data() {
     return {
       deals: [],
@@ -54,77 +30,165 @@ export default {
   },
 
   computed: {
-    ...mapState(['user', 'markets_obj']),
-    ...mapState('market', ['base_token', 'quote_token', 'id'])
+    ...mapState(['user', 'markets_obj', 'userDeals']),
+    ...mapState('market', ['base_token', 'quote_token', 'id']),
+    loaded() {
+      return this.markets_obj[0] && this.userDeals.length
+    },
 
-    //deals() {
-    //  return this.userDeals.filter(d => d.market == this.id)
-    //}
-  },
+    virtualTableData() {
+      const header = [
+        {
+          label: 'Side',
+          value: 'side',
+          width: '100px',
+          sortable: true
+        },
+        {
+          label: 'Asset',
+          value: 'market',
+          width: '105px',
+          sortable: true
+        },
+        {
+          label: 'Date',
+          value: 'time',
+          width: '170px',
+          sortable: true,
+          desktopOnly: true
+        },
+        {
+          label: 'Amount',
+          value: 'amount',
+          width: '180px',
+          desktopOnly: true
+        },
+        {
+          label: 'Total',
+          value: 'total',
+          width: '175px'
+        },
+        {
+          label: 'Price',
+          value: 'unit_price',
+          width: '155px',
+          sortable: true
+        },
+        {
+          label: 'Manage',
+          value: 'change24',
+          width: '195px',
+          desktopOnly: true
+        }
+      ]
 
-  watch: {
-    user(to, from) {
-      if (from == null || to == null) {
-        this.deals = []
-        this.skip = 0
+      const data = this.userDeals
+        .map(deal => ({
+          ...deal,
+          id: deal._id,
+          side: this.user.name == deal.bidder ? 'buy' : 'sell',
+          market_symbol: this.markets_obj[deal.market].symbol,
+          amount: (deal.type == 'sellmatch' ? deal.bid : deal.ask) + ' ' + this.markets_obj[deal.market].quote_token.symbol.name,
+          total: (deal.type == 'sellmatch' ? deal.ask : deal.bid) + ' ' + this.markets_obj[deal.market].base_token.symbol.name
+        }))
 
-        // Initial fill
-        this.infiniteHandler({
-          loaded: () => { },
-          complete: () => { }
-        })
-      }
+      const itemSize = 59
+      const pageMode = true
+
+      return { pageMode, itemSize, header, data }
     }
   },
 
-  mounted() {
-    // Initial fill
-    this.infiniteHandler({
-      loaded: () => { },
-      complete: () => { }
-    })
+  watch: {
+    '$store.state.user'() {
+      this.$store.dispatch('fetchUserDeals')
+    }
   },
 
   methods: {
+    redirect(item) {
+      if (this.isMobile)
+        window.location.href = this.monitorTx(item.trx_id)
+    },
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
-    },
-
-    async infiniteHandler($state) {
-      if (!this.user || !this.user.name || Object.keys(this.markets_obj).length == 0) return
-
-      const { data: deals } = await this.$axios.get(
-        `/account/${this.user.name}/deals`,
-        {
-          params: {
-            limit: 100,
-            skip: this.skip
-          }
-        }
-      )
-
-      this.skip += deals.length
-
-      if (deals.length) {
-        deals.map(d => {
-          d.side = this.user.name == d.bidder ? 'buy' : 'sell'
-          d.market_symbol = this.markets_obj[d.market].symbol
-
-          d.amount = (d.type == 'sellmatch' ? d.bid : d.ask) + ' ' + this.markets_obj[d.market].quote_token.symbol.name
-          d.total = (d.type == 'sellmatch' ? d.ask : d.bid) + ' ' + this.markets_obj[d.market].base_token.symbol.name
-        })
-
-        this.deals.push(...deals)
-        $state.loaded()
-      } else {
-        $state.complete()
-      }
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
+.history-row {
+  padding: 10px 20px;
+  display: flex;
+
+  @media only screen and (max-width: 1176px) {
+    font-size: 12px;
+  }
+
+  .type {
+    width: 75px;
+
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
+
+  }
+
+  .asset {
+    width: 125px;
+    display: flex;
+    justify-content: flex-end;
+    text-align: right;
+
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
+
+  }
+
+  .date {
+    width: 175px;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .amount {
+    width: 175px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .total {
+    width: 175px;
+    display: flex;
+    justify-content: flex-end;
+
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
+
+  }
+
+  .unit-price {
+    width: 155px;
+    display: flex;
+    justify-content: flex-end;
+
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
+
+  }
+
+  .action {
+    width: 200px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
 .table-header {
   display: flex;
   align-items: center;
@@ -184,7 +248,7 @@ td.el-table__expanded-cell {
 }
 
 .success {
-  color: var(--main-green)
+  color: var(--main-green) !important
 }
 
 .danger {

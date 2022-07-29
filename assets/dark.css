@@ -1788,8 +1788,8 @@
     background-color: #212121;
     border: 1px solid transparent;
     border-radius: 4px;
-    -webkit-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1)
+    -webkit-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5)
 }
 
 .el-dropdown-menu__item {
@@ -4473,8 +4473,8 @@
     line-height: 1.4;
     text-align: justify;
     font-size: 14px;
-    -webkit-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+    -webkit-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .2);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .2);
     word-break: break-all
 }
 

@@ -177,7 +177,7 @@ export default {
         last_price: market.last_price
       }))
 
-      const itemSize = 55
+      const itemSize = 54
       const pageMode = true
 
       return { pageMode, itemSize, header, data }
