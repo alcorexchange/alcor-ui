@@ -99,7 +99,7 @@ export default {
     },
 
     newListings() {
-      return this.markets.filter(({ id }) => this.newListingIDs.includes(id))
+      return this.markets.slice(-3)
     },
 
     topGainers() {
