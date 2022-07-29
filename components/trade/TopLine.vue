@@ -373,6 +373,7 @@ export default {
   cursor: pointer;
   text-decoration: none;
   color: var(--cancel);
+}
 
 .token-info-box {
   width: 500px;
