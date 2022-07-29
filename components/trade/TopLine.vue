@@ -14,8 +14,35 @@ client-only
         .text-grey
           .contract-info(:href='monitorAccount(quote_token.contract)', target='_blank')
             a.underline(:href='monitorAccount(quote_token.contract)', target='_blank') {{ quote_token.contract }}
-            nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
-
+            el-dropdown(placement="bottom")
+              nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
+              el-dropdown-menu(slot='dropdown')
+                .token-info-box
+                  .info-box-row
+                    .key.cancel {{ $t('Full Name') }}
+                    .value(v-if="fundamental && fundamental.name")
+                      token-image(:src='$tokenLogo(quote_token.symbol.name, quote_token.contract)')
+                      span {{ fundamental.name }}
+                    .value(v-else) --
+                  .info-box-row
+                    .key.cancel {{ $t('Listing time') }}
+                    .value 21/03/2022 10:00PM
+                  .info-box-row(v-if="stat && stat.supply")
+                    .key.cancel {{ $t('Circulating Supply') }}
+                    .value {{ stat.supply }}
+                  .info-box-row
+                    .key.cancel {{ $t('Website') }}
+                    a.value.link(v-if="fundamental && fundamental.website" :href="fundamental.website.link") {{ fundamental.website.name }}
+                    .value(v-else) --
+                  .info-box-row
+                    .key.cancel {{ $t('Socials') }}
+                    .soc-links(v-if="fundamental && fundamental.socials")
+                      a.link(v-for="social in fundamental.socials" :href="social") {{ social }}
+                    .value(v-else) --
+                  .info-box-row
+                    .key.cancel {{ $t('Description') }}
+                    .value(v-if="fundamental && fundamental.description") {{ fundamental.description }}
+                    .value(v-else) --
 
           //i.el-icon-question.ml-2
           //img(src="~/assets/icons/question.svg").ml-2
@@ -78,6 +105,14 @@ export default {
   },
 
   mounted() {
+    this.$rpc.get_table_rows({
+      code: this.quote_token.contract,
+      table: 'stat',
+      limit: 1,
+      scope: this.quote_token.symbol.name
+    }).then(({ rows }) => this.stat = rows[0])
+      .catch((e) => console.error('fetchDataError', e))
+
     this.setArrow()
     this.assignClass()
 
@@ -104,6 +139,7 @@ export default {
 
   data() {
     return {
+      stat: null,
       showMarkets: false,
       showArrow: false,
       arrowRight: true
@@ -130,6 +166,10 @@ export default {
     ...mapState('market', ['stats', 'base_token', 'quote_token', 'id', 'header_settings']),
     ...mapState('settings', ['favMarkets']),
     ...mapGetters('market', ['price']),
+
+    fundamental() {
+      return this.$fundamentals[this.$store.state.network.name][this.quote_token.str]
+    },
 
     hasWithdraw() {
       return Object.keys(this.network.withdraw).includes(this.quote_token.str)
@@ -269,7 +309,6 @@ export default {
   width: 100%;
 }
 
-
 .arrow {
   background-color: var(--btn-default);
   width: 20px;
@@ -335,6 +374,47 @@ export default {
   text-decoration: none;
   color: var(--cancel);
 
+}
+
+.token-info-box {
+  width: 500px;
+  padding: 0 10px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .info-box-row {
+    display: flex;
+
+    .key {
+      width: 125px;
+    }
+
+    .value {
+      width: 375px;
+      gap: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      img {
+        height: 16px;
+      }
+    }
+
+    .soc-links {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      width: 375px;
+    }
+
+    .link {
+      color: #80A1C5;
+      text-decoration: underline !important;
+    }
+  }
 }
 </style>
 
