@@ -26,9 +26,87 @@ div.wallet
 
       el-button.btn(size="mini" @click="openInNewTab('https://t.me/alcorexchange')") {{ $t('Buy more order slots') }}
 
-  virtual-table(:table="virtualTableData")
+  virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
       wallet-position-row(:item="item")
+  .table.el-card.is-always-shadow(v-else)
+    el-table.alcor-table(
+      :data='filteredPositions',
+      style='width: 100%',
+    )
+      el-table-column(type="expand")
+        template(#default="{ row }")
+          .orders-container.table
+            el-table(
+              :data="row.orders"
+              style="width: 100%"
+            )
+              el-table-column(
+                :label="$t('Order')",
+              )
+                template(#default="{ row }")
+                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
+              el-table-column(
+                :label="$t('Date')",
+              )
+                template(#default="{ row }") {{ row.timestamp | moment('DD-MM HH:mm') }}
+              el-table-column(
+                :label="$t('Price')",
+              )
+                template(#default="{ row }") {{ row.unit_price | humanPrice }}
+              el-table-column(
+                :label="$t('Bid')",
+              )
+                template(#default="{ row }") {{ row.bid.quantity | commaFloat }}
+              //el-table-column(:label="$t('Filled')")
+                template(#default="{row}") {{row.filled}}%
+              el-table-column(
+                :label="$t('Ask')",
+              )
+                template(#default="{ row }")
+                  .wax-value {{ row.ask.quantity | commaFloat }}
+              el-table-column(
+                :label="$t('Action')",
+              )
+                template(#default="{ row }")
+                  .actions
+                    el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
+      el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
+        template(slot-scope='{row}')
+          .asset-container
+            TokenImage(
+              :src='$tokenLogo(row.quote_token.symbol.name, row.quote_token.contract)',
+              :height="isMobile ? '20' : '30'"
+            )
+
+            div.asset
+              span.asset-name {{ row.symbol }}
+              span.asset-contract.cancel {{ row.quote_token.contract }}
+
+      el-table-column(
+        :label='$t("Current Orders")',
+      )
+        template(slot-scope='{row}')
+          .current-orders
+            span.green {{ row.orderCount.buy }} Buy
+            span.cancel &nbsp;|&nbsp;
+            span.red {{ row.orderCount.sell }} sell
+      el-table-column(
+        :label='$t("Total Quote")',
+      )
+        template(slot-scope='{row}') {{ row.totalBase | commaFloat(row.base_token.symbol.precision) }} {{ row.base_token.symbol.name }}
+      el-table-column(
+        :label='$t("Total Base")',
+      )
+        template(slot-scope='{row}') {{ row.totalQuote | commaFloat(row.quote_token.symbol.precision) }} {{ row.quote_token.symbol.name }}
+      el-table-column(
+        :label='$t("Actions")',
+        width="260"
+      )
+        template(slot-scope='{row}')
+          .actions
+            el-button(type="text" @click="trade(row)").green.hover-opacity Trade
+            el-button(type="text" @click="cancelAll(row)").red.hover-opacity Cancel All Orders
 
 </template>
 
