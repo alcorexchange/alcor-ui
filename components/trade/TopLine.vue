@@ -374,8 +374,6 @@ export default {
   text-decoration: none;
   color: var(--cancel);
 
-}
-
 .token-info-box {
   width: 500px;
   padding: 0 10px;
