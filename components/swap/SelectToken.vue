@@ -46,7 +46,6 @@
               .ml-auto(v-if="user")
                 span.text-muted {{ token.balance | commaFloat }}
 
-              slot(name="end")
 </template>
 
 <script>
@@ -315,7 +314,6 @@ export default {
 
 .pair {
   display: flex;
-
   cursor: pointer;
   padding: 10px 8px;
   border-radius: 5px;
