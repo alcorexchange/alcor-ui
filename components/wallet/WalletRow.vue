@@ -23,10 +23,10 @@
     .amount__base {{ item.amount | commaFloat(4) }}
     .amount__usd.cancel ${{ item.usd_value | commaFloat }}
   .actions(v-if="!isMobile")
-    el-button(type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
-    el-button(type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
-    el-button(type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
-    el-button.hover-opacity(type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
+    el-button(size="medium" type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
+    el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
+    el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
+    el-button.hover-opacity(size="medium" type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
 </template>
 
 <script>
