@@ -14,6 +14,8 @@
         .action(v-if="!isMobile")
           el-button.success(size="medium" type="text")
             a(:href="monitorTx(item.trx_id)" target="_blank").a-reset {{ $t('view') }}
+  .row.justify-content-center(v-else)
+    i.el-icon-loading
 </template>
 
 <script>

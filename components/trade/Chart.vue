@@ -9,6 +9,7 @@ import { Big } from 'big.js'
 import { mapState, mapGetters } from 'vuex'
 
 export default {
+  props: ['blank'],
   data() {
     return {
       resolution: 240,
@@ -162,7 +163,14 @@ export default {
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
     },
-
+    applySettings() {
+      if (this.blank) {
+        this.$store.commit('market/backupChartOrdersSettings')
+        this.$store.commit('market/setChartOrdersSettingsDefault')
+      } else {
+        this.$store.commit('market/setChartOrdersSettingsFromBackup')
+      }
+    },
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
@@ -665,6 +673,7 @@ export default {
       this.widget.onChartReady(() => {
         this.load()
         this.applyTheme()
+        this.applySettings()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
           this.save()

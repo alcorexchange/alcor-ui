@@ -29,7 +29,7 @@ div.wallet
   virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
       wallet-position-row(:item="item")
-  .table.el-card.is-always-shadow(v-else)
+  .table.el-card(v-else)
     el-table.alcor-table(
       :data='filteredPositions',
       style='width: 100%',
@@ -45,7 +45,7 @@ div.wallet
                 :label="$t('Order')",
               )
                 template(#default="{ row }")
-                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
+                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ $t(row.type) }}
               el-table-column(
                 :label="$t('Date')",
               )
@@ -70,7 +70,7 @@ div.wallet
               )
                 template(#default="{ row }")
                   .actions
-                    el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
+                    el-button(size="medium" type="text" @click="cancelOrder(row)").red.hover-opacity {{ $t('Cancel order') }}
       el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
         template(slot-scope='{row}')
           .asset-container
@@ -88,9 +88,9 @@ div.wallet
       )
         template(slot-scope='{row}')
           .current-orders
-            span.green {{ row.orderCount.buy }} Buy
+            span.green {{ row.orderCount.buy }} {{ $t('Buy') }}
             span.cancel &nbsp;|&nbsp;
-            span.red {{ row.orderCount.sell }} sell
+            span.red {{ row.orderCount.sell }} {{ $t('Sell') }}
       el-table-column(
         :label='$t("Total Quote")',
       )
@@ -105,8 +105,8 @@ div.wallet
       )
         template(slot-scope='{row}')
           .actions
-            el-button(type="text" @click="trade(row)").green.hover-opacity Trade
-            el-button(type="text" @click="cancelAll(row)").red.hover-opacity Cancel All Orders
+            el-button(size="medium" type="text" @click="trade(row)").green.hover-opacity {{ $t('Trade') }}
+            el-button(size="medium" type="text" @click="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
 
 </template>
 
@@ -256,6 +256,7 @@ td.el-table__expanded-cell {
 
 .el-card {
   border: none;
+  border-radius: 8px;
 }
 
 .asset-container {

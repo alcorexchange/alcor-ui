@@ -533,7 +533,7 @@ pre {
   th {
     padding: 8px 0 !important;
     padding-left: 4px !important;
-    font-weight: normal !important;
+    font-weight: bold !important;
     font-size: 1rem;
     color: var(--text-default);
   }
@@ -545,15 +545,15 @@ pre {
 
   td.el-table__expanded-cell {
     padding: 10px !important;
-    background: var(--hover) !important;
+    background: var(--background-color-third) !important;
 
     th,
     tr {
-      background: var(--hover) !important;
+      background: var(--background-color-third) !important;
     }
 
     &:hover {
-      background: var(--hover) !important;
+      background: var(--background-color-third) !important;
     }
   }
 }
