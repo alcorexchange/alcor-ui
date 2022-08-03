@@ -50,7 +50,7 @@ export function subscribe(io, socket, client) {
       try {
         entries = JSON.parse(data || [])
       } catch (e) {
-        console.log('Error in orderbook data: ', data)
+        console.log('Error in orderbook data: ', { chain, side, market }, data)
         throw e
       }
 
