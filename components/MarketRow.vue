@@ -154,4 +154,7 @@ export default {
 .last-price.down {
   color: var(--main-red);
 }
+.last-price span {
+  text-align: right;
+}
 </style>

@@ -114,6 +114,7 @@ export default {
 
     .desc {
       color: var(--text-grey-thirdly);
+      text-align: center;
     }
   }
 }

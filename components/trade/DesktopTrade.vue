@@ -324,7 +324,6 @@ export default {
     //setTimeout(() => {
     //  console.log('timeout this.markets_timesale_tab', this.markets_timesale_tab)
     //}, 5000)
-
     this.$nextTick(() => {
       this.screenWidth = window.innerWidth
       this.layouts = cloneDeep(this.markets_layout)

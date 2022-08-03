@@ -43,7 +43,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
     template(slot-scope='{ row }')
       span.hoverable.pointer(:class="{ underline: id != row.market.id }" @click="setMarket(row.market)") {{ row.market_symbol }}
 
-  el-table-column(:label='$t("Type")' width="50")
+  el-table-column(:label='$t("Type")' width="80")
     template(slot-scope='{ row }')
       span.text-primary(v-if='row.type == "buy"') {{ $t(row.type.toUpperCase()) }}
       span.text-secondary(v-else) {{ $t(row.type.toUpperCase()) }}
@@ -61,10 +61,10 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
     template(slot-scope='{ row }')
       span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
 
-  el-table-column(:label='$t("Action")', align='right' width="120")
+  el-table-column(:label='$t("Action")', align='right' width="160")
     template(v-if="!isMobile" slot="header")
       span.mr-1 {{ $t('Action') }}
-      span(@click="cancelAll").red.pointer.hoverable ({{ $t('cancel all') }})
+      span(@click="cancelAll").cancel.pointer.hoverable ({{ $t('cancel all') }})
 
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').cancel {{ $t('Cancel') }}
@@ -204,7 +204,7 @@ export default {
 }
 
 .cancel {
-  color: var(--main-red) !important;
+  color: var(--color-secondary) !important;
 }
 
 .text-secondary {

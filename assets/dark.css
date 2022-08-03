@@ -13791,7 +13791,7 @@
 .el-checkbox,
 .el-checkbox-button__inner,
 .el-radio {
-    font-weight: 500;
+    font-weight: 400;
     -webkit-user-select: none
 }
 
