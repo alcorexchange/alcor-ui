@@ -155,7 +155,7 @@
 
         .value(v-if="stat && stat.max_supply")
           span.bold {{ stat.max_supply }}
-  preview-chart(v-if="currentMarket")
+  preview-chart(v-if="currentMarket" :blank="true")
     #fund__chart
 
   .fund__description(v-if="fundamental && fundamental.description")
@@ -230,6 +230,7 @@ export default {
     gap: 4px;
     align-items: center;
     margin-top: 24px;
+
     span:hover {
       text-decoration: underline;
     }

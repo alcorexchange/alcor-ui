@@ -10,7 +10,7 @@ el-table.my-trade-history(
   el-table-column(:label='$t("Pair")', v-if='!isMobile')
     template(slot-scope='{ row }')
       span {{ row.market_symbol }}
-  el-table-column(:label='$t("Side")', width='60')
+  el-table-column(:label='$t("Side")', width='80')
     template.text-success(slot-scope='scope')
       span.text-primary(v-if='scope.row.side == "buy"') {{ $t('BUY') }}
       span.text-secondary(v-else) {{ $t('SELL') }}

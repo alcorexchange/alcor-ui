@@ -61,6 +61,8 @@ export const state = () => ({
     all_time: false
   },
 
+  backup_orders_settings: null,
+
   chart_orders_settings: {
     show_open_orders: false,
     show_labels: false,
@@ -182,6 +184,8 @@ export const mutations = {
     show_trade_executions_price: false,
     show_trade_execution_amount: false
   },
+  backupChartOrdersSettings: state => state.backup_orders_settings = state.chart_orders_settings,
+  setChartOrdersSettingsFromBackup: state => state.chart_orders_settings = state.backup_orders_settings || state.chart_orders_settings,
   setMarket: (state, market) => {
     console.log('ssss', market)
     const { id, base_token, quote_token, slug } = market

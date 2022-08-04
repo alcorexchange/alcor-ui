@@ -56,9 +56,8 @@ export default {
 }
 
 .scroller.window {
-  height: 100vh;
+  height: 700px;
 }
-
 
 .scroller::-webkit-scrollbar {
   display: none;
