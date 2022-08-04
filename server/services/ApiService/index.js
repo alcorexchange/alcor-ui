@@ -29,8 +29,8 @@ async function start () {
       await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
       console.log('MongoDB connected!')
     } catch (e) {
-      console.log(e)
-      throw new Error('MongoDB connect err')
+      console.log('MongoDB connect err: ', e)
+      process.exit(1)
     }
 
     // REDIS client shared globally
