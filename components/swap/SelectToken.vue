@@ -269,7 +269,7 @@ export default {
 
 <style lang="scss">
 .scroller {
-  height: 100%;
+  height: calc(100% - 32px);
 }
 
 .swap-token-select {
