@@ -4,10 +4,10 @@ nuxt-link(:to='data.to' :exact="false")
     video(autoplay='' loop='')
       source(:src='imageBackground' type='video/webm')
     .image-title
-      p {{data.title}}
+      p {{ data.title }}
       .d-flex.align-items-center(v-if="data.subTItle")
         img.mr-2(v-if='data.subImage' :src='data.subImage' alt='nft card icon')
-        h5.mb-0 {{data.subTItle}}
+        h5.mb-0 {{ data.subTItle }}
 </template>
 
 <script>
@@ -29,6 +29,7 @@ export default {
 video {
   border-radius: 25px;
 }
+
 .image-container {
   position: relative;
   border-radius: 24px;
@@ -36,15 +37,18 @@ video {
   height: 100%;
   background-size: 100% 100%;
 }
+
 .image-title {
   color: #FFF;
 }
+
 .image-title {
   position: absolute;
   top: 15px;
   left: 30px;
 }
-.image-title .d-flex > img {
+
+.image-title .d-flex>img {
   width: 30px;
   height: 30px;
 }
