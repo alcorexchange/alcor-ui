@@ -42,9 +42,9 @@
 <script>
 import { mapState } from 'vuex'
 import { CatCarousel } from 'vue-cat-carousel'
-import NftCard from '~/components/nft_markets/cards/NftCard'
+import NftCard from '~/components/nft_markets/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
-import NormalCard from '~/components/nft_markets/cards/NormalCard'
+import NormalCard from '~/components/nft_markets/NormalCard'
 import Img1 from '~/assets/images/nft_marketplace.webm'
 import Img2 from '~/assets/images/wallet.webm'
 import Img3 from '~/assets/images/nft_explorer.webm'
@@ -292,7 +292,7 @@ export default {
       left: -38px;
 
       .cat-carousel__default-nav {
-        background: url('~/assets/images/LeftArrow.svg') !important;
+        background: url('~/assets/images/left_arrow.png') !important;
         background-size: cover;
       }
 
@@ -301,7 +301,7 @@ export default {
         right: -38px;
 
         .cat-carousel__default-nav {
-          background: url('~/assets/images/RightArrow.svg') !important;
+          background: url('~/assets/images/right_arrow.png') !important;
           background-size: cover;
         }
       }
