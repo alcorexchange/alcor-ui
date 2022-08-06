@@ -16,13 +16,15 @@ export default {
         en: 'twemoji:flag-for-flag-united-states',
         ru: 'twemoji:flag-russia',
         cn: 'twemoji:flag-china',
-        ph: 'twemoji:flag-philippines'
+        ph: 'twemoji:flag-philippines',
+        ua: 'twemoji:flag-ukraine'
       },
       labels: {
         en: 'English (US)',
         ru: 'Russian (RU)',
         cn: 'China (CN)',
-        ph: 'Filipino (PH)'
+        ph: 'Filipino (PH)',
+        ua: 'Ukraine (UA)'
       }
     }
   },
