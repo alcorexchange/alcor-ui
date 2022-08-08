@@ -22,7 +22,7 @@ export default {
   LEARNMORE: 'Learn more about Alcor, chat with the community, and get announcements faster than anyone.',
   TRAIDING_TALKS: 'Support & Trading Talks',
   REVIEW_NEWS: 'Reviews & News',
-  CODE_CONTIBUTE: 'Code & Contribuion',
+  CODE_CONTIBUTE: 'Code & Contribution',
   ANOUNCEMENT: 'Announcements',
   PARTNERS_PROVIDERS: 'Partners & API Providers',
   'and more...': 'and more...',
