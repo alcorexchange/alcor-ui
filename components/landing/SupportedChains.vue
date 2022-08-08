@@ -29,6 +29,11 @@
             img(src='~/assets/icons/Github.svg')
           span.name Github
           span.desc {{ $t('CODE_CONTIBUTE') }}
+        a.item(href="http://api.alcor.exchange/" target="_blank")
+          .icon
+            img(src='~/assets/icons/Api.svg')
+          span.name API
+          span.desc {{ $t('Alcor API Docs') }}
         a.item(href="https://twitter.com/alcorexchange" target="_blank")
           .icon
             img(src='~/assets/icons/Twitter.svg')
