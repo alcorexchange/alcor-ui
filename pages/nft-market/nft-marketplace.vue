@@ -121,7 +121,7 @@ export default {
       const data = await this.$store.dispatch('api/getSaleData', {
         limit: this.limit,
         search: this.search,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.marketData = data
       this.loading = false
@@ -131,11 +131,11 @@ export default {
       const data = await this.$store.dispatch('api/getAuctionData', {
         limit: this.limit,
         search: this.search,
-        collectionName: this.currentCollectionName,
+        collectionName: this.currentCollectionName
       })
       this.marketData = data
       this.loading = false
-    },
+    }
   },
 
   watch: {
@@ -147,7 +147,7 @@ export default {
       } else {
         this.getAuctionData()
       }
-    },
+    }
   },
 
   head() {
@@ -158,11 +158,11 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: 'Atomic, no fee, NFT marketplace.',
-        },
-      ],
+          content: 'Atomic, no fee, NFT marketplace.'
+        }
+      ]
     }
-  },
+  }
 }
 </script>
 
@@ -177,6 +177,8 @@ export default {
   color: #9f979a !important;
   cursor: pointer;
   padding-left: 10px;
+  display: flex;
+  gap: 5px;
 }
 
 h4 {

@@ -217,16 +217,21 @@ export default {
 #return-btn::before {
   content: '←';
 }
+
 #return-btn {
   font-weight: 500;
   font-size: 14px;
   color: #9f979a !important;
   cursor: pointer;
   padding-left: 10px;
+  display: flex;
+  gap: 5px;
 }
+
 h4 {
   margin: 32px 0;
 }
+
 div.grid-container {
   display: grid;
   grid-template-columns: auto auto auto auto;
