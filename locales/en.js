@@ -514,5 +514,6 @@ export default {
   Description: 'Description',
   Return: 'Return',
   'cancel all': 'cancel all',
-  'Cancel All Orders': 'Cancel All Orders'
+  'Cancel All Orders': 'Cancel All Orders',
+  'Alcor API Docs': 'Alcor API Docs'
 }
