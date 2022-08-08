@@ -19,9 +19,9 @@ export default {
       search: '',
       src: this.msg,
       sellOrders: [],
-      imageBackground: this.data.img,
+      imageBackground: this.data.img
     }
-  },
+  }
 }
 </script>
 
@@ -46,6 +46,10 @@ video {
   position: absolute;
   top: 15px;
   left: 30px;
+}
+
+.image-title>* {
+  margin: 0 !important;
 }
 
 .image-title .d-flex>img {

@@ -55,7 +55,7 @@ export default {
     NftCard,
     NftRelation,
     NormalCard,
-    CatCarousel,
+    CatCarousel
   },
   data() {
     return {
@@ -65,24 +65,24 @@ export default {
         {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
-          img: Img1,
+          img: Img1
         },
         {
           title: 'WALLET',
           subTItle: 'flfum.wam',
           img: Img2,
-          subImage: subImg,
+          subImage: subImg
         },
         {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
-          img: Img3,
+          img: Img3
         },
         {
           title: 'ALCOR',
           subTItle: 'CREATE NFT',
-          img: Img4,
-        },
+          img: Img4
+        }
       ],
       search: '',
       sellOrders: [],
@@ -105,8 +105,8 @@ export default {
               slidesToShow: 3,
               slidesToScroll: 3,
               infinite: true,
-              dots: true,
-            },
+              dots: true
+            }
           },
           {
             breakpoint: 600,
@@ -114,19 +114,19 @@ export default {
               arrows: false,
               slidesToShow: 2,
               slidesToScroll: 2,
-              initialSlide: 2,
-            },
+              initialSlide: 2
+            }
           },
           {
             breakpoint: 480,
             settings: {
               arrows: false,
               slidesToShow: 1,
-              slidesToScroll: 1,
-            },
-          },
-        ],
-      },
+              slidesToScroll: 1
+            }
+          }
+        ]
+      }
     }
   },
   computed: {
@@ -134,32 +134,32 @@ export default {
     ...mapState('nft', ['orders', 'authorFilter', 'catFilter']),
     ...mapState('wallet', ['systemPrice']),
     cardData() {
-      let data = [
+      const data = [
         {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: '/nft-market/nft-marketplace',
+          to: '/nft-market/nft-marketplace'
         },
         {
           title: 'WALLET',
           subTItle: this.user ? this.user.name : '',
           img: Img2,
           subImage: subImg,
-          to: '/wallet-inventory',
+          to: '/wallet-inventory'
         },
         {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
           img: Img3,
-          to: '/nft-market/nftexplorer',
+          to: '/nft-market/nftexplorer'
         },
         {
           title: 'ALCOR',
           subTItle: 'CREATE NFT',
           img: Img4,
-          to: '/nft-market/createnft',
-        },
+          to: '/nft-market/createnft'
+        }
       ]
       return data
     },
@@ -250,7 +250,7 @@ export default {
     async getSymbolInfo() {
       const data = await this.$store.dispatch('api/getSymbolInfo')
       this.relationData = data
-    },
+    }
   },
   head() {
     return {
@@ -259,11 +259,11 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: 'Atomic, no fee, NFT marketplace.',
-        },
-      ],
+          content: 'Atomic, no fee, NFT marketplace.'
+        }
+      ]
     }
-  },
+  }
 }
 </script>
 
@@ -312,14 +312,13 @@ export default {
 .nft-container .grid-container {
   display: flex;
   justify-content: space-between;
-  width: calc(100% - 20px);
+  width: 100%;
   margin: auto;
 }
 
 .card-container {
-  width: 440px;
+  width: 470px;
   height: 200px;
-  margin-bottom: 30px;
 }
 
 #loading {

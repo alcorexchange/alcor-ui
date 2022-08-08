@@ -18,7 +18,7 @@ nuxt-link.normalcard.radius10(
   )
     div
       img(src='~/assets/images/small_shape.svg')
-      span.card-title {{ cardTitle }}
+      span {{ cardTitle }}
     .d-flex.align-items-center(v-if='mode != "schemas"')
       img.ml-1(src='~/assets/images/double_arrow.svg', alt='')
       img.ml-1(src='~/assets/images/fire.svg', alt='')
@@ -97,7 +97,7 @@ nuxt-link.normalcard.radius10(
         span.ml-1 {{ maxSupply + " (" + supply }}
           img.ml-1(src='~/assets/images/fire.svg', alt='')
           span )
-  .btn-group.justify-content-between.flex-wrap.w-100(v-if='mode != "sets"')
+  .btn-group.actions.justify-content-between.flex-wrap.w-100(v-if='mode != "sets"')
     button.btn-fill--grey.w-50.mr10.radius6(v-if='mode == "inventory"') Sell NFT
     el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
       trigger='click'
@@ -215,19 +215,21 @@ export default {
       if (this.mode === 'market') {
         if (this.data.assets[0].data.img) {
           return {
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundImage: this.data.assets[0].data.img.includes('https://')
               ? this.data.assets[0].data.img
               : 'url(https://ipfs.atomichub.io/ipfs/' +
               this.data.assets[0].data.img +
-              ')',
+              ')'
           }
         } else return false
       } else if (this.mode === 'inventory' || this.mode === 'sets') {
         if (this.data.data.img) {
           return {
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
@@ -244,7 +246,8 @@ export default {
       ) {
         if (this.data.assets && this.data.assets[0].data.img) {
           return {
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundImage: this.data.assets[0].data.img.includes('https://')
               ? this.data.assets[0].data.img
@@ -256,7 +259,8 @@ export default {
       } else if (this.mode === 'assets') {
         if (this.data.data.img) {
           return {
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundImage: this.data.data.img.includes('https://')
               ? this.data.data.img
@@ -268,7 +272,8 @@ export default {
       } else if (this.mode === 'templates' || this.mode === 'setsList') {
         if (this.data.immutable_data.img) {
           return {
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundImage: this.data.immutable_data.img.includes('https://')
               ? this.data.immutable_data.img
@@ -280,7 +285,8 @@ export default {
       } else if (this.mode === 'schemas') {
         if (this.data.collection.img) {
           return {
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundImage: this.data.collection.img.includes('https://')
               ? this.data.collection.img
@@ -291,7 +297,8 @@ export default {
         } else return false
       } else if (this.data.sell && this.data.sell[0].mdata) {
         return {
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
           backgroundImage: 'url(' + this.data.sell[0].mdata.img + ')',
         }
       } else return false
@@ -437,17 +444,20 @@ export default {
         return this.data.issued_supply
       }
       return 0
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss">
 .normalcard {
   width: 220px;
-  padding: 6px 10px;
   background-color: #202021;
   border-radius: 10px;
+
+  .actions {
+    padding: 6px;
+  }
 
   .el-dropdown-link {
     color: #000;
@@ -480,10 +490,12 @@ export default {
 
   header {
     white-space: nowrap;
+    padding: 6px;
   }
 
   .offer-information {
-    margin: 6px 0;
+    padding: 6px;
+    height: 80px;
   }
 
   .card_number {
@@ -545,7 +557,7 @@ export default {
     font-weight: 400;
     padding: 5px 10px;
 
-    :hover {
+    &:hover {
       background-color: transparent;
       color: var(--main-action-green);
     }
@@ -624,13 +636,14 @@ export default {
   }
 
   .bigger-btn {
-    width: 107px;
+    width: 115px;
   }
 
   .main-img {
-    width: 200px;
+    width: 100%;
     height: 229.9px;
-    object-fit: cover;
+    object-fit: contain;
+    background-position: center;
   }
 
   .wax-price {
