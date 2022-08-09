@@ -1,6 +1,6 @@
 <template lang="pug">
 .d-flex.justify-content-between.tabar-container
-  .search-input-group.border-bottom--gray
+  .search-input-group
     img.search-icon(:src='data.searchIcon', alt='')
     input.search-input(
       type='text',
@@ -10,7 +10,7 @@
       @blur='blurInput',
       placeholder='Search name or address'
     )
-    img.down-icon(:src='data.downIcon', alt='')
+    //img.down-icon(:src='data.downIcon', alt='')
   el-dropdown.filter-input-group.border-bottom--gray.d-flex.flex-column.justify-content-center(
     trigger='click'
   )
@@ -43,29 +43,41 @@
 .tabar-container {
   margin-bottom: 35px;
 }
+
 .border-bottom--gray {
   border-bottom: 1px solid #333;
   width: 225px;
 }
+
 .border-bottom--green {
   border-bottom: 1px solid var(--main-green);
   width: 225px;
 }
+
 .border-bottom--cancel {
   border-bottom: 1px solid var(--cancel);
 }
+
 .search-input-group,
 .filter-input-group {
   position: relative;
 }
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+}
+
 .filter-input-group {
   width: 87px;
+
   .btn-collection {
     background-color: transparent;
     height: 37px;
     color: #bec6cb;
     white-space: nowrap;
     overflow: hidden;
+
     img {
       min-width: 35px;
       width: 35px;
@@ -73,21 +85,26 @@
       object-fit: cover;
       border-radius: 5px;
     }
+
     &:hover {
       background-color: rgb(65, 65, 65);
     }
+
     .collection-name {
       overflow: hidden;
     }
   }
 }
+
 .filter-input,
 .search-input {
   color: var(--cancel);
 }
+
 .filter-input-group .search-input {
   width: 80px !important;
 }
+
 .tab-btn {
   cursor: pointer;
   padding: 5px;
@@ -95,6 +112,7 @@
   text-align: center;
   width: 293px;
 }
+
 .search-icon,
 .filter-icon,
 .down-icon {
@@ -104,19 +122,24 @@
   width: 15px;
   height: 15px;
 }
+
 .search-icon {
-  left: 0;
+  left: 10px;
 }
+
 .down-icon {
   right: 0;
   top: 50%;
   transform: translate(-25%, -50%);
 }
+
 .search-input {
-  padding: 5px 25px;
+  padding: 5px 45px;
+  border-radius: 5px;
+  font-size: 14px;
   outline: none;
   border: none;
-  background-color: transparent;
+  background-color: var(--btn-default);
 }
 </style>
 <style lang="scss">
@@ -126,12 +149,14 @@
   max-height: 400px;
   width: 250px;
   overflow: auto;
+
   .btn-collection {
     background-color: transparent;
     height: 37px;
     color: #bec6cb;
     white-space: nowrap;
     overflow: hidden;
+
     img {
       min-width: 35px;
       width: 35px;
@@ -139,14 +164,17 @@
       object-fit: cover;
       border-radius: 5px;
     }
+
     &:hover {
       background-color: rgb(65, 65, 65);
     }
+
     .collection-name {
       overflow: hidden;
     }
   }
 }
+
 .wallet-nft-tab {
   .filter-input-group {
     .dropdown-toggle {
@@ -200,12 +228,6 @@ export default {
         // search function
       }, 600)
     },
-    focusInput(event) {
-      event.target.parentElement.classList.add('border-bottom--cancel')
-    },
-    blurInput(event) {
-      event.target.parentElement.classList.remove('border-bottom--cancel')
-    },
-  },
+  }
 }
 </script>
