@@ -1,19 +1,11 @@
 <template lang="pug">
 .j-container
-  div
-    nuxt-link(:to='"/nft-market"', :exact='true')
-      a#return-btn Return
-    h4 Marketplace
-  MarketTab(
-    :data='data',
-    :currentTab='currentTab',
-    :handleTab='handleTab',
-    :handleSearch='handleSearch',
-    :collectionData='collectionData',
-    :handleCollection='handleCollection',
-    :searchValue='search',
-    :handleSearchValue='handleSearchValue'
-  )
+  nuxt-link(:to='"/nft-market"', :exact='true')
+    a#return-btn Return
+  h4 Marketplace
+  .header
+    InputSearch(v-model="search")
+    MarketTabs(:tabs="tabs" v-model="tab" @change="handleTab")
   .grid-container(v-if='loading')
     vue-skeleton-loader(
       :width='220',
@@ -44,6 +36,8 @@ import { mapState } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import MarketTab from '~/components/nft_markets/MarketTab'
+import InputSearch from '~/components/nft_markets/InputSearch'
+import MarketTabs from '~/components/nft_markets/MarketTabs'
 import searchImg from '~/assets/images/search.svg'
 import filterImg from '~/assets/images/filter.svg'
 import downImg from '~/assets/images/down.svg'
@@ -52,13 +46,17 @@ export default {
   components: {
     NormalCard,
     MarketTab,
-    VueSkeletonLoader,
+    InputSearch,
+    MarketTabs,
+    VueSkeletonLoader
   },
 
   data() {
     return {
       search: '',
       currentTab: 'sales',
+      tab: 'sales',
+      tabs: { sales: 'Sales', auctions: 'Auctions' },
       marketData: [],
       loading: true,
       collectionData: [],
@@ -87,7 +85,7 @@ export default {
 
   methods: {
     handleTab(value) {
-      this.currentTab = value
+      this.tab = value
     },
 
     handleSearchValue(value) {
@@ -139,10 +137,17 @@ export default {
   },
 
   watch: {
-    currentTab(newCurrnetTab, oldCurrentTab) {
+    search() {
+      if (this.tab === 'sales') {
+        this.getSaleData()
+      } else {
+        this.getAuctionData()
+      }
+    },
+    tab(newTab) {
       this.currentCollectionName = ''
       this.search = ''
-      if (newCurrnetTab === 'sales') {
+      if (newTab === 'sales') {
         this.getSaleData()
       } else {
         this.getAuctionData()
@@ -166,7 +171,15 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.j-container {
+  .header {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+}
+
 #return-btn::before {
   content: '←';
 }
@@ -182,7 +195,7 @@ export default {
 }
 
 h4 {
-  margin: 32px 0;
+  margin: 24px 0;
 }
 
 div.grid-container {
