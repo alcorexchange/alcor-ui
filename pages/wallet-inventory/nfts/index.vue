@@ -1,15 +1,8 @@
 <template lang="pug">
 .nfts
-  WalletNFTTab(
-    :tabData='tabData',
-    :currentTab='currentTab',
-    :handleTab='handleTab',
-    :handleSearch='handleSearch',
-    :collectionData='collectionData',
-    :handleCollection='handleCollection',
-    :searchValue='search',
-    :handleSearchValue='handleSearchValue'
-  )
+  .header
+    InputSearch(v-model="search")
+    MarketTabs(:tabs="tabs" v-model="currentTab" @change="handleTab")
   //- HorizontalMenu(
   //-   :tabs='currentTab != "inventory" ? (currentTab === "listings" ? horizontalTabData.normalTabs : horizontalTabData.auctionTabs) : []',
   //-   :currentTab='currentHorizontalTab',
@@ -92,6 +85,8 @@ import VueSkeletonLoader from 'skeleton-loader-vue'
 import WalletNFTTab from '~/components/wallet/WalletNFTTab'
 import HorizontalMenu from '~/components/wallet/HorizontalMenu'
 import NormalCard from '~/components/nft_markets/NormalCard'
+import InputSearch from '~/components/nft_markets/InputSearch'
+import MarketTabs from '~/components/nft_markets/MarketTabs'
 import DetailWithCardPanel from '~/components/nft_markets/DetailWithCardPanel'
 import WalletSetTab from '~/components/wallet/WalletSetTab.vue'
 
@@ -101,6 +96,8 @@ export default {
     WalletNFTTab,
     NormalCard,
     VueSkeletonLoader,
+    MarketTabs,
+    InputSearch,
     HorizontalMenu,
     DetailWithCardPanel,
     WalletSetTab,
@@ -113,6 +110,7 @@ export default {
     salesData: [],
     auctionsData: [],
     currentTab: '',
+    tabs: { inventory: 'Inventory', listings: 'Listings', auctions: 'Auctions', sold: 'Sold', bought: 'Bought', sets: 'Sets' },
     currentHorizontalTab: 'open-auctoins',
     collectionData: [],
     currentCollectionName: '',
@@ -208,6 +206,9 @@ export default {
     },
     currentTab(new_tab, old_tab) {
       this.getData(new_tab)
+    },
+    search() {
+      this.getData(this.currentTab)
     },
     detailCollectionMode(new_mode, old_mode) {
       if (new_mode) {
@@ -385,6 +386,14 @@ export default {
 }
 </style>
 <style scoped lang="scss">
+.nfts {
+  .header {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+}
+
 .table-header {
   display: flex;
   align-items: center;

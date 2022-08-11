@@ -128,7 +128,8 @@ export default {
     font-size: 14px;
     color: #9f979a !important;
     cursor: pointer;
-    padding-left: 10px;
+    display: flex;
+    gap: 5px;
   }
 
   .page-header h4 {
