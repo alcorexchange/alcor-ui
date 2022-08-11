@@ -34,15 +34,15 @@ nuxt-link.normalcard.radius10(
     .d-flex.justify-content-between(
       v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
     )
-      p(v-if='mode != "schemas"')
+      p.disable(v-if='mode != "schemas"')
         | Alcorex
         img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
-      p(v-if='mode === "auctions"') Last Offer
-      p(
+      p.disable(v-if='mode === "auctions"') Last Offer
+      p.disable(
         v-else-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
-      ) price
-      p(v-else-if='mode === "inventory"') Purchase price
-      p(v-else-if='mode === "listings"') Listed Price
+      ) Price
+      p.disable(v-else-if='mode === "inventory"') Purchase price
+      p.disable(v-else-if='mode === "listings"') Listed Price
     .d-flex.justify-content-between(
       v-if='mode === "sold" || mode === "bought" || mode === "setsList"'
     )
@@ -57,7 +57,7 @@ nuxt-link.normalcard.radius10(
     .d-flex.justify-content-between(
       v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
     )
-      p(v-if='mode != "schemas"') Default
+      p.default-price(v-if='mode != "schemas"') Default
       p.default-price(
         v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
       )
@@ -474,6 +474,12 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+
+    &.disable {
+      color: #9F979A;
+      font-size: 12px;
+      line-height: 14px;
+    }
   }
 
   .sets-list-info {
@@ -526,6 +532,8 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 14px;
+    color: var(--color-text-primary)
   }
 
   .btn-border--green {
@@ -648,11 +656,14 @@ export default {
 
   .wax-price {
     color: #f89022;
+    font-size: 14px;
   }
 
   .default-price,
   .best-offer {
     color: var(--main-action-green);
+    font-size: 14px;
+    font-weight: 500;
   }
 
   @media only screen and (max-width: 600px) {
