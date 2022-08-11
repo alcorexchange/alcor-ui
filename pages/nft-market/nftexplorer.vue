@@ -4,16 +4,9 @@
     nuxt-link(:to='"/nft-market"', :exact='true')
       a#return-btn Return
     h4 Explorer
-  ExplorerTab(
-    :data='data',
-    :currentTab='currentTab',
-    :handleTab='handleTab',
-    :collectionData='collectionData',
-    :handleCollection='handleCollection',
-    :searchValue='search',
-    :handleSearch='handleSearch',
-    :handleSearchValue='handleSearchValue'
-  )
+  .header
+    InputSearch(v-model="search")
+    MarketTabs(:tabs="tabs" v-model="tab" @change="handleTab")
   .grid-container(v-if='loading')
     vue-skeleton-loader(
       :width='220',
@@ -26,13 +19,13 @@
     )
   .grid-container(v-else)
     .d-flex.justify-content-center(
-      v-if='currentTab === "all" || currentTab === "assets"',
+      v-if='tab === "all" || tab === "assets"',
       v-for='(item, index) in assetsData',
       :key='"assets-" + index'
     )
       NormalCard(v-if='item', :data='item', :price='getPrice', mode='assets')
     .d-flex.justify-content-center(
-      v-if='currentTab === "all" || currentTab === "templates"',
+      v-if='tab === "all" || tab === "templates"',
       v-for='(item, index) in templatesData',
       :key='"templates-" + index'
     )
@@ -43,7 +36,7 @@
         mode='templates'
       )
     .d-flex.justify-content-center(
-      v-if='currentTab === "all" || currentTab === "schemas"',
+      v-if='tab === "all" || tab === "schemas"',
       v-for='(item, index) in schemasData',
       :key='"schemas-" + index'
     )
@@ -56,6 +49,8 @@ import { mapState } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import ExplorerTab from '~/components/nft_markets/ExplorerTab'
+import MarketTabs from '~/components/nft_markets/MarketTabs'
+import InputSearch from '~/components/nft_markets/InputSearch'
 import searchImg from '~/assets/images/search.svg'
 import filterImg from '~/assets/images/filter.svg'
 import downImg from '~/assets/images/down.svg'
@@ -64,6 +59,8 @@ export default {
   components: {
     NormalCard,
     ExplorerTab,
+    MarketTabs,
+    InputSearch,
     VueSkeletonLoader,
   },
 
@@ -73,8 +70,9 @@ export default {
       sellOrders: [],
       tabIndex: 0,
       loading: true,
-      currentTab: 'all',
       assetsData: [],
+      tab: 'all',
+      tabs: { all: 'All', assets: 'Assets', templates: 'Templates', schemas: 'Schemas', accounts: 'Accounts' },
       templatesData: [],
       accountsData: [],
       collectionData: [],
@@ -90,9 +88,12 @@ export default {
   },
 
   watch: {
-    currentTab(newCurrnetTab, oldCurrentTab) {
+    tab() {
       this.currentCollectionName = ''
       this.search = ''
+      this.getData()
+    },
+    search() {
       this.getData()
     },
   },
@@ -114,7 +115,7 @@ export default {
 
   methods: {
     handleTab(value) {
-      this.currentTab = value
+      this.tab = value
     },
 
     handleSearchValue(value) {
@@ -122,18 +123,18 @@ export default {
     },
 
     async getData() {
-      if (this.currentTab === 'all') {
+      if (this.tab === 'all') {
         await this.getAssetsData()
         await this.getTemplatesData()
         await this.getSchemasData()
         await this.getAccountsData()
-      } else if (this.currentTab === 'assets') {
+      } else if (this.tab === 'assets') {
         this.getAssetsData()
-      } else if (this.currentTab === 'templates') {
+      } else if (this.tab === 'templates') {
         this.getTemplatesData()
-      } else if (this.currentTab === 'schemas') {
+      } else if (this.tab === 'schemas') {
         this.getSchemasData()
-      } else if (this.currentTab === 'accounts') {
+      } else if (this.tab === 'accounts') {
         this.getAccountsData()
       }
     },
@@ -214,6 +215,14 @@ export default {
 </script>
 
 <style lang="scss">
+.j-container {
+  .header {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+}
+
 #return-btn::before {
   content: '←';
 }
@@ -223,13 +232,12 @@ export default {
   font-size: 14px;
   color: #9f979a !important;
   cursor: pointer;
-  padding-left: 10px;
   display: flex;
   gap: 5px;
 }
 
 h4 {
-  margin: 32px 0;
+  margin: 24px 0;
 }
 
 div.grid-container {
