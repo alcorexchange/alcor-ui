@@ -24,18 +24,27 @@ function tickerHandler(req, res, next) {
 
 export const spot = Router()
 
+function formatToken(token) {
+  return {
+    contract: token.contract,
+    symbol: token.symbol.name,
+    precision: token.symbol.precision
+  }
+}
+
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
+  // TODO Filter by base/quote
   const network = req.app.get('network')
 
   const markets = (await Market.find({ chain: network.name }).select('base_token quote_token'))
     .map(i => {
-      const base = i.quote_token.str.replace('@', '-')
-      const quote = i.base_token.str.replace('@', '-')
+      const base = formatToken(i.quote_token)
+      const quote = formatToken(i.base_token)
 
       return {
-        ticker_id: base + '_' + quote,
+        ticker_id: base.contract + '-' + base.symbol + '_' + quote.contract + '-' + quote.symbol,
         base,
         quote
       }
@@ -66,15 +75,14 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
   res.json(market)
 })
 
-
-spot.get('/orderbook', tickerHandler, depthHandler, async (req, res) => {
+spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (req, res) => {
   const network = req.app.get('network')
   const redisClient = req.app.get('redisClient')
 
   const { depth, ticker_id } = req.query
 
   const market = await Market.findOne({ ticker_id, chain: network.name })
-  if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
+  if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
   const bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
   const asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
@@ -86,7 +94,25 @@ spot.get('/orderbook', tickerHandler, depthHandler, async (req, res) => {
   })
 })
 
-spot.get('/historical_trades/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
+spot.get('tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
+}), async (req, res) => {
+  const network = req.app.get('network')
+  const limit = parseInt(req.query.limit) || 300
+
+  const { ticker_id } = req.params
+  const market = await Market.findOne({ ticker_id, chain: network.name })
+  if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
+
+  const matches = await Match.find({ chain: network.name, market: market.id })
+    .select('_id time bid ask unit_price type trx_id')
+    .sort({ time: -1 })
+    .limit(limit)
+
+  res.json(matches)
+})
+
+spot.get('tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
 }), async (req, res) => {
   const network = req.app.get('network')
@@ -104,13 +130,13 @@ spot.get('/historical_trades/:ticker_id', tickerHandler, cacheSeconds(1, (req, r
   if (start_time || end_time) {
     q.time = {}
 
-    if (start_time) q.time.$gte = new Date(Number(start_time))
-    if (end_time) q.time.$lte = new Date(Number(end_time))
+    if (start_time) q.time.$gte = new Date(parseInt(start_time))
+    if (end_time) q.time.$lte = new Date(parseInt(end_time))
   }
 
   const matches = await Match.find(q)
     .select('_id price time bid ask unit_price type trx_id')
-    .sort({ time: -1 })
+    .sort({ time: 1 })
     .limit(limit)
 
   res.json(matches.map(m => {
@@ -123,4 +149,45 @@ spot.get('/historical_trades/:ticker_id', tickerHandler, cacheSeconds(1, (req, r
       type: m.type == 'buymatch' ? 'buy' : 'sell'
     }
   }))
+})
+
+spot.get('tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
+  const { ticker_id } = req.params
+  const network = req.app.get('network')
+
+  const market = await Market.findOne({ ticker_id, chain: network.name })
+  if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
+
+  const { from, to, resolution, limit } = req.query
+  if (!resolution) return res.status(404).send('Incorrect resolution..')
+
+  const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market.id) }
+
+  if (from && to) {
+    where.time = {
+      $gte: new Date(parseInt(from)),
+      $lte: new Date(parseInt(to))
+    }
+  }
+
+  const q = [
+    { $match: where },
+    { $sort: { time: 1 } },
+    {
+      $project: {
+        time: { $toLong: '$time' },
+        open: 1,
+        high: 1,
+        low: 1,
+        close: 1,
+        volume: 1
+      }
+    }
+  ]
+
+  if (limit) q.push({ $limit: parseInt(limit) })
+
+  const charts = await Bar.aggregate(q)
+
+  res.json(charts)
 })

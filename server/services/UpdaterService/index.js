@@ -32,6 +32,7 @@ async function start () {
     }
   }
 
+  process.send('ready')
   startUpdaters()
 }
 

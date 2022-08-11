@@ -161,10 +161,12 @@ export async function main() {
   await publisher.connect()
   await subscriber.connect()
 
+  process.send('ready')
+
   //initialUpdate()
   // FIXME JUST FOR TEST
-  updateOrders('sell', 'wax', 0)
-  updateOrders('buy', 'wax', 0)
+  //updateOrders('sell', 'wax', 0)
+  //updateOrders('buy', 'wax', 0)
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')

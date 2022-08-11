@@ -8,6 +8,7 @@ module.exports = {
       instances: 2,
       script: './node_modules/nuxt/bin/nuxt.js',
       args: 'start',
+      wait_ready: true,
       env: {
         NODE_ENV: 'production',
         NUXT_PORT: 7000,
@@ -20,6 +21,7 @@ module.exports = {
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 6,
+      wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7001
@@ -31,6 +33,7 @@ module.exports = {
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 10,
+      wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7002
@@ -39,13 +42,15 @@ module.exports = {
     {
       name: 'Alcor-updater',
       script: './server/services/UpdaterService/index.js',
-      node_args: '-r esm'
+      node_args: '-r esm',
+      wait_ready: true
     },
 
     {
       name: 'Alcor-orderbook-service',
       script: './server/services/OrderbookService/index.js',
-      node_args: '-r esm'
+      node_args: '-r esm',
+      wait_ready: true
     }
   ]
 }

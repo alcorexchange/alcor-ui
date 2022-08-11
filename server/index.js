@@ -31,5 +31,8 @@ async function start() {
     message: `Server listening on http://${host}:${port}`,
     badge: true
   })
+
+  // FOR PM2
+  process.send('ready')
 }
 start()

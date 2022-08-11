@@ -32,6 +32,8 @@ async function main() {
   await client.connect()
   await subscriber.connect()
 
+  process.send('ready')
+
   io.on('connection', socket => {
     console.log(socket.client.conn.server.clientsCount + 'users connected')
 
