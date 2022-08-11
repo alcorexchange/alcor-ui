@@ -32,7 +32,9 @@ async function main() {
   await client.connect()
   await subscriber.connect()
 
+  // FOR PM2
   process.send('ready')
+  process.on('SIGINT', process.exit(0))
 
   io.on('connection', socket => {
     console.log(socket.client.conn.server.clientsCount + 'users connected')

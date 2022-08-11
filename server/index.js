@@ -34,5 +34,6 @@ async function start() {
 
   // FOR PM2
   process.send('ready')
+  process.on('SIGINT', process.exit(0))
 }
 start()

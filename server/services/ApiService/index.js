@@ -59,7 +59,10 @@ async function start () {
   app.listen(PORT, () => {
     consola.ready({ message: `API Server listening on ${PORT}`, badge: true })
   })
+
+  // FOR PM2
   process.send('ready')
+  process.on('SIGINT', process.exit(0))
 }
 
 start()
