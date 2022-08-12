@@ -1,24 +1,24 @@
 <template lang="pug">
   div.container
-    NotFound(v-if="error.statusCode === 404 && error.type === 'PAGE_NOT_FOUND'" :error="error")
-
-    div(v-else)
-      .row.justify-content-center
-        .col-md-12.text-center
-          img(:src='src', alt="error-image")
-          span.display-1.d-block.error-code Error {{ error.statusCode }}
-          .mb-4.lead.message(v-if="error.statusCode === 404 && error.messag == ''") Oops! We can't seem to find the page you are looking for.
-          .mb-4.lead.message(v-else) {{ error.message }}
-          nuxt-link.link(:to='localePath("index", $i18n.locale)').btn.btn-link Back to Home
+    .row.justify-content-center
+      .col-md-12.text-center
+        image-not-found(v-if="error.type === 'PAGE_NOT_FOUND'")
+        image404(v-else)
+        span.display-1.d-block.error-code Error {{ error.statusCode }}
+        .mb-4.lead.message(v-if="error.statusCode === 404 && error.messag == ''") Oops! We can't seem to find the page you are looking for.
+        .mb-4.lead.message(v-else) {{ error.message }}
+        nuxt-link.link(:to='localePath("index", $i18n.locale)').btn.btn-link Back to Home
 
 </template>
 
 <script>
-import NotFound from '~/components/errors/NotFound.vue'
+import ImageNotFound from '~/components/errors/ImageNotFound.vue'
+import Image404 from '~/components/errors/Image404.vue'
 
 export default {
   components: {
-    NotFound
+    ImageNotFound,
+    Image404
   },
 
   props: {
@@ -41,7 +41,7 @@ export default {
 </script>
 
 <style scoped>
-img {
+svg {
   margin-top: 52px;
   margin-bottom: 52px;
 }
