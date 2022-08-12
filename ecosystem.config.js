@@ -20,7 +20,7 @@ module.exports = {
       script: './server/services/ApiService/index.js',
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
-      instances: 6,
+      instances: 2,
       wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -29,10 +29,10 @@ module.exports = {
     },
     {
       name: 'Alcor-ws-server',
-      script: './server/services/SocketService/index.js',
+      script: './server/services/socketService/index.js',
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
-      instances: 10,
+      instances: 4,
       wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -48,7 +48,7 @@ module.exports = {
 
     {
       name: 'Alcor-orderbook-service',
-      script: './server/services/OrderbookService/index.js',
+      script: './server/services/orderbookService/index.js',
       node_args: '-r esm',
       wait_ready: true
     }

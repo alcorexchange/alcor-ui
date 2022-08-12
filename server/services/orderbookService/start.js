@@ -161,7 +161,9 @@ export async function main() {
   await publisher.connect()
   await subscriber.connect()
 
+  // FOR PM2
   process.send('ready')
+  process.on('SIGINT', process.exit(0))
 
   //initialUpdate()
   // FIXME JUST FOR TEST
