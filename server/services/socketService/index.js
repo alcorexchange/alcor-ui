@@ -28,13 +28,19 @@ httpServer.listen(PORT, function () {
 
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
   await client.connect()
   await subscriber.connect()
 
   // FOR PM2
-  process.send('ready')
-  process.on('SIGINT', process.exit(0))
+  //process.send('ready')
+  process.on('SIGINT', async () => {
+    await mongoose.connection.close()
+    await httpServer.close()
+
+    await client.quit()
+    process.exit(0)
+  })
 
   io.on('connection', socket => {
     console.log(socket.client.conn.server.clientsCount + 'users connected')

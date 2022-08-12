@@ -8,7 +8,7 @@ module.exports = {
       instances: 2,
       script: './node_modules/nuxt/bin/nuxt.js',
       args: 'start',
-      wait_ready: true,
+      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         NUXT_PORT: 7000,
@@ -17,11 +17,10 @@ module.exports = {
     },
     {
       name: 'Alcor-api-server',
-      script: './server/services/ApiService/index.js',
-      node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
+      script: './lib/server/services/ApiService/index.js',
       exec_mode: 'cluster',
       instances: 2,
-      wait_ready: true,
+      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7001
@@ -29,11 +28,11 @@ module.exports = {
     },
     {
       name: 'Alcor-ws-server',
-      script: './server/services/socketService/index.js',
+      script: './lib/server/services/socketService/index.js',
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 4,
-      wait_ready: true,
+      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7002
@@ -41,16 +40,16 @@ module.exports = {
     },
     {
       name: 'Alcor-updater',
-      script: './server/services/UpdaterService/index.js',
+      script: './lib/server/services/UpdaterService/index.js',
       node_args: '-r esm',
-      wait_ready: true
+      //wait_ready: true
     },
 
     {
       name: 'Alcor-orderbook-service',
-      script: './server/services/orderbookService/index.js',
+      script: './lib/server/services/orderbookService/index.js',
       node_args: '-r esm',
-      wait_ready: true
+      //wait_ready: true
     }
   ]
 }

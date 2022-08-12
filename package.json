@@ -8,6 +8,8 @@
     "dev": "cross-env NODE_ENV=development nodemon -r esm server/index.js --watch server",
     "dev2": "cross-env NODE_ENV=development nodemon --inspect -r esm server/index.js --watch server",
     "build": "nuxt build",
+    "server-build": "babel assets -d lib/assets && babel server -d lib/server && babel config.js -d lib && babel utils -d lib/utils",
+    "server-dev": "nodemon --exec babel-node TODO",
     "start": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm server/index.js",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
@@ -43,7 +45,7 @@
     "form-data": "^3.0.0",
     "http-status-codes": "^2.1.2",
     "lodash": "^4.17.21",
-    "mongoose": "^5.13.12",
+    "mongoose": "^5.13.14",
     "node-fetch": "^2.6.0",
     "nuxt": "^2.15.8",
     "nuxt-highcharts": "^2.0.3",
@@ -65,6 +67,9 @@
     "web3-utils": "^1.6.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
     "@iconify/vue2": "^1.2.1",
     "@nuxtjs/color-mode": "^2.0.5",
     "@nuxtjs/device": "^2.0.1",

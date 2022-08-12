@@ -10,13 +10,13 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
-import upload from './upload'
+import upload from './upload.js'
 
-import { networkResolver } from './middleware'
+import { networkResolver } from './middleware.js'
 
-import { markets } from './markets'
-import { pools } from './pools'
-import { account } from './account'
+import { markets } from './markets.js'
+import { pools } from './pools.js'
+import { account } from './account.js'
 
 const app = express()
 
@@ -26,7 +26,7 @@ async function start () {
   if (!process.env.DISABLE_DB) {
     try {
       const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-      await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+      await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
       console.log('MongoDB connected!')
     } catch (e) {
       console.log('MongoDB connect err: ', e)
@@ -61,8 +61,11 @@ async function start () {
   })
 
   // FOR PM2
-  process.send('ready')
-  process.on('SIGINT', process.exit(0))
+  //process.send('ready')
+  process.on('SIGINT', async () => {
+    await mongoose.connection.close()
+    process.exit(0)
+  })
 }
 
 start()

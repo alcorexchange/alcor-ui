@@ -11,15 +11,19 @@ async function start () {
   console.log('Redis connected..')
 
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
   console.log('MongoDB connected!')
-
-  // FOR PM2
-  process.send('ready')
 
   startUpdaters()
 
-  process.on('SIGINT', process.exit(0))
+  // FOR PM2
+  //process.send('ready')
+
+  process.on('SIGINT', async () => {
+    await redisClient.quit()
+    await mongoose.connection.close()
+    process.exit(0)
+  })
 }
 
 start()
