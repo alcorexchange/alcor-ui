@@ -169,6 +169,7 @@ export async function main() {
     await client.quit()
     await publisher.quit()
     await subscriber.quit()
+    process.exit(0)
   })
 
   //initialUpdate()

@@ -38,7 +38,8 @@ async function main() {
     await mongoose.connection.close()
     await httpServer.close()
 
-    await client.quit()
+    //await client.quit()
+
     process.exit(0)
   })
 
