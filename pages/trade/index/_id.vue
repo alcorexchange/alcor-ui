@@ -68,7 +68,7 @@ export default {
         !q_token.sym.includes(q_sym) ||
         b_contract != b_token.contract ||
         q_contract != q_token.contract
-      ) { return error({ statusCode: 404, message: `market ${params.id} found` }) }
+      ) { return error({ statusCode: 404, type: 'PAGE_NOT_FOUND', message: `market ${params.id} found` }) }
 
       store.dispatch('market/setMarket', { id: rows[0].id })
       await Promise.all([
