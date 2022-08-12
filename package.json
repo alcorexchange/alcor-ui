@@ -8,8 +8,8 @@
     "dev": "cross-env NODE_ENV=development nodemon -r esm server/index.js --watch server",
     "dev2": "cross-env NODE_ENV=development nodemon --inspect -r esm server/index.js --watch server",
     "build": "nuxt build",
-    "server-build": "babel assets -d lib/assets && babel server -d lib/server && babel config.js -d lib && babel utils -d lib/utils",
-    "server-dev": "nodemon --exec babel-node TODO",
+    "build-server": "babel assets -d lib/assets && babel server -d lib/server && babel config.js -d lib && babel utils -d lib/utils",
+    "dev-server": "nodemon --exec babel-node TODO",
     "start": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm server/index.js",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
