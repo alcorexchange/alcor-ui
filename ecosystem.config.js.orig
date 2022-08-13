@@ -20,6 +20,7 @@ module.exports = {
       script: './lib/server/services/ApiService/index.js',
       exec_mode: 'cluster',
       instances: 2,
+      kill_timeout: 10000,
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -32,6 +33,7 @@ module.exports = {
       node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 4,
+      kill_timeout: 10000,
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -49,6 +51,7 @@ module.exports = {
       name: 'Alcor-orderbook-service',
       script: './lib/server/services/orderbookService/index.js',
       node_args: '-r esm',
+      kill_timeout: 10000,
       //wait_ready: true
     }
   ]
