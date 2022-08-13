@@ -30,7 +30,6 @@ module.exports = {
     {
       name: 'Alcor-ws-server',
       script: './lib/server/services/socketService/index.js',
-      node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
       exec_mode: 'cluster',
       instances: 4,
       kill_timeout: 10000,
