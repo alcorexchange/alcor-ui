@@ -167,8 +167,6 @@ export async function main() {
     await mongoose.connection.close()
 
     await client.quit()
-    await publisher.quit()
-    await subscriber.quit()
     process.exit(0)
   })
 
