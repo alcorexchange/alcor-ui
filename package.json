@@ -24,6 +24,8 @@
     "@proton/web-sdk": "^4.1.11",
     "@scatterjs/core": "^2.7.54",
     "@scatterjs/eosjs2": "^1.5.36",
+    "@socket.io/cluster-adapter": "^0.2.0",
+    "@socket.io/sticky": "^1.0.1",
     "@vue/eslint-config-standard": "^5.0.0",
     "@waxio/waxjs": "https://github.com/worldwide-asset-exchange/waxjs#develop",
     "anchor-link": "^3.4.1",

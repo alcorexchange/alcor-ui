@@ -2021,10 +2021,23 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
+"@socket.io/cluster-adapter@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@socket.io/cluster-adapter/-/cluster-adapter-0.2.0.tgz#656e6c5492556dbad5dd3d3f959ba8a70f3f39ed"
+  integrity sha512-CZctHZdBNB9RIR3KBBwLdFKCZwILWeryoGeTHCChTs0vbnbjn2iwgB4AlYJEe0aJsFkwrYo/uY3pMGWNd0YbDQ==
+  dependencies:
+    debug "~4.3.1"
+    socket.io-adapter "~2.4.0"
+
 "@socket.io/component-emitter@~3.0.0":
   version "3.0.0"
   resolved "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.0.0.tgz"
   integrity sha512-2pTGuibAXJswAPJjaKisthqS/NOK5ypG4LYT6tEAV0S/mxW0zOIvYvGK0V8w8+SHxAm6vRMSjqSalFXeBAqs+Q==
+
+"@socket.io/sticky@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@socket.io/sticky/-/sticky-1.0.1.tgz#d0ea2f2da7177ba900c7065c92c8af39915fbcdf"
+  integrity sha512-g5vmW25QZ1sDA6/NqgKJHhUKWI6b11BPWqwQBvPTVodGqbYMkfuY7hQtEXDoUPf+0WhySgcdVLf9o2AgOAXUhA==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
@@ -11290,6 +11303,11 @@ socket.io-adapter@~2.3.2:
   version "2.3.2"
   resolved "https://registry.npmjs.org/socket.io-adapter/-/socket.io-adapter-2.3.2.tgz"
   integrity sha512-PBZpxUPYjmoogY0aoaTmo1643JelsaS1CiAwNjRVdrI0X9Seuc19Y2Wife8k88avW6haG8cznvwbubAZwH4Mtg==
+
+socket.io-adapter@~2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/socket.io-adapter/-/socket.io-adapter-2.4.0.tgz#b50a4a9ecdd00c34d4c8c808224daa1a786152a6"
+  integrity sha512-W4N+o69rkMEGVuk2D/cvca3uYsvGlMwsySWV447y99gUPghxq42BxqLNMndb+a1mm/5/7NeXVQS7RLa2XyXvYg==
 
 socket.io-client@^2.3.0:
   version "2.4.0"
