@@ -19,12 +19,12 @@ const subscriber = client.duplicate()
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
 
-io.adapter(createAdapter())
-setupWorker(io)
+//io.adapter(createAdapter())
+//setupWorker(io)
 
-//httpServer.listen(process.env.PORT || 7002, function () {
-//  console.log(`SocketService Listening on port ${PORT}`)
-//})
+httpServer.listen(process.env.PORT || 7002, function () {
+  console.log(`SocketService Listening on port ${process.env.PORT || 7002}`)
+})
 
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
