@@ -19,6 +19,7 @@ module.exports = {
       name: 'Alcor-api-server',
       script: './lib/server/services/ApiService/index.js',
       exec_mode: 'cluster',
+      restart_delay: 10000,
       instances: 2,
       kill_timeout: 3000,
       //wait_ready: true,
@@ -33,6 +34,7 @@ module.exports = {
       exec_mode: 'cluster',
       instances: 4,
       kill_timeout: 10000,
+      restart_delay: 10000,
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -44,6 +46,7 @@ module.exports = {
       name: 'Alcor-updater',
       script: './lib/server/services/UpdaterService/index.js',
       node_args: '-r esm',
+      restart_delay: 10000,
       //wait_ready: true
     },
 
@@ -52,6 +55,7 @@ module.exports = {
       script: './lib/server/services/orderbookService/index.js',
       node_args: '-r esm',
       kill_timeout: 10000,
+      restart_delay: 10000,
       //wait_ready: true
     }
   ]
