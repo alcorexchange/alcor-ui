@@ -163,12 +163,12 @@ export async function main() {
 
   // FOR PM2
   //process.send('ready')
-  process.on('SIGINT', async () => {
-    await mongoose.connection.close()
+  //process.on('SIGINT', async () => {
+  //  await mongoose.connection.close()
 
-    await client.quit()
-    process.exit(0)
-  })
+  //  await client.quit()
+  //  process.exit(0)
+  //})
 
   //initialUpdate()
   // FIXME JUST FOR TEST
