@@ -20,7 +20,7 @@ module.exports = {
       script: './lib/server/services/ApiService/index.js',
       exec_mode: 'cluster',
       instances: 2,
-      kill_timeout: 10000,
+      kill_timeout: 3000,
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -36,7 +36,8 @@ module.exports = {
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
-        PORT: 7002
+        PORT: 7002,
+        PM2_PORT: 7002
       }
     },
     {
