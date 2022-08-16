@@ -1,11 +1,9 @@
 // Import variables for light/dark theme
 @import '~/assets/_variables.scss';
-@import './base.scss';
 
 // Add elements scss (themed by variables)
 @import './element.scss';
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+@import './base.scss';
 
 @font-face {
   font-family: element-icons;
@@ -20,13 +18,8 @@ body {
   background-color: var(--background-color-base);
   color: var(--color-text-primary);
 
-  transition: 0.3s;
-}
-
-.j-container {
-  width: 100%;
-  margin: auto;
-  max-width: 970px;
+  overflow-x: hidden; // Is that correct?
+  min-height: 600px;
 }
 
 *:focus {
@@ -52,18 +45,18 @@ button:focus {
   outline: 0;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 label {
   margin: 0px;
 }
 
 .pointer {
   cursor: pointer;
+}
+
+.hoverable {
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 @media (min-width: 1200px) {
@@ -202,45 +195,21 @@ pre {
 //}
 //
 
-// Light (default styles)
-.text-danger,
-.max-sellmatch {
-  color: #b82d0d !important;
-}
-
-.text-success,
-.max-buymatch {
-  color: #66C167 !important;
-}
-
-.text-danger-deal,
-.text-success-deal,
-.max-buymatch-deal span {
-  color: #FFFFFF;
-}
-
-.text-success {
-  color: #53a95b !important;
-}
-
-.max-buymatch-deal {
-  background: linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%)
-}
-
-.max-sellmatch-deal {
-  background: linear-gradient(180deg, rgba(237, 66, 69, 0.1) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
-
-  span {
-    color: #FFFFFF;
-  }
-}
-
-a {
-  color: #80a1c5 !important;
-}
-
 // Dark
 .theme-dark {
+  .el-tooltip__popper.is-dark {
+    background: var(--btn-active);
+    color: var(--text-grey-thirdly);
+
+    .popper__arrow {
+      border-top-color: var(--btn-active) !important;
+    }
+
+    .popper__arrow::after {
+      border-top-color: var(--btn-active) !important;
+    }
+  }
+
   .el-table::before {
     height: 0px;
   }
@@ -257,19 +226,13 @@ a {
     color: var(--main-red) !important;
   }
 
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
   .markets-bar {
     // height: 500px;
+    // 
+  }
+
+  .el-switch__label.is-active {
+      color: var(--text-default) !important;
   }
 }
 
@@ -289,21 +252,6 @@ a {
   .text-danger {
     color: var(--color-primary) !important;
   }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
-  }
 }
 
 .theme-oranger {
@@ -321,21 +269,6 @@ a {
 
   .text-danger {
     color: var(--color-primary) !important;
-  }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
   }
 }
 
@@ -355,21 +288,6 @@ a {
   .text-danger {
     color: var(--color-primary) !important;
   }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
-  }
 }
 
 .theme-cyber {
@@ -388,21 +306,6 @@ a {
   .text-danger {
     color: var(--color-primary) !important;
   }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
-  }
 }
 
 .theme-bloom {
@@ -420,21 +323,6 @@ a {
 
   .text-danger {
     color: var(--color-primary) !important;
-  }
-
-  .trading-terminal {
-    .el-input__inner {
-      background-color: var(--background-color-secondary);
-    }
-
-    //.el-table th,
-    //tr {
-    //  background-color: var(--background-color-base);
-    //}
-  }
-
-  .markets-bar {
-    // height: 500px;
   }
 }
 
@@ -490,9 +378,6 @@ a {
   .el-slider__bar {
     background-color: var(--color-secondary);
   }
-}
-.wax {
-  color: var(--main-wax);
 }
 
 .alcor-inner {
@@ -707,13 +592,21 @@ a {
   }
 }
 
-@media only screen and (max-width: 1240px) {
+//@media only screen and (max-width: 1240px) {
+//  .alcor-inner {
+//    padding: 0 8px;
+//  }
+//}
+
+@media only screen and (max-width: 640px) {
+  .el-table {
+    font-size: 11px !important;
+  }
+
   .alcor-inner {
     padding: 0 16px;
   }
-}
 
-@media only screen and (max-width: 640px) {
   .market-table {
     .cell {
       padding-left: 8px !important;
@@ -744,9 +637,8 @@ a {
   border: 0px 0px 0px 2px !important;
 }
 
-.popup-dialog {
-  background: #121212;
-  border: 2px solid #282828;
+.el-tabs__nav.is-top {
+  transform: unset !important;
 }
 
 .border-tabs {
@@ -843,8 +735,4 @@ a {
 
 .underline {
   text-decoration: underline;
-}
-.popper__arrow {
-    // display:none !important;
-  background: #121212 !important;
 }

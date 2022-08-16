@@ -1,5 +1,11 @@
 <template lang="pug">
-  el-dialog(:visible.sync="visible"  width="400px")
+  el-dialog(
+    :visible.sync="visible"
+    width="400px"
+    :before-close="beforeDialogClose"
+    @mousedown.native="dialogMousedown"
+    @mouseup.native="dialogMouseup"
+  )
     template(#title)
       .title-container
         i.el-icon-wallet
@@ -22,6 +28,7 @@ export default {
   components: {
     AlcorButton
   },
+
   data: () => ({
     visible: false
   }),

@@ -144,6 +144,7 @@ export default {
       }))
 
       prepareNFT(nft)
+
       return nft
     }
   },
@@ -220,8 +221,7 @@ export default {
       } finally {
         this.loading = false
       }
-    },
-
+    }
   },
 
   head() {
