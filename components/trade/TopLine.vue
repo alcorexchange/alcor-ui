@@ -353,11 +353,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 
   a.underline {
     text-decoration: underline !important;
-    color: var(--cancel);
+    color: var(--cancel) !important;
   }
 }
 
@@ -372,7 +372,7 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   text-decoration: none;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 }
 
 .token-info-box {

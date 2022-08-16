@@ -18,6 +18,9 @@ import RecommendedMarkets from '@/components/landing/RecommendedMarkets'
 import Partners from '@/components/landing/Partners'
 import Promoted from '~/components/landing/Promoted.vue'
 export default {
+  layout: 'homeLayout',
+  colorMode: 'dark',
+
   components: {
     SectionTitle,
     ChainTools,
@@ -30,3 +33,23 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #bfbfbf;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6f6f6f;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5f5f5f;
+}
+</style>

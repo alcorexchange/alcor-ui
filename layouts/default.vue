@@ -164,6 +164,7 @@ export default {
 .full-width {
   max-width: 1920px;
   padding: 0px;
+  overflow-x: hidden;
 
   .nav {
     padding: 12px 20px;
