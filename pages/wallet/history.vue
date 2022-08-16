@@ -157,7 +157,7 @@ export default {
   }
 
   .amount {
-    width: 175px;
+    width: 185px;
     display: flex;
     justify-content: flex-end;
   }
@@ -174,7 +174,7 @@ export default {
   }
 
   .unit-price {
-    width: 155px;
+    width: 150px;
     display: flex;
     justify-content: flex-end;
 

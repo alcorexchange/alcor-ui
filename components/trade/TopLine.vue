@@ -29,7 +29,7 @@ client-only
                     .value 21/03/2022 10:00PM
                   .info-box-row(v-if="stat && stat.supply")
                     .key.cancel {{ $t('Circulating Supply') }}
-                    .value {{ stat.supply }}
+                    .value {{ stat.supply.replace('.', ',') }}
                   .info-box-row
                     .key.cancel {{ $t('Website') }}
                     a.value.link(v-if="fundamental && fundamental.website" :href="fundamental.website.link") {{ fundamental.website.name }}
