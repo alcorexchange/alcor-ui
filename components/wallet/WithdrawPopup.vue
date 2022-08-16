@@ -1,14 +1,5 @@
 <template lang="pug">
-  el-dialog(
-    title="Token transfer"
-    :visible.sync="visible"
-    width="25%"
-    v-if="user"
-
-    :before-close="beforeDialogClose"
-    @mousedown.native="dialogMousedown"
-    @mouseup.native="dialogMouseup"
-  ).text-left.dialog
+  el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left.dialog
     template(#title)
       .title-container
         i.el-icon-wallet

@@ -29,7 +29,7 @@ client-only
                     .value 21/03/2022 10:00PM
                   .info-box-row(v-if="stat && stat.supply")
                     .key.cancel {{ $t('Circulating Supply') }}
-                    .value {{ stat.supply }}
+                    .value {{ stat.supply.replace('.', ',') }}
                   .info-box-row
                     .key.cancel {{ $t('Website') }}
                     a.value.link(v-if="fundamental && fundamental.website" :href="fundamental.website.link") {{ fundamental.website.name }}
@@ -353,11 +353,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 
   a.underline {
     text-decoration: underline !important;
-    color: var(--cancel);
+    color: var(--cancel) !important;
   }
 }
 
@@ -372,7 +372,7 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   text-decoration: none;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 }
 
 .token-info-box {
