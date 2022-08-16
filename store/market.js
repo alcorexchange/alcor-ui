@@ -187,7 +187,6 @@ export const mutations = {
   backupChartOrdersSettings: state => state.backup_orders_settings = state.chart_orders_settings,
   setChartOrdersSettingsFromBackup: state => state.chart_orders_settings = state.backup_orders_settings || state.chart_orders_settings,
   setMarket: (state, market) => {
-    console.log('ssss', market)
     const { id, base_token, quote_token, slug } = market
 
     state.id = id
