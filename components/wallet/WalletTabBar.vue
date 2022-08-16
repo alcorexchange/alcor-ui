@@ -15,12 +15,12 @@ export default {
   components: { AlcorLink },
   data: () => ({
     urls: [
-      { name: 'Tokens', to: '/wallet-inventory', exact: true },
-      { name: 'Open Orders', to: '/wallet-inventory/positions' },
-      { name: 'History', to: '/wallet-inventory/history' },
-      { name: 'NFT’s', to: '/wallet-inventory/nfts', isNFT: true },
-      { name: 'Liquidity Pools', to: '/wallet-inventory/liquidity_pools' },
-      { name: 'Resources', to: '/wallet-inventory/resources' }
+      { name: 'Tokens', to: '/wallet', exact: true },
+      { name: 'Open Orders', to: '/wallet/positions' },
+      { name: 'History', to: '/wallet/history' },
+      { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
+      { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
+      { name: 'Resources', to: '/wallet/resources' }
     ]
   }),
   watch: {
