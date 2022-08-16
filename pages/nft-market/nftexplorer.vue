@@ -41,6 +41,16 @@
       :key='"schemas-" + index'
     )
       NormalCard(v-if='item', :data='item', :price='getPrice', mode='schemas')
+    .d-flex.justify-content-center(
+      v-if='tab === "accounts"',
+      v-for='(item, index) in accountsData',
+      :key='"accounts-" + index'
+    )
+      NormalCard(v-if='item', :data='item', :price='getPrice', mode='accounts')
+    .d-flex.justify-content-center(
+      v-if='tab === "accounts" && !search',
+    )
+      span account need seach
 </template>
 
 <script>
@@ -127,7 +137,7 @@ export default {
         await this.getAssetsData()
         await this.getTemplatesData()
         await this.getSchemasData()
-        await this.getAccountsData()
+        //await this.getAccountsData()
       } else if (this.tab === 'assets') {
         this.getAssetsData()
       } else if (this.tab === 'templates') {
@@ -188,11 +198,7 @@ export default {
 
     async getAccountsData() {
       this.loading = true
-      const data = await this.$store.dispatch('api/getAccountsData', {
-        limit: this.limit,
-        search: this.search,
-        collectionName: this.currentCollectionName,
-      })
+      const data = await this.$store.dispatch('api/getAccountsData', { search: this.search, limit: this.limit })
       this.accountsData = data
       this.loading = false
     },

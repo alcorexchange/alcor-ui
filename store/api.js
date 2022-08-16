@@ -167,7 +167,7 @@ export const actions = {
       } = await axios.get(
         `${API_URL}/atomicmarket/v1/auctions?order=desc&sort=created&limit=` +
         limit +
-        (search ? '&search=' + search : '') +
+        (search ? '&match=' + search : '') +
         (collectionName ? '&collection_name=' + collectionName : '') +
         (seller ? '&seller=' + seller : '') +
         (buyer ? '&buyer=' + buyer : '') +
@@ -283,7 +283,7 @@ export const actions = {
       } = await axios.get(
         `${API_URL}/atomicassets/v1/schemas?order=desc&sort=created` +
         (limit ? '&limit=' + limit : '') +
-        (search ? '&search=' + search : '') +
+        (search ? '&match=' + search : '') +
         (collectionName ? '&collection_name=' + collectionName : '')
       )
       return data.data
@@ -319,17 +319,13 @@ export const actions = {
     rootState
   }, {
     limit,
-    search,
-    collectionName
+    search
   }) {
     try {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicassets/v1/accounts?order=desc&sort=created&limit=` +
-        limit +
-        (search ? '&search=' + search : '') +
-        (collectionName ? '&collection_name=' + collectionName : '')
+        `${API_URL}/atomicassets/v1/accounts?limit=${limit}&match_owner=${search}`
       )
       return data.data
     } catch (e) {
@@ -347,7 +343,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicassets/v1/assets` +
+        `${API_URL} / atomicassets / v1 / assets` +
         '?owner=' +
         owner +
         '&page=1&limit=1000&order=desc&sort=asset_id'
@@ -372,7 +368,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created` +
+        `${API_URL} / atomicmarket / v2 / sales ? page = 1 & limit=100 & order=desc & sort=created` +
         (seller ? '&seller=' + seller : '') +
         (buyer ? '&buyer=' + buyer : '') +
         (state ? '&state=' + state : '') +
@@ -395,7 +391,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/assets/` + asset_id
+        `${API_URL} / atomicmarket / v1 / assets / ` + asset_id
       )
       return data.data
     } catch (e) {
@@ -413,7 +409,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/transfers?page=1&limit=20&order=desc&sort=created&asset_id=` +
+        `${API_URL} / atomicmarket / v1 / transfers ? page = 1 & limit=20 & order=desc & sort=created & asset_id=` +
         asset_id
       )
       return data.data
@@ -432,7 +428,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/assets/` +
+        `${API_URL} / atomicmarket / v1 / assets / ` +
         asset_id +
         '/sales?order=asc'
       )
@@ -452,7 +448,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicassets/v1/assets/` +
+        `${API_URL} / atomicassets / v1 / assets / ` +
         asset_id +
         '/logs?page=1&limit=20&order=desc'
       )
@@ -472,7 +468,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicassets/v1/assets/_count?owner=` +
+        `${API_URL} / atomicassets / v1 / assets / _count ? owner = ` +
         owner
       )
       return data.data
@@ -490,7 +486,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/prices/assets?owner=` +
+        `${API_URL} / atomicmarket / v1 / prices / assets ? owner = ` +
         owner
       )
       return data.data
@@ -508,7 +504,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/auctions/_count?owner=` +
+        `${API_URL} / atomicmarket / v1 / auctions / _count ? owner = ` +
         owner
       )
       return data.data
@@ -526,7 +522,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v2/sales/_count?owner=` +
+        `${API_URL} / atomicmarket / v2 / sales / _count ? owner = ` +
         owner
       )
       return data.data
@@ -544,7 +540,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/buyoff ers/_count?owner=` +
+        `${API_URL} / atomicmarket / v1 / buyoff ers / _count ? owner = ` +
         owner
       )
       return data.data
@@ -562,7 +558,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/stats/accounts/` +
+        `${API_URL} / atomicmarket / v1 / stats / accounts / ` +
         owner + '?symbol=WAX'
       )
       return data.data
@@ -581,7 +577,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/prices/templates?template_id=` + templateID + '&page=1&limit=100&order=desc'
+        `${API_URL} / atomicmarket / v1 / prices / templates ? template_id = ` + templateID + '&page=1&limit=100&order=desc'
       )
       return data.data
     } catch (e) {
@@ -601,7 +597,7 @@ export const actions = {
       const {
         data
       } = await axios.get(
-        `${API_URL}/atomicmarket/v1/prices/sales/days?template_id=` + template_id +
+        `${API_URL} / atomicmarket / v1 / prices / sales / days ? template_id = ` + template_id +
         '&schema_name=' + schema_name + '&burned' + burned
       )
       return data.data
@@ -618,7 +614,7 @@ export const actions = {
   }) {
     try {
       const data = await axios.get(
-        `${API_URL}/atomicassets/v1/templates?collection_name=` + collection_name + '&page=1&limit=100&order=desc&sort=created'
+        `${API_URL} / atomicassets / v1 / templates ? collection_name = ` + collection_name + '&page=1&limit=100&order=desc&sort=created'
       )
       return data.data
     } catch (e) {
