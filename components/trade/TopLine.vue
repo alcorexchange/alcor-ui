@@ -168,6 +168,7 @@ export default {
     ...mapGetters('market', ['price']),
 
     fundamental() {
+      if (!this.$fundamentals[this.$store.state.network.name]) return null
       return this.$fundamentals[this.$store.state.network.name][this.quote_token.str]
     },
 

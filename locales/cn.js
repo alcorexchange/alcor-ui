@@ -28,7 +28,7 @@ export default {
   'and more...': '更多...',
   Fav: '收藏',
   All: '全部',
-  USD: 'USDT',
+  USDT: 'USDT',
   'Cross-Chain': '跨链',
   'Search market': '搜索市场',
   'Open new market': '创建新市场',

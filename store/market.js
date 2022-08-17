@@ -183,7 +183,6 @@ export const mutations = {
     show_trade_execution_amount: false
   },
   setMarket: (state, market) => {
-    console.log('ssss', market)
     const { id, base_token, quote_token, slug } = market
 
     state.id = id
