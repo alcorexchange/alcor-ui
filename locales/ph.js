@@ -28,7 +28,7 @@ export default {
   'at marami pa...': 'at marami pa...',
   Fav: 'Fav',
   All: 'Lahat',
-  USD: 'USDT',
+  USDT: 'USDT',
   'Cross-Chain': 'Cross-Chain',
   'Search market': 'Hanapin ang market',
   'Open new market': 'Mag-bukas ng bagong market',

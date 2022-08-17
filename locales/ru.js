@@ -32,7 +32,7 @@ export default {
   'and more...': 'и многое другое...',
   Fav: 'Fav',
   All: 'Все',
-  USD: 'USDT',
+  USDT: 'USDT',
   'Cross-Chain': 'Cross-Chain',
   'Search market': 'Найти торговую пару',
   'Open new market': 'Создать торговую пару',

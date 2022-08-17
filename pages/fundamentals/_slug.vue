@@ -188,6 +188,7 @@ export default {
       return this.contractMarkets.find(({ quote_token }) => quote_token.symbol.name === this.$route.params.slug.split('@')[0])
     },
     fundamental() {
+      if (!this.$fundamentals[this.$store.state.network.name]) return null
       return this.$fundamentals[this.$store.state.network.name][this.$route.params.slug]
     }
   },
