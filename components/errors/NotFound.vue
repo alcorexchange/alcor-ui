@@ -1,7 +1,8 @@
 <template lang="pug">
   .row.justify-content-center
     .col-md-12.text-center
-      img(:src='src', alt="error-image")
+      image-not-found(v-if="error.type === 'PAGE_NOT_FOUND'")
+      image404(v-else)
       span.display-1.d-block.error-code 404
       .mb-4.lead.message(v-if="error.statusCode === 404 && error.messag == ''") {{$t("Oops! We can't seem to find the page you are looking for")}}.
       .mb-4.lead.message(v-else) {{ error.message }}
@@ -10,12 +11,11 @@
 </template>
 
 <script>
+import ImageNotFound from '~/components/errors/ImageNotFound.vue'
+import Image404 from '~/components/errors/Image404.vue'
+
 export default {
-  data: () => ({
-    errorImage: {
-      PAGE_NOT_FOUND: 'not-found.png'
-    }
-  }),
+  components: { ImageNotFound, Image404 },
   props: {
     error: {
       type: Object,
@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style scoped>
-img {
+svg {
   margin-top: 52px;
   margin-bottom: 52px;
 }
