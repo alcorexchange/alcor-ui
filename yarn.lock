@@ -11240,6 +11240,11 @@ sirv@^1.0.7:
     mime "^2.3.1"
     totalist "^1.0.0"
 
+skeleton-loader-vue@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/skeleton-loader-vue/-/skeleton-loader-vue-1.0.10.tgz#bbbc3d10330e7fc1e44ef0ed1324d7e16e3a4ec4"
+  integrity sha512-71WVaMrXxpzZp1NY1U+DEXi1EbMJ7PdUDW2aiCXKrP0a0IZBMfLX2Nxq9hQXK7M8YHweTMlCRTDYScH/B3/7nQ==
+
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/slash/-/slash-1.0.0.tgz"
@@ -12568,6 +12573,11 @@ vue-apexcharts@^1.6.0:
   resolved "https://registry.npmjs.org/vue-apexcharts/-/vue-apexcharts-1.6.2.tgz"
   integrity sha512-9HS3scJwWgKjmkcWIf+ndNDR0WytUJD8Ju0V2ZYcjYtlTLwJAf2SKUlBZaQTkDmwje/zMgulvZRi+MXmi+WkKw==
 
+vue-cat-carousel@^0.9.3-6:
+  version "0.9.3-6"
+  resolved "https://registry.yarnpkg.com/vue-cat-carousel/-/vue-cat-carousel-0.9.3-6.tgz#5ddeef5f94fc8f99b22be2a5fb6c4bb3e1472c16"
+  integrity sha512-t6UwdURTKQ4xgEth0mR56Izb6299NiLX1bg+yjqaJqQpIhuEoEUKcwP9kH1RFtSRy9OJbLk9N5ekqdJjPFbI1g==
+
 vue-client-only@^2.0.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/vue-client-only/-/vue-client-only-2.1.0.tgz"
@@ -12699,6 +12709,11 @@ vue-template-es2015-compiler@^1.9.0:
   version "1.9.1"
   resolved "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
+
+vue-upload-drop-images@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/vue-upload-drop-images/-/vue-upload-drop-images-1.0.7.tgz#25618e874fef37ddd55d29575c0a4e4d53d39068"
+  integrity sha512-O1G+iy0oTK9EaD6XHI5vjZQzdy+PeVCui7ty5Ja8ipw3bBWcY1o5+7JxofMZSXPQbr++Go0hWHtyb7xwQZOpQA==
 
 vue-virtual-scroller@^1.0.10:
   version "1.0.10"
