@@ -1,6 +1,10 @@
 <template lang="pug">
+.normalcard.radius10(v-if="mode === 'accounts'")
+  .main-img.radius10(:style='defaultBackground')
+  .offer-information
+    .account-name {{ data.scope }}
 nuxt-link.normalcard.radius10(
-  v-if='mode === "sets"',
+  v-else-if='mode === "sets"',
   :to='"#sets-" + data.collection_name'
 )
   video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
@@ -526,6 +530,11 @@ export default {
 
   .mr10 {
     margin-right: 10px !important;
+  }
+
+  .account-name {
+    font-size: 16px;
+    text-align: center;
   }
 
   .wax-name {
