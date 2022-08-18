@@ -324,10 +324,14 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicassets/v1/accounts?limit=${limit}&match_owner=${search}`
+      } = await axios.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
+        code: 'eosio',
+        limit: 15,
+        lower_bound: search,
+        table: 'userres',
+      }
       )
-      return data.data
+      return data.rows
     } catch (e) {
       console.error('Get accounts error', e)
     }

@@ -191,6 +191,7 @@ export default {
           type: 'success',
         })
         this.getCollectionData()
+        this.$router.push('/nft-market/createcollection/' + jsonData.collection_name)
       } catch (e) {
         this.$notify({
           title: 'Collection Creation',
@@ -199,7 +200,6 @@ export default {
         })
       } finally {
         this.loading = false
-        this.$router.push('/nft-market/createcollection/' + jsonData.collection_name)
       }
     },
   },
@@ -215,6 +215,7 @@ export default {
   .avatar-uploader {
     width: 100%;
     height: calc(100% - 6px);
+
     .el-upload {
       width: 100%;
       height: 100%;
@@ -223,19 +224,23 @@ export default {
       cursor: pointer;
       position: relative;
       overflow: hidden;
+
       :hover {
         border-color: #409eff;
       }
     }
+
     .el-upload-list__item {
       border: 0;
     }
+
     .el-upload-dragger {
       background-color: transparent;
       width: 100%;
       height: 100%;
       border: 0;
     }
+
     .el-upload-list {
       position: absolute;
       top: 0;
@@ -245,14 +250,17 @@ export default {
       z-index: 2;
       background-color: #202021;
       overflow-y: auto;
+
       li {
         background-color: transparent;
         width: 100%;
         height: 100%;
         padding: 20px;
+
         &:first-child {
           margin-top: 0;
         }
+
         img {
           width: 100%;
           height: 100%;
@@ -262,12 +270,14 @@ export default {
         }
       }
     }
+
     .avatar {
       width: 178px;
       height: 178px;
       display: block;
     }
   }
+
   .imgsPreview {
     width: 100%;
     height: 240px;
@@ -277,49 +287,61 @@ export default {
     display: block;
     background: #202021 !important;
   }
+
   .beforeUpload {
+
     svg,
     p {
       display: none !important;
     }
   }
+
   .card-content {
     z-index: 0 !important;
   }
+
   .beforeUpload input[data-v-69bb59a3] {
     margin: -30px -30px;
     width: 290px;
     height: 290px;
     z-index: 999;
   }
+
   h4 {
     margin-top: 0;
     margin-bottom: 0.5rem;
   }
+
   label.card-content {
     position: absolute;
     background-color: #202021;
     top: 0;
     height: 100%;
   }
+
   div.container {
     border: none !important;
     background: none !important;
   }
+
   .nftcard.nft-form-group {
     border: none;
   }
+
   .nft-input-group {
     font-weight: 400;
     line-height: 21px;
     color: var(--cancel);
     margin-bottom: 12px;
+
     h4 {
       font-size: 18px !important;
     }
+
     h5 {
       font-size: 14px;
     }
+
     input {
       width: 233px;
       height: 24px;
@@ -328,6 +350,7 @@ export default {
       background-color: var(--background-color-third);
       border: none;
     }
+
     textarea {
       color: var(--cancel);
       background-color: var(--background-color-third);
@@ -335,12 +358,14 @@ export default {
       border-radius: 2px;
       resize: none;
     }
+
     .error-text {
       color: #c33f39;
       font-size: 12px;
       font-weight: 700;
     }
   }
+
   .create-collection-btn {
     float: right;
     padding: 14px 23px;
@@ -353,39 +378,48 @@ export default {
     border-radius: 8px;
     cursor: pointer;
   }
+
   .color-red {
     color: red;
   }
+
   .creation-background {
     width: 110px;
     height: 107px;
     margin: auto;
   }
+
   .almemes-background {
     width: 100px;
     height: 117px;
     margin: auto;
   }
+
   .almemes h4 {
     margin: 30px 0 0 !important;
     color: #67c23a;
   }
+
   .card-content {
     width: 100%;
     padding-top: 43px;
     font-weight: 700;
     font-size: 24px;
     text-align: center;
+
     h4 {
       margin: 10px 0 !important;
     }
+
     h5 {
       color: #9f979a;
     }
   }
+
   #return-btn::before {
     content: '←';
   }
+
   #return-btn {
     font-weight: 500;
     font-size: 14px;
@@ -393,15 +427,19 @@ export default {
     cursor: pointer;
     padding-left: 10px;
   }
+
   .page-header h4 {
     margin: 0 !important;
   }
+
   .page-header {
     margin: 32px 0 9px 0;
   }
+
   .card-group {
     margin-top: 32px;
   }
+
   .nftcard {
     width: 300px;
     height: 300px;

@@ -7,7 +7,8 @@
   .header
     InputSearch(v-model="search")
     MarketTabs(:tabs="tabs" v-model="tab" @change="handleTab")
-  .grid-container(v-if='loading')
+  .message(v-if='tab === "accounts" && !search && !accountsData.length',) Accounts can only be searched
+  .grid-container(v-if='loading && tab != "accounts"')
     vue-skeleton-loader(
       :width='220',
       :height='380',
@@ -47,10 +48,6 @@
       :key='"accounts-" + index'
     )
       NormalCard(v-if='item', :data='item', :price='getPrice', mode='accounts')
-    .d-flex.justify-content-center(
-      v-if='tab === "accounts" && !search',
-    )
-      span account need seach
 </template>
 
 <script>
@@ -144,7 +141,7 @@ export default {
         this.getTemplatesData()
       } else if (this.tab === 'schemas') {
         this.getSchemasData()
-      } else if (this.tab === 'accounts') {
+      } else if (this.tab === 'accounts' && this.search) {
         this.getAccountsData()
       }
     },
@@ -256,5 +253,9 @@ div.grid-container {
   .market-cards .item {
     width: 100%;
   }
+}
+
+.message {
+  text-align: center;
 }
 </style>
