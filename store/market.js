@@ -556,6 +556,20 @@ export const actions = {
     }
   },
 
+  cancelOrder({ state, dispatch, rootState }, { marketId, orderType }) {
+    const market = rootState.markets.find(({ id }) => id === marketId)
+
+    orderType === 'buy'
+      ? dispatch('updateBalance', {
+        contract: market.base_token.contract,
+        symbol: market.base_token.symbol.name
+      }, { root: true })
+      : dispatch('updateBalance', {
+        contract: market.quote_token.contract,
+        symbol: market.quote_token.symbol.name
+      }, { root: true })
+  },
+
   updatePairBalances({ state, dispatch, rootState }) {
     dispatch('updateBalance', {
       contract: state.base_token.contract,
