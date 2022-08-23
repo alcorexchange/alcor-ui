@@ -157,7 +157,7 @@ nuxt-link.normalcard.radius10(
     button.btn-border--green.mr10.radius6.smaller-btn(
       v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
     ) Details
-    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"') Buy
+    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="buy") Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
     button.btn-border--green.w-100.radius6.mb-2(
       v-if='mode == "bought" || mode === "setsList"'
@@ -173,6 +173,7 @@ nuxt-link.normalcard.radius10(
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
@@ -448,6 +449,20 @@ export default {
         return this.data.issued_supply
       }
       return 0
+    }
+  },
+  methods: {
+    ...mapActions('chain', ['buyAsset']),
+    async buy() {
+      try {
+        await this.buyAsset({
+          sale_id: this.data.sale_id,
+          asset_ids_to_assert: [this.data.assets[0].asset_id],
+          listing_price_to_assert: this.waxPrice.toFixed(8) + ' WAX'
+        })
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 }

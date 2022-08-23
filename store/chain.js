@@ -151,6 +151,60 @@ export const actions = {
     return loginPromise
   },
 
+  async buyAsset({ state, rootState, dispatch }, { sale_id, asset_ids_to_assert, listing_price_to_assert }) {
+    const actions = [
+      {
+        account: 'atomicmarket',
+        name: 'assertsale',
+        authorization: [
+          {
+            actor: rootState.user.name,
+            permission: 'owner'
+          }
+        ],
+        data: {
+          sale_id,
+          asset_ids_to_assert,
+          listing_price_to_assert,
+          settlement_symbol_to_assert: '8,WAX'
+        }
+      },
+      {
+        account: 'eosio.token',
+        name: 'transfer',
+        authorization: [
+          {
+            actor: rootState.user.name,
+            permission: 'owner'
+          }
+        ],
+        data: {
+          from: rootState.user.name,
+          to: 'atomicmarket',
+          quantity: listing_price_to_assert,
+          memo: 'deposit'
+        }
+      },
+      {
+        account: 'atomicmarket',
+        name: 'purchasesale',
+        authorization: [
+          {
+            actor: rootState.user.name,
+            permission: 'owner'
+          }
+        ],
+        data: {
+          buyer: rootState.user.name,
+          sale_id,
+          intended_delphi_median: 0,
+          taker_marketplace: ''
+        }
+      }
+    ]
+    await dispatch('sendTransaction', actions)
+  },
+
   async sendTransaction({ state, rootState, dispatch, getters, commit }, actions) {
     if (actions && actions[0].name != 'delegatebw') {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
