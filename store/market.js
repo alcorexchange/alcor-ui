@@ -556,7 +556,7 @@ export const actions = {
     }
   },
 
-  cancelOrder({ state, dispatch, rootState }, { marketId, orderType }) {
+  updateBalanceAfterOrderCancel({ state, dispatch, rootState }, { marketId, orderType }) {
     const market = rootState.markets.find(({ id }) => id === marketId)
 
     orderType === 'buy'

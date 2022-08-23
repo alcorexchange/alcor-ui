@@ -183,7 +183,7 @@ export default {
           type: 'success',
         })
 
-        await this.$store.dispatch('market/cancelOrder', { marketId: order.market_id, orderType: order.type })
+        await this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
 
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
