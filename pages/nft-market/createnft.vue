@@ -3,7 +3,7 @@
   div
     nuxt-link(:to='"/nft-market"', :exact='true')
       a#return-btn Return
-  .page-header.d-flex.justify-content-between
+  .page-header.d-flex.justify-content-between.align-items-center
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 My Collections
       p All NFTs are a part of a larger collection, please create a new collection or add
@@ -15,8 +15,7 @@
       .nftcard.create-collections.border-radius5
         .card-content
           .plus-round-background(
-            :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
-          )
+            :style='{ backgroundImage: `url(${require("~/assets/images/add_icon.svg")})`, backgroundRepeat: "no-repeat", backgroundPosition: "center" }')
           h4 Create <br>Collection
     vue-skeleton-loader(
       v-if='loading'
@@ -133,7 +132,7 @@ export default {
   }
 
   .page-header h4 {
-    margin: 0 !important;
+    margin: 0 0 8px 0 !important;
   }
 
   .page-header {

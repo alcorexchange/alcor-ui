@@ -1,5 +1,6 @@
 <template lang="pug">
 .nfts
+  WalletNFTHeader.mb-5
   .header
     InputSearch(v-model="search")
     MarketTabs(:tabs="tabs" v-model="currentTab" @change="handleTab")
@@ -89,10 +90,12 @@ import InputSearch from '~/components/nft_markets/InputSearch'
 import MarketTabs from '~/components/nft_markets/MarketTabs'
 import DetailWithCardPanel from '~/components/nft_markets/DetailWithCardPanel'
 import WalletSetTab from '~/components/wallet/WalletSetTab.vue'
+import WalletNFTHeader from '~/components/wallet/WalletNFTHeader.vue'
 
 export default {
   name: 'NFTs',
   components: {
+    WalletNFTHeader,
     WalletNFTTab,
     NormalCard,
     VueSkeletonLoader,
@@ -440,7 +443,6 @@ export default {
 
 div.grid-container {
   display: grid;
-  grid-template-columns: auto auto auto auto;
-  gap: 30px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 </style>
