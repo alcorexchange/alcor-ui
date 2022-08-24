@@ -324,11 +324,11 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
+      } = await this.$api.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
         code: 'eosio',
         limit: 15,
         lower_bound: search,
-        table: 'userres',
+        table: 'userres'
       }
       )
       return data.rows
