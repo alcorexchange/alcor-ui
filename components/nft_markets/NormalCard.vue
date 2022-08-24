@@ -1,39 +1,39 @@
 <template lang="pug">
 .normalcard.radius10(v-if="mode === 'accounts'")
-  .main-img.radius10(:style='defaultBackground')
+  .main-img(:style='defaultBackground')
   .offer-information
     .account-name {{ data.scope }}
 nuxt-link.normalcard.radius10(
   v-else-if='mode === "sets"',
   :to='"#sets-" + data.collection_name'
 )
-  video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
+  video.main-img(v-if='videoBackground', autoplay='true', loop='true')
     source(
       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
       type='video/mp4'
     )
-  .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
-  .main-img.radius10(v-else, :style='defaultBackground')
+  .main-img(v-else-if='imageBackground', :style='imageBackground')
+  .main-img(v-else, :style='defaultBackground')
   .offer-information(v-if='mode === "sets"')
     p.wax-name.text-center.mt-3.text-white {{ cardName }}
 .normalcard.radius10(v-else)
-  header.d-flex.justify-content-between.mb-1(
+  header.d-flex.justify-content-between.mb-1.align-items-center(
     v-if='mode != "templates" && mode != "sets" && mode != "setsList"'
   )
-    div
-      img(src='~/assets/images/small_shape.svg')
+    div.header-title
+      img.owner-image(src='~/assets/images/small_shape.svg')
       span {{ cardTitle }}
-    .d-flex.align-items-center(v-if='mode != "schemas"')
-      img.ml-1(src='~/assets/images/double_arrow.svg', alt='')
-      img.ml-1(src='~/assets/images/fire.svg', alt='')
+    .d-flex.align-items-center.info(v-if='mode != "schemas"')
+      img(src='~/assets/images/double_arrow.svg', alt='')
+      img(src='~/assets/images/fire.svg', alt='')
       .card_number.d-flex.align-items-center.ml-1 {{ "#" + mintCount }}
-  video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
+  video.main-img(v-if='videoBackground', autoplay='true', loop='true')
     source(
       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
       type='video/mp4'
     )
-  .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
-  .main-img.radius10(v-else, :style='defaultBackground')
+  .main-img(v-else-if='imageBackground', :style='imageBackground')
+  .main-img(v-else, :style='defaultBackground')
   .offer-information
     .d-flex.justify-content-between(
       v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
@@ -516,6 +516,21 @@ export default {
   header {
     white-space: nowrap;
     padding: 6px;
+    color: var(--main-action-green);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+
+    .header-title,
+    .info {
+      display: flex;
+      gap: 8px;
+    }
+
+    img {
+      height: 16px;
+    }
+
   }
 
   .offer-information {
