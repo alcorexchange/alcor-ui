@@ -32,6 +32,7 @@
     "anchor-link-browser-transport": "^3.2.5",
     "apexcharts": "^3.25.0",
     "axios": "^0.21.2",
+    "axios-multibase": "^0.1.0",
     "axios-retry": "^3.1.2",
     "big.js": "^5.2.2",
     "bootstrap": "^4.3.1",

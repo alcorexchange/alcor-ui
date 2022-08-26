@@ -1,35 +1,85 @@
 <template lang="pug">
+.normalcard.radius10.p-3(v-if="mode === 'accounts'")
+  account-avatar
+  .account-name {{ data.name }}
+  .info-row.mb-1
+    span.d-flex.align-items-center
+      img.icon(:src="require('~/assets/icons/wax.svg')")
+      p.ml-1.disable Value
+    span.d-flex.align-items-center
+      img.icon(:src="require('~/assets/icons/club.svg')")
+      p.ml-1.disable Owned NFTs
+  .info-row
+    vue-skeleton-loader.mb-1(
+      v-if="!suggestedAverageLoaded"
+      :width='75',
+      :height='17',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    .account-value(v-else) {{ data.suggested_average ? data.suggested_average.toFixed(2) : 0 }} {{ this.$store.state.network.name.toUpperCase() }}
+    vue-skeleton-loader.mb-1(
+      v-if="!assetsCountLoaded"
+      :width='25',
+      :height='17',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    .asset-counter(v-else) {{ data.assetsCount }}
+  .info-row
+    vue-skeleton-loader.mb-1(
+      v-if="!suggestedAverageLoaded"
+      :width='75',
+      :height='17',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    .account-value-usd(v-else) (${{ data.suggested_average ? $systemToUSD(data.suggested_average) : '0.00' }})
+  .info-row.mt-2
+    button.btn-border--green.radius6.w-50 Profile
+    el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(trigger='click')
+      span.el-dropdown-link
+        span More
+        i.el-icon-arrow-down.el-icon--right
+      span
+      el-dropdown-menu(slot='dropdown')
+        span asd
+
+
 nuxt-link.normalcard.radius10(
-  v-if='mode === "sets"',
+  v-else-if='mode === "sets"',
   :to='"#sets-" + data.collection_name'
 )
-  video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
+  video.main-img(v-if='videoBackground', autoplay='true', loop='true')
     source(
       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
       type='video/mp4'
     )
-  .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
-  .main-img.radius10(v-else, :style='defaultBackground')
+  .main-img(v-else-if='imageBackground', :style='imageBackground')
+  .main-img(v-else, :style='defaultBackground')
   .offer-information(v-if='mode === "sets"')
     p.wax-name.text-center.mt-3.text-white {{ cardName }}
 .normalcard.radius10(v-else)
-  header.d-flex.justify-content-between.mb-1(
+  header.d-flex.justify-content-between.mb-1.align-items-center(
     v-if='mode != "templates" && mode != "sets" && mode != "setsList"'
   )
-    div
-      img(src='~/assets/images/small_shape.svg')
+    div.header-title
+      img.owner-image(src='~/assets/images/small_shape.svg')
       span {{ cardTitle }}
-    .d-flex.align-items-center(v-if='mode != "schemas"')
-      img.ml-1(src='~/assets/images/double_arrow.svg', alt='')
-      img.ml-1(src='~/assets/images/fire.svg', alt='')
+    .d-flex.align-items-center.info(v-if='mode != "schemas"')
+      img(src='~/assets/images/double_arrow.svg', alt='')
+      img(src='~/assets/images/fire.svg', alt='')
       .card_number.d-flex.align-items-center.ml-1 {{ "#" + mintCount }}
-  video.main-img.radius10(v-if='videoBackground', autoplay='true', loop='true')
+  video.main-img(v-if='videoBackground', autoplay='true', loop='true')
     source(
       :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
       type='video/mp4'
     )
-  .main-img.radius10(v-else-if='imageBackground', :style='imageBackground')
-  .main-img.radius10(v-else, :style='defaultBackground')
+  .main-img(v-else-if='imageBackground', :style='imageBackground')
+  .main-img(v-else, :style='defaultBackground')
   .offer-information
     .d-flex.justify-content-between(
       v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
@@ -153,7 +203,7 @@ nuxt-link.normalcard.radius10(
     button.btn-border--green.mr10.radius6.smaller-btn(
       v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
     ) Details
-    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"') Buy
+    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="buy") Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
     button.btn-border--green.w-100.radius6.mb-2(
       v-if='mode == "bought" || mode === "setsList"'
@@ -169,10 +219,14 @@ nuxt-link.normalcard.radius10(
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
+import AccountAvatar from '~/components/AccountAvatar'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data', 'price', 'kindBut', 'mode'],
+  components: { VueSkeletonLoader, AccountAvatar },
+  props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded'],
 
   data() {
     return {
@@ -445,6 +499,20 @@ export default {
       }
       return 0
     }
+  },
+  methods: {
+    ...mapActions('chain', ['buyAsset']),
+    async buy() {
+      try {
+        await this.buyAsset({
+          sale_id: this.data.sale_id,
+          asset_ids_to_assert: [this.data.assets[0].asset_id],
+          listing_price_to_assert: this.waxPrice.toFixed(8) + ' WAX'
+        })
+      } catch (e) {
+        console.error(e)
+      }
+    }
   }
 }
 </script>
@@ -452,7 +520,7 @@ export default {
 <style lang="scss">
 .normalcard {
   width: 220px;
-  background-color: #202021;
+  background-color: var(--background-color-third);
   border-radius: 10px;
 
   .actions {
@@ -460,9 +528,10 @@ export default {
   }
 
   .el-dropdown-link {
-    color: #000;
+    color: var(--text-theme);
+    font-size: 14px;
 
-    &:hover {
+    x &:hover {
       * {
         color: #000 !important;
       }
@@ -476,7 +545,7 @@ export default {
     overflow: hidden;
 
     &.disable {
-      color: #9F979A;
+      color: var(--text-disable);
       font-size: 12px;
       line-height: 14px;
     }
@@ -497,6 +566,21 @@ export default {
   header {
     white-space: nowrap;
     padding: 6px;
+    color: var(--main-action-green);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+
+    .header-title,
+    .info {
+      display: flex;
+      gap: 8px;
+    }
+
+    img {
+      height: 16px;
+    }
+
   }
 
   .offer-information {
@@ -528,6 +612,32 @@ export default {
     margin-right: 10px !important;
   }
 
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .account-name {
+    font-size: 24px;
+    line-height: 20px;
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  .account-value {
+    color: var(--main-wax);
+    font-size: 14px;
+  }
+
+  .account-value-usd {
+    font-size: 14px;
+    color: var(--main-green)
+  }
+
+  .asset-counter {
+    font-size: 14px;
+  }
+
   .wax-name {
     white-space: nowrap;
     overflow: hidden;
@@ -538,8 +648,8 @@ export default {
 
   .btn-border--green {
     height: 33px;
-    color: #fff;
-    background-color: #161617;
+    color: var(--text-default);
+    background-color: var(--btn-active);
     border: 1px solid var(--main-action-green);
     font-size: 14px;
     padding: 5px 10px;
@@ -671,5 +781,10 @@ export default {
       width: 100%;
     }
   }
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
 }
 </style>

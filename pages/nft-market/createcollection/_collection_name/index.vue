@@ -243,12 +243,16 @@ export default {
       const data = await this.$store.dispatch('api/getSpecificCollectionData', {
         collectionName,
       })
-      if (data.img) {
-        this.fileList.push({
-          url: 'https://ipfs.atomichub.io/ipfs/' + data.img,
-        })
+      if (data) {
+        if (data.img) {
+          this.fileList.push({
+            url: 'https://ipfs.atomichub.io/ipfs/' + data.img,
+          })
+        }
+        this.collectionData = data
+      } else {
+        this.getSpecificCollectionData(collectionName)
       }
-      this.collectionData = data
     },
     async getSchemasData(collectionName) {
       const data = await this.$store.dispatch('api/getSchemasData', {
@@ -285,30 +289,39 @@ export default {
   .color-red {
     color: red;
   }
+
   .border-radius5 {
     border-radius: 5px;
   }
+
   .nftcard.create-collections.border-radius5 h4 {
     color: white;
   }
+
   div.page-header_text h4 {
     margin-bottom: 9px !important;
   }
+
   .page-header_text {
     margin-bottom: 32px;
   }
+
   .other-info {
     width: 35%;
+
     h4 {
       font-size: 20px;
     }
   }
+
   .description-info {
     width: 55%;
   }
+
   .avatar-uploader {
     width: 100%;
     height: 100%;
+
     .el-upload {
       width: 100%;
       height: 100%;
@@ -317,16 +330,20 @@ export default {
       cursor: pointer;
       position: relative;
       overflow: hidden;
+
       :hover {
         border-color: #409eff;
       }
     }
+
     label {
       cursor: pointer;
     }
+
     .el-upload-list__item {
       border: 0;
     }
+
     .el-upload-dragger {
       background-color: transparent;
       width: 100%;
@@ -336,6 +353,7 @@ export default {
       align-items: center;
       justify-content: center;
     }
+
     .el-upload-list {
       position: absolute;
       top: 0;
@@ -345,14 +363,17 @@ export default {
       z-index: 2;
       background-color: #202021;
       overflow-y: auto;
+
       li {
         background-color: transparent;
         width: 100%;
         height: 100%;
         padding: 20px;
+
         &:first-child {
           margin-top: 0;
         }
+
         img {
           width: 100%;
           height: 100%;
@@ -362,12 +383,14 @@ export default {
         }
       }
     }
+
     .avatar {
       width: 178px;
       height: 178px;
       display: block;
     }
   }
+
   .imgsPreview {
     width: 100%;
     height: 240px;
@@ -377,11 +400,13 @@ export default {
     display: block;
     background: #202021 !important;
   }
+
   .creation-background {
     width: 110px;
     height: 107px;
     margin: auto;
   }
+
   .wax-exchange {
     font-weight: 700;
     font-size: 20px;
@@ -391,18 +416,22 @@ export default {
     word-break: break-all;
     line-height: 1.1;
   }
+
   .description-name,
   .wax-exchange {
     margin-bottom: 25px !important;
   }
+
   .description-fee,
   .description-title {
     font-size: 14px;
     color: var(--cancel);
   }
+
   .description {
     font-size: 16px;
   }
+
   .create-collection-btn {
     text-align: center;
     width: 154px;
@@ -415,19 +444,23 @@ export default {
     box-shadow: none;
     cursor: pointer;
   }
+
   .nft-image-container {
     width: 300px;
     height: 300px;
     border-radius: 10px;
   }
+
   .nft-image-container,
   .nft-info {
     background-color: #202021;
     padding: 24px;
   }
+
   .nft-info {
     width: calc(100% - 330px);
     min-height: 300px;
+
     &.edit-field {
       input {
         width: 233px;
@@ -437,6 +470,7 @@ export default {
         background-color: var(--background-color-third);
         border: none;
       }
+
       textarea {
         color: var(--cancel);
         background-color: var(--background-color-third);
@@ -446,42 +480,51 @@ export default {
       }
     }
   }
+
   .nft-image {
     width: 251px;
     height: 251px;
     object-fit: cover;
   }
+
   .schemas-title {
     margin: 43px 0;
     font-weight: 500;
     font-size: 20px;
   }
+
   .plus-round-background {
     width: 70px;
     height: 70px;
     margin: auto;
   }
+
   .almemes-background {
     width: 100px;
     height: 117px;
     margin: auto;
   }
+
   .almemes h4 {
     margin: 30px 0 0 !important;
     color: #67c23a;
   }
+
   .card-content {
     margin-top: 23px;
     font-weight: 700;
     font-size: 24px;
     text-align: center;
+
     h4 {
       margin: 10px 0;
     }
   }
+
   #return-btn::before {
     content: '←';
   }
+
   #return-btn {
     font-weight: 500;
     font-size: 14px;
@@ -489,20 +532,25 @@ export default {
     cursor: pointer;
     padding-left: 10px;
   }
+
   .page-header h4 {
     margin: 0 !important;
   }
+
   .page-header {
     margin: 32px 0 9px 0;
   }
+
   .card-group {
     margin-top: 32px;
   }
+
   .nftcard {
     width: 220px;
     height: 195px;
     border: 1px solid #67c23a;
   }
+
   .create-collections {
     margin-right: 25px;
   }

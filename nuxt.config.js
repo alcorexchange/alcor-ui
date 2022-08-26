@@ -116,6 +116,7 @@ module.exports = {
     '~/plugins/vClickOutside.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
+    { ssr: false, src: '~/plugins/apiInstance.js' },
     { ssr: false, src: '~/plugins/virtualScroller.js' },
     { ssr: false, src: '~/plugins/infinite.js' },
     { ssr: false, src: '~/plugins/startapp.js' },

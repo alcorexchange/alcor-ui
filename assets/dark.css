@@ -11654,7 +11654,6 @@
 .el-popper[x-placement^=top] .popper__arrow::after {
     bottom: 1px;
     margin-left: -6px;
-    border-top-color: #282828;
     border-bottom-width: 0
 }
 
@@ -11674,7 +11673,6 @@
     top: 1px;
     margin-left: -6px;
     border-top-width: 0;
-    border-bottom-color: var(--bg-alter-1)
 }
 
 .el-popper[x-placement^=right] {
