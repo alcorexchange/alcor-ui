@@ -469,21 +469,18 @@ export const actions = {
   },
   // get NFT inventory, auctions, listings, bought, sold counts
   async getinventorycounts({
-    getters,
-    rootState
+    dispatch
   }, {
     owner
   }) {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicassets/v1/assets/_count?owner=` +
-        owner
-      )
+      } = await this.$api.get('atomicassets/v1/assets/_count?owner=' + owner)
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+      return await dispatch('getinventorycounts', { owner }) // refetch
     }
   },
   async getInventorySuggestedmedian({
