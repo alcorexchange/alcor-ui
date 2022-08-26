@@ -3,10 +3,12 @@
   account-avatar
   .account-name {{ data.name }}
   .info-row.mb-1
-    span
-      p.disable Value
-    span
-      p.disable Owned NFTs
+    span.d-flex.align-items-center
+      img.icon(:src="require('~/assets/icons/wax.svg')")
+      p.ml-1.disable Value
+    span.d-flex.align-items-center
+      img.icon(:src="require('~/assets/icons/club.svg')")
+      p.ml-1.disable Owned NFTs
   .info-row
     vue-skeleton-loader.mb-1(
       v-if="!suggestedAverageLoaded"
@@ -779,5 +781,10 @@ export default {
       width: 100%;
     }
   }
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
 }
 </style>
