@@ -1,8 +1,52 @@
 <template lang="pug">
-.normalcard.radius10(v-if="mode === 'accounts'")
-  .main-img(:style='defaultBackground')
-  .offer-information
-    .account-name {{ data.scope }}
+.normalcard.radius10.p-3(v-if="mode === 'accounts'")
+  account-avatar
+  .account-name {{ data.name }}
+  .info-row.mb-1
+    span
+      p.disable Value
+    span
+      p.disable Owned NFTs
+  .info-row
+    vue-skeleton-loader.mb-1(
+      v-if="!suggestedAverageLoaded"
+      :width='75',
+      :height='17',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    .account-value(v-else) {{ data.suggested_average ? data.suggested_average.toFixed(2) : 0 }} {{ this.$store.state.network.name.toUpperCase() }}
+    vue-skeleton-loader.mb-1(
+      v-if="!assetsCountLoaded"
+      :width='25',
+      :height='17',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    .asset-counter(v-else) {{ data.assetsCount }}
+  .info-row
+    vue-skeleton-loader.mb-1(
+      v-if="!suggestedAverageLoaded"
+      :width='75',
+      :height='17',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+    )
+    .account-value-usd(v-else) (${{ data.suggested_average ? $systemToUSD(data.suggested_average) : '0.00' }})
+  .info-row.mt-2
+    button.btn-border--green.radius6.w-50 Profile
+    el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(trigger='click')
+      span.el-dropdown-link
+        span More
+        i.el-icon-arrow-down.el-icon--right
+      span
+      el-dropdown-menu(slot='dropdown')
+        span asd
+
+
 nuxt-link.normalcard.radius10(
   v-else-if='mode === "sets"',
   :to='"#sets-" + data.collection_name'
@@ -174,10 +218,13 @@ nuxt-link.normalcard.radius10(
 
 <script>
 import { mapActions } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
+import AccountAvatar from '~/components/AccountAvatar'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
-  props: ['data', 'price', 'kindBut', 'mode'],
+  components: { VueSkeletonLoader, AccountAvatar },
+  props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded'],
 
   data() {
     return {
@@ -471,7 +518,7 @@ export default {
 <style lang="scss">
 .normalcard {
   width: 220px;
-  background-color: #202021;
+  background-color: var(--background-color-third);
   border-radius: 10px;
 
   .actions {
@@ -479,9 +526,10 @@ export default {
   }
 
   .el-dropdown-link {
-    color: #000;
+    color: var(--text-theme);
+    font-size: 14px;
 
-    &:hover {
+    x &:hover {
       * {
         color: #000 !important;
       }
@@ -495,7 +543,7 @@ export default {
     overflow: hidden;
 
     &.disable {
-      color: #9F979A;
+      color: var(--text-disable);
       font-size: 12px;
       line-height: 14px;
     }
@@ -562,9 +610,30 @@ export default {
     margin-right: 10px !important;
   }
 
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .account-name {
-    font-size: 16px;
+    font-size: 24px;
+    line-height: 20px;
     text-align: center;
+    padding: 16px 0;
+  }
+
+  .account-value {
+    color: var(--main-wax);
+    font-size: 14px;
+  }
+
+  .account-value-usd {
+    font-size: 14px;
+    color: var(--main-green)
+  }
+
+  .asset-counter {
+    font-size: 14px;
   }
 
   .wax-name {
@@ -577,8 +646,8 @@ export default {
 
   .btn-border--green {
     height: 33px;
-    color: #fff;
-    background-color: #161617;
+    color: var(--text-default);
+    background-color: var(--btn-active);
     border: 1px solid var(--main-action-green);
     font-size: 14px;
     padding: 5px 10px;

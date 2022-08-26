@@ -11606,7 +11606,6 @@
 .el-popper[x-placement^=top] .popper__arrow::after {
     bottom: 1px;
     margin-left: -6px;
-    border-top-color: #F3FAFC;
     border-bottom-width: 0
 }
 
@@ -11619,7 +11618,6 @@
     left: 50%;
     margin-right: 3px;
     border-top-width: 0;
-      border-bottom-color: var(--border-color);
 }
 
 .el-popper[x-placement^=bottom] .popper__arrow::after {

@@ -47,12 +47,12 @@
       v-for='(item, index) in accountsData',
       :key='"accounts-" + index'
     )
-      NormalCard(v-if='item', :data='item', :price='getPrice', mode='accounts')
+      NormalCard(v-if='item', :data='item', :price='getPrice', mode='accounts' :assetsCountLoaded="assetsCountLoaded" :suggestedAverageLoaded="suggestedAverageLoaded")
 </template>
 
 <script>
 // import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
 import ExplorerTab from '~/components/nft_markets/ExplorerTab'
@@ -85,6 +85,8 @@ export default {
       collectionData: [],
       schemasData: [],
       currentCollectionName: '',
+      assetsCountLoaded: false,
+      suggestedAverageLoaded: false,
       limit: 40,
       data: {
         searchIcon: searchImg,
@@ -121,6 +123,7 @@ export default {
   },
 
   methods: {
+    ...mapActions('api', ['getAccountDetails', 'getinventorycounts']),
     handleTab(value) {
       this.tab = value
     },
@@ -195,10 +198,32 @@ export default {
 
     async getAccountsData() {
       this.loading = true
-      const data = await this.$store.dispatch('api/getAccountsData', { search: this.search, limit: this.limit })
-      this.accountsData = data
+      this.suggestedAverageLoaded = false
+      this.assetsCountLoaded = false
+      const data = await this.$store.dispatch('api/getAccountsData', { search: this.search, limit: 20 })
+      this.accountsData = data.map(({ scope }) => ({ name: scope, suggested_average: 0, assetsCount: 0 }))
       this.loading = false
-    },
+
+      Promise.all(data.map(({ scope }) => {
+        return this.getAccountDetails(scope)
+      })).then(r => {
+        r.forEach(({ data }, idx) => {
+          this.accountsData[idx].suggested_average = data.data
+            .reduce((acc, { suggested_median, token_precision }) =>
+              acc += suggested_median / Math.pow(10, token_precision), 0) / data.data.length
+        })
+        this.suggestedAverageLoaded = true
+      })
+
+      Promise.all(data.map(({ scope }) => {
+        return this.getinventorycounts({ owner: scope })
+      })).then(r => {
+        r.forEach((count, idx) => {
+          this.accountsData[idx].assetsCount = count
+        })
+        this.assetsCountLoaded = true
+      })
+    }
   },
 
   head() {

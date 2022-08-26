@@ -314,10 +314,7 @@ export const actions = {
     }
   },
 
-  async getAccountsData({
-    getters,
-    rootState
-  }, {
+  async getAccountsData(_, {
     limit,
     search
   }) {
@@ -326,7 +323,7 @@ export const actions = {
         data
       } = await this.$api.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
         code: 'eosio',
-        limit: 15,
+        limit,
         lower_bound: search,
         table: 'userres'
       }
@@ -334,6 +331,15 @@ export const actions = {
       return data.rows
     } catch (e) {
       console.error('Get accounts error', e)
+    }
+  },
+
+  async getAccountDetails({ dispatch }, owner) {
+    try {
+      return await this.$api.post('atomicmarket/v1/prices/assets', { owner })
+    } catch (e) {
+      console.error(e)
+      return await dispatch('getAccountDetails', owner) // refetch
     }
   },
 
@@ -462,7 +468,7 @@ export const actions = {
     }
   },
   // get NFT inventory, auctions, listings, bought, sold counts
-  async getInventoryCounts({
+  async getinventorycounts({
     getters,
     rootState
   }, {
@@ -558,10 +564,11 @@ export const actions = {
   }, {
     owner
   }) {
+    console.log('oooo', owner)
     try {
       const {
         data
-      } = await axios.get(
+      } = await this.$api.get(
         `${API_URL}/atomicmarket/v1/stats/accounts/` +
         owner + '?symbol=WAX'
       )
