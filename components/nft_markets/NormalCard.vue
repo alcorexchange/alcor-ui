@@ -1,5 +1,21 @@
 <template lang="pug">
-.normalcard.radius10.p-3(v-if="mode === 'accounts'")
+.normalcard.radius10.normal-card-shadow(v-if="mode === 'preview'")
+  header.d-flex.justify-content-end
+    .card_number.d-flex.align-items-center.color-green {{ "#" + mintCount }}
+  video.main-img(v-if='videoBackground', autoplay='true', loop='true')
+    source(
+      :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
+      type='video/mp4'
+    )
+  .main-img(v-else-if='imageBackground', :style='imageBackground')
+  .main-img(v-else, :style='defaultBackground')
+
+  .d-flex.justify-content-between.align-items-center.p-3
+    p.fs-18 {{ cardName }}
+    p.disable {{ collectionName }}
+      img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
+
+.normalcard.radius10.p-3(v-else-if="mode === 'accounts'")
   account-avatar
   .account-name {{ data.name }}
   .info-row.mb-1
@@ -216,6 +232,9 @@ nuxt-link.normalcard.radius10(
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "sold"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions"') Make Offer
+
+  alcor-modal(:isVisible.sync="showBuyModal")
+    buy-listing(:asset="data")
 </template>
 
 <script>
@@ -223,14 +242,18 @@ import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import AccountAvatar from '~/components/AccountAvatar'
 import defaultImg from '~/assets/images/default.png'
+import AlcorModal from '~/components/AlcorModal'
+import BuyListing from '~/components/modals/BuyListing'
 
 export default {
-  components: { VueSkeletonLoader, AccountAvatar },
+  name: 'NormalCard',
+  components: { VueSkeletonLoader, AccountAvatar, AlcorModal, BuyListing },
   props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded'],
 
   data() {
     return {
       search: '',
+      showBuyModal: false,
       defaultBackground: {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -242,7 +265,7 @@ export default {
   },
   computed: {
     videoBackground() {
-      if (this.mode === 'market') {
+      if (this.mode === 'market' || this.mode === 'preview') {
         if (this.data.assets[0].data.video) {
           return this.data.assets[0].data
         } else return false
@@ -266,7 +289,7 @@ export default {
       } else return false
     },
     imageBackground() {
-      if (this.mode === 'market') {
+      if (this.mode === 'market' || this.mode === 'preview') {
         if (this.data.assets[0].data.img) {
           return {
             backgroundSize: 'contain',
@@ -367,7 +390,8 @@ export default {
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
         this.mode === 'sold' ||
-        this.mode === 'bought'
+        this.mode === 'bought' ||
+        this.mode === 'preview'
       ) {
         string = this.data.assets[0]?.template_mint
       } else string = this.data.id || 0
@@ -432,6 +456,7 @@ export default {
     cardName() {
       if (
         this.mode === 'market' ||
+        this.mode === 'preview' ||
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
         this.mode === 'sold' ||
@@ -502,16 +527,8 @@ export default {
   },
   methods: {
     ...mapActions('chain', ['buyAsset']),
-    async buy() {
-      try {
-        await this.buyAsset({
-          sale_id: this.data.sale_id,
-          asset_ids_to_assert: [this.data.assets[0].asset_id],
-          listing_price_to_assert: this.waxPrice.toFixed(8) + ' WAX'
-        })
-      } catch (e) {
-        console.error(e)
-      }
+    buy() {
+      this.showBuyModal = true
     }
   }
 }
@@ -592,7 +609,7 @@ export default {
     padding: 0 3px;
     border-radius: 3px;
     height: 22px;
-    background-color: #000;
+    background-color: var(--btn-active);
   }
 
   .offer-information .success-icon {

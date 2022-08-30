@@ -227,6 +227,18 @@ export const actions = {
     }
   },
 
+  async getTemplateStats({ dispatch }, { templateID, collectionName }) {
+    try {
+      const {
+        data
+      } = await this.$api.get(`atomicassets/v1/templates/${collectionName}/${templateID}/stats`)
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+      return await dispatch('getTemplateStats', { templateID, collectionName }) // refetch
+    }
+  },
+
   async getTemplatesData({
     getters,
     rootState
