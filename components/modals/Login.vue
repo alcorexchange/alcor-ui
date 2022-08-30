@@ -1,5 +1,6 @@
 <template lang="pug">
-.row(v-loading='loading')
+div
+  .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-3 Select Wallet
   .items
     .item(v-for='wallet in wallets')
       AlcorButton.button(@click='login(wallet.id)', alternative)
@@ -133,7 +134,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   padding: 14px;
-  width: 100%;
+  width: 840px;
 
   .item {
     width: 50%;
