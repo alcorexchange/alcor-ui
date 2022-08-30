@@ -63,14 +63,23 @@ export default {
           sale_id: this.asset.sale_id,
           asset_ids_to_assert: [this.asset.assets[0].asset_id],
           listing_price_to_assert: this.price.toFixed(8) + ' WAX'
+        }).then(() => {
+          this.$notify({
+            title: 'Buy NFT',
+            message: 'NFT buy successfully!',
+            type: 'success'
+          })
+          this.$emit('success')
         })
       } catch (e) {
         console.error(e)
+        this.$notify({
+          title: 'Buy NFT',
+          message: e.message,
+          type: 'error'
+        })
       }
     }
   }
 }
 </script>
-
-<style lang="scss">
-</style>

@@ -234,7 +234,7 @@ nuxt-link.normalcard.radius10(
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions"') Make Offer
 
   alcor-modal(:isVisible.sync="showBuyModal")
-    buy-listing(:asset="data")
+    buy-listing(:asset="data" @success="() => showBuyModal = false")
 </template>
 
 <script>
