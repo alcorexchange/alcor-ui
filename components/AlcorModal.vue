@@ -1,17 +1,24 @@
 <template lang="pug">
 el-dialog.alcor-modal-component(
-  :visible.sync="isVisible"
+  :visible="visible"
   :before-close="close"
 )
   slot [body slot]
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   props: ['isVisible'],
+
+  computed: {
+    ...mapState('modal', ['visible'])
+  },
+
   methods: {
     close() {
-      this.$emit('update:isVisible', false)
+      this.$store.dispatch('modal/closeModal')
     }
   }
 }

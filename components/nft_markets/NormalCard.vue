@@ -219,7 +219,7 @@ nuxt-link.normalcard.radius10(
     button.btn-border--green.mr10.radius6.smaller-btn(
       v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
     ) Details
-    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="buy") Buy
+    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="openBuyModal") Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
     button.btn-border--green.w-100.radius6.mb-2(
       v-if='mode == "bought" || mode === "setsList"'
@@ -232,9 +232,6 @@ nuxt-link.normalcard.radius10(
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "sold"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings"') Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions"') Make Offer
-
-  alcor-modal(:isVisible.sync="showBuyModal")
-    buy-listing(:asset="data" @success="() => showBuyModal = false")
 </template>
 
 <script>
@@ -242,12 +239,10 @@ import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import AccountAvatar from '~/components/AccountAvatar'
 import defaultImg from '~/assets/images/default.png'
-import AlcorModal from '~/components/AlcorModal'
-import BuyListing from '~/components/modals/BuyListing'
 
 export default {
   name: 'NormalCard',
-  components: { VueSkeletonLoader, AccountAvatar, AlcorModal, BuyListing },
+  components: { VueSkeletonLoader, AccountAvatar },
   props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded'],
 
   data() {
@@ -526,9 +521,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('chain', ['buyAsset']),
-    buy() {
-      this.showBuyModal = true
+    ...mapActions('modal', ['buy']),
+    openBuyModal() {
+      this.buy(this.data)
     }
   }
 }
