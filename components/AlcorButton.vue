@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, iconOnly, iconOnlyAlt, round, compact }]"
+    :class="['alcor-button', { flat, alternative, access, transparent, iconOnly, iconOnlyAlt, round, compact }]"
     @click.prevent="$emit('click')">
     <div class="inner">
       <slot />
@@ -17,6 +17,14 @@ export default {
       type: Boolean
     },
     alternative: {
+      default: false,
+      type: Boolean
+    },
+    access: {
+      default: false,
+      type: Boolean
+    },
+    transparent: {
       default: false,
       type: Boolean
     },
@@ -83,15 +91,28 @@ button {
   padding: 6px 14px;
 }
 
+.alcor-button.access {
+  background: var(--main-action-green);
+  border: 1px solid var(--main-action-green);
+  color: var(--text-theme);
+}
+
+.alcor-button.access:hover {
+  background: transparent;
+  color: var(--main-action-green);
+  border: 1px solid var(--main-action-green);
+}
+
 .alcor-button.compact {
   padding: 4px 12px;
 }
 
 .inner {
   display: flex;
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  font-size: 14px
+  font-size: 14px;
 }
 
 .iconOnly {

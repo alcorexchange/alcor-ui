@@ -529,7 +529,7 @@ a {
 
 .el-dialog {
   background: var(--dialog-background) !important;
-  border-radius: 16px !important;
+  border-radius: 8px !important;
 }
 
 .trading-page-dialog.el-dialog {
@@ -847,4 +847,47 @@ a {
 .popper__arrow {
     // display:none !important;
   background: transparent !important;
+}
+
+.fs-18 {
+  font-size: 18px;
+}
+
+.fw-bold {
+  font-weight: bold;
+}
+
+.gap-10 {
+  gap: 10px;
+}
+
+.gap-16 {
+  gap: 16px;
+}
+
+.gap-32 {
+  gap: 32px;
+}
+
+.gap-64 {
+  gap: 64px;
+}
+
+.normal-card-shadow {
+  box-shadow: 0px 0px 20px 0px var(--normal-card-shadow);
+}
+
+.color-green {
+  color: var(--main-green);
+}
+.color-wax {
+  color: var(--main-wax);
+}
+
+.bg-green {
+  background: var(--main-green);
+}
+
+.disable {
+  color: var(--text-disable);
 }

@@ -304,8 +304,8 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://ipfs.atomichub.io/ipfs/' +
-              this.assetData.data.img +
-              ')',
+            this.assetData.data.img +
+            ')',
         }
       } else return false
     },
@@ -317,8 +317,8 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://ipfs.atomichub.io/ipfs/' +
-              this.assetData.data.img +
-              ')',
+            this.assetData.data.img +
+            ')',
         }
       } else return false
     },
