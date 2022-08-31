@@ -182,9 +182,12 @@ export default {
           message: `Order canceled ${order.id}`,
           type: 'success',
         })
+
+        await this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
+
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
-          this.$store.dispatch('loadUserBalances')
+          //this.$store.dispatch('loadUserBalances')
         }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })

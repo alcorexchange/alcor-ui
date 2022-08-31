@@ -13,7 +13,7 @@
 
       p
         b {{ $t('Market Exchange') }}
-        |  - {{ $t('When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund') }}.
+        |  - {{ $t('By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund') }}.
 
       p
         b {{ $t('OTC Transaction') }}

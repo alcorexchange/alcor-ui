@@ -280,6 +280,7 @@ export const actions = {
         o.market_id = market_id
       })
 
+
       // TODO Need optimization so much!
       commit('setUserOrders', state.userOrders.filter(o => o.market_id != market_id).concat(buyOrders.concat(sellOrders)))
     }).catch(e => console.log(e))

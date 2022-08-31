@@ -187,7 +187,6 @@ export const mutations = {
   backupChartOrdersSettings: state => state.backup_orders_settings = state.chart_orders_settings,
   setChartOrdersSettingsFromBackup: state => state.chart_orders_settings = state.backup_orders_settings || state.chart_orders_settings,
   setMarket: (state, market) => {
-    console.log('ssss', market)
     const { id, base_token, quote_token, slug } = market
 
     state.id = id
@@ -555,6 +554,20 @@ export const actions = {
       captureException(e, { extra: { order: this.order } })
       return { err: true, desc: e }
     }
+  },
+
+  updateBalanceAfterOrderCancel({ state, dispatch, rootState }, { marketId, orderType }) {
+    const market = rootState.markets.find(({ id }) => id === marketId)
+
+    orderType === 'buy'
+      ? dispatch('updateBalance', {
+        contract: market.base_token.contract,
+        symbol: market.base_token.symbol.name
+      }, { root: true })
+      : dispatch('updateBalance', {
+        contract: market.quote_token.contract,
+        symbol: market.quote_token.symbol.name
+      }, { root: true })
   },
 
   updatePairBalances({ state, dispatch, rootState }) {

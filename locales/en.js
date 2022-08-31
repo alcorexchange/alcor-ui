@@ -5,7 +5,7 @@ export default {
   META_NFT_MARKET_DESCRIPTION: 'Atomic, no fee, NFT marketplace.',
   HERO_DESCRIPTION: 'Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.',
   HERO_TITLE: 'All in one DEX',
-  START_TRAIDING_BTN: 'Start traiding',
+  START_TRAIDING_BTN: 'Start trading',
   READ_DOCS_BTN: 'Read docs',
   ONCHAIN_TOOLS_TITLE: 'On-Chain Tools',
   'AMM Swap': 'AMM Swap',
@@ -28,7 +28,7 @@ export default {
   'and more...': 'and more...',
   Fav: 'Fav',
   All: 'All',
-  USD: 'USDT',
+  USDT: 'USDT',
   'Cross-Chain': 'Cross-Chain',
   'Search market': 'Search market',
   'Open new market': 'Open new market',
@@ -515,5 +515,6 @@ export default {
   Return: 'Return',
   'cancel all': 'cancel all',
   'Cancel All Orders': 'Cancel All Orders',
-  'Alcor API Docs': 'Alcor API Docs'
+  'Alcor API Docs': 'Alcor API Docs',
+  'By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund': 'By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund'
 }
