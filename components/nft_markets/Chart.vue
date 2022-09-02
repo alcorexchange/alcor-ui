@@ -3,7 +3,9 @@
   client-only
     .h-100.mt-2(@mouseleave='setCurrentPrice')
       .price-container
-        .price {{ price }} WAX
+        .price
+          span {{ price }} WAX
+          span.disable  (${{ $systemToUSD(price) }})
       VueApexCharts.swap-chart(
         :width='width',
         :height='height',
@@ -115,15 +117,16 @@ export default {
         },
 
         grid: {
+          borderColor: 'var(--border-color)',
           xaxis: {
             lines: {
-              show: false,
+              show: true,
             },
           },
 
           yaxis: {
             lines: {
-              show: false,
+              show: true,
             },
           },
         },
@@ -143,11 +146,36 @@ export default {
           tooltip: {
             enabled: false,
           },
+          axisBorder: { color: 'var(--border-color)' },
+          axisTicks: {
+            color: 'var(--border-color)',
+            height: 6
+          },
+          labels: {
+            datetimeUTC: false,
+            style: {
+              colors: 'var(--text-default)',
+              fontSize: '10px',
+              fontFamily: 'Roboto, Arial, sans-serif'
+            },
+          }
         },
 
         yaxis: {
           lines: { show: false },
           opposite: true,
+          axisTicks: {
+            show: true,
+            color: 'var(--border-color)',
+            width: 6
+          },
+          labels: {
+            style: {
+              colors: ['var(--text-default)'],
+              fontSize: '10px',
+              fontFamily: 'Roboto, Arial, sans-serif'
+            }
+          }
         },
 
         tooltip: {
@@ -166,18 +194,18 @@ export default {
     renderFirstPair() {
       return `1 ${this.pair.pool1.quantity.symbol.code().to_string()} =
          ${(
-           parseFloat(this.pair.pool2.quantity) /
-           parseFloat(this.pair.pool1.quantity)
-         ).toFixed(8)}
+          parseFloat(this.pair.pool2.quantity) /
+          parseFloat(this.pair.pool1.quantity)
+        ).toFixed(8)}
          ${this.pair.pool2.quantity.symbol.code().to_string()}
        `
     },
     renderSecondPair() {
       return `1 ${this.pair.pool2.quantity.symbol.code().to_string()} =
          ${(
-           parseFloat(this.pair.pool1.quantity) /
-           parseFloat(this.pair.pool2.quantity)
-         ).toFixed(8)}
+          parseFloat(this.pair.pool1.quantity) /
+          parseFloat(this.pair.pool2.quantity)
+        ).toFixed(8)}
          ${this.pair.pool1.quantity.symbol.code().to_string()}
        `
     },
@@ -255,7 +283,7 @@ export default {
       this.charts.map((point) => {
         data.push({
           x: point.time,
-          y: point.median / Math.pow(10, point.token_precision),
+          y: this.$options.filters.commaFloat(point.median / Math.pow(10, point.token_precision)),
         })
       })
       console.log('updateSeries, data', data.length)
@@ -274,9 +302,6 @@ export default {
 </script>
 
 <style lang="scss">
-#tv_chart_container.nft-price-chart {
-  min-height: 450px;
-}
 .swap-chart {
   .apexcharts-tooltip {
     border: none !important;
@@ -293,6 +318,7 @@ export default {
 .each-item-price-container {
   display: flex;
   flex-wrap: wrap;
+
   .item {
     padding: 2px;
     display: flex;
@@ -302,6 +328,7 @@ export default {
     border: var(--border-1);
     margin-right: 4px;
     margin-bottom: 4px;
+
     .icon {
       width: 15px;
       height: 15px;
@@ -310,13 +337,14 @@ export default {
     }
   }
 }
+
 .price-container {
   display: flex;
   align-items: center;
   margin-bottom: -30px;
 
   .price {
-    font-size: 1.8rem;
+    font-size: 1rem !important;
     font-weight: bold;
     margin-right: 4px;
   }
@@ -326,9 +354,11 @@ export default {
     align-items: center;
     color: var(--main-green);
     padding: 0 4px;
+
     &.isRed {
       color: var(--main-red);
     }
+
     &.isZero {
       color: var(--text-default);
     }

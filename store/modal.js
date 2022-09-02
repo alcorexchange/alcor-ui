@@ -19,8 +19,15 @@ export const actions = {
   buy({ commit }, context) {
     commit('setCurrent', 'buy-listing')
     commit('setVisible', true)
-    commit('setModalContext', context)
+    if (context) commit('setModalContext', context)
   },
+
+  makeOffer({ commit }, context) {
+    commit('setCurrent', 'make-offer')
+    commit('setVisible', true)
+    if (context) commit('setModalContext', context)
+  },
+
 
   closeModal({ commit }) {
     commit('setVisible', false)

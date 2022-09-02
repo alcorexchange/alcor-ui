@@ -4,7 +4,7 @@
     i.el-icon-price-tag
     span Buy Listing
   .d-flex.justify-content-between.gap-32
-    NormalCard(v-if='context', :data='context', mode="preview")
+    NormalCard(v-if='context.assets[0]', :data='context.assets[0]', mode="preview")
     div
       span.fs-18.disable Summary
       .d-flex.align-items-start.gap-64.mt-3
@@ -28,7 +28,7 @@
             span.color-wax {{ new Intl.NumberFormat().format(price) }} WAX
             span.color-green  (${{ $systemToUSD(price) }})
   .d-flex.gap-16.mt-3.justify-content-end
-    alcor-button Make Offer
+    alcor-button(@click="openOfferModal") Make Offer
     alcor-button(access, @click="buy")
       i.el-icon-price-tag
       span Buy for {{ new Intl.NumberFormat().format(price) }} WAX
@@ -57,6 +57,10 @@ export default {
   },
   methods: {
     ...mapActions('chain', ['buyAsset']),
+    ...mapActions('modal', ['makeOffer']),
+    openOfferModal() {
+      this.makeOffer()
+    },
     async buy() {
       try {
         await this.buyAsset({
