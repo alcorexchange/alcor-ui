@@ -103,6 +103,14 @@ button {
   border: 1px solid var(--main-action-green);
 }
 
+.alcor-button.access:disabled {
+  background: var(--main-action-green);
+  border: 1px solid var(--main-action-green);
+  color: var(--text-theme);
+  filter: brightness(50%);
+  cursor: not-allowed;
+}
+
 .alcor-button.compact {
   padding: 4px 12px;
 }

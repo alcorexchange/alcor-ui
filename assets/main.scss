@@ -891,3 +891,8 @@ a {
 .disable {
   color: var(--text-disable);
 }
+
+.active-border {
+  border: 1px solid var(--main-green)
+}
+

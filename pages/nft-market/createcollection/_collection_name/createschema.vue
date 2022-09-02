@@ -207,9 +207,9 @@ export default {
         this.loading = false
         this.$router.push(
           '/nft-market/createcollection/' +
-            this.collection_name +
-            '/schema/' +
-            this.schema_name
+          this.collection_name +
+          '/schema/' +
+          this.schema_name
         )
       }
     },
@@ -222,10 +222,12 @@ export default {
   .el-input__suffix {
     right: 30px !important;
   }
+
   .error-text {
     color: red;
     font-size: 12px;
   }
+
   .theme-dark .el-select-dropdown,
   .el-input__inner {
     height: 48px;
@@ -233,18 +235,23 @@ export default {
     border-radius: 5px;
     text-align: center;
   }
+
   .el-select-dropdown__item {
     text-align: center !important;
   }
+
   .el-select {
     width: 233px;
   }
+
   .border-radius5 {
     border-radius: 5px;
   }
+
   div.row {
     margin: 0;
   }
+
   .minus-button {
     position: absolute;
     transform: translate(-30px, 0);
@@ -258,6 +265,7 @@ export default {
     background-color: #161617;
     margin-right: 12px !important;
   }
+
   .add-button {
     width: 100%;
     font-size: 14px;
@@ -271,10 +279,11 @@ export default {
     border-radius: 8px;
     cursor: pointer;
   }
+
   .custom-select {
-    background: url('~/assets/images/under.svg') right 80px center/8px 10px
-      no-repeat;
+    background: url('~/assets/images/under.svg') right 80px center/8px 10px no-repeat;
   }
+
   .input-attribute,
   .name-button,
   .type-button {
@@ -289,26 +298,33 @@ export default {
     background-color: #333;
     margin: 6px 0;
   }
+
   .name-button {
     margin-right: 12px;
     color: var(--cancel);
   }
+
   .type-button {
     color: white;
   }
+
   .add-attribute_header {
     font-weight: 500;
     font-size: 20px;
+
     p:first-child {
       margin-right: 12px;
     }
+
     p {
       width: 233px;
     }
   }
+
   .add-attribute {
     width: 478px;
   }
+
   .create-schema-btn {
     width: 233px;
     height: 32px;
@@ -320,6 +336,7 @@ export default {
     padding: 3px 23px;
     cursor: pointer;
   }
+
   input {
     width: 233px;
     height: 24px;
@@ -329,27 +346,35 @@ export default {
     color: var(--cancel);
     background-color: var(--background-color-third);
   }
+
   .color-red {
     color: red;
   }
+
   .color-green {
     color: #67c23a;
   }
+
   div.page-header_text h4 {
     margin-bottom: 9px !important;
   }
+
   .page-header_text {
     margin-bottom: 32px;
   }
+
   .other-info {
     width: 35%;
+
     h4 {
       font-size: 20px;
     }
   }
+
   .description-info {
     width: 55%;
   }
+
   .wax-exchange {
     font-weight: 700;
     font-size: 20px;
@@ -357,18 +382,22 @@ export default {
     text-decoration-line: underline;
     color: #67c23a;
   }
+
   .description-name,
   .wax-exchange {
     margin-bottom: 32px !important;
   }
+
   .description-fee,
   .description-title {
     font-size: 14px;
     color: var(--cancel);
   }
+
   .description {
     font-size: 16px;
   }
+
   .create-collection-btn {
     float: right;
     text-align: center;
@@ -382,56 +411,68 @@ export default {
     border-radius: 8px;
     cursor: pointer;
   }
+
   .nft-image-container {
     padding: 24px 25px 25px 25px;
     width: 300px;
     height: 300px;
     border-radius: 10px;
   }
+
   .nft-image-container,
   .nft-info {
     background-color: #202021;
     padding: 24px;
   }
+
   .nft-info {
     width: calc(100% - 330px);
   }
+
   .nft-image {
     width: 251px;
     height: 251px;
     object-fit: cover;
   }
+
   .schemas-title {
     margin: 43px 0;
     font-weight: 500;
     font-size: 20px;
   }
+
   .plus-round-background {
     width: 70px;
     height: 70px;
     margin: auto;
   }
+
   .almemes-background {
     width: 100px;
     height: 117px;
     margin: auto;
   }
+
   .almemes h4 {
     margin: 30px 0 0 !important;
     color: #67c23a;
   }
+
   .card-content {
     margin-top: 23px;
     font-weight: 700;
     font-size: 24px;
     text-align: center;
+
     h4 {
       margin: 10px 0;
     }
   }
+
   #return-btn::before {
     content: '←';
   }
+
   #return-btn {
     font-weight: 500;
     font-size: 14px;
@@ -439,20 +480,25 @@ export default {
     cursor: pointer;
     padding-left: 10px;
   }
+
   .page-header h4 {
     margin: 0 !important;
   }
+
   .page-header {
     margin: 32px 0 9px 0;
   }
+
   .card-group {
     margin-top: 32px;
   }
+
   .nftcard {
     width: 220px;
     height: 195px;
     border: 1px solid #67c23a;
   }
+
   .create-collections {
     margin-right: 25px;
   }

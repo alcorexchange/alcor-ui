@@ -1,5 +1,5 @@
 <template lang="pug">
-.normalcard.radius10.normal-card-shadow(v-if="mode === 'preview'")
+.normalcard.radius10.normal-card-shadow(v-if="mode === 'preview'" :class="[{ small }]" @click="$emit('click')")
   header.d-flex.justify-content-end
     .card_number.d-flex.align-items-center.color-green {{ "#" + mintCount }}
   video.main-img(v-if='videoBackground', autoplay='true', loop='true')
@@ -10,8 +10,8 @@
   .main-img(v-else-if='imageBackground', :style='imageBackground')
   .main-img(v-else, :style='defaultBackground')
 
-  .d-flex.justify-content-between.align-items-center.p-3
-    p.fs-18 {{ cardName }}
+  .d-flex.flex-column.justify-content-between.align-items-center.p-3.card-title
+    p.card-name {{ cardName }}
     p.disable {{ collectionName }}
       img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
 
@@ -243,7 +243,7 @@ import defaultImg from '~/assets/images/default.png'
 export default {
   name: 'NormalCard',
   components: { VueSkeletonLoader, AccountAvatar },
-  props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded'],
+  props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded', 'small', 'disable'],
 
   data() {
     return {
@@ -260,7 +260,7 @@ export default {
   },
   computed: {
     videoBackground() {
-      if (this.mode === 'market' || this.mode === 'preview') {
+      if (this.mode === 'market') {
         if (this.data.assets[0].data.video) {
           return this.data.assets[0].data
         } else return false
@@ -268,7 +268,7 @@ export default {
         if (this.data.immutable_data.video) {
           return this.data.immutable_data
         } else return false
-      } else if (this.mode === 'inventory' || this.mode === 'sets') {
+      } else if (this.mode === 'inventory' || this.mode === 'sets' || this.mode === 'preview') {
         if (this.data.data.video) {
           return this.data.data
         } else return false
@@ -284,7 +284,7 @@ export default {
       } else return false
     },
     imageBackground() {
-      if (this.mode === 'market' || this.mode === 'preview') {
+      if (this.mode === 'market') {
         if (this.data.assets[0].data.img) {
           return {
             backgroundSize: 'contain',
@@ -297,7 +297,7 @@ export default {
               '&size=370)'
           }
         } else return false
-      } else if (this.mode === 'inventory' || this.mode === 'sets') {
+      } else if (this.mode === 'inventory' || this.mode === 'sets' || this.mode === 'preview') {
         if (this.data.data.img) {
           return {
             backgroundSize: 'contain',
@@ -379,14 +379,13 @@ export default {
       let string = ''
       if (this.mode === 'market') {
         string = this.data.assets[0].template_mint
-      } else if (this.mode === 'assets' || this.mode === 'inventory') {
+      } else if (this.mode === 'assets' || this.mode === 'inventory' || this.mode === 'preview') {
         string = this.data.template_mint
       } else if (
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
         this.mode === 'sold' ||
-        this.mode === 'bought' ||
-        this.mode === 'preview'
+        this.mode === 'bought'
       ) {
         string = this.data.assets[0]?.template_mint
       } else string = this.data.id || 0
@@ -451,7 +450,6 @@ export default {
     cardName() {
       if (
         this.mode === 'market' ||
-        this.mode === 'preview' ||
         this.mode === 'listings' ||
         this.mode === 'auctions' ||
         this.mode === 'sold' ||
@@ -463,6 +461,7 @@ export default {
         this.mode === 'templates' ||
         this.mode === 'inventory' ||
         this.mode === 'sets' ||
+        this.mode === 'preview' ||
         this.mode === 'setsList'
       ) {
         return this.data.name
@@ -503,7 +502,7 @@ export default {
       return 0
     },
     collectionName() {
-      if (this.mode === 'setsList') {
+      if (this.mode === 'setsList' || this.mode === 'review') {
         return this.data.collection.name
       } else return 'Alcorex'
     },
@@ -532,8 +531,30 @@ export default {
 <style lang="scss">
 .normalcard {
   width: 220px;
+  height: fit-content;
   background-color: var(--background-color-third);
   border-radius: 10px;
+
+  .card-name {
+    font-size: 18px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+  }
+
+  &.small {
+    width: 170px;
+
+    .main-img {
+      height: 140px;
+    }
+
+    .card-name {
+      font-size: 14px;
+    }
+  }
 
   .actions {
     padding: 6px;

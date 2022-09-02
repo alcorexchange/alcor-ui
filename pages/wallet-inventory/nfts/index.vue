@@ -445,6 +445,5 @@ div.grid-container {
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
-  justify-content: space-between;
 }
 </style>
