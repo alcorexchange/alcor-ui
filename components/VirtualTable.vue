@@ -56,7 +56,11 @@ export default {
 }
 
 .scroller.window {
-  height: 700px;
+  height: 450px;
+}
+
+.mobile-trade-inner .scroller.window {
+  height: 274px;
 }
 
 .scroller::-webkit-scrollbar {

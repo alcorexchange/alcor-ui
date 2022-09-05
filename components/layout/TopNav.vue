@@ -51,7 +51,7 @@ nav.nav(v-if='!isMobile')
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
 
 
-    AlcorButton(@click='openMenu', :icononlyalt='true')
+    AlcorButton(@click='openMenu', :icon-only-alt='true')
       i.el-icon-more
     nav(:class='["menu", { menuActive }]')
       .logo
