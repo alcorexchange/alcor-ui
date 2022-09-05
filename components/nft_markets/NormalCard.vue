@@ -1,5 +1,21 @@
 <template lang="pug">
-.normalcard.radius10.p-3(v-if="mode === 'accounts'")
+.normalcard.radius10.normal-card-shadow(v-if="mode === 'preview'" :class="[{ small }]" @click="$emit('click')")
+  header.d-flex.justify-content-end
+    .card_number.d-flex.align-items-center.color-green {{ "#" + mintCount }}
+  video.main-img(v-if='videoBackground', autoplay='true', loop='true')
+    source(
+      :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
+      type='video/mp4'
+    )
+  .main-img(v-else-if='imageBackground', :style='imageBackground')
+  .main-img(v-else, :style='defaultBackground')
+
+  .d-flex.flex-column.justify-content-between.align-items-center.p-3.card-title
+    p.card-name {{ cardName }}
+    p.disable {{ collectionName }}
+      img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
+
+.normalcard.radius10.p-3(v-else-if="mode === 'accounts'")
   account-avatar
   .account-name {{ data.name }}
   .info-row.mb-1
@@ -203,7 +219,7 @@ nuxt-link.normalcard.radius10(
     button.btn-border--green.mr10.radius6.smaller-btn(
       v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
     ) Details
-    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="buy") Buy
+    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="openBuyModal") Buy
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
     button.btn-border--green.w-100.radius6.mb-2(
       v-if='mode == "bought" || mode === "setsList"'
@@ -225,12 +241,14 @@ import AccountAvatar from '~/components/AccountAvatar'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
+  name: 'NormalCard',
   components: { VueSkeletonLoader, AccountAvatar },
-  props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded'],
+  props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded', 'small', 'disable'],
 
   data() {
     return {
       search: '',
+      showBuyModal: false,
       defaultBackground: {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -250,7 +268,7 @@ export default {
         if (this.data.immutable_data.video) {
           return this.data.immutable_data
         } else return false
-      } else if (this.mode === 'inventory' || this.mode === 'sets') {
+      } else if (this.mode === 'inventory' || this.mode === 'sets' || this.mode === 'preview') {
         if (this.data.data.video) {
           return this.data.data
         } else return false
@@ -279,7 +297,7 @@ export default {
               '&size=370)'
           }
         } else return false
-      } else if (this.mode === 'inventory' || this.mode === 'sets') {
+      } else if (this.mode === 'inventory' || this.mode === 'sets' || this.mode === 'preview') {
         if (this.data.data.img) {
           return {
             backgroundSize: 'contain',
@@ -361,7 +379,7 @@ export default {
       let string = ''
       if (this.mode === 'market') {
         string = this.data.assets[0].template_mint
-      } else if (this.mode === 'assets' || this.mode === 'inventory') {
+      } else if (this.mode === 'assets' || this.mode === 'inventory' || this.mode === 'preview') {
         string = this.data.template_mint
       } else if (
         this.mode === 'listings' ||
@@ -443,6 +461,7 @@ export default {
         this.mode === 'templates' ||
         this.mode === 'inventory' ||
         this.mode === 'sets' ||
+        this.mode === 'preview' ||
         this.mode === 'setsList'
       ) {
         return this.data.name
@@ -483,7 +502,7 @@ export default {
       return 0
     },
     collectionName() {
-      if (this.mode === 'setsList') {
+      if (this.mode === 'setsList' || this.mode === 'review') {
         return this.data.collection.name
       } else return 'Alcorex'
     },
@@ -501,17 +520,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('chain', ['buyAsset']),
-    async buy() {
-      try {
-        await this.buyAsset({
-          sale_id: this.data.sale_id,
-          asset_ids_to_assert: [this.data.assets[0].asset_id],
-          listing_price_to_assert: this.waxPrice.toFixed(8) + ' WAX'
-        })
-      } catch (e) {
-        console.error(e)
-      }
+    ...mapActions('modal', ['buy']),
+    openBuyModal() {
+      this.buy(this.data)
     }
   }
 }
@@ -520,8 +531,30 @@ export default {
 <style lang="scss">
 .normalcard {
   width: 220px;
+  height: fit-content;
   background-color: var(--background-color-third);
   border-radius: 10px;
+
+  .card-name {
+    font-size: 18px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+  }
+
+  &.small {
+    width: 170px;
+
+    .main-img {
+      height: 140px;
+    }
+
+    .card-name {
+      font-size: 14px;
+    }
+  }
 
   .actions {
     padding: 6px;
@@ -592,7 +625,7 @@ export default {
     padding: 0 3px;
     border-radius: 3px;
     height: 22px;
-    background-color: #000;
+    background-color: var(--btn-active);
   }
 
   .offer-information .success-icon {

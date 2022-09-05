@@ -442,7 +442,8 @@ export default {
 }
 
 div.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
 }
 </style>

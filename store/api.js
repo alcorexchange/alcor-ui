@@ -227,6 +227,18 @@ export const actions = {
     }
   },
 
+  async getTemplateStats({ dispatch }, { templateID, collectionName }) {
+    try {
+      const {
+        data
+      } = await this.$api.get(`atomicassets/v1/templates/${collectionName}/${templateID}/stats`)
+      return data.data
+    } catch (e) {
+      console.error('Get symbol info error', e)
+      return await dispatch('getTemplateStats', { templateID, collectionName }) // refetch
+    }
+  },
+
   async getTemplatesData({
     getters,
     rootState
@@ -264,6 +276,19 @@ export const actions = {
         'https://wax.pink.gg/v1/chain/get_account', { account_name: accountName }
       )
       return data
+    } catch (e) {
+      console.error('Get template error', e)
+    }
+  },
+
+  async getAccountSpecificStats(_, {
+    account
+  }) {
+    try {
+      const {
+        data
+      } = await this.$api.post(`atomicassets/v1/accounts/${account}`)
+      return data.data
     } catch (e) {
       console.error('Get template error', e)
     }
@@ -343,25 +368,22 @@ export const actions = {
     }
   },
 
-  async getAssets({
-    getters,
-    rootState
-  }, {
-    owner
-  }) {
+  async getAssets({ dispatch }, options) {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicassets/v1/assets` +
-        '?owner=' +
-        owner +
-        '&page=1&limit=1000&order=desc&sort=asset_id'
-      )
+      } = await this.$api.post('/atomicassets/v1/assets', {
+        page: 1,
+        limit: 100,
+        order: 'desc',
+        sort: 'transferred',
+        ...options
+      })
 
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
+      return await dispatch('getAssets', options) // refetch
     }
   },
 
@@ -566,7 +588,7 @@ export const actions = {
       const {
         data
       } = await this.$api.get(
-        `${API_URL}/atomicmarket/v1/stats/accounts/` +
+        `atomicmarket/v1/stats/accounts/` +
         owner + '?symbol=WAX'
       )
       return data.data
@@ -576,26 +598,25 @@ export const actions = {
   },
   // price on tempchart
   async getTemplatePrice({
-    getters,
-    rootState
+    dispatch
   }, {
     templateID
   }) {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v1/prices/templates?template_id=` + templateID + '&page=1&limit=100&order=desc'
+      } = await this.$api.get(
+        'atomicmarket/v1/prices/templates?template_id=' + templateID + '&page=1&limit=100&order=desc'
       )
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+      dispatch('getTemplatePrice', { templateID })
     }
   },
   // get price history for a template for NFT sale chart
   async getChartData({
-    getters,
-    rootState
+    dispatch
   }, {
     schema_name,
     template_id,
@@ -604,13 +625,14 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v1/prices/sales/days?template_id=` + template_id +
-        '&schema_name=' + schema_name + '&burned' + burned
+      } = await this.$api.get(
+        '/atomicmarket/v1/prices/sales/days?template_id=' + template_id +
+        '&schema_name=' + schema_name + '&burned=' + burned
       )
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+      dispatch('getChartData', { schema_name, template_id, burned })
     }
   },
   // get collection set

@@ -151,6 +151,46 @@ export const actions = {
     return loginPromise
   },
 
+  async sendBuyOffer({ state, rootState, dispatch }, { buyOfferPrice, assetsIDs, memo, seller }) {
+    const actions = [
+      {
+        account: 'eosio.token',
+        name: 'transfer',
+        authorization: [
+          {
+            actor: rootState.user.name,
+            permission: 'owner'
+          }
+        ],
+        data: {
+          from: rootState.user.name,
+          to: 'atomicmarket',
+          quantity: buyOfferPrice,
+          memo: 'deposit'
+        }
+      },
+      {
+        account: 'atomicmarket',
+        name: 'createbuyo',
+        authorization: [
+          {
+            actor: rootState.user.name,
+            permission: 'owner'
+          }
+        ],
+        data: {
+          buyer: rootState.user.name,
+          recipient: seller,
+          price: buyOfferPrice,
+          memo,
+          maker_marketplace: '',
+          asset_ids: assetsIDs
+        }
+      }
+    ]
+    await dispatch('sendTransaction', actions)
+  },
+
   async buyAsset({ state, rootState, dispatch }, { sale_id, asset_ids_to_assert, listing_price_to_assert }) {
     const actions = [
       {

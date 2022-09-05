@@ -2554,6 +2554,7 @@
 }
 
 .el-select-dropdown__list {
+    background: var(--bg-big-card);
     list-style: none;
     padding: 6px 0;
     margin: 0;
@@ -2573,7 +2574,8 @@
     line-height: 34px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    cursor: pointer
+    cursor: pointer;
+    background: var(--bg-big-card);
 }
 
 .el-select-dropdown__item.is-disabled {
@@ -2587,7 +2589,7 @@
 
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
-    background-color: #E6EEF1
+    background-color: var(--hover)
 }
 
 .el-select-dropdown__item.selected {
@@ -15225,7 +15227,7 @@
 }
 
 .el-scrollbar__wrap {
-    overflow: scroll;
+    overflow-y: scroll;
     height: 100%
 }
 

@@ -261,7 +261,7 @@
     :show_modal='show_modal',
     :handleCloseModal='handleCloseModal'
   )
-  .d-flex.justify-content-between
+  .d-flex.justify-content-between.chart
     Chart(:charts='chartData', v-if='chartData.length', tab="Price", period="24H")
 </template>
 <script>
@@ -304,8 +304,8 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://ipfs.atomichub.io/ipfs/' +
-              this.assetData.data.img +
-              ')',
+            this.assetData.data.img +
+            ')',
         }
       } else return false
     },
@@ -317,8 +317,8 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://ipfs.atomichub.io/ipfs/' +
-              this.assetData.data.img +
-              ')',
+            this.assetData.data.img +
+            ')',
         }
       } else return false
     },
@@ -430,6 +430,10 @@ export default {
 
 <style lang="scss">
 .nftburnable {
+  .chart {
+    height: 450px;
+  }
+
   .weight-400 {
     font-weight: 400 !important;
   }
