@@ -6,8 +6,10 @@
   .d-flex.gap-32
     .d-flex.flex-column.gap-32
       assets-field(:assets="offerAssets" @removeAsset="toggleSelected")
-      el-input.dark(v-model='waxAmount', size='small', placeholder='Amount of WAX')
-        template(slot="append") WAX
+      .d-flex.flex-column
+        el-input.dark(v-model='waxAmount', size='small', placeholder='Amount of WAX')
+          template(slot="append") WAX
+        .disable.fs-12.mt-1(v-if="!isValidAmount") You need to offer at least 3 WAX to send a buyoffer
       el-input.dark(v-model='memo', size='small', placeholder='Memo')
       .d-flex.flex-column.gap-16(v-if="offerAssets.length === 1")
         .fs-18.disable Historical Price Data (Template based)
@@ -32,7 +34,7 @@
 
       .d-flex.gap-32
         alcor-button(@click="openListingModal") Buy Listing
-        alcor-button.w-50(access, :disabled="!isOfferReady" @click="sendOffer()") Send Buy Offer
+        alcor-button.w-50(access, :disabled="!isOfferReady || !isValidAmount" @click="sendOffer()") Send Buy Offer
 
     .d-flex.flex-column.gap-16
       span.fs-18.disable Summary
@@ -128,7 +130,8 @@ export default {
   computed: {
     ...mapState('modal', ['context']),
     refetchProps() { [this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() },
-    isOfferReady() { return this.waxAmount && this.offerAssets.length }
+    isOfferReady() { return this.waxAmount && this.offerAssets.length },
+    isValidAmount() { return this.waxAmount >= 3 }
   },
   watch: {
     refetchProps() {
