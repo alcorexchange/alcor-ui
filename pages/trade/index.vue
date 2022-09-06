@@ -80,11 +80,7 @@ export default {
           content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain!`,
         },
         {
-          hid: 'test',
-          name: 'test',
-          content: 'test'
-        },
-        {
+          // Will fail for non local images (ie. from eos-airdrops)
           hid: 'og:image',
           name: 'og:image',
           content: this.$tokenLogo(
