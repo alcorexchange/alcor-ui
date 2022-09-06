@@ -29,7 +29,7 @@
       template(v-if="sideMaretsTab == 'system'" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
 
-  virtual-table.market-table(:table="virtualTableData" v-if="user && user.balances")
+  virtual-table.market-table(:table="virtualTableData" v-if="sideMaretsTab != 'owned' || user && user.balances")
     template(#row="{ item }")
       .market-table-row(@click="() => setMarket(item)" :class="{ 'active-row': id === item.id }")
         .pair-name
