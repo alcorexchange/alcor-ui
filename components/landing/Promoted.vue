@@ -1,5 +1,5 @@
 <template lang="pug">
-.promoted-markets
+.promoted-markets(v-if="promoted.length")
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
@@ -21,7 +21,7 @@ export default {
     ...mapGetters({
       promoted: 'promoted'
     })
-  }
+  },
 }
 </script>
 

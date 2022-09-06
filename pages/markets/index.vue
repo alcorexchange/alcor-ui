@@ -195,7 +195,7 @@ export default {
 
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
-            i => i.base_token.contract == this.network.baseToken.contract)
+            i => i.base_token.symbol.name == this.network.baseToken.symbol)
           break
 
         case 'USDT':
