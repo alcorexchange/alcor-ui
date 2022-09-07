@@ -16,7 +16,8 @@
       img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
 
 .normalcard.radius10.p-3(v-else-if="mode === 'accounts'")
-  account-avatar(width="128")
+  .d-flex.justify-content-center
+    profile-image.account-image(:src="data.imgSrc")
   .account-name {{ data.name }}
   .info-row.mb-1
     span.d-flex.align-items-center
@@ -237,12 +238,12 @@ nuxt-link.normalcard.radius10(
 <script>
 import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
-import AccountAvatar from '~/components/AccountAvatar'
+import ProfileImage from '~/components/ProfileImage.vue'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
   name: 'NormalCard',
-  components: { VueSkeletonLoader, AccountAvatar },
+  components: { VueSkeletonLoader, ProfileImage },
   props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded', 'small', 'disable'],
 
   data() {
@@ -534,6 +535,10 @@ export default {
   height: fit-content;
   background-color: var(--background-color-third);
   border-radius: 10px;
+
+  .account-image {
+    width: 128px;
+  }
 
   .card-name {
     font-size: 18px;

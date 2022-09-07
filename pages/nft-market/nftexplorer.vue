@@ -124,6 +124,7 @@ export default {
 
   methods: {
     ...mapActions('api', ['getAccountDetails', 'getinventorycounts']),
+    ...mapActions('social', ['getPhotoHash']),
     handleTab(value) {
       this.tab = value
     },
@@ -201,7 +202,7 @@ export default {
       this.suggestedAverageLoaded = false
       this.assetsCountLoaded = false
       const data = await this.$store.dispatch('api/getAccountsData', { search: this.search, limit: 20 })
-      this.accountsData = data.map(({ scope }) => ({ name: scope, suggested_average: 0, assetsCount: 0 }))
+      this.accountsData = data.map(({ scope }) => ({ name: scope, suggested_average: 0, assetsCount: 0, imgSrc: '' }))
       this.loading = false
 
       Promise.all(data.map(({ scope }) => {
@@ -223,6 +224,16 @@ export default {
         })
         this.assetsCountLoaded = true
       })
+
+      Promise.all(data.map(({ scope }) => {
+        return this.getPhotoHash(scope)
+      })).then(r => {
+        r.forEach((hash, idx) => {
+          this.accountsData[idx].imgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
+        })
+      })
+
+      console.log('acccccc', this.accountsData)
     }
   },
 

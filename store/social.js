@@ -22,6 +22,6 @@ export const actions = {
       upper_bound: accountName || rootState.user.name
     })
 
-    return rows[0].photo_hash || null
+    return rows[0]?.photo_hash || null
   }
 }
