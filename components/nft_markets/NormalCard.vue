@@ -17,7 +17,7 @@
 
 .normalcard.radius10.p-3(v-else-if="mode === 'accounts'")
   .d-flex.justify-content-center
-    profile-image.account-image(:src="data.imgSrc")
+    profile-image.account-image(:src="data.imgSrc" :size="128")
   .account-name {{ data.name }}
   .info-row.mb-1
     span.d-flex.align-items-center
@@ -538,6 +538,7 @@ export default {
 
   .account-image {
     width: 128px;
+    height: 128px;
   }
 
   .card-name {

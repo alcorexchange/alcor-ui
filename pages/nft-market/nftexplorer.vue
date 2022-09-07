@@ -232,8 +232,6 @@ export default {
           this.accountsData[idx].imgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
         })
       })
-
-      console.log('acccccc', this.accountsData)
     }
   },
 

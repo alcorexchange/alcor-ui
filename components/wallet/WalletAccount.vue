@@ -1,7 +1,7 @@
 <template lang="pug">
 .wallet-account-component.d-flex.justify-content-between(v-if="user")
   .d-flex.gap-6.align-items-center
-    profile-image(editable :src.sync="profileImageSrc", :hash.sync="profileImageHash")
+    profile-image.account-photo(editable :src.sync="profileImageSrc", :hash.sync="profileImageHash" :size="40")
     wallet-name
     wallet-actions
   .d-flex.gap-6
@@ -29,7 +29,7 @@ export default {
       user && !this.profileImageSrc && this.setProfileImage()
     },
     profileImageHash(photo_hash) {
-      this.updatePhoto({ photo_hash }).then(this.setProfileImage)
+      this.updatePhoto({ photo_hash })
     }
   },
   mounted() {
@@ -44,3 +44,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.account-photo {
+  width: 40px;
+  height: 40px;
+}
+</style>
