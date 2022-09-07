@@ -44,9 +44,7 @@ export default {
         },
         {
           label: 'Total',
-          value: 'amount',
           width: '235px',
-          sortable: true
         },
         {
           label: 'Available',

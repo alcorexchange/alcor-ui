@@ -16,7 +16,7 @@
       img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
 
 .normalcard.radius10.p-3(v-else-if="mode === 'accounts'")
-  account-avatar
+  account-avatar(width="128")
   .account-name {{ data.name }}
   .info-row.mb-1
     span.d-flex.align-items-center
