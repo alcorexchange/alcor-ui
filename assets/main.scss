@@ -912,3 +912,20 @@ a {
   border: 1px solid var(--main-green)
 }
 
+.wallet-input-search {
+  &.el-input--suffix,
+  &.el-input--prefix{
+    .el-input__inner {
+      background-color: var(--btn-default);
+      border: 1px solid var(--btn-default);
+      width: 225px;
+
+      &:hover,
+      &:active,
+      &:focus {
+        border: 1px solid var(--btn-default);
+      }
+    }
+  }
+}
+

@@ -55,7 +55,7 @@
       :rounded='true',
     )
     .account-value-usd(v-else) (${{ data.suggested_average ? $systemToUSD(data.suggested_average) : '0.00' }})
-  .info-row.mt-2
+  .info-row.mt-3
     button.btn-border--green.radius6.w-50 Profile
     el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(trigger='click')
       span.el-dropdown-link
