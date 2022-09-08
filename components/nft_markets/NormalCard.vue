@@ -62,9 +62,22 @@
         span More
         i.el-icon-arrow-down.el-icon--right
       span
-      el-dropdown-menu(slot='dropdown')
-        span asd
-
+      el-dropdown-menu.dropdown
+        el-dropdown-item.dropdown__item
+          img(src='~/assets/icons/Handshake.svg')
+          span Send Trade Offer
+        el-dropdown-item.dropdown__item
+          img(src='~/assets/icons/ArrowsLeftRight.svg')
+          span Transfer
+        el-dropdown-item.dropdown__item
+          img(src='~/assets/icons/Storefront.svg')
+          span Seller Page
+        el-dropdown-item.dropdown__item
+          img(src='~/assets/icons/UserMinus.svg')
+          span Remove Friend
+        el-dropdown-item.dropdown__item
+          img(src='~/assets/icons/SmileyXEyes.svg')
+          span.red Block
 
 nuxt-link.normalcard.radius10(
   v-else-if='mode === "sets"',
