@@ -98,5 +98,12 @@ export default {
   font-weight: 700;
 
   color: var(--main-action-green);
+
+  transition: all .3s;
+
+  &:hover {
+    box-shadow: 0px 0px 30px 0px #54A05466 inset;
+    background: var(--btn-active);
+  }
 }
 </style>
