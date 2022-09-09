@@ -1,7 +1,7 @@
 <template lang="pug">
 router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo.slug } }")
   .promo
-    .chart(v-if="series[0].data")
+    .chart(v-if="series[0].data.length")
       .header
         token-image(:src="$tokenLogo(promo.quote_token.symbol.name, promo.quote_token.contract)")
         .title {{ promo.symbol }}
@@ -43,7 +43,7 @@ export default {
   components: { AlcorChart, TokenImage },
   props: ['promo'],
   data: () => ({
-    series: [{ name: 'Price' }],
+    series: [{ name: 'Price', data: [] }],
     liquidity: [],
     interval: null,
     pricePercent: null,
@@ -62,12 +62,14 @@ export default {
           fontFamily: 'Roboto, Arial, sans-serif'
         }
       },
+
       grid: {
         borderColor: 'var(--border-color)',
         xaxis: { lines: { show: true } },
         yaxis: { lines: { show: true } }
       },
       xaxis: {
+        text: 'Price',
         lines: { show: false },
         type: 'datetime',
         tooltip: { enabled: false },
@@ -91,6 +93,7 @@ export default {
       yaxis: {
         lines: { show: false },
         opposite: true,
+        type: 'numeric',
         axisTicks: {
           show: true,
           color: 'var(--border-color)',
@@ -102,7 +105,7 @@ export default {
             fontSize: '10px',
             fontFamily: 'Roboto, Arial, sans-serif'
           }
-        }
+        },
       }
     }
   }),
@@ -136,7 +139,8 @@ export default {
         this.liquidity = charts.map(point =>
           ({ x: point.time, y: point.liquidity1.toFixed(6) })
         )
-        this.series = [{ ...this.series, data: newData }]
+        this.series[0].data = newData
+        console.log(this.series, newData)
         this.options.colors = [COLORS[this.$colorMode.value][this.isRed ? 'down' : 'up']]
       }
     },
