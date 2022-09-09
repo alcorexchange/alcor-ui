@@ -131,7 +131,7 @@ button {
   align-items: center;
 }
 
-.iconOnlyAlt {
+.alcor-button.iconOnlyAlt {
   width: 36px;
   height: 36px;
   display: flex;

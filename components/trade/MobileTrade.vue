@@ -133,7 +133,7 @@ export default {
   }
 
   .order-book {
-    height: 380px;
+    height: 400px;
   }
 
   .el-slider__marks-text,

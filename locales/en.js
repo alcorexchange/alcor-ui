@@ -515,5 +515,6 @@ export default {
   Return: 'Return',
   'cancel all': 'cancel all',
   'Cancel All Orders': 'Cancel All Orders',
-  'Alcor API Docs': 'Alcor API Docs'
+  'Alcor API Docs': 'Alcor API Docs',
+  'By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund': 'By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund'
 }

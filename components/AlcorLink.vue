@@ -60,7 +60,7 @@ button {
 }
 
 .alcor-button:hover {
-  background: var(--hover);
+  background: var(--background-color-third);
 }
 
 .alcor-button.flat:hover {

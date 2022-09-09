@@ -278,6 +278,7 @@ export default {
 .pool-withdraw {
   .el-slider__runway {
     margin: 5px 0;
+    background: var(--background-color-base);
   }
 
   .el-slider__button-wrapper {

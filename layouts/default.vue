@@ -289,8 +289,8 @@ ul {
 
 .el-popper[x-placement^='bottom'] .popper__arrow::after,
 .el-popper[x-placement^='top'] .popper__arrow::after {
-  border-bottom-color: var(--bg-big-card);
-  border-top-color: var(--bg-big-card);
+  border-bottom-color: transparent;
+  border-top-color: transparent;
 }
 
 .el-dropdown-selfdefine {

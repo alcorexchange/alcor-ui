@@ -9713,7 +9713,9 @@
     display: inline-block;
     text-align: center;
     cursor: pointer;
-    outline: 0
+    outline: 0;
+    height: 100%;
+    width: 100%;
 }
 
 .el-upload__input {

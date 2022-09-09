@@ -236,16 +236,21 @@ export const actions = {
   async loadUserOrders({ state, commit, dispatch }) {
     if (!state.user || !state.user.name) return
 
-    const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
-    const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
+    try {
+      const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
+      const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
 
-    const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
+      const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
 
-    for (const market_id of markets) {
-      await dispatch('loadOrders', market_id)
-      await new Promise(resolve => setTimeout(resolve, 250))
+      for (const market_id of markets) {
+        await dispatch('loadOrders', market_id)
+        await new Promise(resolve => setTimeout(resolve, 250))
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      commit('setUserOrdersLoading', false)
     }
-    commit('setUserOrdersLoading', false)
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
@@ -279,6 +284,7 @@ export const actions = {
         o.type = 'sell'
         o.market_id = market_id
       })
+
 
       // TODO Need optimization so much!
       commit('setUserOrders', state.userOrders.filter(o => o.market_id != market_id).concat(buyOrders.concat(sellOrders)))

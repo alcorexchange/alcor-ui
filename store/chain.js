@@ -151,6 +151,24 @@ export const actions = {
     return loginPromise
   },
 
+  async transferNft({ rootState, dispatch }, { memo, reciever, asset_ids }) {
+    console.log('transferNft', memo, reciever, asset_ids)
+    const actions = [
+      {
+        account: 'atomicassets',
+        name: 'transfer',
+        authorization: [rootState.user.authorization],
+        data: {
+          from: rootState.user.name,
+          to: reciever,
+          asset_ids,
+          memo
+        }
+      }
+    ]
+    return await dispatch('sendTransaction', actions)
+  },
+
   async sendBuyOffer({ state, rootState, dispatch }, { buyOfferPrice, assetsIDs, memo, seller }) {
     const actions = [
       {

@@ -16,7 +16,8 @@
       img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
 
 .normalcard.radius10.p-3(v-else-if="mode === 'accounts'")
-  account-avatar
+  .d-flex.justify-content-center
+    profile-image.account-image(:src="data.imgSrc" :size="128")
   .account-name {{ data.name }}
   .info-row.mb-1
     span.d-flex.align-items-center
@@ -54,16 +55,34 @@
       :rounded='true',
     )
     .account-value-usd(v-else) (${{ data.suggested_average ? $systemToUSD(data.suggested_average) : '0.00' }})
-  .info-row.mt-2
+  .info-row.mt-3
     button.btn-border--green.radius6.w-50 Profile
     el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(trigger='click')
       span.el-dropdown-link
         span More
         i.el-icon-arrow-down.el-icon--right
       span
-      el-dropdown-menu(slot='dropdown')
-        span asd
-
+      el-dropdown-menu.dropdown
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span Send Trade Offer
+        el-dropdown-item.dropdown__item
+          .dropdown__inner(@click="openTransferModal")
+            img(src='~/assets/icons/ArrowsLeftRight.svg')
+            span() Transfer
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Storefront.svg')
+            span Seller Page
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/UserMinus.svg')
+            span Remove Friend
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/SmileyXEyes.svg')
+            span.red Block
 
 nuxt-link.normalcard.radius10(
   v-else-if='mode === "sets"',
@@ -237,12 +256,12 @@ nuxt-link.normalcard.radius10(
 <script>
 import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
-import AccountAvatar from '~/components/AccountAvatar'
+import ProfileImage from '~/components/ProfileImage.vue'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
   name: 'NormalCard',
-  components: { VueSkeletonLoader, AccountAvatar },
+  components: { VueSkeletonLoader, ProfileImage },
   props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded', 'small', 'disable'],
 
   data() {
@@ -520,9 +539,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['buy']),
+    ...mapActions('modal', ['buy', 'transfer']),
     openBuyModal() {
       this.buy(this.data)
+    },
+    openTransferModal() {
+      this.transfer(this.data)
     }
   }
 }
@@ -534,6 +556,11 @@ export default {
   height: fit-content;
   background-color: var(--background-color-third);
   border-radius: 10px;
+
+  .account-image {
+    width: 128px;
+    height: 128px;
+  }
 
   .card-name {
     font-size: 18px;

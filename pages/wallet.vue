@@ -1,20 +1,25 @@
 <template lang="pug">
   .wallet-layout
-    WalletName
+    WalletAccount
     WalletHeader.mt-3
     WalletTabBar.mt-3
-    .content
+    .content(v-if="user")
       nuxt-child
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import WalletName from '~/components/wallet/WalletName.vue'
+import WalletAccount from '~/components/wallet/WalletAccount.vue'
 import WalletHeader from '~/components/wallet/WalletHeader.vue'
 import SSpacer from '~/components/SSpacer.vue'
 import WalletTabBar from '~/components/wallet/WalletTabBar.vue'
 
 export default {
-  components: { WalletName, WalletHeader, SSpacer, WalletTabBar }
+  components: { WalletName, WalletHeader, SSpacer, WalletTabBar, WalletAccount },
+  computed: {
+    ...mapGetters(['user'])
+  }
 }
 </script>
 
@@ -22,6 +27,7 @@ export default {
 .wallet-layout {
   padding-top: 25px;
 }
+
 .content {
   padding: 25px 0;
 }

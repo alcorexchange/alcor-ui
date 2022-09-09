@@ -476,21 +476,22 @@ a {
 
 .red {
   color: var(--main-red);
-
-  .el-slider__runway {
-    background-color: var(--color-secondary-op);
-  }
-
-  .el-slider__button {
-    border: 2px solid var(--color-secondary);
-    background-color: var(--background-color-base);
-  }
-
-  .el-slider__stop,
-  .el-slider__bar {
-    background-color: var(--color-secondary);
-  }
 }
+
+.el-slider__runway {
+  background-color: var(--color-secondary-op);
+}
+
+.el-slider__button {
+  border: 2px solid var(--color-secondary);
+  background-color: var(--background-color-base);
+}
+
+.el-slider__stop,
+.el-slider__bar {
+  background-color: var(--color-secondary);
+}
+
 .wax {
   color: var(--main-wax);
 }
@@ -849,12 +850,32 @@ a {
   background: transparent !important;
 }
 
+.w-100 {
+  width: 100%;
+}
+
 .fs-18 {
   font-size: 18px;
 }
 
+.fs-14 {
+  font-size: 14px;
+}
+
+.fs-12 {
+  font-size: 12px;
+}
+
 .fw-bold {
   font-weight: bold;
+}
+
+.gap-6 {
+  gap: 6px;
+}
+
+.gap-8 {
+  gap: 8px;
 }
 
 .gap-10 {
@@ -894,5 +915,42 @@ a {
 
 .active-border {
   border: 1px solid var(--main-green)
+}
+
+.wallet-input-search {
+  &.el-input--suffix,
+  &.el-input--prefix{
+    .el-input__inner {
+      background-color: var(--btn-default);
+      border: 1px solid var(--btn-default);
+      width: 225px;
+
+      &:hover,
+      &:active,
+      &:focus {
+        border: 1px solid var(--btn-default);
+      }
+    }
+  }
+}
+
+.el-dropdown-menu.dropdown {
+  border: 2px solid var(--btn-default);
+  padding: 0;
+
+  .dropdown__item {
+    border-bottom: 1px solid var(--btn-default);
+    padding: 0;
+
+    .dropdown__inner {
+      width: 100%;
+      height: 100%;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      color: var(--text-default);
+      gap: 10px;
+    }
+  }
 }
 

@@ -15,7 +15,7 @@ export default {
   components: { AlcorLink },
   data: () => ({
     urls: [
-      { name: 'Tokens', to: '/wallet-inventory', exact: true },
+      { name: 'Tokens', to: '/wallet/tokens', exact: true },
       { name: 'Open Orders', to: '/wallet-inventory/positions' },
       { name: 'History', to: '/wallet-inventory/history' },
       { name: 'NFT’s', to: '/wallet-inventory/nfts', isNFT: true },
@@ -49,6 +49,7 @@ export default {
 .wallet-tab-bar {
   display: flex;
   position: sticky;
+  gap: 32px;
   top: 0;
   z-index: 4;
   overflow: auto;
@@ -71,7 +72,6 @@ export default {
   flex: 1;
   border-radius: 8px;
   padding: 12px;
-  margin: 0 8px;
   white-space: nowrap;
 
   &:first-child {
@@ -83,7 +83,7 @@ export default {
   }
 
   &.active {
-    background: var(--btn-active);
+    background: var(--background-color-third);
   }
 }
 
