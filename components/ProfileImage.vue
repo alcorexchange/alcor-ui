@@ -6,7 +6,7 @@ el-upload.profile-image-component(
   :on-success="handleAvatarSuccess"
 )
   img.d-none(:src="src" @load="handleImageLoad")
-  img.profile-image(v-if="src && loaded" :src="src")
+  img.profile-image(v-if="src && loaded" :src="src" :style="{ width: size + 'px', height: size + 'px' }")
   vue-skeleton-loader.profile-image(
     v-else-if="src && !loaded"
     type="circle"
@@ -15,10 +15,10 @@ el-upload.profile-image-component(
     animation='wave',
     wave-color='rgba(150, 150, 150, 0.1)',
   )
-  account-avatar.profile-image(v-else)
+  account-avatar.profile-image(v-else :style="{ width: size + 'px', height: size + 'px' }")
 .profile-image-component(v-else)
   img.d-none(:src="src" @load="handleImageLoad")
-  img.profile-image(v-if="src && loaded" :src="src")
+  img.profile-image(v-if="src && loaded" :src="src" :style="{ width: size + 'px', height: size + 'px' }")
   vue-skeleton-loader.profile-image(
     v-else-if="src && !loaded"
     type="circle"
@@ -27,7 +27,7 @@ el-upload.profile-image-component(
     animation='wave',
     wave-color='rgba(150, 150, 150, 0.1)',
   )
-  account-avatar.profile-image(v-else)
+  account-avatar.profile-image(v-else :style="{ width: size + 'px', height: size + 'px' }")
 
 </template>
 
@@ -60,10 +60,10 @@ export default {
 .profile-image-component {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
+
 .profile-image {
-  width: 100%;
-  height: 100%;
   border-radius: 50%;
 }
 </style>

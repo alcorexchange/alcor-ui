@@ -76,11 +76,11 @@
             img(src='~/assets/icons/Storefront.svg')
             span Seller Page
         el-dropdown-item.dropdown__item
-          .dropdown__inner
+          .dropdown__inner(@click="removeFriendModal")
             img(src='~/assets/icons/UserMinus.svg')
             span Remove Friend
         el-dropdown-item.dropdown__item
-          .dropdown__inner
+          .dropdown__inner(@click="blockUserModal")
             img(src='~/assets/icons/SmileyXEyes.svg')
             span.red Block
 
@@ -539,12 +539,18 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['buy', 'transfer']),
+    ...mapActions('modal', ['buy', 'transfer', 'removeFriend', 'blockUser']),
     openBuyModal() {
       this.buy(this.data)
     },
     openTransferModal() {
       this.transfer(this.data)
+    },
+    removeFriendModal() {
+      this.removeFriend(this.data)
+    },
+    blockUserModal() {
+      this.blockUser(this.data)
     }
   }
 }

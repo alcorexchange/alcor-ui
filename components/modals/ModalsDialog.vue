@@ -10,6 +10,8 @@ import Login from '~/components/modals/Login'
 import BuyListing from '~/components/modals/BuyListing'
 import MakeOffer from '~/components/modals/MakeOffer'
 import Transfer from '~/components/modals/Transfer'
+import RemoveFriend from '~/components/modals/RemoveFriend'
+import BlockUser from '~/components/modals/BlockUser'
 import AlcorModal from '~/components/AlcorModal.vue'
 
 export default {
@@ -18,6 +20,8 @@ export default {
     BuyListing,
     MakeOffer,
     Transfer,
+    RemoveFriend,
+    BlockUser,
     AlcorModal
   },
 

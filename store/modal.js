@@ -34,6 +34,17 @@ export const actions = {
     if (context) commit('setModalContext', context)
   },
 
+  removeFriend({ commit }, context) {
+    commit('setCurrent', 'remove-friend')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  blockUser({ commit }, context) {
+    commit('setCurrent', 'block-user')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
 
   closeModal({ commit }) {
     commit('setVisible', false)

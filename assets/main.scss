@@ -477,6 +477,9 @@ a {
 .red {
   color: var(--main-red);
 }
+.alcor-button.red .inner {
+  color: var(--main-red);
+}
 
 .el-slider__runway {
   background-color: var(--color-secondary-op);
@@ -852,6 +855,10 @@ a {
 
 .w-100 {
   width: 100%;
+}
+
+.fs-22 {
+  font-size: 22px;
 }
 
 .fs-18 {

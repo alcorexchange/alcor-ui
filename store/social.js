@@ -37,5 +37,39 @@ export const actions = {
     })
 
     return rows[0].list
+  },
+  async removeFriend({ rootState, dispatch }, accountName) {
+    const actions = [
+      {
+        account: 'atomhubtools',
+        name: 'remaccvalues',
+        authorization: [rootState.user.authorization],
+
+        data: {
+          account: rootState.user.name,
+          list_name: 'friends',
+          values_to_remove: [accountName]
+        }
+      }
+    ]
+    return await dispatch('chain/sendTransaction', actions, { root: true })
+  },
+
+  async blockUser({ rootState, dispatch }, accountName) {
+    const actions = [
+      {
+        account: 'atomhubtools',
+        name: 'addaccvalues',
+        authorization: [rootState.user.authorization],
+
+        data: {
+          account: rootState.user.name,
+          list_name: 'acc.blist',
+          values_to_add: [accountName]
+        }
+      }
+    ]
+    return await dispatch('chain/sendTransaction', actions, { root: true })
   }
+
 }
