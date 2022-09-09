@@ -162,7 +162,6 @@ export default {
       this.toggleSelected(this.context.assets[0])
     },
     toggleSelected(asset) {
-      console.log('toggle', asset)
       this.offerAssets.find(({ asset_id }) => asset_id === asset.asset_id)
         ? this.offerAssets = this.offerAssets.filter(({ asset_id }) => asset_id !== asset.asset_id)
         : this.offerAssets.push(asset)

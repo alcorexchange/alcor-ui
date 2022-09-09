@@ -64,20 +64,25 @@
       span
       el-dropdown-menu.dropdown
         el-dropdown-item.dropdown__item
-          img(src='~/assets/icons/Handshake.svg')
-          span Send Trade Offer
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span Send Trade Offer
         el-dropdown-item.dropdown__item
-          img(src='~/assets/icons/ArrowsLeftRight.svg')
-          span Transfer
+          .dropdown__inner(@click="openTransferModal")
+            img(src='~/assets/icons/ArrowsLeftRight.svg')
+            span() Transfer
         el-dropdown-item.dropdown__item
-          img(src='~/assets/icons/Storefront.svg')
-          span Seller Page
+          .dropdown__inner
+            img(src='~/assets/icons/Storefront.svg')
+            span Seller Page
         el-dropdown-item.dropdown__item
-          img(src='~/assets/icons/UserMinus.svg')
-          span Remove Friend
+          .dropdown__inner
+            img(src='~/assets/icons/UserMinus.svg')
+            span Remove Friend
         el-dropdown-item.dropdown__item
-          img(src='~/assets/icons/SmileyXEyes.svg')
-          span.red Block
+          .dropdown__inner
+            img(src='~/assets/icons/SmileyXEyes.svg')
+            span.red Block
 
 nuxt-link.normalcard.radius10(
   v-else-if='mode === "sets"',
@@ -534,9 +539,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['buy']),
+    ...mapActions('modal', ['buy', 'transfer']),
     openBuyModal() {
       this.buy(this.data)
+    },
+    openTransferModal() {
+      this.transfer(this.data)
     }
   }
 }

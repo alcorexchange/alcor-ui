@@ -850,6 +850,10 @@ a {
   background: transparent !important;
 }
 
+.w-100 {
+  width: 100%;
+}
+
 .fs-18 {
   font-size: 18px;
 }
@@ -936,10 +940,17 @@ a {
 
   .dropdown__item {
     border-bottom: 1px solid var(--btn-default);
-    display: flex;
-    align-items: center;
-    color: var(--text-default);
-    gap: 10px;
+    padding: 0;
+
+    .dropdown__inner {
+      width: 100%;
+      height: 100%;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      color: var(--text-default);
+      gap: 10px;
+    }
   }
 }
 
