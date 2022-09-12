@@ -131,9 +131,11 @@ export default {
           break
 
         case 'owned':
-          markets = this.markets.filter(market =>
-            this.user.balances.find(({ currency }) => market.quote_token.symbol.name === currency)
-          ) || []
+          markets = this.markets
+            .filter(market =>
+              this.user.balances.find(({ currency }) => market.quote_token.symbol.name === currency)
+            )
+            .filter(({ base_token }) => base_token.symbol.name === this.network.baseToken.symbol) || []
           break
 
         case 'Terraformers':
