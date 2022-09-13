@@ -152,19 +152,19 @@ nuxt-link.normalcard.radius10(
         p {{ endsIn }}
         p {{ bidCount }} Bids
     .mt-3(v-if='mode === "listings"')
-      .d-flex.justify-content-between
-        p Best offer by
-        p Last offer
-      .d-flex.justify-content-between
+      .d-flex.justify-content-between.fs-12
+        p.disable Best offer by
+        p.disable Last offer
+      .d-flex.justify-content-between.fs-12
         .best-offer.d-flex
           img.success-icon.mr-2(
             v-if='bestOffer',
             src='~/assets/images/MatrixCheems.svg',
             alt=''
           )
-          p {{ bestOffer }}
-        p.wax-price {{ new Intl.NumberFormat().format(bestPrice) }}WAX
-      .d-flex.justify-content-end (${{ $systemToUSD(bestPrice) }})
+          p.green {{ bestOffer }}
+        p.wax-price.fs-14 {{ new Intl.NumberFormat().format(bestPrice) }}WAX
+      .d-flex.justify-content-end.fs-12.green (${{ $systemToUSD(bestPrice) }})
     .mt-2.sets-list-info(v-if='mode === "setsList"')
       .d-flex.justify-content-between
         p Owns:
