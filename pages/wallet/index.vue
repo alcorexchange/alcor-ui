@@ -2,7 +2,7 @@
 .wallet-page.d-flex.flex-column.gap-32
   el-input.wallet-input-search(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or address')" clearable)
   .d-flex.gap-16(v-if="accountsData")
-    .add-friend-card.pointer
+    .add-friend-card.pointer(@click="openAddFriendModal")
       users(color="#67C23A" width="70" height="70")
       span Add Friend
     normal-card(v-for='(item, index) in filteredFriends', :key='"accounts-" + index' v-if='item', :data='item', :price='getPrice', mode='accounts' :assetsCountLoaded="assetsCountLoaded" :suggestedAverageLoaded="suggestedAverageLoaded")
@@ -35,9 +35,13 @@ export default {
   methods: {
     ...mapActions('social', ['getFriendList', 'getPhotoHash']),
     ...mapActions('api', ['getAccountDetails', 'getinventorycounts']),
+    ...mapActions('modal', ['addFriend']),
     getPrice() {
       const price = this.systemPrice
       return price
+    },
+    openAddFriendModal() {
+      this.addFriend()
     },
     async getAccountsData() {
       this.loading = true

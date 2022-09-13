@@ -38,6 +38,24 @@ export const actions = {
 
     return rows[0].list
   },
+
+  async addFriend({ rootState, dispatch }, accountName) {
+    console.log(accountName)
+    const actions = [
+      {
+        account: 'atomhubtools',
+        name: 'addaccvalues',
+        authorization: [rootState.user.authorization],
+        data: {
+          account: rootState.user.name,
+          list_name: 'friends',
+          values_to_add: [accountName]
+        }
+      }
+    ]
+    return await dispatch('chain/sendTransaction', actions, { root: true })
+  },
+
   async removeFriend({ rootState, dispatch }, accountName) {
     const actions = [
       {

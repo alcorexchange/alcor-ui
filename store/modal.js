@@ -34,6 +34,12 @@ export const actions = {
     if (context) commit('setModalContext', context)
   },
 
+  addFriend({ commit }, context) {
+    commit('setCurrent', 'add-friend')
+    commit('setVisible', true)
+    if (context) commit('setModalContext', context)
+  },
+
   removeFriend({ commit }, context) {
     commit('setCurrent', 'remove-friend')
     commit('setVisible', true)
