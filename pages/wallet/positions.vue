@@ -19,7 +19,7 @@ div.wallet
       id="onlySell"
     ) {{ $t('Only sell orders') }}
 
-    .d-flex.flex-wrap.justify-content-between.w-100
+    .d-flex.flex-wrap.justify-content-between.align-items-center.w-100
       .cancel {{ $t('Total orders') }}: {{ accountLimits.orders_total }}
 
       .cancel {{ $t('Order slot limit') }}: {{ accountLimits.orders_limit }}
@@ -237,7 +237,7 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
-  gap: 30px;
+  gap: 16px;
 
   .el-input {
     max-width: 300px;

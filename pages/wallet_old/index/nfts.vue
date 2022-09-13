@@ -95,7 +95,6 @@ export default {
     },
 
     async fetchNfts() {
-      console.log('fetchNfts', this.user.name)
       if (!this.user) return
 
       const { rows } = await this.$rpc.get_table_rows({
@@ -109,7 +108,6 @@ export default {
         prepareNFT(n)
       })
 
-      console.log(rows)
       this.nfts = rows
     }
   }

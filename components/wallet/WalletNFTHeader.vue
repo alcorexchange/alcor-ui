@@ -1,35 +1,35 @@
 <template lang="pug">
 .wallet-header.alcor-card
   .item
-    .title.cancel NFT inventory
+    .title.cancel.fs-12 NFT inventory
     .value
       span.main {{ inventoryCount }}
       span.symbol.cancel NFTs
-    .info.cancel = ${{ $systemToUSD(suggestedmedian) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(suggestedmedian) }}
   .item
-    .title.cancel Active Auctions
+    .title.cancel.fs-12 Active Auctions
     .value
       span.main {{ auctionsCount }}
       span.symbol.cancel NFTs
-    .info.cancel = ${{ $systemToUSD(saleVolume) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(saleVolume) }}
   .item
-    .title.cancel Active Listings
+    .title.cancel.fs-12 Active Listings
     .value
       span.main {{ +auctionsCount + +salesCount }}
       span.symbol.cancel NFTs
-    .info.cancel = ${{ $systemToUSD(saleVolume) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(saleVolume) }}
   .item
-    .title.cancel Total Bought
+    .title.cancel.fs-12 Total Bought
     .value
       span.main {{ boughtVolume }}
       span.symbol.cancel.wax WAX
-    .info.cancel = ${{ $systemToUSD(boughtVolume) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(boughtVolume) }}
   .item
-    .title.cancel Total Sold
+    .title.cancel.fs-12 Total Sold
     .value
       span.main {{ saleVolume }}
       span.symbol.cancel.wax WAX
-    .info.cancel = ${{ $systemToUSD(saleVolume) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(saleVolume) }}
 </template>
 
 <script>

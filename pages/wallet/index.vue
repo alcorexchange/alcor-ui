@@ -1,6 +1,6 @@
 <template lang="pug">
 .wallet-page.d-flex.flex-column.gap-32
-  el-input.wallet-input-search(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or address')" clearable)
+  el-input.wallet-input-search(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or address')")
   .d-flex.gap-16(v-if="accountsData")
     .add-friend-card.pointer(@click="openAddFriendModal")
       users(color="#67C23A" width="70" height="70")

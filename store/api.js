@@ -584,7 +584,6 @@ export const actions = {
   }, {
     owner
   }) {
-    console.log('oooo', owner)
     try {
       const {
         data

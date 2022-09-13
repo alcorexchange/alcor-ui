@@ -19,11 +19,11 @@ export default {
   data: () => ({
     urls: [
       { name: 'Tokens', to: '/wallet/tokens', exact: true },
-      { name: 'Open Orders', to: '/wallet-inventory/positions' },
-      { name: 'History', to: '/wallet-inventory/history' },
-      { name: 'NFT’s', to: '/wallet-inventory/nfts', isNFT: true },
-      { name: 'Liquidity Pools', to: '/wallet-inventory/liquidity_pools' },
-      { name: 'Resources', to: '/wallet-inventory/resources' }
+      { name: 'Open Orders', to: '/wallet/positions' },
+      { name: 'History', to: '/wallet/history' },
+      { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
+      { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
+      { name: 'Resources', to: '/wallet/resources' }
     ]
   }),
   watch: {
@@ -51,8 +51,8 @@ export default {
 <style scoped lang="scss">
 .wallet-tab-bar {
   display: flex;
-  position: sticky;
-  gap: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
   top: 0;
   z-index: 4;
   overflow: auto;
@@ -80,10 +80,12 @@ export default {
   &.nft-tab {
     width: 100%;
     height: 100%;
+    position: relative;
 
     img {
       position: absolute;
-      height: 85%;
+      height: 100%;
+      max-width: 100%;
     }
   }
 
