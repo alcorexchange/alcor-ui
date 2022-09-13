@@ -256,7 +256,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
     PINNED_MARKETS: [424],
-    BANNER_MARKETS: [495, 424],
+    BANNER_MARKETS: [424],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
