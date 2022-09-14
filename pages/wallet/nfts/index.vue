@@ -268,8 +268,17 @@ export default {
       const data = await this.$store.dispatch('api/getAssets', {
         owner: this.user.name,
       })
-      this.inventoryData = data
-      this.loading = false
+
+      Promise.all(
+        data.map(({ asset_id }) =>
+          this.$store.dispatch('api/getAssetsSales', { asset_id, buyer: this.user.name }))
+      ).then(assetsSales => {
+        assetsSales.forEach((sales, idx) =>
+          data[idx].purchasePrice = sales.sort((a, b) => b.block_time - a.block_time)[0]
+        )
+        this.inventoryData = data
+        this.loading = false
+      })
     },
 
     async getListing() {

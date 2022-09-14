@@ -135,6 +135,7 @@ nuxt-link.normalcard.radius10(
       p {{ collectionName }}
     .d-flex.justify-content-between(v-if='mode != "sold" && mode != "bought" && mode != "setsList"')
       p.wax-name {{ cardName }}
+      p.color-wax.fs-14(v-if="mode === 'inventory'") {{ new Intl.NumberFormat().format(waxPrice) }} WAX
       p.wax-price(
         v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
       )
@@ -143,6 +144,7 @@ nuxt-link.normalcard.radius10(
       v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
     )
       p.default-price(v-if='mode != "schemas"') Default
+      p.green.fs-12(v-if="mode === 'inventory'") (${{ $systemToUSD(waxPrice) }})
       p.default-price(
         v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
       )
@@ -444,6 +446,9 @@ export default {
       return 0
     },
     waxPrice() {
+      if (this.mode === 'inventory') {
+        return this.data.purchasePrice.price / Math.pow(10, this.data.purchasePrice.token_precision)
+      }
       if (this.mode === 'market') {
         return (
           this.data.price.amount / Math.pow(10, this.data.price.token_precision)
@@ -651,7 +656,6 @@ export default {
 
   .offer-information {
     padding: 6px;
-    height: 80px;
   }
 
   .card_number {

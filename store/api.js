@@ -452,22 +452,24 @@ export const actions = {
   },
 
   async getAssetsSales({
-    getters,
-    rootState
+    dispatch
   }, {
-    asset_id
+    asset_id,
+    buyer
   }) {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v1/assets/` +
+      } = await this.$api.post(
+        'atomicmarket/v1/assets/' +
         asset_id +
-        '/sales?order=asc'
+        '/sales?order=asc',
+        { buyer }
       )
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
+      dispatch('getAssetsSales', { asset_id, buyer })
     }
   },
 

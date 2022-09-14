@@ -241,8 +241,6 @@ export default {
 
   .el-input {
     max-width: 300px;
-    margin-right: 8px;
-    margin-bottom: 8px;
   }
 
   .el-input__inner {
