@@ -383,7 +383,7 @@ export const actions = {
     try {
       const {
         data
-      } = await this.$api.post('/atomicassets/v1/assets', {
+      } = await this.$api.post('/atomicmarket/v1/assets', {
         page: 1,
         limit: 100,
         order: 'desc',

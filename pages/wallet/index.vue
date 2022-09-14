@@ -107,7 +107,7 @@ export default {
 
   &:hover {
     box-shadow: 0px 0px 30px 0px #54A05466 inset;
-    background: var(--btn-active);
+    background: var(--btn-outline);
   }
 }
 </style>

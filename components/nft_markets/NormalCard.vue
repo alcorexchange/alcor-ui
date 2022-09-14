@@ -55,13 +55,12 @@
       :rounded='true',
     )
     .account-value-usd(v-else) (${{ data.suggested_average ? $systemToUSD(data.suggested_average) : '0.00' }})
-  .info-row.mt-3
-    button.btn-border--green.radius6.w-50 Profile
-    el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(trigger='click')
-      span.el-dropdown-link
+  .info-row.mt-3.flex.gap-6
+    alcor-button.w-50(outline) Profile
+    el-dropdown.w-50(trigger='click')
+      alcor-button.w-100(access)
         span More
-        i.el-icon-arrow-down.el-icon--right
-      span
+        i.el-icon-arrow-down
       el-dropdown-menu.dropdown
         el-dropdown-item.dropdown__item
           .dropdown__inner
@@ -110,7 +109,7 @@ nuxt-link.normalcard.radius10(
       .card_number.d-flex.align-items-center.ml-1 {{ "#" + mintCount }}
   video.main-img(v-if='videoBackground', autoplay='true', loop='true')
     source(
-      :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + videoBackground.video + "&size=370&output=mp4"',
+      :src='"https://resizer.atomichub.io/videos/v1/preview?ipfs=" + (videoBackground.video || videoBackground) + "&size=370&output=mp4"',
       type='video/mp4'
     )
   .main-img(v-else-if='imageBackground', :style='imageBackground')
@@ -139,7 +138,7 @@ nuxt-link.normalcard.radius10(
       p.wax-price(
         v-if='kindBut === "sales" || kindBut === "auctions" || kindBut === "all"'
       )
-        | {{ new Intl.NumberFormat().format(waxPrice) }}WAX
+        | {{ new Intl.NumberFormat().format(waxPrice) }} WAX
     .d-flex.justify-content-between(
       v-if='mode != "sold" && mode != "bought" && mode != "setsList"'
     )
@@ -185,26 +184,38 @@ nuxt-link.normalcard.radius10(
           img.ml-1(src='~/assets/images/fire.svg', alt='')
           span )
   .btn-group.actions.justify-content-between.flex-wrap.w-100(v-if='mode != "sets"')
-    button.btn-fill--grey.w-50.mr10.radius6(v-if='mode == "inventory"') Sell NFT
-    el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
-      trigger='click'
-    )(
-      v-if='mode == "inventory"'
-    )
-      span.el-dropdown-link
+    alcor-button.w-49(v-if='mode == "inventory" && !data.sales.length' @click="openListingModal")
+      i.el-icon-news
+      span Sell NFT
+    alcor-button.w-49(v-else-if='mode == "inventory" && data.sales.length' @click="openEditModal")
+      i.el-icon-edit
+      span Edit
+    el-dropdown.w-49(trigger='click' v-if='mode == "inventory"')
+      alcor-button.w-100(access)
         span More
-        i.el-icon-arrow-down.el-icon--right
-      el-dropdown-menu(slot='dropdown')
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Craft
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Transfer
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 New Trade
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Create Gift Link
-        nuxt-link.dropdown-item.d-flex.align-items-center(to='#')
-          p.pl-2 Burn
+        i.el-icon-arrow-down
+      el-dropdown-menu.dropdown
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span Craft
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span Transfer
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span New Trade
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span Create Gift Link
+        el-dropdown-item.dropdown__item
+          .dropdown__inner
+            img(src='~/assets/icons/Handshake.svg')
+            span Burn
+
     el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
       trigger='click'
     )(
@@ -232,16 +243,13 @@ nuxt-link.normalcard.radius10(
         nuxt-link.dropdown-item.d-flex.align-items-center.block-item(to='#')
           img.mr-1(src='~/assets/icons/SmileyXEyes.svg')
           p Block
-    nuxt-link.btn-border--green.w-100.mt-2.radius6.text-white.text-center(
-      v-if='mode == "inventory"',
-      :to='"/nfts/" + data.asset_id'
-    ) Details
+    alcor-button.w-100.mt-2(v-if="mode === 'inventory'" outline @click="$router.push('/nfts/' + data.asset_id)") Details
 
     button.btn-border--green.mr10.radius6.smaller-btn(
       v-if='mode != "inventory" && mode != "bought" && mode != "setsList"'
     ) Details
     button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "sales"' @click="openBuyModal") Buy
-    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"') Make Offer
+    button.btn-fill--green.bigger-btn.radius6(v-if='kindBut == "auctions"' @click="openOfferModal") Make Offer
     button.btn-border--green.w-100.radius6.mb-2(
       v-if='mode == "bought" || mode === "setsList"'
     ) Detail
@@ -251,19 +259,22 @@ nuxt-link.normalcard.radius10(
     button.btn-border--green.bigger-btn.radius6(v-if='mode === "setsList"') Inventory
     button.btn-fill--green.radius6(v-if='mode == "setsList"') Market
     button.btn-fill--green.bigger-btn.radius6(v-if='mode === "sold"') Market
-    button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings"') Buy
-    button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions"') Make Offer
+    button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings" && !kindBut') Buy
+    button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions" && !kindBut') Make Offer
+    button.btn-fill--green.bigger-btn.radius6(v-if='mode === "listings" && kindBut == "all"' @click="openEditModal") Edit
+    button.btn-fill--green.bigger-btn.radius6(v-if='mode === "auctions" && kindBut == "all"' @click="openEditModal") Manage
 </template>
 
 <script>
 import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
+import AlcorButton from '@/components/AlcorButton'
 import ProfileImage from '~/components/ProfileImage.vue'
 import defaultImg from '~/assets/images/default.png'
 
 export default {
   name: 'NormalCard',
-  components: { VueSkeletonLoader, ProfileImage },
+  components: { VueSkeletonLoader, ProfileImage, AlcorButton },
   props: ['data', 'price', 'kindBut', 'mode', 'suggestedAverageLoaded', 'assetsCountLoaded', 'small', 'disable'],
 
   data() {
@@ -462,13 +473,15 @@ export default {
             Math.pow(10, this.data.prices[0].token.token_precision)
           )
         } else return 0
-      } else if (this.mode === 'listings' || this.mode === 'auctions') {
+      } else if (this.mode === 'listings') {
         if (this.data.listing_price) {
           return (
             this.data.listing_price /
             Math.pow(10, this.data.price.token_precision)
           )
         } else return 0
+      } else if (this.mode === 'auctions') {
+        return 0
       } else return this.data.buy.quantity.replaceAll('WAX') * 1
     },
     cardName() {
@@ -544,9 +557,19 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['buy', 'transfer', 'removeFriend', 'blockUser']),
+    ...mapActions('modal', ['buy', 'transfer', 'removeFriend', 'blockUser', 'listing', 'makeOffer']),
     openBuyModal() {
       this.buy(this.data)
+    },
+    openOfferModal() {
+      this.makeOffer(this.data)
+    },
+    openListingModal() {
+      this.listing(this.data)
+    },
+    openEditModal() {
+      const mode = this.mode === 'auctions' ? 'auctions' : 'sales'
+      this.listing({ ...this.data, mode })
     },
     openTransferModal() {
       this.transfer(this.data)
@@ -662,7 +685,7 @@ export default {
     padding: 0 3px;
     border-radius: 3px;
     height: 22px;
-    background-color: var(--btn-active);
+    background-color: var(--card-number);
   }
 
   .offer-information .success-icon {

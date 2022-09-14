@@ -22,6 +22,12 @@ export const actions = {
     if (context) commit('setModalContext', context)
   },
 
+  listing({ commit }, context) {
+    commit('setCurrent', 'listing')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
   transfer({ commit }, context) {
     commit('setCurrent', 'transfer')
     commit('setVisible', true)

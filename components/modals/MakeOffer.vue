@@ -134,6 +134,12 @@ export default {
     isValidAmount() { return this.waxAmount >= 3 }
   },
   watch: {
+    context() {
+      this.offerAssets = []
+      this.setOptions()
+      this.selectAsset()
+      this.getAccountCollection()
+    },
     refetchProps() {
       this.fetchAssets()
     },
@@ -156,7 +162,7 @@ export default {
       this.buy()
     },
     setOptions() {
-      this.selectedCollection = this.context.collection_name
+      this.selectedCollection = this.context.collection_name || this.context.assets[0].collection.collection_name
     },
     selectAsset() {
       this.toggleSelected(this.context.assets[0])

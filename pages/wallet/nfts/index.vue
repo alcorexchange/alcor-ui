@@ -283,17 +283,11 @@ export default {
 
     async getListing() {
       this.loading = true
-      const auctionData = await this.$store.dispatch('api/getAuctionData', {
-        seller: this.user.name,
-        state: '0,1,4',
-      })
       const salesData = await this.$store.dispatch('api/getSales', {
         seller: this.user.name,
-        state: '0,1,4',
+        state: '0,1,4'
       })
-      // this.salesData = salesData
-      // this.auctionsData = auctionData
-      this.inventoryData = [...salesData, ...auctionData]
+      this.inventoryData = salesData
       this.loading = false
     },
 
@@ -307,8 +301,6 @@ export default {
         buyer_blacklist: this.user.name,
         state: '3',
       })
-      // this.salesData = openAuctions
-      // this.auctionsData = lostAuctions
       this.inventoryData = [...openAuctions, ...lostAuctions]
       this.loading = false
     },
@@ -451,7 +443,8 @@ export default {
 
 div.grid-container {
   display: flex;
-  gap: 40px;
+  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
 }
 </style>

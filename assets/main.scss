@@ -857,6 +857,14 @@ a {
   width: 100%;
 }
 
+.w-49 {
+  width: 49%;
+}
+
+.w-33 {
+  width: 33%;
+}
+
 .fs-22 {
   font-size: 22px;
 }
@@ -948,6 +956,10 @@ a {
   .dropdown__item {
     border-bottom: 1px solid var(--btn-default);
     padding: 0;
+
+    &:last-of-type {
+      border: none;
+    }
 
     .dropdown__inner {
       width: 100%;
