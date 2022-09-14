@@ -148,8 +148,7 @@ export const actions = {
   },
 
   async getAuctionData({
-    getters,
-    rootState
+    dispatch
   }, {
     limit = 100,
     search,
@@ -164,8 +163,8 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v1/auctions?order=desc&sort=created&limit=` +
+      } = await this.$api.get(
+        '/atomicmarket/v1/auctions?order=desc&sort=created&limit=' +
         limit +
         (search ? '&match=' + search : '') +
         (collectionName ? '&collection_name=' + collectionName : '') +
@@ -179,6 +178,17 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+      return await dispatch('getAuctionData', {
+        limit,
+        search,
+        collectionName,
+        seller,
+        participant,
+        bidder,
+        buyer_blacklist,
+        buyer,
+        state
+      })
     }
   },
 
@@ -389,8 +399,7 @@ export const actions = {
   },
 
   async getSales({
-    getters,
-    rootState
+    dispatch
   }, {
     seller,
     state,
@@ -400,8 +409,8 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created` +
+      } = await this.$api.get(
+        'atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created' +
         (seller ? '&seller=' + seller : '') +
         (buyer ? '&buyer=' + buyer : '') +
         (state ? '&state=' + state : '') +
@@ -411,6 +420,12 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
+      return await dispatch('getSales', {
+        seller,
+        state,
+        participant,
+        buyer
+      })
     }
   },
 
@@ -469,7 +484,7 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
-      dispatch('getAssetsSales', { asset_id, buyer })
+      return await dispatch('getAssetsSales', { asset_id, buyer })
     }
   },
 
