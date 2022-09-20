@@ -25,6 +25,7 @@ export default {
 
 <style scoped lang="scss">
 .wallet-layout {
+  margin: 0 auto;
   padding-top: 25px;
 }
 

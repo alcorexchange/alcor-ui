@@ -1,21 +1,27 @@
 <template lang="pug">
 .wallet-page.d-flex.flex-column.gap-32
   el-input.wallet-input-search(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or address')")
-  .d-flex.gap-16(v-if="accountsData")
+  .cards.d-flex.gap-30.flex-wrap.justify-content-center.justify-content-md-start(v-if="accountsData")
     .add-friend-card.pointer(@click="openAddFriendModal")
       users(color="#67C23A" width="70" height="70")
       span Add Friend
-    normal-card(v-for='(item, index) in filteredFriends', :key='"accounts-" + index' v-if='item', :data='item', :price='getPrice', mode='accounts' :assetsCountLoaded="assetsCountLoaded" :suggestedAverageLoaded="suggestedAverageLoaded")
+    account-card(
+      v-for='(item, index) in filteredFriends'
+      :key='"accounts-" + index'
+      v-if='item'
+      :data="item"
+    )
 
 </template>
 
 <script>
 import { mapActions } from 'vuex'
 import NormalCard from '~/components/nft_markets/NormalCard'
+import AccountCard from '~/components/cards/AccountCard.vue'
 import Users from '~/components/svg-icons/Users.vue'
 
 export default {
-  components: { NormalCard, Users },
+  components: { NormalCard, Users, AccountCard },
   data: () => ({
     friendList: null,
     loading: false,
@@ -85,6 +91,11 @@ export default {
 </script>
 
 <style lang="scss">
+.cards {
+  max-width: 970px;
+  min-width: 370px;
+  margin: 0 auto;
+}
 .add-friend-card {
   width: 220px;
   height: 320px;
