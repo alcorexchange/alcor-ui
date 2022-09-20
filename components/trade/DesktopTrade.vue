@@ -33,7 +33,7 @@
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
         drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line, .top-favorite-markets'
-        :is-resizable="item.i === 'favorites-top-line' || item.i === 'time-sale' ? false : true"
+        :is-resizable="item.i === 'favorites-top-line' ? false : true"
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
