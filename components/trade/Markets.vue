@@ -208,21 +208,11 @@ export default {
 
       const itemSize = 29
       const pageMode = false
-      const height = this.marketsHeight - 115 + 'px'
+      const height = this.$store.state.market.markets_layout.find(({ i }) => i === 'time-sale').height
 
       return { pageMode, itemSize, header, data, height }
     }
 
-  },
-
-  mounted() {
-    this.interval = setInterval(() => {
-      this.marketsHeight = this.$refs.markets.offsetHeight
-    }, 1000)
-  },
-
-  destroyed() {
-    clearInterval(this.interval)
   },
 
   methods: {
