@@ -1,5 +1,5 @@
 <template lang="pug">
-.markets-bar
+.markets-bar(ref="markets")
   alcor-tabs(v-model='sideMaretsTab', size='mini' type="border-card").border-tabs
     template(slot="right")
       .mobile-close(@click="$emit('close')")
@@ -67,7 +67,8 @@ export default {
 
   data() {
     return {
-      search: ''
+      search: '',
+      marketsHeight: null
     }
   },
 
@@ -105,8 +106,6 @@ export default {
       if (!this.markets) return []
 
       let markets = []
-
-      console.log(this.sideMaretsTab)
 
       switch (this.sideMaretsTab) {
         case 'all':
@@ -209,8 +208,9 @@ export default {
 
       const itemSize = 29
       const pageMode = false
+      const height = this.$store.state.market.markets_layout.find(({ i }) => i === 'time-sale').height
 
-      return { pageMode, itemSize, header, data }
+      return { pageMode, itemSize, header, data, height }
     }
 
   },

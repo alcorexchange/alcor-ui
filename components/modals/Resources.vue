@@ -7,7 +7,7 @@ el-dialog(
   :append-to-body='true'
 )
   div
-    .title $t('You are low on CPU! Need more resources')}}?
+    .title {{ $t('You are low on CPU! Need more resources') }}?
     .desc {{ $t('Stake') }} {{ $store.state.network.baseToken.symbol }}. {{ $t('You can unstake your') }} {{ $store.state.network.baseToken.symbol }} {{ $t('at any time') }}.
     .progresses
       .progress-continaer

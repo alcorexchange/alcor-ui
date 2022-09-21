@@ -33,7 +33,7 @@
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
         drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line, .top-favorite-markets'
-        :is-resizable="item.i === 'favorites-top-line' || item.i === 'time-sale' ? false : true"
+        :is-resizable="item.i === 'favorites-top-line' ? false : true"
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
@@ -79,7 +79,7 @@
               :use-css-transforms='false',
             )
 
-        el-tabs.h-100.trade-tab(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
+        el-tabs.h-100.trade-tab(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab" ref="timeSale")
           el-tab-pane.trade-tab(:label='$t("Markets")')
             Markets.mt-1
           el-tab-pane.trade-header(:label='$t("Times & Sales")')
@@ -378,6 +378,11 @@ export default {
       // prevent resizing favorite line
       if (item.i === 'favorites-top-line') return
       //if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
+
+      if (item.i === 'time-sale') {
+        this.markets_layout.find(({ i }) => i === 'time-sale')
+          .height = this.$refs.timeSale[0].$el.offsetHeight - 140 + 'px'
+      }
 
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     }
