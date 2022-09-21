@@ -5097,11 +5097,19 @@
 }
 
 .el-tabs__nav-next {
-    right: 0
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 5px;
 }
 
 .el-tabs__nav-prev {
-    left: 0
+    left: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 5px;
 }
 
 .el-tabs__nav {

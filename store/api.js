@@ -148,8 +148,7 @@ export const actions = {
   },
 
   async getAuctionData({
-    getters,
-    rootState
+    dispatch
   }, {
     limit = 100,
     search,
@@ -164,8 +163,8 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v1/auctions?order=desc&sort=created&limit=` +
+      } = await this.$api.get(
+        '/atomicmarket/v1/auctions?order=desc&sort=created&limit=' +
         limit +
         (search ? '&match=' + search : '') +
         (collectionName ? '&collection_name=' + collectionName : '') +
@@ -179,6 +178,17 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+      return await dispatch('getAuctionData', {
+        limit,
+        search,
+        collectionName,
+        seller,
+        participant,
+        bidder,
+        buyer_blacklist,
+        buyer,
+        state
+      })
     }
   },
 
@@ -272,7 +282,7 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.post(
+      } = await this.$api.post(
         'https://wax.pink.gg/v1/chain/get_account', { account_name: accountName }
       )
       return data
@@ -339,14 +349,14 @@ export const actions = {
     }
   },
 
-  async getAccountsData(_, {
+  async getAccountsData({ dispatch }, {
     limit,
     search
   }) {
     try {
       const {
         data
-      } = await this.$api.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
+      } = await this.$api.post('v1/chain/get_table_by_scope', {
         code: 'eosio',
         limit,
         lower_bound: search,
@@ -356,6 +366,7 @@ export const actions = {
       return data.rows
     } catch (e) {
       console.error('Get accounts error', e)
+      dispatch('getAccountsData', { limit, search })
     }
   },
 
@@ -372,7 +383,7 @@ export const actions = {
     try {
       const {
         data
-      } = await this.$api.post('/atomicassets/v1/assets', {
+      } = await this.$api.post('/atomicmarket/v1/assets', {
         page: 1,
         limit: 100,
         order: 'desc',
@@ -388,8 +399,7 @@ export const actions = {
   },
 
   async getSales({
-    getters,
-    rootState
+    dispatch
   }, {
     seller,
     state,
@@ -399,8 +409,8 @@ export const actions = {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created` +
+      } = await this.$api.get(
+        'atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created' +
         (seller ? '&seller=' + seller : '') +
         (buyer ? '&buyer=' + buyer : '') +
         (state ? '&state=' + state : '') +
@@ -410,6 +420,12 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
+      return await dispatch('getSales', {
+        seller,
+        state,
+        participant,
+        buyer
+      })
     }
   },
 
@@ -451,22 +467,24 @@ export const actions = {
   },
 
   async getAssetsSales({
-    getters,
-    rootState
+    dispatch
   }, {
-    asset_id
+    asset_id,
+    buyer
   }) {
     try {
       const {
         data
-      } = await axios.get(
-        `${API_URL}/atomicmarket/v1/assets/` +
+      } = await this.$api.post(
+        'atomicmarket/v1/assets/' +
         asset_id +
-        '/sales?order=asc'
+        '/sales?order=asc',
+        { buyer }
       )
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
+      return await dispatch('getAssetsSales', { asset_id, buyer })
     }
   },
 
@@ -583,7 +601,6 @@ export const actions = {
   }, {
     owner
   }) {
-    console.log('oooo', owner)
     try {
       const {
         data

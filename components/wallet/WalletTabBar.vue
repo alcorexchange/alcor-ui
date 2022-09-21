@@ -1,11 +1,14 @@
 <template lang="pug">
   div.wallet-tab-bar
     AlcorLink.tab-bar-item(
-      v-for="{name, to, exact} in urls"
+      v-for="{name, to, exact, isNFT} in urls"
+      :class="{'nft-tab': isNFT}"
       :to="to"
       :exact="exact"
       :key="name"
-    ) {{ $t(name) }}
+    )
+      img(v-if="isNFT" src="~/assets/images/nft-monkey.png", alt="nft-monkey")
+      span {{ $t(name) }}
 </template>
 
 <script>
@@ -16,11 +19,11 @@ export default {
   data: () => ({
     urls: [
       { name: 'Tokens', to: '/wallet/tokens', exact: true },
-      { name: 'Open Orders', to: '/wallet-inventory/positions' },
-      { name: 'History', to: '/wallet-inventory/history' },
-      { name: 'NFT’s', to: '/wallet-inventory/nfts', isNFT: true },
-      { name: 'Liquidity Pools', to: '/wallet-inventory/liquidity_pools' },
-      { name: 'Resources', to: '/wallet-inventory/resources' }
+      { name: 'Open Orders', to: '/wallet/positions' },
+      { name: 'History', to: '/wallet/history' },
+      { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
+      { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
+      { name: 'Resources', to: '/wallet/resources' }
     ]
   }),
   watch: {
@@ -48,8 +51,8 @@ export default {
 <style scoped lang="scss">
 .wallet-tab-bar {
   display: flex;
-  position: sticky;
-  gap: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
   top: 0;
   z-index: 4;
   overflow: auto;
@@ -73,6 +76,18 @@ export default {
   border-radius: 8px;
   padding: 12px;
   white-space: nowrap;
+
+  &.nft-tab {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    img {
+      position: absolute;
+      height: 100%;
+      max-width: 100%;
+    }
+  }
 
   &:first-child {
     margin-left: 0;

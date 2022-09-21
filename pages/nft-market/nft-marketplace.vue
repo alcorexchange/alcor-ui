@@ -54,7 +54,6 @@ export default {
   data() {
     return {
       search: '',
-      currentTab: 'sales',
       tab: 'sales',
       tabs: { sales: 'Sales', auctions: 'Auctions' },
       marketData: [],
@@ -76,6 +75,9 @@ export default {
       let price = this.systemPrice
       return price
     },
+    currentTab() {
+      return this.tab
+    }
   },
 
   mounted() {
@@ -94,7 +96,7 @@ export default {
 
     handleCollection(value) {
       this.currentCollectionName = value
-      if (this.currentTab === 'sales') {
+      if (this.tab === 'sales') {
         this.getSaleData()
       } else {
         this.getAuctionData()
@@ -102,7 +104,7 @@ export default {
     },
 
     handleSearch() {
-      if (this.currentTab === 'sales') {
+      if (this.tab === 'sales') {
         this.getSaleData()
       } else {
         this.getAuctionData()

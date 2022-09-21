@@ -152,7 +152,6 @@ export const actions = {
   },
 
   async transferNft({ rootState, dispatch }, { memo, reciever, asset_ids }) {
-    console.log('transferNft', memo, reciever, asset_ids)
     const actions = [
       {
         account: 'atomicassets',
@@ -167,6 +166,102 @@ export const actions = {
       }
     ]
     return await dispatch('sendTransaction', actions)
+  },
+
+  async cancelList({ state, rootState, dispatch }, { currentListing }) {
+    const actions = [
+      {
+        account: 'atomicmarket',
+        name: 'cancelsale',
+        authorization: [rootState.user.authorization],
+        data: {
+          sale_id: currentListing
+        }
+      }
+    ]
+    await dispatch('sendTransaction', actions)
+  },
+
+  async cancelAuction({ state, rootState, dispatch }, { currentListing }) {
+    const actions = [
+      {
+        account: 'atomicmarket',
+        name: 'cancelauct',
+        authorization: [rootState.user.authorization],
+        data: {
+          auction_id: currentListing
+        }
+      }
+    ]
+    await dispatch('sendTransaction', actions)
+  },
+
+  async list({ state, rootState, dispatch }, { asset_ids, listing_price, currentListing = null }) {
+    const actions = []
+    if (currentListing)
+      actions.push({
+        account: 'atomicmarket',
+        name: 'cancelsale',
+        authorization: [rootState.user.authorization],
+        data: { sale_id: currentListing }
+      })
+    actions.push({
+      account: 'atomicmarket',
+      name: 'announcesale',
+      authorization: [rootState.user.authorization],
+      data: {
+        seller: rootState.user.name,
+        asset_ids,
+        listing_price,
+        settlement_symbol: '8,WAX',
+        maker_marketplace: ''
+      }
+    })
+    actions.push({
+      account: 'atomicassets',
+      name: 'createoffer',
+      authorization: [rootState.user.authorization],
+      data: {
+        sender: rootState.user.name,
+        recipient: 'atomicmarket',
+        sender_asset_ids: asset_ids,
+        recipient_asset_ids: [],
+        memo: 'sale'
+      }
+    })
+
+
+    await dispatch('sendTransaction', actions)
+  },
+
+  async auction({ state, rootState, dispatch }, { asset_ids, starting_bid, duration, currentListing }) {
+    const actions = [
+      {
+        account: 'atomicmarket',
+        name: 'announceauct',
+        authorization: [rootState.user.authorization],
+        data: {
+          seller: rootState.user.name,
+          asset_ids,
+          starting_bid,
+          duration,
+          maker_marketplace: ''
+        }
+      },
+      {
+        account: 'atomicassets',
+        name: 'transfer',
+        authorization: [rootState.user.authorization],
+        data: {
+          from: rootState.user.name,
+          to: 'atomicmarket',
+          asset_ids,
+          memo: 'auction'
+        }
+      }
+    ]
+
+    await dispatch('sendTransaction', actions)
   },
 
   async sendBuyOffer({ state, rootState, dispatch }, { buyOfferPrice, assetsIDs, memo, seller }) {

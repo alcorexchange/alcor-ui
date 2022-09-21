@@ -477,6 +477,9 @@ a {
 .red {
   color: var(--main-red);
 }
+.alcor-button.red .inner {
+  color: var(--main-red);
+}
 
 .el-slider__runway {
   background-color: var(--color-secondary-op);
@@ -854,6 +857,18 @@ a {
   width: 100%;
 }
 
+.w-49 {
+  width: 49%;
+}
+
+.w-33 {
+  width: 33%;
+}
+
+.fs-22 {
+  font-size: 22px;
+}
+
 .fs-18 {
   font-size: 18px;
 }
@@ -941,6 +956,10 @@ a {
   .dropdown__item {
     border-bottom: 1px solid var(--btn-default);
     padding: 0;
+
+    &:last-of-type {
+      border: none;
+    }
 
     .dropdown__inner {
       width: 100%;

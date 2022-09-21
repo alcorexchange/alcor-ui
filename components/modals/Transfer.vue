@@ -164,8 +164,6 @@ export default {
           return res
         }, [[], []]).flat()
 
-        console.log(this.availableAssets)
-
         this.loading = false
       }, 600)
     }
