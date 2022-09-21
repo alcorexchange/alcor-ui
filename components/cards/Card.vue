@@ -15,10 +15,12 @@ main,
 footer {
   width: 100%
 }
+
 header,
 footer {
   padding: 8px;
 }
+
 .card {
   width: 220px;
   height: fit-content;

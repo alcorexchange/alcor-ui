@@ -250,7 +250,7 @@ pre {
 }
 
 a {
-  color: #80a1c5 !important;
+  color: #80a1c5;
 }
 
 // Dark
@@ -879,8 +879,16 @@ a {
   width: 33%;
 }
 
+.w-15 {
+  width: 15%;
+}
+
 .fs-22 {
   font-size: 22px;
+}
+
+.fs-20 {
+  font-size: 20px;
 }
 
 .fs-18 {
@@ -917,6 +925,10 @@ a {
 
 .gap-16 {
   gap: 16px;
+}
+
+.gap-24 {
+  gap: 24px;
 }
 
 .gap-30 {

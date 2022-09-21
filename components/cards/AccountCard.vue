@@ -41,7 +41,7 @@ card
 
   template(#footer)
     .d-flex.justify-content-between.px-3.py-2.gap-8
-      alcor-button.w-50(outline) Profile
+      alcor-button.w-50(@click="goToProfile" outline) Profile
       el-dropdown.w-50(trigger='click')
         alcor-button.w-100(access)
           span More
@@ -60,7 +60,10 @@ card
               i.el-icon-s-shop
               span Seller Page
           el-dropdown-item.dropdown__item
-            .dropdown__inner(@click="removeFriendModal")
+            .dropdown__inner(v-if="isFriend")(@click="removeFriendModal")
+              i.el-icon-remove-outline
+              span Remove Friend
+            .dropdown__inner(v-else)(@click="addToFriendList")
               i.el-icon-remove-outline
               span Remove Friend
           el-dropdown-item.dropdown__item
@@ -70,7 +73,7 @@ card
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import AlcorButton from '~/components/AlcorButton'
 import Card from '~/components/cards/Card.vue'
@@ -78,17 +81,42 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { Card, ProfileImage, VueSkeletonLoader, AlcorButton },
-  props: ['data', 'suggestedAverageLoaded'],
+  props: ['data'],
+  data: () => ({
+    isFriend: false
+  }),
+  computed: {
+    ...mapGetters(['user'])
+  },
+  watch: {
+    user() {
+      this.user && this.checkFriend()
+    }
+  },
+  mounted() {
+    this.user && this.checkFriend()
+  },
   methods: {
     ...mapActions('modal', ['transfer', 'removeFriend', 'blockUser']),
+    ...mapActions('social', ['getFriendList', 'addFriend']),
     openTransferModal() {
       this.transfer(this.data)
+    },
+    addToFriendList() {
+      this.addFriend(this.data)
+        .then(() => this.$router.go(0))
     },
     removeFriendModal() {
       this.removeFriend(this.data)
     },
+    async checkFriend() {
+      this.isFriend = (await this.getFriendList()).includes(this.$route.params.id)
+    },
     blockUserModal() {
       this.blockUser(this.data)
+    },
+    goToProfile() {
+      this.$router.push({ name: `account-id___${this.$i18n.locale}`, params: { id: this.data.name } })
     }
   }
 }

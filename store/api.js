@@ -356,7 +356,7 @@ export const actions = {
     try {
       const {
         data
-      } = await this.$api.post('v1/chain/get_table_by_scope', {
+      } = await this.$api.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
         code: 'eosio',
         limit,
         lower_bound: search,
