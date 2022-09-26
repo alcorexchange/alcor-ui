@@ -17,12 +17,12 @@ export default {
 
 <style lang="scss">
 .alcor-tab-link {
-  color: var(--text-disable);
+  color: var(--text-grey-thirdly);
   border-bottom: 1px solid var(--tab-link-border);
   position: relative;
 
   &:hover {
-    color: var(--text-disable);
+    color: var(--text-grey-thirdly);
   }
 
   &::after {

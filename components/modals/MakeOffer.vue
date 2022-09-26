@@ -92,7 +92,7 @@
               :key="item.asset_id"
               :data="item"
               @click="offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name ? null : toggleSelected(item)"
-              :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name }"
+              :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: offerAssets && offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name }"
               mode="preview"
               :small="true"
             )
@@ -129,8 +129,8 @@ export default {
   }),
   computed: {
     ...mapState('modal', ['context']),
-    refetchProps() { [this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() },
-    isOfferReady() { return this.waxAmount && this.offerAssets.length },
+    refetchProps() { [this.context, this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() },
+    isOfferReady() { return this.waxAmount && this.offerAssets?.length },
     isValidAmount() { return this.waxAmount >= 3 }
   },
   watch: {
@@ -162,10 +162,10 @@ export default {
       this.buy()
     },
     setOptions() {
-      this.selectedCollection = this.context.collection_name || this.context.assets[0].collection.collection_name
+      this.selectedCollection = this.context.collection.collection_name || this.context.assets[0].collection.collection_name
     },
     selectAsset() {
-      this.toggleSelected(this.context.assets[0])
+      this.toggleSelected(this.context)
     },
     toggleSelected(asset) {
       this.offerAssets.find(({ asset_id }) => asset_id === asset.asset_id)
@@ -177,7 +177,7 @@ export default {
         buyOfferPrice: (+this.waxAmount).toFixed(8) + ' WAX',
         assetsIDs: this.offerAssets.map(({ asset_id }) => asset_id),
         memo: this.memo,
-        seller: this.context.seller
+        seller: this.context.owner
       })
     },
     getMarketFee() {
@@ -203,7 +203,7 @@ export default {
       this.debounce = setTimeout(async () => {
         this.loading = true
         const assets = await this.getAssets({
-          owner: this.context.seller,
+          owner: this.context.owner,
           collection_name: this.selectedCollection,
           search: this.search,
           max_template_mint: this.maxMint,
@@ -221,7 +221,7 @@ export default {
       }, 600)
     },
     async getAccountCollection() {
-      const { collections } = await this.getAccountSpecificStats({ account: this.context.seller })
+      const { collections } = await this.getAccountSpecificStats({ account: this.context.owner })
       this.availableCollections = collections.map(({ assets, collection }) => ({ ...collection, assets }))
     }
   }

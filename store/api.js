@@ -385,7 +385,7 @@ export const actions = {
         data
       } = await this.$api.post('/atomicmarket/v1/assets', {
         page: 1,
-        limit: 100,
+        limit: 25,
         order: 'desc',
         sort: 'transferred',
         ...options

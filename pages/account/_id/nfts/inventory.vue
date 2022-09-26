@@ -1,33 +1,33 @@
 <template lang="pug">
-pre {{ inventory }}
-
+.d-flex.flex-wrap.gap-28
+  asset-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+import AssetCard from '~/components/cards/AssetCard'
+
 export default {
+  components: { AssetCard },
   data: () => ({
-    inventory: null
+    inventory: null,
+    ownerImgSrc: null
   }),
   mounted() {
-    this.getAssets()
+    this.getInventory()
+    this.getOwnerAvatar()
   },
   methods: {
-    async getAssets() {
-      const data = await this.$store.dispatch('api/getAssets', {
+    ...mapActions('social', ['getPhotoHash']),
+    ...mapActions('api', ['getAssets']),
+    async getInventory() {
+      this.inventory = await this.getAssets({
         owner: this.$route.params.id
       })
-
-      console.log(data)
-
-      Promise.all(
-        data.map(({ asset_id }) =>
-          this.$store.dispatch('api/getAssetsSales', { asset_id, buyer: this.$route.params.id }))
-      ).then(assetsSales => {
-        assetsSales.forEach((sales, idx) =>
-          data[idx].purchasePrice = sales.sort((a, b) => b.block_time - a.block_time)[0]
-        )
-        this.inventory = data
-      })
+    },
+    async getOwnerAvatar() {
+      const hash = await this.getPhotoHash(this.$route.params.id)
+      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
     }
   }
 }
