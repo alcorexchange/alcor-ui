@@ -60,12 +60,12 @@ card
               i.el-icon-s-shop
               span Seller Page
           el-dropdown-item.dropdown__item
-            .dropdown__inner(v-if="isFriend")(@click="removeFriendModal")
+            .dropdown__inner(v-if="isFriend" @click="removeFriendModal")
               i.el-icon-remove-outline
               span Remove Friend
-            .dropdown__inner(v-else)(@click="addToFriendList")
+            .dropdown__inner(v-else @click="addToFriendList")
               i.el-icon-remove-outline
-              span Remove Friend
+              span Add Friend
           el-dropdown-item.dropdown__item
             .dropdown__inner(@click="blockUserModal")
               img(src='~/assets/icons/SmileyXEyes.svg')
@@ -110,7 +110,7 @@ export default {
       this.removeFriend(this.data)
     },
     async checkFriend() {
-      this.isFriend = (await this.getFriendList()).includes(this.$route.params.id)
+      this.isFriend = (await this.getFriendList()).includes(this.data.name)
     },
     blockUserModal() {
       this.blockUser(this.data)
