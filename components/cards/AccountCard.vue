@@ -116,7 +116,7 @@ export default {
       this.blockUser(this.data)
     },
     goToProfile() {
-      this.$router.push({ name: `account-id___${this.$i18n.locale}`, params: { id: this.data.name } })
+      this.$router.push({ name: `account-id-nfts-inventory___${this.$i18n.locale}`, params: { id: this.data.name } })
     }
   }
 }

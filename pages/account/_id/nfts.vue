@@ -1,5 +1,5 @@
 <template lang="pug">
-#account-id-nfts-layout.d-flex.flex-column.gap-16.mt-4
+#account-id-nfts-layout.d-flex.flex-column.gap-16.mt-2
   account-nfts-header
   main.account-nft-main
     nuxt-child
