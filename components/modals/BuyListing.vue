@@ -59,7 +59,7 @@ export default {
     ...mapActions('chain', ['buyAsset']),
     ...mapActions('modal', ['makeOffer']),
     openOfferModal() {
-      this.makeOffer()
+      this.makeOffer(this.context.assets[0])
     },
     async buy() {
       try {

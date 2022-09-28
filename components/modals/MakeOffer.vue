@@ -33,7 +33,7 @@
           span 2%
 
       .d-flex.gap-32
-        alcor-button(@click="openListingModal") Buy Listing
+        alcor-button(v-if="isListed" @click="openListingModal") Buy Listing
         alcor-button.w-50(access, :disabled="!isOfferReady || !isValidAmount" @click="sendOffer()") Send Buy Offer
 
     .d-flex.flex-column.gap-16
@@ -115,8 +115,10 @@ export default {
     selectedCollection: null,
     isDuplicates: false,
     isBacked: false,
+    isListed: false,
     minMint: null,
     maxMint: null,
+    listingID: null,
     search: '',
     availableAssets: [],
     availableCollections: [],
@@ -147,6 +149,7 @@ export default {
       this.getChart()
       this.getLowestPrice()
       this.getMarketFee()
+      this.checkListed()
     }
   },
   mounted() {
@@ -155,11 +158,21 @@ export default {
     this.getAccountCollection()
   },
   methods: {
-    ...mapActions('api', ['getAssets', 'getAccountSpecificStats', 'getChartData', 'getTemplatePrice']),
+    ...mapActions('api', ['getAssets', 'getAccountSpecificStats', 'getChartData', 'getTemplatePrice', 'getSpecificAsset', 'getSale']),
     ...mapActions('chain', ['sendBuyOffer']),
     ...mapActions('modal', ['buy']),
-    openListingModal() {
-      this.buy()
+    async openListingModal() {
+      this.isListed && this.listingID && this.buy(await this.getSale({ sale_id: this.listingID }))
+    },
+    async checkListed() {
+      const sales = this.offerAssets.length === 1 && (await this.getSpecificAsset({ asset_id: this.offerAssets[0].asset_id })).sales
+      if (sales.length) {
+        this.isListed = true
+        this.listingID = sales[0].sale_id
+      } else {
+        this.isListed = false
+        this.listingID = null
+      }
     },
     setOptions() {
       this.selectedCollection = this.context.collection.collection_name || this.context.assets[0].collection.collection_name
@@ -196,7 +209,7 @@ export default {
         schema_name: this.offerAssets[0].schema.schema_name,
         burned: this.offerAssets[0].is_burnable
       })
-      this.chartData = data
+      this.chartData = data || []
     },
     fetchAssets() {
       clearTimeout(this.debounce)

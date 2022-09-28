@@ -398,6 +398,17 @@ export const actions = {
     }
   },
 
+  async getSale({ dispatch }, { sale_id }) {
+    try {
+      const {
+        data
+      } = await this.$api.get(`/atomicmarket/v1/sales/${sale_id}`)
+      return data.data
+    } catch (e) {
+      return await dispatch('getSale', { sale_id })
+    }
+  },
+
   async getSales({
     dispatch
   }, {
