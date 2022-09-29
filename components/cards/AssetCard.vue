@@ -1,7 +1,7 @@
 <template lang="pug">
 card
   asset-card-header(slot="header" :data="data" :ownerImgSrc="ownerImgSrc")
-  asset-card-image(:template="data.template.immutable_data")
+  asset-card-image(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
   .p-2
     .d-flex.justify-content-between
       .d-flex.align-items-center.gap-4

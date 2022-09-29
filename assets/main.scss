@@ -969,8 +969,11 @@ a {
   color: var(--text-disable);
 }
 
-.active-border {
-  border: 1px solid var(--main-green)
+.card {
+  border: 1px solid var(--background-color-third);
+  &.active-border {
+    border: 1px solid var(--main-green)
+  }
 }
 
 .wallet-input-search {

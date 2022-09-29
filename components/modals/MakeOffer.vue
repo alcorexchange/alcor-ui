@@ -86,14 +86,13 @@
               wave-color='rgba(150, 150, 150, 0.1)',
               :rounded='true'
             )
-            normal-card.pointer(
+            preview-card.pointer(
               v-else
               v-for="item in availableAssets"
               :key="item.asset_id"
               :data="item"
-              @click="offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name ? null : toggleSelected(item)"
+              @click="toggleSelected(item)"
               :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: offerAssets && offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name }"
-              mode="preview"
               :small="true"
             )
           .gradient
@@ -105,11 +104,11 @@ import { mapState, mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import Chart from '~/components/nft_markets/Chart'
 import AssetsField from '~/components/nft_markets/AssetsField'
-import NormalCard from '~/components/nft_markets/NormalCard'
+import PreviewCard from '~/components/cards/PreviewCard'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
-  components: { AssetsField, NormalCard, VueSkeletonLoader, Chart, AlcorButton },
+  components: { AssetsField, VueSkeletonLoader, Chart, AlcorButton, PreviewCard },
   data: () => ({
     loading: false,
     selectedCollection: null,

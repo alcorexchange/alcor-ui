@@ -94,8 +94,10 @@ export default {
 .cards {
   max-width: 970px;
   min-width: 370px;
+  width: 100%;
   margin: 0 auto;
 }
+
 .add-friend-card {
   width: 220px;
   height: 320px;

@@ -1,5 +1,5 @@
 <template lang="pug">
-.card
+.card(@click="$emit('click')")
   .content
     header
       slot(name="header")
@@ -27,7 +27,6 @@ footer {
   height: fit-content;
   background-color: var(--background-color-third);
   border-radius: 10px;
-  border: none;
   display: flex;
   flex-direction: column;
   align-items: center;
