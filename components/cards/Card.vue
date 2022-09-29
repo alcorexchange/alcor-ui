@@ -1,9 +1,10 @@
 <template lang="pug">
 .card
-  header
-    slot(name="header")
-  main
-    slot
+  .content
+    header
+      slot(name="header")
+    main
+      slot
   footer
     slot(name="footer")
 
@@ -31,5 +32,9 @@ footer {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+
+  .content {
+    width: 100%;
+  }
 }
 </style>

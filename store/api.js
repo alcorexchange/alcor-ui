@@ -198,7 +198,7 @@ export const actions = {
   }, {
     limit,
     search,
-    collectionName
+    collectionName,
   }) {
     try {
       const {
@@ -421,7 +421,7 @@ export const actions = {
       const {
         data
       } = await this.$api.get(
-        'atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created' +
+        'atomicmarket/v2/sales?page=1&limit=10&order=desc&sort=created' +
         (seller ? '&seller=' + seller : '') +
         (buyer ? '&buyer=' + buyer : '') +
         (state ? '&state=' + state : '') +
@@ -586,6 +586,24 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+    }
+  },
+  async getBuyOffers({ dispatch, rootState }, { sort, seller }) {
+    try {
+      const { data } = await this.$api.post('atomicmarket/v1/buyoffers', {
+        limit: '10',
+        min_price: '3',
+        order: 'desc',
+        page: '1',
+        seller: seller || rootState.user.name,
+        sort: 'created',
+        state: '0,4',
+        symbol: 'WAX'
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get buy offers error', e)
+      return await dispatch('getBuyOffers', { sort, seller }) // refetch
     }
   },
   async getBoughtCounts({

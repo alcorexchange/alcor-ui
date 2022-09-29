@@ -64,7 +64,7 @@ card
               i.el-icon-remove-outline
               span Remove Friend
             .dropdown__inner(v-else @click="addToFriendList")
-              i.el-icon-remove-outline
+              i.el-icon-circle-plus-outline
               span Add Friend
           el-dropdown-item.dropdown__item
             .dropdown__inner(@click="blockUserModal")
