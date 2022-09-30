@@ -170,6 +170,12 @@ button {
   justify-content: center;
   align-items: center;
   font-size: 14px;
+
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
 }
 
 .iconOnly {

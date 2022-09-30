@@ -24,7 +24,7 @@ header#account-header-component.d-flex.flex-column.gap-24
     alcor-button(big)
       i.el-icon-takeaway-box
       span {{ $t('Transfer') }}
-    alcor-button(big)
+    alcor-button(big @click="goToTrade()")
       i.el-icon-sort.rot-90
       span {{ $t('Trade Offer') }}
 </template>
@@ -68,6 +68,9 @@ export default {
     },
     goBack() {
       this.$router.go(-1)
+    },
+    goToTrade() {
+      this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.$route.params.id } })
     },
     addToFriendList() {
       this.addFriend(this.$route.params.id)

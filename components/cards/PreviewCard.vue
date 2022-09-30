@@ -7,7 +7,8 @@ card.normal-card-shadow(:class="[{ small }]" @click="$emit('click')")
 
   .d-flex.flex-column.justify-content-between.align-items-center.p-2.card-title(slot="footer")
     .card-name {{ data.name }}
-    .disable {{ data.collection.name }}
+    .disable.d-flex.gap-4
+      .card-collection {{ data.collection.name }}
       img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
 </template>
 
@@ -36,6 +37,10 @@ export default {
 
 .card-name {
   font-size: 18px;
+}
+
+.card-name,
+.card-collection {
   width: 100%;
   white-space: nowrap;
   overflow: hidden;

@@ -234,6 +234,25 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  async sendTradeOffer({ rootState, dispatch }, { recipient, sender_asset_ids, recipient_asset_ids, memo = '' }) {
+    const actions = [
+      {
+        account: 'atomicassets',
+        name: 'createoffer',
+        authorization: [rootState.user.authorization],
+        data: {
+          sender: rootState.user.name,
+          recipient,
+          sender_asset_ids,
+          recipient_asset_ids,
+          memo
+        }
+      }
+    ]
+    console.log(actions)
+    await dispatch('sendTransaction', actions)
+  },
+
   async auction({ state, rootState, dispatch }, { asset_ids, starting_bid, duration, currentListing }) {
     const actions = [
       {

@@ -4,11 +4,6 @@
   .header
     InputSearch(v-model="search")
     MarketTabs(:tabs="tabs" v-model="currentTab" @change="handleTab")
-  //- HorizontalMenu(
-  //-   :tabs='currentTab != "inventory" ? (currentTab === "listings" ? horizontalTabData.normalTabs : horizontalTabData.auctionTabs) : []',
-  //-   :currentTab='currentHorizontalTab',
-  //-   :handleTab='handleHorizonalTab'
-  //- )
   div(v-if='detailCollectionMode')
     .d-flex.justify-content-between.align-items-center.mb-4
       h1.text-capitalize.set-collection-name {{ setCollectionName }}
