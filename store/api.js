@@ -420,12 +420,18 @@ export const actions = {
     try {
       const {
         data
-      } = await this.$api.get(
-        'atomicmarket/v2/sales?page=1&limit=10&order=desc&sort=created' +
-        (seller ? '&seller=' + seller : '') +
-        (buyer ? '&buyer=' + buyer : '') +
-        (state ? '&state=' + state : '') +
-        (participant ? '&participant=' + participant : '')
+      } = await this.$api.post(
+        'atomicmarket/v2/sales',
+        {
+          page: 1,
+          limit: 10,
+          order: 'desc',
+          sort: 'created',
+          state: '0,1,4',
+          seller,
+          buyer,
+          participant
+        }
       )
 
       return data.data
