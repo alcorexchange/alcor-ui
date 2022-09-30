@@ -974,7 +974,7 @@ a {
 }
 
 .disable {
-  color: var(--text-disable);
+  color: var(--text-disable) !important;
 }
 
 .card {
@@ -1025,6 +1025,18 @@ a {
       color: var(--text-default);
       gap: 10px;
     }
+  }
+
+  .dropdown__filters {
+    padding: 16px;
+    cursor: default;
+
+    &:hover,
+    &:focus,
+    &:active{
+      background: var(--background-color-secondary);
+    }
+
   }
 }
 

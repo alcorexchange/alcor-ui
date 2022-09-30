@@ -1,5 +1,5 @@
 <template lang="pug">
-nuxt-link(:to="to" class='alcor-tab-link')
+nuxt-link(:to="localePath(to, $i18n.locale)" class='alcor-tab-link')
   .inner
     slot
 </template>

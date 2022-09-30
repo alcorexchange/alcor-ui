@@ -1,34 +1,77 @@
 <template lang="pug">
 #account-id-nfts-layout.d-flex.flex-column.gap-16.mt-2
-  alcor-tabs(:links="true" :tabs="tabs")
+  .d-flex.align-items-center.gap-24
+    alcor-filters(:filters.sync="filters", :options="options")
+    alcor-tabs(:links="true" :tabs="tabs")
   main.account-nft-main
     nuxt-child
 
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import AlcorTabs from '~/components/AlcorTabs'
+import AlcorFilters from '~/components/AlcorFilters'
+
 export default {
-  components: { AlcorTabs },
+  components: { AlcorTabs, AlcorFilters },
   data: () => ({
     filters: {
-      match: 'asd',
-      s: 'key',
-      bool: false
+      match: '',
+      sorting: null,
+      collection: null,
+      minMint: null,
+      maxMint: null,
+      isDuplicates: null,
+      isBacked: null
+    },
+    options: {
+      collection: null,
+      sorting: [
+        { value: 'transferred', label: 'Transferred (Newest)' },
+        { value: 'transferred-desc', label: 'Transferred (Oldest)' },
+        { value: 'created-asc', label: 'Created (Newest)' },
+        { value: 'created-desc', label: 'Created (Oldest)' },
+        { value: 'minted-asc', label: 'Mint (Highest)' },
+        { value: 'minted-desc', label: 'Mint (Highest)' },
+        { value: 'name-asc', label: 'Alphabetical (A-Z)' }
+      ]
     }
   }),
   computed: {
+    refetchProps() { [this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
     tabs() {
       return [
         {
           label: 'Inventory',
           route: {
-            path: '/swap',
+            path: `/account/${this.$route.params.id}/nfts/inventory`,
             query: this.filters
           }
         },
-        { label: 'Listings', href: '/account/' + this.$route.params.id + '/nfts/listings' }
+        {
+          label: 'Listings',
+          route: {
+            path: `/account/${this.$route.params.id}/nfts/listings`,
+            query: this.filters
+          }
+        }
       ]
+    }
+  },
+  watch: {
+    refetchProps() {
+      this.$router.push({ query: this.filters })
+    }
+  },
+  mounted() {
+    this.getAccountCollections()
+  },
+  methods: {
+    ...mapActions('api', ['getAccountSpecificStats']),
+    async getAccountCollections() {
+      const { collections } = await this.getAccountSpecificStats({ account: this.$route.params.id })
+      this.options.collection = collections
     }
   }
 }

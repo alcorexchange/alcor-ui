@@ -11,8 +11,14 @@ export default {
   components: { AssetCard },
   data: () => ({
     inventory: null,
-    ownerImgSrc: null
+    ownerImgSrc: null,
+    debounce: null
   }),
+  watch: {
+    '$route.query'() {
+      this.getInventory()
+    }
+  },
   mounted() {
     this.getInventory()
     this.getOwnerAvatar()
@@ -20,10 +26,22 @@ export default {
   methods: {
     ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAssets']),
-    async getInventory() {
-      this.inventory = await this.getAssets({
-        owner: this.$route.params.id
-      })
+    getInventory() {
+      clearTimeout(this.debounce)
+      this.debounce = setTimeout(async () => {
+        this.inventory = null
+        this.inventory = await this.getAssets({
+          owner: this.$route.params.id,
+          collection_name: this.$route.query?.collection,
+          sort: this.$route.query?.sorting?.split('-')[0] || null,
+          order: this.$route.query?.sorting?.split('-')[1] || null,
+          match: this.$route.query?.match,
+          max_template_mint: this.$route.query?.maxMint,
+          min_template_mint: this.$route.query?.minMint,
+          has_backed_tokens: !!this.$route.query?.isBacked,
+          only_duplicate_templates: !!this.$route.query?.isDuplicates
+        })
+      }, 600)
     },
     async getOwnerAvatar() {
       const hash = await this.getPhotoHash(this.$route.params.id)

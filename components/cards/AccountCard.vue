@@ -116,7 +116,19 @@ export default {
       this.blockUser(this.data)
     },
     goToProfile() {
-      this.$router.push({ name: `account-id-nfts-inventory___${this.$i18n.locale}`, params: { id: this.data.name } })
+      this.$router.push({
+        name: `account-id-nfts-inventory___${this.$i18n.locale}`,
+        params: { id: this.data.name },
+        query: {
+          match: '',
+          collection: null,
+          sorting: null,
+          minMint: null,
+          maxMint: null,
+          isDuplicates: null,
+          isBacked: null
+        }
+      })
     }
   }
 }

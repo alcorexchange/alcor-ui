@@ -8,6 +8,6 @@ import AlcorTabLink from '~/components/AlcorTabLink.vue'
 
 export default {
   components: { AlcorTabLink },
-  props: ['tabs', 'links'],
+  props: ['tabs', 'links']
 }
 </script>
