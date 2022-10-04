@@ -19,13 +19,8 @@
 
   .d-flex.align-items-center.justify-content-between.gap-28.mt-5
     .d-flex.align-items-center.gap-28.w-100
-      .w-25
-        el-input(
-          v-model='search',
-          prefix-icon='el-icon-search'
-          :placeholder='$t("Search name or address")',
-          clearable
-        )
+      input-search(v-model="filters.match")
+      alcor-filters(:filters.sync="filters", :options="options")
       alcor-tab.pointer(v-for="(label, idx) in ['Your inventory', 'Their inventory']" :class="{ active: activeTab === idx }" @click="activeTab = idx") {{ label }}
     alcor-button(access, @click="send" :disabled="!myOfferAssets.length || !hisOfferAssets.length")
       i.el-icon-sort.rot-90
@@ -60,11 +55,13 @@ import AssetsField from '~/components/nft_markets/AssetsField'
 import ProfileImage from '~/components/ProfileImage.vue'
 import AlcorTab from '~/components/AlcorTab.vue'
 import AlcorButton from '~/components/AlcorButton'
+import AlcorFilters from '~/components/AlcorFilters'
 import PreviewCard from '~/components/cards/PreviewCard'
+import InputSearch from '~/components/nft_markets/InputSearch'
 import Copy from '~/components/svg-icons/Copy.vue'
 
 export default {
-  components: { WalletNFTHeader, Copy, AssetsField, ProfileImage, AlcorTab, AlcorButton, PreviewCard, VueSkeletonLoader },
+  components: { WalletNFTHeader, Copy, AssetsField, ProfileImage, AlcorTab, AlcorButton, PreviewCard, VueSkeletonLoader, InputSearch, AlcorFilters },
   data: () => ({
     activeTab: 0,
     myOfferAssets: [],
@@ -74,11 +71,34 @@ export default {
     myImgSrc: null,
     debounce: null,
     loading: false,
-    search: ''
+    search: '',
+    filters: {
+      match: '',
+      sorting: null,
+      collection: null,
+      minMint: null,
+      maxMint: null,
+      minPrice: null,
+      maxPrice: null,
+      isDuplicates: null,
+      isBacked: null
+    },
+    options: {
+      collection: null,
+      sorting: [
+        { value: 'transferred', label: 'Transferred (Newest)' },
+        { value: 'transferred-desc', label: 'Transferred (Oldest)' },
+        { value: 'created-asc', label: 'Created (Newest)' },
+        { value: 'created-desc', label: 'Created (Oldest)' },
+        { value: 'minted-asc', label: 'Mint (Highest)' },
+        { value: 'minted-desc', label: 'Mint (Lowest)' },
+        { value: 'name-asc', label: 'Alphabetical (A-Z)' }
+      ]
+    }
   }),
   computed: {
     ...mapGetters(['user']),
-    refetchProps() { [this.activeTab, this.search]; return Date.now() },
+    refetchProps() { [this.activeTab, this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
     offerAssets() { return [...this.myOfferAssets, ...this.hisOfferAssets] },
     color() {
       return this.$colorMode.preference !== 'dark' ? '#303133' : '#BDBDBD'
@@ -86,6 +106,12 @@ export default {
   },
   watch: {
     refetchProps() {
+      this.$router.push({ query: this.filters })
+    },
+    activeTab() {
+      this.fetchAssets()
+    },
+    '$route.query'() {
       this.fetchAssets()
     }
   },
@@ -126,7 +152,14 @@ export default {
         this.loading = true
         const assets = await this.getAssets({
           owner: this.activeTab ? this.$route.params.id : this.user.name,
-          search: this.search
+          collection_name: this.$route.query?.collection,
+          sort: this.$route.query?.sorting?.split('-')[0] || null,
+          order: this.$route.query?.sorting?.split('-')[1] || null,
+          match: this.$route.query?.match,
+          max_template_mint: this.$route.query?.maxMint,
+          min_template_mint: this.$route.query?.minMint,
+          has_backed_tokens: !!this.$route.query?.isBacked,
+          only_duplicate_templates: !!this.$route.query?.isDuplicates
         })
 
 

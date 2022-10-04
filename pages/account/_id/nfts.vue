@@ -37,7 +37,7 @@ export default {
         { value: 'created-asc', label: 'Created (Newest)' },
         { value: 'created-desc', label: 'Created (Oldest)' },
         { value: 'minted-asc', label: 'Mint (Highest)' },
-        { value: 'minted-desc', label: 'Mint (Highest)' },
+        { value: 'minted-desc', label: 'Mint (Lowest)' },
         { value: 'name-asc', label: 'Alphabetical (A-Z)' }
       ]
     }
