@@ -1,14 +1,25 @@
 <template lang="pug">
 .d-flex.flex-wrap.gap-25
+  vue-skeleton-loader(
+    v-if="!inventory"
+    v-for="idx in [1, 2, 3, 4]"
+    :width='220',
+    :height='397',
+    animation='wave',
+    wave-color='rgba(150, 150, 150, 0.1)',
+    :rounded='true'
+  )
+
   asset-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
 </template>
 
 <script>
 import { mapActions } from 'vuex'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import AssetCard from '~/components/cards/AssetCard'
 
 export default {
-  components: { AssetCard },
+  components: { AssetCard, VueSkeletonLoader },
   data: () => ({
     inventory: null,
     ownerImgSrc: null,

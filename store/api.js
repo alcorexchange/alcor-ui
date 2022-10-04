@@ -411,12 +411,7 @@ export const actions = {
 
   async getSales({
     dispatch
-  }, {
-    seller,
-    state,
-    participant,
-    buyer
-  }) {
+  }, options) {
     try {
       const {
         data
@@ -424,25 +419,17 @@ export const actions = {
         'atomicmarket/v2/sales',
         {
           page: 1,
-          limit: 10,
-          order: 'desc',
-          sort: 'created',
+          limit: 20,
           state: '0,1,4',
-          seller,
-          buyer,
-          participant
+          symbol: 'WAX',
+          ...options
         }
       )
 
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
-      return await dispatch('getSales', {
-        seller,
-        state,
-        participant,
-        buyer
-      })
+      return await dispatch('getSales', options)
     }
   },
 

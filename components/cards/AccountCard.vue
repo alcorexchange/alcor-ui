@@ -125,6 +125,8 @@ export default {
           sorting: null,
           minMint: null,
           maxMint: null,
+          minPrice: null,
+          maxPrice: null,
           isDuplicates: null,
           isBacked: null
         }

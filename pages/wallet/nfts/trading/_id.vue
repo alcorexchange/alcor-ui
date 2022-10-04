@@ -31,7 +31,7 @@
       i.el-icon-sort.rot-90
       span Send Trade Offer
 
-  .d-flex.flex-wrap.gap-30.mt-5
+  .d-flex.justify-content-center.flex-wrap.gap-30.mt-5
     vue-skeleton-loader(
       v-if="loading"
       :width='170',

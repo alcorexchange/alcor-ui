@@ -24,6 +24,8 @@ export default {
       collection: null,
       minMint: null,
       maxMint: null,
+      minPrice: null,
+      maxPrice: null,
       isDuplicates: null,
       isBacked: null
     },
@@ -41,7 +43,7 @@ export default {
     }
   }),
   computed: {
-    refetchProps() { [this.filters.match, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    refetchProps() { [this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
     tabs() {
       return [
         {

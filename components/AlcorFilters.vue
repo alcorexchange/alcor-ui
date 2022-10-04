@@ -16,6 +16,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             v-model='filters.collection'
             :placeholder='$t("Choose Collection") + " (" + options.collection.length + ")"'
             size="mini"
+            clearable
           )
             el-option(
               v-for='{ collection, assets } in options.collection'
@@ -53,6 +54,18 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
               v-model='filters.maxMint',
               :placeholder='$t("Max Mint")',
             )
+          .d-flex.gap-6
+            el-input.dark(
+              size='small',
+              v-model='filters.minPrice',
+              :placeholder='$t("Min Price")',
+            )
+            el-input.dark(
+              size='small',
+              v-model='filters.maxPrice',
+              :placeholder='$t("Max Price")',
+            )
+
         .w-50
           el-checkbox(
             v-model="filters.isDuplicates"
