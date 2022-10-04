@@ -61,7 +61,6 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             v-model="filters.isBacked"
           ) {{ $t('Only backed NFTs') }}
 
-
       //.d-flex.justify-content-between.gap-16.mt-2
         span
         alcor-button.apply-btn.w-33(outline compact @click="applyFilters") Apply

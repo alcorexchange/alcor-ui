@@ -14,7 +14,7 @@ header#account-header-component.d-flex.flex-column.gap-24
       alcor-button(@click="removeFriendModal" big v-if="isFriend").red Remove Friend
       alcor-button(@click="addToFriendList" big access v-else) Add Friend
       alcor-button(@click="blockUserModal" danger big) Block Account
-  .d-flex.gap-30.flex-wrap.w-100
+  .d-flex.gap-29.flex-wrap.w-100
     alcor-link(big to="/asd") {{ $t('Tokens') }}
     alcor-link(big to="/zxc") {{ $t('Transactions') }}
     alcor-link.position-relative(big :to="'/account/' + $route.params.id + '/nfts'")

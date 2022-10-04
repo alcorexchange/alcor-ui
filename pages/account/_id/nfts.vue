@@ -1,6 +1,7 @@
 <template lang="pug">
 #account-id-nfts-layout.d-flex.flex-column.gap-16.mt-2
   .d-flex.align-items-center.gap-24
+    input-search(v-model="filters.match")
     alcor-filters(:filters.sync="filters", :options="options")
     alcor-tabs(:links="true" :tabs="tabs")
   main.account-nft-main
@@ -12,9 +13,10 @@
 import { mapActions } from 'vuex'
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorFilters from '~/components/AlcorFilters'
+import InputSearch from '~/components/nft_markets/InputSearch'
 
 export default {
-  components: { AlcorTabs, AlcorFilters },
+  components: { AlcorTabs, AlcorFilters, InputSearch },
   data: () => ({
     filters: {
       match: '',
@@ -39,7 +41,7 @@ export default {
     }
   }),
   computed: {
-    refetchProps() { [this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    refetchProps() { [this.filters.match, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
     tabs() {
       return [
         {

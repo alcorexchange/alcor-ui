@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-wrap.gap-28
+.d-flex.flex-wrap.gap-25
   asset-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
 </template>
 
