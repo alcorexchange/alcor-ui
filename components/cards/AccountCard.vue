@@ -48,7 +48,7 @@ card
           i.el-icon-arrow-down
         el-dropdown-menu.dropdown
           el-dropdown-item.dropdown__item
-            .dropdown__inner
+            .dropdown__inner(@click="goToTrade()")
               i.el-icon-sort.rot-90
               span Send Trade Offer
           el-dropdown-item.dropdown__item
@@ -56,7 +56,7 @@ card
               i.el-icon-takeaway-box
               span Transfer
           el-dropdown-item.dropdown__item
-            .dropdown__inner
+            .dropdown__inner(@click="goToSellerPage()")
               i.el-icon-s-shop
               span Seller Page
           el-dropdown-item.dropdown__item
@@ -99,6 +99,26 @@ export default {
   methods: {
     ...mapActions('modal', ['transfer', 'removeFriend', 'blockUser']),
     ...mapActions('social', ['getFriendList', 'addFriend']),
+    goToTrade() {
+      this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.data.name } })
+    },
+    goToSellerPage() {
+      this.$router.push({
+        name: `account-id-nfts-listings___${this.$i18n.locale}`,
+        params: { id: this.data.name },
+        query: {
+          match: '',
+          collection: null,
+          sorting: null,
+          minMint: null,
+          maxMint: null,
+          minPrice: null,
+          maxPrice: null,
+          isDuplicates: null,
+          isBacked: null
+        }
+      })
+    },
     openTransferModal() {
       this.transfer(this.data)
     },

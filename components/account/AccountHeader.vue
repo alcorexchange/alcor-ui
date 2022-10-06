@@ -20,8 +20,8 @@ header#account-header-component.d-flex.flex-column.gap-24
     alcor-link.position-relative(big :to="'/account/' + $route.params.id + '/nfts'")
       img.position-absolute.w-100.h-100(src="~/assets/images/nft-monkey.png", alt="nft-monkey")
       span {{ $t("NFT's") }}
-    alcor-link(big to="/qwe") {{ $t('Seller Page') }}
-    alcor-button(big)
+    alcor-button(big @click="goToSellerPage") {{ $t('Seller Page') }}
+    alcor-button(big @click="openTransferModal()")
       i.el-icon-takeaway-box
       span {{ $t('Transfer') }}
     alcor-button(big @click="goToTrade()")
@@ -69,6 +69,23 @@ export default {
     goBack() {
       this.$router.go(-1)
     },
+    goToSellerPage() {
+      this.$router.push({
+        name: `account-id-nfts-listings___${this.$i18n.locale}`,
+        params: { id: this.$route.params.id },
+        query: {
+          match: '',
+          collection: null,
+          sorting: null,
+          minMint: null,
+          maxMint: null,
+          minPrice: null,
+          maxPrice: null,
+          isDuplicates: null,
+          isBacked: null
+        }
+      })
+    },
     goToTrade() {
       this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.$route.params.id } })
     },
@@ -81,6 +98,9 @@ export default {
     },
     blockUserModal() {
       this.blockUser({ name: this.$route.params.id, imgSrc: this.profileImageSrc })
+    },
+    openTransferModal() {
+      this.transfer({ name: this.$route.params.id })
     },
     removeFriendModal() {
       this.removeFriend({ name: this.$route.params.id, imgSrc: this.profileImageSrc })
