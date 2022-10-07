@@ -109,9 +109,13 @@ export default {
   methods: {
     async login(provider) {
       this.loading = true
-
       try {
-        await this.$store.dispatch('chain/login', provider)
+        if (this.$store.state.modal.context?.ibcClient)
+          await this.$store.dispatch('chain/loginIBCClient', {
+            wallet_name: provider,
+            ibcClient: this.$store.state.modal.context.ibcClient
+          })
+        else await this.$store.dispatch('chain/login', provider)
         this.$store.dispatch('modal/closeModal')
       } catch (e) {
         captureException(e)
@@ -122,6 +126,7 @@ export default {
         })
       } finally {
         this.loading = false
+        this.$store.state.modal.context = null
       }
     }
   }

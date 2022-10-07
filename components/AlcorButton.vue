@@ -1,6 +1,7 @@
 <template>
   <button
     :class="['alcor-button', { flat, alternative, iconOnly, iconOnlyAlt, round, compact }]"
+    v-bind="$attrs"
     @click.prevent="$emit('click')">
     <div class="inner">
       <slot />
@@ -60,6 +61,10 @@ button {
   &.alternative {
     background: var(--btn-alternative);
   }
+  &:disabled {
+    .inner { color: var(--text-transparent); }
+    cursor: not-allowed;
+  }
 }
 
 .alcor-button .vs-icon {
@@ -70,7 +75,7 @@ button {
   background: transparent;
 }
 
-.alcor-button:hover {
+.alcor-button:hover:not([disabled]) {
   background: var(--hover);
 }
 
