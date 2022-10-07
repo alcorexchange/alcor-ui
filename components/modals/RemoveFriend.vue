@@ -1,7 +1,7 @@
 <template lang="pug">
 .remove-friend-component
   .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
-    img(src='~/assets/icons/UserMinus.svg')
+    i.el-icon-remove-outline
     span Remove Friend
   .d-flex.flex-column.gap-16
     span.fs-14.fw-bold Are you sure you want to remove?

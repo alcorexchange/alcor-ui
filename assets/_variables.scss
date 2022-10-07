@@ -1,6 +1,7 @@
 :root {
   --main-green: #66c167;
   --main-action-green: #67C23A;
+  --main-action-red: #FF7262;
   --main-wax: #F89022;
   --main-red: #f96c6c;
   --secondary-green: #1fc781;
@@ -75,7 +76,7 @@
   --text-secondary: #d9d9d9;
   --text-grey-thirdly: #bdbdbd;
   --text-dark: #888;
-  --text-disable: #9F979A;
+  --text-disable: #BEC6CB;
 
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
   --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
@@ -94,6 +95,9 @@
   --selector-bg: #282828;
 
   --table-header-background: #333333;
+  --dropdown-border: #333;
+  --tab-link-border: #333;
+  --dropdown-hover: rgba(200, 200, 200, 0.1);
 
   //trade 
   --trade-bg: #212121;
@@ -157,6 +161,10 @@
   --border-2: 2px solid #CDD0D6;
 
   --selector-bg: #dcdfe6;
+
+  --dropdown-border: #CDD0D6;
+  --tab-link-border: #CDD0D6;
+  --dropdown-hover: rgba(225, 225, 225, 0.5);
 
     //trade 
   --trade-bg: #F0F2F5;

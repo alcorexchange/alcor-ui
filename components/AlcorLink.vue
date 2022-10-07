@@ -1,5 +1,5 @@
 <template lang="pug">
-nuxt-link(:to="localePath(to, $i18n.locale)" :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]" :exact='exact' @click.prevent="$emit('click')")
+nuxt-link(:to="localePath(to, $i18n.locale)" :class="['alcor-button', { big, flat, iconOnly, iconOnlyAlt }]" :exact='exact' @click.prevent="$emit('click')")
   .inner
     slot
 </template>
@@ -10,6 +10,10 @@ export default {
   props: {
     to: {
       default: '/'
+    },
+    big: {
+      default: false,
+      type: Boolean
     },
     exact: {
       default: false
@@ -49,6 +53,16 @@ button {
   transition: all 0.3s;
   display: inline-block;
   text-decoration: none;
+}
+
+.alcor-button.big {
+  padding: 17px 12px;
+  width: 135px;
+  border-radius: var(--radius-2);
+}
+
+.alcor-button.active {
+  background: var(--background-color-third);
 }
 
 .alcor-button .vs-icon {

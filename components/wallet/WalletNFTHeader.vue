@@ -67,20 +67,20 @@ export default {
         this.getSalesCounts(this.user.name)
         this.getInventorySuggestedmedian(this.user.name)
       }
-    }
+    },
   },
   mounted() {
     if (this.user) {
-      this.getInventoryCounts(this.user.name)
-      this.getAuctionsCounts(this.user.name)
-      this.getInventoryValue(this.user.name)
-      this.getSalesCounts(this.user.name)
-      this.getInventorySuggestedmedian(this.user.name)
+      this.getInventoryCounts(this.$route.params.id || this.user.name)
+      this.getAuctionsCounts(this.$route.params.id || this.user.name)
+      this.getInventoryValue(this.$route.params.id || this.user.name)
+      this.getSalesCounts(this.$route.params.id || this.user.name)
+      this.getInventorySuggestedmedian(this.$route.params.id || this.user.name)
     }
   },
   methods: {
     async getInventoryCounts(owner) {
-      const data = await this.$store.dispatch('api/getInventoryCounts', {
+      const data = await this.$store.dispatch('api/getinventorycounts', {
         owner
       })
       this.inventoryCount = data

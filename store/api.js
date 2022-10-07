@@ -198,7 +198,7 @@ export const actions = {
   }, {
     limit,
     search,
-    collectionName
+    collectionName,
   }) {
     try {
       const {
@@ -356,7 +356,7 @@ export const actions = {
     try {
       const {
         data
-      } = await this.$api.post('v1/chain/get_table_by_scope', {
+      } = await this.$api.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
         code: 'eosio',
         limit,
         lower_bound: search,
@@ -385,7 +385,7 @@ export const actions = {
         data
       } = await this.$api.post('/atomicmarket/v1/assets', {
         page: 1,
-        limit: 100,
+        limit: 25,
         order: 'desc',
         sort: 'transferred',
         ...options
@@ -398,34 +398,38 @@ export const actions = {
     }
   },
 
-  async getSales({
-    dispatch
-  }, {
-    seller,
-    state,
-    participant,
-    buyer
-  }) {
+  async getSale({ dispatch }, { sale_id }) {
     try {
       const {
         data
-      } = await this.$api.get(
-        'atomicmarket/v2/sales?page=1&limit=100&order=desc&sort=created' +
-        (seller ? '&seller=' + seller : '') +
-        (buyer ? '&buyer=' + buyer : '') +
-        (state ? '&state=' + state : '') +
-        (participant ? '&participant=' + participant : '')
+      } = await this.$api.get(`/atomicmarket/v1/sales/${sale_id}`)
+      return data.data
+    } catch (e) {
+      return await dispatch('getSale', { sale_id })
+    }
+  },
+
+  async getSales({
+    dispatch
+  }, options) {
+    try {
+      const {
+        data
+      } = await this.$api.post(
+        'atomicmarket/v2/sales',
+        {
+          page: 1,
+          limit: 20,
+          state: '0,1,4',
+          symbol: 'WAX',
+          ...options
+        }
       )
 
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
-      return await dispatch('getSales', {
-        seller,
-        state,
-        participant,
-        buyer
-      })
+      return await dispatch('getSales', options)
     }
   },
 
@@ -575,6 +579,24 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
+    }
+  },
+  async getBuyOffers({ dispatch, rootState }, { sort, seller }) {
+    try {
+      const { data } = await this.$api.post('atomicmarket/v1/buyoffers', {
+        limit: '10',
+        min_price: '3',
+        order: 'desc',
+        page: '1',
+        seller: seller || rootState.user.name,
+        sort: 'created',
+        state: '0,4',
+        symbol: 'WAX'
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get buy offers error', e)
+      return await dispatch('getBuyOffers', { sort, seller }) // refetch
     }
   },
   async getBoughtCounts({

@@ -40,7 +40,6 @@ export const actions = {
   },
 
   async addFriend({ rootState, dispatch }, accountName) {
-    console.log(accountName)
     const actions = [
       {
         account: 'atomhubtools',

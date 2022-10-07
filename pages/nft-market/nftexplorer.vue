@@ -47,7 +47,12 @@
       v-for='(item, index) in accountsData',
       :key='"accounts-" + index'
     )
-      NormalCard(v-if='item', :data='item', :price='getPrice', mode='accounts' :assetsCountLoaded="assetsCountLoaded" :suggestedAverageLoaded="suggestedAverageLoaded")
+      account-card(
+        :key='"accounts-" + index'
+        v-if='item'
+        :data="item"
+      )
+
 </template>
 
 <script>
@@ -55,6 +60,7 @@
 import { mapState, mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import NormalCard from '~/components/nft_markets/NormalCard'
+import AccountCard from '~/components/cards/AccountCard.vue'
 import ExplorerTab from '~/components/nft_markets/ExplorerTab'
 import MarketTabs from '~/components/nft_markets/MarketTabs'
 import InputSearch from '~/components/nft_markets/InputSearch'
@@ -68,6 +74,7 @@ export default {
     ExplorerTab,
     MarketTabs,
     InputSearch,
+    AccountCard,
     VueSkeletonLoader,
   },
 

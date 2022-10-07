@@ -33,7 +33,7 @@
           span 2%
 
       .d-flex.gap-32
-        alcor-button(@click="openListingModal") Buy Listing
+        alcor-button(v-if="isListed" @click="openListingModal") Buy Listing
         alcor-button.w-50(access, :disabled="!isOfferReady || !isValidAmount" @click="sendOffer()") Send Buy Offer
 
     .d-flex.flex-column.gap-16
@@ -86,14 +86,13 @@
               wave-color='rgba(150, 150, 150, 0.1)',
               :rounded='true'
             )
-            normal-card.pointer(
+            preview-card.pointer(
               v-else
               v-for="item in availableAssets"
               :key="item.asset_id"
               :data="item"
-              @click="offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name ? null : toggleSelected(item)"
-              :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name }"
-              mode="preview"
+              @click="toggleSelected(item)"
+              :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: offerAssets && offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name }"
               :small="true"
             )
           .gradient
@@ -105,18 +104,20 @@ import { mapState, mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import Chart from '~/components/nft_markets/Chart'
 import AssetsField from '~/components/nft_markets/AssetsField'
-import NormalCard from '~/components/nft_markets/NormalCard'
+import PreviewCard from '~/components/cards/PreviewCard'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
-  components: { AssetsField, NormalCard, VueSkeletonLoader, Chart, AlcorButton },
+  components: { AssetsField, VueSkeletonLoader, Chart, AlcorButton, PreviewCard },
   data: () => ({
     loading: false,
     selectedCollection: null,
     isDuplicates: false,
     isBacked: false,
+    isListed: false,
     minMint: null,
     maxMint: null,
+    listingID: null,
     search: '',
     availableAssets: [],
     availableCollections: [],
@@ -129,8 +130,8 @@ export default {
   }),
   computed: {
     ...mapState('modal', ['context']),
-    refetchProps() { [this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() },
-    isOfferReady() { return this.waxAmount && this.offerAssets.length },
+    refetchProps() { [this.context, this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() },
+    isOfferReady() { return this.waxAmount && this.offerAssets?.length },
     isValidAmount() { return this.waxAmount >= 3 }
   },
   watch: {
@@ -147,6 +148,7 @@ export default {
       this.getChart()
       this.getLowestPrice()
       this.getMarketFee()
+      this.checkListed()
     }
   },
   mounted() {
@@ -155,17 +157,27 @@ export default {
     this.getAccountCollection()
   },
   methods: {
-    ...mapActions('api', ['getAssets', 'getAccountSpecificStats', 'getChartData', 'getTemplatePrice']),
+    ...mapActions('api', ['getAssets', 'getAccountSpecificStats', 'getChartData', 'getTemplatePrice', 'getSpecificAsset', 'getSale']),
     ...mapActions('chain', ['sendBuyOffer']),
     ...mapActions('modal', ['buy']),
-    openListingModal() {
-      this.buy()
+    async openListingModal() {
+      this.isListed && this.listingID && this.buy(await this.getSale({ sale_id: this.listingID }))
+    },
+    async checkListed() {
+      const sales = this.offerAssets.length === 1 && (await this.getSpecificAsset({ asset_id: this.offerAssets[0].asset_id })).sales
+      if (sales.length) {
+        this.isListed = true
+        this.listingID = sales[0].sale_id
+      } else {
+        this.isListed = false
+        this.listingID = null
+      }
     },
     setOptions() {
-      this.selectedCollection = this.context.collection_name || this.context.assets[0].collection.collection_name
+      this.selectedCollection = this.context.collection.collection_name || this.context.assets[0].collection.collection_name
     },
     selectAsset() {
-      this.toggleSelected(this.context.assets[0])
+      this.toggleSelected(this.context)
     },
     toggleSelected(asset) {
       this.offerAssets.find(({ asset_id }) => asset_id === asset.asset_id)
@@ -177,7 +189,7 @@ export default {
         buyOfferPrice: (+this.waxAmount).toFixed(8) + ' WAX',
         assetsIDs: this.offerAssets.map(({ asset_id }) => asset_id),
         memo: this.memo,
-        seller: this.context.seller
+        seller: this.context.owner
       })
     },
     getMarketFee() {
@@ -196,14 +208,14 @@ export default {
         schema_name: this.offerAssets[0].schema.schema_name,
         burned: this.offerAssets[0].is_burnable
       })
-      this.chartData = data
+      this.chartData = data || []
     },
     fetchAssets() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
         this.loading = true
         const assets = await this.getAssets({
-          owner: this.context.seller,
+          owner: this.context.owner,
           collection_name: this.selectedCollection,
           search: this.search,
           max_template_mint: this.maxMint,
@@ -221,7 +233,7 @@ export default {
       }, 600)
     },
     async getAccountCollection() {
-      const { collections } = await this.getAccountSpecificStats({ account: this.context.seller })
+      const { collections } = await this.getAccountSpecificStats({ account: this.context.owner })
       this.availableCollections = collections.map(({ assets, collection }) => ({ ...collection, assets }))
     }
   }

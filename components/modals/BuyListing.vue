@@ -4,7 +4,7 @@
     i.el-icon-price-tag
     span Buy Listing
   .d-flex.justify-content-between.gap-32
-    NormalCard(v-if='context.assets[0]', :data='context.assets[0]', mode="preview")
+    preview-card(v-if='context.assets[0]', :data='context.assets[0]')
     div
       span.fs-18.disable Summary
       .d-flex.align-items-start.gap-64.mt-3
@@ -38,9 +38,10 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
+import PreviewCard from '~/components/cards/PreviewCard'
 
 export default {
-  components: { NormalCard: () => import('~/components/nft_markets/NormalCard'), AlcorButton },
+  components: { PreviewCard, AlcorButton },
   data: () => ({ total: '?' }),
   computed: {
     ...mapState('modal', ['context']),
@@ -59,7 +60,7 @@ export default {
     ...mapActions('chain', ['buyAsset']),
     ...mapActions('modal', ['makeOffer']),
     openOfferModal() {
-      this.makeOffer()
+      this.makeOffer(this.context.assets[0])
     },
     async buy() {
       try {

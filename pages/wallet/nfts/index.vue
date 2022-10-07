@@ -4,11 +4,6 @@
   .header
     InputSearch(v-model="search")
     MarketTabs(:tabs="tabs" v-model="currentTab" @change="handleTab")
-  //- HorizontalMenu(
-  //-   :tabs='currentTab != "inventory" ? (currentTab === "listings" ? horizontalTabData.normalTabs : horizontalTabData.auctionTabs) : []',
-  //-   :currentTab='currentHorizontalTab',
-  //-   :handleTab='handleHorizonalTab'
-  //- )
   div(v-if='detailCollectionMode')
     .d-flex.justify-content-between.align-items-center.mb-4
       h1.text-capitalize.set-collection-name {{ setCollectionName }}
@@ -269,12 +264,16 @@ export default {
         owner: this.user.name,
       })
 
+      console.log('data', data)
+
       Promise.all(
         data.map(({ asset_id }) =>
           this.$store.dispatch('api/getAssetsSales', { asset_id, buyer: this.user.name }))
       ).then(assetsSales => {
-        assetsSales.forEach((sales, idx) =>
+        assetsSales.forEach((sales, idx) => {
+          console.log(sales)
           data[idx].purchasePrice = sales.sort((a, b) => b.block_time - a.block_time)[0]
+        }
         )
         this.inventoryData = data
         this.loading = false

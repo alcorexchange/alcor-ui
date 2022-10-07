@@ -43,6 +43,18 @@ export default {
   border: var(--border-2);
   padding: 5px 0;
 
+  max-height: 250px;
+  overflow: scroll;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+
+
   .element-item {
     cursor: pointer;
     width: 260px;

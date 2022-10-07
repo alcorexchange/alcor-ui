@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, access, outline, transparent, iconOnly, iconOnlyAlt, round, compact }]"
+    :class="['alcor-button', { flat, alternative, access, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
     @click.prevent="$emit('click')">
     <div class="inner">
       <slot />
@@ -24,6 +24,10 @@ export default {
       default: false,
       type: Boolean
     },
+    danger: {
+      default: false,
+      type: Boolean
+    },
     outline: {
       default: false,
       type: Boolean
@@ -37,6 +41,10 @@ export default {
       type: Boolean
     },
     compact: {
+      default: false,
+      type: Boolean
+    },
+    big: {
       default: false,
       type: Boolean
     },
@@ -106,6 +114,26 @@ button {
   background: var(--btn-outline);
 }
 
+.alcor-button.danger {
+  background: var(--main-action-red);
+  border: 1px solid var(--main-action-red);
+  color: var(--text-theme);
+}
+
+.alcor-button.danger:hover {
+  background: transparent;
+  color: var(--main-action-red);
+  border: 1px solid var(--main-action-red);
+}
+
+.alcor-button.danger:disabled {
+  background: var(--main-action-red);
+  border: 1px solid var(--main-action-red);
+  color: var(--text-theme);
+  filter: brightness(50%);
+  cursor: not-allowed;
+}
+
 .alcor-button.access {
   background: var(--main-action-green);
   border: 1px solid var(--main-action-green);
@@ -130,12 +158,24 @@ button {
   padding: 4px 12px;
 }
 
+.alcor-button.big {
+  padding: 17px 12px;
+  width: 135px;
+  border-radius: var(--radius-2);
+}
+
 .inner {
   display: flex;
   gap: 10px;
   justify-content: center;
   align-items: center;
   font-size: 14px;
+
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
 }
 
 .iconOnly {
