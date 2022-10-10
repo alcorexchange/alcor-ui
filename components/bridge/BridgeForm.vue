@@ -42,10 +42,12 @@
   .d-flex.justify-content-between
     alcor-button.connect-button(
       :disabled="!formData.fromNetwork"
+      @click="$store.dispatch('modal/login', { ibcClient: 'sender' })"
     )
       | Connect Wallet
     alcor-button.connect-button(
       :disabled="!formData.toNetwork"
+      @click="$store.dispatch('modal/login', { ibcClient: 'receiver' })"
 
     )
       | Connect Wallet

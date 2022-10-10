@@ -104,6 +104,14 @@ export const actions = {
     //if (state.loginPromise) state.loginPromise.resolve(false)
   },
 
+  async loginIBCClient({ state, commit, dispatch, getters, rootState }, { wallet_name, ibcClient }) {
+    console.log('login ibcClient', ibcClient)
+    commit('setCurrentWallet', wallet_name)
+
+    const { name, authorization } = await getters.wallet.login()
+    commit('setIBCClient', { ibcClient, name, authorization }, { root: true })
+  },
+
   transfer({ dispatch, rootState }, { contract, actor, quantity, memo, to }) {
     return dispatch('sendTransaction',
       [
