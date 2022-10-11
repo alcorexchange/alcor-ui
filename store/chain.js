@@ -112,6 +112,10 @@ export const actions = {
     commit('setIBCClient', { ibcClient, name, authorization }, { root: true })
   },
 
+  logOutIBCClient({ commit }, ibcClient) {
+    commit('logOutIBCClient', ibcClient, { root: true })
+  },
+
   transfer({ dispatch, rootState }, { contract, actor, quantity, memo, to }) {
     return dispatch('sendTransaction',
       [

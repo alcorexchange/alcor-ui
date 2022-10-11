@@ -59,6 +59,7 @@ export const mutations = {
 
   setUser: (state, user) => state.user = user,
   setIBCClient: (state, { ibcClient, name, authorization }) => state.ibcClients[ibcClient] = { name, authorization },
+  logOutIBCClient: (state, ibsClient) => state.ibcClients[ibsClient] = null,
   setMarkets: (state, markets) => {
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
     state.markets = markets

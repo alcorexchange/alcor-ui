@@ -44,13 +44,34 @@
       :disabled="!formData.fromNetwork"
       @click="$store.dispatch('modal/login', { ibcClient: 'sender' })"
     )
-      | Connect Wallet
+      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
+        .d-flex.align-items-center.gap-8
+          img(
+            :src='require("~/assets/icons/avatar.png")',
+            height=18
+          )
+          .fs-14 {{ formData.sender.name }}
+        .d-flex.align-items-center.gap-8(@click.stop="$store.dispatch('chain/logOutIBCClient', 'sender')")
+          .fs-12 Logout
+          i.el-icon-right
+      .fs-14(v-else) Connect Wallet
+
     alcor-button.connect-button(
       :disabled="!formData.toNetwork"
       @click="$store.dispatch('modal/login', { ibcClient: 'receiver' })"
-
     )
-      | Connect Wallet
+      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
+        .d-flex.align-items-center.gap-8
+          img(
+            :src='require("~/assets/icons/avatar.png")',
+            height=18
+          )
+          .fs-14 {{ formData.receiver.name }}
+        .d-flex.align-items-center.gap-8(@click.stop="$store.dispatch('chain/logOutIBCClient', 'receiver')")
+          .fs-12 Logout
+          i.el-icon-right
+      .fs-14(v-else) Connect Wallet
+
 
   .d-flex.justify-content-between.gap-32.mt-4
     .amount-input

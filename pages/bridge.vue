@@ -15,8 +15,18 @@ export default {
       fromNetwork: null,
       toNetwork: null,
       amount: null,
-      asset: 'usdt'
+      asset: 'usdt',
+      sender: null,
+      receiver: null
     }
-  })
+  }),
+  watch: {
+    '$store.state.ibcClients.sender'(v) {
+      this.formData.sender = v
+    },
+    '$store.state.ibcClients.receiver'(v) {
+      this.formData.receiver = v
+    }
+  },
 }
 </script>
