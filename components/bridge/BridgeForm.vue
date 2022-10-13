@@ -77,8 +77,8 @@
     .amount-input
       el-input(placeholder="Amount" v-model="formData.amount")
       span.max-btn.pointer MAX
-    alcor-button.choise-asset-btn
-      .d-flex.justify-content-between.align-items-center.w-100
+    alcor-button.choise-asset-btn(@click="$store.dispatch('modal/assets')")
+      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.asset")
         .d-flex.gap-8.align-items-center
           img(
             :src='require("~/assets/icons/" + formData.asset + ".png")',
@@ -98,7 +98,14 @@ export default {
   props: ['formData'],
   data: () => ({
     assetLabels: {
-      usdt: 'USDT'
+      usdt: 'USDT',
+      wax: 'WAXP',
+      eos: 'EOS',
+      matic: 'MATIC',
+      pbtc: 'pBTC',
+      weth: 'WETH',
+      sol: 'SOL',
+      usdc: 'USDC'
     },
     fromNetworkOptions: [{
       value: 'eos',

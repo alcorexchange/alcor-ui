@@ -705,6 +705,10 @@ pre {
   color: var(--text-grey-thirdly) !important;
 }
 
+.color-green {
+  color: var(--main-green) !important;
+}
+
 .weight-700 {
   font-weight: 700;
 }
@@ -743,6 +747,9 @@ pre {
 
 .gap-8 {
   gap: 8px;
+}
+.gap-21 {
+  gap: 21px;
 }
 .gap-30 {
   gap: 30px;

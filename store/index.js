@@ -10,6 +10,7 @@ export const strict = false
 export const state = () => ({
   user: null,
   ibcClients: { sender: null, receiver: null },
+  selectedAsset: 'usdt',
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -38,6 +39,9 @@ export const state = () => ({
 export const mutations = {
   setNetwork: (state, network) => {
     state.network = network
+  },
+  setSelectedAsset: (state, asset) => {
+    state.selectedAsset = asset
   },
 
   // TODO Refactor for better balances handling

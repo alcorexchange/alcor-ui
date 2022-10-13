@@ -6416,14 +6416,14 @@
 .el-tooltip__popper[x-placement^=bottom] .popper__arrow {
     top: -6px;
     border-top-width: 0;
-    border-bottom-color: #F2F2F2
+    border-bottom-color: #161617
 }
 
 .el-tooltip__popper[x-placement^=bottom] .popper__arrow::after {
     top: 1px;
     margin-left: -5px;
     border-top-width: 0;
-    border-bottom-color: #F2F2F2
+    border-bottom-color: #161617
 }
 
 .el-tooltip__popper[x-placement^=right] {

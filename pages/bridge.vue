@@ -15,12 +15,15 @@ export default {
       fromNetwork: null,
       toNetwork: null,
       amount: null,
-      asset: 'usdt',
+      asset: null,
       sender: null,
       receiver: null
     }
   }),
   watch: {
+    '$store.state.selectedAsset'(v) {
+      this.formData.asset = v
+    },
     '$store.state.ibcClients.sender'(v) {
       this.formData.sender = v
     },
@@ -28,5 +31,8 @@ export default {
       this.formData.receiver = v
     }
   },
+  mounted() {
+    this.formData.asset = this.$store.state.selectedAsset
+  }
 }
 </script>

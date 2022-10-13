@@ -17,6 +17,12 @@ export const actions = {
     context && commit('setContext', context)
   },
 
+  assets({ commit }, context) {
+    commit('setCurrent', 'assets')
+    commit('setVisible', true)
+    context && commit('setContext', context)
+  },
+
   closeModal({ commit }) {
     commit('setVisible', false)
     commit('setContext', null)
