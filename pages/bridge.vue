@@ -1,6 +1,8 @@
 <template lang="pug">
-#bridge-page
-  bridge-form(:formData.sync="formData")
+#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-5
+  .fs-48 Alcor IBC Bridge
+  .fs-24 Bridge assets from different chains
+  bridge-form.mt-4(:formData.sync="formData")
   pre {{ formData }}
 
 </template>

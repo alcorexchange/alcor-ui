@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, iconOnly, iconOnlyAlt, round, compact }]"
+    :class="['alcor-button', { flat, alternative, iconOnly, access, iconOnlyAlt, round, compact }]"
     v-bind="$attrs"
     @click.prevent="$emit('click')">
     <div class="inner">
@@ -18,6 +18,10 @@ export default {
       type: Boolean
     },
     alternative: {
+      default: false,
+      type: Boolean
+    },
+    access: {
       default: false,
       type: Boolean
     },
@@ -86,6 +90,30 @@ button {
 .alcor-button.round {
   border-radius: 40px;
   padding: 6px 14px;
+}
+
+.alcor-button.access {
+  background: var(--main-action-green);
+  border: 1px solid var(--main-action-green);
+  .inner {
+      color: var(--text-theme);
+  }
+}
+.alcor-button.access:hover {
+  background: transparent;
+  border: 1px solid var(--main-action-green);
+  .inner {
+      color: var(--main-action-green);
+  }
+}
+.alcor-button.access:disabled {
+  background: var(--main-action-green);
+  border: 1px solid var(--main-action-green);
+  filter: brightness(50%);
+  cursor: not-allowed;
+  .inner {
+      color: var(--text-theme);
+  }
 }
 
 .alcor-button.compact {

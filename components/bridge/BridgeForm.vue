@@ -72,7 +72,6 @@
           i.el-icon-right
       .fs-14(v-else) Connect Wallet
 
-
   .d-flex.justify-content-between.gap-32.mt-4
     .amount-input
       el-input(placeholder="Amount" v-model="formData.amount")
@@ -86,17 +85,23 @@
           )
           .fs-14 {{ assetLabels[formData.asset] }}
         i.el-icon-arrow-down
+  .d-flex.justify-content-center.mt-4
+    alcor-button.transfer-btn(access :disabled="!isValid" @click="inProgress = true") Transfer and Prove
+  bridge-slider(v-if="inProgress" :steps="steps")
+  alcor-button(@click="makeError()" v-if="inProgress") error
 </template>
 
 <script>
 import AlcorSelect from '~/components/AlcorSelect.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
 import NetworkOption from '~/components/bridge/NetworkOption'
+import BridgeSlider from '~/components/bridge/BridgeSlider'
 
 export default {
-  components: { AlcorSelect, AlcorButton, NetworkOption },
+  components: { AlcorSelect, AlcorButton, NetworkOption, BridgeSlider },
   props: ['formData'],
   data: () => ({
+    inProgress: false,
     assetLabels: {
       usdt: 'USDT',
       wax: 'WAXP',
@@ -122,9 +127,25 @@ export default {
     }, {
       value: 'bos',
       label: 'BOS'
-    }]
+    }],
+
+    steps: [
+      { id: 0, progress: 100, label: 'Waiting for Transaction irreversibility', status: 'success' },
+      { id: 1, progress: 50, label: 'Fetching proof for interchain transfer', status: 'active' },
+      { id: 2, progress: 0, label: 'Submitting proof(s)', status: 'waiting' },
+      { id: 3, progress: 0, label: 'Finalizing', status: 'waiting' }
+    ]
   }),
+  computed: {
+    isValid() {
+      return Object.values(this.formData).every(Boolean)
+    }
+  },
   methods: {
+    makeError() {
+      this.steps[1].status = 'error'
+      this.steps[1].message = 'TX not approved'
+    }
   }
 }
 </script>
@@ -137,6 +158,10 @@ export default {
   width: 720px;
   margin: 0 auto;
   padding: 32px;
+
+  .transfer-btn {
+    width: 312px;
+  }
 
   .network-select,
   .connect-button {
