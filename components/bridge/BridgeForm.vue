@@ -1,5 +1,5 @@
 <template lang="pug">
-#brdidge-form-component.form
+#bridge-form-component.form
   .d-flex.justify-content-between
     .d-flex.flex-column
       .mb-3 Send from
@@ -88,7 +88,6 @@
   .d-flex.justify-content-center.mt-4
     alcor-button.transfer-btn(access :disabled="!isValid" @click="inProgress = true") Transfer and Prove
   bridge-slider(v-if="inProgress" :steps="steps")
-  alcor-button(@click="makeError()" v-if="inProgress") error
 </template>
 
 <script>
@@ -158,6 +157,7 @@ export default {
   width: 720px;
   margin: 0 auto;
   padding: 32px;
+  z-index: 100;
 
   .transfer-btn {
     width: 312px;
