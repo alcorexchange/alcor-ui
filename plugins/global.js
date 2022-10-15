@@ -1,3 +1,4 @@
+// NO HAVY LOGIC HERE (runs each request)
 import fetch from 'node-fetch'
 import { io } from 'socket.io-client'
 import { isEmpty } from 'lodash'
@@ -19,6 +20,8 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
 
     commit('setBaseUrl', `https://${subdomain}alcor.exchange`)
     commit('setNetwork', config.networks[process.env.NETWORK])
+
+    global.CURRENT_REQUEST_NETWORK = state.network.name
   } else if (process.server) {
     const protocol = process.env.isDev ? 'http' : 'https'
     commit('setBaseUrl', `${protocol}://${req.headers.host}`)
@@ -34,7 +37,11 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     } else {
       commit('setNetwork', config.networks[subdomain[0]])
     }
+
+    //global.CURRENT_REQUEST_NETWORK = state.network.name
   }
+
+  global.CURRENT_REQUEST_NETWORK = 'LOLOLOLO'
 
   $axios.setBaseURL(state.baseUrl.replace('https', 'http') + '/api')
 
@@ -83,4 +90,13 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
     inject('rpc', rpc)
   }
+
+  // TODO
+  //sitemap generation
+  //routes: async () => {
+  //  const { data: pairs } = await axios.get('https://alcor.exchange/api/v2/pairs')
+  //  return pairs.map(pair => `/trade/${pair.ticker_id}`)
+  //},
+
+
 }

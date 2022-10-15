@@ -135,12 +135,20 @@ module.exports = {
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap'
   ],
+
+  serverMiddleware: [
+    //{ path: '/sitemap.xml', handler: '~/server-middleware/sitemap.js' },
+  ],
+
   sitemap: {
-    hostname: 'https://alcor.exchange',
-    routes: async () => {
-      const { data: pairs } = await axios.get('https://alcor.exchange/api/v2/pairs')
-      return pairs.map(pair => `/trade/${pair.ticker_id}`)
-    },
+    //hostname: 'https://alcor.exchange',
+    i18n: true,
+    //routes: async (a, b, c) => {
+    //  console.log('asdfasdfasdf', global.CURRENT_REQUEST_NETWORK)
+    //  //return ['/zzzzzz']
+    //  //const { data: pairs } = await axios.get('https://alcor.exchange/api/v2/pairs')
+    //  //return pairs.map(pair => `/trade/${pair.ticker_id}`)
+    //},
     //gzip: true,
   },
   i18n: {
