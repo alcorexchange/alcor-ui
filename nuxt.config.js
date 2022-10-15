@@ -1,5 +1,5 @@
 const axios = require('axios')
-//const config = require('./config')
+const config = require('./config')
 const pkg = require('./package')
 
 const isSPA = process.argv.includes('--spa')
@@ -141,15 +141,12 @@ module.exports = {
   ],
 
   sitemap: {
-    //hostname: 'https://alcor.exchange',
     i18n: true,
-    //routes: async (a, b, c) => {
-    //  console.log('asdfasdfasdf', global.CURRENT_REQUEST_NETWORK)
-    //  //return ['/zzzzzz']
-    //  //const { data: pairs } = await axios.get('https://alcor.exchange/api/v2/pairs')
-    //  //return pairs.map(pair => `/trade/${pair.ticker_id}`)
-    //},
-    //gzip: true,
+    dynamicHost: true,
+    routes: async (host) => {
+      const { data: pairs } = await axios.get(`https://${host}/api/v2/pairs`)
+      return pairs.map(pair => `/trade/${pair.ticker_id}`)
+    }
   },
   i18n: {
     langDir: '~/locales',
