@@ -1,4 +1,5 @@
-const config = require('./config')
+const axios = require('axios')
+//const config = require('./config')
 const pkg = require('./package')
 
 const isSPA = process.argv.includes('--spa')
@@ -126,16 +127,22 @@ module.exports = {
   ** Nuxt.js modules
   */
   modules: [
-    // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'nuxt-highcharts',
-    //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
-    '@nuxtjs/i18n'
-    //'nuxt-purgecss' // FIXME Fails on docker pro
+    '@nuxtjs/i18n',
+    '@nuxtjs/sitemap'
   ],
+  sitemap: {
+    hostname: 'https://alcor.exchange',
+    routes: async () => {
+      const { data: pairs } = await axios.get('https://alcor.exchange/api/v2/pairs')
+      return pairs.map(pair => `/trade/${pair.ticker_id}`)
+    },
+    //gzip: true,
+  },
   i18n: {
     langDir: '~/locales',
     locales: [
