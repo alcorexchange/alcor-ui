@@ -144,7 +144,7 @@ module.exports = {
     i18n: true,
     dynamicHost: true,
     routes: async (host) => {
-      const { data: pairs } = await axios.get(`https://${host}/api/v2/pairs`)
+      const { data: pairs } = await axios.get(`http://${host}/api/v2/pairs`)
       return pairs.map(pair => `/trade/${pair.ticker_id}`)
     }
   },
