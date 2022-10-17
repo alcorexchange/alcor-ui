@@ -444,7 +444,7 @@ export const actions = {
     // TODO Rm this if not userd
     if (!state.user) return
 
-    const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`)
+    const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`, { params: { limit: 50 } })
     commit('setUserDeals', deals)
   }
 }
