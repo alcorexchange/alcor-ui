@@ -87,6 +87,7 @@
     "eslint-plugin-vue": "^6.0.1",
     "esm": "^3.2.25",
     "nodemon": "^2.0.4",
+    "prompt-confirm": "^2.0.4",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.32.8",
