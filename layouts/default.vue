@@ -162,7 +162,7 @@ export default {
 }
 
 .full-width {
-  max-width: 1920px;
+  max-width: 100%;
   padding: 0px;
 
   .nav {

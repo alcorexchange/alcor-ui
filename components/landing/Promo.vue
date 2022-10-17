@@ -126,9 +126,7 @@ export default {
   },
   mounted() {
     this.fetchCharts()
-    this.interval = setInterval(this.fetchCharts, 1000)
   },
-  destroyed() { clearInterval(this.interval) },
   methods: {
     async fetchCharts() {
       if (this.promo) {
