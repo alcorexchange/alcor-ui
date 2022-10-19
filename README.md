@@ -1,4 +1,4 @@
-Project is Hiring C++ Contracts Dev NOW! Good payment in cryptocurrency(hourly/mounthly)! Contact: [@avral](https://t.me/avral)
+We are Hiring C++ Contracts Developers! Good payment in cryptocurrency(hourly/mounthly)! Contact: [@avral](https://t.me/avral)
 --
 # The first listing free decentralized exchange.
 Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)
