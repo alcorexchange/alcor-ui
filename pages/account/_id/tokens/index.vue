@@ -2,13 +2,18 @@
 .account-tokens-page
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
-      pre {{ item }}
-      //wallet-row(:item="item" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
+      wallet-row(:item="item")
 
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+import VirtualTable from '@/components/VirtualTable'
+import WalletRow from '@/components/wallet/WalletRow'
+
 export default {
+  components: { VirtualTable, WalletRow },
+  data: () => ({ balances: [] }),
   computed: {
     virtualTableData() {
       const header = [
@@ -20,22 +25,37 @@ export default {
         },
         {
           label: 'Total',
-          width: '235px'
+          width: '355px'
         },
         {
           label: 'Available',
           value: 'amount',
-          width: '215px',
+          width: '340px',
           sortable: true
         }
       ]
 
-      //const data = this.balances
+      const data = this.balances
       const itemSize = 59
       const pageMode = true
 
       return { pageMode, itemSize, header, data }
     }
+  },
+  mounted() {
+    this.getAccountBalances()
+  },
+  methods: {
+    ...mapActions(['loadAccountBalance']),
+    async getAccountBalances() {
+      this.balances = await this.loadAccountBalance(this.$route.params.id)
+    }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.account-tokens-page {
+  width: 955px;
+}
+</style>
