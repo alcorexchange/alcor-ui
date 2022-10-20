@@ -110,6 +110,7 @@ export default {
     },
     activeTab() {
       this.fetchAssets()
+      this.getAccountCollections()
     },
     '$route.query'() {
       this.fetchAssets()
@@ -120,11 +121,20 @@ export default {
     this.hisOfferAssets = []
     this.getTradersImage()
     this.fetchAssets()
+    this.getAccountCollections()
   },
   methods: {
     ...mapActions('social', ['getPhotoHash']),
-    ...mapActions('api', ['getAssets']),
+    ...mapActions('api', ['getAssets', 'getAccountSpecificStats']),
     ...mapActions('chain', ['sendTradeOffer']),
+
+    async getAccountCollections() {
+      this.options.collections = null
+      const { collections } = await this.getAccountSpecificStats({
+        account: this.activeTab ? this.$route.params.id : this.user.name
+      })
+      this.options.collection = collections
+    },
     send() {
       this.sendTradeOffer({
         recipient: this.$route.params.id,

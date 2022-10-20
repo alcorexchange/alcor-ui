@@ -80,6 +80,10 @@ button {
   &.alternative {
     background: var(--btn-alternative);
   }
+
+  &.active {
+    background: var(--hover);
+  }
 }
 
 .alcor-button .vs-icon {
