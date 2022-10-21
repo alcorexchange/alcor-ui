@@ -10,10 +10,7 @@ export const wax = {
       "P2E",
       "NFT"
     ],
-    socials: [
-      "https://t.me/asdfasdf",
-      "https://vk.com/asdfasdf"
-    ],
+    socials: [],
     description: "Blockchain Brawlers is the first play-to-earn (P2E) game experience built by WAX Game Studios on the WAX Blockchain. You can collect Brawlers, equip them with gear and send them to Brawl in the Ring for rewards."
   },
   "FWW@farmerstoken": {
