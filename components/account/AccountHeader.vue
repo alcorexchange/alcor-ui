@@ -16,7 +16,7 @@ header#account-header-component.d-flex.flex-column.gap-24
       alcor-button(@click="blockUserModal" danger big) Block Account
   .d-flex.gap-29.flex-wrap.w-100
     alcor-button(big @click="goToTokens" :class="{ active: $route.name.startsWith('account-id-tokens') }") {{ $t('Tokens') }}
-    alcor-link(big to="/zxc") {{ $t('Transactions') }}
+    alcor-button(big @click="goToTransactions()" :class="{ active: $route.name.startsWith('account-id-transactions') }") {{ $t('Transactions') }}
     alcor-button.position-relative(big @click="goToAssets()" :class="{ active: $route.name.startsWith('account-id-nfts-inventory') }")
       img.position-absolute.w-100.h-100(src="~/assets/images/nft-monkey.png", alt="nft-monkey")
       span {{ $t("NFT's") }}
@@ -107,6 +107,12 @@ export default {
     goToTokens() {
       this.$router.push({
         name: `account-id-tokens___${this.$i18n.locale}`,
+        params: { id: this.$route.params.id }
+      })
+    },
+    goToTransactions() {
+      this.$router.push({
+        name: `account-id-transactions___${this.$i18n.locale}`,
         params: { id: this.$route.params.id }
       })
     },

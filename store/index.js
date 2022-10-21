@@ -465,6 +465,11 @@ export const actions = {
     }
   },
 
+  async fetchAccountDeals(_, accountName) {
+    const { data: deals } = await this.$axios.get(`https://alcor.exchange/api/account/${accountName}/deals`, { params: { limit: 50 } })
+    return deals
+  },
+
   async fetchUserDeals({ state, commit }) {
     // TODO Rm this if not userd
     if (!state.user) return
