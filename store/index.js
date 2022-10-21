@@ -345,6 +345,33 @@ export const actions = {
     }
   },
 
+  async loadAccountBalance({ state, rootState, commit }, accountName) {
+    const { data } = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${accountName}`)
+    const balances = data.balances.filter(b => parseFloat(b.amount) > 0)
+
+    return balances.map(token => {
+      token.id = token.currency + '@' + token.contract
+
+      const { systemPrice } = rootState.wallet
+      const market = state.markets.filter(m => {
+        return m.base_token.contract == state.network.baseToken.contract &&
+          m.quote_token.contract == token.contract &&
+          m.quote_token.symbol.name == token.currency
+      })[0]
+
+      if (market) {
+        token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+      } else {
+        token.usd_value = 0
+      }
+
+      if (token.contract == state.network.baseToken.contract) {
+        token.usd_value = parseFloat(token.amount) * systemPrice
+      }
+
+      return token
+    })
+  },
   async loadUserBalancesLightAPI({ state, rootState, commit }) {
     if (state.user) {
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
@@ -436,6 +463,11 @@ export const actions = {
 
       balances.map(b => commit('updateBalance', b))
     }
+  },
+
+  async fetchAccountDeals(_, accountName) {
+    const { data: deals } = await this.$axios.get(`https://alcor.exchange/api/account/${accountName}/deals`, { params: { limit: 50 } })
+    return deals
   },
 
   async fetchUserDeals({ state, commit }) {

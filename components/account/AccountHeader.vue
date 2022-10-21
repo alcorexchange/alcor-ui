@@ -15,12 +15,12 @@ header#account-header-component.d-flex.flex-column.gap-24
       alcor-button(@click="addToFriendList" big access v-else) Add Friend
       alcor-button(@click="blockUserModal" danger big) Block Account
   .d-flex.gap-29.flex-wrap.w-100
-    alcor-link(big to="/asd") {{ $t('Tokens') }}
-    alcor-link(big to="/zxc") {{ $t('Transactions') }}
-    alcor-link.position-relative(big :to="'/account/' + $route.params.id + '/nfts'")
+    alcor-button(big @click="goToTokens" :class="{ active: $route.name.startsWith('account-id-tokens') }") {{ $t('Tokens') }}
+    alcor-button(big @click="goToTransactions()" :class="{ active: $route.name.startsWith('account-id-transactions') }") {{ $t('Transactions') }}
+    alcor-button.position-relative(big @click="goToAssets()" :class="{ active: $route.name.startsWith('account-id-nfts-inventory') }")
       img.position-absolute.w-100.h-100(src="~/assets/images/nft-monkey.png", alt="nft-monkey")
       span {{ $t("NFT's") }}
-    alcor-button(big @click="goToSellerPage") {{ $t('Seller Page') }}
+    alcor-button(big @click="goToSellerPage" :class="{ active: $route.name.startsWith('account-id-nfts-listings') }") {{ $t('Seller Page') }}
     alcor-button(big @click="openTransferModal()")
       i.el-icon-takeaway-box
       span {{ $t('Transfer') }}
@@ -62,6 +62,24 @@ export default {
   methods: {
     ...mapActions('social', ['getPhotoHash', 'getFriendList', 'addFriend']),
     ...mapActions('modal', ['transfer', 'removeFriend', 'blockUser']),
+    goToAssets() {
+      this.$router.push({
+        name: `account-id-nfts-inventory___${this.$i18n.locale}`,
+        params: { id: this.$route.params.id },
+        query: {
+          match: '',
+          collection: null,
+          sorting: null,
+          minMint: null,
+          maxMint: null,
+          minPrice: null,
+          maxPrice: null,
+          isDuplicates: null,
+          isBacked: null
+        }
+      })
+    },
+
     async getProfileImage() {
       const hash = await this.getPhotoHash(this.$route.params.id)
       this.profileImageSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
@@ -84,6 +102,18 @@ export default {
           isDuplicates: null,
           isBacked: null
         }
+      })
+    },
+    goToTokens() {
+      this.$router.push({
+        name: `account-id-tokens___${this.$i18n.locale}`,
+        params: { id: this.$route.params.id }
+      })
+    },
+    goToTransactions() {
+      this.$router.push({
+        name: `account-id-transactions___${this.$i18n.locale}`,
+        params: { id: this.$route.params.id }
       })
     },
     goToTrade() {
