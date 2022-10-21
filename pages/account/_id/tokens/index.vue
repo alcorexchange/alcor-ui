@@ -1,5 +1,8 @@
 <template lang="pug">
 .account-tokens-page
+  .table-header
+    el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')" size="small" clearable)
+
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
       wallet-row(:item="item")
@@ -13,7 +16,10 @@ import WalletRow from '@/components/wallet/WalletRow'
 
 export default {
   components: { VirtualTable, WalletRow },
-  data: () => ({ balances: [] }),
+  data: () => ({
+    balances: [],
+    search: ''
+  }),
   computed: {
     virtualTableData() {
       const header = [
@@ -35,11 +41,18 @@ export default {
         }
       ]
 
-      const data = this.balances
+      const data = this.filterdBalances
       const itemSize = 59
       const pageMode = true
 
       return { pageMode, itemSize, header, data }
+    },
+    filterdBalances() {
+      return this.balances
+        .filter((b) => {
+          if (parseFloat(b.amount) == 0) return false
+          return b.id.toLowerCase().includes(this.search.toLowerCase())
+        })
     }
   },
   mounted() {
@@ -57,5 +70,22 @@ export default {
 <style lang="scss" scoped>
 .account-tokens-page {
   width: 955px;
+}
+
+.table-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+
+  .el-input {
+    max-width: 300px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+
+  .el-input__inner {
+    background: transparent !important;
+  }
 }
 </style>
