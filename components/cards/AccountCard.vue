@@ -120,7 +120,7 @@ export default {
       })
     },
     openTransferModal() {
-      this.transfer(this.data)
+      this.transfer({ ...this.data, reciever: this.data.name })
     },
     addToFriendList() {
       this.addFriend(this.data)

@@ -151,6 +151,37 @@ export const actions = {
     return loginPromise
   },
 
+  async generateGiftLink({ rootState, dispatch }, { memo, asset_ids }) {
+    const actions = [
+      {
+        account: 'atomictoolsx',
+        name: 'announcelink',
+        authorization: [rootState.user.authorization],
+        data: {
+          creator: rootState.user.name,
+          key: rootState.account.permissions[0].required_auth.keys[0].key,
+          asset_ids,
+          memo: ''
+        }
+      },
+      {
+        account: 'atomicassets',
+        name: 'transfer',
+        authorization: [rootState.user.authorization],
+        data: {
+          from: rootState.user.name,
+          to: 'atomictoolsx',
+          asset_ids,
+          memo: 'link'
+        }
+      }
+    ]
+
+    console.log(actions)
+
+    return await dispatch('sendTransaction', actions)
+  },
+
   async transferNft({ rootState, dispatch }, { memo, reciever, asset_ids }) {
     const actions = [
       {
@@ -193,6 +224,22 @@ export const actions = {
         }
       }
     ]
+    await dispatch('sendTransaction', actions)
+  },
+
+  async burn({ state, rootState, dispatch }, asset_id) {
+    const actions = [
+      {
+        account: 'atomicassets',
+        name: 'burnasset',
+        authorization: [rootState.user.authorization],
+        data: {
+          asset_owner: rootState.user.name,
+          asset_id
+        }
+      }
+    ]
+
     await dispatch('sendTransaction', actions)
   },
 
