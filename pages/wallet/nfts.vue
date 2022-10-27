@@ -66,6 +66,34 @@ export default {
             path: '/wallet/nfts/listings',
             query: this.filters
           }
+        },
+        {
+          label: 'My Auctions',
+          route: {
+            path: '/wallet/nfts/auctions',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Sold',
+          route: {
+            path: '/wallet/nfts/sold',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Bought',
+          route: {
+            path: '/wallet/nfts/bought',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Sets',
+          route: {
+            path: '/wallet/nfts/sets',
+            query: this.filters
+          }
         }
       ]
     }

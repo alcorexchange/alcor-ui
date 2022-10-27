@@ -114,6 +114,25 @@ export const actions = {
     }
   },
 
+  async getCollections({ dispatch }, options) {
+    try {
+      const { data: { data: { results } } } = await this.$api.post(
+        'atomicmarket/v1/stats/collections',
+        {
+          page: 1,
+          limit: 20,
+          symbol: 'WAX',
+          order: 'desc',
+          ...options
+        }
+      )
+
+      return results
+    } catch (e) {
+      console.error('Get collect error', e)
+      return await dispatch('getCollections', options)
+    }
+  },
 
   async getCollectionsForSet() {
     try {
@@ -149,46 +168,24 @@ export const actions = {
 
   async getAuctionData({
     dispatch
-  }, {
-    limit = 100,
-    search,
-    collectionName,
-    seller,
-    participant,
-    bidder,
-    buyer_blacklist,
-    buyer,
-    state
-  }) {
+  }, options) {
     try {
       const {
         data
-      } = await this.$api.get(
-        '/atomicmarket/v1/auctions?order=desc&sort=created&limit=' +
-        limit +
-        (search ? '&match=' + search : '') +
-        (collectionName ? '&collection_name=' + collectionName : '') +
-        (seller ? '&seller=' + seller : '') +
-        (buyer ? '&buyer=' + buyer : '') +
-        (state ? '&state=' + state : '') +
-        (participant ? '&participant=' + participant : '') +
-        (bidder ? '&bidder=' + bidder : '') +
-        (buyer_blacklist ? '&buyer_blacklist=' + buyer_blacklist : '')
+      } = await this.$api.post(
+        'atomicmarket/v1/auctions',
+        {
+          page: 1,
+          limit: 20,
+          state: '0,1,4',
+          symbol: 'WAX',
+          ...options
+        }
       )
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      return await dispatch('getAuctionData', {
-        limit,
-        search,
-        collectionName,
-        seller,
-        participant,
-        bidder,
-        buyer_blacklist,
-        buyer,
-        state
-      })
+      return await dispatch('getAuctionData', options)
     }
   },
 

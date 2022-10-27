@@ -1,8 +1,8 @@
 <template lang="pug">
-#wallet-nfts-listings-page
+#wallet-nfts-auctions-page
   .d-flex.flex-wrap.gap-25
     vue-skeleton-loader(
-      v-if="!listings"
+      v-if="!auctions"
       v-for="idx in [1,2,3,4]"
       :width='220',
       :height='471',
@@ -10,19 +10,19 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    my-listing-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
+    my-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
 
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
-import MyListingCard from '~/components/cards/MyListingCard'
+import MyAuctionCard from '~/components/cards/MyAuctionCard'
 
 export default {
-  components: { MyListingCard, VueSkeletonLoader },
+  components: { MyAuctionCard, VueSkeletonLoader },
   data: () => ({
-    listings: null,
+    auctions: null,
     ownerImgSrc: null,
     debounce: null
   }),
@@ -31,21 +31,21 @@ export default {
   },
   watch: {
     '$route.query'() {
-      this.getListings()
+      this.getAuctions()
     }
   },
   mounted() {
-    this.getListings()
+    this.getAuctions()
     this.getOwnerAvatar()
   },
   methods: {
     ...mapActions('social', ['getPhotoHash']),
-    ...mapActions('api', ['getSales', 'getBuyOffers']),
-    getListings() {
+    ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
+    getAuctions() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
-        this.listings = null
-        this.listings = await this.getSales({
+        this.auctions = null
+        this.auctions = await this.getAuctionData({
           seller: this.user.name,
           sort: this.$route.query?.sorting?.split('-')[0] || null,
           order: this.$route.query?.sorting?.split('-')[1] || null,
@@ -55,18 +55,6 @@ export default {
           min_template_mint: this.$route.query?.minMint,
           max_price: this.$route.query?.maxPrice,
           min_price: this.$route.query?.minPrice
-        })
-        const buyOffers = await this.getBuyOffers({ seller: this.user.name, sort: 'price' })
-        if (buyOffers.length) this.listings = this.listings.map(listing => ({ ...listing, buy_offers: [] }))
-        buyOffers.forEach(async offer => {
-          if (offer.assets.length !== 1) return
-
-          const hash = await this.getPhotoHash(offer.buyer)
-          offer.buyerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-
-          this.listings[
-            this.listings.findIndex(({ assets }) => assets[0].asset_id === offer.assets[0].asset_id)
-          ].buy_offers.push(offer)
         })
       }, 600)
     },
@@ -79,7 +67,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#wallet-nfts-listings-page {
+#wallet-nfts-auctions-page {
   width: 100%;
   max-width: 970px;
   margin: 0 auto;
