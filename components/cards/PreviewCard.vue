@@ -10,6 +10,9 @@ card.normal-card-shadow(:class="[{ small }]" @click="$emit('click')")
     .disable.d-flex.gap-4
       .card-collection {{ data.collection.name }}
       img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
+
+  .w-100(slot="footer")
+    slot(name="footer")
 </template>
 
 <script>

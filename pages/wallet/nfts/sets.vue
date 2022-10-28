@@ -1,21 +1,22 @@
 <template lang="pug">
-.d-flex.flex-wrap.gap-25
-  vue-skeleton-loader(
-    v-if='loading'
-    :width='220',
-    :height='380',
-    animation='wave',
-    wave-color='rgba(150, 150, 150, 0.1)',
-    :rounded='true',
-    v-for='item in 4',
-    :key='item'
-  )
-  set-card(
-    v-eles
-    v-for='(item, index) in sets',
-    :key='index'
-    :data='item',
-  )
+#wallet-nfts-sets-page
+  .d-flex.flex-wrap.gap-25
+    vue-skeleton-loader(
+      v-if='loading'
+      :width='220',
+      :height='380',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true',
+      v-for='item in 4',
+      :key='item'
+    )
+    set-card(
+      v-else
+      v-for='(item, index) in sets',
+      :key='index'
+      :data='item',
+    )
 </template>
 
 <script>
@@ -45,3 +46,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+#wallet-nfts-sets-page {
+  max-width: 970px;
+  margin: 0 auto;
+}
+</style>

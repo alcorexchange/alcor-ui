@@ -1,26 +1,27 @@
 <template lang="pug">
-.d-flex.justify-content-between(v-if='loading')
-  vue-skeleton-loader(
-    :width='600',
-    :height='380',
-    animation='wave',
-    wave-color='rgba(150, 150, 150, 0.1)',
-    :rounded='true'
-  )
-  vue-skeleton-loader(
-    :width='220',
-    :height='380',
-    animation='wave',
-    wave-color='rgba(150, 150, 150, 0.1)',
-    :rounded='true'
-  )
-div(v-else)
-  detail-with-card-panel(
-    v-for='(item, index) in solds',
-    :key='index',
-    :data='item',
-    mode='sold'
-  )
+#wallet-nfts-sold-page
+  .d-flex.gap-32.justify-content-between(v-if='loading')
+    vue-skeleton-loader(
+      :width='600',
+      :height='380',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true'
+    )
+    vue-skeleton-loader(
+      :width='220',
+      :height='380',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true'
+    )
+  div(v-else)
+    detail-with-card-panel(
+      v-for='(item, index) in solds',
+      :key='index',
+      :data='item',
+      mode='sold'
+    )
 </template>
 
 <script>
@@ -65,3 +66,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+#wallet-nfts-sold-page {
+  max-width: 970px;
+  margin: 0 auto;
+}
+</style>

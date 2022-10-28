@@ -1,48 +1,59 @@
 <template lang="pug">
-.detailWithCardPanel.mt-5.d-flex.justify-content-between
-  .nft-info.border-radius5.d-flex.flex-column.justify-content-between
-    .d-flex
-      .other-info
-        .nft
-          label.description-title Sale ID
-          h4 {{ "#" + saleID }}
-        .nft
-          label.description-fee Seller
-          p {{ data.seller }}
-        .nft
-          label.description-fee Price
-          p.wax-price {{ price + " WAX" }}
-            span.wax-exchange.ml-1 (${{ $systemToUSD(price) }})
-        .nft
-          label.description-fee Date
-          p {{ +data.assets[0].transferred_at_time | moment("MM/DD/YYYY HH:mm a") }}
-      .description-info
-        .nft
-          label.description-title Mint Number
-          p {{ data.assets[0].template_mint }} of {{ data.assets[0].template.issued_supply }} (max: {{ data.assets[0].template.max_supply }}) -
-            span.color-red.ml-1 {{ data.assets[0].template.issued_supply - data.assets[0].template_mint }}
+.detailWithCardPanel.mb-5.d-flex.gap-32.justify-content-between
+  .nft-info.border-radius5.d-flex.flex-column.normal-card-shadow
+    .d-flex.gap-64
+      .d-flex.flex-column.gap-16
+        .d-flex.flex-column
+          .fs-14.disable Sale ID
+          .fs-18 {{ "#" + saleID }}
+        .d-flex.flex-column
+          .fs-14.disable Seller
+          .d-flex.gap-4
+            profile-image(:src="ownerImgSrc" :size="20")
+            span {{ data.seller }}
+        .d-flex.flex-column
+          .fs-14.disable Price
+          .d-flex.gap-4
+            .color-wax {{ price + " WAX" }}
+            .color-action (${{ $systemToUSD(price) }})
+        .d-flex.flex-column
+          .fs-14.disable Date
+          span {{ +data.assets[0].transferred_at_time | moment("MM/DD/YYYY HH:mm a") }}
+
+      .d-flex.flex-column.gap-16
+        .d-flex.flex-column
+          .fs-14.disable Mint Number
+          .fs-18.d-flex.gap-4
+            .color-action {{ data.assets[0].template_mint }}
+            span of {{ data.assets[0].template.issued_supply }} (max: {{ data.assets[0].template.max_supply }}) -
+            .color-danger {{ data.assets[0].template.issued_supply - data.assets[0].template_mint }}
             img(src='~/assets/images/fire.svg')
-        .nft
-          label.description-title Template ID
-          p.wax-exchange {{ "#" + data.assets[0].template.template_id }}
-        .nft
-          p.description-title.mb-0 Propertise
-          div
-          div(v-if='data.assets[0].template.is_transferable')
+        .d-flex.flex-column
+          .fs-14.disable Temlate ID
+          .color-action {{ "#" + data.assets[0].template.template_id }}
+        .d-flex.flex-column
+          .fs-14.disable Propertise
+          .d-flex.gap-4(v-if='data.assets[0].template.is_transferable')
             img(src='~/assets/images/double_arrow.svg')
-            span.ml-2.fs-18 Transferable
-          div(v-if='data.assets[0].template.is_burnable')
+            .fs-18 Transferable
+          .d-flex.gap-4(v-if='data.assets[0].template.is_burnable')
             img(src='~/assets/images/fire.svg')
-            span.ml-2.fs-18 Burnable
-  NormalCard(:data='data', :mode='mode')
+            .fs-18 Burnable
+
+  preview-card(:data='data.assets[0]')
+    alcor-button.w-100(outline slot="footer" @click="$router.push('/nfts/' + data.assets[0].asset_id)") Details
 </template>
 
 <script>
-import NormalCard from '~/components/nft_markets/NormalCard'
+import { mapActions } from 'vuex'
+import ProfileImage from '~/components/ProfileImage.vue'
+import PreviewCard from '~/components/cards/PreviewCard'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
-  components: { NormalCard },
+  components: { PreviewCard, ProfileImage, AlcorButton },
   props: ['data', 'mode'],
+  data: () => ({ ownerImgSrc: null }),
   computed: {
     saleID() {
       if (this.data.auction_id) {
@@ -55,8 +66,18 @@ export default {
           this.data.price.amount / Math.pow(10, this.data.price.token_precision)
         )
       } else return 0
-    },
+    }
   },
+  mounted() {
+    this.getOwnerAvatar()
+  },
+  methods: {
+    ...mapActions('social', ['getPhotoHash']),
+    async getOwnerAvatar() {
+      const hash = await this.getPhotoHash(this.data.seller)
+      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
+    }
+  }
 }
 </script>
 
