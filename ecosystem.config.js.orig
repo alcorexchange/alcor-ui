@@ -8,6 +8,7 @@ module.exports = {
       instances: 2,
       script: './node_modules/nuxt/bin/nuxt.js',
       args: 'start',
+      restart_delay: 10000,
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -16,12 +17,25 @@ module.exports = {
       }
     },
     {
+      name: 'Alcor-apiV2-server',
+      script: './lib/server/services/ApiV2Service/index.js',
+      exec_mode: 'cluster',
+      instances: 2,
+      kill_timeout: 3000,
+      restart_delay: 10000,
+      //wait_ready: true,
+      env: {
+        NODE_ENV: 'production',
+        PORT: 7003
+      }
+    },
+    {
       name: 'Alcor-api-server',
       script: './lib/server/services/ApiService/index.js',
       exec_mode: 'cluster',
-      restart_delay: 10000,
       instances: 2,
       kill_timeout: 3000,
+      restart_delay: 10000,
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -38,7 +52,7 @@ module.exports = {
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
-        PORT: 7002,
+        PORT: 7031,
         PM2_PORT: 7002
       }
     },
@@ -47,6 +61,7 @@ module.exports = {
       script: './lib/server/services/UpdaterService/index.js',
       node_args: '-r esm',
       restart_delay: 10000,
+      cron_restart: '0 * * * *',
       //wait_ready: true
     },
 
@@ -54,8 +69,8 @@ module.exports = {
       name: 'Alcor-orderbook-service',
       script: './lib/server/services/orderbookService/index.js',
       node_args: '-r esm',
-      kill_timeout: 10000,
       restart_delay: 10000,
+      kill_timeout: 10000,
       //wait_ready: true
     }
   ]
