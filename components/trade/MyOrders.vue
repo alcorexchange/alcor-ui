@@ -152,6 +152,7 @@ export default {
       ).then(async () => {
         try {
           await this.$store.dispatch('market/cancelAll', ordersToCalcel)
+          this.$store.dispatch('loadUserBalances')
           this.$notify({ type: 'success', message: 'Orders canceled' })
         } catch (e) {
           this.$notify({ type: 'error', message: 'Orders cancelation error: ' + e })
@@ -183,11 +184,12 @@ export default {
           type: 'success',
         })
 
-        await this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
+        setTimeout(() => {
+          this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
+        }, 500)
 
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
-          //this.$store.dispatch('loadUserBalances')
         }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
