@@ -4,8 +4,8 @@ card.listing-card
   asset-card-image(:template="data.assets[0].template.immutable_data")
   .p-2
     .d-flex.justify-content-between
-      .d-flex.align-items-center.gap-4
-        .fs-12.disable {{ data.collection.name }}
+      .d-flex.align-items-center.gap-4.w-50
+        .fs-12.disable.text-truncate {{ data.collection.name }}
         img.success-icon(src='~/assets/images/check_circle.svg', alt='')
       .fs-12.disable Listed Price
     .d-flex.justify-content-between

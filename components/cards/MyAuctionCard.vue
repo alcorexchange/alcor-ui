@@ -4,8 +4,8 @@ card.listing-card
   asset-card-image(:template="data.assets[0].template.immutable_data")
   .p-2
     .d-flex.justify-content-between
-      .d-flex.align-items-center.gap-4
-        .fs-12.disable {{ data.collection.name }}
+      .d-flex.align-items-center.gap-4.w-50
+        .fs-12.disable.text-truncate {{ data.collection.name }} asdasdasd
         img.success-icon(src='~/assets/images/check_circle.svg', alt='')
       .fs-12.disable Listed Price
     .d-flex.justify-content-between
@@ -13,12 +13,10 @@ card.listing-card
       .color-wax {{ listingPrice }} WAX
     .d-flex.justify-content-between
       span.fs-12.color-action {{ data.assets[0].schema.schema_name }}
-  .p-2(v-if="data.end_time && data.bids.length")
-    .d-flex.justify-content-between
-      .d-flex.align-items-center.gap-4.pointer
-        span {{ date.end_time }}
-        pre {{ data.bids }}
-      .color-wax {{ bestOfferPrice }} WAX
+  .p-2
+    .d-flex.align-items-center.justify-content-between
+      .fs-14 {{ timeToEnd }}
+      .fs-14 {{ data.bids.length }} Bids
 
   .d-flex.gap-8(slot="footer")
     alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
@@ -37,6 +35,13 @@ export default {
   components: { Card, AssetCardHeader, AssetCardImage, AlcorButton, ProfileImage },
   props: ['data', 'ownerImgSrc'],
   computed: {
+    timeToEnd() {
+      const diff = this.data.end_time - Date.now()
+      const time = Math.round(diff / (1000 * 60 * 60))
+      const h = time % 24
+      const d = Math.round(time / 24)
+      return `${d}d ${h}h`
+    },
     listingPrice() {
       return new Intl.NumberFormat().format(this.data.price.amount / Math.pow(10, this.data.price.token_precision))
     },
@@ -54,10 +59,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.listing-card {
-  height: 471px;
-}
-
 .success-icon {
   width: 10px;
   height: 10px;
