@@ -19,7 +19,7 @@ router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo
             .gray {{ $t('1D Volume') }}
             span {{ promo.volume24.toFixed(2).replace('.', ',') }}
           .data(:class="{ isRed: isVolRed, isZero: isVolZero }") ({{ liquidityPercent }} %)
-    .banner
+    .banner(@click="promo.url ? redirect() : null ")
       img(:src="bannerSrc")
       img(:src="bannerSrc").blur
 </template>
@@ -128,6 +128,9 @@ export default {
     this.fetchCharts()
   },
   methods: {
+    redirect() {
+      window.location.href = this.promo.url
+    },
     async fetchCharts() {
       if (this.promo) {
         const charts = (await this.$axios.get(`/pools/${this.promo.poolId}/charts`, { params: { period: '24H' } })).data
@@ -234,13 +237,16 @@ export default {
 
 .banner img {
   border-radius: 4px;
+  height: 100%;
 }
 
 .banner {
   position: relative;
+  height: 275px;
 }
 
 .banner img.blur {
+  height: 97%;
   position: absolute;
   z-index: -1;
   height: 96%;
