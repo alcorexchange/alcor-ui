@@ -2,6 +2,8 @@
 el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-center.pointer(
   trigger='click'
   :hideOnClick="false"
+  :class="{ active }"
+  @visible-change="isActive => this.active = isActive"
 )
   .d-flex.align-items-center.gap-8.disable.button
     i.el-icon-set-up.fs-14
@@ -86,6 +88,7 @@ import AlcorButton from '~/components/AlcorButton'
 export default {
   components: { AlcorButton },
   props: ['filters', 'options'],
+  data: () => ({ active: false }),
   methods: {
     applyFilters() {
       this.$router.push({ query: this.filters })
@@ -108,6 +111,10 @@ export default {
 <style lang="scss" scoped>
 #alcor-filters-component {
   line-height: initial;
+
+  &.active {
+    border-bottom: 1px solid var(--main-action-green);
+  }
 
   .button {
     padding: 8px;
