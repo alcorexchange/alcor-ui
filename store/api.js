@@ -288,6 +288,35 @@ export const actions = {
     }
   },
 
+  async getTemplates(_, options) {
+    const { data } = await this.$api.post(
+      'https://wax.api.aa.atomichub.io/atomicassets/v1/templates',
+      {
+        has_assets: true,
+        limit: 25,
+        order: 'desc',
+        page: 1,
+        sort: 'created',
+        ...options
+      }
+    )
+
+    console.log('dddddd', data)
+    return data.data
+  },
+
+  async getOwnedAssets({ rootState }, {
+    account,
+    collection_name
+  }) {
+    try {
+      const { data } = await this.$api.get(`atomicassets/v1/accounts/${account || rootState.user.name}/${collection_name}`)
+      return data.data
+    } catch (e) {
+      console.error('Get owned assets error', e)
+    }
+  },
+
   async getAccountSpecificStats(_, {
     account
   }) {

@@ -55,7 +55,6 @@ export default {
         search: this.$route.query?.match,
         collection_whitelist: this.userCollections
       })
-      console.log('ssssss', this.sets)
       this.loading = false
     }
   }

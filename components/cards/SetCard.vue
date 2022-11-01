@@ -5,7 +5,7 @@ card.set
     .fs-24.color-action {{ data.collection_name }}
 
   .w-100(slot="footer")
-    alcor-button.w-100(outline @click="") View Set
+    alcor-button.w-100(outline @click="goToSet") View Set
 
 </template>
 
@@ -16,7 +16,12 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { Card, AssetCardImage, AlcorButton },
-  props: ['data']
+  props: ['data'],
+  methods: {
+    goToSet() {
+      //this.$router.push({ name: `wallet-nfts-sets-id___${this.$i18n.locale}`, params: { id: this.data.collection_name } })
+    }
+  }
 }
 </script>
 
@@ -25,4 +30,3 @@ export default {
   width: 304px;
 }
 </style>
-
