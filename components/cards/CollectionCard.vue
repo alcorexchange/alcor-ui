@@ -1,11 +1,12 @@
 <template lang="pug">
-card.set
+card
   asset-card-image.main-img(:template="data")
-  .d-flex.justify-content-center.gap-8
+  .d-flex.justify-content-center.gap-8.p-2
     .fs-24.color-action {{ data.collection_name }}
+    img.success-icon(src='~/assets/images/check_circle.svg', alt='')
 
   .w-100(slot="footer")
-    alcor-button.w-100(outline @click="") View Set
+    alcor-button.w-100(outline @click="") View Collection
 
 </template>
 
@@ -21,8 +22,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.set {
-  width: 304px;
+.success-icon {
+  width: 20px
 }
 </style>
 

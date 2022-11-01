@@ -3,44 +3,59 @@
   .d-flex.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if='loading'
-      :width='220',
-      :height='380',
+      :width='304',
+      :height='315',
       animation='wave',
       wave-color='rgba(150, 150, 150, 0.1)',
-      :rounded='true',
-      v-for='item in 4',
-      :key='item'
+      :rounded='true'
     )
     set-card(
       v-else
-      v-for='(item, index) in sets',
-      :key='index'
+      v-for='item in sets',
+      :key='item.collection_name'
       :data='item',
     )
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import SetCard from '~/components/cards/SetCard'
 
 export default {
   components: { VueSkeletonLoader, SetCard },
-  data: () => ({ loading: true, sets: null }),
+  data: () => ({
+    loading: true,
+    sets: null,
+    userCollections: null
+  }),
+  computed: {
+    ...mapGetters(['user'])
+  },
   watch: {
     '$route.query'() {
-      this.getCollections()
+      this.getSets()
     }
   },
-
-  mounted() {
-    this.getCollections()
+  async mounted() {
+    await this.getUserCollections()
+    this.getSets()
   },
   methods: {
-    async getCollections() {
+    async getUserCollections() {
+      const { collections } = await this.$store.dispatch('api/getAccountSpecificStats', {
+        account: this.user.name
+      })
+
+      this.userCollections = collections.map(({ collection: { collection_name } }) => collection_name).join(',')
+    },
+    async getSets() {
       this.loading = true
       this.sets = await this.$store.dispatch('api/getCollections', {
-        search: this.$route.query?.match
+        search: this.$route.query?.match,
+        collection_whitelist: this.userCollections
       })
+      console.log('ssssss', this.sets)
       this.loading = false
     }
   }
