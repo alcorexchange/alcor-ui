@@ -2,7 +2,7 @@
 #account-id-nfts-layout.d-flex.flex-column.gap-16.mt-2
   .d-flex.align-items-center.gap-24
     input-search(v-model="filters.match")
-    alcor-filters(:filters.sync="filters", :options="options")
+    alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'account-id-nfts-sets'")
     alcor-tabs(:links="true" :tabs="tabs")
   main.account-nft-main
     nuxt-child
@@ -50,6 +50,34 @@ export default {
           label: 'Listings',
           route: {
             path: `/account/${this.$route.params.id}/nfts/listings`,
+            query: this.filters
+          }
+        },
+        {
+          label: 'Auctions',
+          route: {
+            path: `/account/${this.$route.params.id}/nfts/auctions`,
+            query: this.filters
+          }
+        },
+        {
+          label: 'Sold',
+          route: {
+            path: `/account/${this.$route.params.id}/nfts/sold`,
+            query: this.filters
+          }
+        },
+        {
+          label: 'Bought',
+          route: {
+            path: `/account/${this.$route.params.id}/nfts/bought`,
+            query: this.filters
+          }
+        },
+        {
+          label: 'Sets',
+          route: {
+            path: `/account/${this.$route.params.id}/nfts/sets`,
             query: this.filters
           }
         }

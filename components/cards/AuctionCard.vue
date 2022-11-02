@@ -1,6 +1,6 @@
 <template lang="pug">
 card.listing-card
-  asset-card-header(slot="header" :data="data.assets[0]" :ownerImgSrc="ownerImgSrc")
+  asset-card-header(slot="header" :data="{...data.assets[0], owner: this.data.seller}" :ownerImgSrc="ownerImgSrc")
   asset-card-image(:template="data.assets[0].template.immutable_data")
   .p-2
     .d-flex.justify-content-between
@@ -21,7 +21,7 @@ card.listing-card
 
   .d-flex.gap-8(slot="footer")
     alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
-    alcor-button.w-100(access @click="openEditModal") Manage
+    alcor-button.w-100(access @click="openOfferModal") Make Offer
 </template>
 
 <script>
@@ -51,9 +51,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['listing']),
-    openEditModal() {
-      this.listing({ ...this.data, mode: 'auctions' })
+    ...mapActions('modal', ['makeOffer']),
+    openOfferModal() {
+      this.makeOffer(this.data.assets[0])
     }
   }
 }
