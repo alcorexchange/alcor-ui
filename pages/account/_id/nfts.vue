@@ -14,6 +14,7 @@ import { mapActions } from 'vuex'
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorFilters from '~/components/AlcorFilters'
 import InputSearch from '~/components/nft_markets/InputSearch'
+import { sortingOptions } from '~/pages/wallet/nfts/sortingOptions'
 
 export default {
   components: { AlcorTabs, AlcorFilters, InputSearch },
@@ -31,15 +32,7 @@ export default {
     },
     options: {
       collection: null,
-      sorting: [
-        { value: 'transferred', label: 'Transferred (Newest)' },
-        { value: 'transferred-desc', label: 'Transferred (Oldest)' },
-        { value: 'created-asc', label: 'Created (Newest)' },
-        { value: 'created-desc', label: 'Created (Oldest)' },
-        { value: 'minted-asc', label: 'Mint (Highest)' },
-        { value: 'minted-desc', label: 'Mint (Lowest)' },
-        { value: 'name-asc', label: 'Alphabetical (A-Z)' }
-      ]
+      sorting: null
     }
   }),
   computed: {
@@ -66,16 +59,25 @@ export default {
   watch: {
     refetchProps() {
       this.$router.push({ query: this.filters })
+    },
+    '$route.name'(route) {
+      this.filters.sorting = null
+      this.setSortOptions()
     }
+
   },
   mounted() {
     this.getAccountCollections()
+    this.setSortOptions()
   },
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
     async getAccountCollections() {
       const { collections } = await this.getAccountSpecificStats({ account: this.$route.params.id })
       this.options.collection = collections
+    },
+    setSortOptions() {
+      this.options.sorting = sortingOptions[this.$route.name.split('___')[0]]
     }
   }
 }

@@ -4,8 +4,9 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
   :hideOnClick="false"
   :class="{ active }"
   @visible-change="isActive => this.active = isActive"
+  :disabled="disabled"
 )
-  .d-flex.align-items-center.gap-8.disable.button
+  .d-flex.align-items-center.gap-8.button(:class="{ disabled }")
     i.el-icon-set-up.fs-14
     span Filter
     i.el-icon-caret-bottom.fs-14
@@ -87,7 +88,7 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { AlcorButton },
-  props: ['filters', 'options'],
+  props: ['filters', 'options', 'disabled'],
   data: () => ({ active: false }),
   methods: {
     applyFilters() {
@@ -111,6 +112,11 @@ export default {
 <style lang="scss" scoped>
 #alcor-filters-component {
   line-height: initial;
+
+  & .disabled {
+    color: var(--btn-default);
+    cursor: not-allowed;;
+  }
 
   &.active {
     border-bottom: 1px solid var(--main-action-green);
