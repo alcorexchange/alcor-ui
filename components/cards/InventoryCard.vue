@@ -5,10 +5,10 @@ card
   .p-2
     .d-flex.justify-content-between
       .d-flex.align-items-center.gap-4
-        .fs-12.disable {{ data.collection.name }}
+        .fs-12.disable.text-truncate {{ data.collection.name }}
         img.success-icon(src='~/assets/images/check_circle.svg', alt='')
     .d-flex.justify-content-between
-      span {{ data.name }}
+      .fs-14 {{ data.name }}
     .d-flex.justify-content-between
       span.fs-12.color-action {{ data.schema.schema_name }}
   .d-flex.flex-column.gap-8(slot="footer")

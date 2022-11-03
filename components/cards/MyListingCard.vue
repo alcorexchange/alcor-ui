@@ -9,19 +9,20 @@ card.listing-card
         img.success-icon(src='~/assets/images/check_circle.svg', alt='')
       .fs-12.disable Listed Price
     .d-flex.justify-content-between
-      span {{ data.assets[0].name }}
-      .color-wax {{ listingPrice }} WAX
+      .fs-14.w-50.text-truncate {{ data.assets[0].name }}
+      .fs-14.color-wax {{ listingPrice }} WAX
     .d-flex.justify-content-between
       span.fs-12.color-action {{ data.assets[0].schema.schema_name }}
-  .p-2(v-if="data.buy_offers && data.buy_offers.length")
+  .p-2
     .d-flex.justify-content-between
       .fs-12.disable Best offer by
-    .d-flex.justify-content-between
+      .fs-12.disable(v-if="!data.buy_offers") ---
+    .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
       .d-flex.align-items-center.gap-4.pointer
         profile-image(:src="data.buy_offers[0].buyerImgSrc" :size="12")
         .color-action.fs-12 {{ data.buy_offers[0].buyer }}
       .color-wax {{ bestOfferPrice }} WAX
-    .d-flex.justify-content-between
+    .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
       span
       .color-green.fs-12 (${{ $systemToUSD(bestOfferPrice) }})
 

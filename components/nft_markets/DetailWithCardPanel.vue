@@ -84,7 +84,7 @@ export default {
 <style lang="scss" scoped>
 .nft-info {
   width: 595px;
-  background-color: #202021;
+  background-color: var(--background-color-third);
   padding: 14px;
 }
 .border-radius5 {

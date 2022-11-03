@@ -6,10 +6,10 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
   @visible-change="isActive => this.active = isActive"
   :disabled="disabled"
 )
-  .d-flex.align-items-center.gap-8.button(:class="{ disabled }")
-    i.el-icon-set-up.fs-14
+  .d-flex.align-items-center.gap-8.fs-16.button(:class="{ disabled }")
+    i.el-icon-set-up
     span Filter
-    i.el-icon-caret-bottom.fs-14
+    i.el-icon-caret-bottom
   el-dropdown-menu.dropdown
     el-dropdown-item.dropdown__filters
       .d-flex.justify-content-between.gap-16
@@ -123,7 +123,7 @@ export default {
   }
 
   .button {
-    padding: 8px;
+    padding: 10px;
     border-bottom: 1px solid var(--tab-link-border);
   }
 }
