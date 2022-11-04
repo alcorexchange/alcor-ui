@@ -37,8 +37,8 @@ export default {
       this.getSets()
     }
   },
-  async mounted() {
-    await this.getUserCollections()
+  mounted() {
+    this.getUserCollections()
     this.getSets()
   },
   methods: {

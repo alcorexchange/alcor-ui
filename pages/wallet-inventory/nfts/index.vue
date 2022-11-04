@@ -268,7 +268,6 @@ export default {
       const data = await this.$store.dispatch('api/getAssets', {
         owner: this.user.name,
       })
-      console.log(data)
       this.inventoryData = data
       this.loading = false
     },

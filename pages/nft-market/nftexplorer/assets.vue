@@ -1,53 +1,52 @@
 <template lang="pug">
-#nft-marketplace-auctions-page
+#nftexplorer-page
   .d-flex.flex-wrap.gap-25
     vue-skeleton-loader(
-      v-if="!auctions"
+      v-if="!assets"
       v-for="idx in [1,2,3,4]"
       :width='220',
-      :height='431',
+      :height='400',
       animation='wave',
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    market-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item")
+    asset-card(v-if="assets" v-for="item in assets" :key="item.asset_id" :data="item")
 </template>
 
 <script>
 import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
-import MarketAuctionCard from '~/components/cards/MarketAuctionCard'
+import AssetCard from '~/components/cards/AssetCard'
 
 export default {
-  components: { MarketAuctionCard, VueSkeletonLoader },
+  components: { AssetCard, VueSkeletonLoader },
   data: () => ({
-    auctions: null,
+    assets: null,
     debounce: null
   }),
   watch: {
     '$route.query'() {
-      this.getAuctions()
+      this.exploreAssets()
     }
   },
   mounted() {
-    this.getAuctions()
+    this.exploreAssets()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
-    ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
-    getAuctions() {
+    ...mapActions('api', ['getAssets']),
+    exploreAssets() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
-        this.auctions = null
-        this.auctions = await this.getAuctionData({
+        this.assets = null
+        this.assets = await this.getAssets({
+          collection_name: this.$route.query?.collection,
           sort: this.$route.query?.sorting?.split('-')[0] || null,
           order: this.$route.query?.sorting?.split('-')[1] || null,
-          collection_name: this.$route.query?.collection,
-          search: this.$route.query?.match,
+          ids: this.$route.query?.match,
           max_template_mint: this.$route.query?.maxMint,
           min_template_mint: this.$route.query?.minMint,
-          max_price: this.$route.query?.maxPrice,
-          min_price: this.$route.query?.minPrice
+          has_backed_tokens: !!this.$route.query?.isBacked,
+          only_duplicate_templates: !!this.$route.query?.isDuplicates
         })
       }, 600)
     }
@@ -56,9 +55,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#nft-marketplace-auctions-page {
+#nftexplorer-page {
   width: 100%;
   max-width: 970px;
   margin: 20px auto;
 }
 </style>
+
