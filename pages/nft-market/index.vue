@@ -152,7 +152,7 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
           img: Img3,
-          to: '/nft-market/nftexplorer'
+          to: '/nft-market/nftexplorer/assets?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
         },
         {
           title: 'ALCOR',
@@ -313,6 +313,7 @@ export default {
 .nft-container .grid-container {
   display: flex;
   justify-content: space-between;
+  gap: 30px;
   width: 100%;
   margin: auto;
 }

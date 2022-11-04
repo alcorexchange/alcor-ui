@@ -217,16 +217,29 @@ export const actions = {
     rootState
   }, {
     limit,
+    match,
+    sort,
+    order,
     search,
-    collectionName
+    collection_name,
+    max_template_mint,
+    min_template_mint,
+    has_backed_tokens,
+    only_duplicate_templates
   }) {
     try {
       const {
         data
-      } = await axios.get(`${API_URL}/atomicassets/v1/assets?order=desc&sort=created&limit=` +
+      } = await this.$api.post('/atomicassets/v1/assets?limit=' +
         limit +
-        (search ? '&search=' + search : '') +
-        (collectionName ? '&collection_name=' + collectionName : '')
+        (match ? '&match=' + match : '') +
+        (order ? '&order=' + order : '') +
+        (sort ? '&sort=' + sort : '') +
+        (has_backed_tokens ? '&max_template_mint=' + has_backed_tokens : '') +
+        (only_duplicate_templates ? '&max_template_mint=' + only_duplicate_templates : '') +
+        (max_template_mint ? '&max_template_mint=' + max_template_mint : '') +
+        (min_template_mint ? '&min_template_mint=' + min_template_mint : '') +
+        (collection_name ? '&collection_name=' + collection_name : '')
       )
       return data.data
     } catch (e) {
@@ -288,6 +301,23 @@ export const actions = {
     }
   },
 
+  async getStatsTemplates(_, options) {
+    try {
+      const { data } = await this.$api.post(
+        '/atomicmarket/v1/stats/templates',
+        {
+          limit: '42',
+          page: '1',
+          symbol: 'WAX',
+          ...options
+        }
+      )
+      return data.data.results
+    } catch (e) {
+      console.error('Get stat templates error', e)
+    }
+  },
+
   async getTemplates(_, options) {
     const { data } = await this.$api.post(
       'https://wax.api.aa.atomichub.io/atomicassets/v1/templates',
@@ -300,8 +330,6 @@ export const actions = {
         ...options
       }
     )
-
-    console.log('dddddd', data)
     return data.data
   },
 
@@ -406,15 +434,18 @@ export const actions = {
   },
 
   async getAssets({ dispatch }, options) {
+    const filteredOptions = Object.entries(options)
+      .filter(([key, value]) => value)
+      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+
     try {
       const {
         data
-      } = await this.$api.post('/atomicmarket/v1/assets', {
-        page: 1,
-        limit: 25,
-        order: 'desc',
-        sort: 'transferred',
-        ...options
+      } = await this.$api.post('/atomicassets/v1/assets', {
+        limit: options.limit || '32',
+        order: options.order || 'desc',
+        sort: options.sort || 'asset_id',
+        ...filteredOptions
       })
 
       return data.data

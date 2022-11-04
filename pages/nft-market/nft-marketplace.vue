@@ -80,34 +80,12 @@ export default {
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
     setSortOptions() {
-      console.log('sssss', sortingOptions[this.$route.name.split('___')[0]], this.$route.name, sortingOptions)
       this.options.sorting = sortingOptions[this.$route.name.split('___')[0]]
     },
     async getCollectionData() {
       const data = await this.$store.dispatch('api/getCollections')
       this.options.collection = data.map(col => ({ collection: col }))
     },
-
-    async getSaleData() {
-      this.loading = true
-      const data = await this.$store.dispatch('api/getSaleData', {
-        limit: this.limit,
-        search: this.search,
-        collectionName: this.currentCollectionName
-      })
-      this.marketData = data
-      this.loading = false
-    },
-    async getAuctionData() {
-      this.loading = true
-      const data = await this.$store.dispatch('api/getAuctionData', {
-        limit: this.limit,
-        search: this.search,
-        collectionName: this.currentCollectionName
-      })
-      this.marketData = data
-      this.loading = false
-    }
   },
 
   head() {
