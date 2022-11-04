@@ -1,119 +1,91 @@
 <template lang="pug">
 .j-container
-  nuxt-link(:to='"/nft-market"', :exact='true')
+  nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
     a#return-btn Return
   h4 Marketplace
-  .header
-    InputSearch(v-model="search")
-    MarketTabs(:tabs="tabs" v-model="tab" @change="handleTab")
-  .grid-container(v-if='loading')
-    vue-skeleton-loader(
-      :width='220',
-      :height='380',
-      animation='wave',
-      wave-color='rgba(150, 150, 150, 0.1)',
-      :rounded='true',
-      v-for='item in 40',
-      :key='item'
-    )
-  .grid-container(v-else)
-    .d-flex.justify-content-center(
-      v-for='(item, index) in marketData',
-      :key='index'
-    )
-      NormalCard(
-        v-if='item',
-        :data='item',
-        :price='getPrice',
-        :kindBut='currentTab',
-        mode='market'
-      )
+  .d-flex.align-items-center.gap-24
+    input-search(v-model="filters.match")
+    alcor-filters(:filters.sync="filters", :options="options")
+    alcor-tabs(:links="true" :tabs="tabs")
+  nuxt-child
 </template>
 
 <script>
-// import Vue from 'vue'
-import { mapState } from 'vuex'
-import VueSkeletonLoader from 'skeleton-loader-vue'
-import NormalCard from '~/components/nft_markets/NormalCard'
-import MarketTab from '~/components/nft_markets/MarketTab'
+import { mapState, mapActions } from 'vuex'
+import AlcorTabs from '~/components/AlcorTabs'
+import AlcorFilters from '~/components/AlcorFilters'
 import InputSearch from '~/components/nft_markets/InputSearch'
-import MarketTabs from '~/components/nft_markets/MarketTabs'
-import searchImg from '~/assets/images/search.svg'
-import filterImg from '~/assets/images/filter.svg'
-import downImg from '~/assets/images/down.svg'
+import { sortingOptions } from '~/pages/wallet/nfts/sortingOptions'
 
 export default {
   components: {
-    NormalCard,
-    MarketTab,
-    InputSearch,
-    MarketTabs,
-    VueSkeletonLoader
+    AlcorFilters,
+    AlcorTabs,
+    InputSearch
   },
 
   data() {
     return {
-      search: '',
-      tab: 'sales',
-      tabs: { sales: 'Sales', auctions: 'Auctions' },
-      marketData: [],
-      loading: true,
-      collectionData: [],
-      currentCollectionName: '',
-      data: {
-        searchIcon: searchImg,
-        filterIcon: filterImg,
-        downIcon: downImg,
+      filters: {
+        match: '',
+        sorting: null,
+        collection: null,
+        minMint: null,
+        maxMint: null,
+        minPrice: null,
+        maxPrice: null,
+        isDuplicates: null,
+        isBacked: null
       },
-      limit: 40,
+      options: {
+        collection: null,
+        sorting: null
+      }
     }
   },
   computed: {
-    ...mapState(['network']),
-    ...mapState('wallet', ['systemPrice']),
-    getPrice() {
-      let price = this.systemPrice
-      return price
-    },
-    currentTab() {
-      return this.tab
+    ...mapState(['network', 'user']),
+    refetchProps() { [this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    tabs() {
+      return [
+        {
+          label: 'Sales',
+          route: {
+            path: '/nft-market/nft-marketplace/sales',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Auctions',
+          route: {
+            path: '/nft-market/nft-marketplace/auctions',
+            query: this.filters
+          }
+        }
+      ]
+    }
+
+  },
+  watch: {
+    refetchProps() {
+      this.$router.push({ query: this.filters })
     }
   },
 
   mounted() {
-    this.getSaleData()
     this.getCollectionData()
+    this.setSortOptions()
   },
 
   methods: {
-    handleTab(value) {
-      this.tab = value
+    ...mapActions('api', ['getAccountSpecificStats']),
+    setSortOptions() {
+      console.log('sssss', sortingOptions[this.$route.name.split('___')[0]], this.$route.name, sortingOptions)
+      this.options.sorting = sortingOptions[this.$route.name.split('___')[0]]
     },
-
-    handleSearchValue(value) {
-      this.search = value
-    },
-
-    handleCollection(value) {
-      this.currentCollectionName = value
-      if (this.tab === 'sales') {
-        this.getSaleData()
-      } else {
-        this.getAuctionData()
-      }
-    },
-
-    handleSearch() {
-      if (this.tab === 'sales') {
-        this.getSaleData()
-      } else {
-        this.getAuctionData()
-      }
-    },
-
     async getCollectionData() {
-      const data = await this.$store.dispatch('api/getCollectionData')
-      this.collectionData = data
+      const data = await this.$store.dispatch('api/getCollections')
+      this.options.collection = data.map(col => ({ collection: col }))
     },
 
     async getSaleData() {
@@ -138,25 +110,6 @@ export default {
     }
   },
 
-  watch: {
-    search() {
-      if (this.tab === 'sales') {
-        this.getSaleData()
-      } else {
-        this.getAuctionData()
-      }
-    },
-    tab(newTab) {
-      this.currentCollectionName = ''
-      this.search = ''
-      if (newTab === 'sales') {
-        this.getSaleData()
-      } else {
-        this.getAuctionData()
-      }
-    }
-  },
-
   head() {
     return {
       title: `Alcor NFT Market | Trustless NFT market on ${this.network.name.toUpperCase()} chain`,
@@ -174,14 +127,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.j-container {
-  .header {
-    display: flex;
-    gap: 25px;
-    margin-bottom: 40px;
-  }
-}
-
 #return-btn::before {
   content: '←';
 }
@@ -197,18 +142,6 @@ export default {
 }
 
 h4 {
-  margin: 24px 0;
-}
-
-div.grid-container {
-  display: grid;
-  grid-template-columns: auto auto auto auto;
-  gap: 30px;
-}
-
-@media only screen and (max-width: 600px) {
-  .market-cards .item {
-    width: 100%;
-  }
+  margin: 16px 0;
 }
 </style>

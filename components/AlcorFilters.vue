@@ -24,12 +24,14 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             el-option(
               v-for='{ collection, assets } in options.collection'
               :key='collection.collection_name'
-              :label='collection.name + " (" + assets + ")"'
+              :label='collection.name && assets && " (" + assets + ")"'
               :value='collection.collection_name'
             )
               .d-flex.gap-10.align-items-center
                 img.icon(:src="`https://resizer.atomichub.io/images/v1/preview?ipfs=${collection.img}&size=370`")
-                span {{ collection.name }} ({{ assets }})
+                span
+                  span {{ collection.name }}
+                  span(v-if="assets") ({{ assets }})
 
         .w-50
           el-select.fs-12.w-100(

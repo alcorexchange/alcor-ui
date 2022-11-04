@@ -84,5 +84,24 @@ export const sortingOptions = {
     { value: 'updated-desc', label: 'Mint (Lowest)' },
     { value: 'price-asc', label: 'Price (Increasing)' },
     { value: 'price-desc', label: 'Price (Decreasing)' }
-  ]
+  ],
+  'nft-market-nft-marketplace-sales': [
+    { value: 'created-asc', label: 'Created (Newest)' },
+    { value: 'created-desc', label: 'Created (Oldest)' },
+    { value: 'updated-asc', label: 'Mint (Highest)' },
+    { value: 'updated-desc', label: 'Mint (Lowest)' },
+    { value: 'price-asc', label: 'Price (Increasing)' },
+    { value: 'price-desc', label: 'Price (Decreasing)' }
+  ],
+  'nft-market-nft-marketplace-auctions': [
+    { value: 'created-asc', label: 'Created (Newest)' },
+    { value: 'created-desc', label: 'Created (Oldest)' },
+    { value: 'updated-asc', label: 'Mint (Highest)' },
+    { value: 'updated-desc', label: 'Mint (Lowest)' },
+    { value: 'ending-asc', label: 'End Date (Highest)' },
+    { value: 'ending-desc', label: 'End Date (Lowest)' },
+    { value: 'price-asc', label: 'Price (Increasing)' },
+    { value: 'price-desc', label: 'Price (Decreasing)' }
+  ],
+
 }

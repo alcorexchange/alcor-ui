@@ -1,6 +1,6 @@
 <template lang="pug">
 img.content(v-if="template.img" :src="src")
-video.content(v-else autoplay='true', loop='true')
+video.content(v-else="template.video" autoplay='true', loop='true')
   source(:src="src" type='video/mp4')
 
 </template>

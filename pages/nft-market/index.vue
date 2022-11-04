@@ -139,7 +139,7 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: '/nft-market/nft-marketplace'
+          to: '/nft-market/nft-marketplace/sales?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
         },
         {
           title: 'WALLET',
@@ -208,6 +208,7 @@ export default {
     },
   },
   mounted() {
+    this.$store.dispatch('api/getSales')
     this.$store.dispatch('nft/fetch')
     this.getSymbolInfo()
   },
