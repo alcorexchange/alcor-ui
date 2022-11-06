@@ -139,7 +139,7 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: '/nft-market/nft-marketplace'
+          to: '/nft-market/nft-marketplace/sales?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
         },
         {
           title: 'WALLET',
@@ -152,7 +152,7 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
           img: Img3,
-          to: '/nft-market/nftexplorer'
+          to: '/nft-market/nftexplorer/assets?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
         },
         {
           title: 'ALCOR',
@@ -208,6 +208,7 @@ export default {
     },
   },
   mounted() {
+    this.$store.dispatch('api/getSales')
     this.$store.dispatch('nft/fetch')
     this.getSymbolInfo()
   },
@@ -312,6 +313,7 @@ export default {
 .nft-container .grid-container {
   display: flex;
   justify-content: space-between;
+  gap: 30px;
   width: 100%;
   margin: auto;
 }

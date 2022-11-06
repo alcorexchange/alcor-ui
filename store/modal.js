@@ -28,6 +28,18 @@ export const actions = {
     commit('setModalContext', context)
   },
 
+  burn({ commit }, context) {
+    commit('setCurrent', 'burn')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  gift({ commit }, context) {
+    commit('setCurrent', 'gift')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
   transfer({ commit }, context) {
     commit('setCurrent', 'transfer')
     commit('setVisible', true)

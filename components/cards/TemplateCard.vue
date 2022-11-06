@@ -1,26 +1,31 @@
 <template lang="pug">
-card.normal-card-shadow(:class="[{ small }]" @click="$emit('click')")
-  .d-flex.justify-content-end(slot="header")
-    .card_number.d-flex.align-items-center.ml-1.fs-12.color-green {{ "#" + mint }}
+card
+  asset-card-image.main-img(:template="data.immutable_data")
 
-  asset-card-image.main-img(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
-
-  .d-flex.flex-column.justify-content-between.align-items-center.p-2.card-title(slot="footer")
-    .card-name {{ data.name }}
-    .disable.d-flex.gap-4
-      .card-collection {{ data.collection.name }}
-      img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
+  .p-2
+    .d-flex.justify-content-between.align-items-center
+      .disable.d-flex.gap-4.fs-12
+        .card-collection {{ data.collection.name }}
+        img.success-icon.ml-1(src='~/assets/images/check_circle.svg', alt='')
+      .disable.fs-12 Assets
+    .d-flex.justify-content-between.align-items-center
+      .color-action.fs-14.w-50.text-truncate {{ data.name }}
+      .fs-14 {{ data.issued_supply }}
+    .d-flex.justify-content-between.align-items-center
+      .color-action.fs-12 {{ '#' + data.template_id }}
 
   .w-100(slot="footer")
+    alcor-button.w-100(outline) Details
     slot(name="footer")
 </template>
 
 <script>
 import Card from '~/components/cards/Card.vue'
 import AssetCardImage from '~/components/cards/components/AssetCardImage.vue'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
-  components: { Card, AssetCardImage },
+  components: { Card, AssetCardImage, AlcorButton },
   props: ['data', 'small'],
   computed: {
     mint() {

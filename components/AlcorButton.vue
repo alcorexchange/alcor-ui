@@ -163,7 +163,7 @@ button {
 }
 
 .alcor-button.big {
-  padding: 17px 12px;
+  padding: 12px;
   width: 135px;
   border-radius: var(--radius-2);
 }

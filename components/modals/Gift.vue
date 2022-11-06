@@ -1,16 +1,10 @@
 <template lang="pug">
 .transfer-component
   .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-3
-    i.el-icon-takeaway-box
-    span Transfer
+    i.el-icon-present
+    span Create New Gift Link
   .d-flex.flex-column.gap-32
     .d-flex.flex-column.gap-16
-      span.fs-18.disable Tranfer To
-      el-input.dark(
-        size='small',
-        v-model='reciever',
-        placeholder='WAX Adress/Account Name',
-      )
       span.fs-18.disable Memo
       el-input.dark(
         size='small',
@@ -18,7 +12,7 @@
         placeholder='Transfer Memo',
       )
     .d-flex.justify-content-center
-      assets-field(:assets="transferAssets" @removeAsset="toggleSelected")
+      assets-field(:assets="giftAssets" @removeAsset="toggleSelected")
 
     .d-flex.flex-column.gap-16
       el-input(
@@ -77,12 +71,13 @@
         :key="item.asset_id"
         :data="item"
         @click="toggleSelected(item)"
-        :class="{ 'active-border': transferAssets.find(({ asset_id }) => asset_id === item.asset_id) }"
-        mode="preview"
+        :class="{ 'active-border': giftAssets.find(({ asset_id }) => asset_id === item.asset_id) }"
         :small="true"
       )
     .gradient
-  alcor-button.w-100(access, :disabled="!isTransferReady" @click="transfer") Send Transfer
+  alcor-button.w-100(access, :disabled="!isReady" @click="createGiftLink")
+    i.el-icon-present
+    span Generate Gift Link
 </template>
 
 <script>
@@ -99,7 +94,7 @@ export default {
     reciever: '',
     memo: '',
     search: '',
-    transferAssets: [],
+    giftAssets: [],
     availableAssets: [],
     availableCollections: [],
     selectedCollection: null,
@@ -111,7 +106,7 @@ export default {
   computed: {
     ...mapState('modal', ['context']),
     ...mapState(['user']),
-    isTransferReady() { return this.transferAssets.length && this.reciever },
+    isReady() { return this.giftAssets.length },
     refetchProps() { [this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() }
   },
   watch: {
@@ -119,7 +114,8 @@ export default {
       this.fetchAssets()
     },
     context() {
-      this.reciever = this.context.name
+      this.giftAssets = []
+      this.context.giftAssets && this.giftAssets.push(...this.context.giftAssets)
     }
   },
   mounted() {
@@ -129,18 +125,18 @@ export default {
   },
   methods: {
     ...mapActions('api', ['getAssets', 'getAccountSpecificStats']),
-    ...mapActions('chain', ['transferNft']),
+    ...mapActions('chain', ['generateGiftLink']),
     toggleSelected(asset) {
-      this.transferAssets.find(({ asset_id }) => asset_id === asset.asset_id)
-        ? this.transferAssets = this.transferAssets.filter(({ asset_id }) => asset_id !== asset.asset_id)
-        : this.transferAssets.push(asset)
+      this.giftAssets.find(({ asset_id }) => asset_id === asset.asset_id)
+        ? this.giftAssets = this.giftAssets.filter(({ asset_id }) => asset_id !== asset.asset_id)
+        : this.giftAssets.push(asset)
     },
     setOptions() {
       this.reciever = this.context.reciever
-      this.context.transferAssets && this.transferAssets.push(...this.context.transferAssets)
+      this.context.giftAssets && this.giftAssets.push(...this.context.giftAssets)
     },
-    transfer() {
-      this.transferNft({ memo: this.memo, reciever: this.reciever, asset_ids: this.transferAssets.map(({ asset_id }) => asset_id) })
+    createGiftLink() {
+      this.generateGiftLink({ memo: this.memo, asset_ids: this.giftAssets.map(({ asset_id }) => asset_id) })
     },
     async getAccountCollection() {
       const { collections } = await this.getAccountSpecificStats({ account: this.user.name })
@@ -161,7 +157,7 @@ export default {
         })
 
         this.availableAssets = assets.reduce((res, asset) => {
-          this.transferAssets.find(({ asset_id: offerID }) => offerID === asset.asset_id) ? res[0].push(asset) : res[1].push(asset)
+          this.giftAssets.find(({ asset_id: offerID }) => offerID === asset.asset_id) ? res[0].push(asset) : res[1].push(asset)
           return res
         }, [[], []]).flat()
 

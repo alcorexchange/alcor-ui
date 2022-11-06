@@ -1,23 +1,29 @@
 <template lang="pug">
-#account-id-nfts-layout.d-flex.flex-column.gap-16.mt-2
+#wallet-nfts-layout.d-flex.flex-column.gap-16.mt-2
+  nft-header
   .d-flex.align-items-center.gap-24
     input-search(v-model="filters.match")
-    alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'account-id-nfts-sets'")
+    alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'wallet-nfts-sets'")
     alcor-tabs(:links="true" :tabs="tabs")
-  main.account-nft-main
-    nuxt-child
-
+  nuxt-child
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorFilters from '~/components/AlcorFilters'
 import InputSearch from '~/components/nft_markets/InputSearch'
+import WalletNFTHeader from '~/components/wallet/WalletNFTHeader.vue'
 import { sortingOptions } from '~/pages/wallet/nfts/sortingOptions'
 
 export default {
-  components: { AlcorTabs, AlcorFilters, InputSearch },
+  name: 'NFTs',
+  components: {
+    NftHeader: WalletNFTHeader,
+    InputSearch,
+    AlcorTabs,
+    AlcorFilters
+  },
   data: () => ({
     filters: {
       match: '',
@@ -36,48 +42,49 @@ export default {
     }
   }),
   computed: {
+    ...mapState(['network', 'user']),
     refetchProps() { [this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
     tabs() {
       return [
         {
           label: 'Inventory',
           route: {
-            path: `/account/${this.$route.params.id}/nfts/inventory`,
+            path: '/wallet/nfts/inventory',
             query: this.filters
           }
         },
         {
-          label: 'Listings',
+          label: 'My Listings',
           route: {
-            path: `/account/${this.$route.params.id}/nfts/listings`,
+            path: '/wallet/nfts/listings',
             query: this.filters
           }
         },
         {
-          label: 'Auctions',
+          label: 'My Auctions',
           route: {
-            path: `/account/${this.$route.params.id}/nfts/auctions`,
+            path: '/wallet/nfts/auctions',
             query: this.filters
           }
         },
         {
           label: 'Sold',
           route: {
-            path: `/account/${this.$route.params.id}/nfts/sold`,
+            path: '/wallet/nfts/sold',
             query: this.filters
           }
         },
         {
           label: 'Bought',
           route: {
-            path: `/account/${this.$route.params.id}/nfts/bought`,
+            path: '/wallet/nfts/bought',
             query: this.filters
           }
         },
         {
           label: 'Sets',
           route: {
-            path: `/account/${this.$route.params.id}/nfts/sets`,
+            path: '/wallet/nfts/sets',
             query: this.filters
           }
         }
@@ -92,7 +99,6 @@ export default {
       this.filters.sorting = null
       this.setSortOptions()
     }
-
   },
   mounted() {
     this.getAccountCollections()
@@ -101,7 +107,7 @@ export default {
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
     async getAccountCollections() {
-      const { collections } = await this.getAccountSpecificStats({ account: this.$route.params.id })
+      const { collections } = await this.getAccountSpecificStats({ account: this.user.name })
       this.options.collection = collections
     },
     setSortOptions() {

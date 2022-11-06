@@ -28,7 +28,7 @@ card.listing-card
 
   .d-flex.gap-8(slot="footer")
     alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
-    alcor-button.w-100(access @click="openBuyModal") Buy
+    alcor-button.w-100(access @click="openEditModal") Edit
 </template>
 
 <script>
@@ -51,9 +51,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['buy']),
-    openBuyModal() {
-      this.buy(this.data)
+    ...mapActions('modal', ['listing']),
+    openEditModal() {
+      this.listing({ ...this.data, mode: 'sales' })
     }
   }
 }

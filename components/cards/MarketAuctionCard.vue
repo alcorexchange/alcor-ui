@@ -1,7 +1,8 @@
 <template lang="pug">
 card.listing-card
-  asset-card-header(slot="header" :data="data.assets[0]" :ownerImgSrc="ownerImgSrc")
-  asset-card-image(:template="data.assets[0].template.immutable_data")
+  asset-card-header(slot="header" :data="{...data.assets[0], owner: this.data.seller}" :ownerImgSrc="ownerImgSrc")
+  asset-card-image(v-if="data.assets[0].template" :template="data.assets[0].template.immutable_data")
+  asset-card-image(v-else-if="data.assets[0].immutable_data" :template="data.assets[0].immutable_data")
   .p-2
     .d-flex.justify-content-between
       .d-flex.align-items-center.gap-4.w-50
@@ -12,23 +13,16 @@ card.listing-card
       .fs-14.w-50.text-truncate {{ data.assets[0].name }}
       .fs-14.color-wax {{ listingPrice }} WAX
     .d-flex.justify-content-between
-      span.fs-12.color-action {{ data.assets[0].schema.schema_name }}
+      .fs-12.color-action {{ data.assets[0].schema.schema_name }}
+      .fs-12.color-green ${{ $systemToUSD(listingPrice) }}
   .p-2
-    .d-flex.justify-content-between
-      .fs-12.disable Best offer by
-      .fs-12.disable(v-if="!data.buy_offers") ---
-    .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
-      .d-flex.align-items-center.gap-4.pointer
-        profile-image(:src="data.buy_offers[0].buyerImgSrc" :size="12")
-        .color-action.fs-12 {{ data.buy_offers[0].buyer }}
-      .color-wax {{ bestOfferPrice }} WAX
-    .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
-      span
-      .color-green.fs-12 (${{ $systemToUSD(bestOfferPrice) }})
+    .d-flex.align-items-center.justify-content-between
+      .fs-14 {{ timeToEnd }}
+      .fs-14 {{ data.bids.length }} Bids
 
   .d-flex.gap-8(slot="footer")
     alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
-    alcor-button.w-100(access @click="openBuyModal") Buy
+    alcor-button.w-100(access @click="openOfferModal") Make Offer
 </template>
 
 <script>
@@ -43,6 +37,13 @@ export default {
   components: { Card, AssetCardHeader, AssetCardImage, AlcorButton, ProfileImage },
   props: ['data', 'ownerImgSrc'],
   computed: {
+    timeToEnd() {
+      const diff = this.data.end_time - Date.now()
+      const time = Math.round(diff / (1000 * 60 * 60))
+      const h = time % 24
+      const d = Math.round(time / 24)
+      return `${d}d ${h}h`
+    },
     listingPrice() {
       return new Intl.NumberFormat().format(this.data.price.amount / Math.pow(10, this.data.price.token_precision))
     },
@@ -51,19 +52,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['buy']),
-    openBuyModal() {
-      this.buy(this.data)
+    ...mapActions('modal', ['makeOffer']),
+    openOfferModal() {
+      this.makeOffer(this.data.assets[0])
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-.listing-card {
-  height: 471px;
-}
-
 .success-icon {
   width: 10px;
   height: 10px;

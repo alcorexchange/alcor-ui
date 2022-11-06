@@ -114,6 +114,25 @@ export const actions = {
     }
   },
 
+  async getCollections({ dispatch }, options) {
+    try {
+      const { data: { data: { results } } } = await this.$api.post(
+        'atomicmarket/v1/stats/collections',
+        {
+          page: 1,
+          limit: 20,
+          symbol: 'WAX',
+          order: 'desc',
+          ...options
+        }
+      )
+
+      return results
+    } catch (e) {
+      console.error('Get collect error', e)
+      return await dispatch('getCollections', options)
+    }
+  },
 
   async getCollectionsForSet() {
     try {
@@ -149,46 +168,24 @@ export const actions = {
 
   async getAuctionData({
     dispatch
-  }, {
-    limit = 100,
-    search,
-    collectionName,
-    seller,
-    participant,
-    bidder,
-    buyer_blacklist,
-    buyer,
-    state
-  }) {
+  }, options) {
     try {
       const {
         data
-      } = await this.$api.get(
-        '/atomicmarket/v1/auctions?order=desc&sort=created&limit=' +
-        limit +
-        (search ? '&match=' + search : '') +
-        (collectionName ? '&collection_name=' + collectionName : '') +
-        (seller ? '&seller=' + seller : '') +
-        (buyer ? '&buyer=' + buyer : '') +
-        (state ? '&state=' + state : '') +
-        (participant ? '&participant=' + participant : '') +
-        (bidder ? '&bidder=' + bidder : '') +
-        (buyer_blacklist ? '&buyer_blacklist=' + buyer_blacklist : '')
+      } = await this.$api.post(
+        'atomicmarket/v1/auctions',
+        {
+          page: 1,
+          limit: 20,
+          state: '0,1,4',
+          symbol: 'WAX',
+          ...options
+        }
       )
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      return await dispatch('getAuctionData', {
-        limit,
-        search,
-        collectionName,
-        seller,
-        participant,
-        bidder,
-        buyer_blacklist,
-        buyer,
-        state
-      })
+      return await dispatch('getAuctionData', options)
     }
   },
 
@@ -220,16 +217,29 @@ export const actions = {
     rootState
   }, {
     limit,
+    match,
+    sort,
+    order,
     search,
-    collectionName
+    collection_name,
+    max_template_mint,
+    min_template_mint,
+    has_backed_tokens,
+    only_duplicate_templates
   }) {
     try {
       const {
         data
-      } = await axios.get(`${API_URL}/atomicassets/v1/assets?order=desc&sort=created&limit=` +
+      } = await this.$api.post('/atomicassets/v1/assets?limit=' +
         limit +
-        (search ? '&search=' + search : '') +
-        (collectionName ? '&collection_name=' + collectionName : '')
+        (match ? '&match=' + match : '') +
+        (order ? '&order=' + order : '') +
+        (sort ? '&sort=' + sort : '') +
+        (has_backed_tokens ? '&max_template_mint=' + has_backed_tokens : '') +
+        (only_duplicate_templates ? '&max_template_mint=' + only_duplicate_templates : '') +
+        (max_template_mint ? '&max_template_mint=' + max_template_mint : '') +
+        (min_template_mint ? '&min_template_mint=' + min_template_mint : '') +
+        (collection_name ? '&collection_name=' + collection_name : '')
       )
       return data.data
     } catch (e) {
@@ -288,6 +298,50 @@ export const actions = {
       return data
     } catch (e) {
       console.error('Get template error', e)
+    }
+  },
+
+  async getStatsTemplates(_, options) {
+    try {
+      const { data } = await this.$api.post(
+        '/atomicmarket/v1/stats/templates',
+        {
+          limit: '42',
+          page: '1',
+          symbol: 'WAX',
+          ...options
+        }
+      )
+      return data.data.results
+    } catch (e) {
+      console.error('Get stat templates error', e)
+    }
+  },
+
+  async getTemplates(_, options) {
+    const { data } = await this.$api.post(
+      'https://wax.api.aa.atomichub.io/atomicassets/v1/templates',
+      {
+        has_assets: true,
+        limit: 25,
+        order: 'desc',
+        page: 1,
+        sort: 'created',
+        ...options
+      }
+    )
+    return data.data
+  },
+
+  async getOwnedAssets({ rootState }, {
+    account,
+    collection_name
+  }) {
+    try {
+      const { data } = await this.$api.get(`atomicassets/v1/accounts/${account || rootState.user.name}/${collection_name}`)
+      return data.data
+    } catch (e) {
+      console.error('Get owned assets error', e)
     }
   },
 
@@ -380,15 +434,18 @@ export const actions = {
   },
 
   async getAssets({ dispatch }, options) {
+    const filteredOptions = Object.entries(options)
+      .filter(([key, value]) => value)
+      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+
     try {
       const {
         data
-      } = await this.$api.post('/atomicmarket/v1/assets', {
-        page: 1,
-        limit: 25,
-        order: 'desc',
-        sort: 'transferred',
-        ...options
+      } = await this.$api.post('/atomicassets/v1/assets', {
+        limit: options.limit || '32',
+        order: options.order || 'desc',
+        sort: options.sort || 'asset_id',
+        ...filteredOptions
       })
 
       return data.data

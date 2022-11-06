@@ -1,7 +1,8 @@
 <template lang="pug">
-card.listing-card
+card
   asset-card-header(slot="header" :data="data.assets[0]" :ownerImgSrc="ownerImgSrc")
-  asset-card-image(:template="data.assets[0].template.immutable_data")
+  asset-card-image(v-if="data.assets[0].template" :template="data.assets[0].template.immutable_data")
+  asset-card-image(v-else-if="data.assets[0].immutable_data" :template="data.assets[0].immutable_data")
   .p-2
     .d-flex.justify-content-between
       .d-flex.align-items-center.gap-4.w-50
@@ -13,18 +14,7 @@ card.listing-card
       .fs-14.color-wax {{ listingPrice }} WAX
     .d-flex.justify-content-between
       span.fs-12.color-action {{ data.assets[0].schema.schema_name }}
-  .p-2
-    .d-flex.justify-content-between
-      .fs-12.disable Best offer by
-      .fs-12.disable(v-if="!data.buy_offers") ---
-    .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
-      .d-flex.align-items-center.gap-4.pointer
-        profile-image(:src="data.buy_offers[0].buyerImgSrc" :size="12")
-        .color-action.fs-12 {{ data.buy_offers[0].buyer }}
-      .color-wax {{ bestOfferPrice }} WAX
-    .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
-      span
-      .color-green.fs-12 (${{ $systemToUSD(bestOfferPrice) }})
+      .fs-12.color-green ${{ $systemToUSD(listingPrice) }}
 
   .d-flex.gap-8(slot="footer")
     alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
@@ -60,10 +50,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.listing-card {
-  height: 471px;
-}
-
 .success-icon {
   width: 10px;
   height: 10px;

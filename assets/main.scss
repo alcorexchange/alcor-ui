@@ -891,6 +891,10 @@ a {
   width: 25%;
 }
 
+.fs-24 {
+  font-size: 24px;
+}
+
 .fs-22 {
   font-size: 22px;
 }
@@ -901,6 +905,10 @@ a {
 
 .fs-18 {
   font-size: 18px;
+}
+
+.fs-16 {
+  font-size: 16px;
 }
 
 .fs-14 {
@@ -933,6 +941,18 @@ a {
 
 .gap-16 {
   gap: 16px;
+}
+
+.gap-18 {
+  gap: 18px;
+}
+
+.gap-20 {
+  gap: 20px;
+}
+
+.gap-22 {
+  gap: 22px;
 }
 
 .gap-24 {
@@ -978,6 +998,9 @@ a {
 }
 .color-wax {
   color: var(--main-wax);
+}
+.color-danger {
+  color: var(--main-red);
 }
 
 .bg-green {

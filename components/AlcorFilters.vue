@@ -2,11 +2,14 @@
 el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-center.pointer(
   trigger='click'
   :hideOnClick="false"
+  :class="{ active }"
+  @visible-change="isActive => this.active = isActive"
+  :disabled="disabled"
 )
-  .d-flex.align-items-center.gap-8.disable.button
-    i.el-icon-set-up.fs-14
+  .d-flex.align-items-center.gap-8.fs-16.button(:class="{ disabled }")
+    i.el-icon-set-up
     span Filter
-    i.el-icon-caret-bottom.fs-14
+    i.el-icon-caret-bottom
   el-dropdown-menu.dropdown
     el-dropdown-item.dropdown__filters
       .d-flex.justify-content-between.gap-16
@@ -21,12 +24,14 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             el-option(
               v-for='{ collection, assets } in options.collection'
               :key='collection.collection_name'
-              :label='collection.name + " (" + assets + ")"'
+              :label='collection.name && assets && " (" + assets + ")"'
               :value='collection.collection_name'
             )
               .d-flex.gap-10.align-items-center
                 img.icon(:src="`https://resizer.atomichub.io/images/v1/preview?ipfs=${collection.img}&size=370`")
-                span {{ collection.name }} ({{ assets }})
+                span
+                  span {{ collection.name }}
+                  span(v-if="assets") ({{ assets }})
 
         .w-50
           el-select.fs-12.w-100(
@@ -85,7 +90,8 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { AlcorButton },
-  props: ['filters', 'options'],
+  props: ['filters', 'options', 'disabled'],
+  data: () => ({ active: false }),
   methods: {
     applyFilters() {
       this.$router.push({ query: this.filters })
@@ -109,8 +115,17 @@ export default {
 #alcor-filters-component {
   line-height: initial;
 
+  & .disabled {
+    color: var(--btn-default);
+    cursor: not-allowed;;
+  }
+
+  &.active {
+    border-bottom: 1px solid var(--main-action-green);
+  }
+
   .button {
-    padding: 8px;
+    padding: 10px;
     border-bottom: 1px solid var(--tab-link-border);
   }
 }

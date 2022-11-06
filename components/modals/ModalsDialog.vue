@@ -8,6 +8,8 @@ import { mapState } from 'vuex'
 
 import Login from '~/components/modals/Login'
 import Listing from '~/components/modals/Listing'
+import Burn from '~/components/modals/Burn'
+import Gift from '~/components/modals/Gift'
 import BuyListing from '~/components/modals/BuyListing'
 import MakeOffer from '~/components/modals/MakeOffer'
 import Transfer from '~/components/modals/Transfer'
@@ -20,6 +22,8 @@ export default {
   components: {
     Login,
     Listing,
+    Burn,
+    Gift,
     BuyListing,
     MakeOffer,
     Transfer,

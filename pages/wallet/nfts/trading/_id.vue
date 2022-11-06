@@ -1,6 +1,5 @@
 <template lang="pug">
 .nft-trading-id-page
-  WalletNFTHeader
   .fs-18.d-flex.align-items-center.gap-6.mt-4
     span You are now trading with:
     span.user-name.fs-12.p-2.d-flex.align-items-center.gap-8
