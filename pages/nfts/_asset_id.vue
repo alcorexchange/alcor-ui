@@ -1,7 +1,6 @@
 <template lang="pug">
 .j-container.nftburnable
-  nuxt-link(:to='"/wallet-inventory/nfts"', :exact='true')
-    a#return-btn Return
+  #return-btn.d-flex.gap-4(@click="$router.back()") Return
   .page-header.d-flex.justify-content-between.row
     .page-header_text
       p Visuals
@@ -145,12 +144,12 @@
               div(v-if='assetData.template.is_burnable')
                 img(src='~/assets/images/fire.svg')
                 span.ml-2.fs-18 Burnable
-      .d-flex.button
-        .burn-btn
+      .d-flex.gap-20.justify-content-end
+        alcor-button(big)
           img(src='~/assets/images/fire.svg')
           span Burn
-        button.btn.tokens-btn(@click='() => (this.show_modal = true)') Back tokens
-        .create-collection-btn
+        alcor-button(big @click='() => (this.show_modal = true)') Back tokens
+        alcor-button(access)
           img(src='~/assets/images/tag.svg')
           | List On Market
   .row.attribute
@@ -214,7 +213,19 @@
             :data='item'
           )
         el-tab-pane(label='Updates')
-          h1 Updates
+          .row
+            .col-2
+              h5 Event
+            .col-6
+              h5.pl-2 Data
+            .col-4.pl-0
+              h5 Date
+          LogsRow(
+            v-for='(item, index) in updatesData',
+            :key='index',
+            :data='item'
+          )
+
         el-tab-pane(label='Logs')
           .row
             .col-2
@@ -234,25 +245,25 @@
     .col-7.chart-topline
       .d-flex.justify-content-between
         .chart-items
-          p.text-white.mb-0 Lowest Listing:
+          p.mb-0 Lowest Listing:
           p.weight-400
             span.color-yellow {{ lowestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
-          p.text-white.mb-0 Lowest Sale:
+          p.mb-0 Lowest Sale:
           p.weight-400
             span.color-yellow {{ lowestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
-          p.text-white.mb-0 Highest Listing:
+          p.mb-0 Highest Listing:
           p.weight-400
             span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(highestSales) }}
         .chart-items
-          p.text-white.mb-0 Highest Sale:
+          p.mb-0 Highest Sale:
           p.weight-400
             span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;
@@ -262,10 +273,11 @@
     :handleCloseModal='handleCloseModal'
   )
   .d-flex.justify-content-between.chart
-    Chart(:charts='chartData', v-if='chartData.length', tab="Price", period="24H")
+    Chart(v-if='chartData.length', :charts='chartData', tab="Price", period="24H")
 </template>
 <script>
 import VueSkeletonLoader from 'skeleton-loader-vue'
+import AlcorButton from '~/components/AlcorButton'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
 import LogsRow from '~/components/nft_markets/LogsRow'
@@ -279,6 +291,7 @@ export default {
     NFTBackModal,
     Chart,
     VueSkeletonLoader,
+    AlcorButton,
     LogsRow,
   },
 
@@ -291,6 +304,7 @@ export default {
       salesData: [],
       transferData: [],
       logsData: [],
+      updatesData: [],
       templatePrice: [],
       chartData: [],
     }
@@ -299,31 +313,33 @@ export default {
     imageBackground() {
       if (this.assetData && this.assetData.data.img) {
         return {
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
             this.assetData.data.img +
-            ')',
+            '&size=370' +
+            ')'
         }
       } else return false
     },
     thumbnailImage() {
       if (this.assetData && this.assetData.data.img) {
         return {
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://ipfs.atomichub.io/ipfs/' +
+            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
             this.assetData.data.img +
-            ')',
+            '&size=370' +
+            ')'
         }
       } else return false
     },
     lowestSales() {
-      if (this.templatePrice.length) {
+      if (this.templatePrice?.length) {
         return (
           this.templatePrice[0].min /
           Math.pow(10, this.templatePrice[0].token_precision)
@@ -331,7 +347,7 @@ export default {
       } else return 0
     },
     highestSales() {
-      if (this.templatePrice.length) {
+      if (this.templatePrice?.length) {
         return (
           this.templatePrice[0].max /
           Math.pow(10, this.templatePrice[0].token_precision)
@@ -388,6 +404,7 @@ export default {
       const data = await this.$store.dispatch('api/getAssetsTransfer', {
         asset_id,
       })
+      console.log('dddddd', data)
       this.transferData = data
     },
 
@@ -405,7 +422,8 @@ export default {
       const data = await this.$store.dispatch('api/getAssetsLog', {
         asset_id,
       })
-      this.logsData = data
+      this.logsData = data.filter(({ name }) => name !== 'logsetdata')
+      this.updatesData = data.filter(({ name }) => name === 'logsetdata')
     },
 
     async getTemplatePrice(templateID) {
@@ -439,7 +457,7 @@ export default {
   }
 
   .chart-topline {
-    background-color: #202021;
+    background-color: var(--background-color-secondary);;
     border-radius: 5px;
     padding: 7px 12px;
   }
@@ -566,7 +584,7 @@ export default {
   .el-tabs__item {
     width: 130px !important;
     text-align: center;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--btn-default);
   }
 
   .button {
@@ -591,7 +609,7 @@ export default {
   .wax-exchange {
     font-weight: 500;
     font-size: 16px;
-    color: #34fb24;
+    color: var(--main-action-green);
   }
 
   .token-exchange {
@@ -688,6 +706,7 @@ export default {
     .attr {
       margin-bottom: 10px;
       justify-content: space-between;
+      align-items: center;
       padding-right: 0px;
       flex-wrap: wrap;
       flex-direction: revert;
@@ -715,13 +734,13 @@ export default {
   }
 
   .nft-transfer {
-    background-color: #202021;
+    background-color: var(--background-color-secondary);
     padding: 24px;
   }
 
   .nft-Name-container,
   .nft-info.border-radius5 {
-    background-color: #202021;
+    background-color: var(--background-color-secondary);
     padding: 14px;
   }
 
@@ -732,7 +751,7 @@ export default {
 
   .nft-image-container,
   .nft-info.border-radius5 {
-    background-color: #202021;
+    background-color: var(--background-color-secondary);
     padding: 20px;
     margin-bottom: 68px;
   }
@@ -826,11 +845,11 @@ export default {
   }
 
   #return-btn {
+    margin-top: 12px;
     font-weight: 500;
     font-size: 14px;
     color: #9f979a !important;
     cursor: pointer;
-    padding-left: 10px;
   }
 
   .page-header h4 {
@@ -838,7 +857,7 @@ export default {
   }
 
   .page-header {
-    margin: 32px 0 9px 0;
+    margin: 16px 0;
   }
 
   .info-capacity {
@@ -863,7 +882,7 @@ export default {
     padding: 6px;
     margin-right: 6px;
     color: #9f979a;
-    background-color: #202021;
+    background-color: var(--background-color-secondary);;
     margin-right: 6px;
     font-weight: 700;
   }
