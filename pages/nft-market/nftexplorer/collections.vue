@@ -30,17 +30,24 @@ export default {
     }
   },
   mounted() {
+    if (!this.$route.query?.sorting) this.$router.push({ query: { ...this.$route.query, sorting: 'popularity' } })
     this.exploreCollections()
   },
   methods: {
-    ...mapActions('api', ['getCollections']),
+    ...mapActions('api', ['getCollections', 'getCollectionData']),
     exploreCollections() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
         this.collections = null
-        this.collections = await this.getCollections({
-          search: this.$route.query?.match,
-        })
+        this.$route.query?.sorting === 'popularity'
+          ? (this.collections = await this.getCollections({
+            search: this.$route.query?.match
+          }))
+          : (this.collections = await this.getCollectionData({
+            search: this.$route.query?.match || null,
+            sort: this.$route.query?.sorting?.split('-')[0] || null,
+            order: this.$route.query?.sorting?.split('-')[1] || null
+          }))
       }, 600)
     }
   }

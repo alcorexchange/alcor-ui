@@ -8,6 +8,20 @@ export const sortingOptions = {
     { value: 'minted-desc', label: 'Mint (Lowest)' },
     { value: 'name-asc', label: 'Alphabetical (A-Z)' }
   ],
+  'nft-market-nftexplorer-collections': [
+    { value: 'popularity', label: 'Popularity' },
+    { value: 'created-asc', label: 'Created (Newest)' },
+    { value: 'created-desc', label: 'Created (Oldest)' },
+    { value: 'collection_name-asc', label: 'Alphabetical (A-Z)' },
+    { value: 'collection_name-desc', label: 'Alphabetical (Z-A)' }
+  ],
+  'nft-market-nftexplorer-templates': [
+    { value: 'popularity', label: 'Popularity' },
+    { value: 'created-asc', label: 'Created (Newest)' },
+    { value: 'created-desc', label: 'Created (Oldest)' },
+    { value: 'collection_name-asc', label: 'Alphabetical (A-Z)' },
+    { value: 'collection_name-desc', label: 'Alphabetical (Z-A)' }
+  ],
   'wallet-nfts-inventory': [
     { value: 'transferred', label: 'Transferred (Newest)' },
     { value: 'transferred-desc', label: 'Transferred (Oldest)' },
@@ -115,6 +129,5 @@ export const sortingOptions = {
     { value: 'ending-desc', label: 'End Date (Lowest)' },
     { value: 'price-asc', label: 'Price (Increasing)' },
     { value: 'price-desc', label: 'Price (Decreasing)' }
-  ],
-
+  ]
 }

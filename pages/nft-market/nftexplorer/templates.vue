@@ -30,25 +30,27 @@ export default {
     }
   },
   mounted() {
+    if (!this.$route.query?.sorting) this.$router.push({ query: { ...this.$route.query, sorting: 'popularity' } })
     this.exploreTemplates()
   },
   methods: {
-    ...mapActions('api', ['getStatsTemplates']),
+    ...mapActions('api', ['getStatsTemplates', 'getTemplatesData']),
     exploreTemplates() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
         this.templates = null
-        const r = await this.getStatsTemplates({
-          collection_name: this.$route.query?.collection,
-          sort: this.$route.query?.sorting?.split('-')[0] || null,
-          order: this.$route.query?.sorting?.split('-')[1] || null,
-          search: this.$route.query?.match,
-          max_template_mint: this.$route.query?.maxMint,
-          min_template_mint: this.$route.query?.minMint,
-          has_backed_tokens: !!this.$route.query?.isBacked,
-          only_duplicate_templates: !!this.$route.query?.isDuplicates
-        })
-        this.templates = r.map(({ template }) => template)
+        if (this.$route.query?.sorting === 'popularity') {
+          const r = await this.getStatsTemplates({
+            search: this.$route.query?.match
+          })
+          this.templates = r.map(({ template }) => template)
+        } else {
+          this.templates = await this.getTemplatesData({
+            sort: this.$route.query?.sorting?.split('-')[0] || null,
+            order: this.$route.query?.sorting?.split('-')[1] || null,
+            search: this.$route.query?.match
+          })
+        }
       }, 600)
     }
   }
