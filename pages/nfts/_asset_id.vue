@@ -17,6 +17,8 @@
           :rounded='true'
         )
       .nft-image(v-else-if='imageBackground', :style='imageBackground')
+      video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '250px', margin: '0 auto', width: '100%' }")
+        source(:src="videoBackground" type='video/mp4')
       .nft-image(
         v-else,
         :style='{ backgroundImage: `url(${require("~/assets/images/nft.svg")})` }'
@@ -31,6 +33,8 @@
       )
       button.btn.nft1-container(v-else)
         .nft1-image(v-if='thumbnailImage', :style='thumbnailImage')
+        video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '65px', margin: '0 auto', width: '100%' }")
+          source(:src="videoBackground" type='video/mp4')
         .nft1-image(
           v-else,
           :style='{ backgroundImage: `url(${require("~/assets/images/nft_sm.svg")})` }'
@@ -273,7 +277,7 @@
     :handleCloseModal='handleCloseModal'
   )
   .d-flex.justify-content-between.chart
-    Chart(v-if='chartData.length', :charts='chartData', tab="Price", period="24H")
+    Chart(v-if='chartData && chartData.length', :charts='chartData', tab="Price", period="24H")
 </template>
 <script>
 import VueSkeletonLoader from 'skeleton-loader-vue'
@@ -310,6 +314,11 @@ export default {
     }
   },
   computed: {
+    videoBackground() {
+      if (this.assetData && this.assetData.data.video) {
+        return `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.assetData.data.video}&size=370&output=mp4`
+      } else return false
+    },
     imageBackground() {
       if (this.assetData && this.assetData.data.img) {
         return {
@@ -318,13 +327,14 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
-            this.assetData.data.img +
+            this.assetData.data.img.replaceAll(' ', '%20') +
             '&size=370' +
             ')'
         }
       } else return false
     },
     thumbnailImage() {
+      console.log('asssss', this.assetData)
       if (this.assetData && this.assetData.data.img) {
         return {
           backgroundSize: 'contain',
@@ -332,7 +342,7 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
-            this.assetData.data.img +
+            this.assetData.data.img.replaceAll(' ', '%20') +
             '&size=370' +
             ')'
         }
@@ -388,6 +398,7 @@ export default {
       const data = await this.$store.dispatch('api/getSpecificAsset', {
         asset_id,
       })
+      console.log('ddddd', data)
       this.assetData = data
       this.getTemplatePrice(data.template.template_id)
       this.getChartData(

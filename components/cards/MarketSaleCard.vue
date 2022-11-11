@@ -17,7 +17,7 @@ card
       .fs-12.color-green ${{ $systemToUSD(listingPrice) }}
 
   .d-flex.gap-8(slot="footer")
-    alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
+    alcor-button.w-100(outline @click="$router.push('/nfts/' + data.assets[0].asset_id )") Details
     alcor-button.w-100(access @click="openBuyModal") Buy
 </template>
 
