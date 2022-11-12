@@ -5,7 +5,7 @@ nuxt-link.nftcard.d-flex.align-items-center.justify-content-center.flex-column.t
 )
   h3.schema-title.mb-4 {{ data.schema_name }}
   h4.collection_name {{ data.collection.collection_name }}
-  P.shema-count {{ data.format.length + "Attributes" }}
+  P.shema-count {{ data.format.length + " Attributes" }}
 </template>
 
 <script>
@@ -20,7 +20,6 @@ export default {
   height: 195px;
   border: 1px solid #67c23a;
   border-radius: 5px;
-  margin-right: 25px;
 }
 .schema-title {
     color: #67c23a;

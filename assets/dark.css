@@ -10168,12 +10168,10 @@
     top: -7px;
     width: 46px;
     height: 26px;
-    background: #13ce66;
+    background: #67C23A;
     text-align: center;
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
-    -webkit-box-shadow: 0 1px 1px #ccc;
-    box-shadow: 0 1px 1px #ccc
 }
 
 .el-upload-list--picture .el-upload-list__item-status-label i {

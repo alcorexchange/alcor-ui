@@ -98,6 +98,27 @@ export const actions = {
     }
   },
 
+  async getMyCollections({
+    getters,
+    rootState
+  }, options) {
+    try {
+      const {
+        data
+      } = await this.$api.post(
+        'atomicassets/v1/collections', {
+          page: '1',
+          limit: '32',
+          symbol: 'WAX',
+          author: rootState.user.name
+        }
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get assets error', e)
+    }
+  },
+
   async getCollectionData({
     getters,
     rootState
@@ -106,7 +127,6 @@ export const actions = {
       const filteredOptions = Object.entries(options)
         .filter(([key, value]) => value)
         .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
-
       const {
         data
       } = await this.$api.post(

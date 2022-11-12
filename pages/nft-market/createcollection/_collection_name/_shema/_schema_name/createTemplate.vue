@@ -1,16 +1,16 @@
 <template lang="pug">
-.j-container.createcollection
-  div
+.j-container.createcollection.d-flex.flex-column.gap-40
+  .mt-3
     nuxt-link(
-      :to='"/nft-market/createcollection/" + collection_name + "/schema/" + schema_name',
+      :to="{ name: `nft-market-createcollection-collection_name-shema-schema_name___${$i18n.locale}`, params: { collection_name, schema_name } }"
       :exact='true'
     )
       a#return-btn Return - Schema: {{schema_name}}
-  .page-header.d-flex.justify-content-between.row
-    .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 New Template
-      p Templates can be applied to NFTs, the attributes will then be changed accordingly.
-    MemoryPanel
+    .d-flex.justify-content-between.align-items-center.mt-3
+      .d-flex.flex-column
+        h4 New Template
+        .fs-14.disable Templates can be applied to NFTs, the attributes will then be changed accordingly.
+      memory-panel
   .card-group.d-flex.justify-content-between
     .d-flex.align-items-start
       .nftcard.create-collections.border-radius5
@@ -65,7 +65,7 @@
         .form-group_image(
           :style='{ backgroundImage: `url(${require("~/assets/images/double_arrow.svg")})` }'
         )
-      button.btn.create-template-btn(@click='handleCreate') Create Template
+      alcor-button.w-100(access @click='handleCreate()') Create Template
   .add-attribute_header
     .row.add-attribute_header.d-flex
       p Attributes
@@ -87,10 +87,13 @@
 import { mapState } from 'vuex'
 import axios from 'axios'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
+import AlcorButton from '~/components/AlcorButton'
+
 
 export default {
   components: {
-    MemoryPanel
+    MemoryPanel,
+    AlcorButton
   },
 
   data() {
@@ -160,7 +163,8 @@ export default {
       this.attribute_data = schemaArr
     },
     async handleCreate(e) {
-      e.preventDefault()
+      console.log('asdasdasd')
+      //e.preventDefault()
       const dataArr = []
       this.attribute_data.map((item) => {
         if (item.value) {
@@ -216,7 +220,6 @@ export default {
 <style lang="scss">
 .createcollection {
   .row.add-attribute_header.d-flex {
-    margin: 32px 0 21px;
     font-weight: 500;
     font-size: 20px;
   }
@@ -227,6 +230,29 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
+        background: var(--background-color-third);
+
+    border: 2px solid var(--main-action-green);
+    border-radius: 10px;
+
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: var(--text-default);
+
+    transition: all 0.3s;
+
+    &:hover {
+      box-shadow: 0px 0px 30px 0px #54a05466 inset;
+      background: var(--btn-outline);
+    }
+
     .el-upload {
       width: 100%;
       height: 100%;
@@ -462,7 +488,8 @@ export default {
     font-size: 14px;
     color: #9f979a !important;
     cursor: pointer;
-    padding-left: 10px;
+    display: flex;
+    gap: 5px;
   }
   .page-header h4 {
     margin: 0 !important;
@@ -470,13 +497,9 @@ export default {
   .page-header {
     margin: 32px 0 9px 0;
   }
-  .card-group {
-    margin-top: 32px;
-  }
   .nftcard {
     width: 300px;
     height: 300px;
-    border: 1px solid #67c23a;
   }
   .create-collections {
     margin-right: 25px;

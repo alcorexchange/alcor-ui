@@ -1,13 +1,13 @@
 <template lang="pug">
-.j-container.collectionview
-  div
-  nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
-    a#return-btn Return - Edit Collection
-  .page-header.d-flex.justify-content-between.row
-    .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 Collection: {{ collectionData && collectionData.collection_name }}
-      p Edit your collection or add schemas and NFTs.
-    MemoryPanel
+.j-container#collection-page.d-flex.flex-column.gap-40
+  .mt-3
+    nuxt-link(:to="localePath('nft-market-createnft', $i18n.locale)" :exact='true')
+      #return-btn Return - My collection
+    .d-flex.justify-content-between.align-items-center.mt-3
+      .d-flex.flex-column
+        h4 Collection: {{ collectionData && collectionData.collection_name }}
+        .fs-14.disable Edit your collection or add schemas and NFTs.
+      memory-panel
   .d-flex.justify-content-between
     .nft-image-container.border-radius5.p-0
       .nftcard.create-collections.border-radius5.mr-0.w-100.h-100
@@ -35,21 +35,24 @@
       v-if='!editable'
     )
       .d-flex.justify-content-between
-        .other-info
-          p.description-title Display Name
-          h4.description-name.mt-0 {{ collectionData && collectionData.name }}
-          p.description-title Website URL
-          p.wax-exchange(v-if='collectionData && collectionData.data.url')
-            a.wax-exchange(target='blank', :href='collectionData.data.url') {{ collectionData.data.url.split("https://")[1] }}
-          p.description-fee Collection Fee
-          h4.m-0(v-if='collectionData && collectionData.market_fee') {{ collectionData.market_fee * 100 }}%
+        .other-info.d-flex.flex-column.gap-24
+          div
+            .disable Display Name
+            .fs-20 {{ collectionData && collectionData.name }}
+          div
+            .disable Website URL
+            .fs-20(v-if='collectionData && collectionData.data.url')
+              a.color-action(target='blank', :href='collectionData.data.url') {{ collectionData.data.url.split("https://")[1] }}
+          div
+            .disable Collection Fee
+            .fs-20(v-if='collectionData && collectionData.market_fee') {{ collectionData.market_fee * 100 }}%
         .description-info
           p.description-title Description
           p.description(
             v-if='collectionData && collectionData.data.description'
           ) {{ collectionData.data.description }}
       .d-flex.justify-content-end
-        button.btn.create-collection-btn(@click='() => (this.editable = true)') Edit Collection
+        alcor-button(big access)(@click='() => (this.editable = true)') Edit Collection
     form.nft-info.border-radius5.d-flex.flex-column.justify-content-between.edit-field(
       name='updateCollectionForm',
       @submit='handleUpdate',
@@ -86,25 +89,24 @@
             name='description',
             v-if='collectionData && collectionData.data.description'
           ) {{ collectionData.data.description }}
-      .d-flex.justify-content-end
-        button.btn.create-collection-btn.mr-4(
+      .d-flex.justify-content-end.gap-16
+        alcor-button(big access
           type='button',
           @click='cancelUpdate'
         ) Cancel
         button.btn.create-collection-btn(type='submit') Update Collection
   .schemas-title Schemas
   .d-flex.flex-wrap
-    .card-group.d-flex.align-items-start
+    .card-group.d-flex.align-items-start.gap-16
       nuxt-link(
         :to='"/nft-market/createcollection/" + collection_name + "/createschema"',
         :exact='true'
       )
-        .nftcard.create-collections.border-radius5
-          .card-content
-            .plus-round-background(
-              :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
-            )
-            h4 Create <br> Schema
+        .card-content
+          .plus-round-background(
+            :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
+          )
+          h4 Create <br> Schema
       SchemaCard(
         v-for='(item, index) in schemasData',
         :key='index',
@@ -117,11 +119,13 @@ import axios from 'axios'
 import { mapState } from 'vuex'
 import SchemaCard from '~/components/nft_markets/SchemaCard'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: {
     SchemaCard,
-    MemoryPanel
+    MemoryPanel,
+    AlcorButton
   },
 
   data() {
@@ -139,6 +143,7 @@ export default {
     ...mapState(['user']),
   },
   mounted() {
+    console.log(this.$route.name)
     const collectionName = this.$route.params.collection_name
     this.collection_name = collectionName
     this.getSpecificCollectionData(collectionName)
@@ -150,7 +155,7 @@ export default {
       const imageArr = []
       if (this.collectionData.img) {
         imageArr.push({
-          url: 'https://ipfs.atomichub.io/ipfs/' + this.collectionData.img,
+          url: 'https://resizer.atomichub.io/images/v1/preview?ipfs=' + this.collectionData.img + '&size=370',
         })
       }
       this.fileList = imageArr
@@ -175,7 +180,9 @@ export default {
           value: [
             'string',
             this.fileList[0]
-              ? this.fileList[0].url.split('https://ipfs.atomichub.io/ipfs/')[1]
+              ? this.fileList[0].url.split(
+                'https://resizer.atomichub.io/images/v1/preview?ipfs='
+              )[1].replace('&size=370', '')
               : '',
           ],
         })
@@ -246,7 +253,7 @@ export default {
       if (data) {
         if (data.img) {
           this.fileList.push({
-            url: 'https://ipfs.atomichub.io/ipfs/' + data.img,
+            url: 'https://resizer.atomichub.io/images/v1/preview?ipfs=' + data.img + '&size=370',
           })
         }
         this.collectionData = data
@@ -269,7 +276,7 @@ export default {
           formData
         )
         this.fileList.push({
-          url: 'https://ipfs.atomichub.io/ipfs/' + data.data.data,
+          url: 'https://resizer.atomichub.io/images/v1/preview?ipfs=' + data.data.data + '&size=370',
         })
       } catch (e) {
         console.error('Get symbol info error', e)
@@ -285,7 +292,7 @@ export default {
 </script>
 
 <style lang="scss">
-.collectionview {
+#collection-page{
   .color-red {
     color: red;
   }
@@ -443,6 +450,11 @@ export default {
     border-radius: 8px;
     box-shadow: none;
     cursor: pointer;
+    :hover {
+      background: transparent;
+      color: var(--main-action-green);
+      border: 1px solid var(--main-action-green);
+    }
   }
 
   .nft-image-container {
@@ -488,7 +500,6 @@ export default {
   }
 
   .schemas-title {
-    margin: 43px 0;
     font-weight: 500;
     font-size: 20px;
   }
@@ -496,7 +507,6 @@ export default {
   .plus-round-background {
     width: 70px;
     height: 70px;
-    margin: auto;
   }
 
   .almemes-background {
@@ -511,14 +521,34 @@ export default {
   }
 
   .card-content {
-    margin-top: 23px;
     font-weight: 700;
     font-size: 24px;
     text-align: center;
+    width: 220px;
+    height: 195px;
+    background: var(--background-color-third);
 
-    h4 {
-      margin: 10px 0;
+    border: 2px solid var(--main-action-green);
+    border-radius: 10px;
+
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: var(--text-default);
+
+    transition: all 0.3s;
+
+    &:hover {
+      box-shadow: 0px 0px 30px 0px #54a05466 inset;
+      background: var(--btn-outline);
     }
+
   }
 
   #return-btn::before {
@@ -530,7 +560,8 @@ export default {
     font-size: 14px;
     color: #9f979a !important;
     cursor: pointer;
-    padding-left: 10px;
+    display: flex;
+    gap: 5px;
   }
 
   .page-header h4 {
@@ -541,14 +572,10 @@ export default {
     margin: 32px 0 9px 0;
   }
 
-  .card-group {
-    margin-top: 32px;
-  }
-
   .nftcard {
     width: 220px;
     height: 195px;
-    border: 1px solid #67c23a;
+    border: 2px solid var(--main-action-green);
   }
 
   .create-collections {

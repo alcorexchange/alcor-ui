@@ -1,14 +1,14 @@
 <template lang="pug">
-form.j-container.createcollection(@submit='handleSubmit', name='collectionForm')
-  div
-    nuxt-link(:to='"/nft-market/createnft"', :exact='true')
-      a#return-btn Return - My Collection
-  .page-header.d-flex.justify-content-between.row
-    .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 Collection Creation
-      p All NFTs are a part of a larger collection, please create a new collection or add
-        | to an existing one.
-    MemoryPanel
+form#createcollection-form.j-container(@submit='handleSubmit', name='collectionForm')
+  .mt-3
+    nuxt-link(:to="localePath('nft-market-createnft', $i18n.locale)" :exact='true')
+      #return-btn Return - My Collection
+    .d-flex.justify-content-between.mt-1
+      .d-flex.flex-column
+        h4 Collection Creation
+        .fs-14.disable All NFTs are a part of a larger collection, please create a new collection or add
+          | to an existing one.
+      memory-panel
   .card-group.d-flex.align-items-start
     .nftcard.create-collections.border-radius5
       .border-radius5(
@@ -44,38 +44,42 @@ form.j-container.createcollection(@submit='handleSubmit', name='collectionForm')
           name='collection_name',
           @input='validationCollectionName',
           required
+          placeholder='Insert collection name'
         )
         p.error-text(v-if='existingCollectionError') Collection Name is already in use.
       .nft-input-group
         h4 Display Name
           span.color-red *
-        input(type='text', name='name', required)
+        input(type='text', name='name', required placeholder='Insert Display name')
       .nft-input-group
         h4 Collection Fee
         h5 (0-10%)
           span.color-red *
-        input(type='number', name='fee', min='0', max='10', required)
+        input(type='number', name='fee', min='0', max='10', required placeholder='1%')
       .nft-input-group
         h4 Website URL
-        input(type='text', name='url')
+        input(type='text', name='url' placeholder='Insert URL')
     .nftcard.nft-form-group.mb-4.flex-fill
       .nft-input-group.h-100.d-flex.flex-column.m-0
         h4 Description
         textarea.h-100.w-100(name="description")
-  button.btn.create-collection-btn(
-    :to='"/nft-market/collectionview"',
-    :exact='true'
-  ) Create Collection
+  .d-flex.justify-content-end
+    button.btn.create-collection-btn(
+      :to='"/nft-market/collectionview"',
+      :exact='true'
+    ) Create Collection
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import axios from 'axios'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: {
-    MemoryPanel
+    MemoryPanel,
+    AlcorButton
   },
 
   data() {
@@ -86,11 +90,11 @@ export default {
       collectionName: '',
       fileList: [],
       existingCollectionError: false,
-      collectionData: [],
+      collectionData: []
     }
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user'])
   },
   mounted() {
     this.getCollectionData()
@@ -127,7 +131,7 @@ export default {
           formData
         )
         this.fileList.push({
-          url: 'https://gateway.pinata.cloud/ipfs/' + data.data.data,
+          url: 'https://gateway.pinata.cloud/ipfs/' + data.data.data
         })
       } catch (e) {
         console.error('Get symbol info error', e)
@@ -141,24 +145,31 @@ export default {
       const dataArr = []
       dataArr.push({
         key: 'name',
-        value: ['string', jsonData.name],
+        value: ['string', jsonData.name]
       })
       if (this.fileList.length) {
         dataArr.push({
           key: 'img',
-          value: ['string', this.fileList[0] ? this.fileList[0].url.split('https://gateway.pinata.cloud/ipfs/')[1] : ''],
+          value: [
+            'string',
+            this.fileList[0]
+              ? this.fileList[0].url.split(
+                'https://gateway.pinata.cloud/ipfs/'
+              )[1]
+              : ''
+          ]
         })
       }
       if (jsonData.url) {
         dataArr.push({
           key: 'url',
-          value: ['string', jsonData.url],
+          value: ['string', jsonData.url]
         })
       }
       if (jsonData.description) {
         dataArr.push({
           key: 'description',
-          value: ['string', jsonData.description],
+          value: ['string', jsonData.description]
         })
       }
       const actions = [
@@ -168,8 +179,8 @@ export default {
           authorization: [
             {
               actor: this.user.name,
-              permission: 'active',
-            },
+              permission: 'active'
+            }
           ],
           data: {
             author: this.user.name,
@@ -178,9 +189,9 @@ export default {
             authorized_accounts: [this.user.name],
             notify_accounts: [],
             market_fee: jsonData.fee * 0.01,
-            data: dataArr,
-          },
-        },
+            data: dataArr
+          }
+        }
       ]
       this.loading = true
       try {
@@ -188,26 +199,28 @@ export default {
         this.$notify({
           title: 'Collection Creation',
           message: 'Collection Created!',
-          type: 'success',
+          type: 'success'
         })
         this.getCollectionData()
-        this.$router.push('/nft-market/createcollection/' + jsonData.collection_name)
+        this.$router.push(
+          '/nft-market/createcollection/' + jsonData.collection_name
+        )
       } catch (e) {
         this.$notify({
           title: 'Collection Creation',
           message: e,
-          type: 'error',
+          type: 'error'
         })
       } finally {
         this.loading = false
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-.createcollection {
+#createcollection-form {
   .border-radius5 {
     border-radius: 5px;
   }
@@ -289,7 +302,6 @@ export default {
   }
 
   .beforeUpload {
-
     svg,
     p {
       display: none !important;
@@ -339,7 +351,7 @@ export default {
     }
 
     h5 {
-      font-size: 14px;
+      font-size: 12px;
     }
 
     input {
@@ -347,13 +359,14 @@ export default {
       height: 24px;
       border-radius: 2px;
       color: var(--cancel);
-      background-color: var(--background-color-third);
+      background-color: var(--btn-active);
       border: none;
+      padding: 0 16px;
     }
 
     textarea {
       color: var(--cancel);
-      background-color: var(--background-color-third);
+      background-color: var(--btn-active);
       border: none;
       border-radius: 2px;
       resize: none;
@@ -425,7 +438,8 @@ export default {
     font-size: 14px;
     color: #9f979a !important;
     cursor: pointer;
-    padding-left: 10px;
+    display: flex;
+    gap: 5px;
   }
 
   .page-header h4 {

@@ -1,31 +1,30 @@
 <template lang="pug">
-.j-container.createnft
-  div
-    nuxt-link(:to='"/nft-market"', :exact='true')
-      a#return-btn Return
-  .page-header.d-flex.justify-content-between.align-items-center
-    .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 My Collections
-      p All NFTs are a part of a larger collection, please create a new collection or add
-        |
-        | to an existing one.
-    MemoryPanel
-  .grid-container.row
+#createnft-page.j-container.d-flex.flex-column.gap-40
+  .mt-3
+    nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
+      #return-btn Return
+    .d-flex.justify-content-between.align-items-center.mt-3
+      .d-flex.flex-column
+        h4 My Collections
+        .fs-14.disable All NFTs are a part of a larger collection, please create a new collection or add
+          |
+          | to an existing one.
+      memory-panel
+  .d-flex.gap-30.flex-wrap
     nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
-      .nftcard.create-collections.border-radius5
-        .card-content
-          .plus-round-background(
-            :style='{ backgroundImage: `url(${require("~/assets/images/add_icon.svg")})`, backgroundRepeat: "no-repeat", backgroundPosition: "center" }')
-          h4 Create <br>Collection
+      .create-collection-card
+        .plus-round-background(
+          :style='{ backgroundImage: `url(${require("~/assets/images/add_icon.svg")})`, backgroundRepeat: "no-repeat", backgroundPosition: "center" }')
+        h4.text-center Create <br>Collection
     vue-skeleton-loader(
       v-if='loading'
       :width='220',
-      :height='300',
+      :height='353',
       animation='wave',
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true',
     )
-    CollectionCard(
+    my-collection-card(
       v-else
       v-for='(item, index) in collectionData',
       :key='index',
@@ -37,19 +36,19 @@
 import { mapState } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
-import CollectionCard from '~/components/nft_markets/CollectionCard'
+import MyCollectionCard from '~/components/cards/MyCollectionCard'
 
 export default {
   components: {
     MemoryPanel,
-    CollectionCard,
-    VueSkeletonLoader,
+    MyCollectionCard,
+    VueSkeletonLoader
   },
 
   data() {
     return {
       collectionData: [],
-      loading: true,
+      loading: true
     }
   },
 
@@ -58,7 +57,7 @@ export default {
 
     userData() {
       return this.user
-    },
+    }
   },
 
   watch: {
@@ -66,7 +65,7 @@ export default {
       if (!oldUserData && newUserData) {
         this.getCollectionData(this.user.name)
       }
-    },
+    }
   },
 
   mounted() {
@@ -78,18 +77,17 @@ export default {
   methods: {
     async getCollectionData(author) {
       this.loading = true
-      const data = await this.$store.dispatch('api/getCollectionData', {
-        author,
-      })
+      const data = await this.$store.dispatch('api/getMyCollections')
+      console.log('ddddd', data)
       this.collectionData = data
       this.loading = false
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-.createnft {
+#createnft-page {
   .border-radius5 {
     border-radius: 5px;
   }
@@ -97,7 +95,6 @@ export default {
   .plus-round-background {
     width: 70px;
     height: 70px;
-    margin: auto;
   }
 
   .almemes h4 {
@@ -148,11 +145,36 @@ export default {
     height: 300px;
     border: 1px solid #67c23a;
   }
+}
 
-  .grid-container {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    gap: 25px;
+.green-border {
+  border: 2px solid var(--main-action-green);
+}
+
+.create-collection-card {
+  width: 220px;
+  height: 353px;
+  background: var(--background-color-third);
+
+  border: 2px solid var(--main-action-green);
+  border-radius: 10px;
+
+  display: flex;
+  gap: 24px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  color: var(--text-default);
+
+  transition: all 0.3s;
+
+  &:hover {
+    box-shadow: 0px 0px 30px 0px #54a05466 inset;
+    background: var(--btn-outline);
   }
 }
 </style>
