@@ -444,18 +444,18 @@ export const actions = {
   }) {
     try {
       const {
-        data
-      } = await this.$api.post('https://wax.pink.gg/v1/chain/get_table_by_scope', {
+        rows
+      } = await this.$rpc.get_table_by_scope({
         code: 'eosio',
         limit,
         lower_bound: search,
+        upper_bound: search + 'zzzz',
         table: 'userres'
-      }
-      )
-      return data.rows
+      })
+      return rows
     } catch (e) {
       console.error('Get accounts error', e)
-      dispatch('getAccountsData', { limit, search })
+      //dispatch('getAccountsData', { limit, search })
     }
   },
 

@@ -16,7 +16,6 @@ export const actions = {
       code: 'wax.gg',
       scope: 'wax.gg',
       table: 'photos',
-      json: true,
       limit: 1,
       lower_bound: accountName || rootState.user.name,
       upper_bound: accountName || rootState.user.name
@@ -27,13 +26,10 @@ export const actions = {
   async getFriendList({ rootState }) {
     const { rows } = await this.$rpc.get_table_rows({
       code: 'atomhubtools',
-      json: true,
-      limit: 1000,
-      lower_bound: 'friends',
-      scope: rootState.user.name,
-      scope_type: 'name',
       table: 'acclists',
-      upper_bound: 'friends'
+      scope: rootState.user.name,
+      limit: 12,
+      lower_bound: 'friends'
     })
 
     return rows[0].list

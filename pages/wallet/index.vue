@@ -6,6 +6,7 @@
       users(color="#67C23A" width="70" height="70")
       span Add Friend
     account-card(
+      :isFriend="true"
       v-for='(item, index) in filteredFriends'
       :key='"accounts-" + index'
       v-if='item'
@@ -39,7 +40,7 @@ export default {
     this.getAccountsData()
   },
   methods: {
-    ...mapActions('social', ['getFriendList', 'getPhotoHash']),
+    ...mapActions('social', ['getFriendList']),
     ...mapActions('api', ['getAccountDetails', 'getinventorycounts']),
     ...mapActions('modal', ['addFriend']),
     getPrice() {
@@ -76,14 +77,6 @@ export default {
           this.accountsData[idx].assetsCount = count
         })
         this.assetsCountLoaded = true
-      })
-
-      Promise.all(this.friendList.map((name) => {
-        return this.getPhotoHash(name)
-      })).then(r => {
-        r.forEach((hash, idx) => {
-          this.accountsData[idx].imgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-        })
       })
     }
   }

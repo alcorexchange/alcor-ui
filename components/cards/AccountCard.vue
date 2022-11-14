@@ -1,6 +1,6 @@
 <template lang="pug">
 card
-  profile-image(:src="data.imgSrc" :size="128")
+  profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + data.name" :size="128")
   .account-name.py-3 {{ data.name }}
   .d-flex.justify-content-between.px-4
     span.d-flex.align-items-center.gap-4
@@ -81,20 +81,9 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { Card, ProfileImage, VueSkeletonLoader, AlcorButton },
-  props: ['data'],
-  data: () => ({
-    isFriend: false
-  }),
+  props: ['data', 'isFriend'],
   computed: {
     ...mapGetters(['user'])
-  },
-  watch: {
-    user() {
-      this.user && this.checkFriend()
-    }
-  },
-  mounted() {
-    this.user && this.checkFriend()
   },
   methods: {
     ...mapActions('modal', ['transfer', 'removeFriend', 'blockUser']),
@@ -128,9 +117,6 @@ export default {
     },
     removeFriendModal() {
       this.removeFriend(this.data)
-    },
-    async checkFriend() {
-      this.isFriend = (await this.getFriendList()).includes(this.data.name)
     },
     blockUserModal() {
       this.blockUser(this.data)

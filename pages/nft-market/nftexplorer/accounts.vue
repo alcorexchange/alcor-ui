@@ -35,7 +35,6 @@ export default {
   },
   methods: {
     ...mapActions('api', ['getAccountDetails', 'getAccountsData', 'getinventorycounts']),
-    ...mapActions('social', ['getPhotoHash']),
     exploreAccounts() {
       clearTimeout(this.debounce)
       if (!this.$route.query.match) return
@@ -43,7 +42,7 @@ export default {
         this.accounts = null
         const data = await this.getAccountsData({
           search: this.$route.query?.match || '',
-          limit: 20
+          limit: 16
         })
         this.accounts = data.map(({ scope }) => ({ name: scope, suggested_average: 0, assetsCount: 0, imgSrc: '' }))
 
@@ -62,13 +61,6 @@ export default {
         })).then(r => {
           r.forEach((count, idx) => {
             this.accounts[idx].assetsCount = count
-          })
-        })
-        Promise.all(data.map(({ scope }) => {
-          return this.getPhotoHash(scope)
-        })).then(r => {
-          r.forEach((hash, idx) => {
-            this.accounts[idx].imgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
           })
         })
       }, 600)
