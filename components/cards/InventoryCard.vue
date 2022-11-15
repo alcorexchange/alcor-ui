@@ -1,6 +1,6 @@
 <template lang="pug">
 card
-  asset-card-header(slot="header" :data="data" :ownerImgSrc="ownerImgSrc")
+  asset-card-header(slot="header" :data="data" :ownerName="ownerName")
   asset-card-image(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
   .p-2
     .d-flex.justify-content-between
@@ -50,7 +50,7 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { Card, AssetCardHeader, AssetCardImage, AlcorButton },
-  props: ['data', 'ownerImgSrc'],
+  props: ['data', 'ownerName'],
   methods: {
     ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift']),
     openListingModal() {

@@ -11,7 +11,7 @@
       placeholder='Type address here',
     )
     .d-flex.justify-content-center.flex-column.gap-10(v-if="isFounded")
-      profile-image.account-image(:src="imgSrc" :size="128")
+      profile-image.account-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + address"  :size="128")
       .fs-22.fw-bold.d-flex.justify-content-center {{ address }}
     alcor-button.w-100(@click="addToFriendList" access :disabled="!isFounded") Add Friend
 
@@ -24,26 +24,23 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { ProfileImage, AlcorButton },
-  data: () => ({ address: '', imgSrc: null, loading: false, isFounded: false }),
+  data: () => ({ address: '', loading: false, isFounded: false }),
   watch: {
     address(v) {
       this.getAccountsData(v)
     }
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash', 'addFriend']),
+    ...mapActions('social', ['addFriend']),
     ...mapActions('api', ['getAccount']),
 
     async getAccountsData(name) {
       this.loading = true
       this.isFounded = false
-      this.imgSrc = null
 
       const account = await this.getAccount({ accountName: name })
       if (account) {
         this.isFounded = true
-        const hash = await this.getPhotoHash(name)
-        if (hash) this.imgSrc = `https://gateway.pinata.cloud/ipfs/${hash}`
       }
 
       this.loading = false

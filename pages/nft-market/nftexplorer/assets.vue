@@ -10,7 +10,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    asset-card(v-if="assets" v-for="item in assets" :key="item.asset_id" :data="item")
+    asset-card(v-if="assets" v-for="item in assets" :key="item.asset_id" :data="item" :ownerName="item.owner")
 </template>
 
 <script>

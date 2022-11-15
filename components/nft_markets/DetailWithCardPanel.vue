@@ -9,7 +9,7 @@
         .d-flex.flex-column
           .fs-14.disable Seller
           .d-flex.gap-4
-            profile-image(:src="ownerImgSrc" :size="20")
+            profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + data.seller" :size="20")
             span {{ data.seller }}
         .d-flex.flex-column
           .fs-14.disable Price
@@ -53,7 +53,6 @@ import AlcorButton from '~/components/AlcorButton'
 export default {
   components: { PreviewCard, ProfileImage, AlcorButton },
   props: ['data', 'mode'],
-  data: () => ({ ownerImgSrc: null }),
   computed: {
     saleID() {
       if (this.data.auction_id) {
@@ -68,16 +67,6 @@ export default {
       } else return 0
     }
   },
-  mounted() {
-    this.getOwnerAvatar()
-  },
-  methods: {
-    ...mapActions('social', ['getPhotoHash']),
-    async getOwnerAvatar() {
-      const hash = await this.getPhotoHash(this.data.seller)
-      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    }
-  }
 }
 </script>
 

@@ -5,7 +5,7 @@
     span Remove Friend
   .d-flex.flex-column.gap-16
     span.fs-14.fw-bold Are you sure you want to remove?
-    profile-image.account-image(:src="context.imgSrc" :size="128")
+    profile-image.account-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + context.name" :size="128")
     span.fs-22.fw-bold.d-flex.justify-content-center {{ context.name }}
     alcor-button.w-100.red(@click="remove") Remove
 

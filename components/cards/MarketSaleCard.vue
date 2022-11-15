@@ -1,6 +1,6 @@
 <template lang="pug">
 card
-  asset-card-header(slot="header" :data="data.assets[0]" :ownerImgSrc="ownerImgSrc")
+  asset-card-header(slot="header" :data="data.assets[0]" :ownerName="ownerName")
   asset-card-image(v-if="data.assets[0].template" :template="data.assets[0].template.immutable_data")
   asset-card-image(v-else-if="data.assets[0].immutable_data" :template="data.assets[0].immutable_data")
   .p-2
@@ -31,7 +31,7 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { Card, AssetCardHeader, AssetCardImage, AlcorButton, ProfileImage },
-  props: ['data', 'ownerImgSrc'],
+  props: ['data', 'ownerName'],
   computed: {
     listingPrice() {
       return new Intl.NumberFormat().format(this.data.price.amount / Math.pow(10, this.data.price.token_precision))

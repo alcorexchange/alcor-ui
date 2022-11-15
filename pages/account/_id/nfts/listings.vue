@@ -10,7 +10,7 @@
     :rounded='true'
   )
 
-  listing-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
+  listing-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="$route.params.id")
 
 </template>
 
@@ -23,7 +23,6 @@ export default {
   components: { ListingCard, VueSkeletonLoader },
   data: () => ({
     listings: null,
-    ownerImgSrc: null,
     debounce: null
   }),
   watch: {
@@ -33,10 +32,8 @@ export default {
   },
   mounted() {
     this.getListings()
-    this.getOwnerAvatar()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getSales', 'getBuyOffers']),
     getListings() {
       clearTimeout(this.debounce)
@@ -55,11 +52,10 @@ export default {
         })
         const buyOffers = await this.getBuyOffers({ seller: this.$route.params.id, sort: 'price' })
         if (buyOffers.length) this.listings = this.listings.map(listing => ({ ...listing, buy_offers: [] }))
-        buyOffers.forEach(async offer => {
+        buyOffers.forEach(offer => {
           if (offer.assets.length !== 1) return
 
-          const hash = await this.getPhotoHash(offer.buyer)
-          offer.buyerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
+          offer.buyerImgSrc = 'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer
 
           this.listings[
             this.listings.findIndex(({ assets }) => assets[0].asset_id === offer.assets[0].asset_id)
@@ -67,10 +63,6 @@ export default {
         })
       }, 600)
     },
-    async getOwnerAvatar() {
-      const hash = await this.getPhotoHash(this.$route.params.id)
-      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    }
   }
 }
 </script>

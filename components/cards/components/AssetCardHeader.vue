@@ -1,8 +1,8 @@
 <template lang="pug">
 .d-flex.justify-content-between.align-items-center
   .d-flex.align-items-center.gap-8
-    profile-image(:src="ownerImgSrc" :size="20")
-    .fs-12 {{ data.owner }}
+    profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + ownerName" :size="20")
+    .fs-12 {{ ownerName }}
   .d-flex.align-items-center.gap-8
     img(src='~/assets/images/double_arrow.svg', alt='double_arrow')
     img(src='~/assets/images/fire.svg', alt='fire')
@@ -15,7 +15,7 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { ProfileImage },
-  props: ['data', 'ownerImgSrc'],
+  props: ['data', 'ownerName'],
   computed: {
     mint() {
       return this.data.template_mint.length > 4 ? this.data.template_mint.substr(0, 1) + '...' + this.data.template_mint.substr(-3) : this.data.template_mint

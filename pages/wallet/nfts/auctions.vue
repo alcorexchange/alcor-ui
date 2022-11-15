@@ -10,7 +10,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    my-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
+    my-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -23,7 +23,7 @@ export default {
   components: { MyAuctionCard, VueSkeletonLoader },
   data: () => ({
     auctions: null,
-    ownerImgSrc: null,
+    ownerName: null,
     debounce: null
   }),
   computed: {
@@ -36,10 +36,8 @@ export default {
   },
   mounted() {
     this.getAuctions()
-    this.getOwnerAvatar()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
     getAuctions() {
       clearTimeout(this.debounce)
@@ -58,10 +56,6 @@ export default {
         })
       }, 600)
     },
-    async getOwnerAvatar() {
-      const hash = await this.getPhotoHash(this.user.name)
-      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    }
   }
 }
 </script>

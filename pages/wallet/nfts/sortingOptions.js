@@ -19,8 +19,8 @@ export const sortingOptions = {
     { value: 'popularity', label: 'Popularity' },
     { value: 'created-asc', label: 'Created (Newest)' },
     { value: 'created-desc', label: 'Created (Oldest)' },
-    { value: 'collection_name-asc', label: 'Alphabetical (A-Z)' },
-    { value: 'collection_name-desc', label: 'Alphabetical (Z-A)' }
+    { value: 'name-asc', label: 'Alphabetical (A-Z)' },
+    { value: 'name-desc', label: 'Alphabetical (Z-A)' }
   ],
   'wallet-nfts-inventory': [
     { value: 'transferred', label: 'Transferred (Newest)' },

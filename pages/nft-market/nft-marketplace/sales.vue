@@ -10,7 +10,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    market-sale-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" )
+    market-sale-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="item.seller")
 </template>
 
 <script>
@@ -33,7 +33,6 @@ export default {
     this.getListings()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getSales', 'getBuyOffers']),
     getListings() {
       clearTimeout(this.debounce)

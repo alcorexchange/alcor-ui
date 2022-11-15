@@ -7,10 +7,10 @@
       copy.pointer(@click="copyUserName" width="16" height="16" :color="color")
   .d-flex.gap-40.mt-4
     .d-flex.align-items-center.gap-6.w-50
-      profile-image(:src="myImgSrc" :size="42")
+      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $store.state.user.name" :size="42")
       .fs-20 {{ user.name }}
     .d-flex.align-items-center.gap-6.w-50
-      profile-image(:src="hisImgSrc" :size="42")
+      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $route.params.id" :size="42")
       .fs-20 {{ $route.params.id }}
   .d-flex.gap-40.mt-4
     assets-field.w-50(:assets="myOfferAssets" @removeAsset="asset => toggleSelected(0, asset)")
@@ -66,8 +66,6 @@ export default {
     myOfferAssets: [],
     hisOfferAssets: [],
     availableAssets: [],
-    hisImgSrc: null,
-    myImgSrc: null,
     debounce: null,
     loading: false,
     search: '',
@@ -118,12 +116,10 @@ export default {
   mounted() {
     this.myOfferAssets = []
     this.hisOfferAssets = []
-    this.getTradersImage()
     this.fetchAssets()
     this.getAccountCollections()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAssets', 'getAccountSpecificStats']),
     ...mapActions('chain', ['sendTradeOffer']),
 
@@ -140,12 +136,6 @@ export default {
         sender_asset_ids: this.myOfferAssets.map(({ asset_id }) => asset_id),
         recipient_asset_ids: this.hisOfferAssets.map(({ asset_id }) => asset_id)
       })
-    },
-    async getTradersImage() {
-      const myHash = await this.getPhotoHash(this.user.name)
-      const hisHash = await this.getPhotoHash(this.$route.params.id)
-      this.myImgSrc = myHash && `https://gateway.pinata.cloud/ipfs/${myHash}`
-      this.hisImgSrc = hisHash && `https://gateway.pinata.cloud/ipfs/${hisHash}`
     },
     copyUserName() {
       navigator.clipboard.writeText(this.$route.params.id)

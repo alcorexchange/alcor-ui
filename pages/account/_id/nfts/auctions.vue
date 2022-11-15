@@ -10,7 +10,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
+    auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="$route.params.id")
 
 </template>
 
@@ -33,10 +33,8 @@ export default {
   },
   mounted() {
     this.getAuctions()
-    this.getOwnerAvatar()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
     getAuctions() {
       clearTimeout(this.debounce)
@@ -55,10 +53,6 @@ export default {
         })
       }, 600)
     },
-    async getOwnerAvatar() {
-      const hash = await this.getPhotoHash(this.$route.params.id)
-      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    }
   }
 }
 </script>
