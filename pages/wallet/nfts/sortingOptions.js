@@ -6,7 +6,6 @@ export const sortingOptions = {
     { value: 'created-desc', label: 'Created (Oldest)' },
     { value: 'minted-asc', label: 'Mint (Highest)' },
     { value: 'minted-desc', label: 'Mint (Lowest)' },
-    { value: 'name-asc', label: 'Alphabetical (A-Z)' }
   ],
   'nft-market-nftexplorer-collections': [
     { value: 'popularity', label: 'Popularity' },

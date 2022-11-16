@@ -316,6 +316,7 @@ export default {
   computed: {
     videoBackground() {
       if (this.assetData && this.assetData.data.video) {
+        if (this.assetData.data.video.includes('https://')) return this.assetData.data.video
         return `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.assetData.data.video}&size=370&output=mp4`
       } else return false
     },

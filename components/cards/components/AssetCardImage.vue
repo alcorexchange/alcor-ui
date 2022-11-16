@@ -1,7 +1,8 @@
 <template lang="pug">
 img.content(v-if="template.img" :src="src")
-video.content(v-else="template.video" autoplay='true', loop='true')
+video.content(v-else-if="template.video" autoplay='true', loop='true')
   source(:src="src" type='video/mp4')
+img(v-else src="~/assets/images/nft-mock.png" :style="{ width: '100%' }")
 
 </template>
 
@@ -14,7 +15,11 @@ export default {
         ? this.template.img.includes('https://')
           ? this.template.img
           : `https://resizer.atomichub.io/images/v1/preview?ipfs=${this.template.img}&size=370`
-        : `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.template.video}&size=370&output=mp4`
+        : this.template.video
+          ? this.template.video.includes('https://')
+            ? this.template.video
+            : `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.template.video}&size=370&output=mp4`
+          : null
     }
   }
 }
