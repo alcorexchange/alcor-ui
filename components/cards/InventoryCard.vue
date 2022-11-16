@@ -1,5 +1,5 @@
 <template lang="pug">
-card
+card.inventory-card
   asset-card-header(slot="header" :data="data" :ownerName="ownerName")
   asset-card-image(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
   .p-2
@@ -26,7 +26,7 @@ card
               i.el-icon-takeaway-box
               span Transfer
           el-dropdown-item.dropdown__item
-            .dropdown__inner(@click="")
+            .dropdown__inner(@click="openNewTradeModal")
               i.el-icon-sort.rot-90
               span New Trade
           el-dropdown-item.dropdown__item
@@ -52,7 +52,7 @@ export default {
   components: { Card, AssetCardHeader, AssetCardImage, AlcorButton },
   props: ['data', 'ownerName'],
   methods: {
-    ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift']),
+    ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade']),
     openListingModal() {
       this.listing(this.data)
     },
@@ -61,6 +61,9 @@ export default {
     },
     openTransferModal() {
       this.transfer({ ...this.data, transferAssets: [this.data] })
+    },
+    openNewTradeModal() {
+      this.newTrade({ transferAssets: [this.data] })
     },
     openBurnModal() {
       this.burn(this.data)
@@ -73,5 +76,8 @@ export default {
 .success-icon {
   width: 10px;
   height: 10px;
+}
+.inventory-card {
+  min-height: 445px;
 }
 </style>

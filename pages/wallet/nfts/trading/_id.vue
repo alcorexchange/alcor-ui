@@ -116,6 +116,9 @@ export default {
   mounted() {
     this.myOfferAssets = []
     this.hisOfferAssets = []
+    if (this.$store.state.modal.context?.transferAssets) {
+      this.toggleSelected(0, this.$store.state.modal.context.transferAssets[0])
+    }
     this.fetchAssets()
     this.getAccountCollections()
   },

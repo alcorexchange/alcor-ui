@@ -28,6 +28,12 @@ export const actions = {
     commit('setModalContext', context)
   },
 
+  newTrade({ commit }, context) {
+    commit('setCurrent', 'trade')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
   burn({ commit }, context) {
     commit('setCurrent', 'burn')
     commit('setVisible', true)

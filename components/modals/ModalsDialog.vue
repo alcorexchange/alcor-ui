@@ -15,6 +15,7 @@ import MakeOffer from '~/components/modals/MakeOffer'
 import Transfer from '~/components/modals/Transfer'
 import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
+import Trade from '~/components/modals/Trade'
 import BlockUser from '~/components/modals/BlockUser'
 import AlcorModal from '~/components/AlcorModal.vue'
 
@@ -29,6 +30,7 @@ export default {
     Transfer,
     RemoveFriend,
     AddFriend,
+    Trade,
     BlockUser,
     AlcorModal
   },
