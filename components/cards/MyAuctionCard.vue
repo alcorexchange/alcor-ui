@@ -33,7 +33,13 @@ import ProfileImage from '~/components/ProfileImage.vue'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
-  components: { Card, AssetCardHeader, AssetCardImage, AlcorButton, ProfileImage },
+  components: {
+    Card,
+    AssetCardHeader,
+    AssetCardImage,
+    AlcorButton,
+    ProfileImage
+  },
   props: ['data', 'ownerName'],
   computed: {
     timeToEnd() {
@@ -41,13 +47,19 @@ export default {
       const time = Math.round(diff / (1000 * 60 * 60))
       const h = time % 24
       const d = Math.round(time / 24)
+      if (h < 0 || d < 0) return '0h'
       return `${d}d ${h}h`
     },
     listingPrice() {
-      return new Intl.NumberFormat().format(this.data.price.amount / Math.pow(10, this.data.price.token_precision))
+      return new Intl.NumberFormat().format(
+        this.data.price.amount / Math.pow(10, this.data.price.token_precision)
+      )
     },
     bestOfferPrice() {
-      return new Intl.NumberFormat().format(this.data.buy_offers[0].price.amount / Math.pow(10, this.data.buy_offers[0].price.token_precision))
+      return new Intl.NumberFormat().format(
+        this.data.buy_offers[0].price.amount /
+          Math.pow(10, this.data.buy_offers[0].price.token_precision)
+      )
     }
   },
   methods: {
