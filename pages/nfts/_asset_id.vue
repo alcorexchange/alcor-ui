@@ -16,7 +16,7 @@
           wave-color='rgba(150, 150, 150, 0.1)',
           :rounded='true'
         )
-      .nft-image(v-else-if='imageBackground', :style='imageBackground')
+      img.nft-image(v-else-if='imageBackground' :src='imageBackground')
       video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '250px', margin: '0 auto', width: '100%' }")
         source(:src="videoBackground" type='video/mp4')
       .nft-image(
@@ -31,16 +31,17 @@
         wave-color='rgba(150, 150, 150, 0.1)',
         :rounded='true'
       )
-      button.btn.nft1-container(v-else)
-        .nft1-image(v-if='thumbnailImage', :style='thumbnailImage')
-        video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '65px', margin: '0 auto', width: '100%' }")
+      div(v-else)
+        .d-flex.align-items-center.justify-content-center.gap-16(v-if="thumbnailImageUrls")
+          img.nft1-image(v-for="(src, idx) in thumbnailImageUrls" :src="src" :class="{active: idx === active}" @click="active = idx")
+        video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '75px', padding: '5px', border: '1px solid var(--main-action-green)' , margin: '0 auto', width: '100%' }")
           source(:src="videoBackground" type='video/mp4')
         .nft1-image(
           v-else,
           :style='{ backgroundImage: `url(${require("~/assets/images/nft_sm.svg")})` }'
         )
     .nft-info.border-radius5.d-flex.flex-column.justify-content-between
-      .d-flex.justify-content-between
+      .d-flex.justify-content-between.w-100.gap-16
         .other-info
           .nft
             label.description-title NFT Name
@@ -148,7 +149,7 @@
               div(v-if='assetData.template.is_burnable')
                 img(src='~/assets/images/fire.svg')
                 span.ml-2.fs-18 Burnable
-      .d-flex.gap-20.justify-content-end
+      .d-flex.gap-20.justify-content-end.w-100
         alcor-button(big)
           img(src='~/assets/images/fire.svg')
           span Burn
@@ -304,6 +305,7 @@ export default {
       loading: true,
       show_modal: false,
       assetData: '',
+      active: 0,
       attributeKeys: [],
       salesData: [],
       transferData: [],
@@ -322,6 +324,11 @@ export default {
       } else return false
     },
     imageBackground() {
+      return this.thumbnailImageUrls
+        ? this.thumbnailImageUrls[this.active || 0]
+        : null
+    },
+    thumbnailImage() {
       if (this.assetData && this.assetData.data.img) {
         return {
           backgroundSize: 'contain',
@@ -335,20 +342,17 @@ export default {
         }
       } else return false
     },
-    thumbnailImage() {
-      console.log('asssss', this.assetData)
-      if (this.assetData && this.assetData.data.img) {
-        return {
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundImage: this.assetData.data.img.includes('https://')
-            ? this.assetData.data.img
-            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
-              this.assetData.data.img.replaceAll(' ', '%20') +
-              '&size=370' +
-              ')'
-        }
-      } else return false
+    thumbnailImageUrls() {
+      if (!this.assetData.data.img) return null
+      return Object.entries(this.assetData.data)
+        .filter(([key, value]) => key.startsWith('img'))
+        .map(([key, value]) => {
+          return value.startsWith('https://')
+            ? value
+            : `https://resizer.atomichub.io/images/v1/preview?ipfs=${value
+                .trim()
+                .replaceAll(' ', '%20')}&size=370`
+        })
     },
     lowestSales() {
       if (this.templatePrice?.length) {
@@ -392,7 +396,6 @@ export default {
         this.show_modal = false
     },
     handleCloseModal() {
-      console.log('handleCloseModal')
       this.show_modal = false
     },
     async getSpecificAsset(asset_id) {
@@ -400,7 +403,6 @@ export default {
       const data = await this.$store.dispatch('api/getSpecificAsset', {
         asset_id
       })
-      console.log('ddddd', data)
       this.assetData = data
       this.getTemplatePrice(data.template.template_id)
       this.getChartData(
@@ -417,7 +419,6 @@ export default {
       const data = await this.$store.dispatch('api/getAssetsTransfer', {
         asset_id
       })
-      console.log('dddddd', data)
       this.transferData = data
     },
 
@@ -427,7 +428,6 @@ export default {
         asset_id
       })
       this.salesData = data
-      console.log(data)
     },
 
     async getAssetsLog(asset_id) {
@@ -578,7 +578,7 @@ export default {
   }
 
   .other-info {
-    width: 40%;
+    width: 35%;
 
     h4 {
       font-size: 20px;
@@ -612,7 +612,7 @@ export default {
   }
 
   .description-info {
-    width: 50%;
+    width: 65%;
   }
 
   .col-4 {
@@ -765,8 +765,11 @@ export default {
   .nft-image-container,
   .nft-info.border-radius5 {
     background-color: var(--background-color-secondary);
-    padding: 20px;
     margin-bottom: 68px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
   }
 
   .nft-info.border-radius5 {
@@ -775,12 +778,10 @@ export default {
   }
 
   .nft-image {
-    width: 249px;
-    height: 249px;
+    height: 250px;
+    width: fit-content;
     object-fit: cover;
     background-repeat: no-repeat;
-    margin-left: 28px;
-    margin-top: 16px;
   }
 
   .nft1-container {
@@ -794,11 +795,18 @@ export default {
   }
 
   .nft1-image {
-    width: 65px;
-    height: 65px;
+    height: 75px;
+    padding: 5px;
+    cursor: pointer;
     object-fit: cover;
     background-repeat: no-repeat;
     background-size: 100%;
+    border: 1px solid transparent;
+    border-radius: 2px;
+
+    &.active {
+      border: 1px solid var(--main-action-green);
+    }
   }
 
   .prop-image {
