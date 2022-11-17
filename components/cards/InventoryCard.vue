@@ -1,44 +1,45 @@
 <template lang="pug">
-card.inventory-card
-  asset-card-header(slot="header" :data="data" :ownerName="ownerName")
-  asset-card-image(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
-  .p-2
-    .d-flex.justify-content-between
-      .d-flex.align-items-center.gap-4
-        .fs-12.disable.text-truncate {{ data.collection.name }}
-        img.success-icon(src='~/assets/images/check_circle.svg', alt='')
-    .d-flex.justify-content-between
-      .fs-14 {{ data.name }}
-    .d-flex.justify-content-between
-      span.fs-12.color-action {{ data.schema.schema_name }}
-  .d-flex.flex-column.gap-8(slot="footer")
-    .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(@click="openListingModal")
-        i.el-icon-news
-        span Sell NFT
-      el-dropdown.w-100(trigger='click')
-        alcor-button.w-100(access)
-          span More
-          i.el-icon-arrow-down
-        el-dropdown-menu.dropdown
-          el-dropdown-item.dropdown__item
-            .dropdown__inner(@click="openTransferModal")
-              i.el-icon-takeaway-box
-              span Transfer
-          el-dropdown-item.dropdown__item
-            .dropdown__inner(@click="openNewTradeModal")
-              i.el-icon-sort.rot-90
-              span New Trade
-          el-dropdown-item.dropdown__item
-            .dropdown__inner(@click="openCreateGiftLinkModal")
-              i.el-icon-link
-              span Create Gift Link
-          el-dropdown-item.dropdown__item
-            .dropdown__inner(@click="openBurnModal")
-              i.el-icon-takeaway-box
-              span Burn
+asset-hover(:data="data" :ownerName="ownerName")
+  card.inventory-card
+    asset-card-header(slot="header" :data="data" :ownerName="ownerName")
+    asset-card-image(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
+    .p-2
+      .d-flex.justify-content-between
+        .d-flex.align-items-center.gap-4
+          .fs-12.disable.text-truncate {{ data.collection.name }}
+          img.success-icon(src='~/assets/images/check_circle.svg', alt='')
+      .d-flex.justify-content-between
+        .fs-14 {{ data.name }}
+      .d-flex.justify-content-between
+        span.fs-12.color-action {{ data.schema.schema_name }}
+    .d-flex.flex-column.gap-8(slot="footer")
+      .d-flex.gap-8(slot="footer")
+        alcor-button.w-100(@click="openListingModal")
+          i.el-icon-news
+          span Sell NFT
+        el-dropdown.w-100(trigger='click')
+          alcor-button.w-100(access)
+            span More
+            i.el-icon-arrow-down
+          el-dropdown-menu.dropdown
+            el-dropdown-item.dropdown__item
+              .dropdown__inner(@click="openTransferModal")
+                i.el-icon-takeaway-box
+                span Transfer
+            el-dropdown-item.dropdown__item
+              .dropdown__inner(@click="openNewTradeModal")
+                i.el-icon-sort.rot-90
+                span New Trade
+            el-dropdown-item.dropdown__item
+              .dropdown__inner(@click="openCreateGiftLinkModal")
+                i.el-icon-link
+                span Create Gift Link
+            el-dropdown-item.dropdown__item
+              .dropdown__inner(@click="openBurnModal")
+                i.el-icon-takeaway-box
+                span Burn
 
-    alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
+      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
 </template>
 
 <script>
@@ -47,9 +48,16 @@ import Card from '~/components/cards/Card.vue'
 import AssetCardHeader from '~/components/cards/components/AssetCardHeader.vue'
 import AssetCardImage from '~/components/cards/components/AssetCardImage.vue'
 import AlcorButton from '~/components/AlcorButton'
+import AssetHover from '~/components/alcor-element/assetHover.vue'
 
 export default {
-  components: { Card, AssetCardHeader, AssetCardImage, AlcorButton },
+  components: {
+    Card,
+    AssetCardHeader,
+    AssetCardImage,
+    AlcorButton,
+    AssetHover
+  },
   props: ['data', 'ownerName'],
   methods: {
     ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade']),

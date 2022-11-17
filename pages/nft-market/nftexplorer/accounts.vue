@@ -6,7 +6,7 @@
       v-if="!accounts"
       v-for="idx in [1,2,3,4]"
       :width='220',
-      :height='400',
+      :height='320',
       animation='wave',
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
@@ -34,7 +34,11 @@ export default {
     this.exploreAccounts()
   },
   methods: {
-    ...mapActions('api', ['getAccountDetails', 'getAccountsData', 'getinventorycounts']),
+    ...mapActions('api', [
+      'getAccountDetails',
+      'getAccountsData',
+      'getinventorycounts'
+    ]),
     exploreAccounts() {
       clearTimeout(this.debounce)
       if (!this.$route.query.match) return
@@ -44,21 +48,33 @@ export default {
           search: this.$route.query?.match || '',
           limit: 16
         })
-        this.accounts = data.map(({ scope }) => ({ name: scope, suggested_average: 0, assetsCount: 0, imgSrc: '' }))
+        this.accounts = data.map(({ scope }) => ({
+          name: scope,
+          suggested_average: 0,
+          assetsCount: 0,
+          imgSrc: ''
+        }))
 
-        Promise.all(data.map(({ scope }) => {
-          return this.getAccountDetails(scope)
-        })).then(r => {
+        Promise.all(
+          data.map(({ scope }) => {
+            return this.getAccountDetails(scope)
+          })
+        ).then((r) => {
           r.forEach(({ data }, idx) => {
-            this.accounts[idx].suggested_average = data.data
-              .reduce((acc, { suggested_median, token_precision }) =>
-                acc += suggested_median / Math.pow(10, token_precision), 0) / data.data.length
+            this.accounts[idx].suggested_average =
+              data.data.reduce(
+                (acc, { suggested_median, token_precision }) =>
+                  (acc += suggested_median / Math.pow(10, token_precision)),
+                0
+              ) / data.data.length
           })
           this.suggestedAverageLoaded = true
         })
-        Promise.all(data.map(({ scope }) => {
-          return this.getinventorycounts({ owner: scope })
-        })).then(r => {
+        Promise.all(
+          data.map(({ scope }) => {
+            return this.getinventorycounts({ owner: scope })
+          })
+        ).then((r) => {
           r.forEach((count, idx) => {
             this.accounts[idx].assetsCount = count
           })
@@ -76,4 +92,3 @@ export default {
   margin: 20px auto;
 }
 </style>
-

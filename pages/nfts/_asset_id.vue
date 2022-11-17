@@ -19,9 +19,9 @@
       img.nft-image(v-else-if='imageBackground' :src='imageBackground')
       video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '250px', margin: '0 auto', width: '100%' }")
         source(:src="videoBackground" type='video/mp4')
-      .nft-image(
+      img.nft-image(
+        src="~/assets/images/nft.svg"
         v-else,
-        :style='{ backgroundImage: `url(${require("~/assets/images/nft.svg")})` }'
       )
       vue-skeleton-loader.mt-2.mx-auto(
         v-if='loading',
@@ -36,9 +36,10 @@
           img.nft1-image(v-for="(src, idx) in thumbnailImageUrls" :src="src" :class="{active: idx === active}" @click="active = idx")
         video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '75px', padding: '5px', border: '1px solid var(--main-action-green)' , margin: '0 auto', width: '100%' }")
           source(:src="videoBackground" type='video/mp4')
-        .nft1-image(
+        img.nft1-image(
+          src="~/assets/images/nft_sm.svg"
           v-else,
-          :style='{ backgroundImage: `url(${require("~/assets/images/nft_sm.svg")})` }'
+          :style='{ height: "75px", padding: "5px", border: "1px solid var(--main-action-green)"  }'
         )
     .nft-info.border-radius5.d-flex.flex-column.justify-content-between
       .d-flex.justify-content-between.w-100.gap-16
