@@ -65,7 +65,6 @@ import ProfileImage from '~/components/ProfileImage.vue'
 export default {
   components: { AssetCardImage, ProfileImage },
   props: ['data', 'ownerName'],
-  mounted() {},
   computed: {
     attributes() {
       const keyFilters = ['img', 'backimg', 'video']
