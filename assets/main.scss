@@ -42,7 +42,6 @@ p {
   }
 }
 
-
 *:focus {
   outline: none !important;
 }
@@ -101,7 +100,7 @@ label {
 }
 
 @media (max-width: 425px) {
-  :root .el-button+.el-button {
+  :root .el-button + .el-button {
     margin-left: 3px;
   }
 }
@@ -147,7 +146,6 @@ input[type='number'] {
 }
 
 .el-menu-item {
-
   &:hover,
   &:focus {
     outline: none;
@@ -224,13 +222,13 @@ pre {
 
 .text-success,
 .max-buymatch {
-  color: #66C167 !important;
+  color: #66c167 !important;
 }
 
 .text-danger-deal,
 .text-success-deal,
 .max-buymatch-deal span {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .text-success {
@@ -238,14 +236,23 @@ pre {
 }
 
 .max-buymatch-deal {
-  background: linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%)
+  background: linear-gradient(
+    180deg,
+    rgba(105, 255, 88, 0.1) 0%,
+    rgba(4, 134, 33, 0.1) 100%
+  );
 }
 
 .max-sellmatch-deal {
-  background: linear-gradient(180deg, rgba(237, 66, 69, 0.1) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
+  background: linear-gradient(
+      180deg,
+      rgba(237, 66, 69, 0.1) 0%,
+      rgba(255, 0, 4, 0.1) 100%
+    ),
+    #212121;
 
   span {
-    color: #FFFFFF;
+    color: #ffffff;
   }
 }
 
@@ -452,7 +459,6 @@ a {
   }
 }
 
-
 .dark-mode {
   --color: #ebf4f1;
   --color-primary: #41b38a;
@@ -461,8 +467,6 @@ a {
   --bg-secondary: #071521;
   --border-color: #0d2538;
 }
-
-
 
 .alcor-card {
   border-radius: 12px;
@@ -555,7 +559,7 @@ a {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border: var(--border-2);
   border-radius: 2px !important;
-  
+
   .el-dialog__body {
     padding: 10px 20px 20px;
   }
@@ -590,7 +594,6 @@ a {
 .el-slider__button-wrapper {
   z-index: 3 !important;
 }
-
 
 .custom-radio {
   box-shadow: none !important;
@@ -781,7 +784,6 @@ a {
 
   .el-tabs__item:last-child {
     padding-right: 10px !important;
-
   }
 
   .el-tabs__content {
@@ -800,31 +802,32 @@ a {
 }
 
 .horisontal-scrollbox {
-	overflow: auto;
-	max-width: 400px;
-	max-height: 200px;
-	margin: 50px auto;
+  overflow: auto;
+  max-width: 400px;
+  max-height: 200px;
+  margin: 50px auto;
 
   background-image: 
 	
-    /* Shadows */ 
+    /* Shadows */ linear-gradient(
+      to right,
+      #212121,
+      #212121
+    ),
     linear-gradient(to right, #212121, #212121),
-    linear-gradient(to right, #212121, #212121),
-  
-/* Shadow covers */ 
-    linear-gradient(to right, black, #212124),
+    /* Shadow covers */ linear-gradient(to right, black, #212124),
     linear-gradient(to left, black, #212124);
 
-    //linear-gradient(to right, green, red),
-    //linear-gradient(to left, green, red);   
+  //linear-gradient(to right, green, red),
+  //linear-gradient(to left, green, red);
 
   background-position: left center, right center, left center, right center;
-	background-repeat: no-repeat;
-	//background-color: white;
-	background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
-	
-	/* Opera doesn't support this in the shorthand */
-	background-attachment: local, local, scroll, scroll;
+  background-repeat: no-repeat;
+  //background-color: white;
+  background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
+
+  /* Opera doesn't support this in the shorthand */
+  background-attachment: local, local, scroll, scroll;
 }
 
 .text-grey {
@@ -856,14 +859,13 @@ a {
   .el-radio-button__orig-radio:checked + .el-radio-button__inner {
     background-color: var(--btn-default) !important;
   }
-
 }
 
 .underline {
   text-decoration: underline;
 }
 .popper__arrow {
-    // display:none !important;
+  // display:none !important;
   background: transparent !important;
 }
 
@@ -1014,17 +1016,20 @@ a {
 .disable {
   color: var(--text-disable) !important;
 }
+.contrast {
+  color: var(--text-contrast) !important;
+}
 
 .card {
   border: 1px solid var(--background-color-third);
   &.active-border {
-    border: 1px solid var(--main-green)
+    border: 1px solid var(--main-green);
   }
 }
 
 .wallet-input-search {
   &.el-input--suffix,
-  &.el-input--prefix{
+  &.el-input--prefix {
     .el-input__inner {
       background-color: var(--btn-default);
       border: 1px solid var(--btn-default);
@@ -1071,14 +1076,12 @@ a {
 
     &:hover,
     &:focus,
-    &:active{
+    &:active {
       background: var(--background-color-secondary);
     }
-
   }
 }
 
 .rot-90 {
   transform: rotate(90deg) !important;
 }
-

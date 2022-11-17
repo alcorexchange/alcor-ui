@@ -296,7 +296,7 @@ export default {
     Chart,
     VueSkeletonLoader,
     AlcorButton,
-    LogsRow,
+    LogsRow
   },
 
   data() {
@@ -310,13 +310,14 @@ export default {
       logsData: [],
       updatesData: [],
       templatePrice: [],
-      chartData: [],
+      chartData: []
     }
   },
   computed: {
     videoBackground() {
       if (this.assetData && this.assetData.data.video) {
-        if (this.assetData.data.video.includes('https://')) return this.assetData.data.video
+        if (this.assetData.data.video.includes('https://'))
+          return this.assetData.data.video
         return `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.assetData.data.video}&size=370&output=mp4`
       } else return false
     },
@@ -328,9 +329,9 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
-            this.assetData.data.img.replaceAll(' ', '%20') +
-            '&size=370' +
-            ')'
+              this.assetData.data.img.replaceAll(' ', '%20') +
+              '&size=370' +
+              ')'
         }
       } else return false
     },
@@ -343,9 +344,9 @@ export default {
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
             : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
-            this.assetData.data.img.replaceAll(' ', '%20') +
-            '&size=370' +
-            ')'
+              this.assetData.data.img.replaceAll(' ', '%20') +
+              '&size=370' +
+              ')'
         }
       } else return false
     },
@@ -371,11 +372,11 @@ export default {
           return {
             token_contract: item.token_contract,
             amount: item.amount / Math.pow(10, item.token_precision),
-            token_symbol: item.token_symbol,
+            token_symbol: item.token_symbol
           }
         })
       } else return []
-    },
+    }
   },
   mounted() {
     const asset_id = this.$route.params.asset_id
@@ -391,13 +392,13 @@ export default {
         this.show_modal = false
     },
     handleCloseModal() {
-      console.log("handleCloseModal")
+      console.log('handleCloseModal')
       this.show_modal = false
     },
     async getSpecificAsset(asset_id) {
       this.loading = true
       const data = await this.$store.dispatch('api/getSpecificAsset', {
-        asset_id,
+        asset_id
       })
       console.log('ddddd', data)
       this.assetData = data
@@ -414,7 +415,7 @@ export default {
     async getAssetsTransfer(asset_id) {
       this.loading = true
       const data = await this.$store.dispatch('api/getAssetsTransfer', {
-        asset_id,
+        asset_id
       })
       console.log('dddddd', data)
       this.transferData = data
@@ -423,7 +424,7 @@ export default {
     async getAssetsSales(asset_id) {
       this.loading = true
       const data = await this.$store.dispatch('api/getAssetsSales', {
-        asset_id,
+        asset_id
       })
       this.salesData = data
       console.log(data)
@@ -432,7 +433,7 @@ export default {
     async getAssetsLog(asset_id) {
       this.loading = true
       const data = await this.$store.dispatch('api/getAssetsLog', {
-        asset_id,
+        asset_id
       })
       this.logsData = data.filter(({ name }) => name !== 'logsetdata')
       this.updatesData = data.filter(({ name }) => name === 'logsetdata')
@@ -441,7 +442,7 @@ export default {
     async getTemplatePrice(templateID) {
       this.loading = true
       const data = await this.$store.dispatch('api/getTemplatePrice', {
-        templateID,
+        templateID
       })
       this.templatePrice = data
     },
@@ -450,11 +451,11 @@ export default {
       const data = await this.$store.dispatch('api/getChartData', {
         template_id,
         schema_name,
-        burned,
+        burned
       })
       this.chartData = data
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -469,12 +470,12 @@ export default {
   }
 
   .chart-topline {
-    background-color: var(--background-color-secondary);;
+    background-color: var(--background-color-secondary);
     border-radius: 5px;
     padding: 7px 12px;
   }
 
-  .chart-items>p:last-child {
+  .chart-items > p:last-child {
     margin: 0;
   }
 
@@ -482,7 +483,7 @@ export default {
     font-size: 14px;
   }
 
-  .el-tab-pane div>a,
+  .el-tab-pane div > a,
   .tab-content-date {
     font-weight: 500;
   }
@@ -589,7 +590,7 @@ export default {
     margin-top: 9px;
   }
 
-  .col-2>h5 {
+  .col-2 > h5 {
     margin-left: 16px;
   }
 
@@ -894,7 +895,7 @@ export default {
     padding: 6px;
     margin-right: 6px;
     color: #9f979a;
-    background-color: var(--background-color-secondary);;
+    background-color: var(--background-color-secondary);
     margin-right: 6px;
     font-weight: 700;
   }
