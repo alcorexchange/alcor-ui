@@ -8,35 +8,28 @@
       NftCard(:data='card')
     .lg-12.md-12.sm-12.xl-12.relation-item
       NftRelation(:data='relationData', :price='getPrice')
-  #loading.d-flex.justify-content-center(v-if='!filteredOrders.length')
+  #loading.d-flex.justify-content-center(v-if='!listings.length')
     .spinner-border(role='status')
       span.sr-only Loading...
-  h1.recent-title(v-if='filteredOrders.length') Recent Listenings
+  h1.recent-title(v-if='listings.length') Recent Listenings
   CatCarousel.nft-market-carousel(
-    v-if='filteredOrders.length',
-    :items='filteredOrders.slice(0, 5)',
+    v-if='listings.length',
+    :items='listings',
     :item-per-page='4',
     :indicators-config='{ hideIndicators: true }'
   )
     template(slot='item', slot-scope='{ data, index }')
-      NormalCard(
-        v-if='data',
-        :data='data',
-        :price='getPrice',
-      )
-  h1.recent-title(v-if='filteredOrders.length') New NFTs
+      market-sale-card(:key="data.assets[0].asset_id" :data="data" :ownerName="data.seller")
+
+  h1.recent-title(v-if='nfts.length') New NFTs
   CatCarousel.nft-market-carousel(
-    v-if='filteredOrders.length',
-    :items='filteredOrders.reverse().slice(0, 5)',
+    v-if='nfts.length',
+    :items='nfts',
     :item-per-page='4',
     :indicators-config='{ hideIndicators: true }'
   )
     template(slot='item', slot-scope='{ data, index }')
-      NormalCard(
-        v-if='data',
-        :data='data',
-        :price='getPrice',
-      )
+      asset-card(:key="data.asset_id" :data="data" :ownerName="data.owner")
 </template>
 
 <script>
@@ -50,16 +43,23 @@ import Img2 from '~/assets/images/wallet.webm'
 import Img3 from '~/assets/images/nft_explorer.webm'
 import Img4 from '~/assets/images/nft.webm'
 import subImg from '~/assets/icons/wax.png'
+import MarketSaleCard from '~/components/cards/MarketSaleCard'
+import AssetCard from '~/components/cards/AssetCard'
+
 export default {
   components: {
     NftCard,
     NftRelation,
     NormalCard,
+    MarketSaleCard,
+    AssetCard,
     CatCarousel
   },
   data() {
     return {
       title: 'ABC',
+      listings: [],
+      nfts: [],
       relationData: '',
       normalcardData: [
         {
@@ -139,7 +139,8 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: '/nft-market/nft-marketplace/sales?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
+          to:
+            '/nft-market/nft-marketplace/sales?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
         },
         {
           title: 'WALLET',
@@ -152,7 +153,8 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
           img: Img3,
-          to: '/nft-market/nftexplorer/assets?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
+          to:
+            '/nft-market/nftexplorer/assets?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
         },
         {
           title: 'ALCOR',
@@ -205,14 +207,24 @@ export default {
         o.sell.map((o) => categories.push(o.category))
       })
       return Array.from(new Set(categories))
-    },
+    }
   },
   mounted() {
     this.$store.dispatch('api/getSales')
     this.$store.dispatch('nft/fetch')
     this.getSymbolInfo()
+    this.getListings()
+    this.getNfts()
   },
   methods: {
+    async getListings() {
+      this.listings = await this.$store.dispatch('api/getSales', {
+        limit: '8'
+      })
+    },
+    async getNfts() {
+      this.nfts = await this.$store.dispatch('api/getAssets', { limit: '8' })
+    },
     addAutorFilter(author) {
       if (this.authorFilter.includes(author)) {
         this.$store.commit(
@@ -222,7 +234,7 @@ export default {
       } else {
         this.$store.commit('nft/setAuthorFilter', [
           ...this.authorFilter,
-          author,
+          author
         ])
       }
     },

@@ -1020,6 +1020,12 @@ a {
   color: var(--text-contrast) !important;
 }
 
+.active-border {
+  border: 1px solid var(--main-green);
+  height: fit-content;
+  border-radius: 10px;
+}
+
 .card {
   border: 1px solid var(--background-color-third);
   &.active-border {
