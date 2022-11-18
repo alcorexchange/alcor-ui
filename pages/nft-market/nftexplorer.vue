@@ -45,7 +45,18 @@ export default {
   },
   computed: {
     ...mapState(['network', 'user']),
-    refetchProps() { [this.filters.match, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    refetchProps() {
+      ;[
+        this.filters.match,
+        this.filters.minMint,
+        this.filters.maxMint,
+        this.filters.sorting,
+        this.filters.collection,
+        this.filters.isDuplicates,
+        this.filters.isBacked
+      ]
+      return Date.now()
+    },
     tabs() {
       return [
         {
@@ -85,7 +96,6 @@ export default {
         }
       ]
     }
-
   },
   watch: {
     refetchProps() {
@@ -104,7 +114,10 @@ export default {
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
     clearFilters() {
-      this.filters = Object.entries(this.filters).reduce((obj, [key]) => ({ ...obj, [key]: null }), {})
+      this.filters = Object.entries(this.filters).reduce(
+        (obj, [key]) => ({ ...obj, [key]: null }),
+        {}
+      )
     },
     setSortOptions() {
       this.options.sorting = sortingOptions[this.$route.name.split('___')[0]]

@@ -30,7 +30,10 @@ export default {
     }
   },
   mounted() {
-    if (!this.$route.query?.sorting) this.$router.push({ query: { ...this.$route.query, sorting: 'popularity' } })
+    if (!this.$route.query?.sorting)
+      this.$router.push({
+        query: { ...this.$route.query, sorting: 'popularity' }
+      })
     this.exploreTemplates()
   },
   methods: {

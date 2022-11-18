@@ -248,11 +248,12 @@ export const actions = {
   },
   async getAccount({ getters, rootState }, { accountName }) {
     try {
-      const {
-        data
-      } = await this.$api.post('https://wax.pink.gg/v1/chain/get_account', {
-        account_name: accountName
-      })
+      const { data } = await this.$api.post(
+        'https://wax.pink.gg/v1/chain/get_account',
+        {
+          account_name: accountName
+        }
+      )
       return data
     } catch (e) {
       console.error('Get template error', e)

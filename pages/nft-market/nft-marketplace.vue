@@ -45,7 +45,20 @@ export default {
   },
   computed: {
     ...mapState(['network', 'user']),
-    refetchProps() { [this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    refetchProps() {
+      ;[
+        this.filters.match,
+        this.filters.minPrice,
+        this.filters.maxPrice,
+        this.filters.minMint,
+        this.filters.maxMint,
+        this.filters.sorting,
+        this.filters.collection,
+        this.filters.isDuplicates,
+        this.filters.isBacked
+      ]
+      return Date.now()
+    },
     tabs() {
       return [
         {
@@ -64,7 +77,6 @@ export default {
         }
       ]
     }
-
   },
   watch: {
     refetchProps() {
@@ -87,7 +99,7 @@ export default {
     },
     async getCollectionData() {
       const data = await this.$store.dispatch('api/getCollections')
-      this.options.collection = data.map(col => ({ collection: col }))
+      this.options.collection = data.map((col) => ({ collection: col }))
     }
   },
 
