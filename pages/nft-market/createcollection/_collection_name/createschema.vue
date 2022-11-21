@@ -1,14 +1,17 @@
 <template lang="pug">
-.j-container.creatingschema
-  div
-    nuxt-link(:to='"/nft-market"', :exact='true')
-      a#return-btn Return - Collection: Alcorex
-  .page-header.d-flex.justify-content-between.row
-    .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 Create Schema in:
-        span.color-green &nbsp;{{ collection_name }}
-      p Edit your collection or add schemas and NFTs.
-    MemoryPanel
+.j-container.schemaview.d-flex.flex-column.gap-40
+  .mt-3
+    nuxt-link(
+      :to="{ name: `nft-market-createcollection-collection_name___${$i18n.locale}`, params: { collection_name } }"
+      :exact='true'
+    )
+      #return-btn Return - Collection: {{ collection_name }}
+    .d-flex.justify-content-between.align-items-center.mt-3
+      .d-flex.flex-column
+        h4 Create Schema in:
+          span.color-green &nbsp;{{ schema_name }}
+        .fs-14.disable Schemas are a group of attributes that are attached to your NFTs.
+      memory-panel
   .d-flex.justify-content-between
     form.schema-create(@submit='handleCreate')
       p.description-title Schema Name

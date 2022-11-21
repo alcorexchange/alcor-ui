@@ -5,13 +5,14 @@
     :value="value"
     @input="debounceInput"
     placeholder='Search name or address'
+    :disabled="disabled"
   )
 </template>
 
 <script>
 
 export default {
-  props: ['value'],
+  props: ['value', 'disabled'],
   data: () => ({ timeout: null }),
   methods: {
     debounceInput({ target }) {
@@ -40,6 +41,10 @@ export default {
   outline: none;
   border: none;
   background-color: var(--btn-default);
+
+  &[disabled] {
+    cursor: not-allowed;
+  }
 }
 
 .search-icon {

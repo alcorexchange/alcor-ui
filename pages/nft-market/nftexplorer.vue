@@ -4,8 +4,8 @@
     a#return-btn Return
   h4 Explorer
   .d-flex.align-items-center.gap-24
-    input-search(v-model="filters.match")
-    alcor-filters(:filters.sync="filters", :options="options")
+    input-search(v-model="filters.match" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-all'")
+    alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-accounts' || $route.name.split('___')[0] === 'nft-market-nftexplorer-all'")
     alcor-tabs(:links="true" :tabs="tabs")
   nuxt-child
 </template>
@@ -45,9 +45,27 @@ export default {
   },
   computed: {
     ...mapState(['network', 'user']),
-    refetchProps() { [this.filters.match, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    refetchProps() {
+      ;[
+        this.filters.match,
+        this.filters.minMint,
+        this.filters.maxMint,
+        this.filters.sorting,
+        this.filters.collection,
+        this.filters.isDuplicates,
+        this.filters.isBacked
+      ]
+      return Date.now()
+    },
     tabs() {
       return [
+        {
+          label: 'All',
+          route: {
+            path: '/nft-market/nftexplorer/all',
+            query: this.filters
+          }
+        },
         {
           label: 'NFTs',
           route: {
@@ -63,9 +81,9 @@ export default {
           }
         },
         {
-          label: 'Schemas',
+          label: 'Collections',
           route: {
-            path: '/nft-market/nftexplorer/schemas',
+            path: '/nft-market/nftexplorer/collections',
             query: this.filters
           }
         },
@@ -78,11 +96,14 @@ export default {
         }
       ]
     }
-
   },
   watch: {
     refetchProps() {
       this.$router.push({ query: this.filters })
+    },
+    '$route.name'() {
+      this.setSortOptions()
+      this.clearFilters()
     }
   },
 
@@ -92,6 +113,12 @@ export default {
 
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
+    clearFilters() {
+      this.filters = Object.entries(this.filters).reduce(
+        (obj, [key]) => ({ ...obj, [key]: null }),
+        {}
+      )
+    },
     setSortOptions() {
       this.options.sorting = sortingOptions[this.$route.name.split('___')[0]]
     }

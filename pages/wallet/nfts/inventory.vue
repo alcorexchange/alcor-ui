@@ -11,7 +11,7 @@
       :rounded='true'
     )
 
-    inventory-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
+    inventory-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -24,7 +24,6 @@ export default {
   components: { InventoryCard, VueSkeletonLoader },
   data: () => ({
     inventory: null,
-    ownerImgSrc: null,
     debounce: null
   }),
   computed: {
@@ -37,10 +36,8 @@ export default {
   },
   mounted() {
     this.getInventory()
-    this.getOwnerAvatar()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAssets']),
     getInventory() {
       clearTimeout(this.debounce)
@@ -59,10 +56,6 @@ export default {
         })
       }, 600)
     },
-    async getOwnerAvatar() {
-      const hash = await this.getPhotoHash(this.$route.params.id)
-      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    }
   }
 }
 </script>

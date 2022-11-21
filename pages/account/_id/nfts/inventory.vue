@@ -10,7 +10,7 @@
     :rounded='true'
   )
 
-  asset-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerImgSrc="ownerImgSrc")
+  asset-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$route.params.id")
 </template>
 
 <script>
@@ -22,7 +22,6 @@ export default {
   components: { AssetCard, VueSkeletonLoader },
   data: () => ({
     inventory: null,
-    ownerImgSrc: null,
     debounce: null
   }),
   watch: {
@@ -32,10 +31,8 @@ export default {
   },
   mounted() {
     this.getInventory()
-    this.getOwnerAvatar()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAssets']),
     getInventory() {
       clearTimeout(this.debounce)
@@ -54,10 +51,6 @@ export default {
         })
       }, 600)
     },
-    async getOwnerAvatar() {
-      const hash = await this.getPhotoHash(this.$route.params.id)
-      this.ownerImgSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    }
   }
 }
 </script>

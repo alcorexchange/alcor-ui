@@ -1,7 +1,8 @@
 <template>
   <button
     :class="['alcor-button', { flat, alternative, access, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
-    @click.prevent="$emit('click')">
+    @click.prevent="$emit('click')"
+    v-bind="$attrs">
     <div class="inner">
       <slot />
     </div>

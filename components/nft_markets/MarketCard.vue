@@ -54,9 +54,9 @@ export default {
       search: '',
       defaultBackground: {
         backgroundSize: 'cover',
-        backgroundImage: 'url(' + defaultImg + ')',
+        backgroundImage: 'url(' + defaultImg + ')'
       },
-      sellOrders: [],
+      sellOrders: []
     }
   },
   computed: {
@@ -64,16 +64,16 @@ export default {
       if (this.data.sell[0].mdata)
         return {
           backgroundSize: 'cover',
-          backgroundImage: 'url(' + this.data.assets[0].mdata.img + ')',
+          backgroundImage: 'url(' + this.data.assets[0].mdata.img + ')'
         }
       else return false
-    },
+    }
   },
   methods: {
     debug() {
       console.log('this.data', this.data.buy.quantity.replaceAll('WAX', ''))
-    },
-  },
+    }
+  }
 }
 </script>
 

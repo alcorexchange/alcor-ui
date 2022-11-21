@@ -2,9 +2,9 @@
 .add-friend-component
   .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
     img(src='~/assets/icons/Users.svg')
-    span Add Friend
+    span New Trade
   .d-flex.flex-column.gap-16
-    span.fs-14.fw-bold Friend WAX address
+    span.fs-14.fw-bold New Trade With
     el-input.dark(
       size='small',
       v-model='address',
@@ -13,7 +13,7 @@
     .d-flex.justify-content-center.flex-column.gap-10(v-if="isFounded")
       profile-image.account-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + address"  :size="128")
       .fs-22.fw-bold.d-flex.justify-content-center {{ address }}
-    alcor-button.w-100(@click="addToFriendList" access :disabled="!isFounded") Add Friend
+    alcor-button.w-100(@click="goToTrade" access :disabled="!isFounded") Trade
 
 </template>
 
@@ -31,6 +31,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('modal', ['closeModal']),
     ...mapActions('social', ['addFriend']),
     ...mapActions('api', ['getAccount']),
 
@@ -45,9 +46,9 @@ export default {
 
       this.loading = false
     },
-    addToFriendList() {
-      this.addFriend(this.address)
-        .then(() => this.$router.go(0))
+    goToTrade() {
+      this.closeModal()
+      this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.address } })
     }
   }
 }

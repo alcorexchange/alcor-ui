@@ -30,7 +30,7 @@ export default {
 </script>
 <style lang="scss">
 .logs-row {
-  background: #161617;
+  background: var(--btn-active);
   .el-tab-pane {
     overflow-y: scroll;
     overflow-x: hidden;
@@ -48,13 +48,13 @@ export default {
     height: 24px;
   }
   .log-data-field {
-    border: 1px solid #fff;
+    border: 1px solid var(--text-contrast);
     .field-row {
       .left-field {
-        border-right: 1px solid #fff;
+        border-right: 1px solid var(--text-contrast);
       }
       &:not(.field-row:last-child) {
-        border-bottom: 1px solid #fff;
+        border-bottom: 1px solid var(--text-contrast);
       }
     }
   }

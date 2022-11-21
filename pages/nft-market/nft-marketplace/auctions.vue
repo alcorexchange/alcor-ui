@@ -10,7 +10,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    market-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item")
+    market-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="item.seller")
 </template>
 
 <script>
@@ -33,7 +33,6 @@ export default {
     this.getAuctions()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash']),
     ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
     getAuctions() {
       clearTimeout(this.debounce)
@@ -43,7 +42,7 @@ export default {
           sort: this.$route.query?.sorting?.split('-')[0] || null,
           order: this.$route.query?.sorting?.split('-')[1] || null,
           collection_name: this.$route.query?.collection,
-          match: this.$route.query?.match,
+          search: this.$route.query?.match,
           max_template_mint: this.$route.query?.maxMint,
           min_template_mint: this.$route.query?.minMint,
           max_price: this.$route.query?.maxPrice,

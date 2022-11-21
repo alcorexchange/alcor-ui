@@ -2,7 +2,7 @@
 header#account-header-component.d-flex.flex-column.gap-24
   .d-flex.justify-content-between
     .d-flex.gap-6.align-items-center
-      profile-image.account-photo(:src.sync="profileImageSrc" :size="40")
+      profile-image.account-photo(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $route.params.id" :size="40")
       .fs-20 {{ $route.params.id }}
       copy.pointer(@click="copyUserName" width="22" height="22" :color="color")
     .d-flex.gap-6.align-items-center.pointer(@click="goBack")
@@ -41,7 +41,6 @@ import AlcorLink from '~/components/AlcorLink'
 export default {
   components: { ProfileImage, Copy, Disconnect, WalletNftHeader, AlcorButton, AlcorLink },
   data: () => ({
-    profileImageSrc: '',
     isFriend: false
   }),
   computed: {
@@ -56,11 +55,10 @@ export default {
     }
   },
   mounted() {
-    this.getProfileImage()
     this.user && this.checkFriend()
   },
   methods: {
-    ...mapActions('social', ['getPhotoHash', 'getFriendList', 'addFriend']),
+    ...mapActions('social', ['getFriendList', 'addFriend']),
     ...mapActions('modal', ['transfer', 'removeFriend', 'blockUser']),
     goToAssets() {
       this.$router.push({
@@ -80,10 +78,6 @@ export default {
       })
     },
 
-    async getProfileImage() {
-      const hash = await this.getPhotoHash(this.$route.params.id)
-      this.profileImageSrc = hash && `https://gateway.pinata.cloud/ipfs/${hash}`
-    },
     goBack() {
       this.$router.go(-1)
     },

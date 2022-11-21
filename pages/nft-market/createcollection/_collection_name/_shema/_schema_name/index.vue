@@ -1,17 +1,17 @@
 <template lang="pug">
-.j-container.schemaview
-  div
+.j-container.schemaview.d-flex.flex-column.gap-40
+  .mt-3
     nuxt-link(
-      :to='"/nft-market/createcollection/" + collection_name',
+      :to="{ name: `nft-market-createcollection-collection_name___${$i18n.locale}`, params: { collection_name } }"
       :exact='true'
     )
-      a#return-btn Return - Collection: {{ collection_name }}
-  .page-header.d-flex.justify-content-between.row
-    .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 Create Schema in:
-        span.color-green &nbsp;{{ schema_name }}
-      p Schemas are a group of attributes that are attached to your NFTs.
-    MemoryPanel
+      #return-btn Return - Collection: {{ collection_name }}
+    .d-flex.justify-content-between.align-items-center.mt-3
+      .d-flex.flex-column
+        h4 Create Schema in:
+          span.color-green &nbsp;{{ schema_name }}
+        .fs-14.disable Schemas are a group of attributes that are attached to your NFTs.
+      memory-panel
   div
     .d-flex
       .add-attribute
@@ -45,7 +45,7 @@
                 )
               p.name-button(v-if='item["defaultValue"]') {{ item["defaultValue"] }}
               p.type-button(v-if='item["defaultValue"]') {{ item["label"] }}
-        button.btn.add-button(@click='additem()') + Add Attribute
+        alcor-button.w-100.mt-3(outline @click='additem()') + Add Attribute
       .d-flex.flex-fill.justify-content-center
         button.btn.create-schema-btn.d-block(
           v-if='(schemaData.format && schemaData.format.length) != attribute_data.length',
@@ -53,7 +53,7 @@
           @click='handleUpdate'
         ) Create Schema
     h4.nft-title NFTs:
-    .nftcard.create-collections.radius10.d-flex.justify-content-center.align-items-center
+    .nftcard.create-collections.radius10.d-flex.justify-content-center.align-items-center.pointer
       .card-content
         .plus-round-background(
           :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
@@ -71,7 +71,7 @@
               :style='{ backgroundImage: `url(${require("~/assets/images/plus_round_icon.svg")})` }'
             )
             h4.color-white New Templates
-      TemplateCard.mr-3.mb-4(
+      TemplateCard(
         v-for='(item, index) in templateData',
         :key='index',
         :cardData='item',
@@ -83,11 +83,13 @@
 import { mapState } from 'vuex'
 import TemplateCard from '~/components/nft_markets/TemplateCard'
 import MemoryPanel from '~/components/nft_markets/MemoryPanel'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: {
     TemplateCard,
-    MemoryPanel
+    MemoryPanel,
+    AlcorButton
   },
 
   data() {
@@ -138,6 +140,7 @@ export default {
     },
   },
   mounted() {
+    console.log('rrrrrr', this.$route.name)
     const schema_name = this.$route.params.schema_name
     const collection_name = this.$route.params.collection_name
     this.schema_name = schema_name
@@ -224,10 +227,11 @@ export default {
     async getTemplatesData(schema_name, collection_name) {
       const data = await this.$store.dispatch('api/getTemplatesData', {
         limit: 40,
-        collectionName: collection_name,
-        schemaName: schema_name,
+        collection_name,
+        schema_name
       })
       this.templateData = data
+      console.log(this.templateData)
     },
   },
 }
@@ -453,7 +457,8 @@ export default {
     font-size: 14px;
     color: #9f979a !important;
     cursor: pointer;
-    padding-left: 10px;
+    display: flex;
+    gap: 5px;
   }
   .page-header h4 {
     margin: 0 !important;
@@ -465,12 +470,35 @@ export default {
     margin-top: 32px;
   }
   .nftcard {
+    text-align: center;
     width: 220px;
     height: 300px;
-    border: 1px solid #67c23a;
+    background: var(--background-color-third);
+
+    border: 2px solid var(--main-action-green);
+    border-radius: 10px;
+
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: var(--text-default);
+
+    transition: all 0.3s;
+
+    &:hover {
+      box-shadow: 0px 0px 30px 0px #54a05466 inset;
+      background: var(--btn-outline);
+    }
+
   }
   .template-card {
-    height: 174px;
+    height: auto;
   }
   .create-collections {
     margin-right: 25px;

@@ -25,7 +25,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 video {
   border-radius: 25px;
 }
@@ -39,7 +39,7 @@ video {
 }
 
 .image-title {
-  color: #FFF;
+  color: #fff;
 }
 
 .image-title {
@@ -48,11 +48,11 @@ video {
   left: 30px;
 }
 
-.image-title>* {
+.image-title > * {
   margin: 0 !important;
 }
 
-.image-title .d-flex>img {
+.image-title .d-flex > img {
   width: 30px;
   height: 30px;
 }
