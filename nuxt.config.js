@@ -3,7 +3,10 @@ const config = require('./config')
 const pkg = require('./package')
 
 const isSPA = process.argv.includes('--spa')
-const isDev = process.env.npm_lifecycle_event == 'dev' || process.argv.includes('--dev') || process.env.NODE_ENV !== 'production'
+const isDev =
+  process.env.npm_lifecycle_event == 'dev' ||
+  process.argv.includes('--dev') ||
+  process.env.NODE_ENV !== 'production'
 
 // const desc = config.APP_NAME + ' is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!'
 
@@ -14,14 +17,14 @@ module.exports = {
     isDev,
     isSPA,
     NETWORK: process.env.NETWORK,
-    DISABLE_DB: process.env.DISABLE_DB,
+    DISABLE_DB: process.env.DISABLE_DB
   },
 
   version: pkg.version,
 
   /*
-  ** Headers of the page
-  */
+   ** Headers of the page
+   */
   head() {
     const i18nHead = this.$nuxtI18nHead({ addSeoAttributes: true })
     const desc = `Alcor Exchange ${this.$t('META_DESCRIPTION')}`
@@ -35,13 +38,31 @@ module.exports = {
         { hid: 'description', name: 'description', content: desc },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'msapplication-TileColor', content: '#da532c' },
-        { hid: 'og:image', name: 'og:image', content: '/android-chrome-512x512.png' },
+        {
+          hid: 'og:image',
+          name: 'og:image',
+          content: '/android-chrome-512x512.png'
+        },
         ...i18nHead.meta
       ],
       link: [
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png'
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '32x32',
+          href: '/favicon-32x32.png'
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '16x16',
+          href: '/favicon-16x16.png'
+        },
         { rel: 'manifest', href: '/site.webmanifest' },
         { rel: 'mask-icon', color: '#5bbad5', href: '/safari-pinned-tab.svg' },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
@@ -81,13 +102,13 @@ module.exports = {
   // },
 
   /*
-  ** Customize the progress-bar color
-  */
+   ** Customize the progress-bar color
+   */
   loading: false,
 
   /*
-  ** Global CSS
-  */
+   ** Global CSS
+   */
   css: [
     // TODO Оставить только грид и ребут
     'bootstrap/dist/css/bootstrap.min.css',
@@ -104,8 +125,8 @@ module.exports = {
   ],
 
   /*
-  ** Plugins to load before mounting the App
-  */
+   ** Plugins to load before mounting the App
+   */
   plugins: [
     '~/plugins/element-ui',
     '~/plugins/mixins',
@@ -124,8 +145,8 @@ module.exports = {
   ],
 
   /*
-  ** Nuxt.js modules
-  */
+   ** Nuxt.js modules
+   */
   modules: [
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
@@ -145,7 +166,7 @@ module.exports = {
     dynamicHost: true,
     routes: async (host) => {
       const { data: pairs } = await axios.get(`http://${host}/api/v2/pairs`)
-      return pairs.map(pair => `/trade/${pair.ticker_id}`)
+      return pairs.map((pair) => `/trade/${pair.ticker_id}`)
     }
   },
   i18n: {
@@ -155,7 +176,8 @@ module.exports = {
       { code: 'ru', iso: 'ru-RU', file: 'ru.js' },
       { code: 'cn', iso: 'zh_CN', file: 'cn.js' },
       { code: 'ph', iso: 'ph_PH', file: 'ph.js' },
-      { code: 'ua', iso: 'ua_UA', file: 'ua.js' }
+      { code: 'ua', iso: 'ua_UA', file: 'ua.js' },
+      { code: 'es', iso: 'es_ES', file: 'es.js' }
     ],
     defaultLocale: 'en',
     detectBrowserLanguage: {
@@ -168,8 +190,7 @@ module.exports = {
     /* module options */
   },
 
-  axios: {
-  },
+  axios: {},
 
   colorMode: {
     //preference: 'system', // default value of $colorMode.preference
@@ -182,10 +203,12 @@ module.exports = {
   //components: true,
 
   /*
-  ** Sentry module configuration
-  */
+   ** Sentry module configuration
+   */
   sentry: {
-    dsn: process.env.SENTRY_DSN || 'https://a0486e29af0f4630a29b820ee4226fa8@sentry.io/1792380',
+    dsn:
+      process.env.SENTRY_DSN ||
+      'https://a0486e29af0f4630a29b820ee4226fa8@sentry.io/1792380',
     disabled: isDev
   },
 
@@ -196,8 +219,8 @@ module.exports = {
   ],
 
   /*
-  ** Build configuration
-  */
+   ** Build configuration
+   */
   build: {
     extend(config, ctx) {
       config.node = {
