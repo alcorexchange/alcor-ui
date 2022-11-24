@@ -537,6 +537,51 @@ export const actions = {
       return await dispatch('getBuyOffers', { sort, seller }) // refetch
     }
   },
+  async getTradeOffers({ getters, rootState, dispatch }, { filters, type }) {
+    const filteredOptions = Object.entries(filters)
+      .filter(([key, value]) => value !== 'false')
+      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+
+    try {
+      const { data } = await this.$api.post('atomicmarket/v1/offers', {
+        [type]: rootState.user.name,
+        state: '0',
+        sort: 'created',
+        limit: '10',
+        order: 'desc',
+        page: '1',
+        ...filteredOptions
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get Trade offers count error', e)
+      return await dispatch('getTradeOffers', { filters, type }) // refetch
+    }
+  },
+  async getTradeOffersCount(
+    { getters, rootState, dispatch },
+    { filters, type }
+  ) {
+    const filteredOptions = Object.entries(filters)
+      .filter(([key, value]) => value !== 'false')
+      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+
+    console.log('gf', filteredOptions)
+
+    try {
+      const { data } = await this.$api.post('atomicassets/v1/offers/_count', {
+        [type]: rootState.user.name,
+        state: '0',
+        sort: 'created',
+        order: 'desc',
+        ...filteredOptions
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get Trade offers count error', e)
+      //return await dispatch('getTradeOffersCount', { filters, type }) // refetch
+    }
+  },
   async getBoughtCounts({ getters, rootState }, { owner }) {
     try {
       const { data } = await axios.get(
