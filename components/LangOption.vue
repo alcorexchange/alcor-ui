@@ -1,5 +1,9 @@
 <template>
-  <div class="d-flex align-items-center lang-option" @click="changeLang" @touchstart="changeLang">
+  <div
+    class="d-flex align-items-center lang-option"
+    @click="changeLang"
+    @touchstart="changeLang"
+  >
     <icon :icon="icons[code]" />
     <span>{{ labels[code] }}</span>
   </div>
@@ -17,14 +21,16 @@ export default {
         ru: 'twemoji:flag-russia',
         cn: 'twemoji:flag-china',
         ph: 'twemoji:flag-philippines',
-        ua: 'twemoji:flag-ukraine'
+        ua: 'twemoji:flag-ukraine',
+        es: 'twemoji:flag-spain'
       },
       labels: {
         en: 'English (US)',
         ru: 'Russian (RU)',
         cn: 'China (CN)',
         ph: 'Filipino (PH)',
-        ua: 'Ukraine (UA)'
+        ua: 'Ukraine (UA)',
+        es: 'Spanish (ES)'
       }
     }
   },
