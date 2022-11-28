@@ -12,21 +12,21 @@ export default {
   components: { TradeOfferListItem },
   data: () => ({ tradeOffers: null }),
   watch: {
-    '$route.query'() {
-      this.getSendedOffers()
+    '$store.state.user'(v) {
+      v && this.getSendedOffers()
     }
   },
   mounted() {
-    this.getSendedOffers()
+    this.$store.state.user?.name && this.getSendedOffers()
   },
   methods: {
     ...mapActions('api', ['getTradeOffers']),
     async getSendedOffers() {
+      const filters = this.$cookies.get('global_tradeoffers_filters')
       this.tradeOffers = await this.getTradeOffers({
         filters: {
-          ...this.$route.query,
-          hide_contracts:
-            this.$route.query.hide_contracts === 'false' ? 'true' : 'false'
+          ...filters,
+          hide_contracts: !filters.hide_contracts
         },
         type: 'sender'
       })

@@ -23,7 +23,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
         .w-50.d-flex.flex-column.justify-content-between
           el-select.fs-12.w-100(
             v-if="sortingOptions"
-            v-model='sorting'
+            v-model='sorting.val'
             :placeholder='$t("Choose a sorting order")'
             size="mini"
           )
@@ -40,7 +40,6 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
 </template>
 
 <script>
-
 export default {
   props: ['filters', 'sorting'],
   data: () => ({
@@ -57,9 +56,11 @@ export default {
   }),
   methods: {
     reset() {
-      this.$emit('update:filters', Object.entries(this.filters)
-        .map(([key, value]) => [key, false])
-        .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+      this.$emit(
+        'update:filters',
+        Object.entries(this.filters)
+          .map(([key, value]) => [key, false])
+          .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
       )
     }
   }
@@ -83,7 +84,7 @@ export default {
 
   & .disabled {
     color: var(--btn-default);
-    cursor: not-allowed;;
+    cursor: not-allowed;
   }
 
   &.active {
@@ -102,6 +103,5 @@ export default {
 
 .apply-btn .inner {
   line-height: initial;
-
 }
 </style>
