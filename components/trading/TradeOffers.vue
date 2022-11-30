@@ -13,8 +13,16 @@
   .d-flex.align-items-center.gap-24.mt-3
     trade-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
     alcor-tabs(:links="true" :tabs="tabs")
-  .d-flex.flex-column
-    trade-offer-list-item(v-for="offer in tradeOffers" :offer="offer")
+  .d-flex.gap-16(v-if="tradeOffers.length")
+    .d-flex.flex-column.gap-8.offer-list.mt-3
+      .d-flex.gap-4.fs-10
+        el-checkbox(
+          @change="selectAll"
+          v-model="isSelectedAll"
+        ) Select All Items
+
+      .d-flex.flex-column.gap-8.mt-3
+        trade-offer-list-item(v-for="offer in tradeOffers" :offer="offer")
 
 </template>
 
@@ -35,7 +43,8 @@ export default {
     TradeOfferListItem
   },
   data: () => ({
-    tradeOffers: null,
+    isSelectedAll: false,
+    tradeOffers: [],
     recipientTradesCount: 0,
     senderTradesCount: 0,
     sorting: { val: 'asc' },
@@ -46,6 +55,11 @@ export default {
     }
   }),
   computed: {
+    selected() {
+      return this.tradeOffers
+        .filter(({ isSelected }) => isSelected)
+        .map(({ offer_id }) => offer_id)
+    },
     refetchProps() {
       ;[
         this.sorting.val,
@@ -75,6 +89,9 @@ export default {
     }
   },
   watch: {
+    selected(selected) {
+      this.isSelectedAll = selected.length === this.tradeOffers.length
+    },
     refetchProps() {
       this.$cookies.set('global_tradeoffers_filters', this.filters)
       this.$cookies.set('global_tradeoffers_sort_order', this.sorting.val)
@@ -84,10 +101,10 @@ export default {
     '$route.hash'(v) {
       this.getOffers()
       this.fetchTradeOffersCount()
+      this.clearSelected()
     }
   },
   mounted() {
-    console.log('mounted')
     !this.$route.hash && this.$router.push({ hash: 'sent' })
     this.filters = this.$cookies.get('global_tradeoffers_filters')
     this.sorting.val = this.$cookies.get('global_tradeoffers_sort_order')
@@ -100,15 +117,25 @@ export default {
     openNewTradeModal() {
       this.newTrade({ transferAssets: [this.data] })
     },
+    selectAll(isSelect) {
+      isSelect
+        ? this.tradeOffers.forEach(o => o.isSelected = true)
+        : this.clearSelected()
+    },
+    clearSelected() {
+      this.tradeOffers.forEach(o => o.isSelected = false)
+    },
     async getOffers() {
-      this.tradeOffers = await this.getTradeOffers({
-        filters: {
-          ...this.filters,
-          order: this.sorting.val,
-          hide_contracts: !this.filters.hide_contracts
-        },
-        type: this.$route.hash === '#sent' ? 'sender' : 'recipient'
-      })
+      this.tradeOffers = (
+        await this.getTradeOffers({
+          filters: {
+            ...this.filters,
+            order: this.sorting.val,
+            hide_contracts: !this.filters.hide_contracts
+          },
+          type: this.$route.hash === '#sent' ? 'sender' : 'recipient'
+        })
+      ).map((offer) => ({ ...offer, isSelected: false }))
     },
     async fetchTradeOffersCount() {
       const rc = await this.getTradeOffersCount({
@@ -131,3 +158,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+
+.offer-list {
+  width: 420px;
+}
+</style>
