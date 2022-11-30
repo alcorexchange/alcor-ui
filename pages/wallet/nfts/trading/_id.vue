@@ -35,12 +35,12 @@
       :rounded='true'
     )
     preview-card.pointer(
-      v-else
+      v-else-if="availableAssets.length"
       v-for="item in availableAssets"
       :key="item.asset_id"
       :data="item"
       @click="toggleSelected(activeTab, item)"
-      :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: offerAssets && offerAssets.length > 0 && item.collection.collection_name !== offerAssets[0].collection.collection_name }"
+      :class="{ 'active-border': offerAssets.includes(({ asset_id }) => asset_id === item.asset_id), disable: hisOfferAssets.length && item.collection.collection_name !== hisOfferAssets[0].collection.collection_name }"
       :small="true"
     )
 

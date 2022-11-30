@@ -1,6 +1,6 @@
 <template lang="pug">
 .asset-field-component
-  preview-card.active-border.pointer(v-for="asset in assets" :data='asset', :key="asset.asset_id", @click="remove(asset)", :small="assets.length > 1")
+  preview-card.active-border.pointer(v-if="assets.length" v-for="asset in assets" :data='asset', :key="asset", @click="remove(asset)", :small="assets.length > 1")
 
 </template>
 
@@ -10,9 +10,6 @@ import PreviewCard from '~/components/cards/PreviewCard'
 export default {
   components: { PreviewCard },
   props: ['assets'],
-  mounted() {
-    console.log(this.assets)
-  },
   methods: {
     remove(asset) {
       this.$emit('removeAsset', asset)

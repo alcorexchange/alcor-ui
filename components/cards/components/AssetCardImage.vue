@@ -2,7 +2,7 @@
 img.content(v-if="template.img" :src="src")
 video.content(v-else-if="template.video" autoplay='true', loop='true')
   source(:src="src" type='video/mp4')
-img(v-else src="~/assets/images/nft-mock.png" :style="{ width: '100%' }")
+img(v-else src="~/assets/images/nft-mock.png" :style="{ 'max-width': '100%' }")
 
 </template>
 

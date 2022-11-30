@@ -91,8 +91,7 @@ export default {
       ).toFixed(2)
     },
     date() {
-      const d = new Date(Date(this.data.minted_at_time))
-      return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
+      return new Date(+this.data.minted_at_time).toLocaleString()
     }
   }
 }

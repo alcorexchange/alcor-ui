@@ -1,5 +1,5 @@
 <template lang="pug">
-asset-hover(:data="data" :ownerName="ownerName")
+asset-hover(v-if="data" :data="data" :ownerName="ownerName")
   card.normal-card-shadow(:class="[{ small }]" @click="$emit('click')")
     .d-flex.justify-content-end(slot="header")
       .card_number.d-flex.align-items-center.ml-1.fs-12.color-green {{ "#" + mint }}
@@ -26,6 +26,7 @@ export default {
   props: ['data', 'small'],
   computed: {
     mint() {
+      if (!this.data?.template_mint) return 0
       return this.data.template_mint.length > 4
         ? this.data.template_mint.substr(0, 1) +
             '...' +
