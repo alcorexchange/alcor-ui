@@ -559,7 +559,7 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get Trade offers error', e)
-      //return await dispatch('getTradeOffers', { filters, type }) // refetch
+      return await dispatch('getTradeOffers', { filters, type }) // refetch
     }
   },
   async getTradeOffersCount(
@@ -583,7 +583,7 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get Trade offers count error', e)
-      //return await dispatch('getTradeOffersCount', { filters, type }) // refetch
+      return await dispatch('getTradeOffersCount', { filters, type }) // refetch
     }
   },
   async getBoughtCounts({ getters, rootState }, { owner }) {
