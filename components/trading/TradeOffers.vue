@@ -1,5 +1,5 @@
 <template lang="pug">
-#trade-offers-page.py-3.py-lg-5
+#trade-offers-component
   bread-crumbs
   .d-flex.justify-content-between.align-items-center.mt-3
     .fs-24 Trade Offers

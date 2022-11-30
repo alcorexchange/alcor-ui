@@ -14,12 +14,13 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
   el-dropdown-menu.dropdown
     el-dropdown-item.dropdown__filters
       .d-flex.justify-content-between.gap-16
-        .w-50
-          .d-flex.flex-column.gap-8(v-for="[ key, value ] in Object.entries(filters)")
-            el-checkbox(
+        .w-50.d-flex.flex-column.gap-8
+          .d-flex.gap-8.align-items-center(v-for="[ key, value ] in Object.entries(filters)")
+            el-switch(
               v-model="filters[key]"
               id="filter"
-            ) {{ labels[key] }}
+            )
+            span.fs-12.lh-12 {{ labels[key] }}
         .w-50.d-flex.flex-column.justify-content-between
           el-select.fs-12.w-100(
             v-if="sortingOptions"
@@ -35,7 +36,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             )
           .d-flex.gap-4.align-items-center.fs-14.pointer(@click="reset")
             i.el-icon-delete-solid
-            span Reset Filters
+            .fs-12.lh-12 Reset Filters
 
 </template>
 
@@ -87,7 +88,7 @@ export default {
     cursor: not-allowed;
   }
 
-  &.active {
+  &.active .button {
     border-bottom: 1px solid var(--main-action-green);
   }
 
