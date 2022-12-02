@@ -53,7 +53,7 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { AlcorButton, AlcorCollapse, AssetsField, ProfileImage },
-  props: ['offer'],
+  props: ['offer', 'offerLog'],
   computed: {
     date() {
       return new Date(+this.offer.created_at_time).toLocaleString()
@@ -65,7 +65,7 @@ export default {
 
 <style lang="scss" scoped>
 #offer-preview-component {
-  width: 100%;
+  width: 730px;
   padding: 24px;
   border-radius: 1rem;
   background-color: var(--bg-alter-2);

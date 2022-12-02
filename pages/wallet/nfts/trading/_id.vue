@@ -37,6 +37,7 @@
     preview-card.pointer(
       v-else-if="availableAssets.length"
       v-for="item in availableAssets"
+      :ownerName="$route.params.id"
       :key="item.asset_id"
       :data="item"
       @click="toggleSelected(activeTab, item)"

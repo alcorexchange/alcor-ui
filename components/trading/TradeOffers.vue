@@ -28,7 +28,9 @@
           @click="preview(offer.offer_id)"
           :class="{ active: previewOffer && offer.offer_id === previewOffer.offer_id }"
         )
-    offer-preview(v-if="previewOffer" :offer="previewOffer")
+    .d-flex.flex-column.gap-16
+      offer-preview(v-if="previewOffer" :offer="previewOffer")
+      table-log(v-if="previewOffer && offerLog" :offerLog="offerLog")
 
 </template>
 
@@ -40,6 +42,7 @@ import AlcorTabs from '~/components/AlcorTabs'
 import TradeOfferFilters from '~/components/TradeOfferFilters'
 import TradeOfferListItem from '~/components/trade-offer/TradeOfferListItem.vue'
 import OfferPreview from '~/components/trading/OfferPreview'
+import TableLog from '~/components/trading/TableLog'
 
 export default {
   components: {
@@ -48,11 +51,13 @@ export default {
     TradeOfferFilters,
     AlcorTabs,
     TradeOfferListItem,
-    OfferPreview
+    OfferPreview,
+    TableLog
   },
   data: () => ({
     isSelectedAll: false,
     tradeOffers: [],
+    offerLog: null,
     recipientTradesCount: 0,
     senderTradesCount: 0,
     sorting: { val: 'asc' },
@@ -65,7 +70,10 @@ export default {
   computed: {
     previewOffer() {
       const previewId = this.$route.hash.split('-')[1]
-      return previewId && this.tradeOffers.find(({ offer_id }) => offer_id === previewId)
+      return (
+        previewId &&
+        this.tradeOffers.find(({ offer_id }) => offer_id === previewId)
+      )
     },
     selected() {
       return this.tradeOffers
@@ -94,7 +102,9 @@ export default {
           label: `Sent (${this.senderTradesCount})`,
           route: {
             path: '/trading/trade-offers',
-            hash: `sent${this.previewOffer ? '-' + this.previewOffer.offer_id : ''}`
+            hash: `sent${
+              this.previewOffer ? '-' + this.previewOffer.offer_id : ''
+            }`
           }
         }
       ]
@@ -111,6 +121,7 @@ export default {
       this.getOffers()
     },
     '$route.hash'(v) {
+      this.fetchOfferLog()
       this.getOffers()
       this.fetchTradeOffersCount()
       this.clearSelected()
@@ -118,14 +129,19 @@ export default {
   },
   mounted() {
     !this.$route.hash && this.$router.push({ hash: 'sent' })
-    this.filters = this.$cookies.get('global_tradeoffers_filters') || this.filters
+    this.filters =
+      this.$cookies.get('global_tradeoffers_filters') || this.filters
     this.sorting.val = this.$cookies.get('global_tradeoffers_sort_order')
     this.getOffers()
     this.fetchTradeOffersCount()
   },
   methods: {
     ...mapActions('modal', ['newTrade']),
-    ...mapActions('api', ['getTradeOffersCount', 'getTradeOffers']),
+    ...mapActions('api', [
+      'getTradeOffersCount',
+      'getTradeOffers',
+      'getOfferLog'
+    ]),
     preview(id) {
       this.$router.push({ hash: 'sent' + '-' + id })
     },
@@ -134,11 +150,26 @@ export default {
     },
     selectAll(isSelect) {
       isSelect
-        ? this.tradeOffers.forEach(o => o.isSelected = true)
+        ? this.tradeOffers.forEach((o) => (o.isSelected = true))
         : this.clearSelected()
     },
     clearSelected() {
-      this.tradeOffers.forEach(o => o.isSelected = false)
+      this.tradeOffers.forEach((o) => (o.isSelected = false))
+    },
+    async fetchOfferLog() {
+      const offerId = this.$route.hash.split('-')[1]
+
+      if (offerId) {
+        this.offerLog = await this.getOfferLog({
+          offerId,
+          options: {
+            limit: '5',
+            order: 'desc',
+            page: '1'
+          }
+        })
+        console.log('rrrrr', this.offerLog)
+      }
     },
     async getOffers() {
       this.tradeOffers = (
@@ -148,7 +179,8 @@ export default {
             order: this.sorting.val,
             hide_contracts: !this.filters.hide_contracts
           },
-          type: this.$route.hash.split('-')[0] === '#sent' ? 'sender' : 'recipient'
+          type:
+            this.$route.hash.split('-')[0] === '#sent' ? 'sender' : 'recipient'
         })
       ).map((offer) => ({ ...offer, isSelected: false }))
     },
@@ -175,8 +207,7 @@ export default {
 </script>
 
 <style lang="scss">
-
 .offer-list {
-  min-width: 420px;
+  min-width: 370px;
 }
 </style>

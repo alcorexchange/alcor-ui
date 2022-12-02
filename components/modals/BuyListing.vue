@@ -4,7 +4,7 @@
     i.el-icon-price-tag
     span Buy Listing
   .d-flex.justify-content-between.gap-32
-    preview-card(v-if='context.assets[0]', :data='context.assets[0]')
+    preview-card(v-if='context.assets[0]', :data='context.assets[0]' :ownerName="context.assets[0].owner")
     div
       span.fs-18.disable Summary
       .d-flex.align-items-start.gap-64.mt-3
@@ -45,14 +45,22 @@ export default {
   data: () => ({ total: '?' }),
   computed: {
     ...mapState('modal', ['context']),
-    price() { return this.context.price.amount / Math.pow(10, this.context.price.token_precision) }
+    price() {
+      return (
+        this.context.price.amount /
+        Math.pow(10, this.context.price.token_precision)
+      )
+    }
   },
   async mounted() {
     const templateID = this.context.assets[0].template.template_id
     const collectionName = this.context.assets[0].collection.collection_name
 
     if (templateID && collectionName) {
-      const { assets } = await this.$store.dispatch('api/getTemplateStats', { templateID, collectionName })
+      const { assets } = await this.$store.dispatch('api/getTemplateStats', {
+        templateID,
+        collectionName
+      })
       this.total = assets
     }
   },
