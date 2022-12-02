@@ -13,7 +13,7 @@
   .d-flex.align-items-center.gap-24.mt-3
     trade-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
     alcor-tabs(:links="true" :tabs="tabs")
-  .d-flex.gap-16(v-if="tradeOffers.length")
+  .d-flex.gap-16.justify-content-between(v-if="tradeOffers.length")
     .d-flex.flex-column.gap-8.offer-list.mt-3
       .d-flex.gap-4.fs-10
         el-checkbox(
@@ -22,7 +22,13 @@
         ) Select All Items
 
       .d-flex.flex-column.gap-8.mt-3
-        trade-offer-list-item(v-for="offer in tradeOffers" :offer="offer")
+        trade-offer-list-item(
+          v-for="offer in tradeOffers"
+          :offer="offer"
+          @click="preview(offer.offer_id)"
+          :class="{ active: previewOffer && offer.offer_id === previewOffer.offer_id }"
+        )
+    offer-preview(v-if="previewOffer" :offer="previewOffer")
 
 </template>
 
@@ -33,6 +39,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorTabs from '~/components/AlcorTabs'
 import TradeOfferFilters from '~/components/TradeOfferFilters'
 import TradeOfferListItem from '~/components/trade-offer/TradeOfferListItem.vue'
+import OfferPreview from '~/components/trading/OfferPreview'
 
 export default {
   components: {
@@ -40,7 +47,8 @@ export default {
     AlcorButton,
     TradeOfferFilters,
     AlcorTabs,
-    TradeOfferListItem
+    TradeOfferListItem,
+    OfferPreview
   },
   data: () => ({
     isSelectedAll: false,
@@ -55,6 +63,10 @@ export default {
     }
   }),
   computed: {
+    previewOffer() {
+      const previewId = this.$route.hash.split('-')[1]
+      return previewId && this.tradeOffers.find(({ offer_id }) => offer_id === previewId)
+    },
     selected() {
       return this.tradeOffers
         .filter(({ isSelected }) => isSelected)
@@ -82,7 +94,7 @@ export default {
           label: `Sent (${this.senderTradesCount})`,
           route: {
             path: '/trading/trade-offers',
-            hash: 'sent'
+            hash: `sent${this.previewOffer ? '-' + this.previewOffer.offer_id : ''}`
           }
         }
       ]
@@ -106,7 +118,7 @@ export default {
   },
   mounted() {
     !this.$route.hash && this.$router.push({ hash: 'sent' })
-    this.filters = this.$cookies.get('global_tradeoffers_filters')
+    this.filters = this.$cookies.get('global_tradeoffers_filters') || this.filters
     this.sorting.val = this.$cookies.get('global_tradeoffers_sort_order')
     this.getOffers()
     this.fetchTradeOffersCount()
@@ -114,6 +126,9 @@ export default {
   methods: {
     ...mapActions('modal', ['newTrade']),
     ...mapActions('api', ['getTradeOffersCount', 'getTradeOffers']),
+    preview(id) {
+      this.$router.push({ hash: 'sent' + '-' + id })
+    },
     openNewTradeModal() {
       this.newTrade({ transferAssets: [this.data] })
     },
@@ -133,7 +148,7 @@ export default {
             order: this.sorting.val,
             hide_contracts: !this.filters.hide_contracts
           },
-          type: this.$route.hash === '#sent' ? 'sender' : 'recipient'
+          type: this.$route.hash.split('-')[0] === '#sent' ? 'sender' : 'recipient'
         })
       ).map((offer) => ({ ...offer, isSelected: false }))
     },
@@ -162,6 +177,6 @@ export default {
 <style lang="scss">
 
 .offer-list {
-  width: 420px;
+  min-width: 420px;
 }
 </style>

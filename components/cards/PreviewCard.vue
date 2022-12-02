@@ -63,6 +63,8 @@ export default {
 
   .main-img {
     height: 140px;
+    width: 100%;
+    object-fit: contain;
   }
 
   .card-name {
