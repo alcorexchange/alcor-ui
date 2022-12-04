@@ -15,11 +15,14 @@
     alcor-tabs(:links="true" :tabs="tabs")
   .d-flex.gap-16.justify-content-between(v-if="tradeOffers.length")
     .d-flex.flex-column.gap-8.offer-list.mt-3
-      .d-flex.gap-4.fs-10
+      .d-flex.gap-4.fs-10.justify-content-between
         el-checkbox(
           @change="selectAll"
           v-model="isSelectedAll"
         ) Select All Items
+        alcor-button(v-if="selected.length" compact outline @click="cancelOffers")
+          i.el-icon-delete
+          span Cancel Items
 
       .d-flex.flex-column.gap-8.mt-3
         trade-offer-list-item(
@@ -120,11 +123,11 @@ export default {
       this.fetchTradeOffersCount()
       this.getOffers()
     },
-    '$route.hash'(v) {
+    '$route.hash'(v, old) {
       this.fetchOfferLog()
-      this.getOffers()
       this.fetchTradeOffersCount()
-      this.clearSelected()
+      if (v.split('-')[0] !== old.split('-')[0]) this.getOffers()
+      if (v.split('-')[0] !== old.split('-')[0]) this.clearSelected()
     }
   },
   mounted() {
@@ -142,6 +145,9 @@ export default {
       'getTradeOffers',
       'getOfferLog'
     ]),
+    async cancelOffers() {
+      await this.$store.dispatch('chain/cancelOffers', this.selected)
+    },
     preview(id) {
       this.$router.push({ hash: 'sent' + '-' + id })
     },
@@ -168,10 +174,10 @@ export default {
             page: '1'
           }
         })
-        console.log('rrrrr', this.offerLog)
       }
     },
     async getOffers() {
+      console.log('getOffers')
       this.tradeOffers = (
         await this.getTradeOffers({
           filters: {

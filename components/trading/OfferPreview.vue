@@ -8,7 +8,7 @@
       span {{ date }}
 
     .d-flex.gap-4
-      alcor-button(outline)
+      alcor-button(outline @click="cancelOffer")
         i.el-icon-delete
         span Cancel
   .d-flex.gap-8.flex-column.details
@@ -58,8 +58,12 @@ export default {
     date() {
       return new Date(+this.offer.created_at_time).toLocaleString()
     }
+  },
+  methods: {
+    async cancelOffer() {
+      await this.$store.dispatch('chain/cancelOffers', [this.offer.offer_id])
+    }
   }
-
 }
 </script>
 
@@ -101,6 +105,5 @@ export default {
     border-radius: 0 5px 5px 5px;
     width: fit-content;
   }
-
 }
 </style>
