@@ -539,6 +539,14 @@ export const actions = {
       return await dispatch('getBuyOffers', { sort, seller }) // refetch
     }
   },
+  async getTradeOffer(_, offerID) {
+    try {
+      const { data } = await this.$api.get(`atomicmarket/v1/offers/${offerID}`)
+      return data.data
+    } catch (e) {
+      console.error('Get Trade Offer Error', e)
+    }
+  },
   async getTradeOffers({ getters, rootState, dispatch }, { filters, type }) {
     const filteredOptions = Object.entries(filters)
       .filter(([key, value]) => value)

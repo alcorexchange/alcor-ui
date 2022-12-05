@@ -177,7 +177,6 @@ export default {
       }
     },
     async getOffers() {
-      console.log('getOffers')
       this.tradeOffers = (
         await this.getTradeOffers({
           filters: {
