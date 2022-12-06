@@ -13,11 +13,11 @@ export const state = () => ({
 })
 
 export const mutations = {
-  setWallets: (state, value) => state.wallets = value,
-  setLoginPromise: (state, value) => state.loginPromise = value,
-  setPayForUser: (state, value) => state.payForUser = value,
-  setCurrentWallet: (state, value) => state.currentWallet = value,
-  setLastWallet: (state, value) => state.lastWallet = value
+  setWallets: (state, value) => (state.wallets = value),
+  setLoginPromise: (state, value) => (state.loginPromise = value),
+  setPayForUser: (state, value) => (state.payForUser = value),
+  setCurrentWallet: (state, value) => (state.currentWallet = value),
+  setLastWallet: (state, value) => (state.lastWallet = value)
 }
 
 export const actions = {
@@ -30,7 +30,8 @@ export const actions = {
     }
 
     if (network.name == 'wax') wallets.wcw = new WCW(network, this.$rpc)
-    if (network.name == 'proton') wallets.proton = new ProtonWallet(network, this.$rpc)
+    if (network.name == 'proton')
+      wallets.proton = new ProtonWallet(network, this.$rpc)
 
     commit('setWallets', wallets)
 
@@ -56,10 +57,14 @@ export const actions = {
   afterLoginHook({ dispatch, rootState }) {
     dispatch('loadAccountData', {}, { root: true })
 
-    dispatch('loadUserBalances', {}, { root: true }).then(() => dispatch('market/updatePairBalances', {}, { root: true }))
-    dispatch('loadAccountLimits', {}, { root: true }).then(() => dispatch('loadUserOrders', {}, { root: true })).then(() => {
-      this._vm.$nuxt.$emit('loadUserOrdersFinish')
-    })
+    dispatch('loadUserBalances', {}, { root: true }).then(() =>
+      dispatch('market/updatePairBalances', {}, { root: true })
+    )
+    dispatch('loadAccountLimits', {}, { root: true })
+      .then(() => dispatch('loadUserOrders', {}, { root: true }))
+      .then(() => {
+        this._vm.$nuxt.$emit('loadUserOrdersFinish')
+      })
 
     dispatch('loadOrders', rootState.market.id, { root: true })
 
@@ -105,36 +110,33 @@ export const actions = {
   },
 
   transfer({ dispatch, rootState }, { contract, actor, quantity, memo, to }) {
-    return dispatch('sendTransaction',
-      [
-        {
-          account: contract,
-          name: 'transfer',
-          authorization: [
-            rootState.user.authorization
-          ],
-          data: {
-            from: actor,
-            to: to || rootState.network.contract,
-            quantity,
-            memo
-          }
+    return dispatch('sendTransaction', [
+      {
+        account: contract,
+        name: 'transfer',
+        authorization: [rootState.user.authorization],
+        data: {
+          from: actor,
+          to: to || rootState.network.contract,
+          quantity,
+          memo
         }
-      ]
-    )
+      }
+    ])
   },
 
-  async cancelorder({ dispatch, rootState }, { contract, account, market_id, type, order_id }) {
-    const r = await dispatch('sendTransaction',
-      [
-        {
-          account: contract || rootState.network.contract,
-          name: `cancel${type}`,
-          authorization: [rootState.user.authorization],
-          data: { executor: account, market_id, order_id }
-        }
-      ]
-    )
+  async cancelorder(
+    { dispatch, rootState },
+    { contract, account, market_id, type, order_id }
+  ) {
+    const r = await dispatch('sendTransaction', [
+      {
+        account: contract || rootState.network.contract,
+        name: `cancel${type}`,
+        authorization: [rootState.user.authorization],
+        data: { executor: account, market_id, order_id }
+      }
+    ])
 
     setTimeout(() => dispatch('loadOrders', market_id, { root: true }), 1000)
     return r
@@ -180,6 +182,23 @@ export const actions = {
     console.log(actions)
 
     return await dispatch('sendTransaction', actions)
+  },
+
+  async cancelOffers({ rootState, dispatch }, offers) {
+    try {
+      const actions = offers.map((offer_id) => ({
+        account: 'atomicassets',
+        name: 'canceloffer',
+        authorization: [rootState.user.authorization],
+        data: { offer_id }
+      }))
+
+      console.log(actions)
+
+      return await dispatch('sendTransaction', actions)
+    } catch (e) {
+      console.error('Cancel Offers Error', e)
+    }
   },
 
   async transferNft({ rootState, dispatch }, { memo, reciever, asset_ids }) {
@@ -243,7 +262,10 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
-  async list({ state, rootState, dispatch }, { asset_ids, listing_price, currentListing = null }) {
+  async list(
+    { state, rootState, dispatch },
+    { asset_ids, listing_price, currentListing = null }
+  ) {
     const actions = []
     if (currentListing)
       actions.push({
@@ -277,11 +299,13 @@ export const actions = {
       }
     })
 
-
     await dispatch('sendTransaction', actions)
   },
 
-  async sendTradeOffer({ rootState, dispatch }, { recipient, sender_asset_ids, recipient_asset_ids, memo = '' }) {
+  async sendTradeOffer(
+    { rootState, dispatch },
+    { recipient, sender_asset_ids, recipient_asset_ids, memo = '' }
+  ) {
     const actions = [
       {
         account: 'atomicassets',
@@ -300,7 +324,10 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
-  async auction({ state, rootState, dispatch }, { asset_ids, starting_bid, duration, currentListing }) {
+  async auction(
+    { state, rootState, dispatch },
+    { asset_ids, starting_bid, duration, currentListing }
+  ) {
     const actions = [
       {
         account: 'atomicmarket',
@@ -330,7 +357,10 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
-  async sendBuyOffer({ state, rootState, dispatch }, { buyOfferPrice, assetsIDs, memo, seller }) {
+  async sendBuyOffer(
+    { state, rootState, dispatch },
+    { buyOfferPrice, assetsIDs, memo, seller }
+  ) {
     const actions = [
       {
         account: 'eosio.token',
@@ -370,7 +400,10 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
-  async buyAsset({ state, rootState, dispatch }, { sale_id, asset_ids_to_assert, listing_price_to_assert }) {
+  async buyAsset(
+    { state, rootState, dispatch },
+    { sale_id, asset_ids_to_assert, listing_price_to_assert }
+  ) {
     const actions = [
       {
         account: 'atomicmarket',
@@ -424,12 +457,19 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
-  async sendTransaction({ state, rootState, dispatch, getters, commit }, actions) {
+  async sendTransaction(
+    { state, rootState, dispatch, getters, commit },
+    actions
+  ) {
     if (actions && actions[0].name != 'delegatebw') {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 
-    commit('loading/OPEN', { title: 'Connecting Wallet', text: 'Waiting transaction approval..' }, { root: true })
+    commit(
+      'loading/OPEN',
+      { title: 'Connecting Wallet', text: 'Waiting transaction approval..' },
+      { root: true }
+    )
 
     try {
       return await getters.wallet.transact(actions)

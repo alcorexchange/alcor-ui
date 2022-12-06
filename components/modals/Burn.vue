@@ -5,7 +5,7 @@
     span Burn NFT
   .d-flex.gap-32
     .d-flex.flex-column.gap-32
-      preview-card(:data="context.asset_id ? context : context.assets[0]")
+      preview-card(:data="context.asset_id ? context : context.assets[0]" :ownerName="context.asset_id ? context.owner : context.assets[0].owner")
     .d-flex.flex-column.justify-content-between.w-100
       .d-flex.flex-column.gap-16
         .fs-18 What does this mean?

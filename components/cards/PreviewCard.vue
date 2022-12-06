@@ -23,7 +23,7 @@ import AssetHover from '~/components/alcor-element/assetHover.vue'
 
 export default {
   components: { Card, AssetCardImage, AssetHover },
-  props: ['data', 'small'],
+  props: ['data', 'small', 'ownerName'],
   computed: {
     mint() {
       if (!this.data?.template_mint) return 0
@@ -63,6 +63,8 @@ export default {
 
   .main-img {
     height: 140px;
+    width: 100%;
+    object-fit: contain;
   }
 
   .card-name {

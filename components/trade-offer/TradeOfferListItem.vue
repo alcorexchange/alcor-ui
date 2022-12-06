@@ -1,5 +1,5 @@
 <template lang="pug">
-#trade-offer-list-item-component.d-flex.flex-column.gap-8
+#trade-offer-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
   .d-flex.gap-4
     el-checkbox.disable(
       v-model="offer.isSelected"
@@ -35,7 +35,8 @@ export default {
   padding: 16px 32px;
   cursor: pointer;
   border-radius: 5px;
-  &:hover {
+  &:hover,
+  &.active {
     background-color: var(--bg-alter-2);
   }
 

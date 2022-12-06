@@ -562,6 +562,18 @@ export const actions = {
       return await dispatch('getTradeOffers', { filters, type }) // refetch
     }
   },
+  async getOfferLog({ dispatch }, { offerId, options }) {
+    try {
+      const { data } = await this.$api.post(
+        `atomicassets/v1/offers/${offerId}/logs`,
+        options
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get Offer Log Error', e)
+      return await dispatch('getOfferLog', { offerId, options }) // refetch
+    }
+  },
   async getTradeOffersCount(
     { getters, rootState, dispatch },
     { filters, type }

@@ -89,6 +89,7 @@
             preview-card.pointer(
               v-else
               v-for="item in availableAssets"
+              :ownerName="item.owner"
               :key="item.asset_id"
               :data="item"
               @click="toggleSelected(item)"

@@ -40,7 +40,7 @@
             img(src='~/assets/images/fire.svg')
             .fs-18 Burnable
 
-  preview-card(:data='data.assets[0]')
+  preview-card(:data='data.assets[0]' :ownerName="data.assets[0].owner")
     alcor-button.w-100(outline slot="footer" @click="$router.push('/nfts/' + data.assets[0].asset_id)") Details
 </template>
 
@@ -66,7 +66,7 @@ export default {
         )
       } else return 0
     }
-  },
+  }
 }
 </script>
 
