@@ -521,6 +521,95 @@ export const actions = {
       console.error('Get symbol info error', e)
     }
   },
+  async getBuyOffersCountBySide(
+    { dispatch, rootState },
+    {
+      side,
+      accountName,
+      sort,
+      order,
+      min_price,
+      max_price,
+      show_invalid_offers,
+      show_only_friends_offers = null
+    }
+  ) {
+    try {
+      const { data } = await this.$api.post(
+        'atomicmarket/v1/buyoffers/_count',
+        {
+          symbol: 'WAX',
+          limit: '10',
+          page: '1',
+
+          [side || 'seller']: accountName || rootState.user.name,
+
+          [show_only_friends_offers ? 'seller' : null]: 'none',
+          [show_only_friends_offers
+            ? 'show_only_friends_offers'
+            : null]: 'true',
+          state: show_invalid_offers || '0,4',
+          min_price: min_price + '' || '0',
+          max_price,
+          order: order || 'desc',
+          sort: sort || 'created'
+        }
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get buy offers error', e)
+      return await dispatch('getBuyOffers', {
+        side,
+        accountName,
+        sort,
+        order,
+        min_price,
+        max_price
+      }) // refetch
+    }
+  },
+  async getBuyOffersBySide(
+    { dispatch, rootState },
+    {
+      side,
+      accountName,
+      sort,
+      order,
+      min_price,
+      max_price,
+      show_invalid_offers,
+      show_only_friends_offers = null
+    }
+  ) {
+    try {
+      const { data } = await this.$api.post('atomicmarket/v1/buyoffers', {
+        symbol: 'WAX',
+        limit: '10',
+        page: '1',
+
+        [side || 'seller']: accountName || rootState.user.name,
+
+        [show_only_friends_offers ? 'seller' : null]: 'none',
+        [show_only_friends_offers ? 'show_only_friends_offers' : null]: 'true',
+        state: show_invalid_offers || '0,4',
+        min_price: min_price + '' || '0',
+        max_price,
+        order: order || 'desc',
+        sort: sort || 'created'
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get buy offers error', e)
+      return await dispatch('getBuyOffers', {
+        side,
+        accountName,
+        sort,
+        order,
+        min_price,
+        max_price
+      }) // refetch
+    }
+  },
   async getBuyOffers({ dispatch, rootState }, { sort, seller }) {
     try {
       const { data } = await this.$api.post('atomicmarket/v1/buyoffers', {

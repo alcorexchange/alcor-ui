@@ -35,9 +35,6 @@
 <script>
 export default {
   props: ['offerLog'],
-  mounted() {
-    console.log(this.offerLog)
-  },
   methods: {
     date(d) {
       return new Date(+d).toLocaleString()
@@ -53,13 +50,24 @@ export default {
   background-color: var(--bg-alter-2);
 
   .el-table {
+    &::before {
+      background-color: var(--bg-alter-2);
+    }
+
     background: var(--bg-alter-2);
     .el-table__body-wrapper {
-      border-radius: 1rem;
+      border-radius: .5rem;
+
+      tr.el-table__row--striped td{
+        background-color: var(--bg-alter-2);
+        border-bottom: none;
+      }
+
     }
     .cell {
       padding: 0 15px;
     }
+
 
     th {
       background: var(--bg-alter-2);
