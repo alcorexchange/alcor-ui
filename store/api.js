@@ -610,6 +610,14 @@ export const actions = {
       }) // refetch
     }
   },
+  async getBuyOffer({ dispatch, rootState }, buyoffer_id) {
+    try {
+      const { data } = await this.$api.get(`atomicmarket/v1/buyoffers/${buyoffer_id}`)
+      return data.data
+    } catch (e) {
+      console.error('Get buy offer error', e)
+    }
+  },
   async getBuyOffers({ dispatch, rootState }, { sort, seller }) {
     try {
       const { data } = await this.$api.post('atomicmarket/v1/buyoffers', {

@@ -2,12 +2,12 @@
 #trade-offer-page.d-flex.flex-column.gap-16.mt-2
   bread-crumbs
   .fs-36.d-flex.gap-8
-    span Trade Offer:
+    span Buy Offer:
     .color-wax {{ '#' + $route.params.id }}
   .offer-details.d-flex.flex-column.gap-16(v-if="offer")
     .d-flex.justify-content-between
       .d-flex.gap-4
-        span Trade Offer ID:
+        span Buy Offer ID:
         .color-wax {{ '#' + $route.params.id }}
       .d-flex.gap-4
         span Created:
@@ -18,19 +18,41 @@
         i.el-icon-delete
         span Cancel
 
-    .d-flex.align-items-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.sender_name)")
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.sender_name" :size="20")
-      .color-wax {{ offer.sender_name }}
-    .assets-wrapper
-      assets-field.assets(v-if="offer.sender_assets.length" :assets="offer.sender_assets" smallCards="true")
-      .null-card(v-else) No NFTs
+    .d-flex.justify-content-between.gap-16
+      .assets-wrapper.w-50
+        .text-center.mt-2 OFFERED ITEMS (1)
+        assets-field.assets(v-if="offer.assets.length" :assets="offer.assets" smallCards="true")
+      .assets-wrapper.d-flex.flex-column.gap-16.w-50.mt-3
+        .d-flex.flex-column.align-items-center.gap-4.account.pointer(@click="goToProfile(offer.buyer)")
+          .fs-12 Buyer (you)
+          profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer" :size="24")
+          .color-wax {{ offer.buyer }}
 
-    .d-flex.align-items-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.recipient_name)")
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.recipient_name" :size="20")
-      .color-wax {{ offer.recipient_name }}
-    .assets-wrapper
-      assets-field.assets(v-if="offer.recipient_assets.length" :assets="offer.recipient_assets" smallCards="true")
-      .null-card(v-else) No NFTs
+        .d-flex.justify-content-center
+          i.el-icon-sort.r-45
+
+        .d-flex.flex-column.align-items-center.gap-4.account.pointer(@click="goToProfile(offer.seller)")
+          .fs-12 Recipient
+          profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.seller" :size="24")
+          .color-wax {{ offer.seller }}
+
+        ul.d-flex.flex-column.w-100.fs-12
+          li.d-flex.justify-content-between.p-1.list-item
+            span Buyer offered
+            .color-action {{ (+offer.price.amount / 100000000) + ' WAX' }} ({{ $systemToUSD((+offer.price.amount / 100000000)) }}$)
+          li.d-flex.justify-content-between.p-1.list-item
+            span Collection fee ({{ offer.collection.market_fee * 100 }})
+            .color-danger -{{ ((+offer.price.amount / 100000000) * offer.collection.market_fee).toFixed(4) }} WAX
+          li.d-flex.justify-content-between.p-1.list-item
+            span Alcor fee (1%)
+            .color-danger -{{ ((+offer.price.amount / 100000000) * 0.01).toFixed(4) }} WAX
+          li.d-flex.justify-content-between.p-1.list-item
+            span Tokenomics Fee (2%)
+            .color-danger -{{ ((+offer.price.amount / 100000000) * 0.02).toFixed(4) }} WAX
+          li.d-flex.justify-content-between.p-1.list-item
+            span Recipient receives
+            .color-action {{ ((+offer.price.amount / 100000000) - ((+offer.price.amount / 100000000) * 0.02) - ((+offer.price.amount / 100000000) * 0.01) - ((+offer.price.amount / 100000000) * offer.collection.market_fee)).toFixed(3) }} WAX
+
 
     alcor-collapse(v-if="offer.memo")
       .d-flex.align-items-center.gap-8(slot="title")
@@ -75,9 +97,9 @@ export default {
     this.fetchOfferLog()
   },
   methods: {
-    ...mapActions('api', ['getTradeOffer', 'getOfferLog']),
+    ...mapActions('api', ['getBuyOffer', 'getOfferLog']),
     async cancelOffer() {
-      await this.$store.dispatch('chain/cancelOffers', [this.$route.params.id])
+      await this.$store.dispatch('chain/cancelBuyOffers', [[this.offer.buyoffer_id, this.offer.price.amount]])
     },
     goToProfile(id) {
       this.$router.push({
@@ -107,7 +129,7 @@ export default {
       })
     },
     async getOffer() {
-      this.offer = await this.getTradeOffer(this.$route.params.id)
+      this.offer = await this.getBuyOffer(this.$route.params.id)
     }
   }
 }
@@ -119,6 +141,24 @@ export default {
     padding: 24px;
     border-radius: 1rem;
     background-color: var(--bg-alter-2);
+  }
+  .account {
+    width: 100%;
+    padding: 10px;
+    border-radius: .5rem;
+    background-color: var(--bg-alter-2);
+  }
+
+  .list-item {
+    border-radius: .5rem;
+
+    &:nth-of-type(2n-1) {
+      background-color: var(--bg-alter-2);
+    }
+  }
+
+  .r-45 {
+    transform: rotate(90deg);
   }
 
   .assets-wrapper {

@@ -17,7 +17,6 @@
       .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
         span OFFERED ITEM(S)
         span -
-        //pre {{ offer }}
         strong {{ offer.assets.length }}
         span NFT(s)
       .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
