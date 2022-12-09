@@ -670,7 +670,19 @@ export const actions = {
   async getOfferLog({ dispatch }, { offerId, options }) {
     try {
       const { data } = await this.$api.post(
-        `atomicassets/v1/offers/${offerId}/logs`,
+        `atomicmarket/v1/offers/${offerId}/logs`,
+        options
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get Offer Log Error', e)
+      return await dispatch('getOfferLog', { offerId, options }) // refetch
+    }
+  },
+  async getBuyOfferLog({ dispatch }, { offerId, options }) {
+    try {
+      const { data } = await this.$api.post(
+        `atomicmarket/v1/buyoffers/${offerId}/logs`,
         options
       )
       return data.data

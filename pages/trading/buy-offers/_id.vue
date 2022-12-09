@@ -97,7 +97,7 @@ export default {
     this.fetchOfferLog()
   },
   methods: {
-    ...mapActions('api', ['getBuyOffer', 'getOfferLog']),
+    ...mapActions('api', ['getBuyOffer', 'getBuyOfferLog']),
     async cancelOffer() {
       await this.$store.dispatch('chain/cancelBuyOffers', [[this.offer.buyoffer_id, this.offer.price.amount]])
     },
@@ -119,7 +119,7 @@ export default {
       })
     },
     async fetchOfferLog() {
-      this.offerLog = await this.getOfferLog({
+      this.offerLog = await this.getBuyOfferLog({
         offerId: this.$route.params.id,
         options: {
           limit: '5',

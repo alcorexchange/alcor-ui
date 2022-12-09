@@ -146,7 +146,7 @@ export default {
     ...mapActions('api', [
       'getBuyOffersCountBySide',
       'getBuyOffersBySide',
-      'getOfferLog'
+      'getBuyOfferLog'
     ]),
     async cancelOffers() {
       await this.$store.dispatch('chain/cancelBuyOffers', this.selected)
@@ -169,7 +169,7 @@ export default {
       const offerId = this.$route.hash.split('-')[1]
 
       if (offerId) {
-        this.offerLog = await this.getOfferLog({
+        this.offerLog = await this.getBuyOfferLog({
           offerId,
           options: {
             limit: '5',
