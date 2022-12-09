@@ -5,6 +5,9 @@
     span Buy Offer:
     .color-wax {{ '#' + $route.params.id }}
   .offer-details.d-flex.flex-column.gap-16(v-if="offer")
+    .d-flex.justify-content-center.status.w-100(v-if="offer.state === 4")
+      | The buy offer is invalid because the recipient does not own all assets anymore
+
     .d-flex.justify-content-between
       .d-flex.gap-4
         span Buy Offer ID:
@@ -99,7 +102,9 @@ export default {
   methods: {
     ...mapActions('api', ['getBuyOffer', 'getBuyOfferLog']),
     async cancelOffer() {
-      await this.$store.dispatch('chain/cancelBuyOffers', [[this.offer.buyoffer_id, this.offer.price.amount]])
+      await this.$store.dispatch('chain/cancelBuyOffers', [
+        [this.offer.buyoffer_id, this.offer.price.amount]
+      ])
     },
     goToProfile(id) {
       this.$router.push({
@@ -138,19 +143,31 @@ export default {
 <style lang="scss" scoped>
 #trade-offer-page {
   .offer-details {
-    padding: 24px;
+    padding: 42px 24px;
     border-radius: 1rem;
     background-color: var(--bg-alter-2);
+
+    position: relative;
+
+    .status {
+      padding: 5px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      background: var(--main-action-red);
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
   .account {
     width: 100%;
     padding: 10px;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     background-color: var(--bg-alter-2);
   }
 
   .list-item {
-    border-radius: .5rem;
+    border-radius: 0.5rem;
 
     &:nth-of-type(2n-1) {
       background-color: var(--bg-alter-2);

@@ -13,9 +13,8 @@
       .d-flex.gap-4.fs-12
         span Offered
         .color-action {{ (+offer.price.amount / 100000000) + ' WAX' }} ({{ $systemToUSD((+offer.price.amount / 100000000)) }}$)
-      .status-tag Invalid
+      .status-tag(v-if="offer.state === 4") Invalid
     .d-flex.align-items-center.gap-24
-      //pre {{ offer }}
       asset-deck(:deck="offer.assets")
 
 </template>
