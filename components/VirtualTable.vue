@@ -4,7 +4,7 @@ table.wrapper
     th.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
       span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
       sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
-  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :style="{ height: table.pageMode ? '100%' : table.height || '450px' }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode")
+  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :class="{ window: !table.pageMode }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode")
     template(v-slot="{ item }")
       slot(name="row" :item="item")
   span.no-data(v-else) {{ $t('No Data') }}
@@ -55,7 +55,9 @@ export default {
   color: var(--text-secondary);
 }
 
-.scroller.window {}
+.scroller.window {
+  height: 450px;
+}
 
 .mobile-trade-inner .scroller.window {
   height: 274px;

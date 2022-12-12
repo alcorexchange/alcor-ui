@@ -7,24 +7,76 @@ export const state = () => ({
 export const mutations = {
   setCurrent: (state, value) => state.current = value,
   setVisible: (state, value) => state.visible = value,
-  setContext: (state, value) => state.context = value
+  setModalContext: (state, value) => state.context = value
 }
 
 export const actions = {
-  login({ commit }, context) {
+  login({ commit }) {
     commit('setCurrent', 'login')
     commit('setVisible', true)
-    context && commit('setContext', context)
   },
 
-  assets({ commit }, context) {
-    commit('setCurrent', 'assets')
+  buy({ commit }, context) {
+    commit('setCurrent', 'buy-listing')
     commit('setVisible', true)
-    context && commit('setContext', context)
+    if (context) commit('setModalContext', context)
+  },
+
+  listing({ commit }, context) {
+    commit('setCurrent', 'listing')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  newTrade({ commit }, context) {
+    commit('setCurrent', 'trade')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  burn({ commit }, context) {
+    commit('setCurrent', 'burn')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  gift({ commit }, context) {
+    commit('setCurrent', 'gift')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  transfer({ commit }, context) {
+    commit('setCurrent', 'transfer')
+    commit('setVisible', true)
+    commit('setModalContext', context || null)
+  },
+
+  makeOffer({ commit }, context) {
+    commit('setCurrent', 'make-offer')
+    commit('setVisible', true)
+    if (context) commit('setModalContext', context)
+  },
+
+  addFriend({ commit }, context) {
+    commit('setCurrent', 'add-friend')
+    commit('setVisible', true)
+    if (context) commit('setModalContext', context)
+  },
+
+  removeFriend({ commit }, context) {
+    commit('setCurrent', 'remove-friend')
+    commit('setVisible', true)
+    commit('setModalContext', context)
+  },
+
+  blockUser({ commit }, context) {
+    commit('setCurrent', 'block-user')
+    commit('setVisible', true)
+    commit('setModalContext', context)
   },
 
   closeModal({ commit }) {
     commit('setVisible', false)
-    commit('setContext', null)
   }
 }

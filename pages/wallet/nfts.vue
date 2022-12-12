@@ -1,163 +1,118 @@
 <template lang="pug">
-  div.nfts
-    //- TODO: add search functionality
-    //- .table-header
-    //-   el-input(prefix-icon="el-icon-search" placeholder="Search name or paste address")
-      //- TODO: Add filter
-    .items
-      .item-container(v-for="nft in nfts" :key="nft.id")
-        NftCard(v-bind="nft" @showDetails="onShowDetails" @send="send")
-    NftDetailPopup(ref="detailPopup")
+#wallet-nfts-layout.d-flex.flex-column.gap-16.mt-2
+  nft-header
+  .d-flex.align-items-center.gap-24
+    input-search(v-model="filters.match")
+    alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'wallet-nfts-sets'")
+    alcor-tabs(:links="true" :tabs="tabs")
+  nuxt-child
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import NftCard from '@/components/wallet/NftCard'
-import NftDetailPopup from '@/components/wallet/NftDetailPopup'
-import { prepareNFT } from '~/utils'
+import { mapState, mapActions } from 'vuex'
+import AlcorTabs from '~/components/AlcorTabs'
+import AlcorFilters from '~/components/AlcorFilters'
+import InputSearch from '~/components/nft_markets/InputSearch'
+import WalletNFTHeader from '~/components/wallet/WalletNFTHeader.vue'
+import { sortingOptions } from '~/pages/wallet/nfts/sortingOptions'
+
 export default {
   name: 'NFTs',
   components: {
-    NftCard,
-    NftDetailPopup
+    NftHeader: WalletNFTHeader,
+    InputSearch,
+    AlcorTabs,
+    AlcorFilters
   },
   data: () => ({
-    search: '',
-    nfts: []
+    filters: {
+      match: '',
+      sorting: null,
+      collection: null,
+      minMint: null,
+      maxMint: null,
+      minPrice: null,
+      maxPrice: null,
+      isDuplicates: null,
+      isBacked: null
+    },
+    options: {
+      collection: null,
+      sorting: null
+    }
   }),
   computed: {
-    ...mapGetters(['user']),
-    ...mapState(['network', 'markets']),
-
-    balances() {
-      if (!this.user) return []
-      if (!this.user.balances) return []
-
-      return this.user.balances
-        .filter((b) => {
-          if (parseFloat(b.amount) == 0) return false
-
-          return b.id.toLowerCase().includes(this.search.toLowerCase())
-        })
-        .sort((a, b) =>
-          a.contract == this.network.baseToken.contract ? -1 : 1
-        )
+    ...mapState(['network', 'user']),
+    refetchProps() { [this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    tabs() {
+      return [
+        {
+          label: 'Inventory',
+          route: {
+            path: '/wallet/nfts/inventory',
+            query: this.filters
+          }
+        },
+        {
+          label: 'My Listings',
+          route: {
+            path: '/wallet/nfts/listings',
+            query: this.filters
+          }
+        },
+        {
+          label: 'My Auctions',
+          route: {
+            path: '/wallet/nfts/auctions',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Sold',
+          route: {
+            path: '/wallet/nfts/sold',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Bought',
+          route: {
+            path: '/wallet/nfts/bought',
+            query: this.filters
+          }
+        },
+        {
+          label: 'Sets',
+          route: {
+            path: '/wallet/nfts/sets',
+            query: this.filters
+          }
+        }
+      ]
     }
   },
   watch: {
-    user() {
-      this.fetchNfts()
+    refetchProps() {
+      this.$router.push({ query: this.filters })
+    },
+    '$route.name'(route) {
+      this.filters.sorting = null
+      this.setSortOptions()
     }
   },
   mounted() {
-    this.fetchNfts()
+    this.getAccountCollections()
+    this.setSortOptions()
   },
   methods: {
-    send({ nft }) {
-      this.$prompt('NFT receiver account', 'Sent NFT', {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel'
-      }).then(async ({ value }) => {
-        const authorization = [this.user.authorization]
-        const actions = []
-
-        try {
-          await this.$rpc.get_account(value)
-        } catch (e) {
-          return this.$notify({
-            title: 'Send NFT',
-            message: "Receiver account doesn't exist",
-            type: 'error'
-          })
-        }
-
-        actions.push({
-          account: 'simpleassets',
-          name: 'transfer',
-          authorization,
-          data: {
-            from: this.user.name,
-            to: value,
-            assetids: [nft.id],
-            memo: 'alcor.exchange/wallet/nfts'
-          }
-        })
-
-        try {
-          await this.$store.dispatch('chain/sendTransaction', actions)
-
-          this.$notify({
-            title: 'Send NFT',
-            message: 'NFT sent successfully!',
-            type: 'success'
-          })
-          this.fetchNfts()
-        } catch (e) {
-          this.$notify({ title: 'Send NFT', message: e, type: 'error' })
-          console.log(e)
-        }
-      })
+    ...mapActions('api', ['getAccountSpecificStats']),
+    async getAccountCollections() {
+      const { collections } = await this.getAccountSpecificStats({ account: this.user.name })
+      this.options.collection = collections
     },
-
-    async fetchNfts() {
-      if (!this.user) return
-      console.log('fetchNfts', this.user.name)
-
-      const { rows } = await this.$rpc.get_table_rows({
-        code: 'simpleassets',
-        scope: this.user.name,
-        table: 'sassets',
-        limit: 1000
-      })
-
-      rows.map((n) => {
-        prepareNFT(n)
-      })
-
-      console.log(rows)
-      this.nfts = rows
-    },
-    onShowDetails(fields) {
-      this.$refs.detailPopup.openPopup({
-        fields
-      })
+    setSortOptions() {
+      this.options.sorting = sortingOptions[this.$route.name.split('___')[0]]
     }
   }
 }
 </script>
-
-<style scoped lang="scss">
-.table-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  .el-input {
-    max-width: 300px;
-  }
-  .el-input__inner {
-    background: transparent !important;
-  }
-}
-.items {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 56px;
-}
-@media only screen and (max-width: 1040px) {
-  .items {
-    gap: 20px;
-  }
-}
-@media only screen and (max-width: 840px) {
-  .items {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
-@media only screen and (max-width: 540px) {
-  .items {
-    grid-template-columns: 100%;
-    gap: 10px;
-  }
-}
-</style>

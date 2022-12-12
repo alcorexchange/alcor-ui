@@ -1,13 +1,13 @@
 <template lang="pug">
 .wallet-header.alcor-card
   .item
-    .title.cancel {{ $t('Portfolio value') }}
+    .title.cancel.fs-12 {{ $t('Portfolio value') }}
     .value
-      span.main {{ systemBalance.split(' ')[0] | commaFloat(4) }}
+      span.main {{ systemBalance.split(' ')[0] | commaFloat }}
       span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel = ${{ $systemToUSD(systemBalance) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(systemBalance) }}
   .item
-    .title.cancel {{ $t('Active positions') }}
+    .title.cancel.fs-12 {{ $t('Active positions') }}
       el-tooltip(class="item" effect="dark" content="Scanning for active positions might take some time"
       placement="right-start" v-if="$store.state.userOrdersLoading")
         i.el-icon-loading.ml-1.pointer
@@ -16,25 +16,25 @@
         span.buy.green {{ buyPositionsCount }} {{ $t("Buy") }}
         span.cancel.line |
         span.sell.red {{ sellPositionsCount }} {{ $t("Sell") }}
-    .info.cancel {{ pairsCount }} {{ $t('Pairs') }}
+    .info.cancel.fs-12 {{ pairsCount }} {{ $t('Pairs') }}
   .item
-    .title.cancel {{ $t('Available funds') }}
+    .title.cancel.fs-12 {{ $t('Available funds') }}
     .value
       span.main {{ systemBalance.split(' ')[0] | commaFloat }}
       span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel = ${{ $systemToUSD(systemBalance) }}
+    .info.cancel.fs-12 = ${{ $systemToUSD(systemBalance) }}
   .item
-    .title.cancel {{ $t('Staking rewards') }}
+    .title.cancel.fs-12 {{ $t('Staking rewards') }}
     .value
       span.main 0.0000
       span.symbol.cancel WAX
-    .info.cancel {{ $t('Last Claim') }}: 0.00000
+    .info.cancel.fs-12 {{ $t('Last Claim') }}: 0.00000
   .item
-    .title.cancel {{ $t('LP rewards') }}
+    .title.cancel.fs-12 {{ $t('LP rewards') }}
     .value
       span.main.green +0.0000
       span.symbol.cancel WAX
-    .info.cancel 0 {{ $t("Liquidity Pools") }}
+    .info.cancel.fs-12 0 {{ $t("Liquidity Pools") }}
 </template>
 
 <script>

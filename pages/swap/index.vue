@@ -159,7 +159,6 @@ export default {
   },
 
   mounted() {
-    console.log(this.$router)
     this.$store.dispatch('swap/startStream')
     // TODO Move to swap store
     //this.$socket.emit('subscribe', {

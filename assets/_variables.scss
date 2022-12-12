@@ -1,12 +1,13 @@
 :root {
   --main-green: #66c167;
   --main-action-green: #67C23A;
+  --main-action-red: #FF7262;
+  --main-wax: #F89022;
   --main-red: #f96c6c;
   --secondary-green: #1fc781;
   --black-primary: #161617;
   --radius: 4px;
   --radius-2: 8px;
-  --slider-bg: #5E5E5E;
 }
 
 [trade-theme="default"] {
@@ -58,11 +59,13 @@
   --landing-icon-bg: #111111;
   --table-background: #212121;
   --dialog-background: #212121;
+  --card-number: #161617;
 
   // buttons
   --btn-default: #333333;
   --btn-alternative: #333333;
   --btn-active: #161617;
+  --btn-outline: #161617;
   --hover: rgba(21, 21, 21, 0.3);
   --dark-btn-sm: #383838;
   --swap-tab-active: #141415;
@@ -72,8 +75,8 @@
   --text-contrast: #fff;
   --text-secondary: #d9d9d9;
   --text-grey-thirdly: #bdbdbd;
-  --text-disable: #c4c4c4;
-  --text-transparent: rgba(242, 242, 242, 0.3);
+  --text-dark: #888;
+  --text-disable: #BEC6CB;
 
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
   --dropdown-shadow: 0px 12px 24px 0px rgba(18, 18, 18, 0.16);
@@ -87,12 +90,14 @@
   --active-row: #282828;
 
   --border-1: 1px solid rgba(60, 60, 67, 0.36);
-  --border-1-color: rgba(60, 60, 67, 0.36); 
   --border-2: 2px solid #3F3F3F;
 
   --selector-bg: #282828;
 
   --table-header-background: #333333;
+  --dropdown-border: #333;
+  --tab-link-border: #333;
+  --dropdown-hover: rgba(200, 200, 200, 0.1);
 
   //trade 
   --trade-bg: #212121;
@@ -104,9 +109,9 @@
   --start-bg: rgba(33, 33, 33, 1);
   --end-bg: rgba(0, 0, 0, 0);
 
-  --cancel: #c4c4c4;
+  --normal-card-shadow: #00000080;
 
-  --select-color: #333333;
+  --cancel: #c4c4c4;
 }
 
 .theme-light {
@@ -126,21 +131,24 @@
   --table-header-background: #dcdfe6;
   --dialog-background: #f5f5f9;
   --chart-actions-background: #d4d7dE;
+  --card-number: #f0f0f0;
 
   // buttons
   --btn-default: #E6E8EB;
   --btn-alternative: #fff;
-  --btn-active: #dcdfe6;
-  --hover: rgba(200, 200, 200, 0.3);
+  --btn-active: #D4D7DE;
+  --btn-outline: #fff;
+  --hover: rgba(200, 200, 200, 0.5);
   --dark-btn-sm: #e0e0e0;
   --swap-tab-active: #e0e0e0;
+
   --text-default: #303133;
-  --text-theme: #fff;
+  --text-theme: #fff; 
   --text-contrast: #000;
   --text-secondary: #606266;
+  --text-dark: #aaa;
   --text-grey-thirdly: #787878;
-  --text-disable: #c4c4c4;
-  --text-transparent: rgba(0, 0, 0, 0.3);
+  --text-disable: #303133;
 
   --border-color: #CDD0D6;
 
@@ -150,10 +158,13 @@
   --active-row: #c2deff;
 
   --border-1: 1px solid rgba(60, 60, 67, 0.36);
-  --border-1-color: rgba(60, 60, 67, 0.36); 
   --border-2: 2px solid #CDD0D6;
 
   --selector-bg: #dcdfe6;
+
+  --dropdown-border: #CDD0D6;
+  --tab-link-border: #CDD0D6;
+  --dropdown-hover: rgba(225, 225, 225, 0.5);
 
     //trade 
   --trade-bg: #F0F2F5;
@@ -166,6 +177,6 @@
   --end-bg: rgba(0, 0, 0, 0); 
   --cancel: #303133;
 
-  --select-color: #ffffff;
+  --normal-card-shadow: #aaaaaa8a;
 }
 

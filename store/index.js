@@ -9,8 +9,6 @@ export const strict = false
 
 export const state = () => ({
   user: null,
-  ibcClients: { sender: null, receiver: null },
-  selectedAsset: 'usdt',
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -40,9 +38,6 @@ export const mutations = {
   setNetwork: (state, network) => {
     state.network = network
   },
-  setSelectedAsset: (state, asset) => {
-    state.selectedAsset = asset
-  },
 
   // TODO Refactor for better balances handling
   // (separate array not in user object)
@@ -62,8 +57,6 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
-  setIBCClient: (state, { ibcClient, name, authorization }) => state.ibcClients[ibcClient] = { name, authorization },
-  logOutIBCClient: (state, ibsClient) => state.ibcClients[ibsClient] = null,
   setMarkets: (state, markets) => {
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
     state.markets = markets
@@ -243,16 +236,21 @@ export const actions = {
   async loadUserOrders({ state, commit, dispatch }) {
     if (!state.user || !state.user.name) return
 
-    const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
-    const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
+    try {
+      const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
+      const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
 
-    const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
+      const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
 
-    for (const market_id of markets) {
-      await dispatch('loadOrders', market_id)
-      await new Promise(resolve => setTimeout(resolve, 250))
+      for (const market_id of markets) {
+        await dispatch('loadOrders', market_id)
+        await new Promise(resolve => setTimeout(resolve, 250))
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      commit('setUserOrdersLoading', false)
     }
-    commit('setUserOrdersLoading', false)
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
@@ -347,6 +345,33 @@ export const actions = {
     }
   },
 
+  async loadAccountBalance({ state, rootState, commit }, accountName) {
+    const { data } = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${accountName}`)
+    const balances = data.balances.filter(b => parseFloat(b.amount) > 0)
+
+    return balances.map(token => {
+      token.id = token.currency + '@' + token.contract
+
+      const { systemPrice } = rootState.wallet
+      const market = state.markets.filter(m => {
+        return m.base_token.contract == state.network.baseToken.contract &&
+          m.quote_token.contract == token.contract &&
+          m.quote_token.symbol.name == token.currency
+      })[0]
+
+      if (market) {
+        token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
+      } else {
+        token.usd_value = 0
+      }
+
+      if (token.contract == state.network.baseToken.contract) {
+        token.usd_value = parseFloat(token.amount) * systemPrice
+      }
+
+      return token
+    })
+  },
   async loadUserBalancesLightAPI({ state, rootState, commit }) {
     if (state.user) {
       //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
@@ -440,11 +465,16 @@ export const actions = {
     }
   },
 
+  async fetchAccountDeals(_, accountName) {
+    const { data: deals } = await this.$axios.get(`https://alcor.exchange/api/account/${accountName}/deals`, { params: { limit: 50 } })
+    return deals
+  },
+
   async fetchUserDeals({ state, commit }) {
     // TODO Rm this if not userd
     if (!state.user) return
 
-    const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`, { params: { limit: 50 } })
+    const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`)
     commit('setUserDeals', deals)
   }
 }

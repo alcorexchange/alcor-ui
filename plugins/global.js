@@ -1,4 +1,3 @@
-// NO HAVY LOGIC HERE (runs each request)
 import fetch from 'node-fetch'
 import { io } from 'socket.io-client'
 import { isEmpty } from 'lodash'
@@ -84,13 +83,4 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
     inject('rpc', rpc)
   }
-
-  // TODO
-  //sitemap generation
-  //routes: async () => {
-  //  const { data: pairs } = await axios.get('https://alcor.exchange/api/v2/pairs')
-  //  return pairs.map(pair => `/trade/${pair.ticker_id}`)
-  //},
-
-
 }

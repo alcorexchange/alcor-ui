@@ -33,7 +33,7 @@
       .dropdown(v-show="visible")
         el-input(:placeholder="$t('Search by name or contract')" :clearable="!static" v-model="search" size="small" ref="searchInput")
 
-        recycle-scroller(:emit-update="true" class="scroller" :items="tokensFiltered" :item-size="45" keyField="symbol")
+        recycle-scroller(:emit-update="true" class="scroller" :items="tokensFiltered" item-size="45" keyField="symbol")
           template(v-slot="{ item: token }")
             .pair(
               :key="token.symbol"

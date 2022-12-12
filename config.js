@@ -233,7 +233,7 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      //'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
+      'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
       'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
 
       'https://wax.greymass.com': 'Greymass - Canada',
@@ -256,7 +256,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
     PINNED_MARKETS: [424],
-    BANNER_MARKETS: [424],
+    BANNER_MARKETS: [495, 424],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
@@ -267,8 +267,7 @@ const networks = {
       'onfederation',
       'martaintoken',
       'martiantoken',
-      'superruncoin',
-      'gemlandcoins'
+      'superruncoin'
     ],
 
     CEX_CONTRACTS: [

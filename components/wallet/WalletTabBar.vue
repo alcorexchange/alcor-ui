@@ -1,11 +1,14 @@
 <template lang="pug">
-  div.wallet-tab-bar
-    AlcorLink.tab-bar-item(
-      v-for="{name, to, exact} in urls"
-      :to="to"
-      :exact="exact"
-      :key="name"
-    ) {{ $t(name) }}
+div.wallet-tab-bar
+  AlcorLink.tab-bar-item(
+    v-for="{name, to, exact, isNFT} in urls"
+    :class="{'nft-tab': isNFT}"
+    :to="to"
+    :exact="exact"
+    :key="name"
+  )
+    img(v-if="isNFT" src="~/assets/images/nft-monkey.png", alt="nft-monkey")
+    span {{ $t(name) }}
 </template>
 
 <script>
@@ -13,16 +16,34 @@ import AlcorLink from '../AlcorLink.vue'
 export default {
   name: 'WalletTabBar',
   components: { AlcorLink },
-  data: () => ({
-    urls: [
-      { name: 'Tokens', to: '/wallet', exact: true },
-      { name: 'Open Orders', to: '/wallet/positions' },
-      { name: 'History', to: '/wallet/history' },
-      { name: 'NFT’s', to: '/wallet/nfts', isNFT: true },
-      { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
-      { name: 'Resources', to: '/wallet/resources' }
-    ]
-  }),
+  computed: {
+    urls() {
+      return [
+        { name: 'Tokens', to: '/wallet/tokens', exact: true },
+        { name: 'Open Orders', to: '/wallet/positions', exact: true },
+        { name: 'History', to: '/wallet/history' },
+        {
+          name: 'NFT’s',
+          to: {
+            name: 'wallet-nfts-inventory',
+            query: {
+              match: '',
+              collection: null,
+              sorting: null,
+              minMint: null,
+              maxMint: null,
+              minPrice: null,
+              maxPrice: null,
+              isDuplicates: null,
+              isBacked: null
+            }
+          }
+        },
+        { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
+        { name: 'Resources', to: '/wallet/resources' }
+      ]
+    }
+  },
   watch: {
     $route() {
       this.$nextTick(() => {
@@ -48,7 +69,8 @@ export default {
 <style scoped lang="scss">
 .wallet-tab-bar {
   display: flex;
-  position: sticky;
+  flex-wrap: wrap;
+  gap: 16px;
   top: 0;
   z-index: 4;
   overflow: auto;
@@ -71,8 +93,19 @@ export default {
   flex: 1;
   border-radius: 8px;
   padding: 12px;
-  margin: 0 8px;
   white-space: nowrap;
+
+  &.nft-tab {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    img {
+      position: absolute;
+      height: 100%;
+      max-width: 100%;
+    }
+  }
 
   &:first-child {
     margin-left: 0;
@@ -83,7 +116,7 @@ export default {
   }
 
   &.active {
-    background: var(--btn-active);
+    background: var(--background-color-third);
   }
 }
 
