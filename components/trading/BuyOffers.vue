@@ -1,19 +1,19 @@
 <template lang="pug">
-#trade-offers-component
+#buy-offers-component
   bread-crumbs
   .d-flex.justify-content-between.align-items-center.mt-3
-    .fs-24 Trade Offers
+    .fs-24 Buy Offers
     .d-flex.gap-8
       alcor-button(outline)
         i.el-icon-time
-        span Trade Offer History
-      alcor-button(access @click="openNewTradeModal")
+        span Buy Offer History
+      alcor-button(access)
         i.el-icon-plus
-        span New Trade Offer
+        span New Buy Offer
   .d-flex.align-items-center.gap-24.mt-3
-    trade-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
+    buy-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
     alcor-tabs(:links="true" :tabs="tabs")
-  .d-flex.gap-16.justify-content-between(v-if="tradeOffers.length")
+  .d-flex.gap-16.justify-content-between(v-if="buyOffers.length")
     .d-flex.flex-column.gap-8.offer-list.mt-3
       .d-flex.gap-4.fs-10.justify-content-between
         el-checkbox(
@@ -24,15 +24,15 @@
           i.el-icon-delete
           span Cancel Items
 
-      .d-flex.flex-column.gap-8.mt-3
-        trade-offer-list-item(
-          v-for="offer in tradeOffers"
+      .d-flex.flex-column.gap-8.mt-3.list
+        buy-offer-list-item(
+          v-for="offer in buyOffers"
           :offer="offer"
-          @click="preview(offer.offer_id)"
-          :class="{ active: previewOffer && offer.offer_id === previewOffer.offer_id }"
+          @click="preview(offer.buyoffer_id)"
+          :class="{ active: previewOffer && offer.buyoffer_id === previewOffer.buyoffer_id }"
         )
     .d-flex.flex-column.gap-16
-      offer-preview(v-if="previewOffer" :offer="previewOffer")
+      buy-offer-preview(v-if="previewOffer" :offer="previewOffer")
       table-log(v-if="previewOffer && offerLog" :offerLog="offerLog")
 
 </template>
@@ -42,32 +42,33 @@ import { mapActions } from 'vuex'
 import BreadCrumbs from '~/components/elements/BreadCrumbs.vue'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorTabs from '~/components/AlcorTabs'
-import TradeOfferFilters from '~/components/TradeOfferFilters'
-import TradeOfferListItem from '~/components/trade-offer/TradeOfferListItem.vue'
-import OfferPreview from '~/components/trading/OfferPreview'
+import BuyOfferFilters from '~/components/BuyOfferFilters'
+import BuyOfferListItem from '~/components/buy-offer/BuyOfferListItem.vue'
+import BuyOfferPreview from '~/components/trading/BuyOfferPreview'
 import TableLog from '~/components/trading/TableLog'
 
 export default {
   components: {
     BreadCrumbs,
     AlcorButton,
-    TradeOfferFilters,
+    BuyOfferFilters,
     AlcorTabs,
-    TradeOfferListItem,
-    OfferPreview,
+    BuyOfferListItem,
+    BuyOfferPreview,
     TableLog
   },
   data: () => ({
     isSelectedAll: false,
-    tradeOffers: [],
+    buyOffers: [],
     offerLog: null,
     recipientTradesCount: 0,
     senderTradesCount: 0,
-    sorting: { val: 'asc' },
+    sorting: { val: 'created_asc' },
     filters: {
-      hide_empty_offers: false,
       show_only_friends_offers: false,
-      hide_contracts: false
+      show_invalid_offers: '0',
+      min_price: '3',
+      max_price: null
     }
   }),
   computed: {
@@ -75,19 +76,20 @@ export default {
       const previewId = this.$route.hash.split('-')[1]
       return (
         previewId &&
-        this.tradeOffers.find(({ offer_id }) => offer_id === previewId)
+        this.buyOffers.find(({ buyoffer_id }) => buyoffer_id === previewId)
       )
     },
     selected() {
-      return this.tradeOffers
+      return this.buyOffers
         .filter(({ isSelected }) => isSelected)
-        .map(({ offer_id }) => offer_id)
+        .map(({ buyoffer_id, price: { amount } }) => [buyoffer_id, amount])
     },
     refetchProps() {
       ;[
         this.sorting.val,
-        this.filters.hide_empty_offers,
-        this.filters.hide_contracts,
+        this.filters.max_price,
+        this.filters.min_price,
+        this.filters.show_invalid_offers,
         this.filters.show_only_friends_offers
       ]
       return Date.now()
@@ -97,16 +99,18 @@ export default {
         {
           label: `Received (${this.recipientTradesCount})`,
           route: {
-            path: '/trading/trade-offers',
-            hash: 'received'
+            path: '/trading/buy-offers',
+            hash: `received${
+              this.previewOffer ? '-' + this.previewOffer.buyoffer_id : ''
+            }`
           }
         },
         {
           label: `Sent (${this.senderTradesCount})`,
           route: {
-            path: '/trading/trade-offers',
+            path: '/trading/buy-offers',
             hash: `sent${
-              this.previewOffer ? '-' + this.previewOffer.offer_id : ''
+              this.previewOffer ? '-' + this.previewOffer.buyoffer_id : ''
             }`
           }
         }
@@ -115,11 +119,11 @@ export default {
   },
   watch: {
     selected(selected) {
-      this.isSelectedAll = selected.length === this.tradeOffers.length
+      this.isSelectedAll = selected.length === this.buyOffers.length
     },
     refetchProps() {
-      this.$cookies.set('global_tradeoffers_filters', this.filters)
-      this.$cookies.set('global_tradeoffers_sort_order', this.sorting.val)
+      this.$cookies.set('global_buyoffers_filters', this.filters)
+      this.$cookies.set('global_buyoffers_sort_order', this.sorting.val)
       this.fetchTradeOffersCount()
       this.getOffers()
     },
@@ -132,21 +136,20 @@ export default {
   },
   mounted() {
     !this.$route.hash && this.$router.push({ hash: 'sent' })
-    this.filters =
-      this.$cookies.get('global_tradeoffers_filters') || this.filters
-    this.sorting.val = this.$cookies.get('global_tradeoffers_sort_order')
+    this.filters = this.$cookies.get('global_buyoffers_filters') || this.filters
+    this.sorting.val = this.$cookies.get('global_buyoffers_sort_order')
     this.getOffers()
     this.fetchTradeOffersCount()
   },
   methods: {
     ...mapActions('modal', ['newTrade']),
     ...mapActions('api', [
-      'getTradeOffersCount',
-      'getTradeOffers',
-      'getOfferLog'
+      'getBuyOffersCountBySide',
+      'getBuyOffersBySide',
+      'getBuyOfferLog'
     ]),
     async cancelOffers() {
-      await this.$store.dispatch('chain/cancelOffers', this.selected)
+      await this.$store.dispatch('chain/cancelBuyOffers', this.selected)
     },
     preview(id) {
       this.$router.push({ hash: 'sent' + '-' + id })
@@ -156,17 +159,17 @@ export default {
     },
     selectAll(isSelect) {
       isSelect
-        ? this.tradeOffers.forEach((o) => (o.isSelected = true))
+        ? this.buyOffers.forEach((o) => (o.isSelected = true))
         : this.clearSelected()
     },
     clearSelected() {
-      this.tradeOffers.forEach((o) => (o.isSelected = false))
+      this.buyOffers.forEach((o) => (o.isSelected = false))
     },
     async fetchOfferLog() {
       const offerId = this.$route.hash.split('-')[1]
 
       if (offerId) {
-        this.offerLog = await this.getOfferLog({
+        this.offerLog = await this.getBuyOfferLog({
           offerId,
           options: {
             limit: '5',
@@ -177,35 +180,30 @@ export default {
       }
     },
     async getOffers() {
-      this.tradeOffers = (
-        await this.getTradeOffers({
-          filters: {
-            ...this.filters,
-            order: this.sorting.val,
-            hide_contracts: !this.filters.hide_contracts
-          },
-          type:
-            this.$route.hash.split('-')[0] === '#sent' ? 'sender' : 'recipient'
+      this.buyOffers = (
+        await this.getBuyOffersBySide({
+          side: this.$route.hash.split('-')[0] === '#sent' ? 'buyer' : 'seller',
+          sort: this.sorting.val.split('_')[0],
+          order: this.sorting.val.split('_')[1],
+          ...this.filters
         })
       ).map((offer) => ({ ...offer, isSelected: false }))
     },
     async fetchTradeOffersCount() {
-      const rc = await this.getTradeOffersCount({
-        filters: {
-          ...this.filters,
-          hide_contracts: !this.filters.hide_contracts
-        },
-        type: 'recipient'
+      const rc = await this.getBuyOffersCountBySide({
+        side: 'seller',
+        sort: this.sorting.val.split('_')[0],
+        order: this.sorting.val.split('_')[1],
+        ...this.filters
       })
-      const sc = await this.getTradeOffersCount({
-        filters: {
-          ...this.filters,
-          hide_contracts: !this.filters.hide_contracts
-        },
-        type: 'sender'
+      if (rc) this.recipientTradesCount = rc || 0
+      const sc = await this.getBuyOffersCountBySide({
+        side: 'buyer',
+        sort: this.sorting.val.split('_')[0],
+        order: this.sorting.val.split('_')[1],
+        ...this.filters
       })
-      if (rc) this.recipientTradesCount = rc
-      if (sc) this.senderTradesCount = sc
+      if (sc) this.senderTradesCount = sc || 0
     }
   }
 }
@@ -214,5 +212,16 @@ export default {
 <style lang="scss">
 .offer-list {
   min-width: 370px;
+}
+.list {
+  max-height: 600px;
+  overflow: scroll;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 </style>

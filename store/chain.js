@@ -179,11 +179,35 @@ export const actions = {
       }
     ]
 
-    console.log(actions)
-
     return await dispatch('sendTransaction', actions)
   },
 
+  async cancelBuyOffers({ rootState, dispatch }, offers) {
+    try {
+      const cancelActions = offers.map(([buyoffer_id]) => ({
+        account: 'atomicmarket',
+        name: 'cancelbuyo',
+        authorization: [rootState.user.authorization],
+        data: { buyoffer_id }
+      }))
+      const withdrawActions = offers.map(([_, amount]) => ({
+        account: 'atomicmarket',
+        name: 'withdraw',
+        authorization: [rootState.user.authorization],
+        data: {
+          owner: rootState.user.name,
+          token_to_withdraw: (+amount / 100000000).toFixed(8) + ' WAX'
+        }
+      }))
+
+      return await dispatch('sendTransaction', [
+        ...cancelActions,
+        ...withdrawActions
+      ])
+    } catch (e) {
+      console.error('Cancel Offers Error', e)
+    }
+  },
   async cancelOffers({ rootState, dispatch }, offers) {
     try {
       const actions = offers.map((offer_id) => ({
@@ -192,8 +216,6 @@ export const actions = {
         authorization: [rootState.user.authorization],
         data: { offer_id }
       }))
-
-      console.log(actions)
 
       return await dispatch('sendTransaction', actions)
     } catch (e) {
@@ -320,7 +342,6 @@ export const actions = {
         }
       }
     ]
-    console.log(actions)
     await dispatch('sendTransaction', actions)
   },
 

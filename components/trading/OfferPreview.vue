@@ -3,7 +3,8 @@
   .d-flex.justify-content-between.align-items-center.w-100
     .d-flex.gap-4.fs-14
       span ID:
-      .color-wax {{ '#' + offer.offer_id }}
+      router-link(:to="{ name: `trading-trade-offers-id___${$i18n.locale}`, params: { id: offer.offer_id } }")
+        .color-wax {{ '#' + offer.offer_id }}
       span Created:
       span {{ date }}
 
@@ -13,14 +14,14 @@
         span Cancel
   .d-flex.gap-8.flex-column.details
     .d-flex.justify-content-between.align-items-center
-      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
+      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.sender_name)")
         profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.sender_name" :size="20")
         .color-wax {{ offer.sender_name }}
         span -
         strong {{ offer.sender_assets.length }}
         span NFT(s)
 
-      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
+      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.recipient_name)")
         profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.recipient_name" :size="20")
         .color-wax {{ offer.recipient_name }}
         span -
@@ -28,10 +29,10 @@
         span NFT(s)
 
     .d-flex.justify-content-center.align-items-center
-      assets-field.assets(v-if="offer.sender_assets.length" :assets="offer.sender_assets" smallCards="true" @removeAsset="asset => toggleSelected(0, asset)")
+      assets-field.assets(v-if="offer.sender_assets.length" :assets="offer.sender_assets" smallCards="true")
       .null-card(v-else) 0
       i.el-icon-sort.r-45
-      assets-field.assets(v-if="offer.recipient_assets.length" :assets="offer.recipient_assets" smallCards="true" @removeAsset="asset => toggleSelected(0, asset)")
+      assets-field.assets(v-if="offer.recipient_assets.length" :assets="offer.recipient_assets" smallCards="true")
       .null-card(v-else) 0
 
   alcor-collapse(v-if="offer.memo")
@@ -60,6 +61,23 @@ export default {
     }
   },
   methods: {
+    goToProfile(id) {
+      this.$router.push({
+        name: `account-id-nfts-inventory___${this.$i18n.locale}`,
+        params: { id },
+        query: {
+          match: '',
+          collection: null,
+          sorting: null,
+          minMint: null,
+          maxMint: null,
+          minPrice: null,
+          maxPrice: null,
+          isDuplicates: null,
+          isBacked: null
+        }
+      })
+    },
     async cancelOffer() {
       await this.$store.dispatch('chain/cancelOffers', [this.offer.offer_id])
     }
