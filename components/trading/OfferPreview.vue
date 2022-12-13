@@ -1,5 +1,7 @@
 <template lang="pug">
 #offer-preview-component.d-flex.flex-column.gap-16
+  .d-flex.justify-content-center.status.w-100(v-if="offer.state === 1")
+    | The buy offer is invalid because the recipient does not own all assets anymore
   .d-flex.justify-content-between.align-items-center.w-100
     .d-flex.gap-4.fs-14
       span ID:
@@ -88,9 +90,20 @@ export default {
 <style lang="scss" scoped>
 #offer-preview-component {
   width: 730px;
-  padding: 24px;
+  padding: 42px 24px;
   border-radius: 1rem;
   background-color: var(--bg-alter-2);
+  position: relative;
+
+  .status {
+    padding: 5px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background: var(--main-action-red);
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 
   .null-card {
     width: 170px;

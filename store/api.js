@@ -654,7 +654,7 @@ export const actions = {
         [type]: rootState.user.name,
         collection_blacklist,
         account_blacklist,
-        state: '0',
+        state: filters.show_invalid_offers || '0,4',
         sort: 'created',
         limit: '10',
         order: 'desc',
@@ -704,7 +704,7 @@ export const actions = {
         collection_blacklist,
         account_blacklist,
         [type]: rootState.user.name,
-        state: '0',
+        state: filters.show_invalid_offers || '0,4',
         sort: 'created',
         order: 'desc',
         ...filteredOptions

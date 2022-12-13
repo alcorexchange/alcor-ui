@@ -16,7 +16,21 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
       .d-flex.justify-content-between.gap-16
         .w-50.d-flex.flex-column.gap-8
           .d-flex.gap-8.align-items-center(v-for="[ key, value ] in Object.entries(filters)")
+            el-select.fs-12.w-100(
+              v-if="key === 'show_invalid_offers' && typeOptions"
+              v-model="filters[key]"
+              :placeholder='$t("Choose order type")'
+              size="mini"
+            )
+              el-option(
+                v-for='{ value, label } in typeOptions'
+                :key='value'
+                :label='label'
+                :value='value'
+              )
+
             el-switch(
+              v-else
               v-model="filters[key]"
               id="filter"
             )
@@ -44,6 +58,11 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
 export default {
   props: ['filters', 'sorting'],
   data: () => ({
+    typeOptions: [
+      { label: 'All Offers', value: '0,1' },
+      { label: 'Only valid Offers', value: '0' },
+      { label: 'Only invalid Offers', value: '1' }
+    ],
     sortingOptions: [
       { label: 'Newest to Oldest', value: 'desc' },
       { label: 'Oldest to Newest', value: 'asc' }
@@ -60,7 +79,7 @@ export default {
       this.$emit(
         'update:filters',
         Object.entries(this.filters)
-          .map(([key, value]) => [key, false])
+          .map(([key, value]) => key === 'show_invalid_offers' ? [key, 0] : [key, false])
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
       )
     }
