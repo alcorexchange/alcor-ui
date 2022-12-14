@@ -97,8 +97,8 @@ export default {
 
   .status {
     padding: 5px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-top-left-radius: 17px;
+    border-top-right-radius: 17px;
     background: var(--main-action-red);
     position: absolute;
     top: 0;

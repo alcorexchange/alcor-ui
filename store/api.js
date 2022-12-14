@@ -521,6 +521,26 @@ export const actions = {
       console.error('Get symbol info error', e)
     }
   },
+  async getGiftLinksCount({ dispatch, rootState }) {
+    try {
+      const { data } = await this.$api.get(
+        `atomictools/v1/links/_count?creator=${rootState.user.name}&limit=10&order=desc&page=1&sort=created&state=1`
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get Gift Links Error', e)
+    }
+  },
+  async getGiftLinks({ dispatch, rootState }) {
+    try {
+      const { data } = await this.$api.get(
+        `atomictools/v1/links?creator=${rootState.user.name}&limit=10&order=desc&page=1&sort=created&state=1`
+      )
+      return data.data
+    } catch (e) {
+      console.error('Get Gift Links Error', e)
+    }
+  },
   async getBuyOffersCountBySide(
     { dispatch, rootState },
     {

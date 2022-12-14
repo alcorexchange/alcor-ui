@@ -254,6 +254,19 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  async cancelGifts({ rootState, dispatch }, gifts) {
+    const actions = gifts.map(({ link_id }) => ({
+      account: 'atomictoolsx',
+      name: 'cancellink',
+      authorization: [rootState.user.authorization],
+      data: {
+        link_id
+      }
+    }))
+
+    await dispatch('sendTransaction', actions)
+  },
+
   async cancelAuction({ state, rootState, dispatch }, { currentListing }) {
     const actions = [
       {

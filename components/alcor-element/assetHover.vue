@@ -31,13 +31,13 @@ el-popover(placement='right' trigger='hover' width='575' :open-delay="600")
               .d-flex.gap-4.align-items-center
                 profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + ownerName" :size="20")
                 .color-action.text-truncate {{ ownerName }}
-            .fs-12.d-flex.gap-4(v-if="data.prices.length")
+            .fs-12.d-flex.gap-4(v-if="data.prices && data.prices.length")
               span Lowest Listing:
               .d-flex.gap-4.text-truncate
                 .color-wax {{ lowestListing }} WAX
                 .color-action (${{ $systemToUSD(lowestListing) }})
 
-            .fs-12.d-flex.gap-4(v-if="data.prices.length")
+            .fs-12.d-flex.gap-4(v-if="data.prices && data.prices.length")
               span Highest Listing:
               .d-flex.gap-4.text-truncate
                 .color-wax {{ highestListing }} WAX

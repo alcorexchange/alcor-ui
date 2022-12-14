@@ -1,32 +1,31 @@
 <template lang="pug">
-#offer-preview-component.d-flex.flex-column.gap-16
-  .d-flex.justify-content-center.status.w-100(v-if="offer.state === 4")
-    | The buy offer is invalid because the recipient does not own all assets anymore
-  .d-flex.justify-content-between.align-items-center.w-100
-    .d-flex.gap-4.fs-14
-      span ID:
-      router-link(:to="{ name: `trading-buy-offers-id___${$i18n.locale}`, params: { id: offer.buyoffer_id } }")
-        .color-wax {{ '#' + offer.buyoffer_id }}
-      span Created:
-      span {{ date }}
+#trade-offer-page.d-flex.flex-column.gap-16.mt-2
+  bread-crumbs
+  .fs-36.d-flex.gap-8
+    span Buy Offer:
+    .color-wax {{ '#' + $route.params.id }}
+  .offer-details.d-flex.flex-column.gap-16(v-if="offer")
+    .d-flex.justify-content-center.status.w-100(v-if="offer.state === 4")
+      | The buy offer is invalid because the recipient does not own all assets anymore
 
-    .d-flex.gap-4
+    .d-flex.justify-content-between
+      .d-flex.gap-4
+        span Buy Offer ID:
+        .color-wax {{ '#' + $route.params.id }}
+      .d-flex.gap-4
+        span Created:
+        .color-wax {{ date }}
+    .d-flex.justify-content-between
+      span
       alcor-button(outline @click="cancelOffer")
         i.el-icon-delete
         span Cancel
-  .d-flex.gap-8.flex-column.details
-    .d-flex.justify-content-between.align-items-center
-      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
-        span OFFERED ITEM(S)
-        span -
-        strong {{ offer.assets.length }}
-        span NFT(s)
-      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
-        span OFFER DETAILS
 
-    .d-flex.justify-content-between
-      assets-field.assets(v-if="offer.assets.length" :assets="offer.assets" smallCards="true")
-      .d-flex.flex-column.gap-16.w-50.mt-3
+    .d-flex.justify-content-between.gap-16
+      .assets-wrapper.w-50
+        .text-center.mt-2 OFFERED ITEMS (1)
+        assets-field.assets(v-if="offer.assets.length" :assets="offer.assets" smallCards="true")
+      .assets-wrapper.d-flex.flex-column.gap-16.w-50.mt-3
         .d-flex.flex-column.align-items-center.gap-4.account.pointer(@click="goToProfile(offer.buyer)")
           .fs-12 Buyer (you)
           profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer" :size="24")
@@ -57,32 +56,56 @@
             span Recipient receives
             .color-action {{ ((+offer.price.amount / 100000000) - ((+offer.price.amount / 100000000) * 0.02) - ((+offer.price.amount / 100000000) * 0.01) - ((+offer.price.amount / 100000000) * offer.collection.market_fee)).toFixed(3) }} WAX
 
-  alcor-collapse(v-if="offer.memo")
-    .d-flex.align-items-center.gap-8(slot="title")
-      i.el-icon-chat-square
-      .fs-14 Message
-    .d-flex.align-items-center.gap-4.fs-12
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer" :size="20")
-      span {{ offer.buyer }}
-    .ml-4.mt-2.message {{ offer.memo }}
+
+    alcor-collapse(v-if="offer.memo")
+      .d-flex.align-items-center.gap-8(slot="title")
+        i.el-icon-chat-square
+        .fs-14 Message
+      .d-flex.align-items-center.gap-4.fs-12
+        profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.sender_name" :size="20")
+        span {{ offer.sender_name }}
+      .ml-4.mt-2.message {{ offer.memo }}
+
+  .offer-details(v-if="offerLog")
+    table-log(:offerLog="offerLog")
 
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+import BreadCrumbs from '~/components/elements/BreadCrumbs.vue'
 import AlcorButton from '~/components/AlcorButton'
-import AlcorCollapse from '~/components/AlcorCollapse'
-import AssetsField from '~/components/nft_markets/AssetsField'
 import ProfileImage from '~/components/ProfileImage.vue'
+import AssetsField from '~/components/nft_markets/AssetsField'
+import AlcorCollapse from '~/components/AlcorCollapse'
+import TableLog from '~/components/trading/TableLog'
 
 export default {
-  components: { AlcorButton, AlcorCollapse, AssetsField, ProfileImage },
-  props: ['offer', 'offerLog'],
+  components: {
+    BreadCrumbs,
+    AlcorButton,
+    ProfileImage,
+    AssetsField,
+    AlcorCollapse,
+    TableLog
+  },
+  data: () => ({ offer: null, offerLog: null }),
   computed: {
     date() {
-      return new Date(+this.offer.created_at_time).toLocaleString()
+      return new Date(+this.offer?.created_at_time).toLocaleString()
     }
   },
+  mounted() {
+    this.getOffer()
+    this.fetchOfferLog()
+  },
   methods: {
+    ...mapActions('api', ['getBuyOffer', 'getBuyOfferLog']),
+    async cancelOffer() {
+      await this.$store.dispatch('chain/cancelBuyOffers', [
+        [this.offer.buyoffer_id, this.offer.price.amount]
+      ])
+    },
     goToProfile(id) {
       this.$router.push({
         name: `account-id-nfts-inventory___${this.$i18n.locale}`,
@@ -100,50 +123,42 @@ export default {
         }
       })
     },
-    async cancelOffer() {
-      await this.$store.dispatch('chain/cancelBuyOffers', [
-        [this.offer.buyoffer_id, this.offer.price.amount]
-      ])
+    async fetchOfferLog() {
+      this.offerLog = await this.getBuyOfferLog({
+        offerId: this.$route.params.id,
+        options: {
+          limit: '5',
+          order: 'desc',
+          page: '1'
+        }
+      })
+    },
+    async getOffer() {
+      this.offer = await this.getBuyOffer(this.$route.params.id)
     }
   }
 }
 </script>
 
-<style lang="scss">
-#offer-preview-component {
-  .el-collapse {
-    border: none;
-
-    .el-collapse-item__wrap {
-      background: var(--background-color-secondary);
-      border: none;
-    }
-    .el-collapse-item__header {
-      background: var(--background-color-secondary);
-      border: none;
-    }
-  }
-}
-</style>
-
 <style lang="scss" scoped>
-#offer-preview-component {
-  width: 730px;
-  padding: 42px 24px;
-  border-radius: 1rem;
-  background-color: var(--bg-alter-2);
-  position: relative;
+#trade-offer-page {
+  .offer-details {
+    padding: 42px 24px;
+    border-radius: 1rem;
+    background-color: var(--bg-alter-2);
 
-  .status {
-    padding: 5px;
-    border-top-left-radius: 17px;
-    border-top-right-radius: 17px;
-    background: var(--main-action-red);
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
+
+    .status {
+      padding: 5px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      background: var(--main-action-red);
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
-
   .account {
     width: 100%;
     padding: 10px;
@@ -159,19 +174,19 @@ export default {
     }
   }
 
-  .details {
+  .r-45 {
+    transform: rotate(90deg);
+  }
+
+  .assets-wrapper {
     background-color: var(--background-color-secondary);
     border-radius: 0.5rem;
-    margin-top: 16px;
-    padding: 42px;
+    padding: 12px;
   }
   .assets {
     border: none;
-    width: 300px;
-    height: 320px;
-  }
-  .r-45 {
-    transform: rotate(90deg);
+    width: 100%;
+    height: 340px;
   }
   .message {
     padding: 10px;
