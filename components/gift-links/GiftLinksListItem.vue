@@ -44,10 +44,10 @@ export default {
   }
 
   .status-tag {
-    background: hsla(0,100%,71%,.16);
-    color: #ff6c6c;
+    background: rgba(112, 142, 248, 0.16);
+    color: #708ef8;
     border-radius: 0.25rem;
-    font-size: .625rem;
+    font-size: 0.625rem;
     font-weight: 600;
     height: 24px;
     padding: 6px 8px;

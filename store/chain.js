@@ -391,6 +391,24 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  async claimGift(
+    { rootState, dispatch },
+    { link_id, claimer, claimer_signature }
+  ) {
+    const actions = [
+      {
+        account: 'atomictoolsx',
+        name: 'claimlink',
+        data: {
+          link_id,
+          claimer,
+          claimer_signature
+        }
+      }
+    ]
+    await dispatch('sendTransaction', actions)
+  },
+
   async sendBuyOffer(
     { state, rootState, dispatch },
     { buyOfferPrice, assetsIDs, memo, seller }

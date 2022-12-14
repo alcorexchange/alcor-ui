@@ -630,9 +630,19 @@ export const actions = {
       }) // refetch
     }
   },
+  async getGiftLink({ dispatch, rootState }, link_id) {
+    try {
+      const { data } = await this.$api.get(`atomictools/v1/links/${link_id}`)
+      return data.data
+    } catch (e) {
+      console.error('Get Gift Link Error', e)
+    }
+  },
   async getBuyOffer({ dispatch, rootState }, buyoffer_id) {
     try {
-      const { data } = await this.$api.get(`atomicmarket/v1/buyoffers/${buyoffer_id}`)
+      const { data } = await this.$api.get(
+        `atomicmarket/v1/buyoffers/${buyoffer_id}`
+      )
       return data.data
     } catch (e) {
       console.error('Get buy offer error', e)
