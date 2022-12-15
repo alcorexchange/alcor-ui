@@ -1,10 +1,11 @@
 <template lang="pug">
 #gift-links-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
-  .d-flex.gap-4
+  .d-flex.gap-8.align-items-center
     el-checkbox.disable(
+      v-if="!previewMode"
       v-model="link.isSelected"
     )
-      .fs-10 {{ date }}
+    .fs-10 {{ date }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-4
       .d-flex.gap-4
@@ -24,7 +25,7 @@ import AssetDeck from '~/components/trading/AssetDeck.vue'
 
 export default {
   components: { AssetDeck },
-  props: ['link'],
+  props: ['link', 'previewMode'],
   computed: {
     date() {
       return new Date(+this.link.created_at_time).toLocaleString()

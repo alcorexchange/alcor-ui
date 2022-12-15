@@ -531,10 +531,15 @@ export const actions = {
       console.error('Get Gift Links Error', e)
     }
   },
-  async getGiftLinks({ dispatch, rootState }) {
+  async getGiftLinks({ dispatch, rootState }, options) {
     try {
       const { data } = await this.$api.get(
-        `atomictools/v1/links?creator=${rootState.user.name}&limit=10&order=desc&page=1&sort=created&state=1`
+        `atomictools/v1/links?creator=${rootState.user.name}${
+          options?.before ? '&before=' + options?.before : ''
+        }${
+          options?.before ? '&after=' + options?.after : ''
+        }&order=${options?.order || 'asc'}&state=${options?.state ||
+          '1'}&limit=10&page=1&sort=created`
       )
       return data.data
     } catch (e) {

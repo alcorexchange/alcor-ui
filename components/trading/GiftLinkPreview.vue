@@ -1,5 +1,5 @@
 <template lang="pug">
-#offer-preview-component.d-flex.flex-column.gap-16
+#offer-preview-component.d-flex.flex-column.gap-16.mt-4
   .d-flex.justify-content-center.status.w-100
     | Link created on {{ date }}
   .d-flex.justify-content-between.align-items-center.w-100
@@ -11,7 +11,7 @@
       span {{ date }}
 
     .d-flex.gap-4
-      alcor-button(outline @click="cancelGifts")
+      alcor-button(v-if="!previewMode" outline @click="cancelGifts")
         i.el-icon-delete
         span Cancel
   .d-flex.gap-8.flex-column.details
@@ -33,7 +33,7 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { AlcorButton, AlcorCollapse, AssetsField, ProfileImage },
-  props: ['link'],
+  props: ['link', 'previewMode'],
   computed: {
     date() {
       return new Date(+this.link.created_at_time).toLocaleString()
