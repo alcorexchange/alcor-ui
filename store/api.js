@@ -532,14 +532,14 @@ export const actions = {
     }
   },
   async getGiftLinks({ dispatch, rootState }, options) {
+    console.log('oooooo', options)
     try {
       const { data } = await this.$api.get(
         `atomictools/v1/links?creator=${rootState.user.name}${
           options?.before ? '&before=' + options?.before : ''
-        }${
-          options?.before ? '&after=' + options?.after : ''
-        }&order=${options?.order || 'asc'}&state=${options?.state ||
-          '1'}&limit=10&page=1&sort=created`
+        }${options?.after ? '&after=' + options?.after : ''}${
+          options?.state ? '&state=' + options?.state : ''
+        }&order=${options?.order || 'asc'}&limit=10&page=1&sort=created`
       )
       return data.data
     } catch (e) {

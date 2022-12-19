@@ -14,7 +14,8 @@
       .d-flex.gap-4.fs-12
         span Link ID
         span {{'#'+link.link_id}}
-      .status-tag Created
+      .status-tag(v-if="link.state == 1") Created
+      .status-tag.cancel-tag(v-if="link.state == 2") Canceled
     .d-flex.align-items-center.gap-24
       asset-deck(:deck="link.assets")
 
@@ -54,6 +55,11 @@ export default {
     padding: 6px 8px;
     text-align: center;
     width: fit-content;
+
+    &.cancel-tag {
+      background: rgba(255, 183, 21, 0.16);
+      color: #ffb715;
+    }
   }
 
   .r-45 {
