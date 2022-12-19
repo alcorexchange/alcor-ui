@@ -5,7 +5,6 @@ import { parseAsset, littleEndianToDesimal } from '~/utils'
 
 export const state = () => ({})
 
-const API_URL = 'http://wax.blokcrafters.io'
 const account_blacklist =
   'atomcimarket,atomicmarkte,atomccmarket,atomcimarkte,atomiomarket,atomicmartke,atomicmraket,atomicmakret,atomicmarekt,atomicnarket,atomlcmartke,atomicinform,atomiomarkte,dacz.wam,atomicmarkat,atomlcmarket,atomicwaxhub,atonicmarket,atomicmaiket,atomlcmarkte,atomichubgas,atomicmapket,atomicmerkat,atomicmerakt,acceptoffers,atomiomartke,atomiomarekt,suk.c.c.wam,hvyjs.wam,fibjq.wam,iogju.wam,activeoffers,d4g4e3c3f3d3,4ryjs.wam,atomcinarket,.kdbu.wam,offerdetails,x1dim.wam,1vi...c.wam,hi1ju.wam,2v.aw.wam,3ceca.wam,5g5c.wam,coinpirates1,deinceps1111,l.5zs.wam,npkk..c.wam,oeltw.wam,owdbu.wam,stk.pirates,t55zm.wam,vgzf4.wam,yokeyxworlds,yooooooooooh,waxatomcihub,atomcihubeos,atomiamarket,onyjs.wam,aryzs.wam,nomju.wam,5f1.k.c.wam,kp5.o.c.wam,s55.o.c.wam,ubzjs.wam,3ty.q.c.wam,2ul.k.c.wam,ccykg.c.wam,gmj.q.c.wam,rxxjo.wam,1ai.g.c.wam,atomicbuywax,vdtkg.c.wam,zen.q.c.wam,farmerupdate,w4ikm.c.wam,trh.4.c.wam,my1.4.c.wam,atomicmanket,mld.i.c.wam,atomicactive,d3hkk.c.wam,atomicverify,2vgbi.wam,1c..2.c.wam,wwwue.wam,atomicmarxet,waxmarkethub,oggkm.c.wam,tevkm.c.wam,g5oqs.wam,farmerworlld,xidig.wam,alomicmarket,k5nrk.wam,n5qwu.wam,c4jqq.wam,ayxrg.wam,5wg.2.c.wam,l1cki.c.wam,s42.s.c.wam,atomicmarfet,fnqr.wam,uyzk4.c.wam,.lgbs.wam,atomlcmartek,ilnku.c.wam,j4n1theking1,atomicmaretk,atomicmaerkt,splkw.c.wam,i2tkw.c.wam,atomicwaxhob,4p4.y.c.wam,5pc.o.c.wam,bav.y.c.wam,ol5ra.wam,atomiemarket,atomitmarket,dauky.c.wam,atomimmarket,atomizmarket,atomivmarket,atomixmarket,atomirmarket,atomiumarket,atomismarket,atominmarket,atomimmarkte,atominmarkte,atomiqmarket,atomiemarkte,atomiamarkte,ltoaw.wam,atomiimarkte,atomirmarkte,offersmarket,atomitmarkte,atomicbuyoff,atomiemarekt,atominmarekt,atomipmarket,atomirmarekt,atomivmarekt,atomismarekt,atomibmarket,atominmaretk,atomiumarkte,atomlcmarekt,atomiemartke,atomirmartke,atomismartke,atomigmarket,atomimmartke,atomiamartke,atomitmartke,atominmartke,atomivmartke,atomicbuynow,atomilmartke,atomizmartke,youhavetrade,offershelper,atomicoffice,youhaveoffer,assistantbuy,youhavedeals,officialdeal,atomiceoswax,buyassistant,atomicrebate,havenewdeals,supporttrade,supportoffer,atomicmotion,atomichubdev,atomichubusa,atomichubbiz,havenewoffer,havenewtrade,atomichubinc,atomicwaxeos,supportdeals,atomichubins,atomicsupply,atomicwaxnet,aiomicmarket,atomlomartek,atomicamrket,atomicofferx,salenftoffer,tradesforyou,saleoffernft,offersalenft,saleyournfts,offernftsale,nftsaleoffer,nftoffersale,offersforyou,qsqam.waa,youtoconfirm,yourtooffers,confirmdeals,marketplaecs,marektpiaces,marketp1aces,marketoplace,marketeplace,marketiplace,marektplaces,marketaplace,markteplaecs,markteplecas,martekplaecs,martekplcaes,marketpelace,marketplacce,marketplaace,marketpleace,marketplaece,marketpalace,marketpalece,marketpleces,marketplecas,offertoyours,markertplace,marektp1asce,announcesale,marketpiance,atonicnarket,atomicmqrket,markethelper,checksatomic,marektplasce,marketp1acse,marketp1asce,marketp1ceas,marketp1ecae,marketpaices,marktepaices,marktepaiecs,verifyatomic,atomicreview,marketplcaes,marktep1acas,marktep1acse,marktep1aece,marktep1asce,marktep1ceae,marktep1ceas,marktep1eace,marktep1ecae,markteplcaes,martkep1acas,martkep1aces,martkep1caes,martkep1ecas,martkep1eces,reviewatomic,atomicdefend,defendatomic,inviteatomic,marektp1acse,marektp1aece,marektp1ceas,marektp1eace,marektp1eces,marketp1caes,marketpiaces,marketpiecae,marktep1aces,marktep1caes,marktepiaces,martekp1aces,martekplaces,martkep1acse,martkep1aece,martkep1asce,martkep1ceas,martkep1eace,martkep1ecae,assertatomic,atomicalerts,atomicassert,atomicinvite,marektpiaece,marektpieces,marketcplace,marketpiacse,marketpiasce,marketplance,marketrplace,marketsplace,marktepiacse,marktepiaece,marktepiasce,marktepiceae,marktepieace,marktepiecae,markteplaces,martkepiacse,martkepiaece,martkepiasce,martkepieace,martkepiecae,martkepiecas,martkepieces,atomiclounge,atomicoption,atomicsecure,marektpaices,marektpiacse,marektpiasce,marektpieace,marketcpiace,marketpalces,marketpicaes,marketplceas,marketrpiace,marketspiace,martkepaices,martkepaiecs,atomicfuture,atomicrecord,futureatomic,marketplacse,marketplasce,marketplecae,marktepalces,markteplacas,markteplceas,optionatomic,recordatomic,atomicreject,marktepalecs,rejectatomic,buynewoffers,newbuyoffers,markteplaece,newoffersale,newsaleoffer,atomicspeech,loungeatomic,speechatomic,offernewsale,marktepleace,markteplecae,offersaccept,salenewoffer,confirmoffer,markteplacse,markteplceae,markteplasce,offerconfirm,tradeconfirm,confirmtrade,martkeplaces,atomicbysale,dealsconfirm,martkeplacas,martkepleces,offersatomic,salebyatomic,atomicchecks,martkeplecas,martkeplcaes,martkeplceas,martkepalces,martkepalecs,martkeplaece,martkepleace,martkeplecae,secureatomic,martkeplacse,marektpleces,martkeplasce,marektplceas,marektpalces,marektplacse,marektplaece,marektpleace,mareketplace,marekteplace,mareketplaes,maretkeplace,marekteplaes,mareketpleca,maretkeplaes,maretkepleca,mareketplacs,mareketp1ace,maretkeplacs,mareketpiace,maretkepiace,mareketpiaes,mareketpiacs,markteplacee,marektplacee,maretkplacee,marketplacae,markteplacae,marektplacae,marektplecae,maretkplacae,maretkplecae,marketsdeals,marktesdeals,marektsdeals,marketsoffer,marktesoffer,marektsoffer,markteoffers,mareketsales,marektoffers,marektesales,payatomichub,atomichuboff,atomicbuypay,atomicpaywax,atomicwaxpay,atomicbuynft,atomicpaybuy,buynftatomic,nftbuyatomic,atomicnftbuy,nftatomicbuy,buyatomicnft,marketsadmin,markterplace,marktecplace,marktesplace,marektsplace,marektcplace,marektrplace,markteaplace,marektiplace,markteiplace,marektaplace,marketeplaes,marektpiacae,maretkpiacae,marektpiecae,maretkpiecae,marketpiacee,marktepiacee,marektpiacee,marketpiacae,maretkpiacee,marktepiacae,martkepicaes,atomchuddrop,officiallwax,officialywax,atonicmaiket,officialliwah,marketeplacs,marektpiceas,marketpiceas,marktepiacas,marktepicaes,eo.1a.c.wam,sap.y.c.wam,wlcbe.wam,uzqnu.wam,vdwbe.wam,iehmo.c.wam,privetwaxiam,atomchubdrop,atomchudrop,atomichubsqx,m.yhk.wam,atomlchubdro,fi.vu.wam,.vumq.c.wam,marktepiceas,marketspleca,mareketplcae,marketeoffer,marketebuyer,marketeplcea,mareketbuyer,marketeplcae,martkeoffers,marekteoffer,marketrbuyer,marketroffer,marketsbuyer,mareketoffer,maretkeoffer,mareketplcea,marketepleca,marketsplcea,marketaplcae,marketaplcea,marketrplcae,marketsplaes,marketsplcae,martkeplaecs,marketsplacs,atomlcoffers,tometoyou114,adiki.c.wam,alcordexdgen,quick.gm'
 const collection_blacklist =
@@ -137,8 +136,8 @@ export const actions = {
 
   async getCollectionsForSet() {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v1/stats/collections?symbol=WAX&search=collection_name&page=1&limit=100&order=desc&sort=volume`
+      const { data } = await this.$api.get(
+        'atomicmarket/v1/stats/collections?symbol=WAX&search=collection_name&page=1&limit=100&order=desc&sort=volume'
       )
       return data.data
     } catch (e) {
@@ -148,8 +147,8 @@ export const actions = {
 
   async getSpecificCollectionData({ getters, rootState }, { collectionName }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicassets/v1/collections/` + collectionName
+      const { data } = await this.$api.get(
+        'atomicassets/v1/collections/' + collectionName
       )
       return data.data
     } catch (e) {
@@ -176,7 +175,7 @@ export const actions = {
   async getSaleData({ getters, rootState }, { limit, search, collectionName }) {
     try {
       const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v2/sales?order=desc&sort=created&limit=` +
+        'atomicmarket/v2/sales?order=desc&sort=created&limit=' +
           limit +
           (search ? '&search=' + search : '') +
           (collectionName ? '&collection_name=' + collectionName : '')
@@ -204,7 +203,7 @@ export const actions = {
   ) {
     try {
       const { data } = await this.$api.post(
-        '/atomicassets/v1/assets?limit=' +
+        'atomicassets/v1/assets?limit=' +
           limit +
           (match ? '&match=' + match : '') +
           (order ? '&order=' + order : '') +
@@ -268,18 +267,15 @@ export const actions = {
       .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
     try {
-      const { data } = await this.$api.post(
-        '/atomicmarket/v1/stats/templates',
-        {
-          limit: '30',
-          page: '1',
-          symbol: 'WAX',
-          after: '1667714400000',
-          collection_blacklist,
-          collection_whitelist,
-          ...filteredOptions
-        }
-      )
+      const { data } = await this.$api.post('atomicmarket/v1/stats/templates', {
+        limit: '30',
+        page: '1',
+        symbol: 'WAX',
+        after: '1667714400000',
+        collection_blacklist,
+        collection_whitelist,
+        ...filteredOptions
+      })
       return data.data.results
     } catch (e) {
       console.error('Get stat templates error', e)
@@ -330,8 +326,8 @@ export const actions = {
     { limit, search, collectionName }
   ) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicassets/v1/schemas?order=desc&sort=created` +
+      const { data } = await this.$api.get(
+        'atomicassets/v1/schemas?order=desc&sort=created' +
           (limit ? '&limit=' + limit : '') +
           (search ? '&match=' + search : '') +
           (collectionName ? '&collection_name=' + collectionName : '')
@@ -347,11 +343,8 @@ export const actions = {
     { schema_name, collection_name }
   ) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicassets/v1/schemas/` +
-          collection_name +
-          '/' +
-          schema_name
+      const { data } = await this.$api.get(
+        'atomicassets/v1/schemas/' + collection_name + '/' + schema_name
       )
       return data.data
     } catch (e) {
@@ -390,7 +383,7 @@ export const actions = {
       .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
     try {
-      const { data } = await this.$api.post('/atomicmarket/v1/assets', {
+      const { data } = await this.$api.post('atomicmarket/v1/assets', {
         page: 1,
         limit: options.limit || '32',
         order: options.order || 'desc',
@@ -407,7 +400,7 @@ export const actions = {
 
   async getSale({ dispatch }, { sale_id }) {
     try {
-      const { data } = await this.$api.get(`/atomicmarket/v1/sales/${sale_id}`)
+      const { data } = await this.$api.get(`atomicmarket/v1/sales/${sale_id}`)
       return data.data
     } catch (e) {
       return await dispatch('getSale', { sale_id })
@@ -433,9 +426,7 @@ export const actions = {
 
   async getSpecificAsset({ getters, rootState }, { asset_id }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v1/assets/` + asset_id
-      )
+      const { data } = await this.$api.get('atomicmarket/v1/assets/' + asset_id)
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
@@ -444,8 +435,8 @@ export const actions = {
 
   async getAssetsTransfer({ getters, rootState }, { asset_id }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v1/transfers?page=1&limit=20&order=desc&sort=created&asset_id=` +
+      const { data } = await this.$api.get(
+        'atomicmarket/v1/transfers?page=1&limit=20&order=desc&sort=created&asset_id=' +
           asset_id
       )
       return data.data
@@ -470,7 +461,7 @@ export const actions = {
   async getAssetsLog({ getters, rootState }, { asset_id }) {
     try {
       const { data } = await axios.get(
-        `${API_URL}/atomicassets/v1/assets/` +
+        'atomicassets/v1/assets/' +
           asset_id +
           '/logs?page=1&limit=20&order=desc'
       )
@@ -493,8 +484,8 @@ export const actions = {
   },
   async getInventorySuggestedmedian({ getters, rootState }, { owner }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v1/prices/assets?owner=` + owner
+      const { data } = await this.$api.get(
+        'atomicmarket/v1/prices/assets?owner=' + owner
       )
       return data.data
     } catch (e) {
@@ -503,8 +494,8 @@ export const actions = {
   },
   async getAuctionsCounts({ getters, rootState }, { owner }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v1/auctions/_count?owner=` + owner
+      const { data } = await this.$api.get(
+        'atomicmarket/v1/auctions/_count?owner=' + owner
       )
       return data.data
     } catch (e) {
@@ -513,8 +504,8 @@ export const actions = {
   },
   async getSalesCounts({ getters, rootState }, { owner }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v2/sales/_count?owner=` + owner
+      const { data } = await this.$api.get(
+        'atomicmarket/v2/sales/_count?owner=' + owner
       )
       return data.data
     } catch (e) {
@@ -758,8 +749,8 @@ export const actions = {
   },
   async getBoughtCounts({ getters, rootState }, { owner }) {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/atomicmarket/v1/buyoffers/_count?owner=` + owner
+      const { data } = await this.$api.get(
+        'atomicmarket/v1/buyoffers/_count?owner=' + owner
       )
       return data.data
     } catch (e) {
@@ -794,7 +785,7 @@ export const actions = {
   async getChartData({ dispatch }, { schema_name, template_id, burned }) {
     try {
       const { data } = await this.$api.get(
-        '/atomicmarket/v1/prices/sales/days?template_id=' +
+        'atomicmarket/v1/prices/sales/days?template_id=' +
           template_id +
           '&schema_name=' +
           schema_name +
@@ -810,8 +801,8 @@ export const actions = {
   // get collection set
   async getCollectionSets({ getters, rootState }, { collection_name }) {
     try {
-      const data = await axios.get(
-        `${API_URL}/atomicassets/v1/templates?collection_name=` +
+      const data = await this.$api.get(
+        'atomicassets/v1/templates?collection_name=' +
           collection_name +
           '&page=1&limit=100&order=desc&sort=created'
       )
