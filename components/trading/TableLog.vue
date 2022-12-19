@@ -12,7 +12,7 @@
     )
     el-table-column(
       prop="data"
-      label="Event"
+      label="Data"
     )
       template(slot-scope="scope")
         .d-flex.gap-16.fs-12
@@ -62,18 +62,16 @@ export default {
 
     background: var(--bg-alter-2);
     .el-table__body-wrapper {
-      border-radius: .5rem;
+      border-radius: 0.5rem;
 
-      tr.el-table__row--striped td{
+      tr.el-table__row--striped td {
         background-color: var(--bg-alter-2);
         border-bottom: none;
       }
-
     }
     .cell {
       padding: 0 15px;
     }
-
 
     th {
       background: var(--bg-alter-2);

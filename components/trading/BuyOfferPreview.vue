@@ -2,6 +2,10 @@
 #offer-preview-component.d-flex.flex-column.gap-16
   .d-flex.justify-content-center.status.w-100(v-if="offer.state === 4")
     | The buy offer is invalid because the recipient does not own all assets anymore
+  .d-flex.justify-content-center.status.w-100(v-if="offer.state === 1")
+    | {{ offer.seller }} has declined your offer on {{ updateDate }}
+  .d-flex.justify-content-center.status.cancelled.w-100(v-if="offer.state === 2")
+    | You’ve cancelled the trade offer on {{ updateDate }}
   .d-flex.justify-content-between.align-items-center.w-100
     .d-flex.gap-4.fs-14
       span ID:
@@ -11,9 +15,9 @@
       span {{ date }}
 
     .d-flex.gap-4
-      alcor-button(outline @click="cancelOffer")
+      alcor-button(v-if="!previewMode" outline @click="cancelOffer")
         i.el-icon-delete
-        span Cancel
+        span Cancel {{ previewMode }}
   .d-flex.gap-8.flex-column.details
     .d-flex.justify-content-between.align-items-center
       .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
@@ -76,10 +80,13 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { AlcorButton, AlcorCollapse, AssetsField, ProfileImage },
-  props: ['offer', 'offerLog'],
+  props: ['offer', 'offerLog', 'previewMode'],
   computed: {
     date() {
       return new Date(+this.offer.created_at_time).toLocaleString()
+    },
+    updateDate() {
+      return new Date(+this.offer.updated_at_time).toLocaleString()
     }
   },
   methods: {
@@ -142,6 +149,9 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
+    &.cancelled {
+      background: var(--main-wax);
+    }
   }
 
   .account {

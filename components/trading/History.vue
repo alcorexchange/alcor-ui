@@ -46,7 +46,11 @@ export default {
           label: 'Buy Offers',
           route: {
             path: '/trading/history',
-            hash: 'buyoffers'
+            hash: `buyoffers${
+              this.$route.hash.split('-')[1]
+                ? '-' + this.$route.hash.split('-')[1]
+                : ''
+            }`
           }
         },
         {

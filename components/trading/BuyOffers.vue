@@ -4,12 +4,6 @@
   .d-flex.justify-content-between.align-items-center.mt-3
     .fs-24 Buy Offers
     .d-flex.gap-8
-      alcor-button(outline)
-        i.el-icon-time
-        span Buy Offer History
-      alcor-button(access)
-        i.el-icon-plus
-        span New Buy Offer
   .d-flex.align-items-center.gap-24.mt-3
     buy-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
     alcor-tabs(:links="true" :tabs="tabs")
@@ -183,8 +177,8 @@ export default {
       this.buyOffers = (
         await this.getBuyOffersBySide({
           side: this.$route.hash.split('-')[0] === '#sent' ? 'buyer' : 'seller',
-          sort: this.sorting.val.split('_')[0],
-          order: this.sorting.val.split('_')[1],
+          sort: this.sorting.val?.split('_')[0],
+          order: this.sorting.val?.split('_')[1],
           ...this.filters
         })
       ).map((offer) => ({ ...offer, isSelected: false }))
@@ -192,15 +186,15 @@ export default {
     async fetchTradeOffersCount() {
       const rc = await this.getBuyOffersCountBySide({
         side: 'seller',
-        sort: this.sorting.val.split('_')[0],
-        order: this.sorting.val.split('_')[1],
+        sort: this.sorting.val?.split('_')[0],
+        order: this.sorting.val?.split('_')[1],
         ...this.filters
       })
       if (rc) this.recipientTradesCount = rc || 0
       const sc = await this.getBuyOffersCountBySide({
         side: 'buyer',
-        sort: this.sorting.val.split('_')[0],
-        order: this.sorting.val.split('_')[1],
+        sort: this.sorting.val?.split('_')[0],
+        order: this.sorting.val?.split('_')[1],
         ...this.filters
       })
       if (sc) this.senderTradesCount = sc || 0

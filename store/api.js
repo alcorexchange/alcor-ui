@@ -532,7 +532,6 @@ export const actions = {
     }
   },
   async getGiftLinks({ dispatch, rootState }, options) {
-    console.log('oooooo', options)
     try {
       const { data } = await this.$api.get(
         `atomictools/v1/links?creator=${rootState.user.name}${
@@ -556,9 +555,13 @@ export const actions = {
       min_price,
       max_price,
       show_invalid_offers,
-      show_only_friends_offers = null
+      type,
+      show_only_friends_offers = null,
+      before = null,
+      after = null
     }
   ) {
+    console.log(before, after, type, side)
     try {
       const { data } = await this.$api.post(
         'atomicmarket/v1/buyoffers/_count',
@@ -573,7 +576,10 @@ export const actions = {
           [show_only_friends_offers
             ? 'show_only_friends_offers'
             : null]: 'true',
-          state: show_invalid_offers || '0,4',
+          [before ? 'before' : null]: new Date(before).getTime(),
+          [after ? 'after' : null]: new Date(after).getTime(),
+
+          state: status || show_invalid_offers || '0,4',
           min_price: min_price + '' || '0',
           max_price,
           order: order || 'desc',
@@ -603,7 +609,11 @@ export const actions = {
       min_price,
       max_price,
       show_invalid_offers,
-      show_only_friends_offers = null
+      type,
+      status,
+      show_only_friends_offers = null,
+      before = null,
+      after = null
     }
   ) {
     try {
@@ -616,7 +626,10 @@ export const actions = {
 
         [show_only_friends_offers ? 'seller' : null]: 'none',
         [show_only_friends_offers ? 'show_only_friends_offers' : null]: 'true',
-        state: show_invalid_offers || '0,4',
+        [before ? 'before' : null]: before,
+        [after ? 'after' : null]: after,
+
+        state: status || show_invalid_offers || '0,4',
         min_price: min_price + '' || '0',
         max_price,
         order: order || 'desc',
@@ -625,14 +638,7 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get buy offers error', e)
-      return await dispatch('getBuyOffers', {
-        side,
-        accountName,
-        sort,
-        order,
-        min_price,
-        max_price
-      }) // refetch
+      return await dispatch('getBuyOffersBySide', arguments[1]) // refetch
     }
   },
   async getGiftLink({ dispatch, rootState }, link_id) {

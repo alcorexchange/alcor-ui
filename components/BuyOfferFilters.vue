@@ -1,12 +1,12 @@
 <template lang="pug">
-el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-center.pointer(
+el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-center(
   placement="bottom-start"
   trigger='click'
   :hideOnClick="false"
   :class="{ active }"
   @visible-change="isActive => this.active = isActive"
 )
-  .d-flex.align-items-center.gap-8.fs-16.button
+  .d-flex.align-items-center.gap-8.fs-16.button.pointer
     i.el-icon-set-up
     span Filter
     i.el-icon-caret-bottom
@@ -70,8 +70,8 @@ export default {
     sortingOptions: [
       { label: 'Newest to Oldest', value: 'created_desc' },
       { label: 'Oldest to Newest', value: 'created_asc' },
-      { label: 'Lowest Price to Highest', value: 'price_desc' },
-      { label: 'Highest Price to Lowest ', value: 'price_asc' }
+      { label: 'Lowest Price to Highest', value: 'price_asdc' },
+      { label: 'Highest Price to Lowest ', value: 'price_desc' }
     ],
     active: false,
     labels: {

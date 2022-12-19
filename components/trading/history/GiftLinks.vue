@@ -41,7 +41,7 @@ export default {
     filters: {
       startDate: null,
       endDate: null,
-      type: '0,4'
+      type: null
     }
   }),
   computed: {
@@ -119,8 +119,8 @@ export default {
     async getLinks() {
       this.giftLinks = (
         await this.getGiftLinks({
-          order: this.sorting.val.split('_')[1],
-          sort: this.sorting.val.split('_')[0],
+          order: this.sorting.val?.split('_')[1],
+          sort: this.sorting.val?.split('_')[0],
           state: this.filters.type,
           after: new Date(this.filters.startDate).getTime(),
           before: new Date(this.filters.endDate).getTime()

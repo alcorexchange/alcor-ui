@@ -1,7 +1,9 @@
 <template lang="pug">
 #offer-preview-component.d-flex.flex-column.gap-16.mt-4
-  .d-flex.justify-content-center.status.w-100
+  .d-flex.justify-content-center.status.w-100(v-if="link.state == 1")
     | Link created on {{ date }}
+  .d-flex.justify-content-center.status.cancelled.w-100(v-if="link.state == 2")
+    | The link was cancelled on {{ updateDate }}
   .d-flex.justify-content-between.align-items-center.w-100
     .d-flex.gap-4.fs-14
       span ID:
@@ -37,6 +39,9 @@ export default {
   computed: {
     date() {
       return new Date(+this.link.created_at_time).toLocaleString()
+    },
+    updateDate() {
+      return new Date(+this.link.updated_at_time).toLocaleString()
     }
   },
   methods: {
@@ -99,6 +104,10 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
+
+    &.cancelled {
+      background: var(--main-wax);
+    }
   }
 
   .account {
