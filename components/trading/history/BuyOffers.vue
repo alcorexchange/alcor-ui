@@ -1,32 +1,18 @@
 <template lang="pug">
 #buy-offers-component
-  bread-crumbs
-  .d-flex.justify-content-between.align-items-center.mt-3
-    .fs-24 Buy Offers
-    .d-flex.gap-8
-  .d-flex.align-items-center.gap-24.mt-3
-    buy-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
-    alcor-tabs(:links="true" :tabs="tabs")
+  history-buy-offer-filters.mt-2(:filters.sync="filters" :sorting.sync="sorting")
   .d-flex.gap-16.justify-content-between(v-if="buyOffers.length")
     .d-flex.flex-column.gap-8.offer-list.mt-3
-      .d-flex.gap-4.fs-10.justify-content-between
-        el-checkbox(
-          @change="selectAll"
-          v-model="isSelectedAll"
-        ) Select All Items
-        alcor-button(v-if="selected.length" compact outline @click="cancelOffers")
-          i.el-icon-delete
-          span Cancel Items
-
       .d-flex.flex-column.gap-8.mt-3.list
         buy-offer-list-item(
+          :previewMode="true"
           v-for="offer in buyOffers"
           :offer="offer"
           @click="preview(offer.buyoffer_id)"
           :class="{ active: previewOffer && offer.buyoffer_id === previewOffer.buyoffer_id }"
         )
     .d-flex.flex-column.gap-16
-      buy-offer-preview(v-if="previewOffer" :offer="previewOffer")
+      buy-offer-preview(v-if="previewOffer" :offer="previewOffer" :previewMode="true")
       table-log(v-if="previewOffer && offerLog" :offerLog="offerLog")
 
 </template>
@@ -35,8 +21,7 @@
 import { mapActions } from 'vuex'
 import BreadCrumbs from '~/components/elements/BreadCrumbs.vue'
 import AlcorButton from '~/components/AlcorButton'
-import AlcorTabs from '~/components/AlcorTabs'
-import BuyOfferFilters from '~/components/BuyOfferFilters'
+import HistoryBuyOfferFilters from '~/components/HistoryBuyOfferFilters'
 import BuyOfferListItem from '~/components/buy-offer/BuyOfferListItem.vue'
 import BuyOfferPreview from '~/components/trading/BuyOfferPreview'
 import TableLog from '~/components/trading/TableLog'
@@ -45,8 +30,7 @@ export default {
   components: {
     BreadCrumbs,
     AlcorButton,
-    BuyOfferFilters,
-    AlcorTabs,
+    HistoryBuyOfferFilters,
     BuyOfferListItem,
     BuyOfferPreview,
     TableLog
@@ -60,9 +44,12 @@ export default {
     sorting: { val: 'created_asc' },
     filters: {
       show_only_friends_offers: false,
-      show_invalid_offers: '0',
+      type: 'account',
+      status: '1,2,3',
+      after: null,
+      before: null,
       min_price: '3',
-      max_price: null
+      max_price: ''
     }
   }),
   computed: {
@@ -81,34 +68,15 @@ export default {
     refetchProps() {
       ;[
         this.sorting.val,
+        this.filters.after,
+        this.filters.before,
+        this.filters.type,
+        this.filters.status,
         this.filters.max_price,
         this.filters.min_price,
-        this.filters.show_invalid_offers,
         this.filters.show_only_friends_offers
       ]
       return Date.now()
-    },
-    tabs() {
-      return [
-        {
-          label: `Received (${this.recipientTradesCount})`,
-          route: {
-            path: '/trading/buy-offers',
-            hash: `received${
-              this.previewOffer ? '-' + this.previewOffer.buyoffer_id : ''
-            }`
-          }
-        },
-        {
-          label: `Sent (${this.senderTradesCount})`,
-          route: {
-            path: '/trading/buy-offers',
-            hash: `sent${
-              this.previewOffer ? '-' + this.previewOffer.buyoffer_id : ''
-            }`
-          }
-        }
-      ]
     }
   },
   watch: {
@@ -116,24 +84,22 @@ export default {
       this.isSelectedAll = selected.length === this.buyOffers.length
     },
     refetchProps() {
-      this.$cookies.set('global_buyoffers_filters', this.filters)
-      this.$cookies.set('global_buyoffers_sort_order', this.sorting.val)
-      this.fetchTradeOffersCount()
+      this.$cookies.set('global_history_buy_offers_filters', this.filters)
+      this.$cookies.set('global_history_buy_offers_sotring', this.sorting.val)
       this.getOffers()
     },
     '$route.hash'(v, old) {
       this.fetchOfferLog()
-      this.fetchTradeOffersCount()
       if (v.split('-')[0] !== old.split('-')[0]) this.getOffers()
       if (v.split('-')[0] !== old.split('-')[0]) this.clearSelected()
     }
   },
   mounted() {
     !this.$route.hash && this.$router.push({ hash: 'sent' })
-    this.filters = this.$cookies.get('global_buyoffers_filters') || this.filters
-    this.sorting.val = this.$cookies.get('global_buyoffers_sort_order')
+    this.filters =
+      this.$cookies.get('global_history_buy_offers_filters') || this.filters
+    this.sorting.val = this.$cookies.get('global_history_buy_offers_sotring')
     this.getOffers()
-    this.fetchTradeOffersCount()
   },
   methods: {
     ...mapActions('modal', ['newTrade']),
@@ -146,7 +112,7 @@ export default {
       await this.$store.dispatch('chain/cancelBuyOffers', this.selected)
     },
     preview(id) {
-      this.$router.push({ hash: 'sent' + '-' + id })
+      this.$router.push({ hash: 'buyoffers' + '-' + id })
     },
     openNewTradeModal() {
       this.newTrade({ transferAssets: [this.data] })
@@ -176,28 +142,14 @@ export default {
     async getOffers() {
       this.buyOffers = (
         await this.getBuyOffersBySide({
-          side: this.$route.hash.split('-')[0] === '#sent' ? 'buyer' : 'seller',
-          sort: this.sorting.val?.split('_')[0],
-          order: this.sorting.val?.split('_')[1],
-          ...this.filters
+          side: this.filters.type,
+          sort: this.sorting.val?.split('_')[0] || 'created',
+          order: this.sorting.val?.split('_')[1] || 'asc',
+          ...this.filters,
+          before: new Date(this.filters.before).getTime(),
+          after: new Date(this.filters.after).getTime()
         })
       ).map((offer) => ({ ...offer, isSelected: false }))
-    },
-    async fetchTradeOffersCount() {
-      const rc = await this.getBuyOffersCountBySide({
-        side: 'seller',
-        sort: this.sorting.val?.split('_')[0],
-        order: this.sorting.val?.split('_')[1],
-        ...this.filters
-      })
-      if (rc) this.recipientTradesCount = rc || 0
-      const sc = await this.getBuyOffersCountBySide({
-        side: 'buyer',
-        sort: this.sorting.val?.split('_')[0],
-        order: this.sorting.val?.split('_')[1],
-        ...this.filters
-      })
-      if (sc) this.senderTradesCount = sc || 0
     }
   }
 }

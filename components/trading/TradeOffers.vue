@@ -65,6 +65,7 @@ export default {
     senderTradesCount: 0,
     sorting: { val: 'asc' },
     filters: {
+      show_invalid_offers: '0',
       hide_empty_offers: false,
       show_only_friends_offers: false,
       hide_contracts: false
@@ -88,6 +89,7 @@ export default {
         this.sorting.val,
         this.filters.hide_empty_offers,
         this.filters.hide_contracts,
+        this.filters.show_invalid_offers,
         this.filters.show_only_friends_offers
       ]
       return Date.now()

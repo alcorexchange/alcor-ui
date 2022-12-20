@@ -15,17 +15,16 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
     el-dropdown-item.dropdown__filters
       .d-flex.justify-content-between.gap-16
         .w-50.d-flex.flex-column.gap-8
-          .d-flex.gap-8.align-items-center(v-for="[ key, value ] in Object.entries(filters)")
-            .d-flex.gap-8.align-items-center(v-if="key === 'show_only_friends_offers'")
+            .d-flex.gap-8.align-items-center
               el-switch(
-                v-model="filters[key]"
+                v-model="filters['show_only_friends_offers']"
                 id="filter"
               )
-              span.fs-12.lh-12 {{ labels[key] }}
+              span.fs-12.lh-12 {{ labels['show_only_friends_offers'] }}
 
             el-select.fs-12.w-100(
-              v-if="key === 'show_invalid_offers' && typeOptions"
-              v-model="filters[key]"
+              v-if="typeOptions"
+              v-model="filters['type']"
               :placeholder='$t("Choose order type")'
               size="mini"
             )
@@ -36,8 +35,33 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
                 :value='value'
               )
 
-            el-input(size="small" v-model="filters[key]" v-if="key === 'min_price'" placeholder="Min Price: 0")
-            el-input(size="small" v-model="filters[key]" v-if="key === 'max_price'" placeholder="Max Price")
+            el-select.fs-12.w-100(
+              v-if="statusOptions"
+              v-model="filters['status']"
+              :placeholder='$t("Choose order status")'
+              size="mini"
+            )
+              el-option(
+                v-for='{ value, label } in statusOptions'
+                :key='value'
+                :label='label'
+                :value='value'
+              )
+            el-date-picker.w-100(
+              v-model="filters.after"
+              type="date"
+              placeholder="Start date"
+              size="mini"
+            )
+            el-date-picker.w-100(
+              v-model="filters.before"
+              type="date"
+              placeholder="End date"
+              size="mini"
+            )
+
+            el-input(size="small" v-model="filters['min_price']" placeholder="Min Price: 0")
+            el-input(size="small" v-model="filters['max_price']" placeholder="Max Price")
 
         .w-50.d-flex.flex-column.justify-content-between
           el-select.fs-12.w-100(
@@ -63,14 +87,20 @@ export default {
   props: ['filters', 'sorting'],
   data: () => ({
     typeOptions: [
-      { label: 'All Offers', value: '0,4' },
-      { label: 'Only valid Offers', value: '0' },
-      { label: 'Only invalid Offers', value: '4' }
+      { label: 'All Buy Offers', value: 'account' },
+      { label: 'Only Received Offers', value: 'buyer' },
+      { label: 'Only Sent Offers', value: 'seller' }
+    ],
+    statusOptions: [
+      { label: 'All Statuses', value: '1,2,3' },
+      { label: 'Only Declined', value: '1' },
+      { label: 'Only Canceled', value: '2' },
+      { label: 'Only Accepted', value: '3' }
     ],
     sortingOptions: [
       { label: 'Newest to Oldest', value: 'created_desc' },
       { label: 'Oldest to Newest', value: 'created_asc' },
-      { label: 'Lowest Price to Highest', value: 'price_asdc' },
+      { label: 'Lowest Price to Highest', value: 'price_asc' },
       { label: 'Highest Price to Lowest ', value: 'price_desc' }
     ],
     active: false,

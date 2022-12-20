@@ -21,7 +21,7 @@ export default {
   methods: {
     ...mapActions('modal', ['addFriend']),
     goToWallet() {
-      this.$router.push({ name: `wallet___${this.$i18n.locale}` })
+      this.$router.push({ name: `wallet-friends___${this.$i18n.locale}` })
     },
     openAddFriendModal() {
       this.addFriend()
@@ -37,4 +37,3 @@ export default {
   }
 }
 </script>
-

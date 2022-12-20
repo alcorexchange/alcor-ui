@@ -1,24 +1,23 @@
 <template lang="pug">
-#buy-offer-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
-  .d-flex.gap-4.align-items-center
+#gift-links-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
+  .d-flex.gap-8.align-items-center
     el-checkbox.disable(
       v-if="!previewMode"
-      v-model="offer.isSelected"
+      v-model="link.isSelected"
     )
     .fs-10 {{ date }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-4
       .d-flex.gap-4
-        .fs-14 {{ $store.state.user.name === offer.buyer ? 'Sent to' : 'Receive from' }}
-        .fs-14 {{ $store.state.user.name === offer.buyer ? offer.seller : offer.buyer }}
+        .fs-14 Created By
+        .fs-14 {{ link.creator }}
       .d-flex.gap-4.fs-12
-        span Offered
-        .color-action {{ (+offer.price.amount / 100000000) + ' WAX' }} ({{ $systemToUSD((+offer.price.amount / 100000000)) }}$)
-      .status-tag(v-if="offer.state === 4") Invalid
-      .status-tag.cancelled(v-if="offer.state === 2") Cancelled
-      .status-tag(v-if="offer.state === 1") Declined
+        span Link ID
+        span {{'#'+link.link_id}}
+      .status-tag(v-if="link.state == 1") Created
+      .status-tag.cancel-tag(v-if="link.state == 2") Canceled
     .d-flex.align-items-center.gap-24
-      asset-deck(:deck="offer.assets")
+      asset-deck(:deck="link.assets")
 
 </template>
 
@@ -27,17 +26,17 @@ import AssetDeck from '~/components/trading/AssetDeck.vue'
 
 export default {
   components: { AssetDeck },
-  props: ['offer', 'previewMode'],
+  props: ['link', 'previewMode'],
   computed: {
     date() {
-      return new Date(+this.offer.created_at_time).toLocaleString()
+      return new Date(+this.link.created_at_time).toLocaleString()
     }
   }
 }
 </script>
 
 <style lang="scss">
-#buy-offer-list-item-component {
+#gift-links-list-item-component {
   padding: 16px 32px;
   cursor: pointer;
   border-radius: 5px;
@@ -47,8 +46,8 @@ export default {
   }
 
   .status-tag {
-    background: hsla(0, 100%, 71%, 0.16);
-    color: #ff6c6c;
+    background: rgba(112, 142, 248, 0.16);
+    color: #708ef8;
     border-radius: 0.25rem;
     font-size: 0.625rem;
     font-weight: 600;
@@ -57,7 +56,7 @@ export default {
     text-align: center;
     width: fit-content;
 
-    &.cancelled {
+    &.cancel-tag {
       background: rgba(255, 183, 21, 0.16);
       color: #ffb715;
     }
