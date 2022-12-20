@@ -16,7 +16,13 @@ import SSpacer from '~/components/SSpacer.vue'
 import WalletTabBar from '~/components/wallet/WalletTabBar.vue'
 
 export default {
-  components: { WalletName, WalletHeader, SSpacer, WalletTabBar, WalletAccount },
+  components: {
+    WalletName,
+    WalletHeader,
+    SSpacer,
+    WalletTabBar,
+    WalletAccount
+  },
   computed: {
     ...mapGetters(['user'])
   }

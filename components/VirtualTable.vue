@@ -21,7 +21,7 @@ export default {
     sortedData() {
       if (!this.sortKey) return this.table.data
       const data = [...this.table.data]
-      data.sort((a, b) => a[this.sortKey] > b[this.sortKey] ? -1 : 1)
+      data.sort((a, b) => (a[this.sortKey] > b[this.sortKey] ? -1 : 1))
       return this.route ? data.reverse() : data
     },
     activeSort() {
@@ -30,7 +30,6 @@ export default {
   },
   methods: {
     sort(updated) {
-      console.log(updated)
       if (this.sortKey == updated.key && this.route == updated.route) {
         this.sortKey = null
         this.route = null
@@ -87,7 +86,7 @@ export default {
   text-overflow: ellipsis;
 }
 
-.header__column>span {
+.header__column > span {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

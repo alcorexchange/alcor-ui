@@ -45,6 +45,8 @@ export default {
         {
           label: 'Total',
           width: '235px',
+          value: 'amount',
+          sortable: true
         },
         {
           label: 'Available',
@@ -103,7 +105,11 @@ export default {
     },
 
     trade(token) {
-      this.openInNewTab(`${this.$i18n.locale === 'en' ? '' : '/' + this.$i18n.locale}/markets?tab=all&search=` + `${token.currency}-${token.contract}`)
+      this.openInNewTab(
+        `${
+          this.$i18n.locale === 'en' ? '' : '/' + this.$i18n.locale
+        }/markets?tab=all&search=` + `${token.currency}-${token.contract}`
+      )
     },
 
     openDeposit() {
