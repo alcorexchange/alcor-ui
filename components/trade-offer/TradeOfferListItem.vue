@@ -1,10 +1,11 @@
 <template lang="pug">
 #trade-offer-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
-  .d-flex.gap-4
+  .d-flex.gap-4.align-items-center
     el-checkbox.disable(
+      v-if="!previewMode"
       v-model="offer.isSelected"
     )
-      .fs-10 {{ date }}
+    .fs-10 {{ date }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-4
       .d-flex.gap-4
@@ -23,7 +24,7 @@ import AssetDeck from '~/components/trading/AssetDeck.vue'
 
 export default {
   components: { AssetDeck },
-  props: ['offer'],
+  props: ['offer', 'previewMode'],
   computed: {
     date() {
       return new Date(+this.offer.created_at_time).toLocaleString()
@@ -43,10 +44,10 @@ export default {
   }
 
   .status-tag {
-    background: hsla(0,100%,71%,.16);
+    background: hsla(0, 100%, 71%, 0.16);
     color: #ff6c6c;
     border-radius: 0.25rem;
-    font-size: .625rem;
+    font-size: 0.625rem;
     font-weight: 600;
     height: 24px;
     padding: 6px 8px;

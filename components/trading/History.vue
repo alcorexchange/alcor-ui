@@ -39,7 +39,11 @@ export default {
           label: 'Trade Offers',
           route: {
             path: '/trading/history',
-            hash: 'tradeoffers'
+            hash: `tradeoffers${
+              this.$route.hash.split('-')[1]
+                ? '-' + this.$route.hash.split('-')[1]
+                : ''
+            }`
           }
         },
         {

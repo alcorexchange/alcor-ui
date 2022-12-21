@@ -17,7 +17,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
         .w-50.d-flex.flex-column.gap-8
           .d-flex.gap-8.align-items-center(v-for="[ key, value ] in Object.entries(filters)")
             el-select.fs-12.w-100(
-              v-if="key === 'show_invalid_offers' && typeOptions"
+              v-if="key === 'state' && typeOptions"
               v-model="filters[key]"
               :placeholder='$t("Choose order type")'
               size="mini"
@@ -79,7 +79,9 @@ export default {
       this.$emit(
         'update:filters',
         Object.entries(this.filters)
-          .map(([key, value]) => key === 'show_invalid_offers' ? [key, 0] : [key, false])
+          .map(([key, value]) =>
+            key === 'show_invalid_offers' ? [key, '0'] : [key, false]
+          )
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
       )
     }

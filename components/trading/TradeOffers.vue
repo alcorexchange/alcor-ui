@@ -65,7 +65,7 @@ export default {
     senderTradesCount: 0,
     sorting: { val: 'asc' },
     filters: {
-      show_invalid_offers: '0',
+      state: '0,1',
       hide_empty_offers: false,
       show_only_friends_offers: false,
       hide_contracts: false
@@ -88,8 +88,8 @@ export default {
       ;[
         this.sorting.val,
         this.filters.hide_empty_offers,
+        this.filters.state,
         this.filters.hide_contracts,
-        this.filters.show_invalid_offers,
         this.filters.show_only_friends_offers
       ]
       return Date.now()
@@ -179,13 +179,23 @@ export default {
       }
     },
     async getOffers() {
+      const f = this.filters
+
+      const options = {
+        state: f.state
+      }
+
+      if (f.show_indalid_offer) options.show_indalid_offer = 'true'
+      if (f.show_only_friends_offers) {
+        options.show_only_friends_offers = 'true'
+        options.recipient = 'none'
+      }
+      if (f.hide_empty_offers) options.hide_empty_offers = 'true'
+      if (!f.hide_contracts) options.hide_contracts = 'true'
+
       this.tradeOffers = (
         await this.getTradeOffers({
-          filters: {
-            ...this.filters,
-            order: this.sorting.val,
-            hide_contracts: !this.filters.hide_contracts
-          },
+          options,
           type:
             this.$route.hash.split('-')[0] === '#sent' ? 'sender' : 'recipient'
         })

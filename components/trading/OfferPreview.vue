@@ -11,7 +11,7 @@
       span {{ date }}
 
     .d-flex.gap-4
-      alcor-button(outline @click="cancelOffer")
+      alcor-button(v-if="!previewMode" outline @click="cancelOffer")
         i.el-icon-delete
         span Cancel
   .d-flex.gap-8.flex-column.details
@@ -56,7 +56,7 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { AlcorButton, AlcorCollapse, AssetsField, ProfileImage },
-  props: ['offer', 'offerLog'],
+  props: ['offer', 'offerLog', 'previewMode'],
   computed: {
     date() {
       return new Date(+this.offer.created_at_time).toLocaleString()

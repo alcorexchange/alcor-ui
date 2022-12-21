@@ -17,7 +17,7 @@
     .d-flex.gap-4
       alcor-button(v-if="!previewMode" outline @click="cancelOffer")
         i.el-icon-delete
-        span Cancel {{ previewMode }}
+        span Cancel
   .d-flex.gap-8.flex-column.details
     .d-flex.justify-content-between.align-items-center
       .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14
