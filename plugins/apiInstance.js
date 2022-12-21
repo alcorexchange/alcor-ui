@@ -2,17 +2,17 @@ import axios from 'axios'
 import multibase from 'axios-multibase'
 
 const API_URLS_DEV = [
-  'http://wax.blokcrafters.io/',
-  'http://api.wax.liquidstudios.io/',
-  'http://atomic.wax.tgg.gg/',
-  'http://api.wax-aa.bountyblok.io/'
+  'http://wax.api.aa.atomichub.io'
+  // 'http://api.wax.liquidstudios.io/',
+  // 'http://atomic.wax.tgg.gg/',
+  // 'http://api.wax-aa.bountyblok.io/'
 ]
 
 const API_URLS_PROD = [
-  'https://wax.blokcrafters.io/',
-  'https://api.wax.liquidstudios.io/',
-  'https://atomic.wax.tgg.gg/',
-  'https://api.wax-aa.bountyblok.io/'
+  'https://wax.api.aa.atomichub.io'
+  // 'https://api.wax.liquidstudios.io/',
+  // 'https://atomic.wax.tgg.gg/',
+  // 'https://api.wax-aa.bountyblok.io/'
 ]
 
 export default function(_, inject) {
