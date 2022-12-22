@@ -111,8 +111,8 @@ export default {
       const options = {
         state: f.state
       }
-      if (f.before) options.before = f.before
-      if (f.after) options.after = f.after
+      if (f.before) options.before = +f.before + ''
+      if (f.after) options.after = +f.after + ''
 
       if (f.show_indalid_offer) options.show_indalid_offer = 'true'
       if (f.show_only_friends_offers) {
