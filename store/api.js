@@ -675,8 +675,23 @@ export const actions = {
       console.error('Get Trade Offer Error', e)
     }
   },
+  async getTransfers ({ getters, rootState, dispatch }, { options, type }) {
+    try {
+      const { data } = await this.$api.post('atomicassets/v1/transfers', {
+        [type || 'sender']: options.accountName || rootState.user.name,
+        limit: '10',
+        page: '1',
+        sort: 'created',
+        order: 'desc',
+        ...options
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get Trade offers error', e)
+      return await dispatch('getTransfers', { options }) // refetch
+    }
+  },
   async getTradeOffers({ getters, rootState, dispatch }, { options, type }) {
-    console.log(options)
     try {
       const { data } = await this.$api.post('atomicmarket/v1/offers', {
         [type || 'sender']: options.accountName || rootState.user.name,
