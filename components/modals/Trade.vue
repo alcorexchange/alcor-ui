@@ -1,5 +1,5 @@
 <template lang="pug">
-.add-friend-component
+.trade-component
   .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
     img(src='~/assets/icons/Users.svg')
     span New Trade
@@ -48,14 +48,17 @@ export default {
     },
     goToTrade() {
       this.closeModal()
-      this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.address } })
+      this.$router.push({
+        name: `wallet-nfts-trading-id___${this.$i18n.locale}`,
+        params: { id: this.address }
+      })
     }
   }
 }
 </script>
 
 <style lang="scss">
-.add-friend-component {
+.trade-component {
   .dark .el-input__inner {
     background-color: var(--btn-active);
     border: 1px solid var(--btn-active);

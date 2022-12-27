@@ -27,7 +27,7 @@ asset-hover(:data="data" :ownerName="ownerName")
                 i.el-icon-takeaway-box
                 span Transfer
             el-dropdown-item.dropdown__item
-              .dropdown__inner(@click="openNewTradeModal")
+              .dropdown__inner(@click="goToTrade")
                 i.el-icon-sort.rot-90
                 span New Trade
             el-dropdown-item.dropdown__item
@@ -60,7 +60,7 @@ export default {
   },
   props: ['data', 'ownerName'],
   methods: {
-    ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade']),
+    ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade', 'closeModal']),
     openListingModal() {
       this.listing(this.data)
     },
@@ -70,8 +70,11 @@ export default {
     openTransferModal() {
       this.transfer({ ...this.data, transferAssets: [this.data] })
     },
-    openNewTradeModal() {
-      this.newTrade({ transferAssets: [this.data] })
+    goToTrade() {
+      this.closeModal()
+      this.$router.push({
+        name: `wallet-nfts-trading-id___${this.$i18n.locale}`
+      })
     },
     openBurnModal() {
       this.burn(this.data)

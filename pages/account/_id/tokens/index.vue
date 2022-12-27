@@ -26,17 +26,17 @@ export default {
         {
           label: 'Asset',
           value: 'currency',
-          width: '220px',
+          width: '300px',
           sortable: true
         },
         {
           label: 'Total',
-          width: '355px'
+          width: '380px'
         },
         {
           label: 'Available',
           value: 'amount',
-          width: '340px',
+          width: '400px',
           sortable: true
         }
       ]
@@ -69,7 +69,7 @@ export default {
 
 <style lang="scss" scoped>
 .account-tokens-page {
-  width: 955px;
+  width: 100%;
 }
 
 .table-header {
