@@ -337,6 +337,38 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  async makeBid({ rootState, dispatch }, { waxAmount, auction_id }) {
+    const actions = [
+      {
+        account: 'eosio.token',
+        name: 'transfer',
+        authorization: [rootState.user.authorization],
+
+        data: {
+          from: rootState.user.name,
+          to: 'atomicmarket',
+          quantity: waxAmount + ' WAX',
+          memo: 'deposit'
+        }
+      },
+      {
+        account: 'atomicmarket',
+        name: 'auctionbid',
+        authorization: [rootState.user.authorization],
+        data: {
+          bidder: rootState.user.name,
+          auction_id,
+          bid: waxAmount + ' WAX',
+          taker_marketplace: ''
+        }
+      }
+    ]
+
+    console.log('aaaaa', actions)
+
+    await dispatch('sendTransaction', actions)
+  },
+
   async sendTradeOffer(
     { rootState, dispatch },
     { recipient, sender_asset_ids, recipient_asset_ids, memo = '' }

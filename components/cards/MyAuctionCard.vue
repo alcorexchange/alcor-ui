@@ -49,7 +49,7 @@ export default {
       const diff = this.data.end_time - Date.now()
       const time = Math.round(diff / (1000 * 60 * 60))
       const h = time % 24
-      const d = Math.round(time / 24)
+      const d = Math.floor(time / 24)
       if (h < 0 || d < 0) return '0h'
       return `${d}d ${h}h`
     },

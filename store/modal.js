@@ -5,9 +5,9 @@ export const state = () => ({
 })
 
 export const mutations = {
-  setCurrent: (state, value) => state.current = value,
-  setVisible: (state, value) => state.visible = value,
-  setModalContext: (state, value) => state.context = value
+  setCurrent: (state, value) => (state.current = value),
+  setVisible: (state, value) => (state.visible = value),
+  setModalContext: (state, value) => (state.context = value)
 }
 
 export const actions = {
@@ -18,6 +18,12 @@ export const actions = {
 
   buy({ commit }, context) {
     commit('setCurrent', 'buy-listing')
+    commit('setVisible', true)
+    if (context) commit('setModalContext', context)
+  },
+
+  makeBid({ commit }, context) {
+    commit('setCurrent', 'make-bid')
     commit('setVisible', true)
     if (context) commit('setModalContext', context)
   },
