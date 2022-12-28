@@ -114,12 +114,8 @@ export default {
       this.getAccountCollections()
     },
     '$route.query'() {
+      this.hisOfferAssets = []
       this.fetchAssets()
-    },
-    '$route.query.params.id'() {
-      if (this.$store.state.modal.context?.transferAssets) {
-        this.toggleSelected(0, this.$store.state.modal.context.transferAssets[0])
-      }
     }
   },
   mounted() {

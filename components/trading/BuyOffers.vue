@@ -4,6 +4,10 @@
   .d-flex.justify-content-between.align-items-center.mt-3
     .fs-24 Buy Offers
     .d-flex.gap-8
+      alcor-button(outline @click="goToHistory")
+        i.el-icon-time
+        span Buy Offer History
+
   .d-flex.align-items-center.gap-24.mt-3
     buy-offer-filters(:filters.sync="filters" :sorting.sync="sorting")
     alcor-tabs(:links="true" :tabs="tabs")
@@ -147,6 +151,12 @@ export default {
     },
     preview(id) {
       this.$router.push({ hash: 'sent' + '-' + id })
+    },
+    goToHistory() {
+      this.$router.push({
+        name: `trading-history___${this.$i18n.locale}`,
+        hash: '#buyoffers'
+      })
     },
     openNewTradeModal() {
       this.newTrade({ transferAssets: [this.data] })

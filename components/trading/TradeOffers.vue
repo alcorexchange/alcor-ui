@@ -4,10 +4,10 @@
   .d-flex.justify-content-between.align-items-center.mt-3
     .fs-24 Trade Offers
     .d-flex.gap-8
-      alcor-button(outline)
+      alcor-button(outline @click="goToHistory")
         i.el-icon-time
         span Trade Offer History
-      alcor-button(access @click="openNewTradeModal")
+      alcor-button(access @click="goToTrade")
         i.el-icon-plus
         span New Trade Offer
   .d-flex.align-items-center.gap-24.mt-3
@@ -155,6 +155,17 @@ export default {
     },
     openNewTradeModal() {
       this.newTrade({ transferAssets: [this.data] })
+    },
+    goToTrade() {
+      this.$router.push({
+        name: `wallet-nfts-trading-id___${this.$i18n.locale}`
+      })
+    },
+    goToHistory() {
+      this.$router.push({
+        name: `trading-history___${this.$i18n.locale}`,
+        hash: '#tradeoffers'
+      })
     },
     selectAll(isSelect) {
       isSelect

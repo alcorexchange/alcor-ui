@@ -60,7 +60,7 @@ export default {
   },
   props: ['data', 'ownerName'],
   methods: {
-    ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade', 'closeModal']),
+    ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade']),
     openListingModal() {
       this.listing(this.data)
     },
@@ -71,7 +71,8 @@ export default {
       this.transfer({ ...this.data, transferAssets: [this.data] })
     },
     goToTrade() {
-      this.closeModal()
+      this.$store.state.modal.context = { transferAssets: [this.data] }
+
       this.$router.push({
         name: `wallet-nfts-trading-id___${this.$i18n.locale}`
       })
