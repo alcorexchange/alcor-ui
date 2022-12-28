@@ -1,7 +1,10 @@
 <template lang="pug">
 .d-flex.justify-content-between.align-items-center
   .d-flex.align-items-center.gap-8
-    profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + ownerName" :size="20")
+    profile-image(
+      :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${ownerName}/avatar`"
+      :size="20"
+    )
     .fs-12 {{ ownerName }}
   .d-flex.align-items-center.gap-8
     img(src='~/assets/images/double_arrow.svg', alt='double_arrow')

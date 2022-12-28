@@ -11,7 +11,9 @@
       placeholder='Type address here',
     )
     .d-flex.justify-content-center.flex-column.gap-10(v-if="isFounded")
-      profile-image.account-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + address"  :size="128")
+      profile-image.account-image(
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${address}/avatar`"
+        :size="128")
       .fs-22.fw-bold.d-flex.justify-content-center {{ address }}
     alcor-button.w-100(@click="goToTrade" access :disabled="!isFounded") Trade
 

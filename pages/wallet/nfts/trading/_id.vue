@@ -7,10 +7,14 @@
       copy.pointer(@click="copyUserName" width="16" height="16" :color="color")
   .d-flex.gap-40.mt-4
     .d-flex.align-items-center.gap-6.w-50
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $store.state.user.name" :size="42")
+      profile-image(
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${$store.state.user.name}/avatar`"
+        :size="42")
       .fs-20 {{ user.name }}
     .d-flex.align-items-center.gap-6.w-50
-      profile-image(v-if="$route.params.id" :src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $route.params.id" :size="42")
+      profile-image(v-if="$route.params.id"
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${$route.params.id}/avatar`"
+        :size="42")
       .fs-20(v-if="$route.params.id") {{ $route.params.id }}
       alcor-button(@click="change" compact)
         i.el-icon-edit

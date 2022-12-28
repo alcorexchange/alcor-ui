@@ -2,7 +2,9 @@
 header#account-header-component.d-flex.flex-column.gap-24
   .d-flex.justify-content-between
     .d-flex.gap-6.align-items-center
-      profile-image.account-photo(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $route.params.id" :size="40")
+      profile-image.account-photo(
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${$route.params.id}/avatar`"
+        :size="40")
       .fs-20 {{ $route.params.id }}
       copy.pointer(@click="copyUserName" width="22" height="22" :color="color")
     .d-flex.gap-6.align-items-center.pointer(@click="goBack")

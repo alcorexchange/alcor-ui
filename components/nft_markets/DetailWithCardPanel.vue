@@ -9,7 +9,9 @@
         .d-flex.flex-column
           .fs-14.disable Seller
           .d-flex.gap-4
-            profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + data.seller" :size="20")
+            profile-image(
+              :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${data.seller}/avatar`"
+              :size="20")
             span {{ data.seller }}
         .d-flex.flex-column
           .fs-14.disable Price

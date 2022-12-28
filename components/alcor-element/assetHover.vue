@@ -29,7 +29,10 @@ el-popover(placement='right' trigger='hover' width='575' :open-delay="600")
             .fs-14.d-flex.gap-4
               span Owner:
               .d-flex.gap-4.align-items-center
-                profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + ownerName" :size="20")
+                profile-image(
+                  :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${ownerName}/avatar`"
+                  :size="20"
+                )
                 .color-action.text-truncate {{ ownerName }}
             .fs-12.d-flex.gap-4(v-if="data.prices && data.prices.length")
               span Lowest Listing:

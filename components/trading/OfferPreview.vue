@@ -17,14 +17,18 @@
   .d-flex.gap-8.flex-column.details
     .d-flex.justify-content-between.align-items-center
       .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.sender_name)")
-        profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.sender_name" :size="20")
+        profile-image(
+          :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.sender_name}/avatar`"
+          :size="20")
         .color-wax {{ offer.sender_name }}
         span -
         strong {{ offer.sender_assets.length }}
         span NFT(s)
 
       .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.recipient_name)")
-        profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.recipient_name" :size="20")
+        profile-image(
+          :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.recipient_name}/avatar`"
+          :size="20")
         .color-wax {{ offer.recipient_name }}
         span -
         strong {{ offer.recipient_assets.length }}
@@ -42,7 +46,9 @@
       i.el-icon-chat-square
       .fs-14 Message
     .d-flex.align-items-center.gap-4.fs-12
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.sender_name" :size="20")
+      profile-image(
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.sender_name}/avatar`"
+        :size="20")
       span {{ offer.sender_name }}
     .ml-4.mt-2.message {{ offer.memo }}
 

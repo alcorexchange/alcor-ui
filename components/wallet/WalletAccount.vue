@@ -1,7 +1,11 @@
 <template lang="pug">
 .wallet-account-component.d-flex.justify-content-between(v-if="user")
   .d-flex.gap-6.align-items-center
-    profile-image.account-photo(editable :src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $store.state.user.name", :hash.sync="profileImageHash" :size="40")
+    profile-image.account-photo(editable
+      :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${$store.state.user.name}/avatar`"
+      :hash.sync="profileImageHash"
+      :size="40"
+    )
     wallet-name
     wallet-actions
   .d-flex.gap-6.align-items-center.pointer(@click="logout" v-if="user")
