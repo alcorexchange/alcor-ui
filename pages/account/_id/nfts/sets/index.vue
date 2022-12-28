@@ -1,6 +1,6 @@
 <template lang="pug">
 #wallet-nfts-sets-page
-  .d-flex.flex-wrap.gap-20
+  .d-flex.justify-content-center.flex-wrap.gap-20
     vue-skeleton-loader(
       v-if='loading'
       :width='304',

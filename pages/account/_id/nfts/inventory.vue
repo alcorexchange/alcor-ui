@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-wrap.justify-content-between.grid-gaps
+.d-flex.flex-wrap.justify-content-center.grid-gaps
   vue-skeleton-loader(
     v-if="!inventory"
     v-for="idx in [1, 2, 3, 4, 5]"
