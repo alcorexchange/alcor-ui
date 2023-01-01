@@ -32,7 +32,8 @@ account.get('/:account/deals', async (req, res) => {
         trx_id: 1,
         market: 1,
         type: 1,
-        bidder: 1
+        bidder: 1,
+        asker: 1
       }
     }
   ]
