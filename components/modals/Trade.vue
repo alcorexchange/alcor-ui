@@ -1,5 +1,5 @@
 <template lang="pug">
-.add-friend-component
+.trade-component
   .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
     img(src='~/assets/icons/Users.svg')
     span New Trade
@@ -11,7 +11,9 @@
       placeholder='Type address here',
     )
     .d-flex.justify-content-center.flex-column.gap-10(v-if="isFounded")
-      profile-image.account-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + address"  :size="128")
+      profile-image.account-image(
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${address}/avatar`"
+        :size="128")
       .fs-22.fw-bold.d-flex.justify-content-center {{ address }}
     alcor-button.w-100(@click="goToTrade" access :disabled="!isFounded") Trade
 
@@ -48,14 +50,17 @@ export default {
     },
     goToTrade() {
       this.closeModal()
-      this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.address } })
+      this.$router.push({
+        name: `wallet-nfts-trading-id___${this.$i18n.locale}`,
+        params: { id: this.address }
+      })
     }
   }
 }
 </script>
 
 <style lang="scss">
-.add-friend-component {
+.trade-component {
   .dark .el-input__inner {
     background-color: var(--btn-active);
     border: 1px solid var(--btn-active);

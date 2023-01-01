@@ -50,40 +50,50 @@ export default {
       const contract = this.$store.state.network.otc.contract
 
       try {
-        const { data: { actions } } = await this.$axios.get(this.$store.state.network.hyperion + 'v2/history/get_actions', {
-          params: {
-            account: contract,
-            limit: 1000,
-            filter: `${contract}:matchrecord`
+        const {
+          data: { actions }
+        } = await this.$axios.get(
+          this.$store.state.network.hyperion + 'v2/history/get_actions',
+          {
+            params: {
+              account: contract,
+              limit: 1000,
+              filter: `${contract}:matchrecord`
+            }
           }
-        })
+        )
 
-        const history = actions.map(a => {
-          return { time: a['@timestamp'], ...a.act.data.record }
-        }).map(h => {
-          const t = new Date(h.time).toLocaleString().split(':')
-          h.time = t[0] + ':' + t[1] + ':' + t[2]
+        const history = actions
+          .map((a) => {
+            return { time: a['@timestamp'], ...a.act.data.record }
+          })
+          .map((h) => {
+            const t = new Date(h.time).toLocaleString().split(':')
+            h.time = t[0] + ':' + t[1] + ':' + t[2]
 
-          h.sell = parseOtcAsset(h.sell)
-          h.buy = parseOtcAsset(h.buy)
+            h.sell = parseOtcAsset(h.sell)
+            h.buy = parseOtcAsset(h.buy)
 
-          h.price = calculatePrice(h.sell, h.buy)
+            h.price = calculatePrice(h.sell, h.buy)
 
-          h.buy.amount /= 0.9975
-          h.sell.amount /= 0.9975
+            h.buy.amount /= 0.9975
+            h.sell.amount /= 0.9975
 
-          return h
-        })
+            return h
+          })
 
         this.history = history
       } catch (e) {
         console.log(e)
-        this.$notify({ title: 'Load history', message: e.message, type: 'error' })
+        this.$notify({
+          title: 'Load history',
+          message: e.message,
+          type: 'error'
+        })
       } finally {
         this.loading = false
       }
     }
   }
 }
-
 </script>

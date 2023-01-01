@@ -1,6 +1,8 @@
 <template lang="pug">
 card
-  profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + data.name" :size="128")
+  profile-image(
+    :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${data.name}/avatar`"
+    :size="128")
   .account-name.py-3 {{ data.name }}
   .d-flex.justify-content-between.px-4
     span.d-flex.align-items-center.gap-4

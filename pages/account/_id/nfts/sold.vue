@@ -66,5 +66,6 @@ export default {
 <style lang="scss" scoped>
 #wallet-nfts-sold-page {
   max-width: 955px;
+  margin: 0 auto;
 }
 </style>

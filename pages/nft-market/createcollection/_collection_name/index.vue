@@ -52,7 +52,7 @@
             v-if='collectionData && collectionData.data.description'
           ) {{ collectionData.data.description }}
       .d-flex.justify-content-end
-        alcor-button(big access)(@click='() => (this.editable = true)') Edit Collection
+        alcor-button(big access @click='() => (this.editable = true)') Edit Collection
     form.nft-info.border-radius5.d-flex.flex-column.justify-content-between.edit-field(
       name='updateCollectionForm',
       @submit='handleUpdate',

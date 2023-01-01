@@ -1,9 +1,9 @@
 <template lang="pug">
 #wallet-nfts-auctions-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.flex-wrap.gap-25.justify-content-center.grid-gaps
     vue-skeleton-loader(
       v-if="!auctions"
-      v-for="idx in [1,2,3,4]"
+      v-for="idx in [1,2,3,4,5]"
       :width='220',
       :height='471',
       animation='wave',
@@ -57,8 +57,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-#wallet-nfts-auctions-page {
+<style lang="scss">
+.grid-gaps {
+  gap: 20px 5px;
 }
 </style>
 

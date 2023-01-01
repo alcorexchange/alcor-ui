@@ -4,10 +4,10 @@
   .d-flex.justify-content-between.align-items-center.mt-3
     .fs-24 Trade Offers
     .d-flex.gap-8
-      alcor-button(outline)
+      alcor-button(outline @click="goToHistory")
         i.el-icon-time
         span Trade Offer History
-      alcor-button(access @click="openNewTradeModal")
+      alcor-button(access @click="goToTrade")
         i.el-icon-plus
         span New Trade Offer
   .d-flex.align-items-center.gap-24.mt-3
@@ -65,7 +65,7 @@ export default {
     senderTradesCount: 0,
     sorting: { val: 'asc' },
     filters: {
-      show_invalid_offers: '0',
+      state: '0,1',
       hide_empty_offers: false,
       show_only_friends_offers: false,
       hide_contracts: false
@@ -88,8 +88,8 @@ export default {
       ;[
         this.sorting.val,
         this.filters.hide_empty_offers,
+        this.filters.state,
         this.filters.hide_contracts,
-        this.filters.show_invalid_offers,
         this.filters.show_only_friends_offers
       ]
       return Date.now()
@@ -156,6 +156,17 @@ export default {
     openNewTradeModal() {
       this.newTrade({ transferAssets: [this.data] })
     },
+    goToTrade() {
+      this.$router.push({
+        name: `wallet-nfts-trading-id___${this.$i18n.locale}`
+      })
+    },
+    goToHistory() {
+      this.$router.push({
+        name: `trading-history___${this.$i18n.locale}`,
+        hash: '#tradeoffers'
+      })
+    },
     selectAll(isSelect) {
       isSelect
         ? this.tradeOffers.forEach((o) => (o.isSelected = true))
@@ -179,13 +190,23 @@ export default {
       }
     },
     async getOffers() {
+      const f = this.filters
+
+      const options = {
+        state: f.state
+      }
+
+      if (f.show_indalid_offer) options.show_indalid_offer = 'true'
+      if (f.show_only_friends_offers) {
+        options.show_only_friends_offers = 'true'
+        options.recipient = 'none'
+      }
+      if (f.hide_empty_offers) options.hide_empty_offers = 'true'
+      if (!f.hide_contracts) options.hide_contracts = 'true'
+
       this.tradeOffers = (
         await this.getTradeOffers({
-          filters: {
-            ...this.filters,
-            order: this.sorting.val,
-            hide_contracts: !this.filters.hide_contracts
-          },
+          options,
           type:
             this.$route.hash.split('-')[0] === '#sent' ? 'sender' : 'recipient'
         })

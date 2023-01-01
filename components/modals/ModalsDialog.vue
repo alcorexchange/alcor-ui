@@ -12,6 +12,7 @@ import Burn from '~/components/modals/Burn'
 import Gift from '~/components/modals/Gift'
 import BuyListing from '~/components/modals/BuyListing'
 import MakeOffer from '~/components/modals/MakeOffer'
+import MakeBid from '~/components/modals/MakeBid'
 import Transfer from '~/components/modals/Transfer'
 import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
@@ -27,6 +28,7 @@ export default {
     Gift,
     BuyListing,
     MakeOffer,
+    MakeBid,
     Transfer,
     RemoveFriend,
     AddFriend,

@@ -15,6 +15,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
       .d-flex.justify-content-between.gap-16
         .w-50
           el-select.fs-12.w-100(
+            filterable
             v-if="options.collection"
             v-model='filters.collection'
             :placeholder='$t("Choose Collection") + " (" + options.collection.length + ")"'
@@ -24,7 +25,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             el-option(
               v-for='{ collection, assets } in options.collection'
               :key='collection.collection_name'
-              :label='collection.name && assets && " (" + assets + ")"'
+              :label='collection.name'
               :value='collection.collection_name'
             )
               .d-flex.gap-10.align-items-center
@@ -117,7 +118,7 @@ export default {
 
   & .disabled {
     color: var(--btn-default);
-    cursor: not-allowed;;
+    cursor: not-allowed;
   }
 
   &.active {
@@ -136,6 +137,5 @@ export default {
 
 .apply-btn .inner {
   line-height: initial;
-
 }
 </style>

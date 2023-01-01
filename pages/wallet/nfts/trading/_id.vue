@@ -1,20 +1,27 @@
 <template lang="pug">
 .nft-trading-id-page
-  .fs-18.d-flex.align-items-center.gap-6.mt-4
+  .fs-18.d-flex.align-items-center.gap-6.mt-4(v-if="$route.params.id")
     span You are now trading with:
     span.user-name.fs-12.p-2.d-flex.align-items-center.gap-8
       span {{ $route.params.id }}
       copy.pointer(@click="copyUserName" width="16" height="16" :color="color")
   .d-flex.gap-40.mt-4
     .d-flex.align-items-center.gap-6.w-50
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $store.state.user.name" :size="42")
+      profile-image(
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${$store.state.user.name}/avatar`"
+        :size="42")
       .fs-20 {{ user.name }}
     .d-flex.align-items-center.gap-6.w-50
-      profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + $route.params.id" :size="42")
-      .fs-20 {{ $route.params.id }}
+      profile-image(v-if="$route.params.id"
+        :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${$route.params.id}/avatar`"
+        :size="42")
+      .fs-20(v-if="$route.params.id") {{ $route.params.id }}
+      alcor-button(@click="change" compact)
+        i.el-icon-edit
+        span Change
   .d-flex.gap-40.mt-4
-    assets-field.w-50(:assets="myOfferAssets" @removeAsset="asset => toggleSelected(0, asset)")
-    assets-field.w-50(:assets="hisOfferAssets" @removeAsset="asset => toggleSelected(1, asset)")
+    assets-field.w-50(v-if="myOfferAssets.length" :assets="myOfferAssets" @removeAsset="asset => toggleSelected(0, asset)")
+    assets-field.w-50(v-if="hisOfferAssets.length" :assets="hisOfferAssets" @removeAsset="asset => toggleSelected(1, asset)")
 
   .d-flex.align-items-center.justify-content-between.gap-28.mt-5
     .d-flex.align-items-center.gap-28.w-100
@@ -41,7 +48,7 @@
       :key="item.asset_id"
       :data="item"
       @click="toggleSelected(activeTab, item)"
-      :class="{ 'active-border': offerAssets.includes(({ asset_id }) => asset_id === item.asset_id), disable: hisOfferAssets.length && item.collection.collection_name !== hisOfferAssets[0].collection.collection_name }"
+      :class="{ 'active-border': offerAssets.find(({ asset_id }) => asset_id === item.asset_id), disable: hisOfferAssets.length && item.collection.collection_name !== hisOfferAssets[0].collection.collection_name }"
       :small="true"
     )
 
@@ -111,6 +118,7 @@ export default {
       this.getAccountCollections()
     },
     '$route.query'() {
+      this.hisOfferAssets = []
       this.fetchAssets()
     }
   },
@@ -126,6 +134,11 @@ export default {
   methods: {
     ...mapActions('api', ['getAssets', 'getAccountSpecificStats']),
     ...mapActions('chain', ['sendTradeOffer']),
+    ...mapActions('modal', ['newTrade']),
+
+    change() {
+      this.newTrade({ transferAssets: [this.myOfferAssets] })
+    },
 
     async getAccountCollections() {
       this.options.collections = null
@@ -151,6 +164,8 @@ export default {
     },
     fetchAssets() {
       clearTimeout(this.debounce)
+      this.availableAssets = []
+      if (this.activeTab && !this.$route.params.id) return
       this.debounce = setTimeout(async () => {
         this.loading = true
         const assets = await this.getAssets({
@@ -164,7 +179,6 @@ export default {
           has_backed_tokens: !!this.$route.query?.isBacked,
           only_duplicate_templates: !!this.$route.query?.isDuplicates
         })
-
 
         this.availableAssets = assets.reduce((res, asset) => {
           [this.offerAssets].find(({ asset_id: offerID }) => offerID === asset.asset_id) ? res[0].push(asset) : res[1].push(asset)

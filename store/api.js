@@ -614,7 +614,6 @@ export const actions = {
         page: '1',
 
         [side || 'seller']: accountName || rootState.user.name,
-
         [show_only_friends_offers ? 'seller' : null]: 'none',
         [show_only_friends_offers ? 'show_only_friends_offers' : null]: 'true',
         [before ? 'before' : null]: before,
@@ -676,27 +675,39 @@ export const actions = {
       console.error('Get Trade Offer Error', e)
     }
   },
-  async getTradeOffers({ getters, rootState, dispatch }, { filters, type }) {
-    const filteredOptions = Object.entries(filters)
-      .filter(([key, value]) => value)
-      .reduce((obj, [key, value]) => ({ ...obj, [key]: value + '' }), {})
-
+  async getTransfers ({ getters, rootState, dispatch }, { options, type }) {
     try {
-      const { data } = await this.$api.post('atomicmarket/v1/offers', {
-        [type]: rootState.user.name,
-        collection_blacklist,
-        account_blacklist,
-        state: filters.show_invalid_offers || '0,4',
-        sort: 'created',
+      const { data } = await this.$api.post('atomicassets/v1/transfers', {
+        [type || 'sender']: options.accountName || rootState.user.name,
         limit: '10',
-        order: 'desc',
         page: '1',
-        ...filteredOptions
+        sort: 'created',
+        order: 'desc',
+        ...options
       })
       return data.data
     } catch (e) {
       console.error('Get Trade offers error', e)
-      return await dispatch('getTradeOffers', { filters, type }) // refetch
+      return await dispatch('getTransfers', { options }) // refetch
+    }
+  },
+  async getTradeOffers({ getters, rootState, dispatch }, { options, type }) {
+    try {
+      const { data } = await this.$api.post('atomicmarket/v1/offers', {
+        [type || 'sender']: options.accountName || rootState.user.name,
+        limit: '10',
+        page: '1',
+        sort: 'created',
+        order: 'desc',
+        state: '0,1',
+        collection_blacklist,
+        account_blacklist,
+        ...options
+      })
+      return data.data
+    } catch (e) {
+      console.error('Get Trade offers error', e)
+      return await dispatch('getTradeOffers', { options, type }) // refetch
     }
   },
   async getOfferLog({ dispatch }, { offerId, options }) {
@@ -739,7 +750,10 @@ export const actions = {
         state: filters.show_invalid_offers || '0,4',
         sort: 'created',
         order: 'desc',
-        ...filteredOptions
+        ...filteredOptions,
+        [filters.show_only_friends_offers ? 'show_only_friends_offers' : null]:
+          filters.show_only_friends_offers + '',
+        [filters.show_only_friends_offers ? 'recipient' : null]: 'none'
       })
       return data.data
     } catch (e) {

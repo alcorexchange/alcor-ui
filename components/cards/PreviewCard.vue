@@ -4,7 +4,7 @@ asset-hover(v-if="data" :data="data" :ownerName="ownerName")
     .d-flex.justify-content-end(slot="header")
       .card_number.d-flex.align-items-center.ml-1.fs-12.color-green {{ "#" + mint }}
 
-    asset-card-image.main-img(:template="{ ...data.immutable_data, ...data.template.immutable_data }")
+    asset-card-image.main-img(v-if="data" :template="template")
 
     .d-flex.flex-column.justify-content-between.align-items-center.p-2.card-title(slot="footer")
       .card-name {{ data.name }}
@@ -25,6 +25,11 @@ export default {
   components: { Card, AssetCardImage, AssetHover },
   props: ['data', 'small', 'ownerName'],
   computed: {
+    template() {
+      return this.data.template
+        ? this.data.template.immutable_data
+        : this.data.immutable_data
+    },
     mint() {
       if (!this.data?.template_mint) return 0
       return this.data.template_mint.length > 4

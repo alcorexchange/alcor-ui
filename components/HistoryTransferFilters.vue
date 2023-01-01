@@ -1,12 +1,12 @@
 <template lang="pug">
-el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-center.pointer(
+el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-center(
   placement="bottom-start"
   trigger='click'
   :hideOnClick="false"
   :class="{ active }"
   @visible-change="isActive => this.active = isActive"
 )
-  .d-flex.align-items-center.gap-8.fs-16.button
+  .d-flex.align-items-center.gap-8.fs-16.button.pointer
     i.el-icon-set-up
     span Filter
     i.el-icon-caret-bottom
@@ -15,10 +15,9 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
     el-dropdown-item.dropdown__filters
       .d-flex.justify-content-between.gap-16
         .w-50.d-flex.flex-column.gap-8
-          .d-flex.gap-8.align-items-center(v-for="[ key, value ] in Object.entries(filters)")
             el-select.fs-12.w-100(
-              v-if="key === 'state' && typeOptions"
-              v-model="filters[key]"
+              v-if="typeOptions"
+              v-model="filters['type']"
               :placeholder='$t("Choose order type")'
               size="mini"
             )
@@ -29,12 +28,48 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
                 :value='value'
               )
 
-            el-switch(
-              v-else
-              v-model="filters[key]"
-              id="filter"
+            el-select.fs-12.w-100(
+              v-if="collectionOptions"
+              v-model="filters['collection_name']"
+              :placeholder='$t("Choose order status")'
+              size="mini"
             )
-            span.fs-12.lh-12 {{ labels[key] }}
+              el-option(
+                v-for='option in collectionOptions',
+                :key='option.collection.collection_name',
+                :label='option.collection.collection_name',
+                :value='option.collection.collection_name'
+              )
+                .d-flex.gap-10.align-items-center
+                  img.icon(:src="`https://resizer.atomichub.io/images/v1/preview?ipfs=${option.collection.img}&size=370`")
+                  span {{ option.collection.collection_name }} ({{ option.assets }})
+
+            el-date-picker.w-100(
+              v-model="filters.after"
+              type="date"
+              placeholder="Start date"
+              size="mini"
+            )
+            el-date-picker.w-100(
+              v-model="filters.before"
+              type="date"
+              placeholder="End date"
+              size="mini"
+            )
+
+            .d-flex.gap-8.align-items-center
+              el-switch(
+                v-model="filters['show_only_friends_offers']"
+                id="filter"
+              )
+              span.fs-12.lh-12 {{ labels['show_only_friends_offers'] }}
+            .d-flex.gap-8.align-items-center
+              el-switch(
+                v-model="filters['hide_contracts']"
+                id="filter"
+              )
+              span.fs-12.lh-12 {{ labels['hide_contracts'] }}
+
         .w-50.d-flex.flex-column.justify-content-between
           el-select.fs-12.w-100(
             v-if="sortingOptions"
@@ -56,12 +91,12 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
 
 <script>
 export default {
-  props: ['filters', 'sorting'],
+  props: ['filters', 'sorting', 'collectionOptions'],
   data: () => ({
     typeOptions: [
-      { label: 'All Offers', value: '0,1' },
-      { label: 'Only valid Offers', value: '0' },
-      { label: 'Only invalid Offers', value: '1' }
+      { label: 'All Trade Offers', value: 'account' },
+      { label: 'Only Received Offers', value: 'recipient' },
+      { label: 'Only Sent Offers', value: 'sender' }
     ],
     sortingOptions: [
       { label: 'Newest to Oldest', value: 'desc' },
@@ -70,20 +105,19 @@ export default {
     active: false,
     labels: {
       show_only_friends_offers: 'Only Friends Offers',
-      hide_empty_offers: 'Hide Empty Offers',
       hide_contracts: 'Show DAPP Trades'
     }
   }),
   methods: {
     reset() {
-      this.$emit(
-        'update:filters',
-        Object.entries(this.filters)
-          .map(([key, value]) =>
-            key === 'show_invalid_offers' ? [key, '0'] : [key, false]
-          )
-          .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
-      )
+      this.$emit('update:filters', {
+        show_only_friends_offers: false,
+        type: 'account',
+        before: null,
+        after: null,
+        collections_name: null,
+        hide_contracts: false
+      })
     }
   }
 }

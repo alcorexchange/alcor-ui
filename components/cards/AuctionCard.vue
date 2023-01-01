@@ -22,7 +22,7 @@ asset-hover(:data="data" :ownerName="ownerName")
 
     .d-flex.gap-8(slot="footer")
       alcor-button.w-100(outline @click="$router.push('/nfts/' + data.assets[0].asset_id)") Details
-      alcor-button.w-100(access @click="openOfferModal") Make Offer
+      alcor-button.w-100(access @click="openBidModal") Place Bid
 </template>
 
 <script>
@@ -49,7 +49,7 @@ export default {
       const diff = this.data.end_time - Date.now()
       const time = Math.round(diff / (1000 * 60 * 60))
       const h = time % 24
-      const d = Math.round(time / 24)
+      const d = Math.floor(time / 24)
       if (h < 0 || d < 0) return '0h'
       return `${d}d ${h}h`
     },
@@ -66,9 +66,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['makeOffer']),
-    openOfferModal() {
-      this.makeOffer(this.data.assets[0])
+    ...mapActions('modal', ['makeBid']),
+    openBidModal() {
+      this.makeBid(this.data)
     }
   }
 }

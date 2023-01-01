@@ -1,5 +1,5 @@
 <template lang="pug">
-#trade-offer-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
+#transfer-offer-list-item-component.d-flex.flex-column.gap-8(@click="$emit('click')")
   .d-flex.gap-4.align-items-center
     el-checkbox.disable(
       v-if="!previewMode"
@@ -11,11 +11,10 @@
       .d-flex.gap-4
         .fs-14 {{ $store.state.user.name === offer.sender_name ? 'Sent to' : 'Receive from' }}
         .fs-14 {{ $store.state.user.name === offer.sender_name ? offer.recipient_name : offer.sender_name }}
-      .status-tag(v-if="offer.state === 1") Invalid
+      .status-tag(v-if="offer.sender_name == $store.state.user.name") Sent
+      .status-tag.receive(v-else) Receive
     .d-flex.align-items-center.gap-24
-      asset-deck(:deck="offer.sender_assets")
-      i.el-icon-sort.r-45
-      asset-deck(:deck="offer.recipient_assets")
+      asset-deck(:deck="offer.assets")
 
 </template>
 
@@ -34,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss">
-#trade-offer-list-item-component {
+#transfer-offer-list-item-component {
   padding: 16px 32px;
   cursor: pointer;
   border-radius: 5px;
@@ -44,8 +43,8 @@ export default {
   }
 
   .status-tag {
-    background: hsla(0, 100%, 71%, 0.16);
-    color: #ff6c6c;
+    background: rgba(112, 142, 248, 0.16);
+    color: #708ef8;
     border-radius: 0.25rem;
     font-size: 0.625rem;
     font-weight: 600;
@@ -53,6 +52,11 @@ export default {
     padding: 6px 8px;
     text-align: center;
     width: fit-content;
+    &.receive {
+      background: rgba(255, 183, 21, 0.16);
+      color: #ffb715;
+    }
+
   }
 
   .r-45 {

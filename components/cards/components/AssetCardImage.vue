@@ -14,6 +14,7 @@ export default {
       return this.template.img
         ? this.template.img.includes('https://')
           ? this.template.img
+          //: `https://resizer.atomichub.io/images/v1/preview?ipfs=${this.template.img}&size=370`
           : `https://images.hive.blog/0x0/https://ipfs.io/ipfs/${this.template.img}`
         : this.template.video
           ? this.template.video.includes('https://')

@@ -5,7 +5,9 @@
     span Block
   .d-flex.flex-column.gap-16
     span.fs-14.fw-bold.red Are you sure you want to block?
-    profile-image.account-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + context.name" :size="128")
+    profile-image.account-image(
+      :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${context.name}/avatar`"
+      :size="128")
     span.fs-22.fw-bold.d-flex.justify-content-center {{ context.name }}
     alcor-button.w-100.red(@click="block") Block
 

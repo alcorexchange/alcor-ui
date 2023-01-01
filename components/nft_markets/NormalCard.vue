@@ -218,7 +218,6 @@ nuxt-link.normalcard.radius10(
 
     el-dropdown.btn-fill--green.dropdown-more.radius6.p-0.d-flex.justify-content-center.align-items-center(
       trigger='click'
-    )(
       v-if='mode == "friends"'
     )
       span.el-dropdown-link

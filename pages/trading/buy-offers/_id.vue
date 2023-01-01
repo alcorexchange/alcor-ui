@@ -28,7 +28,10 @@
       .assets-wrapper.d-flex.flex-column.gap-16.w-50.mt-3
         .d-flex.flex-column.align-items-center.gap-4.account.pointer(@click="goToProfile(offer.buyer)")
           .fs-12 Buyer (you)
-          profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer" :size="24")
+          profile-image(
+            :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.buyer}/avatar`"
+            :size="24"
+          )
           .color-wax {{ offer.buyer }}
 
         .d-flex.justify-content-center
@@ -36,7 +39,10 @@
 
         .d-flex.flex-column.align-items-center.gap-4.account.pointer(@click="goToProfile(offer.seller)")
           .fs-12 Recipient
-          profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.seller" :size="24")
+          profile-image(
+            :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.seller}/avatar`"
+            :size="24"
+          )
           .color-wax {{ offer.seller }}
 
         ul.d-flex.flex-column.w-100.fs-12
@@ -62,8 +68,11 @@
         i.el-icon-chat-square
         .fs-14 Message
       .d-flex.align-items-center.gap-4.fs-12
-        profile-image(:src="'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.sender_name" :size="20")
-        span {{ offer.sender_name }}
+        profile-image(
+          :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.buyer}/avatar`"
+          :size="24"
+        )
+        span {{ offer.buyer }}
       .ml-4.mt-2.message {{ offer.memo }}
 
   .offer-details(v-if="offerLog")

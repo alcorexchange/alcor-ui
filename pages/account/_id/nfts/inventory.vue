@@ -1,8 +1,8 @@
 <template lang="pug">
-.d-flex.flex-wrap.gap-25
+.d-flex.flex-wrap.justify-content-center.grid-gaps
   vue-skeleton-loader(
     v-if="!inventory"
-    v-for="idx in [1, 2, 3, 4]"
+    v-for="idx in [1, 2, 3, 4, 5]"
     :width='220',
     :height='397',
     animation='wave',
@@ -50,7 +50,13 @@ export default {
           only_duplicate_templates: !!this.$route.query?.isDuplicates
         })
       }, 600)
-    },
+    }
   }
 }
 </script>
+
+<style lang="scss">
+.grid-gaps {
+  gap: 20px 5px;
+}
+</style>

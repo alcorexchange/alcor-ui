@@ -2,44 +2,39 @@
 #offer-preview-component.d-flex.flex-column.gap-16
   .d-flex.justify-content-center.status.w-100(v-if="offer.state === 1")
     | The buy offer is invalid because the recipient does not own all assets anymore
-  .d-flex.justify-content-between.align-items-center.w-100
+  .d-flex.justify-content-between.w-100
     .d-flex.gap-4.fs-14
       span ID:
-      router-link(:to="{ name: `trading-trade-offers-id___${$i18n.locale}`, params: { id: offer.offer_id } }")
-        .color-wax {{ '#' + offer.offer_id }}
-      span Created:
-      span {{ date }}
+      span {{ '#' + offer.transfer_id }}
 
-    .d-flex.gap-4
-      alcor-button(v-if="!previewMode" outline @click="cancelOffer")
-        i.el-icon-delete
-        span Cancel
+    .d-flex.flex-column.gap-8.fs-12
+      .d-flex.gap-4
+        span Created:
+        span {{ date }}
+
+      alcor-button(outline @click="goToBlock")
+        i.el-icon-link
+        span View On Blockchain
   .d-flex.gap-8.flex-column.details
-    .d-flex.justify-content-between.align-items-center
-      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.sender_name)")
+    .d-flex.justify-content-between.align-items-center.gap-8
+      .d-flex.align-items-center.justify-content-end.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.sender_name)")
         profile-image(
           :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.sender_name}/avatar`"
           :size="20")
         .color-wax {{ offer.sender_name }}
         span -
-        strong {{ offer.sender_assets.length }}
+        strong {{ offer.assets.length }}
         span NFT(s)
 
-      .d-flex.align-items-center.justify-content-center.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.recipient_name)")
+      .d-flex.align-items-center.justify-content-start.gap-4.w-100.fs-14.pointer(@click="goToProfile(offer.recipient_name)")
+        i.el-icon-right
         profile-image(
           :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${offer.recipient_name}/avatar`"
           :size="20")
         .color-wax {{ offer.recipient_name }}
-        span -
-        strong {{ offer.recipient_assets.length }}
-        span NFT(s)
 
     .d-flex.justify-content-center.align-items-center
-      assets-field.assets(v-if="offer.sender_assets.length" :assets="offer.sender_assets" smallCards="true")
-      .null-card(v-else) 0
-      i.el-icon-sort.r-45
-      assets-field.assets(v-if="offer.recipient_assets.length" :assets="offer.recipient_assets" smallCards="true")
-      .null-card(v-else) 0
+      assets-field.assets(v-if="offer.assets.length" :assets="offer.assets" smallCards="true")
 
   alcor-collapse(v-if="offer.memo")
     .d-flex.align-items-center.gap-8(slot="title")
@@ -62,7 +57,7 @@ import ProfileImage from '~/components/ProfileImage.vue'
 
 export default {
   components: { AlcorButton, AlcorCollapse, AssetsField, ProfileImage },
-  props: ['offer', 'offerLog', 'previewMode'],
+  props: ['offer', 'offerLog'],
   computed: {
     date() {
       return new Date(+this.offer.created_at_time).toLocaleString()
@@ -86,8 +81,8 @@ export default {
         }
       })
     },
-    async cancelOffer() {
-      await this.$store.dispatch('chain/cancelOffers', [this.offer.offer_id])
+    goToBlock() {
+      window.location = `https://waxblock.io/transaction/${this.offer.txid}`
     }
   }
 }
@@ -125,7 +120,6 @@ export default {
   .details {
     background-color: var(--background-color-secondary);
     border-radius: 0.5rem;
-    margin-top: 16px;
     padding: 42px;
   }
   .assets {

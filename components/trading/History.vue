@@ -32,14 +32,22 @@ export default {
           label: 'Transfers',
           route: {
             path: '/trading/history',
-            hash: 'transfers'
+            hash: `transfers${
+              this.$route.hash.split('-')[1]
+                ? '-' + this.$route.hash.split('-')[1]
+                : ''
+            }`
           }
         },
         {
           label: 'Trade Offers',
           route: {
             path: '/trading/history',
-            hash: 'tradeoffers'
+            hash: `tradeoffers${
+              this.$route.hash.split('-')[1]
+                ? '-' + this.$route.hash.split('-')[1]
+                : ''
+            }`
           }
         },
         {
