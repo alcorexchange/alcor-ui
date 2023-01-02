@@ -1,5 +1,5 @@
 <template lang="pug">
-nuxt-link(:to="localePath(to, $i18n.locale)")
+nuxt-link.link(:to="localePath(to, $i18n.locale)")
   slot
 </template>
 
@@ -8,3 +8,13 @@ export default {
   props: ['to']
 }
 </script>
+
+<style lang="scss" scoped>
+.link {
+  color: var(--main-action-green);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+</style>

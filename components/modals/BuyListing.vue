@@ -17,7 +17,7 @@
           span Seller:
           span Backed Tokens
         .d-flex.flex-column.fw-bold.gap-16
-          span {{ '#' + context.sale_id }}
+          locale-link(:to="`/sale/${context.sale_id}`" target="_blank") {{ '#' + context.sale_id }}
           span {{ context.collection_name }}
             img.ml-1(src='~/assets/images/check_circle.svg', alt='')
           span {{ context.assets[0].name }}
@@ -39,9 +39,10 @@
 import { mapActions, mapState } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import PreviewCard from '~/components/cards/PreviewCard'
+import LocaleLink from '~/components/elements/LocaleLink'
 
 export default {
-  components: { PreviewCard, AlcorButton },
+  components: { PreviewCard, AlcorButton, LocaleLink },
   data: () => ({ total: '?' }),
   computed: {
     ...mapState('modal', ['context']),
