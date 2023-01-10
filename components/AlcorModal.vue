@@ -60,7 +60,6 @@ export default {
   .el-dialog__close {
     font-weight: 800;
     color: var(--text-grey-thirdly) !important;
-
   }
 }
 </style>
