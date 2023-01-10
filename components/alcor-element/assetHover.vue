@@ -29,11 +29,7 @@ el-popover(placement='right' trigger='hover' width='575' :open-delay="600")
             .fs-14.d-flex.gap-4
               span Owner:
               .d-flex.gap-4.align-items-center
-                profile-image(
-                  :src="`https://profile.api.atomichub.io/v1/profiles/chain/wax-mainnet/account/${ownerName}/avatar`"
-                  :size="20"
-                )
-                .color-action.text-truncate {{ ownerName }}
+                account-link(:accountName="ownerName")
             .fs-12.d-flex.gap-4(v-if="data.prices && data.prices.length")
               span Lowest Price:
               .d-flex.gap-4.text-truncate
@@ -69,10 +65,10 @@ el-popover(placement='right' trigger='hover' width='575' :open-delay="600")
 
 <script>
 import AssetCardImage from '~/components/cards/components/AssetCardImage.vue'
-import ProfileImage from '~/components/ProfileImage.vue'
+import AccountLink from '~/components/AccountLink'
 
 export default {
-  components: { AssetCardImage, ProfileImage },
+  components: { AssetCardImage, AccountLink },
   props: ['data', 'ownerName'],
   computed: {
     attributes() {

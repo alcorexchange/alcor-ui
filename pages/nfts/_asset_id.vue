@@ -109,7 +109,7 @@
               animation='wave',
               wave-color='rgba(150, 150, 150, 0.1)'
             )
-            p.wax-exchange(v-else) {{ assetData.owner }}
+            account-link(v-else :accountName="assetData.owner").mb-3
           .nft
             label.description-title Mint Number
             br
@@ -121,8 +121,8 @@
               wave-color='rgba(150, 150, 150, 0.1)'
             )
             span.wax-exchange.mr-2.d-flex.align-items-center(v-else)
-              span {{ assetData.template_mint }} of {{ assetData.template.issued_supply }} (max: {{ assetData.template.max_supply }}) -
-              span.color-red.ml-1 {{ assetData.template.issued_supply - assetData.template_mint }}
+              span {{ assetData.template_mint }} of {{ assetData.template.issued_supply }} (max: {{ assetData.template.max_supply > 0 ? assetData.template.max_supply : '?' }}) -
+              span.color-red.ml-1(v-if="burned") {{ burned }}
               img(src='~/assets/images/fire.svg')
           .nft.mt-2
             label.description-title Template ID
@@ -287,6 +287,7 @@ import AlcorButton from '~/components/AlcorButton'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
 import LogsRow from '~/components/nft_markets/LogsRow'
+import AccountLink from '~/components/AccountLink'
 import NFTBackModal from '~/components/modals/NFTBack'
 import Chart from '~/components/nft_markets/Chart'
 
@@ -295,6 +296,7 @@ export default {
     TransferRow,
     SalesRow,
     NFTBackModal,
+    AccountLink,
     Chart,
     VueSkeletonLoader,
     AlcorButton,
@@ -307,6 +309,7 @@ export default {
       show_modal: false,
       assetData: '',
       active: 0,
+      burned: null,
       attributeKeys: [],
       salesData: [],
       transferData: [],
@@ -411,6 +414,10 @@ export default {
         data.schema.schema_name,
         data.is_burnable
       )
+      this.getTemplateStats(
+        data.collection.collection_name,
+        data.template.template_id
+      )
       this.attributeKeys = Object.keys(data.data)
       this.loading = false
     },
@@ -421,6 +428,14 @@ export default {
         asset_id
       })
       this.transferData = data
+    },
+
+    async getTemplateStats(collectionName, templateID) {
+      const { burned } = await this.$store.dispatch('api/getTemplateStats', {
+        collectionName,
+        templateID
+      })
+      this.burned = burned
     },
 
     async getAssetsSales(asset_id) {
