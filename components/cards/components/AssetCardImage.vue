@@ -8,18 +8,17 @@ img(v-else src="~/assets/images/nft-mock.png" :style="{ 'max-width': '100%' }")
 
 <script>
 export default {
-  props: ['template'],
+  props: ['template', 'resolution'],
   computed: {
     src() {
       return this.template.img
         ? this.template.img.includes('https://')
           ? this.template.img
-          //: `https://resizer.atomichub.io/images/v1/preview?ipfs=${this.template.img}&size=370`
-          : `https://images.hive.blog/0x0/https://ipfs.io/ipfs/${this.template.img}`
+          : `https://images.hive.blog/${this.resolutin || '370x370'}/https://ipfs.io/ipfs/${this.template.img}`
         : this.template.video
           ? this.template.video.includes('https://')
             ? this.template.video
-            : `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.template.video}&size=370&output=mp4`
+            : `https://ipfs.io/ipfs/${this.template.video}`
           : null
     }
   }
