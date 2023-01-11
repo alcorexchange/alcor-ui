@@ -91,7 +91,10 @@ export default {
     ...mapActions('modal', ['transfer', 'removeFriend', 'blockUser']),
     ...mapActions('social', ['getFriendList', 'addFriend']),
     goToTrade() {
-      this.$router.push({ name: `wallet-nfts-trading-id___${this.$i18n.locale}`, params: { id: this.data.name } })
+      this.$router.push({
+        name: `wallet-nfts-trading-id___${this.$i18n.locale}`,
+        params: { id: this.data.name }
+      })
     },
     goToSellerPage() {
       this.$router.push({
@@ -114,8 +117,7 @@ export default {
       this.transfer({ ...this.data, reciever: this.data.name })
     },
     addToFriendList() {
-      this.addFriend(this.data)
-        .then(() => this.$router.go(0))
+      this.addFriend(this.data).then(() => this.$router.go(0))
     },
     removeFriendModal() {
       this.removeFriend(this.data)
@@ -125,19 +127,8 @@ export default {
     },
     goToProfile() {
       this.$router.push({
-        name: `account-id-nfts-inventory___${this.$i18n.locale}`,
-        params: { id: this.data.name },
-        query: {
-          match: '',
-          collection: null,
-          sorting: null,
-          minMint: null,
-          maxMint: null,
-          minPrice: null,
-          maxPrice: null,
-          isDuplicates: null,
-          isBacked: null
-        }
+        name: `account-id-tokens___${this.$i18n.locale}`,
+        params: { id: this.data.name }
       })
     }
   }

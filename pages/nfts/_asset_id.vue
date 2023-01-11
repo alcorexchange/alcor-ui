@@ -109,7 +109,7 @@
               animation='wave',
               wave-color='rgba(150, 150, 150, 0.1)'
             )
-            p.wax-exchange(v-else) {{ assetData.owner }}
+            account-link(v-else :accountName="assetData.owner").mb-3
           .nft
             label.description-title Mint Number
             br
@@ -121,8 +121,8 @@
               wave-color='rgba(150, 150, 150, 0.1)'
             )
             span.wax-exchange.mr-2.d-flex.align-items-center(v-else)
-              span {{ assetData.template_mint }} of {{ assetData.template.issued_supply }} (max: {{ assetData.template.max_supply }}) -
-              span.color-red.ml-1 {{ assetData.template.issued_supply - assetData.template_mint }}
+              span {{ assetData.template_mint }} of {{ assetData.template.issued_supply }} (max: {{ assetData.template.max_supply > 0 ? assetData.template.max_supply : '?' }}) -
+              span.color-red.ml-1(v-if="burned") {{ burned }}
               img(src='~/assets/images/fire.svg')
           .nft.mt-2
             label.description-title Template ID
@@ -287,6 +287,7 @@ import AlcorButton from '~/components/AlcorButton'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
 import LogsRow from '~/components/nft_markets/LogsRow'
+import AccountLink from '~/components/AccountLink'
 import NFTBackModal from '~/components/modals/NFTBack'
 import Chart from '~/components/nft_markets/Chart'
 
@@ -295,6 +296,7 @@ export default {
     TransferRow,
     SalesRow,
     NFTBackModal,
+    AccountLink,
     Chart,
     VueSkeletonLoader,
     AlcorButton,
@@ -307,6 +309,7 @@ export default {
       show_modal: false,
       assetData: '',
       active: 0,
+      burned: null,
       attributeKeys: [],
       salesData: [],
       transferData: [],
@@ -321,7 +324,7 @@ export default {
       if (this.assetData && this.assetData.data.video) {
         if (this.assetData.data.video.includes('https://'))
           return this.assetData.data.video
-        return `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.assetData.data.video}&size=370&output=mp4`
+        return `https://ipfs.io/ipfs/${this.assetData.data.video}`
       } else return false
     },
     imageBackground() {
@@ -336,9 +339,8 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
+            : 'url(https://images.hive.blog/0x0/https://ipfs.io/ipfs/' +
               this.assetData.data.img.replaceAll(' ', '%20') +
-              '&size=370' +
               ')'
         }
       } else return false
@@ -350,9 +352,9 @@ export default {
         .map(([key, value]) => {
           return value.startsWith('https://')
             ? value
-            : `https://resizer.atomichub.io/images/v1/preview?ipfs=${value
+            : `https://images.hive.blog/0x0/https://ipfs.io/ipfs/${value
                 .trim()
-                .replaceAll(' ', '%20')}&size=370`
+                .replaceAll(' ', '%20')}`
         })
     },
     lowestSales() {
@@ -411,6 +413,10 @@ export default {
         data.schema.schema_name,
         data.is_burnable
       )
+      this.getTemplateStats(
+        data.collection.collection_name,
+        data.template.template_id
+      )
       this.attributeKeys = Object.keys(data.data)
       this.loading = false
     },
@@ -421,6 +427,14 @@ export default {
         asset_id
       })
       this.transferData = data
+    },
+
+    async getTemplateStats(collectionName, templateID) {
+      const { burned } = await this.$store.dispatch('api/getTemplateStats', {
+        collectionName,
+        templateID
+      })
+      this.burned = burned
     },
 
     async getAssetsSales(asset_id) {

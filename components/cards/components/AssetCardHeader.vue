@@ -21,7 +21,11 @@ export default {
   props: ['data', 'ownerName'],
   computed: {
     mint() {
-      return this.data.template_mint.length > 4 ? this.data.template_mint.substr(0, 1) + '...' + this.data.template_mint.substr(-3) : this.data.template_mint
+      return this.data.template_mint.length > 4
+        ? this.data.template_mint.substr(0, 1) +
+            '...' +
+            this.data.template_mint.substr(-3)
+        : this.data.template_mint
     }
   }
 }
