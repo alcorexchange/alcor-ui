@@ -1,7 +1,8 @@
 <template lang="pug">
 .j-container
   nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
-    a#return-btn Return
+    //a#return-btn Return
+    #return-btn Return
   h4 Marketplace
   .d-flex.align-items-center.gap-24
     input-search(v-model="filters.match")
