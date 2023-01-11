@@ -19,7 +19,7 @@
             .back-nft-btn.text-center Back NFT
   div
   nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
-    a#return-btn Return
+    #return-btn Return
   .page-header.d-flex.justify-content-between.row
     .page-header_text
       p Visuals

@@ -24,7 +24,6 @@ export default {
       this.sale = await this.$store.dispatch('api/getSale', {
         sale_id: this.$route.params.id
       })
-      console.log('ssss', this.sale)
     }
   }
 }

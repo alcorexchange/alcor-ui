@@ -2,7 +2,7 @@
 .j-container.createcollection
   div
     nuxt-link(:to='"/nft-market/schemaview"' :exact="true")
-      a#return-btn Return - Schema: Diamnd
+      #return-btn Return - Schema: Diamnd
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 New Template

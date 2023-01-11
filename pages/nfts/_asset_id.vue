@@ -329,7 +329,7 @@ export default {
     },
     imageBackground() {
       return this.thumbnailImageUrls
-        ? this.thumbnailImageUrls[this.active || 0]
+        ? this.thumbnailImageUrls[this.active || 0].replace('120x120', '370x370')
         : null
     },
     thumbnailImage() {
@@ -352,7 +352,7 @@ export default {
         .map(([key, value]) => {
           return value.startsWith('https://')
             ? value
-            : `https://images.hive.blog/370x370/https://ipfs.io/ipfs/${value
+            : `https://images.hive.blog/120x120/https://ipfs.io/ipfs/${value
                 .trim()
                 .replaceAll(' ', '%20')}`
         })
