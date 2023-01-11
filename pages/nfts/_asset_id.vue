@@ -339,7 +339,7 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://images.hive.blog/0x0/https://ipfs.io/ipfs/' +
+            : 'url(https://images.hive.blog/370x370/https://ipfs.io/ipfs/' +
               this.assetData.data.img.replaceAll(' ', '%20') +
               ')'
         }
@@ -352,7 +352,7 @@ export default {
         .map(([key, value]) => {
           return value.startsWith('https://')
             ? value
-            : `https://images.hive.blog/0x0/https://ipfs.io/ipfs/${value
+            : `https://images.hive.blog/370x370/https://ipfs.io/ipfs/${value
                 .trim()
                 .replaceAll(' ', '%20')}`
         })
