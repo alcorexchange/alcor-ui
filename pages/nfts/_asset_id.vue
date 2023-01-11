@@ -324,7 +324,7 @@ export default {
       if (this.assetData && this.assetData.data.video) {
         if (this.assetData.data.video.includes('https://'))
           return this.assetData.data.video
-        return `https://resizer.atomichub.io/videos/v1/preview?ipfs=${this.assetData.data.video}&size=370&output=mp4`
+        return `https://ipfs.io/ipfs/${this.assetData.data.video}`
       } else return false
     },
     imageBackground() {
@@ -339,9 +339,8 @@ export default {
           backgroundPosition: 'center',
           backgroundImage: this.assetData.data.img.includes('https://')
             ? this.assetData.data.img
-            : 'url(https://resizer.atomichub.io/images/v1/preview?ipfs=' +
+            : 'url(https://images.hive.blog/0x0/https://ipfs.io/ipfs/' +
               this.assetData.data.img.replaceAll(' ', '%20') +
-              '&size=370' +
               ')'
         }
       } else return false
@@ -353,9 +352,9 @@ export default {
         .map(([key, value]) => {
           return value.startsWith('https://')
             ? value
-            : `https://resizer.atomichub.io/images/v1/preview?ipfs=${value
+            : `https://images.hive.blog/0x0/https://ipfs.io/ipfs/${value
                 .trim()
-                .replaceAll(' ', '%20')}&size=370`
+                .replaceAll(' ', '%20')}`
         })
     },
     lowestSales() {
