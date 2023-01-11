@@ -7,7 +7,7 @@ el-table.my-trade-history(
   el-table-column(:label='$t("Time")', v-if='!isMobile')
     template(slot-scope='scope')
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
-  el-table-column(:label='$t("Pair")', v-if='!isMobile')
+  el-table-column(:label='$t("Pair")')
     template(slot-scope='{ row }')
       span {{ row.market_symbol }}
   el-table-column(:label='$t("Side")', width='80')
@@ -82,8 +82,8 @@ export default {
 
       // Initial fill
       this.infiniteHandler({
-        loaded: () => { },
-        complete: () => { }
+        loaded: () => {},
+        complete: () => {}
       })
     },
 
@@ -101,10 +101,9 @@ export default {
 
       if (this.onlyCurrentPair) params.market = this.id
 
-      const { data: deals } = await this.$axios.get(
-        `/account/${this.user.name}/deals`,
-        { params }
-      )
+      const {
+        data: deals
+      } = await this.$axios.get(`/account/${this.user.name}/deals`, { params })
 
       this.skip += deals.length
 
@@ -113,8 +112,14 @@ export default {
           d.side = this.user.name == d.bidder ? 'buy' : 'sell'
           d.market_symbol = this.markets_obj[d.market].symbol
 
-          d.amount = (d.type == 'sellmatch' ? d.bid : d.ask) + ' ' + this.markets_obj[d.market].quote_token.symbol.name
-          d.total = (d.type == 'sellmatch' ? d.ask : d.bid) + ' ' + this.markets_obj[d.market].base_token.symbol.name
+          d.amount =
+            (d.type == 'sellmatch' ? d.bid : d.ask) +
+            ' ' +
+            this.markets_obj[d.market].quote_token.symbol.name
+          d.total =
+            (d.type == 'sellmatch' ? d.ask : d.bid) +
+            ' ' +
+            this.markets_obj[d.market].base_token.symbol.name
         })
 
         this.deals.push(...deals)
