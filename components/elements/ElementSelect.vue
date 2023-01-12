@@ -5,7 +5,7 @@ el-dropdown.element-select(trigger="click")
       slot(name="selected")
     ChevronIcon
   el-dropdown-menu.element-options(slot="dropdown")
-    el-dropdown-item.element-item(v-for="option in options")
+    el-dropdown-item.element-item(v-for="option in options" :key="option")
       slot(name="option" :option="option")
 </template>
 
@@ -52,8 +52,6 @@ export default {
   &::-webkit-scrollbar {
     display: none;
   }
-
-
 
   .element-item {
     cursor: pointer;

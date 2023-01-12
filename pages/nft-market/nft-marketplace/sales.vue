@@ -4,6 +4,7 @@
     vue-skeleton-loader(
       v-if="!listings"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='400',
       animation='wave',
@@ -49,7 +50,7 @@ export default {
           min_price: this.$route.query?.minPrice
         })
       }, 600)
-    },
+    }
   }
 }
 </script>
@@ -61,4 +62,3 @@ export default {
   margin: 20px auto;
 }
 </style>
-

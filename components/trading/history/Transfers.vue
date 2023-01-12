@@ -7,6 +7,7 @@
         transfer-offer-list-item(
           :previewMode="true"
           v-for="offer in transferOffers"
+          :key="offer.offer_id"
           :offer="offer"
           @click="preview(offer.transfer_id)"
           :class="{ active: previewOffer && offer.transfer_id === previewOffer.transfer_id }"
@@ -86,7 +87,9 @@ export default {
       this.$router.push({ hash: 'transfers' + '-' + id })
     },
     async getAccountCollections() {
-      const { collections } = await this.getAccountSpecificStats({ account: this.user.name })
+      const { collections } = await this.getAccountSpecificStats({
+        account: this.user.name
+      })
       this.collectionOptions = collections
     },
     async getOffers() {

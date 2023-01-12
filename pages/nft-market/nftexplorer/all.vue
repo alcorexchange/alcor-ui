@@ -5,6 +5,7 @@
     vue-skeleton-loader(
       v-if="!collections"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='400',
       animation='wave',
@@ -18,6 +19,7 @@
     vue-skeleton-loader(
       v-if="!templates"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='400',
       animation='wave',
@@ -31,6 +33,7 @@
     vue-skeleton-loader(
       v-if="!assets"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='400',
       animation='wave',
@@ -64,18 +67,31 @@ export default {
     this.explore()
   },
   methods: {
-    ...mapActions('api', ['getAssets', 'getCollectionData', 'getTemplatesData']),
+    ...mapActions('api', [
+      'getAssets',
+      'getCollectionData',
+      'getTemplatesData'
+    ]),
     explore() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
         this.assets = null
-        this.assets = await this.getAssets({ ids: this.$route.query?.match, limit: '8' })
+        this.assets = await this.getAssets({
+          ids: this.$route.query?.match,
+          limit: '8'
+        })
 
         this.collections = null
-        this.collections = await this.getCollectionData({ search: this.$route.query?.match || null, limit: '8' })
+        this.collections = await this.getCollectionData({
+          search: this.$route.query?.match || null,
+          limit: '8'
+        })
 
         this.templates = null
-        this.templates = await this.getTemplatesData({ search: this.$route.query?.match, limit: '8' })
+        this.templates = await this.getTemplatesData({
+          search: this.$route.query?.match,
+          limit: '8'
+        })
       }, 600)
     }
   }

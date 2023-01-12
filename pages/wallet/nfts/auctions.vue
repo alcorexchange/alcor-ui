@@ -3,7 +3,8 @@
   .d-flex.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!auctions"
-      v-for="idx in [1,2,3,4]"
+      v-for="idx in [1,2,3,4]",
+      :key="idx",
       :width='220',
       :height='471',
       animation='wave',
@@ -55,7 +56,7 @@ export default {
           min_price: this.$route.query?.minPrice
         })
       }, 600)
-    },
+    }
   }
 }
 </script>
@@ -67,4 +68,3 @@ export default {
   margin: 0 auto;
 }
 </style>
-

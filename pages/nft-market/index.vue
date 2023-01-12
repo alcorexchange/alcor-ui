@@ -19,7 +19,8 @@
       market-sale-card(:key="data.assets[0].asset_id" :data="data" :ownerName="data.seller")
   .d-flex.gap-24(v-else)
     vue-skeleton-loader(
-      v-for="idx in [1,2,3,4]"
+      v-for="idx in [1,2,3,4]",
+      :key="idx",
       :width='220',
       :height='394',
       animation='wave',
@@ -38,7 +39,8 @@
       asset-card(:key="data.asset_id" :data="data" :ownerName="data.owner")
   .d-flex.gap-24(v-else)
     vue-skeleton-loader(
-      v-for="idx in [1,2,3,4]"
+      v-for="idx in [1,2,3,4]",
+      :key="idx",
       :width='220',
       :height='394',
       animation='wave',

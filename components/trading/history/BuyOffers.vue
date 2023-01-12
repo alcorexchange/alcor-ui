@@ -7,6 +7,7 @@
         buy-offer-list-item(
           :previewMode="true"
           v-for="offer in buyOffers"
+          :key="offer"
           :offer="offer"
           @click="preview(offer.buyoffer_id)"
           :class="{ active: previewOffer && offer.buyoffer_id === previewOffer.buyoffer_id }"

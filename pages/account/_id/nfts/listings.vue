@@ -5,6 +5,7 @@
     v-for="idx in [1,2,3,4,5]"
     :width='220',
     :height='471',
+    :key="idx"
     animation='wave',
     wave-color='rgba(150, 150, 150, 0.1)',
     :rounded='true'
@@ -50,19 +51,30 @@ export default {
           max_price: this.$route.query?.maxPrice,
           min_price: this.$route.query?.minPrice
         })
-        const buyOffers = await this.getBuyOffers({ seller: this.$route.params.id, sort: 'price' })
-        if (buyOffers.length) this.listings = this.listings.map(listing => ({ ...listing, buy_offers: [] }))
-        buyOffers.forEach(offer => {
+        const buyOffers = await this.getBuyOffers({
+          seller: this.$route.params.id,
+          sort: 'price'
+        })
+        if (buyOffers.length)
+          this.listings = this.listings.map((listing) => ({
+            ...listing,
+            buy_offers: []
+          }))
+        buyOffers.forEach((offer) => {
           if (offer.assets.length !== 1) return
 
-          offer.buyerImgSrc = 'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer
+          offer.buyerImgSrc =
+            'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' +
+            offer.buyer
 
           this.listings[
-            this.listings.findIndex(({ assets }) => assets[0].asset_id === offer.assets[0].asset_id)
+            this.listings.findIndex(
+              ({ assets }) => assets[0].asset_id === offer.assets[0].asset_id
+            )
           ].buy_offers.push(offer)
         })
       }, 600)
-    },
+    }
   }
 }
 </script>
@@ -72,4 +84,3 @@ export default {
   gap: 20px 5px;
 }
 </style>
-

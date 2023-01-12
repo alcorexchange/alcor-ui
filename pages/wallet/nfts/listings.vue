@@ -4,6 +4,7 @@
     vue-skeleton-loader(
       v-if="!listings"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='471',
       animation='wave',
@@ -53,19 +54,30 @@ export default {
           max_price: this.$route.query?.maxPrice,
           min_price: this.$route.query?.minPrice
         })
-        const buyOffers = await this.getBuyOffers({ seller: this.user.name, sort: 'price' })
-        if (buyOffers.length) this.listings = this.listings.map(listing => ({ ...listing, buy_offers: [] }))
-        buyOffers.forEach(async offer => {
+        const buyOffers = await this.getBuyOffers({
+          seller: this.user.name,
+          sort: 'price'
+        })
+        if (buyOffers.length)
+          this.listings = this.listings.map((listing) => ({
+            ...listing,
+            buy_offers: []
+          }))
+        buyOffers.forEach(async (offer) => {
           if (offer.assets.length !== 1) return
 
-          offer.buyerImgSrc = 'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' + offer.buyer
+          offer.buyerImgSrc =
+            'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' +
+            offer.buyer
 
           this.listings[
-            this.listings.findIndex(({ assets }) => assets[0].asset_id === offer.assets[0].asset_id)
+            this.listings.findIndex(
+              ({ assets }) => assets[0].asset_id === offer.assets[0].asset_id
+            )
           ].buy_offers.push(offer)
         })
       }, 600)
-    },
+    }
   }
 }
 </script>
@@ -77,4 +89,3 @@ export default {
   margin: 0 auto;
 }
 </style>
-

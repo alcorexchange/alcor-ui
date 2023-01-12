@@ -26,6 +26,7 @@
       .d-flex.flex-column.gap-8.mt-3.list
         gift-links-list-item(
           v-for="link in giftLinks"
+          :key="link.offer_id"
           :link="link"
           @click="preview(link.link_id)"
           :class="{ active: previewLink && link.link_id === previewLink.link_id }"
