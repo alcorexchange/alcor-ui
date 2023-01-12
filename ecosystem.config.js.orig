@@ -9,6 +9,7 @@ module.exports = {
       script: './node_modules/nuxt/bin/nuxt.js',
       args: 'start',
       restart_delay: 10000,
+      max_memory_restart: '999M',
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
@@ -36,6 +37,7 @@ module.exports = {
       instances: 2,
       kill_timeout: 3000,
       restart_delay: 10000,
+      max_memory_restart: '500M',
       //wait_ready: true,
       env: {
         NODE_ENV: 'production',
