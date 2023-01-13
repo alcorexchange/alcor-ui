@@ -10,18 +10,22 @@ export default {
   props: ['template', 'resolution'],
   computed: {
     src() {
-      console.log('rrrrrr', this.template.img, /Qm[1-9A-Za-z]{44}[^OIl]$/.test(this.template.img))
+      //console.log('rrrrrr', this.template.img, /Qm[1-9A-Za-z]{44}[^OIl]$/.test(this.template.img))
+
+      console.log('rrrrrr', this.template.img, /Qm[a-zA-Z0-9]+$/.test(this.template.img))
+
+
       return this.template.img
         ? this.template.img.includes('https://')
           ? `https://resizer.alcor.exchange/?url=${this.template.img}&width=${this.resolution || '300'}`
-          : /Qm[1-9A-Za-z]{44}[^OIl]$/.test(this.template.img)
-            ? `resizer.alcor.exchange/ipfs/${this.template.img}`
+          : /Qm[a-zA-Z0-9]+$/.test(this.template.img)
+            ? `https://resizer.alcor.exchange/ipfs/${this.template.img}`
             : `https://resizer.alcor.exchange/?url=https://cf-ipfs.com/ipfs/${this.template.img}&width=${this.resolution || '300'}`
         : this.template.video
           ? this.template.video.includes('https://')
             ? `https://resizer.alcor.exchange/?url=${this.template.video}&width=${this.resolution || '300'}`
-            : /Qm[1-9A-Za-z]{44}[^OIl]$/.test(this.template.video)
-              ? `resizer.alcor.exchange/ipfs/${this.template.video}`
+            : /Qm[a-zA-Z0-9]+$/.test(this.template.video)
+              ? `https://resizer.alcor.exchange/ipfs/${this.template.video}`
               : `https://resizer.alcor.exchange/?url=https://cf-ipfs.com/ipfs/${this.template.video}`
           : null
     }
