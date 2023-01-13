@@ -2,7 +2,7 @@
 .j-container.collectionview
   div
   nuxt-link(:to='"/nft-market/createcollection"' :exact="true")
-    a#return-btn Return - Edit Collection
+    #return-btn Return - Edit Collection
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 Collection: Alcorex

@@ -4,6 +4,7 @@
     vue-skeleton-loader(
       v-if="!auctions"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='431',
       animation='wave',

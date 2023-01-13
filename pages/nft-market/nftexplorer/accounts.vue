@@ -5,6 +5,7 @@
     vue-skeleton-loader(
       v-if="!accounts"
       v-for="idx in [1,2,3,4]"
+      :key="idx"
       :width='220',
       :height='320',
       animation='wave',

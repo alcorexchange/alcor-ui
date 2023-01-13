@@ -5,6 +5,7 @@
     v-for="idx in [1, 2, 3, 4, 5]"
     :width='220',
     :height='397',
+    :key="idx"
     animation='wave',
     wave-color='rgba(150, 150, 150, 0.1)',
     :rounded='true'

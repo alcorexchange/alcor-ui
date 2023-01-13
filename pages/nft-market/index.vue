@@ -8,10 +8,7 @@
       NftCard(:data='card')
     .lg-12.md-12.sm-12.xl-12.relation-item
       NftRelation(:data='relationData', :price='getPrice')
-  #loading.d-flex.justify-content-center(v-if='!listings.length')
-    .spinner-border(role='status')
-      span.sr-only Loading...
-  h1.recent-title(v-if='listings.length') Recent Listenings
+  h1.recent-title Recent Listenings
   CatCarousel.nft-market-carousel(
     v-if='listings.length',
     :items='listings',
@@ -20,8 +17,18 @@
   )
     template(slot='item', slot-scope='{ data, index }')
       market-sale-card(:key="data.assets[0].asset_id" :data="data" :ownerName="data.seller")
+  .d-flex.gap-24(v-else)
+    vue-skeleton-loader(
+      v-for="idx in [1,2,3,4]",
+      :key="idx",
+      :width='220',
+      :height='394',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true'
+    )
 
-  h1.recent-title(v-if='nfts.length') New NFTs
+  h1.recent-title New NFTs
   CatCarousel.nft-market-carousel(
     v-if='nfts.length',
     :items='nfts',
@@ -30,11 +37,23 @@
   )
     template(slot='item', slot-scope='{ data, index }')
       asset-card(:key="data.asset_id" :data="data" :ownerName="data.owner")
+  .d-flex.gap-24(v-else)
+    vue-skeleton-loader(
+      v-for="idx in [1,2,3,4]",
+      :key="idx",
+      :width='220',
+      :height='394',
+      animation='wave',
+      wave-color='rgba(150, 150, 150, 0.1)',
+      :rounded='true'
+    )
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import { CatCarousel } from 'vue-cat-carousel'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import NftCard from '~/components/nft_markets/NftCard'
 import NftRelation from '~/components/nft_markets/NftRelation'
 import NormalCard from '~/components/nft_markets/NormalCard'
@@ -51,6 +70,7 @@ export default {
     NftCard,
     NftRelation,
     NormalCard,
+    VueSkeletonLoader,
     MarketSaleCard,
     AssetCard,
     CatCarousel

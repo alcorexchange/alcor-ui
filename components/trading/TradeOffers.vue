@@ -27,6 +27,7 @@
       .d-flex.flex-column.gap-8.mt-3
         trade-offer-list-item(
           v-for="offer in tradeOffers"
+          :key="offer.offer_id"
           :offer="offer"
           @click="preview(offer.offer_id)"
           :class="{ active: previewOffer && offer.offer_id === previewOffer.offer_id }"

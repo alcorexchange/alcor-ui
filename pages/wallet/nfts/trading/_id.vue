@@ -27,7 +27,7 @@
     .d-flex.align-items-center.gap-28.w-100
       input-search(v-model="filters.match")
       alcor-filters(:filters.sync="filters", :options="options")
-      alcor-tab.pointer(v-for="(label, idx) in ['Your inventory', 'Their inventory']" :class="{ active: activeTab === idx }" @click="activeTab = idx") {{ label }}
+      alcor-tab.pointer(v-for="(label, idx) in ['Your inventory', 'Their inventory']" :key="idx" :class="{ active: activeTab === idx }" @click="activeTab = idx") {{ label }}
     alcor-button(access, @click="send" :disabled="!myOfferAssets.length || !hisOfferAssets.length")
       i.el-icon-sort.rot-90
       span Send Trade Offer

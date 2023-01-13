@@ -1,7 +1,7 @@
 <template lang="pug">
 .j-container
   nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
-    a#return-btn Return
+    #return-btn Return
   h4 Explorer
   .d-flex.align-items-center.gap-24
     input-search(v-model="filters.match" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-all'")

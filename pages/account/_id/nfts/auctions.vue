@@ -4,6 +4,7 @@
     vue-skeleton-loader(
       v-if="!auctions"
       v-for="idx in [1,2,3,4,5]"
+      :key="idx"
       :width='220',
       :height='471',
       animation='wave',
@@ -52,7 +53,7 @@ export default {
           min_price: this.$route.query?.minPrice
         })
       }, 600)
-    },
+    }
   }
 }
 </script>
@@ -62,4 +63,3 @@ export default {
   gap: 20px 5px;
 }
 </style>
-

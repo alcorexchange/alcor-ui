@@ -7,6 +7,7 @@
         gift-links-list-item(
           :previewMode="true"
           v-for="link in giftLinks"
+          :key="link"
           :link="link"
           @click="preview(link.link_id)"
           :class="{ active: previewLink && link.link_id === previewLink.link_id }"

@@ -2,7 +2,7 @@
 .j-container.creatingschema
   div
     nuxt-link(:to='"/nft-market"' :exact="true")
-      a#return-btn Return - Collection: Alcorex
+      #return-btn Return - Collection: Alcorex
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
       h4 Create Schema in:

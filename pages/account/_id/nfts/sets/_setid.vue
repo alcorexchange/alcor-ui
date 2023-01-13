@@ -15,13 +15,13 @@ export default {
     ...mapActions('api', ['getOwnedAssets', 'getTemplates']),
     async getSet() {
       const { templates } = await this.getTemplates({
-        collection_name: this.$route.params.id,
+        collection_name: this.$route.params.setid,
         'data:text.rarity': 'Rare'
       })
       this.set = templates
     },
     async getOwned() {
-      const { templates } = await this.getOwnedAssets({ collection_name: this.$route.params.id })
+      const { templates } = await this.getOwnedAssets({ collection_name: this.$route.params.setid })
       this.owned = templates.map(({ template_id }) => template_id)
     }
   }

@@ -5,7 +5,7 @@
       :to="{ name: `nft-market-createcollection-collection_name-shema-schema_name___${$i18n.locale}`, params: { collection_name, schema_name } }"
       :exact='true'
     )
-      a#return-btn Return - Schema: {{schema_name}}
+      #return-btn Return - Schema: {{schema_name}}
     .d-flex.justify-content-between.align-items-center.mt-3
       .d-flex.flex-column
         h4 New Template

@@ -1,5 +1,5 @@
 <template lang="pug">
-  #return-btn.d-flex.gap-4(@click="$router.back()") Return
+#return-btn.d-flex.gap-4(@click="$router.back()") Return
 </template>
 
 <style lang="scss" scoped>
