@@ -16,9 +16,10 @@
           wave-color='rgba(150, 150, 150, 0.1)',
           :rounded='true'
         )
-      img.nft-image(v-else-if='imageBackground' :src='imageBackground')
-      video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '250px', margin: '0 auto', width: '100%' }")
-        source(:src="videoBackground" type='video/mp4')
+      .preview(v-else-if='previewImage' :src='previewImage')
+        img(v-if="previewImage.type == 'img'" :src="previewImage.value.replace('120x120', '370x370')")
+        video(v-else autoplay='true', loop='true' :style="{ height: '250px', margin: '0 auto', width: '100%' }")
+          source(:src="previewImage.value" type='video/mp4')
       img.nft-image(
         src="~/assets/images/nft.svg"
         v-else,
@@ -32,8 +33,12 @@
         :rounded='true'
       )
       div(v-else)
-        .d-flex.align-items-center.justify-content-center.gap-16(v-if="thumbnailImageUrls")
-          img.nft1-image(v-for="(src, idx) in thumbnailImageUrls" :src="src" :class="{active: idx === active}" @click="active = idx")
+        .d-flex.align-items-center.justify-content-center.gap-16(v-if="thumbnailUrls" )
+          template(v-for="({ type, value }, idx) in thumbnailUrls")
+            img.thumbnail(v-if="type == 'img'" :src="value" :class="{active: idx === active}" @click="active = idx")
+            video.thumbnail(v-else autoplay='true', loop='true' :class="{active: idx === active}" @click="active = idx")
+              source(:src="value" type='video/mp4')
+
         video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '75px', padding: '5px', border: '1px solid var(--main-action-green)' , margin: '0 auto', width: '100%' }")
           source(:src="videoBackground" type='video/mp4')
         img.nft1-image(
@@ -328,9 +333,9 @@ export default {
         return `https://ipfs.io/ipfs/${this.assetData.data.video}`
       } else return false
     },
-    imageBackground() {
-      return this.thumbnailImageUrls
-        ? this.thumbnailImageUrls[this.active || 0].replace('120x120', '370x370')
+    previewImage() {
+      return this.thumbnailUrls
+        ? this.thumbnailUrls[this.active || 0]
         : null
     },
     thumbnailImage() {
@@ -346,16 +351,27 @@ export default {
         }
       } else return false
     },
-    thumbnailImageUrls() {
-      if (!this.assetData.data.img) return null
+    thumbnailUrls() {
       return Object.entries(this.assetData.data)
-        .filter(([key, value]) => key.startsWith('img'))
+        .filter(([key, value]) => key.includes('img') || key.includes('video'))
         .map(([key, value]) => {
-          return value.startsWith('https://')
-            ? value
-            : `https://images.hive.blog/120x120/https://ipfs.io/ipfs/${value
+          return key.includes('img') ? ({
+            type: 'img',
+            value: value.startsWith('https://')
+              ? value
+              : `https://images.hive.blog/120x120/https://ipfs.io/ipfs/${value
                 .trim()
-                .replaceAll(' ', '%20')}`
+                .replaceAll(' ', '%20'
+              )}`
+          }) : ({
+            type: 'video',
+            value: value.startsWith('https://')
+              ? value
+              : `https://ipfs.io/ipfs/${value
+                .trim()
+                .replaceAll(' ', '%20'
+              )}`
+          })
         })
     },
     lowestSales() {
@@ -820,7 +836,14 @@ export default {
     margin-top: 20px;
   }
 
-  .nft1-image {
+  .preview {
+    height: 250px;
+    img, video {
+      height: 100%;
+    }
+  }
+
+  .thumbnail {
     height: 75px;
     padding: 5px;
     cursor: pointer;
