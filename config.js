@@ -1,3 +1,5 @@
+const RESIZER_URL = 'https://resizer.alcor.exchange/'
+
 const PRICE_SCALE = 100000000
 const CONTRACT_ACTIONS = [
   'sellmatch',
@@ -895,11 +897,12 @@ const TRADE_LAYOUTS = {
 
 module.exports = {
   APP_NAME: 'Alcor Exchange',
+  RESIZER_URL,
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
 
-  networks,
+  networks
 }
