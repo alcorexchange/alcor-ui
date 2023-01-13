@@ -297,6 +297,44 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  async back({ state, rootState, dispatch }, { asset_id, amount }) {
+    const actions = [
+      {
+        account: 'atomicassets',
+        name: 'announcedepo',
+        authorization: [rootState.user.authorization],
+        data: {
+          owner: rootState.user.name,
+          symbol_to_announce: '8,WAX'
+        }
+      },
+      {
+        account: 'eosio.token',
+        name: 'transfer',
+        authorization: [rootState.user.authorization],
+        data: {
+          from: rootState.user.name,
+          to: 'atomicassets',
+          quantity: amount + ' WAX',
+          memo: 'deposit'
+        }
+      },
+      {
+        account: 'atomicassets',
+        name: 'backasset',
+        authorization: [rootState.user.authorization],
+        data: {
+          payer: rootState.user.name,
+          asset_owner: rootState.user.name,
+          asset_id,
+          token_to_back: amount + ' WAX'
+        }
+      }
+    ]
+
+    await dispatch('sendTransaction', actions)
+  },
+
   async list(
     { state, rootState, dispatch },
     { asset_ids, listing_price, currentListing = null }

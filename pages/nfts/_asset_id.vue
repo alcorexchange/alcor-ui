@@ -151,13 +151,13 @@
                 img(src='~/assets/images/fire.svg')
                 span.ml-2.fs-18 Burnable
       .d-flex.gap-20.justify-content-end.w-100
-        alcor-button(big)
+        alcor-button(big @click="openBurnModal")
           img(src='~/assets/images/fire.svg')
           span Burn
-        alcor-button(big @click='() => (this.show_modal = true)') Back tokens
-        alcor-button(access)
-          img(src='~/assets/images/tag.svg')
-          | List On Market
+        alcor-button(big @click='openBackModal') Back tokens
+        alcor-button(access @click="openListingModal")
+          i.el-icon-s-shop
+          span List On Market
   .row.attribute
     .attribute.col-4
       p Attribute
@@ -282,6 +282,7 @@
     Chart(v-if='chartData && chartData.length', :charts='chartData', tab="Price", period="24H")
 </template>
 <script>
+import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import AlcorButton from '~/components/AlcorButton'
 import TransferRow from '~/components/nft_markets/TransferRow'
@@ -394,6 +395,16 @@ export default {
     this.getAssetsLog(asset_id)
   },
   methods: {
+    ...mapActions('modal', ['burn', 'back', 'listing']),
+    openBackModal() {
+      this.back(this.assetData)
+    },
+    openListingModal() {
+      this.listing(this.assetData)
+    },
+    openBurnModal() {
+      this.burn(this.assetData)
+    },
     outofmodalclick(event) {
       if (event.target.classList.contains('nft-modal-container'))
         this.show_modal = false
