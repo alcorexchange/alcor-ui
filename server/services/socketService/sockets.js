@@ -47,11 +47,16 @@ export function subscribe(io, socket, client) {
       const data = await client.get(`orderbook_${chain}_${side}_${market}`)
 
       let entries
-      try {
-        entries = JSON.parse(data || [])
-      } catch (e) {
-        console.log('Error in orderbook data: ', { chain, side, market }, data)
-        throw e
+
+      if (!data) {
+        entries = []
+      } else {
+        try {
+          entries = JSON.parse(data)
+        } catch (e) {
+          console.log('Error in orderbook data: ', { chain, side, market }, data)
+          throw e
+        }
       }
 
       // TODO Implement with http query (with limit by user)
