@@ -51,6 +51,16 @@ async function main() {
     }
   }
 
+  if (command == 'load_orderbooks') {
+    const network = config.networks[process.argv[3]]
+    if (!network) { console.log('No network provided!'); process.exit() }
+
+    //const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
+    //const rpc = new JsonRpc(nodes, { fetch })
+
+    //const rows = await fetchAllRows(rpc, { code: network.contract, scope: network.contract, table: 'markets' })
+  }
+
   process.exit()
 }
 

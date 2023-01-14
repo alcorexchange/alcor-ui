@@ -50,6 +50,7 @@ export function subscribe(io, socket, client) {
 
       if (!data) {
         entries = []
+        console.log('Empty orderbook: ', { chain, side, market })
       } else {
         try {
           entries = JSON.parse(data)

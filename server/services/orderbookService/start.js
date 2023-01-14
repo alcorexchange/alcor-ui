@@ -139,16 +139,17 @@ async function getOrders({ chain, market_id, side }) {
   })
 }
 
-async function initialUpdate() {
-  console.log('Start markets orderbooks update..')
+export async function initialUpdate(chain) {
+  const markets = await Market.find({ chain })
 
-  const markets = await Market.find()
   for (const { chain, id: market } of markets) {
-    updateOrders('buy', chain, market)
-    updateOrders('sell', chain, market)
+    await updateOrders('buy', chain, market)
+    await updateOrders('sell', chain, market)
+
+    console.log('updated orderbook: ', chain, market)
 
     // Chain that we have our own nodes
-    if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
+    //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
   }
 }
 
