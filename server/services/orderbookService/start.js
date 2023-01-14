@@ -97,6 +97,11 @@ async function updateOrders(side, chain, market_id) {
     }
   })
 
+  if (orders.length == 0) {
+    console.log('Empty orderbook update: ', { chain, side, market_id })
+    return
+  }
+
   await setOrderbook(chain, side, market_id, orders)
   updateBidAsk(chain, side, market_id, orders)
 
