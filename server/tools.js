@@ -9,6 +9,7 @@ import config from '../config'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { fetchAllRows } from '../utils/eosjs'
 import { Match, Market, Bar } from './models'
+import { initialUpdate } from './services/orderbookService/start'
 
 const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
 
@@ -55,10 +56,7 @@ async function main() {
     const network = config.networks[process.argv[3]]
     if (!network) { console.log('No network provided!'); process.exit() }
 
-    //const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
-    //const rpc = new JsonRpc(nodes, { fetch })
-
-    //const rows = await fetchAllRows(rpc, { code: network.contract, scope: network.contract, table: 'markets' })
+    await initialUpdate(network.name)
   }
 
   process.exit()

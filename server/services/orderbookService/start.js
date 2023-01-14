@@ -120,6 +120,16 @@ function getRpc(network) {
   return rpc
 }
 
+async function connectAll() {
+  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
+  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+
+  // Redis
+  await client.connect()
+  await publisher.connect()
+  await subscriber.connect()
+}
+
 async function getOrders({ chain, market_id, side }) {
   const network = networks[chain]
   const rpc = getRpc(network)
@@ -140,6 +150,8 @@ async function getOrders({ chain, market_id, side }) {
 }
 
 export async function initialUpdate(chain) {
+  await connectAll()
+
   const markets = await Market.find({ chain })
 
   for (const { chain, id: market } of markets) {
@@ -154,27 +166,7 @@ export async function initialUpdate(chain) {
 }
 
 export async function main() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
-
-  // Redis
-  await client.connect()
-  await publisher.connect()
-  await subscriber.connect()
-
-  // FOR PM2
-  //process.send('ready')
-  //process.on('SIGINT', async () => {
-  //  await mongoose.connection.close()
-
-  //  await client.quit()
-  //  process.exit(0)
-  //})
-
-  //initialUpdate()
-  // FIXME JUST FOR TEST
-  //updateOrders('sell', 'wax', 0)
-  //updateOrders('buy', 'wax', 0)
+  await connectAll()
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
