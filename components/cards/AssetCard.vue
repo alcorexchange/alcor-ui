@@ -13,7 +13,7 @@ asset-hover(:data="data" :ownerName="ownerName")
       .d-flex.justify-content-between
         span.fs-12.color-action {{ data.schema.schema_name }}
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
+      alcor-button.w-100(outline @click="goToDetails") Details
       alcor-button.w-100(access @click="openOfferModal") Send Offer
 </template>
 
@@ -38,6 +38,12 @@ export default {
     ...mapActions('modal', ['makeOffer']),
     openOfferModal() {
       this.makeOffer(this.data)
+    },
+    goToDetails() {
+      this.$router.push({
+        name: `nfts-asset_id___${this.$i18n.locale}`,
+        params: { asset_id: this.data.asset_id }
+      })
     }
   }
 }

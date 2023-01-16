@@ -159,28 +159,54 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to:
-            '/nft-market/nft-marketplace/sales?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
+          to: {
+            name: `nft-market-nft-marketplace-sales___${this.$i18n.locale}`,
+            query: {
+              match: '',
+              collection: null,
+              sorting: null,
+              minMint: null,
+              maxMint: null,
+              minPrice: null,
+              maxPrice: null,
+              isDuplicates: null,
+              isBacked: null
+            }
+          }
         },
         {
           title: 'WALLET',
           subTItle: this.user ? this.user.name : '',
           img: Img2,
           subImage: subImg,
-          to: '/wallet-inventory'
+          to: { name: `wallet-nfts___${this.$i18n.locale}` }
         },
         {
           title: 'ALCOR',
           subTItle: 'NFT EXPLORER',
           img: Img3,
-          to:
-            '/nft-market/nftexplorer/assets?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked'
+          to: {
+            name: `nft-market-nftexplorer-assets___${this.$i18n.locale}`,
+            query: {
+              match: '',
+              collection: null,
+              sorting: null,
+              minMint: null,
+              maxMint: null,
+              minPrice: null,
+              maxPrice: null,
+              isDuplicates: null,
+              isBacked: null
+            }
+          }
         },
         {
           title: 'ALCOR',
           subTItle: 'CREATE NFT',
           img: Img4,
-          to: '/nft-market/createnft'
+          to: {
+            name: `nft-market-createnft___${this.$i18n.locale}`
+          }
         }
       ]
       return data

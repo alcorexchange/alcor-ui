@@ -25,7 +25,7 @@ export default {
         {
           name: 'NFT’s',
           to: {
-            name: 'wallet-nfts-inventory',
+            name: 'wallet-nfts',
             query: {
               match: '',
               collection: null,

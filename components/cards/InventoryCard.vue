@@ -39,7 +39,7 @@ asset-hover(:data="data" :ownerName="ownerName")
                 i.el-icon-takeaway-box
                 span Burn
 
-      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.asset_id)") Details
+      alcor-button.w-100(outline @click="goToDetails") Details
 </template>
 
 <script>
@@ -63,6 +63,12 @@ export default {
     ...mapActions('modal', ['listing', 'transfer', 'burn', 'gift', 'newTrade']),
     openListingModal() {
       this.listing(this.data)
+    },
+    goToDetails() {
+      this.$router.push({
+        name: `nfts-asset_id___${this.$i18n.locale}`,
+        params: { asset_id: this.data.asset_id }
+      })
     },
     openCreateGiftLinkModal() {
       this.gift({ ...this.data, giftAssets: [this.data] })

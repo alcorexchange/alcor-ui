@@ -23,14 +23,14 @@ const COLORS = {
   light: {
     Price: { up: '#58ab8b', down: '#F96C6C' },
     Liquidity: '#6138b9',
-    Volume: '#3E3A3B',
+    Volume: '#3E3A3B'
   },
 
   dark: {
     Price: { up: '#30B27C', down: '#F96C6C' },
     Liquidity: '#723de4',
-    Volume: '#1FC781',
-  },
+    Volume: '#1FC781'
+  }
 }
 
 let timeout
@@ -50,8 +50,8 @@ export default {
       series: [
         {
           name: 'Price',
-          data: [],
-        },
+          data: []
+        }
       ],
 
       chartOptions: {
@@ -65,19 +65,19 @@ export default {
             gradientToColors: undefined,
             inverseColors: true,
             opacityFrom: 0.15,
-            opacityTo: 0.7,
-          },
+            opacityTo: 0.7
+          }
         },
 
         chart: {
           height: 350,
 
           zoom: {
-            enabled: false,
+            enabled: false
           },
 
           toolbar: {
-            show: false,
+            show: false
           },
 
           animations: {
@@ -86,12 +86,12 @@ export default {
             speed: 800,
             animateGradually: {
               enabled: true,
-              delay: 150,
+              delay: 150
             },
             dynamicAnimation: {
               enabled: true,
-              speed: 350,
-            },
+              speed: 350
+            }
           },
 
           events: {
@@ -112,39 +112,39 @@ export default {
                   return
                 this.price = price
               }, 10)
-            },
-          },
+            }
+          }
         },
 
         grid: {
           borderColor: 'var(--border-color)',
           xaxis: {
             lines: {
-              show: true,
-            },
+              show: true
+            }
           },
 
           yaxis: {
             lines: {
-              show: true,
-            },
-          },
+              show: true
+            }
+          }
         },
 
         dataLabels: {
-          enabled: false,
+          enabled: false
         },
 
         stroke: {
           curve: 'smooth',
-          width: 2,
+          width: 2
         },
 
         xaxis: {
           lines: { show: false },
           type: 'datetime',
           tooltip: {
-            enabled: false,
+            enabled: false
           },
           axisBorder: { color: 'var(--border-color)' },
           axisTicks: {
@@ -157,7 +157,7 @@ export default {
               colors: 'var(--text-default)',
               fontSize: '10px',
               fontFamily: 'Roboto, Arial, sans-serif'
-            },
+            }
           }
         },
 
@@ -179,36 +179,36 @@ export default {
         },
 
         tooltip: {
-          x: { show: false },
-        },
-      },
+          x: { show: false }
+        }
+      }
     }
   },
 
   computed: {
     ...mapGetters({
       pair: 'swap/current',
-      isReverted: 'swap/isReverted',
+      isReverted: 'swap/isReverted'
     }),
 
     renderFirstPair() {
       return `1 ${this.pair.pool1.quantity.symbol.code().to_string()} =
          ${(
-          parseFloat(this.pair.pool2.quantity) /
-          parseFloat(this.pair.pool1.quantity)
-        ).toFixed(8)}
+           parseFloat(this.pair.pool2.quantity) /
+           parseFloat(this.pair.pool1.quantity)
+         ).toFixed(8)}
          ${this.pair.pool2.quantity.symbol.code().to_string()}
        `
     },
     renderSecondPair() {
       return `1 ${this.pair.pool2.quantity.symbol.code().to_string()} =
          ${(
-          parseFloat(this.pair.pool1.quantity) /
-          parseFloat(this.pair.pool2.quantity)
-        ).toFixed(8)}
+           parseFloat(this.pair.pool1.quantity) /
+           parseFloat(this.pair.pool2.quantity)
+         ).toFixed(8)}
          ${this.pair.pool1.quantity.symbol.code().to_string()}
        `
-    },
+    }
   },
 
   // TODO Короче тут нужно все попроавить причесать, что бы переключалка работала
@@ -237,7 +237,7 @@ export default {
 
     '$colorMode.value'() {
       this.updateChartOptions()
-    },
+    }
   },
 
   mounted() {
@@ -268,8 +268,8 @@ export default {
       this.$refs.chart.updateOptions({
         colors,
         chart: {
-          foreColor: this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3',
-        },
+          foreColor: this.$colorMode.value == 'light' ? '#3E3A3B' : '#9EABA3'
+        }
       })
     },
 
@@ -283,7 +283,9 @@ export default {
       this.charts.map((point) => {
         data.push({
           x: point.time,
-          y: this.$options.filters.commaFloat(point.median / Math.pow(10, point.token_precision)),
+          y: this.$options.filters.commaFloat(
+            point.median / Math.pow(10, point.token_precision)
+          )
         })
       })
       console.log('updateSeries, data', data.length)
@@ -291,13 +293,13 @@ export default {
       this.data = data
       this.$refs.chart.updateOptions(
         {
-          series: [{ name: this.tab, data }],
+          series: [{ name: this.tab, data }]
         },
         true
       )
       this.updateChartOptions()
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -344,7 +346,7 @@ export default {
   margin-bottom: -30px;
 
   .price {
-    font-size: 1rem !important;
+    font-size: 1rem;
     font-weight: bold;
     margin-right: 4px;
   }
