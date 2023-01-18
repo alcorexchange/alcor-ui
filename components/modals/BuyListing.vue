@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     ...mapActions('chain', ['buyAsset']),
-    ...mapActions('modal', ['makeOffer']),
+    ...mapActions('modal', ['makeOffer', 'closeModal']),
     openOfferModal() {
       this.makeOffer(this.context.assets[0])
     },
@@ -83,6 +83,10 @@ export default {
             message: 'NFT buy successfully!',
             type: 'success'
           })
+          this.$router.push({
+            name: `wallet-nfts___${this.$i18n.locale}`
+          })
+          this.closeModal()
         })
       } catch (e) {
         console.error(e)

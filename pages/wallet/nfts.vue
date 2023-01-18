@@ -43,7 +43,20 @@ export default {
   }),
   computed: {
     ...mapState(['network', 'user']),
-    refetchProps() { [this.filters.match, this.filters.minPrice, this.filters.maxPrice, this.filters.minMint, this.filters.maxMint, this.filters.sorting, this.filters.collection, this.filters.isDuplicates, this.filters.isBacked]; return Date.now() },
+    refetchProps() {
+      ;[
+        this.filters.match,
+        this.filters.minPrice,
+        this.filters.maxPrice,
+        this.filters.minMint,
+        this.filters.maxMint,
+        this.filters.sorting,
+        this.filters.collection,
+        this.filters.isDuplicates,
+        this.filters.isBacked
+      ]
+      return Date.now()
+    },
     tabs() {
       return [
         {
@@ -101,13 +114,19 @@ export default {
     }
   },
   mounted() {
+    this.$router.push({
+      name: `wallet-nfts-inventory___${this.$i18n.locale}`,
+      query: this.filters
+    })
     this.getAccountCollections()
     this.setSortOptions()
   },
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
     async getAccountCollections() {
-      const { collections } = await this.getAccountSpecificStats({ account: this.user.name })
+      const { collections } = await this.getAccountSpecificStats({
+        account: this.user.name
+      })
       this.options.collection = collections
     },
     setSortOptions() {

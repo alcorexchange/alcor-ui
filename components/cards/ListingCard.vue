@@ -28,7 +28,7 @@ asset-hover(:data="data.assets[0]" :ownerName="ownerName")
         .color-green.fs-12 (${{ $systemToUSD(bestOfferPrice) }})
 
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.assets[0].asset_id)") Details
+      alcor-button.w-100(outline @click="goToDetails") Details
       alcor-button.w-100(access @click="openBuyModal") Buy
 </template>
 
@@ -66,6 +66,12 @@ export default {
   },
   methods: {
     ...mapActions('modal', ['buy']),
+    goToDetails() {
+      this.$router.push({
+        name: `nfts-asset_id___${this.$i18n.locale}`,
+        params: { asset_id: this.data.asset_id }
+      })
+    },
     openBuyModal() {
       this.buy(this.data)
     }

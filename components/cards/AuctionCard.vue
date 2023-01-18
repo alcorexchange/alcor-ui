@@ -21,7 +21,7 @@ asset-hover(:data="data" :ownerName="ownerName")
         .fs-14 {{ data.bids.length }} Bids
 
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.assets[0].asset_id)") Details
+      alcor-button.w-100(outline @click="goToDetails") Details
       alcor-button.w-100(access @click="openBidModal") Place Bid
 </template>
 
@@ -69,6 +69,12 @@ export default {
     ...mapActions('modal', ['makeBid']),
     openBidModal() {
       this.makeBid(this.data)
+    },
+    goToDetails() {
+      this.$router.push({
+        name: `nfts-asset_id___${this.$i18n.locale}`,
+        params: { asset_id: this.data.asset_id }
+      })
     }
   }
 }

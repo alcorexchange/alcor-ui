@@ -403,6 +403,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.$route)
     const asset_id = this.$route.params.asset_id
     this.asset_id = asset_id
     this.getSpecificAsset(asset_id)
@@ -755,7 +756,7 @@ export default {
     border-radius: 10px;
 
     .text-detail {
-      word-break: break-all;
+      word-break: break-word;
     }
 
     .attr {
@@ -763,8 +764,8 @@ export default {
       justify-content: space-between;
       align-items: center;
       padding-right: 0px;
-      flex-wrap: wrap;
       flex-direction: revert;
+      gap: 10px;
 
       .col-4 {
         width: 33%;
@@ -838,8 +839,11 @@ export default {
 
   .preview {
     height: 250px;
+    display: flex;
+    align-items: center;
     img, video {
-      height: 100%;
+      width: 100%;
+      max-height: 100%;
     }
   }
 
