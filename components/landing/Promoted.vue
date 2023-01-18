@@ -4,7 +4,7 @@
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
     //el-carousel-item(v-for="promo in [{ quote_token: { contract: 'gemlands'}, url: 'https://gemland.world/?utm_source=alcor&utm_medium=banner&utm_campaign=1st' }]" :key="promo")
-    el-carousel-item(v-for="promo in [{ quote_token: { contract: 'brawlertoken'}, url: 'https://alcor.exchange/trade/brwl-brawlertoken_wax-eosio.token' }]" :key="promo")
+    el-carousel-item(v-for="promo in promoted" :key="promo")
       promo(:promo="promo")
 
   spacer
@@ -22,7 +22,7 @@ export default {
     ...mapGetters({
       promoted: 'promoted'
     })
-  },
+  }
 }
 </script>
 
@@ -49,7 +49,7 @@ export default {
 }
 
 .el-carousel__indicator,
-.el-carousel__indicator>.el-carousel__button {
+.el-carousel__indicator > .el-carousel__button {
   width: 112px;
   height: 4px;
   margin: 0 12px;
@@ -70,7 +70,6 @@ export default {
   }
 }
 
-
 @media only screen and (max-width: 840px) {
   .el-carousel .el-carousel__container {
     height: 565px;
@@ -83,11 +82,10 @@ export default {
   }
 
   .el-carousel__indicator,
-  .el-carousel__indicator>.el-carousel__button {
+  .el-carousel__indicator > .el-carousel__button {
     width: 70px;
     margin: 0 8px;
   }
-
 }
 
 @media only screen and (max-width: 440px) {
@@ -98,6 +96,5 @@ export default {
   .promoted-markets .section-title {
     margin-bottom: 24px;
   }
-
 }
 </style>
