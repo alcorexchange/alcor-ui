@@ -16,30 +16,30 @@ asset-hover(:data="data" :ownerName="ownerName")
       .d-flex.gap-8(slot="footer")
         alcor-button.w-100(@click="openListingModal")
           i.el-icon-news
-          span Sell NFT
+          span {{$t('Sell NFT')}}
         el-dropdown.w-100(trigger='click')
           alcor-button.w-100(access)
-            span More
+            span {{$t('More')}}
             i.el-icon-arrow-down
           el-dropdown-menu.dropdown
             el-dropdown-item.dropdown__item
               .dropdown__inner(@click="openTransferModal")
                 i.el-icon-takeaway-box
-                span Transfer
+                span {{$t('Transfer')}}
             el-dropdown-item.dropdown__item
               .dropdown__inner(@click="goToTrade")
                 i.el-icon-sort.rot-90
-                span New Trade
+                span {{$t('New Trade')}}
             el-dropdown-item.dropdown__item
               .dropdown__inner(@click="openCreateGiftLinkModal")
                 i.el-icon-link
-                span Create Gift Link
+                span {{$t('Create Gift Link')}}
             el-dropdown-item.dropdown__item
               .dropdown__inner(@click="openBurnModal")
                 i.el-icon-takeaway-box
-                span Burn
+                span {{$t('Burn')}}
 
-      alcor-button.w-100(outline @click="goToDetails") Details
+      alcor-button.w-100(outline @click="goToDetails") {{$t('Details')}}
 </template>
 
 <script>

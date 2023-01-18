@@ -8,7 +8,7 @@ card
   .w-100(slot="footer")
     alcor-button.w-100(access @click="goToCollection")
       i.el-icon-edit-outline
-      span Manage Collection
+      span {{ $t('Manage Collection') }}
 
 </template>
 

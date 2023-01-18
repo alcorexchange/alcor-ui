@@ -15,7 +15,7 @@ card
       .color-action.fs-12 {{ '#' + data.template_id }}
 
   .w-100(slot="footer")
-    alcor-button.w-100(outline) Details
+    alcor-button.w-100(outline) {{ $t('Details') }}
     slot(name="footer")
 </template>
 

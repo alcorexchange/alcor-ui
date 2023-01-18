@@ -8,7 +8,7 @@ asset-hover(:data="data.assets[0]" :ownerName="ownerName")
         .d-flex.align-items-center.gap-4.w-50
           .fs-12.disable.text-truncate {{ data.collection.name }}
           img.success-icon(src='~/assets/images/check_circle.svg', alt='')
-        .fs-12.disable Listed Price
+        .fs-12.disable {{ $t('Listed Price') }}
       .d-flex.justify-content-between
         .fs-14.w-50.text-truncate {{ data.assets[0].name }}
         .fs-14.color-wax {{ listingPrice }} WAX
@@ -16,7 +16,7 @@ asset-hover(:data="data.assets[0]" :ownerName="ownerName")
         span.fs-12.color-action {{ data.assets[0].schema.schema_name }}
     .p-2
       .d-flex.justify-content-between
-        .fs-12.disable Best offer by
+        .fs-12.disable {{ $t('Best offer by') }}
         .fs-12.disable(v-if="!data.buy_offers") ---
       .d-flex.justify-content-between(v-if="data.buy_offers && data.buy_offers.length")
         .d-flex.align-items-center.gap-4.pointer
@@ -28,8 +28,8 @@ asset-hover(:data="data.assets[0]" :ownerName="ownerName")
         .color-green.fs-12 (${{ $systemToUSD(bestOfferPrice) }})
 
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="goToDetails") Details
-      alcor-button.w-100(access @click="openBuyModal") Buy
+      alcor-button.w-100(outline @click="goToDetails") {{$t('Details')}}
+      alcor-button.w-100(access @click="openBuyModal") {{ $t('Buy') }}
 </template>
 
 <script>

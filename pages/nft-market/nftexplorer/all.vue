@@ -1,6 +1,6 @@
 <template lang="pug">
 #nftexplorer-page
-  .fs-36.p-3 Collections
+  .fs-36.p-3 {{ $t('Collections') }}
   .d-flex.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!collections"
@@ -14,7 +14,7 @@
     )
     collection-card(v-if="collections" v-for="item in collections" :key="item.asset_id" :data="item")
 
-  .fs-36.p-3 Templates
+    .fs-36.p-3 {{ $t('Templates') }}
   .d-flex.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!templates"

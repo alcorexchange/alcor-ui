@@ -1,8 +1,8 @@
 <template lang="pug">
 .j-container
   nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
-    #return-btn Return
-  h4 Explorer
+    #return-btn {{ $t('Return') }}
+  h4 {{ $t('Explorer') }}
   .d-flex.align-items-center.gap-24
     input-search(v-model="filters.match" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-all'")
     alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-accounts' || $route.name.split('___')[0] === 'nft-market-nftexplorer-all'")

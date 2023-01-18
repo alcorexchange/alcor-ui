@@ -9,7 +9,7 @@ asset-hover(:data="data.assets[0]" :ownerName="ownerName")
         .d-flex.align-items-center.gap-4.w-50
           .fs-12.disable.text-truncate {{ data.collection.name }}
           img.success-icon(src='~/assets/images/check_circle.svg', alt='')
-        .fs-12.disable Listed Price
+        .fs-12.disable {{ $t('Listed Price') }}
       .d-flex.justify-content-between
         .fs-14.w-50.text-truncate {{ data.assets[0].name }}
         .fs-14.color-wax {{ listingPrice }} WAX
@@ -18,8 +18,8 @@ asset-hover(:data="data.assets[0]" :ownerName="ownerName")
         .fs-12.color-green ${{ $systemToUSD(listingPrice) }}
 
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.assets[0].asset_id )") Details
-      alcor-button.w-100(access @click="openBuyModal") Buy
+      alcor-button.w-100(outline @click="$router.push('/nfts/' + data.assets[0].asset_id )") {{ $t('Details') }}
+      alcor-button.w-100(access @click="openBuyModal") {{ $t('Buy') }}
 </template>
 
 <script>

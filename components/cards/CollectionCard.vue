@@ -7,7 +7,7 @@ collection-hover(:data="data")
       img.success-icon(src='~/assets/images/check_circle.svg', alt='')
 
     .w-100(slot="footer")
-      alcor-button.w-100(outline @click="") View Collection
+      alcor-button.w-100(outline @click="") {{ $t('View Collection') }}
 
 </template>
 

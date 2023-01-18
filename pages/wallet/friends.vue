@@ -4,7 +4,7 @@
   .cards.d-flex.gap-30.flex-wrap.justify-content-center.justify-content-md-start(v-if="accountsData")
     .add-friend-card.pointer(@click="openAddFriendModal")
       users(color="#67C23A" width="70" height="70")
-      span Add Friend
+      span {{ $t('Add Friend') }}
     account-card(
       :isFriend="true"
       v-for='(item, index) in filteredFriends'

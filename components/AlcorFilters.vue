@@ -8,7 +8,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
 )
   .d-flex.align-items-center.gap-8.fs-16.button(:class="{ disabled }")
     i.el-icon-set-up
-    span Filter
+    span {{ $t('Filter') }}
     i.el-icon-caret-bottom
   el-dropdown-menu.dropdown
     el-dropdown-item.dropdown__filters
@@ -44,7 +44,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             el-option(
               v-for='{ value, label } in options.sorting'
               :key='value'
-              :label='label'
+              :label='$t(label)'
               :value='value'
             )
       .d-flex.justify-content-between.gap-16.mt-2

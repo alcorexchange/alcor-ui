@@ -13,8 +13,8 @@ asset-hover(:data="data" :ownerName="ownerName")
       .d-flex.justify-content-between
         span.fs-12.color-action {{ data.schema.schema_name }}
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="goToDetails") Details
-      alcor-button.w-100(access @click="openOfferModal") Send Offer
+      alcor-button.w-100(outline @click="goToDetails") {{ $t('Details') }}
+      alcor-button.w-100(access @click="openOfferModal") {{ $t('Send Offer') }}
 </template>
 
 <script>

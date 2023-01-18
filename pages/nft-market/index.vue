@@ -8,7 +8,7 @@
       NftCard(:data='card')
     .lg-12.md-12.sm-12.xl-12.relation-item
       NftRelation(:data='relationData', :price='getPrice')
-  h1.recent-title Recent Listenings
+      h1.recent-title {{ $t('Recent Listenings') }}
   CatCarousel.nft-market-carousel(
     v-if='listings.length',
     :items='listings',
@@ -28,7 +28,7 @@
       :rounded='true'
     )
 
-  h1.recent-title New NFTs
+    h1.recent-title {{ $t('New NFTs') }}
   CatCarousel.nft-market-carousel(
     v-if='nfts.length',
     :items='nfts',

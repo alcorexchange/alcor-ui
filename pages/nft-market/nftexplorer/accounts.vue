@@ -1,6 +1,6 @@
 <template lang="pug">
 #nftexplorer-page
-  .text-center(v-if="!$route.query.match") Accounts can only be searched
+  .text-center(v-if="!$route.query.match") {{ $t('Accounts can only be searched') }}
   .d-flex.flex-wrap.gap-25(v-else)
     vue-skeleton-loader(
       v-if="!accounts"
