@@ -28,7 +28,7 @@
       :rounded='true'
     )
 
-    h1.recent-title {{ $t('New NFTs') }}
+  h1.recent-title {{ $t('New NFTs') }}
   CatCarousel.nft-market-carousel(
     v-if='nfts.length',
     :items='nfts',
