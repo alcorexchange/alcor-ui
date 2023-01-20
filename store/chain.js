@@ -44,6 +44,7 @@ export const actions = {
     console.log('try autoLogin..')
     const loginned = await getters.wallet.checkLogin()
     if (loginned) {
+      console.log('YES. autoLogining...')
       const { name, authorization } = loginned
       commit('setUser', { name, authorization }, { root: true })
       dispatch('afterLoginHook')

@@ -1109,9 +1109,9 @@
     tslib "^2.0.3"
 
 "@greymass/eosio@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.npmjs.org/@greymass/eosio/-/eosio-0.6.0.tgz"
-  integrity sha512-acVKfiuNMkZ9aOFf/EJIk8X5PAoc53ZJeGP0ehpACX3Pz/rFOTmZFDnVaBKTuL3pFSMPA1K5h1la9nC42fDTcw==
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/@greymass/eosio/-/eosio-0.6.8.tgz#6f24071eaec6e0df33e3c35ca0704a53146c00d2"
+  integrity sha512-niWrUjCzQR9bJsl5IhrJIoi9fWCL4gEAOOaBdTmJuUFpOISQYe4zir5TjNlvlfpCC9ajy7o0pUNpDZuVrNaijQ==
   dependencies:
     bn.js "^4.11.9"
     brorand "^1.1.0"
@@ -1121,7 +1121,7 @@
 
 "@greymass/miniaes@^1.0.0":
   version "1.0.0"
-  resolved "https://registry.npmjs.org/@greymass/miniaes/-/miniaes-1.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/@greymass/miniaes/-/miniaes-1.0.0.tgz#2337a4637edbb49289f3c977c5891bb6bef1ba75"
   integrity sha512-xKYTnAyyoq3gpJS11JvU4dkju28M8Zbp06CuP3aKR4DMH6B2z64LauGGGzKksKh5Qd770JA/dzhLbImnBlymbg==
   dependencies:
     tslib "^2.1.0"
@@ -2374,9 +2374,10 @@
     eslint-import-resolver-node "^0.3.3"
     eslint-import-resolver-webpack "^0.12.1"
 
-"@waxio/waxjs@https://github.com/worldwide-asset-exchange/waxjs#develop":
-  version "1.1.0"
-  resolved "git+ssh://git@github.com/worldwide-asset-exchange/waxjs.git#e6dc0768a577ce7fbb935b499c2b1f09e339bcdb"
+"@waxio/waxjs@^1.2.0-beta.2":
+  version "1.2.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@waxio/waxjs/-/waxjs-1.2.0-beta.2.tgz#4583f2e0c3cadf6605637ce1b51edcecc676e3be"
+  integrity sha512-H9pzVt4cca34MVu2qzTa7OQl1rXulxImS9pUcOg1EvPUHj6+mwvCSl6shXSTlwGQiNl+NIemB4cMAxw2PLfwoA==
   dependencies:
     eosjs "^22.1.0"
 
@@ -2633,17 +2634,17 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.npmjs.org/alphanum-sort/-/alphanum-sort-1.0.2.tgz"
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
-anchor-link-browser-transport@^3.2.5:
-  version "3.2.5"
-  resolved "https://registry.npmjs.org/anchor-link-browser-transport/-/anchor-link-browser-transport-3.2.5.tgz"
-  integrity sha512-7X1KHEyi2LnUtlsbgmsh+hTjeYf8av3MMGk2k5FU7gzajkbkUMMFH/J9HGzLAAlY6wR0pjvgX6vy1slKqo4udg==
+anchor-link-browser-transport@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/anchor-link-browser-transport/-/anchor-link-browser-transport-3.5.1.tgz#47dd4fc888954d0e988ba24cf383fc8e91b6a5c5"
+  integrity sha512-R6NCmmhdhXcVynuMUjRGZOLDW6upwAPEx4mtctB9kjYQVDO6xssGrBHOEd3jRjrjBbQL/XpP58JrclVnSxr6TQ==
   dependencies:
     tslib "^2.0.3"
 
-anchor-link@^3.4.1:
-  version "3.5.0"
-  resolved "https://registry.npmjs.org/anchor-link/-/anchor-link-3.5.0.tgz"
-  integrity sha512-J3npvfRv7FzbLTOndLobKzZvSORNdIGllicZg2RYylU8MVRgvz/8GJuNXkPO+ZNnuRKvj2o6cb21mnppcdOKxQ==
+anchor-link@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/anchor-link/-/anchor-link-3.5.1.tgz#e7bff3ef6933881f332925767de5963dd2356c46"
+  integrity sha512-77hRmr1M8PwExXhTwKFrE2jXPq4AsfoUCqAgcQelD86TvEuDUrXgKNl1zfoAXLC8mIU3ZW+QdF7fieZQRrq7Kg==
   dependencies:
     "@greymass/eosio" "^0.6.0"
     "@greymass/miniaes" "^1.0.0"
@@ -5401,9 +5402,9 @@ eos-common@^0.8.0:
     big-integer "^1.6.48"
 
 eosio-signing-request@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.npmjs.org/eosio-signing-request/-/eosio-signing-request-2.5.0.tgz"
-  integrity sha512-wS/ju5680dp28XMyKSYdDFUt3HVlaAIfHn5MlfKuf1bTluJWYgRxbToDj3x/VdhJFuw+JF/XUoL8WGEixx7JWg==
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/eosio-signing-request/-/eosio-signing-request-2.5.2.tgz#3cf53d71204d32bb5112e2ac84aba189661a630c"
+  integrity sha512-mkWhsjZYVfyvUujbeSBZ4u1NlT5Pks/VAT2CesUtMsffg1e4LaA2/uijrDoGNkhRzVv4VDxrssh9jVPdyV97rw==
   dependencies:
     "@greymass/eosio" "^0.6.0"
     tslib "^2.0.3"
@@ -13582,9 +13583,9 @@ ws@^7.3.1, ws@^7.4.3:
   integrity sha512-BAkMFcAzl8as1G/hArkxOxq3G7pjUqQ3gzYbLL0/5zNkph70e+lCoxBGnm6AW1+/aiNeV4fnKqZ8m4GZewmH2w==
 
 ws@^8.5.0:
-  version "8.8.0"
-  resolved "https://registry.npmjs.org/ws/-/ws-8.8.0.tgz"
-  integrity sha512-JDAgSYQ1ksuwqfChJusw1LSJ8BizJ2e/vVu5Lxjq3YvNJNlROv1ui4i+c/kUUrPheBvQl4c5UbERhTwKa6QBJQ==
+  version "8.12.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.12.0.tgz#485074cc392689da78e1828a9ff23585e06cddd8"
+  integrity sha512-kU62emKIdKVeEIOIKVegvqpXMSTAMLJozpHZaJNDYqBjzlSYXQGviYwN1osDLJ9av68qHd4a2oSjd7yD4pacig==
 
 ws@~7.4.2:
   version "7.4.6"
