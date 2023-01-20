@@ -8,7 +8,7 @@ asset-hover(:data="data" :ownerName="ownerName")
         .d-flex.align-items-center.gap-4.w-50
           .fs-12.disable.text-truncate {{ data.collection.name }}
           img.success-icon(src='~/assets/images/check_circle.svg', alt='')
-        .fs-12.disable Listed Price
+        .fs-12.disable {{ $t('Listed Price') }}
       .d-flex.justify-content-between
         .fs-14.w-50.text-truncate {{ data.assets[0].name }}
         .fs-14.color-wax {{ listingPrice }} WAX
@@ -18,11 +18,11 @@ asset-hover(:data="data" :ownerName="ownerName")
     .p-2
       .d-flex.align-items-center.justify-content-between
         .fs-14 {{ timeToEnd }}
-        .fs-14 {{ data.bids.length }} Bids
+        .fs-14 {{ data.bids.length }} {{ $t('Bids') }}
 
     .d-flex.gap-8(slot="footer")
-      alcor-button.w-100(outline @click="goToDetails") Details
-      alcor-button.w-100(access @click="openBidModal") Place Bid
+      alcor-button.w-100(outline @click="goToDetails") {{ $t('Details') }}
+      alcor-button.w-100(access @click="openBidModal") {{ $t('Place Bid') }}
 </template>
 
 <script>

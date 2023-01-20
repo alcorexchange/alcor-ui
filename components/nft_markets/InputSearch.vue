@@ -4,7 +4,7 @@
   input.search-input(
     :value="value"
     @input="debounceInput"
-    placeholder='Search name or address'
+    :placeholder='$t("Search name or address")'
     :disabled="disabled"
   )
 </template>

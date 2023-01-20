@@ -5,7 +5,7 @@ card.set
     .fs-24.color-action {{ data.collection_name }}
 
   .w-100(slot="footer")
-    alcor-button.w-100(outline @click="goToSet") View Set
+    alcor-button.w-100(outline @click="goToSet") {{ $t('View Set') }}
 
 </template>
 

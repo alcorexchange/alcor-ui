@@ -5,26 +5,26 @@
       i.el-icon-close(@click="show_modal = !show_modal")
       p.modal-header
         img(src="../../assets/images/poker_chip.svg")
-        |Back NFT
+        |{{$t('Back NFT') }}
       .row
         .d-flex.justify-content-between
           .col-5
             TradeOfferCard(:data="{ maker: 'gchad.wam', id: '50', nobtngroup: true }" price=0)
           .col-7
             .nft-info
-              h5 Back NFT with tokens
+              h5 {{ $t('Back NFT with tokens') }}
               input(placeholder="Amount of WAX")
-              p Once you back an NFT with tokens you can only free the tokens by burning the NFT!
+              p {{ $t('Once you back an NFT with tokens you can only free the tokens by burning the NFT!') }}
                 img.pl-1(src='~/assets/images/fire.svg' alt='')
-            .back-nft-btn.text-center Back NFT
+            .back-nft-btn.text-center {{ $t('Back NFT') }}
   div
   nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
-    #return-btn Return
+    #return-btn {{ $t('Return') }}
   .page-header.d-flex.justify-content-between.row
     .page-header_text
-      p Visuals
+      p {{ $t('Visuals') }}
     .page-header_text.lg-8.md-4.sm-12.xm-12.col-8(style="padding-left:45px")
-      span.ml-6 Details
+      span.ml-6 {{ $t('Details') }}
   .d-flex.justify-content-between
     .nft-image-container.border-radius5
       .nft-image(:style="{ backgroundImage: `url(${require('~/assets/images/nft.svg')})` }")
@@ -34,69 +34,69 @@
       .d-flex.justify-content-between
         .other-info
           .nft
-            label.description-title NFT Name
-            h4.description-name SystemBlock
+            label.description-title {{ $t('NFT Name') }}
+            h4.description-name {{ $t('SystemBlock') }}
           .nft
             label.description-title ID
-            h4 SystemBlock
+            h4 {{ $t('SystemBlock') }}
           .nft
-            label.description-fee Collection Name
+            label.description-fee {{ $t('Collection Name') }}
             p.wax-exchange Alcorex
           .nft
-            label.description-fee Schema Name
+            label.description-fee {{ $t('Schema Name') }}
             p.wax-exchange Default
           .nft
-            label.description-fee Backed Tokens
+            label.description-fee {{ $t('Backed Tokens') }}
             p.token-exchange 300 WAX
         .description-info
           .nft
-            label.description-title Owner
+            label.description-title {{ $t('Owner') }}
             p.wax-exchange Alcorex
           .nft
-            label.description-title Mint Number
+            label.description-title {{ $t('Mint Number') }}
             br
             span.wax-exchange.mr-2 1
             | of 10 (max: 10) -
             span.color-red &nbsp;5
             img(src='~/assets/images/fire.svg')
           .nft.mt-2
-            label.description-title Template ID
+            label.description-title {{ $t('Template ID') }}
             p.wax-exchange #21891
           .nft
             div#pro
-            p.description-title.mb-0 Propertise
+            p.description-title.mb-0 {{ $t('Propertise') }}
             img(src='~/assets/images/double_arrow.svg')
-            span.ml-2.fs-18 Transfer
+            span.ml-2.fs-18 {{ $t('Transfer') }}
             div#burn
             img(src='~/assets/images/fire.svg')
-            span.ml-2.fs-18 Burnable
+            span.ml-2.fs-18 {{ $t('Burnable') }}
       nuxt-link(:to='"/nft-market/createcollection"', :exact='true')
       .d-flex.button
         .burn-btn
           img(src='~/assets/images/fire.svg')
-          span Burn
-        .tokens-btn Back tokens
+          span {{ $t('Burn') }}
+        .tokens-btn {{ $t('Back tokens') }}
         .create-collection-btn
           img(src='~/assets/images/tag.svg')
-          |List On Market
+          | {{ $t('List On Market') }}
   .row.attribute
     .attribute.col-4
-      p Attribute
+      p {{ $t('Attribute') }}
     .history.col-8
-      p History
+      p {{ $t('History') }}
   .d-flex.justify-content-between
     .nft-Name-container.border-radius5
       .d-flex.align-items-center.attr
-        span.col-4 Name:
-        span.col-8 SystemBlock
+        span.col-4 {{ $t('Name') }}:
+        span.col-8 {{ $t('SystemBlock') }}
       .d-flex.align-items-center.attr
-        span.col-4 Image:
+        span.col-4 {{ $t('Image') }}:
         span.col-8.break-word QmeqCY8TZk1vRmpGG9udfsgsdgg
       .d-flex.align-items-center.attr
-        span.col-4 Description:
-        span.col-8 The official Alcor DEX NFT collection
+        span.col-4 {{ $t('Description') }}:
+        span.col-8 {{ $t('The official Alcor DEX NFT collection') }}
       .d-flex.align-items-center.attr
-        span.col-4 Rarity:
+        span.col-4 {{ $t('Rarity') }}:
         span.col-8 Default
       .d-flex.align-items-center.attr
         span.col-4 Telegram:
@@ -111,50 +111,50 @@
         el-tab-pane(label="Transfers")
           .row
             .col-2
-              h5 Event
+              h5 {{ $t('Event') }}
             .col-6
-              h5.pl-2 Data
+              h5.pl-2 {{ $t('Data') }}
             .col-4.pl-0
-              h5 Date
+              h5 {{ $t('Date') }}
           TransferRow(v-for="item in [{ org_token: 'fire.svg', new_token: 'fire.svg', org_owner: 'gchad.wam', new_owner: 'flfum.wam', date: '10/25/2021, 6:49 PM' }]" :key="item" :data="item")
         el-tab-pane(label="Sales")
           .row
             .col-2
-              h5 Event
+              h5 {{ $t('Event') }}
             .col-6
-              h5.pl-2 Data
+              h5.pl-2 {{ $t('Data') }}
             .col-4.pl-0
-              h5 Date
+              h5 {{ $t('Date') }}
           SalesRow(v-for="item in [{ org_token: 'fire.svg', new_token: 'fire.svg', org_owner: 'gchad.wam', new_owner: 'flfum.wam', date: '10/25/2021, 6:49 PM' }]" :key="item" :data="item")
         el-tab-pane(label="Updates")
-          h1 Updates
+          h1 {{ $t('Updates') }}
         el-tab-pane(label="Logs")
-          h1 Logs
+          h1 {{ $t('Logs') }}
   .d-flex.justify-content-between.row.mt-65.ml-0.mb-1(style="width:100%")
     .col-4.price-chart.pl-0
-      p Price Chart
+      p {{ $t('Price Chart') }}
     .col-7.chart-topline
       .d-flex.justify-content-between
         .chart-items
-          p.text-white.mb-0 Lowest Listing:
+          p.text-white.mb-0 {{ $t('Lowest Listing') }}:
           p.weight-400
             span.color-yellow 1.90 WAX
             | &nbsp;/&nbsp;
             span.color-green $1.34
         .chart-items
-          p.text-white.mb-0 Lowest Sale:
+          p.text-white.mb-0  {{ $t('Lowest Sale') }}:
           p.weight-400
             span.color-yellow 1.90 WAX
             | &nbsp;/&nbsp;
             span.color-green $1.34
         .chart-items
-          p.text-white.mb-0 Highest Listing:
+          p.text-white.mb-0 {{ $t('Highest Listing') }}:
           p.weight-400
             span.color-yellow 1.90 WAX
             | &nbsp;/&nbsp;
             span.color-green $1.34
         .chart-items
-          p.text-white.mb-0 Highest Sale:
+          p.text-white.mb-0 {{ $t('Highest Sale') }}:
           p.weight-400
             span.color-yellow 1.90 WAX
             | &nbsp;/&nbsp;

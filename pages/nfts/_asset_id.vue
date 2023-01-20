@@ -1,11 +1,11 @@
 <template lang="pug">
 .j-container.nftburnable
-  #return-btn.d-flex.gap-4(@click="$router.back()") Return
+  #return-btn.d-flex.gap-4(@click="$router.back()") {{ $t('Return') }]
   .page-header.d-flex.justify-content-between.row
     .page-header_text
-      p Visuals
+      p {{ $t('Visuals') }}
     .page-header_text.lg-8.md-4.sm-12.xm-12.col-8(style='padding-left: 45px')
-      span.ml-6 Details
+      span.ml-6 {{ $t('Details') }}
   .d-flex.justify-content-between
     .nft-image-container.border-radius5
       .nft-image(v-if='loading')
@@ -50,7 +50,7 @@
       .d-flex.justify-content-between.w-100.gap-16
         .other-info
           .nft
-            label.description-title NFT Name
+            label.description-title {{ $t('NFT Name') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -70,7 +70,7 @@
             )
             h4(v-else) {{ assetData.asset_id }}
           .nft
-            label.description-fee Collection Name
+            label.description-fee {{ $t('Collection Name') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -80,7 +80,7 @@
             )
             p.wax-exchange(v-else) {{ assetData.collection.name }}
           .nft
-            label.description-fee Schema Name
+            label.description-fee {{ $t('Schema Name') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -90,7 +90,7 @@
             )
             p.wax-exchange(v-else) {{ assetData.schema.schema_name }}
           .nft
-            label.description-fee Backed Tokens
+            label.description-fee {{ $t('Backed Tokens') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -103,10 +103,10 @@
               v-for='(item, index) in backedToken',
               :key='index'
             ) {{ item.amount + " " + item.token_symbol }}
-            p.token-exchange(v-else) None
+            p.token-exchange(v-else) {{ $t('None') }}
         .description-info
           .nft
-            label.description-title Owner
+            label.description-title {{ $t('Owner') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -116,7 +116,7 @@
             )
             account-link(v-else :accountName="assetData.owner").mb-3
           .nft
-            label.description-title Mint Number
+            label.description-title {{ $t('Mint Number') }}
             br
             vue-skeleton-loader(
               v-if='loading',
@@ -130,7 +130,7 @@
               span.color-red.ml-1(v-if="burned") {{ burned }}
               img(src='~/assets/images/fire.svg')
           .nft.mt-2
-            label.description-title Template ID
+            label.description-title {{ $t('Template ID') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -140,7 +140,7 @@
             )
             p.wax-exchange(v-else) {{ "#" + assetData.template.template_id }}
           .nft
-            p.description-title.mb-0 Propertise
+            p.description-title.mb-0 {{ $t('Propertise') }}
             vue-skeleton-loader(
               v-if='loading',
               :width='120',
@@ -151,23 +151,23 @@
             div(v-else)
               div(v-if='assetData.template.is_transferable')
                 img(src='~/assets/images/double_arrow.svg')
-                span.ml-2.fs-18 Transfer
+                span.ml-2.fs-18 {{$t('Transfer')}}
               div(v-if='assetData.template.is_burnable')
                 img(src='~/assets/images/fire.svg')
-                span.ml-2.fs-18 Burnable
+                span.ml-2.fs-18 {{$t('Burnable') }}
       .d-flex.gap-20.justify-content-end.w-100
         alcor-button(big @click="openBurnModal")
           img(src='~/assets/images/fire.svg')
-          span Burn
-        alcor-button(big @click='openBackModal') Back tokens
+          span {{$t('Burn') }}
+        alcor-button(big @click='openBackModal') {{$t('Back tokens')}}
         alcor-button(access @click="openListingModal")
           i.el-icon-s-shop
-          span List On Market
+            span {{ $t('List On Market') }}
   .row.attribute
     .attribute.col-4
-      p Attribute
+      p {{ $t('Attribute') }}
     .history.col-8
-      p History
+      p {{ $t('History') }}
   .d-flex.justify-content-between
     .nft-Name-container.border-radius5
       div(v-if='loading')
@@ -200,11 +200,11 @@
         el-tab-pane(label='Transfers')
           .row
             .col-2
-              h5 Event
+              h5 {{ $t('Event') }}
             .col-6
-              h5.pl-2 Data
+              h5.pl-2 {{ $t('Data') }}
             .col-4.pl-0
-              h5 Date
+              h5 {{ $t('Date') }}
           TransferRow(
             v-for='(item, index) in transferData',
             :key='index',
@@ -213,11 +213,11 @@
         el-tab-pane(label='Sales')
           .row
             .col-2
-              h5 Event
+              h5 {{ $t('Event') }}
             .col-6
-              h5.pl-2 Data
+              h5.pl-2 {{ $t('Data') }}
             .col-4.pl-0
-              h5 Date
+              h5 {{ $t('Date') }}
           SalesRow(
             v-for='(item, index) in salesData',
             :key='index',
@@ -226,11 +226,11 @@
         el-tab-pane(label='Updates')
           .row
             .col-2
-              h5 Event
+              h5 {{ $t('Event') }}
             .col-6
-              h5.pl-2 Data
+              h5.pl-2 {{ $t('Data') }}
             .col-4.pl-0
-              h5 Date
+              h5 {{ $t('Date') }}
           LogsRow(
             v-for='(item, index) in updatesData',
             :key='index',
@@ -240,11 +240,11 @@
         el-tab-pane(label='Logs')
           .row
             .col-2
-              h5 Event
+              h5 {{ $t('Event') }}
             .col-6
-              h5.pl-2 Data
+              h5.pl-2 {{ $t('Data') }}
             .col-4.pl-0
-              h5 Date
+              h5 {{ $t('Date') }}
           LogsRow(
             v-for='(item, index) in logsData',
             :key='index',
@@ -252,29 +252,29 @@
           )
   .d-flex.justify-content-between.row.mt-65.ml-0.mb-1(style='width: 100%')
     .col-4.price-chart.pl-0
-      p Price Chart
+      p {{ $t('Price Chart') }}
     .col-7.chart-topline
       .d-flex.justify-content-between
         .chart-items
-          p.mb-0 Lowest Listing:
+          p.mb-0 {{ $t('Lowest Listing') }}:
           p.weight-400
             span.color-yellow {{ lowestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
-          p.mb-0 Lowest Sale:
+          p.mb-0 {{ $t('Lowest Sale') }}:
           p.weight-400
             span.color-yellow {{ lowestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(lowestSales) }}
         .chart-items
-          p.mb-0 Highest Listing:
+          p.mb-0 {{ $t('Highest Listing')}}:
           p.weight-400
             span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;
             span.color-green ${{ $systemToUSD(highestSales) }}
         .chart-items
-          p.mb-0 Highest Sale:
+          p.mb-0 {{ $t('Highest Sale') }}:
           p.weight-400
             span.color-yellow {{ highestSales }} WAX
             | &nbsp;/&nbsp;

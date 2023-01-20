@@ -2,11 +2,11 @@
 .j-container.collectionview
   div
   nuxt-link(:to='"/nft-market/createcollection"' :exact="true")
-    #return-btn Return - Edit Collection
+    #return-btn {{ $t('Return - Edit Collection') }}
   .page-header.d-flex.justify-content-between.row
     .page-header_text.lg-8.md-4.sm-12.xm-12
-      h4 Collection: Alcorex
-      p Edit your collection or add schemas and NFTs.
+      h4 {{ $t('Collection') }}: Alcorex
+      p {{ $t('Edit your collection or add schemas and NFTs') }}.
     .page-header-progress.lg-4.md-4.sm-12.xm-12
       .progress-info
         .info-capacity.d-flex.justify-content-between
@@ -14,7 +14,7 @@
             span.ques-symbol.border-radius5 ?
             span RAM: 72.27 / 99 KB
           div
-            span.more-button Buy more
+            span.more-button {{ $t('Buy more') }}
             span.plus-icon.border-radius5 +
         b-progress(:max='100')
           b-progress-bar(:value='value' :label='`${value}%`')
@@ -24,26 +24,28 @@
     .nft-info.border-radius5
       .d-flex.justify-content-between
         .other-info
-          p.description-title Display Name
+          p.description-title {{ $t('Display Name') }}
           h4.description-name Alcorex
-          p.description-title Website URL
+          p.description-title {{ $t('Website URL') }}
           p.wax-exchange wax.alcor.exchange
-          p.description-fee Collection Fee
+          p.description-fee {{ $t('Collection Fee') }}
           h4 3.5%
         .description-info
-          p.description-title Description
-          p.description This is the official Alcor NFT collection made by our team.
-          <br> Alcor Diamonds for all, who knows, maybe
-          | they’ll have a use case too one day (;
+          p.description-title {{ $t('Description') }}
+          p.description {{ $t('This is the official Alcor NFT collection made by our team') }}.
+          br
+          p.description {{ $t('Alcor Diamonds for all, who knows, maybe they’ll have a use case too one day (;') }}
       nuxt-link(:to='"/nft-market/createcollection"' :exact="true")
-        .create-collection-btn Edit Collection
-  .schemas-title Schemas
+        .create-collection-btn {{ $t('Edit Collection') }}
+  .schemas-title {{ $t('Schemas') }}
   .card-group.d-flex.align-items-start
     nuxt-link(:to='"/nft-market/creatingschema"' :exact="true")
       .nftcard.create-collections.border-radius5
         .card-content
           .plus-round-background(:style="{ backgroundImage:`url(${require('~/assets/images/plus_round_icon.svg')})`}")
-          h4 Create <br> Collection
+          h4 {{$t('Create')}}
+          br
+          h4 {{ $t('Collection') }}
 </template>
 
 <script>

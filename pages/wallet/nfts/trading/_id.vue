@@ -1,7 +1,7 @@
 <template lang="pug">
 .nft-trading-id-page
   .fs-18.d-flex.align-items-center.gap-6.mt-4(v-if="$route.params.id")
-    span You are now trading with:
+    span {{ $t('You are now trading with') }}:
     span.user-name.fs-12.p-2.d-flex.align-items-center.gap-8
       span {{ $route.params.id }}
       copy.pointer(@click="copyUserName" width="16" height="16" :color="color")
@@ -18,7 +18,7 @@
       .fs-20(v-if="$route.params.id") {{ $route.params.id }}
       alcor-button(@click="change" compact)
         i.el-icon-edit
-        span Change
+        span {{ $t('Change') }}
   .d-flex.gap-40.mt-4
     assets-field.w-50(v-if="myOfferAssets.length" :assets="myOfferAssets" @removeAsset="asset => toggleSelected(0, asset)")
     assets-field.w-50(v-if="hisOfferAssets.length" :assets="hisOfferAssets" @removeAsset="asset => toggleSelected(1, asset)")
@@ -27,10 +27,10 @@
     .d-flex.align-items-center.gap-28.w-100
       input-search(v-model="filters.match")
       alcor-filters(:filters.sync="filters", :options="options")
-      alcor-tab.pointer(v-for="(label, idx) in ['Your inventory', 'Their inventory']" :key="idx" :class="{ active: activeTab === idx }" @click="activeTab = idx") {{ label }}
+      alcor-tab.pointer(v-for="(label, idx) in ['Your inventory', 'Their inventory']" :key="idx" :class="{ active: activeTab === idx }" @click="activeTab = idx") {{ $t(label) }}
     alcor-button(access, @click="send" :disabled="!myOfferAssets.length || !hisOfferAssets.length")
       i.el-icon-sort.rot-90
-      span Send Trade Offer
+      span {{ $t('Send Trade Offer') }}
 
   .d-flex.justify-content-center.flex-wrap.gap-30.mt-5
     vue-skeleton-loader(

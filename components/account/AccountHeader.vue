@@ -9,13 +9,13 @@ header#account-header-component.d-flex.flex-column.gap-24
       copy.pointer(@click="copyUserName" width="22" height="22" :color="color")
     .d-flex.gap-6.align-items-center.pointer(@click="goBack")
       disconnect(:color="$colorMode.preference === 'dark' ? '#f2f2f2' : '#303133'" width="13" height="13")
-      span Back
+      span {{ $t('Back') }}
   .d-flex.justify-content-between.gap-30
     wallet-nft-header.w-100
     .d-flex.flex-column.align-items-end.gap-8(v-if="user")
-      alcor-button(@click="removeFriendModal" big v-if="isFriend").red Remove Friend
-      alcor-button(@click="addToFriendList" big access v-else) Add Friend
-      alcor-button(@click="blockUserModal" danger big) Block Account
+      alcor-button(@click="removeFriendModal" big v-if="isFriend").red {{ $t('Remove Friend') }}
+      alcor-button(@click="addToFriendList" big access v-else) {{ $t('Add Friend') }}
+      alcor-button(@click="blockUserModal" danger big) {{ $t('Block Account') }}
   .d-flex.justify-content-between.gap-29.flex-wrap.w-100
     alcor-button(big @click="goToTokens" :class="{ active: $route.name.startsWith('account-id-tokens') }") {{ $t('Tokens') }}
     alcor-button(big @click="goToTransactions()" :class="{ active: $route.name.startsWith('account-id-transactions') }") {{ $t('Transactions') }}
