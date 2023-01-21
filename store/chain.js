@@ -165,7 +165,7 @@ export const actions = {
   },
 
   async sendTransaction({ state, rootState, dispatch, getters, commit }, actions) {
-    if (actions && actions[0].name != 'delegatebw') {
+    if (actions && actions[0].name != 'delegatebw' && state.currentWallet != 'wcw') {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 

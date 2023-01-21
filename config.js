@@ -282,7 +282,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'XUSDC@xtokens',
+    USD_TOKEN: 'WAXUSDT@eth.token',
   },
 
   telos: {
@@ -371,107 +371,8 @@ const networks = {
         gateway: 'sandiegocoin',
       },
     },
-  },
 
-  bos: {
-    name: 'bos',
-    desc: 'BOS Mainnet',
-    contract: 'alcordexmain',
-
-    baseToken: {
-      contract: 'eosio.token',
-      symbol: 'BOS',
-      precision: 4,
-    },
-
-    marketCreationFee: '500.0000 BOS',
-    feeAccount: 'avral.pro',
-
-    chainId: 'd5a3d18fbb3c084e3b1f3fa98c21014b5f3db536cc15d08f9f6479517c6a3d86',
-
-    host: 'api.bossweden.org',
-    port: 443,
-    protocol: 'https',
-    monitor: 'http://bos.bloks.io',
-    monitor_params: '',
-    lightapi: 'https://lightapi.eosamsterdam.net',
-    hyperion: 'https://api.bossweden.org/',
-    backEnd: 'https://alcor.exchange/api/',
-
-    client_nodes: {},
-
-    otc: {
-      contract: 'alcorotcswap',
-      divs: 'avraldigital',
-    },
-
-    pools: {
-      contract: 'lp',
-    },
-
-    withdraw: {},
-    RECOMMENDED_MARKETS: [
-      'EOS@bosibc.io',
-      'WAX@bosibc.io',
-      'TLOS@bosibc.io',
-      '',
-    ],
-    PINNED_MARKETS: [],
-    BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['usdcoinchain'],
-    CEX_CONTRACTS: [],
-
-    nftMarket: {
-      contract: 'nft',
-    },
-  },
-
-  coffe: {
-    name: 'coffe',
-    desc: 'COFFE Mainnet',
-    contract: 'eostokensdex',
-
-    baseToken: {
-      contract: 'eosio.token',
-      symbol: 'CFF',
-      precision: 4,
-    },
-    marketCreationFee: '20.0000 CFF',
-    feeAccount: 'avral.pro',
-
-    chainId: '1ca925bc8fbc1cec262dedd10fd19d9357a1cc8de0bd92e5b61577740af9a3f2',
-
-    host: 'coffe.io',
-    port: 8888,
-    protocol: 'https',
-    monitor: 'http://local.bloks.io',
-    monitor_params:
-      'nodeUrl=coffe.io:8888&coreSymbol=CFF&systemDomain=eosio&hyperionUrl=https://resurces.com:17555',
-    lightapi: 'http://coffe.io:5001',
-    hyperion: 'https://resurces.com:17555/v2/',
-    backEnd: 'https://alcor.exchange/api/',
-
-    client_nodes: {},
-
-    otc: {
-      contract: 'wwweosswapio',
-      divs: 'eosswapdivs1',
-    },
-
-    pools: {
-      contract: 'lp',
-    },
-
-    withdraw: {},
-    RECOMMENDED_MARKETS: [],
-    PINNED_MARKETS: [],
-    BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['usdcoinchain'],
-    CEX_CONTRACTS: [],
-
-    nftMarket: {
-      contract: 'nft',
-    },
+    USD_TOKEN: 'XUSDC@xtokens',
   },
 
   waxtest: {
