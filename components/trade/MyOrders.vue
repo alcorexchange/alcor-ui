@@ -201,7 +201,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .market-row div {
   font-size: 13px;
 }
@@ -216,5 +216,14 @@ export default {
 
 .text-primary {
   color: var(--color-primary) !important;
+}
+
+</style>
+
+<style lang="scss">
+.my-orders {
+  .el-table__body-wrapper.is-scrolling-left {
+    overflow-x: hidden;
+  }
 }
 </style>

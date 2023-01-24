@@ -1,5 +1,5 @@
 <template lang="pug">
-#createnft-page.j-container.d-flex.flex-column.gap-40
+#createnft-page.j-container.d-flex.flex-column.gap-40(v-if="user")
   .mt-3
     nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
       #return-btn Return
@@ -30,6 +30,9 @@
       :key='index',
       :data='item'
     )
+.d-flex.justify-content-center.p-3(v-else)
+  el-button(type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+
 </template>
 
 <script>
