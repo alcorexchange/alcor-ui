@@ -1,4 +1,5 @@
 const RESIZER_URL = 'https://resizer.alcor.exchange/'
+const PUBLIC_RESIZER_URL = 'https://ipfs.io/'
 
 const PRICE_SCALE = 100000000
 const CONTRACT_ACTIONS = [
@@ -898,6 +899,7 @@ const TRADE_LAYOUTS = {
 module.exports = {
   APP_NAME: 'Alcor Exchange',
   RESIZER_URL,
+  PUBLIC_RESIZER_URL,
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
   CONTRACT_ACTIONS,

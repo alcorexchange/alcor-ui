@@ -1,6 +1,6 @@
 <template lang="pug">
 .j-container.nftburnable
-  #return-btn.d-flex.gap-4(@click="$router.back()") {{ $t('Return') }]
+  #return-btn.d-flex.gap-4(@click="$router.back()") {{ $t('Return') }}
   .page-header.d-flex.justify-content-between.row
     .page-header_text
       p {{ $t('Visuals') }}
@@ -16,10 +16,10 @@
           wave-color='rgba(150, 150, 150, 0.1)',
           :rounded='true'
         )
-      .preview(v-else-if='previewImage' :src='previewImage')
-        img(v-if="previewImage.type == 'img'" :src="previewImage.value.replace('120x120', '370x370')")
-        video(v-else autoplay='true', loop='true' :style="{ height: '250px', margin: '0 auto', width: '100%' }")
-          source(:src="previewImage.value" type='video/mp4')
+      .preview(v-else-if='previewImage')
+        video.content(v-if="previewImage.type && previewImage.type == 'video'" autoplay='true', loop='true')
+          source(:src="previewImage.url" type='video/mp4')
+        img(v-else :src="previewImage.url")
       img.nft-image(
         src="~/assets/images/nft.svg"
         v-else,
@@ -33,14 +33,11 @@
         :rounded='true'
       )
       div(v-else)
-        .d-flex.align-items-center.justify-content-center.gap-16(v-if="thumbnailUrls" )
-          template(v-for="({ type, value }, idx) in thumbnailUrls")
-            img.thumbnail(v-if="type == 'img'" :src="value" :class="{active: idx === active}" @click="active = idx")
-            video.thumbnail(v-else autoplay='true', loop='true' :class="{active: idx === active}" @click="active = idx")
-              source(:src="value" type='video/mp4')
-
-        video.content(v-else-if="videoBackground" autoplay='true', loop='true' :style="{ height: '75px', padding: '5px', border: '1px solid var(--main-action-green)' , margin: '0 auto', width: '100%' }")
-          source(:src="videoBackground" type='video/mp4')
+        .d-flex.align-items-center.justify-content-center.gap-16(v-if="thumbnails" )
+          template(v-for="({url, type}, idx) in thumbnails")
+            video.content(v-if="type && type == 'video'" autoplay='true', loop='true' :style="{ height: '75px', padding: '5px', border: '1px solid var(--main-action-green)' , margin: '0 auto', width: '100%' }")
+              source(:src="url" type='video/mp4')
+            img.thumbnail(v-else :src="url" :class="{active: idx === active}" @click="active = idx")
         img.nft1-image(
           src="~/assets/images/nft_sm.svg"
           v-else,
@@ -156,13 +153,17 @@
                 img(src='~/assets/images/fire.svg')
                 span.ml-2.fs-18 {{$t('Burnable') }}
       .d-flex.gap-20.justify-content-end.w-100
-        alcor-button(big @click="openBurnModal")
-          img(src='~/assets/images/fire.svg')
-          span {{$t('Burn') }}
-        alcor-button(big @click='openBackModal') {{$t('Back tokens')}}
-        alcor-button(access @click="openListingModal")
-          i.el-icon-s-shop
+        template(v-if="user && user.name && assetData && assetData.owner === user.name")
+          alcor-button(big @click="openBurnModal")
+            img(src='~/assets/images/fire.svg')
+            span {{$t('Burn') }}
+          alcor-button(big @click='openBackModal') {{$t('Back tokens')}}
+          alcor-button(access @click="openListingModal")
+            i.el-icon-s-shop
             span {{ $t('List On Market') }}
+        template(v-else)
+          alcor-button(outline @click="openOfferModal") Make Offer
+
   .row.attribute
     .attribute.col-4
       p {{ $t('Attribute') }}
@@ -287,8 +288,9 @@
     Chart(v-if='chartData && chartData.length', :charts='chartData', tab="Price", period="24H")
 </template>
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
+import { RESIZER_URL, PUBLIC_RESIZER_URL } from '~/config'
 import AlcorButton from '~/components/AlcorButton'
 import TransferRow from '~/components/nft_markets/TransferRow'
 import SalesRow from '~/components/nft_markets/SalesRow'
@@ -313,6 +315,7 @@ export default {
     return {
       loading: true,
       show_modal: false,
+      thumbnails: null,
       assetData: '',
       active: 0,
       burned: null,
@@ -326,16 +329,10 @@ export default {
     }
   },
   computed: {
-    videoBackground() {
-      if (this.assetData && this.assetData.data.video) {
-        if (this.assetData.data.video.includes('https://'))
-          return this.assetData.data.video
-        return `https://ipfs.io/ipfs/${this.assetData.data.video}`
-      } else return false
-    },
+    ...mapGetters(['user']),
     previewImage() {
-      return this.thumbnailUrls
-        ? this.thumbnailUrls[this.active || 0]
+      return this.thumbnails
+        ? this.thumbnails[this.active || 0]
         : null
     },
     thumbnailImage() {
@@ -350,29 +347,6 @@ export default {
               ')'
         }
       } else return false
-    },
-    thumbnailUrls() {
-      return Object.entries(this.assetData.data)
-        .filter(([key, value]) => key.includes('img') || key.includes('video'))
-        .map(([key, value]) => {
-          return key.includes('img') ? ({
-            type: 'img',
-            value: value.startsWith('https://')
-              ? value
-              : `https://images.hive.blog/120x120/https://ipfs.io/ipfs/${value
-                .trim()
-                .replaceAll(' ', '%20'
-              )}`
-          }) : ({
-            type: 'video',
-            value: value.startsWith('https://')
-              ? value
-              : `https://ipfs.io/ipfs/${value
-                .trim()
-                .replaceAll(' ', '%20'
-              )}`
-          })
-        })
     },
     lowestSales() {
       if (this.templatePrice?.length) {
@@ -403,7 +377,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$route)
     const asset_id = this.$route.params.asset_id
     this.asset_id = asset_id
     this.getSpecificAsset(asset_id)
@@ -411,8 +384,48 @@ export default {
     this.getAssetsSales(asset_id)
     this.getAssetsLog(asset_id)
   },
+  watch: {
+    assetData() {
+      this.mapThumbnailUrls()
+    }
+  },
   methods: {
-    ...mapActions('modal', ['burn', 'back', 'listing']),
+    ...mapActions('modal', ['burn', 'back', 'listing', 'makeOffer']),
+    openOfferModal() {
+      this.makeOffer(this.assetData)
+    },
+    async mapThumbnailUrls() {
+      this.thumbnails = await Promise.all(Object.entries(this.assetData.data)
+        .filter(([key]) => key.includes('img') || key.includes('video'))
+        .map(async([key, value]) => {
+          const params = new URLSearchParams({ width: key.includes('img') ? 300 : 150 })
+          let url
+
+          if (value.includes('://')) {
+            params.append('url', value)
+            url = RESIZER_URL + '?' + new URLSearchParams({ url: value, width: 300 })
+          } else {
+            const [hash, path] = value.split(/\/(.*)/s)
+            if (path) params.append('path', path)
+
+            url = RESIZER_URL + `ipfs/${hash}?${params}`
+          }
+          let obj = { url }
+          if (!await this.checkLoaded(url)) {
+            url = url.replace(RESIZER_URL, PUBLIC_RESIZER_URL)
+            obj = { type: key.includes('img') ? 'img' : 'video', url }
+          }
+          return obj
+        }))
+    },
+    checkLoaded(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onerror = () => resolve(false)
+        img.onload = () => resolve(true)
+        img.src = url
+      })
+    },
     openBackModal() {
       this.back(this.assetData)
     },

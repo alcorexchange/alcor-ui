@@ -1,10 +1,12 @@
 <template lang="pug">
-  .wallet-layout
-    WalletAccount
-    WalletHeader.mt-3
-    WalletTabBar.mt-3
-    .content(v-if="user")
-      nuxt-child
+.wallet-layout
+  WalletAccount
+  WalletHeader.mt-3
+  WalletTabBar.mt-3
+  .content(v-if="user")
+    nuxt-child
+  .d-flex.justify-content-center.p-3(v-else)
+    el-button(type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
 </template>
 
 <script>
