@@ -33,7 +33,7 @@
         :rounded='true'
       )
       div(v-else)
-        .d-flex.align-items-center.justify-content-center.gap-16(v-if="thumbnails" )
+        .d-flex.flex-wrap.align-items-center.justify-content-center.gap-16(v-if="thumbnails" )
           template(v-for="({url, type}, idx) in thumbnails")
             video.content(v-if="type && type == 'video'" autoplay='true', loop='true' :style="{ height: '75px', padding: '5px', border: '1px solid var(--main-action-green)' , margin: '0 auto', width: '100%' }")
               source(:src="url" type='video/mp4')
@@ -756,9 +756,8 @@ export default {
   }
 
   .nft-image-container {
-    padding: 26px 48px 0px 48px;
+    padding: 26px 48px 26px 48px;
     width: 345px;
-    height: 395px;
     border-radius: 10px;
   }
 
