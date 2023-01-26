@@ -32,6 +32,22 @@ function formatToken(token) {
   }
 }
 
+spot.get('/pair/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  // TODO Filter by base/quote
+  const network = req.app.get('network')
+
+  const { ticker_id } = req.params
+  const market = await Market.findOne({ ticker_id, chain: network.name }).select('base_token quote_token ticker_id')
+
+  res.json({
+    ticker_id: market.ticker_id,
+    base: formatToken(market.quote_token),
+    target: formatToken(market.base_token)
+  })
+})
+
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
@@ -41,12 +57,12 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   const markets = (await Market.find({ chain: network.name }).select('base_token quote_token ticker_id'))
     .map(i => {
       const base = formatToken(i.quote_token)
-      const quote = formatToken(i.base_token)
+      const target = formatToken(i.base_token)
 
       return {
         ticker_id: i.ticker_id,
         base,
-        quote
+        target
       }
     })
 
@@ -228,6 +244,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   if (limit) q.push({ $limit: parseInt(limit) })
 
   const charts = await Bar.aggregate(q)
+  charts.map(c => { delete c._id })
 
   res.json(charts)
 })
