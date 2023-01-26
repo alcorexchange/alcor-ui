@@ -58,7 +58,25 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const markets = await Market.find({ chain: network.name }).select('-_id -__v -chain -quote_token -base_token -changeWeek')
+  const markets = await Market.find({ chain: network.name }).select('-_id -__v -chain -quote_token -base_token -changeWeek').lean()
+
+  markets.map(m => {
+    const [base, target] = m.ticker_id.split('_')
+
+    const q = m.queue_volume
+    const b = m.base_volume
+
+    m.market_id = m.id
+    m.target_currency = target
+    m.base_currency = base
+
+    delete m.id
+
+    // Flip legacy bug naming
+    m.base_volume = q
+    m.target_volume = b
+  })
+
   res.json(markets)
 })
 
@@ -94,7 +112,7 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
   })
 })
 
-spot.get('tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (req, res) => {
+spot.get('/tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
 }), async (req, res) => {
   const network = req.app.get('network')
@@ -108,11 +126,27 @@ spot.get('tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (req
     .select('_id time bid ask unit_price type trx_id')
     .sort({ time: -1 })
     .limit(limit)
+    .lean()
+
+  matches.map(m => {
+    m.trade_id = m._id
+    m.price = m.unit_price
+
+    m.base_volume = m.type == 'buymatch' ? m.ask : m.bid
+    m.target_volume = m.type == 'buymatch' ? m.bid : m.ask
+    m.time = m.time.getTime()
+    m.type = m.type == 'buymatch' ? 'buy' : 'sell'
+
+    delete m._id
+    delete m.ask
+    delete m.bid
+    delete m.unit_price
+  })
 
   res.json(matches)
 })
 
-spot.get('tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1, (req, res) => {
+spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
 }), async (req, res) => {
   const network = req.app.get('network')
@@ -138,20 +172,26 @@ spot.get('tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1, 
     .select('_id price time bid ask unit_price type trx_id')
     .sort({ time: 1 })
     .limit(limit)
+    .lean()
 
-  res.json(matches.map(m => {
-    return {
-      trade_id: m._id,
-      price: m.unit_price,
-      base_volume: m.type == 'buymatch' ? m.ask : m.bid,
-      target_volume: m.type == 'buymatch' ? m.bid : m.ask,
-      time: m.time.getTime(),
-      type: m.type == 'buymatch' ? 'buy' : 'sell'
-    }
-  }))
+  matches.map(m => {
+    m.trade_id = m._id
+    m.price = m.unit_price
+    m.base_volume = m.type == 'buymatch' ? m.ask : m.bid
+    m.target_volume = m.type == 'buymatch' ? m.bid : m.ask
+    m.time = m.time.getTime()
+    m.type = m.type == 'buymatch' ? 'buy' : 'sell'
+
+    delete m._id
+    delete m.ask
+    delete m.bid
+    delete m.unit_price
+  })
+
+  res.json(matches)
 })
 
-spot.get('tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
+spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   const { ticker_id } = req.params
   const network = req.app.get('network')
 
