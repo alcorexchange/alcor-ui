@@ -166,7 +166,8 @@ module.exports = {
       { code: 'ru', iso: 'ru-RU', file: 'ru.js' },
       { code: 'cn', iso: 'zh_CN', file: 'cn.js' },
       { code: 'ph', iso: 'ph_PH', file: 'ph.js' },
-      { code: 'ua', iso: 'ua_UA', file: 'ua.js' }
+      { code: 'ua', iso: 'ua_UA', file: 'ua.js' },
+      { code: 'it', iso: 'it_IT', file: 'it.js' }
     ],
     defaultLocale: 'en',
     detectBrowserLanguage: {
