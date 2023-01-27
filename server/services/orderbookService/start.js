@@ -72,7 +72,7 @@ function throttledUpdate(side, chain, market) {
     }
 
     delete throttles[`${side}_${chain}_${market}`]
-  }, 500) // Delay
+  }, 500)
 }
 
 async function updateOrders(side, chain, market_id) {

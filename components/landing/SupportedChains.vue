@@ -12,7 +12,7 @@
       span.more {{ $t('and more...') }}
     .inner-container
       span.title {{ $t('BUILDINGGLOBALCOMMUNITY') }}
-      p.text {{ $t('LEARNMORE') }}
+      .text {{ $t('LEARNMORE') }}
       .social-items
         a.item(href="https://t.me/alcorexchange" target="_blank")
           .icon

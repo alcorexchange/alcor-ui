@@ -84,15 +84,20 @@ export default {
         }
       ]
 
-      const data = this.userDeals
-        .map(deal => ({
-          ...deal,
-          id: deal._id,
-          side: this.user.name == deal.bidder ? 'buy' : 'sell',
-          market_symbol: this.markets_obj[deal.market].symbol,
-          amount: (deal.type == 'sellmatch' ? deal.bid : deal.ask) + ' ' + this.markets_obj[deal.market].quote_token.symbol.name,
-          total: (deal.type == 'sellmatch' ? deal.ask : deal.bid) + ' ' + this.markets_obj[deal.market].base_token.symbol.name
-        }))
+      const data = this.userDeals.map((deal) => ({
+        ...deal,
+        id: deal._id,
+        side: this.user.name == deal.bidder ? 'buy' : 'sell',
+        market_symbol: this.markets_obj[deal.market].symbol,
+        amount:
+          (deal.type == 'sellmatch' ? deal.bid : deal.ask) +
+          ' ' +
+          this.markets_obj[deal.market].quote_token.symbol.name,
+        total:
+          (deal.type == 'sellmatch' ? deal.ask : deal.bid) +
+          ' ' +
+          this.markets_obj[deal.market].base_token.symbol.name
+      }))
 
       const itemSize = 59
       const pageMode = true
@@ -109,8 +114,7 @@ export default {
 
   methods: {
     redirect(item) {
-      if (this.isMobile)
-        window.location.href = this.monitorTx(item.trx_id)
+      if (this.isMobile) window.location.href = this.monitorTx(item.trx_id)
     },
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
@@ -134,7 +138,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .asset {
@@ -146,7 +149,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .date {
@@ -170,7 +172,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .unit-price {
@@ -181,7 +182,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .action {
@@ -250,10 +250,10 @@ td.el-table__expanded-cell {
 }
 
 .success {
-  color: var(--main-green) !important
+  color: var(--main-green) !important;
 }
 
 .danger {
-  color: var(--main-red)
+  color: var(--main-red);
 }
 </style>

@@ -4,7 +4,7 @@ table.wrapper
     th.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
       span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
       sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
-  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :style="{ height: table.pageMode ? '100%' : table.height || '450px' }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode")
+  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :class="{ window: !table.pageMode }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode" :buffer="425")
     template(v-slot="{ item }")
       slot(name="row" :item="item")
   span.no-data(v-else) {{ $t('No Data') }}
@@ -21,7 +21,7 @@ export default {
     sortedData() {
       if (!this.sortKey) return this.table.data
       const data = [...this.table.data]
-      data.sort((a, b) => a[this.sortKey] > b[this.sortKey] ? -1 : 1)
+      data.sort((a, b) => (a[this.sortKey] > b[this.sortKey] ? -1 : 1))
       return this.route ? data.reverse() : data
     },
     activeSort() {
@@ -30,7 +30,6 @@ export default {
   },
   methods: {
     sort(updated) {
-      console.log(updated)
       if (this.sortKey == updated.key && this.route == updated.route) {
         this.sortKey = null
         this.route = null
@@ -55,7 +54,9 @@ export default {
   color: var(--text-secondary);
 }
 
-.scroller.window {}
+.scroller.window {
+  height: 450px;
+}
 
 .mobile-trade-inner .scroller.window {
   height: 274px;
@@ -85,7 +86,7 @@ export default {
   text-overflow: ellipsis;
 }
 
-.header__column>span {
+.header__column > span {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

@@ -2554,6 +2554,7 @@
 }
 
 .el-select-dropdown__list {
+    background: var(--bg-big-card);
     list-style: none;
     padding: 6px 0;
     margin: 0;
@@ -2573,7 +2574,8 @@
     line-height: 34px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    cursor: pointer
+    cursor: pointer;
+    background: var(--bg-big-card);
 }
 
 .el-select-dropdown__item.is-disabled {
@@ -2587,7 +2589,7 @@
 
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
-    background-color: #E6EEF1
+    background-color: var(--hover)
 }
 
 .el-select-dropdown__item.selected {
@@ -5084,7 +5086,7 @@
     bottom: 0;
     width: 100%;
     height: 2px;
-    background-color: #E4E7ED;
+    background-color: transparent;
     z-index: 1
 }
 
@@ -9711,7 +9713,9 @@
     display: inline-block;
     text-align: center;
     cursor: pointer;
-    outline: 0
+    outline: 0;
+    height: 100%;
+    width: 100%;
 }
 
 .el-upload__input {
@@ -10147,12 +10151,10 @@
     top: -7px;
     width: 46px;
     height: 26px;
-    background: #13ce66;
+    background: #67C23A;
     text-align: center;
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
-    -webkit-box-shadow: 0 1px 1px #ccc;
-    box-shadow: 0 1px 1px #ccc
 }
 
 .el-upload-list--picture .el-upload-list__item-status-label i {
@@ -11573,7 +11575,7 @@
 .el-popper .popper__arrow,
 .el-popper .popper__arrow::after {
     position: absolute;
-    display: none !important;
+    display: block;
     width: 0;
     height: 0;
     border-color: transparent;
@@ -11588,8 +11590,7 @@
 
 .el-popper .popper__arrow::after {
     content: " ";
-    border-width: 6px;
-    display: none !important;
+    border-width: 6px
 }
 
 .el-popper[x-placement^=top] {
@@ -11607,7 +11608,6 @@
 .el-popper[x-placement^=top] .popper__arrow::after {
     bottom: 1px;
     margin-left: -6px;
-    border-top-color: #F3FAFC;
     border-bottom-width: 0
 }
 
@@ -11620,7 +11620,6 @@
     left: 50%;
     margin-right: 3px;
     border-top-width: 0;
-      border-bottom-color: var(--border-color);
 }
 
 .el-popper[x-placement^=bottom] .popper__arrow::after {
@@ -15228,7 +15227,7 @@
 }
 
 .el-scrollbar__wrap {
-    overflow: scroll;
+    overflow-y: scroll;
     height: 100%
 }
 

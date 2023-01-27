@@ -1,8 +1,8 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, iconOnly, access, iconOnlyAlt, round, compact }]"
-    v-bind="$attrs"
-    @click.prevent="$emit('click')">
+    :class="['alcor-button', { flat, alternative, access, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
+    @click.prevent="$emit('click')"
+    v-bind="$attrs">
     <div class="inner">
       <slot />
     </div>
@@ -25,11 +25,27 @@ export default {
       default: false,
       type: Boolean
     },
+    danger: {
+      default: false,
+      type: Boolean
+    },
+    outline: {
+      default: false,
+      type: Boolean
+    },
+    transparent: {
+      default: false,
+      type: Boolean
+    },
     round: {
       default: false,
       type: Boolean
     },
     compact: {
+      default: false,
+      type: Boolean
+    },
+    big: {
       default: false,
       type: Boolean
     },
@@ -65,9 +81,9 @@ button {
   &.alternative {
     background: var(--btn-alternative);
   }
-  &:disabled {
-    .inner { color: var(--text-transparent); }
-    cursor: not-allowed;
+
+  &.active {
+    background: var(--hover);
   }
 }
 
@@ -79,7 +95,7 @@ button {
   background: transparent;
 }
 
-.alcor-button:hover:not([disabled]) {
+.alcor-button:hover {
   background: var(--hover);
 }
 
@@ -92,39 +108,79 @@ button {
   padding: 6px 14px;
 }
 
+.alcor-button.outline {
+  background: transparent;
+  border: 1px solid var(--main-action-green);
+  color: var(--main-action-green);
+}
+
+.alcor-button.outline:hover {
+  box-shadow: 0px 0px 30px 0px #54A05466 inset;
+  background: var(--btn-outline);
+}
+
+.alcor-button.danger {
+  background: var(--main-action-red);
+  border: 1px solid var(--main-action-red);
+  color: var(--text-theme);
+}
+
+.alcor-button.danger:hover {
+  background: transparent;
+  color: var(--main-action-red);
+  border: 1px solid var(--main-action-red);
+}
+
+.alcor-button.danger:disabled {
+  background: var(--main-action-red);
+  border: 1px solid var(--main-action-red);
+  color: var(--text-theme);
+  filter: brightness(50%);
+  cursor: not-allowed;
+}
+
 .alcor-button.access {
   background: var(--main-action-green);
   border: 1px solid var(--main-action-green);
-  .inner {
-      color: var(--text-theme);
-  }
+  color: var(--text-theme);
 }
+
 .alcor-button.access:hover {
   background: transparent;
+  color: var(--main-action-green);
   border: 1px solid var(--main-action-green);
-  .inner {
-      color: var(--main-action-green);
-  }
 }
+
 .alcor-button.access:disabled {
   background: var(--main-action-green);
   border: 1px solid var(--main-action-green);
+  color: var(--text-theme);
   filter: brightness(50%);
   cursor: not-allowed;
-  .inner {
-      color: var(--text-theme);
-  }
 }
 
 .alcor-button.compact {
   padding: 4px 12px;
 }
 
+.alcor-button.big {
+  padding: 12px;
+  width: 135px;
+  border-radius: var(--radius-2);
+}
+
 .inner {
   display: flex;
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  font-size: 14px
+  font-size: 14px;
+
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
 }
 
 .iconOnly {

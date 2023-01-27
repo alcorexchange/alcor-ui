@@ -54,13 +54,13 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   // TODO Filter by base/quote
   const network = req.app.get('network')
 
-  const markets = (await Market.find({ chain: network.name }).select('base_token quote_token ticker_id'))
+  const markets = (await Market.find({ chain: network.name }).select('base_token quote_token'))
     .map(i => {
       const base = formatToken(i.quote_token)
       const target = formatToken(i.base_token)
 
       return {
-        ticker_id: i.ticker_id,
+        ticker_id: base.contract + '-' + base.symbol + '_' + quote.contract + '-' + quote.symbol,
         base,
         target
       }

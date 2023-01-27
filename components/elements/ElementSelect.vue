@@ -5,7 +5,7 @@ el-dropdown.element-select(trigger="click")
       slot(name="selected")
     ChevronIcon
   el-dropdown-menu.element-options(slot="dropdown")
-    el-dropdown-item.element-item(v-for="option in options")
+    el-dropdown-item.element-item(v-for="option in options" :key="option")
       slot(name="option" :option="option")
 </template>
 
@@ -42,6 +42,16 @@ export default {
   background: var(--background-color-base);
   border: var(--border-2);
   padding: 5px 0;
+
+  max-height: 250px;
+  overflow: scroll;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .element-item {
     cursor: pointer;

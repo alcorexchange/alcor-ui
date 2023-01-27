@@ -1,3 +1,6 @@
+const RESIZER_URL = 'https://resizer.alcor.exchange/'
+const PUBLIC_RESIZER_URL = 'https://ipfs.io/'
+
 const PRICE_SCALE = 100000000
 const CONTRACT_ACTIONS = [
   'sellmatch',
@@ -256,7 +259,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
     PINNED_MARKETS: [424],
-    BANNER_MARKETS: [424],
+    BANNER_MARKETS: [495, 424],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
@@ -267,8 +270,7 @@ const networks = {
       'onfederation',
       'martaintoken',
       'martiantoken',
-      'superruncoin',
-      'gemlandcoins'
+      'superruncoin'
     ],
 
     CEX_CONTRACTS: [
@@ -797,11 +799,13 @@ const TRADE_LAYOUTS = {
 
 module.exports = {
   APP_NAME: 'Alcor Exchange',
+  RESIZER_URL,
+  PUBLIC_RESIZER_URL,
   PRICE_SCALE,
   PRICE_DIGITS: PRICE_SCALE.toString().length - 1,
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
 
-  networks,
+  networks
 }

@@ -8,7 +8,7 @@
         .asset__drop(v-if="isMobile")
           .asset__name {{ item.currency }}
           i.el-icon-caret-bottom
-        el-dropdown-menu.dropdown(slot="dropdown" placement="botom-start")
+        el-dropdown-menu.dropdown(slot="dropdown" placement="botom-start" v-if="useActions")
           el-button(type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
           el-button(type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
           el-button(type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
@@ -16,13 +16,13 @@
 
       .asset__name(v-else) {{ item.currency }}
       .asset__contract.cancel {{ item.contract }}
-  .amount
+  .amount(:class="{'acc': !useActions}")
     .amount__base {{ item.amount | commaFloat(4) }}
     .amount__usd.cancel ${{ item.usd_value | commaFloat }}
-  .amount
+  .amount(:class="{'acc': !useActions}")
     .amount__base {{ item.amount | commaFloat(4) }}
     .amount__usd.cancel ${{ item.usd_value | commaFloat }}
-  .actions(v-if="!isMobile")
+  .actions(v-if="!isMobile && useActions")
     el-button(size="medium" type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
     el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
     el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
@@ -34,7 +34,7 @@ import TokenImage from '@/components/elements/TokenImage'
 
 export default {
   components: { TokenImage },
-  props: ['item']
+  props: ['item', 'useActions']
 }
 </script>
 
@@ -114,6 +114,10 @@ export default {
     gap: 3px;
     flex-direction: column;
     align-items: end;
+
+    &.acc {
+      width: 385px;
+    }
 
     @media only screen and (max-width: 1176px) {
       width: 33%;

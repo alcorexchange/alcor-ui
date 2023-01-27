@@ -44,7 +44,7 @@ export const state = () => ({
   total_sell: null,
 
   markets_active_tab: null,
-  current_market_layout: 'advanced',
+  current_market_layout: 'classic',
   markets_layout: config.TRADE_LAYOUTS.advanced,
 
   orderbook_settings: {
@@ -559,15 +559,15 @@ export const actions = {
   updateBalanceAfterOrderCancel({ state, dispatch, rootState }, { marketId, orderType }) {
     const market = rootState.markets.find(({ id }) => id === marketId)
 
-    dispatch('updateBalance', {
-      contract: market.base_token.contract,
-      symbol: market.base_token.symbol.name
-    }, { root: true })
-
-    dispatch('updateBalance', {
-      contract: market.quote_token.contract,
-      symbol: market.quote_token.symbol.name
-    }, { root: true })
+    orderType === 'buy'
+      ? dispatch('updateBalance', {
+        contract: market.base_token.contract,
+        symbol: market.base_token.symbol.name
+      }, { root: true })
+      : dispatch('updateBalance', {
+        contract: market.quote_token.contract,
+        symbol: market.quote_token.symbol.name
+      }, { root: true })
   },
 
   updatePairBalances({ state, dispatch, rootState }) {

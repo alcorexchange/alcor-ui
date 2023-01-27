@@ -2,7 +2,7 @@
 .hero
   .left
     h1 {{ $t('HERO_TITLE') }}
-    p.desc
+    .desc
       | {{ $t('HERO_DESCRIPTION') }}
     .actions
       alcor-link.start(to='/markets')

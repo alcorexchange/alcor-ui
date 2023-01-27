@@ -162,8 +162,9 @@ export default {
 }
 
 .full-width {
-  max-width: 100%;
+  max-width: 1920px;
   padding: 0px;
+  overflow-x: hidden;
 
   .nav {
     padding: 12px 20px;
@@ -288,8 +289,8 @@ ul {
 
 .el-popper[x-placement^='bottom'] .popper__arrow::after,
 .el-popper[x-placement^='top'] .popper__arrow::after {
-  border-bottom-color: var(--bg-big-card);
-  border-top-color: var(--bg-big-card);
+  border-bottom-color: transparent;
+  border-top-color: transparent;
 }
 
 .el-dropdown-selfdefine {

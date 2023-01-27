@@ -1,5 +1,5 @@
 <template lang="pug">
-.markets-bar(ref="markets")
+.markets-bar
   alcor-tabs(v-model='sideMaretsTab', size='mini' type="border-card").border-tabs
     template(slot="right")
       .mobile-close(@click="$emit('close')")
@@ -67,8 +67,7 @@ export default {
 
   data() {
     return {
-      search: '',
-      marketsHeight: null
+      search: ''
     }
   },
 
@@ -107,6 +106,8 @@ export default {
 
       let markets = []
 
+      console.log(this.sideMaretsTab)
+
       switch (this.sideMaretsTab) {
         case 'all':
           markets = this.markets
@@ -130,11 +131,9 @@ export default {
           break
 
         case 'owned':
-          markets = this.markets
-            .filter(market =>
-              this.user.balances.find(({ currency }) => market.quote_token.symbol.name === currency)
-            )
-            .filter(({ base_token }) => base_token.symbol.name === this.network.baseToken.symbol) || []
+          markets = this.markets.filter(market =>
+            this.user.balances.find(({ currency }) => market.quote_token.symbol.name === currency)
+          ) || []
           break
 
         case 'Terraformers':
@@ -208,9 +207,8 @@ export default {
 
       const itemSize = 29
       const pageMode = false
-      const height = this.$store.state.market.markets_layout.find(({ i }) => i === 'time-sale').height
 
-      return { pageMode, itemSize, header, data, height }
+      return { pageMode, itemSize, header, data }
     }
 
   },

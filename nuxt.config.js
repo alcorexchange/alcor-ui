@@ -1,4 +1,3 @@
-const axios = require('axios')
 const config = require('./config')
 const pkg = require('./package')
 
@@ -135,6 +134,7 @@ module.exports = {
     '~/plugins/vClickOutside.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
+    { ssr: false, src: '~/plugins/apiInstance.js' },
     { ssr: false, src: '~/plugins/virtualScroller.js' },
     { ssr: false, src: '~/plugins/infinite.js' },
     { ssr: false, src: '~/plugins/startapp.js' },
@@ -148,27 +148,17 @@ module.exports = {
    ** Nuxt.js modules
    */
   modules: [
+    // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/sentry',
     'nuxt-highcharts',
+    //'vue-github-buttons/nuxt',
     'nuxt-imagemin',
     'vue-scrollto/nuxt',
     '@nuxtjs/i18n',
-    '@nuxtjs/sitemap'
+    'cookie-universal-nuxt'
+    //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
-
-  serverMiddleware: [
-    //{ path: '/sitemap.xml', handler: '~/server-middleware/sitemap.js' },
-  ],
-
-  sitemap: {
-    i18n: true,
-    dynamicHost: true,
-    routes: async (host) => {
-      const { data: pairs } = await axios.get(`http://${host}/api/v2/pairs`)
-      return pairs.map((pair) => `/trade/${pair.ticker_id}`)
-    }
-  },
   i18n: {
     langDir: '~/locales',
     locales: [
@@ -177,7 +167,7 @@ module.exports = {
       { code: 'cn', iso: 'zh_CN', file: 'cn.js' },
       { code: 'ph', iso: 'ph_PH', file: 'ph.js' },
       { code: 'ua', iso: 'ua_UA', file: 'ua.js' },
-      { code: 'es', iso: 'es_ES', file: 'es.js' }
+      { code: 'it', iso: 'it_IT', file: 'it.js' }
     ],
     defaultLocale: 'en',
     detectBrowserLanguage: {

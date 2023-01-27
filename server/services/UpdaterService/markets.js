@@ -1,14 +1,10 @@
-import { difference } from 'lodash'
-
 import { createClient } from 'redis'
 import fetch from 'node-fetch'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
-import { fetchAllRows } from '../../../utils/eosjs'
 import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
 import { Match, Market } from '../../models'
 import config from '../../../config'
 import { markeBars } from './charts'
-
 
 // TODO Тут от докера прокидываем
 let redisClient
@@ -150,14 +146,25 @@ export async function updateMarkets(network) {
 
   const rpc = new JsonRpc(nodes, { fetch })
 
-  let rows
+  let r
   try {
-    rows = await fetchAllRows(rpc, { code: network.contract, scope: network.contract, table: 'markets' })
+    r = await rpc.get_table_rows({
+      code: network.contract,
+      scope: network.contract,
+      table: 'markets',
+      reverse: true,
+      limit: 1000
+    })
   } catch (e) {
     console.log('failed update markets for ', network.name, ' retry..')
+    // Retry
+    //await new Promise(resolve => setTimeout(resolve, 3000))
+    //return await updateMarkets(network)
+
     return
   }
 
+  const { rows } = r
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)
@@ -168,28 +175,31 @@ export async function updateMarkets(network) {
     return { market: d, stats: getMarketStats(network, d.id) }
   })
 
-  await Promise.all(requests.map(r => r.stats))
+  try {
+    await Promise.all(requests.map(r => r.stats))
 
-  const markets_for_create = []
-  const current_markets = await Market.distinct('id', { chain: network.name })
+    const markets_for_create = []
+    const current_markets = await Market.distinct('id', { chain: network.name })
 
-  for (const req of requests) {
-    const { market } = req
-    const stats = await req.stats
+    for (const req of requests) {
+      const { market } = req
+      const stats = await req.stats
 
-    const complete_market = { chain: network.name, ...market, ...stats }
+      const complete_market = { chain: network.name, ...market, ...stats }
 
-    if (current_markets.includes(complete_market.id)) {
-      // TODO проверить
-      await Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
-    } else {
-      markets_for_create.push(complete_market)
+      if (current_markets.includes(complete_market.id)) {
+        // TODO проверить
+        await Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
+      } else {
+        markets_for_create.push(complete_market)
+      }
     }
+
+    await Market.insertMany(markets_for_create)
+    console.log('Markets for', network.name, 'updated')
+  } catch (e) {
+    rows.map(r => r.last_price = 0)
+    await Market.insertMany(rows)
+    console.log('Markets for', network.name, 'updated without stats')
   }
-
-  await Market.insertMany(markets_for_create)
-
-  const removed = difference(current_markets, rows.map(r => r.id))
-
-  if (removed.length) console.warn('Markets was removed but exists in db: ', removed)
 }

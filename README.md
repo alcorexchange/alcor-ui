@@ -1,7 +1,7 @@
 # The first listing free decentralized exchange.
 Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)
 
-![Alcor Exchange](https://i.imgur.com/NnQCsmO.jpg)
+![Alcor Exchange](https://i.imgur.com/brvzFdi.png)
 
 With Alcor Exchange you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The token's contract should comply with the [eosio.token](https://github.com/EOSIO/eosio.contracts/tree/master/contracts/eosio.token) standard or be a [Simple Assets](https://github.com/CryptoLions/SimpleAssets) fungible token.
 
