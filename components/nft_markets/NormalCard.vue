@@ -590,6 +590,11 @@ export default {
   background-color: var(--background-color-third);
   border-radius: 10px;
 
+  .icon {
+    width: 14px;
+    height: 14px;
+  }
+
   .account-image {
     width: 128px;
     height: 128px;
@@ -875,8 +880,4 @@ export default {
   }
 }
 
-.icon {
-  width: 14px;
-  height: 14px;
-}
 </style>
