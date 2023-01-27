@@ -3,7 +3,7 @@ import multibase from 'axios-multibase'
 
 // FIXME Зачем здесь разделение dev/prod?
 const API_URLS_DEV = [
-  'https://wax-aa.eu.eosamsterdam.net/',
+  'http://wax-aa.eu.eosamsterdam.net/',
   'http://api.wax.liquidstudios.io/',
   'http://atomic.wax.tgg.gg/',
   'http://api.wax-aa.bountyblok.io/'

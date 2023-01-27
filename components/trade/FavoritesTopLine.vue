@@ -6,7 +6,7 @@
     :class='activeFavClassName(market.id)',
     )
     .d-flex
-      .icon
+      .icon.d-flex.align-items-center
         TokenImage(
           :src='$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)',
           height='20'
