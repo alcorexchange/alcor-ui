@@ -152,8 +152,12 @@ export default {
       const twChart = JSON.parse(
         JSON.stringify(this.$store.state.settings.twChart)
       )
+
+
       this.widget.save((o) => {
         twChart[this.id] = o
+        console.log('saving chart...', twChart)
+
         this.$store.commit('settings/setTwChart', twChart)
       })
     },
@@ -161,7 +165,9 @@ export default {
     load() {
       // FIXME Not workin in production
       const twChart = this.$store.state.settings.twChart[this.id]
+      console.log('loaded tw chart 1')
       if (!twChart || !twChart.charts) return
+      console.log('loaded tw chart 2', JSON.stringify(twChart))
       this.widget.load(twChart)
     },
     applySettings() {
