@@ -616,7 +616,7 @@ export default {
 
           'popup_hints',
 
-          //'save_chart_properties_to_local_storage',
+          'save_chart_properties_to_local_storage',
           //'use_localstorage_for_settings'
 
           //'header_resolutions',
