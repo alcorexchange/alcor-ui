@@ -151,22 +151,17 @@ export default {
       const twChart = JSON.parse(
         JSON.stringify(this.$store.state.settings.twChart)
       )
-
-
       this.widget.save((o) => {
         twChart[this.id] = o
-        console.log('saving chart...', twChart)
-
         this.$store.commit('settings/setTwChart', twChart)
+        console.log('CHART SAVED')
       })
     },
 
     load() {
       // FIXME Not workin in production
       const twChart = this.$store.state.settings.twChart[this.id]
-      console.log('loaded tw chart 1')
       if (!twChart || !twChart.charts) return
-      console.log('loaded tw chart 2', JSON.stringify(twChart))
       this.widget.load(twChart)
     },
     applySettings() {
@@ -622,7 +617,7 @@ export default {
 
           'popup_hints',
 
-          'save_chart_properties_to_local_storage',
+          //'save_chart_properties_to_local_storage',
           //'use_localstorage_for_settings'
 
           //'header_resolutions',
@@ -642,6 +637,7 @@ export default {
 
         //fullscreen: false,
         autosize: true,
+        auto_save_delay: 0,
         studies_overrides: () => ({}),
 
         // Styles
@@ -682,6 +678,11 @@ export default {
         this.applySettings()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
+          this.save()
+        })
+
+        // Save on indicators update
+        this.widget.subscribe('study_event', () => {
           this.save()
         })
       })
