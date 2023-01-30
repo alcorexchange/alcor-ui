@@ -83,7 +83,7 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
     const base = formatToken(m.quote_token)
     const target = formatToken(m.base_token)
 
-    pairs.append({ base, target, ticker_id: m.ticker_id })
+    pairs.push({ base, target, ticker_id: m.ticker_id })
   })
 
   res.json(pairs)
