@@ -11,7 +11,8 @@ const MarketSchema = mongoose.Schema({
       name: { type: String },
       precision: { type: Number }
     },
-    str: { type: String }
+    str: { type: String },
+    id: { type: String }
   },
 
   quote_token: {
@@ -20,7 +21,8 @@ const MarketSchema = mongoose.Schema({
       name: { type: String },
       precision: { type: Number }
     },
-    str: { type: String }
+    str: { type: String },
+    id: { type: String }
   },
 
   min_buy: { type: String },
