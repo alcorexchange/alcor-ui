@@ -35,7 +35,7 @@ function formatToken(token) {
 function formatTicker(m) {
   const [base, target] = m.ticker_id.split('_')
 
-  const q = m.queue_volume
+  const q = m.quote_volume
   const b = m.base_volume
 
   m.market_id = m.id
@@ -47,22 +47,8 @@ function formatTicker(m) {
   m.target_volume = b
 
   delete m.id
-  delete m.queue_volume
+  delete m.quote_volume
 }
-
-spot.get('/pair/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
-  // TODO Filter by base/quote
-  const network = req.app.get('network')
-
-  const { ticker_id } = req.params
-  const m = await Market.findOne({ ticker_id, chain: network.name }).select('base_token quote_token ticker_id')
-
-  formatTicker(m)
-
-  res.json(m)
-})
 
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
@@ -102,17 +88,18 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
   res.json(markets)
 })
 
-spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
+spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
+  const m = await Market.findOne({ ticker_id, chain: network.name })
+    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
 
-  const market = await Market.findOne({ ticker_id, chain: network.name }).select('-_id -__v -chain -quote_token -base_token')
-  if (!market) return res.status(404).send(`Ticker with id ${ticker_id} not found or closed :(`)
+  formatTicker(m)
 
-  res.json(market)
+  res.json(m)
 })
 
 spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (req, res) => {
@@ -156,6 +143,7 @@ spot.get('/tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (re
 
     m.base_volume = m.type == 'buymatch' ? m.ask : m.bid
     m.target_volume = m.type == 'buymatch' ? m.bid : m.ask
+
     m.time = m.time.getTime()
     m.type = m.type == 'buymatch' ? 'buy' : 'sell'
 
