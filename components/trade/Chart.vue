@@ -67,6 +67,7 @@ export default {
       'quote_token',
       'chart_orders_settings',
       'orderdata',
+      'slug'
     ]),
 
     orders() {
@@ -512,9 +513,9 @@ export default {
             this.resolution = resolution
 
             this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-            this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+            this.$axios.get(`/v2/tickers/${this.slug}/charts`, { params: { resolution, from: from * 1000, to: to * 1000 } })
               .then(({ data: charts }) => {
-                onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+                onHistoryCallback(charts, { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
                   this.widget.activeChart().removeAllShapes()
