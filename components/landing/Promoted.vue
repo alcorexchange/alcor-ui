@@ -3,7 +3,7 @@
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
-    el-carousel-item(v-for="promo in promoted" :key="promo")
+    el-carousel-item(v-for="promo in promoted" :key="promo.id")
       promo(:promo="promo")
 
   spacer
