@@ -62,9 +62,7 @@ module.exports = {
       name: 'Alcor-updater',
       script: './lib/server/services/UpdaterService/index.js',
       node_args: '-r esm',
-      restart_delay: 10000,
-      cron_restart: '0 * * * *',
-      //wait_ready: true
+      cron_restart: '0 * * * *'
     },
 
     {
