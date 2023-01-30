@@ -134,6 +134,8 @@ export function parseExtendedAsset(asset) {
   const symbol = Serialize.stringToSymbol(sym)
 
   return {
+    id: (symbol.name + '-' + asset.contract).toLowerCase(),
+
     contract: asset.contract,
     symbol,
 
