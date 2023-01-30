@@ -73,8 +73,8 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
 
   const q = { chain: network.name }
 
-  if (base) q.quote_token.id = base
-  if (target) q.base_token.id = target
+  if (base) q['quote_token.id'] = base.toLowerCase()
+  if (target) q['base_token.id'] = target.toLowerCase()
 
   const markets = await Market.find(q).select('base_token quote_token ticker_id').lean()
 
