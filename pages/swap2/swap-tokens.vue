@@ -1,5 +1,5 @@
 <template lang="pug">
-.w-100
+#swap-tokens
   .header
     .pair-container(v-if="current")
       .left
