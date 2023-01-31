@@ -1,5 +1,9 @@
 <template>
-  <div class="d-flex align-items-center lang-option" @click="changeLang" @touchstart="changeLang">
+  <div
+    class="d-flex align-items-center lang-option"
+    @click="changeLang"
+    @touchstart="changeLang"
+  >
     <icon :icon="icons[code]" />
     <span>{{ labels[code] }}</span>
   </div>
@@ -42,5 +46,6 @@ export default {
 .lang-option {
   gap: 8px;
   font-size: 12px;
+  width: 235px;
 }
 </style>
