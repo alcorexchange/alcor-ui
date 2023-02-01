@@ -44,7 +44,10 @@ export default {
   },
   methods: {
     redirect() {
-      this.$router.push({ name: `trade-index-id___${this.$i18n.locale}`, params: { id: this.item.slug } })
+      this.$router.push({
+        name: `trade-index-id___${this.$i18n.locale}`,
+        params: { id: this.item.slug }
+      })
     }
   }
 }
@@ -85,13 +88,13 @@ export default {
   text-align: right;
 }
 
-.wrapper.mobile>.last-price,
-.wrapper.mobile>.week-vol {
+.wrapper.mobile > .last-price,
+.wrapper.mobile > .week-vol {
   width: 33%;
 }
 
-.wrapper.mobile>.label,
-.wrapper.mobile>.promoted {
+.wrapper.mobile > .label,
+.wrapper.mobile > .promoted {
   width: 16%;
 }
 
@@ -126,7 +129,7 @@ export default {
 
 .name {
   display: flex;
-  gap: .3rem;
+  gap: 0.3rem;
   position: relative;
 }
 
@@ -135,8 +138,8 @@ export default {
 }
 
 .promo-label {
-  color: #1FC781;
-  border: 1px solid #66C167;
+  color: #1fc781;
+  border: 1px solid #66c167;
   border-radius: 4px;
   padding: 0 4px;
   position: absolute;
@@ -148,7 +151,7 @@ export default {
 }
 
 .last-price {
-  color: var(--main-green)
+  color: var(--main-green);
 }
 
 .last-price.down {
