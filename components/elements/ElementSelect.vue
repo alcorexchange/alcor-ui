@@ -6,7 +6,7 @@ el-dropdown.element-select(trigger="click")
     ChevronIcon
   el-dropdown-menu.element-options(slot="dropdown")
     slot(name="preOptions")
-    el-dropdown-item.element-item(v-for="option in options" :key="option[keyProps || 'id']")
+    el-dropdown-item.element-item(v-if="!disableList" v-for="option in options" :key="option[keyField || 'id']")
       slot(name="option" :option="option")
 </template>
 
@@ -15,7 +15,7 @@ import ChevronIcon from '@/components/ChevronIcon'
 
 export default {
   components: { ChevronIcon },
-  props: ['options', 'selected', 'keyProps']
+  props: ['options', 'selected', 'keyField', 'disableList']
 }
 </script>
 
