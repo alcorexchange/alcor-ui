@@ -36,7 +36,7 @@ const MarketSchema = mongoose.Schema({
 
   // New Fields
   base_volume: { type: Number },
-  quote_volume: { type: Number },
+  target_volume: { type: Number },
 
   volume24: { type: Number },
   volumeWeek: { type: Number },
