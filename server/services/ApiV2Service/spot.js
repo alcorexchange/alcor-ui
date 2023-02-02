@@ -35,19 +35,11 @@ function formatToken(token) {
 function formatTicker(m) {
   const [base, target] = m.ticker_id.split('_')
 
-  const q = m.quote_volume
-  const b = m.base_volume
-
   m.market_id = m.id
   m.target_currency = target.toLowerCase()
   m.base_currency = base.toLowerCase()
 
-  // Flip legacy bug naming
-  m.base_volume = q
-  m.target_volume = b
-
   delete m.id
-  delete m.quote_volume
 }
 
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
@@ -162,7 +154,7 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
-  const { type, start_time, end_time } = req.query
+  const { type, from, to } = req.query
 
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
@@ -171,11 +163,11 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
 
   const q = { chain: network.name, market: market.id }
   if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (start_time || end_time) {
+  if (from || to) {
     q.time = {}
 
-    if (start_time) q.time.$gte = new Date(parseInt(start_time))
-    if (end_time) q.time.$lte = new Date(parseInt(end_time))
+    if (from) q.time.$gte = new Date(parseInt(from))
+    if (to) q.time.$lte = new Date(parseInt(to))
   }
 
   const matches = await Match.find(q)
