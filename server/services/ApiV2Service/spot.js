@@ -160,6 +160,7 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   const limit = parseInt(req.query.limit) || 200
+  const skip = parseInt(req.query.skip) || 0
 
   const q = { chain: network.name, market: market.id }
   if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
@@ -168,11 +169,13 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
 
     if (from) q.time.$gte = new Date(parseInt(from))
     if (to) q.time.$lte = new Date(parseInt(to))
+    if (to) q.time.$lte = new Date(parseInt(to))
   }
 
   const matches = await Match.find(q)
     .select('_id price time bid ask unit_price type trx_id')
     .sort({ time: 1 })
+    .skip(skip)
     .limit(limit)
     .lean()
 
