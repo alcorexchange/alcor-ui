@@ -25,8 +25,8 @@ const MarketSchema = mongoose.Schema({
     id: { type: String }
   },
 
-  min_buy: { type: String },
-  min_sell: { type: String },
+  min_buy: { type: Number },
+  min_sell: { type: Number },
   frozen: { type: Boolean },
   fee: { type: Number },
 

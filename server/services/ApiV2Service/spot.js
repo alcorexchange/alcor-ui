@@ -87,7 +87,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
 
   const { ticker_id } = req.params
   const m = await Market.findOne({ ticker_id, chain: network.name })
-    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
+    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
   formatTicker(m)
 
