@@ -1,7 +1,7 @@
 <template lang="pug">
 #swap-tokens
   .header
-    .pair-container(v-if="current")
+    //.pair-container(v-if="current")
       .left
         PairIcons(
           :token1="{symbol: current.pool1.quantity.symbol.code().to_string(), contract: current.pool1.contract}"
