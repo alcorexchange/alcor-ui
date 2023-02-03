@@ -55,7 +55,7 @@ import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
-    TokenImage,
+    TokenImage
   },
 
   props: {
@@ -118,15 +118,21 @@ export default {
     },
 
     tokensFiltered() {
-      return this.tokens.filter((t) => {
-        const s = (t.symbol + '@' + t.contract).toLowerCase()
-        return s.includes(this.search.toLowerCase())
-      }).map(t => {
-        t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
-        return t
-      }).sort((a, b) => {
-        return a.balance == '0.0000' ? 1 : -1
-      }).sort((a, b) => parseFloat(a.balance) < parseFloat(b.balance) ? 1 : -1)
+      return this.tokens
+        .filter((t) => {
+          const s = (t.symbol + '@' + t.contract).toLowerCase()
+          return s.includes(this.search.toLowerCase())
+        })
+        .map((t) => {
+          t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
+          return t
+        })
+        .sort((a, b) => {
+          return a.balance == '0.0000' ? 1 : -1
+        })
+        .sort((a, b) =>
+          parseFloat(a.balance) < parseFloat(b.balance) ? 1 : -1
+        )
     }
   },
 

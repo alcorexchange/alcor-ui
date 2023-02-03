@@ -1,6 +1,6 @@
 <template lang="pug">
-element-select.token-select(:options="tokens" keyField="quote_name" :disableList="true")
-  template(#preOptions)
+element-select.token-select(:options="[1]" :disableList="true")
+  template(#preOptions v-show="visible")
     el-input.search(v-model='search' placeholder="Search by name or contract")
     recycle-scroller.scroller(:emit-update="true" class="scroller" :items="tokensFiltered" :item-size="42")
       template(v-slot="{ item: token }")
@@ -10,8 +10,8 @@ element-select.token-select(:options="tokens" keyField="quote_name" :disableList
             .fs-16.color-default {{ token.symbol }}
             .text-muted.small {{ token.contract }}
 
-          //.ml-auto(v-if="user")
-            span.text-muted {{ token.balance | commaFloat }}
+          .ml-auto(v-if="$store.state.user")
+            .text-muted {{ token.balance | commaFloat }}
 
   template(#selected)
     .d-flex.gap-8.align-items-center.pr-2
@@ -36,19 +36,7 @@ export default {
   },
   props: ['token', 'amount', 'disabled'],
   data: () => ({
-    //TODO
-    inputToken: {
-      quote_name: 'BRWL',
-      contract: 'brawlertoken'
-    },
-
-    search: '',
-    tokens: [
-      { quote_name: 'BRWL', contract: 'brawlertoken' },
-      { quote_name: 'AETHER', contract: 'e.rplanet' },
-      { quote_name: 'DUST', contract: 'niftywizards' },
-      { quote_name: 'RDAO', contract: 'e.rplanet' }
-    ]
+    search: ''
   }),
   computed: {
     amountValue: {
