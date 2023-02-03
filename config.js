@@ -207,6 +207,68 @@ const networks = {
     USD_TOKEN: 'XUSDC@xtokens',
   },
 
+  uxnetwork: {
+    name: 'uxnetwork',
+    desc: 'UX Network',
+    contract: 'alcordexmain',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'UTX',
+      precision: 4
+    },
+
+    marketCreationFee: '1000.0000 UTX',
+    feeAccount: 'alcordexteam',
+
+    chainId: '8fc6dce7942189f842170de953932b1f66693ad3788f766e777b6f9d22335c02',
+
+    host: 'explorer.uxnetwork.io',
+    port: 443,
+    protocol: 'https',
+    monitor: 'https://explorer.uxnetwork.io',
+    monitor_params: '',
+    lightapi: 'https://wax.light-api.net',
+    hyperion: 'https://wax.eosrio.io',
+
+    //hyperion: 'https://wax.pink.gg/',
+    //hyperion: 'https://api.waxsweden.org',
+    //backEnd: 'https://alcor.exchange/api/',
+
+    client_nodes: {
+      'https://explorer.uxnetwork.io': 'UX Explorer'
+    },
+
+    otc: {
+      // TODO
+      contract: 'alcorotcswap',
+      divs: 'aw.aq.waa'
+    },
+
+    pools: {
+      // TODO
+      contract: 'alcorammswap',
+      fee: 'aw.aq.waa'
+    },
+
+    withdraw: {},
+
+    RECOMMENDED_MARKETS: [],
+    PINNED_MARKETS: [],
+    BANNER_MARKETS: [],
+
+    SCAM_CONTRACTS: [],
+
+    CEX_CONTRACTS: [],
+
+    nftMarket: {
+      // TODO
+      contract: ''
+    },
+
+    USD_TOKEN: ''
+  },
+
   wax: {
     name: 'wax',
     desc: 'WAX Mainnet',
