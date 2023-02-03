@@ -1,39 +1,34 @@
 <template lang="pug">
-#assets-modal-component.login-modal
-  .header
-    .text-center.p-3 Select wallet
-  .body.row(v-loading='loading')
-    .items
-      .item(v-for='wallet in wallets')
-        AlcorButton.button(@click='login(wallet.id)', alternative)
-          img.mr-2(:src='wallet.logo', height='30')
-          span {{ wallet.name }}
-    .divider
-      span.line
-      .text {{ $t("Don't have any wallet yet") }} ?
-      span.line
-    .footer-actions
-    .items(v-if='wallets.length > 0')
-      .item
-        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
-          img.mr-2(:src='wallets[0].logo', height='30')
-          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
-      .item
-        AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
-          img.mr-2(:src='wallets[1].logo', height='30')
-          span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+.row(v-loading='loading')
+  .items
+    .item(v-for='wallet in wallets')
+      AlcorButton.button(@click='login(wallet.id)', alternative)
+        img.mr-2(:src='wallet.logo', height='30')
+        span {{ wallet.name }}
+  .divider
+    span.line
+    .text {{ $t("Don't have any wallet yet") }} ?
+    span.line
+  .footer-actions
+  .items(v-if='wallets.length > 0')
+    .item
+      AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
+        img.mr-2(:src='wallets[0].logo', height='30')
+        span {{ $t('Get') }} {{ $t(wallets[0].name) }}
+    .item
+      AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
+        img.mr-2(:src='wallets[1].logo', height='30')
+        span {{ $t('Get') }} {{ $t(wallets[1].name) }}
 </template>
 
 <script>
 import { captureException } from '@sentry/browser'
 import { mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
-import AlcorModal from '~/components/AlcorModal.vue'
 
 export default {
   components: {
-    AlcorButton,
-    AlcorModal
+    AlcorButton
   },
   data() {
     return {
@@ -114,13 +109,9 @@ export default {
   methods: {
     async login(provider) {
       this.loading = true
+
       try {
-        if (this.$store.state.modal.context?.ibcClient)
-          await this.$store.dispatch('chain/loginIBCClient', {
-            wallet_name: provider,
-            ibcClient: this.$store.state.modal.context.ibcClient
-          })
-        else await this.$store.dispatch('chain/login', provider)
+        await this.$store.dispatch('chain/login', provider)
         this.$store.dispatch('modal/closeModal')
       } catch (e) {
         captureException(e)
@@ -131,7 +122,6 @@ export default {
         })
       } finally {
         this.loading = false
-        this.$store.state.modal.context = null
       }
     }
   }
@@ -139,13 +129,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.login-modal {
-  max-width: 650px;
-  .body {
-    padding: 15px;
-  }
-}
-
 .items {
   display: flex;
   flex-wrap: wrap;

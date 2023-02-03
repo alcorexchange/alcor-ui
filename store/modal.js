@@ -1,30 +1,20 @@
 export const state = () => ({
   current: '',
-  visible: false,
-  context: null
+  visible: false
 })
 
 export const mutations = {
   setCurrent: (state, value) => state.current = value,
-  setVisible: (state, value) => state.visible = value,
-  setContext: (state, value) => state.context = value
+  setVisible: (state, value) => state.visible = value
 }
 
 export const actions = {
-  login({ commit }, context) {
+  login({ commit }) {
     commit('setCurrent', 'login')
     commit('setVisible', true)
-    context && commit('setContext', context)
-  },
-
-  assets({ commit }, context) {
-    commit('setCurrent', 'assets')
-    commit('setVisible', true)
-    context && commit('setContext', context)
   },
 
   closeModal({ commit }) {
     commit('setVisible', false)
-    commit('setContext', null)
   }
 }

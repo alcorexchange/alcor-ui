@@ -11573,7 +11573,7 @@
 .el-popper .popper__arrow,
 .el-popper .popper__arrow::after {
     position: absolute;
-    display: none !important;
+    display: block;
     width: 0;
     height: 0;
     border-color: transparent;
@@ -11588,8 +11588,7 @@
 
 .el-popper .popper__arrow::after {
     content: " ";
-    border-width: 6px;
-    display: none !important;
+    border-width: 6px
 }
 
 .el-popper[x-placement^=top] {

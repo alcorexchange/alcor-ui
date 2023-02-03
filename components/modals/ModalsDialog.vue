@@ -1,5 +1,11 @@
 <template lang="pug">
-alcor-modal
+el-dialog(
+  :title='$t("Select Wallet")',
+  :visible='visible',
+  @close='close',
+  width='50%',
+  :append-to-body='true'
+)
   component(:is='current')
 </template>
 
@@ -7,19 +13,26 @@ alcor-modal
 import { mapState } from 'vuex'
 
 import Login from '~/components/modals/Login'
-import Assets from '~/components/modals/Assets'
-import AlcorModal from '~/components/AlcorModal.vue'
 
 export default {
   components: {
-    AlcorModal,
-    Login,
-    Assets
+    Login
   },
 
   computed: {
-    ...mapState('modal', ['current'])
+    ...mapState('modal', ['current', 'visible'])
+  },
+
+  methods: {
+    close() {
+      this.$store.dispatch('modal/closeModal')
+    }
   }
 }
 </script>
 
+<style>
+.el-dialog__body {
+  padding: 20px 20px;
+}
+</style>
