@@ -64,6 +64,7 @@ const networks = {
     },
 
     withdraw: {
+      // TODO Устарел формат, обновить
       'TLOSP@steemenginex': {
         desc: 'Telos peged token. You can buy it for EOS and withdraw to Telos 1:1',
         network: {
@@ -114,6 +115,16 @@ const networks = {
         gateway: 'cross.chain',
       },
 
+      'TLOS@ibc.wt.tlos': {
+        desc: 'Telos wrapped token. You can trade it and transfer between chains with no fee',
+        network: {
+          name: 'Telos',
+          symbol: 'TLOS'
+        },
+        withdrawMemo: '{account}',
+        gateway: 'cross.chain'
+      }
+
       //'PETH@eth.ptokens': {
       //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
       //  network: {
@@ -130,15 +141,16 @@ const networks = {
       'SAND@sandiegocoin',
       'TCN@capitaltatch',
       'HASH@eoshashcoins',
-      'JOKER@joker.eos',
+      'JOKER@joker.eos'
     ],
+
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap',
+      contract: 'alcornftswap'
     },
 
     USD_TOKEN: 'USDT@tethertether',
@@ -434,6 +446,16 @@ const networks = {
         withdrawMemo: 'SAND {account}',
         gateway: 'sandiegocoin',
       },
+
+      'EOS@ibc.wt.eos': {
+        desc: 'EOS wrapped token. You can buy it for TLOS and transfer between chains with no fee',
+        network: {
+          name: 'Hive-Engine',
+          symbol: 'Hive',
+        },
+        withdrawMemo: 'SAND {account}',
+        gateway: 'sandiegocoin'
+      }
     },
 
     USD_TOKEN: 'XUSDC@xtokens',
