@@ -12,6 +12,7 @@ class WalletBase {
 }
 
 export default class AnchoWallet extends WalletBase {
+  name = 'anchor'
   link = null
   session = null
 

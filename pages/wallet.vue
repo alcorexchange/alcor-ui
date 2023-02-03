@@ -6,7 +6,7 @@
   .content(v-if="user")
     nuxt-child
   .d-flex.justify-content-center.p-3(v-else)
-    el-button(type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 </template>
 
 <script>

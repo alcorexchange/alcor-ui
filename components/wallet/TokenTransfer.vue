@@ -150,8 +150,7 @@ export default {
       )
     },
 
-    async open() {
-      if (!(await this.$store.dispatch('chain/asyncLogin'))) return
+    open() {
       this.visible = true
     },
 

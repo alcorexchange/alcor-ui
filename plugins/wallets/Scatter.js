@@ -14,6 +14,8 @@ class WalletBase {
 }
 
 export default class WCWWallet extends WalletBase {
+  name = 'scatter'
+
   scatter_plugin = null
   scatter_api = null
 

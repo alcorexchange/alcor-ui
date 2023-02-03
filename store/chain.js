@@ -94,20 +94,33 @@ export const actions = {
     commit('setUserOrders', [], { root: true })
   },
 
+  async mainLogin({ commit, dispatch }) {
+    try {
+      const { wallet, name, authorization } = await dispatch('asyncLogin')
+
+      commit('setCurrentWallet', wallet.name)
+      const wasAutoLoginned = await dispatch('autoLogin')
+      if (wasAutoLoginned) return commit('setLastWallet', wallet.name)
+
+      commit('setUser', { name, authorization }, { root: true })
+      dispatch('afterLoginHook')
+
+      commit('setLastWallet', wallet.name)
+    } catch {
+    }
+  },
+
   async login({ state, commit, dispatch, getters, rootState }, wallet_name) {
     console.log('login..')
-    commit('setCurrentWallet', wallet_name)
-    const wasAutoLoginned = await dispatch('autoLogin')
-    if (wasAutoLoginned) return commit('setLastWallet', wallet_name)
 
-    const { name, authorization } = await getters.wallet.login()
-    commit('setUser', { name, authorization }, { root: true })
-    dispatch('afterLoginHook')
+    const wallet = state.wallets[wallet_name]
 
-    commit('setLastWallet', wallet_name)
-
-    //if (state.loginPromise) state.loginPromise.resolve(true)
-    //if (state.loginPromise) state.loginPromise.resolve(false)
+    try {
+      const { name, authorization } = await wallet.login()
+      state.loginPromise.resolve({ wallet, name, authorization })
+    } catch (e) {
+      state.loginPromise.reject(e)
+    }
   },
 
   transfer({ dispatch, rootState }, { contract, actor, quantity, memo, to }) {
@@ -143,15 +156,18 @@ export const actions = {
     return r
   },
 
-  asyncLogin({ rootState, commit, dispatch }) {
-    if (rootState.user) return Promise.resolve(true)
-
+  async asyncLogin({ rootState, commit, dispatch }) {
     const loginPromise = new Promise((resolve, reject) => {
       commit('setLoginPromise', { resolve, reject })
       dispatch('modal/login', null, { root: true })
     })
 
-    return loginPromise
+    try {
+      return await loginPromise
+    } catch (e) {
+      this._vm.$notify({ type: 'warning', title: 'Wallet connect error!', message: e })
+      throw new Error(e)
+    }
   },
 
   async generateGiftLink({ rootState, dispatch }, { memo, asset_ids }) {

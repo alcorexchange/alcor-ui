@@ -11,6 +11,7 @@ class WalletBase {
 }
 
 export default class WCWWallet extends WalletBase {
+  name = 'wcw'
   wax = null
 
   constructor(network, rpc) {
