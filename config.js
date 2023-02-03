@@ -394,9 +394,9 @@ const networks = {
     host: 'waxtestnet.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'http://jungle3.bloks.io',
+    monitor: 'https://wax-test.bloks.io/',
     monitor_params: '',
-    lightapi: 'https://api.light.xeos.me',
+    lightapi: 'ttps://testnet-lightapi.eosams.xeos.me',
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
