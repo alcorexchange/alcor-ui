@@ -5,19 +5,28 @@ import { createClient } from 'redis'
 
 import { startUpdaters } from './start'
 
-async function start () {
-  const redisClient = createClient()
-  await redisClient.connect()
+const redisClient = createClient()
+
+async function makeConnections() {
+  console.log(await redisClient.isOpen)
+  if (!redisClient.isOpen) await redisClient.connect()
   console.log('Redis connected..')
 
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
   console.log('MongoDB connected!')
+}
+
+async function start () {
+  try {
+    await makeConnections()
+  } catch (e) {
+    console.log('makeConnections retry... :' + e)
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    await start()
+  }
 
   startUpdaters()
-
-  // FOR PM2
-  //process.send('ready')
 
   process.on('SIGINT', async () => {
     await redisClient.quit()

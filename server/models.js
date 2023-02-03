@@ -11,7 +11,8 @@ const MarketSchema = mongoose.Schema({
       name: { type: String },
       precision: { type: Number }
     },
-    str: { type: String }
+    str: { type: String },
+    id: { type: String }
   },
 
   quote_token: {
@@ -20,11 +21,12 @@ const MarketSchema = mongoose.Schema({
       name: { type: String },
       precision: { type: Number }
     },
-    str: { type: String }
+    str: { type: String },
+    id: { type: String }
   },
 
-  min_buy: { type: String },
-  min_sell: { type: String },
+  min_buy: { type: Number },
+  min_sell: { type: Number },
   frozen: { type: Boolean },
   fee: { type: Number },
 
@@ -34,7 +36,7 @@ const MarketSchema = mongoose.Schema({
 
   // New Fields
   base_volume: { type: Number },
-  quote_volume: { type: Number },
+  target_volume: { type: Number },
 
   volume24: { type: Number },
   volumeWeek: { type: Number },

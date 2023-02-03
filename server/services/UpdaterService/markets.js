@@ -69,14 +69,14 @@ export async function getVolumeFrom(date, market, chain) {
     {
       $project: {
         market: 1,
-        quote_volume: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } },
+        target_volume: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } },
         base_volume: { $cond: { if: { $eq: ['$type', 'sellmatch'] }, then: '$bid', else: '$ask' } }
       }
     },
-    { $group: { _id: '$market', quote_volume: { $sum: '$quote_volume' }, base_volume: { $sum: '$base_volume' } } }
+    { $group: { _id: '$market', target_volume: { $sum: '$target_volume' }, base_volume: { $sum: '$base_volume' } } }
   ])
 
-  return volume.length == 1 ? [volume[0].base_volume, volume[0].quote_volume] : [0, 0]
+  return volume.length == 1 ? [volume[0].base_volume, volume[0].target_volume] : [0, 0]
 }
 
 export async function getChangeFrom(date, market, chain) {
@@ -111,10 +111,10 @@ export async function getMarketStats(network, market_id) {
     new Date().getDate()
   )
 
-  const [base_volume, quote_volume] = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
+  const [base_volume, target_volume] = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
 
-  stats.volume24 = quote_volume
-  stats.quote_volume = quote_volume
+  stats.volume24 = target_volume
+  stats.target_volume = target_volume
   stats.base_volume = base_volume
 
   stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[1]
@@ -168,7 +168,9 @@ export async function updateMarkets(network) {
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)
-    r.ticker_id = r.quote_token.str.replace('@', '-') + '_' + r.base_token.str.replace('@', '-')
+    r.ticker_id = (r.quote_token.str.replace('@', '-') + '_' + r.base_token.str.replace('@', '-')).toLowerCase()
+    r.min_buy = parseFloat(r.min_buy)
+    r.min_sell = parseFloat(r.min_sell)
   })
 
   const requests = rows.map(d => {

@@ -1,61 +1,63 @@
 <template lang="pug">
 .d-flex.gap-32.w-100
   alcor-container.pool-form.d-flex.flex-column.gap-32
-    alcor-tabs.swap-tabs(:links="true" :tabs="tabs")
-    element-select.token-select(:options="tokens" keyField="quote_name" :disableList="true")
-      template(#preOptions)
-        el-input(v-model='search' placeholder="Search by name or contract" clearable style="width: 370px")
-        recycle-scroller(:emit-update="true" class="scroller" :items="tokensFiltered" :item-size="45" keyField="symbol")
-          template(v-slot="{ item: token }")
-            .token.d-flex.justify-content-between.align-items-center.p-2
-              .d-flex.gap-8.align-items-center
-                token-image(:src="$tokenLogo(token.symbol, token.contract)" height="25")
-                .fs-16 {{ token.quote_name }}
-                .text-muted.small {{ token.contract }}
+    alcor-tabs.swap-tabs.mt-2(:links="true" :tabs="tabs")
 
-              //.ml-auto(v-if="user")
-                span.text-muted {{ token.balance | commaFloat }}
+    .d-flex.flex-column.gap-10
+      .d-flex.flex-column.gap-8
+        .d-flex.flex-row.justify-content-between.align-items-center
+          .fs-12.text-muted {{ $t("Sell") }}
+          el-button(v-if="user && user.balances" type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto
+            .d-flex.gap-4.fs-12
+              .text-decoration-underline {{ inputBalance | commaFloat }}
+              .fs-12 {{ inputToken.symbol }}
+              i.el-icon-wallet.ml-1
 
-      template(#selected)
-        .d-flex.gap-8.align-items-center.px-2
-          el-input(type="number" v-model='inputAmount' :placeholder="0.0" clearable)
-          token-image(:src='$tokenLogo(inputToken.quote_name, inputToken.contract)')
-          .fs-18.disable {{ inputToken.quote_name }}
+        token-select(:token.sync='inputToken' :amount.sync="inputAmount")
+
+      i.el-icon-bottom.pointer.text-center.fs-24
+
+      .d-flex.flex-column.gap-8
+        .d-flex.flex-row.justify-content-between.align-items-center
+          .fs-12.text-muted {{ $t('Buy (Estimated)') }}
+          .d-flex.align-items-center.gap-4.fs-12(v-if="user && user.balances")
+            .text-decoration-underline {{ outputBalance | commaFloat }}
+            .fs-12 {{ outputToken.symbol }}
+            i.el-icon-wallet.ml-1
+
+        token-select(:token.sync='outputToken' :amount.sync="outputAmount" disabled)
+
+    alcor-button.w-100(big access disabled) Swap
 
   nuxt-child
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorContainer from '~/components/AlcorContainer'
-import AlcorSelect from '~/components/AlcorSelect'
-import ElementSelect from '~/components/elements/ElementSelect'
-import TokenOption from '~/components/TokenOption'
-import TokenImage from '~/components/elements/TokenImage'
+import AlcorButton from '~/components/AlcorButton'
+import TokenSelect from '~/components/TokenSelect'
 
 export default {
   components: {
     AlcorTabs,
     AlcorContainer,
-    ElementSelect,
-    AlcorSelect,
-    TokenOption,
-    TokenImage
+    TokenSelect,
+    AlcorButton
   },
   data: () => ({
     inputToken: {
-      quote_name: 'BRWL',
+      symbol: 'BRWL',
       contract: 'brawlertoken'
     },
-    search: '',
-    inputAmount: 1000,
-    tokens: [
-      { quote_name: 'BRWL', contract: 'brawlertoken' },
-      { quote_name: 'AETHER', contract: 'e.rplanet' },
-      { quote_name: 'DUST', contract: 'niftywizards' },
-      { quote_name: 'RDAO', contract: 'e.rplanet' }
-    ],
+    inputAmount: 100,
+    outputToken: {
+      symbol: 'BRWL',
+      contract: 'brawlertoken'
+    },
+    outputAmount: 100,
+
     tabs: [
       {
         label: 'Swap',
@@ -68,32 +70,24 @@ export default {
     ]
   }),
   computed: {
-    //TODO mock tokens
-    ...mapGetters({
-      tokens0: 'swap/tokens0'
-    }),
-    //mock tokens
-    tokensFiltered() {
-      return this.tokens0
-        .filter((t) => {
-          const s = (t.symbol + '@' + t.contract).toLowerCase()
-          return s.includes(this.search.toLowerCase())
-        })
-        .map((t) => {
-          t.balance = this.$tokenBalance(t.symbol || t.currency, t.contract)
-          return t
-        })
-        .sort((a, b) => {
-          return a.balance == '0.0000' ? 1 : -1
-        })
-        .sort((a, b) =>
-          parseFloat(a.balance) < parseFloat(b.balance) ? 1 : -1
-        )
-    }
-  },
-  methods: {
-    changeSelected(token) {
-      this.inputToken = token
+    ...mapGetters(['user']),
+    inputBalance() {
+      return (
+        this.user.balances.find(
+          (b) =>
+            b.currency === this.inputToken.symbol &&
+            b.contract == this.inputToken.contract
+        )?.amount || (0).toFixed(4)
+      )
+    },
+    outputBalance() {
+      return (
+        this.user.balances.find(
+          (b) =>
+            b.currency === this.outputToken.symbol &&
+            b.contract == this.outputToken.contract
+        )?.amount || (0).toFixed(4)
+      )
     }
   }
 }
@@ -102,18 +96,6 @@ export default {
 <style lang="scss">
 .pool-form {
   width: 405px;
-
-  .el-dropdown-menu.element-options {
-    top: 60px;
-  }
-
-  .el-input {
-    font-size: 16px;
-  }
-
-  .token:hover {
-    background-color: red;
-  }
 
   .swap-tabs {
     gap: 0px;
@@ -132,7 +114,7 @@ export default {
       }
 
       &::after {
-        transition: none;
+        display: none;
       }
 
       &.active {
@@ -140,8 +122,7 @@ export default {
         background: var(--btn-active);
 
         &::after {
-          background: var(--btn-active);
-          transition: none;
+          display: none;
         }
       }
     }

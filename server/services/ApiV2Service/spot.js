@@ -3,7 +3,6 @@ import { cacheSeconds } from 'route-cache'
 import { write_decimal } from 'eos-common'
 
 import { Bar, Match, Market } from '../../models'
-import { normalizeTickerId } from '../../../utils/market'
 
 const depthHandler = (req, res, next) => {
   if (req.query.depth && isNaN(parseInt(req.query.depth))) return res.status(403).send('Invalid depth')
@@ -17,8 +16,8 @@ function tickerHandler(req, res, next) {
   if (!ticker_id || ticker_id.match(/.*-.*_.*-[A-Za-z0-9.]+$/) == null)
     return res.status(403).send('Invalid ticker_id')
 
-  req.query.ticker_id = normalizeTickerId(ticker_id)
-  req.params.ticker_id = normalizeTickerId(ticker_id)
+  req.query.ticker_id = ticker_id.toLowerCase()
+  req.params.ticker_id = ticker_id.toLowerCase()
   next()
 }
 
@@ -26,47 +25,46 @@ export const spot = Router()
 
 function formatToken(token) {
   return {
+    id: token.id,
     contract: token.contract,
     symbol: token.symbol.name,
     precision: token.symbol.precision
   }
 }
 
-spot.get('/pair/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
-  // TODO Filter by base/quote
-  const network = req.app.get('network')
+function formatTicker(m) {
+  const [base, target] = m.ticker_id.split('_')
 
-  const { ticker_id } = req.params
-  const market = await Market.findOne({ ticker_id, chain: network.name }).select('base_token quote_token ticker_id')
+  m.market_id = m.id
+  m.target_currency = target.toLowerCase()
+  m.base_currency = base.toLowerCase()
 
-  res.json({
-    ticker_id: market.ticker_id,
-    base: formatToken(market.quote_token),
-    target: formatToken(market.base_token)
-  })
-})
+  delete m.id
+}
 
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   // TODO Filter by base/quote
   const network = req.app.get('network')
+  const { base, target } = req.query
 
-  const markets = (await Market.find({ chain: network.name }).select('base_token quote_token'))
-    .map(i => {
-      const base = formatToken(i.quote_token)
-      const target = formatToken(i.base_token)
+  const q = { chain: network.name }
 
-      return {
-        ticker_id: base.contract + '-' + base.symbol + '_' + quote.contract + '-' + quote.symbol,
-        base,
-        target
-      }
-    })
+  if (base) q['quote_token.id'] = base.toLowerCase()
+  if (target) q['base_token.id'] = target.toLowerCase()
 
-  res.json(markets)
+  const markets = await Market.find(q).select('base_token quote_token ticker_id').lean()
+
+  const pairs = []
+  markets.map(m => {
+    const base = formatToken(m.quote_token)
+    const target = formatToken(m.base_token)
+
+    pairs.push({ base, target, ticker_id: m.ticker_id })
+  })
+
+  res.json(pairs)
 })
 
 spot.get('/tickers', cacheSeconds(60, (req, res) => {
@@ -74,39 +72,26 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const markets = await Market.find({ chain: network.name }).select('-_id -__v -chain -quote_token -base_token -changeWeek').lean()
+  const markets = await Market.find({ chain: network.name })
+    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
-  markets.map(m => {
-    const [base, target] = m.ticker_id.split('_')
-
-    const q = m.queue_volume
-    const b = m.base_volume
-
-    m.market_id = m.id
-    m.target_currency = target
-    m.base_currency = base
-
-    delete m.id
-
-    // Flip legacy bug naming
-    m.base_volume = q
-    m.target_volume = b
-  })
+  markets.map(m => formatTicker(m))
 
   res.json(markets)
 })
 
-spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(60, (req, res) => {
+spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
+  const m = await Market.findOne({ ticker_id, chain: network.name })
+    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
-  const market = await Market.findOne({ ticker_id, chain: network.name }).select('-_id -__v -chain -quote_token -base_token')
-  if (!market) return res.status(404).send(`Ticker with id ${ticker_id} not found or closed :(`)
+  formatTicker(m)
 
-  res.json(market)
+  res.json(m)
 })
 
 spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (req, res) => {
@@ -150,6 +135,7 @@ spot.get('/tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (re
 
     m.base_volume = m.type == 'buymatch' ? m.ask : m.bid
     m.target_volume = m.type == 'buymatch' ? m.bid : m.ask
+
     m.time = m.time.getTime()
     m.type = m.type == 'buymatch' ? 'buy' : 'sell'
 
@@ -168,25 +154,28 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
-  const { type, start_time, end_time } = req.query
+  const { type, from, to } = req.query
 
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   const limit = parseInt(req.query.limit) || 200
+  const skip = parseInt(req.query.skip) || 0
 
   const q = { chain: network.name, market: market.id }
   if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (start_time || end_time) {
+  if (from || to) {
     q.time = {}
 
-    if (start_time) q.time.$gte = new Date(parseInt(start_time))
-    if (end_time) q.time.$lte = new Date(parseInt(end_time))
+    if (from) q.time.$gte = new Date(parseInt(from))
+    if (to) q.time.$lte = new Date(parseInt(to))
+    if (to) q.time.$lte = new Date(parseInt(to))
   }
 
   const matches = await Match.find(q)
     .select('_id price time bid ask unit_price type trx_id')
     .sort({ time: 1 })
+    .skip(skip)
     .limit(limit)
     .lean()
 

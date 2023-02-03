@@ -155,6 +155,7 @@ export default {
       this.widget.save((o) => {
         twChart[this.id] = o
         this.$store.commit('settings/setTwChart', twChart)
+        console.log('CHART SAVED')
       })
     },
 
@@ -617,7 +618,7 @@ export default {
 
           'popup_hints',
 
-          'save_chart_properties_to_local_storage',
+          //'save_chart_properties_to_local_storage',
           //'use_localstorage_for_settings'
 
           //'header_resolutions',
@@ -637,6 +638,7 @@ export default {
 
         //fullscreen: false,
         autosize: true,
+        auto_save_delay: 0,
         studies_overrides: () => ({}),
 
         // Styles
@@ -677,6 +679,11 @@ export default {
         this.applySettings()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
+          this.save()
+        })
+
+        // Save on indicators update
+        this.widget.subscribe('study_event', () => {
           this.save()
         })
       })
