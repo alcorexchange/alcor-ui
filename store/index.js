@@ -221,17 +221,18 @@ export const actions = {
   },
 
   async loadIbc({ state, commit, rootGetters }) {
-    const { rows: ibcTokens } = await this.$rpc.get_table_rows({
-      code: 'bosibc.io',
-      scope: 'bosibc.io',
-      table: 'accepts',
-      limit: 1000
-    })
+    // TODO
+    //const { rows: ibcTokens } = await this.$rpc.get_table_rows({
+    //  code: 'bosibc.io',
+    //  scope: 'bosibc.io',
+    //  table: 'accepts',
+    //  limit: 1000
+    //})
 
-    const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
+    //const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
 
-    commit('setIbcTokens', tokens)
-    commit('setIbcAccepts', ibcTokens)
+    //commit('setIbcTokens', tokens)
+    //commit('setIbcAccepts', ibcTokens)
   },
 
   loadUserLiqudityPositions({ state, commit }) {

@@ -5,7 +5,7 @@
   "author": "avral",
   "private": true,
   "scripts": {
-    "dev": "cross-env NETWORK=wax DISABLE_DB=true NODE_ENV=development nodemon -r esm server/index.js --watch server",
+    "dev": "cross-env DISABLE_DB=true NODE_ENV=development nodemon -r esm server/index.js --watch server",
     "dev2": "cross-env NODE_ENV=development nodemon --inspect -r esm server/index.js --watch server",
     "build": "nuxt build",
     "build-server": "babel assets -d lib/assets && babel server -d lib/server && babel config.js -d lib && babel utils -d lib/utils",

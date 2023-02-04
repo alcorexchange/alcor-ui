@@ -68,8 +68,6 @@ export default {
   data() {
     return {
       search: '',
-      newListingIDs: [495, 455, 173],
-      topGaindersIDs: [475, 422, 416]
     }
   },
 
@@ -224,6 +222,7 @@ export default {
             return (
               ibcTokens.includes(i.base_token.contract) ||
               ibcTokens.includes(i.quote_token.contract) ||
+
               Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
               Object.keys(this.network.withdraw).includes(i.base_token.str)
             )
