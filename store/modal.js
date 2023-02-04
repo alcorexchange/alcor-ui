@@ -11,9 +11,16 @@ export const mutations = {
 }
 
 export const actions = {
-  login({ commit }) {
+  login({ commit }, context) {
     commit('setCurrent', 'login')
     commit('setVisible', true)
+    context && commit('setModalContext', context)
+  },
+
+  assets({ commit }, context) {
+    commit('setCurrent', 'assets')
+    commit('setVisible', true)
+    context && commit('setModalContext', context)
   },
 
   buy({ commit }, context) {
@@ -90,5 +97,6 @@ export const actions = {
 
   closeModal({ commit }) {
     commit('setVisible', false)
+    //commit('setModalContext', null)
   }
 }

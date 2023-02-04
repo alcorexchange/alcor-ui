@@ -9,6 +9,8 @@ export const strict = false
 
 export const state = () => ({
   user: null,
+  ibcClients: { sender: null, receiver: null },
+  selectedAsset: 'usdt',
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -38,6 +40,9 @@ export const mutations = {
   setNetwork: (state, network) => {
     state.network = network
   },
+  setSelectedAsset: (state, asset) => {
+    state.selectedAsset = asset
+  },
 
   // TODO Refactor for better balances handling
   // (separate array not in user object)
@@ -57,6 +62,8 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
+  setIBCClient: (state, { ibcClient, name, authorization }) => state.ibcClients[ibcClient] = { name, authorization },
+  logOutIBCClient: (state, ibsClient) => state.ibcClients[ibsClient] = null,
   setMarkets: (state, markets) => {
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
     state.markets = markets

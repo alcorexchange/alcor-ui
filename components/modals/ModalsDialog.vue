@@ -19,6 +19,7 @@ import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
 import Trade from '~/components/modals/Trade'
 import BlockUser from '~/components/modals/BlockUser'
+import Assets from '~/components/modals/Assets'
 import AlcorModal from '~/components/AlcorModal.vue'
 
 export default {
@@ -36,6 +37,7 @@ export default {
     AddFriend,
     Trade,
     BlockUser,
+    Assets,
     AlcorModal
   },
 

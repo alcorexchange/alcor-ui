@@ -85,6 +85,9 @@ button {
   &.active {
     background: var(--hover);
   }
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .alcor-button .vs-icon {
@@ -95,7 +98,7 @@ button {
   background: transparent;
 }
 
-.alcor-button:hover {
+.alcor-button:hover:not([disabled]) {
   background: var(--hover);
 }
 
