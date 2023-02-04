@@ -19,7 +19,7 @@
             .color-wax {{ price + " WAX" }}
             .color-action (${{ $systemToUSD(price) }})
         .d-flex.flex-column
-          .fs-14.disable {{ $t('Date') }]
+          .fs-14.disable {{ $t('Date') }}
           span {{ +data.assets[0].transferred_at_time | moment("MM/DD/YYYY HH:mm a") }}
 
       .d-flex.flex-column.gap-16
@@ -31,7 +31,7 @@
             .color-danger {{ data.assets[0].template.issued_supply - data.assets[0].template_mint }}
             img(src='~/assets/images/fire.svg')
         .d-flex.flex-column
-          .fs-14.disable {{ $t('Temlate ID') }]
+          .fs-14.disable {{ $t('Temlate ID') }}
           .color-action {{ "#" + data.assets[0].template.template_id }}
         .d-flex.flex-column
           .fs-14.disable {{ $t('Propertise') }}

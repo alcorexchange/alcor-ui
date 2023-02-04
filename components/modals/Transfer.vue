@@ -121,6 +121,7 @@ export default {
     },
     context() {
       this.reciever = this.context.name
+      this.setOptions()
     }
   },
   mounted() {
@@ -138,7 +139,7 @@ export default {
     },
     setOptions() {
       this.reciever = this.context.reciever
-      this.context.transferAssets && this.transferAssets.push(...this.context.transferAssets)
+      this.transferAssets = this.context.transferAssets
     },
     transfer() {
       this.transferNft({ memo: this.memo, reciever: this.reciever, asset_ids: this.transferAssets.map(({ asset_id }) => asset_id) })
