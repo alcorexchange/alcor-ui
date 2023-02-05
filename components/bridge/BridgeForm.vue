@@ -79,37 +79,26 @@
       el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
       span.max-btn.pointer(@click="setMax") MAX
 
-    el-select(v-model='formData.asset' value-key="id" filterable :placeholder='$t("Select")' clearable @change="setAsset")
-      el-option(
-        :label="asset.symbol",
-        :value="asset"
-        v-for="asset in this.$store.getters['ibcBridge/availableAssets']"
-      )
-        TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
-        //span.ml-3 {{ network.baseToken.symbol + '@' + network.baseToken.contract }}
-        span {{ asset.symbol }}
-
-    //el-select(v-model='formData.asset' v-if="user && user.balances"
-    //  value-key="id" filterable :placeholder='$t("Select")' clearable @change="setAsset")
-    //  el-option(
-    //    :label="network.baseToken.symbol + '@' + network.baseToken.contract",
-    //    :value="network.baseToken"
-    //  )
-    //    TokenImage(:src="$tokenLogo(network.baseToken.symbol, network.baseToken.contract)" height="25")
-    //    span.ml-3 {{ network.baseToken.symbol + '@' + network.baseToken.contract }}
-
-    //alcor-button.choise-asset-btn(@click="$store.dispatch('modal/assets')")
-      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.asset")
-        .d-flex.gap-8.align-items-center
-          img(
-            :src='require("~/assets/icons/" + formData.asset + ".png")',
-            height=16
-          )
-          .fs-14 {{ assetLabels[formData.asset] }}
+    el-dropdown(trigger="click" :disabled="(!source && !destination) || inProgress")
+      alcor-button.choise-asset-btn
+        .d-flex.justify-content-between.align-items-center.w-100
+          .d-flex.gap-8.align-items-center(v-if="!formData.asset")
+            | Select Token
+          .d-flex.gap-8.align-items-center(v-else)
+            TokenImage(:src="$tokenLogo(formData.asset.symbol, formData.asset.sourceTokenContract)" height="25")
+            span {{ formData.asset.symbol }}
         i.el-icon-arrow-down
 
+
+      el-dropdown-menu(slot='dropdown')
+        el-dropdown-item(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
+          .d-flex.justify-content-between.align-items-center.w-100(@click="setAsset(asset)")
+            .d-flex.gap-8.align-items-center
+              TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
+              span {{ asset.symbol }}
+
   .d-flex.justify-content-center.mt-4
-    alcor-button.transfer-btn(access :disabled="!isValid || !inProgress" @click="transfer") Transfer and Prove
+    alcor-button.transfer-btn(access :disabled="!isValid || inProgress" @click="transfer") Transfer and Prove
 
   bridge-slider(v-if="inProgress" :steps="steps")
 
@@ -232,6 +221,13 @@ export default {
     }
   },
 
+  watch: {
+    'formData.amount'() {
+      if (!this.formData.asset?.symbol) return
+      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+    }
+  },
+
   methods: {
     ...mapMutations({
       setSourceName: 'ibcBridge/setSourceName',
@@ -240,6 +236,7 @@ export default {
 
     reset() {
       this.finished = false
+      this.inProgress = false
 
       this.steps = [
         { id: 0, progress: 0, label: 'Submitting source chain transfer', status: 'active' },
@@ -261,15 +258,20 @@ export default {
 
     async transfer() {
       if (!this.formData.asset) return
+
+      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+
       this.reset()
       this.inProgress = true
 
-      const { asset } = this.formData
-      asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.formData.asset)
 
-      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, asset)
-
-      const sourceTx = await ibcTransfer.signSourceTrx()
+      let sourceTx
+      try {
+        sourceTx = await ibcTransfer.signSourceTrx()
+      } catch (e) {
+        return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
+      }
 
       this.$set(this.steps, 0, { id: 0, progress: 100, label: 'Submitting source chain transfer', status: 'success' })
       this.$set(this.steps, 1, { id: 1, progress: 1, label: 'Waiting for transaction irreversibility', status: 'active' })
@@ -278,7 +280,7 @@ export default {
       const progressInterval = setInterval(() => {
         prog = Math.min(prog + 1, 100)
         this.updateProgress(prog)
-      }, 1500)
+      }, 1700)
 
       const { result, emitxferAction } = await ibcTransfer.sourceTransferAndWaitForLIB(sourceTx)
       this.result.source = result.transaction_id
@@ -314,14 +316,15 @@ export default {
 
       this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'success' })
 
-      await sleep(1000)
+      await sleep(500)
 
       this.inProgress = false
       this.finished = true
     },
 
     setAsset(asset) {
-      console.log(this.formData.asset)
+      console.log('asset', asset, this.formData.asset)
+      this.formData.asset = asset
     },
 
     setMax() {
@@ -348,7 +351,6 @@ export default {
 
     async connectToWallet () {
       try {
-        console.log('source', this.sourceWallet.wallet.rpc.currentEndpoint)
         const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
           chain: this.destinationName
         })

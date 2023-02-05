@@ -151,11 +151,6 @@ export default {
       )
     },
 
-    async open() {
-      if (!(await this.$store.dispatch('chain/asyncLogin'))) return
-      this.visible = true
-    },
-
     async submit() {
       if (this.token.contract == 'bosibc.io') {
         await this.$confirm(

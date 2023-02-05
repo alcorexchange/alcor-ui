@@ -88,7 +88,7 @@ export default {
       user: 'user',
       allOrders: 'wallet/allOrders',
     }),
-    ...mapGetters(['network', 'userOrders']),
+    ...mapGetters(['userOrders']),
     ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'quote_token']),
 
     orders() {
