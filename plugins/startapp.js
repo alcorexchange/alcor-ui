@@ -15,6 +15,7 @@ export default ({ app: { store, $axios } }, inject) => {
     store.dispatch('market/init')
     store.dispatch('wallet/init')
     store.dispatch('settings/init')
+    store.dispatch('ibcBridge/init')
 
     if (process.env.isDev) {
       //const VConsole = require('vconsole')

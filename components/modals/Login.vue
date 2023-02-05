@@ -25,6 +25,7 @@
 </template>
 
 <script>
+// TODO Добавить открытие кошельков под разные чейны
 import { captureException } from '@sentry/browser'
 import { mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
@@ -37,78 +38,77 @@ export default {
   },
   data() {
     return {
-      loading: false,
-
-      wallets: []
+      loading: false
     }
   },
 
   computed: {
-    ...mapState(['user', 'network'])
+    ...mapState(['user', 'network']),
+
+    wallets() {
+      const wallets = [
+        {
+          id: 'anchor',
+          name: 'Anchor',
+          logo: require('@/assets/logos/anchor.svg'),
+          create: 'https://greymass.com/en/anchor/'
+        },
+        {
+          id: 'scatter',
+          name: 'Scatter / TP / Starteos',
+          logo: require('@/assets/logos/scatter.svg'),
+          create:
+            'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
+        },
+        {
+          name: 'SimplEOS',
+          logo: require('@/assets/logos/simpleos.svg')
+        },
+        { name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
+        { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
+      ]
+
+      if (this.network.name == 'eos') {
+        wallets.push({
+          id: 'scatter',
+          name: '',
+          logo: require('@/assets/logos/wombat.png')
+        })
+        wallets.push({
+          name: 'Keycat',
+          logo: require('@/assets/logos/keycat.svg')
+        })
+      }
+
+      if (this.network.name == 'wax' || this.$store.state.chain.loginContext?.chain == 'wax') {
+        wallets.unshift({
+          id: 'wcw',
+          name: 'Wax Cloud Wallet',
+          logo: require('@/assets/logos/wax.svg'),
+          index: 'wax',
+          create: 'https://all-access.wax.io/'
+        })
+        wallets.push({
+          id: 'scatter',
+          name: '',
+          logo: require('@/assets/logos/wombat.png')
+        })
+      }
+
+      if (this.network.name == 'proton' || this.$store.state.chain.loginContext?.chain == 'proton') {
+        wallets.unshift({
+          id: 'proton',
+          name: 'Proton',
+          logo: require('@/assets/icons/proton.png'),
+          create: 'https://www.protonchain.com/wallet/'
+        })
+      }
+
+      return wallets
+    }
   },
 
   mounted() {
-    console.log('login mounted')
-
-    const wallets = [
-      {
-        id: 'anchor',
-        name: 'Anchor',
-        logo: require('@/assets/logos/anchor.svg'),
-        create: 'https://greymass.com/en/anchor/'
-      },
-      {
-        id: 'scatter',
-        name: 'Scatter / TP / Starteos',
-        logo: require('@/assets/logos/scatter.svg'),
-        create:
-          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
-      },
-      {
-        name: 'SimplEOS',
-        logo: require('@/assets/logos/simpleos.svg')
-      },
-      { name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
-      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
-    ]
-
-    if (this.network.name == 'eos') {
-      wallets.push({
-        id: 'scatter',
-        name: '',
-        logo: require('@/assets/logos/wombat.png')
-      })
-      wallets.push({
-        name: 'Keycat',
-        logo: require('@/assets/logos/keycat.svg')
-      })
-    }
-
-    if (this.network.name == 'wax') {
-      wallets.unshift({
-        id: 'wcw',
-        name: 'Wax Cloud Wallet',
-        logo: require('@/assets/logos/wax.svg'),
-        index: 'wax',
-        create: 'https://all-access.wax.io/'
-      })
-      wallets.push({
-        id: 'scatter',
-        name: '',
-        logo: require('@/assets/logos/wombat.png')
-      })
-    }
-
-    if (this.network.name == 'proton') {
-      wallets.unshift({
-        id: 'proton',
-        name: 'Proton',
-        logo: require('@/assets/icons/proton.png'),
-        create: 'https://www.protonchain.com/wallet/'
-      })
-    }
-
-    this.wallets = wallets
   },
 
   methods: {

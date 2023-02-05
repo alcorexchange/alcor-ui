@@ -3,7 +3,7 @@ el-select(
   class="alcor-select"
   popper-class="alcor-select___dropdown"
   :value="value"
-  @change="value => $emit('update:value', value)"
+  @change="value => { $emit('update:value', value); $emit('change', value); }"
   v-bind="$attrs"
 )
   template(#prefix)

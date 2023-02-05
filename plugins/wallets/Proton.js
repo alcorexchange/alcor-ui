@@ -91,7 +91,7 @@ export default class AnchoWallet extends WalletBase {
     this.session = undefined
   }
 
-  transact(actions) {
-    return this.session.transact({ actions })
+  transact(...args) {
+    return this.session.transact(...args)
   }
 }

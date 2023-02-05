@@ -50,7 +50,7 @@ export default class WCWWallet extends WalletBase {
     }
   }
 
-  transact(actions) {
-    return this.wax.api.transact({ actions }, { blocksBehind: 3, expireSeconds: 1200 })
+  transact(...args) {
+    return this.wax.api.transact(...args)
   }
 }

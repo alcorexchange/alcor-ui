@@ -111,7 +111,7 @@ export default class WCWWallet extends WalletBase {
     }
   }
 
-  transact(actions) {
+  transact(...args) {
     const scatter = this.getScatter()
     let eos
 
@@ -127,6 +127,6 @@ export default class WCWWallet extends WalletBase {
       eos = scatter.eos(jNetwork, Api, { rpc })
     }
 
-    return eos.transact({ actions }, { blocksBehind: 3, expireSeconds: 1200 })
+    return eos.transact(...args)
   }
 }

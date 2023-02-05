@@ -7,11 +7,14 @@
 export default {
   layout: 'test',
 
+  created() {
+    //this.$store.dispatch('ibcBridge/fetchTokens')
+  },
+
   methods: {
     async test() {
-      const r = await this.$store.dispatch('chain/asyncLogin')
 
-      console.log('R', r)
+      //console.log('R', r)
     }
   }
 }

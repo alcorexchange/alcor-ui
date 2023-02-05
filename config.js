@@ -47,10 +47,10 @@ const networks = {
 
     client_nodes: {
       'https://eos.greymass.com': 'Greymass',
-      'https://mainnet.genereos.io': 'Generos',
-      'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
-      'https://api.eosn.io': 'EOS N',
-      'https://eos.dfuse.eosnation.io': 'Dfuse',
+      //'https://mainnet.genereos.io': 'Generos',
+      //'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
+      //'https://api.eosn.io': 'EOS N',
+      //'https://eos.dfuse.eosnation.io': 'Dfuse',
     },
 
     otc: {
@@ -61,6 +61,12 @@ const networks = {
     pools: {
       contract: 'alcorammswap',
       fee: 'avral.pro',
+    },
+
+    ibc: {
+      proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
+      bridgeContract: 'ibc.prove',
+      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos']
     },
 
     withdraw: {
@@ -213,14 +219,14 @@ const networks = {
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap',
+      contract: 'alcornftswap'
     },
 
-    USD_TOKEN: 'XUSDC@xtokens',
+    USD_TOKEN: 'XUSDC@xtokens'
   },
 
-  uxnetwork: {
-    name: 'uxnetwork',
+  ux: {
+    name: 'ux',
     desc: 'UX Network',
     contract: 'alcordexmain',
 
@@ -235,7 +241,7 @@ const networks = {
 
     chainId: '8fc6dce7942189f842170de953932b1f66693ad3788f766e777b6f9d22335c02',
 
-    host: 'explorer.uxnetwork.io',
+    host: 'api.uxnetwork.io',
     port: 443,
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
@@ -261,6 +267,12 @@ const networks = {
       // TODO
       contract: 'alcorammswap',
       fee: 'aw.aq.waa'
+    },
+
+    ibc: {
+      proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
+      bridgeContract: 'ibc.prove',
+      wrapLockContractsArray: ['ibc.wl.eos', 'ibc.wl.tlos']
     },
 
     withdraw: {},
@@ -414,6 +426,12 @@ const networks = {
 
     nftMarket: {
       contract: 'alcornftswap',
+    },
+
+    ibc: {
+      proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
+      bridgeContract: 'ibc.prove',
+      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.eos']
     },
 
     withdraw: {
@@ -890,6 +908,7 @@ module.exports = {
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
+  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux],
 
   networks
 }

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
 import { asset } from 'eos-common'
+import { networks } from '~/config'
 
 Vue.mixin({
   data() {
@@ -34,8 +35,9 @@ Vue.mixin({
       return (parseFloat(value) || 0).toFixed(precision)
     },
 
-    monitorTx(tx) {
-      const network = this.$store.state.network
+    monitorTx(tx, network = null) {
+      network = network ? networks[network] : this.$store.state.network
+
       return `${network.monitor}/transaction/${tx}?tab=traces&${network.monitor_params}`
     },
 

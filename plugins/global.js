@@ -1,11 +1,8 @@
 import fetch from 'node-fetch'
 import { io } from 'socket.io-client'
-import { isEmpty } from 'lodash'
 
 import { JsonRpc } from 'eosjs'
-import { shuffleArray } from '../utils'
-
-import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
+import { getMultyEndRpc } from '../utils/eosjs'
 
 import config from '~/config'
 import * as fundamentals from '~/assets/fundamentals'
@@ -47,12 +44,9 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
         ? 'localhost:7002' : state.baseUrl, { transports: ['websocket'] }
     )
 
-    const all_nodes = Object.keys(state.network.client_nodes)
-    shuffleArray(all_nodes)
-    all_nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+    const rpc = getMultyEndRpc(Object.keys(state.network.client_nodes))
 
-    const rpc = new JsonRpcMultiEnds(all_nodes, { fetch })
-
+    // TODO
     // Trying to implement node selection. (anchorLink is not use jsonrpc from eosjs so not possible for now)
     //if (isEmpty(state.settings.rpc_nodes)) commit('settings/setRpcNodes', state.network.client_nodes)
 
