@@ -117,9 +117,6 @@
         img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
         | TX Link
 
-
-
-
   //el-button(type="success") asdfasdf
 </template>
 
@@ -196,6 +193,11 @@ export default {
       destination: 'ibcBridge/destination'
     }),
 
+    // TODO Not works
+    //...mapState({
+    //  zz: 'ibcBridge/transfer'
+    //}),
+
     sourceName: {
       set (chain) {
         return this.setSourceName(chain)
@@ -231,7 +233,8 @@ export default {
   methods: {
     ...mapMutations({
       setSourceName: 'ibcBridge/setSourceName',
-      setDestinationName: 'ibcBridge/setDestinationName'
+      setDestinationName: 'ibcBridge/setDestinationName',
+      setTransferState: 'ibcBridge/setTransfer'
     }),
 
     reset() {
@@ -256,17 +259,9 @@ export default {
       step.progress = value
     },
 
-    async transfer() {
-      if (!this.formData.asset) return
-
-      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
-
-      this.reset()
-      this.inProgress = true
-
-      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.formData.asset)
-
+    async stage1(ibcTransfer) {
       let sourceTx
+      sourceTx = await ibcTransfer.signSourceTrx()
       try {
         sourceTx = await ibcTransfer.signSourceTrx()
       } catch (e) {
@@ -276,47 +271,117 @@ export default {
       this.$set(this.steps, 0, { id: 0, progress: 100, label: 'Submitting source chain transfer', status: 'success' })
       this.$set(this.steps, 1, { id: 1, progress: 1, label: 'Waiting for transaction irreversibility', status: 'active' })
 
-      let prog = 1
-      const progressInterval = setInterval(() => {
-        prog = Math.min(prog + 1, 100)
-        this.updateProgress(prog)
-      }, 1700)
+      let sourceTransferResult
+      sourceTransferResult = await ibcTransfer.sourceTransfer(sourceTx)
+      try {
+        sourceTransferResult = await this.ibcBridge.sourceTransfer(sourceTx)
+      } catch (e) {
+        this.reset()
+        return this.$notify({ type: 'warning', title: 'Push transaction', message: e })
+      }
 
-      const { result, emitxferAction } = await ibcTransfer.sourceTransferAndWaitForLIB(sourceTx)
-      this.result.source = result.transaction_id
+      const { tx, packedTx, emitxferAction, leap } = sourceTransferResult
 
-      console.log('source result')
+      this.setTransferState({
+        stage: 1,
+        tx,
+        packedTx,
+        emitxferAction
+      })
 
-      clearInterval(progressInterval)
+      return { tx, packedTx, emitxferAction, leap }
+    },
+
+    async stage2(ibcTransfer) {
+
+    },
+
+    async transfer() {
+      if (!this.formData.asset) return
+
+      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+      this.reset()
+      this.inProgress = true
+
+      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.formData.asset)
+
+      //const { stage, tx, packedTx, emitxferAction, error } = this.$store.state.ibcBridge.transfer
+
+      //if (stage) {
+      //  // TODO Задесь раздуплить логику в последовательности
+      //}
+
+      const { tx, packedTx, emitxferAction, leap } = await this.stage1(ibcTransfer)
+
+      /// WAIT FOR LIB
+      if (!leap) {
+        let prog = 1
+        const progressInterval = setInterval(() => {
+          prog = Math.min(prog + 1, 100)
+          this.updateProgress(prog)
+        }, 1700)
+
+        await ibcTransfer.waitForLIB(this.source, tx, packedTx)
+        clearInterval(progressInterval)
+
+        this.result.source = tx.transaction_id
+      }
+
+
+      ///
+      //let source_transfer
+      //try {
+      //  source_transfer = await ibcTransfer.sourceTransferAndWaitForLIB(sourceTx)
+      //} catch (e) {
+      //  this.reset()
+      //  clearInterval(progressInterval)
+      //  return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
+      //}
+
 
       this.$set(this.steps, 1, { id: 1, progress: 100, label: 'Waiting for Transaction irreversibility', status: 'success' })
       this.$set(this.steps, 2, { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'active' })
 
-      //console.log({
-      //  result: JSON.stringify(result),
-      //  emitxferAction: JSON.stringify(emitxferAction)
-      //})
+      const scheduleProofs = await ibcTransfer.getScheduleProofs(tx)
 
-      const scheduleProofs = await ibcTransfer.getScheduleProofs(result)
+      console.log('scheduleProofs', scheduleProofs)
 
       const emitxferProof = await ibcTransfer.getProof({
         type: 'heavyProof',
         action: emitxferAction,
-        block_to_prove: result.processed.block_num, //block that includes the emitxfer action we want to prove
+        block_to_prove: tx.processed.block_num, //block that includes the emitxfer action we want to prove
         onProgress: this.updateProgress
       })
+
+      console.log('emitxferProof', emitxferProof)
 
       this.$set(this.steps, 2, { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'success' })
       this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'active' })
 
-      const destinationResult = await ibcTransfer.submitProof([...scheduleProofs, emitxferProof])
+      let destinationResult
+      try {
+        destinationResult = await ibcTransfer.submitProofs([...scheduleProofs, emitxferProof])
+      } catch (e) {
+        this.setTransferState({
+          ...this.$store.state.ibcBridge.transfer,
+          error: e,
+          stage: 2
+        })
+
+        this.$set(this.steps, 2, { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'success' })
+        this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'error', message: e })
+
+        return
+      }
+
+
+
+
       this.result.destination = destinationResult.transaction_id
 
       console.log('destinationResult', destinationResult)
 
       this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'success' })
-
-      await sleep(500)
 
       this.inProgress = false
       this.finished = true

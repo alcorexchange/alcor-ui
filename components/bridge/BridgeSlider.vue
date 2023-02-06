@@ -89,9 +89,8 @@ export default {
     .message {
       position: absolute;
       bottom: 15px;
-      width: 88px;
-
-      left: -44px;
+      width: 148px;
+      left: -64px;
       text-align: center;
     }
 

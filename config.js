@@ -64,6 +64,7 @@ const networks = {
     },
 
     ibc: {
+      name: 'eos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
       bridgeContract: 'ibc.prove',
       wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos']
@@ -270,6 +271,7 @@ const networks = {
     },
 
     ibc: {
+      name: 'ux',
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
       bridgeContract: 'ibc.prove',
       wrapLockContractsArray: ['ibc.wl.eos', 'ibc.wl.tlos']
@@ -429,6 +431,7 @@ const networks = {
     },
 
     ibc: {
+      name: 'tlos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
       bridgeContract: 'ibc.prove',
       wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.eos']

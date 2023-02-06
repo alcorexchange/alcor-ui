@@ -44,29 +44,7 @@ export class IBCTransfer {
     }
   }
 
-  async fetchProof(result) {
-    //Get schedule proofs;
-    const scheduleProofs = await this.getScheduleProofs(result.processed.block_num)
-    console.log('scheduleProofs', scheduleProofs)
-
-    if (!scheduleProofs) {
-      return console.log('ERROR: Error, no schedule proofs')
-    }
-
-    const emitxferProof = await this.getProof({
-      type: 'heavyProof',
-      action: this.emitxferAction,
-      //action: this.emitxferAction ? this.emitxferAction : undefined, // TODO
-      block_to_prove: result.processed.block_num //block that includes the emitxfer action we want to prove
-    })
-
-    console.log('emitxferProof', emitxferProof)
-
-    //submit proof to destination chain's bridge contract
-    return [...scheduleProofs, emitxferProof]
-  }
-
-  async submitProof(destinationActions) {
+  async submitProofs(destinationActions) {
     const signedDestinationTx = await this.destinationWallet.wallet.transact({
       actions: destinationActions
     }, { broadcast: false, expireSeconds: 360, blocksBehind: 3 })
@@ -87,29 +65,25 @@ export class IBCTransfer {
     return signedTx
   }
 
-  async sourceTransferAndWaitForLIB(signedTx) {
-    const result = await this.submitTx(signedTx, this.source)
+  async sourceTransfer(signedTx) {
+    const { tx, packedTx, leap } = await this.submitTx(signedTx, this.source)
 
-    const emitxferAction = result.processed.action_traces.find(
+    let emitxferAction = tx.processed.action_traces.find(
       (r) => r.act.name === 'emitxfer'
     ) //if flattened traces (using send_transaction)
 
     if (!emitxferAction) {
       //if api returns inline traces within action_trace (using push_transaction) shouldnt be used now
-      const lockActionTrace = result.processed.action_traces.find(
+      const lockActionTrace = tx.processed.action_traces.find(
         (r) => r.act.name === 'transfer' || r.act.name === 'retire'
       )
-      this.emitxferAction = lockActionTrace.inline_traces.find(
+      emitxferAction = lockActionTrace.inline_traces.find(
         (r) => r.act.name === 'emitxfer'
       )
       console.log("!!!!!!!!!!!!!!!Shouldn't happen!!!!!!!!!!!!!!!!")
     }
 
-    this.emitxferAction = emitxferAction
-
-    console.log('emitxferAction to prove', this.emitxferAction)
-
-    return { result, emitxferAction }
+    return { tx, packedTx, emitxferAction, leap }
   }
 
   async submitTx(signedTx, chain, retry_trx_num_blocks = null) {
@@ -136,17 +110,20 @@ export class IBCTransfer {
       return await chain.rpc.send_transaction2(obj)
     }
 
-    const tx = {
+    const packedTx = {
       signatures: signedTx.signatures,
       serializedTransaction: signedTx.resolved.serializedTransaction
     }
 
-    return await this.pushGurantee(chain, tx, retry_trx_num_blocks) // if waiting for lib
+    const tx = await chain.rpc.send_transaction(packedTx)
+
+    return { tx, packedTx, leap }
+
+    //return await this.pushGurantee(chain, tx, retry_trx_num_blocks) // if waiting for lib
   }
 
-  async pushGurantee(chain, packedTx, retry_trx_num_blocks) {
-    console.log('try send tx:', packedTx)
-    let tx = await chain.rpc.send_transaction(packedTx)
+  async waitForLIB(chain, tx, packedTx, retry_trx_num_blocks) {
+    //let tx = await chain.rpc.send_transaction(packedTx)
 
     console.log('tx', JSON.parse(JSON.stringify(tx)))
 
@@ -218,31 +195,31 @@ export class IBCTransfer {
       )
 
       ws.addEventListener('message', (event) => {
-        const res = JSON.parse(event.data)
-        console.log('res', res)
-        const firhoseTx = res.txs.find((r) =>
-          r.find((s) => s.transactionId === transaction_id)
-        )
-        console.log('firhoseTx', firhoseTx)
-        const firehoseEmitxfer = firhoseTx.find(
-          (r) => r.action.name === 'emitxfer'
-        )
-        console.log('firehoseEmitxfer', firehoseEmitxfer)
-        const emitxferAction = tx.processed.action_traces.find(
-          (r) => r.act.name === 'emitxfer'
-        )
-        console.log(
-          'api emitxferAction receipt',
-          JSON.parse(JSON.stringify(emitxferAction.receipt))
-        )
+        //const res = JSON.parse(event.data)
+        //console.log('res', res)
+        //const firhoseTx = res.txs.find((r) =>
+        //  r.find((s) => s.transactionId === transaction_id)
+        //)
+        //console.log('firhoseTx', firhoseTx)
+        //const firehoseEmitxfer = firhoseTx.find(
+        //  (r) => r.action.name === 'emitxfer'
+        //)
+        //console.log('firehoseEmitxfer', firehoseEmitxfer)
+        //const emitxferAction = tx.processed.action_traces.find(
+        //  (r) => r.act.name === 'emitxfer'
+        //)
+        //console.log(
+        //  'api emitxferAction receipt',
+        //  JSON.parse(JSON.stringify(emitxferAction.receipt))
+        //)
 
-        emitxferAction.receipt = firehoseEmitxfer.receipt
-        const auth_sequence = []
-        for (const auth of emitxferAction.receipt.auth_sequence)
-          auth_sequence.push([auth.account, auth.sequence])
-        emitxferAction.receipt.auth_sequence = auth_sequence
-        console.log('bp emitxferAction receipt', firehoseEmitxfer.receipt)
-        console.log('before return tx', tx)
+        //emitxferAction.receipt = firehoseEmitxfer.receipt
+        //const auth_sequence = []
+        //for (const auth of emitxferAction.receipt.auth_sequence)
+        //  auth_sequence.push([auth.account, auth.sequence])
+        //emitxferAction.receipt.auth_sequence = auth_sequence
+        //console.log('bp emitxferAction receipt', firehoseEmitxfer.receipt)
+        //console.log('before return tx', tx)
         resolve(tx)
       })
     })
@@ -290,16 +267,20 @@ export class IBCTransfer {
           data: { ...res.proof, prover: this.destinationWallet.name }
         }
 
+        console.log('actionToSubmit', actionToSubmit)
+
         //if proving an action, add action and formatted receipt to actionproof object
         if (action) {
           const auth_sequence = []
 
+          console.log('1')
           for (const authSequence of action.receipt.auth_sequence)
             auth_sequence.push({
               account: authSequence[0],
               sequence: authSequence[1]
             })
 
+          console.log('2')
           actionToSubmit.data.actionproof = {
             ...res.proof.actionproof,
             action: {
@@ -311,12 +292,15 @@ export class IBCTransfer {
             receipt: { ...action.receipt, auth_sequence }
           }
         }
+        console.log('3')
         resolve(actionToSubmit)
       })
     })
   }
 
   async getScheduleProofs(transferBlock) {
+    console.log('getScheduleProofs: ', transferBlock)
+
     async function getProducerScheduleBlock(blocknum) {
       try {
         let header = await this.source.rpc.get_block(blocknum)
@@ -327,7 +311,7 @@ export class IBCTransfer {
         const lastBlockProved = await this.destination.rpc.get_table_rows({
           code: this.destination.ibc.bridgeContract,
           table: 'lastproofs',
-          scope: this.source.name,
+          scope: this.source.ibc.name,
           limit: 1,
           reverse: true,
           show_payer: false
@@ -378,7 +362,7 @@ export class IBCTransfer {
     const bridgeScheduleData = await this.destination.rpc.get_table_rows({
       code: this.destination.ibc.bridgeContract,
       table: 'schedules',
-      scope: this.source.name,
+      scope: this.source.ibc.name,
       limit: 1,
       reverse: true,
       show_payer: false

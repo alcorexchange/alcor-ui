@@ -8,6 +8,15 @@ export const state = () => ({
   loading: true,
   chains: [],
 
+  transfer: {
+    stage: 0,
+
+    tx: null,
+    packedTx: null,
+    emitxferAction: null,
+    error: null
+  },
+
   sourceName: null,
   destinationName: null
 })
@@ -16,6 +25,7 @@ export const mutations = {
   setLoading: (state, value) => state.loading,
   setChains: (state, chains) => state.chains = chains,
   setDestinationName: (state, chain) => state.destinationName = chain,
+  setTransfer: (state, transfer) => state.transfer = transfer,
   setSourceName: (state, chain) => state.sourceName = chain
 }
 
