@@ -1,12 +1,12 @@
 <template lang="pug">
-.alcor-inner(:class="{ 'full-width': fullWidth }")
-  top-nav(:class="{ 'alcor-inner': $route.name == `index___${$i18n.locale}` }")
+.unlim-width
+  top-nav.p-3
 
   AlcorLoading
   ResourcesModal
   ModalsDialog
 
-  .main
+  .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
     nuxt
   FooterBlock
 </template>
@@ -50,6 +50,7 @@ export default {
       // Full with for this pages
       const tradeLocales = this.$i18n.locales.map(({ code }) => `trade-index-id___${code}`)
       const indexLocales = this.$i18n.locales.map(({ code }) => `index___${code}`)
+      console.log('ssssss', indexLocales.includes(this.$route.name))
       return [...tradeLocales, ...indexLocales].includes(this.$route.name)
     },
 
@@ -164,7 +165,6 @@ export default {
 .full-width {
   max-width: 1920px;
   padding: 0px;
-  overflow-x: hidden;
 
   .nav {
     padding: 12px 20px;
