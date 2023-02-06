@@ -10,7 +10,6 @@ module.exports = {
       args: 'start',
       restart_delay: 10000,
       max_memory_restart: '999M',
-      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         NUXT_PORT: 7000,
@@ -24,7 +23,6 @@ module.exports = {
       instances: 2,
       kill_timeout: 3000,
       restart_delay: 10000,
-      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7003
@@ -38,7 +36,6 @@ module.exports = {
       kill_timeout: 3000,
       restart_delay: 10000,
       max_memory_restart: '500M',
-      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7001
@@ -51,7 +48,6 @@ module.exports = {
       instances: 4,
       kill_timeout: 10000,
       restart_delay: 10000,
-      //wait_ready: true,
       env: {
         NODE_ENV: 'production',
         PORT: 7031,
@@ -71,7 +67,6 @@ module.exports = {
       node_args: '-r esm',
       restart_delay: 10000,
       kill_timeout: 10000,
-      //wait_ready: true
     }
   ]
 }
