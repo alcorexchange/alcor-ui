@@ -6123,7 +6123,9 @@
 }
 
 .el-notification__content p {
-    margin: 0
+    margin: 0;
+    white-space: normal;
+    text-align: left;
 }
 
 .el-notification__icon {
