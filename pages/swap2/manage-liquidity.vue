@@ -12,7 +12,7 @@
       alcor-button(orange)
         i.el-icon-arrow-right
         span Migrate
-      alcor-button(access)
+      alcor-button(access @click="openAddLiqidityModal")
         i.el-icon-circle-plus-outline
         span New Position
   .d-flex.justify-content-between.align-items-center.mt-2
@@ -24,10 +24,10 @@
     template(#row="{ item }")
       pre {{ item }}
 
-
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import VirtualTable from '~/components/VirtualTable'
 
@@ -74,6 +74,12 @@ export default {
       const pageMode = true
 
       return { pageMode, itemSize, header, data }
+    }
+  },
+  methods: {
+    ...mapActions('modal', ['addLiquidity']),
+    openAddLiqidityModal() {
+      this.addLiquidity()
     }
   }
 }

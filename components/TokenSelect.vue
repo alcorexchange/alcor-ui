@@ -17,7 +17,7 @@ element-select.token-select(:options="[1]" :disableList="true")
     .d-flex.gap-8.align-items-center.pr-2
       el-input.amount(v-model.number="amountValue" @blur="blur" type="number" :placeholder="0.0" :clearable="!disabled" :disabled="disabled")
       token-image(:src='$tokenLogo(token.symbol, token.contract)' height="24")
-      .fs-24.color-default {{ token.symbol }}
+      .fs-24.color-default.text-nowrap {{ token.symbol }}
 </template>
 
 <script>
@@ -94,6 +94,9 @@ export default {
 .token-select {
   padding: 10px 16px !important;
   border-radius: 4px !important;
+}
+.token-select,
+.el-popup-parent--hidden {
 
   .scroller {
     padding: 0px 10px;

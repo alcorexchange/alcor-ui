@@ -17,6 +17,12 @@ export const actions = {
     context && commit('setModalContext', context)
   },
 
+  addLiquidity({ commit }, context) {
+    commit('setCurrent', 'add-liquidity')
+    commit('setVisible', true)
+    context && commit('setModalContext', context)
+  },
+
   assets({ commit }, context) {
     commit('setCurrent', 'assets')
     commit('setVisible', true)
