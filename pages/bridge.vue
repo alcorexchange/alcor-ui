@@ -4,7 +4,8 @@
   circles-bg.bg2(stroke="red")
   .fs-48 Alcor IBC Bridge
   .fs-24 Bridge assets from different chains
-  bridge-form.mt-4(:formData.sync="formData")
+  client-only
+    bridge-form.mt-4
 
 </template>
 
@@ -13,31 +14,7 @@ import BridgeForm from '~/components/bridge/BridgeForm.vue'
 import CirclesBg from '~/components/bridge/CirclesBg.vue'
 
 export default {
-  components: { BridgeForm, CirclesBg },
-  data: () => ({
-    formData: {
-      fromNetwork: null,
-      toNetwork: null,
-      amount: null,
-      asset: null,
-      sender: null,
-      receiver: null
-    }
-  }),
-  watch: {
-    '$store.state.selectedAsset'(v) {
-      this.formData.asset = v
-    },
-    '$store.state.ibcClients.sender'(v) {
-      this.formData.sender = v
-    },
-    '$store.state.ibcClients.receiver'(v) {
-      this.formData.receiver = v
-    }
-  },
-  mounted() {
-    this.formData.asset = this.$store.state.selectedAsset
-  }
+  components: { BridgeForm, CirclesBg }
 }
 </script>
 

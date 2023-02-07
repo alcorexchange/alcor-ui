@@ -1,5 +1,4 @@
 <template lang="pug">
-client-only
   #bridge-form-component.form
     .d-flex.justify-content-between
       .d-flex.flex-column
@@ -109,17 +108,13 @@ client-only
         .fs-18 Success! Assets have been bridged!
 
       .d-flex.justify-content-center.mt-4
-        //alcor-button(outline v-if="sourceName && result.source" @click="openInNewTab(monitorTx(result.source, sourceName))")
         alcor-button(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
           img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
           | TX Link
 
-        //alcor-button(outline v-if="destinationName && result.destination" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
         alcor-button(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
           img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
           | TX Link
-
-    //el-button(type="success") asdfasdf
 </template>
 
 <script>
@@ -136,10 +131,7 @@ import BridgeSlider from '~/components/bridge/BridgeSlider'
 
 import TokenImage from '~/components/elements/TokenImage'
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
-
 export default {
-  //components: { AlcorSelect, AlcorButton, NetworkOption, BridgeSlider, TokenImage, AlcorSelectTwo },
   components: {
     AlcorSelect,
     AlcorButton,
@@ -196,14 +188,18 @@ export default {
     }),
 
     ...mapState('ibcBridge', [
-      'step',
       'tx',
       'packedTx',
       'emitxferAction',
       'error',
       'result',
-      'proofs'
+      'proofs',
+      'step'
     ]),
+
+    //step() {
+    //  return this.$store.state.ibcBridge.step
+    //},
 
     inProgress() {
       return [0, 1, 2, 3].includes(this.step)
