@@ -13,6 +13,7 @@ export const state = () => ({
   packedTx: null,
   error: null,
   proofs: null,
+  asset: null,
 
   result: {},
 
@@ -30,7 +31,8 @@ export const mutations = {
   setPackedTx: (state, tx) => state.packedTx = tx,
   setError: (state, error) => state.error = error,
   setResult: (state, result) => state.result = result,
-  setProofs: (state, result) => state.proofs = result
+  setProofs: (state, result) => state.proofs = result,
+  setAsset: (state, asset) => state.asset = asset
 }
 
 export const actions = {

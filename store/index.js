@@ -523,6 +523,7 @@ export const getters = {
   },
 
   knownTokens(state) {
+    // TODO check format
     const tokens = []
 
     state.markets.map(m => {

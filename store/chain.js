@@ -44,6 +44,7 @@ export const actions = {
   },
 
   async autoLogin({ state, dispatch, commit, getters }) {
+    // TODO Check correct chain
     console.log('try autoLogin..')
     const loginned = await state.wallet.checkLogin()
     if (loginned) {

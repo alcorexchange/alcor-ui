@@ -395,7 +395,7 @@ const networks = {
     //host: 'mainnet.telos.net',
     port: 443,
     protocol: 'https',
-    monitor: 'http://telos.bloks.io',
+    monitor: 'https://explorer.telos.net',
     monitor_params: '',
     lightapi: 'https://telos.light-api.net',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',

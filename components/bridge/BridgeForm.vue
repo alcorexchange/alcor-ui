@@ -19,6 +19,7 @@ client-only
             )
           template(#option="{ option }")
             network-option( :network="option")
+
       .d-flex.flex-column
         .mb-3 Receive on
         alcor-select.network-select(
@@ -44,7 +45,7 @@ client-only
 
     .d-flex.justify-content-between
       alcor-button.connect-button(
-        :disabled="(!sourceName || inProgress) && this.sourceWallet"
+        :disabled="(!sourceName) || (inProgress && this.sourceWallet)"
         @click="connectFromWallet"
       )
         .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
@@ -54,13 +55,13 @@ client-only
               height=18
             )
             .fs-14 {{ formData.sender }}
-          .d-flex.align-items-center.gap-8(@click.stop="formData.sender = null")
+          .d-flex.align-items-center.gap-8(@click.stop="logout(formData.sender)")
             .fs-12 Logout
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
 
       alcor-button.connect-button(
-        :disabled="(!destinationName || inProgress) && this.destinationWallet"
+        :disabled="(!destinationName) || (inProgress && this.destinationWallet)"
         @click="connectToWallet"
       )
         .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
@@ -70,7 +71,7 @@ client-only
               height=18
             )
             .fs-14 {{ formData.receiver }}
-          .d-flex.align-items-center.gap-8(@click.stop="formData.receiver = null")
+          .d-flex.align-items-center.gap-8(@click.stop="logout(formData.receiver)")
             .fs-12 Logout
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
@@ -80,44 +81,20 @@ client-only
         el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
         span.max-btn.pointer(@click="setMax") MAX
 
-      alcor-select-two.network-select(
-        :value="formData.asset"
-        :disabled="inProgress"
-        placeholder="IBC Token"
-        filterable
-      )
-        alcor-option-two(value=1)
-          span option1
+      alcor-select-two.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress" placeholder="IBC Token" filterable)
+        template(slot="empty")
+          .small.muted.text-center Chose Sent & Receive
 
-        alcor-option-two(value=2)
-          span option2
+        template(slot="prefix" v-if="this.asset")
+          TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="20")
 
-      //  el-option(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
-      //    TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
-      //    .ml-2 {{ asset.symbol }}
-
-      //el-dropdown(trigger="click" :disabled="(!source && !destination) || inProgress")
-      //el-dropdown(trigger="click").alcor-select
-        alcor-button.choise-asset-btn
-          .d-flex.justify-content-between.align-items-center.w-100
-            .d-flex.gap-8.align-items-center(v-if="!formData.asset")
-              | Select Token
-            .d-flex.gap-8.align-items-center(v-else)
-              TokenImage(:src="$tokenLogo(formData.asset.symbol, formData.asset.sourceTokenContract)" height="25")
-              span {{ formData.asset.symbol }}
-          i.el-icon-arrow-down
-
-        el-dropdown-menu(slot='dropdown')
-          el-dropdown-item(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
-            .d-flex.justify-content-between.align-items-center.w-100(@click="setAsset(asset)")
-              .d-flex.gap-8.align-items-center
-                TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
-                span {{ asset.symbol }}
+        alcor-option-two(:value="asset" :label="asset.symbol" v-for="asset in availableAssets")
+          .d-flex.align-items-center.w-100
+            TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
+            .ml-2 {{ asset.symbol}}
 
     .d-flex.justify-content-center.mt-4
-      //alcor-button.transfer-btn(access :disabled="!isValid || inProgress" @click="transfer") Transfer and Prove
-
-      alcor-button.transfer-btn(v-if="!error" access @click="transfer") Transfer and Prove
+      alcor-button.transfer-btn(v-if="!error" :disabled="!isValid || inProgress" access @click="transfer") Transfer and Prove
       alcor-button.transfer-btn(v-else outline @click="transfer") Complete transfer
 
       // dev
@@ -147,15 +124,10 @@ client-only
 
 <script>
 import { mapGetters, mapState, mapMutations } from 'vuex'
-//import a from './a.js'
 import { IBCTransfer } from '~/core/ibc.js'
-
-import config from '~/config'
-
 
 import AlcorSelectTwo from '~/components/alcor-element/select/select'
 import AlcorOptionTwo from '~/components/alcor-element/select/option'
-
 
 import AlcorSelect from '~/components/AlcorSelect.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
@@ -178,15 +150,14 @@ export default {
     AlcorOptionTwo
   },
 
-  //props: ['formData'],
   data: () => ({
     finished: false,
 
+    assetSelect: null,
     progress: 0,
 
     formData: {
       amount: null,
-      asset: null,
       sender: null,
       receiver: null
     },
@@ -220,7 +191,8 @@ export default {
 
     ...mapGetters({
       source: 'ibcBridge/source',
-      destination: 'ibcBridge/destination'
+      destination: 'ibcBridge/destination',
+      availableAssets: 'ibcBridge/availableAssets'
     }),
 
     ...mapState('ibcBridge', [
@@ -242,19 +214,9 @@ export default {
     },
 
     steps() {
-      const { progress, error } = this
-      console.log('progress', progress)
+      const { progress } = this
 
       const status = this.error ? 'error' : 'active'
-
-      const wrap = (
-        <div
-          ref="wrap"
-          onScroll={ this.handleScroll }
-          class={ [this.wrapClass, 'el-scrollbar__wrap'] }>
-          { [status] }
-        </div>
-      )
 
       if (this.step === 0) {
         return [
@@ -304,12 +266,22 @@ export default {
       return []
     },
 
+    asset: {
+      set (asset) {
+        return this.setAsset(asset)
+      },
+
+      get () {
+        return this.$store.state.ibcBridge.asset
+      }
+    },
+
     sourceName: {
       set (chain) {
         return this.setSourceName(chain)
       },
 
-      get (chain) {
+      get () {
         return this.$store.state.ibcBridge.sourceName
       }
     },
@@ -319,32 +291,41 @@ export default {
         return this.setDestinationName(chain)
       },
 
-      get (chain) {
+      get () {
         return this.$store.state.ibcBridge.destinationName
       }
     },
 
     isValid() {
-      return Object.values(this.formData).every(Boolean)
+      return Object.values(this.formData).every(Boolean) &&
+        this.destinationWallet && this.sourceWallet
     }
   },
 
   watch: {
-    'formData.amount'() {
-      if (!this.formData.asset?.symbol) return
-      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+    availableAssets() {
+      console.log('availableAssets updated')
+      this.asset = null
     },
 
-    'formData.asset'() {
-      if (!this.formData.asset) return
-      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+    sourceName() {
+      if (this.sourceName == this.destinationName) {
+        this.destinationName = null
+        this.asset = null
+      }
     },
 
-    sourceName() { if (this.sourceName == this.destinationName) this.destinationName = null },
-    destinationName() { if (this.destinationName == this.sourceName) this.sourceName = null }
+    destinationName() {
+      if (this.destinationName == this.sourceName) {
+        this.sourceName = null
+        this.asset = null
+      }
+    }
   },
 
   mounted() {
+    console.log('this.asset', this.asset)
+    if (this.inProgress && this.asset?.quantity) this.formData.amount = parseFloat(this.asset.quantity)
   },
 
   methods: {
@@ -354,10 +335,10 @@ export default {
       setStep: 'ibcBridge/setStep',
       setTx: 'ibcBridge/setTx',
       setPackedTx: 'ibcBridge/setPackedTx',
-      setEmitxferAction: 'ibcBridge/setEmitxferAction',
       setError: 'ibcBridge/setError',
       setProofs: 'ibcBridge/setProofs',
-      setResult: 'ibcBridge/setResult'
+      setResult: 'ibcBridge/setResult',
+      setAsset: 'ibcBridge/setAsset'
     }),
 
     clear() {
@@ -367,17 +348,19 @@ export default {
       this.setSourceName(null)
       this.setDestinationName(null)
       this.setPackedTx(null)
+      this.setProofs(null)
+      this.setResult(null)
+      this.setAsset(null)
+    },
+
+    logout(data) {
+      if (this.inProgress) return
+
+      data = null
     },
 
     reset() {
       //this.finished = false
-
-      //this.steps = [
-      //  { id: 0, progress: 0, label: 'Submitting source chain transfer', status: 'active' },
-      //  { id: 1, progress: 1, label: 'Waiting for transaction irreversibility', status: 'waiting' },
-      //  { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'waiting' },
-      //  { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'waiting' }
-      //]
 
       //this.result = {
       //  source: '',
@@ -394,25 +377,46 @@ export default {
     },
 
     async transfer() {
-      // TODO preceision handle
-      if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
-      if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
-      if (!this.formData.amount && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select amount' })
-      if (!this.formData.asset && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select IBC Token' })
+      if (this.step === 4 || !this.step) {
+        if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
+        if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
+        if ((!this.formData.amount || parseFloat(this.formData.amount) <= 0) && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select amount' })
+        if (!this.asset && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select IBC Token' })
 
-      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.formData.asset)
+        this.setStep(0)
+        this.setResult(0)
 
-      if (this.step === 4 || !this.step) this.setStep(0)
+        try {
+          const { precision } = await this.getToken(
+            this.source.rpc,
+            this.asset.native
+              ? this.asset.nativeTokenContract
+              : this.asset.sourceTokenContract,
+            this.asset.symbol
+          )
 
+          this.asset.quantity = parseFloat(this.formData.amount).toFixed(precision) + ' ' + this.asset.symbol
+        } catch (e) {
+          this.setStep(null)
+          return this.$notify({ type: 'error', title: 'Error fetch tokens', message: e })
+        }
+      } else {
+        this.setError(null)
+      }
+
+      if ((this.step === 2 || this.step == 3) && !this.destinationWallet) await this.connectToWallet()
+
+      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset)
 
       if (this.step === 0) {
         try {
           const signedTx = await ibcTransfer.signSourceTrx()
+
           const { tx, packedTx, leap } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
 
           // TODO Handle if no
-          const emitxferAction = ibcTransfer.findEmitxferAction(tx)
-          console.log('emitxferAction', emitxferAction)
+          //const emitxferAction = ibcTransfer.findEmitxferAction(tx)
+          //console.log('emitxferAction', emitxferAction)
 
           this.setStep(1)
           this.setTx(tx)
@@ -433,12 +437,8 @@ export default {
         }, 1700)
 
         try {
-          //throw new Error('test')
-
-
-          console.log('tx block before', this.tx.processed.block_num)
+          //throw new Error('test asdfasf 1')
           const tx = await ibcTransfer.waitForLIB(this.source, this.tx, this.packedTx)
-          console.log('tx block after', tx.processed.block_num)
           this.setTx(tx)
           this.setStep(2)
           if (this.error) this.setError(null)
@@ -454,6 +454,8 @@ export default {
 
       if (this.step === 2) {
         try {
+          //throw new Error('test asdfasf 2')
+
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
           //throw new Error('test')
           console.log('scheduleProofs', scheduleProofs)
@@ -470,7 +472,10 @@ export default {
 
           console.log('emitxferProof', emitxferProof)
 
+          console.log('setProofs', [...scheduleProofs, emitxferProof])
           this.setProofs([...scheduleProofs, emitxferProof])
+          console.log('this.proofs', this.proofs)
+
           this.setStep(3)
           if (this.error) this.setError(null)
           return this.transfer()
@@ -482,9 +487,10 @@ export default {
 
       if (this.step === 3) {
         try {
-          const destinationResult = await ibcTransfer.submitProofs(this.proofs)
-
-          this.setResult({ ...this.result, destination: destinationResult.transaction_id })
+          //throw new Error('test asdfasf 3')
+          console.log('this.proofs', this.proofs)
+          const { tx } = await ibcTransfer.submitProofs(this.proofs)
+          this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)
           if (this.error) this.setError(null)
         } catch (e) {
@@ -494,13 +500,36 @@ export default {
       }
     },
 
-    setAsset(asset) {
-      console.log('asset', asset, this.formData.asset)
-      this.formData.asset = asset
+    _setAsset(asset) {
+      this.asset = asset
     },
 
-    setMax() {
+    async setMax() {
+      if (!this.sourceWallet) {
+        return this.$notify({ type: 'info', title: 'Connect wallet', message: 'Connect source wallet to set max amount' })
+      }
 
+      if (!this.asset) return this.$notify({ type: 'info', title: 'Select IBC Token', message: 'Select IBC token to set MAX amount' })
+
+      const contract = this.asset.native
+        ? this.asset.nativeTokenContract
+        : this.asset.sourceTokenContract
+
+      let balances
+      try {
+        const { data } = await this.$axios.get(`${this.source.lightapi}/api/balances/${this.source.name}/${this.sourceWallet.name}`)
+        balances = data.balances
+      } catch (e) {
+        return this.$notify({ type: 'warning', title: 'Fail Balance fetch', message: e.message })
+      }
+
+      const balance = balances.find(b => {
+        return b.currency === this.asset.symbol && b.contract === contract
+      })
+
+      if (!balance) return this.$notify({ type: 'warning', title: 'Set MAX', message: 'No balance found' })
+
+      this.formData.amount = balance.amount
     },
 
     makeError() {
@@ -529,7 +558,6 @@ export default {
 
         this.formData.receiver = name
         this.destinationWallet = { wallet, name, authorization }
-        console.log('source', this.sourceWallet.wallet.rpc.currentEndpoint)
       } catch (e) {
         this.$notify({ type: 'warning', title: 'Wallet not connected', message: e })
       }
