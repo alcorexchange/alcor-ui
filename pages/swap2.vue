@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.gap-32.w-100
+.d-flex.gap-32.w-100.mt-3
   alcor-container.pool-form.d-flex.flex-column.gap-32
     alcor-tabs.swap-tabs.mt-2(:links="true" :tabs="tabs")
 
@@ -95,13 +95,14 @@ export default {
 
 <style lang="scss">
 .pool-form {
-  width: 405px;
+  width: min-content;
 
   .swap-tabs {
     gap: 0px;
     background: var(--btn-alternative);
     padding: 8px;
     border-radius: 4px;
+    width: 370px;
 
     .alcor-tab-link {
       width: 50%;
