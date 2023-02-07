@@ -1,6 +1,6 @@
 <template lang="pug">
 .unlim-width
-  top-nav.p-3
+  top-nav.px-3.py-2
 
   AlcorLoading
   ResourcesModal

@@ -20,7 +20,8 @@ nav.nav(v-if='!isMobile')
           flat,
           :class='{ active: isActive(item.index) }'
         )
-          | {{ $t(item.name) }}
+          span {{ $t(item.name) }}
+          new-badge.badge(v-if="item.new" width="44" height="32")
   .nav-side.nav-right
     ConnectNav
 .menu-and-menu-header(v-else)
@@ -80,6 +81,7 @@ import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Settings from '~/components/layout/Settings'
+import NewBadge from '~/components/svg-icons/NewBadge.vue'
 
 export default {
   components: {
@@ -87,7 +89,8 @@ export default {
     AlcorButton,
     ConnectNav,
     ChainSelect,
-    Settings
+    Settings,
+    NewBadge
   },
 
   data() {
@@ -106,7 +109,7 @@ export default {
           this.$store.state.network.name
         )
       ) {
-        items.push({ index: '/swap', name: 'Swap' })
+        items.push({ index: '/swap', name: 'Swap', new: true })
       }
 
       items.push({ index: '/markets', name: 'Markets' })
@@ -222,6 +225,13 @@ export default {
     display: flex;
     align-items: center;
     color: var(--text-disable);
+    position: relative;
+
+    .badge {
+      position: absolute;
+      bottom: 15px;
+      left: 45px;
+    }
 
     &.active {
       //background: var(--btn-active);
