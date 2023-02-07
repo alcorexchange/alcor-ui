@@ -166,26 +166,26 @@
 </template>
 
 <script>
-import Emitter from 'element-ui/src/mixins/emitter'
-import Focus from 'element-ui/src/mixins/focus'
-import Locale from 'element-ui/src/mixins/locale'
+import Emitter from 'element-ui/lib/mixins/emitter'
+import Focus from 'element-ui/lib/mixins/focus'
+import Locale from 'element-ui/lib/mixins/locale'
 
 
 
 import debounce from 'throttle-debounce/debounce'
-import Clickoutside from 'element-ui/src/utils/clickoutside'
+import Clickoutside from 'element-ui/lib/utils/clickoutside'
 import {
   addResizeListener,
   removeResizeListener
-} from 'element-ui/src/utils/resize-event'
-import scrollIntoView from 'element-ui/src/utils/scroll-into-view'
+} from 'element-ui/lib/utils/resize-event'
+import scrollIntoView from 'element-ui/lib/utils/scroll-into-view'
 import {
   getValueByPath,
   valueEquals,
   isIE,
   isEdge
-} from 'element-ui/src/utils/util'
-import { isKorean } from 'element-ui/src/utils/shared'
+} from 'element-ui/lib/utils/util'
+import { isKorean } from 'element-ui/lib/utils/shared'
 
 import NavigationMixin from './navigation-mixin'
 import ElSelectMenu from './select-dropdown.vue'
