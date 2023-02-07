@@ -109,11 +109,11 @@ export default {
           this.$store.state.network.name
         )
       ) {
-        items.push({ index: '/swap', name: 'Swap', new: true })
+        items.push({ index: '/swap', name: 'Swap' })
       }
 
       items.push({ index: '/markets', name: 'Markets' })
-      items.push({ index: '/bridge', name: 'Bridge' })
+      items.push({ index: '/bridge', name: 'Bridge', new: true })
 
       items.push({ index: '/otc', name: 'OTC' })
 
