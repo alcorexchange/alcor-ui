@@ -50,7 +50,6 @@ export default {
       // Full with for this pages
       const tradeLocales = this.$i18n.locales.map(({ code }) => `trade-index-id___${code}`)
       const indexLocales = this.$i18n.locales.map(({ code }) => `index___${code}`)
-      console.log('ssssss', indexLocales.includes(this.$route.name))
       return [...tradeLocales, ...indexLocales].includes(this.$route.name)
     },
 
