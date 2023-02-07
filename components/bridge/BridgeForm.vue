@@ -80,8 +80,24 @@ client-only
         el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
         span.max-btn.pointer(@click="setMax") MAX
 
+      alcor-select-two.network-select(
+        :value="formData.asset"
+        :disabled="inProgress"
+        placeholder="IBC Token"
+        filterable
+      )
+        alcor-option-two(value=1)
+          span option1
+
+        alcor-option-two(value=2)
+          span option2
+
+      //  el-option(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
+      //    TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
+      //    .ml-2 {{ asset.symbol }}
+
       //el-dropdown(trigger="click" :disabled="(!source && !destination) || inProgress")
-      el-dropdown(trigger="click")
+      //el-dropdown(trigger="click").alcor-select
         alcor-button.choise-asset-btn
           .d-flex.justify-content-between.align-items-center.w-100
             .d-flex.gap-8.align-items-center(v-if="!formData.asset")
@@ -90,7 +106,6 @@ client-only
               TokenImage(:src="$tokenLogo(formData.asset.symbol, formData.asset.sourceTokenContract)" height="25")
               span {{ formData.asset.symbol }}
           i.el-icon-arrow-down
-
 
         el-dropdown-menu(slot='dropdown')
           el-dropdown-item(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
@@ -132,9 +147,15 @@ client-only
 
 <script>
 import { mapGetters, mapState, mapMutations } from 'vuex'
+//import a from './a.js'
 import { IBCTransfer } from '~/core/ibc.js'
 
 import config from '~/config'
+
+
+import AlcorSelectTwo from '~/components/alcor-element/select/select'
+import AlcorOptionTwo from '~/components/alcor-element/select/option'
+
 
 import AlcorSelect from '~/components/AlcorSelect.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
@@ -143,11 +164,20 @@ import BridgeSlider from '~/components/bridge/BridgeSlider'
 
 import TokenImage from '~/components/elements/TokenImage'
 
-
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export default {
-  components: { AlcorSelect, AlcorButton, NetworkOption, BridgeSlider, TokenImage },
+  //components: { AlcorSelect, AlcorButton, NetworkOption, BridgeSlider, TokenImage, AlcorSelectTwo },
+  components: {
+    AlcorSelect,
+    AlcorButton,
+    NetworkOption,
+    BridgeSlider,
+    TokenImage,
+    AlcorSelectTwo,
+    AlcorOptionTwo
+  },
+
   //props: ['formData'],
   data: () => ({
     finished: false,
@@ -216,6 +246,15 @@ export default {
       console.log('progress', progress)
 
       const status = this.error ? 'error' : 'active'
+
+      const wrap = (
+        <div
+          ref="wrap"
+          onScroll={ this.handleScroll }
+          class={ [this.wrapClass, 'el-scrollbar__wrap'] }>
+          { [status] }
+        </div>
+      )
 
       if (this.step === 0) {
         return [
@@ -478,7 +517,7 @@ export default {
         this.formData.sender = name
         this.sourceWallet = { wallet, name, authorization }
       } catch (e) {
-        this.$notify({ type: 'warning', title: 'Wallet connect', message: e })
+        this.$notify({ type: 'warning', title: 'Wallet not connected', message: e })
       }
     },
 
@@ -492,7 +531,7 @@ export default {
         this.destinationWallet = { wallet, name, authorization }
         console.log('source', this.sourceWallet.wallet.rpc.currentEndpoint)
       } catch (e) {
-        this.$notify({ type: 'warning', title: 'Wallet connect', message: e })
+        this.$notify({ type: 'warning', title: 'Wallet not connected', message: e })
       }
     }
   }
