@@ -5,11 +5,11 @@ nav.nav(v-if='!isMobile')
       img.logo(
         v-if='$colorMode.value == "light"',
         src='~/assets/logos/alcorblack.svg',
-        height='44'
+        height='32'
       )
       img.logo(
         v-else='',
-        height='44',
+        height='32',
         src='~/assets/logos/alcorwhite.svg',
         alt=''
       )
@@ -194,6 +194,7 @@ export default {
 
   .nav-side {
     display: flex;
+    gap: 24px;
     align-items: center;
   }
 }
@@ -213,16 +214,18 @@ export default {
   padding: 0;
   margin-left: 14px;
   display: flex;
+  gap: 32px;
 
   .item {
     padding: 4px 14px;
     margin-right: 4px;
     display: flex;
     align-items: center;
+    color: var(--text-disable);
 
     &.active {
-      background: var(--btn-active);
-      color: var(--text-default) !important;
+      //background: var(--btn-active);
+      color: var(--text-contrast) !important;
     }
   }
 }
