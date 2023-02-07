@@ -12936,7 +12936,7 @@
 }
 
 .el-input.is-disabled .el-input__inner {
-    background-color: #000;
+    background-color: #212121;
     border-color: transparent;
     color: #C0C4CC;
     cursor: not-allowed
