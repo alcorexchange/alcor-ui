@@ -229,12 +229,12 @@ export default {
 
     .badge {
       position: absolute;
-      bottom: 15px;
-      left: 45px;
+      bottom: 12px;
+      left: 42px;
     }
 
     &.active {
-      //background: var(--btn-active);
+      background: var(--btn-active);
       color: var(--text-contrast) !important;
     }
   }
