@@ -1,6 +1,6 @@
 <template lang="pug">
   #bridge-form-component.form
-    .d-flex.justify-content-between
+    //.d-flex.justify-content-between
       .d-flex.flex-column
         .mb-3 Send from
         alcor-select.network-select(
@@ -268,7 +268,7 @@ export default {
       },
 
       get () {
-        return this.$store.state.ibcBridge.asset
+        return this.$store.state.ibcBridge.asset || null
       }
     },
 
@@ -278,7 +278,7 @@ export default {
       },
 
       get () {
-        return this.$store.state.ibcBridge.sourceName
+        return this.$store.state.ibcBridge.sourceName || null
       }
     },
 
@@ -288,7 +288,7 @@ export default {
       },
 
       get () {
-        return this.$store.state.ibcBridge.destinationName
+        return this.$store.state.ibcBridge.destinationName || null
       }
     },
 
@@ -320,6 +320,7 @@ export default {
   },
 
   mounted() {
+    // TODO source and destination by query params
     if (this.inProgress && this.asset?.quantity) this.formData.amount = parseFloat(this.asset.quantity)
   },
 
