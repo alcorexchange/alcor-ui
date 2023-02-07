@@ -197,9 +197,9 @@ export default {
       'step'
     ]),
 
-    //step() {
-    //  return this.$store.state.ibcBridge.step
-    //},
+    step() {
+      return this.$store.state.ibcBridge.step || null
+    },
 
     inProgress() {
       return [0, 1, 2, 3].includes(this.step)
