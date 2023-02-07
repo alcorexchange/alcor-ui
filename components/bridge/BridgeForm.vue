@@ -103,7 +103,7 @@
 
     //bridge-slider(v-if="inProgress" :steps="steps")
 
-    div(v-if="step === 4")
+    //div(v-if="step === 4")
       .d-flex.justify-content-center.mt-4
         .fs-18 Success! Assets have been bridged!
 
