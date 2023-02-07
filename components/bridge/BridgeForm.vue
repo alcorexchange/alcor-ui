@@ -1,6 +1,6 @@
 <template lang="pug">
   #bridge-form-component.form
-    //.d-flex.justify-content-between
+    .d-flex.justify-content-between
       .d-flex.flex-column
         .mb-3 Send from
         alcor-select.network-select(
@@ -42,7 +42,7 @@
       span To
       i.el-icon-right
 
-    //.d-flex.justify-content-between
+    .d-flex.justify-content-between
       alcor-button.connect-button(
         :disabled="(!sourceName) || (inProgress && this.sourceWallet)"
         @click="connectFromWallet"
@@ -75,7 +75,7 @@
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
 
-    //.d-flex.justify-content-between.gap-32.mt-4
+    .d-flex.justify-content-between.gap-32.mt-4
       .amount-input
         el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
         span.max-btn.pointer(@click="setMax") MAX
@@ -92,7 +92,7 @@
             TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
             .ml-2 {{ asset.symbol}}
 
-    //.d-flex.justify-content-center.mt-4
+    .d-flex.justify-content-center.mt-4
       alcor-button.transfer-btn(v-if="!error" :disabled="!isValid || inProgress" access @click="transfer") Transfer and Prove
       alcor-button.transfer-btn(v-else outline @click="transfer") Complete transfer
 
@@ -101,9 +101,9 @@
       //alcor-button.transfer-btn(access @click="transfer") Transfer and Prove
       //alcor-button.transfer-btn(outline @click="clear") clear
 
-    //bridge-slider(v-if="inProgress" :steps="steps")
+    bridge-slider(v-if="inProgress" :steps="steps")
 
-    //div(v-if="step === 4")
+    div(v-if="step === 4")
       .d-flex.justify-content-center.mt-4
         .fs-18 Success! Assets have been bridged!
 

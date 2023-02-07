@@ -6,8 +6,7 @@
   .fs-24 Bridge assets from different chains
 
   client-only
-    //bridge-form.mt-4
-
+    bridge-form.mt-4
 </template>
 
 <script>
