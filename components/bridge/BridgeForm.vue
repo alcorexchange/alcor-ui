@@ -324,7 +324,6 @@ export default {
   },
 
   mounted() {
-    console.log('this.asset', this.asset)
     if (this.inProgress && this.asset?.quantity) this.formData.amount = parseFloat(this.asset.quantity)
   },
 
@@ -493,6 +492,9 @@ export default {
           this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)
           if (this.error) this.setError(null)
+
+          this.asset = null
+          this.formData.amount = null
         } catch (e) {
           this.setError(e.message)
           return this.$notify({ type: 'error', title: 'Submitting Destination Proofs ', message: e })
