@@ -1004,3 +1004,47 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.el-select {
+  & .el-input.is-focus .el-input__inner,
+  & .el-input.is-active .el-input__inner,
+  & .el-input__inner:focus,
+  &:hover .el-input__inner {
+    border-color: var(--main-green) !important;
+  }
+
+  & .el-input__inner,
+  & .el-input--prefix .el-input__inner {
+    background: var(--select-color);
+    border-radius: 4px;
+    padding-left: 35px;
+  }
+
+  & .el-input__prefix {
+    display: flex;
+    left: 12px;
+    align-items: center;
+  }
+
+}
+
+.el-select___dropdown {
+  border-radius: 4px !important;
+  margin-top: 4px !important;
+
+  & .el-scrollbar {
+    border-radius: 4px !important;
+  }
+
+  & .el-scrollbar__wrap {
+    background: var(--select-color);
+    overflow-x: hidden;
+  }
+
+  & .el-select-dropdown__item {
+    padding: 0 10px;
+  }
+
+}
+</style>
