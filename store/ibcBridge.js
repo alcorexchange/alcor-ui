@@ -8,14 +8,13 @@ export const state = () => ({
   loading: true,
   chains: [],
 
-  transfer: {
-    stage: 0,
+  step: 2,
+  tx: null,
+  packedTx: null,
+  error: null,
+  proofs: null,
 
-    tx: null,
-    packedTx: null,
-    emitxferAction: null,
-    error: null
-  },
+  result: {},
 
   sourceName: null,
   destinationName: null
@@ -25,8 +24,13 @@ export const mutations = {
   setLoading: (state, value) => state.loading,
   setChains: (state, chains) => state.chains = chains,
   setDestinationName: (state, chain) => state.destinationName = chain,
-  setTransfer: (state, transfer) => state.transfer = transfer,
-  setSourceName: (state, chain) => state.sourceName = chain
+  setSourceName: (state, chain) => state.sourceName = chain,
+  setStep: (state, chain) => state.step = chain,
+  setTx: (state, tx) => state.tx = tx,
+  setPackedTx: (state, tx) => state.packedTx = tx,
+  setError: (state, error) => state.error = error,
+  setResult: (state, result) => state.result = result,
+  setProofs: (state, result) => state.proofs = result
 }
 
 export const actions = {

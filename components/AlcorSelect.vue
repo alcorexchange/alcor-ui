@@ -21,6 +21,7 @@ el-select(
 
 <script>
 export default {
+  name: 'AlcorSelect',
   props: ['options', 'value']
 }
 </script>

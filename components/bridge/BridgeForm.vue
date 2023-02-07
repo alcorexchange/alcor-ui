@@ -1,123 +1,133 @@
 <template lang="pug">
-#bridge-form-component.form
-  .d-flex.justify-content-between
-    .d-flex.flex-column
-      .mb-3 Send from
-      alcor-select.network-select(
-        :options="fromNetworkOptions"
-        :value.sync="sourceName"
-        :disabled="inProgress"
-        placeholder="Choose Network"
-        filterable
+client-only
+  #bridge-form-component.form
+    .d-flex.justify-content-between
+      .d-flex.flex-column
+        .mb-3 Send from
+        alcor-select.network-select(
+          :options="fromNetworkOptions"
+          :value.sync="sourceName"
+          :disabled="inProgress"
+          placeholder="Choose Network"
+          filterable
+        )
+          template(#prefix="{ value }")
+            img(
+              v-if="value"
+              :src='require("~/assets/icons/" + value + ".png")',
+              height=18
+            )
+          template(#option="{ option }")
+            network-option( :network="option")
+      .d-flex.flex-column
+        .mb-3 Receive on
+        alcor-select.network-select(
+          :options="fromNetworkOptions"
+          :value.sync="destinationName"
+          :disabled="inProgress"
+          placeholder="Choose Network"
+          filterable
+        )
+          template(#prefix="{ value }")
+            img(
+              v-if="value"
+              :src='require("~/assets/icons/" + value + ".png")',
+              height=18
+            )
+          template(#option="{ option }")
+            network-option( :network="option")
+
+    .d-flex.justify-content-center.align-items-center.gap-30
+      i.el-icon-right
+      span To
+      i.el-icon-right
+
+    .d-flex.justify-content-between
+      alcor-button.connect-button(
+        :disabled="(!sourceName || inProgress) && this.sourceWallet"
+        @click="connectFromWallet"
       )
-        template(#prefix="{ value }")
-          img(
-            v-if="value"
-            :src='require("~/assets/icons/" + value + ".png")',
-            height=18
-          )
-        template(#option="{ option }")
-          network-option( :network="option")
-    .d-flex.flex-column
-      .mb-3 Receive on
-      alcor-select.network-select(
-        :options="fromNetworkOptions"
-        :value.sync="destinationName"
-        :disabled="inProgress"
-        placeholder="Choose Network"
-        filterable
+        .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
+          .d-flex.align-items-center.gap-8
+            img(
+              :src='require("~/assets/icons/avatar.png")',
+              height=18
+            )
+            .fs-14 {{ formData.sender }}
+          .d-flex.align-items-center.gap-8(@click.stop="formData.sender = null")
+            .fs-12 Logout
+            i.el-icon-right
+        .fs-14(v-else) Connect Wallet
+
+      alcor-button.connect-button(
+        :disabled="(!destinationName || inProgress) && this.destinationWallet"
+        @click="connectToWallet"
       )
-        template(#prefix="{ value }")
-          img(
-            v-if="value"
-            :src='require("~/assets/icons/" + value + ".png")',
-            height=18
-          )
-        template(#option="{ option }")
-          network-option( :network="option")
+        .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
+          .d-flex.align-items-center.gap-8
+            img(
+              :src='require("~/assets/icons/avatar.png")',
+              height=18
+            )
+            .fs-14 {{ formData.receiver }}
+          .d-flex.align-items-center.gap-8(@click.stop="formData.receiver = null")
+            .fs-12 Logout
+            i.el-icon-right
+        .fs-14(v-else) Connect Wallet
 
-  .d-flex.justify-content-center.align-items-center.gap-30
-    i.el-icon-right
-    span To
-    i.el-icon-right
+    .d-flex.justify-content-between.gap-32.mt-4
+      .amount-input
+        el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
+        span.max-btn.pointer(@click="setMax") MAX
 
-  .d-flex.justify-content-between
-    alcor-button.connect-button(
-      :disabled="!sourceName || inProgress"
-      @click="connectFromWallet"
-    )
-      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
-        .d-flex.align-items-center.gap-8
-          img(
-            :src='require("~/assets/icons/avatar.png")',
-            height=18
-          )
-          .fs-14 {{ formData.sender }}
-        .d-flex.align-items-center.gap-8(@click.stop="formData.sender = null")
-          .fs-12 Logout
-          i.el-icon-right
-      .fs-14(v-else) Connect Wallet
-
-    alcor-button.connect-button(
-      :disabled="!destinationName || inProgress"
-      @click="connectToWallet"
-    )
-      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
-        .d-flex.align-items-center.gap-8
-          img(
-            :src='require("~/assets/icons/avatar.png")',
-            height=18
-          )
-          .fs-14 {{ formData.receiver }}
-        .d-flex.align-items-center.gap-8(@click.stop="formData.receiver = null")
-          .fs-12 Logout
-          i.el-icon-right
-      .fs-14(v-else) Connect Wallet
-
-  .d-flex.justify-content-between.gap-32.mt-4
-    .amount-input
-      el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
-      span.max-btn.pointer(@click="setMax") MAX
-
-    el-dropdown(trigger="click" :disabled="(!source && !destination) || inProgress")
-      alcor-button.choise-asset-btn
-        .d-flex.justify-content-between.align-items-center.w-100
-          .d-flex.gap-8.align-items-center(v-if="!formData.asset")
-            | Select Token
-          .d-flex.gap-8.align-items-center(v-else)
-            TokenImage(:src="$tokenLogo(formData.asset.symbol, formData.asset.sourceTokenContract)" height="25")
-            span {{ formData.asset.symbol }}
-        i.el-icon-arrow-down
+      //el-dropdown(trigger="click" :disabled="(!source && !destination) || inProgress")
+      el-dropdown(trigger="click")
+        alcor-button.choise-asset-btn
+          .d-flex.justify-content-between.align-items-center.w-100
+            .d-flex.gap-8.align-items-center(v-if="!formData.asset")
+              | Select Token
+            .d-flex.gap-8.align-items-center(v-else)
+              TokenImage(:src="$tokenLogo(formData.asset.symbol, formData.asset.sourceTokenContract)" height="25")
+              span {{ formData.asset.symbol }}
+          i.el-icon-arrow-down
 
 
-      el-dropdown-menu(slot='dropdown')
-        el-dropdown-item(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
-          .d-flex.justify-content-between.align-items-center.w-100(@click="setAsset(asset)")
-            .d-flex.gap-8.align-items-center
-              TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
-              span {{ asset.symbol }}
-
-  .d-flex.justify-content-center.mt-4
-    alcor-button.transfer-btn(access :disabled="!isValid || inProgress" @click="transfer") Transfer and Prove
-
-  bridge-slider(v-if="inProgress" :steps="steps")
-
-  div(v-if="finished")
-    .d-flex.justify-content-center.mt-4
-      .fs-18 Success! Assets have been bridged!
+        el-dropdown-menu(slot='dropdown')
+          el-dropdown-item(v-for="asset in this.$store.getters['ibcBridge/availableAssets']")
+            .d-flex.justify-content-between.align-items-center.w-100(@click="setAsset(asset)")
+              .d-flex.gap-8.align-items-center
+                TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
+                span {{ asset.symbol }}
 
     .d-flex.justify-content-center.mt-4
-      //alcor-button(outline v-if="sourceName && result.source" @click="openInNewTab(monitorTx(result.source, sourceName))")
-      alcor-button(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
-        img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
-        | TX Link
+      //alcor-button.transfer-btn(access :disabled="!isValid || inProgress" @click="transfer") Transfer and Prove
 
-      //alcor-button(outline v-if="destinationName && result.destination" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
-      alcor-button(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
-        img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
-        | TX Link
+      alcor-button.transfer-btn(v-if="!error" access @click="transfer") Transfer and Prove
+      alcor-button.transfer-btn(v-else outline @click="transfer") Complete transfer
 
-  //el-button(type="success") asdfasdf
+      // dev
+      //alcor-button.transfer-btn(access @click="help") help
+      //alcor-button.transfer-btn(access @click="transfer") Transfer and Prove
+      //alcor-button.transfer-btn(outline @click="clear") clear
+
+    bridge-slider(v-if="inProgress" :steps="steps")
+
+    div(v-if="step === 4")
+      .d-flex.justify-content-center.mt-4
+        .fs-18 Success! Assets have been bridged!
+
+      .d-flex.justify-content-center.mt-4
+        //alcor-button(outline v-if="sourceName && result.source" @click="openInNewTab(monitorTx(result.source, sourceName))")
+        alcor-button(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
+          img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
+          | TX Link
+
+        //alcor-button(outline v-if="destinationName && result.destination" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
+        alcor-button(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
+          img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
+          | TX Link
+
+    //el-button(type="success") asdfasdf
 </template>
 
 <script>
@@ -133,14 +143,16 @@ import BridgeSlider from '~/components/bridge/BridgeSlider'
 
 import TokenImage from '~/components/elements/TokenImage'
 
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export default {
   components: { AlcorSelect, AlcorButton, NetworkOption, BridgeSlider, TokenImage },
   //props: ['formData'],
   data: () => ({
-    inProgress: false,
     finished: false,
+
+    progress: 0,
 
     formData: {
       amount: null,
@@ -151,11 +163,6 @@ export default {
 
     sourceWallet: null,
     destinationWallet: null,
-
-    result: {
-      source: '',
-      destination: ''
-    },
 
     fromNetworkOptions: [{
       value: 'eos',
@@ -175,28 +182,88 @@ export default {
     }, {
       value: 'ux',
       label: 'UX Network'
-    }],
-
-    steps: [
-      { id: 0, progress: 0, label: 'Submitting source chain transfer', status: 'active' },
-      { id: 1, progress: 0, label: 'Waiting for Transaction irreversibility', status: 'waiting' },
-      { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'waiting' },
-      { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'waiting' }
-    ]
+    }]
   }),
 
   computed: {
-    ...mapState(['network']),
     ...mapGetters(['user', 'knownTokens']),
+
     ...mapGetters({
       source: 'ibcBridge/source',
       destination: 'ibcBridge/destination'
     }),
 
-    // TODO Not works
-    //...mapState({
-    //  zz: 'ibcBridge/transfer'
-    //}),
+    ...mapState('ibcBridge', [
+      'step',
+      'tx',
+      'packedTx',
+      'emitxferAction',
+      'error',
+      'result',
+      'proofs'
+    ]),
+
+    inProgress() {
+      return [0, 1, 2, 3].includes(this.step)
+    },
+
+    isFinished() {
+      return this.step === 4
+    },
+
+    steps() {
+      const { progress, error } = this
+      console.log('progress', progress)
+
+      const status = this.error ? 'error' : 'active'
+
+      if (this.step === 0) {
+        return [
+          { id: 0, progress, label: 'Submitting source chain transfer', status, message: this.error },
+          { id: 1, progress, label: 'Waiting for transaction irreversibility', status: 'waiting' },
+          { id: 2, progress, label: 'Fetching proof for interchain transfer', status: 'waiting' },
+          { id: 3, progress, label: 'Submitting proof(s)', status: 'waiting' }
+        ]
+      }
+
+      if (this.step === 1) {
+        return [
+          { id: 0, progress, label: 'Submitting source chain transfer', status: 'success' },
+          { id: 1, progress, label: 'Waiting for transaction irreversibility', status, message: this.error },
+          { id: 2, progress, label: 'Fetching proof for interchain transfer', status: 'waiting' },
+          { id: 3, progress, label: 'Submitting proof(s)', status: 'waiting' }
+        ]
+      }
+
+      if (this.step === 2) {
+        return [
+          { id: 0, progress, label: 'Submitting source chain transfer', status: 'success' },
+          { id: 1, progress, label: 'Waiting for transaction irreversibility', status: 'success' },
+          { id: 2, progress, label: 'Fetching proof for interchain transfer', status, message: this.error },
+          { id: 3, progress, label: 'Submitting proof(s)', status: 'waiting' }
+        ]
+      }
+
+      if (this.step === 3) {
+        return [
+          { id: 0, progress, label: 'Submitting source chain transfer', status: 'success' },
+          { id: 1, progress, label: 'Waiting for transaction irreversibility', status: 'success' },
+          { id: 2, progress, label: 'Fetching proof for interchain transfer', status: 'success' },
+          { id: 3, progress, label: 'Submitting proof(s)', status, message: this.error }
+        ]
+      }
+
+      if (this.step === 4) {
+        return [
+          { id: 0, progress, label: 'Submitting source chain transfer', status: 'success' },
+          { id: 1, progress, label: 'Waiting for transaction irreversibility', status: 'success' },
+          { id: 2, progress, label: 'Fetching proof for interchain transfer', status: 'success' },
+          { id: 3, progress, label: 'Submitting proof(s)', status: 'success' }
+        ]
+      }
+
+      return []
+    },
 
     sourceName: {
       set (chain) {
@@ -227,164 +294,165 @@ export default {
     'formData.amount'() {
       if (!this.formData.asset?.symbol) return
       this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
-    }
+    },
+
+    'formData.asset'() {
+      if (!this.formData.asset) return
+      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
+    },
+
+    sourceName() { if (this.sourceName == this.destinationName) this.destinationName = null },
+    destinationName() { if (this.destinationName == this.sourceName) this.sourceName = null }
+  },
+
+  mounted() {
   },
 
   methods: {
     ...mapMutations({
       setSourceName: 'ibcBridge/setSourceName',
       setDestinationName: 'ibcBridge/setDestinationName',
-      setTransferState: 'ibcBridge/setTransfer'
+      setStep: 'ibcBridge/setStep',
+      setTx: 'ibcBridge/setTx',
+      setPackedTx: 'ibcBridge/setPackedTx',
+      setEmitxferAction: 'ibcBridge/setEmitxferAction',
+      setError: 'ibcBridge/setError',
+      setProofs: 'ibcBridge/setProofs',
+      setResult: 'ibcBridge/setResult'
     }),
 
+    clear() {
+      this.setTx(null)
+      this.setStep(null)
+      this.setError(null)
+      this.setSourceName(null)
+      this.setDestinationName(null)
+      this.setPackedTx(null)
+    },
+
     reset() {
-      this.finished = false
-      this.inProgress = false
+      //this.finished = false
 
-      this.steps = [
-        { id: 0, progress: 0, label: 'Submitting source chain transfer', status: 'active' },
-        { id: 1, progress: 1, label: 'Waiting for transaction irreversibility', status: 'waiting' },
-        { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'waiting' },
-        { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'waiting' }
-      ]
+      //this.steps = [
+      //  { id: 0, progress: 0, label: 'Submitting source chain transfer', status: 'active' },
+      //  { id: 1, progress: 1, label: 'Waiting for transaction irreversibility', status: 'waiting' },
+      //  { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'waiting' },
+      //  { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'waiting' }
+      //]
 
-      this.result = {
-        source: '',
-        destination: ''
-      }
+      //this.result = {
+      //  source: '',
+      //  destination: ''
+      //}
     },
 
     updateProgress(value) {
-      const step = this.steps.find(s => s.status == 'active')
-      step.progress = value
+      this.progress = value
     },
 
-    async stage1(ibcTransfer) {
-      let sourceTx
-      sourceTx = await ibcTransfer.signSourceTrx()
-      try {
-        sourceTx = await ibcTransfer.signSourceTrx()
-      } catch (e) {
-        return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
-      }
-
-      this.$set(this.steps, 0, { id: 0, progress: 100, label: 'Submitting source chain transfer', status: 'success' })
-      this.$set(this.steps, 1, { id: 1, progress: 1, label: 'Waiting for transaction irreversibility', status: 'active' })
-
-      let sourceTransferResult
-      sourceTransferResult = await ibcTransfer.sourceTransfer(sourceTx)
-      try {
-        sourceTransferResult = await this.ibcBridge.sourceTransfer(sourceTx)
-      } catch (e) {
-        this.reset()
-        return this.$notify({ type: 'warning', title: 'Push transaction', message: e })
-      }
-
-      const { tx, packedTx, emitxferAction, leap } = sourceTransferResult
-
-      this.setTransferState({
-        stage: 1,
-        tx,
-        packedTx,
-        emitxferAction
-      })
-
-      return { tx, packedTx, emitxferAction, leap }
-    },
-
-    async stage2(ibcTransfer) {
-
+    help() {
+      this.setStep(2)
     },
 
     async transfer() {
-      if (!this.formData.asset) return
-
-      this.formData.asset.quantity = parseFloat(this.formData.amount).toFixed(4) + ' ' + this.formData.asset.symbol
-      this.reset()
-      this.inProgress = true
+      // TODO preceision handle
+      if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
+      if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
+      if (!this.formData.amount && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select amount' })
+      if (!this.formData.asset && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select IBC Token' })
 
       const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.formData.asset)
 
-      //const { stage, tx, packedTx, emitxferAction, error } = this.$store.state.ibcBridge.transfer
+      if (this.step === 4 || !this.step) this.setStep(0)
 
-      //if (stage) {
-      //  // TODO Задесь раздуплить логику в последовательности
-      //}
 
-      const { tx, packedTx, emitxferAction, leap } = await this.stage1(ibcTransfer)
+      if (this.step === 0) {
+        try {
+          const signedTx = await ibcTransfer.signSourceTrx()
+          const { tx, packedTx, leap } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
 
-      /// WAIT FOR LIB
-      if (!leap) {
-        let prog = 1
+          // TODO Handle if no
+          const emitxferAction = ibcTransfer.findEmitxferAction(tx)
+          console.log('emitxferAction', emitxferAction)
+
+          this.setStep(1)
+          this.setTx(tx)
+          this.setPackedTx(packedTx)
+          this.setResult({ ...this.result, source: tx.transaction_id })
+          return this.transfer()
+        } catch (e) {
+          this.setStep(null)
+          return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
+        }
+      }
+
+      if (this.step === 1) {
+        let prog = 0
         const progressInterval = setInterval(() => {
           prog = Math.min(prog + 1, 100)
-          this.updateProgress(prog)
+          this.progress = prog
         }, 1700)
 
-        await ibcTransfer.waitForLIB(this.source, tx, packedTx)
-        clearInterval(progressInterval)
+        try {
+          //throw new Error('test')
 
-        this.result.source = tx.transaction_id
+
+          console.log('tx block before', this.tx.processed.block_num)
+          const tx = await ibcTransfer.waitForLIB(this.source, this.tx, this.packedTx)
+          console.log('tx block after', tx.processed.block_num)
+          this.setTx(tx)
+          this.setStep(2)
+          if (this.error) this.setError(null)
+          return this.transfer()
+        } catch (e) {
+          this.setError(e.message)
+          return this.$notify({ type: 'error', title: 'Waiting for LIB', message: e })
+        } finally {
+          clearInterval(progressInterval)
+          this.updateProgress(0)
+        }
       }
 
+      if (this.step === 2) {
+        try {
+          const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
+          //throw new Error('test')
+          console.log('scheduleProofs', scheduleProofs)
 
-      ///
-      //let source_transfer
-      //try {
-      //  source_transfer = await ibcTransfer.sourceTransferAndWaitForLIB(sourceTx)
-      //} catch (e) {
-      //  this.reset()
-      //  clearInterval(progressInterval)
-      //  return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
-      //}
+          const emitxferAction = ibcTransfer.findEmitxferAction(this.tx)
+          console.log('emitxferAction', emitxferAction)
 
+          const emitxferProof = await ibcTransfer.getProof({
+            type: 'heavyProof',
+            action: emitxferAction,
+            onProgress: this.updateProgress,
+            block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
+          })
 
-      this.$set(this.steps, 1, { id: 1, progress: 100, label: 'Waiting for Transaction irreversibility', status: 'success' })
-      this.$set(this.steps, 2, { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'active' })
+          console.log('emitxferProof', emitxferProof)
 
-      const scheduleProofs = await ibcTransfer.getScheduleProofs(tx)
-
-      console.log('scheduleProofs', scheduleProofs)
-
-      const emitxferProof = await ibcTransfer.getProof({
-        type: 'heavyProof',
-        action: emitxferAction,
-        block_to_prove: tx.processed.block_num, //block that includes the emitxfer action we want to prove
-        onProgress: this.updateProgress
-      })
-
-      console.log('emitxferProof', emitxferProof)
-
-      this.$set(this.steps, 2, { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'success' })
-      this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'active' })
-
-      let destinationResult
-      try {
-        destinationResult = await ibcTransfer.submitProofs([...scheduleProofs, emitxferProof])
-      } catch (e) {
-        this.setTransferState({
-          ...this.$store.state.ibcBridge.transfer,
-          error: e,
-          stage: 2
-        })
-
-        this.$set(this.steps, 2, { id: 2, progress: 0, label: 'Fetching proof for interchain transfer', status: 'success' })
-        this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'error', message: e })
-
-        return
+          this.setProofs([...scheduleProofs, emitxferProof])
+          this.setStep(3)
+          if (this.error) this.setError(null)
+          return this.transfer()
+        } catch (e) {
+          this.setError(e.message)
+          return this.$notify({ type: 'error', title: 'Fetching Proofs', message: e })
+        }
       }
 
+      if (this.step === 3) {
+        try {
+          const destinationResult = await ibcTransfer.submitProofs(this.proofs)
 
-
-
-      this.result.destination = destinationResult.transaction_id
-
-      console.log('destinationResult', destinationResult)
-
-      this.$set(this.steps, 3, { id: 3, progress: 0, label: 'Submitting proof(s)', status: 'success' })
-
-      this.inProgress = false
-      this.finished = true
+          this.setResult({ ...this.result, destination: destinationResult.transaction_id })
+          this.setStep(4)
+          if (this.error) this.setError(null)
+        } catch (e) {
+          this.setError(e.message)
+          return this.$notify({ type: 'error', title: 'Submitting Destination Proofs ', message: e })
+        }
+      }
     },
 
     setAsset(asset) {

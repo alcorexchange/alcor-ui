@@ -17,7 +17,8 @@ export default ({ store }) => {
       'settings.hideOtherPairs', 'settings.timesAndSales', 'settings.rpc_nodes',
       'settings.markets_timesale_tab',
 
-      'ibcBridge.transfer'
+      'ibcBridge.step', 'ibcBridge.tx', 'ibcBridge.packedTx', 'ibcBridge.error', 'ibcBridge.result',
+      'ibcBridge.sourceName', 'ibcBridge.destinationName', 'ibcBridge.scheduleProofs'
     ]
   })(store)
 }

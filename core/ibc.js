@@ -45,9 +45,11 @@ export class IBCTransfer {
   }
 
   async submitProofs(destinationActions) {
+    console.log('destinationActions', destinationActions)
     const signedDestinationTx = await this.destinationWallet.wallet.transact({
       actions: destinationActions
     }, { broadcast: false, expireSeconds: 360, blocksBehind: 3 })
+    console.log('signedDestinationTx', signedDestinationTx)
 
     return await this.submitTx(signedDestinationTx, this.destination, 6)
   }
@@ -65,9 +67,7 @@ export class IBCTransfer {
     return signedTx
   }
 
-  async sourceTransfer(signedTx) {
-    const { tx, packedTx, leap } = await this.submitTx(signedTx, this.source)
-
+  findEmitxferAction(tx) {
     let emitxferAction = tx.processed.action_traces.find(
       (r) => r.act.name === 'emitxfer'
     ) //if flattened traces (using send_transaction)
@@ -83,7 +83,12 @@ export class IBCTransfer {
       console.log("!!!!!!!!!!!!!!!Shouldn't happen!!!!!!!!!!!!!!!!")
     }
 
-    return { tx, packedTx, emitxferAction, leap }
+    return emitxferAction
+  }
+
+  async sourceTransfer(signedTx) {
+    const { tx, packedTx, leap } = await this.submitTx(signedTx, this.source)
+    return { tx, packedTx, leap }
   }
 
   async submitTx(signedTx, chain, retry_trx_num_blocks = null) {
@@ -122,10 +127,9 @@ export class IBCTransfer {
     //return await this.pushGurantee(chain, tx, retry_trx_num_blocks) // if waiting for lib
   }
 
-  async waitForLIB(chain, tx, packedTx, retry_trx_num_blocks) {
+  async waitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
     //let tx = await chain.rpc.send_transaction(packedTx)
-
-    console.log('tx', JSON.parse(JSON.stringify(tx)))
+    let tx = JSON.parse(JSON.stringify(_tx))
 
     const transaction_id = tx.processed.id
     let finished = false
@@ -146,7 +150,8 @@ export class IBCTransfer {
         if (txFound) {
           //if tx is in block, check relation to retry_trx_num_blocks
           const headInfo = await chain.rpc.get_info()
-          // console.log("Blocks passed: ~" + (headInfo.head_block_num - tx.processed.block_num) + "/330", "LIB: " + headInfo.last_irreversible_block_num)
+
+          console.log('Blocks passed: ~' + (headInfo.head_block_num - tx.processed.block_num) + '/330', 'LIB: ' + headInfo.last_irreversible_block_num)
 
           if (
             (!retry_trx_num_blocks &&
@@ -195,37 +200,37 @@ export class IBCTransfer {
       )
 
       ws.addEventListener('message', (event) => {
-        //const res = JSON.parse(event.data)
-        //console.log('res', res)
-        //const firhoseTx = res.txs.find((r) =>
-        //  r.find((s) => s.transactionId === transaction_id)
-        //)
-        //console.log('firhoseTx', firhoseTx)
-        //const firehoseEmitxfer = firhoseTx.find(
-        //  (r) => r.action.name === 'emitxfer'
-        //)
-        //console.log('firehoseEmitxfer', firehoseEmitxfer)
-        //const emitxferAction = tx.processed.action_traces.find(
-        //  (r) => r.act.name === 'emitxfer'
-        //)
-        //console.log(
-        //  'api emitxferAction receipt',
-        //  JSON.parse(JSON.stringify(emitxferAction.receipt))
-        //)
+        const res = JSON.parse(event.data)
+        console.log('res', res)
+        const firhoseTx = res.txs.find((r) =>
+          r.find((s) => s.transactionId === transaction_id)
+        )
+        console.log('firhoseTx', firhoseTx)
+        const firehoseEmitxfer = firhoseTx.find(
+          (r) => r.action.name === 'emitxfer'
+        )
+        console.log('firehoseEmitxfer', firehoseEmitxfer)
+        const emitxferAction = tx.processed.action_traces.find(
+          (r) => r.act.name === 'emitxfer'
+        )
+        console.log(
+          'api emitxferAction receipt',
+          JSON.parse(JSON.stringify(emitxferAction.receipt))
+        )
 
-        //emitxferAction.receipt = firehoseEmitxfer.receipt
-        //const auth_sequence = []
-        //for (const auth of emitxferAction.receipt.auth_sequence)
-        //  auth_sequence.push([auth.account, auth.sequence])
-        //emitxferAction.receipt.auth_sequence = auth_sequence
-        //console.log('bp emitxferAction receipt', firehoseEmitxfer.receipt)
-        //console.log('before return tx', tx)
+        emitxferAction.receipt = firehoseEmitxfer.receipt
+        const auth_sequence = []
+        for (const auth of emitxferAction.receipt.auth_sequence)
+          auth_sequence.push([auth.account, auth.sequence])
+        emitxferAction.receipt.auth_sequence = auth_sequence
+        console.log('bp emitxferAction receipt', firehoseEmitxfer.receipt)
         resolve(tx)
       })
     })
   }
 
   getProof({ type = 'heavyProof', block_to_prove, action, onProgress }) {
+    console.log('get proof txID: ', action.trx_id)
     return new Promise((resolve) => {
       //initialize socket to proof server
       const ws = new WebSocket(this.source.ibc.proofSocket)
@@ -299,8 +304,6 @@ export class IBCTransfer {
   }
 
   async getScheduleProofs(transferBlock) {
-    console.log('getScheduleProofs: ', transferBlock)
-
     async function getProducerScheduleBlock(blocknum) {
       try {
         let header = await this.source.rpc.get_block(blocknum)
