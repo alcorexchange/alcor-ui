@@ -8,7 +8,7 @@ export const state = () => ({
   loading: true,
   chains: [],
 
-  step: 2,
+  step: null,
   tx: null,
   packedTx: null,
   error: null,
