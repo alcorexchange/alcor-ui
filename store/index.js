@@ -492,12 +492,12 @@ export const getters = {
   },
 
   promoted(state, getters) {
-    // TODO mock poolId now
+    // TODO mock poolId now neet to implement in configs
     return getters.markets
       .filter(market => state.network.BANNER_MARKETS.includes(market.id))
       .map(market => ({
         ...market,
-        poolId: market.id === 424 ? 1627 : market.id === 495 ? 1831 : undefined
+        poolId: market.id === 156 ? 765 : market.id === 495 ? 1831 : undefined
       })).reverse()
   },
 

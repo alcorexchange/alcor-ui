@@ -332,8 +332,8 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
-    PINNED_MARKETS: [424],
-    BANNER_MARKETS: [424],
+    PINNED_MARKETS: [156],
+    BANNER_MARKETS: [156],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
