@@ -206,6 +206,12 @@ export default {
     width: 100%;
     max-width: 700px;
   }
+
+  @media only screen and (max-width: 1300px) {
+    .nav-left {
+      max-width: 620px;
+    }
+  }
 }
 
 .full-width {
