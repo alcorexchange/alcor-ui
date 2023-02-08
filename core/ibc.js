@@ -117,7 +117,9 @@ export class IBCTransfer {
 
     const packedTx = {
       signatures: signedTx.signatures,
-      serializedTransaction: signedTx.resolved.serializedTransaction
+      serializedTransaction: signedTx.resolved
+        ? signedTx.resolved.serializedTransaction
+        : signedTx.serializedTransaction
     }
 
     const tx = await chain.rpc.send_transaction(packedTx)

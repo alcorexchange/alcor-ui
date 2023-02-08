@@ -5,14 +5,6 @@ import ScatterJS from '@scatterjs/core'
 //import ScatterJS from 'scatterjs-core'
 //import ScatterEOS from 'scatterjs-plugin-eosjs2'
 
-if (typeof window !== 'undefined' || typeof document !== 'undefined') {
-  console.log('try find scatter!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  document.addEventListener('scatterLoaded', () => {
-    console.log('scatter connect in hook')
-    this.wombat = window.scatter
-  })
-}
-
 class WalletBase {
   network = null
 
@@ -21,19 +13,14 @@ class WalletBase {
   }
 }
 
-export default class WCWWallet extends WalletBase {
-  name = 'scatter'
-
-  wombat = null
-
-  signatureProvider = null
+export default class Wombat extends WalletBase {
+  name = 'wombat'
 
   constructor(network, rpc) {
     super(network)
     this.rpc = rpc
 
     ScatterJS.plugins(new ScatterEOS())
-    this.connect()
   }
 
   async connect() {
@@ -53,8 +40,8 @@ export default class WCWWallet extends WalletBase {
 
   async login() {
     try {
-      const { name, accounts } = await ScatterJS.login()
-      const authority = accounts.find(a => a.name == name).authority
+      await this.connect()
+      const { accounts: [{ authority, name }] } = await ScatterJS.login()
 
       return {
         name,
@@ -66,24 +53,15 @@ export default class WCWWallet extends WalletBase {
     }
   }
 
-  logout() {
-    const scatter = this.getScatter()
-
-    try {
-      return scatter.logout()
-    } catch {
-      return scatter.forgetIdentity()
-    }
+  async logout() {
+    await ScatterJS.logout()
   }
 
-  async transact(...args) {
+  transact(...args) {
     const network = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
     const rpc = new JsonRpc(network.fullhost())
     const eos = ScatterJS.eos(network, Api, { rpc })
 
-    const result = await eos.transact(...args)
-    result.resolved = { serializedTransaction: result.serializedTransaction }
-
-    return result
+    return eos.transact(...args)
   }
 }

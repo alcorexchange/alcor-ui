@@ -1,11 +1,11 @@
 <template lang="pug">
 .ibc-withdraw
-  el-button(type="text" plain size="mini" icon="el-icon-s-promotion" @click="open").hover-opacity Transfer
 
   el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
       span {{ $t("Before transferring to exchange, you have to withdraw it to it's original chain using BOS IBC Transfer button") }} !
 
+    h1 sdafdsfdf
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mt-1(prop="address")
         template(slot="label")
@@ -183,7 +183,7 @@ export default {
         this.visible = false
 
         this.$alert(
-          `<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          `<a class="pointer" href="${this.monitorTx(r.transaction_id)}" target="_blank">Transaction id</a>`,
           'Transaction complete!',
           {
             dangerouslyUseHTMLString: true,

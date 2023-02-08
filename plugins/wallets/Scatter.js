@@ -4,6 +4,12 @@ import ScatterEOS from '@scatterjs/eosjs2'
 import ScatterJS from '@scatterjs/core'
 //import ScatterJS from 'scatterjs-core'
 //import ScatterEOS from 'scatterjs-plugin-eosjs2'
+//if (typeof window !== 'undefined' || typeof document !== 'undefined') {
+//  document.addEventListener('scatterLoaded', () => {
+//    console.log('scatter connected!!!!!!!!!!')
+//    this.scatter_plugin = window.scatter
+//  })
+//}
 
 class WalletBase {
   network = null
@@ -29,19 +35,11 @@ export default class WCWWallet extends WalletBase {
     this.rpc = rpc
 
     ScatterJS.plugins(new ScatterEOS())
-
-    if (typeof window !== 'undefined' || typeof document !== 'undefined') {
-      document.addEventListener('scatterLoaded', () => {
-        console.log('scatter connect in hook')
-        this.scatter_plugin = window.scatter
-      })
-    }
-
-    this.connect()
   }
 
   async connect() {
     const connected = await ScatterJS.scatter.connect('Alcor Exchange', { network: this.network })
+    console.log('connected', connected)
 
     if (connected) {
       this.scatter_api = ScatterJS.scatter
@@ -55,74 +53,28 @@ export default class WCWWallet extends WalletBase {
   }
 
   async login() {
-    const scatter = this.getScatter()
     try {
-      await scatter.checkLogin()
-    } catch (e) {
-      console.log('check login err', e)
-    }
-
-    try {
-      // Useful for testnets to provide a convenient means for the end use to quickly add
-      // the required network configuration to their Scatter seamlessly while logging in.
-      await scatter.suggestNetwork({ ...this.network, blockchain: 'eos' })
-
-      const identity = await scatter.getIdentity({
-        accounts: [{ ...this.network, blockchain: 'eos' }]
-      })
-
-      if (!identity) {
-        return Promise.reject('No identity obtained from Scatter')
-      }
-
-      const account =
-        (identity &&
-          identity.accounts &&
-          identity.accounts.find((x) => x.blockchain === 'eos')) || undefined
-
-      if (!account) {
-        return Promise.reject(
-          'No account data obtained from Scatter identity'
-        )
-      }
-
-      this.accountPublickey = account.publicKey
+      await this.connect()
+      const { accounts: [{ authority, name }] } = await ScatterJS.login()
 
       return {
-        name: account.name,
-        authorization: { actor: account.name, permission: account.authority }
+        name,
+        authorization: { actor: name, permission: authority }
       }
     } catch (error) {
       console.log('[scatter]', error)
-      return Promise.reject(error)
+      return Promise.reject(error.message)
     }
   }
 
-  logout() {
-    const scatter = this.getScatter()
-
-    try {
-      return scatter.logout()
-    } catch {
-      return scatter.forgetIdentity()
-    }
+  async logout() {
+    await ScatterJS.logout()
   }
 
   transact(...args) {
-    const scatter = this.getScatter()
-    let eos
-
-    if ('eosHook' in scatter) {
-      console.log('sing using eosHook...', scatter)
-      const network = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
-      const rpc = new JsonRpc(network.fullhost())
-      eos = ScatterJS.eos(network, Api, { rpc })
-    } else {
-      console.log('sing using eos object (old way)...')
-      const jNetwork = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
-      const rpc = new JsonRpc(jNetwork.fullhost())
-      eos = scatter.eos(jNetwork, Api, { rpc })
-    }
+    const network = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
+    const rpc = new JsonRpc(network.fullhost())
+    const eos = ScatterJS.eos(network, Api, { rpc })
 
     return eos.transact(...args)
   }

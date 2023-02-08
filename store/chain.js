@@ -112,6 +112,8 @@ export const actions = {
       dispatch('afterLoginHook')
 
       commit('setLastWallet', wallet.name)
+
+      return wallet
     } catch (e) {
       this._vm.$notify({ type: 'warning', title: 'Wallet connect', message: e })
     }
@@ -621,7 +623,20 @@ export const actions = {
     )
 
     try {
-      return await state.wallet.transact({ actions })
+      const signedTx = await state.wallet.transact(
+        { actions },
+        { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
+      )
+
+      // TODO Manage leap soon
+      const packedTx = {
+        signatures: signedTx.signatures,
+        serializedTransaction: signedTx.resolved
+          ? signedTx.resolved.serializedTransaction
+          : signedTx.serializedTransaction
+      }
+
+      return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e
     } finally {

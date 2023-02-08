@@ -347,6 +347,10 @@ export default {
 
     logout(data) {
       if (this.inProgress) return
+
+      if (data == 'sender') this.sourceWallet.wallet.logout()
+      if (data == 'receiver') this.destinationWallet.wallet.logout()
+
       this.formData[data] = null
     },
 
@@ -372,7 +376,7 @@ export default {
         if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
         if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
         if ((!this.formData.amount || parseFloat(this.formData.amount) <= 0) && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select amount' })
-        if (!this.asset && !this.step) return this.$notify({ type: 'info', title: 'IBC', message: 'Select IBC Token' })
+        if (!this.asset) return this.$notify({ type: 'info', title: 'IBC', message: 'Select IBC Token' })
 
         this.setStep(0)
         this.setResult(0)
@@ -392,10 +396,10 @@ export default {
           return this.$notify({ type: 'error', title: 'Error fetch tokens', message: e })
         }
       } else {
+        if ((this.step === 2 || this.step == 3) && !this.destinationWallet) await this.connectToWallet()
+        console.log('clean error step 1')
         this.setError(null)
       }
-
-      if ((this.step === 2 || this.step == 3) && !this.destinationWallet) await this.connectToWallet()
 
       const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset)
 
@@ -432,6 +436,7 @@ export default {
           const tx = await ibcTransfer.waitForLIB(this.source, this.tx, this.packedTx)
           this.setTx(tx)
           this.setStep(2)
+          console.log('clean error step 1')
           if (this.error) this.setError(null)
           return this.transfer()
         } catch (e) {
@@ -468,6 +473,7 @@ export default {
           console.log('this.proofs', this.proofs)
 
           this.setStep(3)
+          console.log('clean error step 2')
           if (this.error) this.setError(null)
           return this.transfer()
         } catch (e) {
@@ -483,6 +489,8 @@ export default {
           const { tx } = await ibcTransfer.submitProofs(this.proofs)
           this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)
+
+          console.log('clean error step 3')
           if (this.error) this.setError(null)
 
           this.asset = null
@@ -534,7 +542,8 @@ export default {
     async connectFromWallet() {
       try {
         const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
-          chain: this.sourceName
+          chain: this.sourceName,
+          message: 'Connect Source Wallet'
         })
 
         this.formData.sender = name
@@ -545,9 +554,11 @@ export default {
     },
 
     async connectToWallet () {
+      // TODO Анкер не подрубается со второго раза
       try {
         const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
-          chain: this.destinationName
+          chain: this.destinationName,
+          message: 'Connect Destination Wallet'
         })
 
         this.formData.receiver = name

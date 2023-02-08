@@ -1,7 +1,9 @@
 <template lang="pug">
 #assets-modal-component.login-modal
   .header
-    .text-center.p-3 Select wallet
+    //.lead {{ loginContext }}
+    .text-center.p-3(v-if="loginContext && loginContext.message") {{ loginContext.message }}
+    .text-center.p-3(v-else) Select wallet
   .body.row(v-loading='loading')
     .items
       .item(v-for='wallet in wallets')
@@ -75,7 +77,7 @@ export default {
         wallets.push({
           id: 'wombat',
           name: '',
-          logo: require('@/assets/logos/wombat.png')
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
         })
       }
 
@@ -83,7 +85,7 @@ export default {
         wallets.push({
           id: 'wombat',
           name: '',
-          logo: require('@/assets/logos/wombat.png')
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
         })
         wallets.push({
           name: 'Keycat',
@@ -102,7 +104,7 @@ export default {
         wallets.push({
           id: 'wombat',
           name: '',
-          logo: require('@/assets/logos/wombat.png')
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
         })
       }
 
