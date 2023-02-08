@@ -1,6 +1,5 @@
 <template lang="pug">
 #assets-modal-component.login-modal
-  | {{ loginContext}}
   .header
     .text-center.p-3 Select wallet
   .body.row(v-loading='loading')
@@ -72,9 +71,17 @@ export default {
         { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
       ]
 
+      if (chain == 'telos') {
+        wallets.push({
+          id: 'wombat',
+          name: '',
+          logo: require('@/assets/logos/wombat.png')
+        })
+      }
+
       if (chain == 'eos') {
         wallets.push({
-          id: 'scatter',
+          id: 'wombat',
           name: '',
           logo: require('@/assets/logos/wombat.png')
         })
@@ -93,7 +100,7 @@ export default {
           create: 'https://all-access.wax.io/'
         })
         wallets.push({
-          id: 'scatter',
+          id: 'wombat',
           name: '',
           logo: require('@/assets/logos/wombat.png')
         })

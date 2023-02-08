@@ -6,6 +6,7 @@ import WCW from '~/plugins/wallets/WCW'
 import AnchoWallet from '~/plugins/wallets/Anchor'
 import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
+import WombatWallet from '~/plugins/wallets/Wombat'
 
 export const state = () => ({
   loginPromise: null,
@@ -32,7 +33,8 @@ export const actions = {
       anchor: AnchoWallet,
       scatter: ScatterWallet,
       wcw: WCW,
-      proton: ProtonWallet
+      proton: ProtonWallet,
+      wombat: WombatWallet
     }
 
     commit('setWallets', wallets)

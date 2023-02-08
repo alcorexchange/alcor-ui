@@ -41,9 +41,6 @@ export default class WCWWallet extends WalletBase {
   }
 
   async connect() {
-    const scatter = this.getScatter()
-    if (scatter && await scatter.isConnected()) return true
-
     const connected = await ScatterJS.scatter.connect('Alcor Exchange', { network: this.network })
 
     if (connected) {

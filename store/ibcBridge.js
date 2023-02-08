@@ -166,18 +166,14 @@ export const getters = {
 
     wrappedList = wrappedList.sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
 
-    console.log('availableAssets', [...nativeList, ...wrappedList])
-
     return [...nativeList, ...wrappedList]
   },
 
   source(state) {
-    console.log('source', state.chains.find(c => c.name == state.sourceName))
     return state.chains.find(c => c.name == state.sourceName)
   },
 
   destination(state) {
-    console.log('destination', state.chains.find(c => c.name == state.destinationName))
     return state.chains.find(c => c.name == state.destinationName)
   }
 }
