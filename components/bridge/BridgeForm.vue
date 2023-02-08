@@ -82,7 +82,7 @@
 
       alcor-select-two.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress" placeholder="IBC Token" filterable)
         template(slot="empty")
-          .small.muted.text-center Chose Sent & Receive
+          .small.muted.text-center Chose Send & Receive
 
         template(slot="prefix" v-if="this.asset")
           TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="20")
