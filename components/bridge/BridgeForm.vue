@@ -297,7 +297,6 @@ export default {
 
   watch: {
     availableAssets() {
-      console.log('availableAssets updated')
       this.asset = null
     },
 
@@ -386,7 +385,6 @@ export default {
               : this.asset.sourceTokenContract,
             this.asset.symbol
           )
-          console.log('1')
 
           this.asset.quantity = parseFloat(this.formData.amount).toFixed(precision) + ' ' + this.asset.symbol
         } catch (e) {
@@ -397,18 +395,15 @@ export default {
         this.setError(null)
       }
 
-      console.log('2')
       if ((this.step === 2 || this.step == 3) && !this.destinationWallet) await this.connectToWallet()
 
       const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset)
 
-      console.log('3')
       if (this.step === 0) {
         try {
           const signedTx = await ibcTransfer.signSourceTrx()
 
           const { tx, packedTx, leap } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
-          console.log('4')
 
           // TODO Handle if no
           //const emitxferAction = ibcTransfer.findEmitxferAction(tx)

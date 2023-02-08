@@ -1,5 +1,6 @@
 <template lang="pug">
 #assets-modal-component.login-modal
+  | {{ loginContext}}
   .header
     .text-center.p-3 Select wallet
   .body.row(v-loading='loading')
@@ -44,8 +45,11 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
+    ...mapState('chain', ['loginContext']),
 
     wallets() {
+      const chain = this.loginContext ? this.loginContext.chain : this.network.name
+
       const wallets = [
         {
           id: 'anchor',
@@ -64,11 +68,11 @@ export default {
           name: 'SimplEOS',
           logo: require('@/assets/logos/simpleos.svg')
         },
-        { name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
+        //{ name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
         { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
       ]
 
-      if (this.network.name == 'eos') {
+      if (chain == 'eos') {
         wallets.push({
           id: 'scatter',
           name: '',
@@ -80,7 +84,7 @@ export default {
         })
       }
 
-      if (this.network.name == 'wax' || this.$store.state.chain.loginContext?.chain == 'wax') {
+      if (chain == 'wax') {
         wallets.unshift({
           id: 'wcw',
           name: 'Wax Cloud Wallet',
@@ -108,19 +112,11 @@ export default {
     }
   },
 
-  mounted() {
-  },
-
   methods: {
     async login(provider) {
       this.loading = true
       try {
-        if (this.$store.state.modal.context?.ibcClient)
-          await this.$store.dispatch('chain/loginIBCClient', {
-            wallet_name: provider,
-            ibcClient: this.$store.state.modal.context.ibcClient
-          })
-        else await this.$store.dispatch('chain/login', provider)
+        await this.$store.dispatch('chain/login', provider)
         this.$store.dispatch('modal/closeModal')
       } catch (e) {
         captureException(e)
