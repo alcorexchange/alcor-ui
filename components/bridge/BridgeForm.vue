@@ -54,7 +54,7 @@
               height=18
             )
             .fs-14 {{ formData.sender }}
-          .d-flex.align-items-center.gap-8(@click.stop="logout(formData.sender)")
+          .d-flex.align-items-center.gap-8(@click.stop="logout('sender')")
             .fs-12 Logout
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
@@ -70,7 +70,7 @@
               height=18
             )
             .fs-14 {{ formData.receiver }}
-          .d-flex.align-items-center.gap-8(@click.stop="logout(formData.receiver)")
+          .d-flex.align-items-center.gap-8(@click.stop="logout('receiver')")
             .fs-12 Logout
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
@@ -348,8 +348,7 @@ export default {
 
     logout(data) {
       if (this.inProgress) return
-
-      data = null
+      this.formData[data] = null
     },
 
     reset() {
