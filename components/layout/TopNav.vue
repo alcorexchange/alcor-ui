@@ -217,7 +217,7 @@ export default {
   padding: 0;
   margin-left: 14px;
   display: flex;
-  gap: 32px;
+  gap: 16px;
 
   .item {
     padding: 4px 14px;
