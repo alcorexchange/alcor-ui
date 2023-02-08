@@ -93,7 +93,7 @@ export default {
 
   .is-load {
     circle {
-      opacity: 1;
+      opacity: 0.2;
     }
   }
 }
@@ -132,7 +132,7 @@ export default {
 .is-load {
   transition: opacity 6s;
   -webkit-transition: opacity 6s;
-  opacity: 1;
+  opacity: 0.8;
 
   circle {
     opacity: 1 !important;

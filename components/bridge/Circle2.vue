@@ -120,7 +120,7 @@ export default {
   transform: translate(-50%, -50%);
 
   height: 130px;
-  opacity: 0.1;
+  opacity: 0.3;
 
   @media only screen and (max-width: 640px) {
     left: 250px;
@@ -132,10 +132,10 @@ export default {
 .is-load {
   transition: opacity 6s;
   -webkit-transition: opacity 6s;
-  opacity: 1;
+  opacity: 0.6;
 
   circle {
-    opacity: 1 !important;
+    opacity: 0.8 !important;
   }
 }
 
