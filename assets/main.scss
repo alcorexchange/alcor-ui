@@ -23,6 +23,12 @@ body {
   transition: 0.3s;
 }
 
+body {
+  overflow-x: hidden;
+  overflow-y: visible;
+  height: 100vh;
+}
+
 .j-container {
   width: 100%;
   margin: auto;
