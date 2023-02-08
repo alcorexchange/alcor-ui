@@ -40,21 +40,23 @@ export default {
 .greet {
   z-index: 100
 }
-
+#bridge-page {
+  position: relative;
+}
 .circle1 {
   height: 1200px;
   width: 1200px;
 
-  top: -40%;
-  left: -25%;
+  top: -350px;
+  left: -650px;
 }
 
 .circle2 {
   height: 1200px;
   width: 1200px;
 
-  top: -40%;
-  right: -25%;
+  top: -350px;
+  right: -650px;
 }
 
 .bg {
