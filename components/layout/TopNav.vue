@@ -22,6 +22,7 @@ nav.nav(v-if='!isMobile')
         )
           span {{ $t(item.name) }}
           new-badge.badge(v-if="item.new" width="44" height="32")
+
   .nav-side.nav-right
     ConnectNav
 .menu-and-menu-header(v-else)
@@ -197,8 +198,13 @@ export default {
 
   .nav-side {
     display: flex;
-    gap: 24px;
     align-items: center;
+
+  }
+
+  .nav-left {
+    width: 100%;
+    max-width: 700px;
   }
 }
 
@@ -217,10 +223,11 @@ export default {
   padding: 0;
   margin-left: 14px;
   display: flex;
-  gap: 16px;
+  justify-content: space-around;
+  width: 100%;
 
   .item {
-    padding: 4px 14px;
+    padding: 4px 10px;
     margin-right: 4px;
     display: flex;
     align-items: center;
