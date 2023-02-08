@@ -4,12 +4,14 @@ import ScatterEOS from '@scatterjs/eosjs2'
 import ScatterJS from '@scatterjs/core'
 //import ScatterJS from 'scatterjs-core'
 //import ScatterEOS from 'scatterjs-plugin-eosjs2'
-//if (typeof window !== 'undefined' || typeof document !== 'undefined') {
-//  document.addEventListener('scatterLoaded', () => {
-//    console.log('scatter connected!!!!!!!!!!')
-//    this.scatter_plugin = window.scatter
-//  })
-//}
+
+if (typeof window !== 'undefined' || typeof document !== 'undefined') {
+  document.addEventListener('scatterLoaded', () => {
+    this.scatter_plugin = window.scatter
+    ScatterJS.plugins(new ScatterEOS())
+    console.log('scatter connected!!!')
+  })
+}
 
 class WalletBase {
   network = null
@@ -22,14 +24,6 @@ class WalletBase {
 export default class WCWWallet extends WalletBase {
   name = 'scatter'
 
-  scatter_plugin = null
-  scatter_api = null
-
-  getScatter = () => this.scatter_api || this.scatter_plugin
-
-  accountPublickey = null
-  signatureProvider = null
-
   constructor(network, rpc) {
     super(network)
     this.rpc = rpc
@@ -38,15 +32,15 @@ export default class WCWWallet extends WalletBase {
   }
 
   async connect() {
-    const connected = await ScatterJS.scatter.connect('Alcor Exchange', { network: this.network })
-    console.log('connected', connected)
+    let connected = false
 
-    if (connected) {
-      this.scatter_api = ScatterJS.scatter
-      return true
-    } else {
-      console.log('Cannot connect to Scatter...')
+    try {
+      connected = await ScatterJS.scatter.connect('Alcor Exchange', { network: this.network })
+    } catch (e) {
     }
+
+    if (connected) return
+    throw new Error('No scatter wallet found')
   }
 
   async checkLogin() {
@@ -55,6 +49,8 @@ export default class WCWWallet extends WalletBase {
   async login() {
     try {
       await this.connect()
+      const result = await ScatterJS.login()
+
       const { accounts: [{ authority, name }] } = await ScatterJS.login()
 
       return {
