@@ -5,11 +5,11 @@
       <defs data-v-e34="">
         <linearGradient id="g1">
           <stop stop-color="#949494" offset="0"></stop>
-          <stop stop-color="#484749" stop-opacity="0" offset="1"></stop>
+          <stop stop-color="rgba(255, 255, 255, 0)" stop-opacity="0" offset="1"></stop>
         </linearGradient>
         <linearGradient id="g2">
           <stop stop-color="rgba(255, 255, 255, 0)" offset="0"></stop>
-          <stop :stop-color="color" offset="1"></stop>
+          <stop :stop-color="COLOR" offset="1"></stop>
         </linearGradient>
       </defs>
       <g transform-origin="50% 50%" stroke-width=".6" fill="none" stroke-dashoffset="0" stroke-linecap="round"></g>
@@ -20,15 +20,48 @@
 
 <script>
 export default {
-  props: ['color', 'total'],
+  props: ['color'],
+
+  data: () => ({
+    COLOR: 'white' // Dynamic prop for stroke color
+  }),
+
+  watch: {
+    color() {
+      if (!this.COLOR) {
+        this.COLOR = this.color
+      } else {
+        this.changeColor()
+      }
+    }
+  },
 
   mounted() {
-    document.getElementById('logo').classList.add('is-load')
-    document.querySelector('.circles g').innerHTML = this.generateCircle(20)
-    setTimeout(() => document.querySelector('.circles g').classList.add('is-load'), 10)
+    this.COLOR = this.color
+
+    setTimeout(() => { this.init() }, 500)
   },
 
   methods: {
+    changeColor(to) {
+      document.querySelectorAll('.circles .is-load').forEach(e => {
+        e.style.transition = 'opacity .2s linear'
+        e.style.opacity = 0
+
+        setTimeout(() => {
+          e.style.transition = 'opacity .8s linear'
+          e.style.opacity = 0.8
+          this.COLOR = this.color
+        }, 150)
+      })
+    },
+
+    init() {
+      document.getElementById('logo').classList.add('is-load')
+      document.querySelector('.circles g').innerHTML = this.generateCircle(20)
+      setTimeout(() => document.querySelector('.circles g').classList.add('is-load'), 10)
+    },
+
     random(start, end) {
       const t = Math.random()
       return start * (1 - t) + end * t
@@ -93,7 +126,7 @@ export default {
 
   .is-load {
     circle {
-      opacity: 0.2;
+      opacity: 1;
     }
   }
 }
@@ -120,7 +153,7 @@ export default {
   transform: translate(-50%, -50%);
 
   height: 130px;
-  opacity: 0.1;
+  opacity: 0.3;
 
   @media only screen and (max-width: 640px) {
     left: 250px;
@@ -132,10 +165,11 @@ export default {
 .is-load {
   transition: opacity 6s;
   -webkit-transition: opacity 6s;
-  opacity: 0.8;
+
+  opacity: 0.6;
 
   circle {
-    opacity: 1 !important;
+    opacity: 0.8 !important;
   }
 }
 

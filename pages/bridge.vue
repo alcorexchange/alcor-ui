@@ -7,8 +7,8 @@
   client-only
     bridge-form.mt-4
 
-    circle1(color="#94591C" total="20").circle1
-    circle2(color="#462C7E" total="20").circle2
+    circle1(:color="sourceColor" total="20").circle1
+    circle2(:color="destinationColor" total="20").circle2
 </template>
 
 <script>
@@ -17,8 +17,31 @@ import CirclesBg from '~/components/bridge/CirclesBg.vue'
 import Circle1 from '~/components/bridge/Circle1.vue'
 import Circle2 from '~/components/bridge/Circle2.vue'
 
+const DEFAULT_COLOR = '#525252'
+
 export default {
   components: { BridgeForm, CirclesBg, Circle1, Circle2 },
+
+  data: () => ({
+    colors: [
+      { value: 'eos', color: '#fff' },
+      { value: 'proton', color: '#7c30ff' },
+      { value: 'telos', color: '#571aff' },
+      { value: 'ux', color: '#00e5e5' }
+    ]
+  }),
+
+  computed: {
+    sourceColor() {
+      const { color } = this.colors.find(c => c.value == this.$store.state.ibcBridge.sourceName) || {}
+      return color || DEFAULT_COLOR
+    },
+
+    destinationColor() {
+      const { color } = this.colors.find(c => c.value == this.$store.state.ibcBridge.destinationName) || {}
+      return color || DEFAULT_COLOR
+    }
+  },
 
   head() {
     return {
