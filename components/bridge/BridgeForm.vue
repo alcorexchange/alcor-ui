@@ -297,20 +297,20 @@ export default {
 
   watch: {
     availableAssets() {
-      this.asset = null
+      if (this.step === 4 || this.step === null) this.asset = null
     },
 
     sourceName() {
       if (this.sourceName == this.destinationName) {
         this.destinationName = null
-        if (this.step === 4 || !this.step) this.asset = null
+        if (this.step === 4 || this.step === null) this.asset = null
       }
     },
 
     destinationName() {
       if (this.destinationName == this.sourceName) {
         this.sourceName = null
-        if (this.step === 4 || !this.step) this.asset = null
+        if (this.step === 4 || this.step === null) this.asset = null
       }
     }
   },
