@@ -22,7 +22,7 @@
 
   virtual-table.mt-2(:table="virtualTableData")
     template(#row="{ item }")
-      pre {{ item }}
+      pool-row(:pool="item")
 
 </template>
 
@@ -30,47 +30,181 @@
 import { mapActions } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import VirtualTable from '~/components/VirtualTable'
+import PoolRow from '~/components/PoolRow'
 
 export default {
-  components: { AlcorButton, VirtualTable },
+  components: { AlcorButton, VirtualTable, PoolRow },
   data: () => ({
     search: '',
-    showClosed: false
+    showClosed: false,
+    pools: [
+      {
+        id: 1,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: true,
+        inputEarning: 552,
+        outputEarning: -21,
+        percent: 1
+      },
+      {
+        id: 2,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      },
+      {
+        id: 3,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      },
+      {
+        id: 4,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      },
+      {
+        id: 5,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      },
+      {
+        id: 6,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      },
+      {
+        id: 7,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      },
+      {
+        id: 8,
+        input: {
+          symbol: 'BRWL',
+          contract: 'brawlertoken'
+        },
+        output: {
+          symbol: 'TLM',
+          contract: 'alien.worlds'
+        },
+        min: 4.52,
+        max: 12.512,
+        inRange: false,
+        inputEarning: -552,
+        outputEarning: 21,
+        percent: 1
+      }
+
+    ]
   }),
   computed: {
     virtualTableData() {
       const header = [
         {
           label: 'Assets in Position',
-          value: 'quote_name',
+          value: 'input.symbol',
           width: '150px',
           sortable: true
         },
         {
           label: 'Range',
-          value: 'last_price',
-          width: '150px',
-          sortable: true
+          value: 'min',
+          width: '200px'
         },
         {
           label: 'Earnings',
-          value: 'volume24',
-          width: '150px',
-          sortable: true,
-          desktopOnly: true
+          value: 'inputEarning',
+          width: '130px'
         },
         {
           label: 'Action',
-          value: 'change24',
-          width: '150px',
-          sortable: true,
-          desktopOnly: true
+          width: '150px'
         }
       ]
 
-      const data = [1, 2, 3, 4]
+      const data = this.pools
 
-      const itemSize = 54
+      const itemSize = 75
       const pageMode = true
 
       return { pageMode, itemSize, header, data }
