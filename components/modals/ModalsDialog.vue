@@ -18,6 +18,7 @@ import Transfer from '~/components/modals/Transfer'
 import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
 import AddLiquidity from '~/components/modals/AddLiquidity'
+import PreviewLiquidity from '~/components/modals/PreviewLiquidity'
 import Trade from '~/components/modals/Trade'
 import BlockUser from '~/components/modals/BlockUser'
 import Assets from '~/components/modals/Assets'
@@ -37,6 +38,7 @@ export default {
     RemoveFriend,
     AddFriend,
     AddLiquidity,
+    PreviewLiquidity,
     Trade,
     BlockUser,
     Assets,

@@ -33,11 +33,12 @@
           .fs-12.text-center Max Price
           el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
           .fs-12.text-center BLK per WAX
-      alcor-button.w-100(access big) Preview
+      alcor-button.w-100(@click="openPreviewLiqidityModal" access big) Preview
 
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import TokenSelect from '~/components/TokenSelect'
 import AlcorButton from '~/components/AlcorButton'
 
@@ -48,6 +49,7 @@ export default {
     minPrice: 2.20,
     maxPrice: 12.421,
     selectedFee: 0,
+    inRange: true,
     inputToken: {
       symbol: 'BRWL',
       contract: 'brawlertoken'
@@ -63,8 +65,25 @@ export default {
       { value: 0.3, desc: 'Best for most pairs', selectedPercent: 44 },
       { value: 1, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
     ]
-  })
+  }),
+  methods: {
+    ...mapActions('modal', ['previewLiquidity']),
+    openPreviewLiqidityModal() {
+      const { outputToken, inputToken, inputAmount, outputAmount, selectedFee, maxPrice, minPrice, fees, inRange } = this
 
+      this.previewLiquidity({
+        inputToken,
+        outputToken,
+        inputAmount,
+        outputAmount,
+        selectedFee,
+        maxPrice,
+        minPrice,
+        fees,
+        inRange
+      })
+    }
+  }
 }
 </script>
 

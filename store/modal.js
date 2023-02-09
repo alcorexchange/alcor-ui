@@ -23,6 +23,12 @@ export const actions = {
     context && commit('setModalContext', context)
   },
 
+  previewLiquidity({ commit }, context) {
+    commit('setCurrent', 'preview-liquidity')
+    commit('setVisible', true)
+    context && commit('setModalContext', context)
+  },
+
   assets({ commit }, context) {
     commit('setCurrent', 'assets')
     commit('setVisible', true)
