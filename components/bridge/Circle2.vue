@@ -4,7 +4,7 @@
     <svg viewBox="0 0 100 100">
       <defs data-v-e215fa34="">
         <linearGradient id="a1">
-          <stop stop-color="#949494" offset="0"></stop>
+          <stop :stop-color="COLOR" offset="0"></stop>
           <stop stop-color="rgba(255, 255, 255, 0)" stop-opacity="0" offset="1"></stop>
         </linearGradient>
         <linearGradient id="a2">
