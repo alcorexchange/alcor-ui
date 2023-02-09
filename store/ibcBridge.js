@@ -37,16 +37,28 @@ export const mutations = {
 
 export const actions = {
   init({ state, commit, dispatch, rootState, rootGetters, getters }) {
+    const chains = IBC_NETWORKS
+
+    for (const chain of chains) {
+      chain.session = null
+      chain.symbols = null
+      chain.auth = null
+      chain.wrapLockContracts = []
+
+      chain.rpc = getMultyEndRpc(Object.keys(chain.client_nodes))
+    }
+
+    commit('setChains', chains)
     dispatch('fetchTokens')
   },
 
-  async fetchTokens({ commit }) {
+  async fetchTokens({ state, commit }) {
     const promises = []
     const tokenPromises = []
     const groupedResults = []
     const allWraplockContracts = []
 
-    const chains = IBC_NETWORKS
+    const { chains } = state
 
     for (const chain of chains) {
       chain.session = null
@@ -115,7 +127,6 @@ export const actions = {
     }
 
     commit('setChains', chains)
-    console.log('chains', chains)
   }
 }
 

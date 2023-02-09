@@ -318,11 +318,7 @@ export default {
   mounted() {
     // TODO source and destination by query params
     if (this.inProgress && this.asset?.quantity) this.formData.amount = parseFloat(this.asset.quantity)
-
-    setTimeout(() => {
-      // IF window was closed and no error emited without error
-      if (this.inProgress && !this.error) this.transfer()
-    }, 500)
+    if (this.inProgress && !this.error) this.setError('Window was closed')
   },
 
   methods: {

@@ -130,7 +130,6 @@ export class IBCTransfer {
   }
 
   async waitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
-    //let tx = await chain.rpc.send_transaction(packedTx)
     let tx = JSON.parse(JSON.stringify(_tx))
 
     const transaction_id = tx.processed.id
