@@ -56,9 +56,10 @@ export default class AnchoWallet extends WalletBase {
 
     if (session) {
       this.session = session
-      const { actor, permission } = session.auth
+      const { auth: { actor, permission }, chainId: { hexString } } = session
 
       return {
+        chainId: hexString,
         name: actor.toString(),
         authorization: { actor: actor.toString(), permission: permission.toString() }
       }
