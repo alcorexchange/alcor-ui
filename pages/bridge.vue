@@ -17,7 +17,7 @@ import CirclesBg from '~/components/bridge/CirclesBg.vue'
 import Circle1 from '~/components/bridge/Circle1.vue'
 import Circle2 from '~/components/bridge/Circle2.vue'
 
-const DEFAULT_COLOR = '#525252'
+const DEFAULT_COLOR = '#575757'
 
 export default {
   components: { BridgeForm, CirclesBg, Circle1, Circle2 },
