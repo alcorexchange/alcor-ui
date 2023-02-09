@@ -96,6 +96,7 @@ export default {
 <style lang="scss">
 .pool-form {
   width: min-content;
+  height: 500px;
 
   .swap-tabs {
     gap: 0px;

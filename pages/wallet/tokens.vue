@@ -50,9 +50,7 @@ export default {
         },
         {
           label: 'Available',
-          value: 'amount',
-          width: '215px',
-          sortable: true
+          width: '215px'
         },
         {
           label: 'Actions',

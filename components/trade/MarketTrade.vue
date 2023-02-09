@@ -121,6 +121,6 @@ export default {
 }
 
 .red {
-  color: var(--color-primary)
+  color: var(--main-red)
 }
 </style>
