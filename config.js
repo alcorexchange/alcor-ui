@@ -345,7 +345,7 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['DWD@diggerstoken', 'BRWL@brawlertoken'],
+    RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [424],
     BANNER_MARKETS: [424],
 
