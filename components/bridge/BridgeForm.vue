@@ -80,7 +80,7 @@
         el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
         span.max-btn.pointer(@click="setMax") MAX
 
-      alcor-select-two.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress" placeholder="IBC Token" filterable)
+      alcor-select-two.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress && !!this.asset" placeholder="IBC Token" filterable)
         template(slot="empty")
           .small.muted.text-center Chose Send & Receive
 
@@ -265,7 +265,7 @@ export default {
       },
 
       get () {
-        return this.$store.state.ibcBridge.asset || null
+        return this.$store.state.ibcBridge.asset
       }
     },
 
@@ -275,7 +275,7 @@ export default {
       },
 
       get () {
-        return this.$store.state.ibcBridge.sourceName || null
+        return this.$store.state.ibcBridge.sourceName
       }
     },
 
@@ -285,7 +285,7 @@ export default {
       },
 
       get () {
-        return this.$store.state.ibcBridge.destinationName || null
+        return this.$store.state.ibcBridge.destinationName
       }
     },
 
@@ -303,14 +303,14 @@ export default {
     sourceName() {
       if (this.sourceName == this.destinationName) {
         this.destinationName = null
-        this.asset = null
+        if (this.step === 4 || !this.step) this.asset = null
       }
     },
 
     destinationName() {
       if (this.destinationName == this.sourceName) {
         this.sourceName = null
-        this.asset = null
+        if (this.step === 4 || !this.step) this.asset = null
       }
     }
   },
@@ -318,6 +318,11 @@ export default {
   mounted() {
     // TODO source and destination by query params
     if (this.inProgress && this.asset?.quantity) this.formData.amount = parseFloat(this.asset.quantity)
+
+    setTimeout(() => {
+      // IF window was closed and no error emited without error
+      if (this.inProgress && !this.error) this.transfer()
+    }, 500)
   },
 
   methods: {
@@ -396,8 +401,14 @@ export default {
           return this.$notify({ type: 'error', title: 'Error fetch tokens', message: e })
         }
       } else {
-        if ((this.step === 2 || this.step == 3) && !this.destinationWallet) await this.connectToWallet()
-        console.log('clean error step 1')
+        if ((this.step === 2 || this.step == 3) && !this.destinationWallet) {
+          const { status, e } = await this.connectToWallet()
+
+          if (!status) {
+            return this.setError(e.message)
+          }
+        }
+
         this.setError(null)
       }
 
@@ -553,7 +564,7 @@ export default {
       }
     },
 
-    async connectToWallet () {
+    async connectToWallet() {
       // TODO Анкер не подрубается со второго раза
       try {
         const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
@@ -563,8 +574,10 @@ export default {
 
         this.formData.receiver = name
         this.destinationWallet = { wallet, name, authorization }
+        return { status: true }
       } catch (e) {
         this.$notify({ type: 'warning', title: 'Wallet not connected', message: e })
+        return { status: false, e }
       }
     }
   }

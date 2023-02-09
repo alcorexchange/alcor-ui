@@ -2,7 +2,8 @@
 #assets-modal-component.login-modal
   .header
     //.lead {{ loginContext }}
-    .text-center.p-3(v-if="loginContext && loginContext.message") {{ loginContext.message }}
+    .text-center(v-if="loginContext && loginContext.message") {{ loginContext.message }}
+      .fs-20 {{ loginContext.chain}}
     .text-center.p-3(v-else) Select wallet
   .body.row(v-loading='loading')
     .items

@@ -185,7 +185,7 @@ export class IBCTransfer {
           }
         }
       } catch (ex) {
-        console.log('lost internet, retrying')
+        console.log('lost internet, retrying', ex)
       }
     } // end of while
     if (retry_trx_num_blocks) return tx //return tx if we dont need to worry about correct global action
