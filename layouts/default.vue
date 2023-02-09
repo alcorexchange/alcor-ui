@@ -1,12 +1,12 @@
 <template lang="pug">
-.alcor-inner(:class="{ 'full-width': fullWidth }")
-  top-nav(:class="{ 'alcor-inner': $route.name == `index___${$i18n.locale}` }")
+.unlim-width
+  top-nav.px-3.py-2
 
   AlcorLoading
   ResourcesModal
   ModalsDialog
 
-  .main
+  .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
     nuxt
   FooterBlock
 </template>
@@ -164,7 +164,6 @@ export default {
 .full-width {
   max-width: 1920px;
   padding: 0px;
-  overflow-x: hidden;
 
   .nav {
     padding: 12px 20px;

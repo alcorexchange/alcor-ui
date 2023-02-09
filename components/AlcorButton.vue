@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, access, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
+    :class="['alcor-button', { flat, alternative, access, orange, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
     @click.prevent="$emit('click')"
     v-bind="$attrs">
     <div class="inner">
@@ -26,6 +26,10 @@ export default {
       type: Boolean
     },
     danger: {
+      default: false,
+      type: Boolean
+    },
+    orange: {
       default: false,
       type: Boolean
     },
@@ -85,6 +89,9 @@ button {
   &.active {
     background: var(--hover);
   }
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .alcor-button .vs-icon {
@@ -95,7 +102,7 @@ button {
   background: transparent;
 }
 
-.alcor-button:hover {
+.alcor-button:hover:not([disabled]) {
   background: var(--hover);
 }
 
@@ -117,6 +124,23 @@ button {
 .alcor-button.outline:hover {
   box-shadow: 0px 0px 30px 0px #54A05466 inset;
   background: var(--btn-outline);
+}
+
+.alcor-button.orange {
+  background: linear-gradient(90deg, #854000 0%, #FF8A00 100%);
+  border: 1px solid #854000;
+}
+
+.alcor-button.orange:hover {
+  background: transparent;
+  border: 1px solid #FF8A00;
+  color: #FF8A00;
+}
+
+.alcor-button.orange:disabled {
+  background: transparent;
+  border: 1px solid #854000;
+  color: #854000;
 }
 
 .alcor-button.danger {

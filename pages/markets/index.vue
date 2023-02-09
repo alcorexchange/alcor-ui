@@ -97,7 +97,7 @@ export default {
     },
 
     newListings() {
-      return this.markets.slice(-3)
+      return this.markets.slice(0, 3)
     },
 
     topGainers() {

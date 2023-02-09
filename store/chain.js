@@ -1,52 +1,58 @@
+import { getMultyEndRpc } from '../utils/eosjs'
+
+import config from '~/config'
+
 import WCW from '~/plugins/wallets/WCW'
 import AnchoWallet from '~/plugins/wallets/Anchor'
 import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
+import WombatWallet from '~/plugins/wallets/Wombat'
 
 export const state = () => ({
   loginPromise: null,
+  wallet: {},
   wallets: {},
 
   payForUser: false,
-  currentWallet: 'anchor',
-  lastWallet: null
+  lastWallet: null,
+  loginContext: null
 })
 
 export const mutations = {
+  setWallet: (state, wallet) => state.wallet = wallet,
   setWallets: (state, value) => (state.wallets = value),
   setLoginPromise: (state, value) => (state.loginPromise = value),
   setPayForUser: (state, value) => (state.payForUser = value),
-  setCurrentWallet: (state, value) => (state.currentWallet = value),
-  setLastWallet: (state, value) => (state.lastWallet = value)
+  setLastWallet: (state, value) => (state.lastWallet = value),
+  setLoginContext: (state, value) => state.loginContext = value
 }
 
 export const actions = {
   init({ state, commit, dispatch, rootState, rootGetters, getters }) {
-    const { network } = rootState
-
     const wallets = {
-      anchor: new AnchoWallet(network, this.$rpc),
-      scatter: new ScatterWallet(network, this.$rpc)
+      anchor: AnchoWallet,
+      scatter: ScatterWallet,
+      wcw: WCW,
+      proton: ProtonWallet,
+      wombat: WombatWallet
     }
-
-    if (network.name == 'wax') wallets.wcw = new WCW(network, this.$rpc)
-    if (network.name == 'proton')
-      wallets.proton = new ProtonWallet(network, this.$rpc)
 
     commit('setWallets', wallets)
 
     if (state.lastWallet) {
-      commit('setCurrentWallet', state.lastWallet)
+      commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
       dispatch('autoLogin')
     }
   },
 
-  async autoLogin({ state, dispatch, commit, getters }) {
+  async autoLogin({ state, rootState, dispatch, commit, getters }) {
+    // TODO Check correct chain
     console.log('try autoLogin..')
-    const loginned = await getters.wallet.checkLogin()
+    const loginned = await state.wallet.checkLogin()
     if (loginned) {
       console.log('YES. autoLogining...')
-      const { name, authorization } = loginned
+      const { name, authorization, chainId } = loginned
+      if (chainId !== rootState.network.chainId) return console.log('autoLogin chain mismatch')
       commit('setUser', { name, authorization }, { root: true })
       dispatch('afterLoginHook')
 
@@ -80,7 +86,7 @@ export const actions = {
 
   logout({ state, dispatch, commit, getters, rootState }) {
     console.log('logout..')
-    getters.wallet.logout()
+    state.wallet.logout()
     commit('setLastWallet', null)
     this.$socket.emit('unsubscribe', {
       room: 'account',
@@ -94,20 +100,37 @@ export const actions = {
     commit('setUserOrders', [], { root: true })
   },
 
+  async mainLogin({ commit, dispatch }) {
+    try {
+      const { wallet, name, authorization } = await dispatch('asyncLogin')
+
+      commit('setWallet', wallet)
+
+      const wasAutoLoginned = await dispatch('autoLogin')
+      if (wasAutoLoginned) return commit('setLastWallet', wallet.name)
+
+      commit('setUser', { name, authorization }, { root: true })
+      dispatch('afterLoginHook')
+
+      commit('setLastWallet', wallet.name)
+
+      return wallet
+    } catch (e) {
+      this._vm.$notify({ type: 'warning', title: 'Wallet connect', message: e })
+    }
+  },
+
   async login({ state, commit, dispatch, getters, rootState }, wallet_name) {
-    console.log('login..')
-    commit('setCurrentWallet', wallet_name)
-    const wasAutoLoginned = await dispatch('autoLogin')
-    if (wasAutoLoginned) return commit('setLastWallet', wallet_name)
+    const network = state.loginContext?.chain ? config.networks[state.loginContext.chain] : rootState.network
 
-    const { name, authorization } = await getters.wallet.login()
-    commit('setUser', { name, authorization }, { root: true })
-    dispatch('afterLoginHook')
+    const wallet = new state.wallets[wallet_name](network, getMultyEndRpc(Object.keys(network.client_nodes)))
 
-    commit('setLastWallet', wallet_name)
-
-    //if (state.loginPromise) state.loginPromise.resolve(true)
-    //if (state.loginPromise) state.loginPromise.resolve(false)
+    try {
+      const { name, authorization } = await wallet.login()
+      state.loginPromise.resolve({ wallet, name, authorization })
+    } catch (e) {
+      state.loginPromise.reject(e)
+    }
   },
 
   transfer({ dispatch, rootState }, { contract, actor, quantity, memo, to }) {
@@ -143,15 +166,21 @@ export const actions = {
     return r
   },
 
-  asyncLogin({ rootState, commit, dispatch }) {
-    if (rootState.user) return Promise.resolve(true)
+  async asyncLogin({ rootState, commit, dispatch }, context) {
+    if (context) commit('setLoginContext', context)
 
     const loginPromise = new Promise((resolve, reject) => {
       commit('setLoginPromise', { resolve, reject })
       dispatch('modal/login', null, { root: true })
     })
 
-    return loginPromise
+    try {
+      return await loginPromise
+    } catch (e) {
+      throw new Error(e)
+    } finally {
+      if (context) commit('setLoginContext', null)
+    }
   },
 
   async generateGiftLink({ rootState, dispatch }, { memo, asset_ids }) {
@@ -584,7 +613,7 @@ export const actions = {
     { state, rootState, dispatch, getters, commit },
     actions
   ) {
-    if (actions && actions[0].name != 'delegatebw' && state.currentWallet != 'wcw') {
+    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw') {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 
@@ -595,7 +624,20 @@ export const actions = {
     )
 
     try {
-      return await getters.wallet.transact(actions)
+      const signedTx = await state.wallet.transact(
+        { actions },
+        { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
+      )
+
+      // TODO Manage leap soon
+      const packedTx = {
+        signatures: signedTx.signatures,
+        serializedTransaction: signedTx.resolved
+          ? signedTx.resolved.serializedTransaction
+          : signedTx.serializedTransaction
+      }
+
+      return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e
     } finally {
@@ -608,7 +650,5 @@ export const actions = {
 export const getters = {
   chainName(state, getters, rootState) {
     return rootState.network.name
-  },
-
-  wallet: (state, getters) => state.wallets[state.currentWallet]
+  }
 }

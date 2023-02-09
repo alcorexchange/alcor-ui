@@ -6123,7 +6123,9 @@
 }
 
 .el-notification__content p {
-    margin: 0
+    margin: 0;
+    white-space: normal;
+    text-align: left;
 }
 
 .el-notification__icon {
@@ -6416,14 +6418,14 @@
 .el-tooltip__popper[x-placement^=bottom] .popper__arrow {
     top: -6px;
     border-top-width: 0;
-    border-bottom-color: #F2F2F2
+    border-bottom-color: #161617
 }
 
 .el-tooltip__popper[x-placement^=bottom] .popper__arrow::after {
     top: 1px;
     margin-left: -5px;
     border-top-width: 0;
-    border-bottom-color: #F2F2F2
+    border-bottom-color: #161617
 }
 
 .el-tooltip__popper[x-placement^=right] {
@@ -11624,7 +11626,7 @@
 .el-popper .popper__arrow,
 .el-popper .popper__arrow::after {
     position: absolute;
-    display: block;
+    display: none !important;
     width: 0;
     height: 0;
     border-color: transparent;
@@ -12934,7 +12936,7 @@
 }
 
 .el-input.is-disabled .el-input__inner {
-    background-color: #000;
+    background-color: #212121;
     border-color: transparent;
     color: #C0C4CC;
     cursor: not-allowed

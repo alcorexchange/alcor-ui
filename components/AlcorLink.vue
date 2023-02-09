@@ -48,7 +48,7 @@ button {
 .alcor-button {
   padding: 6px 10px;
   border-radius: var(--radius);
-  color: var(--text-default) !important;
+  color: var(--text-default);
   background: var(--btn-default);
   transition: all 0.3s;
   display: inline-block;

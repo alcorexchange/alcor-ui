@@ -17,8 +17,10 @@ import MakeBid from '~/components/modals/MakeBid'
 import Transfer from '~/components/modals/Transfer'
 import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
+import AddLiquidity from '~/components/modals/AddLiquidity'
 import Trade from '~/components/modals/Trade'
 import BlockUser from '~/components/modals/BlockUser'
+import Assets from '~/components/modals/Assets'
 import AlcorModal from '~/components/AlcorModal.vue'
 
 export default {
@@ -34,8 +36,10 @@ export default {
     Transfer,
     RemoveFriend,
     AddFriend,
+    AddLiquidity,
     Trade,
     BlockUser,
+    Assets,
     AlcorModal
   },
 

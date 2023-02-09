@@ -140,7 +140,6 @@ export default {
           ({ x: point.time, y: point.liquidity1.toFixed(6) })
         )
         this.series[0].data = newData
-        console.log(this.series, newData)
         this.options.colors = [COLORS[this.$colorMode.value][this.isRed ? 'down' : 'up']]
       }
     },

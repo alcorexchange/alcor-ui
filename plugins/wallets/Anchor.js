@@ -12,6 +12,7 @@ class WalletBase {
 }
 
 export default class AnchoWallet extends WalletBase {
+  name = 'anchor'
   link = null
   session = null
 
@@ -55,9 +56,10 @@ export default class AnchoWallet extends WalletBase {
 
     if (session) {
       this.session = session
-      const { actor, permission } = session.auth
+      const { auth: { actor, permission }, chainId: { hexString } } = session
 
       return {
+        chainId: hexString,
         name: actor.toString(),
         authorization: { actor: actor.toString(), permission: permission.toString() }
       }
@@ -79,7 +81,7 @@ export default class AnchoWallet extends WalletBase {
     }
   }
 
-  transact(actions) {
-    return this.session.transact({ actions })
+  transact(...args) {
+    return this.session.transact(...args)
   }
 }

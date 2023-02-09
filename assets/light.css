@@ -6115,7 +6115,9 @@
 }
 
 .el-notification__content p {
-    margin: 0
+    margin: 0;
+    white-space: normal;
+    text-align: left;
 }
 
 .el-notification__icon {
@@ -11575,7 +11577,7 @@
 .el-popper .popper__arrow,
 .el-popper .popper__arrow::after {
     position: absolute;
-    display: block;
+    display: none !important;
     width: 0;
     height: 0;
     border-color: transparent;
@@ -11590,7 +11592,8 @@
 
 .el-popper .popper__arrow::after {
     content: " ";
-    border-width: 6px
+    border-width: 6px;
+    display: none !important;
 }
 
 .el-popper[x-placement^=top] {

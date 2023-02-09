@@ -72,7 +72,7 @@ export const mutations = {
   setUserOrders: (state, orders) => state.userOrders = orders,
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading,
   setLihgHistoryBlock: (state, block) => state.lihgHistoryBlock = block,
-  setBlockNum: (state, block) => state.blockNum = block,
+  setBlockNum: (state, block) => state.blockNum = block
 }
 
 // Move to notifications module (nee create it)

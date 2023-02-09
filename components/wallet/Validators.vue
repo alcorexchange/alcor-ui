@@ -81,11 +81,18 @@ export default {
 
   async mounted() {
     const network = this.$store.state.network.name
-    const { data } = await this.$axios.get(
-      `https://www.api.bloks.io/${network}/producers?pageNum=1&perPage=50`
-    )
-    console.log(data)
-    this.list = data.producers
+    let url = `https://www.api.bloks.io/${network}/producers?pageNum=1&perPage=50`
+
+    if (network == 'eos') {
+      url = url.replace('eos/', '')
+    }
+
+    try {
+      const { data } = await this.$axios.get(url)
+      this.list = data.producers
+    } catch (e) {
+      this.$notify({ title: 'Producer fetch error', message: e, type: 'error' })
+    }
   }
 }
 </script>

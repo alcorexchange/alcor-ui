@@ -5,11 +5,11 @@ nav.nav(v-if='!isMobile')
       img.logo(
         v-if='$colorMode.value == "light"',
         src='~/assets/logos/alcorblack.svg',
-        height='44'
+        height='32'
       )
       img.logo(
         v-else='',
-        height='44',
+        height='32',
         src='~/assets/logos/alcorwhite.svg',
         alt=''
       )
@@ -20,7 +20,9 @@ nav.nav(v-if='!isMobile')
           flat,
           :class='{ active: isActive(item.index) }'
         )
-          | {{ $t(item.name) }}
+          span {{ $t(item.name) }}
+          new-badge.badge(v-if="item.new" width="44" height="32")
+
   .nav-side.nav-right
     ConnectNav
 .menu-and-menu-header(v-else)
@@ -49,7 +51,6 @@ nav.nav(v-if='!isMobile')
       i.el-icon-setting.show-settings
 
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
-
 
     AlcorButton(@click='openMenu', :icon-only-alt='true')
       i.el-icon-more
@@ -81,6 +82,7 @@ import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Settings from '~/components/layout/Settings'
+import NewBadge from '~/components/svg-icons/NewBadge.vue'
 
 export default {
   components: {
@@ -88,7 +90,8 @@ export default {
     AlcorButton,
     ConnectNav,
     ChainSelect,
-    Settings
+    Settings,
+    NewBadge
   },
 
   data() {
@@ -111,6 +114,7 @@ export default {
       }
 
       items.push({ index: '/markets', name: 'Markets' })
+      items.push({ index: '/bridge', name: 'Bridge', new: true })
 
       items.push({ index: '/otc', name: 'OTC' })
 
@@ -195,6 +199,18 @@ export default {
   .nav-side {
     display: flex;
     align-items: center;
+
+  }
+
+  .nav-left {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  @media only screen and (max-width: 1300px) {
+    .nav-left {
+      max-width: 620px;
+    }
   }
 }
 
@@ -213,16 +229,26 @@ export default {
   padding: 0;
   margin-left: 14px;
   display: flex;
+  justify-content: space-around;
+  width: 100%;
 
   .item {
-    padding: 4px 14px;
+    padding: 4px 10px;
     margin-right: 4px;
     display: flex;
     align-items: center;
+    color: var(--text-disable);
+    position: relative;
+
+    .badge {
+      position: absolute;
+      bottom: 12px;
+      left: 42px;
+    }
 
     &.active {
       background: var(--btn-active);
-      color: var(--text-default) !important;
+      color: var(--text-contrast) !important;
     }
   }
 }

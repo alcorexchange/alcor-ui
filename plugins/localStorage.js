@@ -15,7 +15,10 @@ export default ({ store }) => {
 
       'settings.sideMaretsTab', 'settings.favMarkets', 'settings.twChart',
       'settings.hideOtherPairs', 'settings.timesAndSales', 'settings.rpc_nodes',
-      'settings.markets_timesale_tab'
+      'settings.markets_timesale_tab',
+
+      'ibcBridge.step', 'ibcBridge.tx', 'ibcBridge.packedTx', 'ibcBridge.error', 'ibcBridge.result',
+      'ibcBridge.sourceName', 'ibcBridge.destinationName', 'ibcBridge.proofs', 'ibcBridge.asset'
     ]
   })(store)
 }

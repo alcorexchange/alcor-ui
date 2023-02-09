@@ -1,17 +1,15 @@
 <template lang="pug">
-el-dialog.alcor-modal-component(
+el-dialog#alcor-modal-component(
   :visible="visible"
   :before-close="close"
 )
-  slot [body slot]
+  slot
 </template>
 
 <script>
 import { mapState } from 'vuex'
 
 export default {
-  props: ['isVisible'],
-
   computed: {
     ...mapState('modal', ['visible'])
   },
@@ -25,8 +23,11 @@ export default {
 </script>
 
 <style lang="scss">
-.alcor-modal-component {
-  .el-dialog__header {
+#alcor-modal-component {
+
+  .el-dialog__header,
+  .el-dialog__body,
+  .el-dialog__footer {
     padding: 0;
   }
 
@@ -55,6 +56,10 @@ export default {
         color: var(--text-dark) !important;
       }
     }
+  }
+  .el-dialog__headerbtn {
+    top: 15px;
+    right: 15px;
   }
 
   .el-dialog__close {

@@ -290,7 +290,7 @@ export default {
   watch: {
     '$store.state.market.markets_layout'() {
       if (this.current_market_layout != 'advanced') {
-        document.querySelector('.full-width').classList.add('unlim-width')
+        document.querySelector('.main').classList.add('unlim-width')
         return
       }
       this.layouts = this.$store.state.market.markets_layout
@@ -317,7 +317,7 @@ export default {
 
   mounted() {
     if (this.$store.state.market.current_market_layout === 'advanced') {
-      document.querySelector('.full-width').classList.add('unlim-width')
+      document.querySelector('.main').classList.add('unlim-width')
     }
 
     //if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0

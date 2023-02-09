@@ -1,5 +1,17 @@
 const MAX_PAGINATION_FETCHES = 5
 
+import { shuffleArray } from './index'
+import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
+
+
+export function getMultyEndRpc(nodes) {
+  shuffleArray(nodes)
+  nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+  const rpc = new JsonRpcMultiEnds(nodes, { fetch })
+
+  return rpc
+}
+
 export const fetchAllRows =
   async (rpc, options, indexName = 'id') => {
     const mergedOptions = {

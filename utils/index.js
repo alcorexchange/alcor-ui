@@ -17,6 +17,17 @@ export const isToday = (someDate) => {
     someDate.getFullYear() == today.getFullYear()
 }
 
+export const toName = value => {
+  let v = Big.asUintN(64, value), result = ''
+
+  while (v > 0) {
+    const c = v & Big('0xff')
+    result += String.fromCharCode(Number(c.toString()))
+    v >>= 8n
+  }
+  return result
+}
+
 export const nameToUint64 = (name) => {
   const ser = new Serialize.SerialBuffer()
   ser.pushName(name)

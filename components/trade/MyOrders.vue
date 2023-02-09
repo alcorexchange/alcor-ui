@@ -4,7 +4,7 @@
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile" max-height="350")
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(v-else type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
@@ -33,7 +33,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-else)
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(v-else type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Time")', width='110')
     template(slot-scope='scope')
@@ -88,7 +88,7 @@ export default {
       user: 'user',
       allOrders: 'wallet/allOrders',
     }),
-    ...mapGetters(['network', 'userOrders']),
+    ...mapGetters(['userOrders']),
     ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'quote_token']),
 
     orders() {

@@ -514,9 +514,8 @@ export const actions = {
   },
 
   async fetchBuy({ state, dispatch, rootState }, trade) {
-    if (!await dispatch('chain/asyncLogin', null, { root: true })) return
-
     const { user, network } = rootState
+
     let amount = null
     let total = null
 
@@ -583,8 +582,6 @@ export const actions = {
   },
 
   async fetchSell({ state, dispatch, rootState }, trade) {
-    if (!await dispatch('chain/asyncLogin', null, { root: true })) return
-
     const { user } = rootState
     const amount = parseFloat(state.amount_sell).toFixed(state.quote_token.symbol.precision)
     let total = null

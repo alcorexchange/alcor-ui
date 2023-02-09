@@ -101,6 +101,13 @@ export const trade = {
     },
 
     async actionOrder(trade, bid) {
+      if (!this.$store.state.user?.name) {
+        // TODO replace with please login button
+        try {
+          if (!await this.$store.dispatch('chain/mainLogin', null, { root: true })) return
+        } catch (e) { return }
+      }
+
       if (trade !== 'market' && (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid))) {
         this.$notify({ title: 'Place order', message: 'Specify the price', type: 'error' })
         return
