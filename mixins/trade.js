@@ -101,7 +101,7 @@ export const trade = {
     },
 
     async actionOrder(trade, bid) {
-      if (!this.user?.name) {
+      if (!this.$store.state.user?.name) {
         // TODO replace with please login button
         try {
           if (!await this.$store.dispatch('chain/mainLogin', null, { root: true })) return
