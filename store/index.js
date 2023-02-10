@@ -9,8 +9,6 @@ export const strict = false
 
 export const state = () => ({
   user: null,
-  ibcClients: { sender: null, receiver: null },
-  selectedAsset: 'usdt',
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -40,9 +38,6 @@ export const mutations = {
   setNetwork: (state, network) => {
     state.network = network
   },
-  setSelectedAsset: (state, asset) => {
-    state.selectedAsset = asset
-  },
 
   // TODO Refactor for better balances handling
   // (separate array not in user object)
@@ -62,8 +57,6 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
-  setIBCClient: (state, { ibcClient, name, authorization }) => state.ibcClients[ibcClient] = { name, authorization },
-  logOutIBCClient: (state, ibsClient) => state.ibcClients[ibsClient] = null,
   setMarkets: (state, markets) => {
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
     state.markets = markets
@@ -79,7 +72,7 @@ export const mutations = {
   setUserOrders: (state, orders) => state.userOrders = orders,
   setUserOrdersLoading: (state, loading) => state.userOrdersLoading = loading,
   setLihgHistoryBlock: (state, block) => state.lihgHistoryBlock = block,
-  setBlockNum: (state, block) => state.blockNum = block,
+  setBlockNum: (state, block) => state.blockNum = block
 }
 
 // Move to notifications module (nee create it)
@@ -499,12 +492,12 @@ export const getters = {
   },
 
   promoted(state, getters) {
-    // TODO mock poolId now
+    // TODO mock poolId now neet to implement in configs
     return getters.markets
       .filter(market => state.network.BANNER_MARKETS.includes(market.id))
       .map(market => ({
         ...market,
-        poolId: market.id === 424 ? 1627 : market.id === 495 ? 1831 : undefined
+        poolId: market.id === 156 ? 765 : market.id === 495 ? 1831 : undefined
       })).reverse()
   },
 
@@ -523,7 +516,6 @@ export const getters = {
   },
 
   knownTokens(state) {
-    // TODO check format
     const tokens = []
 
     state.markets.map(m => {
