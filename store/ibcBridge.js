@@ -57,19 +57,7 @@ export const actions = {
     const tokenPromises = []
     const groupedResults = []
     const allWraplockContracts = []
-
     const { chains } = state
-
-    for (const chain of chains) {
-      chain.session = null
-      chain.symbols = null
-      chain.auth = null
-      chain.wrapLockContracts = []
-
-      chain.rpc = getMultyEndRpc(Object.keys(chain.client_nodes))
-    }
-
-    let sourceName, destinationName, tokenRow, fetchProgress = 0, progressInterval
 
     for (const chain of chains) for (const wrapLockContract of chain.ibc.wrapLockContractsArray) {
       allWraplockContracts.push(wrapLockContract)
