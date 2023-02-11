@@ -118,7 +118,8 @@ export default {
 
       items.push({ index: '/otc', name: 'OTC' })
 
-      if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {
+      if (['wax'].includes(this.$store.state.network.name)) {
+        // TODO Add atomic on eos
         items.push({ index: '/nft-market', name: 'NFT' })
       }
 
