@@ -8,12 +8,11 @@ export default {
   layout: 'test',
 
   created() {
-    //this.$store.dispatch('ibcBridge/fetchTokens')
   },
 
   methods: {
     async test() {
-
+      this.$store.dispatch('amm/init')
       //console.log('R', r)
     }
   }

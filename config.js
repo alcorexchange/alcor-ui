@@ -505,7 +505,9 @@ const networks = {
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: {},
+    client_nodes: {
+      'https://waxtestnet.greymass.com': 'Greymass - Canada',
+    },
 
     otc: {
       contract: 'wwweosswapio',
@@ -513,8 +515,12 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcordexswap',
-      fee: 'evodextester',
+      //contract: 'alcordexswap',
+      //fee: 'evodextester',
+    },
+
+    amm: {
+      contract: 'ammcontract1'
     },
 
     withdraw: {},
@@ -608,6 +614,10 @@ const networks = {
 
     pools: {
       contract: 'pools',
+    },
+
+    amm: {
+      contract: 'ammcontract1'
     },
 
     withdraw: {},
