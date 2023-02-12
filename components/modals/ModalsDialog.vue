@@ -24,8 +24,12 @@ import BlockUser from '~/components/modals/BlockUser'
 import Assets from '~/components/modals/Assets'
 import AlcorModal from '~/components/AlcorModal.vue'
 
+// AMM
+import CreatePool from '~/components/modals/amm/CreatePool.vue'
+
 export default {
   components: {
+    CreatePool,
     Login,
     Listing,
     Back,

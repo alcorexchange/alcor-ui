@@ -501,7 +501,7 @@ const networks = {
     protocol: 'https',
     monitor: 'https://wax-test.bloks.io/',
     monitor_params: '',
-    lightapi: 'ttps://testnet-lightapi.eosams.xeos.me',
+    lightapi: 'https://testnet-lightapi.eosams.xeos.me',
     hyperion: 'https://jungle3.cryptolions.io/',
     backEnd: 'http://localhost:8000/api/',
 

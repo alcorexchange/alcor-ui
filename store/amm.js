@@ -19,7 +19,7 @@ export const state = () => ({
 })
 
 export const mutations = {
-  setPairs: (state, pairs) => state.pairs = pairs,
+  setPools: (state, pools) => state.pools = pools,
   setCoins: (state, coins) => state.coins = coins
 }
 
@@ -29,47 +29,49 @@ export const actions = {
     //await dispatch('fetchCoins')
   },
 
+  async placePosition({ state, commit, rootState, dispatch }) {
+
+  },
+
   async fetchPairs({ state, commit, rootState, dispatch }) {
     const { network } = rootState
 
+    const pools = []
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
 
-    const row = rows[0]
+    for (const row of rows) {
+      const { id, tokenA, tokenB, fee, liquidity, currSlot: { sqrtPriceX64, tick } } = row
+      const ticks = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: id, table: 'ticks' })
+      const TICKS = ticks.map(t => new Tick({ index: t.id, ...t }))
+      TICKS.sort((a, b) => a.index - b.index)
 
-    //console.log(row)
-    const { id, tokenA, tokenB, fee, liquidity, currSlot: { sqrtPriceX64, tick } } = row
+      pools.push(new Pool(
+        parseToken(tokenA),
+        parseToken(tokenB),
+        fee,
+        sqrtPriceX64,
+        liquidity,
+        tick,
+        TICKS
+      ))
+    }
 
-    const ticks = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: id, table: 'ticks' })
-
-    const TICKS = ticks.map(t => new Tick({ index: t.id, ...t }))
-
-    TICKS.sort((a, b) => a.index - b.index)
-    //console.log(TICKS)
+    console.log('pairs', pools)
+    commit('setPools', pools)
 
 
-    const token_a = parseToken(row.tokenA)
+    //global.pool = pool
+    //// pool.tokenAPrice.toFixed()
 
-    const pool = new Pool(
-      token_a,
-      parseToken(row.tokenB),
-      fee,
-      sqrtPriceX64,
-      liquidity,
-      tick,
-      TICKS
-    )
-    global.pool = pool
-    // pool.tokenAPrice.toFixed()
+    //const inAmountStr = asset('1.0432 B').amount.toString()
+    ////console.log(inAmount)
 
-    const inAmountStr = asset('1.0432 B').amount.toString()
-    //console.log(inAmount)
+    //const amountIn = new CurrencyAmount(token_a, inAmountStr)
+    //console.log('amountIn', amountIn.toFixed())
 
-    const amountIn = new CurrencyAmount(token_a, inAmountStr)
-    console.log('amountIn', amountIn.toFixed())
+    //const [amountOut] = await pool.getInputAmount(amountIn)
 
-    const [amountOut] = await pool.getInputAmount(amountIn)
-
-    console.log('amountOut', amountOut.toFixed())
+    //console.log('amountOut', amountOut.toFixed())
     //console.log(pool.getOutputAmount())
 
 
