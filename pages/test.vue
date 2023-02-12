@@ -12,7 +12,7 @@ export default {
 
   methods: {
     async test() {
-      this.$store.dispatch('amm/init')
+      this.$store.dispatch('amm/placePosition')
       //console.log('R', r)
     }
   }
