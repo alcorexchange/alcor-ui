@@ -1,42 +1,61 @@
 <template lang="pug">
-#assets-modal-component
-  .header
-    .text-center.p-3 Select an asset to bridge
-  compact-tabs(:tabs="tabs" :active.sync="tab")
-    template(#tab="{ tab: { label, value } }")
-      .d-flex.align-items-center.gap-8(v-if="value === 'owned'")
-        i.el-icon-wallet
-        .fs-14 {{ label }}
-      .fs-14(v-else) {{ label }}
-  .body
-    el-input.search-input(prefix-icon="el-icon-search" v-model='search', size='small', placeholder='Search')
-    hr.separator
-    .d-flex.flex-column.gap-21
-      .d-flex.align-items-center.gap-8.pointer(
-        v-for="{ label, value, coin, disabled } in filteredAssets"
-        :class="{ disabled }"
-        @click="selectAsset(value)"
-      )
-        img(
-          :src='require("~/assets/icons/" + value + ".png")',
-          height=16
-        )
-        span {{ label }} ({{ coin }})
-        el-tooltip.op1(v-if="disabled" content="Right Center prompts info" placement="bottom")
-          i.el-icon-question
+.select-token-modal
+  .select-token-button(@click="visible = true")
+    TokenImage(src="/_nuxt/assets/icons/waxtest.png" height="20").mr-1
+    .ft-14.mr-1 WAX
+    i.el-icon-arrow-down
 
-    hr.separator
-    .text-center.color-green.pointer Request new token
 
+  el-dialog(
+    title="Select Token"
+    :visible="visible"
+    @close="visible = false"
+
+    custom-class="select-token-modal"
+
+    :before-close="beforeDialogClose"
+    @mousedown.native="dialogMousedown"
+    @mouseup.native="dialogMouseup"
+  )
+    //#assets-modal-component
+      compact-tabs(:tabs="tabs" :active.sync="tab")
+        template(#tab="{ tab: { label, value } }")
+          .d-flex.align-items-center.gap-8(v-if="value === 'owned'")
+            i.el-icon-wallet
+            .fs-14 {{ label }}
+          .fs-14(v-else) {{ label }}
+      .body
+        el-input.search-input(prefix-icon="el-icon-search" v-model='search', size='small', placeholder='Search')
+        hr.separator
+        .d-flex.flex-column.gap-21
+          .d-flex.align-items-center.gap-8.pointer(
+            v-for="{ label, value, coin, disabled } in filteredAssets"
+            :class="{ disabled }"
+            @click="selectAsset(value)"
+          )
+            img(
+              :src='require("~/assets/icons/" + value + ".png")',
+              height=16
+            )
+            span {{ label }} ({{ coin }})
+            el-tooltip.op1(v-if="disabled" content="Right Center prompts info" placement="bottom")
+              i.el-icon-question
+
+        hr.separator
+        .text-center.color-green.pointer Request new token
 </template>
 
 <script>
 import AlcorModal from '~/components/AlcorModal.vue'
 import CompactTabs from '~/components/CompactTabs.vue'
+import TokenImage from '~/components/elements/TokenImage'
+
 
 export default {
-  components: { AlcorModal, CompactTabs },
+  components: { AlcorModal, CompactTabs, TokenImage },
   data: () => ({
+    visible: false,
+
     search: '',
     tab: 'all',
     tabs: [
@@ -89,29 +108,10 @@ export default {
 </script>
 
 <style lang="scss">
-.search-input {
-  width: 288px !important;
-
-  & .el-input__inner {
-    border: 1px solid var(--select-color);
-    background: var(--select-color) !important;
+.select-token-modal {
+  .el-dialog {
+    width: 25%;
+    max-width: 400px;
   }
-}
-</style>
-
-<style lang="scss" scoped>
-#assets-modal-component {
-  .body {
-    padding: 16px;
-  }
-
-  .separator {
-    background-color: var(--border-1-color);
-  }
-
-  .disabled>*:not(.op1) {
-    opacity: 0.35;
-  }
-
 }
 </style>
