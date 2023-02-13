@@ -1,5 +1,6 @@
 <template lang="pug">
 #manage-liquidity-id-page.d-flex.flex-column.gap-24
+  pre {{ profitLoss }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-16
       return-link
@@ -21,7 +22,13 @@
         i.el-icon-remove-outline
         span Remove Liquidity
   .d-flex.gap-32.justify-content-between.w-100
-    span graphic
+    alcor-container.d-flex.flex-column.gap-16.w-100
+      alcor-chart(
+        v-if="series"
+        :series="series"
+        :options="options"
+        type="line"
+      ).profit-loss
     .d-flex.flex-column.gap-16
       alcor-container.d-flex.flex-column.gap-20.w-550
         .fs-14.disable Selected Pair
@@ -96,6 +103,7 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
+import AlcorChart from '~/components/AlcorChart'
 
 export default {
   components: {
@@ -103,15 +111,125 @@ export default {
     PairIcons,
     TokenImage,
     AlcorButton,
-    AlcorContainer
+    AlcorContainer,
+    AlcorChart
   },
-  data: () => ({ pools, fees }),
+  data: () => ({
+    pools,
+    fees,
+    profitLoss: null,
+    series: null,
+    options: {
+      title: {
+        text: 'Profit and Loss',
+        align: 'left',
+        margin: 0,
+        offsetY: 20,
+        style: {
+          color: 'var(--text-default)',
+          fontSize: '10px',
+          fontWeight: 400,
+          fontFamily: 'Roboto, Arial, sans-serif'
+        }
+      },
+
+      grid: {
+        borderColor: 'var(--border-color)',
+        xaxis: { lines: { show: true } },
+        yaxis: { lines: { show: true } }
+      },
+
+      xaxis: {
+        categories: [],
+        text: 'Price',
+        lines: { show: false },
+        type: 'datetime',
+        tooltip: { enabled: false },
+        axisBorder: { color: 'var(--border-color)' },
+        axisTicks: {
+          color: 'var(--border-color)',
+          height: 6
+        },
+        labels: {
+          datetimeUTC: false,
+          style: {
+            colors: 'var(--text-default)',
+            fontSize: '10px',
+            fontFamily: 'Roboto, Arial, sans-serif'
+          },
+          datetimeFormatter: {
+            hour: 'HH:mm'
+          }
+        }
+      },
+      yaxis: {
+        lines: { show: false },
+        opposite: true,
+        type: 'numeric',
+        axisTicks: {
+          show: true,
+          color: 'var(--border-color)',
+          width: 6
+        },
+        labels: {
+          style: {
+            colors: ['var(--text-default)'],
+            fontSize: '10px',
+            fontFamily: 'Roboto, Arial, sans-serif'
+          }
+        }
+      }
+    }
+  }),
   computed: {
     pool() {
       return this.pools.find(({ id }) => id == this.$route.params.id)
     },
     fee() {
       return this.fees.find(({ value }) => value == this.pool.percent)
+    }
+  },
+  mounted() {
+    // TODO mock chart data
+    this.fetchProfitLoss()
+  },
+  methods: {
+    async fetchProfitLoss() {
+      const r = await (
+        await fetch('https://alcor.exchange/api/pools/0/charts?period=7D')
+      ).json()
+
+      const newData = r.reduce(
+        (res, point) => [
+          [
+            {
+              name: 'token1',
+              data: [...res[0][0].data, point.price.toFixed(4)]
+            },
+            {
+              name: 'token2',
+              data: [...res[0][1].data, point.price_r.toFixed(4)]
+            }
+          ],
+          [...res[1], point.time]
+        ],
+        [
+          [
+            {
+              name: 'token1',
+              data: []
+            },
+            {
+              name: 'token2',
+              data: []
+            }
+          ],
+          []
+        ]
+      )
+      const [series, xaxis] = newData
+      this.series = series
+      this.options.xaxis.categories = xaxis
     }
   }
 }
