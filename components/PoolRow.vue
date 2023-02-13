@@ -30,7 +30,8 @@
         span {{ pool.outputEarning > 0 ? '+': '' }}{{ pool.outputEarning | commaFloat }}
         span {{ pool.output.symbol }}
   .actions.d-flex.gap-16
-    .action-link.manage Manage
+    router-link(:to="{ name: `manage-liquidity-id___${$i18n.locale}`, params: { id: pool.id } }")
+      .action-link.manage Manage
     .action-link.claim Claim
 
 </template>

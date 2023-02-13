@@ -37,7 +37,7 @@
           .fs-24.text-center {{ context.maxPrice }}
           .fs-12.text-center {{ context.inputToken.symbol }} per {{ context.outputToken.symbol }}
       .grey-border.d-flex.flex-column.gap-20.p-2.br-4.w-100
-        .fs-12.text-center Max Price
+        .fs-12.text-center Current Price
         .fs-24.text-center 15.8956
         .fs-12.text-center {{ context.inputToken.symbol }} per {{ context.outputToken.symbol }}
   alcor-button.w-100.mt-2(access big) Add Liquidity
@@ -54,7 +54,7 @@ export default {
   components: { TokenSelect, AlcorButton, TokenImage },
 
   data: () => ({
-    minPrice: 2.20,
+    minPrice: 2.2,
     maxPrice: 12.421,
     selectedFee: 0,
     inputToken: {
@@ -68,7 +68,11 @@ export default {
     },
     outputAmount: 100,
     fees: [
-      { value: 0.05, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
+      {
+        value: 0.05,
+        desc: 'Best forvery high liquidity tokens',
+        selectedPercent: 0
+      },
       { value: 0.3, desc: 'Best for most pairs', selectedPercent: 44 },
       { value: 1, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
     ]
@@ -79,7 +83,15 @@ export default {
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
     openAddLiqidityModal() {
-      const { outputToken, inputToken, inputAmount, outputAmount, selectedFee, maxPrice, minPrice } = this
+      const {
+        outputToken,
+        inputToken,
+        inputAmount,
+        outputAmount,
+        selectedFee,
+        maxPrice,
+        minPrice
+      } = this
 
       this.previewLiquidity({
         inputToken,

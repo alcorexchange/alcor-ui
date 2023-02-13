@@ -28,6 +28,8 @@
 
 <script>
 import { mapActions } from 'vuex'
+// TODO mock pools
+import { pools } from './pools'
 import AlcorButton from '~/components/AlcorButton'
 import VirtualTable from '~/components/VirtualTable'
 import PoolRow from '~/components/PoolRow'
@@ -36,146 +38,7 @@ export default {
   components: { AlcorButton, VirtualTable, PoolRow },
   data: () => ({
     search: '',
-    showClosed: false,
-    pools: [
-      {
-        id: 1,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: true,
-        inputEarning: 552,
-        outputEarning: -21,
-        percent: 1
-      },
-      {
-        id: 2,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      },
-      {
-        id: 3,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      },
-      {
-        id: 4,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      },
-      {
-        id: 5,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      },
-      {
-        id: 6,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      },
-      {
-        id: 7,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      },
-      {
-        id: 8,
-        input: {
-          symbol: 'BRWL',
-          contract: 'brawlertoken'
-        },
-        output: {
-          symbol: 'TLM',
-          contract: 'alien.worlds'
-        },
-        min: 4.52,
-        max: 12.512,
-        inRange: false,
-        inputEarning: -552,
-        outputEarning: 21,
-        percent: 1
-      }
-
-    ]
+    showClosed: false
   }),
   computed: {
     virtualTableData() {
@@ -202,7 +65,7 @@ export default {
         }
       ]
 
-      const data = this.pools
+      const data = pools
 
       const itemSize = 75
       const pageMode = true
