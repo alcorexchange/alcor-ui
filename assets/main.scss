@@ -22,9 +22,7 @@ body {
 
   transition: 0.3s;
 
-  overflow-x: hidden;
-  overflow-y: visible;
-  height: 100vh;
+  overflow-x: clip;
 }
 
 .j-container {
