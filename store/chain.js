@@ -609,6 +609,7 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  // TODO Relogin after check chain and relogin if possible
   async sendTransaction(
     { state, rootState, dispatch, getters, commit },
     actions
