@@ -899,6 +899,10 @@ a {
   width: 25%;
 }
 
+.fs-40 {
+  font-size: 40px;
+}
+
 .fs-36 {
   font-size: 36px;
 }
@@ -1050,7 +1054,7 @@ a {
 }
 
 .grey-border {
-  border: 1px solid var(--border-color);  
+  border: 1px solid var(--border-color);
 }
 .active-border {
   border: 1px solid var(--main-green);
