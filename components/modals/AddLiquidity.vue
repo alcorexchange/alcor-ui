@@ -15,7 +15,7 @@
 
       .fs-14.disable Select Price Range {{ max }}
 
-      el-slider(v-model="value" range :marks="marks" :min="-100" :max="100" @change="percentageChange").px-3.pr-4
+      el-slider(v-model="rangeValues" range :marks="marks" :min="-100" :max="100" @change="percentageChange").px-3.pr-4
 
       //.d-flex.gap-8.mt-3.justify-content-center
         .grey-border.d-flex.flex-column.gap-20.p-2.br-4
@@ -44,7 +44,7 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
 
-import { tryParsePrice, tryParseCurrencyAmount, parseToken } from '~/utils/amm'
+import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
 import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
@@ -63,7 +63,7 @@ export default {
       amountA: 0,
       amountB: 0,
 
-      value: [-50, 50],
+      rangeValues: [-50, 50],
 
       selectedFee: 1,
 
@@ -77,6 +77,12 @@ export default {
 
   watch: {
     value() {
+      let [leftRangeValue, rightRangeValue] = this.rangeValues
+
+      if (leftRangeValue <= 0) { leftRangeValue = 1 / 10 ** 6 } // set default if going from min border
+
+
+
       console.log('value changed pool', this.pool, this.$store.getters['amm/pools'])
     }
   },

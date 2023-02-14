@@ -2,7 +2,7 @@ import JSBI from "jsbi"
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '../utils/eosjs'
-import { tryParsePrice, tryParseCurrencyAmount, parseToken } from '~/utils/amm'
+import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
 import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
 
@@ -57,23 +57,30 @@ export const actions = {
 
   async test({ state, getters, commit, rootState, dispatch }) {
     await dispatch('fetchPairs')
-    //await dispatch('fetchPositions', rootState?.user?.name)
 
     const pool = getters.pools[0]
-    console.log('a', pool.tokenA)
 
-    const independentAmount = tryParseCurrencyAmount('123', pool.tokenA)
+    console.log('tryParseTick')
+    const r = tryParseTick(pool.tokenB, pool.tokenA, 500, '0.9981')
+    console.log('r', r)
 
-    const p = Position.fromAmountA({
-      pool,
-      tickLower: -900,
-      tickUpper: 900,
+    //onLeftRangeInput
+    //await dispatch('fetchPositions', rootState?.user?.name)
 
-      amountA: independentAmount.quotient,
-      useFullPrecision: true // we want full precision for the theoretical position
-    })
+    //console.log('a', pool.tokenA)
 
-    console.log('p', p.amountB.toFixed())
+    //const independentAmount = tryParseCurrencyAmount('123', pool.tokenA)
+
+    //const p = Position.fromAmountA({
+    //  pool,
+    //  tickLower: -900,
+    //  tickUpper: 900,
+
+    //  amountA: independentAmount.quotient,
+    //  useFullPrecision: true // we want full precision for the theoretical position
+    //})
+
+    //console.log('p', p.amountB.toFixed())
 
 
     //console.log('testsss', getters.positions)
