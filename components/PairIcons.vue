@@ -1,7 +1,7 @@
 <template lang="pug">
 .pair-icons
-    TokenImage(:src="$tokenLogo(token1.symbol, token1.contract)" height="15").icon.icon-1
-    TokenImage(:src="$tokenLogo(token2.symbol, token2.contract)" height="15").icon.icon-2
+    TokenImage(:src="$tokenLogo(token1.symbol || token1.currency, token1.contract)" height="15").icon.icon-1
+    TokenImage(:src="$tokenLogo(token2.symbol || token2.currency, token2.contract)" height="15").icon.icon-2
 </template>
 
 <script>

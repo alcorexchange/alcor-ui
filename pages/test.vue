@@ -8,17 +8,16 @@
     .token-input
       el-input(placeholder="amount" v-model="input" type="text")
         template(slot="append")
-          select-token
+          select-token(:tokens="tokens" @selected="setToken")
 
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 import SelectToken from '~/components/modals/amm/SelectToken'
 import AlcorContainer from '~/components/AlcorContainer'
 import TokenImage from '~/components/elements/TokenImage'
-
 
 export default {
   layout: 'test',
@@ -30,6 +29,14 @@ export default {
     }
   },
 
+  computed: {
+    ...mapState(['user', 'network']),
+
+    tokens() {
+      return this.user?.balances || []
+    }
+  },
+
   created() {
     //this.$store.dispatch('amm/placePosition')
   },
@@ -37,13 +44,17 @@ export default {
   methods: {
     ...mapActions('modal', ['createPool', 'assets']),
 
+    setToken(token) {
+      console.log('selected token', token)
+    },
+
     openCreatePoolModal() {
       this.createPool()
     },
 
     async test() {
       //this.$store.dispatch('amm/init')
-      this.$store.dispatch('amm/placePosition')
+      this.$store.dispatch('amm/test')
       //console.log('R', r)
     }
   }

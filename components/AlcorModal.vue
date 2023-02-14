@@ -40,31 +40,33 @@ export default {
     padding: 16px;
   }
 
-  .el-dialog__headerbtn {
-    width: 40px;
-    height: 40px;
-    right: 6px;
-    top: 6px;
+  // Following old styles
 
-    background: var(--border-color);
-    border-radius: 2px;
+  //.el-dialog__headerbtn {
+  //  width: 40px;
+  //  height: 40px;
+  //  right: 6px;
+  //  top: 6px;
 
-    &:hover {
-      background-color: var(--btn-default);
+  //  background: var(--border-color);
+  //  border-radius: 2px;
 
-      .el-dialog__close {
-        color: var(--text-dark) !important;
-      }
-    }
-  }
-  .el-dialog__headerbtn {
-    top: 15px;
-    right: 15px;
-  }
+  //  &:hover {
+  //    background-color: var(--btn-default);
 
-  .el-dialog__close {
-    font-weight: 800;
-    color: var(--text-grey-thirdly) !important;
-  }
+  //    .el-dialog__close {
+  //      color: var(--text-dark) !important;
+  //    }
+  //  }
+  //}
+  //.el-dialog__headerbtn {
+  //  top: 15px;
+  //  right: 15px;
+  //}
+
+  //.el-dialog__close {
+  //  font-weight: 800;
+  //  color: var(--text-grey-thirdly) !important;
+  //}
 }
 </style>

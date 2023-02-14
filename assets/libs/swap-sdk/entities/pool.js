@@ -41,7 +41,7 @@ class Pool {
      * @param tickCurrent The current tick of the pool
      * @param ticks The current state of the pool ticks or a data provider that can return tick data
      */
-    constructor(tokenA, tokenB, fee, sqrtRatioX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT) {
+    constructor(tokenA, tokenB, fee, sqrtRatioX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT, id) {
         (0, tiny_invariant_1.default)(Number.isInteger(fee) && fee < 1000000, "FEE");
         const tickCurrentSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent);
         const nextTickSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent + 1);
@@ -51,6 +51,7 @@ class Pool {
         [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
             ? [tokenA, tokenB]
             : [tokenB, tokenA];
+        this.id = id;
         this.fee = fee;
         this.sqrtRatioX64 = jsbi_1.default.BigInt(sqrtRatioX64);
         this.liquidity = jsbi_1.default.BigInt(liquidity);

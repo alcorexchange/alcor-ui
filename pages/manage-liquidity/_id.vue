@@ -1,5 +1,6 @@
 <template lang="pug">
-#manage-liquidity-id-page.d-flex.flex-column.gap-24
+h1 lol
+//#manage-liquidity-id-page.d-flex.flex-column.gap-24
   pre {{ profitLoss }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-16
@@ -97,7 +98,6 @@
 </template>
 
 <script>
-import { pools, fees } from '../swap2/pools'
 import ReturnLink from '~/components/ReturnLink'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -115,8 +115,6 @@ export default {
     AlcorChart
   },
   data: () => ({
-    pools,
-    fees,
     profitLoss: null,
     series: null,
     options: {

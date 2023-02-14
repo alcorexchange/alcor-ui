@@ -20,16 +20,12 @@
       el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search by token name')" clearable)
     el-checkbox(v-model='showClosed') {{ $t('show closed positions') }}
 
-  virtual-table.mt-2(:table="virtualTableData")
-    template(#row="{ item }")
-      pool-row(:pool="item")
+  pool-row(v-for="position of positions" :position="position")
 
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-// TODO mock pools
-import { pools } from './pools'
+import { mapActions, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import VirtualTable from '~/components/VirtualTable'
 import PoolRow from '~/components/PoolRow'
@@ -41,6 +37,8 @@ export default {
     showClosed: false
   }),
   computed: {
+    ...mapGetters('amm', ['positions']),
+
     virtualTableData() {
       const header = [
         {
@@ -65,12 +63,10 @@ export default {
         }
       ]
 
-      const data = pools
-
       const itemSize = 75
       const pageMode = true
 
-      return { pageMode, itemSize, header, data }
+      return { pageMode, itemSize, header, data: this.positions }
     }
   },
   methods: {

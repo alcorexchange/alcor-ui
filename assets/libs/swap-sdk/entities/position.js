@@ -39,6 +39,10 @@ class Position {
         this.tickUpper = tickUpper;
         this.liquidity = jsbi_1.default.BigInt(liquidity);
     }
+    // TODO Should be gte?
+    get inRange() {
+        return this.tickLower < this.pool.tickCurrent && this.pool.tickCurrent < this.tickUpper;
+    }
     /**
      * Returns the price of tokenA at the lower tick
      */

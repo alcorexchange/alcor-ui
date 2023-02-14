@@ -2,35 +2,84 @@ import JSBI from "jsbi"
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '../utils/eosjs'
-import { Token, Pool, Tick, CurrencyAmount } from '~/assets/libs/swap-sdk'
-
-function parseToken(token) {
-  return new Token(
-    token.contract,
-    asset(token.quantity).symbol.precision(),
-    asset(token.quantity).symbol.code().to_string(),
-    (asset(token.quantity).symbol.code().to_string() + '-' + token.contract).toLowerCase()
-  )
-}
-
+import { tryParsePrice, parseToken } from '../utils/amm'
+import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
+import { nameToUint64 } from '~/utils'
 
 export const state = () => ({
-  pools: []
+  pools: [],
+  positions: [],
+
+  selectedTokenA: null,
+  selectedTokenB: null
 })
 
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
-  setCoins: (state, coins) => state.coins = coins
+  setPositions: (state, positions) => state.positions = positions
 }
 
 export const actions = {
-  async init({ dispatch }) {
+  async init({ dispatch, rootState }) {
     await dispatch('fetchPairs')
-    //await dispatch('fetchCoins')
+    await dispatch('fetchPositions', rootState?.user?.name)
   },
 
-  async placePosition({ state, commit, rootState, dispatch }) {
+  async placePositions({ state, commit, rootState, dispatch }, owner) {
 
+  },
+
+  async fetchPositions({ state, commit, rootState, dispatch }, owner) {
+    if (!owner) return console.log('[fetchPositions] no user provided')
+
+    const positions = []
+
+    for (const { id } of state.pools) {
+      const [row] = await fetchAllRows(this.$rpc, {
+        code: rootState.network.amm.contract,
+        scope: id,
+        table: 'positions',
+        key_type: 'i64',
+        index_position: 3,
+        lower_bound: nameToUint64(owner),
+        upper_bound: nameToUint64(owner)
+      })
+
+      if (!row) continue
+
+      row.pool = id
+      positions.push(row)
+    }
+
+    commit('setPositions', positions)
+    console.log('positions', positions)
+  },
+
+  async test({ state, getters, commit, rootState, dispatch }) {
+    await dispatch('fetchPairs')
+    await dispatch('fetchPositions', rootState?.user?.name)
+
+    console.log('testsss', getters.positions)
+    //await dispatch('fetchPairs')
+    //console.log('2222')
+
+    const pool = getters.pools[0]
+    console.log('pool', pool.sqrtRatioX64.toString())
+
+    const r = pool.tokenAPrice.toFixed(20)
+    //const r = tryParsePrice(pool.tokenA, pool.tokenB, '1.0032').toFixed()
+    console.log('r', r)
+
+    //const pool = state.pools[0]
+    //
+    //const inAmountStr = asset('1.0432 B').amount.toString()
+    ////console.log(inAmount)
+
+    //console.log('pool.tokenA', pool.tokenA)
+    //const amountIn = new CurrencyAmount(pool.tokenA, inAmountStr)
+    //console.log('amountIn', amountIn.toFixed())
+
+    //console.log('pool', await pool.getOutputAmount(amountIn, 0))
   },
 
   async fetchPairs({ state, commit, rootState, dispatch }) {
@@ -40,8 +89,20 @@ export const actions = {
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
 
     for (const row of rows) {
-      const { id, tokenA, tokenB, fee, liquidity, currSlot: { sqrtPriceX64, tick } } = row
-      const ticks = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: id, table: 'ticks' })
+      row.ticks = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: row.id, table: 'ticks' })
+      pools.push(row)
+    }
+
+    commit('setPools', rows)
+  }
+}
+
+export const getters = {
+  pools(state, getters, rootState) {
+    const pools = []
+
+    for (const row of state.pools) {
+      const { id, ticks, tokenA, tokenB, fee, liquidity, currSlot: { sqrtPriceX64, tick } } = row
       const TICKS = ticks.map(t => new Tick({ index: t.id, ...t }))
       TICKS.sort((a, b) => a.index - b.index)
 
@@ -52,62 +113,26 @@ export const actions = {
         sqrtPriceX64,
         liquidity,
         tick,
-        TICKS
+        TICKS,
+        id
       ))
     }
 
-    console.log('pairs', pools)
-    commit('setPools', pools)
+    return pools
+  },
 
+  positions(state, getters, rootState) {
+    const positions = []
 
-    //global.pool = pool
-    //// pool.tokenAPrice.toFixed()
+    for (const { liquidity, upper, lower, pool } of state.positions) {
+      const poolInstance = getters.pools.find(p => p.id == pool)
+      positions.push(new Position({ pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
+    }
 
-    //const inAmountStr = asset('1.0432 B').amount.toString()
-    ////console.log(inAmount)
+    console.log('positions gg', positions)
+    return positions
+  },
 
-    //const amountIn = new CurrencyAmount(token_a, inAmountStr)
-    //console.log('amountIn', amountIn.toFixed())
-
-    //const [amountOut] = await pool.getInputAmount(amountIn)
-
-    //console.log('amountOut', amountOut.toFixed())
-    //console.log(pool.getOutputAmount())
-
-
-
-
-    //console.log(pool.tokenAPrice())
-
-    //console.log({ fee, liquidity, sqrtPriceX64, tick })
-
-    //const tokenA = parseToken(row.tokenA)
-    //const tokenB = parseToken(row.tokenB)
-
-    //const pool = new Pool(
-
-
-    //)
-
-    //tokenA: Token,
-    //tokenB: Token,
-    //fee: FeeAmount,
-    //sqrtRatioX64: BigintIsh,
-    //liquidity: BigintIsh,
-    //tickCurrent: number,
-    //ticks:
-    //  | TickDataProvider
-    //  | (Tick | TickConstructorArgs)[] = NO_TICK_DATA_PROVIDER_DEFAULT
-
-    //rows.map(r => {
-
-    //})
-
-    //dispatch('setPairs', rows)
-  }
-}
-
-export const getters = {
   depositCoins(state, getters, rootState) {
     return state.pairs.map(p => p.depositCoin)
   }
