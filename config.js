@@ -346,7 +346,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [156],
+    PINNED_MARKETS: [156, 726],
     BANNER_MARKETS: [156],
 
     SCAM_CONTRACTS: [
