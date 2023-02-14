@@ -1,8 +1,9 @@
 // TODO TS Support
 import JSBI from 'jsbi'
+import { parseUnits } from '@ethersproject/units'
 import { asset } from 'eos-common'
 
-import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS } from '~/assets/libs/swap-sdk'
+import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount } from '~/assets/libs/swap-sdk'
 
 export function parseToken(token) {
   return new Token(
@@ -11,6 +12,23 @@ export function parseToken(token) {
     asset(token.quantity).symbol.code().to_string(),
     (asset(token.quantity).symbol.code().to_string() + '-' + token.contract).toLowerCase()
   )
+}
+
+export function tryParseCurrencyAmount(value, currency) {
+  if (!value || !currency) {
+    return undefined
+  }
+
+  try {
+    const typedValueParsed = parseUnits(value, currency.decimals).toString()
+    if (typedValueParsed !== '0') {
+      return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
+    }
+  } catch (error) {
+    // fails if the user specifies too many decimal places of precision (or maybe exceed max uint?)
+    console.debug(`Failed to parse input amount: "${value}"`, error)
+  }
+  return undefined
 }
 
 export function tryParsePrice(baseToken, quoteToken, value) {

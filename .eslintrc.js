@@ -68,6 +68,7 @@ module.exports = {
     'no-multiple-empty-lines': 1,
     'spaced-comment': 1,
     'no-unused-vars': 1,
+    'new-cap': 0,
     'spaced-comment': 0,
     'padded-blocks': 1,
     'space-before-function-paren': 0,

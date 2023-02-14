@@ -2,7 +2,7 @@ import JSBI from "jsbi"
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '../utils/eosjs'
-import { tryParsePrice, parseToken } from '../utils/amm'
+import { tryParsePrice, tryParseCurrencyAmount, parseToken } from '~/utils/amm'
 import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
 
@@ -57,14 +57,29 @@ export const actions = {
 
   async test({ state, getters, commit, rootState, dispatch }) {
     await dispatch('fetchPairs')
-    await dispatch('fetchPositions', rootState?.user?.name)
+    //await dispatch('fetchPositions', rootState?.user?.name)
+
+    const pool = getters.pools[0]
+    console.log('a', pool.tokenA)
+
+    const independentAmount = tryParseCurrencyAmount('123', pool.tokenA)
+
+    const p = Position.fromAmountA({
+      pool,
+      tickLower: -900,
+      tickUpper: 900,
+
+      amountA: independentAmount.quotient,
+      useFullPrecision: true // we want full precision for the theoretical position
+    })
+
+    console.log('p', p.amountB.toFixed())
+
 
     //console.log('testsss', getters.positions)
     //await dispatch('fetchPairs')
     //console.log('2222')
 
-    const pool = getters.pools[1]
-    console.log('a', getters.pools)
     //console.log('pool', pool.sqrtRatioX64.toString())
 
     //const r = pool.tokenAPrice.toFixed(20)

@@ -7,15 +7,15 @@
     .d-flex.flex-column.gap-8.left
       .fs-14.disable Select Pair and deposit amounts
 
-      PoolTokenInput(v-model="amountA" :token="tokenA" :tokens="tokensA" @tokenSelected="setTokenA")
+      PoolTokenInput(:value="amountA" @input="onAmountAInput" :token="tokenA" :tokens="tokensA" @tokenSelected="setTokenA")
       .fs-14.disable Select Pair and deposit amounts
 
       PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
       .d-flex.justify-content-end Balance: 1,000 WAX
 
-      .fs-14.disable Select Price Range
+      .fs-14.disable Select Price Range {{ max }}
 
-      el-slider(v-model="value" range :marks="marks" :min="-100" :max="100").px-3.pr-4
+      el-slider(v-model="value" range :marks="marks" :min="-100" :max="100" @change="percentageChange").px-3.pr-4
 
       //.d-flex.gap-8.mt-3.justify-content-center
         .grey-border.d-flex.flex-column.gap-20.p-2.br-4
@@ -43,7 +43,12 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
+
+import { tryParsePrice, tryParseCurrencyAmount, parseToken } from '~/utils/amm'
+import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
+
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
+
 
 import AlcorButton from '~/components/AlcorButton'
 
@@ -57,8 +62,6 @@ export default {
 
       amountA: 0,
       amountB: 0,
-
-      max: 100,
 
       value: [-50, 50],
 
@@ -83,6 +86,11 @@ export default {
 
     tokensA() {
       return this.user?.balances || []
+    },
+
+    max() {
+      console.log('tokenAPriceLower()', this.pool)
+      return 'asdf'
     },
 
     pools() {
@@ -123,8 +131,90 @@ export default {
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
 
+    //CURRENCY_A
+    getDependedAmount(independentField, typedValue) {
+      const { pool } = this
+
+      const tickLower = -900
+      const tickUpper = 1800
+
+      const dependentField = independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
+      const currencies = { CURRENCY_A: this.pool.tokenA, CURRENCY_B: this.pool.tokenB }
+
+      const independentAmount = tryParseCurrencyAmount(typedValue, currencies[independentField])
+
+      let dependentAmount
+
+      if (
+        independentAmount &&
+        //typeof tickLower === 'number' && // TODO
+        //typeof tickUpper === 'number' && // TODO
+        pool
+      ) {
+        // if price is out of range or invalid range - return 0 (single deposit will be independent)
+
+        // TODO
+        //if (outOfRange || invalidRange) {
+        //  return undefined
+        //}
+
+
+        const position = independentAmount.currency.equals(this.pool.tokenA)
+          ? Position.fromAmountA({
+            pool,
+            tickLower,
+            tickUpper,
+            amountA: independentAmount.quotient,
+            useFullPrecision: true // we want full precision for the theoretical position
+          })
+          : Position.fromAmountB({
+            pool,
+            tickLower,
+            tickUpper,
+            amountB: independentAmount.quotient
+          })
+
+        dependentAmount = independentAmount.currency.equals(pool.tokenA)
+          ? position.amountB
+          : position.amountA
+      } else {
+        dependentAmount = undefined
+      }
+
+      return dependentAmount
+    },
+
+    onAmountAInput(value) {
+      if (!value) return
+      this.amountA = value
+
+      const amountB = this.getDependedAmount('CURRENCY_A', value)
+      console.log('amountB', amountB)
+
+      if (amountB) this.amountB = amountB.toSignificant(6)
+
+      //this.amountA = value
+
+      //const independentAmount = tryParseCurrencyAmount(value, this.pool.tokenA)
+
+      //const p = Position.fromAmountA({
+      //  pool: this.pool,
+      //  tickLower: -900,
+      //  tickUpper: 1800 * 4,
+
+      //  amountA: independentAmount.quotient,
+      //  useFullPrecision: true // we want full precision for the theoretical position
+      //})
+
+      //this.amountB = p.amountB.toSignificant(6)
+    },
+
     setTokenA(token) {
       this.tokenA = token
+    },
+
+    percentageChange() {
+      console.log(this.value)
     },
 
     setTokenB(token) {
