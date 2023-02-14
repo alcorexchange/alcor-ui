@@ -26,10 +26,12 @@ import AlcorModal from '~/components/AlcorModal.vue'
 
 // AMM
 import CreatePool from '~/components/modals/amm/CreatePool.vue'
+import Migration from '~/components/modals/amm/Migration.vue'
 
 export default {
   components: {
     CreatePool,
+    Migration,
     Login,
     Listing,
     Back,
