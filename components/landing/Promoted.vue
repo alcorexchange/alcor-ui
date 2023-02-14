@@ -3,7 +3,7 @@
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
-    el-carousel-item(v-for="promo in promoted" :key="promo.id")
+    el-carousel-item(v-for="promo in promos" :key="promo.id")
       promo(:promo="promo")
 
   spacer
@@ -17,10 +17,21 @@ import SectionTitle from '@/components/landing/SectionTitle'
 
 export default {
   components: { Spacer, Promo, SectionTitle },
+  data: () => ({
+    bannerOnly: [
+      {
+        bannerImg: "novopangea",
+        bannerUrl: "https://novopangea.io/token?utm_source=Alcor&utm_medium=Banner&utm_campaign=PreLaunch"
+      }
+    ]
+  }),
   computed: {
     ...mapGetters({
       promoted: 'promoted'
-    })
+    }),
+    promos() {
+      return [...this.promoted, ...this.bannerOnly].sort(() => Math.random() - 0.5)
+    }
   }
 }
 </script>

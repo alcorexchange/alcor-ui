@@ -1,5 +1,5 @@
 <template lang="pug">
-router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo.slug } }")
+component(:is="promo.bannerUrl ? 'a' : 'router-link'" :href="promo.bannerUrl" :target="promo.bannerUrl ? '_blank' : '_self'" :to="!promo.bannerUrl && { name: `trade-index-id___${$i18n.locale}`, params: { id: promo.slug } }")
   .promo
     .chart(v-if="series[0].data.length")
       .header
@@ -19,7 +19,7 @@ router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo
             .gray {{ $t('1D Volume') }}
             span {{ promo.volume24.toFixed(2).replace('.', ',') }}
           .data(:class="{ isRed: isVolRed, isZero: isVolZero }") ({{ liquidityPercent }} %)
-    .banner
+    .banner.pointer
       img(:src="bannerSrc")
       img(:src="bannerSrc").blur
 </template>
@@ -41,7 +41,7 @@ const COLORS = {
 
 export default {
   components: { AlcorChart, TokenImage },
-  props: ['promo'],
+  props: ['promo', 'bannerImg', 'bannerUrl'],
   data: () => ({
     series: [{ name: 'Price', data: [] }],
     liquidity: [],
@@ -110,7 +110,7 @@ export default {
     }
   }),
   computed: {
-    bannerSrc() { return require(`@/assets/promo/${this.promo.quote_token.contract}.png`) },
+    bannerSrc() { return require(`@/assets/promo/${this.promo.bannerImg || this.promo.quote_token.contract}.png`) },
     isRed() { return this.pricePercent <= 0 },
     isZero() { return this.pricePercent === 0 },
     isVolRed() { return this.liquidityPercent <= 0 },
