@@ -39,8 +39,6 @@
 
       alcor-button.w-100(@click="openPreviewLiqidityModal" access big) Preview
 
-      | {{ pool }}
-
 </template>
 
 <script>
@@ -75,26 +73,33 @@ export default {
   },
 
   watch: {
-    pool() {
-      //console.log('value changed pool', this.pools[0].getOutputAmount('123', 0))
+    value() {
+      console.log('value changed pool', this.pool, this.$store.getters['amm/pools'])
     }
   },
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('amm', ['pools']),
 
     tokensA() {
       return this.user?.balances || []
     },
 
+    pools() {
+      return this.$store.getters['amm/pools']
+    },
+
     pool() {
       if (!this.tokensA || !this.tokenB) return null
 
-      return this.pools.find(p => {
+      const p = this.pools.find(p => {
         return p.tokenA.name == this.tokenA.id.toLowerCase().replace('@', '-') &&
           p.tokenB.name == this.tokenB.id.toLowerCase().replace('@', '-')
       })
+
+      //console.log('ppp', p.tokenBPrice)
+
+      return p
     },
 
     marks() {
@@ -104,6 +109,7 @@ export default {
         0: {
           style: { color: '#fff' },
           label: this.$createElement('strong', this.pool ? this.pool.tokenBPrice.toFixed() : 'no price')
+          //label: this.$createElement('strong', this.pool?.asfd ? this.pool.tokenBPrice.toFixed() : 'no price')
         }
       }
     }

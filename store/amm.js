@@ -59,16 +59,17 @@ export const actions = {
     await dispatch('fetchPairs')
     await dispatch('fetchPositions', rootState?.user?.name)
 
-    console.log('testsss', getters.positions)
+    //console.log('testsss', getters.positions)
     //await dispatch('fetchPairs')
     //console.log('2222')
 
-    const pool = getters.pools[0]
-    console.log('pool', pool.sqrtRatioX64.toString())
+    const pool = getters.pools[1]
+    console.log('a', getters.pools)
+    //console.log('pool', pool.sqrtRatioX64.toString())
 
-    const r = pool.tokenAPrice.toFixed(20)
-    //const r = tryParsePrice(pool.tokenA, pool.tokenB, '1.0032').toFixed()
-    console.log('r', r)
+    //const r = pool.tokenAPrice.toFixed(20)
+    ////const r = tryParsePrice(pool.tokenA, pool.tokenB, '1.0032').toFixed()
+    //console.log('r', r)
 
     //const pool = state.pools[0]
     //
@@ -126,14 +127,10 @@ export const getters = {
 
     for (const { liquidity, upper, lower, pool } of state.positions) {
       const poolInstance = getters.pools.find(p => p.id == pool)
+
       positions.push(new Position({ pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
     }
 
-    console.log('positions gg', positions)
     return positions
-  },
-
-  depositCoins(state, getters, rootState) {
-    return state.pairs.map(p => p.depositCoin)
   }
 }

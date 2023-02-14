@@ -20,6 +20,11 @@
       el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search by token name')" clearable)
     el-checkbox(v-model='showClosed') {{ $t('show closed positions') }}
 
+  // TODO Ломает функции объектов
+  //virtual-table.mt-2(:table="virtualTableData")
+    template(#row="{ item }")
+      //pool-row(:position="item")
+
   pool-row(v-for="position of positions" :position="position")
 
 </template>
@@ -66,7 +71,17 @@ export default {
       const itemSize = 75
       const pageMode = true
 
-      return { pageMode, itemSize, header, data: this.positions }
+      let i = 0
+      return {
+        pageMode,
+        itemSize,
+        header,
+        data: this.positions.map(p => {
+          p.id = i
+          i++
+          return p
+        })
+      }
     }
   },
   methods: {
