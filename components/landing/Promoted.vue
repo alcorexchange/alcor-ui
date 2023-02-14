@@ -5,6 +5,11 @@
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
     el-carousel-item(v-for="promo in promoted" :key="promo.id")
       promo(:promo="promo")
+    el-carousel-item(key="novopangea")
+      promo(
+        bannerImg="novopangea"
+        bannerUrl="https://novopangea.io/token?utm_source=Alcor&utm_medium=Banner&utm_campaign=PreLaunch"
+      )
 
   spacer
 </template>
