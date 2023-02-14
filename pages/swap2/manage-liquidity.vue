@@ -9,7 +9,7 @@
       alcor-button
         i.el-icon-data-line
         span Stats
-      alcor-button(orange)
+      alcor-button(orange @click="openMigrationModal")
         i.el-icon-arrow-right
         span Migrate
       alcor-button(access @click="openAddLiqidityModal")
@@ -85,9 +85,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('modal', ['addLiquidity']),
+    ...mapActions('modal', ['addLiquidity', 'migration']),
     openAddLiqidityModal() {
       this.addLiquidity()
+    },
+    openMigrationModal() {
+      this.migration()
     }
   }
 }
