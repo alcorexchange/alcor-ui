@@ -8,6 +8,9 @@
 import SwapWidget from '~/components/amm/SwapWidget.vue'
 
 export default {
-  components: { SwapWidget }
+  components: { SwapWidget },
+  mounted() {
+    this.$router.push('swap2/swap-tokens')
+  }
 }
 </script>
