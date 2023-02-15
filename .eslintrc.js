@@ -16,6 +16,7 @@ module.exports = {
     'plugin:import/recommended',
     'plugin:vue/essential',
     '@vue/standard',
+    'plugin:nuxt/recommended',
     '@nuxtjs'
   ],
 
