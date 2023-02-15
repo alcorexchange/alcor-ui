@@ -118,15 +118,15 @@ export default {
 
 <style lang="scss">
 .pool-form {
-  width: min-content;
   height: 500px;
+  width: 370px;
 
   .swap-tabs {
     gap: 0px;
     background: var(--btn-alternative);
     padding: 8px;
     border-radius: 4px;
-    width: 370px;
+    width: 340px;
 
     .alcor-tab-link {
       width: 50%;

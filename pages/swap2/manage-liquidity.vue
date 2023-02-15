@@ -1,8 +1,8 @@
 <template lang="pug">
 #manage-liquidity.w-100
-  .d-flex.justify-content-between
-    h3.fs-28 LP Positions
-    .d-flex.gap-16
+  .d-flex.flex-column.flex-xl-row.justify-content-between
+    h3.fs-28.text-center.text-md-left LP Positions
+    .d-flex.gap-16.flex-wrap.justify-content-center.justify-content-md-start
       alcor-button
         i.el-icon-info
         span Info
@@ -15,8 +15,8 @@
       alcor-button(access @click="openAddLiqidityModal")
         i.el-icon-circle-plus-outline
         span New Position
-  .d-flex.justify-content-between.align-items-center.mt-2
-    .w-33
+  .d-flex.justify-content-between.align-items-center.mt-2.gap-8
+    .w-50
       el-input(v-model='search' prefix-icon="el-icon-search" :placeholder="$t('Search by token name')" clearable)
     el-checkbox(v-model='showClosed') {{ $t('show closed positions') }}
 
