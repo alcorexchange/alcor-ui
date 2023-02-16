@@ -10,6 +10,11 @@
         template(slot="append")
           select-token(:tokens="tokens" @selected="setToken")
 
+    hr
+    h3 RangeSelector
+    hr
+    RangeSelector
+
 </template>
 
 <script>
@@ -18,10 +23,11 @@ import { mapState, mapActions } from 'vuex'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import AlcorContainer from '~/components/AlcorContainer'
 import TokenImage from '~/components/elements/TokenImage'
+import RangeSelector from '~/components/amm/RangeSelector.vue'
 
 export default {
   layout: 'test',
-  components: { AlcorContainer, TokenImage, SelectToken },
+  components: { AlcorContainer, TokenImage, SelectToken, RangeSelector },
 
   data: () => {
     return {

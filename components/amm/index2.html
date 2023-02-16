@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script data-require="d3@3.5.3" data-semver="3.5.3" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>
+  <style>
+    .charts {
+      padding: 10px 0;
+    }
+    
+    .chart {
+      padding-left: 20px;
+      padding-top: 10px;
+    }
+    
+    .axis text {
+      font: 10px sans-serif;
+      fill: black;
+    }
+    
+    .chart text {
+      font: 10px sans-serif;
+      fill: black;
+    }
+    
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+    /*dont display yAxis for categorical variable*/
+    
+    #chart .y.axis g {
+      display: none;
+    }
+    /*Labels in categorical chart */
+    
+    text#catTitle.catTitle {
+      font: 10px sans-serif;
+      fill: white;
+    }
+    /*Color for the brush */
+    
+    .brush rect.extent {
+      fill: steelblue;
+      fill-opacity: .125;
+    }
+    /*Color for the brush resize path*/
+    
+    .brush .resize path {
+      fill: #eee;
+      stroke: #666;
+    }
+    /*Color for the hidden object*/
+    
+    .hidden {
+      fill: grey;
+    }
+    
+    .bar {
+      fill: steelblue;
+    }
+  </style>
+</head>
+
+<body>
+
+  <svg class="chart" id="chart"></svg>
+
+  <script>
+    var data2 = {
+    "series": [
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 3.3781585784009926e+48
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 100109900623623660
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 10038057114979594
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 100541477.78594248
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 1995243.98992564
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 990843.51947979
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 200063.8598623
+        },
+        {
+            "activeLiquidity": 1876797635512124,
+            "price0": 142401.93875833
+        },
+        {
+            "activeLiquidity": 1878510845039188,
+            "price0": 109800.66800537
+        },
+        {
+            "activeLiquidity": 1878510845039188,
+            "price0": 62720.89282467
+        },
+        {
+            "activeLiquidity": 1878510845039188,
+            "price0": 56752.49446323
+        },
+        {
+            "activeLiquidity": 2863089328959275,
+            "price0": 50335.24916457
+        },
+        {
+            "activeLiquidity": 2863089328959275,
+            "price0": 44643.62901442
+        },
+        {
+            "activeLiquidity": 4526904374751788,
+            "price0": 43759.66968827
+        },
+        {
+            "activeLiquidity": 6174028787854217,
+            "price0": 42043.91257942
+        },
+        {
+            "activeLiquidity": 25652917006394480,
+            "price0": 41211.42853963
+        },
+        {
+            "activeLiquidity": 29220416595242184,
+            "price0": 40395.42797234
+        },
+        {
+            "activeLiquidity": 29232625278729000,
+            "price0": 39595.58449907
+        },
+        {
+            "activeLiquidity": 44382347492521304,
+            "price0": 38811.57820376
+        },
+        {
+            "activeLiquidity": 76376287358287200,
+            "price0": 37289.82902962
+        },
+        {
+            "activeLiquidity": 76376287358287200,
+            "price0": 36551.47749169
+        },
+        {
+            "activeLiquidity": 105563246665538780,
+            "price0": 35827.7455701
+        },
+        {
+            "activeLiquidity": 105573505609765980,
+            "price0": 35118.34379137
+        },
+        {
+            "activeLiquidity": 105573505609765980,
+            "price0": 33741.4013135
+        },
+        {
+            "activeLiquidity": 179677002245483700,
+            "price0": 33073.3098741
+        },
+        {
+            "activeLiquidity": 256082465655189020,
+            "price0": 32418.44687672
+        },
+        {
+            "activeLiquidity": 256416441266293250,
+            "price0": 31776.55039364
+        },
+        {
+            "activeLiquidity": 256416441266293250,
+            "price0": 31147.36368339
+        },
+        {
+            "activeLiquidity": 256416441266293250,
+            "price0": 30530.63508804
+        },
+        {
+            "activeLiquidity": 256416441266293250,
+            "price0": 29926.11793262
+        },
+        {
+            "activeLiquidity": 256416441266293250,
+            "price0": 29333.57042638
+        },
+        {
+            "activeLiquidity": 262578180271896860,
+            "price0": 28752.75556611
+        },
+        {
+            "activeLiquidity": 291986623878386370,
+            "price0": 28183.44104136
+        },
+        {
+            "activeLiquidity": 292065383562390140,
+            "price0": 27625.39914151
+        },
+        {
+            "activeLiquidity": 292065383562390140,
+            "price0": 27078.40666466
+        },
+        {
+            "activeLiquidity": 292065383562390140,
+            "price0": 26542.24482842
+        },
+        {
+            "activeLiquidity": 404494101898564500,
+            "price0": 26016.69918236
+        },
+        {
+            "activeLiquidity": 405157162108889500,
+            "price0": 25501.55952221
+        },
+        {
+            "activeLiquidity": 649442221431942000,
+            "price0": 24996.61980587
+        },
+        {
+            "activeLiquidity": 662012941396534400,
+            "price0": 24501.6780709
+        },
+        {
+            "activeLiquidity": 662012941396534400,
+            "price0": 24016.53635381
+        },
+        {
+            "activeLiquidity": 662049960080359200,
+            "price0": 23541.00061084
+        },
+        {
+            "activeLiquidity": 672076354069045900,
+            "price0": 23074.88064039
+        },
+        {
+            "activeLiquidity": 679397358069926800,
+            "price0": 22617.9900069
+        },
+        {
+            "activeLiquidity": 723290930380262000,
+            "price0": 22170.14596628
+        },
+        {
+            "activeLiquidity": 2088164735335400200,
+            "price0": 21731.16939288
+        },
+        {
+            "activeLiquidity": 2150881349334867700,
+            "price0": 21300.88470776
+        },
+        {
+            "activeLiquidity": 2158830570767050500,
+            "price0": 20879.11980852
+        },
+        {
+            "activeLiquidity": 2164389847235285000,
+            "price0": 20465.70600046
+        },
+        {
+            "activeLiquidity": 2157123988548295700,
+            "price0": 20060.47792906
+        },
+        {
+            "activeLiquidity": 2157850235984806400,
+            "price0": 19663.27351392
+        },
+        {
+            "activeLiquidity": 2096429262106047000,
+            "price0": 19273.93388385
+        },
+        {
+            "activeLiquidity": 943684384953494700,
+            "price0": 18892.30331339
+        },
+        {
+            "activeLiquidity": 755801085740647400,
+            "price0": 18518.22916048
+        },
+        {
+            "activeLiquidity": 734858602217430800,
+            "price0": 18151.56180543
+        },
+        {
+            "activeLiquidity": 734858602217430800,
+            "price0": 17792.15459109
+        },
+        {
+            "activeLiquidity": 680891384999690000,
+            "price0": 17439.86376415
+        },
+        {
+            "activeLiquidity": 682410932706969500,
+            "price0": 17094.54841767
+        },
+        {
+            "activeLiquidity": 682410932706969500,
+            "price0": 16756.07043472
+        },
+        {
+            "activeLiquidity": 682589055582223900,
+            "price0": 16424.29443314
+        },
+        {
+            "activeLiquidity": 697172831502094300,
+            "price0": 16099.08771137
+        },
+        {
+            "activeLiquidity": 697172831502094300,
+            "price0": 15780.3201954
+        },
+        {
+            "activeLiquidity": 697172831502094300,
+            "price0": 15467.86438671
+        },
+        {
+            "activeLiquidity": 593573009239008100,
+            "price0": 15161.59531132
+        },
+        {
+            "activeLiquidity": 349287949915955600,
+            "price0": 14861.39046976
+        },
+        {
+            "activeLiquidity": 346896921763586300,
+            "price0": 14567.1297881
+        },
+        {
+            "activeLiquidity": 359574799842748600,
+            "price0": 14278.69556992
+        },
+        {
+            "activeLiquidity": 355442385609922700,
+            "price0": 13995.97244922
+        },
+        {
+            "activeLiquidity": 355442385609922700,
+            "price0": 13718.84734429
+        },
+        {
+            "activeLiquidity": 342089708328413250,
+            "price0": 13447.20941248
+        },
+        {
+            "activeLiquidity": 342089708328413250,
+            "price0": 13180.95000585
+        },
+        {
+            "activeLiquidity": 342204711137479700,
+            "price0": 12919.96262776
+        },
+        {
+            "activeLiquidity": 342204711137479700,
+            "price0": 12664.14289019
+        },
+        {
+            "activeLiquidity": 342204711137479700,
+            "price0": 12413.38847209
+        },
+        {
+            "activeLiquidity": 342202997927952600,
+            "price0": 12167.59907836
+        },
+        {
+            "activeLiquidity": 341911043172197000,
+            "price0": 11926.67639982
+        },
+        {
+            "activeLiquidity": 312502599565707460,
+            "price0": 11690.5240738
+        },
+        {
+            "activeLiquidity": 312168623954603260,
+            "price0": 11459.04764567
+        },
+        {
+            "activeLiquidity": 312168623954603260,
+            "price0": 11232.15453105
+        },
+        {
+            "activeLiquidity": 312168623954603260,
+            "price0": 11009.75397873
+        },
+        {
+            "activeLiquidity": 312168623954603260,
+            "price0": 10791.75703441
+        },
+        {
+            "activeLiquidity": 311271362820166000,
+            "price0": 10578.07650515
+        },
+        {
+            "activeLiquidity": 234022289412417630,
+            "price0": 10368.62692441
+        },
+        {
+            "activeLiquidity": 212322911456453120,
+            "price0": 10163.32451796
+        },
+        {
+            "activeLiquidity": 212231040590306750,
+            "price0": 9962.08717031
+        },
+        {
+            "activeLiquidity": 198308832207139360,
+            "price0": 9764.83439188
+        },
+        {
+            "activeLiquidity": 198308832207139360,
+            "price0": 9571.48728683
+        },
+        {
+            "activeLiquidity": 196926118021180350,
+            "price0": 9381.96852146
+        },
+        {
+            "activeLiquidity": 210718031205797660,
+            "price0": 9196.20229333
+        },
+        {
+            "activeLiquidity": 210718031205797660,
+            "price0": 9014.11430089
+        },
+        {
+            "activeLiquidity": 181520812954318850,
+            "price0": 8835.63171381
+        },
+        {
+            "activeLiquidity": 181520812954318850,
+            "price0": 8660.6831438
+        },
+        {
+            "activeLiquidity": 183126446334128030,
+            "price0": 8489.19861611
+        },
+        {
+            "activeLiquidity": 182141867850207940,
+            "price0": 8321.1095415
+        },
+        {
+            "activeLiquidity": 183390372457266370,
+            "price0": 8156.34868882
+        },
+        {
+            "activeLiquidity": 183390372457266370,
+            "price0": 7994.85015812
+        },
+        {
+            "activeLiquidity": 183390372457266370,
+            "price0": 7836.5493543
+        },
+        {
+            "activeLiquidity": 174097318472626430,
+            "price0": 7681.38296126
+        },
+        {
+            "activeLiquidity": 174042173158734820,
+            "price0": 7529.28891657
+        },
+        {
+            "activeLiquidity": 173434609091402780,
+            "price0": 7380.20638667
+        },
+        {
+            "activeLiquidity": 173434609091402780,
+            "price0": 7234.07574254
+        },
+        {
+            "activeLiquidity": 172669833003614000,
+            "price0": 7090.8385358
+        },
+        {
+            "activeLiquidity": 172669833003614000,
+            "price0": 6950.43747539
+        },
+        {
+            "activeLiquidity": 172669833003614000,
+            "price0": 6812.81640464
+        },
+        {
+            "activeLiquidity": 172669833003614000,
+            "price0": 6677.92027878
+        },
+        {
+            "activeLiquidity": 172669833003614000,
+            "price0": 6545.69514297
+        },
+        {
+            "activeLiquidity": 171150285296334530,
+            "price0": 6416.08811066
+        },
+        {
+            "activeLiquidity": 170904591892826270,
+            "price0": 6289.04734252
+        },
+        {
+            "activeLiquidity": 170904591892826270,
+            "price0": 6164.52202561
+        },
+        {
+            "activeLiquidity": 170372222276943140,
+            "price0": 6042.46235313
+        },
+        {
+            "activeLiquidity": 170335203593118370,
+            "price0": 5922.81950446
+        },
+        {
+            "activeLiquidity": 170335203593118370,
+            "price0": 5805.54562566
+        },
+        {
+            "activeLiquidity": 170335203593118370,
+            "price0": 5690.59381031
+        },
+        {
+            "activeLiquidity": 170335203593118370,
+            "price0": 5577.91808074
+        },
+        {
+            "activeLiquidity": 170324246322442180,
+            "price0": 5467.47336966
+        },
+        {
+            "activeLiquidity": 170324246322442180,
+            "price0": 5359.21550213
+        },
+        {
+            "activeLiquidity": 170290384853400060,
+            "price0": 5253.1011779
+        },
+        {
+            "activeLiquidity": 170290384853400060,
+            "price0": 5047.13422812
+        },
+        {
+            "activeLiquidity": 93884921443694720,
+            "price0": 4947.19922127
+        },
+        {
+            "activeLiquidity": 93884921443694720,
+            "price0": 4849.24296219
+        },
+        {
+            "activeLiquidity": 93884921443694720,
+            "price0": 4753.22627098
+        },
+        {
+            "activeLiquidity": 93884921443694720,
+            "price0": 4659.11074354
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4566.85873616
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4476.4333505
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4387.79841881
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4300.91848948
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4215.75881287
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4132.28532736
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 4050.4646458
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 3970.26404208
+        },
+        {
+            "activeLiquidity": 92279288063885550,
+            "price0": 3891.65143812
+        },
+        {
+            "activeLiquidity": 92137764532367100,
+            "price0": 3814.59539096
+        },
+        {
+            "activeLiquidity": 92137764532367100,
+            "price0": 3739.06508023
+        },
+        {
+            "activeLiquidity": 92137764532367100,
+            "price0": 3665.03029583
+        },
+        {
+            "activeLiquidity": 73900609984970220,
+            "price0": 3592.46142583
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3521.32944459
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3383.26290821
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3316.27313012
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3186.24657283
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3123.15778646
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3061.31817993
+        },
+        {
+            "activeLiquidity": 71871285212192580,
+            "price0": 3000.70301904
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2941.28805934
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2883.04953644
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2825.96415647
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2770.0090868
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2715.16194691
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2661.4007994
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2608.70414124
+        },
+        {
+            "activeLiquidity": 71693162336938200,
+            "price0": 2408.14706759
+        },
+        {
+            "activeLiquidity": 70444657729879780,
+            "price0": 2313.72689761
+        },
+        {
+            "activeLiquidity": 3508521513402391,
+            "price0": 2267.91430319
+        },
+        {
+            "activeLiquidity": 3508521513402391,
+            "price0": 1932.60454712
+        },
+        {
+            "activeLiquidity": 2552506639949019,
+            "price0": 1820.06387974
+        },
+        {
+            "activeLiquidity": 2552506639949019,
+            "price0": 1403.38138336
+        },
+        {
+            "activeLiquidity": 2552506639949019,
+            "price0": 1295.48947679
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 1103.95214231
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 998.90220025
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 10.04311034
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 0.98708695
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 0.00099512
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 0.00009978
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 0.000001
+        },
+        {
+            "activeLiquidity": 1826259203438280,
+            "price0": 0
+        }
+    ],
+    "current": 20880.464
+}
+
+    fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3', { 
+      method: 'POST',
+      body: JSON.stringify({
+        operationName: "AllV3Ticks",
+        query: "query AllV3Ticks($poolAddress: String!, $skip: Int!) {ticks(first: 1000 skip: $skip where: {poolAddress: $poolAddress} orderBy: tickIdx  ) {tick: tickIdx  activeLiquidity price0 price1  __typename }}",
+        variables : {poolAddress: "0x4e68ccd3e89f51c3074ca5072bbac773960dfa36", skip: 0},
+        poolAddress : "0x87b1d1b59725209879cc5c5adeb99d8bc9eccf12",
+        skip: 0
+      })
+    })
+      .then(result => result.json())
+      .then(main)
+
+
+
+
+    function main(data) {
+
+
+      //data = data.data.ticks
+      //data = data.slice(300, 310)
+      data = data2.series
+
+      //data.map(d => {
+      //  console.log(d)
+      //  d.activeLiquidity = Math.min(parseInt(d.activeLiquidity), 0)
+      //  d.price0 = parseInt(d.price0)
+      //})
+      //console.log(data)
+
+      sdata = [{
+        price0: 10,
+        activeLiquidity: 29
+      }, {
+        price0: 20,
+        activeLiquidity: 41
+      }, {
+        price0: 30,
+        activeLiquidity: 41
+      }, 
+      ];
+
+
+
+      var margin = {
+        top: 10,
+        right: 41,
+        bottom: 42,
+        left: 10
+      };
+
+      var width = 400 - margin.left - margin.right,
+        height = 250 - margin.top - margin.bottom;
+
+      data = data.reverse().slice(0, 150)
+
+      //var step = parseInt(data[2].price0 - data[1].price0)
+      var step = width / data.length
+      console.log('step', step)
+
+      var y = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) {
+          return d.activeLiquidity
+        })])
+        .range([height, 0]);
+
+      var x = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) {
+          return d.price0;
+        }) + 1])
+        .rangeRound([0, width]);
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+      var chart = d3.select(".chart#chart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .style("margin-left", 15 + "px");
+
+      chart.append("defs")
+        .append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", width)
+        .attr("height", height);
+
+      var brush = d3.svg.brush()
+        .x(x)
+        .on("brush", brushed)
+        .on("brushend", brushend);
+
+      function brushend() {
+        if (brush.empty()){
+          chart.select("#clip>rect")
+            .attr("x", 0)
+            .attr("width", width);
+        }
+      }
+
+      function brushed() {
+        var e = brush.extent();
+        console.log('brushed', e)
+        chart.select("#clip>rect")
+          .attr("x", x(e[0]))
+          .attr("width", x(e[1]) - x(e[0]));
+      }
+
+      var lastHeigth = 0
+
+      chart.selectAll(".hidden")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "hidden")
+        .attr("x", function(d) {
+          return x(d.price0);
+        })
+        .attr("y", function(d) {
+          return y(d.activeLiquidity);
+        })
+        .attr("height", function(d) {
+          return height - y(d.activeLiquidity);
+        })
+        .attr("width", function(d) {
+          return step
+        })
+        .style("stroke", "white")
+        .append("title")
+        .text(function(d) {
+          return d.price0;
+        });
+
+      //chart.selectAll(".bar")
+      //  .data(data)
+      //  .enter().append("rect")
+      //  .attr("clip-path", "url(#clip)")
+      //  .attr("class", "bar")
+      //  .attr("x", function(d) {
+      //    return x(d.price0);
+      //  })
+      //  .attr("y", function(d) {
+      //    return y(d.activeLiquidity);
+      //  })
+      //  .attr("height", function(d) {
+      //    return height - y(d.activeLiquidity);
+      //  })
+      //  .attr("width", function(d) {
+      //    return step
+      //  })
+      //  .style("stroke", "white")
+      //  .append("title")
+      //  .text(function(d) {
+      //    return d.price0;
+      //  });
+
+      chart.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+      chart.append("text") //Add chart title
+        .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .text("Petal Length");
+
+      chart.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+      chart.append("g")
+        .attr("class", "x brush")
+        .call(brush) //call the brush function, causing it to create the rectangles
+        .call(brush.extent([15000, 20000]))
+        .selectAll("rect") //select all the just-created rectangles
+        .attr("y", -6)
+        .attr("height", (height + margin.top)) //set their height
+
+      brushed()
+
+      function resizePath(d) {
+        var e = +(d == "e"),
+          x = e ? 1 : -1,
+          y = height / 3;
+        return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
+      }
+
+      chart.selectAll(".resize").append("path").attr("d", resizePath);
+    }
+    
+  </script>
+</body>
+
+</html>
