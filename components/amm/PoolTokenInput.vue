@@ -37,12 +37,13 @@ export default {
     align-items: center;
 
     padding: 5px 9px;
-    border: 1px solid;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
 
     &:hover {
-      border-color: white;
+      border-color: var(--text-contrast);
+      color: var(--text-contrast)
     }
   }
 
@@ -50,7 +51,10 @@ export default {
     height: 50px;
   }
 
-  .el-input-group__append {
+  .el-input-group__append,
+  .el-input__inner {
+    border-color: var(--selector-bg);
+    background: var(--selector-bg);
     //display: flex;
   }
 

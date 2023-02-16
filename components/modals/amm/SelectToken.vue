@@ -28,7 +28,7 @@
             .fs-14 {{ label }}
           .fs-14(v-else) {{ label }}
 
-      .body.mt-2
+      .body.mt-2.p-3
         el-input(prefix-icon="el-icon-search" v-model='search', size='small', placeholder='Search')
         hr
         .d-flex.flex-column.gap-21
@@ -38,7 +38,9 @@
           )
             TokenImage(:src="$tokenLogo(currency, contract)" height="20")
 
-            span {{ currency }} ({{ contract }})
+            .d-flex.gap-4.align-items-center
+              .fs-14.contrast {{ currency }}
+              .fs-10.disable ({{ contract }})
 
         hr.separator
         .text-center.color-green.pointer Request new token
@@ -84,6 +86,17 @@ export default {
   .el-dialog {
     width: 400px;
     max-width: 400px;
+  }
+  .el-dialog__body {
+    padding: 0px;
+  }
+  .body .el-input .el-input__inner {
+    background: var(--select-color);
+    border-radius: 4px;
+  }
+
+  hr {
+    background: var(--border-color);
   }
 
   .select-token-button {

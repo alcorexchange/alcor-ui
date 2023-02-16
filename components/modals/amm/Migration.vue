@@ -7,19 +7,19 @@
     .fs-18.disable Select Pools
     alcor-button(compact) Select all
 
-  el-table.migration-table.mt-3(:data="tableData" style="width: 504px")
-    el-table-column(label="Select" width="70")
+  el-table.migration-table.mt-3(:data="tableData" :style="isMobile ? 'width: 320px': 'width: 504px'")
+    el-table-column(label="Select" :width="isMobile ? '50' : '70'")
       template(slot-scope="{ row }")
         .d-flex.justify-content-center
           el-checkbox(v-model='row.selected')
 
-    el-table-column(label="Pool" width="250")
+    el-table-column(label="Pool" :width="isMobile ? '100' : '250'")
       template(slot-scope="{ row }")
         .d-flex.gap-8
-          pair-icons(:token1="row.input" :token2="row.output")
+          pair-icons(v-if="!isMobile" :token1="row.input" :token2="row.output")
           .d-flex.flex-column.gap-4
-            .fs-20.contrast {{ row.input.symbol }} / {{ row.output.symbol }}
-            .fs-14 alcor.dex
+            .fs-10.md-fs-20.contrast {{ row.input.symbol }} / {{ row.output.symbol }}
+            .fs-10.md-fs-14 alcor.dex
     el-table-column(label="Liquidity")
       template(slot-scope="{ row }")
         .d-flex.flex-column.gap-8
@@ -72,6 +72,13 @@ export default {
   &.el-table tr,
   &.el-table th {
     background: var(--btn-active);
+
+    .cell {
+      font-size: 10px;
+      @media (min-width: 1280px) {
+        font-size: 12px;
+      }
+    }
   }
 }
 </style>

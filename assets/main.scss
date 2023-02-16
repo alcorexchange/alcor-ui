@@ -92,10 +92,6 @@ label {
     max-width: 100%;
   }
 
-  .el-dialog {
-    width: 90% !important;
-  }
-
   .el-menu-item {
     padding: 0 20px 0 8px;
   }
@@ -934,6 +930,16 @@ a {
 .fs-12 {
   font-size: 12px;
 }
+.md-fs-14 {
+  @media (min-width: 768px) {
+    font-size: 14px !important;
+  }
+}
+.md-fs-20 {
+  @media (min-width: 768px) {
+    font-size: 20px !important;
+  }
+}
 
 .lh-12 {
   line-height: 12px;
@@ -965,6 +971,9 @@ a {
 
 .br-4 {
   border-radius: 4px;
+}
+.br-8 {
+  border-radius: 8px;
 }
 
 .gap-8 {

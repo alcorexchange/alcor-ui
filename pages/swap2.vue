@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.gap-32.w-100.mt-3
+.d-flex.align-items-center.align-items-lg-start.flex-column.flex-lg-row.gap-32.w-100.mt-3
   swap-widget
   nuxt-child
 </template>
