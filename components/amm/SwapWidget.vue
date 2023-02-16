@@ -1,6 +1,8 @@
 <template lang="pug">
 alcor-container.pool-form.d-flex.flex-column.gap-32
-  alcor-tabs.swap-tabs.mt-2(:links="true" :tabs="tabs")
+  .d-flex.justify-content-between.align-items-center
+    alcor-tabs.swap-tabs(:links="true" :tabs="tabs")
+    i.el-icon-setting.fs-24.pointer
 
   .d-flex.flex-column.gap-10
     .d-flex.flex-column.gap-8
@@ -14,7 +16,8 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 
       PoolTokenInput(:token="tokenA" :tokens="tokensA" v-model="amountA" @tokenSelected="setTokenA")
 
-    i.el-icon-bottom.pointer.text-center.fs-24
+    .d-flex.align-items-center.justify-content-center.mt-2
+      i.el-icon-bottom.text-center.fs-20.bottom-icon
 
     .d-flex.flex-column.gap-8
       .d-flex.flex-row.justify-content-between.align-items-center
@@ -26,7 +29,25 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 
       PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
 
-  alcor-button.w-100(big access disabled) Swap
+  alcor-button.w-100(big disabled) Swap {{ tokenA && tokenB ? tokenA.currency : '' }} to {{ tokenA && tokenB ? tokenB.currency : '' }}
+
+  .grey-border.d-flex.flex-column.gap-4.p-3.br-8
+    .d-flex.justify-content-between
+      .fs-12 Minimum Received
+      .fs-12 79.01222
+    .d-flex.justify-content-between
+      .fs-12 Rate
+      .fs-12 3.6198 BRWL per WAX
+    .d-flex.justify-content-between
+      .fs-12 Price Impact
+      .fs-12.green 0%
+    .d-flex.justify-content-between
+      .fs-12 Slippage
+      .fs-12 0.1%
+    .d-flex.justify-content-between
+      .fs-12 Liquidity Source Fee
+      .fs-12 0.3%
+
 </template>
 
 <script>
@@ -71,7 +92,11 @@ export default {
         route: { path: '/swap2/swap-tokens' }
       },
       {
-        label: 'Manage Liquidity',
+        label: 'Transfer',
+        route: { path: '/swap2/transfer' }
+      },
+      {
+        label: 'Liquidity',
         route: { path: '/swap2/manage-liquidity' }
       }
     ]
@@ -118,24 +143,28 @@ export default {
 
 <style lang="scss">
 .pool-form {
-  height: 500px;
+  max-width: 586px;
   width: 370px;
 
+  .bottom-icon {
+    background: var(--btn-default);
+    border-radius: 50%;
+    padding: 6px;
+  }
+
   .swap-tabs {
-    gap: 0px;
-    background: var(--btn-alternative);
+    gap: 16px;
     padding: 8px;
     border-radius: 4px;
     width: 340px;
 
     .alcor-tab-link {
-      width: 50%;
       text-align: center;
       border: none;
       border-radius: 4px;
 
       & .inner {
-        padding: 6px;
+        padding: 6px 16px;
       }
 
       &::after {
