@@ -29,7 +29,7 @@
 
       .fs-14.disable.mt-2 Select Fee
 
-      .d-flex.gap-16
+      .d-flex.gap-16.flex-wrap.justify-content-center
         .fee.d-flex.flex-column.gap-16(v-for="({ value, desc, selectedPercent }, idx) in fees" @click="selectedFee = idx" :class="{ active: selectedFee == idx }")
           .fs-24 {{ value }}
           .fs-14.disable {{ desc }}
@@ -249,7 +249,7 @@ export default {
 <style lang="scss">
 .add-liquidity-component {
   .left {
-    width: 587px;
+    width: 100%;
   }
 
   .el-slider__marks-text:last-child {

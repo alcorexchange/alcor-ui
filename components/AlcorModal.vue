@@ -24,6 +24,9 @@ export default {
 
 <style lang="scss">
 #alcor-modal-component {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   .el-dialog__header,
   .el-dialog__body,
@@ -34,6 +37,7 @@ export default {
   .el-dialog {
     border: var(--border-1);
     width: fit-content;
+    margin: 16px;
   }
 
   .el-dialog__body {
