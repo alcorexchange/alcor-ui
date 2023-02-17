@@ -1,7 +1,7 @@
 <template lang="pug">
 .d-flex.align-items-center.align-items-lg-start.flex-column.flex-lg-row.gap-32.w-100.mt-3
-  swap-widget
-  nuxt-child
+  swap-widget.mt-4
+  nuxt-child.mt-4
 </template>
 
 <script>

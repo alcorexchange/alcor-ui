@@ -212,6 +212,8 @@ module.exports = {
    ** Build configuration
    */
   build: {
+    standalone: true,
+
     extend(config, ctx) {
       config.node = {
         fs: 'empty'
