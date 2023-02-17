@@ -37,7 +37,8 @@ export default {
     align-items: center;
 
     padding: 5px 9px;
-    border: 1px solid var(--border-color);
+    background: var(--btn-default);
+    border: 1px solid var(--btn-default);
     border-radius: 4px;
     cursor: pointer;
 
