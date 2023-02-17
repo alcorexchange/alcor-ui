@@ -17,7 +17,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       PoolTokenInput(:token="tokenA" :tokens="tokensA" v-model="amountA" @tokenSelected="setTokenA")
 
     .d-flex.align-items-center.justify-content-center.mt-2
-      i.el-icon-bottom.text-center.fs-20.bottom-icon
+      i.el-icon-bottom.text-center.fs-20.bottom-icon.pointer
 
     .d-flex.flex-column.gap-8
       .d-flex.flex-row.justify-content-between.align-items-center
@@ -150,6 +150,12 @@ export default {
     background: var(--btn-default);
     border-radius: 50%;
     padding: 6px;
+    transition: all 0.2s ease 0s;
+
+    &:hover {
+      transform: rotate(180deg);
+      background-color: var(--hover);
+    }
   }
 
   .swap-tabs {

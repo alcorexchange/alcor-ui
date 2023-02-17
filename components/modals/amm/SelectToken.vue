@@ -1,5 +1,6 @@
 <template lang="pug">
-.select-token-modal
+.select-token-modal.d-flex.align-items-center.gap-8
+  .fs-14.br-4.p-1.grey-border.pointer.h-fit MAX
   .select-token-button(@click="visible = true")
     .d-flex.align-items-center(v-if="token")
       TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
@@ -31,8 +32,8 @@
       .body.mt-2.p-3
         el-input(prefix-icon="el-icon-search" v-model='search', size='small', placeholder='Search')
         hr
-        .d-flex.flex-column.gap-21
-          .d-flex.align-items-center.gap-8.pointer(
+        .d-flex.flex-column
+          .d-flex.align-items-center.gap-8.pointer.p-2.br-8.hover-bg-lighter(
             v-for="({ currency, contract }, index) in tokens"
             @click="selectAsset(tokens[index])"
           )
