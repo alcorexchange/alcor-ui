@@ -1,5 +1,6 @@
 <template lang="pug">
-.select-token-modal
+.select-token-modal.d-flex.gap-8
+  .fs-14.br-4.p-1.grey-border.pointer MAX
   .select-token-button(@click="visible = true")
     .d-flex.align-items-center(v-if="token")
       TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
