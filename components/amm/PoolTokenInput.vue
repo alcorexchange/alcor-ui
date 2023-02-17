@@ -1,6 +1,6 @@
 <template lang="pug">
 .pool-token-input
-  el-input(placeholder="amount" :value="value" @input="$emit('input', $event)" type="number")
+  el-input(placeholder="0.0" :value="value" @input="$emit('input', $event)" type="number")
     template(slot="append")
       // TODO Add max button using component
       select-token(:token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
@@ -42,8 +42,8 @@ export default {
     cursor: pointer;
 
     &:hover {
-      border-color: var(--text-contrast);
-      color: var(--text-contrast)
+      border-color: var(--text-disable);
+      color: var(--text-disable);
     }
   }
 

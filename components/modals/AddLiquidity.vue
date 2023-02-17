@@ -17,7 +17,7 @@
 
       el-slider(v-model="rangeValues" range :marks="marks" :min="-100" :max="100" @change="percentageChange").px-3.pr-4
 
-      //.d-flex.gap-8.mt-3.justify-content-center
+      .d-flex.gap-8.mt-3.justify-content-center
         .grey-border.d-flex.flex-column.gap-20.p-2.br-4
           .fs-12.text-center Min Price
           el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
@@ -62,6 +62,9 @@ export default {
 
       amountA: 0,
       amountB: 0,
+
+      minPrice: 0,
+      maxPrice: 0,
 
       rangeValues: [-50, 50],
 
