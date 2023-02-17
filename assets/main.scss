@@ -700,6 +700,15 @@ a {
   }
 }
 
+.hover-bg-lighter {
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--hover);
+  }
+}
+
+
 // swap setting style
 .section-content {
   .el-input-group__append {

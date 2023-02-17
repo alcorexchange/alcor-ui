@@ -31,8 +31,8 @@
       .body.mt-2.p-3
         el-input(prefix-icon="el-icon-search" v-model='search', size='small', placeholder='Search')
         hr
-        .d-flex.flex-column.gap-21
-          .d-flex.align-items-center.gap-8.pointer(
+        .d-flex.flex-column
+          .d-flex.align-items-center.gap-8.pointer.p-2.br-8.hover-bg-lighter(
             v-for="({ currency, contract }, index) in tokens"
             @click="selectAsset(tokens[index])"
           )
