@@ -1,53 +1,58 @@
 <template lang="pug">
-.range_chart
-  p zoom
-
-  svg(width="100%" height="100%" :viewBox="`0 0 ${width} ${height}`" style="overflow: 'visible'")
-    //defs
-      clipPath(id="{`id-chart-clip`}")
+  svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible;")
+    defs
+      clipPath(:id="`${id}-chart-clip`")
         rect(x="0" y="0" :width="innerWidth" :height="height")
 
-      mask(id="{${id}-chart-area-mask`}")
+      mask(:id="`${id}-chart-area-mask`")
         rect(
           v-if="brushDomain"
           fill="white"
           :x="xScale(brushDomain[0])"
           y="0"
           :width="xScale(brushDomain[1]) - xScale(brushDomain[0])"
-          height="innerHeight")
+          :height="innerHeight")
 
     g(:transform="`translate(${margins.left}, ${margins.top})`")
       g(:clipPath="`url(#${id}-chart-clip)`")
-        Area(:series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
+        Area(fill="green" :series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
 
-        // duplicate area chart with mask for selected area
-      //g(v-if="brushDomain" mask="`url(#${id}-chart-area-mask)`")
-        Area(
-          series={series}
-          xScale={xScale}
-          yScale={yScale}
-          xValue={xAccessor}
-          yValue={yAccessor}
-          fill={styles.area.selection}
-        )
+        g(v-if="brushDomain" :mask="`url(#${id}-chart-area-mask)`")
+          Area(
+            :series="series"
+            :xScale="xScale"
+            :yScale="yScale"
+            :xAccessor="xAccessor"
+            :yAccessor="yAccessor"
+            fill="red"
+          )
 
-      //Line(:value="current" :xScale="xScale" :innerHeight="innerHeight")
+        AreaLine(:value="current" :xScale="xScale" :innerHeight="innerHeight")
 
-      //AxisBottom(xScale="xScale" :innerHeight="innerHeight")
+        AxisBottom(:xScale="xScale" :offset="0" :innerHeight="innerHeight")
 
-    //ZoomOverlay(:width="innerWidth" :height="height" :ref="zoomRef")
+      //ZoomOverlay(:width="innerWidth" :height="height" :ref="zoomRef")
 
-    //Brush(
-      id={id}
-      xScale={xScale}
-      interactive={interactive}
-      brushLabelValue={brushLabels}
-      brushExtent={brushDomain ?? (xScale.domain() as [number, number])}
-      innerWidth={innerWidth}
-      innerHeight={innerHeight}
-      setBrushExtent={onBrushDomainChange}
-      westHandleColor={styles.brush.handle.west}
-      eastHandleColor={styles.brush.handle.east})
+      defs
+        linearGradient(:id="`${id}-gradient-selection`" x1="0%" y1="100%" x2="100%" y2="100%")
+          stop(stopColor="pink")
+          stop(stopColor="white" offset="1")
+
+        // clips at exactly the svg area
+        clipPath(:id="`${id}-brush-clip`")
+          rect(x="0" y="0" :width="innerWidth" :height="innerHeight")
+
+      Brush(
+        :id="id"
+        :xScale="xScale"
+        :interactive="true"
+        :brushLabelValue="brushLabels"
+        :brushExtent="brushDomain || xScale.domain()"
+        :innerWidth="innerWidth"
+        :innerHeight="innerHeight"
+        @setBrushExtent="e => $emit('onBrushDomainChange', e)"
+        westHandleColor="red"
+        eastHandleColor="green")
 
 </template>
 
@@ -55,11 +60,14 @@
 import { max, scaleLinear, ZoomTransform } from 'd3'
 
 import Area from './Area.vue'
+import AreaLine from './AreaLine.vue'
+import AxisBottom from './AxisBottom.vue'
+import Brush from './Brush.vue'
 
 import { data } from './data'
 
 export default {
-  components: { Area },
+  components: { Area, AreaLine, AxisBottom, Brush },
 
   props: ['series', 'current', 'ticksAtLimit', 'styles', 'width', 'height', 'margins', 'interactive', 'brushDomain',
     'brushLabels', 'zoomLevels'],
@@ -67,7 +75,7 @@ export default {
   data() {
     return {
       id: 'liquidityChartRangeInput',
-      data,
+      data
     }
   },
 
@@ -85,11 +93,12 @@ export default {
         .domain([this.current * this.zoomLevels.initialMin, this.current * this.zoomLevels.initialMax])
         .range([0, this.innerWidth])
 
-      if (this.zoom) {
-        const newXscale = this.zoom.rescaleX(xScale)
-        xScale.domain(newXscale.domain())
-      }
+      //if (this.zoom) {
+      //  const newXscale = this.zoom.rescaleX(xScale)
+      //  xScale.domain(newXscale.domain())
+      //}
 
+      if (!this.brushDomain) this.$emit('onBrushDomainChange', this.xScale.domain())
       return xScale
     },
 

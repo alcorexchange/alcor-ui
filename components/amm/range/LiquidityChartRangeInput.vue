@@ -9,12 +9,12 @@ client-only
     p.infoBox(v-if="isLoading") Loading
     p.infoBox(v-if="error") Liquidity data not available.
 
-    .chartWrapper
+    ._chartWrapper
       RangeChart(
         :current="current"
         :series="series"
-        width="400"
-        height="200"
+        :width="400"
+        :height="200"
         :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
         :interactive="true"
         brushLabels="brush lable"
@@ -65,8 +65,17 @@ export default {
       return this.data
     },
 
+    isSorted: () => this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB),
+
     brushDomain() {
-      return [4000, 6000]
+      const { isSorted, priceLower, priceUpper } = this
+
+      const leftPrice = isSorted ? priceLower : priceUpper?.invert()
+      const rightPrice = isSorted ? priceUpper : priceLower?.invert()
+
+      return leftPrice && rightPrice
+        ? [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
+        : undefined
     },
 
     // Позиция ренжа на графике
@@ -95,9 +104,14 @@ export default {
   methods: {
     init() {},
 
-    onBrushDomainChangeEnded(domain, mode) {
+    onBrushDomainChangeEnded({ scaled: domain }, mode) {
+
+
+
       let leftRangeValue = Number(domain[0])
       const rightRangeValue = Number(domain[1])
+
+      console.log({ leftRangeValue, rightRangeValue })
 
       if (leftRangeValue <= 0) {
         leftRangeValue = 1 / 10 ** 6
@@ -125,8 +139,8 @@ export default {
 
 <style>
 .chartWrapper {
+  height: 400px;
   position: relative;
-
   justify-content: center;
   align-content: center;
 }

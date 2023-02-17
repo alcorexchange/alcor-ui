@@ -14,12 +14,25 @@
 
     | range..
     hr
-    RangeSelector
+
+    //RangeSelector(
+      v-if="pool"
+      currencyA="baseCurrency || undefined"
+      currencyB="quoteCurrency || undefined"
+      feeAmount="feeAmount}"
+      ticksAtLimit="ticksAtLimit"
+      price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
+      priceLower="priceLower"
+      priceUpper="priceUpper"
+      onLeftRangeInput="onLeftRangeInput"
+      onRightRangeInput="onRightRangeInput"
+      interactive="!hasExistingPosition")
+
 
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 import SelectToken from '~/components/modals/amm/SelectToken'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -41,7 +54,14 @@ export default {
 
     tokens() {
       return this.user?.balances || []
-    }
+    },
+
+    //ticksAtLimit() {
+    //  return {
+    //    [Bound.LOWER]: feeAmount && tickLower === tickSpaceLimits.LOWER,
+    //    [Bound.UPPER]: feeAmount && tickUpper === tickSpaceLimits.UPPER,
+    //  }
+    //}
   },
 
   created() {
