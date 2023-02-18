@@ -1,5 +1,6 @@
 <template lang="pug">
 .row.justify-content-center
+  | tokena: {{ tokenA }}
   alcor-container.add-liquidity-component.w-100.p-2
     .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
       i.el-icon-circle-plus-outline
@@ -166,12 +167,23 @@ export default {
     value() {
       console.log('value changed pool', this.pool, this.$store.getters['amm/pools'])
     },
+
+    tokensA() {
+      console.log('tokens a updates')
+    }
   },
 
   computed: {
     ...mapGetters(['user']),
-    ...mapGetters('amm/addLiquidity', ['tokensA', 'tokensB', 'pool']),
-    ...mapState('amm/addLiquidity', ['tokenA', 'tokenB']),
+    ...mapGetters('amm/addLiquidity', [
+      'tokenA',
+      'tokenB',
+      'tokensA',
+      'tokensB',
+      'pool'
+    ]),
+
+    //...mapState('amm/addLiquidity', ['tokenA', 'tokenB']),
 
     interactive() {
       return !this.position
@@ -489,7 +501,7 @@ export default {
     },
 
     setTokenA(token) {
-      this.$store.dispatch('amm/addLiquidity/setTokenA', token)
+      this.$store.dispatch('amm/addLiquidity/setTokenA', token.name)
     },
 
     percentageChange() {
@@ -497,7 +509,7 @@ export default {
     },
 
     setTokenB(token) {
-      this.$store.dispatch('amm/addLiquidity/setTokenB', token)
+      this.$store.dispatch('amm/addLiquidity/setTokenB', token.name)
     },
 
     openPreviewLiqidityModal() {

@@ -52,9 +52,10 @@ import CompactTabs from '~/components/CompactTabs.vue'
 import TokenImage from '~/components/elements/TokenImage'
 
 export default {
+  components: { AlcorModal, CompactTabs, TokenImage },
+
   props: ['tokens', 'token'],
 
-  components: { AlcorModal, CompactTabs, TokenImage },
   data: () => ({
     visible: false,
 

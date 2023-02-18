@@ -1,6 +1,5 @@
 <template lang="pug">
-h1 adfasdfasdfasdf
-//.empty-div
+.empty-div
 </template>
 
 <script>
@@ -12,8 +11,15 @@ export default {
   name: 'AddLiquidityParams',
 
   // Force trailing slash
-  fetch({ route, redirect }) {
+  fetch({ route, redirect, store }) {
+    // TODO Regex test
     if (route.path[route.path.length - 1] !== '/') redirect(route.path + '/')
+
+    const { tokenA, tokenB, feeAmountFromUrl } = store.getters['amm/addLiquidity/routes']
+
+    if (tokenA) store.commit('amm/addLiquidity/setTokenA', tokenA)
+    if (tokenB) store.commit('amm/addLiquidity/setTokenB', tokenB)
+    if (feeAmountFromUrl) store.commit('amm/addLiquidity/setFeeAmount', feeAmountFromUrl)
   },
 
   beforeRouteLeave(to, from, next) {
