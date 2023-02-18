@@ -50,7 +50,7 @@
         :brushExtent="brushDomain || xScale.domain()"
         :innerWidth="innerWidth"
         :innerHeight="innerHeight"
-        @setBrushExtent="e => $emit('onBrushDomainChange', e)"
+        @setBrushExtent="setBrushExtent"
         westHandleColor="red"
         eastHandleColor="green")
 
@@ -79,6 +79,12 @@ export default {
     }
   },
 
+  watch: {
+    brushDomain() {
+      console.log('brushDomain changed in RangeChart', this.brushDomain)
+    },
+  },
+
   computed: {
     innerHeight() {
       return this.height - this.margins.top - this.margins.bottom
@@ -98,7 +104,7 @@ export default {
       //  xScale.domain(newXscale.domain())
       //}
 
-      if (!this.brushDomain) this.$emit('onBrushDomainChange', this.xScale.domain())
+      if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: xScale.domain(), mode: undefined })
       return xScale
     },
 
@@ -110,11 +116,16 @@ export default {
   },
 
   mounted() {
-
+    console.log('RangeChartMount: ', this.$props)
   },
 
   methods: {
     init() {},
+
+    setBrushExtent(data) {
+      console.log('setBrushExtent', data)
+      this.$emit('onBrushDomainChange', data)
+    },
 
     xAccessor(d) {
       return d.price0

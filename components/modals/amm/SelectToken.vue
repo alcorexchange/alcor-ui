@@ -1,12 +1,11 @@
 <template lang="pug">
 .select-token-modal.d-flex.align-items-center.gap-8
-  .fs-14.br-4.p-1.grey-border.pointer.h-fit MAX
   .select-token-button(@click="visible = true")
     .d-flex.align-items-center(v-if="token")
       TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
       .ft-14 {{ token.currency }}
     .d-flex.align-items-center(v-else) Select token
-    i.el-icon-arrow-down.ml-1
+    i.el-icon-arrow-down.ml-auto
 
   //append-to-body
   el-dialog(

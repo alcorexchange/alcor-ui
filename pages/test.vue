@@ -37,11 +37,10 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import AlcorContainer from '~/components/AlcorContainer'
 import TokenImage from '~/components/elements/TokenImage'
-import RangeSelector from '~/components/amm/range/RangeSelector.vue'
 
 export default {
   layout: 'test',
-  components: { AlcorContainer, TokenImage, SelectToken, RangeSelector },
+  components: { AlcorContainer, TokenImage, SelectToken },
 
   data: () => {
     return {

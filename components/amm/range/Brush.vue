@@ -65,7 +65,8 @@ export default {
   data() {
     return {
       brushBehavior: null,
-      localBrushExtent: null
+      localBrushExtent: null,
+      //previousBrushExtent: [15000, 23000]
     }
   },
 
@@ -111,18 +112,16 @@ export default {
       select(this.$refs.brush)
         .transition()
         .call(this.brushBehavior.move, this.brushExtent.map(this.xScale))
-    } else {
-      this.moveBrush(this.brushExtent)
     }
   },
 
   watch: {
-    brushExtent: () => {
+    brushExtent() {
       this.moveBrush(this.brushExtent)
       this.localBrushExtent = this.brushExtent
     },
 
-    xScale: () => this.moveBrush(this.brushExtent)
+    xScale() { this.moveBrush(this.brushExtent) },
   },
 
   methods: {
@@ -142,8 +141,6 @@ export default {
 
       this.brushBehavior(select(this.$refs.brush))
 
-      console.log(this.brushExtent, this.previousBrushExtent, this.xScale)
-
       // Set previouse range (from loacal storage)
       if (this.previousBrushExtent && compare(this.brushExtent, this.previousBrushExtent, this.xScale)) {
         select(this.$refs.brush)
@@ -160,7 +157,7 @@ export default {
     },
 
     moveBrush(extent) {
-      console.log('moveBrush!')
+      console.log('moveBrush!', extent, extent.map(this.xScale))
       this.brushBehavior.move(select(this.$refs.brush), extent.map(this.xScale))
     },
 
@@ -176,7 +173,7 @@ export default {
 
       // avoid infinite render loop by checking for change
       if (type === 'end' && !compare(this.brushExtent, scaled, this.xScale)) {
-        this.$emit('setBrushExtent', { scaled, mode })
+        this.$emit('setBrushExtent', { domain: scaled, mode })
       }
 
       this.localBrushExtent = scaled

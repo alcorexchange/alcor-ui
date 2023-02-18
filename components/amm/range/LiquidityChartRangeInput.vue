@@ -1,15 +1,11 @@
 <template lang="pug">
 client-only
   .div
-    el-button(primary @click="init") Update
-
-    hr
-
     p.infoBox(v-if="isUninitialized") Your position will appear here.
     p.infoBox(v-if="isLoading") Loading
     p.infoBox(v-if="error") Liquidity data not available.
 
-    ._chartWrapper
+    .chartWrapper
       RangeChart(
         :current="current"
         :series="series"
@@ -20,7 +16,7 @@ client-only
         brushLabels="brush lable"
         :brushDomain="brushDomain"
         @onBrushDomainChange="onBrushDomainChangeEnded"
-        :zoomLevels="ZOOM_LEVELS[feeAmount || 5000]"
+        :zoomLevels="ZOOM_LEVELS[feeAmount]"
         :ticksAtLimit="ticksAtLimit"
       )
 </template>
@@ -42,32 +38,35 @@ export default {
     return {
       data,
       error: false,
-      ZOOM_LEVELS
+      ZOOM_LEVELS,
     }
   },
 
   mounted() {
+    console.log('LiquidityChartRangeInput loaded: ', { ...this.$props })
     this.init()
   },
 
   computed: {
     //TODO
     //isUninitialized: () => !this.currencyA || !this.currencyB || (this.formattedData === undefined && !this.isLoading),
-    isUninitialized: () => true,
-    isLoading: () => true,
+    isUninitialized: () => false,
+    isLoading: () => false,
 
     current() {
-      // TODO
-      return 23442.32
+      return this.price
     },
 
     series() {
-      return this.data
+      //return this.data
+      return []
     },
 
-    isSorted: () => this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB),
+    //isSorted: () => this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB),
+    isSorted: () => true,
 
     brushDomain() {
+      // Все ок
       const { isSorted, priceLower, priceUpper } = this
 
       const leftPrice = isSorted ? priceLower : priceUpper?.invert()
@@ -77,16 +76,6 @@ export default {
         ? [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
         : undefined
     },
-
-    // Позиция ренжа на графике
-    //brushDomain() {
-    //  const leftPrice = isSorted ? priceLower : priceUpper?.invert()
-    //  const rightPrice = isSorted ? priceUpper : priceLower?.invert()
-
-    //  return leftPrice && rightPrice
-    //    ? [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
-    //    : undefined
-    //},
 
     // TODO Лейбл сколько в процентах
     //brushLabelValue(d, x) {
@@ -104,34 +93,33 @@ export default {
   methods: {
     init() {},
 
-    onBrushDomainChangeEnded({ scaled: domain }, mode) {
-
-
+    onBrushDomainChangeEnded(data) {
+      console.log('zz', { data })
+      const { domain, mode } = data
+      const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])
       const rightRangeValue = Number(domain[1])
 
       console.log({ leftRangeValue, rightRangeValue })
 
-      if (leftRangeValue <= 0) {
-        leftRangeValue = 1 / 10 ** 6
+      if (leftRangeValue <= 0) leftRangeValue = 1 / 10 ** 6
+
+      // Вызывает изначальные занчения для заполнения инпутов
+      if (
+        (!ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] || mode === 'handle' || mode === 'reset') &&
+        leftRangeValue > 0
+      ) {
+        this.$emit('onLeftRangeInput', leftRangeValue.toFixed(6))
       }
 
-      // TODO Emit ont range change
-      //  if (
-      //    (!ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] || mode === 'handle' || mode === 'reset') &&
-      //    leftRangeValue > 0
-      //  ) {
-      //    onLeftRangeInput(leftRangeValue.toFixed(6))
-      //  }
-
-      //  if ((!ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] || mode === 'reset') && rightRangeValue > 0) {
-      //    // todo: remove this check. Upper bound for large numbers
-      //    // sometimes fails to parse to tick.
-      //    if (rightRangeValue < 1e35) {
-      //      onRightRangeInput(rightRangeValue.toFixed(6))
-      //    }
-      //  }
+      if ((!ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] || mode === 'reset') && rightRangeValue > 0) {
+        // todo: remove this check. Upper bound for large numbers
+        // sometimes fails to parse to tick.
+        if (rightRangeValue < 1e35) {
+          this.$emit('onRightRangeInput', rightRangeValue.toFixed(6))
+        }
+      }
     }
   }
 }

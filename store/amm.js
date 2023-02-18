@@ -52,7 +52,6 @@ export const actions = {
     }
 
     commit('setPositions', positions)
-    console.log('positions', positions)
   },
 
   async test({ state, getters, commit, rootState, dispatch }) {

@@ -14,6 +14,13 @@ export function parseToken(token) {
   )
 }
 
+export function getPoolBounds(feeAmount) {
+  return {
+    LOWER: feeAmount ? nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeAmount]) : undefined,
+    UPPER: feeAmount ? nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount]) : undefined
+  }
+}
+
 export function tryParseCurrencyAmount(value, currency) {
   if (!value || !currency) {
     return undefined
