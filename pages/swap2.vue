@@ -9,8 +9,13 @@ import SwapWidget from '~/components/amm/SwapWidget.vue'
 
 export default {
   components: { SwapWidget },
-  mounted() {
-    if (this.$route.path == '/swap2') this.$router.push('/swap2/swap-tokens')
+
+  fetch({ route, redirect }) {
+    if (route.path == '/swap2') redirect('/swap2/swap-tokens')
   }
+
+  //mounted() {
+  //  if (this.$route.path == '/swap2') this.$router.push('/swap2/swap-tokens')
+  //}
 }
 </script>

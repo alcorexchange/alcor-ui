@@ -48,51 +48,54 @@
             //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
             .fs-12.text-center BLK per WAX
 
-//.d-flex.align-items-center
-  alcor-container.add-liquidity-component.w-100
-    .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
-      i.el-icon-circle-plus-outline
-      span Add Liquidity
+  //.d-flex.align-items-center
+    alcor-container.add-liquidity-component.w-100
+      .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
+        i.el-icon-circle-plus-outline
+        span Add Liquidity
 
-    .row
-      .col
-        select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA")
+      .row
+        .col
+          select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA")
 
-        select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB")
+          select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB")
 
-  //.d-flex.justify-content-between.gap-32
-    .d-flex.flex-column.gap-8.left
-      .fs-14.disable Select Pair and deposit amounts
+    //.d-flex.justify-content-between.gap-32
+      .d-flex.flex-column.gap-8.left
+        .fs-14.disable Select Pair and deposit amounts
 
-      PoolTokenInput(:value="amountA" @input="onAmountAInput" :token="tokenA" :tokens="tokensA" @tokenSelected="setTokenA")
-      .fs-14.disable Select Pair and deposit amounts
+        PoolTokenInput(:value="amountA" @input="onAmountAInput" :token="tokenA" :tokens="tokensA" @tokenSelected="setTokenA")
+        .fs-14.disable Select Pair and deposit amounts
 
-      PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
-      .d-flex.justify-content-end Balance: 1,000 WAX
+        PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
+        .d-flex.justify-content-end Balance: 1,000 WAX
 
-      .fs-14.disable Select Price Range {{ max }}
+        .fs-14.disable Select Price Range {{ max }}
 
-      .d-flex.gap-8.mt-3.justify-content-center
-        .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-          .fs-12.text-center Min Price
-          el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
-          .fs-12.text-center BLK per WAX
-        .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-          .fs-12.text-center Max Price
-          el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
-          .fs-12.text-center BLK per WAX
+        .d-flex.gap-8.mt-3.justify-content-center
+          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+            .fs-12.text-center Min Price
+            el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
+            .fs-12.text-center BLK per WAX
+          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+            .fs-12.text-center Max Price
+            el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
+            .fs-12.text-center BLK per WAX
 
-      .fs-14.disable.mt-2 Select Fee
+        .fs-14.disable.mt-2 Select Fee
 
-      .d-flex.gap-16.flex-wrap.justify-content-center
-        .fee.d-flex.flex-column.gap-16(v-for="({ value, desc, selectedPercent }, idx) in fees" @click="selectedFee = idx" :class="{ active: selectedFee == idx }")
-          .fs-24 {{ value }}
-          .fs-14.disable {{ desc }}
-          .d-flex.gap-4
-            span {{ selectedPercent }}
-            span Selected
+        .d-flex.gap-16.flex-wrap.justify-content-center
+          .fee.d-flex.flex-column.gap-16(v-for="({ value, desc, selectedPercent }, idx) in fees" @click="selectedFee = idx" :class="{ active: selectedFee == idx }")
+            .fs-24 {{ value }}
+            .fs-14.disable {{ desc }}
+            .d-flex.gap-4
+              span {{ selectedPercent }}
+              span Selected
 
-      alcor-button.w-100(@click="openPreviewLiqidityModal" access big) Preview
+        alcor-button.w-100(@click="openPreviewLiqidityModal" access big) Preview
+
+  // Empty, for routes manage
+  nuxt-child
 
 </template>
 
@@ -126,11 +129,13 @@ const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 export default {
   components: { SelectToken, PoolTokenInput, AlcorButton, AlcorContainer, LiquidityChartRangeInput },
 
+  // Enabling managige route in nested component
+  fetch({ route, redirect }) {
+    if (route.path == '/add-liquidity') redirect('/add-liquidity/')
+  },
+
   data() {
     return {
-      tokenA: null,
-      tokenB: null,
-
       invertPrice: false,
 
       amountA: 0,
@@ -139,7 +144,7 @@ export default {
       minPrice: 0,
       maxPrice: 0,
 
-      feeAmountFromUrl: null,
+      feeAmountFromUrl: 3000,
 
       independentField: 'CURRENCY_A',
       leftRangeTypedValue: '',
@@ -165,6 +170,8 @@ export default {
 
   computed: {
     ...mapGetters(['user']),
+    ...mapGetters('amm/addLiquidity', ['tokensA', 'tokensB', 'pool']),
+    ...mapState('amm/addLiquidity', ['tokenA', 'tokenB']),
 
     interactive() {
       return !this.position
@@ -313,15 +320,6 @@ export default {
       return Boolean(typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper)
     },
 
-    tokensA() {
-      return this.user?.balances || []
-    },
-
-    tokensB() {
-      // TODO tokensB
-      return this.tokensA
-    },
-
     max() {
       console.log('tokenAPriceLower()', this.pool)
       return 100
@@ -329,17 +327,6 @@ export default {
 
     pools() {
       return this.$store.getters['amm/pools']
-    },
-
-    pool() {
-      if (!this.tokensA || !this.tokenB) return null
-
-      const p = this.pools.find(p => {
-        return p.tokenA.name == this.tokenA.id.toLowerCase().replace('@', '-') &&
-          p.tokenB.name == this.tokenB.id.toLowerCase().replace('@', '-')
-      })
-
-      return p
     },
 
     marks() {
@@ -356,8 +343,8 @@ export default {
   },
 
 
+
   mounted() {
-    console.log('ROUTE', this.$route)
     this.init()
   },
 
@@ -502,8 +489,7 @@ export default {
     },
 
     setTokenA(token) {
-      // TODO Change route to
-      this.tokenA = token
+      this.$store.dispatch('amm/addLiquidity/setTokenA', token)
     },
 
     percentageChange() {
@@ -511,7 +497,7 @@ export default {
     },
 
     setTokenB(token) {
-      this.tokenB = token
+      this.$store.dispatch('amm/addLiquidity/setTokenB', token)
     },
 
     openPreviewLiqidityModal() {

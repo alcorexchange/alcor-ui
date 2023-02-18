@@ -3,7 +3,7 @@
   .select-token-button(@click="visible = true")
     .d-flex.align-items-center(v-if="token")
       TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
-      .ft-14 {{ token.currency }}
+      .ft-14 {{ token.currency || token.symbol }}
     .d-flex.align-items-center(v-else) Select token
     i.el-icon-arrow-down.ml-auto
 
@@ -33,13 +33,13 @@
         hr
         .d-flex.flex-column
           .d-flex.align-items-center.gap-8.pointer.p-2.br-8.hover-bg-lighter(
-            v-for="({ currency, contract }, index) in tokens"
+            v-for="({ symbol, contract }, index) in tokens"
             @click="selectAsset(tokens[index])"
           )
-            TokenImage(:src="$tokenLogo(currency, contract)" height="20")
+            TokenImage(:src="$tokenLogo(symbol, contract)" height="20")
 
             .d-flex.gap-4.align-items-center
-              .fs-14.contrast {{ currency }}
+              .fs-14.contrast {{ symbol }}
               .fs-10.disable ({{ contract }})
 
         hr.separator

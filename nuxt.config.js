@@ -132,6 +132,7 @@ module.exports = {
     '~/plugins/filters',
     '~/plugins/global',
     '~/plugins/vClickOutside.js',
+    '~/plugins/routerSync.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
     { ssr: false, src: '~/plugins/apiInstance.js' },

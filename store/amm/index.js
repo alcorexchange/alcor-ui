@@ -1,7 +1,7 @@
 import JSBI from "jsbi"
 import { asset } from 'eos-common'
 
-import { fetchAllRows } from '../utils/eosjs'
+import { fetchAllRows } from '~/utils/eosjs'
 import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
 import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
@@ -10,6 +10,7 @@ export const state = () => ({
   pools: [],
   positions: [],
 
+  // TODO move to module
   selectedTokenA: null,
   selectedTokenB: null
 })
