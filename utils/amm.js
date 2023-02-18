@@ -3,7 +3,7 @@ import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
 import { asset } from 'eos-common'
 
-import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount } from '~/assets/libs/swap-sdk'
+import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '~/assets/libs/swap-sdk'
 
 export function parseToken(token) {
   return new Token(
@@ -12,6 +12,13 @@ export function parseToken(token) {
     asset(token.quantity).symbol.code().to_string(),
     (asset(token.quantity).symbol.code().to_string() + '-' + token.contract).toLowerCase()
   )
+}
+
+export function getTickToPrice(baseToken, quoteToken, tick) {
+  if (!baseToken || !quoteToken || typeof tick !== 'number') {
+    return undefined
+  }
+  return tickToPrice(baseToken, quoteToken, tick)
 }
 
 export function getPoolBounds(feeAmount) {
@@ -90,5 +97,6 @@ export function tryParseTick(
     tick = priceToClosestTick(price)
   }
 
+  console.log('try parse tick', feeAmount, TICK_SPACINGS, tick, TICK_SPACINGS[feeAmount])
   return nearestUsableTick(tick, TICK_SPACINGS[feeAmount])
 }

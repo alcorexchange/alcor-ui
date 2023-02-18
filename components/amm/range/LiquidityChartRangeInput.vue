@@ -94,7 +94,8 @@ export default {
     init() {},
 
     onBrushDomainChangeEnded(data) {
-      console.log('zz', { data })
+      console.log('onBrushDomainChangeEnded', { data })
+
       const { domain, mode } = data
       const { ticksAtLimit, isSorted } = this
 

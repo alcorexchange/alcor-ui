@@ -139,7 +139,7 @@ export default {
       minPrice: 0,
       maxPrice: 0,
 
-      feeAmountFromUrl: 3000,
+      feeAmountFromUrl: null,
 
       independentField: 'CURRENCY_A',
       leftRangeTypedValue: '',
@@ -357,6 +357,7 @@ export default {
 
 
   mounted() {
+    console.log('ROUTE', this.$route)
     this.init()
   },
 
@@ -501,6 +502,7 @@ export default {
     },
 
     setTokenA(token) {
+      // TODO Change route to
       this.tokenA = token
     },
 

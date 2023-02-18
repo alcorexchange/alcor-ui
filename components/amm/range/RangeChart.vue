@@ -81,8 +81,8 @@ export default {
 
   watch: {
     brushDomain() {
-      console.log('brushDomain changed in RangeChart', this.brushDomain)
-    },
+      if (!this.brushDomain) this.emitDefaultBrush()
+    }
   },
 
   computed: {
@@ -104,7 +104,6 @@ export default {
       //  xScale.domain(newXscale.domain())
       //}
 
-      if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: xScale.domain(), mode: undefined })
       return xScale
     },
 
@@ -117,10 +116,15 @@ export default {
 
   mounted() {
     console.log('RangeChartMount: ', this.$props)
+    this.emitDefaultBrush()
   },
 
   methods: {
     init() {},
+
+    emitDefaultBrush() {
+      if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
+    },
 
     setBrushExtent(data) {
       console.log('setBrushExtent', data)
