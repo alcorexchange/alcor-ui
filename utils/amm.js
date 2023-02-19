@@ -99,3 +99,23 @@ export function tryParseTick(
 
   return nearestUsableTick(tick, TICK_SPACINGS[feeAmount])
 }
+
+export function isTicksAtLimit(
+  feeAmount,
+  tickLower,
+  tickUpper
+) {
+  return {
+    LOWER:
+      feeAmount && tickLower
+        ? tickLower ===
+          nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeAmount])
+        : undefined,
+
+    UPPER:
+      feeAmount && tickUpper
+        ? tickUpper ===
+          nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount])
+        : undefined
+  }
+}

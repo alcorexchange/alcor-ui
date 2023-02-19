@@ -1,6 +1,10 @@
 <template lang="pug">
 .row.justify-content-center
-  | Price {{ price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined }}
+  .d-flex.flex-column
+    .title.fs-18 outOfRange {{ outOfRange }}
+    .title.fs-18 invalidRange {{ invalidRange }}
+    .title.fs-18 Price {{ price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined }}
+
   alcor-container.add-liquidity-component.w-100.p-2
     .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
       i.el-icon-circle-plus-outline
@@ -46,16 +50,14 @@
         .d-flex.gap-8.mt-3.justify-content-center(v-if="leftRangeTypedValue && rightRangeTypedValue")
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
             .fs-12.text-center Min Price
-            el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
+            el-input-number(v-model="leftRangeTypedValue")
             //el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
             .fs-12.text-center BLK per WAX
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
             .fs-12.text-center Max Price
-            el-input-number(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
+            el-input-number(v-model="rightRangeTypedValue")
             //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
             .fs-12.text-center BLK per WAX
-
-
 
   //.d-flex.align-items-center
     alcor-container.add-liquidity-component.w-100
@@ -131,7 +133,7 @@ import {
 import {
   Currency, Percent, Token, Pool, Tick, CurrencyAmount,
   Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
-  TickMath
+  TickMath, Rounding
 } from '~/assets/libs/swap-sdk'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
@@ -247,7 +249,7 @@ export default {
 
       const { position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue, pool: { tokenA, tokenB } } = this
 
-      console.log('recalc ticks')
+      console.log('recalc ticks', { rightRangeTypedValue, leftRangeTypedValue })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
         LOWER:
@@ -376,7 +378,10 @@ export default {
 
     onInputAmountA(value) {
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
-      if (dependentAmount) this.amountB = dependentAmount.toFixed()
+      if (dependentAmount) {
+        this.amountB = dependentAmount.toFixed()
+        console.log('dependentAmount', dependentAmount.toFixed(dependentAmount.currency.digits, undefined, 'ROUND_HALF_UP'))
+      }
     },
 
     getDependedAmount(value, independentField) {
@@ -393,7 +398,7 @@ export default {
         currencies[independentField]
       )
 
-      const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_A : currencies.CURRENCY_B
+      const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
 
       if (
         independentAmount &&
@@ -517,45 +522,63 @@ export default {
 
     async submit() {
       const { amountA, amountB, tokenA, tokenB, tickLower, tickUpper } = this
+      console.log(tokenA, tokenB)
+      console.log({ amountA, amountB })
 
       const actions = []
 
-      actions.push({
-        account: tokenA.contract,
-        name: 'transfer',
-        authorization: [this.user.authorization],
-        data: {
-          from: this.user.name,
-          to: this.network.amm.contract,
-          quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-          memo: 'deposit'
+      if (parseFloat(amountA) > 0)
+        actions.push({
+          account: tokenA.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            memo: 'deposit'
+          }
+        })
+
+      if (parseFloat(amountB) > 0)
+        actions.push(
+          {
+            account: tokenB.contract,
+            name: 'transfer',
+            authorization: [this.user.authorization],
+            data: {
+              from: this.user.name,
+              to: this.network.amm.contract,
+              quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+              memo: 'deposit'
+            }
+          }
+        )
+
+      actions.push(
+        {
+          account: this.network.amm.contract,
+          name: 'addliquid',
+          authorization: [this.user.authorization],
+          data: {
+            poolId: this.pool.id,
+            owner: this.user.name,
+            tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+            tickLower,
+            tickUpper,
+            tokenAMin: (parseFloat(amountA)).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            tokenBMin: (parseFloat(amountB)).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+            deadline: 0
+          }
         }
-      }, {
-        account: tokenB.contract,
-        name: 'transfer',
-        authorization: [this.user.authorization],
-        data: {
-          from: this.user.name,
-          to: this.network.amm.contract,
-          quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
-          memo: 'deposit'
-        }
-      }, {
-        account: this.network.amm.contract,
-        name: 'addliquid',
-        authorization: [this.user.authorization],
-        data: {
-          poolId: this.pool.id,
-          owner: this.user.name,
-          tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-          tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
-          tickLower,
-          tickUpper,
-          tokenAMin: (parseFloat(amountA)).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-          tokenBMin: (parseFloat(amountB)).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
-          deadline: 0
-        }
-      })
+      )
+
+
+      console.log('aa', amountB, tokenB)
+      const r = tryParseCurrencyAmount(amountB, tokenB)
+
+      console.log(r, { actions })
 
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)

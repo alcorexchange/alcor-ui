@@ -191,6 +191,7 @@ export default {
     },
 
     moveBrush(extent) {
+      //console.log('MOVE BRUSH', extent, extent.map(this.xScale))
       this.brushBehavior.move(select(this.$refs.brush), extent.map(this.xScale))
     },
 

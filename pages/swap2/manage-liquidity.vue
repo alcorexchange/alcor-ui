@@ -25,7 +25,7 @@
     template(#row="{ item }")
       //pool-row(:position="item")
 
-  pool-row(v-for="position of positions" :position="position")
+  PositionListItem(v-for="position of positions" :position="position")
 
 </template>
 
@@ -33,10 +33,10 @@
 import { mapActions, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import VirtualTable from '~/components/VirtualTable'
-import PoolRow from '~/components/PoolRow'
+import PositionListItem from '~/components/amm/Position/PositionListItem'
 
 export default {
-  components: { AlcorButton, VirtualTable, PoolRow },
+  components: { AlcorButton, VirtualTable, PositionListItem },
   data: () => ({
     search: '',
     showClosed: false

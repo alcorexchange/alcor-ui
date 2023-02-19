@@ -1,27 +1,5 @@
 <template lang="pug">
-//h1 row
-//id: 1,
-//input: {
-//  symbol: 'BRWL',
-//  contract: 'brawlertoken'
-//},
-//output: {
-//  symbol: 'TLM',
-//  contract: 'alien.worlds'
-//},
-//min: 4.52,
-//max: 12.512,
-//inRange: true,
-//inputEarning: 552,
-//inputAmount: 886,
-//outputAmount: 29.256,
-//outputEarning: -21,
-//percent: 1
-
-
-
 #pool-row-component.d-flex.align-items-center.p-3
-  //| {{ position }}
   .icons
     pair-icons(:token1="position.pool.tokenA" :token2="position.pool.tokenB")
 
@@ -30,14 +8,14 @@
     .tag {{ position.pool.fee / 10000 }}%
   .range.d-flex.flex-column
     .d-flex.align-items-center.gap-4
-      .indicator(:class="{ 'in-range': position.inRange }")
-      .fs-10 {{ position.inRange ? 'In Range': 'Out of Range' }}
+      .indicator(:class="{ 'in-range': !outOfRange }")
+      .fs-10 {{ !outOfRange ? 'In Range': 'Out of Range' }}
     .d-flex.align-items-center.gap-6
       .fs-14.disable MIN
-      .fs-14.contrast {{ position.tokenAPriceLower.toFixed(8) }}
+      .fs-14.contrast {{ priceLower }}
       i.el-icon-sort.rot
       .fs-14.disable MAX
-      .fs-14.contrast {{ position.tokenAPriceUpper.toFixed(8) }}
+      .fs-14.contrast {{ priceUpper }}
   .earning.d-flex.flex-column.gap-4
     .d-flex.align-items-center.gap-4
       token-image.token(:src='$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenB.contract)')
@@ -70,10 +48,92 @@
 <script>
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
+import { isTicksAtLimit } from '~/utils/amm'
+import { FeeAmount } from '~/assets/libs/swap-sdk'
+
+function getPositionPrice(position) {
+  if (!position) {
+    return {}
+  }
+
+  const { tokenA, tokenB } = position.pool
+
+  // TODO
+  // if tokenA is a dollar-stable asset, set it as the quote token
+  //const stables = [DAI, USDC_MAINNET, USDT]
+  //if (stables.some((stable) => stable.equals(tokenA))) {
+  //  return {
+  //    priceLower: position.tokenAPriceUpper.invert(),
+  //    priceUpper: position.tokenAPriceLower.invert(),
+  //    quote: tokenA,
+  //    base: tokenB,
+  //  }
+  //}
+
+  // TODO
+  // if tokenB is an WAX-/EOS-stable asset, set it as the base token
+  //const bases = [...Object.values(WRAPPED_NATIVE_CURRENCY), EOS]
+  //if (bases.some((base) => base && base.equals(tokenB))) {
+  //  return {
+  //    priceLower: position.tokenAPriceUpper.invert(),
+  //    priceUpper: position.tokenAPriceLower.invert(),
+  //    quote: tokenA,
+  //    base: tokenB,
+  //  }
+  //}
+
+  // if both prices are below 1, invert
+  if (position.tokenAPriceUpper.lessThan(1)) {
+    return {
+      priceLower: position.tokenAPriceUpper.invert(),
+      priceUpper: position.tokenAPriceLower.invert(),
+      quote: tokenA,
+      base: tokenB
+    }
+  }
+
+  // otherwise, just return the default
+  return {
+    priceLower: position.tokenAPriceLower,
+    priceUpper: position.tokenAPriceUpper,
+    quote: tokenB,
+    base: tokenA
+  }
+}
 
 export default {
+  // TODO Format Price
   components: { PairIcons, TokenImage },
-  props: ['position']
+  props: ['position'],
+
+  computed: {
+    outOfRange() {
+      const { pool, tickLower, tickUpper } = this.position
+      return pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
+    },
+
+    priceLower() {
+      const { tickLower, tickUpper, pool: { fee: feeAmount } } = this.position
+      const isOnLimit = isTicksAtLimit(feeAmount, tickLower, tickUpper)
+
+      if (isOnLimit.LOWER) {
+        return '0'
+      }
+
+      return getPositionPrice(this.position).priceLower.toFixed()
+    },
+
+    priceUpper() {
+      const { tickLower, tickUpper, pool: { fee: feeAmount } } = this.position
+      const isOnLimit = isTicksAtLimit(feeAmount, tickLower, tickUpper)
+
+      if (isOnLimit.UPPER) {
+        return '∞'
+      }
+
+      return getPositionPrice(this.position).priceUpper.toFixed()
+    }
+  }
 }
 </script>
 

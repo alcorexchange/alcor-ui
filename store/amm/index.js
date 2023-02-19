@@ -30,15 +30,15 @@ export const actions = {
 
   },
 
-  async fetchPositions({ state, commit, rootState, dispatch }, owner) {
+  async fetchPositions({ getters, commit, rootState, dispatch }, owner) {
     if (!owner) return console.log('[fetchPositions] no user provided')
 
     const positions = []
 
-    for (const { id } of state.pools) {
-      const [row] = await fetchAllRows(this.$rpc, {
+    for (const pool of getters.pools) {
+      const rows = await fetchAllRows(this.$rpc, {
         code: rootState.network.amm.contract,
-        scope: id,
+        scope: pool.id,
         table: 'positions',
         key_type: 'i64',
         index_position: 3,
@@ -46,10 +46,10 @@ export const actions = {
         upper_bound: nameToUint64(owner)
       })
 
-      if (!row) continue
+      if (!rows) continue
 
-      row.pool = id
-      positions.push(row)
+      rows.map(r => r.pool = pool)
+      positions.push(...rows)
     }
 
     commit('setPositions', positions)
@@ -146,9 +146,7 @@ export const getters = {
     const positions = []
 
     for (const { liquidity, upper, lower, pool } of state.positions) {
-      const poolInstance = getters.pools.find(p => p.id == pool)
-
-      positions.push(new Position({ pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
+      positions.push(new Position({ pool, liquidity, tickLower: lower, tickUpper: upper }))
     }
 
     return positions
