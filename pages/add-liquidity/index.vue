@@ -26,7 +26,7 @@
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" @tokenSelected="setTokenA").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @tokenSelected="setTokenA").mt-3
 
-        alcor-button(outline).mt-3.w-100 Add liquidity
+        alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
       .col
         .fs-16.disable.mb-1(v-if="price") Set Price Range
@@ -109,6 +109,7 @@
 </template>
 
 <script>
+import { asset } from 'eos-common'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 import AlcorButton from '~/components/AlcorButton'
@@ -180,7 +181,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapState(['user', 'network']),
     ...mapGetters('amm/addLiquidity', [
       'tokenA',
       'tokenB',
@@ -246,6 +247,7 @@ export default {
 
       const { position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue, pool: { tokenA, tokenB } } = this
 
+      console.log('recalc ticks')
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
         LOWER:
@@ -477,10 +479,12 @@ export default {
 
     onLeftRangeInput(value) {
       this.leftRangeTypedValue = value
+      this.onInputAmountA(this.amountA)
     },
 
     onRightRangeInput(value) {
       this.rightRangeTypedValue = value
+      this.onInputAmountA(this.amountA)
     },
 
     setTokenA(token) {
@@ -509,6 +513,56 @@ export default {
         fees,
         inRange
       })
+    },
+
+    async submit() {
+      const { amountA, amountB, tokenA, tokenB, tickLower, tickUpper } = this
+
+      const actions = []
+
+      actions.push({
+        account: tokenA.contract,
+        name: 'transfer',
+        authorization: [this.user.authorization],
+        data: {
+          from: this.user.name,
+          to: this.network.amm.contract,
+          quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+          memo: 'deposit'
+        }
+      }, {
+        account: tokenB.contract,
+        name: 'transfer',
+        authorization: [this.user.authorization],
+        data: {
+          from: this.user.name,
+          to: this.network.amm.contract,
+          quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+          memo: 'deposit'
+        }
+      }, {
+        account: this.network.amm.contract,
+        name: 'addliquid',
+        authorization: [this.user.authorization],
+        data: {
+          poolId: this.pool.id,
+          owner: this.user.name,
+          tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+          tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+          tickLower,
+          tickUpper,
+          tokenAMin: (parseFloat(amountA)).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+          tokenBMin: (parseFloat(amountB)).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+          deadline: 0
+        }
+      })
+
+      try {
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log(r)
+      } catch (e) {
+        console.log('err', e)
+      }
     }
   }
 }
