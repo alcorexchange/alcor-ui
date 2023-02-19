@@ -1,28 +1,35 @@
 <template lang="pug">
 .row.justify-content-center
-  | tokena: {{ tokenA }}
+  | Price {{ price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined }}
   alcor-container.add-liquidity-component.w-100.p-2
     .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
       i.el-icon-circle-plus-outline
       span Add Liquidity
 
-    .row.px-3
+    .row.px-4
       .col
         // Tokens select
         .fs-16.disable.mb-2 Select Pairs
 
-        .d-flex
+        .d-flex.mt-3.justify-content-between
           select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA").sustom-select-token
-          select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB").sustom-select-token.ml-4
+          select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB").sustom-select-token
 
-        .fs-16.disable.mt-3 Select Fee
-        el-radio-group.el-radio-full-width.el-radio-group(v-model='selectedFee' size='small').w-75
-          el-radio-button(label='0.05%')
-          el-radio-button(label='0.3%')
-          el-radio-button(label='1%')
+        .grey-border.p-3.mt-3.rounded
+          .fs-16.disable Select Fee
+          el-radio-group.el-radio-full-width.el-radio-group(v-model='selectedFee' size='small').w-100
+            el-radio-button(label='0.05%')
+            el-radio-button(label='0.3%')
+            el-radio-button(label='1%')
+
+        .fs-16.disable.mt-3 Deposit Amounts
+          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" @tokenSelected="setTokenA").mt-2
+          PoolTokenInput(:token="tokenB" v-model="amountB" @tokenSelected="setTokenA").mt-3
+
+        alcor-button(outline).mt-3.w-100 Add liquidity
 
       .col
-        .fs-20.disable.mb-2(v-if="price") Set Price Range {{ price.toFixed() }}
+        .fs-16.disable.mb-1(v-if="price") Set Price Range
         LiquidityChartRangeInput(
           v-if="pool"
           :currencyA="pool.tokenA || undefined"
@@ -47,6 +54,8 @@
             el-input-number(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
             //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
             .fs-12.text-center BLK per WAX
+
+
 
   //.d-flex.align-items-center
     alcor-container.add-liquidity-component.w-100
@@ -324,24 +333,24 @@ export default {
       return Boolean(typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper)
     },
 
+    outOfRange() {
+      const { invalidRange, price, lowerPrice, upperPrice } = this
+
+      return Boolean(
+        !invalidRange &&
+        price &&
+        lowerPrice &&
+        upperPrice &&
+        (price.lessThan(lowerPrice) || price.greaterThan(upperPrice))
+      )
+    },
+
     max() {
       return 100
     },
 
     pools() {
       return this.$store.getters['amm/pools']
-    },
-
-    marks() {
-      return {
-        '-100': '-100%',
-        100: '100%',
-        0: {
-          style: { color: '#fff' },
-          label: this.$createElement('strong', this.pool ? this.pool.tokenBPrice.toFixed() : 'no price')
-          //label: this.$createElement('strong', this.pool?.asfd ? this.pool.tokenBPrice.toFixed() : 'no price')
-        }
-      }
     }
   },
 
@@ -354,8 +363,6 @@ export default {
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
 
-
-
     init() {
 
       //this.parseUrlParams()
@@ -363,6 +370,71 @@ export default {
 
       //this.tokenA = this.tokensA[1]
       //this.tokenB = this.tokensA[2]
+    },
+
+    onInputAmountA(value) {
+      const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
+      if (dependentAmount) this.amountB = dependentAmount.toFixed()
+    },
+
+    getDependedAmount(value, independentField) {
+      const { tickLower, tickUpper, pool, invalidRange, outOfRange } = this
+      const dependentField = independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
+
+      const currencies = {
+        CURRENCY_A: this.pool.tokenA,
+        CURRENCY_B: this.pool.tokenB
+      }
+
+      const independentAmount = tryParseCurrencyAmount(
+        this.amountA,
+        currencies[independentField]
+      )
+
+      const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_A : currencies.CURRENCY_B
+
+      if (
+        independentAmount &&
+        typeof tickLower === 'number' &&
+        typeof tickUpper === 'number' &&
+        pool
+      ) {
+        // if price is out of range or invalid range - return 0 (single deposit will be independent)
+        if (outOfRange || invalidRange) {
+          return undefined
+        }
+
+        console.log({
+          pool,
+          tickLower,
+          tickUpper,
+          amountA: independentAmount.quotient,
+          useFullPrecision: true // we want full precision for the theoretical position
+        })
+
+        const position = independentAmount.currency.equals(pool.tokenA)
+          ? Position.fromAmountA({
+            pool,
+            tickLower,
+            tickUpper,
+            amountA: independentAmount.quotient,
+            useFullPrecision: true // we want full precision for the theoretical position
+          })
+          : Position.fromAmountB({
+            pool,
+            tickLower,
+            tickUpper,
+            amountB: independentAmount.quotient
+          })
+
+        const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
+          ? position.amountB
+          : position.amountA
+
+        return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
+      }
+
+      return undefined
     },
 
     parseUrlParams() {
@@ -409,84 +481,6 @@ export default {
 
     onRightRangeInput(value) {
       this.rightRangeTypedValue = value
-    },
-
-    //CURRENCY_A
-    getDependedAmount(independentField, typedValue) {
-      const { pool } = this
-
-      const tickLower = -900
-      const tickUpper = 1800
-
-      const dependentField = independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
-      const currencies = { CURRENCY_A: this.pool.tokenA, CURRENCY_B: this.pool.tokenB }
-
-      const independentAmount = tryParseCurrencyAmount(typedValue, currencies[independentField])
-
-      let dependentAmount
-
-      if (
-        independentAmount &&
-        //typeof tickLower === 'number' && // TODO
-        //typeof tickUpper === 'number' && // TODO
-        pool
-      ) {
-        // if price is out of range or invalid range - return 0 (single deposit will be independent)
-
-        // TODO
-        //if (outOfRange || invalidRange) {
-        //  return undefined
-        //}
-
-
-        const position = independentAmount.currency.equals(this.pool.tokenA)
-          ? Position.fromAmountA({
-            pool,
-            tickLower,
-            tickUpper,
-            amountA: independentAmount.quotient,
-            useFullPrecision: true // we want full precision for the theoretical position
-          })
-          : Position.fromAmountB({
-            pool,
-            tickLower,
-            tickUpper,
-            amountB: independentAmount.quotient
-          })
-
-        dependentAmount = independentAmount.currency.equals(pool.tokenA)
-          ? position.amountB
-          : position.amountA
-      } else {
-        dependentAmount = undefined
-      }
-
-      return dependentAmount
-    },
-
-    onAmountAInput(value) {
-      if (!value) return
-      this.amountA = value
-
-      const amountB = this.getDependedAmount('CURRENCY_A', value)
-      console.log('amountB', amountB)
-
-      if (amountB) this.amountB = amountB.toSignificant(6)
-
-      //this.amountA = value
-
-      //const independentAmount = tryParseCurrencyAmount(value, this.pool.tokenA)
-
-      //const p = Position.fromAmountA({
-      //  pool: this.pool,
-      //  tickLower: -900,
-      //  tickUpper: 1800 * 4,
-
-      //  amountA: independentAmount.quotient,
-      //  useFullPrecision: true // we want full precision for the theoretical position
-      //})
-
-      //this.amountB = p.amountB.toSignificant(6)
     },
 
     setTokenA(token) {

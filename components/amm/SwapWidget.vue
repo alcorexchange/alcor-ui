@@ -58,7 +58,6 @@ import AlcorTabs from '~/components/AlcorTabs'
 import AlcorContainer from '~/components/AlcorContainer'
 import AlcorButton from '~/components/AlcorButton'
 import TokenSelect from '~/components/TokenSelect'
-import PoolTokenInputVue from '~/components/amm/PoolTokenInput.vue'
 
 export default {
   components: {
