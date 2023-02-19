@@ -21,6 +21,8 @@ body {
   color: var(--color-text-primary);
 
   transition: 0.3s;
+
+  overflow-x: clip;
 }
 
 body {
