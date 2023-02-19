@@ -122,9 +122,8 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .chartWrapper {
-  height: 400px;
   position: relative;
   justify-content: center;
   align-content: center;

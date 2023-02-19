@@ -1,15 +1,14 @@
 <template lang="pug">
 g(ref="brush"
   :clipPath="`url(#${id}-brush-clip)`"
-  @click="brushOnClick"
-  @mouseleave="brushOnMouseLeave")
+  @mouseover="hovering = true"
+  @mouseleave="hovering = false")
 
   template(v-if="localBrushExtent")
     template(v-if="westHandleInView")
       g(:transform="`translate(${Math.max(0, xScale(localBrushExtent[0]))}, 0), scale(${ flipWestHandle ? '-1' : '1' }, 1)`")
-
         g
-          path.Handle(:stroke="westHandleColor" :fill="westHandleColor" :d="brushHandlePath(innerHeight)")
+          path.Handle(:stroke="westHandleColor" :fill="westHandleColor" :d="brushHandlePath")
           path.HandleAccent(:d="brushHandleAccentPath")
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipWestHandle ? '1' : '-1'}, 1)`")
@@ -17,13 +16,10 @@ g(ref="brush"
           text.Tooltip(transform="scale(-1, 1)" y="15" dominantBaseline="middle")
           //| {{ {brushLabelValue('w', localBrushExtent[0])} }}
 
-
-
-
     template(v-if="eastHandleInView")
       g(:transform="`translate(${xScale(localBrushExtent[1])}, 0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
         g
-          path.Handle(:stroke="eastHandleColor" :fill="eastHandleColor" :d="brushHandlePath(innerHeight)")
+          path.Handle(:stroke="eastHandleColor" :fill="eastHandleColor" :d="brushHandlePath")
           path.HandleAccent(:d="brushHandleAccentPath")
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
@@ -33,7 +29,7 @@ g(ref="brush"
 
     template(v-if="showWestArrow")
       polygon(
-        points="`0 0, 10 10, 0 10`"
+        points="0 0, 10 10, 0 10"
         transform="translate(20, 10) rotate(45)"
         fill="westHandleColor"
         stroke="westHandleColor"
@@ -43,20 +39,16 @@ g(ref="brush"
     template(v-if="showEastArrow")
       g(transform="`translate(${innerWidth}, 0) scale(-1, 1)`")
         polygon(
-          points="`0 0, 10 10, 0 10`"
+          points="0 0, 10 10, 0 10"
           transform="translate(20, 10) rotate(45)"
           fill="eastHandleColor"
           stroke="eastHandleColor"
           strokeWidth="4"
           strokeLinejoin="round")
-
-
 </template>
-
 
 <script>
 import { brushX, select } from 'd3'
-import { brushHandleAccentPath, brushHandlePath } from './svg.js'
 
 const FLIP_HANDLE_THRESHOLD_PX = 20
 const BRUSH_EXTENT_MARGIN_PX = 2
@@ -72,8 +64,6 @@ const compare = (a, b, xScale) => {
   return aNorm.every((v, i) => v === bNorm[i])
 }
 
-
-
 export default {
   props: ['id', 'xScale', 'interactive', 'brushLabelValue', 'brushExtent', 'innerWidth', 'innerHeight',
     'westHandleColor', 'eastHandleColor'],
@@ -82,14 +72,43 @@ export default {
     return {
       brushBehavior: null,
       localBrushExtent: null,
-      brushHandleAccentPath,
-      brushHandlePath,
       showLabels: null,
       hovering: null
     }
   },
 
   computed: {
+    brushHandleAccentPath() {
+      return [
+        'm 5 7', // move to first accent
+        'v 14', // vertical line
+        'M 0 0', // move to origin
+        'm 9 7', // move to second accent
+        'v 14', // vertical line
+        'z'
+      ].join(' ')
+    },
+
+    brushHandlePath() {
+      const { innerHeight } = this
+
+      return [
+        'M 0 0', // move to origin
+        `v ${innerHeight}`, // vertical line
+        'm 1 0', // move 1px to the right
+        'V 0', // second vertical line
+        'M 0 1', // move to origin
+
+        // head
+        'h 12', // horizontal line
+        'q 2 0, 2 2', // rounded corner
+        'v 22', // vertical line
+        'q 0 2 -2 2', // rounded corner
+        'h -12', // horizontal line
+        'z' // close path
+      ].join(' ')
+    },
+
     flipWestHandle() {
       return this.localBrushExtent && this.xScale(this.localBrushExtent[0]) > FLIP_HANDLE_THRESHOLD_PX
     },
@@ -127,6 +146,11 @@ export default {
       this.localBrushExtent = this.brushExtent
     },
 
+    localBrushExtent() {
+      this.showLabels = true
+      setTimeout(() => this.showLabels = false, 1500)
+    },
+
     xScale() {
       this.moveBrush(this.brushExtent)
     }
@@ -155,19 +179,18 @@ export default {
 
       // Set previouse range (from loacal storage)
       if (this.previousBrushExtent && compare(this.brushExtent, this.previousBrushExtent, this.xScale)) {
+        // FIXME never happens
         //select(this.$refs.brush)
         //  .transition()
         //  .call(this.brushBehavior.move, this.brushExtent.map(this.xScale))
+
         this.moveBrush(this.brushExtent)
       } else {
         this.moveBrush(this.brushExtent)
       }
-
-      //console.log('BRUS INITIALIZED')
     },
 
     moveBrush(extent) {
-      console.log('MOVE BRUSH:', extent, extent.map(this.xScale))
       this.brushBehavior.move(select(this.$refs.brush), extent.map(this.xScale))
     },
 
@@ -190,24 +213,16 @@ export default {
       }
 
       this.localBrushExtent = scaled
-    },
-
-    brushOnClick() {
-
-    },
-
-    brushOnMouseLeave() {
-
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .Handle {
   cursor: ew-resize;
   pointer-events: none;
-  stroke-width: 3;
+  stroke-width: 1;
 }
 
 .HandleAccent {

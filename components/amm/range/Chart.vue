@@ -150,7 +150,6 @@ export default {
     },
 
     setBrushExtent(data) {
-      console.log('setBrushExtent', data)
       this.$emit('onBrushDomainChange', data)
     },
 
@@ -172,7 +171,6 @@ export default {
     },
 
     setZoom(zoom) {
-      console.log('setZoom', zoom)
       this.zoom = zoom
     }
   }
