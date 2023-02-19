@@ -29,7 +29,7 @@ export const actions = {
       path += state.tokenA
     }
 
-    if (!state.tokenA && state.tokenB) {
+    if (!state.tokenA && state.tokenB && state.tokenB !== tokenB) {
       path += state.tokenB
     }
 

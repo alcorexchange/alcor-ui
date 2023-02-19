@@ -35,7 +35,6 @@
           @onLeftRangeInput="onLeftRangeInput"
           @onRightRangeInput="onRightRangeInput"
           :interactive="interactive")
-          //:price="23442.32"
 
         .d-flex.gap-8.mt-3.justify-content-center(v-if="leftRangeTypedValue && rightRangeTypedValue")
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
@@ -108,7 +107,7 @@ import AlcorContainer from '~/components/AlcorContainer'
 
 import SelectToken from '~/components/modals/amm/SelectToken'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
-import LiquidityChartRangeInput from '~/components/amm/range/LiquidityChartRangeInput'
+import LiquidityChartRangeInput from '~/components/amm/range'
 
 import {
   tryParsePrice,
@@ -150,8 +149,6 @@ export default {
       independentField: 'CURRENCY_A',
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
-
-      rangeValues: [-50, 50],
 
       selectedFee: '0.3%',
 
@@ -241,13 +238,12 @@ export default {
       const { position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue, pool: { tokenA, tokenB } } = this
 
       // Initates initial prices for inputs(using event from crart based on mask bounds)
-      console.log({ rightRangeTypedValue, leftRangeTypedValue, position })
-      const r = {
+      return {
         LOWER:
           typeof position?.tickLower === 'number'
             ? position.tickLower
-            : (invertPrice && rightRangeTypedValue === 0) ||
-              (!invertPrice && leftRangeTypedValue === 0)
+            : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+              (!invertPrice && typeof leftRangeTypedValue === 'boolean')
               ? tickSpaceLimits.LOWER
               : invertPrice
                 ? tryParseTick(tokenB, tokenA, feeAmount, rightRangeTypedValue.toString())
@@ -256,15 +252,13 @@ export default {
         UPPER:
           typeof position?.tickUpper === 'number'
             ? position.tickUpper
-            : (!invertPrice && rightRangeTypedValue === 0) ||
-              (invertPrice && leftRangeTypedValue === 0)
+            : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+              (invertPrice && typeof leftRangeTypedValue === 'boolean')
               ? tickSpaceLimits.UPPER
               : invertPrice
                 ? tryParseTick(tokenB, tokenA, feeAmount, leftRangeTypedValue.toString())
                 : tryParseTick(tokenA, tokenB, feeAmount, rightRangeTypedValue.toString())
       }
-
-      return r
     },
 
     position() {
@@ -311,8 +305,6 @@ export default {
 
       const { pool: { tokenA, tokenB }, ticks: { LOWER, UPPER } } = this
 
-      console.log('TRY TICK TO PRICE', { LOWER, UPPER })
-
       return {
         LOWER: getTickToPrice(tokenA, tokenB, LOWER),
         UPPER: getTickToPrice(tokenA, tokenB, UPPER)
@@ -333,7 +325,6 @@ export default {
     },
 
     max() {
-      console.log('tokenAPriceLower()', this.pool)
       return 100
     },
 
@@ -413,12 +404,10 @@ export default {
     //)
 
     onLeftRangeInput(value) {
-      console.log('onLeftRangeInput', value)
       this.leftRangeTypedValue = value
     },
 
     onRightRangeInput(value) {
-      console.log('onRightRangeInput', value)
       this.rightRangeTypedValue = value
     },
 

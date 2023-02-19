@@ -97,6 +97,5 @@ export function tryParseTick(
     tick = priceToClosestTick(price)
   }
 
-  console.log('try parse tick', feeAmount, TICK_SPACINGS, tick, TICK_SPACINGS[feeAmount])
   return nearestUsableTick(tick, TICK_SPACINGS[feeAmount])
 }

@@ -60,9 +60,7 @@ export const actions = {
 
     const pool = getters.pools[0]
 
-    console.log('tryParseTick')
     const r = tryParseTick(pool.tokenB, pool.tokenA, 500, '0.9981')
-    console.log('r', r)
 
     //onLeftRangeInput
     //await dispatch('fetchPositions', rootState?.user?.name)

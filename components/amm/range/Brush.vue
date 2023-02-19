@@ -4,44 +4,59 @@ g(ref="brush"
   @click="brushOnClick"
   @mouseleave="brushOnMouseLeave")
 
-  //template(v-if="localBrushExtent")
+  template(v-if="localBrushExtent")
     template(v-if="westHandleInView")
       g(:transform="`translate(${Math.max(0, xScale(localBrushExtent[0]))}, 0), scale(${ flipWestHandle ? '-1' : '1' }, 1)`")
 
         g
-          path.Handle(:color="westHandleColor" :d="brushHandlePath(innerHeight)"
+          path.Handle(:stroke="westHandleColor" :fill="westHandleColor" :d="brushHandlePath(innerHeight)")
           path.HandleAccent(:d="brushHandleAccentPath")
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipWestHandle ? '1' : '-1'}, 1)`")
           rect.TooltipBackground(y="0" x="-30" height="30" width="60" rx="8")
           text.Tooltip(transform="scale(-1, 1)" y="15" dominantBaseline="middle")
-          | {{ {brushLabelValue('w', localBrushExtent[0])} }}
+          //| {{ {brushLabelValue('w', localBrushExtent[0])} }}
 
-    //template(v-if="eastHandleInView")
-      g(transform="`translate(${xScale(localBrushExtent[1])}, 0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
+
+
+
+    template(v-if="eastHandleInView")
+      g(:transform="`translate(${xScale(localBrushExtent[1])}, 0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
         g
-          path.Handle(:color="eastHandleColor" :d="brushHandlePath(innerHeight)")
-          path.HandleAccent :d="brushHandleAccentPath()"
+          path.Handle(:stroke="eastHandleColor" :fill="eastHandleColor" :d="brushHandlePath(innerHeight)")
+          path.HandleAccent(:d="brushHandleAccentPath")
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
           rect.TooltipBackground(y="0" x="-30" height="30" width="60" rx="8")
           text.Tooltip(y="15" dominantBaseline="middle")
-            | {{ brushLabelValue('e', localBrushExtent[1]) }}
+            //| {{ brushLabelValue('e', localBrushExtent[1]) }}
 
-    // TODO SVG
-    //{showWestArrow && <OffScreenHandle color={westHandleColor} />}
+    template(v-if="showWestArrow")
+      polygon(
+        points="`0 0, 10 10, 0 10`"
+        transform="translate(20, 10) rotate(45)"
+        fill="westHandleColor"
+        stroke="westHandleColor"
+        strokeWidth="4"
+        strokeLinejoin="round")
 
-    //{showEastArrow && (
-    //  <g transform={`translate(${innerWidth}, 0) scale(-1, 1)`}>
-    //    <OffScreenHandle color={eastHandleColor} />
-    //  </g>
+    template(v-if="showEastArrow")
+      g(transform="`translate(${innerWidth}, 0) scale(-1, 1)`")
+        polygon(
+          points="`0 0, 10 10, 0 10`"
+          transform="translate(20, 10) rotate(45)"
+          fill="eastHandleColor"
+          stroke="eastHandleColor"
+          strokeWidth="4"
+          strokeLinejoin="round")
 
 
 </template>
 
 
 <script>
-import { BrushBehavior, brushX, D3BrushEvent, ScaleLinear, select } from 'd3'
+import { brushX, select } from 'd3'
+import { brushHandleAccentPath, brushHandlePath } from './svg.js'
 
 const FLIP_HANDLE_THRESHOLD_PX = 20
 const BRUSH_EXTENT_MARGIN_PX = 2
@@ -60,75 +75,65 @@ const compare = (a, b, xScale) => {
 
 
 export default {
-  props: ['id', 'xScale', 'interactive', 'brushLabelValue', 'brushExtent', 'innerWidth', 'innerHeight'],
+  props: ['id', 'xScale', 'interactive', 'brushLabelValue', 'brushExtent', 'innerWidth', 'innerHeight',
+    'westHandleColor', 'eastHandleColor'],
 
   data() {
     return {
       brushBehavior: null,
       localBrushExtent: null,
-      //previousBrushExtent: [15000, 23000]
+      brushHandleAccentPath,
+      brushHandlePath,
+      showLabels: null,
+      hovering: null
     }
   },
 
   computed: {
     flipWestHandle() {
-      //localBrushExtent && xScale(localBrushExtent[0]) > FLIP_HANDLE_THRESHOLD_PX
-      return null
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[0]) > FLIP_HANDLE_THRESHOLD_PX
     },
 
     flipEastHandle() {
-      //localBrushExtent && xScale(localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX
-      return null
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX
     },
 
     showWestArrow() {
-      //const showWestArrow = localBrushExtent && (xScale(localBrushExtent[0]) < 0 || xScale(localBrushExtent[1]) < 0)
-      return null
+      return this.localBrushExtent && (this.xScale(this.localBrushExtent[0]) < 0 || this.xScale(this.localBrushExtent[1]) < 0)
     },
 
     showEastArrow() {
-    //const showEastArrow =
-      //localBrushExtent && (xScale(localBrushExtent[0]) > innerWidth || xScale(localBrushExtent[1]) > innerWidth)
-      return null
+      return this.localBrushExtent && (this.xScale(this.localBrushExtent[0]) > innerWidth || this.xScale(this.localBrushExtent[1]) > innerWidth)
     },
 
     westHandleInView() {
-      //localBrushExtent && xScale(localBrushExtent[0]) >= 0 && xScale(localBrushExtent[0]) <= innerWidth
-      return null
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[0]) >= 0 && this.xScale(this.localBrushExtent[0]) <= innerWidth
     },
 
     eastHandleInView() {
-      //localBrushExtent && xScale(localBrushExtent[1]) >= 0 && xScale(localBrushExtent[1]) <= innerWidth
-      return null
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[1]) >= 0 && this.xScale(this.localBrushExtent[1]) <= innerWidth
     }
   },
 
   mounted() {
     this.localBrushExtent = this.brushExtent
-
     this.init()
-
-    if (this.previousBrushExtent && compare(this.brushExtent, this.previousBrushExtent, this.xScale)) {
-      select(this.$refs.brush)
-        .transition()
-        .call(this.brushBehavior.move, this.brushExtent.map(this.xScale))
-    }
   },
 
   watch: {
     brushExtent() {
+      //console.log('BRUSH [watch brushExtent]: ')
       this.moveBrush(this.brushExtent)
       this.localBrushExtent = this.brushExtent
     },
 
-    xScale() { this.moveBrush(this.brushExtent) },
+    xScale() {
+      this.moveBrush(this.brushExtent)
+    }
   },
 
   methods: {
     init() {
-      //if (!brushRef.current) return
-      console.log('init!')
-
       this.brushBehavior = brushX()
         .extent([
           [Math.max(0 + BRUSH_EXTENT_MARGIN_PX, this.xScale(0)), 0],
@@ -141,35 +146,43 @@ export default {
 
       this.brushBehavior(select(this.$refs.brush))
 
-      // Set previouse range (from loacal storage)
-      if (this.previousBrushExtent && compare(this.brushExtent, this.previousBrushExtent, this.xScale)) {
-        select(this.$refs.brush)
-          .transition()
-          .call(this.brushBehavior.move, this.brushExtent.map(this.xScale))
-      }
-
       // brush linear gradient
       select(this.$refs.brush)
         .selectAll('.selection')
         .attr('stroke', 'none')
         .attr('fill-opacity', '0.1')
         .attr('fill', `url(#${this.id}-gradient-selection)`)
+
+      // Set previouse range (from loacal storage)
+      if (this.previousBrushExtent && compare(this.brushExtent, this.previousBrushExtent, this.xScale)) {
+        //select(this.$refs.brush)
+        //  .transition()
+        //  .call(this.brushBehavior.move, this.brushExtent.map(this.xScale))
+        this.moveBrush(this.brushExtent)
+      } else {
+        this.moveBrush(this.brushExtent)
+      }
+
+      //console.log('BRUS INITIALIZED')
     },
 
     moveBrush(extent) {
-      console.log('moveBrush!', extent, extent.map(this.xScale))
+      console.log('MOVE BRUSH:', extent, extent.map(this.xScale))
       this.brushBehavior.move(select(this.$refs.brush), extent.map(this.xScale))
     },
 
     brushed(event) {
       const { type, selection, mode } = event
+      //console.log('BRUSHED', selection, mode)
 
       if (!selection) {
         this.localBrushExtent = null
         return
       }
 
+      //console.log('before scaled', selection)
       const scaled = (selection).map(this.xScale.invert)
+      //console.log('after scaled', scaled)
 
       // avoid infinite render loop by checking for change
       if (type === 'end' && !compare(this.brushExtent, scaled, this.xScale)) {
@@ -194,10 +207,7 @@ export default {
 .Handle {
   cursor: ew-resize;
   pointer-events: none;
-
   stroke-width: 3;
-  stroke: red;
-  fill: green;
 }
 
 .HandleAccent {
@@ -205,7 +215,6 @@ export default {
   pointer-events: none;
 
   stroke-width: 1.5;
-  //stroke: ${({ theme }) => theme.white};
   stroke: red;
   opacity: 0.5;
 }

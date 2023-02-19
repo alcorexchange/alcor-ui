@@ -16,19 +16,31 @@ export default {
     }
   },
 
-  mounted() {
-    const axis = select(this.$refs.axis)
+  watch: {
+    xScale() {
+      this.generate()
+    },
 
-    axis
-      .call(axisBottom(this.xScale).ticks(6))
-      .call((g) => g.select('.domain').remove())
+    offset() {
+      this.generate()
+    },
+
+    innerHeight() {
+      this.generate()
+    }
+  },
+
+  mounted() {
+    this.generate()
   },
 
   methods: {
-    init() {
-      //setTimeout(() => {
-      //  console.log(this.d)
-      //}, 1000)
+    generate() {
+      const axis = select(this.$refs.axis)
+
+      axis
+        .call(axisBottom(this.xScale).ticks(6))
+        .call((g) => g.select('.domain').remove())
     }
   }
 }

@@ -6,7 +6,7 @@ client-only
     p.infoBox(v-if="error") Liquidity data not available.
 
     .chartWrapper
-      RangeChart(
+      Chart(
         :current="current"
         :series="series"
         :width="400"
@@ -16,22 +16,20 @@ client-only
         brushLabels="brush lable"
         :brushDomain="brushDomain"
         @onBrushDomainChange="onBrushDomainChangeEnded"
-        :zoomLevels="ZOOM_LEVELS[feeAmount]"
-        :ticksAtLimit="ticksAtLimit"
-      )
+        :zoomLevels="ZOOM_LEVELS[feeAmount || FeeAmount.MEDIUM]"
+        :ticksAtLimit="ticksAtLimit")
 </template>
 
 <script>
-//import { brushX, BrushBehavior, select, scaleLinear } from 'd3'
-
-import { Area } from './Area.vue'
-import RangeChart from './RangeChart.vue'
+import Chart from './Chart.vue'
 
 import { data } from './data'
 import { ZOOM_LEVELS } from './constants'
 
+import { FeeAmount } from '~/assets/libs/swap-sdk'
+
 export default {
-  components: { RangeChart },
+  components: { Chart },
   props: ['currencyA', 'currencyB', 'feeAmount', 'ticksAtLimit', 'price', 'priceLower', 'priceUpper', 'interactive'],
 
   data() {
@@ -39,6 +37,7 @@ export default {
       data,
       error: false,
       ZOOM_LEVELS,
+      FeeAmount
     }
   },
 
@@ -62,8 +61,9 @@ export default {
       return []
     },
 
-    //isSorted: () => this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB),
-    isSorted: () => true,
+    isSorted() {
+      return this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB)
+    },
 
     brushDomain() {
       // Все ок
@@ -75,7 +75,7 @@ export default {
       return leftPrice && rightPrice
         ? [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
         : undefined
-    },
+    }
 
     // TODO Лейбл сколько в процентах
     //brushLabelValue(d, x) {
@@ -94,15 +94,11 @@ export default {
     init() {},
 
     onBrushDomainChangeEnded(data) {
-      console.log('onBrushDomainChangeEnded', { data })
-
       const { domain, mode } = data
       const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])
       const rightRangeValue = Number(domain[1])
-
-      console.log({ leftRangeValue, rightRangeValue })
 
       if (leftRangeValue <= 0) leftRangeValue = 1 / 10 ** 6
 
