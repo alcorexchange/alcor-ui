@@ -8,13 +8,21 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
     .d-flex.flex-column.gap-8
       .d-flex.flex-row.justify-content-between.align-items-center
         .fs-12.text-muted {{ $t("Sell") }}
-        el-button(v-if="user && user.balances" type="text" size="mini" @click="inputAmount = parseFloat(inputBalance)").ml-auto
+        el-button(v-if="tokenA" type="text" size="mini" @click="setAToMax").ml-auto
           .d-flex.gap-4.fs-12
-            .text-decoration-underline {{ inputBalance | commaFloat }}
-            .fs-12 {{ inputToken.symbol }}
+            .text-decoration-underline {{ tokenA.amount | commaFloat }}
+            .fs-12 {{ tokenA.currency }}
             i.el-icon-wallet.ml-1
 
-      PoolTokenInput(:token="tokenA" :tokens="tokensA" v-model="amountA" @tokenSelected="setTokenA")
+      PoolTokenInput(
+        :token="tokenA"
+        :tokens="tokensA"
+        v-model="amountA"
+        @tokenSelected="setTokenA"
+        :showMaxButton="tokenA && tokenA.amount > amountA"
+        @onMax="setAToMax"
+        @blur="formatA"
+      )
 
     .d-flex.align-items-center.justify-content-center.mt-2
       i.el-icon-bottom.text-center.fs-20.bottom-icon.pointer
@@ -22,9 +30,9 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
     .d-flex.flex-column.gap-8
       .d-flex.flex-row.justify-content-between.align-items-center
         .fs-12.text-muted {{ $t('Buy (Estimated)') }}
-        .d-flex.align-items-center.gap-4.fs-12(v-if="user && user.balances")
-          .text-decoration-underline {{ outputBalance | commaFloat }}
-          .fs-12 {{ outputToken.symbol }}
+        .d-flex.align-items-center.gap-4.fs-12(v-if="tokenB")
+          .text-decoration-underline {{ tokenB.amount | commaFloat }}
+          .fs-12 {{ tokenB.currency }}
           i.el-icon-wallet.ml-1
 
       PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
@@ -106,31 +114,20 @@ export default {
 
     tokensA() {
       return this.user?.balances || []
-    },
-
-    inputBalance() {
-      return (
-        this.user.balances.find(
-          (b) =>
-            b.currency === this.inputToken.symbol &&
-            b.contract == this.inputToken.contract
-        )?.amount || (0).toFixed(4)
-      )
-    },
-    outputBalance() {
-      return (
-        this.user.balances.find(
-          (b) =>
-            b.currency === this.outputToken.symbol &&
-            b.contract == this.outputToken.contract
-        )?.amount || (0).toFixed(4)
-      )
     }
   },
 
   methods: {
     setTokenA(token) {
       this.tokenA = token
+      this.formatA()
+    },
+    setAToMax() {
+      this.amountA = this.tokenA.amount
+      this.formatA()
+    },
+    formatA() {
+      this.amountA = (+this.amountA).toFixed(this.tokeA ? this.tokenA.decimals : 4)
     },
 
     setTokenB(token) {

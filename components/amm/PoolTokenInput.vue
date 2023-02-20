@@ -1,21 +1,24 @@
 <template lang="pug">
 .pool-token-input
-  el-input(placeholder="0.0" :value="value" @input="$emit('input', $event)" type="number")
+  el-input(placeholder="0.0" :value="value" @input="$emit('input', $event)" @blur="$emit('blur')" type="number")
     template(slot="append")
-      // TODO Add max button using component
-      select-token(:token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
+      .d-flex.align-items-center.gap-4
+        max-bage(v-if="showMaxButton" @click="$emit('onMax')")
+        select-token(:token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import SelectToken from '~/components/modals/amm/SelectToken'
+import MaxBage from '~/components/UI/input/MaxBage'
 
 export default {
   components: {
-    SelectToken
+    SelectToken,
+    MaxBage
   },
 
-  props: ['token', 'tokens', 'disabled', 'value'], // TODO Disabled
+  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton'], // TODO Disabled
 
   data: () => ({
     input: '',
