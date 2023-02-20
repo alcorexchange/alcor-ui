@@ -35,7 +35,13 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
           .fs-12 {{ tokenB.currency }}
           i.el-icon-wallet.ml-1
 
-      PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
+      PoolTokenInput(
+        :token="tokenB"
+        :tokens="tokensA"
+        v-model="amountB"
+        @tokenSelected="setTokenB"
+        :locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
+      )
 
   alcor-button.w-100(big disabled) Swap {{ tokenA && tokenB ? tokenA.currency : '' }} to {{ tokenA && tokenB ? tokenB.currency : '' }}
 

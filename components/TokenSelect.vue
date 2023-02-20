@@ -117,17 +117,6 @@ export default {
     }
   }
 
-  .amount {
-    .el-input__inner {
-      font-size: 18px;
-    }
-    &.is-disabled {
-      .el-input__inner {
-        background-color: var(--background-color-secondary);
-      }
-    }
-  }
-
   .selected svg {
     width: 10px;
     height: 10px;

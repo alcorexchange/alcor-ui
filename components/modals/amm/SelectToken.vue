@@ -33,13 +33,13 @@
         hr
         .d-flex.flex-column
           .d-flex.align-items-center.gap-8.pointer.p-2.br-8.hover-bg-lighter(
-            v-for="({ symbol, contract }, index) in tokens"
+            v-for="({ currency, contract }, index) in tokens"
             @click="selectAsset(tokens[index])"
           )
-            TokenImage(:src="$tokenLogo(symbol, contract)" height="20")
+            TokenImage(:src="$tokenLogo(currency, contract)" height="20")
 
             .d-flex.gap-4.align-items-center
-              .fs-14.contrast {{ symbol }}
+              .fs-14.contrast {{ currency }}
               .fs-10.disable ({{ contract }})
 
         hr.separator

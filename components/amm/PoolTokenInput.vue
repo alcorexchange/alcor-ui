@@ -1,6 +1,13 @@
 <template lang="pug">
 .pool-token-input
-  el-input(placeholder="0.0" :value="value" @input="$emit('input', $event)" @blur="$emit('blur')" type="number")
+  el-input.amount(
+    placeholder="0.0"
+    :value="value"
+    @input="$emit('input', $event)"
+    @blur="$emit('blur')"
+    type="number"
+    :disabled="!!locked"
+  )
     template(slot="append")
       .d-flex.align-items-center.gap-4
         max-bage(v-if="showMaxButton" @click="$emit('onMax')")
@@ -18,7 +25,7 @@ export default {
     MaxBage
   },
 
-  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton'], // TODO Disabled
+  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked'], // TODO Disabled
 
   data: () => ({
     input: '',
@@ -34,6 +41,12 @@ export default {
 <style lang="scss">
 .pool-token-input {
   width: 100%;
+
+  .amount {
+    .el-input__inner:disabled {
+      background-color: var(--background-color-base);
+    }
+  }
 
   .select-token-button {
     display: flex;
@@ -68,7 +81,7 @@ export default {
   }
 
   input {
-    background-color: var(--selector-bg);;
+    background-color: var(--selector-bg);
   }
 }
 
@@ -133,17 +146,6 @@ export default {
       background: var(--background-color-secondary);
       font-size: 12px;
       border-radius: 4px;
-    }
-  }
-
-  .amount {
-    .el-input__inner {
-      font-size: 18px;
-    }
-    &.is-disabled {
-      .el-input__inner {
-        background-color: var(--background-color-secondary);
-      }
     }
   }
 
