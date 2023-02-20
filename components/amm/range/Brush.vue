@@ -1,8 +1,9 @@
 <template lang="pug">
-g(ref="brush"
-  :clipPath="`url(#${id}-brush-clip)`"
-  @mouseover="hovering = true"
-  @mouseleave="hovering = false")
+g
+  g(ref="brush"
+    :clipPath="`url(#${id}-brush-clip)`"
+    @mouseover="hovering = true"
+    @mouseleave="hovering = false")
 
   template(v-if="localBrushExtent")
     template(v-if="westHandleInView")

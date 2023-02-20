@@ -1,20 +1,19 @@
 <template lang="pug">
-h1 lol
-//#manage-liquidity-id-page.d-flex.flex-column.gap-24
-  pre {{ profitLoss }}
+#manage-liquidity-id-page.d-flex.flex-column.gap-24
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-16
       return-link
       .d-flex.gap-32.align-items-center
         .d-flex.flex.gap-4.align-items-center
-          pair-icons(
-            :token1="pool.input"
-            :token2="pool.output"
-          )
-          .fs-24.contrast {{ pool.input.symbol }} / {{ pool.output.symbol }}
+          //pair-icons(
+          //  :token1="pool.input"
+          //  :token2="pool.output"
+          //)
+          //.fs-24.contrast {{ pool.input.symbol }} / {{ pool.output.symbol }}
+          .fs-24.contrast wax / eos
         .d-flex.gap-16
-          .tag {{ pool.percent }}% Fee
-          .tag {{ fee.selectedPercent }}% Selected
+          .tag 0.3% Fee
+          .tag 90% Selected
     .d-flex.gap-16.h-48
       alcor-button
         i.el-icon-circle-plus-outline
@@ -35,66 +34,66 @@ h1 lol
         .fs-14.disable Selected Pair
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
-            token-image(:src="$tokenLogo(pool.input.symbol, pool.input.contract)" height="25")
-            .fs-24.contrast {{ pool.input.symbol }}
+            //token-image(:src="$tokenLogo(pool.input.symbol, pool.input.contract)" height="25")
+            .fs-24.contrast WAX
           .d-flex.gap-8.align-items-center
-            .fs-24.disable {{ pool.inputAmount }}
+            .fs-24.disable 123
             .tag 59.8%
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
-            token-image(:src="$tokenLogo(pool.output.symbol, pool.output.contract)" height="25")
-            .fs-24.contrast {{ pool.output.symbol }}
+            token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
+            .fs-24.contrast WAX
           .d-flex.gap-8.align-items-center
-            .fs-24.disable {{ pool.outputAmount }}
+            .fs-24.disable 33.32
             .tag 40.2%
 
       alcor-container.d-flex.flex-column.gap-16.w-550
         .d-flex.justify-content-between.align-items-center
           .d-flex.flex-column.gap-8
             .fs-14.disable Unclaimed Fees
-            .fs-40 ${{ $systemToUSD(pool.inputEarning + pool.outputEarning) }}
+            .fs-40 0.00$
           alcor-button.h-48(access big)
             i.el-icon-money
             span Collect Fees
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
-            token-image(:src="$tokenLogo(pool.input.symbol, pool.input.contract)" height="25")
-            .fs-24.contrast {{ pool.input.symbol }}
+            token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
+            .fs-24.contrast WAX
           .d-flex.gap-8.align-items-center
-            .fs-24.disable {{ pool.inputEarning }}
-            .fs-14.red(:class="{ green: pool.inputEarning > 0 }") (${{ $systemToUSD(pool.inputEarning) }})
+            .fs-24.disable 0.00$
+            .fs-14.red(:class="{ green: true }") (20.00)
 
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
-            token-image(:src="$tokenLogo(pool.output.symbol, pool.output.contract)" height="25")
-            .fs-24.contrast {{ pool.output.symbol }}
+            token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
+            .fs-24.contrast WAX
           .d-flex.gap-8.align-items-center
-            .fs-24.disable {{ pool.outputEarning }}
-            .fs-14.red(:class="{ green: pool.outputEarning > 0 }") (${{ $systemToUSD(pool.outputEarning) }})
+            .fs-24.disable 23.00
+            .fs-14.red(:class="{ green: true }") ($3.00)
   alcor-container.d-flex.flex-column.gap-16.w-100
     .d-flex.justify-content-between
       .d-flex.gap-32.align-items-center
         .fs-14.disable Price Range
         .d-flex.gap-8.align-items-center
-          .indicator(:class="{ 'in-range': pool.inRange }")
-          .fs-18 {{ pool.inRange ? 'In Range': 'Out of Range' }}
+          .indicator(:class="{ 'in-range': true }")
+          .fs-18 {{ true ? 'In Range': 'Out of Range' }}
     .d-flex.gap-20.justify-content-between.align-items-center
       .grey-border.d-flex.flex-column.gap-20.p-2.br-4.w-50
         .fs-12.text-center Min Price
-        .fs-24.text-center.contrast {{ pool.min }}
-        .fs-12.text-center {{ pool.input.symbol }} per {{ pool.output.symbol }}
+        .fs-24.text-center.contrast 0.123
+        .fs-12.text-center wax per eos
 
       i.el-icon-sort.r-90
 
       .grey-border.d-flex.flex-column.gap-20.p-2.br-4.w-50
         .fs-12.text-center Max Price
-        .fs-24.text-center.contrast {{ pool.max }}
-        .fs-12.text-center {{ pool.input.symbol }} per {{ pool.output.symbol }}
+        .fs-24.text-center.contrast 12.32
+        .fs-12.text-center wax per eos
 
     .grey-border.d-flex.flex-column.gap-20.p-2.br-4.w-100
       .fs-12.text-center Current Price
       .fs-24.text-center 15.8956
-      .fs-12.text-center {{ pool.input.symbol }} per {{ pool.output.symbol }}
+      .fs-12.text-center wax per eos
 </template>
 
 <script>
@@ -180,16 +179,16 @@ export default {
     }
   }),
   computed: {
-    pool() {
-      return this.pools.find(({ id }) => id == this.$route.params.id)
-    },
-    fee() {
-      return this.fees.find(({ value }) => value == this.pool.percent)
-    }
+    //pool() {
+    //  return this.pools.find(({ id }) => id == this.$route.params.id)
+    //},
+    //fee() {
+    //  return this.fees.find(({ value }) => value == this.pool.percent)
+    //}
   },
   mounted() {
     // TODO mock chart data
-    this.fetchProfitLoss()
+    //this.fetchProfitLoss()
   },
   methods: {
     async fetchProfitLoss() {

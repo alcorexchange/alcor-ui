@@ -27,8 +27,9 @@
           :height="innerHeight")
 
     g(:transform="`translate(${margins.left}, ${margins.top})`")
-      g(:clipPath="`url(#${id}-chart-clip)`")
-        Area(fill="green" :series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
+      g(:clip-path="`url(#${id}-chart-clip)`")
+        //Area(fill="green" :series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
+        Area(:series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
 
         g(v-if="brushDomain" :mask="`url(#${id}-chart-area-mask)`")
           Area(
@@ -48,8 +49,8 @@
 
       defs
         linearGradient(:id="`${id}-gradient-selection`" x1="0%" y1="100%" x2="100%" y2="100%")
-          stop(:stopColor="westHandleColor")
-          stop(:stopColor="eastHandleColor" offset="1")
+          stop(:stop-color="westHandleColor")
+          stop(:stop-color="eastHandleColor" offset="1")
 
         // clips at exactly the svg area
         clipPath(:id="`${id}-brush-clip`")
@@ -88,7 +89,7 @@ export default {
 
   data() {
     return {
-      id: 'liquidityCart',
+      id: 'liquidityChartRangeInput',
       data,
       zoom: null,
 
@@ -177,7 +178,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 rect.ZoomOverlay {
   fill: transparent;
   cursor: grab;

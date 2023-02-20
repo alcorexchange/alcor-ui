@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.justify-content-center
-  .d-flex.flex-column
+  //.d-flex.flex-column
     .title.fs-18 outOfRange {{ outOfRange }}
     .title.fs-18 invalidRange {{ invalidRange }}
     .title.fs-18 Price {{ price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined }}
@@ -394,7 +394,7 @@ export default {
       }
 
       const independentAmount = tryParseCurrencyAmount(
-        this.amountA,
+        value,
         currencies[independentField]
       )
 
