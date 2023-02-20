@@ -80,7 +80,7 @@ export default {
 
     async test() {
       //this.$store.dispatch('amm/init')
-      this.$store.dispatch('amm/test')
+      this.$store.dispatch('amm/swap/test')
       //console.log('R', r)
     }
   }

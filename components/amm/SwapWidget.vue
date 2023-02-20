@@ -10,18 +10,18 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
         .fs-12.text-muted {{ $t("Sell") }}
         el-button(v-if="tokenA" type="text" size="mini" @click="setAToMax").ml-auto
           .d-flex.gap-4.fs-12
-            .text-decoration-underline {{ tokenA.amount | commaFloat }}
-            .fs-12 {{ tokenA.currency }}
+            .text-decoration-underline {{ balanceInput }}
+            .fs-12 WAX
             i.el-icon-wallet.ml-1
 
       PoolTokenInput(
         :token="tokenA"
         :tokens="tokensA"
         v-model="amountA"
+        @input="calcOutput"
         @tokenSelected="setTokenA"
-        :showMaxButton="tokenA && tokenA.amount > amountA"
+        :show-max-button="false"
         @onMax="setAToMax"
-        @blur="formatA"
       )
 
     .d-flex.align-items-center.justify-content-center.mt-2
@@ -37,11 +37,11 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 
       PoolTokenInput(
         :token="tokenB"
-        :tokens="tokensA"
+        :tokens="tokensB"
         v-model="amountB"
         @tokenSelected="setTokenB"
-        :locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
       )
+      //:locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
 
   alcor-button.w-100(big disabled) Swap {{ tokenA && tokenB ? tokenA.currency : '' }} to {{ tokenA && tokenB ? tokenB.currency : '' }}
 
@@ -65,13 +65,32 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import PoolTokenInput from '~/components/amm/PoolTokenInput.vue'
+import { mapState, mapActions, mapGetters } from 'vuex'
+
+import { tryParseCurrencyAmount } from '~/utils/amm'
 
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorContainer from '~/components/AlcorContainer'
 import AlcorButton from '~/components/AlcorButton'
 import TokenSelect from '~/components/TokenSelect'
+import PoolTokenInput from '~/components/amm/PoolTokenInput.vue'
+
+
+export function getV2BestTrade() {
+
+}
+
+
+export function getBestTrade(tradeType, amountSpecified, otherCurrency) {
+  // TODO Multi rounding
+
+  const [currencyIn, currencyOut] =
+    tradeType === 'EXACT_INPUT'
+      ? [amountSpecified?.currency, otherCurrency]
+      : [otherCurrency, amountSpecified?.currency]
+
+}
+
 
 export default {
   components: {
@@ -84,20 +103,6 @@ export default {
   data: () => ({
     amountA: null,
     amountB: null,
-
-    tokenA: null,
-    tokenB: null,
-
-    inputToken: {
-      symbol: 'BRWL',
-      contract: 'brawlertoken'
-    },
-    inputAmount: 100,
-    outputToken: {
-      symbol: 'BRWL',
-      contract: 'brawlertoken'
-    },
-    outputAmount: 100,
 
     tabs: [
       {
@@ -116,28 +121,57 @@ export default {
   }),
 
   computed: {
-    ...mapGetters(['user']),
+    ...mapState(['user', 'network']),
+    ...mapGetters('amm/swap', [
+      'tokenA',
+      'tokenB',
+      'tokensA',
+      'tokensB',
+      'pool'
+    ]),
 
-    tokensA() {
-      return this.user?.balances || []
+    balanceInput() {
+      return 0
+    },
+
+    balanceOut() {
+      return 0
     }
   },
 
   methods: {
+    ...mapActions('amm/swap', [
+      'bestTradeExactIn',
+      'bestTradeExactOut'
+    ]),
+
     setTokenA(token) {
-      this.tokenA = token
-      this.formatA()
+      console.log('token', token)
+      this.$store.dispatch('amm/swap/setTokenA', token.name)
     },
+
     setAToMax() {
-      this.amountA = this.tokenA.amount
-      this.formatA()
-    },
-    formatA() {
-      this.amountA = (+this.amountA).toFixed(this.tokeA ? this.tokenA.decimals : 4)
+      console.log('setAToMax')
     },
 
     setTokenB(token) {
-      this.tokenB = token
+      this.$store.dispatch('amm/swap/setTokenB', token.name)
+    },
+
+    async calcOutput(value, independentField) {
+      const { tokenA, tokenB } = this
+      const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
+      const r = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+
+      console.log({ r })
+
+      //const { tokenA, tokenB } = this
+
+      //if (independentField == 'INPUT') {
+      //} else {
+      //  const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+      //  return this.currencyAmountOut({ currencyAmountOut, currencyIn: tokenA })
+      //}
     }
   }
 }

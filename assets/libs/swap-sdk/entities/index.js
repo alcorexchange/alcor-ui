@@ -22,3 +22,5 @@ __exportStar(require("./currency"), exports);
 __exportStar(require("./token"), exports);
 __exportStar(require("./pool"), exports);
 __exportStar(require("./position"), exports);
+__exportStar(require("./route"), exports);
+__exportStar(require("./trade"), exports);

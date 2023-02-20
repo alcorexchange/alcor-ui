@@ -15,9 +15,6 @@ const sqrtPriceMath_1 = require("../utils/sqrtPriceMath");
 const tickMath_1 = require("../utils/tickMath");
 const encodeSqrtRatioX64_1 = require("../utils/encodeSqrtRatioX64");
 const pool_1 = require("./pool");
-/**
- * Represents a position on a Uniswap V3 Pool
- */
 class Position {
     /**
      * Constructs a position for a given pool with the given liquidity
@@ -41,7 +38,8 @@ class Position {
     }
     // TODO Should be gte?
     get inRange() {
-        return this.tickLower < this.pool.tickCurrent && this.pool.tickCurrent < this.tickUpper;
+        return (this.tickLower < this.pool.tickCurrent &&
+            this.pool.tickCurrent < this.tickUpper);
     }
     /**
      * Returns the price of tokenA at the lower tick
@@ -120,8 +118,8 @@ class Position {
         // get lower/upper prices
         const { sqrtRatioX64Upper, sqrtRatioX64Lower } = this.ratiosAfterSlippage(slippageTolerance);
         // construct counterfactual pools
-        const poolLower = new pool_1.Pool(this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Lower, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower));
-        const poolUpper = new pool_1.Pool(this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Upper, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Upper));
+        const poolLower = new pool_1.Pool(this.pool.id, this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Lower, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower));
+        const poolUpper = new pool_1.Pool(this.pool.id, this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Upper, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Upper));
         // because the router is imprecise, we need to calculate the position that will be created (assuming no slippage)
         const positionThatWillBeCreated = Position.fromAmounts(Object.assign(Object.assign({ pool: this.pool, tickLower: this.tickLower, tickUpper: this.tickUpper }, this.mintAmounts), { useFullPrecision: false }));
         // we want the smaller amounts...
@@ -151,8 +149,8 @@ class Position {
         // get lower/upper prices
         const { sqrtRatioX64Upper, sqrtRatioX64Lower } = this.ratiosAfterSlippage(slippageTolerance);
         // construct counterfactual pools
-        const poolLower = new pool_1.Pool(this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Lower, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower));
-        const poolUpper = new pool_1.Pool(this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Upper, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Upper));
+        const poolLower = new pool_1.Pool(this.pool.id, this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Lower, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower));
+        const poolUpper = new pool_1.Pool(this.pool.id, this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Upper, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Upper));
         // we want the smaller amounts...
         // ...which occurs at the upper price for amountA...
         const amountA = new Position({
@@ -235,7 +233,7 @@ class Position {
             tickLower,
             tickUpper,
             amountA,
-            amountB: internalConstants_1.MaxUint256,
+            amountB: internalConstants_1.MaxUint64,
             useFullPrecision,
         });
     }
@@ -253,7 +251,7 @@ class Position {
             pool,
             tickLower,
             tickUpper,
-            amountA: internalConstants_1.MaxUint256,
+            amountA: internalConstants_1.MaxUint64,
             amountB,
             useFullPrecision: true,
         });

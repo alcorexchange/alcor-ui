@@ -70,10 +70,5 @@ class CurrencyAmount extends fraction_1.Fraction {
             .div(this.decimalScale.toString())
             .toFormat(format);
     }
-    get wrapped() {
-        if (this.currency.isToken)
-            return this;
-        return CurrencyAmount.fromFractionalAmount(this.currency.wrapped, this.numerator, this.denominator);
-    }
 }
 exports.CurrencyAmount = CurrencyAmount;

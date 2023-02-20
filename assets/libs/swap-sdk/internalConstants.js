@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TICK_SPACINGS = exports.Rounding = exports.FeeAmount = exports.MaxUint64 = exports.MaxUint128 = exports.MaxUint256 = exports.Q256 = exports.Q192 = exports.Q128 = exports.Q96 = exports.Q64 = exports.Q32 = exports.ONE = exports.ZERO = exports.NEGATIVE_ONE = void 0;
+exports.TICK_SPACINGS = exports.Rounding = exports.FeeAmount = exports.TradeType = exports.MaxUint64 = exports.MaxUint128 = exports.MaxUint256 = exports.Q256 = exports.Q192 = exports.Q128 = exports.Q96 = exports.Q64 = exports.Q32 = exports.ONE = exports.ZERO = exports.NEGATIVE_ONE = void 0;
 const jsbi_1 = __importDefault(require("jsbi"));
 // constants used internally but not expected to be used externally
 exports.NEGATIVE_ONE = jsbi_1.default.BigInt(-1);
@@ -19,6 +19,11 @@ exports.Q256 = jsbi_1.default.exponentiate(jsbi_1.default.BigInt(2), jsbi_1.defa
 exports.MaxUint256 = jsbi_1.default.BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 exports.MaxUint128 = jsbi_1.default.BigInt("0xffffffffffffffffffffffffffffffff");
 exports.MaxUint64 = jsbi_1.default.BigInt("0xffffffffffffffff");
+var TradeType;
+(function (TradeType) {
+    TradeType[TradeType["EXACT_INPUT"] = 0] = "EXACT_INPUT";
+    TradeType[TradeType["EXACT_OUTPUT"] = 1] = "EXACT_OUTPUT";
+})(TradeType = exports.TradeType || (exports.TradeType = {}));
 /**
  * The default factory enabled fee amounts, denominated in hundredths of bips.
  */

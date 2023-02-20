@@ -41,7 +41,7 @@ class Pool {
      * @param tickCurrent The current tick of the pool
      * @param ticks The current state of the pool ticks or a data provider that can return tick data
      */
-    constructor(tokenA, tokenB, fee, sqrtRatioX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT, id) {
+    constructor(id, tokenA, tokenB, fee, sqrtRatioX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT) {
         (0, tiny_invariant_1.default)(Number.isInteger(fee) && fee < 1000000, "FEE");
         const tickCurrentSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent);
         const nextTickSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent + 1);
@@ -51,8 +51,8 @@ class Pool {
         [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
             ? [tokenA, tokenB]
             : [tokenB, tokenA];
-        this.id = id;
         this.fee = fee;
+        this.id = id;
         this.sqrtRatioX64 = jsbi_1.default.BigInt(sqrtRatioX64);
         this.liquidity = jsbi_1.default.BigInt(liquidity);
         this.tickCurrent = tickCurrent;
@@ -105,7 +105,7 @@ class Pool {
             const outputToken = zeroForOne ? this.tokenB : this.tokenA;
             return [
                 fractions_1.CurrencyAmount.fromRawAmount(outputToken, jsbi_1.default.multiply(outputAmount, internalConstants_2.NEGATIVE_ONE)),
-                new Pool(this.tokenA, this.tokenB, this.fee, sqrtRatioX64, liquidity, tickCurrent, this.tickDataProvider),
+                new Pool(this.id, this.tokenA, this.tokenB, this.fee, sqrtRatioX64, liquidity, tickCurrent, this.tickDataProvider),
             ];
         });
     }
@@ -122,7 +122,7 @@ class Pool {
             const inputToken = zeroForOne ? this.tokenA : this.tokenB;
             return [
                 fractions_1.CurrencyAmount.fromRawAmount(inputToken, inputAmount),
-                new Pool(this.tokenA, this.tokenB, this.fee, sqrtRatioX64, liquidity, tickCurrent, this.tickDataProvider),
+                new Pool(this.id, this.tokenA, this.tokenB, this.fee, sqrtRatioX64, liquidity, tickCurrent, this.tickDataProvider),
             ];
         });
     }
@@ -162,7 +162,7 @@ class Pool {
             // start swap while loop
             while (jsbi_1.default.notEqual(state.amountSpecifiedRemaining, internalConstants_2.ZERO) &&
                 state.sqrtPriceX64 != sqrtPriceLimitX64) {
-                let step = {};
+                const step = {};
                 step.sqrtPriceStartX64 = state.sqrtPriceX64;
                 // because each iteration of the while loop rounds, we can't optimize this code (relative to the smart contract)
                 // by simply traversing to the next available tick, we instead need to exactly replicate

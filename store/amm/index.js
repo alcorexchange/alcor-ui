@@ -82,6 +82,7 @@ export const getters = {
       TICKS.sort((a, b) => a.index - b.index)
 
       pools.push(new Pool(
+        id,
         parseToken(tokenA),
         parseToken(tokenB),
         fee,

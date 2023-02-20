@@ -27,3 +27,4 @@ __exportStar(require("./isSorted"), exports);
 __exportStar(require("./tickList"), exports);
 __exportStar(require("./priceTickConversions"), exports);
 __exportStar(require("./sqrtPriceMath"), exports);
+__exportStar(require("./sortedInsert"), exports);

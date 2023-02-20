@@ -13,10 +13,6 @@ function mulShift(val, mulBy) {
 }
 class TickMath {
     /**
-     * Cannot be constructed.
-     */
-    constructor() { }
-    /**
      * Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
      * @param tick the tick for which to compute the sqrt ratio
      */
