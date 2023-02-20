@@ -29,13 +29,7 @@
 
       .fs-14.disable.mt-2 Select Fee
 
-      .d-flex.gap-16.flex-wrap.justify-content-center
-        .fee.d-flex.flex-column.gap-16(v-for="({ value, desc, selectedPercent }, idx) in fees" @click="selectedFee = idx" :class="{ active: selectedFee == idx }")
-          .fs-24 {{ value }}
-          .fs-14.disable {{ desc }}
-          .d-flex.gap-4
-            span {{ selectedPercent }}
-            span Selected
+      commission-select(:selected="selectedFee" :options="fees" @change="v => selectedFee = v")
 
       alcor-button.w-100(@click="openPreviewLiqidityModal" access big) Preview
 
@@ -48,12 +42,12 @@ import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from 
 import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
-
+import CommissionSelect from '~/components/amm/CommissionSelect'
 
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
-  components: { PoolTokenInput, AlcorButton },
+  components: { PoolTokenInput, AlcorButton, CommissionSelect },
 
   data() {
     return {
@@ -257,23 +251,6 @@ export default {
 
   .el-slider__marks-text:last-child {
     width: 40px;
-  }
-
-  .fee {
-    width: 185px;
-    height: 156px;
-    padding: 16px 24px;
-    cursor: pointer;
-
-    background: rgba(60, 60, 67, 0.36);
-
-    border: 1px solid rgba(120, 120, 135, 0.36);
-    border-radius: 4px;
-
-    &.active {
-      border: 1px solid #67C23A;
-      background: #161617;
-    }
   }
 }
 </style>
