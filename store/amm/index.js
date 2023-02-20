@@ -35,7 +35,7 @@ export const actions = {
 
     const positions = []
 
-    for (const pool of getters.pools) {
+    for (const pool of state.pools) {
       const rows = await fetchAllRows(this.$rpc, {
         code: rootState.network.amm.contract,
         scope: pool.id,
@@ -48,7 +48,6 @@ export const actions = {
 
       if (!rows) continue
 
-      rows.map(r => r.pool = pool)
       positions.push(...rows)
     }
 
@@ -56,51 +55,6 @@ export const actions = {
   },
 
   async test({ state, getters, commit, rootState, dispatch }) {
-    await dispatch('fetchPairs')
-
-    const pool = getters.pools[0]
-
-    const r = tryParseTick(pool.tokenB, pool.tokenA, 500, '0.9981')
-
-    //onLeftRangeInput
-    //await dispatch('fetchPositions', rootState?.user?.name)
-
-    //console.log('a', pool.tokenA)
-
-    //const independentAmount = tryParseCurrencyAmount('123', pool.tokenA)
-
-    //const p = Position.fromAmountA({
-    //  pool,
-    //  tickLower: -900,
-    //  tickUpper: 900,
-
-    //  amountA: independentAmount.quotient,
-    //  useFullPrecision: true // we want full precision for the theoretical position
-    //})
-
-    //console.log('p', p.amountB.toFixed())
-
-
-    //console.log('testsss', getters.positions)
-    //await dispatch('fetchPairs')
-    //console.log('2222')
-
-    //console.log('pool', pool.sqrtRatioX64.toString())
-
-    //const r = pool.tokenAPrice.toFixed(20)
-    ////const r = tryParsePrice(pool.tokenA, pool.tokenB, '1.0032').toFixed()
-    //console.log('r', r)
-
-    //const pool = state.pools[0]
-    //
-    //const inAmountStr = asset('1.0432 B').amount.toString()
-    ////console.log(inAmount)
-
-    //console.log('pool.tokenA', pool.tokenA)
-    //const amountIn = new CurrencyAmount(pool.tokenA, inAmountStr)
-    //console.log('amountIn', amountIn.toFixed())
-
-    //console.log('pool', await pool.getOutputAmount(amountIn, 0))
   },
 
   async fetchPairs({ state, commit, rootState, dispatch }) {
@@ -146,7 +100,8 @@ export const getters = {
     const positions = []
 
     for (const { liquidity, upper, lower, pool } of state.positions) {
-      positions.push(new Position({ pool, liquidity, tickLower: lower, tickUpper: upper }))
+      const poolInstance = getters.pools.find(p => p.id == pool)
+      positions.push(new Position({ pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
     }
 
     return positions
