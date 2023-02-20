@@ -81,7 +81,7 @@
   --text-secondary: #d9d9d9;
   --text-grey-thirdly: #bdbdbd;
   --text-dark: #888;
-  --text-disable: #BEC6CB;
+  --text-disable: #8E8E93;
   --text-transparent: rgba(242, 242, 242, 0.3);
 
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
@@ -89,6 +89,8 @@
 
   --color-text-primary: #F2F2F2;
   --border-color: #3F3F3F;
+  --border-hover-color: #1fc7816e;
+  --border-active-color: #32D74B;
   --light-border-color: rgba(120, 120, 135, 0.36);
 
   --color-success: #8cc176;
@@ -165,6 +167,8 @@
   --tag-color: rgba(120, 120, 135, 0.36);
 
   --border-color: #CDD0D6;
+  --border-hover-color: red;
+  --border-active-color: #32D74B;
   --light-border-color: rgba(120, 120, 135, 0.36);
 
   --card-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
