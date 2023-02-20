@@ -19,9 +19,10 @@
           select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA").sustom-select-token
           select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB").sustom-select-token
 
+        CommissionSelect(:selected="selectedFee" :options="fees" @change="v => selectedFee = v")
         .grey-border.p-3.mt-3.rounded
           .fs-16.disable Select Fee
-          el-radio-group.el-radio-full-width.el-radio-group(v-model='selectedFee' size='small').w-100
+          //el-radio-group.el-radio-full-width.el-radio-group(v-model='selectedFee' size='small').w-100
             el-radio-button(label='0.05%')
             el-radio-button(label='0.3%')
             el-radio-button(label='1%')
@@ -120,6 +121,7 @@ import AlcorContainer from '~/components/AlcorContainer'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
+import CommissionSelect from '~/components/amm/CommissionSelect.vue'
 
 import {
   tryParsePrice,
@@ -139,7 +141,7 @@ import {
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 
 export default {
-  components: { SelectToken, PoolTokenInput, AlcorButton, AlcorContainer, LiquidityChartRangeInput },
+  components: { SelectToken, PoolTokenInput, AlcorButton, AlcorContainer, LiquidityChartRangeInput, CommissionSelect },
 
   // Enabling managige route in nested component
   fetch({ route, redirect }) {
@@ -162,11 +164,11 @@ export default {
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
-      selectedFee: '0.3%',
+      selectedFee: 1,
 
       fees: [
-        { value: 0.05, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
-        { value: 0.3, desc: 'Best for most pairs', selectedPercent: 44 },
+        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
+        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: 44 },
         { value: 1, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
       ]
     }
