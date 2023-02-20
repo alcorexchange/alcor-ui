@@ -10,7 +10,7 @@
       i.el-icon-circle-plus-outline
       span Add Liquidity
 
-    .row.px-4
+    .row.px-3
       .col
         // Tokens select
         .fs-16.disable.mb-2 Select Pairs
@@ -19,8 +19,10 @@
           select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA").sustom-select-token
           select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB").sustom-select-token
 
-        CommissionSelect(:selected="selectedFee" :options="fees" @change="v => selectedFee = v")
-        .grey-border.p-3.mt-3.rounded
+        .fs-14.disable.mt-2 select fee
+        commission-select(:selected="selectedfee" :options="fees" @change="v => selectedfee = v")
+
+        //.grey-border.p-3.mt-3.rounded
           .fs-16.disable Select Fee
           //el-radio-group.el-radio-full-width.el-radio-group(v-model='selectedFee' size='small').w-100
             el-radio-button(label='0.05%')
@@ -121,7 +123,7 @@ import AlcorContainer from '~/components/AlcorContainer'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
-import CommissionSelect from '~/components/amm/CommissionSelect.vue'
+import CommissionSelect from '~/components/amm/CommissionSelect'
 
 import {
   tryParsePrice,
@@ -164,11 +166,11 @@ export default {
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
-      selectedFee: 1,
+      selectedfee: 1,
 
       fees: [
-        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
-        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: 44 },
+        { value: 0.05, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
+        { value: 0.3, desc: 'Best for most pairs', selectedPercent: 44 },
         { value: 1, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
       ]
     }
@@ -503,22 +505,6 @@ export default {
       this.$store.dispatch('amm/addLiquidity/setTokenB', token.name)
     },
 
-    openPreviewLiqidityModal() {
-      const { outputToken, inputToken, inputAmount, outputAmount, selectedFee, maxPrice, minPrice, fees, inRange } = this
-
-      this.previewLiquidity({
-        inputToken,
-        outputToken,
-        inputAmount,
-        outputAmount,
-        selectedFee,
-        maxPrice,
-        minPrice,
-        fees,
-        inRange
-      })
-    },
-
     async submit() {
       const { amountA, amountB, tokenA, tokenB, tickLower, tickUpper } = this
       console.log(tokenA, tokenB)
@@ -589,11 +575,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.add-liquidity-page {
-  max-width: 880px;
-}
-
+<style lang="scss" scoped>
 .sustom-select-token {
   .select-token-button {
     width: 140px;
