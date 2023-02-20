@@ -562,7 +562,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .sustom-select-token {
   .select-token-button {
     width: 140px;
@@ -573,29 +573,8 @@ export default {
   margin-top: 50px;
   max-width: 880px;
 
-  .left {
-    width: 100%;
-  }
-
   .el-slider__marks-text:last-child {
     width: 40px;
-  }
-
-  .fee {
-    width: 185px;
-    height: 156px;
-    padding: 16px 24px;
-    cursor: pointer;
-
-    background: rgba(60, 60, 67, 0.36);
-
-    border: 1px solid rgba(120, 120, 135, 0.36);
-    border-radius: 4px;
-
-    &.active {
-      border: 1px solid #67C23A;
-      background: #161617;
-    }
   }
 }
 </style>
