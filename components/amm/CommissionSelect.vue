@@ -1,12 +1,16 @@
 <template lang="pug">
-.d-flex.gap-16.flex-wrap.justify-content-center
-  .fee.d-flex.flex-column.justify-content-between(v-for="fee in options" @click="$emit('change', fee)" :class="{ active: selected.value == fee.value }")
+.d-flex.gap-10.flex-wrap.justify-content-center
+  .fee.d-flex.flex-column.gap-10.justify-content-between.p-2.br-8.grey-border.border-hover(
+    :class="{ 'border-active': selected.value == fee.value }"
+    v-for="fee in options"
+    @click="$emit('change', fee)"
+  )
     i.check-icon.el-icon-circle-check(v-if="selected.value == fee.value")
-    .fs-24 {{ fee.value }}%
-    .fs-14.disable.text-break {{ fee.desc }}
-    el-tag.tag.d-flex.gap-4
-      span(:class="{red: fee.selectedPercent < 1}") {{ fee.selectedPercent }}%
-      span Selected
+    .fs-18 {{ fee.value }}%
+    .fs-12.disable.text-break {{ fee.desc }}
+    .d-flex.gap-4.disable
+      .fs-12(:class="{ red: fee.selectedPercent < 1, 'color-action': selected.value == fee.value }") {{ fee.selectedPercent }}%
+      .fs-12(:class="{ 'color-action': selected.value == fee.value }") Selected
 </template>
 
 <script>
@@ -17,30 +21,17 @@ export default {
 
 <style lang="scss" scoped>
   .fee {
-    .tag {
-      background-color: var(--tag-color);
-      border-color: var(--light-border-color);
-    }
-    width: 185px;
-    height: 156px;
-    padding: 16px 24px;
+    width: 120px;
     cursor: pointer;
 
-    background: rgba(60, 60, 67, 0.36);
-
-    border: 1px solid rgba(120, 120, 135, 0.36);
-    border-radius: 4px;
     position: relative;
 
-    &.active {
-      border: 1px solid #67C23A;
-      background: #161617;
-
+    &.border-active {
       i.check-icon {
         position: absolute;
         color: #67C23A;
-        font-size: 24px;
-        right: 26px;
+        font-size: 18px;
+        right: 7px;
       }
     }
   }

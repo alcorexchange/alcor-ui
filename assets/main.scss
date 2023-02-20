@@ -1069,7 +1069,7 @@ a {
 }
 
 .disable {
-  color: var(--text-disable) !important;
+  color: var(--text-disable);
 }
 .contrast {
   color: var(--text-contrast) !important;
@@ -1078,6 +1078,15 @@ a {
 .grey-border {
   border: 1px solid var(--border-color);
 }
+
+.grey-border.border-hover:hover:not(.border-active) {
+  border: 1px solid var(--border-hover-color);
+}
+
+.grey-border.border-active {
+  border: 1px solid var(--border-active-color);
+}
+
 .active-border {
   border: 1px solid var(--main-green);
   height: fit-content;
