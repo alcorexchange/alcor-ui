@@ -1,6 +1,6 @@
 <template lang="pug">
 .select-token-modal.d-flex.align-items-center.gap-8
-  .select-token-button(@click="visible = true")
+  .select-token-button(@click="locked ? '' : visible = true")
     .d-flex.align-items-center(v-if="token")
       TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
       .ft-14 {{ token.currency || token.symbol }}
@@ -54,7 +54,7 @@ import TokenImage from '~/components/elements/TokenImage'
 export default {
   components: { AlcorModal, CompactTabs, TokenImage },
 
-  props: ['tokens', 'token'],
+  props: ['tokens', 'token', 'locked'],
 
   data: () => ({
     visible: false,

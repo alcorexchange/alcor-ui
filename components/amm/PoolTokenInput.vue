@@ -6,23 +6,25 @@
     @input="$emit('input', $event)"
     @blur="$emit('blur')"
     type="number"
-    :disabled="!!locked"
   )
     template(slot="append")
       .d-flex.align-items-center.gap-4
         max-bage(v-if="showMaxButton" @click="$emit('onMax')")
-        select-token(:token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
+        select-token(:locked="!!locked" :token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
+  warn-message(v-if="locked && locked.message") {{ locked.message }}
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import MaxBage from '~/components/UI/input/MaxBage'
+import WarnMessage from '~/components/UI/input/WarnMessage'
 
 export default {
   components: {
     SelectToken,
-    MaxBage
+    MaxBage,
+    WarnMessage
   },
 
   props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked'], // TODO Disabled
