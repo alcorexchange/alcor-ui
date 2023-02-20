@@ -249,7 +249,6 @@ export default {
 
       const { position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue, pool: { tokenA, tokenB } } = this
 
-      console.log('recalc ticks', { rightRangeTypedValue, leftRangeTypedValue })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
         LOWER:
@@ -357,8 +356,6 @@ export default {
       return this.$store.getters['amm/pools']
     }
   },
-
-
 
   mounted() {
     this.init()
@@ -573,7 +570,6 @@ export default {
           }
         }
       )
-
 
       console.log('aa', amountB, tokenB)
       const r = tryParseCurrencyAmount(amountB, tokenB)

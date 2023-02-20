@@ -68,11 +68,11 @@ export default {
     PoolTokenInput
   },
   data: () => ({
-    tokenA: null,
-    amountA: 0,
+    amountA: null,
+    amountB: null,
 
+    tokenA: null,
     tokenB: null,
-    amountB: 0,
 
     inputToken: {
       symbol: 'BRWL',

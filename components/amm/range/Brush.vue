@@ -138,11 +138,6 @@ export default {
     }
   },
 
-  mounted() {
-    this.localBrushExtent = this.brushExtent
-    this.init()
-  },
-
   watch: {
     brushExtent() {
       //console.log('BRUSH [watch brushExtent]: ')
@@ -158,6 +153,11 @@ export default {
     xScale() {
       this.moveBrush(this.brushExtent)
     }
+  },
+
+  mounted() {
+    this.localBrushExtent = this.brushExtent
+    this.init()
   },
 
   methods: {
