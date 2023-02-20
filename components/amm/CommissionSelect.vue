@@ -8,9 +8,11 @@
     i.check-icon.el-icon-circle-check(v-if="selected.value == fee.value")
     .fs-18 {{ fee.value / 10000 }}%
     .fs-12.disable.text-break {{ fee.desc }}
-    .d-flex.gap-4.disable
+    .d-flex.gap-4.disable(v-if="fee.selectedPercent != undefined")
       .fs-12(:class="{ red: fee.selectedPercent < 1, 'color-action': selected.value == fee.value }") {{ fee.selectedPercent }}%
       .fs-12(:class="{ 'color-action': selected.value == fee.value }") Selected
+    .tag(v-else="fee.notCreated") Not created
+
 </template>
 
 <script>
@@ -33,6 +35,13 @@ export default {
         font-size: 18px;
         right: 7px;
       }
+    }
+
+    .tag {
+      border-radius: 0.5rem;
+      padding: 4px 6px;
+      font-size: 10px;
+      background: var(--bg-alter-1);
     }
   }
 </style>
