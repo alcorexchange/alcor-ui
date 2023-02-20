@@ -1,10 +1,5 @@
 <template lang="pug">
 .row.justify-content-center
-  //.d-flex.flex-column
-    .title.fs-18 outOfRange {{ outOfRange }}
-    .title.fs-18 invalidRange {{ invalidRange }}
-    .title.fs-18 Price {{ price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined }}
-
   alcor-container.add-liquidity-component.w-100.p-2
     .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
       i.el-icon-circle-plus-outline
@@ -12,22 +7,14 @@
 
     .row.px-3
       .col
-        // Tokens select
         .fs-16.disable.mb-2 Select Pairs
 
         .d-flex.mt-3.justify-content-between
           select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA").sustom-select-token
           select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB").sustom-select-token
 
-        .fs-14.disable.mt-2 select fee
+        .fs-14.disable.my-2 Select fee
         commission-select(:selected="selectedfee" :options="fees" @change="v => selectedfee = v")
-
-        //.grey-border.p-3.mt-3.rounded
-          .fs-16.disable Select Fee
-          //el-radio-group.el-radio-full-width.el-radio-group(v-model='selectedFee' size='small').w-100
-            el-radio-button(label='0.05%')
-            el-radio-button(label='0.3%')
-            el-radio-button(label='1%')
 
         .fs-16.disable.mt-3 Deposit Amounts
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" @tokenSelected="setTokenA").mt-2
@@ -166,12 +153,12 @@ export default {
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
-      selectedfee: 1,
+      selectedfee: FeeAmount.MEDIUM,
 
       fees: [
-        { value: 0.05, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
-        { value: 0.3, desc: 'Best for most pairs', selectedPercent: 44 },
-        { value: 1, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
+        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
+        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: 44 },
+        { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
       ]
     }
   },

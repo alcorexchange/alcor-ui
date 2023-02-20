@@ -6,7 +6,7 @@
     @click="$emit('change', fee)"
   )
     i.check-icon.el-icon-circle-check(v-if="selected.value == fee.value")
-    .fs-18 {{ fee.value }}%
+    .fs-18 {{ fee.value / 10000 }}%
     .fs-12.disable.text-break {{ fee.desc }}
     .d-flex.gap-4.disable
       .fs-12(:class="{ red: fee.selectedPercent < 1, 'color-action': selected.value == fee.value }") {{ fee.selectedPercent }}%
