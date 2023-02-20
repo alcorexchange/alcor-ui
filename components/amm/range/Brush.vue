@@ -1,7 +1,7 @@
 <template lang="pug">
 g
   g(ref="brush"
-    :clipPath="`url(#${id}-brush-clip)`"
+    :clip-path="`url(#${id}-brush-clip)`"
     @mouseover="hovering = true"
     @mouseleave="hovering = false")
 
@@ -29,23 +29,23 @@ g
             //| {{ brushLabelValue('e', localBrushExtent[1]) }}
 
     template(v-if="showWestArrow")
-      polygon(
-        points="0 0, 10 10, 0 10"
-        transform="translate(20, 10) rotate(45)"
-        fill="westHandleColor"
-        stroke="westHandleColor"
-        strokeWidth="4"
-        strokeLinejoin="round")
-
-    template(v-if="showEastArrow")
-      g(transform="`translate(${innerWidth}, 0) scale(-1, 1)`")
         polygon(
           points="0 0, 10 10, 0 10"
           transform="translate(20, 10) rotate(45)"
-          fill="eastHandleColor"
-          stroke="eastHandleColor"
-          strokeWidth="4"
-          strokeLinejoin="round")
+          :fill="westHandleColor"
+          :stroke="westHandleColor"
+          stroke-width="4"
+          stroke-linejoin="round")
+
+    template(v-if="showEastArrow")
+      g(:transform="`translate(${innerWidth}, 0) scale(-1, 1)`")
+        polygon(
+          points="0 0, 10 10, 0 10"
+          transform="translate(20, 10) rotate(45)"
+          :fill="eastHandleColor"
+          :stroke="eastHandleColor"
+          stroke-width="4"
+          stroke-linejoin="round")
 </template>
 
 <script>
@@ -115,7 +115,7 @@ export default {
     },
 
     flipEastHandle() {
-      return this.localBrushExtent && this.xScale(this.localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[1]) > this.innerWidth - FLIP_HANDLE_THRESHOLD_PX
     },
 
     showWestArrow() {
@@ -123,15 +123,18 @@ export default {
     },
 
     showEastArrow() {
-      return this.localBrushExtent && (this.xScale(this.localBrushExtent[0]) > innerWidth || this.xScale(this.localBrushExtent[1]) > innerWidth)
+      return this.localBrushExtent && (this.xScale(this.localBrushExtent[0]) > innerWidth ||
+        this.xScale(this.localBrushExtent[1]) > this.innerWidth)
     },
 
     westHandleInView() {
-      return this.localBrushExtent && this.xScale(this.localBrushExtent[0]) >= 0 && this.xScale(this.localBrushExtent[0]) <= innerWidth
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[0]) >= 0 &&
+        this.xScale(this.localBrushExtent[0]) <= this.innerWidth
     },
 
     eastHandleInView() {
-      return this.localBrushExtent && this.xScale(this.localBrushExtent[1]) >= 0 && this.xScale(this.localBrushExtent[1]) <= innerWidth
+      return this.localBrushExtent && this.xScale(this.localBrushExtent[1]) >= 0 &&
+        this.xScale(this.localBrushExtent[1]) <= this.innerWidth
     }
   },
 
