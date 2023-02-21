@@ -33,8 +33,17 @@
             .fs-16 Current *Coin name* price
             .fs-16.disable {{ amount ? amount + ' Coins' : '-' }}
 
-        alcor-button.w-100(access) Connect Wallet
+        .d-flex.gap-8.justify-content-center
+          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+            .fs-12.text-center Min Price
+            el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
+            .fs-12.text-center BLK per WAX
+          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+            .fs-12.text-center Max Price
+            el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
+            .fs-12.text-center BLK per WAX
 
+        alcor-button.w-100(access) Connect Wallet
 
       //.col
         .fs-16.disable.mb-1(v-if="price") Set Price Range
