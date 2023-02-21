@@ -3,18 +3,18 @@
   alcor-container.add-liquidity-component.w-100.p-2
     .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
       i.el-icon-circle-plus-outline
-      span Add Liquidity
+      span add liquidity
 
     .row.px-3
       .col
         .fs-16.disable.mb-2 Select Pairs
 
         .d-flex.mt-3.justify-content-between
-          select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA").sustom-select-token
-          select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB").sustom-select-token
+          select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
+          select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
         .fs-14.disable.my-2 Select fee
-        commission-select(:selected="selectedfee" :options="fees" @change="v => selectedfee = v")
+        commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
         .fs-16.disable.mt-3 Deposit Amounts
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" @tokenSelected="setTokenA").mt-2
@@ -22,55 +22,60 @@
 
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
-      .col.d-flex.flex-column.gap-12
-        .fs-16.disable Select Pairs
-        info-container(:access="true") This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction.
+      template(v-if="!pool")
+        .col.d-flex.flex-column.gap-12
+          .fs-16.disable Set Starting Price
+          info-container(:access="true")
+            | This pool must be initialized before you can add liquidity.
+            | To initialize, select a starting price for the pool.
+            | Then, enter your liquidity price range and deposit amount.
+            | Gas fees will be higher than usual due to the initialization transaction.
 
-        el-input(placeholder="0" v-model="amount")
+          el-input(placeholder="0" v-model="amount")
 
-        info-container
-          .d-flex.justify-content-between
-            .fs-16 Current *Coin name* price
-            .fs-16.disable {{ amount ? amount + ' Coins' : '-' }}
+          info-container
+            .d-flex.justify-content-between
+              .fs-16 Current *Coin name* price
+              .fs-16.disable {{ amount ? amount + ' Coins' : '-' }}
 
-        .d-flex.gap-8.justify-content-center
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Min Price
-            el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
-            .fs-12.text-center BLK per WAX
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Max Price
-            el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
-            .fs-12.text-center BLK per WAX
+          .d-flex.gap-8.justify-content-center
+            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+              .fs-12.text-center Min Price
+              el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
+              .fs-12.text-center BLK per WAX
+            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+              .fs-12.text-center Max Price
+              el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
+              .fs-12.text-center BLK per WAX
 
-        alcor-button.w-100(access) Connect Wallet
+          alcor-button.w-100(access) Connect Wallet
+      template(v-else)
+        .col
+          .fs-16.disable.mb-1 Set Price Range
+          LiquidityChartRangeInput(
+            v-if="pool"
+            :currencyA="pool.tokenA || undefined"
+            :currencyB="pool.tokenB || undefined"
+            :feeAmount="feeAmount"
+            :priceLower="priceLower"
+            :priceUpper="priceUpper"
+            :ticksAtLimit="ticksAtLimit"
+            :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
+            @onLeftRangeInput="onLeftRangeInput"
+            @onRightRangeInput="onRightRangeInput"
+            :interactive="interactive")
 
-      //.col
-        .fs-16.disable.mb-1(v-if="price") Set Price Range
-        LiquidityChartRangeInput(
-          v-if="pool"
-          :currencyA="pool.tokenA || undefined"
-          :currencyB="pool.tokenB || undefined"
-          :feeAmount="feeAmount"
-          :priceLower="priceLower"
-          :priceUpper="priceUpper"
-          :ticksAtLimit="ticksAtLimit"
-          :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
-          @onLeftRangeInput="onLeftRangeInput"
-          @onRightRangeInput="onRightRangeInput"
-          :interactive="interactive")
-
-        .d-flex.gap-8.mt-3.justify-content-center(v-if="leftRangeTypedValue && rightRangeTypedValue")
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Min Price
-            el-input-number(v-model="leftRangeTypedValue")
-            //el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
-            .fs-12.text-center BLK per WAX
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Max Price
-            el-input-number(v-model="rightRangeTypedValue")
-            //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
-            .fs-12.text-center BLK per WAX
+          .d-flex.gap-8.mt-3.justify-content-center(v-if="leftRangeTypedValue && rightRangeTypedValue")
+            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+              .fs-12.text-center Min Price
+              el-input-number(v-model="leftRangeTypedValue")
+              //el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
+              .fs-12.text-center BLK per WAX
+            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+              .fs-12.text-center Max Price
+              el-input-number(v-model="rightRangeTypedValue")
+              //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
+              .fs-12.text-center BLK per WAX
 
   //.d-flex.align-items-center
     alcor-container.add-liquidity-component.w-100
@@ -80,18 +85,18 @@
 
       .row
         .col
-          select-token(:token="tokenA" :tokens="tokensA" @selected="setTokenA")
+          select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA")
 
-          select-token(:token="tokenB" :tokens="tokensB" @selected="setTokenB")
+          select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB")
 
     //.d-flex.justify-content-between.gap-32
       .d-flex.flex-column.gap-8.left
         .fs-14.disable Select Pair and deposit amounts
 
-        PoolTokenInput(:value="amountA" @input="onAmountAInput" :token="tokenA" :tokens="tokensA" @tokenSelected="setTokenA")
+        PoolTokenInput(:value="amountA" @input="onAmountAInput" :token="tokenA" :tokens="tokens" @tokenSelected="setTokenA")
         .fs-14.disable Select Pair and deposit amounts
 
-        PoolTokenInput(:token="tokenB" :tokens="tokensA" v-model="amountB" @tokenSelected="setTokenB")
+        PoolTokenInput(:token="tokenB" :tokens="tokens" v-model="amountB" @tokenSelected="setTokenB")
         .d-flex.justify-content-end Balance: 1,000 WAX
 
         .fs-14.disable Select Price Range {{ max }}
@@ -172,13 +177,11 @@ export default {
       minPrice: 0,
       maxPrice: 0,
 
-      feeAmountFromUrl: 3000,
+      //feeAmountFromUrl: FeeAmount.,
 
       independentField: 'CURRENCY_A',
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
-
-      selectedfee: FeeAmount.MEDIUM,
 
       fees: [
         { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
@@ -193,7 +196,7 @@ export default {
       console.log('value changed pool', this.pool, this.$store.getters['amm/pools'])
     },
 
-    tokensA() {
+    tokens() {
       console.log('tokens a updates')
     }
   },
@@ -203,26 +206,22 @@ export default {
     ...mapGetters('amm/addLiquidity', [
       'tokenA',
       'tokenB',
-      'tokensA',
-      'tokensB',
+      'tokens',
       'pool'
     ]),
 
-    //...mapState('amm/addLiquidity', ['tokenA', 'tokenB']),
+    feeAmount: {
+      get() {
+        return this.$store.state.amm.addLiquidity.feeAmount
+      },
+
+      set(val) {
+        this.$store.commit('amm/addLiquidity/setFeeAmount', val)
+      }
+    },
 
     interactive() {
       return !this.position
-    },
-
-    feeAmount() {
-      const { feeAmountFromUrl } = this
-
-      const feeAmount =
-        feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
-          ? parseFloat(feeAmountFromUrl)
-          : undefined
-
-      return feeAmount
     },
 
     noLiquidity() {
@@ -385,8 +384,8 @@ export default {
       //this.parseUrlParams()
       //this.checkPosition()
 
-      //this.tokenA = this.tokensA[1]
-      //this.tokenB = this.tokensA[2]
+      //this.tokenA = this.tokens[1]
+      //this.tokenB = this.tokens[2]
     },
 
     onInputAmountA(value) {
@@ -506,7 +505,7 @@ export default {
     },
 
     setTokenA(token) {
-      this.$store.dispatch('amm/addLiquidity/setTokenA', token.name)
+      this.$store.dispatch('amm/addLiquidity/setTokenA', token)
     },
 
     percentageChange() {
@@ -514,7 +513,7 @@ export default {
     },
 
     setTokenB(token) {
-      this.$store.dispatch('amm/addLiquidity/setTokenB', token.name)
+      this.$store.dispatch('amm/addLiquidity/setTokenB', token)
     },
 
     async submit() {

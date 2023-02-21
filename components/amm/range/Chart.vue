@@ -60,7 +60,7 @@
         :id="id"
         :xScale="xScale"
         :interactive="true"
-        :brushLabelValue="brushLabels"
+        :brushLabel="brushLabel"
         :brushExtent="brushDomain || xScale.domain()"
         :innerWidth="innerWidth"
         :innerHeight="innerHeight"
@@ -85,7 +85,7 @@ export default {
   components: { Area, AreaLine, AxisBottom, Brush, Zoom },
 
   props: ['series', 'current', 'ticksAtLimit', 'styles', 'width', 'height', 'margins', 'interactive', 'brushDomain',
-    'brushLabels', 'zoomLevels'],
+    'brushLabel', 'zoomLevels'],
 
   data() {
     return {
@@ -104,6 +104,10 @@ export default {
     },
 
     zoomLevels() {
+      console.log('zoomLevels changed, reseting')
+      this.zoom = null
+      //this.resetBrush()
+
       // TODO
       //setZoom(null)
     },

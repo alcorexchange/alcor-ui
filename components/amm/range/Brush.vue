@@ -14,8 +14,8 @@ g
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipWestHandle ? '1' : '-1'}, 1)`")
           rect.TooltipBackground(y="0" x="-30" height="30" width="60" rx="8")
-          text.Tooltip(transform="scale(-1, 1)" y="15" dominantBaseline="middle")
-          //| {{ {brushLabelValue('w', localBrushExtent[0])} }}
+          text.Tooltip(transform="scale(-1, 1)" y="15" dominant-baseline="middle")
+            | {{ brushLabel('w', localBrushExtent[0]) }}
 
     template(v-if="eastHandleInView")
       g(:transform="`translate(${xScale(localBrushExtent[1])}, 0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
@@ -25,8 +25,8 @@ g
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
           rect.TooltipBackground(y="0" x="-30" height="30" width="60" rx="8")
-          text.Tooltip(y="15" dominantBaseline="middle")
-            //| {{ brushLabelValue('e', localBrushExtent[1]) }}
+          text.Tooltip(y="15" dominant-baseline="middle")
+            | {{ brushLabel('e', localBrushExtent[1]) }}
 
     template(v-if="showWestArrow")
         polygon(
@@ -66,7 +66,7 @@ const compare = (a, b, xScale) => {
 }
 
 export default {
-  props: ['id', 'xScale', 'interactive', 'brushLabelValue', 'brushExtent', 'innerWidth', 'innerHeight',
+  props: ['id', 'xScale', 'interactive', 'brushLabel', 'brushExtent', 'innerWidth', 'innerHeight',
     'westHandleColor', 'eastHandleColor'],
 
   data() {
@@ -138,6 +138,14 @@ export default {
     }
   },
 
+
+  //useEffect(() => {
+  //  if (!brushRef.current || !brushBehavior.current) return
+
+  //  brushBehavior.current.move(select(brushRef.current) as any, brushExtent.map(xScale) as any)
+  //}, [brushExtent, xScale])
+
+
   watch: {
     brushExtent() {
       //console.log('BRUSH [watch brushExtent]: ')
@@ -162,6 +170,7 @@ export default {
 
   methods: {
     init() {
+      console.log('BRUSH INIT')
       this.brushBehavior = brushX()
         .extent([
           [Math.max(0 + BRUSH_EXTENT_MARGIN_PX, this.xScale(0)), 0],
@@ -195,7 +204,7 @@ export default {
     },
 
     moveBrush(extent) {
-      //console.log('MOVE BRUSH', extent, extent.map(this.xScale))
+      console.log('MOVE BRUSH', extent, extent.map(this.xScale))
       this.brushBehavior.move(select(this.$refs.brush), extent.map(this.xScale))
     },
 
@@ -245,7 +254,7 @@ export default {
 }
 
 .TooltipBackground {
-  fill: white;
+  fill: transparent;
 }
 
 .Tooltip {

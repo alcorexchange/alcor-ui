@@ -10,6 +10,9 @@
 
   button(@click="zoomOut")
     i.el-icon-zoom-in
+
+  button(@click="reset")
+    i.el-icon-zoom-in RESET
 </template>
 
 <script>
@@ -67,6 +70,7 @@ export default {
 
   methods: {
     init() {
+      console.log('ZOOM INIT')
       if (!this.svg) return
 
       this.zoomBehavior = zoom()
@@ -107,8 +111,6 @@ export default {
 
     zoomInitial() {
       const { svg, zoomBehavior } = this
-
-      console.log('ZOOM INITIAL!!!')
 
       svg &&
       zoomBehavior &&

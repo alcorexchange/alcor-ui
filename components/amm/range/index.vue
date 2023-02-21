@@ -13,14 +13,16 @@ client-only
         :height="200"
         :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
         :interactive="true"
-        brushLabels="brush lable"
+        :brushLabel="brushLabel"
         :brushDomain="brushDomain"
         @onBrushDomainChange="onBrushDomainChangeEnded"
-        :zoomLevels="ZOOM_LEVELS[feeAmount || FeeAmount.MEDIUM]"
+        :zoomLevels="zoomLevels"
         :ticksAtLimit="ticksAtLimit")
 </template>
 
 <script>
+import { format } from 'd3'
+
 import Chart from './Chart.vue'
 
 import { data } from './data'
@@ -41,16 +43,41 @@ export default {
     }
   },
 
+  watch: {
+    currencyA() {
+      const { current, zoomLevels } = this
+
+      this.onBrushDomainChangeEnded({
+        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
+        mode: 'reset'
+      })
+    },
+
+    currencyB() {
+      const { current, zoomLevels } = this
+
+      this.onBrushDomainChangeEnded({
+        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
+        mode: 'reset'
+      })
+    }
+  },
+
   mounted() {
     console.log('LiquidityChartRangeInput loaded: ', { ...this.$props })
     this.init()
   },
 
   computed: {
-    //TODO
-    //isUninitialized: () => !this.currencyA || !this.currencyB || (this.formattedData === undefined && !this.isLoading),
-    isUninitialized: () => false,
+    isUninitialized() {
+      return !this.currencyA || !this.currencyB || (this.series === undefined && !this.isLoading)
+    },
+
     isLoading: () => false,
+
+    zoomLevels() {
+      return ZOOM_LEVELS[this.feeAmount || FeeAmount.MEDIUM]
+    },
 
     current() {
       return this.price
@@ -76,22 +103,23 @@ export default {
         ? [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
         : undefined
     }
-
-    // TODO Лейбл сколько в процентах
-    //brushLabelValue(d, x) {
-    //  if (!this.price) return ''
-
-    //  if (d === 'w' && ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER]) return '0'
-    //  if (d === 'e' && ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER]) return '∞'
-
-    //  const percent = (x < price ? -1 : 1) * ((Math.max(x, price) - Math.min(x, price)) / price) * 100
-
-    //  return price ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : ''
-    //}
   },
 
   methods: {
     init() {},
+
+    brushLabel(d, x) {
+      const { price, ticksAtLimit, isSorted } = this
+
+      if (!price) return ''
+
+      if (d === 'w' && ticksAtLimit[isSorted ? 'LOWER' : 'UPPER']) return '0'
+      if (d === 'e' && ticksAtLimit[isSorted ? 'UPPER' : 'LOWER']) return '∞'
+
+      const percent = (x < price ? -1 : 1) * ((Math.max(x, price) - Math.min(x, price)) / price) * 100
+
+      return price ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : ''
+    },
 
     onBrushDomainChangeEnded(data) {
       const { domain, mode } = data

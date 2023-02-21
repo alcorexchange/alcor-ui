@@ -1,14 +1,17 @@
+import { FeeAmount } from '~/assets/libs/swap-sdk/internalConstants'
+
 export const state = () => ({
   tokenA: null,
   tokenB: null,
 
-  feeAmount: 3000
+  feeAmount: FeeAmount.MEDIUM,
+  liquidity: 30
 })
 
 export const mutations = {
   setTokenA: (state, token) => state.tokenA = token,
   setTokenB: (state, token) => state.tokenB = token,
-  setFeeAmount: (state, value) => state.feeAmount = value
+  setFeeAmount: (state, value) => state.feeAmount = parseInt(value)
 }
 
 export const actions = {
@@ -44,14 +47,17 @@ export const actions = {
     if (currentRout !== path) this.$router.push({ path })
   },
 
-  setTokenA({ dispatch, commit }, token) {
+  setTokenA({ state, dispatch, commit }, token) {
+    if (token.name == state.tokenB?.name) commit('setTokenB', null)
     commit('setTokenA', token)
-    dispatch('updateRoutePath')
+    //dispatch('updateRoutePath')
   },
 
-  setTokenB({ dispatch, commit }, token) {
+  setTokenB({ state, dispatch, commit }, token) {
+    if (token.name == state.tokenA?.name) return commit('setTokenB', null)
+
     commit('setTokenB', token)
-    dispatch('updateRoutePath')
+    //dispatch('updateRoutePath')
   },
 
   async fetchPairs({ state, commit, rootGetters, dispatch }) {
@@ -61,10 +67,11 @@ export const actions = {
 }
 
 export const getters = {
-  tokenA: (state, getters) => getters.tokensA.find(t => t.name == state.tokenA),
-  tokenB: (state, getters) => getters.tokensA.find(t => t.name == state.tokenB),
+  tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
+  tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
 
-  tokensA(state, getters, rootState, rootGetters) {
+  tokens(state, getters, rootState, rootGetters) {
+    // Тут вообще все
     const tokens = []
 
     rootGetters['amm/pools'].map(p => {
@@ -77,28 +84,17 @@ export const getters = {
     return tokens
   },
 
-  tokensB(state, getters, rootState, rootGetters) {
-    if (!state.tokenA) return getters.tokensA
-
-    const tokens = []
-
-    rootGetters['amm/pools'].map(p => {
-      const { tokenA, tokenB } = p
-
-      if (tokenA.name == state.tokenA) tokens.push(tokenB)
-      if (tokenB.name == state.tokenA) tokens.push(tokenA)
-    })
-
-    return tokens
-  },
-
   pool(state, getters, rootState, rootGetters) {
-    // TODO Add fee filter
     if (!state.tokenA || !state.tokenB) return null
 
-    return rootGetters['amm/pools'].find(p => {
-      return p.tokenA.name == state.tokenA && p.tokenB.name == state.tokenB
+    const pool = rootGetters['amm/pools'].find(p => {
+      return (
+        (p.tokenA.name == state.tokenA?.name && p.tokenB.name == state.tokenB?.name) ||
+        (p.tokenA.name == state.tokenB?.name && p.tokenB.name == state.tokenA?.name)
+      ) && p.fee == state.feeAmount
     })
+
+    return pool
   },
 
   routes(state, getters, rootState) {

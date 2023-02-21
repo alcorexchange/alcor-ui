@@ -83,7 +83,6 @@ export function getV2BestTrade() {
 
 }
 
-
 export function getBestTrade(tradeType, amountSpecified, otherCurrency) {
   // TODO Multi rounding
 
@@ -218,7 +217,7 @@ export default {
     },
 
     async calcOutput(value, independentField) {
-      if (!value || parseFloat(value) <= 0) return this.amountB = 0 // TODO Reset
+      if (!value || parseFloat(value) <= 0) return this.amountB = null // TODO Reset
 
       const { tokenA, tokenB } = this
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
