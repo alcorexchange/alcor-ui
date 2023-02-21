@@ -41,6 +41,11 @@ export default {
     search: '',
     showClosed: false
   }),
+
+  mounted() {
+    this.$store.dispatch('amm/fetchPositions')
+  },
+
   computed: {
     ...mapGetters('amm', ['positions']),
 

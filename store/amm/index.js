@@ -23,15 +23,14 @@ export const mutations = {
 export const actions = {
   async init({ dispatch, rootState }) {
     await dispatch('fetchPairs')
-    await dispatch('fetchPositions', rootState?.user?.name)
   },
 
   async placePositions({ state, commit, rootState, dispatch }, owner) {
 
   },
 
-  async fetchPositions({ getters, commit, rootState, dispatch }, owner) {
-    if (!owner) return console.log('[fetchPositions] no user provided')
+  async fetchPositions({ state, commit, rootState, dispatch }) {
+    const owner = rootState.user?.name
 
     const positions = []
 
@@ -48,6 +47,7 @@ export const actions = {
 
       if (!rows) continue
 
+      rows.map(r => r.pool = pool.id)
       positions.push(...rows)
     }
 

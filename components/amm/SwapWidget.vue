@@ -53,7 +53,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       .fs-12 {{ miniumOut }}
     .d-flex.justify-content-between(v-if="tokenA && tokenB")
       .fs-12 Rate
-      .fs-12 {{ rate }} {{ tokenA.symbol }} per {{ tokenB.symbol }}
+      .fs-12 {{ rate }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
     .d-flex.justify-content-between
       .fs-12 Price Impact
       .fs-12.green {{ impact }}%
@@ -231,7 +231,7 @@ export default {
       //console.log({ badOutput: outputAmount.toFixed(), goodOutput })
       this.amountB = outputAmount.toFixed()
 
-      this.rate = executionPrice.toFixed(12)
+      this.rate = executionPrice.toFixed(6)
       //this.impact = priceImpact.toFixed()
       this.impact = parseFloat(priceImpact.toFixed())
       this.miniumOut = best.minimumAmountOut(new Percent(5, 100)).toFixed()
