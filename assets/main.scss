@@ -988,6 +988,11 @@ a {
 .br-8 {
   border-radius: 8px;
 }
+.el-input.br-20 {
+  .el-input__inner {
+    border-radius: 20px;
+  }
+}
 
 .gap-8 {
   gap: 8px;

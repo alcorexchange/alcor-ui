@@ -2,7 +2,7 @@
 alcor-container.pool-form.d-flex.flex-column.gap-32
   .d-flex.justify-content-between.align-items-center
     alcor-tabs.swap-tabs(:links="true" :tabs="tabs")
-    i.el-icon-setting.fs-24.pointer
+    settings
 
   .d-flex.flex-column.gap-10
     .d-flex.flex-column.gap-8
@@ -77,7 +77,7 @@ import AlcorContainer from '~/components/AlcorContainer'
 import AlcorButton from '~/components/AlcorButton'
 import TokenSelect from '~/components/TokenSelect'
 import PoolTokenInput from '~/components/amm/PoolTokenInput.vue'
-
+import Settings from '~/components/amm/Settings'
 
 export function getV2BestTrade() {
 
@@ -97,6 +97,7 @@ export function getBestTrade(tradeType, amountSpecified, otherCurrency) {
 
 export default {
   components: {
+    Settings,
     AlcorTabs,
     AlcorContainer,
     TokenSelect,
