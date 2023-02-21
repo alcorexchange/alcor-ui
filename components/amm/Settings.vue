@@ -1,6 +1,7 @@
 <template lang="pug">
 el-dropdown(trigger="click")
-  i.el-icon-setting.fs-24.pointer
+  .pointer
+    i.el-icon-setting.fs-24
   el-dropdown-menu.dropdown(slot="dropdown")
     .p-3.d-flex.flex-column.gap-8
       label {{ $t('Transaction Setting') }}

@@ -948,6 +948,11 @@ a {
     font-size: 14px !important;
   }
 }
+.md-fs-16 {
+  @media (min-width: 768px) {
+    font-size: 16px !important;
+  }
+}
 .md-fs-20 {
   @media (min-width: 768px) {
     font-size: 20px !important;

@@ -3,26 +3,26 @@
   .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-3
     i.el-icon-arrow-right
     span Migrate from V1
-  .d-flex.gap-16.mt-2
-    .fs-18.disable Select Pools
+  .d-flex.align-items-center.gap-16.mt-2
+    .fs-16.disable Select Pools
     alcor-button(compact) Select all
 
-  el-table.migration-table.mt-3(:data="tableData" :style="isMobile ? 'width: 320px': 'width: 504px'")
-    el-table-column(label="Select" :width="isMobile ? '50' : '70'")
+  el-table.migration-table.mt-3(:data="tableData" :style="isMobile ? 'width: 320px': 'width: 450px'")
+    el-table-column(label="Select" width="50")
       template(slot-scope="{ row }")
         .d-flex.justify-content-center
           el-checkbox(v-model='row.selected')
 
-    el-table-column(label="Pool" :width="isMobile ? '100' : '250'")
+    el-table-column(label="Pool" :width="isMobile ? '100' : '220'")
       template(slot-scope="{ row }")
-        .d-flex.gap-8
+        .d-flex.gap-4
           pair-icons(v-if="!isMobile" :token1="row.input" :token2="row.output")
-          .d-flex.flex-column.gap-4
-            .fs-10.md-fs-20.contrast {{ row.input.symbol }} / {{ row.output.symbol }}
+          .d-flex.flex-column
+            .fs-10.md-fs-16.contrast {{ row.input.symbol }} / {{ row.output.symbol }}
             .fs-10.md-fs-14 alcor.dex
     el-table-column(label="Liquidity")
       template(slot-scope="{ row }")
-        .d-flex.flex-column.gap-8
+        .d-flex.flex-column
           .d-flex.gap-4.align-items-center
             token-image(:src="$tokenLogo(row.input.symbol, row.input.contract)" height="15")
             span {{ row.inputLiquidity }}
@@ -69,6 +69,10 @@ export default {
 <style lang="scss">
 .migration-table {
   border-radius: 8px;
+  &.el-table td,
+  &.el-table th{
+    padding: 7px 0;
+  }
   &.el-table tr,
   &.el-table th {
     background: var(--btn-active);
