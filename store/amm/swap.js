@@ -1,50 +1,6 @@
-import {options} from '@nuxt/cli'
 import { Route, Trade } from '~/assets/libs/swap-sdk'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
-
-function poolEquals(poolA, poolB) {
-  return (
-    poolA === poolB ||
-    (poolA.tokenA.equals(poolB.tokenA) && poolA.tokenB.equals(poolB.tokenB) && poolA.fee === poolB.fee)
-  )
-}
-
-function computeAllRoutes(
-  currencyIn,
-  currencyOut,
-  pools,
-  currentPath,
-  allPaths,
-  startCurrencyIn,
-  maxHops = 4
-) {
-  const tokenIn = currencyIn
-  const tokenOut = currencyOut
-
-  if (!tokenIn || !tokenOut) throw new Error('Missing tokenIn/tokenOut')
-
-  for (const pool of pools) {
-    if (!pool.involvesToken(tokenIn) || currentPath.find((pathPool) => poolEquals(pool, pathPool))) continue
-
-    const outputToken = pool.tokenA.equals(tokenIn) ? pool.tokenB : pool.tokenA
-    if (outputToken.equals(tokenOut)) {
-      allPaths.push(new Route([...currentPath, pool], startCurrencyIn, currencyOut))
-    } else if (maxHops > 1) {
-      computeAllRoutes(
-        outputToken,
-        currencyOut,
-        pools,
-        [...currentPath, pool],
-        allPaths,
-        startCurrencyIn,
-        maxHops - 1
-      )
-    }
-  }
-
-  return allPaths
-}
 
 export const state = () => ({
   tokenA: null,
@@ -72,38 +28,25 @@ export const actions = {
   },
 
   async test({ rootGetters }) {
-    const { tokenA, tokenB } = rootGetters['amm/pools'][0]
-    //isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
 
-    //console.log({ tokenA, tokenB })
-    //const tradeType = 'EXACT_INPUT'
-    //const routes = computeAllRoutes(tokenA, tokenB, rootGetters['amm/pools'], [], [], tokenA, 2)
-    //console.log({ routes })
-    //bestTradeExactIn
-    //const isExactIn = true
-
-    //console.log({ tryParseCurrencyAmount })
-    const parsedAmount = tryParseCurrencyAmount('20000000', tokenA)
-    const r = await Trade.bestTradeExactIn(rootGetters['amm/pools'], parsedAmount, tokenB, { maxNumResults: 5, maxHops: 5 })
-    console.log({ r })
-
-    for (const trade of r) {
-      const path = trade.route.tokenPath.map(t => t.name).join(' -> ')
-      console.log({ output: trade.outputAmount.toFixed(), path, midPrice: trade.route.midPrice.toFixed() })
-    }
-
-    // const [currencyIn, currencyOut] =
-    //   tradeType === 'EXACT_INPUT'
-    //     ? [parsedAmount?.currency, tokenB]
-    //     : [otherCurrency, amountSpecified?.currency]
   },
 
-  bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options: { maxNumResults = 5, maxHops = 5 } }) {
-    return Trade.bestTradeExactIn(rootGetters['amm/pools'], currencyAmountIn, currencyOut, options)
+  bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
+    return Trade.bestTradeExactIn(
+      rootGetters['amm/pools'],
+      currencyAmountIn,
+      currencyOut,
+      { maxNumResults: 5, maxHops: 5, ...options }
+    )
   },
 
-  bestTradeExactOut({ rootGetters }, { currencyIn, currencyAmountOut, options: { maxNumResults = 5, maxHops = 5 } }) {
-    return Trade.bestTradeExactOut(rootGetters['amm/pools'], currencyIn, currencyAmountOut, options)
+  bestTradeExactOut({ rootGetters }, { currencyIn, currencyAmountOut, options }) {
+    return Trade.bestTradeExactOut(
+      rootGetters['amm/pools'],
+      currencyIn,
+      currencyAmountOut,
+      { maxNumResults: 5, maxHops: 5, ...options }
+    )
   },
 
   updateRoutePath({ state, getters, rootState }) {

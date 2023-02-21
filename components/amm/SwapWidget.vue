@@ -43,24 +43,26 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       )
       //:locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
 
-  alcor-button.w-100(big disabled) Swap {{ tokenA && tokenB ? tokenA.currency : '' }} to {{ tokenA && tokenB ? tokenB.currency : '' }}
+  //alcor-button.w-100(big disabled) Swap {{ tokenA && tokenB ? tokenA.currency : '' }} to {{ tokenA && tokenB ? tokenB.currency : '' }}
+
+  alcor-button.w-100(big @click="submit") Swap {{ tokenA && tokenB ? tokenA.symbol : '' }} to {{ tokenA && tokenB ? tokenB.symbol : '' }}
 
   .grey-border.d-flex.flex-column.gap-4.p-3.br-8
     .d-flex.justify-content-between
       .fs-12 Minimum Received
-      .fs-12 79.01222
-    .d-flex.justify-content-between
+      .fs-12 {{ miniumOut }}
+    .d-flex.justify-content-between(v-if="tokenA && tokenB")
       .fs-12 Rate
-      .fs-12 3.6198 BRWL per WAX
+      .fs-12 {{ rate }} {{ tokenA.symbol }} per {{ tokenB.symbol }}
     .d-flex.justify-content-between
       .fs-12 Price Impact
-      .fs-12.green 0%
+      .fs-12.green {{ impact }}%
     .d-flex.justify-content-between
       .fs-12 Slippage
-      .fs-12 0.1%
-    .d-flex.justify-content-between
-      .fs-12 Liquidity Source Fee
       .fs-12 0.3%
+    .d-flex.justify-content-between
+      .fs-12 Liquidity Providers Fee
+      .fs-12 todo%
 
 </template>
 
@@ -68,6 +70,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 import { mapState, mapActions, mapGetters } from 'vuex'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
+import { Percent } from '~/assets/libs/swap-sdk'
 
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -104,6 +107,10 @@ export default {
     amountA: null,
     amountB: null,
 
+    impact: 0,
+    rate: 0,
+    miniumOut: 0,
+
     tabs: [
       {
         label: 'Swap',
@@ -127,7 +134,6 @@ export default {
       'tokenB',
       'tokensA',
       'tokensB',
-      'pool'
     ]),
 
     balanceInput() {
@@ -158,12 +164,81 @@ export default {
       this.$store.dispatch('amm/swap/setTokenB', token.name)
     },
 
+    async submit() {
+      const { amountA, amountB, tokenA, tokenB } = this
+      if (!tokenA || !tokenB) return console.log('no tokens selected')
+
+      const actions = []
+
+      // TODO Build path
+      const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
+      const [_, best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+
+      const { inputAmount, outputAmount, route } = best.swaps[0]
+      //const min = best.minimumAmountOut(new Percent(5, 100), outputAmount)
+      //console.log(outputAmount.toFixed(), min.toFixed())
+
+      //for (const token of best.swaps) {
+      //  console.log({ inputAmount, outputAmount, route })
+      //}
+
+
+
+      // const amount = parseFloat(amountB)
+      // if (amount <= 0) return
+
+      // const minExpected = parseFloat(amount + 0.0001).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
+
+      // // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
+      // const memo = `swapexactin#${id}#${this.user.name}#${minExpected}#0`
+
+      // if (parseFloat(amountA) > 0)
+      //   actions.push({
+      //     account: tokenA.contract,
+      //     name: 'transfer',
+      //     authorization: [this.user.authorization],
+      //     data: {
+      //       from: this.user.name,
+      //       to: this.network.amm.contract,
+      //       quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+      //       memo
+      //     }
+      //   })
+      //   // tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+      //   // tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+
+      // try {
+      //   const r = await this.$store.dispatch('chain/sendTransaction', actions)
+      //   console.log(r)
+      // } catch (e) {
+      //   console.log('err', e)
+      // }
+    },
+
     async calcOutput(value, independentField) {
+      if (!value || parseFloat(value) <= 0) return this.amountB = 0 // TODO Reset
+
       const { tokenA, tokenB } = this
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
-      const r = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
-      console.log({ r })
+      const { outputAmount, executionPrice, priceImpact } = best
+
+      //const goodOutput = outputAmount.
+
+      console.log(outputAmount.toSignificant(), outputAmount.toFixed(), outputAmount.toExact())
+      //console.log({ badOutput: outputAmount.toFixed(), goodOutput })
+      this.amountB = outputAmount.toFixed()
+
+      this.rate = executionPrice.toFixed(12)
+      //this.impact = priceImpact.toFixed()
+      this.impact = parseFloat(priceImpact.toFixed())
+      this.miniumOut = best.minimumAmountOut(new Percent(5, 100)).toFixed()
+
+      //public minimumAmountOut(slippageTolerance: Percent, amountOut = this.outputAmount): CurrencyAmount<TOutput> {
+
+      //console.log(best)
 
       //const { tokenA, tokenB } = this
 
