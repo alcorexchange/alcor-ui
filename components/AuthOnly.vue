@@ -2,13 +2,6 @@
 .auth-only
   template(v-if="$store.state.user")
     slot
-  alcor-button.w-100(v-else access) Connect Wallet
+  .d-flex.justify-content-center(v-else)
+    el-button(type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 </template>
-
-<script>
-import AlcorButton from '~/components/AlcorButton'
-
-export default {
-  components: { AlcorButton }
-}
-</script>

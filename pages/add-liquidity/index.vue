@@ -22,9 +22,9 @@
 
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
-      template(v-if="!pool")
-        .col.d-flex.flex-column.gap-12
-          .fs-16.disable Set Starting Price
+      .col
+        auth-only.d-flex.flex-column.gap-12
+          .fs-16.disable Select Pairs
           info-container(:access="true")
             | This pool must be initialized before you can add liquidity.
             | To initialize, select a starting price for the pool.
@@ -48,9 +48,9 @@
               el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
               .fs-12.text-center BLK per WAX
 
-          alcor-button.w-100(access) Connect Wallet
+          //alcor-button.w-100(access) Connect Wallet
 
-      template(v-else)
+      //template(v-else)
         .col
           .fs-16.disable.mb-1 Set Price Range
           LiquidityChartRangeInput(
