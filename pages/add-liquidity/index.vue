@@ -22,7 +22,21 @@
 
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
-      .col
+      .col.d-flex.flex-column.gap-12
+        .fs-16.disable Select Pairs
+        info-container(:access="true") This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction.
+
+        el-input(placeholder="0" v-model="amount")
+
+        info-container
+          .d-flex.justify-content-between
+            .fs-16 Current *Coin name* price
+            .fs-16.disable {{ amount ? amount + ' Coins' : '-' }}
+
+        alcor-button.w-100(access) Connect Wallet
+
+
+      //.col
         .fs-16.disable.mb-1(v-if="price") Set Price Range
         LiquidityChartRangeInput(
           v-if="pool"
@@ -111,6 +125,7 @@ import SelectToken from '~/components/modals/amm/SelectToken'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
 import CommissionSelect from '~/components/amm/CommissionSelect'
+import InfoContainer from '~/components/UI/InfoContainer'
 
 import {
   tryParsePrice,
@@ -130,7 +145,7 @@ import {
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 
 export default {
-  components: { SelectToken, PoolTokenInput, AlcorButton, AlcorContainer, LiquidityChartRangeInput, CommissionSelect },
+  components: { SelectToken, PoolTokenInput, AlcorButton, AlcorContainer, LiquidityChartRangeInput, CommissionSelect, InfoContainer },
 
   // Enabling managige route in nested component
   fetch({ route, redirect }) {
@@ -139,6 +154,7 @@ export default {
 
   data() {
     return {
+      amount: null,
       invertPrice: false,
 
       amountA: 0,
