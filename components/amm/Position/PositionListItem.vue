@@ -1,5 +1,6 @@
 <template lang="pug">
-#pool-row-component.d-flex.align-items-center.p-3
+
+nuxt-link(:to="`/manage-liquidity/${position.pool.id}-${position.id}`")#pool-row-component.d-flex.align-items-center.p-3
   .icons
     pair-icons(:token1="position.pool.tokenA" :token2="position.pool.tokenB")
 
@@ -105,6 +106,10 @@ export default {
   // TODO Format Price
   components: { PairIcons, TokenImage },
   props: ['position'],
+
+  mounted() {
+    console.log(this.position)
+  },
 
   computed: {
     outOfRange() {

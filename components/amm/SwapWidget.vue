@@ -16,7 +16,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 
       PoolTokenInput(
         :token="tokenA"
-        :tokens="tokensA"
+        :tokens="tokens"
         v-model="amountA"
         @input="calcOutput"
         @tokenSelected="setTokenA"
@@ -37,7 +37,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 
       PoolTokenInput(
         :token="tokenB"
-        :tokens="tokensB"
+        :tokens="tokens"
         v-model="amountB"
         @tokenSelected="setTokenB"
       )
@@ -132,8 +132,7 @@ export default {
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
-      'tokensA',
-      'tokensB',
+      'tokens'
     ]),
 
     balanceInput() {
@@ -153,7 +152,7 @@ export default {
 
     setTokenA(token) {
       console.log('token', token)
-      this.$store.dispatch('amm/swap/setTokenA', token.name)
+      this.$store.dispatch('amm/swap/setTokenA', token)
     },
 
     setAToMax() {
@@ -161,7 +160,7 @@ export default {
     },
 
     setTokenB(token) {
-      this.$store.dispatch('amm/swap/setTokenB', token.name)
+      this.$store.dispatch('amm/swap/setTokenB', token)
     },
 
     async submit() {
@@ -173,24 +172,30 @@ export default {
       // TODO Build path
       const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
       const [_, best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+
+      console.log(best)
+
       //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
-      const { inputAmount, outputAmount, route } = best.swaps[0]
-      //const min = best.minimumAmountOut(new Percent(5, 100), outputAmount)
-      //console.log(outputAmount.toFixed(), min.toFixed())
+      // const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
+      // const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      // const { inputAmount, outputAmount, route } = best.swaps[0]
+      // const min = best.minimumAmountOut(new Percent(5, 100), outputAmount)
+      // console.log(outputAmount.toFixed(), min.toFixed())
 
-      //for (const token of best.swaps) {
-      //  console.log({ inputAmount, outputAmount, route })
-      //}
+      // for (const token of best.swaps) {
+      //   console.log({ inputAmount, outputAmount, route })
+      // }
 
 
 
       // const amount = parseFloat(amountB)
       // if (amount <= 0) return
 
-      // const minExpected = parseFloat(amount + 0.0001).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
+      // const minExpected = parseFloat(amount + 0.0000).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
 
       // // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
+      // const id = 0
       // const memo = `swapexactin#${id}#${this.user.name}#${minExpected}#0`
 
       // if (parseFloat(amountA) > 0)

@@ -23,7 +23,7 @@ class Position {
      * @param tickLower The lower tick of the position
      * @param tickUpper The upper tick of the position
      */
-    constructor({ pool, liquidity, tickLower, tickUpper, }) {
+    constructor({ id, pool, liquidity, tickLower, tickUpper, }) {
         // cached resuts for the getters
         this._tokenAAmount = null;
         this._tokenBAmount = null;
@@ -31,6 +31,7 @@ class Position {
         (0, tiny_invariant_1.default)(tickLower < tickUpper, "TICK_ORDER");
         (0, tiny_invariant_1.default)(tickLower >= tickMath_1.TickMath.MIN_TICK && tickLower % pool.tickSpacing === 0, "TICK_LOWER");
         (0, tiny_invariant_1.default)(tickUpper <= tickMath_1.TickMath.MAX_TICK && tickUpper % pool.tickSpacing === 0, "TICK_UPPER");
+        this.id = id;
         this.pool = pool;
         this.tickLower = tickLower;
         this.tickUpper = tickUpper;
@@ -121,10 +122,11 @@ class Position {
         const poolLower = new pool_1.Pool(this.pool.id, this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Lower, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower));
         const poolUpper = new pool_1.Pool(this.pool.id, this.pool.tokenA, this.pool.tokenB, this.pool.fee, sqrtRatioX64Upper, 0 /* liquidity doesn't matter */, tickMath_1.TickMath.getTickAtSqrtRatio(sqrtRatioX64Upper));
         // because the router is imprecise, we need to calculate the position that will be created (assuming no slippage)
-        const positionThatWillBeCreated = Position.fromAmounts(Object.assign(Object.assign({ pool: this.pool, tickLower: this.tickLower, tickUpper: this.tickUpper }, this.mintAmounts), { useFullPrecision: false }));
+        const positionThatWillBeCreated = Position.fromAmounts(Object.assign(Object.assign({ id: this.id, pool: this.pool, tickLower: this.tickLower, tickUpper: this.tickUpper }, this.mintAmounts), { useFullPrecision: false }));
         // we want the smaller amounts...
         // ...which occurs at the upper price for amountA...
         const { amountA } = new Position({
+            id: this.id,
             pool: poolUpper,
             liquidity: positionThatWillBeCreated.liquidity,
             tickLower: this.tickLower,
@@ -132,6 +134,7 @@ class Position {
         }).mintAmounts;
         // ...and the lower for amountB
         const { amountB } = new Position({
+            id: this.id,
             pool: poolLower,
             liquidity: positionThatWillBeCreated.liquidity,
             tickLower: this.tickLower,
@@ -154,6 +157,7 @@ class Position {
         // we want the smaller amounts...
         // ...which occurs at the upper price for amountA...
         const amountA = new Position({
+            id: this.id,
             pool: poolUpper,
             liquidity: this.liquidity,
             tickLower: this.tickLower,
@@ -161,6 +165,7 @@ class Position {
         }).amountA;
         // ...and the lower for amountB
         const amountB = new Position({
+            id: this.id,
             pool: poolLower,
             liquidity: this.liquidity,
             tickLower: this.tickLower,
@@ -207,10 +212,11 @@ class Position {
      * not what core can theoretically support
      * @returns The amount of liquidity for the position
      */
-    static fromAmounts({ pool, tickLower, tickUpper, amountA, amountB, useFullPrecision, }) {
+    static fromAmounts({ id, pool, tickLower, tickUpper, amountA, amountB, useFullPrecision, }) {
         const sqrtRatioLX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickLower);
         const sqrtRatioUX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickUpper);
         return new Position({
+            id,
             pool,
             tickLower,
             tickUpper,
@@ -227,8 +233,9 @@ class Position {
      * not what core can theoretically support
      * @returns The position
      */
-    static fromAmountA({ pool, tickLower, tickUpper, amountA, useFullPrecision, }) {
+    static fromAmountA({ id, pool, tickLower, tickUpper, amountA, useFullPrecision, }) {
         return Position.fromAmounts({
+            id,
             pool,
             tickLower,
             tickUpper,
@@ -245,9 +252,10 @@ class Position {
      * @param amountB The desired amount of tokenB
      * @returns The position
      */
-    static fromAmountB({ pool, tickLower, tickUpper, amountB, }) {
+    static fromAmountB({ id, pool, tickLower, tickUpper, amountB, }) {
         // this function always uses full precision,
         return Position.fromAmounts({
+            id,
             pool,
             tickLower,
             tickUpper,

@@ -100,9 +100,9 @@ export const getters = {
   positions(state, getters, rootState) {
     const positions = []
 
-    for (const { liquidity, upper, lower, pool } of state.positions) {
+    for (const { id, liquidity, upper, lower, pool } of state.positions) {
       const poolInstance = getters.pools.find(p => p.id == pool)
-      positions.push(new Position({ pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
+      positions.push(new Position({ id, pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
     }
 
     return positions

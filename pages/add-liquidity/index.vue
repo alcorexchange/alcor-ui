@@ -49,6 +49,7 @@
               .fs-12.text-center BLK per WAX
 
           alcor-button.w-100(access) Connect Wallet
+
       template(v-else)
         .col
           .fs-16.disable.mb-1 Set Price Range
@@ -140,6 +141,7 @@ import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
 import CommissionSelect from '~/components/amm/CommissionSelect'
 import InfoContainer from '~/components/UI/InfoContainer'
+import AuthOnly from '~/components/AuthOnly'
 
 import {
   tryParsePrice,
@@ -159,7 +161,16 @@ import {
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 
 export default {
-  components: { SelectToken, PoolTokenInput, AlcorButton, AlcorContainer, LiquidityChartRangeInput, CommissionSelect, InfoContainer },
+  components: {
+    SelectToken,
+    PoolTokenInput,
+    AlcorButton,
+    AlcorContainer,
+    LiquidityChartRangeInput,
+    CommissionSelect,
+    InfoContainer,
+    AuthOnly
+  },
 
   // Enabling managige route in nested component
   fetch({ route, redirect }) {

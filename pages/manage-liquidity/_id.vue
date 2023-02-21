@@ -1,5 +1,6 @@
 <template lang="pug">
 #manage-liquidity-id-page.d-flex.flex-column.gap-24
+  | {{ position }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-16
       return-link
@@ -178,18 +179,19 @@ export default {
       }
     }
   }),
+
   computed: {
-    //pool() {
-    //  return this.pools.find(({ id }) => id == this.$route.params.id)
-    //},
-    //fee() {
-    //  return this.fees.find(({ value }) => value == this.pool.percent)
-    //}
+    position() {
+      const [pool_id, position_id] = this.$route.params.id.split('-')
+      return this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id)
+    }
   },
+
   mounted() {
-    // TODO mock chart data
-    //this.fetchProfitLoss()
+    // TODO RegexTest
+    this.$store.dispatch('amm/fetchPositions')
   },
+
   methods: {
     async fetchProfitLoss() {
       const r = await (

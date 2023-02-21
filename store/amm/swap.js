@@ -93,6 +93,9 @@ export const actions = {
 }
 
 export const getters = {
+  tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
+  tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
+
   tokens(state, getters, rootState, rootGetters) {
     const tokens = []
 
