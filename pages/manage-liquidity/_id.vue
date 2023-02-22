@@ -1,5 +1,6 @@
 <template lang="pug">
-#manage-liquidity-id-page.d-flex.flex-column.gap-24
+h1(v-if="!position") Loading..
+#manage-liquidity-id-page(v-else).d-flex.flex-column.gap-24
   | {{ position }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-16
@@ -11,10 +12,10 @@
           //  :token2="pool.output"
           //)
           //.fs-24.contrast {{ pool.input.symbol }} / {{ pool.output.symbol }}
-          .fs-24.contrast wax / eos
+          .fs-24.contrast {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
         .d-flex.gap-16
-          .tag 0.3% Fee
-          .tag 90% Selected
+          .tag {{ pool.fee / 10000 }}% Fee
+          .tag 90% Selected ( todo )
     .d-flex.gap-16.h-48
       alcor-button
         i.el-icon-circle-plus-outline
@@ -35,18 +36,18 @@
         .fs-14.disable Selected Pair
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
-            //token-image(:src="$tokenLogo(pool.input.symbol, pool.input.contract)" height="25")
-            .fs-24.contrast WAX
+            token-image(:src="$tokenLogo(position.amountA.currency.symbol, position.amountA.contract)" height="25")
+            .fs-24.contrast {{ position.amountA.currency.symbol }}
           .d-flex.gap-8.align-items-center
-            .fs-24.disable 123
-            .tag 59.8%
+            .fs-24.disable {{ position.amountA.toFixed() | commaFloat }}
+            .tag 59.8% todo
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
             token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
-            .fs-24.contrast WAX
+            .fs-24.contrast {{ position.amountB.currency.symbol }}
           .d-flex.gap-8.align-items-center
-            .fs-24.disable 33.32
-            .tag 40.2%
+            .fs-24.disable {{ position.amountB.toFixed() | commaFloat }}
+            .tag 40.2% todo
 
       alcor-container.d-flex.flex-column.gap-16.w-550
         .d-flex.justify-content-between.align-items-center
@@ -182,8 +183,18 @@ export default {
 
   computed: {
     position() {
-      const [pool_id, position_id] = this.$route.params.id.split('-')
-      return this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id)
+      const [pool_id, position_id, fee] = this.$route.params.id.split('-')
+      return this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
+    },
+
+    pool() {
+      return this.position?.pool || {}
+    },
+  },
+
+  watch: {
+    position() {
+      console.log('get position!', this.position)
     }
   },
 

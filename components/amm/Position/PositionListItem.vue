@@ -1,6 +1,6 @@
 <template lang="pug">
 
-nuxt-link(:to="`/manage-liquidity/${position.pool.id}-${position.id}`")#pool-row-component.d-flex.align-items-center.p-3
+nuxt-link(:to="`/manage-liquidity/${position.pool.id}-${position.id}-${position.pool.fee}`")#pool-row-component.d-flex.align-items-center.p-3
   .icons
     pair-icons(:token1="position.pool.tokenA" :token2="position.pool.tokenB")
 

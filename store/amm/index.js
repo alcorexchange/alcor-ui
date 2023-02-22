@@ -22,7 +22,10 @@ export const mutations = {
 
 export const actions = {
   async init({ dispatch, rootState }) {
+    console.log('inited amm')
     await dispatch('fetchPairs')
+    await dispatch('fetchPositions')
+    console.log('inited amm finish:')
   },
 
   async placePositions({ state, commit, rootState, dispatch }, owner) {

@@ -70,5 +70,8 @@ class CurrencyAmount extends fraction_1.Fraction {
             .div(this.decimalScale.toString())
             .toFormat(format);
     }
+    toAsset(...args) {
+        return this.toFixed(...args) + ' ' + this.currency.symbol;
+    }
 }
 exports.CurrencyAmount = CurrencyAmount;
