@@ -1,7 +1,6 @@
 <template lang="pug">
-el-popover(placement='right' trigger='hover' width='575' :close-delay="0" :open-delay="0")
-  template
-    .d-flex.flex-column.gap-16.contrast
+el-popover(placement='right' trigger='hover' width='575' :close-delay="0" :open-delay="0" transition="none")
+    .d-flex.flex-column.gap-16.contrast.pe-none.hover-hide
       .d-flex.gap-24.w-100
         .first-column
           asset-card-image.first-column(v-if="data.template" :template="{ ...data.immutable_data, ...data.template.immutable_data }")
@@ -59,8 +58,8 @@ el-popover(placement='right' trigger='hover' width='575' :close-delay="0" :open-
         span Minted:
         .disable {{ date }}
 
-  .pointer(slot="reference")
-    slot
+    .pointer(slot="reference")
+      slot
 </template>
 
 <script>
