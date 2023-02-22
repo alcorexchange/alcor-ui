@@ -8,7 +8,7 @@
     alcor-button(compact) Select all
 
   el-table.migration-table.mt-3(:data="tableData" :style="isMobile ? 'width: 320px': 'width: 450px'")
-    el-table-column(label="Select" width="50")
+    el-table-column(label="Select" width="55")
       template(slot-scope="{ row }")
         .d-flex.justify-content-center
           el-checkbox(v-model='row.selected')
