@@ -1192,3 +1192,9 @@ a {
 .h-fit {
   height: fit-content;
 }
+
+.mutted {
+  cursor: not-allowed;
+  filter: opacity(.2);
+  pointer-events: none;
+}

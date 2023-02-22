@@ -132,6 +132,7 @@ module.exports = {
     '~/plugins/filters',
     '~/plugins/global',
     '~/plugins/vClickOutside.js',
+    '~/plugins/muttedDirective.js',
     '~/plugins/routerSync.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
