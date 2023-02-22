@@ -1,12 +1,10 @@
 <template lang="pug">
-.wallet-layout(v-if="user")
+auth-only.wallet-layout
   WalletAccount
   WalletHeader.mt-3
   WalletTabBar.mt-3
-  .content
+  .mt-3
     nuxt-child
-.d-flex.justify-content-center.p-3(v-else)
-  el-button(type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 </template>
 
 <script>
@@ -16,6 +14,7 @@ import WalletAccount from '~/components/wallet/WalletAccount.vue'
 import WalletHeader from '~/components/wallet/WalletHeader.vue'
 import SSpacer from '~/components/SSpacer.vue'
 import WalletTabBar from '~/components/wallet/WalletTabBar.vue'
+import AuthOnly from '~/components/AuthOnly'
 
 export default {
   components: {
@@ -23,7 +22,8 @@ export default {
     WalletHeader,
     SSpacer,
     WalletTabBar,
-    WalletAccount
+    WalletAccount,
+    AuthOnly
   },
   computed: {
     ...mapGetters(['user'])
@@ -37,7 +37,4 @@ export default {
   padding-top: 25px;
 }
 
-.content {
-  padding: 25px 0;
-}
 </style>
