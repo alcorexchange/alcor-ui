@@ -118,7 +118,7 @@ export default {
 
       items.push({ index: '/otc', name: 'OTC' })
 
-      if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {
+      if (this.$store.state.network.name === 'wax') {
         items.push({ index: '/nft-market', name: 'NFT' })
       }
 
