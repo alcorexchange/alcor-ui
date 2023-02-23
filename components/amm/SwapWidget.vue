@@ -56,7 +56,9 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       .fs-12 {{ rate }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
     .d-flex.justify-content-between
       .fs-12 Price Impact
-      .fs-12.green {{ impact }}%
+      .fs-12(
+        :class="{ 'text-success': impact < 2, 'text-warning': impact >= 2 && impact < 5, 'text-danger': impact >= 5  }"
+      ) {{ impact }}%
     .d-flex.justify-content-between
       .fs-12 Slippage
       .fs-12 0.3%
