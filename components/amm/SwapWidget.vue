@@ -8,9 +8,9 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
     .d-flex.flex-column.gap-8
       .d-flex.flex-row.justify-content-between.align-items-center
         .fs-12.text-muted {{ $t("Sell") }}
-        el-button(v-if="tokenA" type="text" size="mini" @click="setAToMax").ml-auto
+        el-button(v-if="$store.state.user" type="text" size="mini" @click="setAToMax").ml-auto
           .d-flex.gap-4.fs-12
-            .text-decoration-underline {{ balanceInput }}
+            .text-decoration-underline {{ $store.getters.assetBalance({ symbol: 'BRWL', contract: 'brawlertoken'}) }}
             .fs-12 WAX
             i.el-icon-wallet.ml-1
 
