@@ -8,9 +8,9 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
     .d-flex.flex-column.gap-8
       .d-flex.flex-row.justify-content-between.align-items-center
         .fs-12.text-muted {{ $t("Sell") }}
-        el-button(v-if="tokenA" type="text" size="mini" @click="setAToMax").ml-auto
+        el-button(v-if="$store.state.user" type="text" size="mini" @click="setAToMax").ml-auto
           .d-flex.gap-4.fs-12
-            .text-decoration-underline {{ balanceInput }}
+            .text-decoration-underline {{ $store.getters.assetBalance({ symbol: 'BRWL', contract: 'brawlertoken'}) }}
             .fs-12 WAX
             i.el-icon-wallet.ml-1
 
@@ -56,7 +56,9 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       .fs-12 {{ rate }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
     .d-flex.justify-content-between
       .fs-12 Price Impact
-      .fs-12.green {{ impact }}%
+      .fs-12(
+        :class="{ 'text-success': impact < 2, 'text-warning': impact >= 2 && impact < 5, 'text-danger': impact >= 5  }"
+      ) {{ impact }}%
     .d-flex.justify-content-between
       .fs-12 Slippage
       .fs-12 0.3%
