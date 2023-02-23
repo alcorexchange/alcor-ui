@@ -15,11 +15,11 @@ export default {
     // TODO Regex test
     if (route.path[route.path.length - 1] !== '/') redirect(route.path + '/')
 
-    const { tokenA, tokenB, feeAmountFromUrl } = store.getters['amm/addLiquidity/routes']
+    const { tokenA, tokenB, feeAmountFromUrl } = store.getters['amm/liquidity/routes']
 
-    if (tokenA) store.commit('amm/addLiquidity/setTokenA', tokenA)
-    if (tokenB) store.commit('amm/addLiquidity/setTokenB', tokenB)
-    if (feeAmountFromUrl) store.commit('amm/addLiquidity/setFeeAmount', feeAmountFromUrl)
+    if (tokenA) store.commit('amm/liquidity/setTokenA', tokenA)
+    if (tokenB) store.commit('amm/liquidity/setTokenB', tokenB)
+    if (feeAmountFromUrl) store.commit('amm/liquidity/setFeeAmount', feeAmountFromUrl)
   },
 
   beforeRouteLeave(to, from, next) {

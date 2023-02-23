@@ -22,9 +22,9 @@
 
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
-      .col
-        auth-only.d-flex.flex-column.gap-12
-          .fs-16.disable Select Pairs
+      template(v-if="!pool")
+        auth-only.col.d-flex.flex-column.gap-12
+          .fs-16.disable Set Starting Price
           info-container(:access="true")
             | This pool must be initialized before you can add liquidity.
             | To initialize, select a starting price for the pool.
@@ -50,7 +50,7 @@
 
           //alcor-button.w-100(access) Connect Wallet
 
-      //template(v-else)
+      template(v-else)
         .col
           .fs-16.disable.mb-1 Set Price Range
           LiquidityChartRangeInput(
@@ -214,7 +214,7 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapGetters('amm/addLiquidity', [
+    ...mapGetters('amm/liquidity', [
       'tokenA',
       'tokenB',
       'tokens',
@@ -223,11 +223,11 @@ export default {
 
     feeAmount: {
       get() {
-        return this.$store.state.amm.addLiquidity.feeAmount
+        return this.$store.state.amm.liquidity.feeAmount
       },
 
       set(val) {
-        this.$store.commit('amm/addLiquidity/setFeeAmount', val)
+        this.$store.commit('amm/liquidity/setFeeAmount', val)
       }
     },
 
@@ -445,16 +445,20 @@ export default {
         const position = independentAmount.currency.equals(pool.tokenA)
           ? Position.fromAmountA({
             pool,
-            tickLower,
-            tickUpper,
+            lower: tickLower, // TODO Change naming in sdk
+            upper: tickUpper,
             amountA: independentAmount.quotient,
-            useFullPrecision: true // we want full precision for the theoretical position
+            useFullPrecision: true, // we want full precision for the theoretical position
+            feeGrowthInsideALastX64: 0, // we are not going to calculate fees
+            feeGrowthInsideBLastX64: 0
           })
           : Position.fromAmountB({
             pool,
-            tickLower,
-            tickUpper,
-            amountB: independentAmount.quotient
+            lower: tickLower,
+            upper: tickUpper,
+            amountB: independentAmount.quotient,
+            feeGrowthInsideALastX64: 0, // we are not going to calculate fees
+            feeGrowthInsideBLastX64: 0
           })
 
         const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
@@ -516,7 +520,7 @@ export default {
     },
 
     setTokenA(token) {
-      this.$store.dispatch('amm/addLiquidity/setTokenA', token)
+      this.$store.dispatch('amm/liquidity/setTokenA', token)
     },
 
     percentageChange() {
@@ -524,7 +528,7 @@ export default {
     },
 
     setTokenB(token) {
-      this.$store.dispatch('amm/addLiquidity/setTokenB', token)
+      this.$store.dispatch('amm/liquidity/setTokenB', token)
     },
 
     async submit() {

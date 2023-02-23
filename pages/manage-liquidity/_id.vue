@@ -1,7 +1,6 @@
 <template lang="pug">
 h1(v-if="!position") Loading..
 #manage-liquidity-id-page(v-else).d-flex.flex-column.gap-24
-  | {{ position }}
   .d-flex.justify-content-between.align-items-center
     .d-flex.flex-column.gap-16
       return-link
@@ -17,12 +16,8 @@ h1(v-if="!position") Loading..
           .tag {{ pool.fee / 10000 }}% Fee
           .tag 90% Selected ( todo )
     .d-flex.gap-16.h-48
-      alcor-button
-        i.el-icon-circle-plus-outline
-        span Increase Liquidity
-      alcor-button(danger)
-        i.el-icon-remove-outline
-        span Remove Liquidity
+      IncreaseLiquidity
+      RemoveLiquidity
   .d-flex.gap-32.justify-content-between.w-100
     alcor-container.d-flex.flex-column.gap-16.w-100
       alcor-chart(
@@ -60,18 +55,18 @@ h1(v-if="!position") Loading..
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
             token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
-            .fs-24.contrast WAX
+            .fs-24.contrast {{ position.amountA.currency.symbol }}
           .d-flex.gap-8.align-items-center
-            .fs-24.disable 0.00$
-            .fs-14.red(:class="{ green: true }") (20.00)
+            .fs-24.disable {{ feesA }}
+            .fs-14.red(:class="{ green: true }") $(0.00)
 
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
             token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
-            .fs-24.contrast WAX
+            .fs-24.contrast {{ position.amountB.currency.symbol }}
           .d-flex.gap-8.align-items-center
-            .fs-24.disable 23.00
-            .fs-14.red(:class="{ green: true }") ($3.00)
+            .fs-24.disable {{ feesB }}
+            .fs-14.red(:class="{ green: true }") ($0.00)
   alcor-container.d-flex.flex-column.gap-16.w-100
     .d-flex.justify-content-between
       .d-flex.gap-32.align-items-center
@@ -105,6 +100,8 @@ import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 import AlcorChart from '~/components/AlcorChart'
+import RemoveLiquidity from '~/components/modals/amm/RemoveLiquidity'
+import IncreaseLiquidity from '~/components/modals/amm/IncreaseLiquidity'
 
 export default {
   components: {
@@ -113,11 +110,17 @@ export default {
     TokenImage,
     AlcorButton,
     AlcorContainer,
-    AlcorChart
+    AlcorChart,
+    RemoveLiquidity,
+    IncreaseLiquidity
   },
+
   data: () => ({
     profitLoss: null,
     series: null,
+
+    fees: {},
+
     options: {
       title: {
         text: 'Profit and Loss',
@@ -190,20 +193,38 @@ export default {
     pool() {
       return this.position?.pool || {}
     },
+
+    feesA() {
+      return this.fees?.feesA
+    },
+
+    feesB() {
+      return this.fees?.feesB
+    }
   },
 
   watch: {
     position() {
-      console.log('get position!', this.position)
+      this.calcFees()
     }
   },
 
-  mounted() {
-    // TODO RegexTest
-    this.$store.dispatch('amm/fetchPositions')
+  async mounted() {
+    // TODO RegexTest url params
+    await this.$store.dispatch('amm/fetchPositions')
   },
 
   methods: {
+    getPositionFees() {
+      const { position, pool } = this
+      return this.$store.dispatch('amm/liquidity/getPositionFees', { position, pool })
+    },
+
+    async calcFees() {
+      const { feesA, feesB } = await this.position.getFees()
+      this.fees = { feesA: feesA.toAsset(), feesB: feesB.toAsset() }
+    },
+
     async fetchProfitLoss() {
       const r = await (
         await fetch('https://alcor.exchange/api/pools/0/charts?period=7D')

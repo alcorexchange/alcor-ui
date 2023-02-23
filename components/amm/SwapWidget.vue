@@ -173,7 +173,7 @@ export default {
       const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
       const [_, best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
-      console.log(best)
+      //console.log(best)
 
       //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
@@ -189,36 +189,36 @@ export default {
 
 
 
-      // const amount = parseFloat(amountB)
-      // if (amount <= 0) return
+      const amount = parseFloat(amountB)
+      if (amount <= 0) return
 
-      // const minExpected = parseFloat(amount + 0.0000).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
+      const minExpected = parseFloat(amount - 0.0001).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
 
-      // // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
-      // const id = 0
-      // const memo = `swapexactin#${id}#${this.user.name}#${minExpected}#0`
+      // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
+      const id = 0
+      const memo = `swapexactin#${id}#${this.user.name}#${minExpected}#0`
 
-      // if (parseFloat(amountA) > 0)
-      //   actions.push({
-      //     account: tokenA.contract,
-      //     name: 'transfer',
-      //     authorization: [this.user.authorization],
-      //     data: {
-      //       from: this.user.name,
-      //       to: this.network.amm.contract,
-      //       quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-      //       memo
-      //     }
-      //   })
-      //   // tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-      //   // tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+      if (parseFloat(amountA) > 0)
+        actions.push({
+          account: tokenA.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            memo
+          }
+        })
+        // tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+        // tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
 
-      // try {
-      //   const r = await this.$store.dispatch('chain/sendTransaction', actions)
-      //   console.log(r)
-      // } catch (e) {
-      //   console.log('err', e)
-      // }
+      try {
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log(r)
+      } catch (e) {
+        console.log('err', e)
+      }
     },
 
     async calcOutput(value, independentField) {

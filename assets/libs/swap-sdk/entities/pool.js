@@ -36,29 +36,33 @@ class Pool {
      * @param tokenA One of the tokens in the pool
      * @param tokenB The other token in the pool
      * @param fee The fee in hundredths of a bips of the input amount of every swap that is collected by the pool
-     * @param sqrtRatioX64 The sqrt of the current ratio of amounts of tokenB to tokenA
+     * @param sqrtPriceX64 The sqrt of the current ratio of amounts of tokenB to tokenA
      * @param liquidity The current value of in range liquidity
      * @param tickCurrent The current tick of the pool
      * @param ticks The current state of the pool ticks or a data provider that can return tick data
      */
-    constructor(id, tokenA, tokenB, fee, sqrtRatioX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT) {
+    constructor({ id, tokenA, tokenB, fee, sqrtPriceX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT, feeGrowthGlobalAX64, feeGrowthGlobalBX64, protocolFeeA, protocolFeeB, }) {
         (0, tiny_invariant_1.default)(Number.isInteger(fee) && fee < 1000000, "FEE");
         const tickCurrentSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent);
         const nextTickSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent + 1);
-        (0, tiny_invariant_1.default)(jsbi_1.default.greaterThanOrEqual(jsbi_1.default.BigInt(sqrtRatioX64), tickCurrentSqrtRatioX64) &&
-            jsbi_1.default.lessThanOrEqual(jsbi_1.default.BigInt(sqrtRatioX64), nextTickSqrtRatioX64), "PRICE_BOUNDS");
+        (0, tiny_invariant_1.default)(jsbi_1.default.greaterThanOrEqual(jsbi_1.default.BigInt(sqrtPriceX64), tickCurrentSqrtRatioX64) &&
+            jsbi_1.default.lessThanOrEqual(jsbi_1.default.BigInt(sqrtPriceX64), nextTickSqrtRatioX64), "PRICE_BOUNDS");
         // always create a copy of the list since we want the pool's tick list to be immutable
-        [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
-            ? [tokenA, tokenB]
-            : [tokenB, tokenA];
-        this.fee = fee;
         this.id = id;
-        this.sqrtRatioX64 = jsbi_1.default.BigInt(sqrtRatioX64);
+        this.fee = fee;
+        this.sqrtPriceX64 = jsbi_1.default.BigInt(sqrtPriceX64);
         this.liquidity = jsbi_1.default.BigInt(liquidity);
         this.tickCurrent = tickCurrent;
+        this.feeGrowthGlobalAX64 = jsbi_1.default.BigInt(feeGrowthGlobalAX64);
+        this.feeGrowthGlobalBX64 = jsbi_1.default.BigInt(feeGrowthGlobalBX64);
+        this.protocolFeeA = jsbi_1.default.BigInt(protocolFeeA);
+        this.protocolFeeB = jsbi_1.default.BigInt(protocolFeeB);
         this.tickDataProvider = Array.isArray(ticks)
             ? new tickListDataProvider_1.TickListDataProvider(ticks, internalConstants_1.TICK_SPACINGS[fee])
             : ticks;
+        [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
+            ? [tokenA, tokenB]
+            : [tokenB, tokenA];
     }
     /**
      * Returns true if the token is either tokenA or tokenB
@@ -73,14 +77,14 @@ class Pool {
      */
     get tokenAPrice() {
         var _a;
-        return ((_a = this._tokenAPrice) !== null && _a !== void 0 ? _a : (this._tokenAPrice = new fractions_1.Price(this.tokenA, this.tokenB, internalConstants_2.Q128, jsbi_1.default.multiply(this.sqrtRatioX64, this.sqrtRatioX64))));
+        return ((_a = this._tokenAPrice) !== null && _a !== void 0 ? _a : (this._tokenAPrice = new fractions_1.Price(this.tokenA, this.tokenB, internalConstants_2.Q128, jsbi_1.default.multiply(this.sqrtPriceX64, this.sqrtPriceX64))));
     }
     /**
      * Returns the current mid price of the pool in terms of tokenB, i.e. the ratio of tokenA over tokenB
      */
     get tokenBPrice() {
         var _a;
-        return ((_a = this._tokenBPrice) !== null && _a !== void 0 ? _a : (this._tokenBPrice = new fractions_1.Price(this.tokenB, this.tokenA, jsbi_1.default.multiply(this.sqrtRatioX64, this.sqrtRatioX64), internalConstants_2.Q128)));
+        return ((_a = this._tokenBPrice) !== null && _a !== void 0 ? _a : (this._tokenBPrice = new fractions_1.Price(this.tokenB, this.tokenA, jsbi_1.default.multiply(this.sqrtPriceX64, this.sqrtPriceX64), internalConstants_2.Q128)));
     }
     /**
      * Return the price of the given token in terms of the other token in the pool.
@@ -101,11 +105,24 @@ class Pool {
         return __awaiter(this, void 0, void 0, function* () {
             (0, tiny_invariant_1.default)(this.involvesToken(inputAmount.currency), "TOKEN");
             const zeroForOne = inputAmount.currency.equals(this.tokenA);
-            const { amountCalculated: outputAmount, sqrtRatioX64, liquidity, tickCurrent, } = yield this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
+            const { amountCalculated: outputAmount, sqrtPriceX64, liquidity, tickCurrent, } = yield this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
             const outputToken = zeroForOne ? this.tokenB : this.tokenA;
             return [
                 fractions_1.CurrencyAmount.fromRawAmount(outputToken, jsbi_1.default.multiply(outputAmount, internalConstants_2.NEGATIVE_ONE)),
-                new Pool(this.id, this.tokenA, this.tokenB, this.fee, sqrtRatioX64, liquidity, tickCurrent, this.tickDataProvider),
+                new Pool({
+                    id: this.id,
+                    tokenA: this.tokenA,
+                    tokenB: this.tokenB,
+                    fee: this.fee,
+                    sqrtPriceX64,
+                    liquidity,
+                    tickCurrent,
+                    ticks: this.tickDataProvider,
+                    feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
+                    feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
+                    protocolFeeA: this.protocolFeeA,
+                    protocolFeeB: this.protocolFeeB
+                })
             ];
         });
     }
@@ -118,11 +135,24 @@ class Pool {
     getInputAmount(outputAmount, sqrtPriceLimitX64) {
         return __awaiter(this, void 0, void 0, function* () {
             const zeroForOne = outputAmount.currency.equals(this.tokenB);
-            const { amountCalculated: inputAmount, sqrtRatioX64, liquidity, tickCurrent, } = yield this.swap(zeroForOne, jsbi_1.default.multiply(outputAmount.quotient, internalConstants_2.NEGATIVE_ONE), sqrtPriceLimitX64);
+            const { amountCalculated: inputAmount, sqrtPriceX64, liquidity, tickCurrent, } = yield this.swap(zeroForOne, jsbi_1.default.multiply(outputAmount.quotient, internalConstants_2.NEGATIVE_ONE), sqrtPriceLimitX64);
             const inputToken = zeroForOne ? this.tokenA : this.tokenB;
             return [
                 fractions_1.CurrencyAmount.fromRawAmount(inputToken, inputAmount),
-                new Pool(this.id, this.tokenA, this.tokenB, this.fee, sqrtRatioX64, liquidity, tickCurrent, this.tickDataProvider),
+                new Pool({
+                    id: this.id,
+                    tokenA: this.tokenA,
+                    tokenB: this.tokenB,
+                    fee: this.fee,
+                    sqrtPriceX64,
+                    liquidity,
+                    tickCurrent,
+                    ticks: this.tickDataProvider,
+                    feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
+                    feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
+                    protocolFeeA: this.protocolFeeA,
+                    protocolFeeB: this.protocolFeeB
+                }),
             ];
         });
     }
@@ -132,7 +162,7 @@ class Pool {
      * @param amountSpecified The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
      * @param sqrtPriceLimitX64 The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap
      * @returns amountCalculated
-     * @returns sqrtRatioX64
+     * @returns sqrtPriceX64
      * @returns liquidity
      * @returns tickCurrent
      */
@@ -144,18 +174,18 @@ class Pool {
                     : jsbi_1.default.subtract(tickMath_1.TickMath.MAX_SQRT_RATIO, internalConstants_2.ONE);
             if (zeroForOne) {
                 (0, tiny_invariant_1.default)(jsbi_1.default.greaterThan(sqrtPriceLimitX64, tickMath_1.TickMath.MIN_SQRT_RATIO), "RATIO_MIN");
-                (0, tiny_invariant_1.default)(jsbi_1.default.lessThan(sqrtPriceLimitX64, this.sqrtRatioX64), "RATIO_CURRENT");
+                (0, tiny_invariant_1.default)(jsbi_1.default.lessThan(sqrtPriceLimitX64, this.sqrtPriceX64), "RATIO_CURRENT");
             }
             else {
                 (0, tiny_invariant_1.default)(jsbi_1.default.lessThan(sqrtPriceLimitX64, tickMath_1.TickMath.MAX_SQRT_RATIO), "RATIO_MAX");
-                (0, tiny_invariant_1.default)(jsbi_1.default.greaterThan(sqrtPriceLimitX64, this.sqrtRatioX64), "RATIO_CURRENT");
+                (0, tiny_invariant_1.default)(jsbi_1.default.greaterThan(sqrtPriceLimitX64, this.sqrtPriceX64), "RATIO_CURRENT");
             }
             const exactInput = jsbi_1.default.greaterThanOrEqual(amountSpecified, internalConstants_2.ZERO);
             // keep track of swap state
             const state = {
                 amountSpecifiedRemaining: amountSpecified,
                 amountCalculated: internalConstants_2.ZERO,
-                sqrtPriceX64: this.sqrtRatioX64,
+                sqrtPriceX64: this.sqrtPriceX64,
                 tick: this.tickCurrent,
                 liquidity: this.liquidity,
             };
@@ -211,7 +241,7 @@ class Pool {
             }
             return {
                 amountCalculated: state.amountCalculated,
-                sqrtRatioX64: state.sqrtPriceX64,
+                sqrtPriceX64: state.sqrtPriceX64,
                 liquidity: state.liquidity,
                 tickCurrent: state.tick,
             };

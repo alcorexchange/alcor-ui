@@ -75,26 +75,45 @@ export const actions = {
   }
 }
 
+// interface PoolConstructorArgs {
+//   id: number,
+//   tokenA: Token,
+//   tokenB: Token,
+//   fee: FeeAmount,
+//   sqrtRatioX64: BigintIsh,
+//   liquidity: BigintIsh,
+//   tickCurrent: number,
+//   feeGrowthGlobalAX64: BigintIsh,
+//   feeGrowthGlobalBX64: BigintIsh,
+//   protocolFeeA: BigintIsh,
+//   protocolFeeB: BigintIsh,
+//   ticks:
+//     | TickDataProvider
+//     | (Tick | TickConstructorArgs)[]
+// }
+
+
 export const getters = {
   pools(state, getters, rootState) {
     const pools = []
 
     for (const row of state.pools) {
-      const { id, ticks, tokenA, tokenB, fee, liquidity, currSlot: { sqrtPriceX64, tick } } = row
-      const TICKS = ticks.map(t => new Tick({ index: t.id, ...t }))
-      TICKS.sort((a, b) => a.index - b.index)
+      const { tokenA, tokenB, protocolFeeA, protocolFeeB, currSlot: { sqrtPriceX64, tick } } = row
 
-      pools.push(new Pool(
-        id,
-        parseToken(tokenA),
-        parseToken(tokenB),
-        fee,
+      const ticks = row.ticks.map(t => new Tick(t))
+      ticks.sort((a, b) => a.id - b.id)
+
+      pools.push(new Pool({
+        ...row,
+
+        tokenA: parseToken(tokenA),
+        tokenB: parseToken(tokenB),
+        ticks,
         sqrtPriceX64,
-        liquidity,
-        tick,
-        TICKS,
-        id
-      ))
+        tickCurrent: tick,
+        protocolFeeA: parseFloat(protocolFeeA, protocolFeeB),
+        protocolFeeB: parseFloat(protocolFeeA, protocolFeeB)
+      }))
     }
 
     return pools
@@ -103,9 +122,9 @@ export const getters = {
   positions(state, getters, rootState) {
     const positions = []
 
-    for (const { id, liquidity, upper, lower, pool } of state.positions) {
-      const poolInstance = getters.pools.find(p => p.id == pool)
-      positions.push(new Position({ id, pool: poolInstance, liquidity, tickLower: lower, tickUpper: upper }))
+    for (const position of state.positions) {
+      const poolInstance = getters.pools.find(p => p.id == position.pool)
+      positions.push(new Position({ ...position, pool: poolInstance }))
     }
 
     return positions

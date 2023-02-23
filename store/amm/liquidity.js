@@ -1,4 +1,6 @@
-import { FeeAmount } from '~/assets/libs/swap-sdk/internalConstants'
+import JSBI from 'jsbi'
+
+import { FeeAmount, PositionLibrary, TickLibrary, CurrencyAmount, Token } from '~/assets/libs/swap-sdk'
 
 export const state = () => ({
   tokenA: null,
@@ -58,6 +60,61 @@ export const actions = {
 
     commit('setTokenB', token)
     //dispatch('updateRoutePath')
+  },
+
+  async getPositionFees(_, { position, pool }) {
+    if (!position || !pool) return
+    // TODO Update position
+    // await this.$store.dispatch('amm/fetchPositions')
+
+    const { liquidity, upper, lower, feeGrowthInsideALastX64, feeGrowthInsideBLastX64 } = position
+
+    console.log(position)
+    console.log({ liquidity, upper, lower, feeGrowthInsideALastX64, feeGrowthInsideBLastX64 })
+    return
+
+    const tickLower = pool.ticks.find(t => t.id == lower)
+    const tickUpper = pool.ticks.find(t => t.id == upper)
+
+    const feeGrowthOutsideLower = {
+      feeGrowthOutsideAX64: JSBI.BigInt(tickLower.feeGrowthOutsideAX64),
+      feeGrowthOutsideBX64: JSBI.BigInt(tickLower.feeGrowthOutsideBX64)
+    }
+
+    const feeGrowthOutsideUpper = {
+      feeGrowthOutsideAX64: JSBI.BigInt(tickUpper.feeGrowthOutsideAX64),
+      feeGrowthOutsideBX64: JSBI.BigInt(tickUpper.feeGrowthOutsideBX64)
+    }
+
+    const { feeGrowthGlobalAX64, feeGrowthGlobalBX64 } = pool
+
+    const [feeGrowthInsideAX64, feeGrowthInsideBX64] = TickLibrary.getFeeGrowthInside(
+      feeGrowthOutsideLower,
+      feeGrowthOutsideUpper,
+      lower,
+      upper,
+      pool.currSlot.tick,
+      JSBI.BigInt(feeGrowthGlobalAX64),
+      JSBI.BigInt(feeGrowthGlobalBX64)
+    )
+
+    console.log({ feeGrowthInsideAX64, feeGrowthInsideBX64 })
+
+    const [tokensOwnedA, tokensOwnedB] = PositionLibrary.getTokensOwed(
+      JSBI.BigInt(feeGrowthInsideALastX64),
+      JSBI.BigInt(feeGrowthInsideBLastX64),
+      JSBI.BigInt(liquidity),
+      feeGrowthInsideAX64,
+      feeGrowthInsideBX64
+    )
+
+    const currencyA = new Token('eosio.token', 4, 'A', 'tokenA')
+    const currencyB = new Token('eosio.token', 4, 'B', 'tokenA')
+
+    const feesA = CurrencyAmount.fromRawAmount(currencyA, tokensOwnedA)
+    const feesB = CurrencyAmount.fromRawAmount(currencyB, tokensOwnedB)
+
+    return { feesA, feesB }
   },
 
   async fetchPairs({ state, commit, rootGetters, dispatch }) {
