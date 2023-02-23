@@ -41,7 +41,7 @@ class Pool {
      * @param tickCurrent The current tick of the pool
      * @param ticks The current state of the pool ticks or a data provider that can return tick data
      */
-    constructor({ id, tokenA, tokenB, fee, sqrtPriceX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT, feeGrowthGlobalAX64, feeGrowthGlobalBX64, protocolFeeA, protocolFeeB, }) {
+    constructor({ id, tokenA, tokenB, fee, sqrtPriceX64, liquidity, tickCurrent, ticks = NO_TICK_DATA_PROVIDER_DEFAULT, feeGrowthGlobalAX64, feeGrowthGlobalBX64, }) {
         (0, tiny_invariant_1.default)(Number.isInteger(fee) && fee < 1000000, "FEE");
         const tickCurrentSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent);
         const nextTickSqrtRatioX64 = tickMath_1.TickMath.getSqrtRatioAtTick(tickCurrent + 1);
@@ -55,8 +55,6 @@ class Pool {
         this.tickCurrent = tickCurrent;
         this.feeGrowthGlobalAX64 = jsbi_1.default.BigInt(feeGrowthGlobalAX64);
         this.feeGrowthGlobalBX64 = jsbi_1.default.BigInt(feeGrowthGlobalBX64);
-        this.protocolFeeA = jsbi_1.default.BigInt(protocolFeeA);
-        this.protocolFeeB = jsbi_1.default.BigInt(protocolFeeB);
         this.tickDataProvider = Array.isArray(ticks)
             ? new tickListDataProvider_1.TickListDataProvider(ticks, internalConstants_1.TICK_SPACINGS[fee])
             : ticks;
@@ -120,8 +118,6 @@ class Pool {
                     ticks: this.tickDataProvider,
                     feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
                     feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
-                    protocolFeeA: this.protocolFeeA,
-                    protocolFeeB: this.protocolFeeB
                 })
             ];
         });
@@ -150,8 +146,6 @@ class Pool {
                     ticks: this.tickDataProvider,
                     feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
                     feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
-                    protocolFeeA: this.protocolFeeA,
-                    protocolFeeB: this.protocolFeeB
                 }),
             ];
         });

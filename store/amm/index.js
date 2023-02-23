@@ -111,8 +111,8 @@ export const getters = {
         ticks,
         sqrtPriceX64,
         tickCurrent: tick,
-        protocolFeeA: parseFloat(protocolFeeA, protocolFeeB),
-        protocolFeeB: parseFloat(protocolFeeA, protocolFeeB)
+        // protocolFeeA: parseToken(protocolFeeA, protocolFeeB),
+        // protocolFeeB: parseToken(protocolFeeA, protocolFeeB)
       }))
     }
 

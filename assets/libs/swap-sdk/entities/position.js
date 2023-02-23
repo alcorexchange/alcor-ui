@@ -140,8 +140,6 @@ class Position {
             tickCurrent: tickMath_1.TickMath.getTickAtSqrtRatio(sqrtPriceX64Lower),
             feeGrowthGlobalAX64: this.feeGrowthInsideALastX64,
             feeGrowthGlobalBX64: this.feeGrowthInsideBLastX64,
-            protocolFeeA: this.pool.protocolFeeA,
-            protocolFeeB: this.pool.protocolFeeB,
             ticks: this.pool.tickDataProvider
         });
         const poolUpper = new pool_1.Pool({
@@ -154,8 +152,6 @@ class Position {
             tickCurrent: tickMath_1.TickMath.getTickAtSqrtRatio(sqrtPriceX64Upper),
             feeGrowthGlobalAX64: this.feeGrowthInsideALastX64,
             feeGrowthGlobalBX64: this.feeGrowthInsideBLastX64,
-            protocolFeeA: this.pool.protocolFeeA,
-            protocolFeeB: this.pool.protocolFeeB,
             ticks: this.pool.tickDataProvider
         });
         // because the router is imprecise, we need to calculate the position that will be created (assuming no slippage)
@@ -203,8 +199,6 @@ class Position {
             tickCurrent: tickMath_1.TickMath.getTickAtSqrtRatio(sqrtPriceX64Lower),
             feeGrowthGlobalAX64: this.feeGrowthInsideALastX64,
             feeGrowthGlobalBX64: this.feeGrowthInsideBLastX64,
-            protocolFeeA: this.pool.protocolFeeA,
-            protocolFeeB: this.pool.protocolFeeB,
             ticks: this.pool.tickDataProvider
         });
         const poolUpper = new pool_1.Pool({
@@ -217,8 +211,6 @@ class Position {
             tickCurrent: tickMath_1.TickMath.getTickAtSqrtRatio(sqrtPriceX64Upper),
             feeGrowthGlobalAX64: this.feeGrowthInsideALastX64,
             feeGrowthGlobalBX64: this.feeGrowthInsideBLastX64,
-            protocolFeeA: this.pool.protocolFeeA,
-            protocolFeeB: this.pool.protocolFeeB,
             ticks: this.pool.tickDataProvider
         });
         // we want the smaller amounts...
