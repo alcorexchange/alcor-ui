@@ -612,5 +612,8 @@ export default {
   'The official Alcor DEX NFT collection': 'The official Alcor DEX NFT collection',
   Image: 'Image',
   Explorer: 'Explorer',
-  'Accounts can only be searched': 'Accounts can only be searched'
+  'Accounts can only be searched': 'Accounts can only be searched',
+  Bridge: 'Bridge',
+  'Search by token name': 'Search by token name',
+  'show closed positions': 'show closed positions'
 }
