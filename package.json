@@ -28,7 +28,7 @@
     "@socket.io/cluster-adapter": "^0.2.0",
     "@socket.io/sticky": "^1.0.1",
     "@vue/eslint-config-standard": "^5.0.0",
-    "@waxio/waxjs": "^1.3.0",
+    "@waxio/waxjs": "^1.2.0-beta.2",
     "anchor-link": "^3.5.1",
     "anchor-link-browser-transport": "^3.5.1",
     "apexcharts": "^3.25.0",
