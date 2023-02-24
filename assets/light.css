@@ -6697,7 +6697,8 @@
     transform: translateX(-50%);
     font-size: 14px;
     color: #909399;
-    margin-top: 15px
+    margin-top: 15px;
+    white-space: nowrap;
 }
 
 .el-slider.is-vertical {
