@@ -1,12 +1,12 @@
 <template lang="pug">
 .d-flex.align-items-center.gap-8
-  alcor-button(@click="locked ? '' : visible = true")
-    i.el-icon-circle-plus-outline
-    span Increase Liquidity
+  alcor-button.h-48(access big @click="locked ? '' : visible = true")
+    i.el-icon-money
+    span Collect Fees
 
   //append-to-body
   el-dialog.increase-liquidity(
-    title="Increase Liquidity"
+    title="Claim Fees"
     :visible="visible"
     @close="visible = false"
 
@@ -16,63 +16,21 @@
   )
     .row
       .col.d-flex.flex-column.gap-16
-        .d-flex.justify-content-between
-          .d-flex.align-items-center.gap-8
-            pair-icons(
-              :token1="'token1'"
-              :token2="'token2'"
-            )
-            .fs-18 TOKEN1/TOKEN2
-          range-indicator(:inRange="true")
-
         alcor-container(:alternative="true").d-flex.flex-column.gap-10.w-100
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
               token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
-              .fs-14.contrast TOKEN1
-            .contrast 0.0007746
+              .fs-14.contrast 0.0007746
+            .disable TOKEN1
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
               token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
-              .fs-14.contrast TOKEN1
-            .contrast 0.0007746
-          .hr
-          .d-flex.justify-content-between.align-items-center
-            .contrast Fee Tier
-            .fs-14 1%
+              .fs-14.contrast 0.0007746
+            .disable TOKEN2
 
-        .d-flex.justify-content-between.align-items-center
-          .disable Selected Range
-          el-radio-group(
-            v-model='tokenMode',
-            size='small'
-          )
-            el-radio-button(label='TOKEN1')
-            el-radio-button(label='TOKEN2')
+        .fs-14.disable Collecting fees will withdraw currently available fees for you.
 
-        .d-flex.gap-20.justify-content-between.align-items-center
-          alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
-            .fs-12.text-center.disable Min Price
-            .fs-24.text-center.contrast 0.123
-            .fs-12.text-center.disable wax per eos
-
-          i.el-icon-sort.r-90
-
-          alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
-            .fs-12.text-center.disable Max Price
-            .fs-24.text-center.contrast 12.32
-            .fs-12.text-center.disable wax per eos
-
-        alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
-          .fs-12.text-center.disable Current Price
-          .fs-24.text-center 15.8956
-          .fs-12.text-center.disable wax per eos
-
-        .contrast Add more liquidity
-        PoolTokenInput(:locked="true" :token="tokenA" v-model="amountA")
-        PoolTokenInput(:locked="true" :token="tokenB" v-model="amountB")
-
-        alcor-button.w-100(big) Enter an amount
+        alcor-button.w-100(big access) Collect
 
 </template>
 

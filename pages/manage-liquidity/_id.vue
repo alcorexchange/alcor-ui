@@ -49,9 +49,7 @@ h1(v-if="!position") Loading..
           .d-flex.flex-column.gap-8
             .fs-14.disable Unclaimed Fees
             .fs-40 0.00$
-          alcor-button.h-48(access big)
-            i.el-icon-money
-            span Collect Fees
+          collect-fees
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
             token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")
@@ -101,6 +99,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 import AlcorChart from '~/components/AlcorChart'
 import RemoveLiquidity from '~/components/modals/amm/RemoveLiquidity'
+import CollectFees from '~/components/modals/amm/CollectFees'
 import IncreaseLiquidity from '~/components/modals/amm/IncreaseLiquidity'
 
 export default {
@@ -112,6 +111,7 @@ export default {
     AlcorContainer,
     AlcorChart,
     RemoveLiquidity,
+    CollectFees,
     IncreaseLiquidity
   },
 
