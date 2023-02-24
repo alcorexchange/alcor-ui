@@ -40,8 +40,7 @@ nuxt-link(:to="`/manage-liquidity/${position.pool.id}-${position.id}-${position.
         span {{ position.pool.tokenB.symbol }}
 
   .actions.d-flex.justify-content-end.gap-16
-    router-link(:to="{ name: `manage-liquidity-id___${$i18n.locale}`, params: { id: position.id } }")
-      .action-link.manage Manage
+    .action-link.manage Manage
     .action-link.claim Claim
 
 </template>
