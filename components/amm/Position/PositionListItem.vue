@@ -11,12 +11,14 @@ nuxt-link(:to="`/manage-liquidity/${position.pool.id}-${position.id}-${position.
     .d-flex.align-items-center.gap-4
       .indicator(:class="{ 'in-range': !outOfRange }")
       .fs-10 {{ !outOfRange ? 'In Range': 'Out of Range' }}
-    .d-flex.align-items-center.gap-6
-      .fs-14.disable MIN
-      .fs-14.contrast {{ priceLower }}
+    .d-flex.align-items-center.gap-6.flex-wrap
+      .d-flex.gap-4
+        .fs-14.disable MIN
+        .fs-14.contrast {{ priceLower }}
       i.el-icon-sort.rot
-      .fs-14.disable MAX
-      .fs-14.contrast {{ priceUpper }}
+      .d-flex.gap-4
+        .fs-14.disable MAX
+        .fs-14.contrast {{ priceUpper }}
   .earning.d-flex.flex-column.gap-4
     .d-flex.align-items-center.gap-4
       token-image.token(:src='$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenB.contract)')
@@ -37,7 +39,7 @@ nuxt-link(:to="`/manage-liquidity/${position.pool.id}-${position.id}-${position.
         span 0.00
         span {{ position.pool.tokenB.symbol }}
 
-  .actions.d-flex.gap-16
+  .actions.d-flex.justify-content-end.gap-16
     router-link(:to="{ name: `manage-liquidity-id___${$i18n.locale}`, params: { id: position.id } }")
       .action-link.manage Manage
     .action-link.claim Claim
@@ -144,6 +146,13 @@ export default {
 
 <style lang="scss">
 #pool-row-component {
+  background: var(--table-background);
+  border-bottom: var(--border-1);
+  color: var(--text-default);
+  cursor: default;
+  &:hover {
+    background: var(--hover);
+  }
   .rot {
     transform: rotate(90deg);
   }
@@ -154,10 +163,10 @@ export default {
     width: 150px;
   }
   .range {
-    width: 200px;
+    width: 230px;
   }
   .earning {
-    width: 150px;
+    width: 120px;
   }
   .actions {
     width: 150px;

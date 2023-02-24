@@ -24,8 +24,8 @@
   //virtual-table.mt-2(:table="virtualTableData")
     template(#row="{ item }")
       //pool-row(:position="item")
-
-  PositionListItem(v-for="position of positions" :position="position")
+  .mt-2
+    PositionListItem(v-for="position of positions" :position="position")
 
 </template>
 
