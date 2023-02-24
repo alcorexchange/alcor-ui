@@ -25,7 +25,7 @@
     template(#row="{ item }")
       //pool-row(:position="item")
   .mt-2
-    PositionListItem(v-for="position of positions" :position="position")
+    PositionListItem(v-for="position of filteredPositions" :position="position")
 
 </template>
 
@@ -48,6 +48,12 @@ export default {
 
   computed: {
     ...mapGetters('amm', ['positions']),
+
+    filteredPositions() {
+      return this.positions.filter(({ pool: { tokenA, tokenB } }) =>
+        [tokenA.name, tokenB.name].join('').toLowerCase().includes(this.search.toLowerCase())
+      )
+    },
 
     virtualTableData() {
       const header = [
