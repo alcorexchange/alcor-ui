@@ -16,8 +16,8 @@ h1(v-if="!position") Loading..
           .tag {{ pool.fee / 10000 }}% Fee
           .tag 90% Selected ( todo )
     .d-flex.gap-16.h-48
-      IncreaseLiquidity
-      RemoveLiquidity
+      IncreaseLiquidity(:position="position")
+      RemoveLiquidity(:position="position")
   .d-flex.gap-32.justify-content-between.w-100
     alcor-container.d-flex.flex-column.gap-16.w-100
       alcor-chart(
@@ -222,7 +222,7 @@ export default {
 
     async calcFees() {
       const { feesA, feesB } = await this.position.getFees()
-      this.fees = { feesA: feesA.toAsset(), feesB: feesB.toAsset() }
+      this.fees = { feesA: feesA.toFixed(), feesB: feesB.toFixed() }
     },
 
     async fetchProfitLoss() {

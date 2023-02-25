@@ -19,12 +19,12 @@
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
               token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.symbol.contract)" height="25")
-              .fs-14.contrast {{ feesAAmount }}
+              .fs-14.contrast {{ feesA }}
             .disable {{ position.pool.tokenA.symbol }}
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
               token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.symbol.contract)" height="25")
-              .fs-14.contrast {{ feesBAmount }}
+              .fs-14.contrast {{ feesB }}
             .disable {{ position.pool.tokenB.symbol }}
 
         .fs-14.disable Collecting fees will withdraw currently available fees for you.
@@ -79,19 +79,7 @@ export default {
           .join()
           .includes(this.search)
       )
-    },
-
-    feesAAmount() {
-      if (!this.feesA) return ''
-
-      return this.feesA.split(' ')[0]
-    },
-
-    feesBAmount() {
-      if (!this.feesB) return ''
-
-      return this.feesB.split(' ')[0]
-    },
+    }
   },
   methods: {
     async collect() {

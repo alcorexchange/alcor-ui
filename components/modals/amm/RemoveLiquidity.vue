@@ -1,6 +1,6 @@
 <template lang="pug">
 .d-flex.align-items-center.gap-8
-  alcor-button(danger @click="locked ? '' : visible = true") Remove Liquidity
+  alcor-button(danger @click="visible = true") Remove Liquidity
     i.el-icon-remove-outline
 
   //append-to-body
@@ -13,22 +13,22 @@
     @mousedown.native="dialogMousedown"
     @mouseup.native="dialogMouseup"
   )
-    .row
+    .row(v-if="position")
       .col.d-flex.flex-column.gap-16
         .d-flex.justify-content-between
           .d-flex.align-items-center.gap-8
             pair-icons(
-              :token1="'token1'"
-              :token2="'token2'"
+              :token1="position.pool.tokenA"
+              :token2="position.pool.tokenB"
             )
-            .fs-18 TOKEN1/TOKEN2
+            .fs-18 {{ position.pool.tokenA.symbol }}/{{ position.pool.tokenB.symbol }}
           range-indicator(:inRange="true")
         alcor-container(:alternative="true").d-flex.flex-column.gap-8.w-100
           .fs-16.disable Amount
           .d-flex.justify-content-between.align-items-center
-            .fs-36 0%
+            .fs-36 {{ percent }}%
             .d-flex.gap-8
-              alcor-button(compact v-for="v in ['25%', '50%', '75%', 'max']") {{ v }}
+              alcor-button(compact v-for="v in ['25%', '50%', '75%', 'max']" @click="setPercent(v)") {{ v }}
 
           el-slider(
             :step="1"
@@ -68,7 +68,7 @@
             inactive-color='#161617'
           )
 
-        alcor-button.w-100(big) Enter a percent
+        alcor-button.w-100(big @click="remove") Enter a percent
 </template>
 
 <script>
@@ -91,7 +91,7 @@ export default {
     AlcorContainer
   },
 
-  props: ['tokens', 'token', 'locked'],
+  props: ['position'],
 
   data: () => ({
     percent: 0,
@@ -119,6 +119,15 @@ export default {
     selectAsset(v) {
       this.$emit('selected', v)
       this.visible = false
+    },
+
+    remove() {
+
+    },
+
+    setPercent(percent) {
+      if (percent == 'max') return this.percent = 100
+      this.percent = parseInt(percent)
     }
   }
 }

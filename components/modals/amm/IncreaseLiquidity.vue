@@ -1,6 +1,6 @@
 <template lang="pug">
 .d-flex.align-items-center.gap-8
-  alcor-button(@click="locked ? '' : visible = true")
+  alcor-button(@click="visible = true")
     i.el-icon-circle-plus-outline
     span Increase Liquidity
 
@@ -14,63 +14,63 @@
     @mousedown.native="dialogMousedown"
     @mouseup.native="dialogMouseup"
   )
-    .row
+    .row(v-if="position")
       .col.d-flex.flex-column.gap-16
         .d-flex.justify-content-between
           .d-flex.align-items-center.gap-8
             pair-icons(
-              :token1="'token1'"
-              :token2="'token2'"
+              :token1="position.pool.tokenA"
+              :token2="position.pool.tokenB"
             )
-            .fs-18 TOKEN1/TOKEN2
-          range-indicator(:inRange="true")
+            .fs-18 {{ position.pool.tokenA.symbol }}/{{ position.pool.tokenB.symbol }}
+          range-indicator(:inRange="position.inRange")
 
         alcor-container(:alternative="true").d-flex.flex-column.gap-10.w-100
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
-              token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
-              .fs-14.contrast TOKEN1
-            .contrast 0.0007746
+              token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.symbol.contract)" height="25")
+              .fs-14.contrast {{ position.pool.tokenA.symbol }}
+            .contrast {{ position.amountA.toFixed() }}
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
-              token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
-              .fs-14.contrast TOKEN1
-            .contrast 0.0007746
+              token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.symbol.contract)" height="25")
+              .fs-14.contrast {{ position.pool.tokenB.symbol }}
+            .contrast {{ position.amountB.toFixed() }}
           .hr
           .d-flex.justify-content-between.align-items-center
             .contrast Fee Tier
-            .fs-14 1%
+            .fs-14 {{ position.pool.fee / 10000 }}%
 
         .d-flex.justify-content-between.align-items-center
           .disable Selected Range
-          el-radio-group(
-            v-model='tokenMode',
-            size='small'
-          )
-            el-radio-button(label='TOKEN1')
-            el-radio-button(label='TOKEN2')
+          //- el-radio-group(
+          //-   v-model='tokenMode',
+          //-   size='small'
+          //- )
+          //-   el-radio-button(label='TOKEN1')
+          //-   el-radio-button(label='TOKEN2')
 
         .d-flex.gap-20.justify-content-between.align-items-center
           alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
             .fs-12.text-center.disable Min Price
-            .fs-24.text-center.contrast 0.123
+            .fs-24.text-center.contrast {{ position.tokenAPriceLower.toFixed() }}
             .fs-12.text-center.disable wax per eos
 
           i.el-icon-sort.r-90
 
           alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
             .fs-12.text-center.disable Max Price
-            .fs-24.text-center.contrast 12.32
+            .fs-24.text-center.contrast {{ position.tokenAPriceUpper.toFixed() }}
             .fs-12.text-center.disable wax per eos
 
         alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
           .fs-12.text-center.disable Current Price
-          .fs-24.text-center 15.8956
+          .fs-24.text-center {{ position.pool.tokenAPrice.toFixed() }}
           .fs-12.text-center.disable wax per eos
 
         .contrast Add more liquidity
-        PoolTokenInput(:locked="true" :token="tokenA" v-model="amountA")
-        PoolTokenInput(:locked="true" :token="tokenB" v-model="amountB")
+        PoolTokenInput(:locked="true" :token="position.pool.tokenA" v-model="amountA")
+        PoolTokenInput(:locked="true" :token="position.pool.tokenB" v-model="amountB")
 
         alcor-button.w-100(big) Enter an amount
 
@@ -98,7 +98,7 @@ export default {
     AlcorContainer
   },
 
-  props: ['tokens', 'token', 'locked'],
+  props: ['position'],
 
   data: () => ({
     tokenMode: null,
