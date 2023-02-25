@@ -1,10 +1,9 @@
 <template lang="pug">
 .d-flex.align-items-center.gap-8
-  alcor-button.h-48(access big @click="locked ? '' : visible = true")
+  alcor-button.h-48(access big @click="visible = true")
     i.el-icon-money
     span Collect Fees
 
-  //append-to-body
   el-dialog.increase-liquidity(
     title="Claim Fees"
     :visible="visible"
@@ -19,22 +18,23 @@
         alcor-container(:alternative="true").d-flex.flex-column.gap-10.w-100
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
-              token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
-              .fs-14.contrast 0.0007746
-            .disable TOKEN1
+              token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.symbol.contract)" height="25")
+              .fs-14.contrast {{ feesAAmount }}
+            .disable {{ position.pool.tokenA.symbol }}
           .d-flex.justify-content-between.align-items-center
             .d-flex.gap-8.align-items-center
-              token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
-              .fs-14.contrast 0.0007746
-            .disable TOKEN2
+              token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.symbol.contract)" height="25")
+              .fs-14.contrast {{ feesBAmount }}
+            .disable {{ position.pool.tokenB.symbol }}
 
         .fs-14.disable Collecting fees will withdraw currently available fees for you.
 
-        alcor-button.w-100(big access) Collect
+        alcor-button.w-100(big access @click="collect") Collect
 
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'
 import CompactTabs from '~/components/CompactTabs.vue'
@@ -56,7 +56,7 @@ export default {
     AlcorContainer
   },
 
-  props: ['tokens', 'token', 'locked'],
+  props: ['position', 'feesA', 'feesB'],
 
   data: () => ({
     tokenMode: null,
@@ -72,58 +72,82 @@ export default {
     ]
   }),
   computed: {
+    ...mapState(['network', 'user']),
     filteredAssets() {
       return this.assets.filter((asset) =>
         Object.values(asset)
           .join()
           .includes(this.search)
       )
-    }
+    },
+
+    feesAAmount() {
+      if (!this.feesA) return ''
+
+      return this.feesA.split(' ')[0]
+    },
+
+    feesBAmount() {
+      if (!this.feesB) return ''
+
+      return this.feesB.split(' ')[0]
+    },
   },
   methods: {
-    selectAsset(v) {
-      this.$emit('selected', v)
-      this.visible = false
+    async collect() {
+      //ammcontract1 subliquid '[0, lpaccount112, 0, -900, 900, "0.0000 A", "0.0000 B", 0]' -p lpaccount112
+      //ammcontract1 collect '[0, lpaccount112, lpaccount112, -900, 900, "0.0000 A", "0.0000 B"]' -p lpaccount112
+
+      if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
+
+      const { tokenA, tokenB } = this.position.pool
+      const { owner, lower, upper } = this.position
+
+      const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
+      const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+
+      const actions = [{
+        account: this.network.amm.contract,
+        name: 'subliquid',
+        authorization: [this.user.authorization],
+        data: {
+          poolId: this.position.pool.id,
+          owner,
+          liquidity: 0,
+          tickLower: lower,
+          tickUpper: upper,
+          tokenAMin: tokenAZero,
+          tokenBMin: tokenBZero,
+          deadline: 0
+        }
+      }, {
+        account: this.network.amm.contract,
+        name: 'collect',
+        authorization: [this.user.authorization],
+        data: {
+          poolId: this.position.pool.id,
+          owner,
+          recipient: owner,
+          liquidity: 0,
+          tickLower: lower,
+          tickUpper: upper,
+          tokenAMax: tokenAZero,
+          tokenBMax: tokenBZero,
+          deadline: 0
+        }
+      }]
+
+      console.log({ actions })
+      try {
+        // TODO Notify & update position
+        const result = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log('result', result)
+        this.$store.dispatch('amm/fetchPositions')
+        this.visible = false
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 }
 </script>
-
-<style lang="scss">
-.increase-liquidity {
-  .el-dialog {
-    width: 480px;
-  }
-}
-/* .select-token-modal { */
-/*   .el-dialog { */
-/*     width: 400px; */
-/*     max-width: 400px; */
-/*   } */
-/*   .el-dialog__body { */
-/*     padding: 0px; */
-/*   } */
-/*   .body .el-input .el-input__inner { */
-/*     background: var(--select-color); */
-/*     border-radius: 4px; */
-/*   } */
-
-/*   hr { */
-/*     background: var(--border-color); */
-/*   } */
-
-/*   .select-token-button { */
-/*     display: flex; */
-/*     align-items: center; */
-
-/*     padding: 5px 9px; */
-/*     border: 1px solid; */
-/*     border-radius: 4px; */
-/*     cursor: pointer; */
-
-/*     &:hover { */
-/*       border-color: white; */
-/*     } */
-/*   } */
-/* } */
-</style>

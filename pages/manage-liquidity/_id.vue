@@ -49,7 +49,7 @@ h1(v-if="!position") Loading..
           .d-flex.flex-column.gap-8
             .fs-14.disable Unclaimed Fees
             .fs-40 0.00$
-          collect-fees
+          collect-fees(:position="position" :feesA="feesA" :feesB="feesB")
         .d-flex.justify-content-between.align-items-center
           .d-flex.gap-8.align-items-center
             token-image(:src="$tokenLogo('wax', 'eosio.token')" height="25")

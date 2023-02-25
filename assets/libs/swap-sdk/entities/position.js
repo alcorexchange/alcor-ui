@@ -33,7 +33,7 @@ class Position {
      * @param lower The lower tick of the position
      * @param upper The upper tick of the position
      */
-    constructor({ id, pool, liquidity, lower, upper, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, }) {
+    constructor({ id, owner, pool, liquidity, lower, upper, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, }) {
         // cached resuts for the getters
         this._tokenAAmount = null;
         this._tokenBAmount = null;
@@ -42,6 +42,7 @@ class Position {
         (0, tiny_invariant_1.default)(lower >= tickMath_1.TickMath.MIN_TICK && lower % pool.tickSpacing === 0, "TICK_LOWER");
         (0, tiny_invariant_1.default)(upper <= tickMath_1.TickMath.MAX_TICK && upper % pool.tickSpacing === 0, "TICK_UPPER");
         this.id = id;
+        this.owner = owner;
         this.pool = pool;
         this.lower = lower;
         this.upper = upper;
@@ -155,11 +156,12 @@ class Position {
             ticks: this.pool.tickDataProvider
         });
         // because the router is imprecise, we need to calculate the position that will be created (assuming no slippage)
-        const positionThatWillBeCreated = Position.fromAmounts(Object.assign(Object.assign({ id: this.id, pool: this.pool, lower: this.lower, upper: this.upper }, this.mintAmounts), { useFullPrecision: false, feeGrowthInsideALastX64: this.feeGrowthInsideALastX64, feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64 }));
+        const positionThatWillBeCreated = Position.fromAmounts(Object.assign(Object.assign({ id: this.id, owner: this.owner, pool: this.pool, lower: this.lower, upper: this.upper }, this.mintAmounts), { useFullPrecision: false, feeGrowthInsideALastX64: this.feeGrowthInsideALastX64, feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64 }));
         // we want the smaller amounts...
         // ...which occurs at the upper price for amountA...
         const { amountA } = new Position({
             id: this.id,
+            owner: this.owner,
             pool: poolUpper,
             liquidity: positionThatWillBeCreated.liquidity,
             lower: this.lower,
@@ -170,6 +172,7 @@ class Position {
         // ...and the lower for amountB
         const { amountB } = new Position({
             id: this.id,
+            owner: this.owner,
             pool: poolLower,
             liquidity: positionThatWillBeCreated.liquidity,
             lower: this.lower,
@@ -217,6 +220,7 @@ class Position {
         // ...which occurs at the upper price for amountA...
         const amountA = new Position({
             id: this.id,
+            owner: this.owner,
             pool: poolUpper,
             liquidity: this.liquidity,
             lower: this.lower,
@@ -227,6 +231,7 @@ class Position {
         // ...and the lower for amountB
         const amountB = new Position({
             id: this.id,
+            owner: this.owner,
             pool: poolLower,
             liquidity: this.liquidity,
             lower: this.lower,
@@ -275,11 +280,12 @@ class Position {
      * not what core can theoretically support
      * @returns The amount of liquidity for the position
      */
-    static fromAmounts({ id, pool, lower, upper, amountA, amountB, useFullPrecision, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, }) {
+    static fromAmounts({ id, owner, pool, lower, upper, amountA, amountB, useFullPrecision, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, }) {
         const sqrtRatioLX64 = tickMath_1.TickMath.getSqrtRatioAtTick(lower);
         const sqrtRatioUX64 = tickMath_1.TickMath.getSqrtRatioAtTick(upper);
         return new Position({
             id,
+            owner,
             pool,
             lower,
             upper,
@@ -298,9 +304,10 @@ class Position {
      * not what core can theoretically support
      * @returns The position
      */
-    static fromAmountA({ id, pool, lower, upper, amountA, useFullPrecision, feeGrowthInsideALastX64, feeGrowthInsideBLastX64 }) {
+    static fromAmountA({ id, owner, pool, lower, upper, amountA, useFullPrecision, feeGrowthInsideALastX64, feeGrowthInsideBLastX64 }) {
         return Position.fromAmounts({
             id,
+            owner,
             pool,
             lower,
             upper,
@@ -319,10 +326,11 @@ class Position {
      * @param amountB The desired amount of tokenB
      * @returns The position
      */
-    static fromAmountB({ id, pool, lower, upper, amountB, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, }) {
+    static fromAmountB({ id, owner, pool, lower, upper, amountB, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, }) {
         // this function always uses full precision,
         return Position.fromAmounts({
             id,
+            owner,
             pool,
             lower,
             upper,
