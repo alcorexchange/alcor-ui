@@ -17,7 +17,7 @@ h1(v-if="!position") Loading..
           .tag 90% Selected ( todo )
     .d-flex.gap-16.h-48
       IncreaseLiquidity(:position="position")
-      RemoveLiquidity(:position="position")
+      RemoveLiquidity(:position="position" :feesA="feesA" :feesB="feesB")
   .d-flex.gap-32.justify-content-between.w-100
     alcor-container.d-flex.flex-column.gap-16.w-100
       alcor-chart(

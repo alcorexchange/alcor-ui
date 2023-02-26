@@ -43,12 +43,12 @@
 
         .d-flex.justify-content-between.align-items-center
           .disable Selected Range
-          //- el-radio-group(
-          //-   v-model='tokenMode',
-          //-   size='small'
-          //- )
-          //-   el-radio-button(label='TOKEN1')
-          //-   el-radio-button(label='TOKEN2')
+          el-radio-group(
+            v-model='tokenMode',
+            size='small'
+          )
+            el-radio-button(:label='position.pool.tokenA.symbol')
+            el-radio-button(:label='position.pool.tokenB.symbol')
 
         .d-flex.gap-20.justify-content-between.align-items-center
           alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
@@ -69,14 +69,15 @@
           .fs-12.text-center.disable wax per eos
 
         .contrast Add more liquidity
-        PoolTokenInput(:locked="true" :token="position.pool.tokenA" v-model="amountA")
-        PoolTokenInput(:locked="true" :token="position.pool.tokenB" v-model="amountB")
+        PoolTokenInput(:locked="true" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
+        PoolTokenInput(:locked="true" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB")
 
-        alcor-button.w-100(big) Enter an amount
+        alcor-button.w-100(big @click="add") Increase
 
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'
 import CompactTabs from '~/components/CompactTabs.vue'
@@ -85,6 +86,9 @@ import PairIcons from '~/components/PairIcons'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
+
+import { tryParseCurrencyAmount } from '~/utils/amm'
+import { CurrencyAmount, Position } from '~/assets/libs/swap-sdk'
 
 export default {
   components: {
@@ -101,31 +105,142 @@ export default {
   props: ['position'],
 
   data: () => ({
+    amountA: null,
+    amountB: null,
     tokenMode: null,
     visible: false,
-
-    search: '',
-    tab: 'all',
-    selected: null,
-
-    tabs: [
-      { label: 'Owned', value: 'owned' },
-      { label: 'All', value: 'all' }
-    ]
   }),
-  computed: {
-    filteredAssets() {
-      return this.assets.filter((asset) =>
-        Object.values(asset)
-          .join()
-          .includes(this.search)
-      )
+
+  watch: {
+    position() {
+      if (!this.tokenMode) this.tokenMode = this.position.pool.tokenA.symbol
     }
   },
+
+  computed: {
+    ...mapState(['network', 'user'])
+  },
+
   methods: {
-    selectAsset(v) {
-      this.$emit('selected', v)
-      this.visible = false
+    async add() {
+      if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
+
+      const { tokenA, tokenB } = this.position.pool
+      const { owner, tickLower, tickUpper } = this.position
+
+      // const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
+      // const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+
+      // TODO Add slippage
+      const amountA = parseFloat(this.amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
+      const amountB = parseFloat(this.amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+
+      const actions = []
+
+      if (parseFloat(amountA) > 0)
+        actions.push({
+          account: tokenA.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            memo: 'deposit'
+          }
+        })
+
+      if (parseFloat(amountB) > 0)
+        actions.push(
+          {
+            account: tokenB.contract,
+            name: 'transfer',
+            authorization: [this.user.authorization],
+            data: {
+              from: this.user.name,
+              to: this.network.amm.contract,
+              quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+              memo: 'deposit'
+            }
+          }
+        )
+
+      actions.push({
+        account: this.network.amm.contract,
+        name: 'addliquid',
+        authorization: [this.user.authorization],
+        data: {
+          poolId: this.position.pool.id,
+          owner,
+          tokenADesired: amountA,
+          tokenBDesired: amountB,
+          tickLower,
+          tickUpper,
+          tokenAMin: amountA,
+          tokenBMin: amountB,
+          deadline: 0
+        }
+      })
+
+      console.log({ actions })
+      try {
+        // TODO Notify & update position
+        const result = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log('result', result)
+        this.$store.dispatch('amm/fetchPositions')
+        this.visible = false
+      } catch (e) {
+        console.log(e)
+      }
+    },
+
+    onAmountAInput(value) {
+      if (!value) return
+      this.amountB = this.getDependedAmount('CURRENCY_A', value).toFixed()
+    },
+
+    onAmountBInput(value) {
+      if (!value) return
+      this.amountA = this.getDependedAmount('CURRENCY_B', value).toFixed()
+    },
+
+    getDependedAmount(independentField, value) {
+      const dependentField = independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
+
+      const { tickLower, tickUpper, pool } = this.position
+
+      const currencies = {
+        CURRENCY_A: pool.tokenA,
+        CURRENCY_B: pool.tokenB
+      }
+
+      const independentAmount = tryParseCurrencyAmount(
+        value,
+        currencies[independentField]
+      )
+
+      const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
+
+      const position = independentAmount.currency.equals(pool.tokenA)
+        ? Position.fromAmountA({
+          pool,
+          tickLower,
+          tickUpper,
+          amountA: independentAmount.quotient,
+          useFullPrecision: true // we want full precision for the theoretical position
+        })
+        : Position.fromAmountB({
+          pool,
+          tickLower,
+          tickUpper,
+          amountB: independentAmount.quotient
+        })
+
+      const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
+        ? position.amountB
+        : position.amountA
+
+      return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
     }
   }
 }
@@ -137,35 +252,4 @@ export default {
     width: 480px;
   }
 }
-/* .select-token-modal { */
-/*   .el-dialog { */
-/*     width: 400px; */
-/*     max-width: 400px; */
-/*   } */
-/*   .el-dialog__body { */
-/*     padding: 0px; */
-/*   } */
-/*   .body .el-input .el-input__inner { */
-/*     background: var(--select-color); */
-/*     border-radius: 4px; */
-/*   } */
-
-/*   hr { */
-/*     background: var(--border-color); */
-/*   } */
-
-/*   .select-token-button { */
-/*     display: flex; */
-/*     align-items: center; */
-
-/*     padding: 5px 9px; */
-/*     border: 1px solid; */
-/*     border-radius: 4px; */
-/*     cursor: pointer; */
-
-/*     &:hover { */
-/*       border-color: white; */
-/*     } */
-/*   } */
-/* } */
 </style>

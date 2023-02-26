@@ -110,7 +110,7 @@ export const getters = {
         tokenB: parseToken(tokenB),
         ticks,
         sqrtPriceX64,
-        tickCurrent: tick,
+        tickCurrent: tick
         // protocolFeeA: parseToken(protocolFeeA, protocolFeeB),
         // protocolFeeB: parseToken(protocolFeeA, protocolFeeB)
       }))
@@ -124,7 +124,15 @@ export const getters = {
 
     for (const position of state.positions) {
       const poolInstance = getters.pools.find(p => p.id == position.pool)
-      positions.push(new Position({ ...position, pool: poolInstance }))
+      const { lower, upper } = position
+
+      positions.push(new Position({
+        ...position,
+        pool: poolInstance,
+
+        tickLower: lower, // TODO Change after contract update
+        tickUpper: upper,
+      }))
     }
 
     return positions

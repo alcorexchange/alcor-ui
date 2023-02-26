@@ -116,12 +116,10 @@ export default {
           poolId: this.position.pool.id,
           owner,
           recipient: owner,
-          liquidity: 0,
           tickLower: lower,
           tickUpper: upper,
           tokenAMax: tokenAZero,
           tokenBMax: tokenBZero,
-          deadline: 0
         }
       }]
 

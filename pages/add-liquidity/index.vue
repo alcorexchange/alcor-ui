@@ -299,15 +299,6 @@ export default {
       }
     },
 
-    position() {
-      // check for existing position if tokenId in url
-      //const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-      //  tokenId ? BigNumber.from(tokenId) : undefined
-      //)
-
-      return undefined
-    },
-
     price() {
       // Все верно
       if (!this.pool) return undefined
@@ -445,8 +436,8 @@ export default {
         const position = independentAmount.currency.equals(pool.tokenA)
           ? Position.fromAmountA({
             pool,
-            lower: tickLower, // TODO Change naming in sdk
-            upper: tickUpper,
+            tickLower,
+            tickUpper,
             amountA: independentAmount.quotient,
             useFullPrecision: true, // we want full precision for the theoretical position
             feeGrowthInsideALastX64: 0, // we are not going to calculate fees
@@ -454,8 +445,8 @@ export default {
           })
           : Position.fromAmountB({
             pool,
-            lower: tickLower,
-            upper: tickUpper,
+            tickLower,
+            tickUpper,
             amountB: independentAmount.quotient,
             feeGrowthInsideALastX64: 0, // we are not going to calculate fees
             feeGrowthInsideBLastX64: 0

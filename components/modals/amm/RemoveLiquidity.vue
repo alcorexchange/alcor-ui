@@ -39,39 +39,42 @@
 
         alcor-container(:alternative="true").d-flex.flex-column.gap-10.w-100
           .d-flex.justify-content-between.align-items-center
-            .contrast Pooled TOKEN1:
+            .contrast Pooled {{ position.pool.tokenA.symbol }}
             .d-flex.gap-8.align-items-center
-              .fs-14 0
+              .fs-14 {{ amountA }}
               token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
           .d-flex.justify-content-between.align-items-center
-            .contrast Pooled TOKEN2:
+            .contrast Pooled {{ position.pool.tokenB.symbol }}
             .d-flex.gap-8.align-items-center
-              .fs-14 0
+              .fs-14 {{ amountB }}
               token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
           .hr
           .d-flex.justify-content-between.align-items-center
-            .contrast TOKEN1 Fees Earned:
+            .contrast {{ position.pool.tokenA.symbol }} Fees Earned
             .d-flex.gap-8.align-items-center
-              .fs-14 0
-              token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
+              .fs-14 {{ feesA }}
+              token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
           .d-flex.justify-content-between.align-items-center
-            .contrast TOKEN2 Fees Earned:
+            .contrast {{ position.pool.tokenB.symbol }} Fees Earned
             .d-flex.gap-8.align-items-center
-              .fs-14 0
-              token-image(:src="$tokenLogo('symbol', 'contract')" height="25")
+              .fs-14 {{ feesB }}
+              token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
 
-        .d-flex.justify-content-between.align-items-center
-          .contrast Collect as TOKEN1
-          el-switch(
-            v-model='switchModel',
-            active-color='#13ce66',
-            inactive-color='#161617'
-          )
+        //- .d-flex.justify-content-between.align-items-center
+        //-   .contrast Collect as TOKEN1
+        //-   el-switch(
+        //-     v-model='switchModel',
+        //-     active-color='#13ce66',
+        //-     inactive-color='#161617'
+        //-   )
 
-        alcor-button.w-100(big @click="remove") Enter a percent
+        alcor-button.w-100(big @click="remove") Remove
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { Percent } from '~/assets/libs/swap-sdk'
+
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'
 import CompactTabs from '~/components/CompactTabs.vue'
@@ -91,11 +94,13 @@ export default {
     AlcorContainer
   },
 
-  props: ['position'],
+  props: ['position', 'feesA', 'feesB'],
 
   data: () => ({
     percent: 0,
     visible: false,
+
+    liquidity: 0,
 
     search: '',
     tab: 'all',
@@ -107,12 +112,14 @@ export default {
     ]
   }),
   computed: {
-    filteredAssets() {
-      return this.assets.filter((asset) =>
-        Object.values(asset)
-          .join()
-          .includes(this.search)
-      )
+    ...mapState(['network', 'user']),
+
+    amountA() {
+      return (parseFloat(this.position.amountA.toFixed()) * (this.percent / 100)).toFixed(this.position.pool.tokenA.decimals)
+    },
+
+    amountB() {
+      return (parseFloat(this.position.amountB.toFixed()) * (this.percent / 100)).toFixed(this.position.pool.tokenB.decimals)
     }
   },
   methods: {
@@ -121,8 +128,62 @@ export default {
       this.visible = false
     },
 
-    remove() {
+    async remove() {
+      if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
 
+      const { tokenA, tokenB } = this.position.pool
+      const { owner, tickLower, tickUpper } = this.position
+
+      const liquidity = new Percent(this.percent, 100).multiply(this.position.liquidity).quotient.toString()
+
+      const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
+      const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+
+      const actions = [{
+        account: this.network.amm.contract,
+        name: 'subliquid',
+        authorization: [this.user.authorization],
+        data: {
+          poolId: this.position.pool.id,
+          owner,
+          liquidity,
+          tickLower,
+          tickUpper,
+          tokenAMin: tokenAZero,
+          tokenBMin: tokenBZero,
+          deadline: 0
+        }
+      }]
+
+      if (this.percent == 100) {
+        actions.push({
+          account: this.network.amm.contract,
+          name: 'collect',
+          authorization: [this.user.authorization],
+          data: {
+            poolId: this.position.pool.id,
+            owner,
+            recipient: owner,
+            tickLower,
+            tickUpper,
+            tokenAMax: tokenAZero,
+            tokenBMax: tokenBZero,
+          }
+        })
+      }
+
+      console.log({ actions })
+      //return
+      try {
+        // TODO Notify & update position
+        const result = await this.$store.dispatch('chain/sendTransaction', actions)
+        if (this.percent == 100) this.$router.push('/manage-liquidity')
+        this.$store.dispatch('amm/fetchPositions')
+        this.visible = false
+        console.log({ result })
+      } catch (e) {
+        console.log(e)
+      }
     },
 
     setPercent(percent) {
