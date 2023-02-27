@@ -203,7 +203,7 @@ export default {
   'Current Orders': 'Curent Orders',
   'Total Quote': 'Total Quote',
   'Total Base': 'Total Base',
-  Earning: 'Earnging',
+  Earning: 'Earning',
   'Earning WAX Value': 'Earning WAX Value',
   fav: 'fav',
   all: 'all',
