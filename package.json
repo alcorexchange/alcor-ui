@@ -1,5 +1,8 @@
 {
+  "name": "alcor-exchange",
+  "description": "Exchange for eosio tokens",
   "private": true,
+  "author": "avral",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
