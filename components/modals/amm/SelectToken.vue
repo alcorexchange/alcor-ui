@@ -1,11 +1,11 @@
 <template lang="pug">
 .select-token-modal.d-flex.align-items-center.gap-8
-  .select-token-button(@click="locked ? '' : visible = true")
+  .select-token-button(@click="locked ? '' : visible = true" :class="{locked}")
     .d-flex.align-items-center(v-if="token")
       TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
       .ft-14 {{ token.currency || token.symbol }}
     .d-flex.align-items-center(v-else) Select token
-    i.el-icon-arrow-down.ml-auto
+    i.el-icon-arrow-down.ml-auto(v-if="!locked")
 
   //append-to-body
   el-dialog(
@@ -111,6 +111,13 @@ export default {
 
     &:hover {
       border-color: white;
+    }
+
+    &.locked {
+      cursor: not-allowed;
+      &:hover {
+        border-color: var(--btn-default);
+      }
     }
   }
 }

@@ -40,6 +40,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
         :tokens="tokens"
         v-model="amountB"
         @tokenSelected="setTokenB"
+        :locked="true"
       )
       //:locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
 
