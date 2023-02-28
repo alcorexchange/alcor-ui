@@ -615,5 +615,16 @@ export default {
   'Accounts can only be searched': 'Accounts can only be searched',
   Bridge: 'Bridge',
   'Search by token name': 'Search by token name',
-  'show closed positions': 'show closed positions'
+  'show closed positions': 'show closed positions',
+  'Last Genesis Claim': 'Last Genesis Claim',
+  'Next Genesis Reward': 'Next Genesis Reward',
+  'Next Genesis Claim': 'Next Genesis Claim',
+  'Genesis Balance': 'Genesis Balance',
+  'Next Voter Rewards': 'Next Voter Rewards',
+  'Next Voter Claim': 'Next Voter Claim',
+  'Last Voter Claim': 'Last Voter Claim',
+  'Claim Genesis': 'Claim Genesis',
+  'Claim Both': 'Claim Both',
+  'Claim Vote': 'Claim Vote',
+  'Receiver of Stake': 'Receiver of Stake'
 }

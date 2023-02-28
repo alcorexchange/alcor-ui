@@ -10,6 +10,7 @@
 )
   .chart-nav.scale-value-nav
     .chart-part
+      span asdadasd
       highchart.wax-highchart(
         ref='chart',
         :options='chartOptions',

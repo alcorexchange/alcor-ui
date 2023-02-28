@@ -5,14 +5,32 @@
     span.text {{ $t("Genesis and Voting Rewards") }}
   .main
     .item
-      span.key.fwr {{ $t("Available Balance") }}:
+      span.key.fwr.disable {{ $t("Genesis Balance") }}:
       span.value  {{ account.core_liquid_balance }}
     .item
-      span.key.fwr {{ $t("Refunding CPU") }}:
-      span.value  {{ account.refund_request && account.refund_request.cpu_amount }}
+      span.key.fwr.disable {{ $t("Last Genesis Claim") }}:
+      span.value  Jul-27-2021, 10:53:16 PM
     .item
-      span.key.fwr {{ $t("Refunding NET") }}:
-      span.value  {{ account.refund_request && account.refund_request.net_amount }}
+      span.key.fwr.disable {{ $t("Next Genesis Claim") }}:
+      span.value  Now!
+    .item
+      span.key.fwr.disable {{ $t("Next Genesis Reward") }}:
+      span.value  0.00000006 WAX
+    .hr.mb-2
+    .item
+      span.key.fwr.disable {{ $t("Last Voter Claim") }}:
+      span.value  Jul-27-2021, 10:53:16 PM
+    .item
+      span.key.fwr.disable {{ $t("Next Voter Claim") }}:
+      span.value  Now!
+    .item
+      span.key.fwr.disable {{ $t("Next Voter Rewards") }}:
+      span.value  0.00000006 WAX
+
+    .item.d-flex.gap-8
+      alcor-button {{ $t("Claim Genesis") }}
+      alcor-button {{ $t("Claim Vote") }}
+      alcor-button {{ $t("Claim Both") }}
 
     .item.mt-2(v-if="account.refund_request")
       el-popover(:disabled="isRefundAvailable" placement='top-start' title='Refund' trigger='hover')
@@ -25,11 +43,13 @@
 
 <script>
 import { mapState } from 'vuex'
+import AlcorButton from '~/components/AlcorButton'
 
 const REFUND_TIME = 60 * 60 * 24 * 3 // 3 days
 
 export default {
   name: 'RewardsCard',
+  components: { AlcorButton },
 
   data() {
     return {
@@ -79,6 +99,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.hr {
+  background: var(--background-color-base);
+}
 .resource-page-card {
   display: flex;
   flex-direction: column;
@@ -87,5 +110,6 @@ export default {
 
 .item {
   padding-bottom: 10px;
+  font-size: 14px;
 }
 </style>

@@ -3,31 +3,108 @@
   .resources-container(v-if="account")
     .resource-item-container
       .el-card.resource-item
-        span.title.fwr Ram
-        alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
-        .details
-          .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
-          .staked
-            span.cancel {{ $t('Staked') }}:&nbsp;
-            span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
-    .resource-item-container
-      .el-card.resource-item
         span.title.fwr CPU
         alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#66C167" :stroke-width="32" stroke-linecap="butt")
-        .details
+        .details.w-100.text-center
           .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
           .staked
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.cpu_weight }}
+          .d-flex.gap-16.justify-content-center.mt-3
+            alcor-button.w-100(access @click="cpuStake = true") {{ $t('Stake') }}
+
+            el-dialog.staking-dialog(
+              title="CPU Staking"
+              :visible="cpuStake"
+              @close="cpuStake = false"
+
+            )
+              .row
+                .col.d-flex.flex-column.align-items-start.gap-16
+                  .fs-14.disable {{ $t('Receiver of Stake') }}
+                  el-input(v-model="receiverOfStake")
+                  .fs-14.disable {{ $t('CPU Stake Amount') }}
+                  el-input
+                    .mr-1(slot='suffix') {{ $store.state.network.name }}
+                  .d-flex.align-items-center.gap-24.w-100
+                    el-slider(
+                      :step='1',
+                      v-model='percentStake',
+                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+                      :show-tooltip="false"
+                    ).slider-buy.w-100.px-2
+                    .w-40
+                      el-input.percent(size="mini" v-model="percentStake")
+                        el-button(slot='suffix' size="mini") %
+
+                  .w-100.text-center.mt-3
+                    .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
+                    .staked
+                      span.cancel {{ $t('Staked') }}:&nbsp;
+                      span.fwr {{ account.total_resources.cpu_weight }}
+
+                  alcor-button.w-100(access big) {{ $t('Stake') }}
+
+            alcor-button {{ $t('Unstake') }}
+
     .resource-item-container
       .el-card.resource-item
         span.title.fwr NET
         alcor-progress(:percentage="netPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
-        .details
+        .details.w-100.text-center
           .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
           .staked
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.net_weight }}
+          .d-flex.gap-16.justify-content-center.mt-3
+            alcor-button.w-100(access @click="netStake = true") Stake
+
+            el-dialog.staking-dialog(
+              title="NET Staking"
+              :visible="netStake"
+              @close="netStake = false"
+
+            )
+              .row
+                .col.d-flex.flex-column.align-items-start.gap-16
+                  .fs-14.disable {{ $t('Receiver of Stake') }}
+                  el-input(v-model="receiverOfStake")
+                  .fs-14.disable {{ $t('NET Stake Amount') }}
+                  el-input
+                    .mr-1(slot='suffix') {{ $store.state.network.name }}
+                  .d-flex.align-items-center.gap-24.w-100
+                    el-slider(
+                      :step='1',
+                      v-model='percentStake',
+                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+                      :show-tooltip="false"
+                    ).slider-buy.w-100.px-2
+                    .w-40
+                      el-input.percent(size="mini" v-model="percentStake")
+                        el-button(slot='suffix' size="mini") %
+
+                  .w-100.text-center.mt-3
+                    .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
+                    .staked
+                      span.cancel {{ $t('Staked') }}:&nbsp;
+                      span.fwr {{ account.total_resources.net_weight }}
+
+                  alcor-button.w-100(access big) {{ $t('Stake') }}
+
+            alcor-button Unstake
+
+    .resource-item-container
+      .el-card.resource-item
+        span.title.fwr Ram
+        alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
+        .details.w-100.text-center
+          .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
+          .staked
+            span.cancel {{ $t('Staked') }}:&nbsp;
+            span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
+          .d-flex.gap-16.justify-content-center.mt-3
+            alcor-button.w-100 Buy RAM
+
   .rewards-and-actions
     .rewards-card
       RewardsCard
@@ -51,6 +128,7 @@ import UnstakeAction from '@/components/wallet/UnstakeAction.vue'
 import Validators from '@/components/wallet/Validators.vue'
 import Proxies from '@/components/wallet/Proxies.vue'
 import SSpacer from '@/components/SSpacer.vue'
+import AlcorButton from '~/components/AlcorButton'
 
 import AlcorProgress from '~/components/alcor-element/progress'
 
@@ -64,16 +142,30 @@ export default {
     Validators,
     Proxies,
     SSpacer,
-    AlcorProgress
+    AlcorProgress,
+    AlcorButton
   },
 
   data: () => ({
     search: '',
+    cpuStake: false,
+    netStake: false,
+    percentStake: 0,
+    receiver: null,
     ram_price: 0
   }),
 
   computed: {
     ...mapState(['account', 'user']),
+
+    receiverOfStake: {
+      get() {
+        return this.receiver != null ? this.receiver : this.$store.state.user.name
+      },
+      set(v) {
+        this.receiver = v
+      }
+    },
 
     ramPercent() {
       return Math.round((this.account.ram_usage * 100) / this.account.ram_quota)
@@ -110,6 +202,15 @@ export default {
 </script>
 
 <style lang="scss">
+.percent .el-input__suffix {
+  right: 0px;
+}
+.staking-dialog {
+  .el-dialog {
+    width: 352px;
+  }
+}
+
 .resources-page {
   // Custom
 }
