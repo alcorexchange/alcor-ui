@@ -165,7 +165,40 @@
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
           .d-flex.gap-16.justify-content-center.mt-3
-            alcor-button.w-100 Buy RAM
+            alcor-button.w-100(@click="buyRam = true") Buy RAM
+
+            el-dialog.staking-dialog(
+              title="Buy RAM"
+              :visible="buyRam"
+              @close="buyRam = false"
+
+            )
+              .row
+                .col.d-flex.flex-column.align-items-start.gap-16
+                  .fs-14.disable {{ $t('Receiver of Stake') }}
+                  el-input(v-model="receiverOfStake")
+                  .fs-14.disable {{ $t('RAM Buy Amount') }}
+                  el-input
+                    .mr-1(slot='suffix') {{ $store.state.network.name }}
+                  .d-flex.align-items-center.gap-24.w-100
+                    el-slider(
+                      :step='1',
+                      v-model='percentStake',
+                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+                      :show-tooltip="false"
+                    ).slider-buy.w-100.px-2
+                    .w-40
+                      el-input.percent(size="mini" v-model="percentStake")
+                        el-button(slot='suffix' size="mini") %
+
+                  .w-100.text-center.mt-3
+                    .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
+                    .staked
+                      span.cancel {{ $t('Staked') }}:&nbsp;
+                      span.fwr {{ account.total_resources.cpu_weight }}
+
+                  alcor-button.w-100(access big) {{ $t('Buy') }}
+
 
   .rewards-and-actions
     .rewards-card
@@ -212,6 +245,7 @@ export default {
     search: '',
     cpuStake: false,
     netStake: false,
+    buyRam: false,
     cpuUnstake: false,
     netUnstake: false,
     percentStake: 0,
