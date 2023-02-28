@@ -201,12 +201,12 @@
 
 
   .rewards-and-actions
-    .rewards-card
+    .w-33
       RewardsCard
     //- .actions-container
-    .action-item
+    //.action-item
       StakeAction
-    .action-item
+    //.action-item
       UnstakeAction
   SSpacer(:high="true")
   Validators
