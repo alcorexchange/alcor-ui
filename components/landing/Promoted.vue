@@ -21,7 +21,7 @@ export default {
     bannerOnly: [
       {
         bannerImg: "novopangea",
-        bannerUrl: "https://novopangea.io/token?utm_source=Alcor&utm_medium=Banner&utm_campaign=PreLaunch"
+        //bannerUrl: "https://novopangea.io/token?utm_source=Alcor&utm_medium=Banner&utm_campaign=PreLaunch"
       }
     ]
   }),
