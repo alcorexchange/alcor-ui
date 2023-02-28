@@ -20,8 +20,8 @@ export default {
   data: () => ({
     bannerOnly: [
       {
-        bannerImg: "novopangea",
-        //bannerUrl: "https://novopangea.io/token?utm_source=Alcor&utm_medium=Banner&utm_campaign=PreLaunch"
+        bannerImg: 'novopangea',
+        bannerUrl: 'https://wax.alcor.exchange/trade/novo-tokens.novo_wax-eosio.token'
       }
     ]
   }),
