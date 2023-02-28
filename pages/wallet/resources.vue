@@ -45,7 +45,38 @@
 
                   alcor-button.w-100(access big) {{ $t('Stake') }}
 
-            alcor-button {{ $t('Unstake') }}
+            alcor-button(@click="cpuUnstake = true") {{ $t('Unstake') }}
+
+            el-dialog.staking-dialog(
+              title="CPU Unstake"
+              :visible="cpuUnstake"
+              @close="cpuUnstake = false"
+
+            )
+              .row
+                .col.d-flex.flex-column.align-items-start.gap-16
+                  .fs-14.disable {{ $t('CPU Unstake Amount') }}
+                  el-input
+                    .mr-1(slot='suffix') {{ $store.state.network.name }}
+                  .d-flex.align-items-center.gap-24.w-100
+                    el-slider(
+                      :step='1',
+                      v-model='percentStake',
+                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+                      :show-tooltip="false"
+                    ).slider-buy.w-100.px-2
+                    .w-40
+                      el-input.percent(size="mini" v-model="percentStake")
+                        el-button(slot='suffix' size="mini") %
+
+                  .w-100.text-center.mt-3
+                    .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
+                    .staked
+                      span.cancel {{ $t('Staked') }}:&nbsp;
+                      span.fwr {{ account.total_resources.cpu_weight }}
+
+                  alcor-button.w-100(big) {{ $t('Unstake') }}
+
 
     .resource-item-container
       .el-card.resource-item
@@ -91,7 +122,38 @@
 
                   alcor-button.w-100(access big) {{ $t('Stake') }}
 
-            alcor-button Unstake
+            alcor-button(@click="netUnstake = true") Unstake
+
+            el-dialog.staking-dialog(
+              title="NET Unstake"
+              :visible="netUnstake"
+              @close="netUnstake = false"
+
+            )
+              .row
+                .col.d-flex.flex-column.align-items-start.gap-16
+                  .fs-14.disable {{ $t('NET Unstake Amount') }}
+                  el-input
+                    .mr-1(slot='suffix') {{ $store.state.network.name }}
+                  .d-flex.align-items-center.gap-24.w-100
+                    el-slider(
+                      :step='1',
+                      v-model='percentStake',
+                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+                      :show-tooltip="false"
+                    ).slider-buy.w-100.px-2
+                    .w-40
+                      el-input.percent(size="mini" v-model="percentStake")
+                        el-button(slot='suffix' size="mini") %
+
+                  .w-100.text-center.mt-3
+                    .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
+                    .staked
+                      span.cancel {{ $t('Staked') }}:&nbsp;
+                      span.fwr {{ account.total_resources.net_weight }}
+
+                  alcor-button.w-100(big) {{ $t('Unstake') }}
+
 
     .resource-item-container
       .el-card.resource-item
@@ -150,6 +212,8 @@ export default {
     search: '',
     cpuStake: false,
     netStake: false,
+    cpuUnstake: false,
+    netUnstake: false,
     percentStake: 0,
     receiver: null,
     ram_price: 0
