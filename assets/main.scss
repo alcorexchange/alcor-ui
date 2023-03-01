@@ -958,6 +958,17 @@ a {
   }
 }
 
+.md-fs-24 {
+  @media (min-width: 768px) {
+    font-size: 24px !important;
+  }
+}
+.md-fs-48 {
+  @media (min-width: 768px) {
+    font-size: 48px !important;
+  }
+}
+
 .lh-12 {
   line-height: 12px;
 }

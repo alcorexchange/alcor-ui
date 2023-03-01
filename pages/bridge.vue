@@ -1,14 +1,14 @@
 <template lang="pug">
-#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-5
+#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-2.mt-md-5
   .greet
-    h1.fs-48 Alcor IBC Bridge
-    .fs-24 Bridge assets from different chains
+    h1.fs-20.md-fs-48 Alcor IBC Bridge
+    .fs-16.md-fs-24 Bridge assets from different chains
 
   client-only
-    bridge-form.mt-4
+    bridge-form.mt-2.mt-md-4
 
-    circle1(:color="sourceColor" total="20").circle1
-    circle2(:color="destinationColor" total="20").circle2
+    circle1(v-if="!isMobile" :color="sourceColor" total="20").circle1
+    circle2(v-if="!isMobile" :color="destinationColor" total="20").circle2
 </template>
 
 <script>
