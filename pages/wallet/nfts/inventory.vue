@@ -1,6 +1,6 @@
 <template lang="pug">
 #wallet-nfts-inventory-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25
     vue-skeleton-loader(
       v-if="!inventory"
       v-for="idx in [1, 2, 3, 4]"

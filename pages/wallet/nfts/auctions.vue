@@ -1,6 +1,6 @@
 <template lang="pug">
 #wallet-nfts-auctions-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start
     vue-skeleton-loader(
       v-if="!auctions"
       v-for="idx in [1,2,3,4]",

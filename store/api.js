@@ -310,14 +310,15 @@ export const actions = {
     }
   },
 
-  async getAccountSpecificStats(_, { account }) {
+  async getAccountSpecificStats({ dispatch }, { account }) {
     try {
       const { data } = await this.$api.post(
         `atomicassets/v1/accounts/${account}`
       )
       return data.data
     } catch (e) {
-      console.error('Get template error', e)
+      console.error('Get stats error', e)
+      return await dispatch('getAccountSpecificStats', { account }) // refetch
     }
   },
 
