@@ -3,13 +3,13 @@
   .header
     i.el-icon-present
     span.text {{ $t("Validators") }}
-  .main
+  div
     el-table.market-table(
     :data='list',
     style='width: 100%',
     height="400"
     )
-      el-table-column(:label='$t("Rank")' width="68")
+      el-table-column(:label='$t("Rank")' :width="isMobile ? 50 : 68")
         template(#default='{ row }') {{ row.rank }}
       el-table-column(:label='$t("Guilds")')
         template(slot-scope='{row}')
@@ -26,8 +26,10 @@
             .status(:class="{ red: row.rank > 21 }") {{ row.rank > 21 ? 'Standby' : `Top 21` }}
       el-table-column(
         :label='$t("Location")',
+        min-width="120"
       )
-        template(slot-scope='{row}') {{ row.country }}
+        template(slot-scope='{row}')
+          .fs-12.md-fs-14 {{ row.country }}
       el-table-column(
         :label='$t("Links")',
       )
@@ -45,13 +47,16 @@
         template(slot-scope='{row}') {{ row.percentage_votes.toFixed(2) }}%
       el-table-column(
         :label='$t("Total Votes")',
+        min-width="100"
       )
-        template(slot-scope='{row}') {{ parseInt(row.num_votes) }}
+        template(slot-scope='{row}')
+          .fs-12.md-fs-14 {{ parseInt(row.num_votes) }}
       el-table-column(
         :label='$t("Rewards Per Day")',
-        min-width="120"
+        min-width="100"
       )
-        template(slot-scope='{row}') {{ row.reward }}
+        template(slot-scope='{row}')
+          .fs-12.md-fs-14 {{ row.reward }}
       el-table-column(
         :label='$t("Action")',
       )
@@ -108,7 +113,7 @@ export default {
 }
 
 .status {
-  padding: 8px 12px;
+  padding: 8px;
   border-radius: 10px;
   background: var(--hover);
   text-align: center;
@@ -131,6 +136,7 @@ export default {
 .asset-container {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   .logox {
     margin-right: 8px;
@@ -147,7 +153,7 @@ export default {
 }
 
 .social-icon {
-  width: 20px;
+  width: 17px;
   height: 20px;
 }
 

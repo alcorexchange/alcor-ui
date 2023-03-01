@@ -201,8 +201,7 @@
 
 
   .rewards-and-actions
-    .w-33
-      RewardsCard
+    RewardsCard
     //- .actions-container
     //.action-item
       StakeAction

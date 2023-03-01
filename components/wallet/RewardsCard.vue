@@ -27,7 +27,7 @@
       span.key.fwr.disable {{ $t("Next Voter Rewards") }}:
       span.value  0.00000006 WAX
 
-    .item.d-flex.gap-8
+    .item.d-flex.gap-8.p-2
       alcor-button {{ $t("Claim Genesis") }}
       alcor-button {{ $t("Claim Vote") }}
       alcor-button {{ $t("Claim Both") }}
