@@ -121,8 +121,8 @@ export default {
       return price ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : ''
     },
 
-    onBrushDomainChangeEnded(data) {
-      const { domain, mode } = data
+    onBrushDomainChangeEnded({ domain, mode }) {
+      console.log({ domain, mode })
       const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])
