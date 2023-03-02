@@ -45,6 +45,7 @@ export default {
 
   watch: {
     currencyA() {
+      console.log('currencyA changed')
       const { current, zoomLevels } = this
 
       this.onBrushDomainChangeEnded({
@@ -54,6 +55,8 @@ export default {
     },
 
     currencyB() {
+      console.log('currencyB changed')
+
       const { current, zoomLevels } = this
 
       this.onBrushDomainChangeEnded({
@@ -122,7 +125,7 @@ export default {
     },
 
     onBrushDomainChangeEnded({ domain, mode }) {
-      console.log({ domain, mode })
+      console.log('onBrushDomainChangeEnded', { domain, mode })
       const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])

@@ -151,7 +151,9 @@ export default {
     init() {},
 
     emitDefaultBrush() {
-      if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
+      console.log('emitDefaultBrush()')
+      // if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
+      this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
     },
 
     setBrushExtent(data) {
