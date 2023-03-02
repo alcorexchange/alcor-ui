@@ -5,6 +5,7 @@ client-only
     p.infoBox(v-if="isLoading") Loading
     p.infoBox(v-if="error") Liquidity data not available.
 
+    | PRICE: {{ price }}
     .chartWrapper
       Chart(
         :current="current"
