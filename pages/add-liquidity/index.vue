@@ -34,21 +34,21 @@
             | Then, enter your liquidity price range and deposit amount.
             | Gas fees will be higher than usual due to the initialization transaction.
 
-          el-input(placeholder="0" v-model="amount")
+          el-input(placeholder="0" v-model="startPriceTypedValue")
 
           info-container
             .d-flex.justify-content-between
-              .fs-16 Current *Coin name* price
-              .fs-16.disable {{ amount ? amount + ' Coins' : '-' }}
+              .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
+              .fs-16.disable {{ startPriceTypedValue ? startPriceTypedValue + ' ' + (tokenB ? tokenB.symbol : '') : '-' }}
 
           .d-flex.gap-8.justify-content-center
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input-number(v-model="minPrice" :step="0.000001")
+              el-input-number(v-model="leftRangeTypedValue" :step="0.000001")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
-              el-input-number(v-model="maxPrice" :step="0.000001")
+              el-input-number(v-model="rightRangeTypedValue" :step="0.000001")
               .fs-12.text-center BLK per WAX
 
           //alcor-button.w-100(access) Connect Wallet
@@ -153,13 +153,14 @@ import {
   parseToken,
   tryParseTick,
   getPoolBounds,
-  getTickToPrice
+  getTickToPrice,
+  isPriceInvalid
 } from '~/utils/amm'
 
 import {
   Currency, Percent, Token, Pool, Tick, CurrencyAmount,
   Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
-  TickMath, Rounding
+  TickMath, Rounding, priceToClosestTick
 } from '~/assets/libs/swap-sdk'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
@@ -183,16 +184,12 @@ export default {
 
   data() {
     return {
-      amount: null,
-
       amountA: 0,
       amountB: 0,
 
-      minPrice: 0,
-      maxPrice: 0,
-
       //feeAmountFromUrl: FeeAmount.,
 
+      startPriceTypedValue: null,
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
@@ -257,7 +254,7 @@ export default {
     },
 
     tickSpaceLimits() {
-      return getPoolBounds(this.pool.fee)
+      return getPoolBounds(this.feeAmount)
     },
 
     ticksAtLimit() {
@@ -278,9 +275,7 @@ export default {
     },
 
     ticks() {
-      if (!this.pool) return undefined
-
-      const { position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue, pool: { tokenA, tokenB } } = this
+      const { tokenA, tokenB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
 
       console.log({ invertPrice })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
@@ -308,14 +303,11 @@ export default {
     },
 
     price() {
-      // Все верно
-      if (!this.pool) return undefined
+      const { tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
 
-      const { noLiquidity, startPriceTypedValue, invertPrice, pool } = this
-      const { tokenA, tokenB } = pool
-
-      // if no liquidity use typed value
       if (noLiquidity) {
+        console.log({ tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool })
+        // if no liquidity use typed value
         const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? tokenA : tokenB)
         if (parsedQuoteAmount && tokenA && tokenB) {
           const baseAmount = tryParseCurrencyAmount('1', invertPrice ? tokenB : tokenA)
@@ -365,6 +357,10 @@ export default {
       return Boolean(typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper)
     },
 
+    invalidPrice() {
+      return isPriceInvalid(this.price)
+    },
+
     outOfRange() {
       const { invalidRange, price, lowerPrice, upperPrice } = this
 
@@ -383,6 +379,33 @@ export default {
 
     pools() {
       return this.$store.getters['amm/pools']
+    },
+
+    mockPool() {
+      // Used when pool is not initialized
+      const { tokenA, tokenB, feeAmount, price, invalidPrice } = this
+      console.log('mock pool', { tokenA, tokenB, feeAmount, price, invalidPrice })
+
+      if (tokenA && tokenB && feeAmount && price && !invalidPrice) {
+        const tickCurrent = priceToClosestTick(price)
+        const sqrtPriceX64 = TickMath.getSqrtRatioAtTick(tickCurrent)
+
+        console.log({ tickCurrent, sqrtPriceX64 })
+
+        return new Pool({
+          tokenA,
+          tokenB,
+          fee: feeAmount,
+          sqrtPriceX64,
+          tickCurrent,
+          liquidity: 0,
+          ticks: [],
+          feeGrowthGlobalAX64: 0,
+          feeGrowthGlobalBX64: 0
+        })
+      }
+
+      return undefined
     }
   },
 
@@ -416,6 +439,7 @@ export default {
 
     onInputAmountA(value) {
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
+      console.log({ dependentAmount })
       if (dependentAmount) {
         this.amountB = dependentAmount.toFixed()
         console.log('dependentAmount', dependentAmount.toFixed(dependentAmount.currency.digits, undefined, 'ROUND_HALF_UP'))
@@ -423,12 +447,15 @@ export default {
     },
 
     getDependedAmount(value, independentField) {
-      const { tickLower, tickUpper, pool, invalidRange, outOfRange } = this
+      const { tickLower, tickUpper, invalidRange, outOfRange } = this
+
+      const pool = this.pool || this.mockPool
+
       const dependentField = independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
 
       const currencies = {
-        CURRENCY_A: this.pool.tokenA,
-        CURRENCY_B: this.pool.tokenB
+        CURRENCY_A: this.tokenA,
+        CURRENCY_B: this.tokenB
       }
 
       const independentAmount = tryParseCurrencyAmount(

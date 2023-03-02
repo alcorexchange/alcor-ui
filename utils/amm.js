@@ -119,3 +119,18 @@ export function isTicksAtLimit(
         : undefined
   }
 }
+
+export function isPriceInvalid(price) {
+  if (!price) return undefined
+
+  const sqrtRatioX96 = price ? encodeSqrtRatioX64(price.numerator, price.denominator) : undefined
+
+  return (
+    price &&
+    sqrtRatioX96 &&
+    !(
+      JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
+      JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)
+    )
+  )
+}
