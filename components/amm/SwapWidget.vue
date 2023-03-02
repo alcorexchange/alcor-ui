@@ -40,7 +40,6 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
         :tokens="tokens"
         v-model="amountB"
         @tokenSelected="setTokenB"
-        :locked="true"
       )
       //:locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
 
@@ -195,7 +194,7 @@ export default {
       const amount = parseFloat(amountB)
       if (amount <= 0) return
 
-      const minExpected = parseFloat(amount - 0.0001).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
+      const minExpected = parseFloat(amount - 0.0000).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
 
       // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
       const id = 0

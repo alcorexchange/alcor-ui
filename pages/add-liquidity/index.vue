@@ -44,11 +44,11 @@
           .d-flex.gap-8.justify-content-center
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input-number(v-model="minPrice" :precision="6" :step="0.000001" :max="100")
+              el-input-number(v-model="minPrice" :step="0.000001")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
-              el-input-number(v-model="maxPrice" :precision="6" :step="0.000001" :max="100")
+              el-input-number(v-model="maxPrice" :step="0.000001")
               .fs-12.text-center BLK per WAX
 
           //alcor-button.w-100(access) Connect Wallet
@@ -58,8 +58,8 @@
           .fs-16.disable.mb-1 Set Price Range
           LiquidityChartRangeInput(
             v-if="pool"
-            :currencyA="pool.tokenA || undefined"
-            :currencyB="pool.tokenB || undefined"
+            :currencyA="tokenA || undefined"
+            :currencyB="tokenB || undefined"
             :feeAmount="feeAmount"
             :priceLower="priceLower"
             :priceUpper="priceUpper"
@@ -72,13 +72,13 @@
           .d-flex.gap-8.mt-3.justify-content-center(v-if="leftRangeTypedValue && rightRangeTypedValue")
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.000001" :min="0.000001")
+              el-input-number(v-model="leftRangeTypedValue" :step="0.000001")
               //el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
               // TODO Min/Max prices based on limit ticks
-              el-input-number(v-model="rightRangeTypedValue" :precision="6" :step="0.000001")
+              el-input-number(v-model="rightRangeTypedValue" :step="0.000001")
               //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
               .fs-12.text-center BLK per WAX
 
@@ -234,6 +234,10 @@ export default {
       }
     },
 
+    position() {
+      return null
+    },
+
     interactive() {
       return !this.position
     },
@@ -278,6 +282,7 @@ export default {
 
       const { position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue, pool: { tokenA, tokenB } } = this
 
+      console.log({ invertPrice })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
         LOWER:
@@ -337,6 +342,8 @@ export default {
 
       const { pool: { tokenA, tokenB }, ticks: { LOWER, UPPER } } = this
 
+      console.log({ LOWER, UPPER })
+
       return {
         LOWER: getTickToPrice(tokenA, tokenB, LOWER),
         UPPER: getTickToPrice(tokenA, tokenB, UPPER)
@@ -344,10 +351,12 @@ export default {
     },
 
     priceLower() {
+      console.log('priceLower', this.pricesAtTicks?.LOWER?.toFixed())
       return this.pricesAtTicks?.LOWER
     },
 
     priceUpper() {
+      console.log('priceUpper', this.pricesAtTicks?.UPPER?.toFixed())
       return this.pricesAtTicks?.UPPER
     },
 
@@ -383,7 +392,18 @@ export default {
 
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
-    ...mapActions('amm/liquidity', ['toggleTokens']),
+
+    toggleTokens() {
+      const { invertPrice, ticksAtLimit, priceLower, priceUpper } = this
+
+      if (!ticksAtLimit.LOWER && !ticksAtLimit.UPPER) {
+        this.onLeftRangeInput((invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? '')
+        this.onRightRangeInput((invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? '')
+        this.onInputAmountA(this.amountB ?? '')
+      }
+
+      this.$store.dispatch('amm/liquidity/toggleTokens')
+    },
 
     init() {
 
@@ -505,11 +525,13 @@ export default {
     //)
 
     onLeftRangeInput(value) {
+      console.log('onLeftRangeInput', value)
       this.leftRangeTypedValue = value
       this.onInputAmountA(this.amountA)
     },
 
     onRightRangeInput(value) {
+      console.log('onRightRangeInput', value)
       this.rightRangeTypedValue = value
       this.onInputAmountA(this.amountA)
     },
