@@ -170,7 +170,7 @@ export default {
 
   methods: {
     init() {
-      console.log('BRUSH INIT')
+      // console.log('BRUSH INIT')
       this.brushBehavior = brushX()
         .extent([
           [Math.max(0 + BRUSH_EXTENT_MARGIN_PX, this.xScale(0)), 0],
@@ -204,7 +204,7 @@ export default {
     },
 
     moveBrush(extent) {
-      console.log('MOVE BRUSH', extent, extent.map(this.xScale))
+      // console.log('MOVE BRUSH', extent, extent.map(this.xScale))
       this.brushBehavior.move(select(this.$refs.brush), extent.map(this.xScale))
     },
 

@@ -70,7 +70,7 @@ export default {
 
   methods: {
     init() {
-      console.log('ZOOM INIT')
+      // console.log('ZOOM INIT')
       if (!this.svg) return
 
       this.zoomBehavior = zoom()

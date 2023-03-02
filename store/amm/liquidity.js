@@ -22,6 +22,14 @@ export const actions = {
     //await dispatch('fetchCoins')
   },
 
+  toggleTokens({ state, commit }) {
+    const tokenA = Object.assign({}, state.tokenA)
+    const tokenB = Object.assign({}, state.tokenB)
+
+    commit('setTokenA', tokenB)
+    commit('setTokenB', tokenA)
+  },
+
   updateRoutePath({ state, getters, rootState }) {
     // TODO Handle fee!
     const { tokenA, tokenB } = getters.routes
@@ -126,6 +134,7 @@ export const actions = {
 export const getters = {
   tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
   tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
+  invertPrice: (state, getters) => Boolean(state.tokenA && getters.pool && state.tokenA.name != getters.pool.tokenA.name),
 
   tokens(state, getters, rootState, rootGetters) {
     // Тут вообще все

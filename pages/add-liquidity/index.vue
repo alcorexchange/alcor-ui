@@ -4,6 +4,9 @@
     .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
       i.el-icon-circle-plus-outline
       span add liquidity
+    .right(v-if="pool")
+      .pointer(@click="toggleTokens") {{ tokenA.symbol }} / {{ tokenB.symbol }}
+      .div InvertPrice {{ invertPrice }}
 
     .row.px-3
       .col
@@ -41,11 +44,11 @@
           .d-flex.gap-8.justify-content-center
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
+              el-input-number(v-model="minPrice" :precision="6" :step="0.000001" :max="100")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
-              el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
+              el-input-number(v-model="maxPrice" :precision="6" :step="0.000001" :max="100")
               .fs-12.text-center BLK per WAX
 
           //alcor-button.w-100(access) Connect Wallet
@@ -69,12 +72,13 @@
           .d-flex.gap-8.mt-3.justify-content-center(v-if="leftRangeTypedValue && rightRangeTypedValue")
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input-number(v-model="leftRangeTypedValue")
+              el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.000001" :min="0.000001")
               //el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
-              el-input-number(v-model="rightRangeTypedValue")
+              // TODO Min/Max prices based on limit ticks
+              el-input-number(v-model="rightRangeTypedValue" :precision="6" :step="0.000001")
               //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
               .fs-12.text-center BLK per WAX
 
@@ -180,7 +184,6 @@ export default {
   data() {
     return {
       amount: null,
-      invertPrice: false,
 
       amountA: 0,
       amountB: 0,
@@ -190,7 +193,6 @@ export default {
 
       //feeAmountFromUrl: FeeAmount.,
 
-      independentField: 'CURRENCY_A',
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
@@ -218,7 +220,8 @@ export default {
       'tokenA',
       'tokenB',
       'tokens',
-      'pool'
+      'pool',
+      'invertPrice'
     ]),
 
     feeAmount: {
@@ -380,6 +383,7 @@ export default {
 
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
+    ...mapActions('amm/liquidity', ['toggleTokens']),
 
     init() {
 
