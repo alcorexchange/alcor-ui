@@ -41,10 +41,16 @@
   align-items: center;
   width: 100%;
   margin: 0;
+  @media (max-width: 600px) {
+    padding: 15px 20px;
+  }
 }
 
 .nft-information {
   text-align: center;
+  @media (max-width: 600px) {
+    text-align: left;
+  }
 }
 
 .information-totalnum {
