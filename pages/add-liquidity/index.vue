@@ -223,7 +223,10 @@ export default {
       'tokenB',
       'tokens',
       'pool',
-      'invertPrice'
+      'invertPrice',
+      'isSorted',
+      'sortedA',
+      'sortedB'
     ]),
 
     feeAmount: {
@@ -289,7 +292,7 @@ export default {
     },
 
     ticks() {
-      const { tokenA, tokenB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
+      const { tokenA, tokenB, sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
 
       //if (rightRangeTypedValue === undefined || leftRangeTypedValue === undefined) return undefined
 
@@ -304,8 +307,8 @@ export default {
               (!invertPrice && typeof leftRangeTypedValue === 'boolean')
               ? tickSpaceLimits.LOWER
               : invertPrice
-                ? tryParseTick(tokenB, tokenA, feeAmount, rightRangeTypedValue.toString())
-                : tryParseTick(tokenA, tokenB, feeAmount, leftRangeTypedValue.toString()),
+                ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
+                : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
 
         // ? tryParseTick(tokenB, tokenA, feeAmount, rightRangeTypedValue.toString())
         // : tryParseTick(tokenA, tokenB, feeAmount, leftRangeTypedValue.toString()),
@@ -317,8 +320,8 @@ export default {
               (invertPrice && typeof leftRangeTypedValue === 'boolean')
               ? tickSpaceLimits.UPPER
               : invertPrice
-                ? tryParseTick(tokenB, tokenA, feeAmount, leftRangeTypedValue.toString())
-                : tryParseTick(tokenA, tokenB, feeAmount, rightRangeTypedValue.toString())
+                ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
+                : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
 
         // ? tryParseTick(tokenB, tokenA, feeAmount, leftRangeTypedValue.toString())
         // : tryParseTick(tokenA, tokenB, feeAmount, rightRangeTypedValue.toString())
@@ -326,14 +329,14 @@ export default {
     },
 
     price() {
-      const { tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
+      const { sortedA, sortedB, tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
 
       if (noLiquidity) {
         console.log({ tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool })
         // if no liquidity use typed value
-        const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? tokenA : tokenB)
-        if (parsedQuoteAmount && tokenA && tokenB) {
-          const baseAmount = tryParseCurrencyAmount('1', invertPrice ? tokenB : tokenA)
+        const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
+        if (parsedQuoteAmount && sortedA && sortedB) {
+          const baseAmount = tryParseCurrencyAmount('1', invertPrice ? sortedB : sortedA)
           const price =
             baseAmount && parsedQuoteAmount
               ? new Price(
@@ -353,13 +356,13 @@ export default {
     },
 
     pricesAtTicks() {
-      const { tokenA, tokenB, ticks: { LOWER, UPPER } } = this
+      const { sortedA, sortedB, ticks: { LOWER, UPPER } } = this
 
       console.log({ LOWER, UPPER })
 
       return {
-        LOWER: getTickToPrice(tokenA, tokenB, LOWER),
-        UPPER: getTickToPrice(tokenA, tokenB, UPPER)
+        LOWER: getTickToPrice(sortedA, sortedB, LOWER),
+        UPPER: getTickToPrice(sortedA, sortedB, UPPER)
       }
     },
 
@@ -402,12 +405,6 @@ export default {
 
     pools() {
       return this.$store.getters['amm/pools']
-    },
-
-    isSorted() {
-      // Used in creation stage
-      const { tokenA, tokenB } = this
-      return tokenA && tokenB && tokenA.sortsBefore(tokenB)
     },
 
     mockPool() {
@@ -633,7 +630,7 @@ export default {
     },
 
     async submit() {
-      const { amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
+      const { invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
 
       const actions = []
 
@@ -651,8 +648,8 @@ export default {
 
         poolId = id + 1
 
-        const assetAZero = asset(parseFloat(this.amountA).toFixed(this.tokenA.decimals) + ' ' + this.tokenA.symbol)
-        const assetBZero = asset(parseFloat(this.amountB).toFixed(this.tokenB.decimals) + ' ' + this.tokenB.symbol)
+        const assetAZero = asset(parseFloat(this.amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol)
+        const assetBZero = asset(parseFloat(this.amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol)
         assetAZero.set_amount(0)
         assetBZero.set_amount(0)
 
@@ -662,8 +659,8 @@ export default {
           authorization: [this.user.authorization],
           data: {
             account: this.$store.state.user.name,
-            tokenA: { contract: this.tokenA.contract, quantity: assetAZero.to_string() },
-            tokenB: { contract: this.tokenB.contract, quantity: assetBZero.to_string() },
+            tokenA: { contract: sortedA.contract, quantity: assetAZero.to_string() },
+            tokenB: { contract: sortedB.contract, quantity: assetBZero.to_string() },
             sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
             fee: this.feeAmount
           }
@@ -698,6 +695,9 @@ export default {
           }
         )
 
+      const tokenADesired = parseFloat(invertPrice ? amountB : amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
+      const tokenBDesired = parseFloat(invertPrice ? amountA : amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
+
       actions.push(
         {
           account: this.network.amm.contract,
@@ -706,12 +706,12 @@ export default {
           data: {
             poolId,
             owner: this.user.name,
-            tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-            tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+            tokenADesired,
+            tokenBDesired,
             tickLower,
             tickUpper,
-            tokenAMin: (parseFloat(amountA)).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-            tokenBMin: (parseFloat(amountB)).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+            tokenAMin: (parseFloat(invertPrice ? amountB : amountA)).toFixed(sortedA.decimals) + ' ' + sortedA.symbol,
+            tokenBMin: (parseFloat(invertPrice ? amountA : amountB)).toFixed(sortedB.decimals) + ' ' + sortedB.symbol,
             deadline: 0
           }
         }
