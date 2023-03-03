@@ -1,7 +1,7 @@
 <template lang="pug">
 #wallet-nfts-layout.d-flex.flex-column.gap-16.mt-2
   nft-header
-  .d-flex.align-items-center.gap-24
+  .d-flex.align-items-center.gap-24.flex-wrap
     input-search(v-model="filters.match")
     alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'wallet-nfts-sets'")
     alcor-tabs(:links="true" :tabs="tabs")
@@ -23,6 +23,9 @@ export default {
     InputSearch,
     AlcorTabs,
     AlcorFilters
+  },
+  fetch({ route, redirect }) {
+    if (route.path == '/wallet/nfts') redirect('/wallet/nfts/inventory?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked')
   },
   data: () => ({
     filters: {
@@ -114,10 +117,6 @@ export default {
     }
   },
   mounted() {
-    this.$router.push({
-      name: `wallet-nfts-inventory___${this.$i18n.locale}`,
-      query: this.filters
-    })
     this.getAccountCollections()
     this.setSortOptions()
   },

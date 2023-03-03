@@ -3,7 +3,7 @@
   nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
     #return-btn {{ $t('Return') }}
   h4 {{ $t('Explorer') }}
-  .d-flex.align-items-center.gap-24
+  .d-flex.align-items-center.gap-24.flex-wrap
     input-search(v-model="filters.match" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-all'")
     alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'nft-market-nftexplorer-accounts' || $route.name.split('___')[0] === 'nft-market-nftexplorer-all'")
     alcor-tabs(:links="true" :tabs="tabs")

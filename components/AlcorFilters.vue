@@ -12,8 +12,8 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
     i.el-icon-caret-bottom
   el-dropdown-menu.dropdown
     el-dropdown-item.dropdown__filters
-      .d-flex.justify-content-between.gap-16
-        .w-50
+      .d-flex.justify-content-center.justify-content-md-between.gap-8.flex-wrap
+        .filter-col
           el-select.fs-12.w-100(
             filterable
             v-if="options.collection"
@@ -34,7 +34,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
                   span {{ collection.name }}
                   span(v-if="assets") ({{ assets }})
 
-        .w-50
+        .filter-col
           el-select.fs-12.w-100(
             v-if="options.sorting"
             v-model='filters.sorting'
@@ -47,8 +47,8 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
               :label='$t(label)'
               :value='value'
             )
-      .d-flex.justify-content-between.gap-16.mt-2
-        .w-50
+      .d-flex.justify-content-center.justify-content-md-between.gap-8.mt-2.flex-wrap
+        .filter-col
           .d-flex.gap-6
             el-input.dark(
               size='small',
@@ -72,7 +72,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
               :placeholder='$t("Max Price")',
             )
 
-        .w-50
+        .filter-col
           el-checkbox(
             v-model="filters.isDuplicates"
           ) {{ $t('Only Duplicates') }}
@@ -131,8 +131,13 @@ export default {
   }
 }
 
+.filter-col {
+  width: 100%;
+  max-width: 210px;
+}
 .dropdown__filters {
-  width: 460px;
+  width: 100%;
+  max-width: 460px;
 }
 
 .apply-btn .inner {

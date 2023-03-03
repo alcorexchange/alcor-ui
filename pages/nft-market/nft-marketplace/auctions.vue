@@ -1,6 +1,6 @@
 <template lang="pug">
 #nft-marketplace-auctions-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!auctions"
       v-for="idx in [1,2,3,4]"

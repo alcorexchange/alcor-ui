@@ -1,6 +1,7 @@
 <template lang="pug">
 .pool-token-input
   el-input.amount(
+    v-if="!disabled"
     placeholder="0.0"
     :value="value"
     @input="$emit('input', $event)"
@@ -11,7 +12,7 @@
       .d-flex.align-items-center.gap-4
         max-bage(v-if="showMaxButton" @click="$emit('onMax')")
         select-token(:locked="!!locked" :token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
-  warn-message(v-if="locked && locked.message") {{ locked.message }}
+  warn-message(v-if="disabled && disabled.message") {{ disabled.message }}
 </template>
 
 <script>

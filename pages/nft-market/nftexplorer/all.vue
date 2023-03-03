@@ -1,7 +1,7 @@
 <template lang="pug">
 #nftexplorer-page
   .fs-36.p-3 {{ $t('Collections') }}
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!collections"
       v-for="idx in [1,2,3,4]"
@@ -15,7 +15,7 @@
     collection-card(v-if="collections" v-for="item in collections" :key="item.asset_id" :data="item")
 
     .fs-36.p-3 {{ $t('Templates') }}
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!templates"
       v-for="idx in [1,2,3,4]"
@@ -29,7 +29,7 @@
     template-card(v-if="templates" v-for="item in templates" :key="item.template_id" :data="item")
 
   .fs-36.p-3 NFTs
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!assets"
       v-for="idx in [1,2,3,4]"
