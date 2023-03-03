@@ -23,6 +23,7 @@
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true").mt-3
 
+        | isSorted {{ isSorted }}
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
       template(v-if="!pool")
@@ -136,6 +137,8 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
+import { asset } from 'eos-common'
+
 
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -146,6 +149,8 @@ import LiquidityChartRangeInput from '~/components/amm/range'
 import CommissionSelect from '~/components/amm/CommissionSelect'
 import InfoContainer from '~/components/UI/InfoContainer'
 import AuthOnly from '~/components/AuthOnly'
+
+import { fetchAllRows } from '~/utils/eosjs'
 
 import {
   tryParsePrice,
@@ -400,13 +405,10 @@ export default {
     mockPool() {
       // Used when pool is not initialized
       const { tokenA, tokenB, feeAmount, price, invalidPrice } = this
-      console.log('mock pool', { tokenA, tokenB, feeAmount, price, invalidPrice })
 
       if (tokenA && tokenB && feeAmount && price && !invalidPrice) {
         const tickCurrent = priceToClosestTick(price)
         const sqrtPriceX64 = TickMath.getSqrtRatioAtTick(tickCurrent)
-
-        console.log({ tickCurrent, sqrtPriceX64 })
 
         return new Pool({
           tokenA,
@@ -624,11 +626,42 @@ export default {
     },
 
     async submit() {
-      const { amountA, amountB, tokenA, tokenB, tickLower, tickUpper } = this
-      console.log(tokenA, tokenB)
-      console.log({ amountA, amountB })
+      const { amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
 
       const actions = []
+
+      let poolId = this.pool?.id
+
+      if (noLiquidity) {
+        // Fetch last pool just to predict new created pool id
+        const { rows: [{ id }] } = await this.$rpc.get_table_rows({
+          code: this.network.amm.contract,
+          scope: this.network.amm.contract,
+          table: 'pools',
+          limit: 1,
+          reverse: true
+        })
+
+        poolId = id + 1
+
+        const assetAZero = asset(parseFloat(this.amountA).toFixed(this.tokenA.decimals) + ' ' + this.tokenA.symbol)
+        const assetBZero = asset(parseFloat(this.amountB).toFixed(this.tokenB.decimals) + ' ' + this.tokenB.symbol)
+        assetAZero.set_amount(0)
+        assetBZero.set_amount(0)
+
+        actions.push({
+          account: this.network.amm.contract,
+          name: 'createpool',
+          authorization: [this.user.authorization],
+          data: {
+            account: this.$store.state.user.name,
+            tokenA: { contract: this.tokenA.contract, quantity: assetAZero.to_string() },
+            tokenB: { contract: this.tokenB.contract, quantity: assetBZero.to_string() },
+            sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
+            fee: this.feeAmount
+          }
+        })
+      }
 
       if (parseFloat(amountA) > 0)
         actions.push({
@@ -664,7 +697,7 @@ export default {
           name: 'addliquid',
           authorization: [this.user.authorization],
           data: {
-            poolId: this.pool.id,
+            poolId,
             owner: this.user.name,
             tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
             tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
@@ -677,10 +710,8 @@ export default {
         }
       )
 
-      console.log('aa', amountB, tokenB)
-      const r = tryParseCurrencyAmount(amountB, tokenB)
-
-      console.log(r, { actions })
+      console.log({ actions })
+      //return
 
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
