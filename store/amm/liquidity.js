@@ -134,7 +134,10 @@ export const actions = {
 export const getters = {
   tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
   tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
-  invertPrice: (state, getters) => Boolean(state.tokenA && getters.pool && state.tokenA.name != getters.pool.tokenA.name),
+  isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
+  sortedA: (state, getters) => getters.isSorted ? getters.tokenA : getters.tokenB,
+  sortedB: (state, getters) => getters.isSorted ? getters.tokenB : getters.tokenA,
+  invertPrice: (state, getters) => Boolean(getters.tokenA && getters.sortedA && !getters.tokenA.equals(getters.sortedA)),
 
   tokens(state, getters, rootState, rootGetters) {
     // Тут вообще все

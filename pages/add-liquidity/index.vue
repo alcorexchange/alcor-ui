@@ -295,6 +295,7 @@ export default {
 
       //console.log({ invertPrice, rightRangeTypedValue, leftRangeTypedValue })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
+      console.log({ invertPrice })
       return {
         LOWER:
           typeof position?.tickLower === 'number'
@@ -306,6 +307,9 @@ export default {
                 ? tryParseTick(tokenB, tokenA, feeAmount, rightRangeTypedValue.toString())
                 : tryParseTick(tokenA, tokenB, feeAmount, leftRangeTypedValue.toString()),
 
+        // ? tryParseTick(tokenB, tokenA, feeAmount, rightRangeTypedValue.toString())
+        // : tryParseTick(tokenA, tokenB, feeAmount, leftRangeTypedValue.toString()),
+
         UPPER:
           typeof position?.tickUpper === 'number'
             ? position.tickUpper
@@ -315,6 +319,9 @@ export default {
               : invertPrice
                 ? tryParseTick(tokenB, tokenA, feeAmount, leftRangeTypedValue.toString())
                 : tryParseTick(tokenA, tokenB, feeAmount, rightRangeTypedValue.toString())
+
+        // ? tryParseTick(tokenB, tokenA, feeAmount, leftRangeTypedValue.toString())
+        // : tryParseTick(tokenA, tokenB, feeAmount, rightRangeTypedValue.toString())
       }
     },
 
@@ -398,28 +405,27 @@ export default {
     },
 
     isSorted() {
+      // Used in creation stage
       const { tokenA, tokenB } = this
       return tokenA && tokenB && tokenA.sortsBefore(tokenB)
     },
 
     mockPool() {
       // Used when pool is not initialized
-      const { tokenA, tokenB, feeAmount, price, invalidPrice } = this
+      const { tokenA, tokenB, feeAmount, price, invalidPrice, isSorted } = this
 
       if (tokenA && tokenB && feeAmount && price && !invalidPrice) {
         const tickCurrent = priceToClosestTick(price)
         const sqrtPriceX64 = TickMath.getSqrtRatioAtTick(tickCurrent)
 
         return new Pool({
-          tokenA,
-          tokenB,
+          tokenA: isSorted ? tokenA : tokenB,
+          tokenB: isSorted ? tokenB : tokenA,
           fee: feeAmount,
           sqrtPriceX64,
           tickCurrent,
           liquidity: 0,
-          ticks: [],
-          feeGrowthGlobalAX64: 0,
-          feeGrowthGlobalBX64: 0
+          ticks: []
         })
       }
 
@@ -523,6 +529,7 @@ export default {
         })
 
         console.log({ tickLower, tickUpper })
+        console.log('!!', independentAmount.currency.equals(pool.tokenA))
 
         const position = independentAmount.currency.equals(pool.tokenA)
           ? Position.fromAmountA({
