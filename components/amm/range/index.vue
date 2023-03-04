@@ -46,26 +46,27 @@ export default {
   },
 
   watch: {
-    // currencyA() {
-    //   console.log('currencyA changed')
-    //   const { current, zoomLevels } = this
+    // TODO Не ресетить если токены флипаются
+    currencyA() {
+      console.log('currencyA changed')
+      const { current, zoomLevels } = this
 
-    //   this.onBrushDomainChangeEnded({
-    //     domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
-    //     mode: 'reset'
-    //   })
-    // },
+      this.onBrushDomainChangeEnded({
+        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
+        mode: 'reset'
+      })
+    },
 
-    // currencyB() {
-    //   console.log('currencyB changed')
+    currencyB() {
+      console.log('currencyB changed')
 
-    //   const { current, zoomLevels } = this
+      const { current, zoomLevels } = this
 
-    //   this.onBrushDomainChangeEnded({
-    //     domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
-    //     mode: 'reset'
-    //   })
-    // }
+      this.onBrushDomainChangeEnded({
+        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
+        mode: 'reset'
+      })
+    }
   },
 
   mounted() {

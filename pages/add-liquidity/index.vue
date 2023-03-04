@@ -71,20 +71,19 @@
             :priceLower="priceLower"
             :priceUpper="priceUpper"
             :ticksAtLimit="ticksAtLimit"
-            :price="price ? price.toSignificant(8) : undefined"
+            :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             :interactive="interactive")
-          //:price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
 
           .d-flex.gap-8.mt-3.justify-content-center
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input(v-model="leftRangeTypedValue" @input="onLeftRangeInput" @change="onLeftRangeChange")
+              InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
-              el-input(v-model="rightRangeTypedValue" @input="onRightRangeInput" @change="onRightRangeChange")
+              InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
               .fs-12.text-center BLK per WAX
 
   //.d-flex.align-items-center
@@ -150,6 +149,7 @@ import SelectToken from '~/components/modals/amm/SelectToken'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
 import CommissionSelect from '~/components/amm/CommissionSelect'
+import InputStepCounter from '~/components/amm/InputStepCounter'
 import InfoContainer from '~/components/UI/InfoContainer'
 import AuthOnly from '~/components/AuthOnly'
 
@@ -180,6 +180,7 @@ export default {
     AlcorButton,
     AlcorContainer,
     LiquidityChartRangeInput,
+    InputStepCounter,
     CommissionSelect,
     InfoContainer,
     AuthOnly
@@ -245,11 +246,14 @@ export default {
 
     leftRangeValue() {
       const { isSorted, ticksAtLimit, priceLower, priceUpper } = this
-      const leftPrice = isSorted ? priceLower : priceUpper?.invert()
+      const price = isSorted ? priceLower : priceUpper?.invert()
+      return ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] ? '0' : price?.toSignificant(5) ?? ''
+    },
 
-      console.log('zz', leftPrice?.toSignificant(5))
-      //console.log('zz', ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] ? '0' : leftPrice?.toSignificant(5) ?? '')
-      return ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] ? '0' : leftPrice?.toSignificant(5) ?? ''
+    rightRangeValue() {
+      const { isSorted, ticksAtLimit, priceUpper, priceLower } = this
+      const price = isSorted ? priceUpper : priceLower?.invert()
+      return ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] ? '∞' : price?.toSignificant(5) ?? ''
     },
 
     position() {
@@ -624,16 +628,6 @@ export default {
 
       this.rightRangeTypedValue = value
       this.onInputAmountB(this.amountB)
-    },
-
-    onLeftRangeChange(value) {
-      const { invertPrice, priceLower, priceUpper } = this
-      // if (value) this.leftRangeTypedValue = (invertPrice ? priceUpper : priceLower)?.toSignificant(6)
-    },
-
-    onRightRangeChange(value) {
-      const { invertPrice, priceLower, priceUpper } = this
-      // if (value) this.rightRangeTypedValue = (invertPrice ? priceLower : priceUpper)?.toSignificant(6)
     },
 
     setTokenA(token) {
