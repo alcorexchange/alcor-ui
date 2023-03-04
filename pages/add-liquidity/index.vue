@@ -23,13 +23,13 @@
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true").mt-3
 
-        | isSorted {{ isSorted }}
-        br
-        | invertPrice {{ invertPrice }}
-        br
-        | outOfRange {{ outOfRange}}
-        br
-        | invalidPrice {{ invalidPrice }}
+        //- | isSorted {{ isSorted }}
+        //- br
+        //- | invertPrice {{ invertPrice }}
+        //- br
+        //- | outOfRange {{ outOfRange}}
+        //- br
+        //- | invalidPrice {{ invalidPrice }}
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
       .col
