@@ -1,29 +1,37 @@
 <template lang="pug">
-.Wrapper(count="showResetButton ? 3 : 2")
-  template(v-if="showResetButton")
-    button(@click="reset")
-
+.Wrapper(count='showResetButton ? 3 : 2')
+  template(v-if='showResetButton')
+    AlcorButton(@click='reset', iconOnly)
       i.el-icon-refresh-left
 
-  button(@click="zoomIn")
+  AlcorButton(@click='zoomIn', iconOnly)
     i.el-icon-zoom-in
 
-  button(@click="zoomOut")
+  AlcorButton(@click='zoomOut', iconOnly)
     i.el-icon-zoom-in
-
-  button(@click="reset")
-    i.el-icon-zoom-in RESET
 </template>
 
 <script>
 import { select, zoom, zoomIdentity } from 'd3'
+import AlcorButton from '@/components/AlcorButton'
 
 export default {
-  props: ['svg', 'xScale', 'width', 'height', 'showResetButton', 'zoomLevels', 'reset'],
+  props: [
+    'svg',
+    'xScale',
+    'width',
+    'height',
+    'showResetButton',
+    'zoomLevels',
+    'reset',
+  ],
+  components: {
+    AlcorButton,
+  },
 
   data() {
     return {
-      zoomBehavior: null
+      zoomBehavior: null,
     }
   },
 
@@ -59,7 +67,7 @@ export default {
 
     'zoomLevels.max'() {
       this.init()
-    }
+    },
   },
 
   mounted() {
@@ -77,7 +85,7 @@ export default {
         .scaleExtent([this.zoomLevels.min, this.zoomLevels.max])
         .extent([
           [0, 0],
-          [this.width, this.height]
+          [this.width, this.height],
         ])
         .on('zoom', ({ transform }) => this.$emit('onZoomUpdate', transform))
 
@@ -88,69 +96,56 @@ export default {
       const { svg, zoomBehavior } = this
 
       svg &&
-      zoomBehavior &&
-      select(this.svg)
-        .transition()
-        .call(zoomBehavior.scaleBy, 2)
+        zoomBehavior &&
+        select(this.svg).transition().call(zoomBehavior.scaleBy, 2)
     },
 
     zoomOut() {
       const { svg, zoomBehavior } = this
 
       svg &&
-      zoomBehavior &&
-      select(svg)
-        .transition()
-        .call(zoomBehavior.scaleBy, 0.5)
+        zoomBehavior &&
+        select(svg).transition().call(zoomBehavior.scaleBy, 0.5)
     },
 
     zoomInitial() {
       const { svg, zoomBehavior } = this
 
       svg &&
-      zoomBehavior &&
-      select(svg)
-        .transition()
-        .call(zoomBehavior.scaleTo, 0.5)
+        zoomBehavior &&
+        select(svg).transition().call(zoomBehavior.scaleTo, 0.5)
     },
 
     zoomReset() {
       const { svg, zoomBehavior } = this
 
       svg &&
-      zoomBehavior &&
-      select(svg)
-        .call(zoomBehavior.transform, zoomIdentity.translate(0, 0).scale(1))
-        .transition()
-        .call(zoomBehavior.scaleTo, 0.5)
-    }
-  }
+        zoomBehavior &&
+        select(svg)
+          .call(zoomBehavior.transform, zoomIdentity.translate(0, 0).scale(1))
+          .transition()
+          .call(zoomBehavior.scaleTo, 0.5)
+    },
+  },
 }
 </script>
 
 <style lang="scss">
 .Wrapper {
-  display: grid;
+  display: flex;
   //grid-template-columns: repeat(${({ count }) => count.toString()}, 1fr); // TODO
-  grid-gap: 6px;
+  gap: 6px;
 
   position: absolute;
-  top: -75px;
+  top: -40px;
   right: 0;
-}
-
-.Button {
-  &:hover {
-    background-color: red;
-    color: white;
-
-    //background-color: ${({ theme }) => theme.backgroundInteractive};
-    //color: ${({ theme }) => theme.textPrimary};
+  .alcor-button {
+    &:hover {
+      background-color: red;
+      color: white;
+    }
+    border-radius: 50% !important;
   }
-
-  width: 32px;
-  height: 32px;
-  padding: 4px;
 }
 
 .ZoomOverlay {
