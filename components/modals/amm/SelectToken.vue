@@ -1,42 +1,53 @@
 <template lang="pug">
 .select-token-modal.d-flex.align-items-center.gap-8
-  .select-token-button(@click="locked ? '' : visible = true" :class="{locked}")
-    .d-flex.align-items-center(v-if="token")
-      TokenImage(:src="$tokenLogo(token.currency || token.symbol, token.contract)" height="25").mr-2
+  .select-token-button(
+    @click='locked ? "" : (visible = true)',
+    :class='{ locked, w100 }'
+  )
+    .d-flex.align-items-center(v-if='token')
+      TokenImage.mr-2(
+        :src='$tokenLogo(token.currency || token.symbol, token.contract)',
+        height='25'
+      )
       .ft-14 {{ token.currency || token.symbol }}
     .d-flex.align-items-center(v-else) Select token
-    i.el-icon-arrow-down.ml-auto(v-if="!locked")
+    i.el-icon-arrow-down.ml-auto(v-if='!locked')
 
   //append-to-body
   el-dialog(
-    title="Select Token"
-    :visible="visible"
-    @close="visible = false"
-
-    custom-class="select-token-modal"
-
-    :before-close="beforeDialogClose"
-    @mousedown.native="dialogMousedown"
-    @mouseup.native="dialogMouseup"
+    title='Select Token',
+    :visible='visible',
+    @close='visible = false',
+    custom-class='select-token-modal',
+    :before-close='beforeDialogClose',
+    @mousedown.native='dialogMousedown',
+    @mouseup.native='dialogMouseup'
   )
-
     #assets-modal-component
-      compact-tabs(:tabs="tabs" :active.sync="tab")
-        template(#tab="{ tab: { label, value } }")
-          .d-flex.align-items-center.gap-8(v-if="value === 'owned'")
+      compact-tabs(:tabs='tabs', :active.sync='tab')
+        template(#tab='{ tab: { label, value } }')
+          .d-flex.align-items-center.gap-8(v-if='value === "owned"')
             i.el-icon-wallet
             .fs-14 {{ label }}
           .fs-14(v-else) {{ label }}
 
       .body.mt-2.p-3
-        el-input(prefix-icon="el-icon-search" v-model='search', size='small', placeholder='Search')
+        el-input(
+          prefix-icon='el-icon-search',
+          v-model='search',
+          size='small',
+          placeholder='Search'
+        )
         hr
         .d-flex.flex-column
           .d-flex.align-items-center.gap-8.pointer.p-2.br-8.hover-bg-lighter(
-            v-for="({ currency, symbol, contract }, index) in tokens"
-            @click="selectAsset(tokens[index])"
+            v-for='({ currency, symbol, contract }, index) in tokens',
+            @click='selectAsset(tokens[index])'
           )
-            TokenImage(:src="$tokenLogo(currency || symbol, contract)" height="20")
+            TokenImage(
+              :src='$tokenLogo(currency || symbol, contract)',
+              height='20'
+            )
 
             .d-flex.gap-4.align-items-center
               .fs-14.contrast {{ currency || symbol }}
@@ -54,7 +65,12 @@ import TokenImage from '~/components/elements/TokenImage'
 export default {
   components: { AlcorModal, CompactTabs, TokenImage },
 
-  props: ['tokens', 'token', 'locked'],
+  props: {
+    tokens: {},
+    token: {},
+    locked: { type: Boolean, default: false },
+    w100: { type: Boolean, default: false },
+  },
 
   data: () => ({
     visible: false,
@@ -65,20 +81,22 @@ export default {
 
     tabs: [
       { label: 'Owned', value: 'owned' },
-      { label: 'All', value: 'all' }
-    ]
+      { label: 'All', value: 'all' },
+    ],
   }),
   computed: {
     filteredAssets() {
-      return this.assets.filter(asset => Object.values(asset).join().includes(this.search))
-    }
+      return this.assets.filter((asset) =>
+        Object.values(asset).join().includes(this.search)
+      )
+    },
   },
   methods: {
     selectAsset(v) {
       this.$emit('selected', v)
       this.visible = false
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -103,11 +121,11 @@ export default {
   .select-token-button {
     display: flex;
     align-items: center;
-
     padding: 5px 9px;
-    border: 1px solid;
-    border-radius: 4px;
+    border-radius: 8px;
+    gap: 8px;
     cursor: pointer;
+    background: var(--btn-default);
 
     &:hover {
       border-color: white;
@@ -115,9 +133,10 @@ export default {
 
     &.locked {
       cursor: not-allowed;
-      &:hover {
-        border-color: var(--btn-default);
-      }
+      pointer-events: none;
+    }
+    &.w100 {
+      width: 100%;
     }
   }
 }

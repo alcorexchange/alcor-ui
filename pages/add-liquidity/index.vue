@@ -1,27 +1,59 @@
 <template lang="pug">
 .row.justify-content-center
   alcor-container.add-liquidity-component.w-100.p-2
-    .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
-      i.el-icon-circle-plus-outline
-      span add liquidity
-    .right(v-if="pool")
-      .pointer(@click="toggleTokens") {{ tokenA.symbol }} / {{ tokenB.symbol }}
-      .div InvertPrice {{ invertPrice }}
+    .title.mb-4
+      .empty
+      .main add liquidity
+      .right
+        //- .pointer(v-if='pool', @click='toggleTokens') {{ tokenA.symbol }} / {{ tokenB.symbol }}
+        alcor-switch(
+          v-if='pool',
+          @toggle='toggleTokens',
+          :one='invertPrice ? tokenB.symbol : tokenA.symbol',
+          :two='invertPrice ? tokenA.symbol : tokenB.symbol',
+          :active='invertPrice ? "two" : "one"'
+        )
 
     .row.px-3
       .col
         .fs-16.disable.mb-2 Select Pairs
 
-        .d-flex.mt-3.justify-content-between
-          select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
-          select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
+        .d-flex.mt-3.gap-10
+          select-token.sustom-select-token(
+            :token='tokenA',
+            :tokens='tokens',
+            @selected='setTokenA',
+            w100
+          )
+          select-token.sustom-select-token(
+            :token='tokenB',
+            :tokens='tokens',
+            @selected='setTokenB',
+            w100
+          )
 
         .fs-14.disable.my-2 Select fee
-        commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
+        commission-select(
+          :selected='feeAmount',
+          :options='fees',
+          @change='(v) => (feeAmount = v)'
+        )
 
         .fs-16.disable.mt-3 Deposit Amounts
-          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true").mt-2
-          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true").mt-3
+          PoolTokenInput.mt-2(
+            :token='tokenA',
+            v-model='amountA',
+            @input='onInputAmountA',
+            :disabled='depositADisabled',
+            :locked='true'
+          )
+          PoolTokenInput.mt-3(
+            :token='tokenB',
+            v-model='amountB',
+            @input='onInputAmountB',
+            :disabled='depositBDisabled',
+            :locked='true'
+          )
 
         //- | isSorted {{ isSorted }}
         //- br
@@ -31,19 +63,19 @@
         //- br
         //- | invalidPrice {{ invalidPrice }}
         auth-only.mt-3.w-100
-          alcor-button(outline @click="submit") Add liquidity
+          alcor-button(outline, @click='submit') Add liquidity
 
       .col
-        template(v-if="!pool")
+        template(v-if='!pool')
           .col.d-flex.flex-column.gap-12
             .fs-16.disable Set Starting Price
-            info-container(:access="true")
+            info-container(:access='true')
               | This pool must be initialized before you can add liquidity.
               | To initialize, select a starting price for the pool.
               | Then, enter your liquidity price range and deposit amount.
               | Gas fees will be higher than usual due to the initialization transaction.
 
-            el-input(placeholder="0" v-model="startPriceTypedValue")
+            el-input(placeholder='0', v-model='startPriceTypedValue')
 
             info-container
               .d-flex.justify-content-between
@@ -53,36 +85,41 @@
         template(v-else)
           .fs-16.disable.mb-1 Set Price Range
           LiquidityChartRangeInput(
-            ref="LChartRange"
-            v-if="pool"
-            :currencyA="tokenA || undefined"
-            :currencyB="tokenB || undefined"
-            :feeAmount="feeAmount"
-            :priceLower="priceLower"
-            :priceUpper="priceUpper"
-            :ticksAtLimit="ticksAtLimit"
-            :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
-            @onLeftRangeInput="onLeftRangeInput"
-            @onRightRangeInput="onRightRangeInput"
-            :interactive="interactive")
+            ref='LChartRange',
+            v-if='pool',
+            :currencyA='tokenA || undefined',
+            :currencyB='tokenB || undefined',
+            :feeAmount='feeAmount',
+            :priceLower='priceLower',
+            :priceUpper='priceUpper',
+            :ticksAtLimit='ticksAtLimit',
+            :price='price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined',
+            @onLeftRangeInput='onLeftRangeInput',
+            @onRightRangeInput='onRightRangeInput',
+            :interactive='interactive'
+          )
 
         .d-flex.gap-8.mt-3.justify-content-center
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
             .fs-12.text-center Min Price
-            InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
+            InputStepCounter(
+              :value='leftRangeValue',
+              @change='onLeftRangeInput'
+            )
             .fs-12.text-center BLK per WAX
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
             .fs-12.text-center Max Price
-            InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
+            InputStepCounter(
+              :value='rightRangeValue',
+              @change='onRightRangeInput'
+            )
             .fs-12.text-center BLK per WAX
   nuxt-child
-
 </template>
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
 import { asset } from 'eos-common'
-
 
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -94,6 +131,7 @@ import CommissionSelect from '~/components/amm/CommissionSelect'
 import InputStepCounter from '~/components/amm/InputStepCounter'
 import InfoContainer from '~/components/UI/InfoContainer'
 import AuthOnly from '~/components/AuthOnly'
+import AlcorSwitch from '~/components/AlcorSwitch'
 
 import { fetchAllRows } from '~/utils/eosjs'
 
@@ -104,13 +142,24 @@ import {
   tryParseTick,
   getPoolBounds,
   getTickToPrice,
-  isPriceInvalid
+  isPriceInvalid,
 } from '~/utils/amm'
 
 import {
-  Currency, Percent, Token, Pool, Tick, CurrencyAmount,
-  Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
-  TickMath, Rounding, priceToClosestTick
+  Currency,
+  Percent,
+  Token,
+  Pool,
+  Tick,
+  CurrencyAmount,
+  Price,
+  Position,
+  FeeAmount,
+  nearestUsableTick,
+  TICK_SPACINGS,
+  TickMath,
+  Rounding,
+  priceToClosestTick,
 } from '~/assets/libs/swap-sdk'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
@@ -125,7 +174,8 @@ export default {
     InputStepCounter,
     CommissionSelect,
     InfoContainer,
-    AuthOnly
+    AuthOnly,
+    AlcorSwitch,
   },
 
   // Enabling managige route in nested component
@@ -146,10 +196,22 @@ export default {
       rightRangeTypedValue: '',
 
       fees: [
-        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
-        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: 44 },
-        { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
-      ]
+        {
+          value: FeeAmount.LOW,
+          desc: 'Best forvery high liquidity tokens',
+          selectedPercent: 0,
+        },
+        {
+          value: FeeAmount.MEDIUM,
+          desc: 'Best for most pairs',
+          selectedPercent: 44,
+        },
+        {
+          value: FeeAmount.HIGH,
+          desc: 'Best for low liqudity pairs',
+          selectedPercent: 56,
+        },
+      ],
     }
   },
 
@@ -169,7 +231,7 @@ export default {
       'invertPrice',
       'isSorted',
       'sortedA',
-      'sortedB'
+      'sortedB',
     ]),
 
     feeAmount: {
@@ -179,19 +241,23 @@ export default {
 
       set(val) {
         this.$store.commit('amm/liquidity/setFeeAmount', val)
-      }
+      },
     },
 
     leftRangeValue() {
       const { isSorted, ticksAtLimit, priceLower, priceUpper } = this
       const price = isSorted ? priceLower : priceUpper?.invert()
-      return ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] ? '0' : price?.toSignificant(5) ?? ''
+      return ticksAtLimit[isSorted ? 'LOWER' : 'UPPER']
+        ? '0'
+        : price?.toSignificant(5) ?? ''
     },
 
     rightRangeValue() {
       const { isSorted, ticksAtLimit, priceUpper, priceLower } = this
       const price = isSorted ? priceUpper : priceLower?.invert()
-      return ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] ? '∞' : price?.toSignificant(5) ?? ''
+      return ticksAtLimit[isSorted ? 'UPPER' : 'LOWER']
+        ? '∞'
+        : price?.toSignificant(5) ?? ''
     },
 
     position() {
@@ -225,7 +291,7 @@ export default {
 
       return {
         LOWER: feeAmount && tickLower === tickSpaceLimits.LOWER,
-        UPPER: feeAmount && tickUpper === tickSpaceLimits.UPPER
+        UPPER: feeAmount && tickUpper === tickSpaceLimits.UPPER,
       }
     },
 
@@ -238,7 +304,16 @@ export default {
     },
 
     ticks() {
-      const { sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
+      const {
+        sortedA,
+        sortedB,
+        position,
+        invertPrice,
+        tickSpaceLimits,
+        feeAmount,
+        rightRangeTypedValue,
+        leftRangeTypedValue,
+      } = this
 
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
@@ -247,39 +322,72 @@ export default {
             ? position.tickLower
             : (invertPrice && typeof rightRangeTypedValue === 'boolean') || // если тру то это фулл-рэнж
               (!invertPrice && typeof leftRangeTypedValue === 'boolean')
-              ? tickSpaceLimits.LOWER
-              : invertPrice
-                ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
-                : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
+            ? tickSpaceLimits.LOWER
+            : invertPrice
+            ? tryParseTick(
+                sortedB,
+                sortedA,
+                feeAmount,
+                rightRangeTypedValue.toString()
+              )
+            : tryParseTick(
+                sortedA,
+                sortedB,
+                feeAmount,
+                leftRangeTypedValue.toString()
+              ),
 
         UPPER:
           typeof position?.tickUpper === 'number'
             ? position.tickUpper
             : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
               (invertPrice && typeof leftRangeTypedValue === 'boolean')
-              ? tickSpaceLimits.UPPER
-              : invertPrice
-                ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
-                : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
+            ? tickSpaceLimits.UPPER
+            : invertPrice
+            ? tryParseTick(
+                sortedB,
+                sortedA,
+                feeAmount,
+                leftRangeTypedValue.toString()
+              )
+            : tryParseTick(
+                sortedA,
+                sortedB,
+                feeAmount,
+                rightRangeTypedValue.toString()
+              ),
       }
     },
 
     price() {
-      const { sortedA, sortedB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
+      const {
+        sortedA,
+        sortedB,
+        noLiquidity,
+        startPriceTypedValue,
+        invertPrice,
+        pool,
+      } = this
 
       if (noLiquidity) {
         // if no liquidity use typed value
-        const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
+        const parsedQuoteAmount = tryParseCurrencyAmount(
+          startPriceTypedValue,
+          invertPrice ? sortedA : sortedB
+        )
         if (parsedQuoteAmount && sortedA && sortedB) {
-          const baseAmount = tryParseCurrencyAmount('1', invertPrice ? sortedB : sortedA)
+          const baseAmount = tryParseCurrencyAmount(
+            '1',
+            invertPrice ? sortedB : sortedA
+          )
           const price =
             baseAmount && parsedQuoteAmount
               ? new Price(
-                baseAmount.currency,
-                parsedQuoteAmount.currency,
-                baseAmount.quotient,
-                parsedQuoteAmount.quotient
-              )
+                  baseAmount.currency,
+                  parsedQuoteAmount.currency,
+                  baseAmount.quotient,
+                  parsedQuoteAmount.quotient
+                )
               : undefined
           return (invertPrice ? price?.invert() : price) ?? undefined
         }
@@ -291,11 +399,15 @@ export default {
     },
 
     pricesAtTicks() {
-      const { sortedA, sortedB, ticks: { LOWER, UPPER } } = this
+      const {
+        sortedA,
+        sortedB,
+        ticks: { LOWER, UPPER },
+      } = this
 
       return {
         LOWER: getTickToPrice(sortedA, sortedB, LOWER),
-        UPPER: getTickToPrice(sortedA, sortedB, UPPER)
+        UPPER: getTickToPrice(sortedA, sortedB, UPPER),
       }
     },
 
@@ -309,7 +421,11 @@ export default {
 
     invalidRange() {
       const { tickLower, tickUpper } = this
-      return Boolean(typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper)
+      return Boolean(
+        typeof tickLower === 'number' &&
+          typeof tickUpper === 'number' &&
+          tickLower >= tickUpper
+      )
     },
 
     invalidPrice() {
@@ -321,10 +437,10 @@ export default {
 
       return Boolean(
         !invalidRange &&
-        price &&
-        priceLower &&
-        priceUpper &&
-        (price.lessThan(priceLower) || price.greaterThan(priceUpper))
+          price &&
+          priceLower &&
+          priceUpper &&
+          (price.lessThan(priceLower) || price.greaterThan(priceUpper))
       )
     },
 
@@ -351,7 +467,7 @@ export default {
           sqrtPriceX64,
           tickCurrent,
           liquidity: 0,
-          ticks: []
+          ticks: [],
         })
       }
 
@@ -361,20 +477,38 @@ export default {
     depositADisabled() {
       const { invalidRange, mockPool, tickLower, tickUpper, tokenA } = this
 
-      return invalidRange || Boolean(
-        (typeof tickUpper === 'number' && mockPool && mockPool.tickCurrent >= tickUpper && mockPool.tokenA.equals(tokenA)) ||
-        (typeof tickLower === 'number' && mockPool && mockPool.tickCurrent <= tickLower && mockPool.tokenB.equals(tokenA))
+      return (
+        invalidRange ||
+        Boolean(
+          (typeof tickUpper === 'number' &&
+            mockPool &&
+            mockPool.tickCurrent >= tickUpper &&
+            mockPool.tokenA.equals(tokenA)) ||
+            (typeof tickLower === 'number' &&
+              mockPool &&
+              mockPool.tickCurrent <= tickLower &&
+              mockPool.tokenB.equals(tokenA))
+        )
       )
     },
 
     depositBDisabled() {
       const { invalidRange, mockPool, tickLower, tickUpper, tokenB } = this
 
-      return invalidRange || Boolean(
-        (typeof tickUpper === 'number' && mockPool && mockPool.tickCurrent >= tickUpper && mockPool.tokenA.equals(tokenB)) ||
-        (typeof tickLower === 'number' && mockPool && mockPool.tickCurrent <= tickLower && mockPool.tokenB.equals(tokenB))
+      return (
+        invalidRange ||
+        Boolean(
+          (typeof tickUpper === 'number' &&
+            mockPool &&
+            mockPool.tickCurrent >= tickUpper &&
+            mockPool.tokenA.equals(tokenB)) ||
+            (typeof tickLower === 'number' &&
+              mockPool &&
+              mockPool.tickCurrent <= tickLower &&
+              mockPool.tokenB.equals(tokenB))
+        )
       )
-    }
+    },
   },
 
   mounted() {
@@ -388,8 +522,14 @@ export default {
       const { invertPrice, ticksAtLimit, priceLower, priceUpper } = this
 
       if (!ticksAtLimit.LOWER && !ticksAtLimit.UPPER) {
-        this.onLeftRangeInput((invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? '')
-        this.onRightRangeInput((invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? '')
+        this.onLeftRangeInput(
+          (invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ??
+            ''
+        )
+        this.onRightRangeInput(
+          (invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ??
+            ''
+        )
         this.onInputAmountA(this.amountB ?? '')
       }
 
@@ -397,10 +537,8 @@ export default {
     },
 
     init() {
-
       //this.parseUrlParams()
       //this.checkPosition()
-
       //this.tokenA = this.tokens[1]
       //this.tokenB = this.tokens[2]
     },
@@ -420,11 +558,12 @@ export default {
 
       const pool = this.pool || this.mockPool
 
-      const dependentField = independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
+      const dependentField =
+        independentField === 'CURRENCY_A' ? 'CURRENCY_B' : 'CURRENCY_A'
 
       const currencies = {
         CURRENCY_A: this.tokenA,
-        CURRENCY_B: this.tokenB
+        CURRENCY_B: this.tokenB,
       }
 
       const independentAmount = tryParseCurrencyAmount(
@@ -432,7 +571,10 @@ export default {
         currencies[independentField]
       )
 
-      const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
+      const dependentCurrency =
+        dependentField === 'CURRENCY_B'
+          ? currencies.CURRENCY_B
+          : currencies.CURRENCY_A
 
       if (
         independentAmount &&
@@ -447,24 +589,32 @@ export default {
 
         const position = independentAmount.currency.equals(pool.tokenA)
           ? Position.fromAmountA({
-            pool,
-            tickLower,
-            tickUpper,
-            amountA: independentAmount.quotient,
-            useFullPrecision: true // we want full precision for the theoretical position
-          })
+              pool,
+              tickLower,
+              tickUpper,
+              amountA: independentAmount.quotient,
+              useFullPrecision: true, // we want full precision for the theoretical position
+            })
           : Position.fromAmountB({
-            pool,
-            tickLower,
-            tickUpper,
-            amountB: independentAmount.quotient
-          })
+              pool,
+              tickLower,
+              tickUpper,
+              amountB: independentAmount.quotient,
+            })
 
-        const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
+        const dependentTokenAmount = independentAmount.currency.equals(
+          pool.tokenA
+        )
           ? position.amountB
           : position.amountA
 
-        return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
+        return (
+          dependentCurrency &&
+          CurrencyAmount.fromRawAmount(
+            dependentCurrency,
+            dependentTokenAmount.quotient
+          )
+        )
       }
 
       return undefined
@@ -530,7 +680,19 @@ export default {
     },
 
     async submit() {
-      const { invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
+      const {
+        invertPrice,
+        sortedA,
+        sortedB,
+        amountA,
+        amountB,
+        tokenA,
+        tokenB,
+        tickLower,
+        tickUpper,
+        noLiquidity,
+        mockPool,
+      } = this
 
       const actions = []
 
@@ -538,18 +700,28 @@ export default {
 
       if (noLiquidity) {
         // Fetch last pool just to predict new created pool id
-        const { rows: [{ id }] } = await this.$rpc.get_table_rows({
+        const {
+          rows: [{ id }],
+        } = await this.$rpc.get_table_rows({
           code: this.network.amm.contract,
           scope: this.network.amm.contract,
           table: 'pools',
           limit: 1,
-          reverse: true
+          reverse: true,
         })
 
         poolId = id + 1
 
-        const assetAZero = asset(parseFloat(this.amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol)
-        const assetBZero = asset(parseFloat(this.amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol)
+        const assetAZero = asset(
+          parseFloat(this.amountA).toFixed(sortedA.decimals) +
+            ' ' +
+            sortedA.symbol
+        )
+        const assetBZero = asset(
+          parseFloat(this.amountB).toFixed(sortedB.decimals) +
+            ' ' +
+            sortedB.symbol
+        )
         assetAZero.set_amount(0)
         assetBZero.set_amount(0)
 
@@ -559,11 +731,17 @@ export default {
           authorization: [this.user.authorization],
           data: {
             account: this.$store.state.user.name,
-            tokenA: { contract: sortedA.contract, quantity: assetAZero.to_string() },
-            tokenB: { contract: sortedB.contract, quantity: assetBZero.to_string() },
+            tokenA: {
+              contract: sortedA.contract,
+              quantity: assetAZero.to_string(),
+            },
+            tokenB: {
+              contract: sortedB.contract,
+              quantity: assetBZero.to_string(),
+            },
             sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
-            fee: this.feeAmount
-          }
+            fee: this.feeAmount,
+          },
         })
       }
 
@@ -575,47 +753,65 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-            memo: 'deposit'
-          }
+            quantity:
+              parseFloat(amountA).toFixed(tokenA.decimals) +
+              ' ' +
+              tokenA.symbol,
+            memo: 'deposit',
+          },
         })
 
       if (parseFloat(amountB) > 0)
-        actions.push(
-          {
-            account: tokenB.contract,
-            name: 'transfer',
-            authorization: [this.user.authorization],
-            data: {
-              from: this.user.name,
-              to: this.network.amm.contract,
-              quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
-              memo: 'deposit'
-            }
-          }
-        )
-
-      const tokenADesired = parseFloat(invertPrice ? amountB : amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
-      const tokenBDesired = parseFloat(invertPrice ? amountA : amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
-
-      actions.push(
-        {
-          account: this.network.amm.contract,
-          name: 'addliquid',
+        actions.push({
+          account: tokenB.contract,
+          name: 'transfer',
           authorization: [this.user.authorization],
           data: {
-            poolId,
-            owner: this.user.name,
-            tokenADesired,
-            tokenBDesired,
-            tickLower,
-            tickUpper, // TODO Slippage
-            tokenAMin: (parseFloat(invertPrice ? amountB : amountA) - 0.0001).toFixed(sortedA.decimals) + ' ' + sortedA.symbol,
-            tokenBMin: (parseFloat(invertPrice ? amountA : amountB) - 0.0001).toFixed(sortedB.decimals) + ' ' + sortedB.symbol,
-            deadline: 0
-          }
-        }
-      )
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity:
+              parseFloat(amountB).toFixed(tokenB.decimals) +
+              ' ' +
+              tokenB.symbol,
+            memo: 'deposit',
+          },
+        })
+
+      const tokenADesired =
+        parseFloat(invertPrice ? amountB : amountA).toFixed(sortedA.decimals) +
+        ' ' +
+        sortedA.symbol
+      const tokenBDesired =
+        parseFloat(invertPrice ? amountA : amountB).toFixed(sortedB.decimals) +
+        ' ' +
+        sortedB.symbol
+
+      actions.push({
+        account: this.network.amm.contract,
+        name: 'addliquid',
+        authorization: [this.user.authorization],
+        data: {
+          poolId,
+          owner: this.user.name,
+          tokenADesired,
+          tokenBDesired,
+          tickLower,
+          tickUpper, // TODO Slippage
+          tokenAMin:
+            (parseFloat(invertPrice ? amountB : amountA) - 0.0001).toFixed(
+              sortedA.decimals
+            ) +
+            ' ' +
+            sortedA.symbol,
+          tokenBMin:
+            (parseFloat(invertPrice ? amountA : amountB) - 0.0001).toFixed(
+              sortedB.decimals
+            ) +
+            ' ' +
+            sortedB.symbol,
+          deadline: 0,
+        },
+      })
 
       console.log({ actions })
       //return
@@ -626,7 +822,7 @@ export default {
       } catch (e) {
         console.log('err', e)
       }
-    }
+    },
   },
 
   // getDecrementLower() {
@@ -688,10 +884,23 @@ export default {
 </script>
 
 <style lang="scss">
-.sustom-select-token {
-  .select-token-button {
-    width: 140px;
+.title {
+  display: flex;
+  justify-content: space-between;
+  > * {
+    flex: 1;
+    display: flex;
   }
+  .main {
+    justify-content: center;
+    font-weight: bold;
+  }
+  .right {
+    justify-content: end;
+  }
+}
+.sustom-select-token {
+  flex: 1;
 }
 
 .add-liquidity-component {

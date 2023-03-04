@@ -1,5 +1,5 @@
 module.exports = {
-  root: true,
+  root: false,
 
   parserOptions: {
     parser: 'babel-eslint',
@@ -21,23 +21,20 @@ module.exports = {
   ],
 
   // required to lint *.vue files
-  plugins: [
-    'import',
-    'vue'
-  ],
+  plugins: ['import', 'vue'],
 
   globals: {
-    'ga': true, // Google Analytics
-    'cordova': true,
-    '__statics': true,
-    'process': true,
-    'Capacitor': true
+    ga: true, // Google Analytics
+    cordova: true,
+    __statics: true,
+    process: true,
+    Capacitor: true
   },
 
   // add your custom rules here
   rules: {
     // allow async-await
-    'quotes': 1,
+    quotes: 1,
     'comma-dangle': 0,
     'no-unused-expressions': 0,
     'generator-star-spacing': 'off',
@@ -61,9 +58,9 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'standard/no-callback-literal': 0,
     'comma-dangle': 0,
-    'camelcase': 'off',
+    camelcase: 'off',
     'no-return-await': 'off',
-    'curly': 'off',
+    curly: 'off',
     'require-await': 1,
     'no-unreachable': 1,
     'no-return-assign': 0,
@@ -75,7 +72,7 @@ module.exports = {
     'padded-blocks': 1,
     'space-before-function-paren': 0,
     'comma-dangle': 1,
-    'eqeqeq': 0,
+    eqeqeq: 0,
     'prefer-const': 1,
     'no-useless-catch': 0,
 

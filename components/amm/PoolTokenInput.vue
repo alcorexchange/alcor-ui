@@ -1,18 +1,27 @@
 <template lang="pug">
 .pool-token-input
-  el-input.amount(
-    v-if="!disabled"
-    placeholder="0.0"
-    :value="value"
-    @input="$emit('input', $event)"
-    @blur="$emit('blur')"
-    type="number"
-  )
-    template(slot="append")
-      .d-flex.align-items-center.gap-4
-        max-bage(v-if="showMaxButton" @click="$emit('onMax')")
-        select-token(:locked="!!locked" :token="token" :tokens="tokens" @selected="$emit('tokenSelected', $event)")
-  warn-message(v-if="disabled && disabled.message") {{ disabled.message }}
+  .label-and-balance(v-if='label || balance')
+    .label {{ label | '' }}
+    .balance(v-if='balance')
+  .main
+    el-input.amount(
+      placeholder='0.0',
+      v-if='!disabled',
+      :value='value',
+      @input='$emit("input", $event)',
+      @blur='$emit("blur")',
+      type='number'
+    )
+    .input-after
+      max-bage(v-if='showMaxButton', @click='$emit("onMax")')
+      select-token(
+        :locked='!!locked',
+        :token='token',
+        :tokens='tokens',
+        @selected='$emit("tokenSelected", $event)'
+      )
+  .in-usd(v-if='showInUsd') ~${{ 0.0 }}
+  warn-message(v-if='disabled && disabled.message') {{ disabled.message }}
 </template>
 
 <script>
@@ -25,39 +34,65 @@ export default {
   components: {
     SelectToken,
     MaxBage,
-    WarnMessage
+    WarnMessage,
   },
 
-  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked'], // TODO Disabled
+  props: [
+    'token',
+    'tokens',
+    'disabled',
+    'value',
+    'showMaxButton',
+    'locked',
+    'label',
+    'balance',
+    'showInUsd',
+  ], // TODO Disabled
 
   data: () => ({
     input: '',
-    search: ''
+    search: '',
   }),
 
   computed: {
-    ...mapState(['user'])
-  }
+    ...mapState(['user']),
+  },
 }
 </script>
 
 <style lang="scss">
 .pool-token-input {
   width: 100%;
-
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--selector-bg);
+  border-radius: 8px;
+  padding: 8px;
+  .label-and-balance {
+    display: flex;
+    justify-content: space-between;
+  }
+  .main {
+    display: flex;
+    align-items: center;
+  }
   .amount {
+    flex: 1;
     .el-input__inner:disabled {
       background-color: var(--background-color-base);
+    }
+    input {
+      font-size: 1.4rem;
+      padding: 8px 0;
     }
   }
 
   .select-token-button {
     display: flex;
     align-items: center;
-
+    background: transparent;
     padding: 5px 9px;
-    background: var(--btn-default);
-    border: 1px solid var(--btn-default);
     border-radius: 4px;
     cursor: pointer;
 
@@ -65,10 +100,6 @@ export default {
       border-color: var(--text-disable);
       color: var(--text-disable);
     }
-  }
-
-  .el-input__inner {
-    height: 50px;
   }
 
   .el-input-group__append,
@@ -87,8 +118,6 @@ export default {
     background-color: var(--selector-bg);
   }
 }
-
-
 
 .token-input {
   width: 300px;
@@ -121,10 +150,9 @@ export default {
   }
 
   input {
-    background-color: var(--selector-bg);;
+    background-color: var(--selector-bg);
   }
 }
-
 
 .token-select {
   padding: 10px 16px !important;
@@ -132,7 +160,6 @@ export default {
 }
 .token-select,
 .el-popup-parent--hidden {
-
   .token-select.scroller {
     padding: 0px 10px;
   }
@@ -182,6 +209,4 @@ export default {
     background: var(--background-color-secondary);
   }
 }
-
-
 </style>
