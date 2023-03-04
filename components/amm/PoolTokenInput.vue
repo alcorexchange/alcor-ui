@@ -1,7 +1,7 @@
 <template lang="pug">
 .pool-token-input
   .label-and-balance
-    .label {{ label | '' }}
+    .label {{ label || '' }}
     .balance Balance: {{ balance }}
   .main
     el-input.amount(

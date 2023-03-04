@@ -139,14 +139,13 @@ export default {
   position: absolute;
   top: -40px;
   right: 0;
-}
-
-.alcor-button {
-  &:hover {
-    background-color: red;
-    color: white;
+  .alcor-button {
+    &:hover {
+      background-color: red;
+      color: white;
+    }
+    border-radius: 50% !important;
   }
-  border-radius: 50% !important;
 }
 
 .ZoomOverlay {

@@ -13232,19 +13232,17 @@ to-regex@^3.0.1, to-regex@^3.0.2:
     regex-not "^1.0.2"
     safe-regex "^1.1.0"
 
-<<<<<<< HEAD
 toformat@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/toformat/-/toformat-2.0.0.tgz#7a043fd2dfbe9021a4e36e508835ba32056739d8"
   integrity sha512-03SWBVop6nU8bpyZCx7SodpYznbZF5R4ljwNLBcTQzKOD9xuihRo/psX58llS1BMFhhAI08H3luot5GoXJz2pQ==
-=======
+
 toggle-array@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/toggle-array/-/toggle-array-1.0.1.tgz#cbf5840792bd5097f33117ae824c932affe87d58"
   integrity sha512-TZXgboKpD5Iu0Goi8hRXuJpE06Pbo+bies4I4jnTBhlRRgyen9c37nMylnquK/ZPKXXOeh1mJ14p9QdKp+9v7A==
   dependencies:
     isobject "^3.0.0"
->>>>>>> 9f1a70e8f00f6c872a98079a8d16e75cd40085ae
 
 toidentifier@1.0.0:
   version "1.0.0"
