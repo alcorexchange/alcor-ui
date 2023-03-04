@@ -9,9 +9,9 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       .d-flex.flex-row.justify-content-between.align-items-center
         .fs-12.text-muted {{ $t("Sell") }}
         el-button(v-if="$store.state.user" type="text" size="mini" @click="setAToMax").ml-auto
-          .d-flex.gap-4.fs-12
-            .text-decoration-underline {{ $store.getters.assetBalance({ symbol: 'BRWL', contract: 'brawlertoken'}) }}
-            .fs-12 WAX
+          .d-flex.gap-4.fs-12(v-if="tokenA")
+            .text-decoration-underline {{ $tokenBalance(tokenA.symbol, tokenA.contract) }}
+            .fs-12 {{ tokenA.symbol }}
             i.el-icon-wallet.ml-1
 
       PoolTokenInput(
@@ -134,7 +134,8 @@ export default {
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
-      'tokens'
+      'tokens',
+      'pool'
     ]),
 
     balanceInput() {
@@ -179,11 +180,9 @@ export default {
       const { swaps: [{ inputAmount, route }] } = trade
 
       const path = route.pools.map(p => p.id).join(',')
-      console.log({ trade, path })
-      //return
       const min = trade.minimumAmountOut(new Percent(0, 10000)) // TODO Manage slippages
 
-      // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
+      // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
       const memo = `swapexactin#${path}#${this.user.name}#${min.toExtendedAsset()}#0`
 
       if (parseFloat(amountA) > 0)
@@ -208,23 +207,21 @@ export default {
     },
 
     async calcOutput(value, independentField) {
-      if (!value || parseFloat(value) <= 0) return this.amountB = null // TODO Reset
+      const { tokenA, tokenB, pool } = this
 
-      const { tokenA, tokenB } = this
+      if (!value || !pool) return this.amountB = null
+
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
       const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
       const { outputAmount, executionPrice, priceImpact } = best
 
-      //const goodOutput = outputAmount.
-
-      console.log(outputAmount.toSignificant(), outputAmount.toFixed(), outputAmount.toExact())
+      //console.log(outputAmount.toSignificant(), outputAmount.toFixed(), outputAmount.toExact())
       //console.log({ badOutput: outputAmount.toFixed(), goodOutput })
-      this.amountB = outputAmount.toFixed()
-
+      this.amountB = outputAmount.toSignificant()
       this.rate = executionPrice.toFixed(6)
-      //this.impact = priceImpact.toFixed()
-      this.impact = parseFloat(priceImpact.toFixed())
+      this.impact = priceImpact.toFixed(2)
+
       this.miniumOut = best.minimumAmountOut(new Percent(5, 100)).toFixed()
 
       //public minimumAmountOut(slippageTolerance: Percent, amountOut = this.outputAmount): CurrencyAmount<TOutput> {

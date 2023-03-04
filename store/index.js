@@ -501,13 +501,6 @@ export const getters = {
       })).reverse()
   },
 
-  assetBalance: (state) => ({ symbol, contract }) => {
-    if (!state?.user?.balances) return 0
-    return state.user.balances.find(
-      ({ currency, contract: c }) => currency === symbol && c === contract)
-      ?.amount || 0
-  },
-
   systemBalance(state) {
     const { symbol, contract } = state.network.baseToken
 

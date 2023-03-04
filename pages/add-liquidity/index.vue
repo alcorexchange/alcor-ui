@@ -143,8 +143,8 @@ export default {
 
   data() {
     return {
-      amountA: 0,
-      amountB: 0,
+      amountA: '',
+      amountB: '',
 
       //feeAmountFromUrl: FeeAmount.,
 

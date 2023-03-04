@@ -74,7 +74,7 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
     }
   }
 
-  return '0.0000'
+  return full ? '0.0000 ' + symbol : '0.0000'
 }
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {

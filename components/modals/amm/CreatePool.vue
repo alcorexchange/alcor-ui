@@ -128,6 +128,8 @@ export default {
       assetA.set_amount(0)
       assetB.set_amount(0)
 
+      // "{'contract': 'eosio.token', 'quantity': '0.1000 TLOS' }"
+
       const data = {
         account: this.$store.state.user.name,
         tokenA: { contract: this.tokenA.contract, quantity: assetA.to_string() },
