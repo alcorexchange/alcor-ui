@@ -124,7 +124,6 @@ export default {
 
       if (leftRangeValue <= 0) leftRangeValue = 1 / 10 ** 6
 
-      console.log({ ticksAtLimit })
       // Вызывает изначальные занчения для заполнения инпутов
       if (
         (!ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] || mode === 'handle' || mode === 'reset') &&

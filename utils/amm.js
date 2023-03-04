@@ -77,7 +77,7 @@ export function tryParseTick(
     return undefined
   }
 
-  console.log('tryParseTick', { baseToken, quoteToken, value })
+  // console.log('tryParseTick', { baseToken, quoteToken, value })
 
   const price = tryParsePrice(baseToken, quoteToken, value)
 

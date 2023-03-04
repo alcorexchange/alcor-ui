@@ -30,11 +30,12 @@
         //- | outOfRange {{ outOfRange}}
         //- br
         //- | invalidPrice {{ invalidPrice }}
-        alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
+        auth-only.mt-3.w-100
+          alcor-button(outline @click="submit") Add liquidity
 
       .col
         template(v-if="!pool")
-          auth-only.col.d-flex.flex-column.gap-12
+          .col.d-flex.flex-column.gap-12
             .fs-16.disable Set Starting Price
             info-container(:access="true")
               | This pool must be initialized before you can add liquidity.
@@ -74,54 +75,6 @@
             .fs-12.text-center Max Price
             InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
             .fs-12.text-center BLK per WAX
-
-  //.d-flex.align-items-center
-    alcor-container.add-liquidity-component.w-100
-      .title.fs-18.fw-bold.d-flex.align-items-center.gap-10.mb-4
-        i.el-icon-circle-plus-outline
-        span Add Liquidity
-
-      .row
-        .col
-          select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA")
-
-          select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB")
-
-    //.d-flex.justify-content-between.gap-32
-      .d-flex.flex-column.gap-8.left
-        .fs-14.disable Select Pair and deposit amounts
-
-        PoolTokenInput(:value="amountA" @input="onAmountAInput" :token="tokenA" :tokens="tokens" @tokenSelected="setTokenA")
-        .fs-14.disable Select Pair and deposit amounts
-
-        PoolTokenInput(:token="tokenB" :tokens="tokens" v-model="amountB" @tokenSelected="setTokenB")
-        .d-flex.justify-content-end Balance: 1,000 WAX
-
-        .fs-14.disable Select Price Range {{ max }}
-
-        .d-flex.gap-8.mt-3.justify-content-center
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Min Price
-            el-input-number(v-model="minPrice" :precision="2" :step="0.1" :max="100")
-            .fs-12.text-center BLK per WAX
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Max Price
-            el-input-number(v-model="maxPrice" :precision="2" :step="0.1" :max="100")
-            .fs-12.text-center BLK per WAX
-
-        .fs-14.disable.mt-2 Select Fee
-
-        .d-flex.gap-16.flex-wrap.justify-content-center
-          .fee.d-flex.flex-column.gap-16(v-for="({ value, desc, selectedPercent }, idx) in fees" @click="selectedFee = idx" :class="{ active: selectedFee == idx }")
-            .fs-24 {{ value }}
-            .fs-14.disable {{ desc }}
-            .d-flex.gap-4
-              span {{ selectedPercent }}
-              span Selected
-
-        alcor-button.w-100(@click="openPreviewLiqidityModal" access big) Preview
-
-  // Empty, for routes manage
   nuxt-child
 
 </template>
@@ -201,16 +154,7 @@ export default {
   },
 
   watch: {
-    value() {
-      console.log('value changed pool', this.pool, this.$store.getters['amm/pools'])
-    },
-
-    tokens() {
-      console.log('tokens a updates')
-    },
-
     pool() {
-      console.log('watch range reset')
       setTimeout(() => this.$refs.LChartRange.reset())
     },
   },
@@ -294,11 +238,10 @@ export default {
     },
 
     ticks() {
-      const { tokenA, tokenB, sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
+      const { sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
 
-      console.log({ tickSpaceLimits, invertPrice, rightRangeTypedValue, leftRangeTypedValue })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
-      const r = {
+      return {
         LOWER:
           typeof position?.tickLower === 'number'
             ? position.tickLower
@@ -319,39 +262,12 @@ export default {
                 ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
                 : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
       }
-
-      // const r = {
-      //   LOWER:
-      //     typeof position?.tickLower === 'number'
-      //       ? position.tickLower
-      //       : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
-      //         (!invertPrice && typeof leftRangeTypedValue === 'boolean')
-      //         ? tickSpaceLimits.LOWER
-      //         : invertPrice
-      //           ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
-      //           : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
-
-      //   UPPER:
-      //     typeof position?.tickUpper === 'number'
-      //       ? position.tickUpper
-      //       : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
-      //         (invertPrice && typeof leftRangeTypedValue === 'boolean')
-      //         ? tickSpaceLimits.UPPER
-      //         : invertPrice
-      //           ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
-      //           : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
-      // }
-
-      console.log('ticks()', r)
-
-      return r
     },
 
     price() {
-      const { sortedA, sortedB, tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
+      const { sortedA, sortedB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
 
       if (noLiquidity) {
-        console.log({ tokenA, tokenB, noLiquidity, startPriceTypedValue, invertPrice, pool })
         // if no liquidity use typed value
         const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
         if (parsedQuoteAmount && sortedA && sortedB) {
@@ -377,8 +293,6 @@ export default {
     pricesAtTicks() {
       const { sortedA, sortedB, ticks: { LOWER, UPPER } } = this
 
-      console.log({ LOWER, UPPER })
-
       return {
         LOWER: getTickToPrice(sortedA, sortedB, LOWER),
         UPPER: getTickToPrice(sortedA, sortedB, UPPER)
@@ -386,18 +300,15 @@ export default {
     },
 
     priceLower() {
-      console.log('priceLower', this.pricesAtTicks?.LOWER?.toFixed())
       return this.pricesAtTicks?.LOWER
     },
 
     priceUpper() {
-      console.log('priceUpper', this.pricesAtTicks?.UPPER?.toFixed())
       return this.pricesAtTicks?.UPPER
     },
 
     invalidRange() {
       const { tickLower, tickUpper } = this
-      console.log({ tickLower, tickUpper })
       return Boolean(typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper)
     },
 
@@ -477,7 +388,6 @@ export default {
       const { invertPrice, ticksAtLimit, priceLower, priceUpper } = this
 
       if (!ticksAtLimit.LOWER && !ticksAtLimit.UPPER) {
-        console.log('toggle prices')
         this.onLeftRangeInput((invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? '')
         this.onRightRangeInput((invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? '')
         this.onInputAmountA(this.amountB ?? '')
@@ -531,21 +441,9 @@ export default {
         pool
       ) {
         // if price is out of range or invalid range - return 0 (single deposit will be independent)
-        console.log({ outOfRange, invalidRange })
         if (outOfRange || invalidRange) {
           return undefined
         }
-
-        console.log({
-          pool,
-          tickLower,
-          tickUpper,
-          amountA: independentAmount.quotient,
-          useFullPrecision: true // we want full precision for the theoretical position
-        })
-
-        console.log({ tickLower, tickUpper })
-        console.log('!!', independentAmount.currency.equals(pool.tokenA))
 
         const position = independentAmount.currency.equals(pool.tokenA)
           ? Position.fromAmountA({
@@ -611,14 +509,12 @@ export default {
     //)
 
     onLeftRangeInput(value) {
-      console.log('onLeftRangeInput', value)
       this.leftRangeTypedValue = value // To trigger computed to calc price and after update with corrected
 
       this.onInputAmountB(this.amountB)
     },
 
     onRightRangeInput(value) {
-      console.log('onRightRangeInput', value)
       //if (value === undefined) return
 
       this.rightRangeTypedValue = value
@@ -627,10 +523,6 @@ export default {
 
     setTokenA(token) {
       this.$store.dispatch('amm/liquidity/setTokenA', token)
-    },
-
-    percentageChange() {
-      console.log(this.value)
     },
 
     setTokenB(token) {
