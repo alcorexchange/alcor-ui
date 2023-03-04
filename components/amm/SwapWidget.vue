@@ -72,7 +72,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
 import { mapState, mapActions, mapGetters } from 'vuex'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
-import { Percent } from '~/assets/libs/swap-sdk'
+import { Percent, Trade } from '~/assets/libs/swap-sdk'
 
 import AlcorTabs from '~/components/AlcorTabs'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -166,39 +166,25 @@ export default {
     },
 
     async submit() {
-      const { amountA, amountB, tokenA, tokenB } = this
+      const DEFAULT_SWAP_SLIPPAGE = new Percent(500, 10000)
+
+      const { amountA, tokenA, tokenB } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
-      const actions = []
-
-      // TODO Build path
       const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
-      const [_, best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      if (!currencyAmountIn) return
 
-      //console.log(best)
+      const actions = []
+      const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
+      const { swaps: [{ inputAmount, route }] } = trade
 
-      //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-
-      // const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
-      // const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-      // const { inputAmount, outputAmount, route } = best.swaps[0]
-      // const min = best.minimumAmountOut(new Percent(5, 100), outputAmount)
-      // console.log(outputAmount.toFixed(), min.toFixed())
-
-      // for (const token of best.swaps) {
-      //   console.log({ inputAmount, outputAmount, route })
-      // }
-
-
-
-      const amount = parseFloat(amountB)
-      if (amount <= 0) return
-
-      const minExpected = parseFloat(amount - 0.0000).toFixed(tokenB.decimals) + ' ' + tokenB.symbol + '@' + tokenB.contract
+      const path = route.pools.map(p => p.id).join(',')
+      console.log({ trade, path })
+      //return
+      const min = trade.minimumAmountOut(new Percent(0, 10000)) // TODO Manage slippages
 
       // Memo Format <Service Name>#<Pool ID>#<Recipient>#<Output Token>#<Deadline>
-      const id = 0
-      const memo = `swapexactin#${id}#${this.user.name}#${minExpected}#0`
+      const memo = `swapexactin#${path}#${this.user.name}#${min.toExtendedAsset()}#0`
 
       if (parseFloat(amountA) > 0)
         actions.push({
@@ -208,12 +194,10 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            quantity: inputAmount.toAsset(),
             memo
           }
         })
-        // tokenADesired: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
-        // tokenBDesired: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
 
       try {
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
