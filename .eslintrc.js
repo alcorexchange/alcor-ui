@@ -38,6 +38,7 @@ module.exports = {
   rules: {
     // allow async-await
     'quotes': 1,
+    'comma-dangle': 0,
     'no-unused-expressions': 0,
     'generator-star-spacing': 'off',
     // allow paren-less arrow functions

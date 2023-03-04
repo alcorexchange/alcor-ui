@@ -3,11 +3,12 @@
   //| zoom: {{ zoom }}
   //| zoomRef: {{ $refs.zoomA }}
   Zoom(
+    ref="zoom"
     :svg="$refs.zoomA"
     :xScale="xScale"
     :width="innerWidth"
     :height="height"
-    :resetBrush="resetBrush"
+    :reset="reset"
     :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
     :zoomLevels="zoomLevels"
     @onZoomUpdate="setZoom")
@@ -149,6 +150,11 @@ export default {
 
   methods: {
     init() {},
+
+    reset() {
+      this.$refs.zoom.zoomReset()
+      this.resetBrush()
+    },
 
     emitDefaultBrush() {
       // console.log('emitDefaultBrush()')

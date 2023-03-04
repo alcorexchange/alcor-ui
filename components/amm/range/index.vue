@@ -8,7 +8,8 @@ client-only
     | PRICE: {{ price }}
     .chartWrapper
       Chart(
-        :current="current"
+        ref="chart"
+        :current="price"
         :series="series"
         :width="400"
         :height="200"
@@ -45,29 +46,7 @@ export default {
     }
   },
 
-  watch: {
-    // TODO Не ресетить если токены флипаются
-    currencyA() {
-      console.log('currencyA changed')
-      const { current, zoomLevels } = this
-
-      this.onBrushDomainChangeEnded({
-        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
-        mode: 'reset'
-      })
-    },
-
-    currencyB() {
-      console.log('currencyB changed')
-
-      const { current, zoomLevels } = this
-
-      this.onBrushDomainChangeEnded({
-        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
-        mode: 'reset'
-      })
-    }
-  },
+  watch: {},
 
   mounted() {
     console.log('LiquidityChartRangeInput loaded: ', { ...this.$props })
@@ -96,10 +75,6 @@ export default {
 
     zoomLevels() {
       return ZOOM_LEVELS[this.feeAmount || FeeAmount.MEDIUM]
-    },
-
-    current() {
-      return this.price
     },
 
     series() {
@@ -165,7 +140,11 @@ export default {
           this.$emit('onRightRangeInput', rightRangeValue.toFixed(6))
         }
       }
-    }
+    },
+
+    reset() {
+      this.$refs.chart.reset()
+    },
   }
 }
 </script>

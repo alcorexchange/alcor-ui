@@ -19,7 +19,7 @@
 import { select, zoom, zoomIdentity } from 'd3'
 
 export default {
-  props: ['svg', 'xScale', 'width', 'height', 'resetBrush', 'showResetButton', 'zoomLevels'],
+  props: ['svg', 'xScale', 'width', 'height', 'showResetButton', 'zoomLevels', 'reset'],
 
   data() {
     return {
@@ -82,11 +82,6 @@ export default {
         .on('zoom', ({ transform }) => this.$emit('onZoomUpdate', transform))
 
       select(this.svg).call(this.zoomBehavior)
-    },
-
-    reset() {
-      this.resetBrush()
-      this.zoomReset()
     },
 
     zoomIn() {

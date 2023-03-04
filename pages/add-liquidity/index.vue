@@ -32,38 +32,27 @@
         | invalidPrice {{ invalidPrice }}
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
-      template(v-if="!pool")
-        auth-only.col.d-flex.flex-column.gap-12
-          .fs-16.disable Set Starting Price
-          info-container(:access="true")
-            | This pool must be initialized before you can add liquidity.
-            | To initialize, select a starting price for the pool.
-            | Then, enter your liquidity price range and deposit amount.
-            | Gas fees will be higher than usual due to the initialization transaction.
+      .col
+        template(v-if="!pool")
+          auth-only.col.d-flex.flex-column.gap-12
+            .fs-16.disable Set Starting Price
+            info-container(:access="true")
+              | This pool must be initialized before you can add liquidity.
+              | To initialize, select a starting price for the pool.
+              | Then, enter your liquidity price range and deposit amount.
+              | Gas fees will be higher than usual due to the initialization transaction.
 
-          el-input(placeholder="0" v-model="startPriceTypedValue")
+            el-input(placeholder="0" v-model="startPriceTypedValue")
 
-          info-container
-            .d-flex.justify-content-between
-              .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
-              .fs-16.disable {{ startPriceTypedValue ? startPriceTypedValue + ' ' + (tokenB ? tokenB.symbol : '') : '-' }}
+            info-container
+              .d-flex.justify-content-between
+                .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
+                .fs-16.disable {{ startPriceTypedValue ? startPriceTypedValue + ' ' + (tokenB ? tokenB.symbol : '') : '-' }}
 
-          .d-flex.gap-8.justify-content-center
-            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-              .fs-12.text-center Min Price
-              el-input(v-model="leftRangeTypedValue" @input="onLeftRangeInput" @change="onLeftRangeChange")
-              .fs-12.text-center BLK per WAX
-            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-              .fs-12.text-center Max Price
-              el-input(v-model="rightRangeTypedValue" @input="onRightRangeInput" @change="onRightRangeChange")
-              .fs-12.text-center BLK per WAX
-
-          //alcor-button.w-100(access) Connect Wallet
-
-      template(v-else)
-        .col
+        template(v-else)
           .fs-16.disable.mb-1 Set Price Range
           LiquidityChartRangeInput(
+            ref="LChartRange"
             v-if="pool"
             :currencyA="tokenA || undefined"
             :currencyB="tokenB || undefined"
@@ -76,15 +65,15 @@
             @onRightRangeInput="onRightRangeInput"
             :interactive="interactive")
 
-          .d-flex.gap-8.mt-3.justify-content-center
-            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-              .fs-12.text-center Min Price
-              InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
-              .fs-12.text-center BLK per WAX
-            .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-              .fs-12.text-center Max Price
-              InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
-              .fs-12.text-center BLK per WAX
+        .d-flex.gap-8.mt-3.justify-content-center
+          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+            .fs-12.text-center Min Price
+            InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
+            .fs-12.text-center BLK per WAX
+          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
+            .fs-12.text-center Max Price
+            InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
+            .fs-12.text-center BLK per WAX
 
   //.d-flex.align-items-center
     alcor-container.add-liquidity-component.w-100
@@ -218,7 +207,12 @@ export default {
 
     tokens() {
       console.log('tokens a updates')
-    }
+    },
+
+    pool() {
+      console.log('watch range reset')
+      setTimeout(() => this.$refs.LChartRange.reset())
+    },
   },
 
   computed: {
@@ -619,7 +613,8 @@ export default {
     onLeftRangeInput(value) {
       console.log('onLeftRangeInput', value)
       this.leftRangeTypedValue = value // To trigger computed to calc price and after update with corrected
-      this.onInputAmountA(this.amountA)
+
+      this.onInputAmountB(this.amountB)
     },
 
     onRightRangeInput(value) {
@@ -627,7 +622,7 @@ export default {
       //if (value === undefined) return
 
       this.rightRangeTypedValue = value
-      this.onInputAmountB(this.amountB)
+      this.onInputAmountA(this.amountA)
     },
 
     setTokenA(token) {
@@ -722,9 +717,9 @@ export default {
             tokenADesired,
             tokenBDesired,
             tickLower,
-            tickUpper,
-            tokenAMin: (parseFloat(invertPrice ? amountB : amountA)).toFixed(sortedA.decimals) + ' ' + sortedA.symbol,
-            tokenBMin: (parseFloat(invertPrice ? amountA : amountB)).toFixed(sortedB.decimals) + ' ' + sortedB.symbol,
+            tickUpper, // TODO Slippage
+            tokenAMin: (parseFloat(invertPrice ? amountB : amountA) - 0.0001).toFixed(sortedA.decimals) + ' ' + sortedA.symbol,
+            tokenBMin: (parseFloat(invertPrice ? amountA : amountB) - 0.0001).toFixed(sortedB.decimals) + ' ' + sortedB.symbol,
             deadline: 0
           }
         }
