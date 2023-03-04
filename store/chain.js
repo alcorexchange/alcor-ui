@@ -388,7 +388,7 @@ export const actions = {
         asset_ids,
         listing_price,
         settlement_symbol: '8,WAX',
-        maker_marketplace: ''
+        maker_marketplace: 'alcor'
       }
     })
     actions.push({
@@ -429,7 +429,7 @@ export const actions = {
           bidder: rootState.user.name,
           auction_id,
           bid: waxAmount + ' WAX',
-          taker_marketplace: ''
+          taker_marketplace: 'alcor'
         }
       }
     ]
@@ -474,7 +474,7 @@ export const actions = {
           asset_ids,
           starting_bid,
           duration,
-          maker_marketplace: ''
+          maker_marketplace: 'alcor'
         }
       },
       {
@@ -546,7 +546,7 @@ export const actions = {
           recipient: seller,
           price: buyOfferPrice,
           memo,
-          maker_marketplace: '',
+          maker_marketplace: 'alcor',
           asset_ids: assetsIDs
         }
       }
@@ -604,10 +604,11 @@ export const actions = {
           buyer: rootState.user.name,
           sale_id,
           intended_delphi_median: 0,
-          taker_marketplace: ''
+          taker_marketplace: 'alcor'
         }
       }
     ]
+    console.log('actions', actions)
     await dispatch('sendTransaction', actions)
   },
 

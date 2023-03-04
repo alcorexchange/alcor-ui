@@ -12,7 +12,8 @@
     "dev-server": "nodemon --exec babel-node TODO",
     "start": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm server/index.js",
     "generate": "nuxt generate",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "analyze": "nuxt build --analyze"
   },
   "dependencies": {
     "@azukisiromochi/vue-mo.js": "^1.0.2",
@@ -28,7 +29,7 @@
     "@socket.io/cluster-adapter": "^0.2.0",
     "@socket.io/sticky": "^1.0.1",
     "@vue/eslint-config-standard": "^5.0.0",
-    "@waxio/waxjs": "^1.2.0-beta.2",
+    "@waxio/waxjs": "1.2.0-beta.2",
     "anchor-link": "^3.5.1",
     "anchor-link-browser-transport": "^3.5.1",
     "apexcharts": "^3.25.0",
@@ -60,6 +61,7 @@
     "nuxt-highcharts": "^2.0.3",
     "nuxt-imagemin": "^1.0.0",
     "ping.js": "^0.3.0",
+    "prompt-confirm": "^2.0.4",
     "redis": "^4.0.0-rc.3",
     "route-cache": "^0.4.5",
     "skeleton-loader-vue": "^1.0.10",

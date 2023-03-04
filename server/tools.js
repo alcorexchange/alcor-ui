@@ -53,10 +53,11 @@ async function main() {
   }
 
   if (command == 'load_orderbooks') {
+    const market_id = process.argv[4]
     const network = config.networks[process.argv[3]]
     if (!network) { console.log('No network provided!'); process.exit() }
 
-    await initialUpdate(network.name)
+    await initialUpdate(network.name, market_id)
   }
 
   process.exit()

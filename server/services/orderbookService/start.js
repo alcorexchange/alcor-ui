@@ -154,8 +154,14 @@ async function getOrders({ chain, market_id, side }) {
   })
 }
 
-export async function initialUpdate(chain) {
+export async function initialUpdate(chain, market_id) {
   await connectAll()
+
+  if (market_id) {
+    await updateOrders('buy', chain, market_id)
+    await updateOrders('sell', chain, market_id)
+    return
+  }
 
   const markets = await Market.find({ chain })
 

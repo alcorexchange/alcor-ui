@@ -1,8 +1,8 @@
 <template lang="pug">
 .pool-token-input
-  .label-and-balance(v-if='label || balance')
+  .label-and-balance
     .label {{ label | '' }}
-    .balance(v-if='balance')
+    .balance Balance: {{ balance }}
   .main
     el-input.amount(
       placeholder='0.0',
@@ -45,7 +45,6 @@ export default {
     'showMaxButton',
     'locked',
     'label',
-    'balance',
     'showInUsd',
   ], // TODO Disabled
 
@@ -55,7 +54,18 @@ export default {
   }),
 
   computed: {
+    balance() {
+      return this.token
+        ? this.assetBalance({
+            symbol: this.token.symbol,
+            contract: this.token.contract,
+          })
+        : 0
+    },
     ...mapState(['user']),
+    ...mapGetters({
+      assetBalance: 'assetBalance',
+    }),
   },
 }
 </script>
@@ -100,6 +110,10 @@ export default {
       border-color: var(--text-disable);
       color: var(--text-disable);
     }
+    .input-after {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .el-input-group__append,
@@ -138,10 +152,6 @@ export default {
 
   .el-input__inner {
     height: 50px;
-  }
-
-  .el-input-group__append {
-    //display: flex;
   }
 
   .el-button {
