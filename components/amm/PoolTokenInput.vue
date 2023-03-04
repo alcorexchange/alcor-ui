@@ -1,8 +1,8 @@
 <template lang="pug">
 .pool-token-input
   .label-and-balance
-    .label {{ label | '' }}
-    .balance Balance: {{ balance }}
+    .label {{ label || '' }}
+    .balance(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) }}
   .main
     el-input.amount(
       placeholder='0.0',
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import MaxBage from '~/components/UI/input/MaxBage'
 import WarnMessage from '~/components/UI/input/WarnMessage'
@@ -54,18 +54,7 @@ export default {
   }),
 
   computed: {
-    balance() {
-      return this.token
-        ? this.assetBalance({
-            symbol: this.token.symbol,
-            contract: this.token.contract,
-          })
-        : 0
-    },
-    ...mapState(['user']),
-    ...mapGetters({
-      assetBalance: 'assetBalance',
-    }),
+    ...mapState(['user'])
   },
 }
 </script>
