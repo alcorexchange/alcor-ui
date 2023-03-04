@@ -63,7 +63,11 @@
         //- br
         //- | invalidPrice {{ invalidPrice }}
         auth-only.mt-3.w-100
-          alcor-button(outline, @click='submit') Add liquidity
+          alcor-button.submit(
+            @click='submit',
+            :class='{ disabled: false }',
+            :disabled='false'
+          ) Add liquidity
 
       .col
         template(v-if='!pool')
@@ -901,19 +905,35 @@ export default {
 </script>
 
 <style lang="scss">
-.title {
-  display: flex;
-  justify-content: space-between;
-  > * {
-    flex: 1;
+.add-liquidity-component {
+  .title {
     display: flex;
+    justify-content: space-between;
+    > * {
+      flex: 1;
+      display: flex;
+    }
+    .main {
+      justify-content: center;
+      font-weight: bold;
+    }
+    .right {
+      justify-content: end;
+    }
   }
-  .main {
-    justify-content: center;
-    font-weight: bold;
-  }
-  .right {
-    justify-content: end;
+  .submit {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--green);
+    border-radius: 8px;
+    &:hover {
+      background: var(--access-text-color) !important;
+    }
+    &.disabled {
+      background: var(--btn-default);
+      position: none;
+      opacity: 0.8;
+    }
   }
 }
 .sustom-select-token {
