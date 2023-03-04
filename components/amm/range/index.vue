@@ -22,6 +22,7 @@ client-only
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { format } from 'd3'
 
 import Chart from './Chart.vue'
@@ -45,26 +46,26 @@ export default {
   },
 
   watch: {
-    currencyA() {
-      console.log('currencyA changed')
-      const { current, zoomLevels } = this
+    // currencyA() {
+    //   console.log('currencyA changed')
+    //   const { current, zoomLevels } = this
 
-      this.onBrushDomainChangeEnded({
-        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
-        mode: 'reset'
-      })
-    },
+    //   this.onBrushDomainChangeEnded({
+    //     domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
+    //     mode: 'reset'
+    //   })
+    // },
 
-    currencyB() {
-      console.log('currencyB changed')
+    // currencyB() {
+    //   console.log('currencyB changed')
 
-      const { current, zoomLevels } = this
+    //   const { current, zoomLevels } = this
 
-      this.onBrushDomainChangeEnded({
-        domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
-        mode: 'reset'
-      })
-    }
+    //   this.onBrushDomainChangeEnded({
+    //     domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
+    //     mode: 'reset'
+    //   })
+    // }
   },
 
   mounted() {
@@ -73,6 +74,19 @@ export default {
   },
 
   computed: {
+
+    ...mapGetters('amm/liquidity', [
+      // 'tokenA',
+      // 'tokenB',
+      // 'tokens',
+      // 'pool',
+      // 'invertPrice',
+      'isSorted'
+      // 'sortedA',
+      // 'sortedB'
+    ]),
+
+
     isUninitialized() {
       return !this.currencyA || !this.currencyB || (this.series === undefined && !this.isLoading)
     },
@@ -92,9 +106,9 @@ export default {
       return []
     },
 
-    isSorted() {
-      return this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB)
-    },
+    // isSorted() {
+    //   return this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB)
+    // },
 
     brushDomain() {
       // Все ок
@@ -134,6 +148,7 @@ export default {
 
       if (leftRangeValue <= 0) leftRangeValue = 1 / 10 ** 6
 
+      console.log({ ticksAtLimit })
       // Вызывает изначальные занчения для заполнения инпутов
       if (
         (!ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] || mode === 'handle' || mode === 'reset') &&

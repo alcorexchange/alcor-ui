@@ -24,6 +24,12 @@
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true").mt-3
 
         | isSorted {{ isSorted }}
+        br
+        | invertPrice {{ invertPrice }}
+        br
+        | outOfRange {{ outOfRange}}
+        br
+        | invalidPrice {{ invalidPrice }}
         alcor-button(outline @click="submit").mt-3.w-100 Add liquidity
 
       template(v-if="!pool")
@@ -74,14 +80,11 @@
           .d-flex.gap-8.mt-3.justify-content-center
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Min Price
-              el-input-number(v-model="leftRangeTypedValue" :step="0.000001")
-              //el-input-number(v-model="leftRangeTypedValue" :precision="6" :step="0.1" :max="100")
+              el-input(v-model="leftRangeTypedValue" @input="onLeftRangeInput" @change="onLeftRangeChange")
               .fs-12.text-center BLK per WAX
             .grey-border.d-flex.flex-column.gap-20.p-2.br-4
               .fs-12.text-center Max Price
-              // TODO Min/Max prices based on limit ticks
-              el-input-number(v-model="rightRangeTypedValue" :step="0.000001")
-              //el-input(v-model="rightRangeTypedValue" :precision="6" :step="0.1" :max="100")
+              el-input(v-model="rightRangeTypedValue" @input="onRightRangeInput" @change="onRightRangeChange")
               .fs-12.text-center BLK per WAX
 
   //.d-flex.align-items-center
@@ -195,6 +198,7 @@ export default {
       //feeAmountFromUrl: FeeAmount.,
 
       startPriceTypedValue: null,
+
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
@@ -294,24 +298,18 @@ export default {
     ticks() {
       const { tokenA, tokenB, sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
 
-      //if (rightRangeTypedValue === undefined || leftRangeTypedValue === undefined) return undefined
-
-      //console.log({ invertPrice, rightRangeTypedValue, leftRangeTypedValue })
+      console.log({ tickSpaceLimits, invertPrice, rightRangeTypedValue, leftRangeTypedValue })
       // Initates initial prices for inputs(using event from crart based on mask bounds)
-      console.log({ invertPrice })
-      return {
+      const r = {
         LOWER:
           typeof position?.tickLower === 'number'
             ? position.tickLower
-            : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+            : (invertPrice && typeof rightRangeTypedValue === 'boolean') || // если тру то это фулл-рэнж
               (!invertPrice && typeof leftRangeTypedValue === 'boolean')
               ? tickSpaceLimits.LOWER
               : invertPrice
                 ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
                 : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
-
-        // ? tryParseTick(tokenB, tokenA, feeAmount, rightRangeTypedValue.toString())
-        // : tryParseTick(tokenA, tokenB, feeAmount, leftRangeTypedValue.toString()),
 
         UPPER:
           typeof position?.tickUpper === 'number'
@@ -322,10 +320,33 @@ export default {
               : invertPrice
                 ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
                 : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
-
-        // ? tryParseTick(tokenB, tokenA, feeAmount, leftRangeTypedValue.toString())
-        // : tryParseTick(tokenA, tokenB, feeAmount, rightRangeTypedValue.toString())
       }
+
+      // const r = {
+      //   LOWER:
+      //     typeof position?.tickLower === 'number'
+      //       ? position.tickLower
+      //       : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+      //         (!invertPrice && typeof leftRangeTypedValue === 'boolean')
+      //         ? tickSpaceLimits.LOWER
+      //         : invertPrice
+      //           ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
+      //           : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
+
+      //   UPPER:
+      //     typeof position?.tickUpper === 'number'
+      //       ? position.tickUpper
+      //       : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+      //         (invertPrice && typeof leftRangeTypedValue === 'boolean')
+      //         ? tickSpaceLimits.UPPER
+      //         : invertPrice
+      //           ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
+      //           : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
+      // }
+
+      console.log('ticks()', r)
+
+      return r
     },
 
     price() {
@@ -351,7 +372,7 @@ export default {
         return undefined
       } else {
         // get the amount of quote currency
-        return pool && tokenA ? pool.priceOf(tokenA) : undefined
+        return pool && sortedA ? pool.priceOf(sortedA) : undefined
       }
     },
 
@@ -387,15 +408,14 @@ export default {
     },
 
     outOfRange() {
-      // TODO FIXME lowerPrice, upperPrice is undefined
-      const { invalidRange, price, lowerPrice, upperPrice } = this
+      const { invalidRange, price, priceLower, priceUpper } = this
 
       return Boolean(
         !invalidRange &&
         price &&
-        lowerPrice &&
-        upperPrice &&
-        (price.lessThan(lowerPrice) || price.greaterThan(upperPrice))
+        priceLower &&
+        priceUpper &&
+        (price.lessThan(priceLower) || price.greaterThan(priceUpper))
       )
     },
 
@@ -459,6 +479,7 @@ export default {
       const { invertPrice, ticksAtLimit, priceLower, priceUpper } = this
 
       if (!ticksAtLimit.LOWER && !ticksAtLimit.UPPER) {
+        console.log('toggle prices')
         this.onLeftRangeInput((invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? '')
         this.onRightRangeInput((invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? '')
         this.onInputAmountA(this.amountB ?? '')
@@ -534,17 +555,13 @@ export default {
             tickLower,
             tickUpper,
             amountA: independentAmount.quotient,
-            useFullPrecision: true, // we want full precision for the theoretical position
-            feeGrowthInsideALastX64: 0, // we are not going to calculate fees
-            feeGrowthInsideBLastX64: 0
+            useFullPrecision: true // we want full precision for the theoretical position
           })
           : Position.fromAmountB({
             pool,
             tickLower,
             tickUpper,
-            amountB: independentAmount.quotient,
-            feeGrowthInsideALastX64: 0, // we are not going to calculate fees
-            feeGrowthInsideBLastX64: 0
+            amountB: independentAmount.quotient
           })
 
         const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
@@ -610,11 +627,13 @@ export default {
     },
 
     onLeftRangeChange(value) {
-      if (value) this.leftRangeTypedValue = this.priceLower?.toSignificant(6)
+      const { invertPrice, priceLower, priceUpper } = this
+      // if (value) this.leftRangeTypedValue = (invertPrice ? priceUpper : priceLower)?.toSignificant(6)
     },
 
     onRightRangeChange(value) {
-      if (value) this.rightRangeTypedValue = this.priceUpper?.toSignificant(6)
+      const { invertPrice, priceLower, priceUpper } = this
+      // if (value) this.rightRangeTypedValue = (invertPrice ? priceLower : priceUpper)?.toSignificant(6)
     },
 
     setTokenA(token) {
