@@ -538,15 +538,28 @@ export default {
 
       if (noLiquidity) {
         // Fetch last pool just to predict new created pool id
-        const { rows: [{ id }] } = await this.$rpc.get_table_rows({
-          code: this.network.amm.contract,
-          scope: this.network.amm.contract,
-          table: 'pools',
-          limit: 1,
-          reverse: true
-        })
+        try {
+          const { rows: [{ id }] } = await this.$rpc.get_table_rows({
+            code: this.network.amm.contract,
+            scope: this.network.amm.contract,
+            table: 'pools',
+            limit: 1,
+            reverse: true
+          })
 
-        poolId = id + 1
+          poolId = id + 1
+        } catch (e) {
+          try {
+            const { rows } = await this.$rpc.get_table_rows({
+              code: this.network.amm.contract,
+              scope: this.network.amm.contract,
+              table: 'pools',
+            })
+            if (rows.length == 0) { poolId = 0 } else { throw e }
+          } catch (e) {
+            throw e
+          }
+        }
 
         const assetAZero = asset(parseFloat(this.amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol)
         const assetBZero = asset(parseFloat(this.amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol)

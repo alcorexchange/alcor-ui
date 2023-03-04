@@ -119,19 +119,15 @@ export const getters = {
     return pools
   },
 
-  positions(state, getters, rootState) {
+  positions(state, getters) {
     const positions = []
 
     for (const position of state.positions) {
       const poolInstance = getters.pools.find(p => p.id == position.pool)
-      const { lower, upper } = position
 
       positions.push(new Position({
         ...position,
-        pool: poolInstance,
-
-        tickLower: lower, // TODO Change after contract update
-        tickUpper: upper,
+        pool: poolInstance
       }))
     }
 

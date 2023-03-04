@@ -71,7 +71,10 @@ class CurrencyAmount extends fraction_1.Fraction {
             .toFormat(format);
     }
     toAsset(...args) {
-        return this.toFixed(...args) + ' ' + this.currency.symbol;
+        return `${this.toFixed(...args)} ${this.currency.symbol}`;
+    }
+    toExtendedAsset(...args) {
+        return `${this.toFixed(...args)} ${this.currency.symbol}@${this.currency.contract}`;
     }
 }
 exports.CurrencyAmount = CurrencyAmount;

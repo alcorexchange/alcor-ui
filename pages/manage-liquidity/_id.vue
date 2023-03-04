@@ -215,11 +215,6 @@ export default {
   },
 
   methods: {
-    getPositionFees() {
-      const { position, pool } = this
-      return this.$store.dispatch('amm/liquidity/getPositionFees', { position, pool })
-    },
-
     async calcFees() {
       const { feesA, feesB } = await this.position.getFees()
       this.fees = { feesA: feesA.toFixed(), feesB: feesB.toFixed() }
