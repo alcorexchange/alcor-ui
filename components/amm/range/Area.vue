@@ -52,7 +52,7 @@ export default {
 // TODO fill
 path {
   opacity: 0.5;
-  stroke: red;
-  fill: green;
+  stroke: transparent;
+  fill: #64D2FF;
 }
 </style>

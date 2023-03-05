@@ -32,10 +32,10 @@ export default {
 
 <style lang="scss" scoped>
 line {
-  opacity: 0.5;
+  opacity: 1;
   stroke-width: 2;
   //stroke: ${({ theme }) => theme.textPrimary}; // TODO
-  stroke: red; // TODO
-  fill: none;
+  stroke: #F2F2F7; // TODO
+  fill: #F2F2F7;
 }
 </style>

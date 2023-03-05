@@ -8,7 +8,7 @@
     i.el-icon-zoom-in
 
   AlcorButton(@click='zoomOut', iconOnly)
-    i.el-icon-zoom-in
+    i.el-icon-zoom-out
 </template>
 
 <script>
