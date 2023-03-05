@@ -5,7 +5,7 @@ import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 
 import { Match, Settings, getSettings } from '../../models'
 
-export async function streamByNode(network, account, callback, actions) {
+export async function streamByNode(network, account, callback, actions, delay = 500) {
   console.info(`Start NODE updater for ${network.name} (${account})...`)
 
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
@@ -26,7 +26,7 @@ export async function streamByNode(network, account, callback, actions) {
     } catch (e) {
       // TODO Почему то не срабатывает перезапуск при ошибке сети или днс
       console.log(`getActionsByNode(${network.name}) err: `, e.message)
-      await new Promise((resolve, reject) => setTimeout(resolve, 500))
+      await new Promise((resolve, reject) => setTimeout(resolve, delay))
       continue
     }
 
@@ -47,7 +47,7 @@ export async function streamByNode(network, account, callback, actions) {
 
     if (r.actions.length < 100) {
       console.log(`waitForNewActions(${network.name}, ${account})...`)
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000))
+      await new Promise((resolve, reject) => setTimeout(resolve, delay * 2))
     }
   }
 }

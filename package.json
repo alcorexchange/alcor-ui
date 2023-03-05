@@ -97,6 +97,7 @@
     "@nuxtjs/google-analytics": "^2.2.2",
     "@types/d3": "^7.4.0",
     "@types/imagemin-svgo": "^10.0.2",
+    "@types/node-fetch": "^2.6.2",
     "awesome-typescript-loader": "^5.2.1",
     "babel-eslint": "^10.0.1",
     "eslint": "^7.8.1",

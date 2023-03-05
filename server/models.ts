@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const MarketSchema = mongoose.Schema({
+const MarketSchema = new mongoose.Schema({
   id: { type: Number, index: true },
   ticker_id: { type: String, index: true },
   chain: { type: String, index: true },
@@ -50,7 +50,7 @@ const MarketSchema = mongoose.Schema({
 MarketSchema.index({ chain: 1, id: 1 })
 MarketSchema.index({ chain: 1, ticker_id: 1 })
 
-const PoolPairSchema = mongoose.Schema({
+const PoolPairSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
 
@@ -65,7 +65,7 @@ const PoolPairSchema = mongoose.Schema({
   }
 })
 
-const LiquiditySchema = mongoose.Schema({
+const LiquiditySchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
   trx_id: { type: String },
@@ -86,7 +86,7 @@ const LiquiditySchema = mongoose.Schema({
 })
 //LiquiditySchema.index({})
 
-const ExchangeSchema = mongoose.Schema({
+const ExchangeSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
   trx_id: { type: String },
@@ -103,7 +103,7 @@ const ExchangeSchema = mongoose.Schema({
   block_num: { type: Number }
 })
 
-const MatchSchema = mongoose.Schema({
+const MatchSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   market: { type: Number, index: true },
   type: { type: String, index: true },
@@ -125,7 +125,7 @@ MatchSchema.index({ chain: 1, market: 1, time: -1 })
 MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1 })
 MatchSchema.index({ chain: 1, market: 1, time: 1, unit_price: -1 })
 
-const BarSchema = mongoose.Schema({
+const BarSchema = new mongoose.Schema({
   timeframe: { type: String, index: true },
   chain: { type: String, index: true },
   market: { type: Number, index: true },
@@ -139,7 +139,7 @@ const BarSchema = mongoose.Schema({
 })
 BarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
 
-const PoolChartPointSchema = mongoose.Schema({
+const PoolChartPointSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
 
@@ -156,18 +156,13 @@ const PoolChartPointSchema = mongoose.Schema({
 })
 PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 
-const SettingsSchema = mongoose.Schema({
+const SettingsSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   actions_stream_offset: { type: Object, default: {} }
 })
 
 export async function getSettings(network) {
   const actions_stream_offset = {}
-
-  if (network.name == 'bos') {
-    // TODO Возможно применяет каджый раз, это баг
-    actions_stream_offset.alcordexmain = 106
-  }
 
   try {
     let settings = await Settings.findOne({ chain: network.name })
@@ -186,6 +181,47 @@ export async function getSettings(network) {
   }
 }
 
+const SwapPoolSchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  poolId: { type: Number, index: true },
+
+  tokenA: {
+    contract: { type: String, index: true },
+    symbol: { type: String, index: true },
+    quantity: { type: Number }
+  },
+
+  tokenB: {
+    contract: { type: String, index: true },
+    symbol: { type: String, index: true },
+    quantity: { type: Number }
+  },
+
+  sqrtPriceX64: { type: Number },
+  tick: { type: Number },
+
+  fee: { type: Number, index: true },
+  maxLiquidityPerTick: { type: Number },
+
+  feeGrowthGlobalAX64: { type: Number },
+  feeGrowthGlobalBX64: { type: Number },
+
+  protocolFeeA: { type: Number },
+  protocolFeeB: { type: Number },
+  liquidity: { type: Number },
+  creator: { type: String },
+
+  // New Fields
+  volumeA24: { type: Number },
+  volumeB24: { type: Number },
+
+  volumeAWeek: { type: Number },
+  volumeBWeek: { type: Number },
+
+  volumeAMonth: { type: Number },
+  volumeBMonth: { type: Number },
+})
+
 export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
 export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
@@ -194,3 +230,4 @@ export const Match = mongoose.model('Match', MatchSchema)
 export const Bar = mongoose.model('Bar', BarSchema)
 export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)
+export const SwapPool = mongoose.model('SwapPool', SwapPoolSchema)
