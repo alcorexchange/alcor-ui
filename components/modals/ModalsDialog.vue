@@ -17,7 +17,6 @@ import MakeBid from '~/components/modals/MakeBid'
 import Transfer from '~/components/modals/Transfer'
 import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
-import AddLiquidity from '~/components/modals/AddLiquidity'
 import PreviewLiquidity from '~/components/modals/PreviewLiquidity'
 import Trade from '~/components/modals/Trade'
 import BlockUser from '~/components/modals/BlockUser'
@@ -43,7 +42,6 @@ export default {
     Transfer,
     RemoveFriend,
     AddFriend,
-    AddLiquidity,
     PreviewLiquidity,
     Trade,
     BlockUser,

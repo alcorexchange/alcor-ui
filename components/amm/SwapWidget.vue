@@ -167,6 +167,7 @@ export default {
     },
 
     async submit() {
+      return this.$store.dispatch('amm/fetchTicksOfPool', 0)
       const DEFAULT_SWAP_SLIPPAGE = new Percent(500, 10000)
 
       const { amountA, tokenA, tokenB } = this
@@ -176,6 +177,7 @@ export default {
       if (!currencyAmountIn) return
 
       const actions = []
+      // TODO Swap with 2 same pools with different fee
       const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
       const { swaps: [{ inputAmount, route }] } = trade
 

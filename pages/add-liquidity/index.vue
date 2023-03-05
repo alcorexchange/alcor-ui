@@ -163,6 +163,7 @@ export default {
 
   watch: {
     pool() {
+      // TODO При обновлении пула обноять только если токены поменялись
       setTimeout(() => this.$refs.LChartRange.reset())
     },
   },
