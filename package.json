@@ -9,6 +9,8 @@
     "dev2": "cross-env NODE_ENV=development nodemon --inspect -r esm server/index.js --watch server",
     "build": "nuxt build",
     "build-server": "babel assets -d lib/assets && babel server -d lib/server && babel config.js -d lib && babel utils -d lib/utils",
+    "build-server-ts": "tsc -p .",
+    "start-ts": "yarn run build -- -w",
     "dev-server": "nodemon --exec babel-node TODO",
     "start": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm server/index.js",
     "generate": "nuxt generate",
@@ -94,6 +96,8 @@
     "@nuxtjs/eslint-module": "^2.0.0",
     "@nuxtjs/google-analytics": "^2.2.2",
     "@types/d3": "^7.4.0",
+    "@types/imagemin-svgo": "^10.0.2",
+    "awesome-typescript-loader": "^5.2.1",
     "babel-eslint": "^10.0.1",
     "eslint": "^7.8.1",
     "eslint-loader": "^4.0.2",
@@ -105,6 +109,7 @@
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.32.8",
     "sass-loader": "10",
+    "source-map-loader": "^4.0.1",
     "vconsole": "^3.3.4"
   },
   "browserslist": [

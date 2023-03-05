@@ -97,7 +97,7 @@ async function updateOrders(side, chain, market_id) {
     }
   })
 
-  if (orders.length == 0) {
+  if (orders.size == 0) {
     console.log('Empty orderbook update: ', { chain, side, market_id })
     return
   }
