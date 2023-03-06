@@ -91,6 +91,7 @@ button {
   }
   &:disabled {
     cursor: not-allowed;
+    pointer-events: none;
   }
 }
 

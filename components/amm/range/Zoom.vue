@@ -23,7 +23,8 @@ export default {
     'height',
     'showResetButton',
     'zoomLevels',
-    'reset',
+    'onZoomUpdate',
+    'resetBrush'
   ],
   components: {
     AlcorButton,
@@ -74,6 +75,7 @@ export default {
     setTimeout(() => {
       this.zoomInitial()
     })
+    console.log('zoom init');
   },
 
   methods: {
@@ -87,7 +89,7 @@ export default {
           [0, 0],
           [this.width, this.height],
         ])
-        .on('zoom', ({ transform }) => this.$emit('onZoomUpdate', transform))
+        .on('zoom', ({ transform }) => this.onZoomUpdate(transform)) // this.$emit('onZoomUpdate', transform)
 
       select(this.svg).call(this.zoomBehavior)
     },
@@ -110,15 +112,17 @@ export default {
 
     zoomInitial() {
       const { svg, zoomBehavior } = this
-
       svg &&
         zoomBehavior &&
         select(svg).transition().call(zoomBehavior.scaleTo, 0.5)
     },
 
+    reset(){
+      this.zoomReset()
+      this.resetBrush()
+    },
     zoomReset() {
       const { svg, zoomBehavior } = this
-
       svg &&
         zoomBehavior &&
         select(svg)
@@ -135,11 +139,8 @@ export default {
   display: flex;
   //grid-template-columns: repeat(${({ count }) => count.toString()}, 1fr); // TODO
   gap: 6px;
-
-  position: absolute;
-  top: -40px;
-  right: 0;
   .alcor-button {
+    padding: 0;
     &:hover {
       background-color: red;
       color: white;

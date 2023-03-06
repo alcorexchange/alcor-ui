@@ -2,8 +2,8 @@
 .add-liquidity-chart
   //| zoom: {{ zoom }}
   //| zoomRef: {{ $refs.zoomA }}
-  Zoom(
-    ref="zoom"
+  slot(
+    name="header"
     :svg="$refs.zoomA"
     :xScale="xScale"
     :width="innerWidth"
@@ -11,7 +11,19 @@
     :reset="reset"
     :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
     :zoomLevels="zoomLevels"
-    @onZoomUpdate="setZoom")
+    :onZoomUpdate="setZoom"
+    :resetBrush="resetBrush"
+  )
+  //- Zoom(
+  //-   ref="zoom"
+  //-   :svg="$refs.zoomA"
+  //-   :xScale="xScale"
+  //-   :width="innerWidth"
+  //-   :height="height"
+  //-   :reset="reset"
+  //-   :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
+  //-   :zoomLevels="zoomLevels"
+  //-   @onZoomUpdate="setZoom")
 
   svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible;")
     defs
@@ -152,8 +164,8 @@ export default {
     init() {},
 
     reset() {
-      this.$refs.zoom.zoomReset()
-      this.resetBrush()
+      // this.$refs.zoom.zoomReset()
+      // this.resetBrush()
     },
 
     emitDefaultBrush() {

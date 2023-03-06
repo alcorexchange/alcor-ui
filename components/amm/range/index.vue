@@ -5,7 +5,6 @@ client-only
     p.infoBox(v-if="isLoading") Loading
     p.infoBox(v-if="error") Liquidity data not available.
 
-    | PRICE: {{ price }}
     .chartWrapper
       Chart(
         ref="chart"
@@ -20,6 +19,10 @@ client-only
         @onBrushDomainChange="onBrushDomainChangeEnded"
         :zoomLevels="zoomLevels"
         :ticksAtLimit="ticksAtLimit")
+        template(#header="slotProps")
+          slot(name="header" v-bind="{...slotProps, price}")
+          
+
 </template>
 
 <script>

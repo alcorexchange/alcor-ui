@@ -57,7 +57,7 @@
                 .fs-16.disable {{ startPriceTypedValue ? startPriceTypedValue + ' ' + (tokenB ? tokenB.symbol : '') : '-' }}
 
         template(v-else)
-          .fs-16.disable.mb-1 Set Price Range
+          
           LiquidityChartRangeInput(
             ref="LChartRange"
             v-if="pool"
@@ -71,6 +71,14 @@
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             :interactive="interactive")
+            template(#header="slotProps")
+              .chart-header.mb-2
+                .fs-16.disable.mb-1 Set Price Range
+                Zoom(v-bind="slotProps")
+              .current-price(v-if="slotProps.price") 
+                span.disable Current Price:&nbsp;
+                span {{slotProps.price}} {{tokenA.symbol}} per {{tokenB.symbol}}
+
 
         .d-flex.gap-8.mt-3.justify-content-center
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
@@ -96,6 +104,7 @@ import AlcorContainer from '~/components/AlcorContainer'
 import SelectToken from '~/components/modals/amm/SelectToken'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
+import Zoom from '~/components/amm/range/Zoom'
 import CommissionSelect from '~/components/amm/CommissionSelect'
 import InputStepCounter from '~/components/amm/InputStepCounter'
 import InfoContainer from '~/components/UI/InfoContainer'
@@ -134,6 +143,7 @@ export default {
     InfoContainer,
     AuthOnly,
     AlcorSwitch,
+    Zoom
   },
 
   // Enabling managige route in nested component
@@ -746,7 +756,16 @@ export default {
     flex: 1;
   }
 }
-
+.chart-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.current-price{
+  display: flex;
+  justify-content: center;
+}
 .add-liquidity-component {
   margin-top: 50px;
   max-width: 880px;

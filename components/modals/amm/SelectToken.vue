@@ -126,9 +126,10 @@ export default {
     gap: 8px;
     cursor: pointer;
     background: var(--btn-default);
-
+    transition: all 0.4s;
     &:hover {
       border-color: white;
+      background: var(--hover);
     }
 
     &.locked {

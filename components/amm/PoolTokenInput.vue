@@ -13,14 +13,14 @@
       type='number'
     )
     .input-after
-      max-bage(v-if='showMaxButton', @click='$emit("onMax")')
+      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token")
+      //- v-if='showMaxButton', 
       select-token(
         :locked='!!locked',
         :token='token',
         :tokens='tokens',
         @selected='$emit("tokenSelected", $event)'
       )
-  .in-usd(v-if='showInUsd') ~${{ 0.0 }}
   warn-message(v-if='disabled && disabled.message') {{ disabled.message }}
 </template>
 
@@ -45,7 +45,6 @@ export default {
     'showMaxButton',
     'locked',
     'label',
-    'showInUsd',
   ], // TODO Disabled
 
   data: () => ({
@@ -71,6 +70,8 @@ export default {
   .label-and-balance {
     display: flex;
     justify-content: space-between;
+    font-size: 0.86rem;
+    color: var(--text-default);
   }
   .main {
     display: flex;
@@ -83,10 +84,15 @@ export default {
     }
     input {
       font-size: 1.4rem;
-      padding: 8px 0;
+      padding: 0;
+      height: auto;
+      line-height: 1;
     }
   }
-
+  .input-after {
+    display: flex;
+    align-items: center;
+  }
   .select-token-button {
     display: flex;
     align-items: center;
@@ -98,10 +104,6 @@ export default {
     &:hover {
       border-color: var(--text-disable);
       color: var(--text-disable);
-    }
-    .input-after {
-      display: flex;
-      align-items: center;
     }
   }
 
