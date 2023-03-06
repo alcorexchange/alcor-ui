@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.gap-8.align-items-center.wrapper
+.d-flex.gap-8.align-items-center
   .indicator(:class="{ 'in-range': inRange }")
   .fs-16 {{ inRange ? 'In range': 'Out of range' }}
 </template>
@@ -11,19 +11,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
-  border: var(--border-1);
-  background: var(--bg-alter-2);
-  border-radius: 8px;
-  padding: 0 10px;
-}
 
 .indicator {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
 
   background: var(--disabled-indicator);
-  border-radius: 4px;
+  border-radius: 50%;
 
   &.in-range {
     background: var(--access-indicator);
