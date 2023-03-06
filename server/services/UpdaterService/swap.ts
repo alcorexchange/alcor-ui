@@ -52,26 +52,5 @@ export async function newSwapAction(action: Action, network: { [key: string]: an
 
   // TODO Get timestamp
   const { trx_id, block_num, act: { name, data } } = action
-
-  // if (name == 'logmint') {
-  //   const { poolId, owner }: LogMint = data
-  //   // TODO Handle add liquidity
-  //   redisClient.publish('TICKS_UPDATE', `${network.name}_${poolId}`)
-  // }
-
-  // if (name == 'logburn') {
-  //   const { poolId, owner }: LogMint = data
-  //   // TODO Handle rm liquidity
-  //   redisClient.publish('TICKS_UPDATE', `${network.name}_${poolId}`)
-  // }
-
-  // if (name == 'logswap') {
-  //   // TODO Handle create swap event
-  //   const { poolId } = data
-  // }
-
-  if(['logmint', 'logswap', 'logburn', 'logpool'].includes(name)) {
-    const { poolId } = data
-    redisClient.publish('TICKS_UPDATE', `${network.name}_${poolId}`)
-  }
+  redisClient.publish('swap_action', JSON.stringify({ chain: network.name, name, trx_id, block_num, data }))
 }

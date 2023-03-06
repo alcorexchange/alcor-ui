@@ -61,7 +61,7 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       ) {{ impact }}%
     .d-flex.justify-content-between
       .fs-12 Slippage
-      .fs-12 0.3%
+      .fs-12 {{ slippage }}%
     .d-flex.justify-content-between
       .fs-12 Liquidity Providers Fee
       .fs-12 todo%
@@ -81,19 +81,7 @@ import TokenSelect from '~/components/TokenSelect'
 import PoolTokenInput from '~/components/amm/PoolTokenInput.vue'
 import Settings from '~/components/amm/Settings'
 
-export function getV2BestTrade() {
-
-}
-
-export function getBestTrade(tradeType, amountSpecified, otherCurrency) {
-  // TODO Multi rounding
-
-  const [currencyIn, currencyOut] =
-    tradeType === 'EXACT_INPUT'
-      ? [amountSpecified?.currency, otherCurrency]
-      : [otherCurrency, amountSpecified?.currency]
-
-}
+const DEFAULT_SWAP_SLIPPAGE = new Percent(50, 10000) // 0.5%
 
 export default {
   components: {
@@ -130,6 +118,7 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
+    ...mapState(['amm', 'slippage']),
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
@@ -166,8 +155,7 @@ export default {
     },
 
     async submit() {
-      return this.$store.dispatch('amm/fetchTicksOfPool', 0)
-      const DEFAULT_SWAP_SLIPPAGE = new Percent(500, 10000)
+      const slippage = !isNan(this.slippage) ? new Percent(this.slippage * 100, 10000) : DEFAULT_SWAP_SLIPPAGE
 
       const { amountA, tokenA, tokenB } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
@@ -178,10 +166,11 @@ export default {
       const actions = []
       // TODO Swap with 2 same pools with different fee
       const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
+      console.log('swaps:', trade.swaps)
       const { swaps: [{ inputAmount, route }] } = trade
 
       const path = route.pools.map(p => p.id).join(',')
-      const min = trade.minimumAmountOut(new Percent(0, 10000)) // TODO Manage slippages
+      const min = trade.minimumAmountOut(slippage) // TODO Manage slippages
 
       // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
       const memo = `swapexactin#${path}#${this.user.name}#${min.toExtendedAsset()}#0`

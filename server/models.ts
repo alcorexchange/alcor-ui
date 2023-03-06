@@ -183,7 +183,8 @@ export async function getSettings(network) {
 
 const SwapPoolSchema = new mongoose.Schema({
   chain: { type: String, index: true },
-  poolId: { type: Number, index: true },
+  id: { type: Number, index: true },
+  active: { type: Boolean, index: true },
 
   tokenA: {
     contract: { type: String, index: true },
@@ -201,6 +202,9 @@ const SwapPoolSchema = new mongoose.Schema({
   tick: { type: Number },
 
   fee: { type: Number, index: true },
+  feeProtocol: { type: Number, index: true },
+  tickSpacing: { type: Number, index: true },
+
   maxLiquidityPerTick: { type: Number },
 
   feeGrowthGlobalAX64: { type: Number },
@@ -210,6 +214,8 @@ const SwapPoolSchema = new mongoose.Schema({
   protocolFeeB: { type: Number },
   liquidity: { type: Number },
   creator: { type: String },
+
+  // TODO Change 24/week/month
 
   // New Fields
   volumeA24: { type: Number },

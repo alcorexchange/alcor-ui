@@ -1,5 +1,6 @@
 const MAX_PAGINATION_FETCHES = 5
 
+import fetch from 'node-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
 import { shuffleArray } from './index'
 
