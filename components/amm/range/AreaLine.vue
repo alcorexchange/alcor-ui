@@ -33,7 +33,7 @@ export default {
 <style lang="scss" scoped>
 line {
   opacity: 1;
-  stroke-width: 2;
+  stroke-width: 1;
   //stroke: ${({ theme }) => theme.textPrimary}; // TODO
   stroke: #F2F2F7; // TODO
   fill: #F2F2F7;
