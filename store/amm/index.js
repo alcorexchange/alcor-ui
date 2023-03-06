@@ -1,6 +1,8 @@
 import JSBI from "jsbi"
 import { asset } from 'eos-common'
 
+import cloneDeep from 'lodash/cloneDeep'
+import Vue from 'vue'
 import { fetchAllRows } from '~/utils/eosjs'
 import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
 import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
@@ -10,6 +12,9 @@ export const state = () => ({
   pools: [],
   positions: [],
 
+  // Store only one pool ticks at the time
+  ticks: {},
+
   // TODO move to module
   selectedTokenA: null,
   selectedTokenB: null
@@ -17,22 +22,46 @@ export const state = () => ({
 
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
-  setPositions: (state, positions) => state.positions = positions
+  setPositions: (state, positions) => state.positions = positions,
+  setTicks: (state, { poolId, ticks }) => {
+    ticks.sort((a, b) => a.id - b.id)
+    Vue.set(state.ticks, poolId, ticks)
+  },
 }
 
 export const actions = {
-  async init({ dispatch, rootState }) {
-    console.log('inited amm')
+  async init({ dispatch }) {
     await dispatch('fetchPairs')
     await dispatch('fetchPositions')
-    console.log('inited amm finish:')
   },
 
-  async placePositions({ state, commit, rootState, dispatch }, owner) {
+  updateTickOfPool({ state, commit }, { poolId, tick }) {
+    const ticks = cloneDeep(state.ticks[poolId] ?? [])
 
+    const old = ticks.findIndex(old_tick => old_tick.id == tick.id)
+
+    if (old != -1) {
+      if (tick.liquidityGross == 0) {
+        ticks.splice(old, 1)
+      } else {
+        ticks[old] = tick
+      }
+    } else if (tick.liquidityGross !== 0) {
+      ticks.push(tick)
+    }
+
+    commit('setTicks', { poolId, ticks })
+  },
+
+  async fetchTicksOfPool({ commit, rootState }, poolId) {
+    if (isNaN(poolId)) return
+
+    const ticks = await fetchAllRows(this.$rpc, { code: rootState.network.amm.contract, scope: poolId, table: 'ticks' })
+    commit('setTicks', { poolId, ticks })
   },
 
   async fetchPositions({ state, commit, rootState, dispatch }) {
+    // TODO Make server api for it
     const owner = rootState.user?.name
 
     const positions = []
@@ -57,21 +86,15 @@ export const actions = {
     commit('setPositions', positions)
   },
 
-  async test({ state, getters, commit, rootState, dispatch }) {
-  },
-
   async fetchPairs({ state, commit, rootState, dispatch }) {
     const { network } = rootState
 
-    const pools = []
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
+    commit('setPools', rows)
 
     for (const row of rows) {
-      row.ticks = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: row.id, table: 'ticks' })
-      pools.push(row)
+      //dispatch('fetchTicksOfPool', row.id)
     }
-
-    commit('setPools', rows)
   }
 }
 
@@ -100,8 +123,7 @@ export const getters = {
     for (const row of state.pools) {
       const { tokenA, tokenB, protocolFeeA, protocolFeeB, currSlot: { sqrtPriceX64, tick } } = row
 
-      const ticks = row.ticks.map(t => new Tick(t))
-      ticks.sort((a, b) => a.id - b.id)
+      const ticks = state.ticks[row.id] ?? []
 
       pools.push(new Pool({
         ...row,
@@ -116,7 +138,7 @@ export const getters = {
       }))
     }
 
-    return pools
+    return state.ticks ? pools : pools
   },
 
   positions(state, getters) {

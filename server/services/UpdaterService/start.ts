@@ -3,6 +3,7 @@ import config from '../../../config'
 import { getSettings } from '../../models'
 import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
+import { newSwapAction } from './swap'
 
 import { streamHyperion, streamByNode } from './streamers'
 
@@ -15,7 +16,7 @@ export function startUpdaters() {
   if (process.env.NETWORK) {
     //updater('wax', app, 'node', ['markets', 'pools'])
     //updater(process.env.NETWORK, 'node', ['pools', 'markets'])
-    updater(process.env.NETWORK, 'node', ['markets', 'pools'])
+    updater(process.env.NETWORK, 'node', ['swap'])
     //updater(process.env.NETWORK, app, 'node', ['pools'])
   } else {
     updater('eos', 'node', ['markets', 'pools'])
@@ -47,5 +48,11 @@ export async function updater(chain, provider, services) {
     console.log('start pools updater for', chain)
     streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
       .catch(e => { console.log(`${network.name} (${network.pools.contract}) Updater Error!`); process.exit(1) })
+  }
+
+  if (services.includes('swap')) {
+    console.log('start swap updater for', chain)
+    streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool'])
+      .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`); process.exit(1) })
   }
 }
