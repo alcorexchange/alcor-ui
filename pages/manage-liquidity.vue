@@ -157,6 +157,7 @@ export default {
 
 <style lang="scss">
 .manage-liquidity-component {
+  padding: 15px !important;
   width: 920px;
   margin: 50px auto;
 

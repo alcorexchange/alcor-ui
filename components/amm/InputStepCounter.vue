@@ -1,10 +1,10 @@
 <template lang="pug">
 .d-flex.flex-column.gap-10.p-2.br-8.input-step-counter
   .top
-    AlcorButton.action.decrease(@click="decrease" iconOnly)
+    AlcorButton.action.decrease(@click="$emit('change', decrement())" iconOnly)
       i.el-icon-minus
     slot(name="top")
-    AlcorButton.action.increase(@click="increase" iconOnly)
+    AlcorButton.action.increase(@click="$emit('change', increment())" iconOnly)
       i.el-icon-plus
   el-input.input(v-model="localValue" @change="onChange" type="number")
   .fs-12.text-center
@@ -14,7 +14,7 @@
 <script>
 import AlcorButton from '@/components/AlcorButton'
 export default {
-  props: ['value', 'changePercentage'],
+  props: ['value', 'changePercentage', 'increment', 'decrement'],
   
   components:{
     AlcorButton
@@ -37,18 +37,6 @@ export default {
   },
 
   methods: {
-    increase(){
-      const percentage = parseInt(this.changePercentage) || 5
-      const value = parseFloat(this.value)
-      const toChange = value + value * percentage / 100
-      this.onChange(toChange)
-    },
-    decrease(){
-      const percentage = parseInt(this.changePercentage) || 5
-      const value = parseFloat(this.value)
-      const toChange = value - value * percentage / 100
-      this.onChange(toChange < 0 ? 0 : toChange)
-    },
     onChange(event) {
       this.$emit('change', event)
 

@@ -82,10 +82,21 @@
         AlcorRadio.range-radio.mt-4(v-model="priceRangeValue" :items="priceRangeItems")
 
         .d-flex.gap-8.mt-3.justify-content-center
-          InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
+          InputStepCounter(
+            :value="leftRangeValue"
+            @change="onLeftRangeInput"
+            :decrement="isSorted ? decrementLower : incrementUpper"
+            :increment="isSorted ? incrementLower : decrementUpper"
+          )
             template(#top) Min Price
             template DEFAULT SLOT
-          InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
+
+          InputStepCounter(
+            :value="rightRangeValue"
+            @change="onRightRangeInput"
+            :decrement="isSorted ? decrementUpper : incrementLower"
+            :increment="isSorted ? incrementUpper : decrementLower"
+          )
             template(#top) Max Price
             template DEFAULT SLOT
   nuxt-child
@@ -126,7 +137,7 @@ import {
 import {
   Currency, Percent, Token, Pool, Tick, CurrencyAmount,
   Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
-  TickMath, Rounding, priceToClosestTick
+  TickMath, Rounding, priceToClosestTick, tickToPrice
 } from '~/assets/libs/swap-sdk'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
@@ -438,6 +449,7 @@ export default {
     },
 
     onInputAmountA(value) {
+      if (!value) return this.amountB = null
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
       if (dependentAmount) this.amountB = dependentAmount.toFixed()
     },
@@ -671,64 +683,74 @@ export default {
       } catch (e) {
         console.log('err', e)
       }
-    }
+    },
+
+    decrementLower() {
+      const { tokenA, tokenB, tickLower, feeAmount, pool } = this
+
+      if (tokenA && tokenB && typeof tickLower === 'number' && feeAmount) {
+        const newPrice = tickToPrice(tokenA, tokenB, tickLower - TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+
+      // use pool current tick as starting tick if we have pool but no tick input
+      if (!(typeof tickLower === 'number') && tokenA && tokenB && feeAmount && pool) {
+        const newPrice = tickToPrice(tokenA, tokenB, pool.tickCurrent - TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      return ''
+    },
+
+    incrementLower() {
+      const { tokenA, tokenB, tickLower, feeAmount, pool } = this
+
+      if (tokenA && tokenB && typeof tickLower === 'number' && feeAmount) {
+        const newPrice = tickToPrice(tokenA, tokenB, tickLower + TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      // use pool current tick as starting tick if we have pool but no tick input
+      if (!(typeof tickLower === 'number') && tokenA && tokenB && feeAmount && pool) {
+        const newPrice = tickToPrice(tokenA, tokenB, pool.tickCurrent + TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      return ''
+    },
+
+    decrementUpper() {
+      const { tokenA, tokenB, tickUpper, feeAmount, pool } = this
+
+      if (tokenA && tokenB && typeof tickUpper === 'number' && feeAmount) {
+        const newPrice = tickToPrice(tokenA, tokenB, tickUpper - TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      // use pool current tick as starting tick if we have pool but no tick input
+      if (!(typeof tickUpper === 'number') && tokenA && tokenB && feeAmount && pool) {
+        const newPrice = tickToPrice(tokenA, tokenB, pool.tickCurrent - TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      return ''
+    },
+
+    incrementUpper() {
+      const { tokenA, tokenB, tickUpper, feeAmount, pool } = this
+
+      if (tokenA && tokenB && typeof tickUpper === 'number' && feeAmount) {
+        const newPrice = tickToPrice(tokenA, tokenB, tickUpper + TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      // use pool current tick as starting tick if we have pool but no tick input
+      if (!(typeof tickUpper === 'number') && tokenA && tokenB && feeAmount && pool) {
+        const newPrice = tickToPrice(tokenA, tokenB, pool.tickCurrent + TICK_SPACINGS[feeAmount])
+        return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+      }
+      return ''
+    },
+
+    // TODO
+    // getSetFullRange() {
+    //   dispatch(setFullRange())
+    // }
   },
-
-  // getDecrementLower() {
-  //   if (baseToken && quoteToken && typeof tickLower === 'number' && feeAmount) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, tickLower - TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   // use pool current tick as starting tick if we have pool but no tick input
-  //   if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && pool) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent - TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   return ''
-  // },
-
-  // getIncrementLower() {
-  //   if (baseToken && quoteToken && typeof tickLower === 'number' && feeAmount) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, tickLower + TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   // use pool current tick as starting tick if we have pool but no tick input
-  //   if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && pool) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent + TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   return ''
-  // },
-
-  // getDecrementUpper() {
-  //   if (baseToken && quoteToken && typeof tickUpper === 'number' && feeAmount) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, tickUpper - TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   // use pool current tick as starting tick if we have pool but no tick input
-  //   if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && pool) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent - TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   return ''
-  // },
-
-  // getIncrementUpper() {
-  //   if (baseToken && quoteToken && typeof tickUpper === 'number' && feeAmount) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, tickUpper + TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   // use pool current tick as starting tick if we have pool but no tick input
-  //   if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && pool) {
-  //     const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent + TICK_SPACINGS[feeAmount])
-  //     return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
-  //   }
-  //   return ''
-  // },
-
-  // getSetFullRange() {
-  //   dispatch(setFullRange())
-  // }
 }
 </script>
 
