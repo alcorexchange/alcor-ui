@@ -21,7 +21,11 @@
         :tokens='tokens',
         @selected='$emit("tokenSelected", $event)'
       )
-  warn-message(v-if='disabled && disabled.message') {{ disabled.message }}
+  .disabled-overlay(v-if="disabled")
+    .icon
+      i.el-icon-lock
+    .message(v-if="disabledMessage") {{ disabledMessage }}
+
 </template>
 
 <script>
@@ -45,6 +49,7 @@ export default {
     'showMaxButton',
     'locked',
     'label',
+    'disabledMessage'
   ], // TODO Disabled
 
   data: () => ({
@@ -60,6 +65,7 @@ export default {
 
 <style lang="scss">
 .pool-token-input {
+  position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -121,6 +127,25 @@ export default {
 
   input {
     background-color: var(--selector-bg);
+  }
+  .disabled-overlay{
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--selector-bg);
+    padding: 8px;
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    .icon{
+      font-size: 1.4rem;
+    }
+    .message{
+      font-size: 0.86rem;
+      text-align: ceil($number: 0);
+    }
   }
 }
 

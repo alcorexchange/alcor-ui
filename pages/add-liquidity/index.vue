@@ -82,14 +82,12 @@
         AlcorRadio.range-radio.mt-4(v-model="priceRangeValue" :items="priceRangeItems")
 
         .d-flex.gap-8.mt-3.justify-content-center
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Min Price
-            InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
-            .fs-12.text-center BLK per WAX
-          .grey-border.d-flex.flex-column.gap-20.p-2.br-4
-            .fs-12.text-center Max Price
-            InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
-            .fs-12.text-center BLK per WAX
+          InputStepCounter(:value="leftRangeValue" @change="onLeftRangeInput")
+            template(#top) Min Price
+            template DEFAULT SLOT
+          InputStepCounter(:value="rightRangeValue" @change="onRightRangeInput")
+            template(#top) Max Price
+            template DEFAULT SLOT
   nuxt-child
 
 </template>
