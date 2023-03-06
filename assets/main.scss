@@ -1212,6 +1212,9 @@ a {
 .hover-hide:hover {
   display: none !important;
 }
+.hover-c-contrast:hover {
+  color: var(--text-contrastt)
+}
 
 .slider-sell .el-slider__bar {
   background-color: var(--color-secondary);
