@@ -95,7 +95,6 @@ export function getBestTrade(tradeType, amountSpecified, otherCurrency) {
 
 }
 
-
 export default {
   components: {
     Settings,
@@ -118,10 +117,10 @@ export default {
         label: 'Swap',
         route: { path: '/swap2/swap-tokens' }
       },
-      {
-        label: 'Transfer',
-        route: { path: '/swap2/transfer' }
-      },
+      // {
+      //   label: 'Transfer',
+      //   route: { path: '/swap2/transfer' }
+      // },
       {
         label: 'Liquidity',
         route: { path: '/swap2/manage-liquidity' }

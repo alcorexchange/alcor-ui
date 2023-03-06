@@ -17,12 +17,14 @@ export const state = () => ({
 
   // TODO move to module
   selectedTokenA: null,
-  selectedTokenB: null
+  selectedTokenB: null,
+  slippage: 0.3
 })
 
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
   setPositions: (state, positions) => state.positions = positions,
+  setSlippage: (state, slippage) => state.slippage = slippage,
   setTicks: (state, { poolId, ticks }) => {
     ticks.sort((a, b) => a.id - b.id)
     Vue.set(state.ticks, poolId, ticks)
@@ -97,24 +99,6 @@ export const actions = {
     }
   }
 }
-
-// interface PoolConstructorArgs {
-//   id: number,
-//   tokenA: Token,
-//   tokenB: Token,
-//   fee: FeeAmount,
-//   sqrtRatioX64: BigintIsh,
-//   liquidity: BigintIsh,
-//   tickCurrent: number,
-//   feeGrowthGlobalAX64: BigintIsh,
-//   feeGrowthGlobalBX64: BigintIsh,
-//   protocolFeeA: BigintIsh,
-//   protocolFeeB: BigintIsh,
-//   ticks:
-//     | TickDataProvider
-//     | (Tick | TickConstructorArgs)[]
-// }
-
 
 export const getters = {
   pools(state, getters, rootState) {
