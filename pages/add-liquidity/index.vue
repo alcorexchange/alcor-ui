@@ -79,6 +79,7 @@
                 span.disable Current Price:&nbsp;
                 span {{slotProps.price}} {{tokenA.symbol}} per {{tokenB.symbol}}
 
+        AlcorRadio.range-radio.mt-4(v-model="priceRangeValue" :items="priceRangeItems")
 
         .d-flex.gap-8.mt-3.justify-content-center
           .grey-border.d-flex.flex-column.gap-20.p-2.br-4
@@ -110,6 +111,7 @@ import InputStepCounter from '~/components/amm/InputStepCounter'
 import InfoContainer from '~/components/UI/InfoContainer'
 import AuthOnly from '~/components/AuthOnly'
 import AlcorSwitch from '~/components/AlcorSwitch'
+import AlcorRadio from '~/components/AlcorRadio'
 
 import { fetchAllRows } from '~/utils/eosjs'
 
@@ -143,7 +145,8 @@ export default {
     InfoContainer,
     AuthOnly,
     AlcorSwitch,
-    Zoom
+    Zoom,
+    AlcorRadio
   },
 
   // Enabling managige route in nested component
@@ -167,7 +170,19 @@ export default {
         { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
         { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: 44 },
         { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
-      ]
+      ],
+
+      // TODO: better variable naming?
+      priceRangeValue: '',
+      priceRangeItems: [
+        {text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity'},
+        {text: '+/-5%', higherValue: '5', lowerValue: '5'},
+        {text: '+/-10&', higherValue: '10', lowerValue: '10'},
+        {text: '+10/-2%', higherValue: '10', lowerValue: '2'},
+        {text: '+2/-10%', higherValue: '2', lowerValue: '10'},
+      ].map((item) => {
+        return {...item, value: `${item.higherValue}-${item.lowerValue}`}
+      })
     }
   },
 
@@ -766,6 +781,12 @@ export default {
 .current-price{
   display: flex;
   justify-content: center;
+}
+.range-radio{
+  .items{
+    justify-content: space-between;
+    white-space: nowrap;
+  }
 }
 .add-liquidity-component {
   margin-top: 50px;

@@ -1,12 +1,11 @@
 <template>
-  <div class="alcor-radio">
+  <div class="alcor-radio-x ">
     <div class="label" v-if="label">{{ label }}</div>
     <div class="items">
       <label
         v-for="({ value: valuex, text }, i) in items"
         :key="i"
-        :class="['item', { active: valuex === value }]"
-        v-ripple
+        :class="['item grey-border', { active: valuex === value }]"
       >
         <input
           type="radio"
@@ -51,34 +50,35 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.alcor-radio {
+$fsmall: 0.86rem;
+
+.alcor-radio-x {
   user-select: none;
 }
 .label {
   padding: 2px;
-  padding-bottom: $p;
+  padding-bottom: 4px;
   display: flex;
   font-size: $fsmall;
 }
 .items {
   display: flex;
   flex-wrap: wrap;
-  gap: $p;
+  gap: 4px;
 }
 .item {
   position: relative;
   display: flex;
-  padding: $p $p2;
-  border-radius: $radius;
+  padding: 2px 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: $fsmall;
-  transition: all $duration;
-  border: 1px solid $cancel;
-  color: $cancel;
+  transition: all 0.3s;
+  color: var(--text-default);
   &.active {
-    background: $prm;
+    background: var(--green);
     color: white;
-    border-color: $prm;
+    border-color:  var(--green);
   }
 }
 input {
