@@ -94,7 +94,7 @@
             template(#top) Min Price
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
-              .info.disable Your position will be 100% composed of {{tokenB.symbol}} at this price
+              .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
 
           InputStepCounter(
             :value="rightRangeValue"
@@ -105,7 +105,7 @@
             template(#top) Max Price
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
-              .info.disable Your position will be 100% composed of {{tokenB.symbol}} at this price
+              .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
   nuxt-child
 
 </template>
