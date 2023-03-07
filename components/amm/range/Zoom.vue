@@ -82,6 +82,7 @@ export default {
   methods: {
     init() {
       // console.log('ZOOM INIT')
+      console.log('svg in ZoomInit', this.svg);
       if (!this.svg) return
 
       this.zoomBehavior = zoom()
@@ -98,7 +99,6 @@ export default {
 
     zoomIn() {
       const { svg, zoomBehavior } = this
-
       svg &&
         zoomBehavior &&
         select(this.svg).transition().call(zoomBehavior.scaleBy, 2)

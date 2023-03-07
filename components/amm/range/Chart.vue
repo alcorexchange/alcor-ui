@@ -169,7 +169,6 @@ export default {
     init() {},
 
     reset() {
-      console.log('reset zoom was called, handling zoom is only handled in zoom component')
       // this.$refs.zoom.zoomReset()
       this.resetZoom(); // instead of line above
       this.resetBrush()
