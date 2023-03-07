@@ -7,7 +7,7 @@
       .right
         //- .pointer(v-if='pool', @click='toggleTokens') {{ tokenA.symbol }} / {{ tokenB.symbol }}
         alcor-switch(
-          v-if='pool',
+          v-if='tokenA && tokenB',
           @toggle='toggleTokens',
           :one='invertPrice ? tokenB.symbol : tokenA.symbol',
           :two='invertPrice ? tokenA.symbol : tokenB.symbol',
@@ -87,6 +87,8 @@
             @change="onLeftRangeInput"
             :decrement="isSorted ? decrementLower : incrementUpper"
             :increment="isSorted ? incrementLower : decrementUpper"
+            :disabled="true"
+            :hasError="true"
           )
             template(#top) Min Price
             template DEFAULT SLOT
@@ -795,6 +797,7 @@ export default {
       background: var(--btn-default);
       position: none;
       opacity: 0.8;
+      color: #636366;
     }
   }
   .info-container{
