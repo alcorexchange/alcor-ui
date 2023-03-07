@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-column.gap-10.p-2.br-8.input-step-counter(:class="{ focused, disabled, hasError }")
+.d-flex.flex-column.gap-12.p-2.br-8.input-step-counter(:class="{ focused, disabled, hasError }")
   .top
     AlcorButton.action.decrease(@click="$emit('change', decrement())" iconOnly)
       i.el-icon-minus
@@ -7,7 +7,7 @@
     AlcorButton.action.increase(@click="$emit('change', increment())" iconOnly)
       i.el-icon-plus
   el-input.input(v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false")
-  .fs-12.text-center
+  .fs-12.text-center.bottom
     slot
 </template>
 
@@ -74,6 +74,9 @@ export default {
   gap: 2px;
   align-items: center;
 }
+.bottom, .top {
+  font-size: 0.8rem;
+}
 .action::v-deep{
   padding: 0;
   font-size: 2rem;
@@ -86,6 +89,8 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    height: auto;
+    line-height: 0;
   }
 }
 </style>
