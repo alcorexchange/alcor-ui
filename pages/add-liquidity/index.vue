@@ -88,8 +88,8 @@
             @change="onLeftRangeInput"
             :decrement="isSorted ? decrementLower : incrementUpper"
             :increment="isSorted ? incrementLower : decrementUpper"
-            :disabled="true"
-            :hasError="true"
+            :disabled="!price"
+            :hasError="tickLower >= tickUpper"
           )
             template(#top) Min Price
             template
@@ -97,10 +97,12 @@
               .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
 
           InputStepCounter(
+            :disabled="!price"
             :value="rightRangeValue"
             @change="onRightRangeInput"
             :decrement="isSorted ? decrementUpper : incrementLower"
             :increment="isSorted ? incrementUpper : decrementLower"
+            :hasError="tickLower >= tickUpper"
           )
             template(#top) Max Price
             template
@@ -205,7 +207,8 @@ export default {
   watch: {
     pool() {
       // TODO При обновлении пула обноять только если токены поменялись
-      setTimeout(() => this.$refs.LChartRange?.reset())
+      console.log('pool updated')
+      setTimeout(() => this.$refs.LChartRange?.reset(), 1000)
     },
   },
 

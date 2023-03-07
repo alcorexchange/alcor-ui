@@ -6,7 +6,7 @@
     slot(name="top")
     AlcorButton.action.increase(@click="$emit('change', increment())" iconOnly)
       i.el-icon-plus
-  el-input.input(v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false")
+  el-input.input(v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false" placeholder="0")
   .fs-12.text-center.bottom
     slot
 </template>
@@ -43,7 +43,6 @@ export default {
 
       // Force update lovalvalue in case change value did not had effect
       setTimeout(() => {
-        console.log('upd local')
         this.localValue = this.value
       })
     }
