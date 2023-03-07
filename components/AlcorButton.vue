@@ -68,7 +68,7 @@ export default {
 <style scoped lang="scss">
 button {
   border: none;
-  font-family: 'Sans', sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: inherit;
   font-size: 1rem;
   cursor: pointer;

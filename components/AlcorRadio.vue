@@ -76,8 +76,8 @@ $fsmall: 0.86rem;
   transition: all 0.3s;
   color: var(--text-default);
   &.active {
-    background: var(--green);
-    color: white;
+    background: var(--border-active-color);
+    color: black;
     border-color:  var(--green);
   }
 }

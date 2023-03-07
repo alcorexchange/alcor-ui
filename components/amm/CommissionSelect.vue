@@ -23,6 +23,7 @@ export default {
 
 <style lang="scss" scoped>
   .fee {
+    flex: 1;
     width: 120px;
     cursor: pointer;
 

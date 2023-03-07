@@ -1,9 +1,9 @@
 <template lang="pug">
 .row.justify-content-center
-  alcor-container.add-liquidity-component.w-100.p-2
-    .title.mb-4
+  alcor-container.add-liquidity-component.w-100
+    .title.mb-2
       .empty
-      .main add liquidity
+      .main Add Liquidity
       .right
         //- .pointer(v-if='pool', @click='toggleTokens') {{ tokenA.symbol }} / {{ tokenB.symbol }}
         alcor-switch(
@@ -13,15 +13,15 @@
           :two='invertPrice ? tokenA.symbol : tokenB.symbol',
           :active='invertPrice ? "two" : "one"'
         )
-    .row.px-3
-      .col
+    .main-section
+      .section
         .fs-16.disable.mb-2 Select Pairs
 
-        .d-flex.mt-3.gap-10
+        .d-flex.mt-1.gap-10
           select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
           select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
-        .fs-14.disable.my-2 Select fee
+        .disable.mt-3.mb-2 Select fee
         commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
         .fs-16.disable.mt-3 Deposit Amounts
@@ -39,11 +39,11 @@
           alcor-button.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
 
 
-      .col
+      .section
         template(v-if="!pool")
-          .col.d-flex.flex-column.gap-12
+          .d-flex.flex-column.gap-10
             .fs-16.disable Set Starting Price
-            info-container(:access="true")
+            info-container.info-container(:access="true")
               | This pool must be initialized before you can add liquidity.
               | To initialize, select a starting price for the pool.
               | Then, enter your liquidity price range and deposit amount.
@@ -756,16 +756,26 @@ export default {
 
 <style lang="scss">
 .add-liquidity-component {
+  padding: 14px !important;
+  .main-section{
+    display: flex;
+    gap: 18px;
+    .section{
+      flex: 1;
+    }
+  }
   .title {
     display: flex;
     justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
     > * {
       flex: 1;
       display: flex;
     }
     .main {
       justify-content: center;
-      font-weight: bold;
+      font-size: 1.1rem;
     }
     .right {
       justify-content: end;
@@ -773,17 +783,22 @@ export default {
   }
   .submit {
     width: 100%;
-    padding: 10px 14px;
-    background: var(--green);
+    padding: 10px 18px;
+    background: var(--border-active-color);
+    color: #000;
     border-radius: 8px;
+    font-weight: 500;
     &:hover {
-      background: var(--access-text-color) !important;
+      background: var(--main-green) !important;
     }
     &.disabled {
       background: var(--btn-default);
       position: none;
       opacity: 0.8;
     }
+  }
+  .info-container{
+    background: var(--selector-bg) !important;
   }
 }
 .sustom-select-token {
