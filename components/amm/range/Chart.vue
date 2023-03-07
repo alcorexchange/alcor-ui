@@ -8,7 +8,6 @@
     :xScale="xScale"
     :width="innerWidth"
     :height="height"
-    :reset="reset"
     :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
     :zoomLevels="zoomLevels"
     :onZoomUpdate="setZoom"
@@ -100,6 +99,10 @@ export default {
   props: ['series', 'current', 'ticksAtLimit', 'styles', 'width', 'height', 'margins', 'interactive', 'brushDomain',
     'brushLabel', 'zoomLevels'],
 
+  provide(){
+    return { setResetZoom: (e) => this.resetZoom = e}
+  },
+
   data() {
     return {
       id: 'liquidityChartRangeInput',
@@ -107,7 +110,9 @@ export default {
       zoom: null,
 
       westHandleColor: '#1aae80',
-      eastHandleColor: '#1873d8'
+      eastHandleColor: '#1873d8',
+      
+      resetZoom: () => {}
     }
   },
 
@@ -164,8 +169,10 @@ export default {
     init() {},
 
     reset() {
+      console.log('reset zoom was called, handling zoom is only handled in zoom component')
       // this.$refs.zoom.zoomReset()
-      // this.resetBrush()
+      this.resetZoom(); // instead of line above
+      this.resetBrush()
     },
 
     emitDefaultBrush() {

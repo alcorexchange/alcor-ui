@@ -26,6 +26,7 @@ export default {
     'onZoomUpdate',
     'resetBrush'
   ],
+  inject: ['setResetZoom'],
   components: {
     AlcorButton,
   },
@@ -92,6 +93,7 @@ export default {
         .on('zoom', ({ transform }) => this.onZoomUpdate(transform)) // this.$emit('onZoomUpdate', transform)
 
       select(this.svg).call(this.zoomBehavior)
+      this.setResetZoom(this.reset)
     },
 
     zoomIn() {

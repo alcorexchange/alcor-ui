@@ -145,7 +145,7 @@ export default {
     },
 
     reset() {
-      this.$refs.chart.reset()
+      this.$refs.chart?.reset()
     },
   }
 }
