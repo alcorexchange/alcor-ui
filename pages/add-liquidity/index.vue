@@ -25,8 +25,8 @@
         commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
         .fs-16.disable.mt-3 Deposit Amounts
-          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true").mt-2
-          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true").mt-3
+          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
+          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
 
         //- | isSorted {{ isSorted }}
         //- br

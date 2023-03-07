@@ -28,6 +28,7 @@ export default {
   cursor: pointer;
   border: 1px solid var(--border-1-color);
   position: relative;
+  transition: border 0.3s;
   &:hover{
     border: 1px solid var(--border-2-color);
   }

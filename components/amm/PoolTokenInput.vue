@@ -22,6 +22,7 @@
         :tokens='tokens',
         @selected='$emit("tokenSelected", $event)'
       )
+  .bottom ~$0
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock
@@ -85,13 +86,23 @@ export default {
   background: var(--selector-bg);
   border-radius: 8px;
   padding: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid transparent;
   transition: border-color 0.3s;
+  &:hover{
+    border: 1px solid var(--border-color)
+  }
   .label-and-balance {
     display: flex;
     justify-content: space-between;
     font-size: 0.8rem;
     color: var(--text-default);
+    min-height: 18px;
+    align-items: center;
+  }
+  .bottom{
+    min-height: 18px;
+    font-size: 0.8rem;
+    display: flex; align-items: center;
   }
   .main {
     display: flex;
