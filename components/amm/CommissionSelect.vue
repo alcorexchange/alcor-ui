@@ -26,7 +26,7 @@ export default {
   flex: 1;
   width: 120px;
   cursor: pointer;
-  border: 1px solid var(--border-1-color);
+  border: 1px solid var(--border-color);
   position: relative;
   transition: border 0.3s;
   &:hover{

@@ -15,16 +15,16 @@
         )
     .main-section
       .section
-        .fs-16.disable.mb-2 Select Pairs
+        .fs-16.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
           select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
           select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
-        .disable.mt-3.mb-2 Select fee
+        .disable.mt-3.mb-2 Fee Tier
         commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
-        .fs-16.disable.mt-3 Deposit Amounts
+        .fs-16.disable.mt-3 Deposit
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
 
@@ -49,9 +49,9 @@
               | Then, enter your liquidity price range and deposit amount.
               | Gas fees will be higher than usual due to the initialization transaction.
 
-            el-input(placeholder="0" v-model="startPriceTypedValue")
+            el-input.starting-price-input(placeholder="0" v-model="startPriceTypedValue")
 
-            info-container
+            info-container.price-info-container
               .d-flex.justify-content-between
                 .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
                 .fs-16.disable {{ startPriceTypedValue ? startPriceTypedValue + ' ' + (tokenB ? tokenB.symbol : '') : '-' }}
@@ -804,6 +804,19 @@ export default {
   }
   .info-container{
     background: var(--selector-bg) !important;
+  }
+  .starting-price-input{
+    input{
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid var(--border-2-color);
+      &:hover, &:focus{
+        border-color: var(--light-border-color);
+      }
+    }
+  }
+  .price-info-container{
+    padding: 8px 15px !important;
   }
 }
 .sustom-select-token {
