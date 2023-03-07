@@ -79,10 +79,10 @@
                 span.disable Current Price:&nbsp;
                 span {{slotProps.price}} {{tokenA.symbol}} per {{tokenB.symbol}}
 
-        .pre-defined-ranges.mt-4
+        .pre-defined-ranges.mt-2
           AlcorButton.item(v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
 
-        .d-flex.gap-8.mt-3.justify-content-center
+        .d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
             :value="leftRangeValue"
             @change="onLeftRangeInput"
