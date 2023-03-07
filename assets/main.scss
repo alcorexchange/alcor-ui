@@ -1142,8 +1142,8 @@ a {
 }
 
 .el-dropdown-menu.dropdown {
-  border: 2px solid var(--dropdown-border);
-  padding: 0;
+  border: 1px solid var(--dropdown-border);
+  border-radius: 16px;
 
   .dropdown__item {
     border-bottom: 1px solid var(--dropdown-border);
@@ -1228,4 +1228,18 @@ a {
   width: 100%;
   height: 1px;
   background-color: var(--border-color);
+}
+
+.el-collapse.default {
+  .el-collapse-item__header {
+    height: auto;
+    line-height: unset;
+  }
+  .el-collapse-item__content {
+    padding-bottom: 0px;
+  }
+  .el-collapse-item__header,
+  .el-collapse-item__wrap {
+    background: transparent;
+  }
 }

@@ -1,9 +1,9 @@
 <template lang="pug">
 el-dropdown(trigger="click")
-  .pointer
-    i.el-icon-s-operation.fs-20
+  .pointer.d-flex.justify-content-center
+    i.el-icon-s-operation.pointer.fs-20
   el-dropdown-menu.dropdown(slot="dropdown")
-    .p-3.d-flex.flex-column.gap-8
+    .px-2.d-flex.flex-column.gap-8
       label {{ $t('Transaction Setting') }}
       label.fs-14.disable {{ $t('Slippage Tolerance') }} %
       .d-flex.gap-4.section-input
