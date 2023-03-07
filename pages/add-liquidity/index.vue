@@ -71,7 +71,13 @@
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             :interactive="interactive")
-            template(#header="slotProps")
+
+            template(slot="header")
+              .current-price(v-if="price && tokenA && tokenB") 
+                span.disable Current Price:&nbsp;
+                span {{ invertPrice ? price.invert().toSignificant(6)  : price.toSignificant(6) }} {{ tokenA.symbol }} per {{ tokenB.symbol }}
+
+            //template(#header="slotProps")
               .chart-header.mb-2
                 .fs-16.disable.mb-1 Set Price Range
                 Zoom(v-bind="slotProps")
@@ -202,14 +208,6 @@ export default {
         return {...item, value: `${item.higherValue}-${item.lowerValue}`}
       })
     }
-  },
-
-  watch: {
-    pool() {
-      // TODO При обновлении пула обноять только если токены поменялись
-      console.log('pool updated')
-      setTimeout(() => this.$refs.LChartRange?.reset(), 1000)
-    },
   },
 
   computed: {

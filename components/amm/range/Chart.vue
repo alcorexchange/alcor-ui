@@ -1,28 +1,29 @@
 <template lang="pug">
 .add-liquidity-chart
-  //| zoom: {{ zoom }}
-  //| zoomRef: {{ $refs.zoomA }}
-  slot(
-    name="header"
-    :svg="$refs.zoomA"
-    :xScale="xScale"
-    :width="innerWidth"
-    :height="height"
-    :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
-    :zoomLevels="zoomLevels"
-    :onZoomUpdate="setZoom"
-    :resetBrush="resetBrush"
-  )
-  //- Zoom(
-  //-   ref="zoom"
+  //- slot(
+  //-   name="header"
   //-   :svg="$refs.zoomA"
   //-   :xScale="xScale"
   //-   :width="innerWidth"
   //-   :height="height"
-  //-   :reset="reset"
   //-   :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
   //-   :zoomLevels="zoomLevels"
-  //-   @onZoomUpdate="setZoom")
+  //-   :onZoomUpdate="setZoom"
+  //-   :resetBrush="resetBrush"
+
+  .chart-header.mb-2
+    .fs-16.disable.mb-1 Set Price Range
+
+    Zoom(
+      name="header"
+      @reset="reset"
+      @zoomIn="zoomIn"
+      @zoomOut="zoomOut"
+      :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
+    )
+
+  slot(name="header")
+
 
   svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible;")
     defs
@@ -40,7 +41,6 @@
 
     g(:transform="`translate(${margins.left}, ${margins.top})`")
       g(:clip-path="`url(#${id}-chart-clip)`")
-        //Area(fill="green" :series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
         Area(:series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
 
         g(v-if="brushDomain" :mask="`url(#${id}-chart-area-mask)`")
@@ -57,7 +57,7 @@
 
         AxisBottom(:xScale="xScale" :offset="0" :innerHeight="innerHeight")
 
-      rect.ZoomOverlay(:width="innerWidth" :height="height" ref="zoomA")
+      rect.ZoomOverlay(:width="innerWidth" :height="height" ref="svg")
 
       defs
         linearGradient(:id="`${id}-gradient-selection`" x1="0%" y1="100%" x2="100%" y2="100%")
@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import { max, scaleLinear } from 'd3'
+import { max, scaleLinear, select, zoom, zoomIdentity } from 'd3'
 
 import Area from './Area.vue'
 import AreaLine from './AreaLine.vue'
@@ -99,20 +99,15 @@ export default {
   props: ['series', 'current', 'ticksAtLimit', 'styles', 'width', 'height', 'margins', 'interactive', 'brushDomain',
     'brushLabel', 'zoomLevels'],
 
-  provide(){
-    return { setResetZoom: (e) => this.resetZoom = e}
-  },
-
   data() {
     return {
       id: 'liquidityChartRangeInput',
       data,
       zoom: null,
+      zoomBehavior: null,
 
       westHandleColor: '#1aae80',
       eastHandleColor: '#1873d8',
-      
-      resetZoom: () => {}
     }
   },
 
@@ -121,14 +116,16 @@ export default {
       if (!this.brushDomain) this.emitDefaultBrush()
     },
 
-    zoomLevels() {
-      console.log('zoomLevels changed, reseting')
-      this.zoom = null
-      //this.resetBrush()
-
-      // TODO
-      //setZoom(null)
+    zoomLevels: {
+      handler() {
+        console.log('zoomLevels changed, reseting')
+        this.reset()
+      },
+      deep: true
     },
+
+    height() { this.reset() },
+    width() { this.reset() },
   },
 
   computed: {
@@ -162,20 +159,28 @@ export default {
 
   mounted() {
     console.log('RangeChartMount: ', this.$props, this.brushDomain)
-    this.emitDefaultBrush()
+    this.reset()
   },
 
   methods: {
-    init() {},
+    installZoom() {
+      const { svg } = this.$refs
 
-    reset() {
-      // this.$refs.zoom.zoomReset()
-      this.resetZoom(); // instead of line above
-      this.resetBrush()
+      if (!svg) return
+
+      this.zoomBehavior = zoom()
+        .scaleExtent([this.zoomLevels.min, this.zoomLevels.max])
+        .extent([
+          [0, 0],
+          [this.width, this.height],
+        ])
+        .on('zoom', ({ transform }) => this.zoom = transform)
+
+      select(svg).call(this.zoomBehavior)
     },
 
     emitDefaultBrush() {
-      // console.log('emitDefaultBrush()')
+      console.log('emitDefaultBrush()')
       // if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
       this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
     },
@@ -201,9 +206,52 @@ export default {
       })
     },
 
-    setZoom(zoom) {
-      this.zoom = zoom
-    }
+    zoomIn() {
+      const { svg } = this.$refs
+
+      const { zoomBehavior } = this
+      svg &&
+        zoomBehavior &&
+        select(svg).transition().call(zoomBehavior.scaleBy, 2)
+    },
+
+    zoomOut() {
+      const { svg } = this.$refs
+      const { zoomBehavior } = this
+
+      svg &&
+        zoomBehavior &&
+        select(svg).transition().call(zoomBehavior.scaleBy, 0.5)
+    },
+
+    zoomInitial() {
+      const { svg } = this.$refs
+      const { zoomBehavior } = this
+      svg &&
+        zoomBehavior &&
+        select(svg).transition().call(zoomBehavior.scaleTo, 0.5)
+    },
+
+    reset() {
+      this.zoom = null
+      this.zoomReset()
+      this.installZoom()
+      this.zoomInitial()
+      this.resetBrush()
+    },
+
+    zoomReset() {
+      const { svg } = this.$refs
+      const { zoomBehavior } = this
+
+      svg &&
+        zoomBehavior &&
+        select(svg)
+          .call(zoomBehavior.transform, zoomIdentity.translate(0, 0).scale(1))
+          .transition()
+          .call(zoomBehavior.scaleTo, 0.5)
+    },
+
   }
 }
 </script>

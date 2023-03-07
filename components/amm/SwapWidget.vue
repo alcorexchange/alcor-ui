@@ -43,8 +43,6 @@ alcor-container.pool-form.d-flex.flex-column.gap-32
       )
       //:locked="{ message: 'The market price is outside your specified price range. Single-asset deposit only.' }"
 
-  //alcor-button.w-100(big disabled) Swap {{ tokenA && tokenB ? tokenA.currency : '' }} to {{ tokenA && tokenB ? tokenB.currency : '' }}
-
   alcor-button.w-100(big @click="submit") Swap {{ tokenA && tokenB ? tokenA.symbol : '' }} to {{ tokenA && tokenB ? tokenB.symbol : '' }}
 
   .grey-border.d-flex.flex-column.gap-4.p-3.br-8

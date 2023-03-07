@@ -19,8 +19,12 @@ client-only
         @onBrushDomainChange="onBrushDomainChangeEnded"
         :zoomLevels="zoomLevels"
         :ticksAtLimit="ticksAtLimit")
-        template(#header="slotProps")
-          slot(name="header" v-bind="{...slotProps, price}")
+
+        template(slot="header")
+          slot(name="header")
+
+        //template(#header="slotProps")
+          slot(name="header" v-bind="{ ...slotProps, price }")
           
 
 </template>
@@ -142,11 +146,7 @@ export default {
           this.$emit('onRightRangeInput', rightRangeValue.toFixed(6))
         }
       }
-    },
-
-    reset() {
-      this.$refs.chart?.reset()
-    },
+    }
   }
 }
 </script>
