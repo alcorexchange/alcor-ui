@@ -1,6 +1,6 @@
 <template lang="pug">
 .d-flex.gap-10.flex-wrap.justify-content-center
-  .fee.d-flex.flex-column.gap-10.justify-content-between.p-2.br-8.grey-border.border-hover(
+  .fee.d-flex.flex-column.gap-10.justify-content-between.align-items-start.p-2.br-8.border-hover(
     :class="{ 'border-active': selected == fee.value }"
     v-for="fee in options"
     @click="$emit('change', fee.value)"
@@ -8,10 +8,10 @@
     i.check-icon.el-icon-circle-check(v-if="selected == fee.value")
     .fs-18 {{ fee.value / 10000 }}%
     .fs-12.disable.text-break {{ fee.desc }}
-    .d-flex.gap-4.disable(v-if="fee.selectedPercent != undefined")
-      .fs-12(:class="{ red: fee.selectedPercent < 1, 'color-action': selected == fee.value }") {{ fee.selectedPercent }}%
-      .fs-12(:class="{ 'color-action': selected == fee.value }") Selected
-    .tag(v-else="fee.notCreated") Not created
+    .d-flex.gap-4.selected-percent(v-if="fee.selectedPercent != undefined")
+      .fs-12(:class="{ red: fee.selectedPercent < 1}") {{ fee.selectedPercent }}%
+      .fs-12() Selected
+    .tag.selected-percent(v-else="fee.notCreated") Not created
 
 </template>
 
@@ -22,28 +22,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .fee {
-    flex: 1;
-    width: 120px;
-    cursor: pointer;
+.fee {
+  flex: 1;
+  width: 120px;
+  cursor: pointer;
+  border: 1px solid var(--border-1-color);
+  position: relative;
+  &:hover{
+    border: 1px solid var(--border-2-color);
+  }
 
-    position: relative;
-
-    &.border-active {
-      i.check-icon {
-        position: absolute;
-        color: #67C23A;
-        font-size: 18px;
-        right: 7px;
-      }
+  &.border-active {
+    border: 1px solid var(--border-active-color);
+    .disable{
+      color: var(--text-default);
     }
-
-    .tag {
-      border-radius: 0.5rem;
-      padding: 4px 6px;
-      font-size: 10px;
-      background: var(--bg-alter-1);
+    i.check-icon {
+      position: absolute;
+      color: var(--border-active-color);
+      font-size: 18px;
+      right: 7px;
     }
   }
+
+  .tag {
+    border-radius: 0.5rem;
+    padding: 4px 6px;
+    font-size: 10px;
+    background: var(--bg-alter-1);
+  }
+}
+.selected-percent{
+  background: var(--background-color-base);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
 </style>
 

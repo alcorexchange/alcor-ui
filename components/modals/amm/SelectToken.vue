@@ -2,7 +2,7 @@
 .select-token-modal.d-flex.align-items-center.gap-8
   .select-token-button(
     @click='locked ? "" : (visible = true)',
-    :class='{ locked, w100 }'
+    :class='{ locked, w100, notSelected: !token }'
   )
     .d-flex.align-items-center(v-if='token')
       TokenImage.mr-2(
@@ -10,7 +10,7 @@
         height='25'
       )
       .ft-14 {{ token.currency || token.symbol }}
-    .d-flex.align-items-center(v-else) Select token
+    .d-flex.align-items-center.select-token-text(v-else) Select token
     i.el-icon-arrow-down.ml-auto(v-if='!locked')
 
   //append-to-body
@@ -127,6 +127,15 @@ export default {
     cursor: pointer;
     background: var(--btn-default);
     transition: all 0.4s;
+    color: var(--text-default);
+    font-weight: 500;
+    img {
+      width: 16px;
+      height: 16px;
+    }
+    .select-token-text {
+      color: var(--border-active-color);
+    }
     &:hover {
       border-color: white;
       background: var(--hover);
@@ -135,6 +144,9 @@ export default {
     &.locked {
       cursor: not-allowed;
       pointer-events: none;
+      &.notSelected{
+        opacity: 0.6;
+      }
     }
     &.w100 {
       width: 100%;

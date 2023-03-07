@@ -1,5 +1,5 @@
 <template lang="pug">
-.pool-token-input
+.pool-token-input(:class="{focused}")
   .label-and-balance
     .label {{ label || '' }}
     .balance(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) }}
@@ -9,7 +9,8 @@
       v-if='!disabled',
       :value='value',
       @input='$emit("input", $event)',
-      @blur='$emit("blur")',
+      @blur='onBlur',
+      @focus="onFocus"
       type='number'
     )
     .input-after
@@ -55,7 +56,18 @@ export default {
   data: () => ({
     input: '',
     search: '',
+    focused: false
   }),
+  methods: {
+    onBlur(){
+      this.$emit("blur")
+      this.focused = false
+    },
+    onFocus(){
+      this.$emit("focus")
+      this.focused = true
+    }
+  },
 
   computed: {
     ...mapState(['user'])
@@ -73,10 +85,12 @@ export default {
   background: var(--selector-bg);
   border-radius: 8px;
   padding: 8px;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.3s;
   .label-and-balance {
     display: flex;
     justify-content: space-between;
-    font-size: 0.86rem;
+    font-size: 0.8rem;
     color: var(--text-default);
   }
   .main {
@@ -128,6 +142,9 @@ export default {
   input {
     background-color: var(--selector-bg);
   }
+  .max-bage{
+    font-size: 0.9rem;
+  }
   .disabled-overlay{
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -135,7 +152,7 @@ export default {
     padding: 8px;
     gap: 4px;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; 
     justify-content: center;
     align-items: center;
     border-radius: 8px;
@@ -146,6 +163,9 @@ export default {
       font-size: 0.86rem;
       text-align: ceil($number: 0);
     }
+  }
+  &.focused {
+    border-color: var(--border-2-color);
   }
 }
 
