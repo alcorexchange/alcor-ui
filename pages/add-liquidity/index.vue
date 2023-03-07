@@ -79,7 +79,8 @@
                 span.disable Current Price:&nbsp;
                 span {{slotProps.price}} {{tokenA.symbol}} per {{tokenB.symbol}}
 
-        AlcorRadio.range-radio.mt-4(v-model="priceRangeValue" :items="priceRangeItems")
+        .pre-defined-ranges.mt-4
+          AlcorButton.item(v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
 
         .d-flex.gap-8.mt-3.justify-content-center
           InputStepCounter(
@@ -747,6 +748,7 @@ export default {
       }
       return ''
     },
+    onPreDefinedRangeSelect(range){}
 
     // TODO
     // getSetFullRange() {
@@ -820,10 +822,16 @@ export default {
   display: flex;
   justify-content: center;
 }
-.range-radio{
-  .items{
-    justify-content: space-between;
-    white-space: nowrap;
+.pre-defined-ranges{
+  display: flex;
+  white-space: nowrap;
+  justify-content: space-between;
+  .item{
+    padding: 2px 6px;
+    background: transparent;
+    font-size: 0.86rem;
+    border: 1px solid var(--border-2-color);
+    border-radius: 6px;
   }
 }
 .add-liquidity-component {
