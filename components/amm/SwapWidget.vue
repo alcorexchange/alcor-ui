@@ -123,7 +123,6 @@ export default {
       'tokenA',
       'tokenB',
       'tokens',
-      'pool'
     ]),
 
     balanceInput() {
@@ -155,7 +154,7 @@ export default {
     },
 
     async submit() {
-      const slippage = !isNan(this.slippage) ? new Percent(this.slippage * 100, 10000) : DEFAULT_SWAP_SLIPPAGE
+      const slippage = !isNaN(this.slippage) ? new Percent(this.slippage * 100, 10000) : DEFAULT_SWAP_SLIPPAGE
 
       const { amountA, tokenA, tokenB } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
@@ -166,7 +165,7 @@ export default {
       const actions = []
       // TODO Swap with 2 same pools with different fee
       const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
-      console.log('swaps:', trade.swaps)
+      console.log('swaps:', { trade })
       const { swaps: [{ inputAmount, route }] } = trade
 
       const path = route.pools.map(p => p.id).join(',')
@@ -197,12 +196,13 @@ export default {
     },
 
     async calcOutput(value, independentField) {
-      const { tokenA, tokenB, pool } = this
+      const { tokenA, tokenB } = this
 
-      if (!value || !pool) return this.amountB = null
+      if (!value) return this.amountB = null
 
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
       const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      console.log({ best })
 
       const { outputAmount, executionPrice, priceImpact } = best
 

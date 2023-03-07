@@ -21,10 +21,6 @@ export const actions = {
     // TODO Set Default tokens
   },
 
-  async test({ rootGetters }) {
-
-  },
-
   bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
     return Trade.bestTradeExactIn(
       rootGetters['amm/pools'],
@@ -107,15 +103,6 @@ export const getters = {
     })
 
     return tokens
-  },
-
-  pool(state, getters, rootState, rootGetters) {
-    // TODO Add fee filter
-    if (!state.tokenA || !state.tokenB) return null
-
-    return rootGetters['amm/pools'].find(p => {
-      return p.tokenA.name == state.tokenA && p.tokenB.name == state.tokenB
-    })
   },
 
   routes(state, getters, rootState) {

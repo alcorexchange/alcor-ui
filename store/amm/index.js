@@ -33,7 +33,7 @@ export const mutations = {
 
 export const actions = {
   async init({ dispatch }) {
-    await dispatch('fetchPairs')
+    await dispatch('fetchPools')
     await dispatch('fetchPositions')
   },
 
@@ -88,14 +88,14 @@ export const actions = {
     commit('setPositions', positions)
   },
 
-  async fetchPairs({ state, commit, rootState, dispatch }) {
+  async fetchPools({ state, commit, rootState, dispatch }) {
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
     commit('setPools', rows)
 
     for (const row of rows) {
-      //dispatch('fetchTicksOfPool', row.id)
+      dispatch('fetchTicksOfPool', row.id)
     }
   }
 }
