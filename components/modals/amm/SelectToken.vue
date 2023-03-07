@@ -129,7 +129,7 @@ export default {
     transition: all 0.4s;
     color: var(--text-default);
     font-weight: 500;
-    img {
+    img, svg {
       width: 16px;
       height: 16px;
     }
