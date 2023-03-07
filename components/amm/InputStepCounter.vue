@@ -55,10 +55,13 @@ export default {
 .input-step-counter{
   background: var(--selector-bg);
   font-size: 0.86rem;
-  border: 1px solid var(--selector-bg);
+  border: 1px solid transparent;
   transition: border 0.3s;
+  &:hover{
+    border: 1px solid var(--border-color)
+  }
   &.focused{
-    border: 1px solid var(--border-1-color);
+    border: 1px solid var(--border-2-color);
   }
   &.disabled{
     opacity: 0.6;
