@@ -2,7 +2,7 @@
 .pool-token-input(:class="{focused}")
   .label-and-balance
     .label {{ label || '' }}
-    .balance(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) }}
+    .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) }}
   .main
     el-input.amount(
       placeholder='0.0',

@@ -92,7 +92,9 @@
             :hasError="true"
           )
             template(#top) Min Price
-            template DEFAULT SLOT
+            template
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
+              .info.disable Your position will be 100% composed of {{tokenB.symbol}} at this price
 
           InputStepCounter(
             :value="rightRangeValue"
@@ -101,7 +103,9 @@
             :increment="isSorted ? incrementUpper : decrementLower"
           )
             template(#top) Max Price
-            template DEFAULT SLOT
+            template
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
+              .info.disable Your position will be 100% composed of {{tokenB.symbol}} at this price
   nuxt-child
 
 </template>
