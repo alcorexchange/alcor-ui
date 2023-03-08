@@ -46,6 +46,8 @@
                       .fs-12 Multiroute
 
                     i.el-icon-plus
+                .p-1
+                  swap-route
 
     alcor-button.w-100.mt-2(access) Swap WAX to BRWL
 
@@ -58,6 +60,7 @@ import AlcorCollapse from '~/components/AlcorCollapse'
 import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
+import SwapRoute from '~/components/swap/SwapRoute'
 
 export default {
   components: {
@@ -66,7 +69,8 @@ export default {
     AlcorCollapse,
     AlcorButton,
     PoolTokenInput,
-    Settings
+    Settings,
+    SwapRoute
   }
 }
 </script>
