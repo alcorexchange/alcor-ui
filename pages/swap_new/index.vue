@@ -4,7 +4,7 @@
     .d-flex.justify-content-between.align-items-center
       .fs-18 {{ $t('Swap') }}
       .d-flex.gap-16.align-items-center
-        i.el-icon-refresh.pointer
+        i.el-icon-refresh.pointer(@click="loading = !loading")
         settings
 
     PoolTokenInput.mt-2(
@@ -27,7 +27,10 @@
       el-collapse.default
         el-collapse-item
           template(#title)
-            .d-flex.gap-8.py-1
+            .d-flex.align-items-center.gap-8.py-1(v-if="loading")
+              i.el-icon-loading.el-icon-refresh.h-fit
+              .fs-12.disable Fetching Best price...
+            .d-flex.align-items-center.gap-8.py-1(v-else)
               .disable.fs-12 Rate
               .d-flex.gap-4
                 .fs-12 3.6198 BRWL per WAX
@@ -35,19 +38,51 @@
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Expected Output
-              .fs-12 79.01222 WAX
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) 79.01222 WAX
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Price Impact
-              .fs-12 0%
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) 0%
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Minimum Received after slippage
-              .fs-12 79.01222 WAX (0.4%)
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) 79.01222 WAX (0.4%)
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Network fee
-              .fs-12 0.00
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) 0.00
 
           alcor-container.mt-2
             el-collapse.default.multiroute
@@ -75,6 +110,7 @@ import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import { Percent, Trade } from '~/assets/libs/swap-sdk'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 
@@ -88,9 +124,11 @@ export default {
     AlcorButton,
     PoolTokenInput,
     Settings,
-    SwapRoute
+    SwapRoute,
+    VueSkeletonLoader
   },
   data: () => ({
+    loading: false,
     amountA: null,
     amountB: null,
   }),
