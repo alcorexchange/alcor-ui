@@ -114,9 +114,9 @@ alcor-container.manage-liquidity-component
           .fs-12.text-center wax per eos
           .fs-12.text-center.disable Your position will be 100%  composed of WAX at this price
 
-      info-container.mt-3(:access="true")
-          | To update the price range, you need to close this position and open a new one,
-          | you can read about automating the price range here Learn about liquidity price range
+      InfoContainer.info.mt-3(:access="true")
+        | To update the price range, you need to close this position and open a new one,
+        | you can read about automating the price range here Learn about liquidity price range
 
 
 </template>
@@ -221,6 +221,10 @@ export default {
   }
   .slider-buy{
     padding: 0 18px;
+  }
+  .info{
+    color: var(--border-active-color);
+    background-color: var(--background-color-third);
   }
 }
  
