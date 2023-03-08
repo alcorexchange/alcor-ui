@@ -103,15 +103,14 @@ alcor-container.manage-liquidity-component
       .w-100.mt-3 *Range Chart*
 
       .d-flex.gap-8
-        alcor-container(:alternative="true").d-flex.flex-column.gap-4
-          .fs-12.text-center Min Price
-          .fs-24.text-center.contrast 0.123
+        InputStepCounter(:readOnly="true" :value="0.123")
+          template(#top)
+            .fs-12.text-center Min Price
           .fs-12.text-center wax per eos
           .fs-12.text-center.disable Your position will be 100%  composed of WAX at this price
-
-        alcor-container(:alternative="true").d-flex.flex-column.gap-4
-          .fs-12.text-center Min Price
-          .fs-24.text-center.contrast 0.123
+        InputStepCounter(:readOnly="true" :value="0.123")
+          template(#top)
+            .fs-12.text-center Min Price
           .fs-12.text-center wax per eos
           .fs-12.text-center.disable Your position will be 100%  composed of WAX at this price
 
@@ -130,6 +129,7 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import PageHeader from '~/components/amm/PageHeader'
+import InputStepCounter from '~/components/amm/InputStepCounter'
 import InfoContainer from '~/components/UI/InfoContainer'
 
 export default {
@@ -141,7 +141,8 @@ export default {
     TokenImage,
     RangeIndicator,
     InfoContainer,
-    PageHeader
+    PageHeader,
+    InputStepCounter,
   }
 }
 </script>

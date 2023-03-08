@@ -1,10 +1,10 @@
 <template lang="pug">
-.d-flex.flex-column.gap-12.p-2.br-8.input-step-counter(:class="{ focused, disabled, hasError }")
+.d-flex.flex-column.gap-12.p-2.br-8.input-step-counter(:class="{ focused, disabled, hasError, readOnly }")
   .top
-    AlcorButton.action.decrease(@click="$emit('change', decrement())" iconOnly)
+    AlcorButton.action.decrease(v-if="!readOnly" @click="$emit('change', decrement())" iconOnly)
       i.el-icon-minus
     slot(name="top")
-    AlcorButton.action.increase(@click="$emit('change', increment())" iconOnly)
+    AlcorButton.action.increase(v-if="!readOnly" @click="$emit('change', increment())" iconOnly)
       i.el-icon-plus
   el-input.input(v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false" placeholder="0")
   .fs-12.text-center.bottom
@@ -14,7 +14,7 @@
 <script>
 import AlcorButton from '@/components/AlcorButton'
 export default {
-  props: ['value', 'changePercentage', 'increment', 'decrement', 'disabled', 'hasError'],
+  props: ['value', 'changePercentage', 'increment', 'decrement', 'disabled', 'hasError', 'readOnly'],
   
   components:{
     AlcorButton
@@ -93,6 +93,14 @@ export default {
     white-space: nowrap;
     height: auto;
     line-height: 0;
+  }
+}
+.readOnly{
+  .input{
+    pointer-events: none;
+  }
+  .top{
+    justify-content: center
   }
 }
 </style>
