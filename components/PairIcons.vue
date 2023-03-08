@@ -30,20 +30,19 @@ export default {
     border-radius: 50%;
   }
   .icon-1 {
-    top: 25%;
-    left: 25%;
-    z-index: 1;
-  }
-  .icon-2 {
     bottom: 25%;
     right: 25%;
   }
+  .icon-2 { 
+    top: 25%;
+    left: 25%;
+  }
   &.row {
     .icon-1 {
-      top: 0px;
+      bottom: 0px;
     }
     .icon-2 {
-      bottom: 0px;
+      top: 0px;
     }
   }
 }
