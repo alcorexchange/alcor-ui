@@ -87,7 +87,7 @@ h1(v-if="!position") Loading..
 
     .grey-border.d-flex.flex-column.gap-20.p-2.br-4.w-100
       .fs-12.text-center Current Price
-      .fs-24.text-center 15.8956
+      .fs-24.text-center {{ position.pool.tokenAPrice.toSignificant(5) }}
       .fs-12.text-center wax per eos
 </template>
 

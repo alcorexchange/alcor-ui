@@ -24,6 +24,7 @@
         .disable.mt-3.mb-2 Fee Tier
         commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
+        | {{ isNaN(tickLower) }} {{ isNaN(tickUpper) }}
         .fs-16.disable.mt-3 Deposit
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
@@ -54,7 +55,8 @@
             info-container.price-info-container
               .d-flex.justify-content-between
                 .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
-                .fs-16.disable {{ startPriceTypedValue ? startPriceTypedValue + ' ' + (tokenB ? tokenB.symbol : '') : '-' }}
+                .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5)  + ' ' + (tokenB ? tokenB.symbol : '') }}
+                .fs-16.disable(v-else) -
 
         template(v-else)
           
@@ -75,7 +77,7 @@
             template(slot="header")
               .current-price(v-if="price && tokenA && tokenB") 
                 span.disable Current Price:&nbsp;
-                span {{ invertPrice ? price.invert().toSignificant(6)  : price.toSignificant(6) }} {{ tokenA.symbol }} per {{ tokenB.symbol }}
+                span {{ invertPrice ? price.invert().toSignificant(6)  : price.toSignificant(6) }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
 
             //template(#header="slotProps")
               .chart-header.mb-2
@@ -94,7 +96,7 @@
             @change="onLeftRangeInput"
             :decrement="isSorted ? decrementLower : incrementUpper"
             :increment="isSorted ? incrementLower : decrementUpper"
-            :disabled="!price"
+            :disabled="!price && !startPriceTypedValue"
             :hasError="tickLower >= tickUpper"
           )
             template(#top) Min Price
@@ -103,11 +105,11 @@
               .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
 
           InputStepCounter(
-            :disabled="!price"
             :value="rightRangeValue"
             @change="onRightRangeInput"
             :decrement="isSorted ? decrementUpper : incrementLower"
             :increment="isSorted ? incrementUpper : decrementLower"
+            :disabled="!price && !startPriceTypedValue"
             :hasError="tickLower >= tickUpper"
           )
             template(#top) Max Price
@@ -486,6 +488,8 @@ export default {
 
       const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
 
+
+      console.log({ independentAmount, tickLower, tickUpper, pool, outOfRange, invalidRange })
       if (
         independentAmount &&
         typeof tickLower === 'number' &&

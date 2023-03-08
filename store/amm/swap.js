@@ -22,11 +22,13 @@ export const actions = {
   },
 
   bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
+    console.log(rootGetters['amm/pools'])
     return Trade.bestTradeExactIn(
+      //rootGetters['amm/pools'].slice(1),
       rootGetters['amm/pools'],
       currencyAmountIn,
       currencyOut,
-      { maxNumResults: 5, maxHops: 5, ...options }
+      { maxNumResults: 10, maxHops: 10, ...options }
     )
   },
 

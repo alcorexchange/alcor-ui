@@ -16,6 +16,7 @@
       :show-max-button="false"
       @onMax="setAToMax"
     )
+
     PoolTokenInput.mt-2(
       :token="tokenB"
       :tokens="tokens"
@@ -24,8 +25,8 @@
     )
 
     alcor-container.mt-2(:alternative="true")
-      el-collapse.default
-        el-collapse-item
+      el-collapse(:value="['1']").default
+        el-collapse-item(name="1")
           template(#title)
             .d-flex.gap-8.py-1
               .disable.fs-12 Rate
@@ -93,6 +94,7 @@ export default {
   data: () => ({
     amountA: null,
     amountB: null,
+    details: ['1'],
   }),
   computed: {
     ...mapState(['user', 'network']),
@@ -163,14 +165,16 @@ export default {
         console.log('err', e)
       }
     },
+
     async calcOutput(value, independentField) {
       const { tokenA, tokenB } = this
 
-      if (!value) return this.amountB = null
+      if (!value || !tokenA || !tokenB) return this.amountB = null
 
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
-      const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-      console.log({ best })
+      const trades = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      const [best] = trades
+      console.log({ trades })
 
       const { outputAmount, executionPrice, priceImpact } = best
 
