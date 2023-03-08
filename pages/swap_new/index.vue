@@ -7,8 +7,21 @@
         i.el-icon-refresh.pointer
         settings
 
-    PoolTokenInput.mt-2
-    PoolTokenInput.mt-2
+    PoolTokenInput.mt-2(
+      :token="tokenA"
+      :tokens="tokens"
+      v-model="amountA"
+      @input="calcOutput"
+      @tokenSelected="setTokenA"
+      :show-max-button="false"
+      @onMax="setAToMax"
+    )
+    PoolTokenInput.mt-2(
+      :token="tokenB"
+      :tokens="tokens"
+      v-model="amountB"
+      @tokenSelected="setTokenB"
+    )
 
     alcor-container.mt-2(:alternative="true")
       el-collapse.default
@@ -49,11 +62,12 @@
                 .p-1
                   swap-route
 
-    alcor-button.w-100.mt-2(access) Swap WAX to BRWL
+    alcor-button.w-100.mt-2(@click="submit" big access) Swap WAX to BRWL
 
 </template>
 
 <script>
+import { mapState, mapActions, mapGetters } from 'vuex'
 import AlcorContainer from '~/components/AlcorContainer'
 import ReturnLink from '~/components/ReturnLink'
 import AlcorCollapse from '~/components/AlcorCollapse'
@@ -61,6 +75,10 @@ import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
+import { Percent, Trade } from '~/assets/libs/swap-sdk'
+import { tryParseCurrencyAmount } from '~/utils/amm'
+
+const DEFAULT_SWAP_SLIPPAGE = new Percent(50, 10000) // 0.5%
 
 export default {
   components: {
@@ -71,6 +89,111 @@ export default {
     PoolTokenInput,
     Settings,
     SwapRoute
+  },
+  data: () => ({
+    amountA: null,
+    amountB: null,
+  }),
+  computed: {
+    ...mapState(['user', 'network']),
+    ...mapState(['amm', 'slippage']),
+    ...mapGetters('amm/swap', [
+      'tokenA',
+      'tokenB',
+      'tokens',
+    ]),
+  },
+  methods: {
+    ...mapActions('amm/swap', [
+      'bestTradeExactIn',
+      'bestTradeExactOut'
+    ]),
+
+    setTokenA(token) {
+      console.log('token', token)
+      this.$store.dispatch('amm/swap/setTokenA', token)
+    },
+
+    setAToMax() {
+      console.log('setAToMax')
+    },
+
+    setTokenB(token) {
+      this.$store.dispatch('amm/swap/setTokenB', token)
+    },
+
+    async submit() {
+      const slippage = !isNaN(this.slippage) ? new Percent(this.slippage * 100, 10000) : DEFAULT_SWAP_SLIPPAGE
+
+      const { amountA, tokenA, tokenB } = this
+      if (!tokenA || !tokenB) return console.log('no tokens selected')
+
+      const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
+      if (!currencyAmountIn) return
+
+      const actions = []
+      // TODO Swap with 2 same pools with different fee
+      const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
+      console.log('swaps:', { trade })
+      const { swaps: [{ inputAmount, route }] } = trade
+
+      const path = route.pools.map(p => p.id).join(',')
+      const min = trade.minimumAmountOut(slippage) // TODO Manage slippages
+
+      // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
+      const memo = `swapexactin#${path}#${this.user.name}#${min.toExtendedAsset()}#0`
+
+      if (parseFloat(amountA) > 0)
+        actions.push({
+          account: tokenA.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: inputAmount.toAsset(),
+            memo
+          }
+        })
+
+      try {
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log(r)
+      } catch (e) {
+        console.log('err', e)
+      }
+    },
+    async calcOutput(value, independentField) {
+      const { tokenA, tokenB } = this
+
+      if (!value) return this.amountB = null
+
+      const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
+      const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      console.log({ best })
+
+      const { outputAmount, executionPrice, priceImpact } = best
+
+      //console.log(outputAmount.toSignificant(), outputAmount.toFixed(), outputAmount.toExact())
+      //console.log({ badOutput: outputAmount.toFixed(), goodOutput })
+      this.amountB = outputAmount.toSignificant()
+      this.rate = executionPrice.toFixed(6)
+      this.impact = priceImpact.toFixed(2)
+
+      this.miniumOut = best.minimumAmountOut(new Percent(5, 100)).toFixed()
+
+      //public minimumAmountOut(slippageTolerance: Percent, amountOut = this.outputAmount): CurrencyAmount<TOutput> {
+
+      //console.log(best)
+
+      //const { tokenA, tokenB } = this
+
+      //if (independentField == 'INPUT') {
+      //} else {
+      //  const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+      //  return this.currencyAmountOut({ currencyAmountOut, currencyIn: tokenA })
+      //}
+    }
   }
 }
 </script>
