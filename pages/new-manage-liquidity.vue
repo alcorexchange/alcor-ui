@@ -14,7 +14,7 @@ alcor-container.manage-liquidity-component
 
       .fs-18.disable.mt-3 {{ $t('Pool Amount') }}
 
-      .d-flex.justify-content-between.mt-3
+      .d-flex.justify-content-between.mt-2
         .d-flex.align-items-center.gap-8
           TokenImage.token-image(src="token-conract" height="25")
           span.f-18 WAX
@@ -50,14 +50,14 @@ alcor-container.manage-liquidity-component
         .fs-18.disable {{ $t('Unclaimed Fees') }}
         AlcorButton.claim-fees-button.f-14(access) {{ $t('Claim Fees') }}
 
-      .d-flex.justify-content-between.mt-3
+      .d-flex.justify-content-between.mt-2
         .d-flex.align-items-center.gap-8
           span WAX Fees Earned
         .d-flex.align-items-center.gap-8
           .fs-18 40.9987
           .fs-14.color-action ($29)
 
-      .d-flex.justify-content-between.mt-2s
+      .d-flex.justify-content-between.mt-2
         .d-flex.align-items-center.gap-8
           span USDC Fees Earned
         .d-flex.align-items-center.gap-8
