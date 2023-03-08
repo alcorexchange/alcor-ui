@@ -1,13 +1,14 @@
 <template lang="pug">
 .d-flex.gap-6.justify-content-center
   alcor-container.mt-5.swap-widget
-    .d-flex.justify-content-between.align-items-center
+    .d-flex.justify-content-between.align-items-center.p-1
       .fs-18 {{ $t('Swap') }}
       .d-flex.gap-16.align-items-center
         i.el-icon-refresh.pointer(@click="loading = !loading")
         settings
 
     PoolTokenInput.mt-2(
+      label="Sell"
       :token="tokenA"
       :tokens="tokens"
       v-model="amountA"
@@ -17,6 +18,7 @@
       @onMax="setAToMax"
     )
     PoolTokenInput.mt-2(
+      label="Buy"
       :token="tokenB"
       :tokens="tokens"
       v-model="amountB"

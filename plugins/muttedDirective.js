@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 Vue.directive('mutted', {
-  inserted: el => {
-    el.classList.add('mutted')
+  inserted: (el, { value }) => {
+    value && el.classList.add('mutted')
   }
 })
