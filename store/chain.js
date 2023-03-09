@@ -417,7 +417,7 @@ export const actions = {
         data: {
           from: rootState.user.name,
           to: 'atomicmarket',
-          quantity: waxAmount + ' WAX',
+          quantity: waxAmount.toFixed(8) + ' WAX',
           memo: 'deposit'
         }
       },
@@ -428,13 +428,11 @@ export const actions = {
         data: {
           bidder: rootState.user.name,
           auction_id,
-          bid: waxAmount + ' WAX',
+          bid: waxAmount.toFixed(8) + ' WAX',
           taker_marketplace: 'alcor'
         }
       }
     ]
-
-    console.log('aaaaa', actions)
 
     await dispatch('sendTransaction', actions)
   },

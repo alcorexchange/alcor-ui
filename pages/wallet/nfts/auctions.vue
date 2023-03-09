@@ -45,7 +45,7 @@ export default {
       this.debounce = setTimeout(async () => {
         this.auctions = null
         this.auctions = await this.getAuctionData({
-          seller: this.user.name,
+          participant: this.user.name,
           sort: this.$route.query?.sorting?.split('-')[0] || null,
           order: this.$route.query?.sorting?.split('-')[1] || null,
           collection_name: this.$route.query?.collection,
