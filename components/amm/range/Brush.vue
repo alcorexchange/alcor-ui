@@ -49,9 +49,7 @@ g
 </template>
 
 <script>
-import { isEqual } from 'lodash'
 import { brushX, select } from 'd3'
-
 
 const FLIP_HANDLE_THRESHOLD_PX = 20
 const BRUSH_EXTENT_MARGIN_PX = 2
@@ -142,15 +140,15 @@ export default {
 
   watch: {
     brushExtent([x, y]) {
-      // FIXME NOT WORKING if (x.toFixed(6) == this.localBrushExtent[0].toFixed(6) && y.toFixed(6) == this.localBrushExtent[1].toFixed(6)) return
-      console.log('BRUSH [watch brushExtent]: ')
       this.moveBrush(this.brushExtent)
       this.localBrushExtent = this.brushExtent
     },
 
-    localBrushExtent() {
-      this.showLabels = true
-      setTimeout(() => this.showLabels = false, 1500)
+    localBrushExtent(a, b) {
+      if (a && b && !compare(a, b, this.xScale)) {
+        this.showLabels = true
+        setTimeout(() => this.showLabels = false, 1500)
+      }
     },
 
     xScale() {
