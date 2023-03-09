@@ -5,7 +5,6 @@
       .empty
       .main Add Liquidity
       .right
-        //- .pointer(v-if='pool', @click='toggleTokens') {{ tokenA.symbol }} / {{ tokenB.symbol }}
         alcor-switch(
           v-if='tokenA && tokenB',
           @toggle='toggleTokens',
@@ -25,18 +24,10 @@
           .disable.mt-3.mb-2 Fee Tier
           commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
-          | {{ isNaN(tickLower) }} {{ isNaN(tickUpper) }}
-          .fs-16.disable.mt-3 Deposit
+          .fs-16.disable.mt-3(v-mutted="!price") Deposit
             PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
             PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
 
-          //- | isSorted {{ isSorted }}
-          //- br
-          //- | invertPrice {{ invertPrice }}
-          //- br
-          //- | outOfRange {{ outOfRange}}
-          //- br
-          //- | invalidPrice {{ invalidPrice }}
           auth-only.mt-3.w-100
             alcor-button.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
 
@@ -73,7 +64,7 @@
             @onRightRangeInput="onRightRangeInput"
             :interactive="interactive")
 
-        .pre-defined-ranges.mt-2
+        .pre-defined-ranges.mt-2(v-mutted="!price")
           AlcorButton.item(v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
 
         .d-flex.gap-8.mt-2.justify-content-center
@@ -482,8 +473,6 @@ export default {
 
       const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
 
-
-      console.log({ independentAmount, tickLower, tickUpper, pool, outOfRange, invalidRange })
       if (
         independentAmount &&
         typeof tickLower === 'number' &&
@@ -692,7 +681,9 @@ export default {
     },
 
     decrementLower() {
-      const { tokenA, tokenB, tickLower, feeAmount, pool } = this
+      const { tokenA, tokenB, tickLower, feeAmount } = this
+
+      const pool = this.pool || this.mockPool
 
       if (tokenA && tokenB && typeof tickLower === 'number' && feeAmount) {
         const newPrice = tickToPrice(tokenA, tokenB, tickLower - TICK_SPACINGS[feeAmount])
@@ -708,7 +699,9 @@ export default {
     },
 
     incrementLower() {
-      const { tokenA, tokenB, tickLower, feeAmount, pool } = this
+      const { tokenA, tokenB, tickLower, feeAmount } = this
+
+      const pool = this.pool || this.mockPool
 
       if (tokenA && tokenB && typeof tickLower === 'number' && feeAmount) {
         const newPrice = tickToPrice(tokenA, tokenB, tickLower + TICK_SPACINGS[feeAmount])
@@ -723,7 +716,9 @@ export default {
     },
 
     decrementUpper() {
-      const { tokenA, tokenB, tickUpper, feeAmount, pool } = this
+      const { tokenA, tokenB, tickUpper, feeAmount } = this
+
+      const pool = this.pool || this.mockPool
 
       if (tokenA && tokenB && typeof tickUpper === 'number' && feeAmount) {
         const newPrice = tickToPrice(tokenA, tokenB, tickUpper - TICK_SPACINGS[feeAmount])
@@ -738,7 +733,9 @@ export default {
     },
 
     incrementUpper() {
-      const { tokenA, tokenB, tickUpper, feeAmount, pool } = this
+      const { tokenA, tokenB, tickUpper, feeAmount } = this
+
+      const pool = this.pool || this.mockPool
 
       if (tokenA && tokenB && typeof tickUpper === 'number' && feeAmount) {
         const newPrice = tickToPrice(tokenA, tokenB, tickUpper + TICK_SPACINGS[feeAmount])
