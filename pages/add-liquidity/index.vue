@@ -211,6 +211,15 @@ export default {
     }
   },
 
+  watch: {
+    feeAmount(val) {
+      if (!this.pool) {
+        this.leftRangeTypedValue = ''
+        this.rightRangeTypedValue = ''
+      }
+    }
+  },
+
   computed: {
     ...mapState(['user', 'network']),
     ...mapGetters('amm/liquidity', [
