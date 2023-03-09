@@ -223,8 +223,7 @@ export default {
     padding: 0 18px;
   }
   .info{
-    color: var(--border-active-color);
-    background-color: var(--background-color-third);
+    background-color: var(--selector-bg) !important;
   }
 }
  
