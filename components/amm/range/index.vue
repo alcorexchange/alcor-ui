@@ -21,10 +21,9 @@ client-only
         :ticksAtLimit="ticksAtLimit")
 
         template(slot="header")
-          slot(name="header")
-
-        //template(#header="slotProps")
-          slot(name="header" v-bind="{ ...slotProps, price }")
+          .current-price(v-if="price && tokenA && tokenB")
+            span.disable Current Price:&nbsp;
+            span {{ price }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
 </template>
 
 <script>
@@ -40,7 +39,7 @@ import { FeeAmount } from '~/assets/libs/swap-sdk'
 
 export default {
   components: { Chart },
-  props: ['currencyA', 'currencyB', 'feeAmount', 'ticksAtLimit', 'price', 'priceLower', 'priceUpper', 'interactive'],
+  props: ['tokenA', 'tokenB', 'feeAmount', 'ticksAtLimit', 'price', 'priceLower', 'priceUpper', 'interactive'],
 
   data() {
     return {
@@ -59,21 +58,11 @@ export default {
   },
 
   computed: {
-
-    ...mapGetters('amm/liquidity', [
-      // 'tokenA',
-      // 'tokenB',
-      // 'tokens',
-      // 'pool',
-      // 'invertPrice',
-      'isSorted'
-      // 'sortedA',
-      // 'sortedB'
-    ]),
+    ...mapGetters('amm/liquidity', ['isSorted']),
 
 
     isUninitialized() {
-      return !this.currencyA || !this.currencyB || (this.series === undefined && !this.isLoading)
+      return !this.tokenA || !this.tokenB || (this.series === undefined && !this.isLoading)
     },
 
     isLoading: () => false,
@@ -88,7 +77,7 @@ export default {
     },
 
     // isSorted() {
-    //   return this.currencyA && this.currencyB && this.currencyA.sortsBefore(this.currencyB)
+    //   return this.tokenA && this.tokenB && this.tokenA.sortsBefore(this.tokenB)
     // },
 
     brushDomain() {

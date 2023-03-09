@@ -62,29 +62,16 @@
           LiquidityChartRangeInput(
             ref="LChartRange"
             v-if="pool"
-            :currencyA="tokenA || undefined"
-            :currencyB="tokenB || undefined"
+            :tokenA="tokenA || undefined"
+            :tokenB="tokenB || undefined"
             :feeAmount="feeAmount"
             :priceLower="priceLower"
             :priceUpper="priceUpper"
             :ticksAtLimit="ticksAtLimit"
-            :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
+            :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(6)) : undefined"
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             :interactive="interactive")
-
-            template(slot="header")
-              .current-price(v-if="price && tokenA && tokenB")
-                span.disable Current Price:&nbsp;
-                span {{ invertPrice ? price.invert().toSignificant(6)  : price.toSignificant(6) }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
-
-            //template(#header="slotProps")
-              .chart-header.mb-2
-                .fs-16.disable.mb-1 Set Price Range
-                Zoom(v-bind="slotProps")
-              .current-price(v-if="slotProps.price")
-                span.disable Current Price:&nbsp;
-                span {{slotProps.price}} {{tokenA.symbol}} per {{tokenB.symbol}}
 
         .pre-defined-ranges.mt-2
           AlcorButton.item(v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
@@ -137,8 +124,6 @@ import InfoContainer from '~/components/UI/InfoContainer'
 import AuthOnly from '~/components/AuthOnly'
 import AlcorSwitch from '~/components/AlcorSwitch'
 import AlcorRadio from '~/components/AlcorRadio'
-
-import { fetchAllRows } from '~/utils/eosjs'
 
 import {
   tryParsePrice,
@@ -455,6 +440,7 @@ export default {
       }
 
       this.$store.dispatch('amm/liquidity/toggleTokens')
+      this.onInputAmountA(this.amountA)
     },
 
     init() {
