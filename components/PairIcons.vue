@@ -12,7 +12,10 @@ export default {
   props: {
     token1: {},
     token2: {},
-    direction: '',
+    direction: {
+      default: '',
+      type: String
+    },
     size: {
       type: String,
       default: '25'
@@ -33,7 +36,7 @@ export default {
     bottom: 25%;
     right: 25%;
   }
-  .icon-2 { 
+  .icon-2 {
     top: 25%;
     left: 25%;
   }

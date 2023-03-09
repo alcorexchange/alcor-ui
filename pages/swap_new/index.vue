@@ -108,6 +108,7 @@
 </template>
 
 <script>
+import VueSkeletonLoader from 'skeleton-loader-vue'
 import { mapState, mapActions, mapGetters } from 'vuex'
 import AlcorContainer from '~/components/AlcorContainer'
 import ReturnLink from '~/components/ReturnLink'
@@ -116,7 +117,6 @@ import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
-import VueSkeletonLoader from 'skeleton-loader-vue'
 import { Percent, Trade } from '~/assets/libs/swap-sdk'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 
@@ -264,7 +264,7 @@ export default {
       transform: rotate(45deg);
     }
   }
-}  
+}
 </style>
 
 <style lang="scss" scoped>

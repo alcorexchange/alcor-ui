@@ -15,7 +15,7 @@
     )
     .input-after
       MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token")
-      //- v-if='showMaxButton', 
+      //- v-if='showMaxButton',
       select-token(
         :locked='!!locked',
         :token='token',
@@ -60,12 +60,12 @@ export default {
     focused: false
   }),
   methods: {
-    onBlur(){
-      this.$emit("blur")
+    onBlur() {
+      this.$emit('blur')
       this.focused = false
     },
-    onFocus(){
-      this.$emit("focus")
+    onFocus() {
+      this.$emit('focus')
       this.focused = true
     }
   },
@@ -163,7 +163,7 @@ export default {
     padding: 8px;
     gap: 4px;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 8px;

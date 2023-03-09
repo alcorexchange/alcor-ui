@@ -25,8 +25,6 @@ client-only
 
         //template(#header="slotProps")
           slot(name="header" v-bind="{ ...slotProps, price }")
-          
-
 </template>
 
 <script>

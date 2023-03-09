@@ -1,28 +1,16 @@
-<template>
-  <div class="alcor-radio-x ">
-    <div class="label" v-if="label">{{ label }}</div>
-    <div class="items">
-      <label
-        v-for="({ value: valuex, text }, i) in items"
-        :key="i"
-        :class="['item grey-border', { active: valuex === value }]"
-      >
-        <input
-          type="radio"
-          :name="name"
-          :value="valuex"
-          :checked="valuex === value"
-          @change="onChange"
-        />
-        {{ text || valuex }}
-      </label>
-    </div>
-  </div>
+<template lang="pug">
+.alcor-radio-x
+  .label(v-if='label') {{ label }}
+  .items
+    label(v-for='({ value: valuex, text }, i) in items' :key='i' :class="['item grey-border', { active: valuex === value }]")
+      input(type='radio' :name='name' :value='valuex' :checked='valuex === value' @change='onChange')
+      |         {{ text || valuex }}
+
 </template>
 
 <script>
 export default {
-  name: "AlcorRadio",
+  name: 'AlcorRadio',
   props: {
     value: {
       type: String,
@@ -34,7 +22,7 @@ export default {
     },
     items: {
       type: Array,
-      default: [],
+      default: () => [],
     },
     label: {
       type: String,
@@ -43,10 +31,10 @@ export default {
   },
   methods: {
     onChange(e) {
-      this.$emit("input", e.target.value);
+      this.$emit('input', e.target.value)
     },
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -90,3 +78,4 @@ input {
   z-index: -1;
 }
 </style>
+

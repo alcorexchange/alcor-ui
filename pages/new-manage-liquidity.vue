@@ -26,17 +26,16 @@ alcor-container.manage-liquidity-component
           template(#top)
             .fs-12.text-center Min Price
           .fs-12.text-center wax per eos
-          .fs-12.text-center.disable Your position will be 100%  composed of WAX at this price
+          .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
         InputStepCounter(:readOnly="true" :value="0.123")
           template(#top)
             .fs-12.text-center Min Price
           .fs-12.text-center wax per eos
-          .fs-12.text-center.disable Your position will be 100%  composed of WAX at this price
+          .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
 
       InfoContainer.info.mt-3(:access="true")
         | To update the price range, you need to close this position and open a new one,
-        | you can read about automating the price range here Learn about liquidity price range
-
+        | you can read about automating the price range here Learn about liquidity price range
 
 </template>
 
@@ -114,5 +113,5 @@ export default {
     background-color: var(--selector-bg) !important;
   }
 }
- 
+
 </style>

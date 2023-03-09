@@ -21,26 +21,26 @@
           select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
           select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
-        .disable.mt-3.mb-2 Fee Tier
-        commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
+        div(v-mutted="!tokenA || !tokenB")
+          .disable.mt-3.mb-2 Fee Tier
+          commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
-        | {{ isNaN(tickLower) }} {{ isNaN(tickUpper) }}
-        .fs-16.disable.mt-3 Deposit
-          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
-          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
+          | {{ isNaN(tickLower) }} {{ isNaN(tickUpper) }}
+          .fs-16.disable.mt-3 Deposit
+            PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
+            PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
 
-        //- | isSorted {{ isSorted }}
-        //- br
-        //- | invertPrice {{ invertPrice }}
-        //- br
-        //- | outOfRange {{ outOfRange}}
-        //- br
-        //- | invalidPrice {{ invalidPrice }}
-        auth-only.mt-3.w-100
-          alcor-button.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
+          //- | isSorted {{ isSorted }}
+          //- br
+          //- | invertPrice {{ invertPrice }}
+          //- br
+          //- | outOfRange {{ outOfRange}}
+          //- br
+          //- | invalidPrice {{ invalidPrice }}
+          auth-only.mt-3.w-100
+            alcor-button.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
 
-
-      .section
+      .section(v-mutted="!tokenA || !tokenB")
         template(v-if="!pool")
           .d-flex.flex-column.gap-10
             .fs-16.disable Set Starting Price
@@ -59,7 +59,6 @@
                 .fs-16.disable(v-else) -
 
         template(v-else)
-          
           LiquidityChartRangeInput(
             ref="LChartRange"
             v-if="pool"
@@ -75,7 +74,7 @@
             :interactive="interactive")
 
             template(slot="header")
-              .current-price(v-if="price && tokenA && tokenB") 
+              .current-price(v-if="price && tokenA && tokenB")
                 span.disable Current Price:&nbsp;
                 span {{ invertPrice ? price.invert().toSignificant(6)  : price.toSignificant(6) }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
 
@@ -83,7 +82,7 @@
               .chart-header.mb-2
                 .fs-16.disable.mb-1 Set Price Range
                 Zoom(v-bind="slotProps")
-              .current-price(v-if="slotProps.price") 
+              .current-price(v-if="slotProps.price")
                 span.disable Current Price:&nbsp;
                 span {{slotProps.price}} {{tokenA.symbol}} per {{tokenB.symbol}}
 
@@ -201,13 +200,13 @@ export default {
       // TODO: better variable naming?
       priceRangeValue: '',
       priceRangeItems: [
-        {text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity'},
-        {text: '+/-5%', higherValue: '5', lowerValue: '5'},
-        {text: '+/-10&', higherValue: '10', lowerValue: '10'},
-        {text: '+10/-2%', higherValue: '10', lowerValue: '2'},
-        {text: '+2/-10%', higherValue: '2', lowerValue: '10'},
+        { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        { text: '+/-5%', higherValue: '5', lowerValue: '5' },
+        { text: '+/-10&', higherValue: '10', lowerValue: '10' },
+        { text: '+10/-2%', higherValue: '10', lowerValue: '2' },
+        { text: '+2/-10%', higherValue: '2', lowerValue: '10' },
       ].map((item) => {
-        return {...item, value: `${item.higherValue}-${item.lowerValue}`}
+        return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       })
     }
   },
@@ -757,7 +756,9 @@ export default {
       }
       return ''
     },
-    onPreDefinedRangeSelect(range){}
+    onPreDefinedRangeSelect(range) {
+
+    }
 
     // TODO
     // getSetFullRange() {

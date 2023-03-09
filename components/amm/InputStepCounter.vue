@@ -15,8 +15,8 @@
 import AlcorButton from '@/components/AlcorButton'
 export default {
   props: ['value', 'changePercentage', 'increment', 'decrement', 'disabled', 'hasError', 'readOnly'],
-  
-  components:{
+
+  components: {
     AlcorButton
   },
 

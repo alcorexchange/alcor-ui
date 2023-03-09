@@ -3,7 +3,7 @@
   .d-flex.justify-content-between
     .d-flex.gap-8.align-items-center
       PairIcons.pair-icons(v-if="!isMobile" token1="row.input" token2="row.output")
-      .pairs WAX / BLK 
+      .pairs WAX / BLK
       .tag 0.3%
       RangeIndicator(:inRange="true")
 
@@ -33,7 +33,7 @@
       .fs-16 P&L
       .fs-16 $2,300.5895
     .d-flex.justify-content-between.mt-2
-      .fs-16 Total Profit 
+      .fs-16 Total Profit
       .fs-16 $2,300.5895
     .d-flex.justify-content-between.mt-2
       .fs-16 Total Loss
@@ -93,3 +93,4 @@ export default {
   }
 }
 </style>
+

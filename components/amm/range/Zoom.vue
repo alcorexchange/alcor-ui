@@ -1,6 +1,6 @@
 <template lang="pug">
 .Wrapper(count='showResetButton ? 3 : 2')
-  //template(v-if='showResetButton') 
+  //template(v-if='showResetButton')
   // BETTER ALWAYS TRUE FOR NOW
   template(v-if='true')
     AlcorButton(@click="$emit('reset')", iconOnly)

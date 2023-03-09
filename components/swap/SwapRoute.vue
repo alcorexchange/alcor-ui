@@ -4,7 +4,7 @@
 
   .d-flex.route
     .line
-    .node.mx-2 50% 
+    .node.mx-2 50%
     .w-100.d-flex.justify-content-around
       .node.d-flex.align-items-center.gap-8
         pair-icons(:token1="{ symbol: 'WAX', contract: 'eosio.token'}" token2="t2" size="24" direction="row")
@@ -40,7 +40,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  
+
   .line {
     position: absolute;
     z-index: 1;
