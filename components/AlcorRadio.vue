@@ -14,11 +14,11 @@ export default {
   props: {
     value: {
       type: String,
-      default: "",
+      default: '',
     },
     name: {
       type: String,
-      default: "",
+      default: '',
     },
     items: {
       type: Array,
@@ -26,11 +26,12 @@ export default {
     },
     label: {
       type: String,
-      default: "",
+      default: '',
     },
   },
   methods: {
     onChange(e) {
+      const a = { 1: 1 }
       this.$emit('input', e.target.value)
     },
   },
@@ -66,7 +67,7 @@ $fsmall: 0.86rem;
   &.active {
     background: var(--border-active-color);
     color: black;
-    border-color:  var(--green);
+    border-color: var(--green);
   }
 }
 input {
@@ -78,4 +79,3 @@ input {
   z-index: -1;
 }
 </style>
-

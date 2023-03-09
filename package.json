@@ -15,6 +15,7 @@
     "start": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm server/index.js",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "format": "npx prettier --write .",
     "analyze": "nuxt build --analyze"
   },
   "dependencies": {
@@ -106,6 +107,7 @@
     "eslint-plugin-vue": "^6.0.1",
     "esm": "^3.2.25",
     "nodemon": "^2.0.4",
+    "prettier": "^2.8.4",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.32.8",
