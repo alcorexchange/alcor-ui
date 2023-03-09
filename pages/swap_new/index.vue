@@ -17,8 +17,11 @@
       :show-max-button="false"
       @onMax="setAToMax"
     )
-
-    PoolTokenInput.mt-2(
+    .w-100.position-relative
+      .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos(@click="toggleTokens")
+        .bottom-icon
+          i.el-icon-bottom.text-center.fs-20.pointer
+    PoolTokenInput.mt-1(
       label="Buy"
       :token="tokenB"
       :tokens="tokens"
@@ -151,6 +154,10 @@ export default {
       'bestTradeExactOut'
     ]),
 
+    toggleTokens() {
+
+    },
+
     setTokenA(token) {
       console.log('token', token)
       this.$store.dispatch('amm/swap/setTokenA', token)
@@ -263,5 +270,29 @@ export default {
 <style lang="scss" scoped>
 .swap-widget {
   width: 450px;
+}
+.bottom-icon {
+  background: var(--btn-default);
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px solid var(--background-color-secondary);
+
+  i {
+    transition: all 0.2s ease 0s;
+  }
+
+  &:hover {
+    i {
+      transform: rotate(180deg);
+    }
+    // background-color: var(--hover);
+  }
+}
+.arrow-pos {
+  top: -12px;
 }
 </style>
