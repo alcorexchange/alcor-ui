@@ -1,6 +1,7 @@
 <template lang="pug">
-.increase-liquidity
-  AlcorButton.increase-button(@click="visible = true")
+.d-flex.align-items-center.gap-8
+  alcor-button(@click="visible = true")
+    i.el-icon-circle-plus-outline
     span Increase Liquidity
 
   //append-to-body
@@ -8,9 +9,11 @@
     title="Increase Liquidity"
     :visible="visible"
     @close="visible = false"
-    :before-close="undefined"
+
+    :before-close="beforeDialogClose"
+    @mousedown.native="dialogMousedown"
+    @mouseup.native="dialogMouseup"
   )
-    PoolInfo(:noPL="true")
     .row(v-if="position")
       .col.d-flex.flex-column.gap-16
         .d-flex.justify-content-between
@@ -83,7 +86,6 @@ import PairIcons from '~/components/PairIcons'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
-import PoolInfo from '~/components/amm/manage-liquidity/PoolInfo'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { CurrencyAmount, Position } from '~/assets/libs/swap-sdk'
@@ -97,8 +99,7 @@ export default {
     PairIcons,
     RangeIndicator,
     PoolTokenInput,
-    AlcorContainer,
-    PoolInfo
+    AlcorContainer
   },
 
   props: ['position'],

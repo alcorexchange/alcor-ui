@@ -5,11 +5,10 @@ alcor-container.manage-liquidity-component
     .left
       PoolInfo
         template(#action)
-          AlcorButton.increase-button {{ $t('Increase liquidity') }}
+          IncreaseLiquidity
       .separator.mt-3
       UnclaimedFees
       .separator.mt-3
-
       RemoveLiquidityPercentage
       AlcorButton.claim-fees-button.submit.w-100.mt-3(access) {{ $t('Remove Liquidity and Claim Fees') }}
     .right
@@ -53,6 +52,7 @@ import PoolInfo from '~/components/amm/manage-liquidity/PoolInfo'
 import UnclaimedFees from '~/components/amm/manage-liquidity/UnclaimedFees'
 import RemoveLiquidityPercentage from '~/components/amm/manage-liquidity/RemoveLiquidityPercentage'
 import InfoContainer from '~/components/UI/InfoContainer'
+import IncreaseLiquidity from '~/components/modals/amm/IncreaseLiquidity'
 
 export default {
   components: {
@@ -66,7 +66,8 @@ export default {
     InputStepCounter,
     PoolInfo,
     UnclaimedFees,
-    RemoveLiquidityPercentage
+    RemoveLiquidityPercentage,
+    IncreaseLiquidity
   }
 }
 </script>
