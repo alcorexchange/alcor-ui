@@ -102,6 +102,9 @@ export default {
 </script>
 
 <style lang="scss">
+img.icon {
+  width: 20px;
+}
 .apply-btn .inner {
   line-height: initial;
 }
