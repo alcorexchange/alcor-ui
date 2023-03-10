@@ -91,7 +91,7 @@ export default {
     profitLoss: null,
     series: null,
 
-    fees: {}
+    fees: {},
   }),
 
   computed: {
