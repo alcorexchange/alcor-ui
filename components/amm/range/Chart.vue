@@ -178,7 +178,7 @@ export default {
       svg &&
         zoomBehavior &&
 
-        //select(svg).transition().call(zoomBehavior.scaleTo, 1)
+        select(svg).transition().call(zoomBehavior.scaleTo, 1)
         //select(svg).transition().call(zoomBehavior.transform, zoomIdentity.translate(10, 1000).scale(1))
     },
 
