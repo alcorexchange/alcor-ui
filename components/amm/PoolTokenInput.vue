@@ -8,11 +8,10 @@
     el-input.amount(
       placeholder='0.0',
       v-if='!disabled',
-      :value='value',
-      @input='$emit("input", $event)',
+      :value='localValue',
+      @input='input',
       @blur='onBlur',
       @focus="onFocus"
-      type='number'
     )
     .input-after
       MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token")
@@ -56,10 +55,17 @@ export default {
   ], // TODO Disabled
 
   data: () => ({
-    input: '',
+    localValue: null,
     search: '',
     focused: false
   }),
+
+  watch: {
+    value(value) {
+      this.localValue = value
+    }
+  },
+
   methods: {
     onBlur() {
       this.$emit('blur')
@@ -68,6 +74,13 @@ export default {
     onFocus() {
       this.$emit('focus')
       this.focused = true
+    },
+
+    input(value) {
+      value = parseFloat(value)
+      if (!value) return this.localValue = ''
+
+      this.$emit('input', value.toString())
     }
   },
 

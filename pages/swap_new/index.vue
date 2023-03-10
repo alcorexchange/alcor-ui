@@ -164,7 +164,8 @@ export default {
     ]),
 
     toggleTokens() {
-
+      // TODO Handle amounts
+      this.$store.dispatch('amm/swap/flipTokens')
     },
 
     setTokenA(token) {
@@ -270,7 +271,7 @@ export default {
       }
 
       const { outputAmount, executionPrice, priceImpact, route } = best
-      this.amountB = outputAmount.toFixed()
+      this.amountB = this.$options.filters.commaFloat(outputAmount.toFixed(), tokenB.decimals)
       this.expectedOutput = outputAmount.toAsset()
 
       this.route = JSON.parse(JSON.stringify(route))
