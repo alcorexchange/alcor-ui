@@ -223,10 +223,11 @@ export default {
       }
     },
 
+    // TODO Refactor into one function
     async calcInput(value) {
       const { tokenA, tokenB, slippage } = this
 
-      if (parseFloat(value) <= 0 || !tokenA || !tokenB) return this.amountB = null
+      if (parseFloat(value) <= 0 || !tokenA || !tokenB) return this.amountA = null
 
       if (getPrecision(value) > tokenA.decimals) {
         const [num, fraction] = value.split('.')
@@ -234,7 +235,7 @@ export default {
       }
 
       const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
-      if (!currencyAmountOut) return
+      if (!currencyAmountOut) return this.amountA = null
 
       const [best] = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
 
@@ -264,7 +265,7 @@ export default {
       }
 
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
-      if (!currencyAmountIn) return
+      if (!currencyAmountIn) return this.amountB = null
 
       const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 

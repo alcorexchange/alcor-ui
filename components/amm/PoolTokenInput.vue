@@ -77,8 +77,8 @@ export default {
     },
 
     input(value) {
-      value = parseFloat(value)
-      if (!value) return this.localValue = ''
+      value = parseFloat(value) || ''
+      this.localValue = value
 
       this.$emit('input', value.toString())
     }
