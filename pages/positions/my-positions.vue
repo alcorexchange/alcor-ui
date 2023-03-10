@@ -1,45 +1,44 @@
 <template lang="pug">
 el-table.market-table(
-  :data='positions',
+  :data='plainPositions',
   style='width: 100%',
+  @row-click="managePosition"
 )
   el-table-column(:label='$t("Assets in Position")' width="180")
     template(slot-scope='{row}')
       .d-flex.align-items-center.gap-10.p-2
-        pair-icons(:token1="row.pool.tokenA" :token2="row.pool.tokenB" size="20")
-        .fs-14 {{ row.pool.tokenA.symbol }} / {{ row.pool.tokenB.symbol }}
-        .tag {{ row.pool.fee / 10000 }}%
+        pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
+        .fs-14 {{ row.tokenA.symbol }} / {{ row.tokenB.symbol }}
+        .tag {{ row.fee / 10000 }}%
 
   el-table-column(:label='$t("Range")' width="220")
     template(slot-scope='{row}')
       .d-flex.flex-column
         .d-flex.align-items-center.gap-4
-          .indicator(:class="{ 'in-range': !outOfRange(row) }")
-          .fs-10 {{ !outOfRange(row) ? 'In Range': 'Out of Range' }}
+          .indicator(:class="{ 'in-range': row.inRange }")
+          .fs-10 {{ !row.inRange ? 'In Range': 'Out of Range' }}
         .d-flex.align-items-center.gap-6.flex-wrap
           .d-flex.gap-4
             .fs-12.disable MIN
-            .fs-12.contrast {{ priceLower(row) }}
+            .fs-12.contrast {{ row.priceLower }}
           i.el-icon-sort.rot
           .d-flex.gap-4
             .fs-12.disable MAX
-            .fs-12.contrast {{ priceUpper(row) }}
+            .fs-12.contrast {{ row.priceUpper }}
 
   el-table-column(:label='$t("Assets in Pool")')
     template(slot-scope='{row}')
       .d-flex.flex-column.gap-4
         .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenB.contract)' height="12")
+          token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
 
           .fs-12.earn.d-flex.gap-4(:class="{ red: true }")
-            span 0.00
-            span {{ row.pool.tokenA.symbol }}
+            span {{ row.amountA }}
         .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
+          token-image(:src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)' height="12")
 
           .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
-            span 0.00
-            span {{ row.pool.tokenB.symbol }}
+            span {{ row.amountB }}
 
   el-table-column(:label='$t("Unclaimed Fees")')
     template(slot-scope='{row}')
@@ -60,96 +59,29 @@ el-table.market-table(
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
 import AlcorButton from '~/components/AlcorButton'
-import { isTicksAtLimit } from '~/utils/amm'
-
-function getPositionPrice(position) {
-  if (!position) {
-    return {}
-  }
-
-  const { tokenA, tokenB } = position.pool
-
-  // TODO
-  // if tokenA is a dollar-stable asset, set it as the quote token
-  //const stables = [DAI, USDC_MAINNET, USDT]
-  //if (stables.some((stable) => stable.equals(tokenA))) {
-  //  return {
-  //    priceLower: position.tokenAPriceUpper.invert(),
-  //    priceUpper: position.tokenAPriceLower.invert(),
-  //    quote: tokenA,
-  //    base: tokenB,
-  //  }
-  //}
-
-  // TODO
-  // if tokenB is an WAX-/EOS-stable asset, set it as the base token
-  //const bases = [...Object.values(WRAPPED_NATIVE_CURRENCY), EOS]
-  //if (bases.some((base) => base && base.equals(tokenB))) {
-  //  return {
-  //    priceLower: position.tokenAPriceUpper.invert(),
-  //    priceUpper: position.tokenAPriceLower.invert(),
-  //    quote: tokenA,
-  //    base: tokenB,
-  //  }
-  //}
-
-  // if both prices are below 1, invert
-  if (position.tokenAPriceUpper.lessThan(1)) {
-    return {
-      priceLower: position.tokenAPriceUpper.invert(),
-      priceUpper: position.tokenAPriceLower.invert(),
-      quote: tokenA,
-      base: tokenB
-    }
-  }
-
-  // otherwise, just return the default
-  return {
-    priceLower: position.tokenAPriceLower,
-    priceUpper: position.tokenAPriceUpper,
-    quote: tokenB,
-    base: tokenA
-  }
-}
 
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
-  data: () => ({ mappedPositions: null }),
+  data: () => ({ positions: [] }),
+
+  computed: {
+    ...mapState('amm', ['plainPositions'])
+  },
 
   methods: {
-    outOfRange({ pool, tickLower, tickUpper }) {
-      return pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
-    },
-    priceLower(position) {
-      const { tickLower, tickUpper, pool: { fee: feeAmount } } = position
-      const isOnLimit = isTicksAtLimit(feeAmount, tickLower, tickUpper)
-
-      if (isOnLimit.LOWER) {
-        return '0'
-      }
-
-      return getPositionPrice(position).priceLower.toFixed()
+    async loadPositions() {
+      this.positions = await this.$store.dispatch('amm/getPlainPositions')
     },
 
-    priceUpper(position) {
-      const { tickLower, tickUpper, pool: { fee: feeAmount } } = position
-      const isOnLimit = isTicksAtLimit(feeAmount, tickLower, tickUpper)
-
-      if (isOnLimit.UPPER) {
-        return '∞'
-      }
-
-      return getPositionPrice(position).priceUpper.toFixed()
+    managePosition({ link }) {
+      this.$router.push(link)
     }
   },
-  computed: {
-    ...mapGetters('amm', ['positions']),
-  }
 }
 </script>
 

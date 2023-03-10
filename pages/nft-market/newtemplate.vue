@@ -68,10 +68,10 @@ export default {
       transfered_state: true,
       burned_state: true,
       attribute_data: [
-        { id: 0, name: 'name', },
-        { id: 1, name: 'image', },
-        { id: 2, name: 'Clean', },
-        { id: 3, name: 'Back', },
+        { id: 0, name: 'name' },
+        { id: 1, name: 'image' },
+        { id: 2, name: 'Clean' },
+        { id: 3, name: 'Back' },
       ]
     }
   },

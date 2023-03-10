@@ -1,5 +1,3 @@
-import JSBI from 'jsbi'
-
 import { FeeAmount, PositionLibrary, TickLibrary, CurrencyAmount, Token } from '~/assets/libs/swap-sdk'
 
 export const state = () => ({

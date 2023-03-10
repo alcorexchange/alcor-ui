@@ -1,18 +1,17 @@
-import JSBI from "jsbi"
-import { asset } from 'eos-common'
-
 import cloneDeep from 'lodash/cloneDeep'
 import Vue from 'vue'
 import { fetchAllRows } from '~/utils/eosjs'
-import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
+import { isTicksAtLimit, tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
 import { Percent, Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
+
 
 const DEFAULT_SLIPPAGE = 0.3
 
 export const state = () => ({
   pools: [],
   positions: [],
+  plainPositions: [],
 
   // Store only one pool ticks at the time
   ticks: {},
@@ -26,6 +25,7 @@ export const state = () => ({
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
   setPositions: (state, positions) => state.positions = positions,
+  setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
   setTicks: (state, { poolId, ticks }) => {
     ticks.sort((a, b) => a.id - b.id)
@@ -64,6 +64,25 @@ export const actions = {
     commit('setTicks', { poolId, ticks })
   },
 
+  async buildPlainPositions({ commit, getters }) {
+    const positions = []
+    for (const p of getters.positions) {
+      const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
+
+      const priceLower = isTicksAtLimit(fee, tickLower, tickUpper).LOWER ? '0' : p.tokenAPriceLower.toSignificant(5)
+      const priceUpper = isTicksAtLimit(fee, tickLower, tickUpper).UPPER ? '∞' : p.tokenAPriceUpper.toSignificant(5)
+
+      const amountA = p.amountA.toAsset()
+      const amountB = p.amountB.toAsset()
+      const { feesA, feesB } = await p.getFees()
+      const link = `/new-manage-liquidity/${p.pool.id}-${p.id}-${p.pool.fee}`
+
+      positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
+    }
+
+    commit('setPlainPositions', positions)
+  },
+
   async fetchPositions({ state, commit, rootState, dispatch }) {
     // TODO Make server api for it
     const owner = rootState.user?.name
@@ -88,6 +107,7 @@ export const actions = {
     }
 
     commit('setPositions', positions)
+    dispatch('buildPlainPositions')
   },
 
   async fetchPools({ state, commit, rootState, dispatch }) {

@@ -1,3 +1,5 @@
+const path = require('path')
+
 const config = require('./config')
 const pkg = require('./package')
 
@@ -217,6 +219,8 @@ module.exports = {
     standalone: true,
 
     extend(config, ctx) {
+      config.resolve.alias.jsbi = path.resolve(__dirname, 'node_modules', 'jsbi', 'dist', 'jsbi-cjs.js')
+
       config.node = {
         fs: 'empty'
       }
