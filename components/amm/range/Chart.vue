@@ -25,6 +25,7 @@
 
   slot(name="header")
 
+  //el-button(@click="test") Test
 
   svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible; align-self: center")
     defs
@@ -115,6 +116,11 @@ export default {
   watch: {
     brushDomain() {
       if (!this.brushDomain) this.emitDefaultBrush()
+
+      if (!this.interactive) {
+        // TODO Zoom to current brushDomain
+        //console.log(this.interactive, this.brushDomain)
+      }
     },
 
     zoomLevels: {
@@ -164,6 +170,18 @@ export default {
   },
 
   methods: {
+    test() {
+      const { svg } = this.$refs
+
+      //extent.map(this.xScale)
+      const { zoomBehavior } = this
+      svg &&
+        zoomBehavior &&
+
+        //select(svg).transition().call(zoomBehavior.scaleTo, 1)
+        //select(svg).transition().call(zoomBehavior.transform, zoomIdentity.translate(10, 1000).scale(1))
+    },
+
     installZoom() {
       const { svg } = this.$refs
 
@@ -175,7 +193,9 @@ export default {
           [0, 0],
           [this.width, this.height],
         ])
-        .on('zoom', ({ transform }) => this.zoom = transform)
+        .on('zoom', ({ transform }) => {
+          this.zoom = transform
+        })
 
       select(svg).call(this.zoomBehavior)
     },
