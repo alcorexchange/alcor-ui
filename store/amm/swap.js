@@ -91,6 +91,9 @@ export const actions = {
 export const getters = {
   tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
   tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
+  isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
+  sortedA: (state, getters) => getters.isSorted ? getters.tokenA : getters.tokenB,
+  sortedB: (state, getters) => getters.isSorted ? getters.tokenB : getters.tokenA,
 
   tokens(state, getters, rootState, rootGetters) {
     const tokens = []

@@ -158,6 +158,9 @@ export default {
       'tokenA',
       'tokenB',
       'tokens',
+      'isSorted',
+      'sortedA',
+      'sortedB'
     ]),
   },
   methods: {
@@ -168,7 +171,13 @@ export default {
 
     toggleTokens() {
       // TODO Handle amounts
+      const [amountA, amountB] = [this.amountB, this.amountA]
+
+      this.amountA = amountA
+      this.amountB = amountB
       this.$store.dispatch('amm/swap/flipTokens')
+
+      this.calcOutput(this.amountA)
     },
 
     setTokenA(token) {
@@ -184,16 +193,24 @@ export default {
     },
 
     async submit() {
+      try {
+        await this.swap()
+      } catch (e) {
+        console.log(e)
+        return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
+      }
+    },
+
+    async swap() {
       const { amountA, tokenA, tokenB, slippage } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
-      const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
-      if (!currencyAmountIn) return
+      const currencyAmountIn = tryParseCurrencyAmount(parseFloat(amountA).toFixed(tokenA.decimals), tokenA)
+      if (!currencyAmountIn) return console.log({ currencyAmountIn })
 
       const actions = []
       // TODO Swap with 2 same pools with different fee
       const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
-      console.log('swaps:', { trade })
       const { swaps: [{ inputAmount, route }] } = trade
 
       const path = route.pools.map(p => p.id).join(',')
@@ -227,7 +244,7 @@ export default {
     async calcInput(value) {
       const { tokenA, tokenB, slippage } = this
 
-      if (parseFloat(value) <= 0 || !tokenA || !tokenB) return this.amountA = null
+      if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
 
       if (getPrecision(value) > tokenA.decimals) {
         const [num, fraction] = value.split('.')
@@ -257,11 +274,11 @@ export default {
     async calcOutput(value) {
       const { tokenA, tokenB, slippage } = this
 
-      if (!tokenA || !tokenB) return this.amountB = null
+      if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
 
       if (getPrecision(value) > tokenA.decimals) {
         const [num, fraction] = value.split('.')
-        return this.amountA = `${num}.${fraction.slice(0, tokenA.decimals)}`
+        value = `${num}.${fraction.slice(0, tokenA.decimals)}`
       }
 
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)

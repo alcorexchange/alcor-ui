@@ -77,10 +77,10 @@ export default {
     },
 
     input(value) {
-      value = parseFloat(value) || ''
-      this.localValue = value
+      if (isNaN(value)) return
 
-      this.$emit('input', value.toString())
+      this.localValue = value
+      this.$emit('input', value)
     }
   },
 
