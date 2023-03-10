@@ -5,8 +5,10 @@ import cloneDeep from 'lodash/cloneDeep'
 import Vue from 'vue'
 import { fetchAllRows } from '~/utils/eosjs'
 import { tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
-import { Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
+import { Percent, Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
+
+const DEFAULT_SLIPPAGE = 0.3
 
 export const state = () => ({
   pools: [],
@@ -18,7 +20,7 @@ export const state = () => ({
   // TODO move to module
   selectedTokenA: null,
   selectedTokenB: null,
-  slippage: 0.3
+  slippage: DEFAULT_SLIPPAGE
 })
 
 export const mutations = {
@@ -101,6 +103,8 @@ export const actions = {
 }
 
 export const getters = {
+  slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
+
   pools(state, getters, rootState) {
     const pools = []
 

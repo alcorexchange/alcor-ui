@@ -1,21 +1,19 @@
 <template lang="pug">
 .swap-route-component
-  token-image(:src="$tokenLogo('WAX', 'eosio.token')" height="24")
+  token-image(:src="$tokenLogo(route.input.symbol, route.input.contract)" height="24")
 
   .d-flex.route
     .line
-    .node.mx-2 50%
+    .node.mx-2 100%
     .w-100.d-flex.justify-content-around
-      .node.d-flex.align-items-center.gap-8
-        pair-icons(:token1="{ symbol: 'WAX', contract: 'eosio.token'}" token2="t2" size="24" direction="row")
-        .fs-12.ml-3 0.1%
-      .node.d-flex.align-items-center.gap-8
-        pair-icons(:token1="{ symbol: 'WAX', contract: 'eosio.token'}" token2="t2" size="24" direction="row")
-
-        .fs-12.ml-3 0.1%
-      .node.d-flex.align-items-center.gap-8
-        pair-icons(:token1="{ symbol: 'WAX', contract: 'eosio.token'}" token2="t2" size="24" direction="row")
-        .fs-12.ml-3 0.1%
+      .node.d-flex.align-items-center.gap-8(v-for="{fee, tokenA, tokenB} in route.pools")
+        pair-icons(
+          :token1="{ symbol: tokenA.symbol, contract: tokenA.contract}"
+          :token2="{ symbol: tokenB.symbol, contract: tokenB.contract}"
+          size="24"
+          direction="row"
+        )
+        .fs-12.ml-3 {{ fee / 10000 }}%
 
   token-image(src="token-conract" height="24")
 
@@ -26,6 +24,8 @@ import TokenImage from '~/components/elements/TokenImage'
 import PairIcons from '~/components/PairIcons'
 
 export default {
+  props: ['route'],
+
   components: { TokenImage, PairIcons }
 }
 </script>

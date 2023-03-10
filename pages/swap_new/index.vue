@@ -1,4 +1,5 @@
 <template lang="pug">
+// TODO Move to component SwapWidget
 .d-flex.gap-6.justify-content-center
   alcor-container.mt-5.swap-widget
     .d-flex.justify-content-between.align-items-center.p-1
@@ -26,11 +27,12 @@
       :token="tokenB"
       :tokens="tokens"
       v-model="amountB"
+      @input="calcInput"
       @tokenSelected="setTokenB"
     )
 
     alcor-container.mt-2(:alternative="true")
-      el-collapse(:value="['1']").default
+      el-collapse(:value="routerCollapse").default
         el-collapse-item(name="1")
           template(#title)
             .d-flex.align-items-center.gap-8.py-1(v-if="loading")
@@ -39,7 +41,7 @@
             .d-flex.align-items-center.gap-8.py-1(v-else)
               .disable.fs-12 Rate
               .d-flex.gap-4
-                .fs-12 3.6198 BRWL per WAX
+                .fs-12 {{ rate }} BRWL per WAX
                 .fs-12.disable (1402,10.01$)
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
@@ -52,7 +54,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) 79.01222 WAX
+              .fs-12(v-else) {{ expectedOutput }}
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Price Impact
@@ -64,7 +66,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) 0%
+              .fs-12(v-else) {{ priceImpact }}%
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Minimum Received after slippage
@@ -76,21 +78,23 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) 79.01222 WAX (0.4%)
-          .d-flex.flex-column.gap-4
-            .d-flex.justify-content-between.align-items-center
-              .fs-12.disable Network fee
-              vue-skeleton-loader(
-                v-if='loading'
-                :width='52',
-                :height='14',
-                animation='wave',
-                wave-color='rgba(150, 150, 150, 0.1)',
-                :rounded='true',
-              )
-              .fs-12(v-else) 0.00
+              .fs-12(v-else) {{ miniumOut }} WAX ({{ slippage.toFixed() }}%)
 
-          alcor-container.mt-2
+          // TODO PROVIDER FEE
+          //- .d-flex.flex-column.gap-4
+          //-   .d-flex.justify-content-between.align-items-center
+          //-     .fs-12.disable Network fee
+          //-     vue-skeleton-loader(
+          //-       v-if='loading'
+          //-       :width='52',
+          //-       :height='14',
+          //-       animation='wave',
+          //-       wave-color='rgba(150, 150, 150, 0.1)',
+          //-       :rounded='true',
+          //-     )
+          //-     .fs-12(v-else) 0.00
+
+          alcor-container.mt-2(v-if="route")
             el-collapse.default.multiroute
               el-collapse-item
                 template(#title)
@@ -101,10 +105,9 @@
 
                     i.el-icon-plus
                 .p-1
-                  swap-route
+                  swap-route(:route="route")
 
     alcor-button.w-100.mt-2(@click="submit" big access) Swap WAX to BRWL
-
 </template>
 
 <script>
@@ -117,10 +120,7 @@ import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
-import { Percent, Trade } from '~/assets/libs/swap-sdk'
 import { tryParseCurrencyAmount } from '~/utils/amm'
-
-const DEFAULT_SWAP_SLIPPAGE = new Percent(50, 10000) // 0.5%
 
 export default {
   components: {
@@ -137,11 +137,19 @@ export default {
     loading: false,
     amountA: null,
     amountB: null,
-    details: ['1'],
+    details: ['1'], // Details are open by default
+
+    rate: 0,
+    priceImpact: 0,
+    miniumOut: 0,
+    expectedOutput: 0,
+    route: null,
+
+    routerCollapse: ['1']
   }),
   computed: {
     ...mapState(['user', 'network']),
-    ...mapState(['amm', 'slippage']),
+    ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
@@ -159,7 +167,6 @@ export default {
     },
 
     setTokenA(token) {
-      console.log('token', token)
       this.$store.dispatch('amm/swap/setTokenA', token)
     },
 
@@ -172,9 +179,7 @@ export default {
     },
 
     async submit() {
-      const slippage = !isNaN(this.slippage) ? new Percent(this.slippage * 100, 10000) : DEFAULT_SWAP_SLIPPAGE
-
-      const { amountA, tokenA, tokenB } = this
+      const { amountA, tokenA, tokenB, slippage } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const currencyAmountIn = tryParseCurrencyAmount(amountA, tokenA)
@@ -213,37 +218,62 @@ export default {
       }
     },
 
-    async calcOutput(value, independentField) {
-      const { tokenA, tokenB } = this
+    async calcInput(value) {
+      //this.loading = true // todo
+
+      const { tokenA, tokenB, slippage } = this
+
+      if (!value || !tokenA || !tokenB) return this.amountB = null
+
+      const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+      const [best] = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+      console.log({ best })
+
+      if (!best) {
+        // TODO clear tokenB
+        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+      }
+
+      const { inputAmount, executionPrice, priceImpact, route } = best
+      this.amountA = inputAmount.toFixed()
+      this.expectedOutput = inputAmount.toAsset()
+
+      this.route = JSON.parse(JSON.stringify(route))
+      this.rate = executionPrice.toSignificant(6)
+      this.priceImpact = priceImpact.toFixed(2)
+      this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+      console.log(this.route)
+
+      //this.loading = false
+    },
+
+    async calcOutput(value) {
+      //this.loading = true // todo
+
+      const { tokenA, tokenB, slippage } = this
 
       if (!value || !tokenA || !tokenB) return this.amountB = null
 
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
-      const trades = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-      const [best] = trades
-      console.log({ trades })
+      const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
-      const { outputAmount, executionPrice, priceImpact } = best
+      if (!best) {
+        // TODO clear tokenB
+        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+      }
 
-      //console.log(outputAmount.toSignificant(), outputAmount.toFixed(), outputAmount.toExact())
-      //console.log({ badOutput: outputAmount.toFixed(), goodOutput })
-      this.amountB = outputAmount.toSignificant()
-      this.rate = executionPrice.toFixed(6)
-      this.impact = priceImpact.toFixed(2)
+      const { outputAmount, executionPrice, priceImpact, route } = best
+      this.amountB = outputAmount.toFixed()
+      this.expectedOutput = outputAmount.toAsset()
 
-      this.miniumOut = best.minimumAmountOut(new Percent(5, 100)).toFixed()
+      this.route = JSON.parse(JSON.stringify(route))
+      this.rate = executionPrice.toSignificant(6)
+      this.priceImpact = priceImpact.toFixed(2)
+      this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+      console.log(this.route)
 
-      //public minimumAmountOut(slippageTolerance: Percent, amountOut = this.outputAmount): CurrencyAmount<TOutput> {
+      //this.loading = false
 
-      //console.log(best)
-
-      //const { tokenA, tokenB } = this
-
-      //if (independentField == 'INPUT') {
-      //} else {
-      //  const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
-      //  return this.currencyAmountOut({ currencyAmountOut, currencyIn: tokenA })
-      //}
     }
   }
 }
