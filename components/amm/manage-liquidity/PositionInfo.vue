@@ -3,8 +3,8 @@
   .d-flex.justify-content-between
     .d-flex.gap-8.align-items-center
       PairIcons.pair-icons(v-if="!isMobile" token1="row.input" token2="row.output")
-      .pairs WAX / BLK
-      .tag 0.3%
+      .pairs {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
+      .tag {{ pool.fee / 10000 }}%
       RangeIndicator(:inRange="true")
 
     slot(name="action")
@@ -14,7 +14,7 @@
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
       TokenImage.token-image(src="token-conract" height="25")
-      span.f-18 WAX
+      span.f-18 BLK
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
       .fs-18 886
@@ -54,7 +54,7 @@ export default {
     TokenImage,
     PairIcons
   },
-  props: ['noPL']
+  props: ['noPL', 'pool', 'position']
 }
 </script>
 

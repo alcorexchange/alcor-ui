@@ -3,7 +3,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
   PageHeader(title="Manage Liquidity")
   .main.gap-16.pt-3
     .left
-      PositionInfo
+      PositionInfo(:pool="pool" :position="position")
         template(#action)
           IncreaseLiquidity
       .separator.mt-3
@@ -91,7 +91,7 @@ export default {
     profitLoss: null,
     series: null,
 
-    fees: {}
+    fees: {},
   }),
 
   computed: {
