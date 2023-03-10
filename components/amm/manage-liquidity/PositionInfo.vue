@@ -13,8 +13,8 @@
 
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
-      TokenImage.token-image(src="token-conract" height="25")
-      span.f-18 BLK
+      TokenImage.token-image(:src="$tokenLogo(position.amountA.currency.symbol, position.amountA.contract)" height="25")
+      span.f-18 {{ position.amountA.currency.symbol }}
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
       .fs-18 {{ position.amountA.toSignificant() }}
@@ -22,11 +22,11 @@
 
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
-      TokenImage.token-image(src="token-conract" height="25")
-      span.f-18 BLK
+      TokenImage.token-image(:src="$tokenLogo(position.amountB.currency.symbol, position.amountB.contract)" height="25")
+      span.f-18 {{ position.amountB.currency.symbol }}
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
-      .fs-18 29,256
+      .fs-18 {{ position.amountB.toSignificant() }}
       .fs-14.color-action ($60.56)
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-2
