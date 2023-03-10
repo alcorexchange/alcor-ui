@@ -118,6 +118,9 @@ export default {
       padding: 0;
       height: auto;
       line-height: 1;
+      &::placeholder{
+        opacity: 0.6;
+      }
     }
   }
   .input-after {
