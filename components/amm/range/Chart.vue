@@ -140,7 +140,7 @@ export default {
       // console.log(this.$refs.chart && this.$refs.chart.getBoundingClientRect())
       // // return this.width - this.margins.left - this.margins.right
       // return w
-      return this.width
+      return this.width - this.margins.left - this.margins.right
     },
 
     xScale() {
