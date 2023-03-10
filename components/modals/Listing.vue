@@ -141,12 +141,12 @@ export default {
         schema_name,
         burned
       })
-      if(data.length) this.chartData = data
+      if (data.length) this.chartData = data
     },
     async getLowestPrice() {
       const templateID = this.context.template?.template_id || this.context.assets[0].template.template_id
       const r = await this.getTemplatePrice({ templateID })
-      if(r.length) this.lowestPrice = (+r[0].min / Math.pow(10, r[0].token_precision)).toFixed(2)
+      if (r.length) this.lowestPrice = (+r[0].min / Math.pow(10, r[0].token_precision)).toFixed(2)
     }
   }
 }
