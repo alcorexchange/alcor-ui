@@ -1,5 +1,5 @@
 <template lang="pug">
-.add-liquidity-chart(ref="chart")
+.add-liquidity-chart
   //- slot(
   //-   name="header"
   //-   :svg="$refs.zoomA"
@@ -97,7 +97,7 @@ import { data } from './data'
 export default {
   components: { Area, AreaLine, AxisBottom, Brush, Zoom },
 
-  props: ['series', 'current', 'ticksAtLimit', 'styles', 'height', 'margins', 'interactive', 'brushDomain',
+  props: ['series', 'current', 'ticksAtLimit', 'styles', 'height', 'width', 'margins', 'interactive', 'brushDomain',
     'brushLabel', 'zoomLevels', 'title'],
 
   data() {
@@ -109,7 +109,6 @@ export default {
 
       westHandleColor: '#1aae80',
       eastHandleColor: '#1873d8',
-      width: 0
     }
   },
 
@@ -136,10 +135,6 @@ export default {
     },
 
     innerWidth() {
-      // const w = (this.$refs.chart && this.$refs.chart.getBoundingClientRect().width) || 0
-      // console.log(this.$refs.chart && this.$refs.chart.getBoundingClientRect())
-      // // return this.width - this.margins.left - this.margins.right
-      // return w
       return this.width - this.margins.left - this.margins.right
     },
 
@@ -166,14 +161,9 @@ export default {
   mounted() {
     console.log('RangeChartMount: ', this.$props, this.brushDomain)
     this.reset()
-    this.setWidth()
   },
 
   methods: {
-    setWidth() {
-      const w = (this.$refs.chart && this.$refs.chart.getBoundingClientRect().width) || 400
-      this.width = w
-    },
     installZoom() {
       const { svg } = this.$refs
 
