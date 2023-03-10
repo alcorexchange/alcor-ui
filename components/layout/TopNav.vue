@@ -110,7 +110,7 @@ export default {
           this.$store.state.network.name
         )
       ) {
-        items.push({ index: '/swap_old', name: 'Swap v1' })
+        items.push({ index: '/swp_old', name: 'Swap v1' })
       }
 
 
