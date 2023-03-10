@@ -102,16 +102,20 @@ export default {
     menuItems() {
       const items = []
 
+      items.push({ index: '/swap', name: 'Swap', new: true })
+      items.push({ index: '/positions/my-positions', name: 'Pool' })
+
       if (
-        ['eos', 'wax', 'jungle', 'telos', 'local'].includes(
+        ['eos', 'wax', 'jungle', 'telos', 'local', 'waxtest'].includes(
           this.$store.state.network.name
         )
       ) {
-        items.push({ index: '/swap', name: 'Swap' })
+        items.push({ index: '/swap_old', name: 'Swap v1' })
       }
 
+
       items.push({ index: '/markets', name: 'Markets' })
-      items.push({ index: '/bridge', name: 'Bridge', new: true })
+      items.push({ index: '/bridge', name: 'Bridge' })
 
       items.push({ index: '/otc', name: 'OTC' })
 
@@ -241,6 +245,7 @@ export default {
       position: absolute;
       bottom: 12px;
       left: 42px;
+      z-index: 1;
     }
 
     &.active {

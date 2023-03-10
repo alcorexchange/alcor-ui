@@ -75,7 +75,7 @@ export const actions = {
       const amountA = p.amountA.toAsset()
       const amountB = p.amountB.toAsset()
       const { feesA, feesB } = await p.getFees()
-      const link = `/new-manage-liquidity/${p.pool.id}-${p.id}-${p.pool.fee}`
+      const link = `/manage-position/${p.pool.id}-${p.id}-${p.pool.fee}`
 
       positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
     }

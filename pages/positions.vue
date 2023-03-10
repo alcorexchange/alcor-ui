@@ -8,7 +8,7 @@
         .fs-20 History
     .d-flex.gap-10
       alcor-button Analytics
-      alcor-button(access)
+      alcor-button(access @click="$router.push('/new-position')")
         i.el-icon-plus
         .fs-14 New Position
 

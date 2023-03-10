@@ -1,431 +1,353 @@
 <template lang="pug">
-  .swap-container
-    .swap-card
-      .alcor-card
-        .tab-bar
-          .item(@click="changeTab('Swap')" :class="{active: tab === 'Swap'}") {{ $t('Swap') }}
-          .item.center(@click="changeTab('+ Liquidity')" :class="{active: tab === '+ Liquidity'}") + {{ $t('liquidity') }}
-          .item(@click="changeTab('- Liquidity')" :class="{active: tab === '- Liquidity'}") - {{ $t('liquidity') }}
-        SSpacer(high)
-        .tab-item
-          keep-alive
-            AddLiquidity(v-if="tab === '+ Liquidity'")
-            RemoveLiquidity(v-else-if="tab === '- Liquidity'")
-            Swap(v-else)
-    .chart-card(v-if="tab == 'Swap'")
-      .header
-        .pair-container(v-if="current")
-          .left
-            PairIcons(
-              :token1="{symbol: current.pool1.quantity.symbol.code().to_string(), contract: current.pool1.contract}"
-              :token2="{symbol: current.pool2.quantity.symbol.code().to_string(), contract: current.pool2.contract}"
-            )
-            //- PairIcons(
-            //-   :firstIcon="$tokenLogo(current.pool1.quantity.symbol.code().to_string(), current.pool1.contract)",
-            //-   :secondIcon="$tokenLogo(current.pool2.quantity.symbol.code().to_string(), current.pool2.contract)"
-            //- )
-            .name-container
-              .names(v-if="!isReverted") {{ current.pool1.quantity.symbol.code().to_string() }}/{{ current.pool2.quantity.symbol.code().to_string() }}
-              .names(v-else) {{ current.pool2.quantity.symbol.code().to_string() }}/{{ current.pool1.quantity.symbol.code().to_string() }}
+// TODO Move to component SwapWidget
+.d-flex.gap-6.justify-content-center
+  alcor-container.mt-5.swap-widget
+    .d-flex.justify-content-between.align-items-center.p-1
+      .fs-18 {{ $t('Swap') }}
+      .d-flex.gap-16.align-items-center
+        i.el-icon-refresh.pointer(@click="loading = !loading")
+        settings
 
-              .detail.muted {{ $t('Liquidity') }} alcor.dex
-          .right
-            AlcorButton.eol(@click="openInNewTab('https://docs.alcor.exchange/liquidity-pools/understanding-returns')") {{ $t('Earn On Liquidity') }}
-      SSpacer(high)
-      .chart
-        Chart(:tab="chart_tab" :period="period")
-      SSpacer(high)
-      .footer
-        .left
-          el-radio-group.custom-radio(v-model="chart_tab" size="small")
-            el-radio-button(:label="$t('Price')")
-            el-radio-button(:label="$t('Liquidity')")
-            el-radio-button(:label="$t('Volume')")
-        .right
-          el-radio-group.custom-radio(v-model="period" size="small")
-            el-radio-button(:label="$t('24H')")
-            el-radio-button(:label="$t('7D')")
-            el-radio-button(:label="$t('30D')")
-            el-radio-button(:label="$t('All')")
-    LiquidityPositions.liquidity-positions(v-else)
+    PoolTokenInput.mt-2(
+      label="Sell"
+      :token="tokenA"
+      :tokens="tokens"
+      v-model="amountA"
+      @input="calcOutput"
+      @tokenSelected="setTokenA"
+      :show-max-button="false"
+      @onMax="setAToMax"
+    )
+    .w-100.position-relative
+      .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos(@click="toggleTokens")
+        .bottom-icon
+          i.el-icon-bottom.text-center.fs-20.pointer
+    PoolTokenInput.mt-1(
+      label="Buy"
+      :token="tokenB"
+      :tokens="tokens"
+      v-model="amountB"
+      @input="calcInput"
+      @tokenSelected="setTokenB"
+    )
+
+    alcor-container.mt-2(:alternative="true")
+      el-collapse(:value="routerCollapse").default
+        el-collapse-item(name="1")
+          template(#title)
+            .d-flex.align-items-center.gap-8.py-1(v-if="loading")
+              i.el-icon-loading.el-icon-refresh.h-fit
+              .fs-12.disable Fetching Best price...
+            .d-flex.align-items-center.gap-8.py-1(v-else)
+              .disable.fs-12 Rate
+              .d-flex.gap-4
+                .fs-12 {{ rate }} BRWL per WAX
+                .fs-12.disable (1402,10.01$)
+          .d-flex.flex-column.gap-4
+            .d-flex.justify-content-between.align-items-center
+              .fs-12.disable Expected Output
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) {{ expectedOutput }}
+          .d-flex.flex-column.gap-4
+            .d-flex.justify-content-between.align-items-center
+              .fs-12.disable Price Impact
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) {{ priceImpact }}%
+          .d-flex.flex-column.gap-4
+            .d-flex.justify-content-between.align-items-center
+              .fs-12.disable Minimum Received after slippage
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) {{ miniumOut }} WAX ({{ slippage.toFixed() }}%)
+
+          // TODO PROVIDER FEE
+          //- .d-flex.flex-column.gap-4
+          //-   .d-flex.justify-content-between.align-items-center
+          //-     .fs-12.disable Network fee
+          //-     vue-skeleton-loader(
+          //-       v-if='loading'
+          //-       :width='52',
+          //-       :height='14',
+          //-       animation='wave',
+          //-       wave-color='rgba(150, 150, 150, 0.1)',
+          //-       :rounded='true',
+          //-     )
+          //-     .fs-12(v-else) 0.00
+
+          alcor-container.mt-2(v-if="route")
+            el-collapse.default.multiroute
+              el-collapse-item
+                template(#title)
+                  .d-flex.justify-content-between.align-items-center.w-100.p-1
+                    .d-flex.gap-8.color-action.align-items-center
+                      i.el-icon-connection
+                      .fs-12 Multiroute
+
+                    i.el-icon-plus
+                .p-1
+                  swap-route(:route="route")
+
+    alcor-button.w-100.mt-2(@click="submit" big access) Swap WAX to BRWL
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+// TODO DEBOUINCE FOR INPUTS
+// https://stackoverflow.com/questions/42199956/how-to-implement-debounce-in-vue2
 
-import Swap from '~/components/swap/Swap.vue'
-import Chart from '~/components/swap/Chart.vue'
-import AddLiquidity from '~/components/swap/AddLiquidity.vue'
-import RemoveLiquidity from '~/components/swap/RemoveLiquidity.vue'
-import LiquidityPositions from '~/components/swap/LiquidityPositions.vue'
-import AlcorButton from '~/components/AlcorButton.vue'
-import SSpacer from '~/components/SSpacer.vue'
-import Spacer from '~/components/Spacer.vue'
-import TokenImage from '~/components/elements/TokenImage'
-import PairIcons from '~/components/PairIcons'
+import VueSkeletonLoader from 'skeleton-loader-vue'
+import { mapState, mapActions, mapGetters } from 'vuex'
+import AlcorContainer from '~/components/AlcorContainer'
+import ReturnLink from '~/components/ReturnLink'
+import AlcorCollapse from '~/components/AlcorCollapse'
+import AlcorButton from '~/components/AlcorButton'
+import PoolTokenInput from '~/components/amm/PoolTokenInput'
+import Settings from '~/components/amm/Settings'
+import SwapRoute from '~/components/swap/SwapRoute'
+import { tryParseCurrencyAmount } from '~/utils/amm'
+import { getPrecision } from '~/utils'
 
 export default {
   components: {
-    Swap,
-    Chart,
-    AddLiquidity,
-    RemoveLiquidity,
-    LiquidityPositions,
-    SSpacer,
-    Spacer,
+    AlcorContainer,
+    ReturnLink,
+    AlcorCollapse,
     AlcorButton,
-    TokenImage,
-    PairIcons
+    PoolTokenInput,
+    Settings,
+    SwapRoute,
+    VueSkeletonLoader
   },
+  data: () => ({
+    loading: false,
+    amountA: null,
+    amountB: null,
+    details: ['1'], // Details are open by default
 
-  fetch({ store, route }) {
-    const { input, output } = route.query
+    rate: 0,
+    priceImpact: 0,
+    miniumOut: 0,
+    expectedOutput: 0,
+    route: null,
 
-    if (input) {
-      const [symbol, contract] = input.split('-')
-      store.commit('swap/setInput', { symbol, contract })
-    }
-
-    if (output) {
-      const [symbol, contract] = output.split('-')
-      store.commit('swap/setOutput', { symbol, contract })
-    }
-  },
-
-  data() {
-    return {
-      chart_tab: 'Price',
-      period: '7D'
-    }
-  },
-
+    routerCollapse: ['1']
+  }),
   computed: {
-    ...mapState(['network']),
-    ...mapState('swap', ['tab', 'input', 'output']),
-    ...mapGetters('swap', ['current', 'isReverted']),
-
-    tabComponent() {
-      if (this.tab == '+ Liquidity') return 'AddLiquidity'
-      if (this.tab == '- Liquidity') return 'RemoveLiquidity'
-
-      return 'Swap'
-    }
+    ...mapState(['user', 'network']),
+    ...mapGetters('amm', ['slippage']),
+    ...mapGetters('amm/swap', [
+      'tokenA',
+      'tokenB',
+      'tokens',
+      'isSorted',
+      'sortedA',
+      'sortedB'
+    ]),
   },
-
-  watch: {
-    tab() {
-      this.$store.dispatch('loadLPTBalances')
-    },
-
-    output() {
-      if (this.output) {
-        setTimeout(() => {
-          this.$router.push({
-            path: this.$route.path,
-            query: {
-              ...this.$route.query,
-              output: this.output.symbol + '-' + this.output.contract
-            }
-          })
-        }, 1)
-      } else {
-        this.$router.push({ path: this.$route.path })
-      }
-    },
-
-    input() {
-      if (this.input) {
-        setTimeout(() => {
-          this.$router.push({
-            path: this.$route.path,
-            query: {
-              ...this.$route.query,
-              input: this.input.symbol + '-' + this.input.contract
-            }
-          })
-        }, 1)
-      } else {
-        this.$router.push({ path: this.$route.path })
-      }
-    }
-  },
-
-  beforeRouteLeave(to, from, next) {
-    this.$socket.emit('unsubscribe', {
-      room: 'pools',
-      params: { chain: this.network.name }
-    })
-    next()
-  },
-
-  mounted() {
-    this.$store.dispatch('swap/startStream')
-    // TODO Move to swap store
-    //this.$socket.emit('subscribe', {
-    //  room: 'pools',
-    //  params: { chain: this.network.name }
-    //})
-
-    //this.$socket.on('update_pair', (data) => {
-    //  this.$store.dispatch('swap/updatePairOnPush', data)
-    //})
-  },
-
-  destroyed() {
-    // Actually thanks to updatePair function no need it
-    //this.$store.dispatch('swap/stopStream')
-  },
-
   methods: {
-    changeTab(tab) {
-      this.$store.commit('swap/setTab', tab)
-    }
-  },
+    ...mapActions('amm/swap', [
+      'bestTradeExactIn',
+      'bestTradeExactOut'
+    ]),
 
-  head() {
-    const { input, output } = this.$store.state.swap
+    toggleTokens() {
+      // TODO Handle amounts
+      const [amountA, amountB] = [this.amountB, this.amountA]
 
-    const title =
-      input && output
-        ? `Alcor Exchange | Swap ${input.symbol} for ${output.symbol}`
-        : 'Alcor Exchange | Swap & Earn on your Liquidity'
+      this.amountA = amountA
+      this.amountB = amountB
+      this.$store.dispatch('amm/swap/flipTokens')
 
-    const meta = [
-      {
-        hid: 'description',
-        name: 'description',
-        content: 'Easy token swap, with liquidity providers earnings.'
+      this.calcOutput(this.amountA)
+    },
+
+    setTokenA(token) {
+      this.$store.dispatch('amm/swap/setTokenA', token)
+    },
+
+    setAToMax() {
+      console.log('setAToMax')
+    },
+
+    setTokenB(token) {
+      this.$store.dispatch('amm/swap/setTokenB', token)
+    },
+
+    async submit() {
+      try {
+        await this.swap()
+      } catch (e) {
+        console.log(e)
+        return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
       }
-    ]
+    },
 
-    if (input && output) {
-      meta.push({
-        hid: 'og:image',
-        name: 'og:image',
-        content: this.$tokenLogo(output.symbol, output.contract)
-      })
-    }
+    async swap() {
+      const { amountA, tokenA, tokenB, slippage } = this
+      if (!tokenA || !tokenB) return console.log('no tokens selected')
 
-    return {
-      title,
-      meta
+      const currencyAmountIn = tryParseCurrencyAmount(parseFloat(amountA).toFixed(tokenA.decimals), tokenA)
+      if (!currencyAmountIn) return console.log({ currencyAmountIn })
+
+      const actions = []
+      // TODO Swap with 2 same pools with different fee
+      const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
+      const { swaps: [{ inputAmount, route }] } = trade
+
+      const path = route.pools.map(p => p.id).join(',')
+      const min = trade.minimumAmountOut(slippage) // TODO Manage slippages
+
+      // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
+      const memo = `swapexactin#${path}#${this.user.name}#${min.toExtendedAsset()}#0`
+
+      if (parseFloat(amountA) > 0)
+        actions.push({
+          account: tokenA.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: inputAmount.toAsset(),
+            memo
+          }
+        })
+
+      try {
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log(r)
+      } catch (e) {
+        console.log('err', e)
+      }
+    },
+
+    // TODO Refactor into one function
+    async calcInput(value) {
+      const { tokenA, tokenB, slippage } = this
+
+      if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
+
+      if (getPrecision(value) > tokenA.decimals) {
+        const [num, fraction] = value.split('.')
+        return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
+      }
+
+      const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+      if (!currencyAmountOut) return this.amountA = null
+
+      const [best] = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+
+      if (!best) {
+        // TODO clear tokenB
+        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+      }
+
+      const { inputAmount, executionPrice, priceImpact, route } = best
+      this.amountA = inputAmount.toFixed()
+      this.expectedOutput = inputAmount.toAsset()
+
+      this.route = JSON.parse(JSON.stringify(route))
+      this.rate = executionPrice.toSignificant(6)
+      this.priceImpact = priceImpact.toFixed(2)
+      this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+    },
+
+    async calcOutput(value) {
+      const { tokenA, tokenB, slippage } = this
+
+      if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
+
+      if (getPrecision(value) > tokenA.decimals) {
+        const [num, fraction] = value.split('.')
+        value = `${num}.${fraction.slice(0, tokenA.decimals)}`
+      }
+
+      const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
+      if (!currencyAmountIn) return this.amountB = null
+
+      const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+
+      if (!best) {
+        // TODO clear tokenB
+        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+      }
+
+      const { outputAmount, executionPrice, priceImpact, route } = best
+      this.amountB = this.$options.filters.commaFloat(outputAmount.toFixed(), tokenB.decimals)
+      this.expectedOutput = outputAmount.toAsset()
+
+      this.route = JSON.parse(JSON.stringify(route))
+      this.rate = executionPrice.toSignificant(6)
+      this.priceImpact = priceImpact.toFixed(2)
+      this.miniumOut = best.minimumAmountOut(slippage).toFixed()
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.swap-container {
-  display: flex;
-  padding-top: 20px;
-}
-
-.swap-card {
-  width: 33.3333%;
-}
-
-.tab-bar {
-  display: flex;
-  background: var(--btn-default);
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  border-radius: var(--radius-2);
-  overflow: hidden;
-
-  .item {
-    flex: 1;
-    text-align: center;
-    padding: 4px;
-    border-radius: var(--radius-2);
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s;
-
-    &.center {
-      margin: 0 2px;
-    }
-
-    &:hover {
-      background: var(--hover);
-    }
-
-    &.active {
-      background: var(--btn-active);
-      box-shadow: 0px 3px 28px -1px rgba(0, 0, 0, 0.4);
-      // color: var(--background-color-base);
-    }
-  }
-}
-
-.chart-card,
-.liquidity-positions {
-  flex: 1;
-  margin-left: 30px;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-
-  .pair-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .left {
-      display: flex;
-      align-items: center;
-    }
-
-    .eol {
-      border-radius: var(--radius);
-      padding: 6px 24px;
-    }
-
-    .icons {
-      position: relative;
-      display: flex;
-      height: 40px;
-      width: 40px;
-
-      .icon {
-        position: absolute;
-        width: 25px;
-        height: 25px;
-        object-fit: cover;
-        border-radius: 50%;
-      }
-
-      .icon-1 {
-        top: 0;
-        left: 0;
-      }
-
-      .icon-2 {
-        bottom: 0;
-        right: 0;
-      }
-    }
-
-    .name-container {
-      padding-left: 10px;
-
-      .names {
-        font-size: 1.6rem;
-        font-weight: bold;
-      }
-
-      display: flex;
-      flex-direction: column;
-    }
-  }
-}
-
-.chart {
-  min-height: 200px;
-  flex: 1;
-}
-
-.footer {
-  display: flex;
-  justify-content: space-between;
-
-  .left,
-  .right {
-    display: flex;
-    align-items: center;
-
-    .item {
-      user-select: none;
-      display: flex;
-      padding: 4px 6px;
-      border-radius: var(--radius);
-      cursor: pointer;
-
-      &.active {
-        background: var(--btn-active);
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 980px) {
-  .swap-container {
-    flex-direction: column;
+<style lang="scss">
+.multiroute {
+  .el-collapse-item__arrow {
+    display: none !important;
   }
 
-  .swap-card {
-    width: 100%;
-    margin-bottom: 20px;
+  i.el-icon-plus {
+    transition: all 0.3s;
   }
 
-  .chart-card,
-  .liquidity-positions {
-    margin-left: 0;
-  }
-}
-
-@media only screen and (max-width: 680px) {
-  .tab-bar {
-    .item {
-      font-size: 0.9rem;
+  .is-active {
+    i.el-icon-plus {
+      transform: rotate(45deg);
     }
-  }
-
-  .header {
-    .pair-container {
-      flex-direction: column;
-      align-items: flex-start;
-
-      .right {
-        margin: 8px 0;
-      }
-    }
-  }
-
-  .footer {
-    flex-direction: column;
-
-    .left {
-      margin-bottom: 8px;
-    }
-  }
-
-  .alcor-card {
-    padding: 8px;
   }
 }
 </style>
-<style lang="scss">
-.el-card.swap-card {
-  overflow: visible;
 
-  .el-button--mini {
-    padding: 0px 15px;
-  }
+<style lang="scss" scoped>
+.swap-widget {
+  width: 450px;
 }
+.bottom-icon {
+  background: var(--btn-default);
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px solid var(--background-color-secondary);
 
-.pools-chart {
-  height: calc(100% - 16px);
-
-  .el-card__body {
-    height: calc(100% - 35px);
-    padding: 5px;
+  i {
+    transition: all 0.2s ease 0s;
   }
-}
 
-.theme-light {
-  .tab-bar {
-    .item {
-
-      //&:hover,
-      &.active {
-        background: var(--background-color-base);
-      }
+  &:hover {
+    i {
+      transform: rotate(180deg);
     }
+    // background-color: var(--hover);
   }
+}
+.arrow-pos {
+  top: -12px;
 }
 </style>
