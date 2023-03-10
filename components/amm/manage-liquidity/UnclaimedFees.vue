@@ -6,16 +6,16 @@
 
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
-      span WAX Fees Earned
+      span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18 40.9987
+      .fs-18 {{ feesA }}
       .fs-14.color-action ($29)
 
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
-      span USDC Fees Earned
+      span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18 2,300.5895
+      .fs-18 {{ feesB }}
       .fs-14.color-action ($60.56)
 
 </template>
@@ -27,7 +27,8 @@ export default {
   components: {
     RangeIndicator,
     AlcorButton
-  }
+  },
+  props: ['position', 'feesA', 'feesB']
 }
 </script>
 

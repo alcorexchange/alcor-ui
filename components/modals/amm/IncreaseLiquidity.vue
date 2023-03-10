@@ -10,12 +10,12 @@
     @close="visible = false"
     :before-close="undefined"
   )
-    PositionInfo(:noPL="true")
+    PositionInfo(:noPL="true" :pool="pool" :position="position")
     .separator.my-2
     .d-flex.justify-content-between.gap-8
       .fs-18.current-price
         span.disable Current Price:&nbsp;
-        span 16.82374
+        span {{ pool.tokenAPrice.toSignificant(5) }}
       AlcorSwitch(
         v-if='true',
         @toggle='() => {}',
@@ -24,82 +24,13 @@
         :active='"one"'
       )
 
-    .d-flex.gap-8.mt-2
-      InputStepCounter(:readOnly="true" :value="10")
-        template(#top)
-          .fs-12.text-center Min Price
-        .fs-12.text-center wax per eos
-        .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
-      InputStepCounter(:readOnly="true" :value="12")
-        template(#top)
-          .fs-12.text-center Min Price
-        .fs-12.text-center wax per eos
-        .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
+    ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-2
 
     .fs-18.disable.mt-2 Increase
     //- PoolTokenInput(:locked="true" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
     //- PoolTokenInput(:locked="true" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB")
 
-
-    .row(v-if="position")
-      .col.d-flex.flex-column.gap-16
-        .d-flex.justify-content-between
-          .d-flex.align-items-center.gap-8
-            pair-icons(
-              :token1="position.pool.tokenA"
-              :token2="position.pool.tokenB"
-            )
-            .fs-18 {{ position.pool.tokenA.symbol }}/{{ position.pool.tokenB.symbol }}
-          range-indicator(:inRange="position.inRange")
-
-        alcor-container(:alternative="true").d-flex.flex-column.gap-10.w-100
-          .d-flex.justify-content-between.align-items-center
-            .d-flex.gap-8.align-items-center
-              token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.symbol.contract)" height="25")
-              .fs-14.contrast {{ position.pool.tokenA.symbol }}
-            .contrast {{ position.amountA.toFixed() }}
-          .d-flex.justify-content-between.align-items-center
-            .d-flex.gap-8.align-items-center
-              token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.symbol.contract)" height="25")
-              .fs-14.contrast {{ position.pool.tokenB.symbol }}
-            .contrast {{ position.amountB.toFixed() }}
-          .hr
-          .d-flex.justify-content-between.align-items-center
-            .contrast Fee Tier
-            .fs-14 {{ position.pool.fee / 10000 }}%
-
-        .d-flex.justify-content-between.align-items-center
-          .disable Selected Range
-          el-radio-group(
-            v-model='tokenMode',
-            size='small'
-          )
-            el-radio-button(:label='position.pool.tokenA.symbol')
-            el-radio-button(:label='position.pool.tokenB.symbol')
-
-        .d-flex.gap-20.justify-content-between.align-items-center
-          alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
-            .fs-12.text-center.disable Min Price
-            .fs-24.text-center.contrast {{ position.tokenAPriceLower.toFixed() }}
-            .fs-12.text-center.disable wax per eos
-
-          i.el-icon-sort.r-90
-
-          alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
-            .fs-12.text-center.disable Max Price
-            .fs-24.text-center.contrast {{ position.tokenAPriceUpper.toFixed() }}
-            .fs-12.text-center.disable wax per eos
-
-        alcor-container(:alternative="true").d-flex.flex-column.gap-6.w-100
-          .fs-12.text-center.disable Current Price
-          .fs-24.text-center {{ position.pool.tokenAPrice.toFixed() }}
-          .fs-12.text-center.disable wax per eos
-
-        .contrast Add more liquidity
-        PoolTokenInput(:locked="true" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
-        PoolTokenInput(:locked="true" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB")
-
-        alcor-button.w-100(big @click="add") Increase
+    //- alcor-button.w-100(big @click="add") Increase
 
 </template>
 
@@ -113,6 +44,7 @@ import PairIcons from '~/components/PairIcons'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
+import ManageLiquidityMinMaxPrices from '~/components/amm/ManageLiquidityMinMaxPrices'
 import PositionInfo from '~/components/amm/manage-liquidity/PositionInfo'
 import AlcorSwitch from '~/components/AlcorSwitch'
 import InputStepCounter from '~/components/amm/InputStepCounter'
@@ -132,10 +64,11 @@ export default {
     AlcorContainer,
     PositionInfo,
     AlcorSwitch,
-    InputStepCounter
+    InputStepCounter,
+    ManageLiquidityMinMaxPrices
   },
 
-  props: ['position'],
+  props: ['position', 'pool', 'priceLower', 'priceUpper'],
 
   data: () => ({
     amountA: null,

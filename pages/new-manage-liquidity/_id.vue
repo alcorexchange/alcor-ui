@@ -5,9 +5,9 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
     .left
       PositionInfo(:pool="pool" :position="position")
         template(#action)
-          IncreaseLiquidity
+          IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper")
       .separator.mt-3
-      UnclaimedFees
+      UnclaimedFees(:position="position" :feesA="feesA" :feesB="feesB")
       .separator.mt-3
       RemoveLiquidityPercentage
       AlcorButton.claim-fees-button.submit.w-100.mt-3(access) {{ $t('Remove Liquidity and Claim Fees') }}
@@ -33,18 +33,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
             :active='"one"'
           )
 
-      .d-flex.gap-8.mt-3
-        InputStepCounter(:readOnly="true" :value="priceLower.toSignificant(5)")
-          template(#top)
-            .fs-12.text-center Min Price
-          .fs-12.text-center wax per eos
-          .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
-        InputStepCounter(:readOnly="true" :value="priceUpper.toSignificant(5)")
-          template(#top)
-            .fs-12.text-center Min Price
-          .fs-12.text-center wax per eos
-          .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
-
+      ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-3
       InfoContainer.info.mt-3(:access="true")
         | To update the price range, you need to close this position and open a new one,
         | you can read about automating the price range here Learn about liquidity price range
@@ -65,6 +54,7 @@ import RemoveLiquidityPercentage from '~/components/amm/manage-liquidity/RemoveL
 import InfoContainer from '~/components/UI/InfoContainer'
 import IncreaseLiquidity from '~/components/modals/amm/IncreaseLiquidity'
 import LiquidityChartRangeInput from '~/components/amm/range'
+import ManageLiquidityMinMaxPrices from '~/components/amm/ManageLiquidityMinMaxPrices'
 import AlcorSwitch from '~/components/AlcorSwitch'
 
 import { getPoolBounds, getTickToPrice } from '~/utils/amm'
@@ -84,7 +74,8 @@ export default {
     RemoveLiquidityPercentage,
     IncreaseLiquidity,
     LiquidityChartRangeInput,
-    AlcorSwitch
+    AlcorSwitch,
+    ManageLiquidityMinMaxPrices
   },
 
   data: () => ({
