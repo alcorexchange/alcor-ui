@@ -33,7 +33,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
             :active='"one"'
           )
 
-      .d-flex.gap-8
+      .d-flex.gap-8.mt-3
         InputStepCounter(:readOnly="true" :value="priceLower.toSignificant(5)")
           template(#top)
             .fs-12.text-center Min Price
