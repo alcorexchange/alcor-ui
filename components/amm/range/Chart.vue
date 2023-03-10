@@ -26,7 +26,7 @@
   slot(name="header")
 
 
-  svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible;")
+  svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible; align-self: center")
     defs
       clipPath(:id="`${id}-chart-clip`")
         rect(x="0" y="0" :width="400" :height="height")
@@ -258,6 +258,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.add-liquidity-chart {
+  display: flex;
+  flex-direction: column;
+}
 rect.ZoomOverlay {
   fill: transparent;
   cursor: grab;

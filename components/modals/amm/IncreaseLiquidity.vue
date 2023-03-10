@@ -11,7 +11,36 @@
     :before-close="undefined"
   )
     PositionInfo(:noPL="true")
-    .separator.mt-2
+    .separator.my-2
+    .d-flex.justify-content-between.gap-8
+      .fs-18.current-price
+        span.disable Current Price:&nbsp;
+        span 16.82374
+      AlcorSwitch(
+        v-if='true',
+        @toggle='() => {}',
+        :one='"tokenA"',
+        :two='"tokenB"',
+        :active='"one"'
+      )
+
+    .d-flex.gap-8.mt-2
+      InputStepCounter(:readOnly="true" :value="10")
+        template(#top)
+          .fs-12.text-center Min Price
+        .fs-12.text-center wax per eos
+        .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
+      InputStepCounter(:readOnly="true" :value="12")
+        template(#top)
+          .fs-12.text-center Min Price
+        .fs-12.text-center wax per eos
+        .fs-12.text-center.disable Your position will be 100% composed of WAX at this price
+
+    .fs-18.disable.mt-2 Increase
+    //- PoolTokenInput(:locked="true" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
+    //- PoolTokenInput(:locked="true" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB")
+
+
     .row(v-if="position")
       .col.d-flex.flex-column.gap-16
         .d-flex.justify-content-between
@@ -85,6 +114,8 @@ import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import PositionInfo from '~/components/amm/manage-liquidity/PositionInfo'
+import AlcorSwitch from '~/components/AlcorSwitch'
+import InputStepCounter from '~/components/amm/InputStepCounter'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { CurrencyAmount, Position } from '~/assets/libs/swap-sdk'
@@ -99,7 +130,9 @@ export default {
     RangeIndicator,
     PoolTokenInput,
     AlcorContainer,
-    PositionInfo
+    PositionInfo,
+    AlcorSwitch,
+    InputStepCounter
   },
 
   props: ['position'],
@@ -255,5 +288,8 @@ export default {
 .separator {
   width: 100%;
   border-bottom: 1px solid var(--border-color);
+}
+.current-price{
+  font-weight: 500;
 }
 </style>

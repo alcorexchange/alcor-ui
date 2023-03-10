@@ -6,7 +6,8 @@
     slot(name="top")
     AlcorButton.action.increase(v-if="!readOnly" @click="$emit('change', increment())" iconOnly)
       i.el-icon-plus
-  el-input.input(v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false" placeholder="0")
+  .input.readOnlyValue(v-if="readOnly") {{ value }}
+  el-input.input(v-else v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false" placeholder="0")
   .fs-12.text-center.bottom
     slot
 </template>
@@ -84,16 +85,17 @@ export default {
   font-size: 2rem;
   width: 24px; height: 24px;
 }
-.input::v-deep{
-  input{
-    font-size: 1.2rem;
-    text-align: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    height: auto;
-    line-height: 0;
-  }
+.input::v-deep input, .readOnlyValue{
+  font-size: 1.2rem;
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  height: auto;
+  line-height: 0;
+}
+.readOnlyValue{
+  line-height: 1;
 }
 .readOnly{
   .input{
