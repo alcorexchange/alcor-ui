@@ -35,7 +35,7 @@ module.exports = {
   rules: {
     // allow async-await
     quotes: 1,
-    'comma-dangle': 0,
+    'comma-dangle': ['error', 'only-multiline'],
     'no-unused-expressions': 0,
     'generator-star-spacing': 'off',
     // allow paren-less arrow functions
@@ -57,7 +57,6 @@ module.exports = {
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'standard/no-callback-literal': 0,
-    'comma-dangle': 0,
     camelcase: 'off',
     'no-return-await': 'off',
     curly: 'off',
@@ -71,7 +70,6 @@ module.exports = {
     'spaced-comment': 0,
     'padded-blocks': 1,
     'space-before-function-paren': 0,
-    'comma-dangle': 1,
     eqeqeq: 0,
     'prefer-const': 1,
     'no-useless-catch': 0,
