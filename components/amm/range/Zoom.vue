@@ -3,13 +3,13 @@
   //template(v-if='showResetButton')
   // BETTER ALWAYS TRUE FOR NOW
   template(v-if='true')
-    AlcorButton(@click="$emit('reset')", iconOnly)
+    AlcorButton(@click="$emit('reset')", iconOnly flat)
       i.el-icon-refresh-left
 
-  AlcorButton(@click="$emit('zoomIn')", iconOnly)
+  AlcorButton(@click="$emit('zoomIn')", iconOnly flat)
     i.el-icon-zoom-in
 
-  AlcorButton(@click="$emit('zoomOut')", iconOnly)
+  AlcorButton(@click="$emit('zoomOut')", iconOnly flat)
     i.el-icon-zoom-out
 </template>
 
@@ -29,13 +29,10 @@ export default {
 .Wrapper {
   display: flex;
   //grid-template-columns: repeat(${({ count }) => count.toString()}, 1fr); // TODO
-  gap: 6px;
   .alcor-button {
     padding: 0;
-    &:hover {
-      background-color: red;
-      color: white;
-    }
+    width: 28px;
+    height: 28px;
     border-radius: 50% !important;
   }
 }

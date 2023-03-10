@@ -3,7 +3,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
   PageHeader(title="Manage Liquidity")
   .main.gap-16.pt-3
     .left
-      PoolInfo
+      PositionInfo
         template(#action)
           IncreaseLiquidity
       .separator.mt-3
@@ -12,13 +12,6 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       RemoveLiquidityPercentage
       AlcorButton.claim-fees-button.submit.w-100.mt-3(access) {{ $t('Remove Liquidity and Claim Fees') }}
     .right
-      .d-flex.justify-content-between
-        .fs-18.disable Price Range {{ position.inRange }}
-
-      .d-flex.justify-content-center.gap-4
-        .fs-18.disable Current Price:
-        .fs-18 {{ position.pool.tokenAPrice.toSignificant(5) }} BLK per WAX
-
       LiquidityChartRangeInput(
         :tokenA="pool.tokenA"
         :tokenB="pool.tokenB"
@@ -27,7 +20,18 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
         :priceUpper="priceUpper"
         :price="position.pool.tokenAPrice.toSignificant(5)"
         :ticksAtLimit="ticksAtLimit"
+        chartTitle="Price Range"
         :interactive="false")
+
+        template(#afterZoomIcons)
+          //- TODO: add one and two based on invert price
+          AlcorSwitch(
+            v-if='pool.tokenA && pool.tokenB',
+            @toggle='() => {}',
+            :one='pool.tokenA.symbol',
+            :two='pool.tokenB.symbol',
+            :active='"one"'
+          )
 
       .d-flex.gap-8
         InputStepCounter(:readOnly="true" :value="priceLower.toSignificant(5)")
@@ -55,12 +59,13 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PageHeader from '~/components/amm/PageHeader'
 import InputStepCounter from '~/components/amm/InputStepCounter'
-import PoolInfo from '~/components/amm/manage-liquidity/PoolInfo'
+import PositionInfo from '~/components/amm/manage-liquidity/PositionInfo'
 import UnclaimedFees from '~/components/amm/manage-liquidity/UnclaimedFees'
 import RemoveLiquidityPercentage from '~/components/amm/manage-liquidity/RemoveLiquidityPercentage'
 import InfoContainer from '~/components/UI/InfoContainer'
 import IncreaseLiquidity from '~/components/modals/amm/IncreaseLiquidity'
 import LiquidityChartRangeInput from '~/components/amm/range'
+import AlcorSwitch from '~/components/AlcorSwitch'
 
 import { getPoolBounds, getTickToPrice } from '~/utils/amm'
 
@@ -74,11 +79,12 @@ export default {
     InfoContainer,
     PageHeader,
     InputStepCounter,
-    PoolInfo,
+    PositionInfo,
     UnclaimedFees,
     RemoveLiquidityPercentage,
     IncreaseLiquidity,
-    LiquidityChartRangeInput
+    LiquidityChartRangeInput,
+    AlcorSwitch
   },
 
   data: () => ({
