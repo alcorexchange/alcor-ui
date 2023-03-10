@@ -13,7 +13,7 @@ client-only
         :width="400"
         :height="200"
         :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
-        :interactive="true"
+        :interactive="interactive"
         :brushLabel="brushLabel"
         :brushDomain="brushDomain"
         @onBrushDomainChange="onBrushDomainChangeEnded"
@@ -27,7 +27,6 @@ client-only
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { format } from 'd3'
 
 import Chart from './Chart.vue'
@@ -58,8 +57,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters('amm/liquidity', ['isSorted']),
-
+    isSorted() {
+      return this.tokenA.sortsBefore(this.tokenB)
+    },
 
     isUninitialized() {
       return !this.tokenA || !this.tokenB || (this.series === undefined && !this.isLoading)

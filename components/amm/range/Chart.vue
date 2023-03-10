@@ -71,7 +71,7 @@
       Brush(
         :id="id"
         :xScale="xScale"
-        :interactive="true"
+        :interactive="interactive"
         :brushLabel="brushLabel"
         :brushExtent="brushDomain || xScale.domain()"
         :innerWidth="innerWidth"

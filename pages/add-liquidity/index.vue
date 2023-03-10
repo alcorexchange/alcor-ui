@@ -51,7 +51,6 @@
 
         template(v-else)
           LiquidityChartRangeInput(
-            ref="LChartRange"
             v-if="pool"
             :tokenA="tokenA || undefined"
             :tokenB="tokenB || undefined"
