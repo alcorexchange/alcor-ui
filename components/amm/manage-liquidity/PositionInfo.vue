@@ -17,7 +17,7 @@
       span.f-18 BLK
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
-      .fs-18 886
+      .fs-18 {{ position.amountA.toSignificant() }}
       .fs-14.color-action ($60.56)
 
   .d-flex.justify-content-between.mt-2

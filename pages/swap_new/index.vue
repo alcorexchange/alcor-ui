@@ -111,6 +111,9 @@
 </template>
 
 <script>
+// TODO DEBOUINCE FOR INPUTS
+// https://stackoverflow.com/questions/42199956/how-to-implement-debounce-in-vue2
+
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import { mapState, mapActions, mapGetters } from 'vuex'
 import AlcorContainer from '~/components/AlcorContainer'
