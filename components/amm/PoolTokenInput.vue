@@ -4,6 +4,7 @@
     .label {{ label || '' }}
     .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) }}
   .main
+    // TODO Make dot separation for decimal point instead comma
     el-input.amount(
       placeholder='0.0',
       v-if='!disabled',

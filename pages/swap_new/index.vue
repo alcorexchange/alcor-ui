@@ -121,6 +121,7 @@ import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
 import { tryParseCurrencyAmount } from '~/utils/amm'
+import { getPrecision } from '~/utils'
 
 export default {
   components: {
@@ -219,15 +220,19 @@ export default {
     },
 
     async calcInput(value) {
-      //this.loading = true // todo
-
       const { tokenA, tokenB, slippage } = this
 
-      if (!value || !tokenA || !tokenB) return this.amountB = null
+      if (parseFloat(value) <= 0 || !tokenA || !tokenB) return this.amountB = null
+
+      if (getPrecision(value) > tokenA.decimals) {
+        const [num, fraction] = value.split('.')
+        return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
+      }
 
       const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+      if (!currencyAmountOut) return
+
       const [best] = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-      console.log({ best })
 
       if (!best) {
         // TODO clear tokenB
@@ -242,19 +247,21 @@ export default {
       this.rate = executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
       this.miniumOut = best.minimumAmountOut(slippage).toFixed()
-      console.log(this.route)
-
-      //this.loading = false
     },
 
     async calcOutput(value) {
-      //this.loading = true // todo
-
       const { tokenA, tokenB, slippage } = this
 
-      if (!value || !tokenA || !tokenB) return this.amountB = null
+      if (!tokenA || !tokenB) return this.amountB = null
+
+      if (getPrecision(value) > tokenA.decimals) {
+        const [num, fraction] = value.split('.')
+        return this.amountA = `${num}.${fraction.slice(0, tokenA.decimals)}`
+      }
 
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
+      if (!currencyAmountIn) return
+
       const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
 
       if (!best) {
@@ -270,10 +277,6 @@ export default {
       this.rate = executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
       this.miniumOut = best.minimumAmountOut(slippage).toFixed()
-      console.log(this.route)
-
-      //this.loading = false
-
     }
   }
 }
