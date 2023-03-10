@@ -29,7 +29,7 @@
   svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible; align-self: center")
     defs
       clipPath(:id="`${id}-chart-clip`")
-        rect(x="0" y="0" :width="innerWidth" :height="height")
+        rect(x="0" y="0" :width="400" :height="height")
 
       mask(:id="`${id}-chart-area-mask`")
         rect(

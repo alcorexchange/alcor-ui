@@ -154,11 +154,15 @@ export function parseExtendedAsset(asset) {
   }
 }
 
+export function getPrecision(amount) {
+  return amount.split('.')[1] ? amount.split('.')[1].length : 0
+}
+
 export function parseAsset(asset) {
   if (Object.prototype.hasOwnProperty.call(asset, 'symbol')) return asset
 
   const [amount, symbol] = asset.split(' ')
-  const precision = amount.split('.')[1] ? amount.split('.')[1].length : 0
+  const precision = getPrecision(amount)
 
   const scale = new Big(10).pow(precision)
 
