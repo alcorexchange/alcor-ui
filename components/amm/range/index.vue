@@ -5,13 +5,13 @@ client-only
     p.infoBox(v-if="isLoading") Loading
     p.infoBox(v-if="error") Liquidity data not available.
 
-    .chartWrapper
+    .chartWrapper(ref="chartWrapper")
       Chart(
-        ref="chart"
         :current="price"
         :series="series"
+        :width="400"
         :height="200"
-        :margins="{ top: 10, right: 0, bottom: 20, left: 0 }"
+        :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
         :interactive="interactive"
         :brushLabel="brushLabel"
         :brushDomain="brushDomain"
@@ -47,7 +47,8 @@ export default {
       data,
       error: false,
       ZOOM_LEVELS,
-      FeeAmount
+      FeeAmount,
+      width: 400
     }
   },
 
@@ -56,6 +57,9 @@ export default {
   mounted() {
     console.log('LiquidityChartRangeInput loaded: ', { ...this.$props })
     this.init()
+    setTimeout(() => {
+      this.setWidth()
+    }, 100)
   },
 
   computed: {
@@ -96,6 +100,11 @@ export default {
   },
 
   methods: {
+    setWidth() {
+      const w = (this.$refs.chartWrapper && this.$refs.chartWrapper.getBoundingClientRect().width) || 400
+      console.log(this.$refs)
+      this.width = w
+    },
     init() {},
 
     brushLabel(d, x) {

@@ -1,18 +1,8 @@
 <template lang="pug">
 .row.justify-content-center
   alcor-container.add-liquidity-component.w-100
-    .title.mb-2
-      .empty
-      .main Add Liquidity
-      .right
-        alcor-switch(
-          v-if='tokenA && tokenB',
-          @toggle='toggleTokens',
-          :one='invertPrice ? tokenB.symbol : tokenA.symbol',
-          :two='invertPrice ? tokenA.symbol : tokenB.symbol',
-          :active='invertPrice ? "two" : "one"'
-        )
-    .main-section
+    PageHeader(title="Add Liquidity")
+    .main-section.mt-2
       .section
         .fs-16.disable.mb-2 Select Pool
 
@@ -61,7 +51,17 @@
             :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(6)) : undefined"
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
+            chartTitle="Set Price Range"
             :interactive="interactive")
+
+              template(#afterZoomIcons)
+               AlcorSwitch(
+                v-if='tokenA && tokenB',
+                @toggle='toggleTokens',
+                :one='invertPrice ? tokenB.symbol : tokenA.symbol',
+                :two='invertPrice ? tokenA.symbol : tokenB.symbol',
+                :active='invertPrice ? "two" : "one"'
+              )
 
         .pre-defined-ranges.mt-2(v-mutted="!price")
           AlcorButton.item(v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
@@ -114,6 +114,7 @@ import InfoContainer from '~/components/UI/InfoContainer'
 import AuthOnly from '~/components/AuthOnly'
 import AlcorSwitch from '~/components/AlcorSwitch'
 import AlcorRadio from '~/components/AlcorRadio'
+import PageHeader from '~/components/amm/PageHeader'
 
 import {
   tryParsePrice,
@@ -146,7 +147,8 @@ export default {
     AuthOnly,
     AlcorSwitch,
     Zoom,
-    AlcorRadio
+    AlcorRadio,
+    PageHeader
   },
 
   // Enabling managige route in nested component
@@ -767,23 +769,6 @@ export default {
     gap: 18px;
     .section{
       flex: 1;
-    }
-  }
-  .title {
-    display: flex;
-    justify-content: space-between;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-color);
-    > * {
-      flex: 1;
-      display: flex;
-    }
-    .main {
-      justify-content: center;
-      font-size: 1.1rem;
-    }
-    .right {
-      justify-content: end;
     }
   }
   .submit {
