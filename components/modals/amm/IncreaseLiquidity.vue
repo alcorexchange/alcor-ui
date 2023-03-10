@@ -10,7 +10,8 @@
     @close="visible = false"
     :before-close="undefined"
   )
-    PoolInfo(:noPL="true")
+    PositionInfo(:noPL="true")
+    .separator.mt-2
     .row(v-if="position")
       .col.d-flex.flex-column.gap-16
         .d-flex.justify-content-between
@@ -83,7 +84,7 @@ import PairIcons from '~/components/PairIcons'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
-import PoolInfo from '~/components/amm/manage-liquidity/PoolInfo'
+import PositionInfo from '~/components/amm/manage-liquidity/PositionInfo'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { CurrencyAmount, Position } from '~/assets/libs/swap-sdk'
@@ -98,7 +99,7 @@ export default {
     RangeIndicator,
     PoolTokenInput,
     AlcorContainer,
-    PoolInfo
+    PositionInfo
   },
 
   props: ['position'],
@@ -250,5 +251,9 @@ export default {
   .el-dialog {
     width: 480px;
   }
+}
+.separator {
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
 }
 </style>

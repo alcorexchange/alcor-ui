@@ -10,7 +10,6 @@ client-only
         ref="chart"
         :current="price"
         :series="series"
-        :width="400"
         :height="200"
         :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
         :interactive="interactive"
@@ -18,12 +17,15 @@ client-only
         :brushDomain="brushDomain"
         @onBrushDomainChange="onBrushDomainChangeEnded"
         :zoomLevels="zoomLevels"
+        :title="chartTitle"
         :ticksAtLimit="ticksAtLimit")
 
         template(slot="header")
-          .current-price(v-if="price && tokenA && tokenB")
+          .fs-18.current-price(v-if="price && tokenA && tokenB")
             span.disable Current Price:&nbsp;
             span {{ price }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
+        template(#afterZoomIcons)
+          slot(name="afterZoomIcons")
 </template>
 
 <script>
@@ -38,7 +40,7 @@ import { FeeAmount } from '~/assets/libs/swap-sdk'
 
 export default {
   components: { Chart },
-  props: ['tokenA', 'tokenB', 'feeAmount', 'ticksAtLimit', 'price', 'priceLower', 'priceUpper', 'interactive'],
+  props: ['tokenA', 'tokenB', 'feeAmount', 'ticksAtLimit', 'price', 'priceLower', 'priceUpper', 'interactive', 'chartTitle'],
 
   data() {
     return {
@@ -143,5 +145,8 @@ export default {
   position: relative;
   justify-content: center;
   align-content: center;
+}
+.current-price{
+  text-align: center;
 }
 </style>

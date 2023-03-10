@@ -1,5 +1,5 @@
 <template lang="pug">
-.add-liquidity-chart
+.add-liquidity-chart(ref="chart")
   //- slot(
   //-   name="header"
   //-   :svg="$refs.zoomA"
@@ -11,16 +11,17 @@
   //-   :onZoomUpdate="setZoom"
   //-   :resetBrush="resetBrush"
 
-  .chart-header.mb-2
-    .fs-16.disable.mb-1 Set Price Range
-
-    Zoom(
-      name="header"
-      @reset="reset"
-      @zoomIn="zoomIn"
-      @zoomOut="zoomOut"
-      :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
-    )
+  .chart-header.d-flex.mb-2
+    .fs-18.disable {{ title }}
+    .zoom-container
+      Zoom(
+        name="header"
+        @reset="reset"
+        @zoomIn="zoomIn"
+        @zoomOut="zoomOut"
+        :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
+      )
+      slot(name="afterZoomIcons")
 
   slot(name="header")
 
@@ -96,8 +97,8 @@ import { data } from './data'
 export default {
   components: { Area, AreaLine, AxisBottom, Brush, Zoom },
 
-  props: ['series', 'current', 'ticksAtLimit', 'styles', 'width', 'height', 'margins', 'interactive', 'brushDomain',
-    'brushLabel', 'zoomLevels'],
+  props: ['series', 'current', 'ticksAtLimit', 'styles', 'height', 'margins', 'interactive', 'brushDomain',
+    'brushLabel', 'zoomLevels', 'title'],
 
   data() {
     return {
@@ -108,6 +109,7 @@ export default {
 
       westHandleColor: '#1aae80',
       eastHandleColor: '#1873d8',
+      width: 0
     }
   },
 
@@ -134,7 +136,11 @@ export default {
     },
 
     innerWidth() {
-      return this.width - this.margins.left - this.margins.right
+      // const w = (this.$refs.chart && this.$refs.chart.getBoundingClientRect().width) || 0
+      // console.log(this.$refs.chart && this.$refs.chart.getBoundingClientRect())
+      // // return this.width - this.margins.left - this.margins.right
+      // return w
+      return this.width
     },
 
     xScale() {
@@ -160,9 +166,14 @@ export default {
   mounted() {
     console.log('RangeChartMount: ', this.$props, this.brushDomain)
     this.reset()
+    this.setWidth()
   },
 
   methods: {
+    setWidth() {
+      const w = (this.$refs.chart && this.$refs.chart.getBoundingClientRect().width) || 400
+      this.width = w
+    },
     installZoom() {
       const { svg } = this.$refs
 
@@ -264,5 +275,16 @@ rect.ZoomOverlay {
   &:active {
     cursor: grabbing;
   }
+}
+.zoom-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
 }
 </style>
