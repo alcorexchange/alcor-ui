@@ -583,6 +583,7 @@ export default {
     },
 
     async addLiquidity() {
+      // TODO Fix one side deposit
       const { invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
 
       const actions = []
