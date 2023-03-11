@@ -1,16 +1,5 @@
 <template lang="pug">
 .add-liquidity-chart
-  //- slot(
-  //-   name="header"
-  //-   :svg="$refs.zoomA"
-  //-   :xScale="xScale"
-  //-   :width="innerWidth"
-  //-   :height="height"
-  //-   :showResetButton="Boolean(ticksAtLimit.LOWER || ticksAtLimit.UPPER)"
-  //-   :zoomLevels="zoomLevels"
-  //-   :onZoomUpdate="setZoom"
-  //-   :resetBrush="resetBrush"
-
   .chart-header.d-flex.mb-2
     .fs-18.disable {{ title }}
     .zoom-container
@@ -25,7 +14,7 @@
 
   slot(name="header")
 
-  //el-button(@click="test") Test
+  el-button(@click="setExistingPositionZoom") Test
 
   svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible; align-self: center")
     defs
@@ -166,20 +155,36 @@ export default {
 
   mounted() {
     console.log('RangeChartMount: ', this.$props, this.brushDomain)
-    this.reset()
+
+    if (!this.interactive) {
+      this.installZoom()
+      this.setExistingPositionZoom()
+    } else {
+      this.reset()
+    }
   },
 
   methods: {
-    test() {
+    setExistingPositionZoom() {
       const { svg } = this.$refs
+      const { xScale, zoomBehavior, brushDomain, width } = this
 
-      //extent.map(this.xScale)
-      const { zoomBehavior } = this
-      svg &&
-        zoomBehavior &&
+      const brushSize = xScale(brushDomain[1] - brushDomain[0])
+      const brushMiddle = xScale((brushDomain[0] + brushDomain[1]) / 2)
 
-        select(svg).transition().call(zoomBehavior.scaleTo, 1)
-        //select(svg).transition().call(zoomBehavior.transform, zoomIdentity.translate(10, 1000).scale(1))
+      const brushLeft = xScale(brushDomain[0])
+      const brushRight = xScale(brushDomain[1])
+
+      console.log({ brushDomain, width, brushLeft })
+
+      if (brushLeft >= 0 && brushRight <= width) {
+        this.zoomInitial()
+      } else {
+        select(svg)
+          .call(zoomBehavior.translateTo, brushMiddle, 0)
+          .transition()
+          .call(zoomBehavior.scaleBy, width / (brushSize * 2))
+      }
     },
 
     installZoom() {
