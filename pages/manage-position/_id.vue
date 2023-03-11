@@ -9,8 +9,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       .separator.mt-3
       UnclaimedFees(:position="position" :feesA="feesA" :feesB="feesB")
       .separator.mt-3
-      RemoveLiquidityPercentage
-      AlcorButton.claim-fees-button.submit.w-100.mt-3(access) {{ $t('Remove Liquidity and Claim Fees') }}
+      RemoveLiquidityPercentage(:position="position")
     .right
       LiquidityChartRangeInput(
         :tokenA="pool.tokenA"
@@ -79,9 +78,6 @@ export default {
   },
 
   data: () => ({
-    profitLoss: null,
-    series: null,
-
     fees: {},
   }),
 
@@ -148,44 +144,6 @@ export default {
       const { feesA, feesB } = await this.position.getFees()
       this.fees = { feesA: feesA.toFixed(), feesB: feesB.toFixed() }
     },
-
-    async fetchProfitLoss() {
-      const r = await (
-        await fetch('https://alcor.exchange/api/pools/0/charts?period=7D')
-      ).json()
-
-      const newData = r.reduce(
-        (res, point) => [
-          [
-            {
-              name: 'token1',
-              data: [...res[0][0].data, point.price.toFixed(4)]
-            },
-            {
-              name: 'token2',
-              data: [...res[0][1].data, point.price_r.toFixed(4)]
-            }
-          ],
-          [...res[1], point.time]
-        ],
-        [
-          [
-            {
-              name: 'token1',
-              data: []
-            },
-            {
-              name: 'token2',
-              data: []
-            }
-          ],
-          []
-        ]
-      )
-      const [series, xaxis] = newData
-      this.series = series
-      this.options.xaxis.categories = xaxis
-    }
   }
 }
 </script>
