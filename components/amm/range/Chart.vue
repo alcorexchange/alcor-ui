@@ -14,8 +14,6 @@
 
   slot(name="header")
 
-  el-button(@click="setExistingPositionZoom") Test
-
   svg(:width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" style="overflow: visible; align-self: center")
     defs
       clipPath(:id="`${id}-chart-clip`")
