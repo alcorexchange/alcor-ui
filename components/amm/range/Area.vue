@@ -7,28 +7,20 @@ path(:fill="fill" :d="d")
 <script>
 import { area, curveStepAfter } from 'd3'
 
-import { data } from './data'
-
 export default {
-  props: ['fill', 'series', 'xScale', 'yScale', 'xAccessor', 'yAccessor'],
-
-  data() {
-    return {
-      data
-    }
-  },
+  props: ['fill', 'series', 'xScale', 'yScale'],
 
   computed: {
     d() {
-      const { xAccessor, yAccessor, xScale, yScale, series } = this
+      const { xScale, yScale, series } = this
 
       return area()
         .curve(curveStepAfter)
-        .x((d) => xScale(xAccessor(d)))
-        .y1((d) => yScale(yAccessor(d)))
+        .x((d) => xScale(d.x))
+        .y1((d) => yScale(d.y))
         .y0(yScale(0))(
           series.filter((d) => {
-            const value = xScale(xAccessor(d))
+            const value = xScale(d.x)
             return value > 0 && value <= window.innerWidth
           }))
     }

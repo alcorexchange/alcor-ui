@@ -30,15 +30,13 @@
 
     g(:transform="`translate(${margins.left}, ${margins.top})`")
       g(:clip-path="`url(#${id}-chart-clip)`")
-        Area(:series="series" :xScale="xScale" :yScale="yScale" :xAccessor="xAccessor" :yAccessor="yAccessor")
+        Area(:series="series" :xScale="xScale" :yScale="yScale")
 
         g(v-if="brushDomain" :mask="`url(#${id}-chart-area-mask)`")
           Area(
             :series="series"
             :xScale="xScale"
             :yScale="yScale"
-            :xAccessor="xAccessor"
-            :yAccessor="yAccessor"
             fill="red"
           )
 
@@ -80,8 +78,6 @@ import AxisBottom from './AxisBottom.vue'
 import Brush from './Brush.vue'
 import Zoom from './Zoom.vue'
 
-import { data } from './data'
-
 export default {
   components: { Area, AreaLine, AxisBottom, Brush, Zoom },
 
@@ -91,7 +87,6 @@ export default {
   data() {
     return {
       id: 'liquidityChartRangeInput',
-      data,
       zoom: null,
       zoomBehavior: null,
 
@@ -146,7 +141,7 @@ export default {
 
     yScale() {
       return scaleLinear()
-        .domain([0, max(this.data, this.yAccessor)])
+        .domain([0, max(this.series, (d) => d.y)])
         .range([this.innerHeight, 0])
     }
   },
@@ -211,14 +206,6 @@ export default {
 
     setBrushExtent(data) {
       this.$emit('onBrushDomainChange', data)
-    },
-
-    xAccessor(d) {
-      return d.price0
-    },
-
-    yAccessor(d) {
-      return d.activeLiquidity
     },
 
     resetBrush() {

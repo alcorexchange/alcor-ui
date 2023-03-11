@@ -33,10 +33,9 @@ import { format } from 'd3'
 
 import Chart from './Chart.vue'
 
-import { data } from './data'
 import { ZOOM_LEVELS } from './constants'
 
-import { FeeAmount } from '~/assets/libs/swap-sdk'
+import { FeeAmount, tickToPrice } from '~/assets/libs/swap-sdk'
 
 export default {
   components: { Chart },
@@ -44,7 +43,6 @@ export default {
 
   data() {
     return {
-      data,
       error: false,
       ZOOM_LEVELS,
       FeeAmount,
@@ -63,6 +61,31 @@ export default {
   },
 
   computed: {
+    series() {
+      // TODO Should be async
+      // TODO Do optimisations, can lowerage perfomance due to large number of ticks
+      // Try to fetch series if there is a pool
+      const { tokenA, tokenB, feeAmount } = this
+
+      const pool = this.$store.getters['amm/pools'].find(p => {
+        return (p.tokenA.equals(tokenA) && p.tokenB.equals(tokenB) && p.fee == feeAmount) ||
+        (p.tokenA.equals(tokenB) && p.tokenB.equals(tokenA) && p.fee == feeAmount)
+      })
+
+      console.log(this.$store.getters['amm/pools'], { pool })
+
+      const series = pool.tickDataProvider.ticks.map(t => {
+        return {
+          x: Number(tickToPrice(tokenA, tokenB, t.id).toSignificant(2)),
+          y: Number(t.liquidityGross.toString())
+        }
+      })
+
+      console.log({ series })
+
+      return series
+    },
+
     isSorted() {
       return this.tokenA.sortsBefore(this.tokenB)
     },
@@ -76,15 +99,6 @@ export default {
     zoomLevels() {
       return ZOOM_LEVELS[this.feeAmount || FeeAmount.MEDIUM]
     },
-
-    series() {
-      //return this.data
-      return []
-    },
-
-    // isSorted() {
-    //   return this.tokenA && this.tokenB && this.tokenA.sortsBefore(this.tokenB)
-    // },
 
     brushDomain() {
       // Все ок
