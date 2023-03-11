@@ -136,3 +136,112 @@ export function isPriceInvalid(price) {
     )
   )
 }
+
+const getActiveTick = (tickCurrent, feeAmount) =>
+  tickCurrent && feeAmount ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount] : undefined
+
+
+export function getLiquidityRangeChart(pool, tokenA, tokenB) {
+  // Find nearest valid tick for pool in case tick is not initialized.
+  const activeTick = getActiveTick(pool.tickCurrent, pool.fee)
+
+  const ticks = pool.tickDataProvider.ticks
+
+  if (
+    !tokenA ||
+    !tokenB ||
+    activeTick === undefined ||
+    !pool ||
+    !ticks ||
+    ticks.length === 0
+  ) {
+    console.log('asdf')
+    return {
+      //error,
+      activeTick,
+      data: undefined,
+    }
+  }
+
+  // find where the active tick would be to partition the array
+  // if the active tick is initialized, the pivot will be an element
+  // if not, take the previous tick as pivot
+  const pivot = ticks.findIndex(({ id }) => id > activeTick) - 1
+
+  if (pivot < 0) {
+    // consider setting a local error
+    console.error('TickData pivot not found')
+    return {
+      //error,
+      activeTick,
+      data: undefined,
+    }
+  }
+
+  const activeTickProcessed = {
+    liquidityActive: JSBI.BigInt(pool.liquidity ?? 0),
+    tick: activeTick,
+    liquidityNet: Number(ticks[pivot].id) === activeTick ? JSBI.BigInt(ticks[pivot].liquidityNet) : JSBI.BigInt(0),
+    price0: tickToPrice(tokenA, tokenB, activeTick).toFixed(8),
+  }
+
+  const subsequentTicks = computeSurroundingTicks(tokenA, tokenB, activeTickProcessed, ticks, pivot, true)
+  const previousTicks = computeSurroundingTicks(tokenA, tokenB, activeTickProcessed, ticks, pivot, false)
+  const ticksProcessed = previousTicks.concat(activeTickProcessed).concat(subsequentTicks)
+
+  return ticksProcessed
+}
+
+const PRICE_FIXED_DIGITS = 8
+
+// Computes the numSurroundingTicks above or below the active tick.
+export default function computeSurroundingTicks(
+  tokenA,
+  tokenB,
+  activeTickProcessed,
+  sortedTickData,
+  pivot,
+  ascending
+) {
+  let previousTickProcessed = {
+    ...activeTickProcessed,
+  }
+  // Iterate outwards (either up or down depending on direction) from the active tick,
+  // building active liquidity for every tick.
+  let processedTicks = []
+  for (let i = pivot + (ascending ? 1 : -1); ascending ? i < sortedTickData.length : i >= 0; ascending ? i++ : i--) {
+    const tick = Number(sortedTickData[i].id)
+    const currentTickProcessed = {
+      liquidityActive: previousTickProcessed.liquidityActive,
+      tick,
+      liquidityNet: JSBI.BigInt(sortedTickData[i].liquidityNet),
+      price0: tickToPrice(tokenA, tokenB, tick).toFixed(PRICE_FIXED_DIGITS),
+    }
+
+    // Update the active liquidity.
+    // If we are iterating ascending and we found an initialized tick we immediately apply
+    // it to the current processed tick we are building.
+    // If we are iterating descending, we don't want to apply the net liquidity until the following tick.
+    if (ascending) {
+      currentTickProcessed.liquidityActive = JSBI.add(
+        previousTickProcessed.liquidityActive,
+        JSBI.BigInt(sortedTickData[i].liquidityNet)
+      )
+    } else if (!ascending && JSBI.notEqual(previousTickProcessed.liquidityNet, JSBI.BigInt(0))) {
+      // We are iterating descending, so look at the previous tick and apply any net liquidity.
+      currentTickProcessed.liquidityActive = JSBI.subtract(
+        previousTickProcessed.liquidityActive,
+        previousTickProcessed.liquidityNet
+      )
+    }
+
+    processedTicks.push(currentTickProcessed)
+    previousTickProcessed = currentTickProcessed
+  }
+
+  if (!ascending) {
+    processedTicks = processedTicks.reverse()
+  }
+
+  return processedTicks
+}

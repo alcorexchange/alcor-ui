@@ -92,6 +92,7 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
               .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
+  // TODO ROUTES MANAGEMENT
   nuxt-child
 
 </template>
@@ -570,6 +571,18 @@ export default {
     },
 
     async submit() {
+      try {
+        const poolId = await this.addLiquidity()
+        this.$router.push('/positions/my-positions')
+        this.$store.dispatch('amm/poolUpdate', poolId)
+        this.$store.dispatch('amm/fetchPositions')
+      } catch (e) {
+        console.log(e)
+        this.$notify({ title: 'Market creation', message: e.message, type: 'error' })
+      }
+    },
+
+    async addLiquidity() {
       const { invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
 
       const actions = []
@@ -671,14 +684,11 @@ export default {
       )
 
       console.log({ actions })
-      //return
 
-      try {
-        const r = await this.$store.dispatch('chain/sendTransaction', actions)
-        console.log(r)
-      } catch (e) {
-        console.log('err', e)
-      }
+      const r = await this.$store.dispatch('chain/sendTransaction', actions)
+      console.log({ r })
+
+      return poolId
     },
 
     decrementLower() {

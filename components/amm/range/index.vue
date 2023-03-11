@@ -35,6 +35,7 @@ import Chart from './Chart.vue'
 
 import { ZOOM_LEVELS } from './constants'
 
+import { getLiquidityRangeChart } from '~/utils/amm'
 import { FeeAmount, tickToPrice } from '~/assets/libs/swap-sdk'
 
 export default {
@@ -72,18 +73,16 @@ export default {
         (p.tokenA.equals(tokenB) && p.tokenB.equals(tokenA) && p.fee == feeAmount)
       })
 
-      console.log(this.$store.getters['amm/pools'], { pool })
+      const series = getLiquidityRangeChart(pool, tokenA, tokenB)
 
-      const series = pool.tickDataProvider.ticks.map(t => {
+      console.log('one', series)
+
+      return series.map(s => {
         return {
-          x: Number(tickToPrice(tokenA, tokenB, t.id).toSignificant(2)),
-          y: Number(t.liquidityGross.toString())
+          x: Number(s.price0),
+          y: Number(s.liquidityActive.toString())
         }
       })
-
-      console.log({ series })
-
-      return series
     },
 
     isSorted() {

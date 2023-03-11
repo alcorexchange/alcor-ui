@@ -64,7 +64,38 @@ export const actions = {
     commit('setTicks', { poolId, ticks })
   },
 
+  async poolUpdate({ commit, rootState, dispatch }, poolId) {
+    if (isNaN(poolId)) return
+
+    dispatch('fetchTicksOfPool', poolId)
+
+    const { network } = rootState
+
+    const [pool] = await fetchAllRows(this.$rpc, {
+      code: network.amm.contract,
+      scope: network.amm.contract,
+      table: 'pools',
+      limit: 1,
+      lower_bound: poolId,
+      upper_bound: poolId
+    })
+
+    if (!pool) return console.error('Pool not found!', poolId)
+
+    const old_pools = cloneDeep(state.pools)
+
+    const old_pool = old_pools.findIndex(o => o.id == pool.id)
+
+    if (old_pool != -1) {
+      old_pools[old_pool] = pool
+    } else { old_pools.push(pool) }
+
+    commit('setPools', old_pool)
+  },
+
   async buildPlainPositions({ commit, getters }) {
+    console.log('buildPlainPositions')
+
     const positions = []
     for (const p of getters.positions) {
       const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
@@ -80,6 +111,7 @@ export const actions = {
       positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
     }
 
+    console.log('setPlainPositions')
     commit('setPlainPositions', positions)
   },
 
@@ -106,6 +138,7 @@ export const actions = {
       positions.push(...rows)
     }
 
+    console.log('fetch position')
     commit('setPositions', positions)
     dispatch('buildPlainPositions')
   },
