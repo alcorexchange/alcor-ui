@@ -92,6 +92,9 @@ export default {
 
       westHandleColor: '#1aae80',
       eastHandleColor: '#1873d8',
+
+      // westHandleColor: '#1aae80',
+      // eastHandleColor: '#1873d8',
     }
   },
 
