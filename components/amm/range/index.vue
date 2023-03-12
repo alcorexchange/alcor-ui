@@ -10,7 +10,7 @@ client-only
         :current="price"
         :series="series"
         :width="400"
-        :height="200"
+        :height="240"
         :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
         :interactive="interactive"
         :brushLabel="brushLabel"

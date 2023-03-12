@@ -6,9 +6,9 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       PositionInfo(:pool="pool" :position="position")
         template(#action)
           IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper")
-      .separator.mt-3
+      .separator.mt-2
       UnclaimedFees(:position="position" :feesA="feesA" :feesB="feesB")
-      .separator.mt-3
+      .separator.mt-2
       RemoveLiquidityPercentage(:position="position")
     .right
       LiquidityChartRangeInput(

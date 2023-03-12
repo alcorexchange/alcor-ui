@@ -9,9 +9,9 @@
 
     slot(name="action")
 
-  .fs-18.disable.mt-3 {{ $t('Pool Amount') }}
+  .fs-18.disable.mt-2 {{ $t('Pool Amount') }}
 
-  .d-flex.justify-content-between.mt-2
+  .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       TokenImage.token-image(:src="$tokenLogo(position.amountA.currency.symbol, position.amountA.contract)" height="25")
       span.f-18 {{ position.amountA.currency.symbol }}
@@ -20,7 +20,7 @@
       .fs-18 {{ position.amountA.toSignificant() }}
       .fs-14.color-action ($60.56)
 
-  .d-flex.justify-content-between.mt-2
+  .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       TokenImage.token-image(:src="$tokenLogo(position.amountB.currency.symbol, position.amountB.contract)" height="25")
       span.f-18 {{ position.amountB.currency.symbol }}
@@ -29,16 +29,16 @@
       .fs-18 {{ position.amountB.toSignificant() }}
       .fs-14.color-action ($60.56)
   template(v-if="!noPL")
-    .d-flex.justify-content-between.mt-2
+    .d-flex.justify-content-between.mt-1
       .fs-16 P&L
       .fs-16 $2,300.5895
-    .d-flex.justify-content-between.mt-2
+    .d-flex.justify-content-between.mt-1
       .fs-16 Total Profit
       .fs-16 $2,300.5895
-    .d-flex.justify-content-between.mt-2
+    .d-flex.justify-content-between.mt-1
       .fs-16 Total Loss
       .fs-16 $2,300.5895
-    .d-flex.justify-content-between.mt-2
+    .d-flex.justify-content-between.mt-1
       .fs-16 Net Profit/Loss
       .fs-16 $2,300.5895
 

@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  AlcorContainer(:alternative="true").mt-3.remove-liquidity-percentage
+  AlcorContainer(:alternative="true").remove-liquidity-percentage.mt-2
     .percentage.fs-24 {{ percent }}%
     el-slider(
       v-model="percent"
@@ -12,20 +12,20 @@ div
     .d-flex.justify-content-between.mt-4
       .d-flex.align-items-center.gap-8
         token-image.token-image(src="token-conract" height="25")
-        span WAX
+        span {{ position.pool.tokenA.symbol }}
       .d-flex.align-items-center.gap-8
         .fs-18 {{ amountB }}
         .fs-14.color-action ($60.56)
 
-    .d-flex.justify-content-between.mt-2
+    .d-flex.justify-content-between.mt-1
       .d-flex.align-items-center.gap-8
         token-image.token-image(src="token-conract" height="25")
-        span WAX
+        span {{ position.pool.tokenB.symbol }}
       .d-flex.align-items-center.gap-8
         .fs-18 {{ amountA }}
         .fs-14.color-action ($60.56)
 
-  AlcorButton.claim-fees-button.submit.w-100.mt-3(access @click="submit") {{ $t('Remove Liquidity and Claim Fees') }}
+  AlcorButton.claim-fees-button.submit.w-100.mt-2(access @click="submit") {{ $t('Remove Liquidity and Claim Fees') }}
 </template>
 
 <script>
