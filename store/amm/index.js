@@ -64,7 +64,7 @@ export const actions = {
     commit('setTicks', { poolId, ticks })
   },
 
-  async poolUpdate({ commit, rootState, dispatch }, poolId) {
+  async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
     if (isNaN(poolId)) return
 
     dispatch('fetchTicksOfPool', poolId)
@@ -86,11 +86,13 @@ export const actions = {
 
     const old_pool = old_pools.findIndex(o => o.id == pool.id)
 
+    console.log({ old_pool, old_pools, pool })
+
     if (old_pool != -1) {
       old_pools[old_pool] = pool
     } else { old_pools.push(pool) }
 
-    commit('setPools', old_pool)
+    commit('setPools', old_pools)
   },
 
   async buildPlainPositions({ commit, getters }) {

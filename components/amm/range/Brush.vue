@@ -87,7 +87,7 @@ export default {
         'm 9 7', // move to second accent
         'v 14', // vertical line
         'z'
-      ].join(' ') : []
+      ].join(' ') : ''
     },
 
     brushHandlePath() {
@@ -109,9 +109,9 @@ export default {
         'q 0 2 -2 2', // rounded corner
         'h -12', // horizontal line
         'z' // close path
-      ].join(' ')
+      ]
 
-      return this.interactive ? [...line, ...head] : line
+      return (this.interactive ? [...line, ...head] : line).join(' ')
     },
 
     flipWestHandle() {
@@ -241,7 +241,7 @@ export default {
   pointer-events: none;
 
   stroke-width: 1.5;
-  stroke: transparent;
+  stroke: black;
   opacity: 0.5;
 }
 
