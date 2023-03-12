@@ -19,8 +19,8 @@
       AlcorSwitch(
         v-if='true',
         @toggle='() => {}',
-        :one='"tokenA"',
-        :two='"tokenB"',
+        :one='position.pool.tokenA.symbol',
+        :two='position.pool.tokenB.symbol',
         :active='"one"'
       )
 
