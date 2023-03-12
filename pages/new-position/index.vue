@@ -200,6 +200,7 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
+    ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/liquidity', [
       'tokenA',
       'tokenB',
@@ -584,7 +585,10 @@ export default {
 
     async addLiquidity() {
       // TODO Fix one side deposit
-      const { invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity, mockPool } = this
+      const {
+        invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity,
+        mockPool, depositADisabled, depositBDisabled
+      } = this
 
       const actions = []
 
@@ -634,7 +638,7 @@ export default {
         })
       }
 
-      if (parseFloat(amountA) > 0)
+      if (parseFloat(amountA) > 0 && !depositADisabled)
         actions.push({
           account: tokenA.contract,
           name: 'transfer',
@@ -647,7 +651,7 @@ export default {
           }
         })
 
-      if (parseFloat(amountB) > 0)
+      if (parseFloat(amountB) > 0 && !depositBDisabled)
         actions.push(
           {
             account: tokenB.contract,
@@ -662,8 +666,13 @@ export default {
           }
         )
 
-      const tokenADesired = parseFloat(invertPrice ? amountB : amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
-      const tokenBDesired = parseFloat(invertPrice ? amountA : amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
+      // TODO REFACTOR & SLIPPAGE IMPLEMENTATION
+
+      const tokenADesired = (depositADisabled ? 0 : parseFloat(invertPrice ? amountB : amountA)).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
+      const tokenBDesired = (depositBDisabled ? 0 : parseFloat(invertPrice ? amountA : amountB)).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
+
+      const tokenAMin = (depositADisabled ? 0 : parseFloat(invertPrice ? amountB : amountA) - 0.0002).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
+      const tokenBMin = (depositBDisabled ? 0 : parseFloat(invertPrice ? amountA : amountB) - 0.0002).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
 
       actions.push(
         {
@@ -677,8 +686,8 @@ export default {
             tokenBDesired,
             tickLower,
             tickUpper, // TODO Slippage
-            tokenAMin: (parseFloat(invertPrice ? amountB : amountA) - 0.0001).toFixed(sortedA.decimals) + ' ' + sortedA.symbol,
-            tokenBMin: (parseFloat(invertPrice ? amountA : amountB) - 0.0001).toFixed(sortedB.decimals) + ' ' + sortedB.symbol,
+            tokenAMin,
+            tokenBMin,
             deadline: 0
           }
         }
