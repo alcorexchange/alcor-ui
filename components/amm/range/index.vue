@@ -9,7 +9,7 @@ client-only
       Chart(
         :current="price"
         :series="series"
-        :width="400"
+        :width="isMobile ? 300 : 400"
         :height="240"
         :margins="{ top: 10, right: 2, bottom: 20, left: 0 }"
         :interactive="interactive"

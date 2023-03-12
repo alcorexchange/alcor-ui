@@ -190,5 +190,12 @@ export default {
     background-color: var(--selector-bg) !important;
   }
 }
-
+</style>
+<style scoped lang="scss">
+@media only screen and (max-width: 860px){
+  .main{
+    flex-direction: column;
+    gap: 40px;
+  }
+}
 </style>
