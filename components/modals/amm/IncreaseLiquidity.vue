@@ -27,10 +27,10 @@
     ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-2
 
     .fs-18.disable.mt-2 Increase
-    //- PoolTokenInput(:locked="true" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
-    //- PoolTokenInput(:locked="true" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB")
+    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
+    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB").mt-2
 
-    //- alcor-button.w-100(big @click="add") Increase
+    AlcorButton.claim-fees-button.submit.w-100(big @click="add").mt-2 Add Liquidity
 
 </template>
 
@@ -224,5 +224,8 @@ export default {
 }
 .current-price{
   font-weight: 500;
+}
+.claim-fees-button.submit{
+  background: #32D74B;
 }
 </style>
