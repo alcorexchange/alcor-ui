@@ -24,7 +24,7 @@
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
         AuthOnly.w-100
-          AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
+          AlcorButton.submit(@click='submit',:class='{ disabled: sumbitButton.state }' :disabled="sumbitButton.state") {{ sumbitButton.text }}
       //- 3 end
 
       //- 4 start end is end of page
@@ -220,6 +220,18 @@ export default {
       'sortedA',
       'sortedB'
     ]),
+
+    sumbitButton() {
+      const { depositADisabled, depositBDisabled, amountA, amountB } = this
+
+      if (
+        (depositADisabled && amountB) ||
+        (depositBDisabled && amountA) ||
+        (amountA && amountB)
+      ) return { state: false, text: 'Add Liquidity' }
+
+      return { state: true, text: 'Enter Amount' }
+    },
 
     feeAmount: {
       get() {
