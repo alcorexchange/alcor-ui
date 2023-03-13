@@ -15,8 +15,8 @@
           CommissionSelect(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
           .fs-16.disable.mt-3(v-mutted="!price") Deposit
-            PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
-            PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
+            PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled" :locked="true" label="Token 1").mt-2
+            PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled" :locked="true" label="Token 2").mt-3
 
           AuthOnly.mt-3.w-100
             AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
@@ -398,21 +398,34 @@ export default {
       return undefined
     },
 
+    // single deposit only if price is out of range
     depositADisabled() {
-      const { invalidRange, mockPool, tickLower, tickUpper, tokenA } = this
+      const { mockPool, tickUpper } = this
 
-      return invalidRange || Boolean(
-        (typeof tickUpper === 'number' && mockPool && mockPool.tickCurrent >= tickUpper && mockPool.tokenA.equals(tokenA)) ||
-        (typeof tickLower === 'number' && mockPool && mockPool.tickCurrent <= tickLower && mockPool.tokenB.equals(tokenA))
-      )
+      return typeof tickUpper === 'number' && mockPool && mockPool.tickCurrent >= tickUpper
     },
 
     depositBDisabled() {
-      const { invalidRange, mockPool, tickLower, tickUpper, tokenB } = this
+      const { mockPool, tickLower } = this
+
+      return typeof tickLower === 'number' && mockPool && mockPool.tickCurrent <= tickLower
+    },
+
+    inputADisabled() {
+      const { depositADisabled, depositBDisabled, invalidRange, mockPool, tokenA } = this
 
       return invalidRange || Boolean(
-        (typeof tickUpper === 'number' && mockPool && mockPool.tickCurrent >= tickUpper && mockPool.tokenA.equals(tokenB)) ||
-        (typeof tickLower === 'number' && mockPool && mockPool.tickCurrent <= tickLower && mockPool.tokenB.equals(tokenB))
+        (depositADisabled && mockPool.tokenA.equals(tokenA)) ||
+        (depositBDisabled && mockPool.tokenB.equals(tokenA))
+      )
+    },
+
+    inputBDisabled() {
+      const { depositADisabled, depositBDisabled, invalidRange, mockPool, tokenB } = this
+
+      return invalidRange || Boolean(
+        (depositADisabled && mockPool.tokenA.equals(tokenB)) ||
+        (depositBDisabled && mockPool.tokenB.equals(tokenB))
       )
     }
   },
@@ -598,13 +611,15 @@ export default {
 
       console.log({ depositADisabled, depositBDisabled })
 
-      const tokenADesired = tryParseCurrencyAmount((isSorted ? amountA : amountB), isSorted ? tokenA : tokenB) ||
-        CurrencyAmount.fromRawAmount(isSorted ? tokenA : tokenB, 0)
+      const tokenADesired = !depositADisabled ? tryParseCurrencyAmount((isSorted ? amountA : amountB), sortedA)
+        : CurrencyAmount.fromRawAmount(sortedA, 0)
 
-      const tokenBDesired = tryParseCurrencyAmount((isSorted ? amountB : amountA), isSorted ? tokenB : tokenA) ||
-        CurrencyAmount.fromRawAmount(isSorted ? tokenB : tokenA, 0)
+      const tokenBDesired = !depositBDisabled ? tryParseCurrencyAmount((isSorted ? amountB : amountA), sortedB)
+        : CurrencyAmount.fromRawAmount(sortedB, 0)
 
-      console.log({ tokenADesired, tokenBDesired })
+      console.log({ tokenADesired: tokenADesired.greaterThan(0), tokenBDesired: tokenBDesired.quotient })
+      console.log({ tokenADesired: tokenADesired.toAsset(), tokenBDesired: tokenBDesired.toAsset() })
+      //return
       //console.log('tokenADesired', tokenADesired.toAsset())
 
       const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
@@ -656,7 +671,7 @@ export default {
         })
       }
 
-      if (!depositADisabled)
+      if (tokenADesired.greaterThan(0))
         actions.push({
           account: sortedA.contract,
           name: 'transfer',
@@ -669,7 +684,7 @@ export default {
           }
         })
 
-      if (!depositBDisabled)
+      if (tokenBDesired.greaterThan(0))
         actions.push(
           {
             account: sortedB.contract,

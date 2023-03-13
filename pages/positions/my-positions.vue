@@ -63,7 +63,6 @@ el-table.position-table(
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
