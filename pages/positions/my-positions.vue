@@ -74,7 +74,7 @@ export default {
   data: () => ({ positions: [] }),
 
   computed: {
-    ...mapState('amm', ['plainPositionss'])
+    ...mapState('amm', ['plainPositions'])
   },
 
   methods: {
