@@ -133,10 +133,10 @@ button {
 
 .alcor-button.bordered {
   background: transparent !important;
-  border: 1px solid #353535;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   &:hover{
-    border: 1px solid #48484A;
+    border: 1px solid var(--border-2-color);
   }
 }
 
