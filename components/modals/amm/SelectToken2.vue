@@ -30,20 +30,20 @@
         span
     #assets-modal-component
       .d-flex.flex-column.gap-16.px-3.pb-3
-        el-input.dark.br-6(
+        el-input.default.br-6(
           prefix-icon='el-icon-search',
           v-model='search',
           size='small',
           placeholder='Search'
         )
         .d-flex.gap-8
-          .grey-border.pointer.br-4.px-2.py-1.d-flex.gap-4
+          .grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': true }")
             TokenImage(
               :src='$tokenLogo("WAX", "eosio.token")',
               height='20'
             )
             .fs-14 WAX
-          .grey-border.pointer.br-4.px-2.py-1.d-flex.gap-4
+          .grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': false }")
             TokenImage(
               :src='$tokenLogo("WAX", "eosio.token")',
               height='20'

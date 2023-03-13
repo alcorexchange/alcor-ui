@@ -20,7 +20,7 @@ el-table.position-table(
       .d-flex.flex-column
         .d-flex.align-items-center.gap-4
           .indicator(:class="{ 'in-range': row.inRange }")
-          .fs-10 {{ !row.inRange ? 'In Range': 'Out of Range' }}
+          .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
         .d-flex.align-items-center.gap-6.flex-wrap
           .d-flex.gap-4
             .fs-12.disable MIN
