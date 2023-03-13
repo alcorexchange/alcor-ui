@@ -600,7 +600,7 @@ export default {
     async submit() {
       try {
         const poolId = await this.addLiquidity()
-        //this.$router.push('/positions/my-positions')
+        this.$router.push('/positions/my-positions')
         this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
@@ -610,24 +610,16 @@ export default {
     },
 
     async addLiquidity() {
-      // TODO Fix one side deposit
       const {
-        isSorted, sortedA, sortedB, tokenA, tokenB, tickLower, tickUpper, noLiquidity,
+        isSorted, sortedA, sortedB, tickLower, tickUpper, noLiquidity,
         mockPool, depositADisabled, depositBDisabled, slippage, amountA, amountB
       } = this
-
-      console.log({ depositADisabled, depositBDisabled })
 
       const tokenADesired = !depositADisabled ? tryParseCurrencyAmount((isSorted ? amountA : amountB), sortedA)
         : CurrencyAmount.fromRawAmount(sortedA, 0)
 
       const tokenBDesired = !depositBDisabled ? tryParseCurrencyAmount((isSorted ? amountB : amountA), sortedB)
         : CurrencyAmount.fromRawAmount(sortedB, 0)
-
-      console.log({ tokenADesired: tokenADesired.greaterThan(0), tokenBDesired: tokenBDesired.quotient })
-      console.log({ tokenADesired: tokenADesired.toAsset(), tokenBDesired: tokenBDesired.toAsset() })
-      //return
-      //console.log('tokenADesired', tokenADesired.toAsset())
 
       const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
       const tokenBMin = tokenBDesired.multiply(new Percent(1).subtract(slippage))
@@ -726,7 +718,6 @@ export default {
       )
 
       console.log({ actions })
-
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
       console.log({ r })
 
