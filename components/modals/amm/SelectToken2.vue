@@ -37,12 +37,13 @@
           placeholder='Search'
         )
         .d-flex.gap-8
-          .grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': true }")
+          //.grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': true }")
             TokenImage(
               :src='$tokenLogo("WAX", "eosio.token")',
               height='20'
             )
             .fs-14 WAX
+
           .grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': false }")
             TokenImage(
               :src='$tokenLogo("WAX", "eosio.token")',
@@ -100,7 +101,6 @@ export default {
   },
   methods: {
     selectAsset(v) {
-      console.log('vvvv', v)
       this.$emit('selected', v)
       this.visible = false
     },

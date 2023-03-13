@@ -456,6 +456,8 @@ export default {
 
       const total = amountA + amountB
 
+      if (total == 0) return
+
       const aPercent = ((100 * amountA) / total).toFixed(0)
       const bPercent = ((100 * amountB) / total).toFixed(0)
 
