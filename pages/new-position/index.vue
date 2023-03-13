@@ -879,7 +879,9 @@ export default {
   }
 }
 .add-liquidity-component {
+  margin: auto 8px;
   margin-top: 50px;
+  width: 100%;
   max-width: 880px;
 
   .el-slider__marks-text:last-child {
@@ -903,6 +905,11 @@ export default {
         "amounts"
         "submit";
     }
+  }
+}
+@media only screen and (max-width: 640px){
+  .add-liquidity-component{
+    margin-top: 20px;
   }
 }
 @media only screen and (max-width: 380px){
