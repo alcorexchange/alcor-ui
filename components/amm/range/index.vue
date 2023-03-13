@@ -1,9 +1,12 @@
 <template lang="pug">
 client-only
   .div
+
+    // TODO This things
     p.infoBox(v-if="isUninitialized") Your position will appear here.
     p.infoBox(v-if="isLoading") Loading
     p.infoBox(v-if="error") Liquidity data not available.
+    //
 
     .chartWrapper(ref="chartWrapper")
       Chart(
@@ -36,7 +39,7 @@ import Chart from './Chart.vue'
 import { ZOOM_LEVELS } from './constants'
 
 import { getLiquidityRangeChart } from '~/utils/amm'
-import { FeeAmount, tickToPrice } from '~/assets/libs/swap-sdk'
+import { FeeAmount } from '~/assets/libs/swap-sdk'
 
 export default {
   components: { Chart },
@@ -51,20 +54,11 @@ export default {
     }
   },
 
-  watch: {},
-
-  mounted() {
-    console.log('LiquidityChartRangeInput loaded: ', { ...this.$props })
-    this.init()
-    setTimeout(() => {
-      this.setWidth()
-    }, 100)
-  },
-
   computed: {
     series() {
       // TODO Should be async
       // TODO Do optimisations, can lowerage perfomance due to large number of ticks
+
       // Try to fetch series if there is a pool
       const { tokenA, tokenB, feeAmount } = this
 
@@ -74,8 +68,6 @@ export default {
       })
 
       const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
-
-      console.log('one', series)
 
       return series.map(s => {
         return {
@@ -113,13 +105,6 @@ export default {
   },
 
   methods: {
-    setWidth() {
-      const w = (this.$refs.chartWrapper && this.$refs.chartWrapper.getBoundingClientRect().width) || 400
-      console.log(this.$refs)
-      this.width = w
-    },
-    init() {},
-
     brushLabel(d, x) {
       const { price, ticksAtLimit, isSorted } = this
 
