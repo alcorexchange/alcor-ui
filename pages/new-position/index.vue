@@ -598,8 +598,14 @@ export default {
 
       console.log({ depositADisabled, depositBDisabled })
 
-      const tokenADesired = tryParseCurrencyAmount((isSorted ? amountA : amountB) || '0', isSorted ? tokenA : tokenB)
-      const tokenBDesired = tryParseCurrencyAmount((isSorted ? amountB : amountA) || '0', isSorted ? tokenB : tokenA)
+      const tokenADesired = tryParseCurrencyAmount((isSorted ? amountA : amountB), isSorted ? tokenA : tokenB) ||
+        CurrencyAmount.fromRawAmount(isSorted ? tokenA : tokenB, 0)
+
+      const tokenBDesired = tryParseCurrencyAmount((isSorted ? amountB : amountA), isSorted ? tokenB : tokenA) ||
+        CurrencyAmount.fromRawAmount(isSorted ? tokenB : tokenA, 0)
+
+      console.log({ tokenADesired, tokenBDesired })
+      //console.log('tokenADesired', tokenADesired.toAsset())
 
       const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
       const tokenBMin = tokenBDesired.multiply(new Percent(1).subtract(slippage))

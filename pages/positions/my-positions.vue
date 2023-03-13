@@ -74,7 +74,9 @@ export default {
   data: () => ({ positions: [] }),
 
   computed: {
-    ...mapState('amm', ['plainPositionss'])
+    plainPositions() {
+      return this.$store.state.amm.plainPositions
+    }
   },
 
   methods: {
