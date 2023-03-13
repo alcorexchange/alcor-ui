@@ -71,8 +71,8 @@
 </template>
 
 <script>
-import TokenImage from '~/components/elements/TokenImage'
 import ReturnLink from '@/components/ReturnLink'
+import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: { TokenImage, ReturnLink },
