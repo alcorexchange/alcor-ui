@@ -13,7 +13,7 @@
 
         div(v-mutted="!tokenA || !tokenB")
           .disable.mt-3.mb-2 Fee Tier
-          CommissionSelect(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
+          CommissionSelect(:selected="feeAmount" :options="fees" @change="changeFee")
       //- 1 end
       //- 2 start
       .section-2(v-mutted="!tokenA || !tokenB")
@@ -187,8 +187,6 @@ export default {
         { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
       ],
 
-      priceRangeValue: '',
-
       // TODO Different ranges for different feeAmounts
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
@@ -201,16 +199,6 @@ export default {
       }),
 
       disabledMessage: 'The market price is outside your specified price range. Single-asset deposit only.'
-    }
-  },
-
-  watch: {
-    feeAmount(val) {
-      // TODO Do it properly
-      if (!this.pool) {
-        this.leftRangeTypedValue = ''
-        this.rightRangeTypedValue = ''
-      }
     }
   },
 
@@ -370,14 +358,6 @@ export default {
       )
     },
 
-    max() {
-      return 100
-    },
-
-    pools() {
-      return this.$store.getters['amm/pools']
-    },
-
     mockPool() {
       // Used when pool is not initialized
       const { tokenA, tokenB, feeAmount, price, invalidPrice, isSorted } = this
@@ -438,6 +418,21 @@ export default {
 
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
+
+    reset() {
+      this.amountA = ''
+      this.amountB = ''
+
+      this.startPriceTypedValue = null
+
+      this.leftRangeTypedValue = ''
+      this.rightRangeTypedValue = ''
+    },
+
+    changeFee(fee) {
+      this.reset()
+      this.feeAmount = fee
+    },
 
     getTokenComposedPercent(side) {
       const { isSorted, tickLower, tickUpper } = this
@@ -625,7 +620,7 @@ export default {
         this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
-        console.log(e)
+        console.error(e)
         this.$notify({ title: 'Market creation', message: e.message, type: 'error' })
       }
     },
