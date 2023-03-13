@@ -35,7 +35,8 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-3
       InfoContainer.info.mt-3(:access="true")
         | To update the price range, you need to close this position and open a new one,
-        | you can read about automating the price range here Learn about liquidity price range
+        | you can read about automating the price range here&nbsp;
+        nuxt-link(to="/") Learn about liquidity price range
 
 </template>
 

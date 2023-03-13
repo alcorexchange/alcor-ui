@@ -17,6 +17,10 @@ export default {
   &.access {
     color: var(--access-text-color);
     background: var(--access-bg);
+    a {
+      color: var(--access-text-color);
+      text-decoration: underline !important;
+    }
   }
 }
 </style>
