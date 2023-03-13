@@ -449,12 +449,15 @@ export default {
     onInputAmountA(value) {
       if (!value) return this.amountB = null
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
-      if (dependentAmount) this.amountB = dependentAmount.toFixed()
+      if (dependentAmount) {
+        this.amountB = dependentAmount.toFixed()
+        console.log(dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_UP), dependentAmount.toFixed())
+      }
     },
 
     onInputAmountB(value) {
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_B')
-      if (dependentAmount) this.amountA = dependentAmount.toFixed()
+      if (dependentAmount) this.amountA = dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_DOWN)
     },
 
     getDependedAmount(value, independentField) {
@@ -487,19 +490,22 @@ export default {
           return undefined
         }
 
+        // TODO Hmm работает хорошо в !isSorted
         const position = independentAmount.currency.equals(pool.tokenA)
           ? Position.fromAmountA({
             pool,
             tickLower,
             tickUpper,
             amountA: independentAmount.quotient,
-            useFullPrecision: true // we want full precision for the theoretical position
+
+            // TODO Check it in SDK
+            //useFullPrecision: true // we want full precision for the theoretical position
           })
           : Position.fromAmountB({
             pool,
             tickLower,
             tickUpper,
-            amountB: independentAmount.quotient
+            amountB: independentAmount.quotient,
           })
 
         const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
@@ -540,7 +546,7 @@ export default {
       return 0
     },
 
-    // TODO
+    // TODO RESET ON POOL CHANGE
     //const handleFeePoolSelect = useCallback(
     //  (newFeeAmount: FeeAmount) => {
     //    onLeftRangeInput('')
@@ -574,7 +580,7 @@ export default {
     async submit() {
       try {
         const poolId = await this.addLiquidity()
-        this.$router.push('/positions/my-positions')
+        //this.$router.push('/positions/my-positions')
         this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
@@ -586,9 +592,20 @@ export default {
     async addLiquidity() {
       // TODO Fix one side deposit
       const {
-        invertPrice, sortedA, sortedB, amountA, amountB, tokenA, tokenB, tickLower, tickUpper, noLiquidity,
-        mockPool, depositADisabled, depositBDisabled
+        isSorted, sortedA, sortedB, tokenA, tokenB, tickLower, tickUpper, noLiquidity,
+        mockPool, depositADisabled, depositBDisabled, slippage, amountA, amountB
       } = this
+
+      console.log({ depositADisabled, depositBDisabled })
+
+      const tokenADesired = tryParseCurrencyAmount((isSorted ? amountA : amountB) || '0', isSorted ? tokenA : tokenB)
+      const tokenBDesired = tryParseCurrencyAmount((isSorted ? amountB : amountA) || '0', isSorted ? tokenB : tokenA)
+
+      const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
+      const tokenBMin = tokenBDesired.multiply(new Percent(1).subtract(slippage))
+
+      const tokenAZero = tokenAMin.multiply(0)
+      const tokenBZero = tokenBMin.multiply(0)
 
       const actions = []
 
@@ -619,60 +636,47 @@ export default {
           }
         }
 
-        const assetAZero = asset(parseFloat(this.amountA).toFixed(sortedA.decimals) + ' ' + sortedA.symbol)
-        const assetBZero = asset(parseFloat(this.amountB).toFixed(sortedB.decimals) + ' ' + sortedB.symbol)
-        assetAZero.set_amount(0)
-        assetBZero.set_amount(0)
-
         actions.push({
           account: this.network.amm.contract,
           name: 'createpool',
           authorization: [this.user.authorization],
           data: {
             account: this.$store.state.user.name,
-            tokenA: { contract: sortedA.contract, quantity: assetAZero.to_string() },
-            tokenB: { contract: sortedB.contract, quantity: assetBZero.to_string() },
+            tokenA: { contract: sortedA.contract, quantity: tokenAZero.toAsset() },
+            tokenB: { contract: sortedB.contract, quantity: tokenBZero.toAsset() },
             sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
             fee: this.feeAmount
           }
         })
       }
 
-      if (parseFloat(amountA) > 0 && !depositADisabled)
+      if (!depositADisabled)
         actions.push({
-          account: tokenA.contract,
+          account: sortedA.contract,
           name: 'transfer',
           authorization: [this.user.authorization],
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            quantity: tokenADesired.toAsset(),
             memo: 'deposit'
           }
         })
 
-      if (parseFloat(amountB) > 0 && !depositBDisabled)
+      if (!depositBDisabled)
         actions.push(
           {
-            account: tokenB.contract,
+            account: sortedB.contract,
             name: 'transfer',
             authorization: [this.user.authorization],
             data: {
               from: this.user.name,
               to: this.network.amm.contract,
-              quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+              quantity: tokenBDesired.toAsset(),
               memo: 'deposit'
             }
           }
         )
-
-      // TODO REFACTOR & SLIPPAGE IMPLEMENTATION
-
-      const tokenADesired = (depositADisabled ? 0 : parseFloat(invertPrice ? amountB : amountA)).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
-      const tokenBDesired = (depositBDisabled ? 0 : parseFloat(invertPrice ? amountA : amountB)).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
-
-      const tokenAMin = (depositADisabled ? 0 : parseFloat(invertPrice ? amountB : amountA) - 0.0002).toFixed(sortedA.decimals) + ' ' + sortedA.symbol
-      const tokenBMin = (depositBDisabled ? 0 : parseFloat(invertPrice ? amountA : amountB) - 0.0002).toFixed(sortedB.decimals) + ' ' + sortedB.symbol
 
       actions.push(
         {
@@ -682,12 +686,12 @@ export default {
           data: {
             poolId,
             owner: this.user.name,
-            tokenADesired,
-            tokenBDesired,
+            tokenADesired: (depositADisabled ? tokenAZero : tokenADesired).toAsset(),
+            tokenBDesired: (depositBDisabled ? tokenBZero : tokenBDesired).toAsset(),
             tickLower,
-            tickUpper, // TODO Slippage
-            tokenAMin,
-            tokenBMin,
+            tickUpper,
+            tokenAMin: (depositADisabled ? tokenAZero : tokenAMin).toAsset(),
+            tokenBMin: (depositBDisabled ? tokenBZero : tokenBMin).toAsset(),
             deadline: 0
           }
         }

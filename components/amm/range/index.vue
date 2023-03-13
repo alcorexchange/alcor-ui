@@ -134,7 +134,6 @@ export default {
     },
 
     onBrushDomainChangeEnded({ domain, mode }) {
-      console.log('onBrushDomainChangeEnded', { domain, mode })
       const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])
