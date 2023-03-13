@@ -41,6 +41,7 @@ export default {
     font-size: 1.1rem;
     display: flex;
     justify-content: center;
+    white-space: nowrap;
   }
 }
 .action::v-deep, .settings::v-deep .action {

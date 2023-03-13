@@ -197,5 +197,8 @@ export default {
     flex-direction: column;
     gap: 40px;
   }
+  .manage-liquidity-component{
+    margin-top: 20px;
+  }
 }
 </style>
