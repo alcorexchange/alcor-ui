@@ -24,7 +24,7 @@
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
         AuthOnly.w-100
-          AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
+          AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') {{ false ? 'Add liquidity' : 'Enter Amount' }}
       //- 3 end
 
       //- 4 start end is end of page
@@ -99,6 +99,9 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
               .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
+        .error-container.mt-2(v-if="true")
+          i.el-icon-warning-outline.fs-24
+          .message.fs-14 Invalid range selected. The min price must be lower than the max price.
   // TODO ROUTES MANAGEMENT
   nuxt-child
 
@@ -841,7 +844,7 @@ export default {
   }
   .submit {
     width: 100%;
-    padding: 10px 18px;
+    padding: 14px 18px;
     background: var(--border-active-color);
     color: #000;
     border-radius: 8px;
@@ -908,6 +911,15 @@ export default {
   .el-slider__marks-text:last-child {
     width: 40px;
   }
+}
+.error-container{
+  color: var(--main-red);
+  background: var(--selector-bg);
+  padding: 8px;
+  display: flex;
+  border-radius: 8px;
+  gap: 8px;
+  align-items: center;
 }
 @media only screen and (max-width: 840px){
   .pre-defined-ranges{
