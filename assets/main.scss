@@ -1010,6 +1010,9 @@ a {
 .br-4 {
   border-radius: 4px;
 }
+.br-6 {
+  border-radius: 6px;
+}
 .br-8 {
   border-radius: 8px;
 }
@@ -1018,6 +1021,13 @@ a {
     border-radius: 20px;
   }
 }
+.el-input.dark {
+  & .el-input__inner {
+    border: 1px solid var(--select-color-dark);
+    background: var(--select-color-dark) !important;
+  }
+}
+
 
 .gap-8 {
   gap: 8px;
