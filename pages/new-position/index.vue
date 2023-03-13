@@ -1,31 +1,31 @@
 <template lang="pug">
 .row.justify-content-center
-  alcor-container.add-liquidity-component.w-100
+  AlcorContainer.add-liquidity-component.w-100
     PageHeader(title="Add Liquidity")
     .main-section.mt-2
       .section
         .fs-16.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
-          select-token(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
-          select-token(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
+          SelectToken(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
+          SelectToken(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
         div(v-mutted="!tokenA || !tokenB")
           .disable.mt-3.mb-2 Fee Tier
-          commission-select(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
+          CommissionSelect(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
 
           .fs-16.disable.mt-3(v-mutted="!price") Deposit
             PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="depositADisabled" :locked="true" label="Token 1").mt-2
             PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="depositBDisabled" :locked="true" label="Token 2").mt-3
 
-          auth-only.mt-3.w-100
-            alcor-button.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
+          AuthOnly.mt-3.w-100
+            AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
 
       .section(v-mutted="!tokenA || !tokenB")
         template(v-if="!pool")
           .d-flex.flex-column.gap-10
             .fs-16.disable Set Starting Price
-            info-container.info-container(:access="true")
+            InfoContainer.info-container(:access="true")
               | This pool must be initialized before you can add liquidity.
               | To initialize, select a starting price for the pool.
               | Then, enter your liquidity price range and deposit amount.
@@ -33,7 +33,7 @@
 
             el-input.starting-price-input(placeholder="0" v-model="startPriceTypedValue")
 
-            info-container.price-info-container
+            InfoContainer.price-info-container
               .d-flex.justify-content-between
                 .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
                 .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5)  + ' ' + (tokenB ? tokenB.symbol : '') }}
@@ -64,7 +64,7 @@
               )
 
         .pre-defined-ranges.mt-2(v-mutted="!price")
-          AlcorButton.item(v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
+          AlcorButton.item(bordered v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
 
         .d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
@@ -847,10 +847,7 @@ export default {
   justify-content: space-between;
   .item{
     padding: 2px 6px;
-    background: transparent;
     font-size: 0.86rem;
-    border: 1px solid var(--border-2-color);
-    border-radius: 6px;
   }
 }
 .add-liquidity-component {
