@@ -86,8 +86,8 @@
           )
             template(#top) Min Price
             template
-              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
-              .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{ tokenA.symbol }} per {{ tokenB.symbol }}
+              .info.disable(v-if="tokenA") Your position will be {{ getTokenComposedPercent('w') }}% composed of {{ tokenA.symbol }} at this price
 
           InputStepCounter(
             :value="rightRangeValue"
@@ -100,7 +100,7 @@
             template(#top) Max Price
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
-              .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
+              .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
         .error-container.mt-2(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 Invalid range selected. The min price must be lower than the max price.
@@ -438,6 +438,31 @@ export default {
 
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
+
+
+    getTokenComposedPercent(side) {
+      const { isSorted, tickLower, tickUpper } = this
+
+      if (isNaN(tickLower) || isNaN(tickUpper) || !this.mockPool) return
+
+      const position = Position.fromAmountA({
+        pool: this.mockPool,
+        tickLower,
+        tickUpper,
+        amountA: 1000000
+      })
+
+      const amountA = parseFloat(position.amountA.toFixed())
+      const amountB = parseFloat(position.amountB.toFixed())
+
+      const total = amountA + amountB
+
+      const aPercent = ((100 * amountA) / total).toFixed(0)
+      const bPercent = ((100 * amountB) / total).toFixed(0)
+
+      if (side == 'w') return isSorted ? aPercent : bPercent
+      if (side == 'e') return isSorted ? bPercent : aPercent
+    },
 
     toggleTokens() {
       const { invertPrice, ticksAtLimit, priceLower, priceUpper } = this
