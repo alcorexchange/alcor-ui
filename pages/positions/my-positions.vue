@@ -74,7 +74,7 @@ export default {
   data: () => ({ positions: [] }),
 
   computed: {
-    ...mapState('amm', ['plainPositionss'])
+    ...mapState('amm', ['plainPositions'])
   },
 
   methods: {
@@ -126,6 +126,9 @@ export default {
         padding: 0px 16px;
       }
     }
+  }
+  .el-table__row {
+    cursor: pointer;
   }
 }
 </style>
