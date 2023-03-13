@@ -1,12 +1,12 @@
 <template lang="pug">
-el-table.market-table(
+el-table.position-table(
   :data='plainPositions',
   style='width: 100%',
   @row-click="managePosition"
 )
   el-table-column(:label='$t("Assets in Position")' width="180")
     template(slot-scope='{row}')
-      .d-flex.align-items-center.gap-10.p-2
+      .d-flex.align-items-center.gap-12.px-3.py-2
         pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
         .fs-14 {{ row.tokenA.symbol }} / {{ row.tokenB.symbol }}
         .tag {{ row.fee / 10000 }}%
@@ -28,7 +28,7 @@ el-table.market-table(
 
   el-table-column(:label='$t("Assets in Pool")')
     template(slot-scope='{row}')
-      .d-flex.flex-column.gap-4
+      .d-flex.flex-column
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
 
@@ -54,7 +54,7 @@ el-table.market-table(
 
   el-table-column(:label='$t("Action")')
     template(slot-scope='{row}')
-      alcor-button Manage
+      alcor-button(compact) Manage
 
 </template>
 
@@ -81,7 +81,7 @@ export default {
     managePosition({ link }) {
       this.$router.push(link)
     }
-  },
+  }
 }
 </script>
 
@@ -108,5 +108,20 @@ export default {
     background: var(--access-indicator);
   }
 }
+</style>
 
+<style lang="scss">
+.position-table {
+  border-radius: 12px;
+  .el-table__header {
+    th {
+      font-weight: 400 !important;
+      font-size: 12px !important;
+      color: var(--text-disable);
+      .cell {
+        padding: 0px 16px;
+      }
+    }
+  }
+}
 </style>
