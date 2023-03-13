@@ -73,7 +73,7 @@
               )
 
         .pre-defined-ranges.mt-2(v-mutted="!price")
-          AlcorButton.item(bordered v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
+          AlcorButton.item(bordered v-for="range in priceRangeItems" @click="onPreDefinedRangeSelect(range)") {{ range.text }}
 
         .min-max-price.d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
@@ -187,15 +187,15 @@ export default {
         { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
       ],
 
-      // TODO: better variable naming?
-      // TODO Handle buttons
       priceRangeValue: '',
+
+      // TODO Different ranges for different feeAmounts
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
-        { text: '+/-5%', higherValue: '5', lowerValue: '5' },
-        { text: '+/-10&', higherValue: '10', lowerValue: '10' },
-        { text: '+10/-2%', higherValue: '10', lowerValue: '2' },
-        { text: '+2/-10%', higherValue: '2', lowerValue: '10' },
+        { text: '+/-5%', lowerValue: -5, higherValue: 5 },
+        { text: '+/-10%', lowerValue: -10, higherValue: 10 },
+        { text: '-2%/+10', lowerValue: -2, higherValue: 10 },
+        { text: '-10%/+2', lowerValue: -10, higherValue: 2 },
       ].map((item) => {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       }),
@@ -438,7 +438,6 @@ export default {
 
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
-
 
     getTokenComposedPercent(side) {
       const { isSorted, tickLower, tickUpper } = this
@@ -812,14 +811,31 @@ export default {
       }
       return ''
     },
-    onPreDefinedRangeSelect(range) {
 
-    }
+    onPreDefinedRangeSelect({ lowerValue, higherValue }) {
+      const { price, invertPrice, tokenA, tokenB, isSorted, onLeftRangeInput, onRightRangeInput, tickSpaceLimits } = this
 
-    // TODO
-    // getSetFullRange() {
-    //   dispatch(setFullRange())
-    // }
+      if (!price) return
+
+      const current = parseFloat((invertPrice ? price.invert() : price).toSignificant(6))
+
+      if (lowerValue == 'infinity') {
+        onLeftRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'LOWER' : 'UPPER']).toSignificant(5))
+        onRightRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'UPPER' : 'LOWER']).toSignificant(5))
+        return
+      }
+
+      const leftPrice = lowerValue < 0
+        ? current - (current * (-lowerValue / 100))
+        : current + (current * (lowerValue / 100))
+
+      const rightPrice = higherValue < 0
+        ? current - (current * (-higherValue / 100))
+        : current + (current * (higherValue / 100))
+
+      onLeftRangeInput(leftPrice.toFixed(5))
+      onRightRangeInput(rightPrice.toFixed(5))
+    },
   },
 }
 </script>

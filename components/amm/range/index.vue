@@ -73,7 +73,7 @@ export default {
         (p.tokenA.equals(tokenB) && p.tokenB.equals(tokenA) && p.fee == feeAmount)
       })
 
-      const series = getLiquidityRangeChart(pool, tokenA, tokenB)
+      const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
 
       console.log('one', series)
 
