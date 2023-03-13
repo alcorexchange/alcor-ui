@@ -73,7 +73,7 @@
         .pre-defined-ranges.mt-2(v-mutted="!price")
           AlcorButton.item(bordered v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
 
-        .d-flex.gap-8.mt-2.justify-content-center
+        .min-max-price.d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
             :value="leftRangeValue"
             @change="onLeftRangeInput"
@@ -903,6 +903,11 @@ export default {
         "amounts"
         "submit";
     }
+  }
+}
+@media only screen and (max-width: 380px){
+  .min-max-price{
+    flex-direction: column !important;
   }
 }
 </style>
