@@ -1027,7 +1027,12 @@ a {
     background: var(--select-color-dark) !important;
   }
 }
-
+.el-input.default {
+  & .el-input__inner {
+    border: 1px solid var(--select-color);
+    background: var(--select-color) !important;
+  }
+}
 
 .gap-8 {
   gap: 8px;
@@ -1120,11 +1125,11 @@ a {
 }
 
 .grey-border {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--light-border-color);
 }
 
 .grey-border.border-hover:hover:not(.border-active) {
-  border: 1px solid var(--border-hover-color);
+  border-color: var(--border-2-color) !important;
 }
 
 .grey-border.border-active {
