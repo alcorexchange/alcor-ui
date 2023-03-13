@@ -8,8 +8,8 @@
         .fs-16.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
-          SelectToken(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
-          SelectToken(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
+          SelectToken2(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
+          SelectToken2(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
         div(v-mutted="!tokenA || !tokenB")
           .disable.mt-3.mb-2 Fee Tier
@@ -113,6 +113,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 
 import SelectToken from '~/components/modals/amm/SelectToken'
+import SelectToken2 from '~/components/modals/amm/SelectToken2'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
 import Zoom from '~/components/amm/range/Zoom'
@@ -145,6 +146,7 @@ const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 export default {
   components: {
     SelectToken,
+    SelectToken2,
     PoolTokenInput,
     AlcorButton,
     AlcorContainer,

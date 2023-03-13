@@ -36,7 +36,7 @@ el-table.position-table(
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4(:class="{ red: true }")
+          .fs-12.earn.d-flex.gap-4
             span {{ row.amountA }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)' height="12")
