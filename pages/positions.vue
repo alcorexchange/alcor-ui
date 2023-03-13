@@ -20,12 +20,19 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { AlcorButton },
+  fetch({ route, redirect }) {
+    if (route.path == '/positions') redirect('/positions/my-positions')
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .navigation {
-  a { color: var(--text-disable); }
-  a.active { color: var(--text-contrast); }
+  a {
+    color: var(--text-disable);
+  }
+  a.active {
+    color: var(--text-contrast);
+  }
 }
 </style>

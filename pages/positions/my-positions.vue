@@ -4,6 +4,10 @@ el-table.position-table(
   style='width: 100%',
   @row-click="managePosition"
 )
+  template(#empty)
+    .d-flex.flex-column.align-items-center.gap-30.py-5
+      i.el-icon-moon-night.fs-40
+      .fs-14.lh-14 Your active liquidity positions will appear here.
   el-table-column(:label='$t("Assets in Position")' width="180")
     template(slot-scope='{row}')
       .d-flex.align-items-center.gap-12.px-3.py-2
@@ -70,7 +74,7 @@ export default {
   data: () => ({ positions: [] }),
 
   computed: {
-    ...mapState('amm', ['plainPositions'])
+    ...mapState('amm', ['plainPositionss'])
   },
 
   methods: {
