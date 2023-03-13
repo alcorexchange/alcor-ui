@@ -127,5 +127,8 @@ export default {
       }
     }
   }
+  .el-table__row {
+    cursor: pointer;
+  }
 }
 </style>
