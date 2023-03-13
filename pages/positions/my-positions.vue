@@ -63,6 +63,8 @@ el-table.position-table(
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
@@ -73,9 +75,7 @@ export default {
   data: () => ({ positions: [] }),
 
   computed: {
-    plainPositions() {
-      return this.$store.state.amm.plainPositions
-    }
+    ...mapState('amm', ['plainPositions'])
   },
 
   methods: {
@@ -127,6 +127,9 @@ export default {
         padding: 0px 16px;
       }
     }
+  }
+  .el-table__row {
+    cursor: pointer;
   }
 }
 </style>

@@ -3,7 +3,8 @@
   AlcorContainer.add-liquidity-component.w-100
     PageHeader(title="Add Liquidity")
     .main-section.mt-2
-      .section
+      //- 1 start
+      .section-1
         .fs-16.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
@@ -13,15 +14,21 @@
         div(v-mutted="!tokenA || !tokenB")
           .disable.mt-3.mb-2 Fee Tier
           CommissionSelect(:selected="feeAmount" :options="fees" @change="v => feeAmount = v")
+      //- 1 end
+      //- 2 start
+      .section-2(v-mutted="!tokenA || !tokenB")
+        .fs-16.disable(v-mutted="!price") Deposit
+          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled" :locked="true" label="Token 1").mt-2
+          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled" :locked="true" label="Token 2").mt-3
+      //- 2 end
+      //- 3 start
+      .section-3(v-mutted="!tokenA || !tokenB")
+        AuthOnly.w-100
+          AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
+      //- 3 end
 
-          .fs-16.disable.mt-3(v-mutted="!price") Deposit
-            PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled" :locked="true" label="Token 1").mt-2
-            PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled" :locked="true" label="Token 2").mt-3
-
-          AuthOnly.mt-3.w-100
-            AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') Add liquidity
-
-      .section(v-mutted="!tokenA || !tokenB")
+      //- 4 start end is end of page
+      .section-4(v-mutted="!tokenA || !tokenB")
         template(v-if="!pool")
           .d-flex.flex-column.gap-10
             .fs-16.disable Set Starting Price
@@ -66,7 +73,7 @@
         .pre-defined-ranges.mt-2(v-mutted="!price")
           AlcorButton.item(bordered v-for="{ text } in priceRangeItems" @click="onPreDefinedRangeSelect") {{text}}
 
-        .d-flex.gap-8.mt-2.justify-content-center
+        .min-max-price.d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
             :value="leftRangeValue"
             @change="onLeftRangeInput"
@@ -810,10 +817,26 @@ export default {
 .add-liquidity-component {
   padding: 14px !important;
   .main-section{
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "tokenSelect range"
+      "amounts range"
+      "submit range";
     gap: 18px;
-    .section{
-      flex: 1;
+  }
+  .section {
+    &-1 {
+      grid-area: tokenSelect;
+    }
+    &-2 {
+      grid-area: amounts;
+    }
+    &-3 {
+      grid-area: submit;
+    }
+    &-4 {
+      grid-area: range;
     }
   }
   .submit {
@@ -870,17 +893,49 @@ export default {
   display: flex;
   white-space: nowrap;
   justify-content: space-between;
+  gap: 2px;
   .item{
     padding: 2px 6px;
     font-size: 0.86rem;
   }
 }
 .add-liquidity-component {
+  margin: auto 8px;
   margin-top: 50px;
+  width: 100%;
   max-width: 880px;
 
   .el-slider__marks-text:last-child {
     width: 40px;
+  }
+}
+@media only screen and (max-width: 840px){
+  .pre-defined-ranges{
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    .item{
+      flex: 1;
+    }
+  }
+  .add-liquidity-component{
+    .main-section{
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "tokenSelect"
+        "range"
+        "amounts"
+        "submit";
+    }
+  }
+}
+@media only screen and (max-width: 640px){
+  .add-liquidity-component{
+    margin-top: 20px;
+  }
+}
+@media only screen and (max-width: 380px){
+  .min-max-price{
+    flex-direction: column !important;
   }
 }
 </style>
