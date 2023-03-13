@@ -76,6 +76,7 @@ button {
   color: inherit;
   font-size: 1rem;
   cursor: pointer;
+  line-height: 1.2;
 }
 
 .alcor-button {
