@@ -59,7 +59,7 @@
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             chartTitle="Set Price Range"
-            :interactive="interactive")
+            :interactive="true")
 
               template(#afterZoomIcons)
                AlcorSwitch(
@@ -171,8 +171,6 @@ export default {
       amountA: '',
       amountB: '',
 
-      //feeAmountFromUrl: FeeAmount.,
-
       startPriceTypedValue: null,
 
       leftRangeTypedValue: '',
@@ -185,6 +183,7 @@ export default {
       ],
 
       // TODO: better variable naming?
+      // TODO Handle buttons
       priceRangeValue: '',
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
@@ -200,6 +199,7 @@ export default {
 
   watch: {
     feeAmount(val) {
+      // TODO Do it properly
       if (!this.pool) {
         this.leftRangeTypedValue = ''
         this.rightRangeTypedValue = ''
@@ -243,28 +243,6 @@ export default {
       return ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] ? '∞' : price?.toSignificant(5) ?? ''
     },
 
-    position() {
-      return null
-    },
-
-    interactive() {
-      return !this.position
-    },
-
-    noLiquidity() {
-      return !this.pool
-    },
-
-    baseCurrency() {
-      return 0
-    },
-
-    quoteCurrency() {
-      //const quoteCurrency = baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
-
-      return 0
-    },
-
     tickSpaceLimits() {
       return getPoolBounds(this.feeAmount)
     },
@@ -287,36 +265,32 @@ export default {
     },
 
     ticks() {
-      const { sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
+      const { sortedA, sortedB, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
 
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
         LOWER:
-          typeof position?.tickLower === 'number'
-            ? position.tickLower
-            : (invertPrice && typeof rightRangeTypedValue === 'boolean') || // если тру то это фулл-рэнж
-              (!invertPrice && typeof leftRangeTypedValue === 'boolean')
-              ? tickSpaceLimits.LOWER
-              : invertPrice
-                ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
-                : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
+          (invertPrice && typeof rightRangeTypedValue === 'boolean') || // если тру то это фулл-рэнж
+            (!invertPrice && typeof leftRangeTypedValue === 'boolean')
+            ? tickSpaceLimits.LOWER
+            : invertPrice
+              ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
+              : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
 
         UPPER:
-          typeof position?.tickUpper === 'number'
-            ? position.tickUpper
-            : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
-              (invertPrice && typeof leftRangeTypedValue === 'boolean')
-              ? tickSpaceLimits.UPPER
-              : invertPrice
-                ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
-                : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
+          (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+            (invertPrice && typeof leftRangeTypedValue === 'boolean')
+            ? tickSpaceLimits.UPPER
+            : invertPrice
+              ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
+              : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
       }
     },
 
     price() {
-      const { sortedA, sortedB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
+      const { sortedA, sortedB, startPriceTypedValue, invertPrice, pool } = this
 
-      if (noLiquidity) {
+      if (!this.pool) {
         // if no liquidity use typed value
         const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
         if (parsedQuoteAmount && sortedA && sortedB) {
@@ -613,7 +587,7 @@ export default {
 
     async addLiquidity() {
       const {
-        isSorted, sortedA, sortedB, tickLower, tickUpper, noLiquidity,
+        isSorted, sortedA, sortedB, tickLower, tickUpper,
         mockPool, depositADisabled, depositBDisabled, slippage, amountA, amountB
       } = this
 
@@ -633,7 +607,7 @@ export default {
 
       let poolId = this.pool?.id
 
-      if (noLiquidity) {
+      if (!this.pool) {
         // Fetch last pool just to predict new created pool id
         try {
           const { rows: [{ id }] } = await this.$rpc.get_table_rows({

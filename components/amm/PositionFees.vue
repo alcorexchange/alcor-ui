@@ -9,7 +9,7 @@
     token-image(:src='$tokenLogo(position.tokenB.symbol, position.tokenB.contract)' height="12")
 
     .fs-12.earn.d-flex.gap-4
-      span {{ position.feesA }}
+      span {{ position.feesB }}
 
 </template>
 
@@ -17,18 +17,7 @@
 import TokenImage from '~/components/elements/TokenImage'
 
 export default {
-  props: ['position'],
-  data: () => ({ fees: {} }),
   components: { TokenImage },
-  mounted() {
-    this.calcFees()
-  },
-  methods: {
-    async calcFees() {
-      // TODO
-      // const r = await this.position.getFees()
-      // console.log('rrrrr', r)
-    }
-  }
+  props: ['position'],
 }
 </script>
