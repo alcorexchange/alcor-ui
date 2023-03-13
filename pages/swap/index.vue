@@ -5,8 +5,8 @@
     .d-flex.justify-content-between.align-items-center.p-1
       .fs-18 {{ $t('Swap') }}
       .d-flex.gap-16.align-items-center
-        i.el-icon-refresh.pointer(@click="loading = !loading")
-        settings
+        i.el-icon-refresh.pointer.fs-18(@click="loading = !loading")
+        Settings
 
     PoolTokenInput.mt-2(
       label="Sell"

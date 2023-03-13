@@ -1,13 +1,13 @@
 <template lang="pug">
 el-dropdown(trigger="click")
-  .pointer.d-flex.justify-content-center
-    i.el-icon-s-operation.pointer.fs-20
+  AlcorButton.action(iconOnly flat)
+    i.el-icon-s-operation.pointer.fs-18
   el-dropdown-menu.dropdown(slot="dropdown")
     .px-2.d-flex.flex-column.gap-8
       label {{ $t('Transaction Setting') }}
       label.fs-14.disable {{ $t('Slippage Tolerance') }} %
       .d-flex.gap-4.section-input
-        alcor-button(@click="slippage = 0.3" round compact) {{ $t('Auto') }}
+        AlcorButton(@click="slippage = 0.3" round compact) {{ $t('Auto') }}
         el-input.br-20(v-model="slippage" :placeholder="$t('Slippage Tolerance %')" size="small")
 </template>
 
