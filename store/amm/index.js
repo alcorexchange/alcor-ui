@@ -96,8 +96,6 @@ export const actions = {
   },
 
   async buildPlainPositions({ commit, getters }) {
-    console.log('buildPlainPositions')
-
     const positions = []
     for (const p of getters.positions) {
       const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
@@ -113,7 +111,6 @@ export const actions = {
       positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
     }
 
-    console.log('setPlainPositions')
     commit('setPlainPositions', positions)
   },
 
@@ -140,7 +137,6 @@ export const actions = {
       positions.push(...rows)
     }
 
-    console.log('fetch position')
     commit('setPositions', positions)
     dispatch('buildPlainPositions')
   },
