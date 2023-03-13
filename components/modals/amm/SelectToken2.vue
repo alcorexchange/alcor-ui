@@ -50,7 +50,7 @@
             )
             .fs-14 WAX
 
-        .d-flex.flex-column
+        .d-flex.flex-column.scrollable
           .d-flex.justify-content-between.pointer.p-2.br-8.hover-bg-lighter(
             v-if="filteredAssets.length"
             v-for='({ currency, symbol, contract }, index) in filteredAssets',
@@ -109,6 +109,10 @@ export default {
 </script>
 
 <style lang="scss">
+.scrollable {
+  overflow-y: scroll;
+  max-height: 300px;
+}
 .select-token-modal {
   border-radius: 1rem !important;
   .el-dialog__header {
