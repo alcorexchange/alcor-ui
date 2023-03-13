@@ -20,7 +20,7 @@ el-table.position-table(
       .d-flex.flex-column
         .d-flex.align-items-center.gap-4
           .indicator(:class="{ 'in-range': row.inRange }")
-          .fs-10 {{ !row.inRange ? 'In Range': 'Out of Range' }}
+          .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
         .d-flex.align-items-center.gap-6.flex-wrap
           .d-flex.gap-4
             .fs-12.disable MIN
@@ -36,7 +36,7 @@ el-table.position-table(
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4(:class="{ red: true }")
+          .fs-12.earn.d-flex.gap-4
             span {{ row.amountA }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)' height="12")

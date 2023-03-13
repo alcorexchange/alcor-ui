@@ -8,8 +8,8 @@
         .fs-16.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
-          SelectToken(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
-          SelectToken(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
+          SelectToken2(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
+          SelectToken2(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
 
         div(v-mutted="!tokenA || !tokenB")
           .disable.mt-3.mb-2 Fee Tier
@@ -24,7 +24,7 @@
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
         AuthOnly.w-100
-          AlcorButton.submit(@click='submit',:class='{ disabled: false }',:disabled='false') {{ false ? 'Add liquidity' : 'Enter Amount' }}
+          AlcorButton.submit(@click='submit',:class='{ disabled: sumbitButton.state }' :disabled="sumbitButton.state") {{ sumbitButton.text }}
       //- 3 end
 
       //- 4 start end is end of page
@@ -59,7 +59,7 @@
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             chartTitle="Set Price Range"
-            :interactive="interactive")
+            :interactive="true")
 
               template(#afterZoomIcons)
                AlcorSwitch(
@@ -116,6 +116,7 @@ import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 
 import SelectToken from '~/components/modals/amm/SelectToken'
+import SelectToken2 from '~/components/modals/amm/SelectToken2'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
 import Zoom from '~/components/amm/range/Zoom'
@@ -148,6 +149,7 @@ const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 export default {
   components: {
     SelectToken,
+    SelectToken2,
     PoolTokenInput,
     AlcorButton,
     AlcorContainer,
@@ -172,8 +174,6 @@ export default {
       amountA: '',
       amountB: '',
 
-      //feeAmountFromUrl: FeeAmount.,
-
       startPriceTypedValue: null,
 
       leftRangeTypedValue: '',
@@ -186,6 +186,7 @@ export default {
       ],
 
       // TODO: better variable naming?
+      // TODO Handle buttons
       priceRangeValue: '',
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
@@ -201,6 +202,7 @@ export default {
 
   watch: {
     feeAmount(val) {
+      // TODO Do it properly
       if (!this.pool) {
         this.leftRangeTypedValue = ''
         this.rightRangeTypedValue = ''
@@ -222,6 +224,18 @@ export default {
       'sortedB'
     ]),
 
+    sumbitButton() {
+      const { depositADisabled, depositBDisabled, amountA, amountB } = this
+
+      if (
+        (depositADisabled && amountB) ||
+        (depositBDisabled && amountA) ||
+        (amountA && amountB)
+      ) return { state: false, text: 'Add Liquidity' }
+
+      return { state: true, text: 'Enter Amount' }
+    },
+
     feeAmount: {
       get() {
         return this.$store.state.amm.liquidity.feeAmount
@@ -242,28 +256,6 @@ export default {
       const { isSorted, ticksAtLimit, priceUpper, priceLower } = this
       const price = isSorted ? priceUpper : priceLower?.invert()
       return ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] ? '∞' : price?.toSignificant(5) ?? ''
-    },
-
-    position() {
-      return null
-    },
-
-    interactive() {
-      return !this.position
-    },
-
-    noLiquidity() {
-      return !this.pool
-    },
-
-    baseCurrency() {
-      return 0
-    },
-
-    quoteCurrency() {
-      //const quoteCurrency = baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
-
-      return 0
     },
 
     tickSpaceLimits() {
@@ -288,36 +280,32 @@ export default {
     },
 
     ticks() {
-      const { sortedA, sortedB, position, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
+      const { sortedA, sortedB, invertPrice, tickSpaceLimits, feeAmount, rightRangeTypedValue, leftRangeTypedValue } = this
 
       // Initates initial prices for inputs(using event from crart based on mask bounds)
       return {
         LOWER:
-          typeof position?.tickLower === 'number'
-            ? position.tickLower
-            : (invertPrice && typeof rightRangeTypedValue === 'boolean') || // если тру то это фулл-рэнж
-              (!invertPrice && typeof leftRangeTypedValue === 'boolean')
-              ? tickSpaceLimits.LOWER
-              : invertPrice
-                ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
-                : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
+          (invertPrice && typeof rightRangeTypedValue === 'boolean') || // если тру то это фулл-рэнж
+            (!invertPrice && typeof leftRangeTypedValue === 'boolean')
+            ? tickSpaceLimits.LOWER
+            : invertPrice
+              ? tryParseTick(sortedB, sortedA, feeAmount, rightRangeTypedValue.toString())
+              : tryParseTick(sortedA, sortedB, feeAmount, leftRangeTypedValue.toString()),
 
         UPPER:
-          typeof position?.tickUpper === 'number'
-            ? position.tickUpper
-            : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
-              (invertPrice && typeof leftRangeTypedValue === 'boolean')
-              ? tickSpaceLimits.UPPER
-              : invertPrice
-                ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
-                : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
+          (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+            (invertPrice && typeof leftRangeTypedValue === 'boolean')
+            ? tickSpaceLimits.UPPER
+            : invertPrice
+              ? tryParseTick(sortedB, sortedA, feeAmount, leftRangeTypedValue.toString())
+              : tryParseTick(sortedA, sortedB, feeAmount, rightRangeTypedValue.toString())
       }
     },
 
     price() {
-      const { sortedA, sortedB, noLiquidity, startPriceTypedValue, invertPrice, pool } = this
+      const { sortedA, sortedB, startPriceTypedValue, invertPrice, pool } = this
 
-      if (noLiquidity) {
+      if (!this.pool) {
         // if no liquidity use typed value
         const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
         if (parsedQuoteAmount && sortedA && sortedB) {
@@ -603,7 +591,7 @@ export default {
     async submit() {
       try {
         const poolId = await this.addLiquidity()
-        //this.$router.push('/positions/my-positions')
+        this.$router.push('/positions/my-positions')
         this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
@@ -613,24 +601,16 @@ export default {
     },
 
     async addLiquidity() {
-      // TODO Fix one side deposit
       const {
-        isSorted, sortedA, sortedB, tokenA, tokenB, tickLower, tickUpper, noLiquidity,
+        isSorted, sortedA, sortedB, tickLower, tickUpper,
         mockPool, depositADisabled, depositBDisabled, slippage, amountA, amountB
       } = this
-
-      console.log({ depositADisabled, depositBDisabled })
 
       const tokenADesired = !depositADisabled ? tryParseCurrencyAmount((isSorted ? amountA : amountB), sortedA)
         : CurrencyAmount.fromRawAmount(sortedA, 0)
 
       const tokenBDesired = !depositBDisabled ? tryParseCurrencyAmount((isSorted ? amountB : amountA), sortedB)
         : CurrencyAmount.fromRawAmount(sortedB, 0)
-
-      console.log({ tokenADesired: tokenADesired.greaterThan(0), tokenBDesired: tokenBDesired.quotient })
-      console.log({ tokenADesired: tokenADesired.toAsset(), tokenBDesired: tokenBDesired.toAsset() })
-      //return
-      //console.log('tokenADesired', tokenADesired.toAsset())
 
       const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
       const tokenBMin = tokenBDesired.multiply(new Percent(1).subtract(slippage))
@@ -642,7 +622,7 @@ export default {
 
       let poolId = this.pool?.id
 
-      if (noLiquidity) {
+      if (!this.pool) {
         // Fetch last pool just to predict new created pool id
         try {
           const { rows: [{ id }] } = await this.$rpc.get_table_rows({
@@ -729,7 +709,6 @@ export default {
       )
 
       console.log({ actions })
-
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
       console.log({ r })
 

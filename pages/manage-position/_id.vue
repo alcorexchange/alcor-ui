@@ -7,7 +7,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
         template(#action)
           IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper")
       .separator.mt-2
-      UnclaimedFees(:position="position" :feesA="feesA" :feesB="feesB")
+      UnclaimedFees(:position="position")
       .separator.mt-2
       RemoveLiquidityPercentage(:position="position")
     .right
@@ -78,10 +78,6 @@ export default {
     ManageLiquidityMinMaxPrices
   },
 
-  data: () => ({
-    fees: {},
-  }),
-
   computed: {
     position() {
       const [pool_id, position_id, fee] = this.$route.params.id.split('-')
@@ -91,14 +87,6 @@ export default {
     pool() {
       console.log('position', this.position)
       return this.position?.pool
-    },
-
-    feesA() {
-      return this.fees?.feesA
-    },
-
-    feesB() {
-      return this.fees?.feesB
     },
 
     // TODO Implement invertPrice
@@ -129,22 +117,9 @@ export default {
     }
   },
 
-  watch: {
-    position() {
-      this.calcFees()
-    }
-  },
-
   async mounted() {
     // TODO RegexTest url params
     await this.$store.dispatch('amm/fetchPositions')
-  },
-
-  methods: {
-    async calcFees() {
-      const { feesA, feesB } = await this.position.getFees()
-      this.fees = { feesA: feesA.toFixed(), feesB: feesB.toFixed() }
-    },
   }
 }
 </script>

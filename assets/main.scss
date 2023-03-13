@@ -1011,12 +1011,27 @@ a {
 .br-4 {
   border-radius: 4px;
 }
+.br-6 {
+  border-radius: 6px;
+}
 .br-8 {
   border-radius: 8px;
 }
 .el-input.br-20 {
   .el-input__inner {
     border-radius: 20px;
+  }
+}
+.el-input.dark {
+  & .el-input__inner {
+    border: 1px solid var(--select-color-dark);
+    background: var(--select-color-dark) !important;
+  }
+}
+.el-input.default {
+  & .el-input__inner {
+    border: 1px solid var(--select-color);
+    background: var(--select-color) !important;
   }
 }
 
@@ -1111,11 +1126,11 @@ a {
 }
 
 .grey-border {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--light-border-color);
 }
 
 .grey-border.border-hover:hover:not(.border-active) {
-  border: 1px solid var(--border-hover-color);
+  border-color: var(--border-2-color) !important;
 }
 
 .grey-border.border-active {

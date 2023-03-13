@@ -38,7 +38,9 @@
     .d-flex.justify-content-between.mt-1
       .fs-16 Total Loss
       .fs-16 $2,300.5895
-    .d-flex.justify-content-between.mt-1
+
+    // TODO We do not need probably
+    //.d-flex.justify-content-between.mt-1
       .fs-16 Net Profit/Loss
       .fs-16 $2,300.5895
 
