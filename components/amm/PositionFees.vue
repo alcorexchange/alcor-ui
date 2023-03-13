@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-column.gap-4
+.d-flex.flex-column
   .d-flex.align-items-center.gap-4
     token-image(:src='$tokenLogo(position.tokenA.symbol, position.tokenB.contract)' height="12")
 
@@ -28,7 +28,7 @@ export default {
       // TODO
       // const r = await this.position.getFees()
       // console.log('rrrrr', r)
-    },
+    }
   }
 }
 </script>

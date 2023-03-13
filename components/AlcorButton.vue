@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['alcor-button', { flat, alternative, access, orange, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
+    :class="['alcor-button', { flat, alternative, access, orange, danger, outline, bordered, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
     @click.prevent="$emit('click')"
     v-bind="$attrs">
     <div class="inner">
@@ -42,6 +42,10 @@ export default {
       type: Boolean
     },
     round: {
+      default: false,
+      type: Boolean
+    },
+    bordered: {
       default: false,
       type: Boolean
     },
@@ -125,6 +129,15 @@ button {
 .alcor-button.outline:hover {
   box-shadow: 0px 0px 30px 0px #54A05466 inset;
   background: var(--btn-outline);
+}
+
+.alcor-button.bordered {
+  background: transparent !important;
+  border: 1px solid #353535;
+  border-radius: 6px;
+  &:hover{
+    border: 1px solid #48484A;
+  }
 }
 
 .alcor-button.orange {

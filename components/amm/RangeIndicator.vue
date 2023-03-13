@@ -15,8 +15,8 @@ span{
   font-size: 0.86rem;
 }
 .indicator {
-  width: 4px;
-  height: 4px;
+  width: 10px;
+  height: 10px;
   background: var(--disabled-indicator);
   border-radius: 50%;
 
