@@ -7,7 +7,8 @@
     AlcorButton.action.increase(v-if="!readOnly" @click="$emit('change', increment())" iconOnly)
       i.el-icon-plus
   .input.readOnlyValue(v-if="readOnly") {{ value }}
-  el-input.input(v-else v-model="localValue" @change="onChange" type="number" @focus="focused = true" @blur="focused = false" placeholder="0")
+
+  el-input.input(v-else @input="input" :value="localValue" @change="onChange" @focus="focused = true" @blur="focused = false" placeholder="0")
   .fs-12.text-center.bottom
     slot
 </template>
@@ -39,6 +40,10 @@ export default {
   },
 
   methods: {
+    input(value) {
+      if (!isNaN(value)) this.localValue = value
+    },
+
     onChange(event) {
       this.$emit('change', event)
 

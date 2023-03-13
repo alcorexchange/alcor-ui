@@ -83,6 +83,6 @@ Vue.mixin({
       if (isWrapper || isClose) {
         done()
       }
-    }
+    },
   }
 })

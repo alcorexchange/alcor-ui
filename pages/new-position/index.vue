@@ -18,8 +18,10 @@
       //- 2 start
       .section-2(v-mutted="!tokenA || !tokenB")
         .fs-16.disable(v-mutted="!price") Deposit
-          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled" :locked="true" label="Token 1").mt-2
-          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled" :locked="true" label="Token 2").mt-3
+          PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
+            :disabledMessage="disabledMessage" :locked="true" label="Token 1").mt-2
+          PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled"
+            :disabledMessage="disabledMessage" :locked="true" label="Token 2").mt-3
       //- 2 end
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
@@ -99,7 +101,7 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
               .info.disable(v-if="tokenB") Your position will be 100% composed of {{tokenB.symbol}} at this price
-        .error-container.mt-2(v-if="true")
+        .error-container.mt-2(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 Invalid range selected. The min price must be lower than the max price.
   // TODO ROUTES MANAGEMENT
@@ -196,7 +198,9 @@ export default {
         { text: '+2/-10%', higherValue: '2', lowerValue: '10' },
       ].map((item) => {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
-      })
+      }),
+
+      disabledMessage: 'The market price is outside your specified price range. Single-asset deposit only.'
     }
   },
 
