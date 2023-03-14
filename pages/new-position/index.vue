@@ -1,4 +1,5 @@
 <template lang="pug">
+// TODO Handle no position found
 .row.justify-content-center
   AlcorContainer.add-liquidity-component.w-100
     PageHeader(title="Add Liquidity")

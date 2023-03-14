@@ -31,7 +31,7 @@
       @tokenSelected="setTokenB"
     )
 
-    alcor-container.mt-2(:alternative="true")
+    alcor-container.mt-2(:alternative="true" v-if="tokenA && tokenB")
       el-collapse(:value="routerCollapse").default
         el-collapse-item(name="1")
           template(#title)
@@ -41,8 +41,8 @@
             .d-flex.align-items-center.gap-8.py-1(v-else)
               .disable.fs-12 Rate
               .d-flex.gap-4
-                .fs-12 {{ rate }} BRWL per WAX
-                .fs-12.disable (1402,10.01$)
+                .fs-12 {{ rate }} {{ tokenB.symbol }} per {{ tokenA.symbol}}
+                .fs-12.disable (00.00$)
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Expected Output
@@ -202,6 +202,7 @@ export default {
     },
 
     async swap() {
+      // TODO Check that input amount is overmuch
       const { amountA, tokenA, tokenB, slippage } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
@@ -209,7 +210,7 @@ export default {
       if (!currencyAmountIn) return console.log({ currencyAmountIn })
 
       const actions = []
-      // TODO Swap with 2 same pools with different fee
+      // TODO Swap with 2 same pools with different fee (router)
       const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
       const { swaps: [{ inputAmount, route }] } = trade
 
@@ -232,12 +233,7 @@ export default {
           }
         })
 
-      try {
-        const r = await this.$store.dispatch('chain/sendTransaction', actions)
-        console.log(r)
-      } catch (e) {
-        console.log('err', e)
-      }
+      const r = await this.$store.dispatch('chain/sendTransaction', actions)
     },
 
     // TODO Refactor into one function
@@ -285,6 +281,7 @@ export default {
       if (!currencyAmountIn) return this.amountB = null
 
       const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      console.log({ best })
 
       if (!best) {
         // TODO clear tokenB

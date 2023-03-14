@@ -21,22 +21,32 @@ export const actions = {
     // TODO Set Default tokens
   },
 
-  bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
-    return Trade.bestTradeExactIn(
-      rootGetters['amm/pools'],
-      currencyAmountIn,
-      currencyOut,
-      { maxNumResults: 2, maxHops: 10, ...options }
-    )
+  async bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
+    try {
+      return await Trade.bestTradeExactIn(
+        rootGetters['amm/pools'].filter(p => p.tickDataProvider.ticks.length > 0),
+        currencyAmountIn,
+        currencyOut,
+        { maxNumResults: 2, maxHops: 10, ...options }
+      )
+    } catch (e) {
+      console.error(e.message)
+      return []
+    }
   },
 
-  bestTradeExactOut({ rootGetters }, { currencyIn, currencyAmountOut, options }) {
-    return Trade.bestTradeExactOut(
-      rootGetters['amm/pools'],
-      currencyIn,
-      currencyAmountOut,
-      { maxNumResults: 5, maxHops: 5, ...options }
-    )
+  async bestTradeExactOut({ rootGetters }, { currencyIn, currencyAmountOut, options }) {
+    try {
+      return await Trade.bestTradeExactOut(
+        rootGetters['amm/pools'].filter(p => p.tickDataProvider.ticks.length > 0),
+        currencyIn,
+        currencyAmountOut,
+        { maxNumResults: 5, maxHops: 5, ...options }
+      )
+    } catch (e) {
+      console.error(e.message)
+      return []
+    }
   },
 
   updateRoutePath({ state, getters, rootState }) {
