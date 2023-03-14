@@ -343,6 +343,10 @@ const networks = {
       fee: 'aw.aq.waa',
     },
 
+    amm: {
+      contract: 'ammcontract1'
+    },
+
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
@@ -520,7 +524,7 @@ const networks = {
     },
 
     amm: {
-      contract: 'ammcontract2'
+      contract: 'ammcontract3'
     },
 
     withdraw: {},

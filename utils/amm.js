@@ -155,12 +155,7 @@ export function getLiquidityRangeChart(pool, tokenA, tokenB) {
     !ticks ||
     ticks.length === 0
   ) {
-    console.log('asdf')
-    return {
-      //error,
-      activeTick,
-      data: undefined,
-    }
+    return undefined
   }
 
   // find where the active tick would be to partition the array
@@ -171,11 +166,7 @@ export function getLiquidityRangeChart(pool, tokenA, tokenB) {
   if (pivot < 0) {
     // consider setting a local error
     console.error('TickData pivot not found')
-    return {
-      //error,
-      activeTick,
-      data: undefined,
-    }
+    return undefined
   }
 
   const activeTickProcessed = {

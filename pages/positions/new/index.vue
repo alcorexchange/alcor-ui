@@ -1,4 +1,5 @@
 <template lang="pug">
+// TODO Handle no position found
 .row.justify-content-center
   AlcorContainer.add-liquidity-component.w-100
     PageHeader(title="Add Liquidity")
@@ -16,7 +17,7 @@
           CommissionSelect(:selected="feeAmount" :options="fees" @change="changeFee")
       //- 1 end
       //- 2 start
-      .section-2(v-mutted="!tokenA || !tokenB || !price")
+      .section-2(v-mutted="!tokenA || !tokenB || !price || !tickLower || !tickUpper")
         .fs-16.disable Deposit
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
             :disabledMessage="disabledMessage" :locked="true" label="Token 1").mt-2
@@ -45,7 +46,7 @@
             InfoContainer.price-info-container
               .d-flex.justify-content-between
                 .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
-                .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5)  + ' ' + (tokenB ? tokenB.symbol : '') }}
+                .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5) + ' ' + (tokenB ? tokenB.symbol : 'zz') }}
                 .fs-16.disable(v-else) -
 
         template(v-else)
@@ -86,7 +87,7 @@
           )
             template(#top) Min Price
             template
-              .pair-names.mb-1(v-if="tokenA && tokenB") {{ tokenA.symbol }} per {{ tokenB.symbol }}
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{ tokenB.symbol }} per {{ tokenA.symbol }}
               .info.disable(v-if="tokenA") Your position will be {{ getTokenComposedPercent('w') }}% composed of {{ tokenA.symbol }} at this price
 
           InputStepCounter(
@@ -99,7 +100,7 @@
           )
             template(#top) Max Price
             template
-              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
         .error-container.mt-2(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
@@ -435,9 +436,9 @@ export default {
     },
 
     getTokenComposedPercent(side) {
-      const { isSorted, tickLower, tickUpper } = this
+      const { invalidRange, isSorted, tickLower, tickUpper } = this
 
-      if (isNaN(tickLower) || isNaN(tickUpper) || !this.mockPool) return
+      if (isNaN(tickLower) || isNaN(tickUpper) || !this.mockPool || invalidRange) return
 
       const position = Position.fromAmountA({
         pool: this.mockPool,
@@ -485,6 +486,7 @@ export default {
     onInputAmountA(value) {
       if (!value) return this.amountB = null
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
+      console.log({ dependentAmount })
       if (dependentAmount) {
         this.amountB = dependentAmount.toFixed()
         console.log(dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_UP), dependentAmount.toFixed())
@@ -592,15 +594,16 @@ export default {
     //  [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
     //)
 
+    existingPosition() {
+      // TODO Warning on existing position
+    },
+
     onLeftRangeInput(value) {
       this.leftRangeTypedValue = value // To trigger computed to calc price and after update with corrected
-
       this.onInputAmountB(this.amountB)
     },
 
     onRightRangeInput(value) {
-      //if (value === undefined) return
-
       this.rightRangeTypedValue = value
       this.onInputAmountA(this.amountA)
     },
@@ -617,11 +620,11 @@ export default {
       try {
         const poolId = await this.addLiquidity()
         this.$router.push('/positions/my-positions')
-        this.$store.dispatch('amm/poolUpdate', poolId)
+        await this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
         console.error(e)
-        this.$notify({ title: 'Market creation', message: e.message, type: 'error' })
+        this.$notify({ title: 'Add Position', message: e.message, type: 'error' })
       }
     },
 
@@ -733,9 +736,16 @@ export default {
         }
       )
 
-      console.log({ actions })
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
-      console.log({ r })
+
+      // Only update new pool with delay
+      if (actions.length > 1) setTimeout(() => {
+        this.$store.dispatch('amm/poolUpdate', poolId)
+          .then(() => this.$store.dispatch('amm/fetchPositions'))
+      }, 2000)
+
+      setTimeout()
+      console.log('New position', r)
 
       return poolId
     },

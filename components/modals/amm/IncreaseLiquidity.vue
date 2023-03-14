@@ -35,7 +35,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import JSBI from 'jsbi'
+import { mapState, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'
 import CompactTabs from '~/components/CompactTabs.vue'
@@ -50,7 +51,7 @@ import AlcorSwitch from '~/components/AlcorSwitch'
 import InputStepCounter from '~/components/amm/InputStepCounter'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
-import { CurrencyAmount, Position } from '~/assets/libs/swap-sdk'
+import { CurrencyAmount, Position, Percent } from '~/assets/libs/swap-sdk'
 
 export default {
   components: {
@@ -77,33 +78,44 @@ export default {
     visible: false,
   }),
 
+  computed: {
+    ...mapState(['network', 'user']),
+    ...mapGetters('amm', ['slippage']),
+  },
+
   watch: {
     position() {
       if (!this.tokenMode) this.tokenMode = this.position.pool.tokenA.symbol
     }
   },
 
-  computed: {
-    ...mapState(['network', 'user'])
-  },
-
   methods: {
+    async submit() {
+      try {
+        await this.add()
+        await this.$store.dispatch('amm/poolUpdate', this.position.pool.id)
+        this.$store.dispatch('amm/fetchPositions')
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Increase Liquidity', message: e.message })
+      }
+    },
+
     async add() {
       if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
 
+      const { amountA, amountB, slippage } = this
       const { tokenA, tokenB } = this.position.pool
       const { owner, tickLower, tickUpper } = this.position
 
-      // const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
-      // const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+      const tokenADesired = tryParseCurrencyAmount(amountA, tokenA) || CurrencyAmount.fromRawAmount(tokenA, 0)
+      const tokenBDesired = tryParseCurrencyAmount(amountB, tokenB) || CurrencyAmount.fromRawAmount(tokenB, 0)
 
-      // TODO Add slippage
-      const amountA = parseFloat(this.amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
-      const amountB = parseFloat(this.amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+      const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
+      const tokenBMin = tokenBDesired.multiply(new Percent(1).subtract(slippage))
 
       const actions = []
 
-      if (parseFloat(amountA) > 0)
+      if (tokenADesired.greaterThan(0))
         actions.push({
           account: tokenA.contract,
           name: 'transfer',
@@ -111,12 +123,12 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: parseFloat(amountA).toFixed(tokenA.decimals) + ' ' + tokenA.symbol,
+            quantity: tokenADesired.toAsset(),
             memo: 'deposit'
           }
         })
 
-      if (parseFloat(amountB) > 0)
+      if (tokenBDesired.greaterThan(0))
         actions.push(
           {
             account: tokenB.contract,
@@ -125,7 +137,7 @@ export default {
             data: {
               from: this.user.name,
               to: this.network.amm.contract,
-              quantity: parseFloat(amountB).toFixed(tokenB.decimals) + ' ' + tokenB.symbol,
+              quantity: tokenBDesired.toAsset(),
               memo: 'deposit'
             }
           }
@@ -138,12 +150,12 @@ export default {
         data: {
           poolId: this.position.pool.id,
           owner,
-          tokenADesired: amountA,
-          tokenBDesired: amountB,
+          tokenADesired: tokenADesired.toAsset(),
+          tokenBDesired: tokenBDesired.toAsset(),
           tickLower,
           tickUpper,
-          tokenAMin: amountA,
-          tokenBMin: amountB,
+          tokenAMin: tokenAMin.toAsset(),
+          tokenBMin: tokenBMin.toAsset(),
           deadline: 0
         }
       })
@@ -153,7 +165,6 @@ export default {
         // TODO Notify & update position
         const result = await this.$store.dispatch('chain/sendTransaction', actions)
         console.log('result', result)
-        this.$store.dispatch('amm/fetchPositions')
         this.visible = false
       } catch (e) {
         console.log(e)
@@ -161,12 +172,12 @@ export default {
     },
 
     onAmountAInput(value) {
-      if (!value) return
+      if (!value || isNaN(value)) return
       this.amountB = this.getDependedAmount('CURRENCY_A', value).toFixed()
     },
 
     onAmountBInput(value) {
-      if (!value) return
+      if (!value || isNaN(value)) return
       this.amountA = this.getDependedAmount('CURRENCY_B', value).toFixed()
     },
 
@@ -185,6 +196,8 @@ export default {
         currencies[independentField]
       )
 
+      if (!independentAmount) return
+
       const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
 
       const position = independentAmount.currency.equals(pool.tokenA)
@@ -199,7 +212,7 @@ export default {
           pool,
           tickLower,
           tickUpper,
-          amountB: independentAmount.quotient
+          amountB: independentAmount.quotient,
         })
 
       const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
