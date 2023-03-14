@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import JSBI from 'jsbi'
 import { mapState, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'
@@ -92,6 +93,8 @@ export default {
     async submit() {
       try {
         await this.add()
+        await this.$store.dispatch('amm/poolUpdate', this.position.pool.id)
+        this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
         this.$notify({ type: 'Error', title: 'Increase Liquidity', message: e.message })
       }
@@ -107,9 +110,8 @@ export default {
       const tokenADesired = tryParseCurrencyAmount(amountA, tokenA) || CurrencyAmount.fromRawAmount(tokenA, 0)
       const tokenBDesired = tryParseCurrencyAmount(amountB, tokenB) || CurrencyAmount.fromRawAmount(tokenB, 0)
 
-      // TODO Fix amounts calculations
-      const tokenAMin = tokenADesired//.multiply(new Percent(1).subtract(slippage))
-      const tokenBMin = tokenBDesired//.multiply(new Percent(1).subtract(slippage))
+      const tokenAMin = tokenADesired.multiply(new Percent(1).subtract(slippage))
+      const tokenBMin = tokenBDesired.multiply(new Percent(1).subtract(slippage))
 
       const actions = []
 
@@ -163,7 +165,6 @@ export default {
         // TODO Notify & update position
         const result = await this.$store.dispatch('chain/sendTransaction', actions)
         console.log('result', result)
-        this.$store.dispatch('amm/fetchPositions')
         this.visible = false
       } catch (e) {
         console.log(e)
@@ -171,12 +172,12 @@ export default {
     },
 
     onAmountAInput(value) {
-      if (!value) return
+      if (!value || isNaN(value)) return
       this.amountB = this.getDependedAmount('CURRENCY_A', value).toFixed()
     },
 
     onAmountBInput(value) {
-      if (!value) return
+      if (!value || isNaN(value)) return
       this.amountA = this.getDependedAmount('CURRENCY_B', value).toFixed()
     },
 
@@ -195,10 +196,10 @@ export default {
         currencies[independentField]
       )
 
+      if (!independentAmount) return
+
       const dependentCurrency = dependentField === 'CURRENCY_B' ? currencies.CURRENCY_B : currencies.CURRENCY_A
 
-      // FIXME Counting not right amounts
-      console.log('from amountA', independentAmount.currency.equals(pool.tokenA))
       const position = independentAmount.currency.equals(pool.tokenA)
         ? Position.fromAmountA({
           pool,
@@ -211,7 +212,7 @@ export default {
           pool,
           tickLower,
           tickUpper,
-          amountB: independentAmount.quotient
+          amountB: independentAmount.quotient,
         })
 
       const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)

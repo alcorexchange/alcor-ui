@@ -593,15 +593,16 @@ export default {
     //  [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
     //)
 
+    existingPosition() {
+      // TODO Warning on existing position
+    },
+
     onLeftRangeInput(value) {
       this.leftRangeTypedValue = value // To trigger computed to calc price and after update with corrected
-
       this.onInputAmountB(this.amountB)
     },
 
     onRightRangeInput(value) {
-      //if (value === undefined) return
-
       this.rightRangeTypedValue = value
       this.onInputAmountA(this.amountA)
     },
@@ -618,7 +619,7 @@ export default {
       try {
         const poolId = await this.addLiquidity()
         this.$router.push('/positions/my-positions')
-        this.$store.dispatch('amm/poolUpdate', poolId)
+        await this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
         console.error(e)
@@ -734,9 +735,8 @@ export default {
         }
       )
 
-      console.log({ actions })
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
-      console.log({ r })
+      console.log('New position', r)
 
       return poolId
     },

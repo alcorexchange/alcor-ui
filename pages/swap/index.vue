@@ -143,10 +143,10 @@ export default {
     amountB: null,
     details: ['1'], // Details are open by default
 
-    rate: 0,
-    priceImpact: 0,
+    rate: '0.00',
+    priceImpact: '0.00%',
     miniumOut: 0,
-    expectedOutput: 0,
+    expectedOutput: '0.0000',
     route: null,
 
     routerCollapse: ['1']
@@ -281,7 +281,6 @@ export default {
       if (!currencyAmountIn) return this.amountB = null
 
       const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-      console.log({ best })
 
       if (!best) {
         // TODO clear tokenB

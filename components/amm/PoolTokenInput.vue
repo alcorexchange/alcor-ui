@@ -144,7 +144,7 @@ export default {
   .select-token-button {
     display: flex;
     align-items: center;
-    background: transparent;
+    //background: transparent;
     padding: 5px 9px;
     border-radius: 4px;
     cursor: pointer;
