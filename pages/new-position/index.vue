@@ -435,9 +435,9 @@ export default {
     },
 
     getTokenComposedPercent(side) {
-      const { isSorted, tickLower, tickUpper } = this
+      const { invalidRange, isSorted, tickLower, tickUpper } = this
 
-      if (isNaN(tickLower) || isNaN(tickUpper) || !this.mockPool) return
+      if (isNaN(tickLower) || isNaN(tickUpper) || !this.mockPool || invalidRange) return
 
       const position = Position.fromAmountA({
         pool: this.mockPool,
