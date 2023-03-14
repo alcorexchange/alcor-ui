@@ -107,6 +107,7 @@ export default {
       const tokenADesired = tryParseCurrencyAmount(amountA, tokenA) || CurrencyAmount.fromRawAmount(tokenA, 0)
       const tokenBDesired = tryParseCurrencyAmount(amountB, tokenB) || CurrencyAmount.fromRawAmount(tokenB, 0)
 
+      // TODO Fix amounts calculations
       const tokenAMin = tokenADesired//.multiply(new Percent(1).subtract(slippage))
       const tokenBMin = tokenBDesired//.multiply(new Percent(1).subtract(slippage))
 
