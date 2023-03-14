@@ -103,7 +103,7 @@ export default {
       const items = []
 
       items.push({ index: '/swap', name: 'Swap', new: true })
-      items.push({ index: '/positions/my-positions', name: 'Pool' })
+      items.push({ index: '/positions', name: 'Pool' })
 
       if (
         ['eos', 'wax', 'jungle', 'telos', 'local', 'waxtest'].includes(
