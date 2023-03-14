@@ -16,8 +16,8 @@
           CommissionSelect(:selected="feeAmount" :options="fees" @change="changeFee")
       //- 1 end
       //- 2 start
-      .section-2(v-mutted="!tokenA || !tokenB")
-        .fs-16.disable(v-mutted="!price") Deposit
+      .section-2(v-mutted="!tokenA || !tokenB || !price")
+        .fs-16.disable Deposit
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
             :disabledMessage="disabledMessage" :locked="true" label="Token 1").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled"
