@@ -87,7 +87,7 @@
           )
             template(#top) Min Price
             template
-              .pair-names.mb-1(v-if="tokenA && tokenB") {{ tokenA.symbol }} per {{ tokenB.symbol }}
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{ tokenB.symbol }} per {{ tokenA.symbol }}
               .info.disable(v-if="tokenA") Your position will be {{ getTokenComposedPercent('w') }}% composed of {{ tokenA.symbol }} at this price
 
           InputStepCounter(
@@ -100,7 +100,7 @@
           )
             template(#top) Max Price
             template
-              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenA.symbol}} per {{tokenB.symbol}}
+              .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
         .error-container.mt-2(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
