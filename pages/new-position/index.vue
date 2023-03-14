@@ -942,6 +942,11 @@ export default {
   gap: 8px;
   align-items: center;
 }
+.min-max-price{
+  > *{
+    flex: 1;
+  }
+}
 @media only screen and (max-width: 840px){
   .pre-defined-ranges{
     flex-wrap: wrap;
