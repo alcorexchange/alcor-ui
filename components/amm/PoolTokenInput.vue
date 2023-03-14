@@ -189,7 +189,7 @@ export default {
     }
     .message{
       font-size: 0.86rem;
-      text-align: ceil($number: 0);
+      text-align: center;
     }
   }
   &.focused {
