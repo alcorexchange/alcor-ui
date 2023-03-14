@@ -17,7 +17,7 @@
           CommissionSelect(:selected="feeAmount" :options="fees" @change="changeFee")
       //- 1 end
       //- 2 start
-      .section-2(v-mutted="!tokenA || !tokenB || !price")
+      .section-2(v-mutted="!tokenA || !tokenB || !price || !tickLower || !tickUpper")
         .fs-16.disable Deposit
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
             :disabledMessage="disabledMessage" :locked="true" label="Token 1").mt-2
@@ -46,7 +46,7 @@
             InfoContainer.price-info-container
               .d-flex.justify-content-between
                 .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
-                .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5)  + ' ' + (tokenB ? tokenB.symbol : '') }}
+                .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5) + ' ' + (tokenB ? tokenB.symbol : 'zz') }}
                 .fs-16.disable(v-else) -
 
         template(v-else)
@@ -486,6 +486,7 @@ export default {
     onInputAmountA(value) {
       if (!value) return this.amountB = null
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
+      console.log({ dependentAmount })
       if (dependentAmount) {
         this.amountB = dependentAmount.toFixed()
         console.log(dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_UP), dependentAmount.toFixed())
