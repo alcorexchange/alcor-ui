@@ -624,7 +624,7 @@ export default {
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
         console.error(e)
-        this.$notify({ title: 'Market creation', message: e.message, type: 'error' })
+        this.$notify({ title: 'Add Position', message: e.message, type: 'error' })
       }
     },
 
@@ -737,6 +737,14 @@ export default {
       )
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
+
+      // Only update new pool with delay
+      if (actions.length > 1) setTimeout(() => {
+        this.$store.dispatch('amm/poolUpdate', poolId)
+          .then(() => this.$store.dispatch('amm/fetchPositions'))
+      }, 2000)
+
+      setTimeout()
       console.log('New position', r)
 
       return poolId
