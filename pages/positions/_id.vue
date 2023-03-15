@@ -3,21 +3,28 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
   PageHeader(title="Manage Liquidity")
   .main.gap-16.pt-3
     .left
-      PositionInfo(:pool="pool" :position="position" :tokenA="tokenA" :tokenB="tokenB" :amountA="amountA" :amountB="amountB" :tokenAPrice="tokenAPrice")
+      PositionInfo(:position="position" :tokensInverted="tokensInverted")
         template(#action)
-          IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper" :tokenA="tokenA" :tokenB="tokenB")
+          IncreaseLiquidity(
+            :position="position"
+            :tokensInverted="tokensInverted"
+            :priceLower="priceLower"
+            :priceUpper="priceUpper"
+            @toggleTokens="toggleTokens"
+          )
+
       .separator.mt-2
       UnclaimedFees(:position="position")
       .separator.mt-2
       RemoveLiquidityPercentage(:position="position")
     .right
       LiquidityChartRangeInput(
-        :tokenA="tokenA"
-        :tokenB="tokenB"
+        :tokenA="tokensInverted ? pool.tokenB : pool.tokenA"
+        :tokenB="tokensInverted ? pool.tokenA : pool.tokenB"
         :feeAmount="pool.fee"
         :priceLower="priceLower"
         :priceUpper="priceUpper"
-        :price="tokenAPrice.toSignificant(5)"
+        :price="(tokensInverted ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(5)"
         :ticksAtLimit="ticksAtLimit"
         chartTitle="Price Range"
         :interactive="false")
@@ -26,12 +33,19 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
           //- TODO: add one and two based on invert price
           AlcorSwitch(
             v-if='pool.tokenA && pool.tokenB',
-            @toggle='toggleTokens',
+            @toggle="toggleTokens",
             :one='pool.tokenA.symbol',
             :two='pool.tokenB.symbol',
-            :active='areTokensInverted ? "two" : "one"'
+            :active='tokensInverted ? "two" : "one"'
           )
-      ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-3
+
+      ManageLiquidityMinMaxPrices(
+        :tokensInverted="tokensInverted"
+        :position="position"
+        :priceLower="tokensInverted ? priceUpper : priceLower"
+        :priceUpper="tokensInverted ? priceLower : priceUpper"
+      ).mt-3
+
       InfoContainer.info.mt-3(:access="true")
         | To update the price range, you need to close this position and open a new one,
         | you can read about automating the price range here&nbsp;
@@ -41,12 +55,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
 
 <script>
 import AlcorContainer from '~/components/AlcorContainer'
-import AlcorButton from '~/components/AlcorButton.vue'
-import ReturnLink from '~/components/ReturnLink'
-import PairIcons from '~/components/PairIcons'
-import TokenImage from '~/components/elements/TokenImage'
 import PageHeader from '~/components/amm/PageHeader'
-import InputStepCounter from '~/components/amm/InputStepCounter'
 import PositionInfo from '~/components/amm/manage-liquidity/PositionInfo'
 import UnclaimedFees from '~/components/amm/manage-liquidity/UnclaimedFees'
 import RemoveLiquidityPercentage from '~/components/amm/manage-liquidity/RemoveLiquidityPercentage'
@@ -61,13 +70,8 @@ import { getPoolBounds, getTickToPrice } from '~/utils/amm'
 export default {
   components: {
     AlcorContainer,
-    AlcorButton,
-    ReturnLink,
-    PairIcons,
-    TokenImage,
     InfoContainer,
     PageHeader,
-    InputStepCounter,
     PositionInfo,
     UnclaimedFees,
     RemoveLiquidityPercentage,
@@ -76,15 +80,11 @@ export default {
     AlcorSwitch,
     ManageLiquidityMinMaxPrices
   },
+
   data: () => ({
-    areTokensInverted: false
+    tokensInverted: false
   }),
-  methods: {
-    toggleTokens() {
-      // this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
-      this.areTokensInverted = !this.areTokensInverted
-    }
-  },
+
   computed: {
     poolId() {
       const [poolId] = this.$route.params.id.split('-')
@@ -96,28 +96,18 @@ export default {
     },
 
     pool() {
-      console.log('position', this.position)
       return this.position?.pool
     },
 
-    // TODO Implement invertPrice
     priceLower() {
-      const { tickLower } = this.position
-      const { tokenA, tokenB } = this
-      const a = this.areTokensInverted ? tokenB : tokenA
-      const b = this.areTokensInverted ? tokenA : tokenB
-      return getTickToPrice(a, b, tickLower)
+      return getTickToPrice(this.pool?.tokenA, this.pool?.tokenB, this.position.tickLower)
     },
 
-    // TODO Implement invertPrice
     priceUpper() {
-      const { tickUpper } = this.position
-      const { tokenA, tokenB } = this
-      const a = this.areTokensInverted ? tokenB : tokenA
-      const b = this.areTokensInverted ? tokenA : tokenB
-      return getTickToPrice(a, b, tickUpper)
+      return getTickToPrice(this.pool?.tokenA, this.pool.tokenB, this.position.tickUpper)
     },
 
+    // TODO Move to chart or make blobal
     tickSpaceLimits() {
       return getPoolBounds(this.feeAmount)
     },
@@ -130,27 +120,20 @@ export default {
         UPPER: feeAmount && tickUpper === tickSpaceLimits.UPPER
       }
     },
-    tokenA() {
-      return this.areTokensInverted ? this.pool.tokenB : this.pool.tokenA
-    },
-    tokenB() {
-      return this.areTokensInverted ? this.pool.tokenA : this.pool.tokenB
-    },
-    amountA() {
-      return this.areTokensInverted ? this.position.amountB : this.position.amountA
-    },
-    amountB() {
-      return this.areTokensInverted ? this.position.amountA : this.position.amountB
-    },
-    tokenAPrice() {
-      return this.areTokensInverted ? this.pool.tokenBPrice : this.pool.tokenAPrice
-    }
   },
 
   async mounted() {
     // TODO RegexTest url params
     await this.$store.dispatch('amm/fetchPositions')
-  }
+  },
+
+  methods: {
+    toggleTokens() {
+      // this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
+      this.tokensInverted = !this.tokensInverted
+    }
+  },
+
 }
 </script>
 

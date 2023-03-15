@@ -2,10 +2,11 @@
 .pool-info
   .d-flex.justify-content-between
     .d-flex.gap-8.align-items-center
-      PairIcons.pair-icons(v-if="!isMobile" token1="row.input" token2="row.output")
-      .pairs {{ tokenA.symbol }} / {{ tokenB.symbol }}
-      .tag {{ pool.fee / 10000 }}%
-      RangeIndicator(:inRange="true")
+      PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool.tokenA" :token2="position.pool.tokenB")
+      .pairs(v-if="tokensInverted") {{ position.pool.tokenB.symbol }} / {{ position.pool.tokenA.symbol }}
+      .pairs(v-else) {{ position.pool.tokenA.symbol }} / {{ position.pool.tokenB.symbol }}
+      .tag {{ position.pool.fee / 10000 }}%
+      RangeIndicator(:inRange="position.inRange")
 
     slot(name="action")
 
@@ -13,21 +14,22 @@
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
-      TokenImage.token-image(:src="$tokenLogo(amountA.currency.symbol, amountA.contract)" height="25")
-      span.f-18 {{ amountA.currency.symbol }}
+      TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
+      span.f-18 {{ position.amountA.currency.symbol }}
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
-      .fs-18 {{ amountA.toSignificant() }}
+      .fs-18 {{ position.amountA.toFixed() }}
       .fs-14.color-action ($60.56)
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
-      TokenImage.token-image(:src="$tokenLogo(amountB.currency.symbol, amountB.contract)" height="25")
-      span.f-18 {{ amountB.currency.symbol }}
+      TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
+      span.f-18 {{ position.amountB.currency.symbol }}
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
-      .fs-18 {{ amountB.toSignificant() }}
+      .fs-18 {{ position.amountB.toFixed() }}
       .fs-14.color-action ($60.56)
+
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
       .fs-16 P&L
@@ -56,7 +58,7 @@ export default {
     TokenImage,
     PairIcons
   },
-  props: ['noPL', 'pool', 'position', 'tokenA', 'tokenB', 'amountA', 'amountB']
+  props: ['noPL', 'position', 'tokensInverted']
 }
 </script>
 

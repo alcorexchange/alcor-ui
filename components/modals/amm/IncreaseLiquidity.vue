@@ -15,66 +15,58 @@
     .d-flex.justify-content-between.gap-8
       .fs-18.current-price
         span.disable Current Price:&nbsp;
-        span {{ pool.tokenAPrice.toSignificant(5) }}
+        span {{ (tokensInverted ? position.pool.tokenAPrice.invert() : position.pool.tokenAPrice).toSignificant(5) }}
       AlcorSwitch(
         v-if='true',
-        @toggle='toggleTokens',
+        @toggle="$emit('toggleTokens')",
         :one='position.pool.tokenA.symbol',
         :two='position.pool.tokenB.symbol',
-        :active='"one"'
+        :active='tokensInverted ? "two" : "one"'
       )
 
-    ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-2
+        ManageLiquidityMinMaxPrices(
+          :position="position"
+          :tokensInverted="tokensInverted"
+          :priceLower="tokensInverted ? priceUpper : priceLower"
+          :priceUpper="tokensInverted ? priceLower : priceUpper"
+        ).mt-2
 
     .fs-18.disable.mt-2 Increase
-    PoolTokenInput(:locked="true" :label="tokenA.symbol" :token="tokenA" @input="onAmountAInput" v-model="amountA")
-    PoolTokenInput(:locked="true" :label="tokenB.symbol" :token="tokenB" @input="onAmountBInput" v-model="amountB").mt-2
+
+    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
+    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB").mt-2
 
     AlcorButton.claim-fees-button.submit.w-100(big @click="add").mt-2 Add Liquidity
 
 </template>
 
 <script>
-import JSBI from 'jsbi'
 import { mapState, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton.vue'
-import AlcorModal from '~/components/AlcorModal.vue'
-import CompactTabs from '~/components/CompactTabs.vue'
-import TokenImage from '~/components/elements/TokenImage'
-import PairIcons from '~/components/PairIcons'
-import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import ManageLiquidityMinMaxPrices from '~/components/amm/ManageLiquidityMinMaxPrices'
 import PositionInfo from '~/components/amm/manage-liquidity/PositionInfo'
 import AlcorSwitch from '~/components/AlcorSwitch'
-import InputStepCounter from '~/components/amm/InputStepCounter'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { CurrencyAmount, Position, Percent } from '~/assets/libs/swap-sdk'
 
 export default {
   components: {
-    AlcorModal,
-    CompactTabs,
-    TokenImage,
     AlcorButton,
-    PairIcons,
-    RangeIndicator,
     PoolTokenInput,
     AlcorContainer,
     PositionInfo,
     AlcorSwitch,
-    InputStepCounter,
     ManageLiquidityMinMaxPrices
   },
 
-  props: ['position', 'pool', 'priceLower', 'priceUpper', 'tokenA', 'tokenB'],
+  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower'],
 
   data: () => ({
     amountA: null,
     amountB: null,
-    tokenMode: null,
     visible: false,
   }),
 
@@ -83,17 +75,7 @@ export default {
     ...mapGetters('amm', ['slippage']),
   },
 
-  watch: {
-    position() {
-      if (!this.tokenMode) this.tokenMode = this.position.pool.tokenA.symbol
-    }
-  },
-
   methods: {
-    toggleTokens() {
-      // (
-      console.log('on toggle')
-    },
     async submit() {
       try {
         await this.add()
