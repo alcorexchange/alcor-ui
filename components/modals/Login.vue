@@ -156,7 +156,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   padding: 14px;
-  width: 840px;
+  max-width: 840px;
+  width: 100%;
 
   .item {
     width: 50%;
