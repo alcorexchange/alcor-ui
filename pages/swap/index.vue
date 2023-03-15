@@ -3,7 +3,7 @@
 .d-flex.gap-6.justify-content-center
   alcor-container.mt-5.swap-widget
     .d-flex.justify-content-between.align-items-center.p-1
-      .d-flex.align-items-center.gap-10
+      .d-flex.align-items-center.gap-16
         .fs-18 {{ $t('Swap') }}
         NuxtLink.navigation(:to="localeRoute('/positions')").fs-18.disable {{ $t('Pools') }}
       .d-flex.gap-16.align-items-center
