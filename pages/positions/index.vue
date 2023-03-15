@@ -8,7 +8,7 @@ el-table.position-table(
     .d-flex.flex-column.align-items-center.gap-30.py-5
       i.el-icon-moon-night.fs-40
       .fs-14.lh-14 Your active liquidity positions will appear here.
-  el-table-column(:label='$t("Assets in Position")' width="180")
+  el-table-column(:label='$t("Assets in Position")' min-width="100")
     template(slot-scope='{row}')
       .d-flex.align-items-center.gap-12.px-3.py-2
         pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
@@ -48,11 +48,11 @@ el-table.position-table(
     template(slot-scope='{row}')
       position-fees(:position="row")
 
-  el-table-column(:label='$t("Total Value")')
+  el-table-column(:label='$t("Total Value")' width="100")
     template(slot-scope='{row}')
       span $1200
 
-  el-table-column(:label='$t("P&L")')
+  el-table-column(:label='$t("P&L")' width="100")
     template(slot-scope='{row}')
       span.red $-1200
 

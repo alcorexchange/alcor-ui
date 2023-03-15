@@ -18,7 +18,7 @@
         span {{ pool.tokenAPrice.toSignificant(5) }}
       AlcorSwitch(
         v-if='true',
-        @toggle='() => {}',
+        @toggle='toggleTokens',
         :one='position.pool.tokenA.symbol',
         :two='position.pool.tokenB.symbol',
         :active='"one"'
@@ -90,6 +90,10 @@ export default {
   },
 
   methods: {
+    toggleTokens() {
+      // (
+      console.log('on toggle')
+    },
     async submit() {
       try {
         await this.add()
@@ -220,8 +224,8 @@ export default {
         : position.amountA
 
       return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
-    }
-  }
+    },
+  },
 }
 </script>
 
