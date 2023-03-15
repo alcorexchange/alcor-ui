@@ -31,6 +31,12 @@ export const mutations = {
     ticks.sort((a, b) => a.id - b.id)
     Vue.set(state.ticks, poolId, ticks)
   },
+  setPoolTokens: (state, { poolIndex, tokenA, tokenB }) => {
+    const pool = state.pools[poolIndex]
+    Vue.set(state.pools, poolIndex, { ...pool, tokenA, tokenB })
+    // pool.tokenA = tokenA
+    // pool.tokenB = tokenB
+  },
 }
 
 export const actions = {
@@ -150,6 +156,16 @@ export const actions = {
     for (const row of rows) {
       dispatch('fetchTicksOfPool', row.id)
     }
+  },
+
+  toggleTokens({ state, commit }, { poolId }) {
+    console.log({ poolId })
+    console.log({ pool: state.pools })
+    const poolIndex = state.pools.findIndex(({ id }) => id === parseInt(poolId))
+    const { tokenA: _tokenA, tokenB: _tokenB } = state.pools[poolIndex]
+    commit('setPoolTokens', {
+      tokenA: _tokenB, tokenB: _tokenA, poolIndex
+    })
   }
 }
 

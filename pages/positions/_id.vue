@@ -26,12 +26,11 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
           //- TODO: add one and two based on invert price
           AlcorSwitch(
             v-if='pool.tokenA && pool.tokenB',
-            @toggle='() => {}',
+            @toggle='toggleTokens',
             :one='pool.tokenA.symbol',
             :two='pool.tokenB.symbol',
             :active='"one"'
           )
-
       ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-3
       InfoContainer.info.mt-3(:access="true")
         | To update the price range, you need to close this position and open a new one,
@@ -77,8 +76,16 @@ export default {
     AlcorSwitch,
     ManageLiquidityMinMaxPrices
   },
-
+  methods: {
+    toggleTokens() {
+      this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
+    }
+  },
   computed: {
+    poolId() {
+      const [poolId] = this.$route.params.id.split('-')
+      return poolId
+    },
     position() {
       const [pool_id, position_id, fee] = this.$route.params.id.split('-')
       return this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
