@@ -1,6 +1,6 @@
 <template lang="pug">
 .stacked-column-chart-component
-  vue-apex-charts(type="bar" height="400" :options="chartOptions" :series="series")
+  vue-apex-charts(type="area" height="400" :options="chartOptions" :series="series")
 
 </template>
 
@@ -9,42 +9,7 @@ export default {
   data: () => ({
     series: [
       {
-        name: 'PRODUCT A',
-        data: [
-          44,
-          55,
-          41,
-          67,
-          22,
-          43,
-          19,
-          22,
-          56,
-          22,
-          55,
-          41,
-          67,
-          22,
-          43,
-          44,
-          55,
-          41,
-          67,
-          22,
-          43,
-          19,
-          22,
-          56,
-          22,
-          55,
-          41,
-          67,
-          22,
-          43
-        ]
-      },
-      {
-        name: 'PRODUCT B',
+        name: 'Price',
         data: [
           13,
           23,
@@ -80,9 +45,34 @@ export default {
       }
     ],
     chartOptions: {
+      markers: {
+        size: 0,
+        colors: ['#32D74B'],
+        strokeColors: '#111113'
+      },
+      colors: ['#E91E63', '#FF9800'],
+      theme: {
+        mode: 'dark'
+      },
+      stroke: {
+        curve: 'straight',
+        width: 1,
+        colors: ['#32D74B']
+      },
+      fill: {
+        colors: ['#32D74B', ''],
+        type: 'gradient',
+        gradient: {
+          shade: 'dark',
+          type: 'vertical',
+          inverseColors: true,
+          shadeIntensity: 0.9,
+          opacityFrom: 0.0,
+          opacityTo: 0.2
+        }
+      },
       chart: {
-        type: 'bar',
-        stacked: true,
+        type: 'line',
         background: 'transparent',
         toolbar: {
           show: false
@@ -103,25 +93,6 @@ export default {
           }
         }
       ],
-      plotOptions: {
-        bar: {
-          columnWidth: '75%',
-          dataLabels: {
-            maxItems: 0,
-            total: {
-              enabled: false,
-              formatter: (_) => '',
-              style: {
-                color: 'red'
-              }
-            }
-          }
-        }
-      },
-      theme: {
-        mode: 'dark',
-        palette: 'palette2'
-      },
       dataLabels: {
         enabled: false
       },
@@ -138,7 +109,28 @@ export default {
           }
         }
       },
+      tooltip: {
+        y: {
+          formatter: (v) => '$' + v
+        },
+        marker: {
+          show: false
+        },
+        custom: () => ''
+      },
       yaxis: {
+        crosshairs: {
+          show: true,
+          stroke: {
+            color: 'var(--border-color)',
+            width: 2,
+            dashArray: 3
+          }
+        },
+        tooltip: {
+          enabled: true,
+          custom: () => ''
+        },
         opposite: true,
         axisBorder: {
           show: false
@@ -160,6 +152,19 @@ export default {
         }
       },
       xaxis: {
+        crosshairs: {
+          show: true,
+          width: 1.2,
+          stroke: {
+            color: 'var(--border-color)',
+            width: 1,
+            dashArray: 0
+          },
+          fill: {
+            type: 'solid',
+            color: 'var(--border-color)'
+          }
+        },
         axisBorder: {
           show: true,
           color: 'var(--border-color)',
@@ -217,15 +222,6 @@ export default {
       },
       legend: {
         show: false
-      },
-      fill: {
-        opacity: 1,
-        pattern: {
-          style: 'verticalLines',
-          width: 1,
-          height: 1,
-          strokeWidth: 10
-        }
       }
     }
   })
