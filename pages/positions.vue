@@ -1,15 +1,15 @@
 <template lang="pug">
-.d-flex.flex-column.gap-24
+.d-flex.flex-column.gap-16
   HeightTransition
-    .header(v-if="showHeader")
+    .header-container(v-if="showHeader")
       //- because first child of HeightTransition should not have vertical padding/margin
-      .d-flex.justify-content-between.mt-5
+      .header.d-flex.justify-content-between.mt-5
         .d-flex.gap-16.navigation
           nuxt-link(:to="localePath('positions', $i18n.locale)" :exact='true')
             .fs-20 My Positions
           nuxt-link(:to="localePath('positions-history', $i18n.locale)" :exact='true')
             .fs-20 History
-        .d-flex.gap-10
+        .actions.d-flex.gap-10
           alcor-button Analytics
           alcor-button(access @click="$router.push('/positions/new')")
             i.el-icon-plus
@@ -46,7 +46,17 @@ export default {
     color: var(--text-contrast);
   }
 }
-.header{
+.header-container{
   transition: all 0.4s;
+}
+@media only screen and (max-width: 540px) {
+  .header {
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px !important;
+    .actions{
+      margin-left: auto;
+    }
+  }
 }
 </style>
