@@ -27,11 +27,13 @@
 <script>
 import StackedColumns from '~/components/charts/StackedColumns'
 import Line from '~/components/charts/Line'
+import MultiLine from '~/components/charts/MultiLine'
 import AlcorContainer from '~/components/AlcorContainer'
 
 export default {
   components: {
     Price: Line,
+    Tvl: MultiLine,
     Volume: StackedColumns,
     Fees: StackedColumns,
     AlcorContainer
@@ -40,6 +42,7 @@ export default {
     activeTab: 'StackedColumns',
     tabs: [
       { label: 'Price', value: 'Price' },
+      { label: 'TVL', value: 'Tvl' },
       { label: 'Volume', value: 'Volume' },
       { label: 'Fees', value: 'Fees' }
     ],
