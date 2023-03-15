@@ -41,7 +41,7 @@
               .disable.fs-12 Rate
               .d-flex.gap-4
                 .fs-12 {{ rate }} {{ tokenB.symbol }} per {{ tokenA.symbol}}
-                .fs-12.disable (00.00$)
+                .fs-12.disable (0.00$)
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Expected Output
@@ -53,7 +53,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) {{ expectedOutput }}
+              .fs-12(v-else) {{ expectedOutput ? expectedOutput : '0.0000 ' + tokenB.symbol }}
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Price Impact
@@ -65,7 +65,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) {{ priceImpact }}%
+              .fs-12(v-else) {{ priceImpact }}
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Minimum Received after slippage
@@ -160,7 +160,7 @@ export default {
     rate: '0.00',
     priceImpact: '0.00%',
     miniumOut: 0,
-    expectedOutput: '0.0000',
+    expectedOutput: null,
     route: null,
 
     routerCollapse: ['1']
