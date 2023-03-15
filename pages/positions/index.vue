@@ -84,6 +84,7 @@ export default {
     },
 
     managePosition({ link }) {
+      console.log({ link })
       this.$router.push(link)
     }
   }
