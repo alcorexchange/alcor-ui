@@ -34,7 +34,15 @@
       .section-4(v-mutted="!tokenA || !tokenB")
         template(v-if="!pool")
           .d-flex.flex-column.gap-10
-            .fs-16.disable Set Starting Price
+            .d-flex.justify-content-between
+              .fs-16.disable Set Starting Price
+              AlcorSwitch(
+                v-if='tokenA && tokenB',
+                @toggle='toggleTokens',
+                :one='invertPrice ? tokenB.symbol : tokenA.symbol',
+                :two='invertPrice ? tokenA.symbol : tokenB.symbol',
+                :active='invertPrice ? "two" : "one"'
+              )
             InfoContainer.info-container(:access="true")
               | This pool must be initialized before you can add liquidity.
               | To initialize, select a starting price for the pool.
