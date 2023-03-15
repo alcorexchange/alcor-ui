@@ -253,7 +253,7 @@ export default {
             .setCancelButtonIconColor('#f2fff2')
           if (this.chart_orders_settings.show_labels) {
             order
-              .setQuantity(o.type == 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
+              .setQuantity(o.type !== 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
               .setLineLength(3)
           } else {
             order
