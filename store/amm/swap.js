@@ -1,24 +1,43 @@
-import { Route, Trade } from '~/assets/libs/swap-sdk'
-
-import { tryParseCurrencyAmount } from '~/utils/amm'
+import { Token, Trade } from '~/assets/libs/swap-sdk'
 
 export const state = () => ({
   tokenA: null,
   tokenB: null,
+
+  // Parsed from url
+  input: null,
+  output: null,
 
   liquidity: 30
 })
 
 export const mutations = {
   setTokenA: (state, token) => state.tokenA = token,
-  setTokenB: (state, token) => state.tokenB = token
+  setTokenB: (state, token) => state.tokenB = token,
 
-  //setFeeAmount: (state, value) => state.feeAmount = value
+  setInput: (state, token) => state.input = token,
+  setOutput: (state, token) => state.output = token
 }
 
 export const actions = {
-  async init({ dispatch }) {
-    // TODO Set Default tokens
+  async init({ state, commit, dispatch, getters, rootGetters, rootState }) {
+    if (rootGetters['amm/pools'].length == 0) await dispatch('amm/fetchPools', null, { root: true })
+    if (rootGetters['amm/pools'].length == 0) return
+
+    const { input, output } = state
+
+    if (!input && !output) {
+      const { contract, symbol } = rootState.network.baseToken
+      return commit('setTokenA', getters.tokens.find(t => t.symbol == symbol && t.contract == contract))
+    }
+
+    const tokenA = getters.tokens.find(t => t.symbol == state.input?.symbol && t.contract == state.input?.contract)
+    const tokenB = getters.tokens.find(t => t.symbol == state.output?.symbol && t.contract == state.output?.contract)
+
+    if (tokenA && tokenB && tokenA.equals(tokenB)) return commit('setTokenA', tokenA)
+
+    if (tokenA) commit('setTokenA', tokenA)
+    if (tokenB) commit('setTokenB', tokenB)
   },
 
   async bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {

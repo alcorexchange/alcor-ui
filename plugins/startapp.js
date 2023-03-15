@@ -10,13 +10,16 @@ export default ({ app: { store, $axios } }, inject) => {
     }
 
     store.dispatch('init')
-    store.dispatch('amm/init')
+
     store.dispatch('swap/init')
     store.dispatch('chain/init')
     store.dispatch('market/init')
     store.dispatch('wallet/init')
     store.dispatch('settings/init')
     store.dispatch('ibcBridge/init')
+
+    store.dispatch('amm/init')
+    store.dispatch('amm/swap/init')
 
     if (process.env.isDev) {
       //const VConsole = require('vconsole')

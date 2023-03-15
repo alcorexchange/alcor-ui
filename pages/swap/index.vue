@@ -16,7 +16,6 @@
       @input="calcOutput"
       @tokenSelected="setTokenA"
       :show-max-button="false"
-      @onMax="setAToMax"
     )
     .w-100.position-relative
       .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos(@click="toggleTokens")
@@ -137,6 +136,21 @@ export default {
     SwapRoute,
     VueSkeletonLoader
   },
+
+  fetch({ store, route }) {
+    const { input, output } = route.query
+
+    if (input) {
+      const [symbol, contract] = input.split('-')
+      store.commit('amm/swap/setInput', { symbol, contract })
+    }
+
+    if (output) {
+      const [symbol, contract] = output.split('-')
+      store.commit('amm/swap/setOutput', { symbol, contract })
+    }
+  },
+
   data: () => ({
     loading: false,
     amountA: null,
@@ -163,6 +177,7 @@ export default {
       'sortedB'
     ]),
   },
+
   methods: {
     ...mapActions('amm/swap', [
       'bestTradeExactIn',
@@ -170,7 +185,6 @@ export default {
     ]),
 
     toggleTokens() {
-      // TODO Handle amounts
       const [amountA, amountB] = [this.amountB, this.amountA]
 
       this.amountA = amountA
@@ -181,14 +195,26 @@ export default {
     },
 
     setTokenA(token) {
+      if (token.equals(this.tokenB)) {
+        if (this.tokenA) {
+          this.toggleTokens()
+        } else {
+          this.$store.dispatch('amm/swap/setTokenB', null)
+        }
+      }
+
       this.$store.dispatch('amm/swap/setTokenA', token)
     },
 
-    setAToMax() {
-      console.log('setAToMax')
-    },
-
     setTokenB(token) {
+      if (token.equals(this.tokenA)) {
+        if (this.tokenB) {
+          this.toggleTokens()
+        } else {
+          this.$store.dispatch('amm/swap/setTokenA', null)
+        }
+      }
+
       this.$store.dispatch('amm/swap/setTokenB', token)
     },
 
