@@ -25,7 +25,8 @@ import HeightTransition from '~/components/HeightTransition'
 export default {
   components: { AlcorButton, HeightTransition },
   fetch({ route, redirect }) {
-    if (route.path == '/positions') redirect('/positions/my-positions')
+    // No need to redirect to my-positions
+    // if (route.path == '/positions') redirect('/positions/my-positions')
   },
   computed: {
     showHeader() {
