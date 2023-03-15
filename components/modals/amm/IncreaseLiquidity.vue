@@ -10,7 +10,7 @@
     @close="visible = false"
     :before-close="undefined"
   )
-    PositionInfo(:noPL="true" :pool="pool" :position="position")
+    PositionInfo(:noPL="true" v-bind="$props")
     .separator.my-2
     .d-flex.justify-content-between.gap-8
       .fs-18.current-price
@@ -27,8 +27,8 @@
     ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-2
 
     .fs-18.disable.mt-2 Increase
-    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
-    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB").mt-2
+    PoolTokenInput(:locked="true" :label="tokenA.symbol" :token="tokenA" @input="onAmountAInput" v-model="amountA")
+    PoolTokenInput(:locked="true" :label="tokenB.symbol" :token="tokenB" @input="onAmountBInput" v-model="amountB").mt-2
 
     AlcorButton.claim-fees-button.submit.w-100(big @click="add").mt-2 Add Liquidity
 
@@ -69,7 +69,7 @@ export default {
     ManageLiquidityMinMaxPrices
   },
 
-  props: ['position', 'pool', 'priceLower', 'priceUpper'],
+  props: ['position', 'pool', 'priceLower', 'priceUpper', 'tokenA', 'tokenB'],
 
   data: () => ({
     amountA: null,

@@ -3,9 +3,9 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
   PageHeader(title="Manage Liquidity")
   .main.gap-16.pt-3
     .left
-      PositionInfo(:pool="pool" :position="position" :tokenA="tokenA" :tokenB="tokenB" :amountA="amountA" :amountB="amountB")
+      PositionInfo(:pool="pool" :position="position" :tokenA="tokenA" :tokenB="tokenB" :amountA="amountA" :amountB="amountB" :tokenAPrice="tokenAPrice")
         template(#action)
-          IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper")
+          IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper" :tokenA="tokenA" :tokenB="tokenB")
       .separator.mt-2
       UnclaimedFees(:position="position")
       .separator.mt-2
