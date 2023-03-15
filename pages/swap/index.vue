@@ -3,7 +3,9 @@
 .d-flex.gap-6.justify-content-center
   alcor-container.mt-5.swap-widget
     .d-flex.justify-content-between.align-items-center.p-1
-      .fs-18 {{ $t('Swap') }}
+      .d-flex.align-items-center.gap-10
+        .fs-18 {{ $t('Swap') }}
+        NuxtLink.navigation(:to="localeRoute('/positions')").fs-18.disable {{ $t('Pools') }}
       .d-flex.gap-16.align-items-center
         i.el-icon-refresh.pointer.fs-18(@click="loading = !loading")
         Settings
@@ -371,5 +373,11 @@ export default {
 }
 .arrow-pos {
   top: -12px;
+}
+.navigation {
+  transition: color 0.3s;
+  &:hover {
+    color: var(--text-default)
+  }
 }
 </style>
