@@ -104,8 +104,8 @@ export default {
   border-radius: 4px;
 }
 .indicator {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 
   background: var(--disabled-indicator);
   border-radius: 50%;
