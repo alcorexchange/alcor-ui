@@ -3,7 +3,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
   PageHeader(title="Manage Liquidity")
   .main.gap-16.pt-3
     .left
-      PositionInfo(:pool="pool" :position="position")
+      PositionInfo(:pool="pool" :position="position" :tokenA="tokenA" :tokenB="tokenB" :amountA="amountA" :amountB="amountB")
         template(#action)
           IncreaseLiquidity(:pool="pool" :position="position" :priceLower="priceLower" :priceUpper="priceUpper")
       .separator.mt-2
@@ -12,12 +12,12 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       RemoveLiquidityPercentage(:position="position")
     .right
       LiquidityChartRangeInput(
-        :tokenA="pool.tokenA"
-        :tokenB="pool.tokenB"
+        :tokenA="tokenA"
+        :tokenB="tokenB"
         :feeAmount="pool.fee"
         :priceLower="priceLower"
         :priceUpper="priceUpper"
-        :price="position.pool.tokenAPrice.toSignificant(5)"
+        :price="tokenAPrice.toSignificant(5)"
         :ticksAtLimit="ticksAtLimit"
         chartTitle="Price Range"
         :interactive="false")
@@ -29,7 +29,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
             @toggle='toggleTokens',
             :one='pool.tokenA.symbol',
             :two='pool.tokenB.symbol',
-            :active='"one"'
+            :active='areTokensInverted ? "two" : "one"'
           )
       ManageLiquidityMinMaxPrices(:pool="pool" :priceLower="priceLower" :priceUpper="priceUpper").mt-3
       InfoContainer.info.mt-3(:access="true")
@@ -76,9 +76,13 @@ export default {
     AlcorSwitch,
     ManageLiquidityMinMaxPrices
   },
+  data: () => ({
+    areTokensInverted: false
+  }),
   methods: {
     toggleTokens() {
-      this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
+      // this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
+      this.areTokensInverted = !this.areTokensInverted
     }
   },
   computed: {
@@ -98,16 +102,20 @@ export default {
 
     // TODO Implement invertPrice
     priceLower() {
-      const { tickLower, pool: { tokenA, tokenB } } = this.position
-
-      return getTickToPrice(tokenA, tokenB, tickLower)
+      const { tickLower } = this.position
+      const { tokenA, tokenB } = this
+      const a = this.areTokensInverted ? tokenB : tokenA
+      const b = this.areTokensInverted ? tokenA : tokenB
+      return getTickToPrice(a, b, tickLower)
     },
 
     // TODO Implement invertPrice
     priceUpper() {
-      const { tickUpper, pool: { tokenA, tokenB } } = this.position
-
-      return getTickToPrice(tokenA, tokenB, tickUpper)
+      const { tickUpper } = this.position
+      const { tokenA, tokenB } = this
+      const a = this.areTokensInverted ? tokenB : tokenA
+      const b = this.areTokensInverted ? tokenA : tokenB
+      return getTickToPrice(a, b, tickUpper)
     },
 
     tickSpaceLimits() {
@@ -121,6 +129,21 @@ export default {
         LOWER: feeAmount && tickLower === tickSpaceLimits.LOWER,
         UPPER: feeAmount && tickUpper === tickSpaceLimits.UPPER
       }
+    },
+    tokenA() {
+      return this.areTokensInverted ? this.pool.tokenB : this.pool.tokenA
+    },
+    tokenB() {
+      return this.areTokensInverted ? this.pool.tokenA : this.pool.tokenB
+    },
+    amountA() {
+      return this.areTokensInverted ? this.position.amountB : this.position.amountA
+    },
+    amountB() {
+      return this.areTokensInverted ? this.position.amountA : this.position.amountB
+    },
+    tokenAPrice() {
+      return this.areTokensInverted ? this.pool.tokenBPrice : this.pool.tokenAPrice
     }
   },
 
