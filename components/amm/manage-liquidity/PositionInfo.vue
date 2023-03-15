@@ -19,7 +19,7 @@
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
       .fs-18 {{ position.amountA.toFixed() }}
-      .fs-14.color-action ($60.56)
+      .fs-14.color-action ($0.00)
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
@@ -28,18 +28,18 @@
       .amount-percent.fs-10 50%
     .d-flex.align-items-center.gap-8
       .fs-18 {{ position.amountB.toFixed() }}
-      .fs-14.color-action ($60.56)
+      .fs-14.color-action ($0.00)
 
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
       .fs-16 P&L
-      .fs-16 $2,300.5895
+      .fs-16 $0.00
     .d-flex.justify-content-between.mt-1
       .fs-16 Total Profit
-      .fs-16 $2,300.5895
+      .fs-16 $0.00
     .d-flex.justify-content-between.mt-1
       .fs-16 Total Loss
-      .fs-16 $2,300.5895
+      .fs-16 $0.00
 
     // TODO We do not need probably
     //.d-flex.justify-content-between.mt-1
