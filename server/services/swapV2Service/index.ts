@@ -15,7 +15,7 @@ const publisher = client.duplicate()
 const subscriber = client.duplicate()
 
 type Tick = {
-  id: number
+  id: number,
   liquidityGross: number
 }
 
@@ -34,7 +34,7 @@ async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number
 }
 
 const throttles = {}
-function throttledUpdate(chain: string, poolId: number) {
+function throttledPoolUpdate(chain: string, poolId: number) {
   if (`${chain}_${poolId}` in throttles) {
     // Second call in throttle time
     throttles[`${chain}_${poolId}`] = true
@@ -42,6 +42,7 @@ function throttledUpdate(chain: string, poolId: number) {
   }
 
   //console.log('pass call for', side, chain, market)
+  updatePool(chain, poolId)
   updateTicks(chain, poolId)
 
   throttles[`${chain}_${poolId}`] = false
@@ -53,6 +54,11 @@ function throttledUpdate(chain: string, poolId: number) {
 
     delete throttles[`${chain}_${poolId}`]
   }, 500)
+}
+
+async function updatePool(chain: string, poolId: number) {
+  // TODO Update pool in db and do pool update push
+  //publisher.publish('pool_update', push)
 }
 
 async function updateTicks(chain: string, poolId: number) {
@@ -180,9 +186,29 @@ export async function main() {
   subscriber.subscribe('swap_action', message => {
     const { chain, name, trx_id, block_num, data } = JSON.parse(message)
 
-    if (['logmint', 'logburn', 'logswap', 'logpool'].includes(name)) {
-      throttledUpdate(chain, Number(data.poolId))
+    if (['logmint', 'logburn', 'logswap', 'logpool', 'logcollect'].includes(name)) {
+      throttledPoolUpdate(chain, Number(data.poolId))
     }
+
+    if (name == 'logswap') {
+      // TODO Add swap to db
+    }
+
+    if (name == 'logmint') { // Pool creation
+      // add p&l
+      // Pool update (will be created)
+    }
+
+    if (name == 'logburn') {
+      // SUB pnl value
+      // handle pnl update position
+    }
+
+    if (name == 'logcollect') {
+      // add p&l
+      // update position P&N
+    }
+
   })
 
   console.log('TicksService started')

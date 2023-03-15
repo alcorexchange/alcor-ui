@@ -10,23 +10,23 @@ type LogBurn = {
   posId: number,
   owner: string,
 
-  tickLower: number
-  tickUpper: number
-  liquidity: number
+  tickLower: number,
+  tickUpper: number,
+  liquidity: number,
 
   tokenA: string,
   tokenB: string
 }
 
 type LogSwap = {
-  poolId: number
-  sender: string
-  recipient: string
-  tokenA: number
-  tokenB: number
-  sqrtPriceX64: number
-  liquidity: number
-  tick: number
+  poolId: number,
+  sender: string,
+  recipient: string,
+  tokenA: number,
+  tokenB: number,
+  sqrtPriceX64: number,
+  liquidity: number,
+  tick: number,
 }
 
 type LogMint = {
@@ -47,7 +47,7 @@ const redisClient = createClient()
 // const ONEDAY = 60 * 60 * 24 * 1000
 // const WEEK = ONEDAY * 7
 
-export async function newSwapAction(action: Action, network: { [key: string]: any }) {
+export function newSwapAction(action: Action, network: { [key: string]: any }) {
   if (!redisClient.isOpen) redisClient.connect()
 
   // TODO Get timestamp

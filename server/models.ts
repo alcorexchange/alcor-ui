@@ -161,26 +161,6 @@ const SettingsSchema = new mongoose.Schema({
   actions_stream_offset: { type: Object, default: {} }
 })
 
-export async function getSettings(network) {
-  const actions_stream_offset = {}
-
-  try {
-    let settings = await Settings.findOne({ chain: network.name })
-
-    if (!settings) {
-      console.log('creating settings')
-      settings = await Settings.create({ chain: network.name, actions_stream_offset })
-      console.log('created..')
-    }
-
-    return settings
-  } catch (e) {
-    console.log('db fail on get settinga, retry..', e)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    return await getSettings(network)
-  }
-}
-
 const SwapPoolSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   id: { type: Number, index: true },
@@ -226,6 +206,56 @@ const SwapPoolSchema = new mongoose.Schema({
 
   volumeAMonth: { type: Number },
   volumeBMonth: { type: Number },
+})
+
+// Every hour cahrt basic point for info
+const SwapChartPointSchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  // Sqt
+  price: { type: Number },
+  liquidity: { type: Number },
+
+  volumeA: { type: Number, default: 0 },
+  volumeB: { type: Number, default: 0 },
+
+  time: { type: Date, index: true }
+})
+PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
+
+const SwapSchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+  trx_id: { type: String },
+
+  recipient: { type: String, index: true },
+  sender: { type: String, index: true },
+
+  price: { type: Number },
+
+  tokenA: { type: Number },
+  tokenB: { type: Number },
+
+  time: { type: Date, index: true },
+})
+
+const PositionSchema = new mongoose.Schema({
+  id: { type: Number },
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  owner: { type: String, index: true },
+
+  // Stores values on position create and change. Add liquidity positive, sub negative. Stores values in $USD
+  pNl: { type: [Number] },
+
+  // TODO May be store position rows values
+  // price: { type: Number },
+  // tokenA: { type: Number },
+  // tokenB: { type: Number },
+
+  time: { type: Date, index: true },
 })
 
 export const Market = mongoose.model('Market', MarketSchema)
