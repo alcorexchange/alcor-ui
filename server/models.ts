@@ -181,6 +181,9 @@ const SwapPoolSchema = new mongoose.Schema({
   sqrtPriceX64: { type: Number },
   tick: { type: Number },
 
+  tokenAUSDPrice: { type: Number },
+  tokenBUSDPrice: { type: Number },
+
   fee: { type: Number, index: true },
   feeProtocol: { type: Number, index: true },
   tickSpacing: { type: Number, index: true },
@@ -240,21 +243,25 @@ const SwapSchema = new mongoose.Schema({
   time: { type: Date, index: true },
 })
 
-const PositionSchema = new mongoose.Schema({
+// Position Change event add/remove liqudity
+const PositionHistorySchema = new mongoose.Schema({
   id: { type: Number },
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
 
+  // In future owner might be changed
   owner: { type: String, index: true },
 
-  // Stores values on position create and change. Add liquidity positive, sub negative. Stores values in $USD
-  pNl: { type: [Number] },
+  type: { type: String, index: true },
 
-  // TODO May be store position rows values
-  // price: { type: Number },
-  // tokenA: { type: Number },
-  // tokenB: { type: Number },
+  price: { type: Number },
+  tokenA: { type: Number },
+  tokenB: { type: Number },
 
+  // Total USD value of tokenA + tokenB  in a time of change
+  totalUSDValue: { type: Number },
+
+  trx_id: { type: String },
   time: { type: Date, index: true },
 })
 
@@ -267,3 +274,4 @@ export const Bar = mongoose.model('Bar', BarSchema)
 export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)
 export const SwapPool = mongoose.model('SwapPool', SwapPoolSchema)
+export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)

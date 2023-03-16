@@ -9,14 +9,14 @@
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
       .fs-18 {{ feesA }}
-      .fs-14.color-action ($29)
+      .fs-14.color-action ($0.00)
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
       .fs-18 {{ feesB }}
-      .fs-14.color-action ($60.56)
+      .fs-14.color-action ($0.00)
 
 </template>
 

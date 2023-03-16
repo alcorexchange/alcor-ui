@@ -1,9 +1,10 @@
 import config from '../../../config'
 
-import { getSettings } from '../../models'
+import { getSettings } from '../../utils'
 import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction } from './swap'
+import { updateSystemPrice } from './systemPrices'
 
 import { streamHyperion, streamByNode } from './streamers'
 
@@ -14,10 +15,8 @@ const providers = {
 
 export function startUpdaters() {
   if (process.env.NETWORK) {
-    //updater('wax', app, 'node', ['markets', 'pools'])
-    //updater(process.env.NETWORK, 'node', ['pools', 'markets'])
-    updater(process.env.NETWORK, 'node', ['swap'])
-    //updater(process.env.NETWORK, app, 'node', ['pools'])
+    //updater(process.env.NETWORK, 'node', ['systemPrices', 'swap'])
+    updater(process.env.NETWORK, 'node', ['systemPrices'])
   } else {
     updater('eos', 'node', ['markets', 'pools'])
     updater('wax', 'node', ['markets', 'pools'])
@@ -32,6 +31,14 @@ export async function updater(chain, provider, services) {
 
   // If no setting, create them..
   await getSettings(network)
+
+
+  if (services.includes('systemPrices')) {
+    console.log('Start systemPrice updater for', chain)
+
+    await updateSystemPrice(network)
+    setInterval(() => updateSystemPrice(network), 1 * 60 * 1000)
+  }
 
   if (services.includes('markets')) {
     console.log('Start market updater for', chain)

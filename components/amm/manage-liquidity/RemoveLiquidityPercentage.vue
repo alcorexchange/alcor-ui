@@ -15,7 +15,7 @@ div
         span {{ position.pool.tokenA.symbol }}
       .d-flex.align-items-center.gap-8
         .fs-18 {{ amountB }}
-        .fs-14.color-action ($60.56)
+        .fs-14.color-action ($0.00)
 
     .d-flex.justify-content-between.mt-1
       .d-flex.align-items-center.gap-8
@@ -23,7 +23,7 @@ div
         span {{ position.pool.tokenB.symbol }}
       .d-flex.align-items-center.gap-8
         .fs-18 {{ amountA }}
-        .fs-14.color-action ($60.56)
+        .fs-14.color-action ($0.00)
 
   AlcorButton.claim-fees-button.submit.w-100.mt-2(access @click="submit") {{ $t('Remove Liquidity and Claim Fees') }}
 </template>

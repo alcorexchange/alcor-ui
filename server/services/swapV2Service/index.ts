@@ -4,10 +4,9 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { SwapPool } from '../../models'
+import { SwapPool, PositionHistory } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
-import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { getSingleEndpointRpc, getFailOverRpc } from './../../utils'
 
 const client = createClient()
@@ -180,6 +179,13 @@ export async function initialUpdate(chain: string, poolId?: number) {
   }
 }
 
+async function logMint({ chain, trx_id, data }) {
+  // Get tokenA usd Price
+  // Get tokenB usd Price
+
+}
+
+
 export async function main() {
   await connectAll()
 
@@ -195,6 +201,10 @@ export async function main() {
     }
 
     if (name == 'logmint') { // Pool creation
+      logMint({ chain, trx_id, data })
+      //PositionHistory
+
+      //PositionHistory
       // add p&l
       // Pool update (will be created)
     }

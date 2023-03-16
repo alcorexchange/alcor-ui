@@ -33,13 +33,13 @@
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
       .fs-16 P&L
-      .fs-16 $2,300.5895
+      .fs-16 $0.00
     .d-flex.justify-content-between.mt-1
-      .fs-16 Total Profit
-      .fs-16 $2,300.5895
+      .fs-16 IL (Impermanent loss)
+      .fs-16 $0.00
     .d-flex.justify-content-between.mt-1
-      .fs-16 Total Loss
-      .fs-16 $2,300.5895
+      .fs-16 24H Estimated Fees
+      .fs-16 $5.0000
 
     // TODO We do not need probably
     //.d-flex.justify-content-between.mt-1
