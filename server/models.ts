@@ -164,38 +164,39 @@ const SettingsSchema = new mongoose.Schema({
 const SwapPoolSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   id: { type: Number, index: true },
+  fee: { type: Number, index: true }, // Create index chain/id/fee
   active: { type: Boolean, index: true },
 
   tokenA: {
     contract: { type: String, index: true },
     symbol: { type: String, index: true },
-    quantity: { type: Number }
+    name: { type: String, index: true },
+    quantity: { type: Number },
+    decimals: { type: Number },
   },
 
   tokenB: {
     contract: { type: String, index: true },
     symbol: { type: String, index: true },
-    quantity: { type: Number }
+    name: { type: String, index: true },
+    quantity: { type: Number },
+    decimals: { type: Number }
   },
 
-  sqrtPriceX64: { type: Number },
+  sqrtPriceX64: { type: String },
   tick: { type: Number },
 
-  tokenAUSDPrice: { type: Number },
-  tokenBUSDPrice: { type: Number },
-
-  fee: { type: Number, index: true },
   feeProtocol: { type: Number, index: true },
   tickSpacing: { type: Number, index: true },
 
   maxLiquidityPerTick: { type: Number },
 
-  feeGrowthGlobalAX64: { type: Number },
-  feeGrowthGlobalBX64: { type: Number },
+  feeGrowthGlobalAX64: { type: String },
+  feeGrowthGlobalBX64: { type: String },
 
   protocolFeeA: { type: Number },
   protocolFeeB: { type: Number },
-  liquidity: { type: Number },
+  liquidity: { type: String },
   creator: { type: String },
 
   // TODO Change 24/week/month
@@ -235,7 +236,9 @@ const SwapSchema = new mongoose.Schema({
   recipient: { type: String, index: true },
   sender: { type: String, index: true },
 
-  price: { type: Number },
+  sqrtPriceX64: { type: String },
+
+  totalUSDVolume: { type: Number },
 
   tokenA: { type: Number },
   tokenB: { type: Number },
@@ -254,9 +257,11 @@ const PositionHistorySchema = new mongoose.Schema({
 
   type: { type: String, index: true },
 
-  price: { type: Number },
   tokenA: { type: Number },
   tokenB: { type: Number },
+
+  tokenAUSDPrice: { type: Number, default: 0 },
+  tokenBUSDPrice: { type: Number, default: 0 },
 
   // Total USD value of tokenA + tokenB  in a time of change
   totalUSDValue: { type: Number },
@@ -273,5 +278,6 @@ export const Match = mongoose.model('Match', MatchSchema)
 export const Bar = mongoose.model('Bar', BarSchema)
 export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)
+export const Swap = mongoose.model('Swap', SwapSchema)
 export const SwapPool = mongoose.model('SwapPool', SwapPoolSchema)
 export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)

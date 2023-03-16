@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import { createClient } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'

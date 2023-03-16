@@ -4,10 +4,11 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { SwapPool, PositionHistory } from '../../models'
+import { SwapPool, PositionHistory, Swap } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { getSingleEndpointRpc, getFailOverRpc } from './../../utils'
+import { parseToken } from '../../../utils/amm'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -40,7 +41,6 @@ function throttledPoolUpdate(chain: string, poolId: number) {
     return
   }
 
-  //console.log('pass call for', side, chain, market)
   updatePool(chain, poolId)
   updateTicks(chain, poolId)
 
@@ -56,8 +56,22 @@ function throttledPoolUpdate(chain: string, poolId: number) {
 }
 
 async function updatePool(chain: string, poolId: number) {
-  // TODO Update pool in db and do pool update push
-  //publisher.publish('pool_update', push)
+  console.log('update pool', poolId)
+  const network = networks[chain]
+  const rpc = getFailOverRpc(network)
+
+  const [pool] = await fetchAllRows(rpc, {
+    code: network.amm.contract,
+    scope: network.amm.contract,
+    table: 'pools',
+    limit: 1,
+    lower_bound: poolId,
+    upper_bound: poolId
+  })
+
+  const parsedPool = parsePool(pool)
+
+  await SwapPool.updateOne({ chain, id: poolId, fee: pool.fee }, parsedPool, { upsert: true } )
 }
 
 async function updateTicks(chain: string, poolId: number) {
@@ -113,17 +127,8 @@ async function getChianTicks(chain: string, poolId: number): Promise<TicksList> 
 }
 
 function parsePool(pool: { [key: string]: any }) {
-  const tokenA = {
-    contract: pool.tokenA.contract,
-    symbol: pool.tokenA.quantity.split(' ')[1],
-    quantity: pool.tokenA.quantity.split(' ')[0]
-  }
-
-  const tokenB = {
-    contract: pool.tokenB.contract,
-    symbol: pool.tokenB.quantity.split(' ')[1],
-    quantity: pool.tokenB.quantity.split(' ')[0]
-  }
+  const tokenA = { ...parseToken(pool.tokenA), quantity: pool.tokenA.quantity.split(' ')[0] }
+  const tokenB = { ...parseToken(pool.tokenB), quantity: pool.tokenB.quantity.split(' ')[0] }
 
   pool.protocolFeeA = parseFloat(pool.protocolFeeA)
   pool.protocolFeeB = parseFloat(pool.protocolFeeB)
@@ -150,6 +155,8 @@ async function updatePools(chain) {
   for (const pool of pools) {
     if (!current_pools.includes(pool.id)) {
       to_create.push({ ...parsePool(pool), chain })
+    } else {
+      updatePool(chain, pool.id)
     }
 
     // TODO Get stats for pools
@@ -179,10 +186,97 @@ export async function initialUpdate(chain: string, poolId?: number) {
   }
 }
 
-async function logMint({ chain, trx_id, data }) {
-  // Get tokenA usd Price
-  // Get tokenB usd Price
+async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
+  return
+  const { poolId, posId, owner } = data
 
+  const tokenAamount = parseFloat(data.tokenA)
+  const tokenBamount = parseFloat(data.tokenB)
+
+  if (tokenAamount == 0 && tokenBamount == 0) return undefined
+
+  const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
+  const pool = await SwapPool.findOne({ id: poolId, chain })
+
+  const tokenA = tokens.find(t => t.name == pool.tokenA.name)
+  const tokenB = tokens.find(t => t.name == pool.tokenB.name)
+
+  const tokenAUSDPrice = tokenA?.usd_price || 0
+  const tokenBUSDPrice = tokenB?.usd_price || 0
+  
+  const totalUSDValue = ((tokenAamount * tokenAUSDPrice) + (tokenBamount * tokenBUSDPrice)).toFixed(4)
+
+  return await PositionHistory.create({
+    chain,
+    owner,
+    type,
+    id: posId,
+    pool: poolId,
+    tokenA: tokenAamount,
+    tokenB: tokenBamount,
+    tokenAUSDPrice,
+    tokenBUSDPrice,
+    totalUSDValue,
+    trx_id,
+    time: block_time
+  })
+}
+
+export async function handleSwap({ chain, data, trx_id, block_time }) {
+  const { poolId, recipient, sender, sqrtPriceX64 } = data
+
+  const tokenAamount = parseFloat(data.tokenA)
+  const tokenBamount = parseFloat(data.tokenB)
+
+  if (tokenAamount == 0 && tokenBamount == 0) return undefined
+
+  const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
+  const pool = await SwapPool.findOne({ id: poolId, chain })
+
+  const tokenA = tokens.find(t => t.name == pool.tokenA.name)
+  const tokenB = tokens.find(t => t.name == pool.tokenB.name)
+
+  const tokenAUSDPrice = tokenA?.usd_price || 0
+  const tokenBUSDPrice = tokenB?.usd_price || 0
+
+  const totalUSDVolume = Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)
+
+  return await Swap.create({
+    chain,
+    pool: poolId,
+    recipient,
+    trx_id,
+    sender,
+    sqrtPriceX64,
+    totalUSDVolume,
+    tokenA: tokenAamount,
+    tokenB: tokenBamount,
+    time: block_time,
+  })
+}
+
+export async function onSwapAction(message: string) {
+  const { chain, name, trx_id, block_time, data } = JSON.parse(message)
+
+  if (['logmint', 'logburn', 'logswap', 'logpool', 'logcollect'].includes(name)) {
+    throttledPoolUpdate(chain, Number(data.poolId))
+  }
+
+  if (name == 'logswap') {
+    await handleSwap({ chain, trx_id, data, block_time })
+  }
+
+  if (name == 'logmint') {
+    await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
+  }
+
+  if (name == 'logburn') {
+    await saveMintOrBurn({ chain, trx_id, data, type: 'burn', block_time })
+  }
+
+  if (name == 'logcollect') {
+    await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
+  }
 }
 
 
@@ -190,38 +284,10 @@ export async function main() {
   await connectAll()
 
   subscriber.subscribe('swap_action', message => {
-    const { chain, name, trx_id, block_num, data } = JSON.parse(message)
-
-    if (['logmint', 'logburn', 'logswap', 'logpool', 'logcollect'].includes(name)) {
-      throttledPoolUpdate(chain, Number(data.poolId))
-    }
-
-    if (name == 'logswap') {
-      // TODO Add swap to db
-    }
-
-    if (name == 'logmint') { // Pool creation
-      logMint({ chain, trx_id, data })
-      //PositionHistory
-
-      //PositionHistory
-      // add p&l
-      // Pool update (will be created)
-    }
-
-    if (name == 'logburn') {
-      // SUB pnl value
-      // handle pnl update position
-    }
-
-    if (name == 'logcollect') {
-      // add p&l
-      // update position P&N
-    }
-
+    onSwapAction(message)
   })
 
-  console.log('TicksService started')
+  console.log('SwapService started!')
 }
 
 
@@ -229,7 +295,6 @@ const command = process.argv[2]
 
 if (command == 'initial') {
   initialUpdate(process.argv[3])
-} else { main() }
-
-//if (!command) { console.log('No command provided'); process.exit() }
-
+} else {
+  main()
+}
