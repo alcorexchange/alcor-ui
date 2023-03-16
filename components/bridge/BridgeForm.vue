@@ -1,7 +1,7 @@
 <template lang="pug">
   #bridge-form-component.form
-    .d-flex.justify-content-between
-      .d-flex.flex-column
+    .send-and-receive
+      .send-from.d-flex.flex-column
         .mb-3 Send from
         alcor-select.network-select(
           :options="fromNetworkOptions"
@@ -19,7 +19,7 @@
           template(#option="{ option }")
             network-option( :network="option")
 
-      .d-flex.flex-column
+      .receive-on.d-flex.flex-column
         .mb-3 Receive on
         alcor-select.network-select(
           :options="fromNetworkOptions"
@@ -37,13 +37,14 @@
           template(#option="{ option }")
             network-option( :network="option")
 
-    .d-flex.justify-content-center.align-items-center.gap-30
-      i.el-icon-right
-      span To
-      i.el-icon-right
+      .to
+        .to-desktop.d-flex.justify-content-center.align-items-center.gap-30
+          i.el-icon-right
+          span To
+          i.el-icon-right
+        i.to-mobile.el-icon-bottom
 
-    .d-flex.justify-content-between
-      alcor-button.connect-button(
+      AlcorButton.connect-button.connect-button-left(
         :disabled="(!sourceName) || (inProgress && this.sourceWallet)"
         @click="connectFromWallet"
       )
@@ -59,7 +60,7 @@
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
 
-      alcor-button.connect-button(
+      AlcorButton.connect-button.connect-button-right(
         :disabled="(!destinationName) || (inProgress && this.destinationWallet)"
         @click="connectToWallet"
       )
@@ -75,44 +76,44 @@
             i.el-icon-right
         .fs-14(v-else) Connect Wallet
 
-    .d-flex.justify-content-between.gap-32.mt-4
+    .amount-container.d-flex.justify-content-between.gap-32.mt-4
       .amount-input
         el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
         span.max-btn.pointer(@click="setMax") MAX
 
-      alcor-select-two.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress && !!this.asset" placeholder="IBC Token" filterable)
+      AlcorSelectTwo.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress && !!this.asset" placeholder="IBC Token" filterable)
         template(slot="empty")
           .small.muted.text-center Chose Send & Receive
 
         template(slot="prefix" v-if="this.asset")
           TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="20")
 
-        alcor-option-two(:value="asset" :label="asset.symbol" v-for="asset in availableAssets")
+        AlcorOptionTwo(:value="asset" :label="asset.symbol" v-for="asset in availableAssets")
           .d-flex.align-items-center.w-100
             TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
             .ml-2 {{ asset.symbol}}
 
     .d-flex.justify-content-center.mt-4
-      alcor-button.transfer-btn(v-if="!error" :disabled="!isValid || inProgress" access @click="transfer") Transfer and Prove
-      alcor-button.transfer-btn(v-else outline @click="transfer") Complete transfer
+      AlcorButton.transfer-btn(v-if="!error" :disabled="!isValid || inProgress" access @click="transfer") Transfer and Prove
+      AlcorButton.transfer-btn(v-else outline @click="transfer") Complete transfer
 
       // dev
       //alcor-button.transfer-btn(access @click="help") help
       //alcor-button.transfer-btn(access @click="transfer") Transfer and Prove
       //alcor-button.transfer-btn(outline @click="clear") clear
 
-    bridge-slider(v-if="inProgress" :steps="steps")
+    BridgeSlider(v-if="inProgress" :steps="steps" :step="step")
 
     div(v-if="step === 4")
-      .d-flex.justify-content-center.mt-4
+      .d-flex.justify-content-center.text-center.mt-4
         .fs-18 Success! Assets have been bridged!
 
-      .d-flex.justify-content-center.mt-4
-        alcor-button(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
+      .d-flex.justify-content-center.mt-4.gap-10
+        AlcorButton(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
           img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
           | TX Link
 
-        alcor-button(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
+        AlcorButton(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))")
           img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
           | TX Link
 </template>
@@ -585,18 +586,14 @@ export default {
   background: var(--background-color-base);
   border: var(--border-1);
   border-radius: 12px;
-  width: 720px;
+  width: 100%;
+  max-width: 720px;
   margin: 0 auto;
   padding: 32px;
   z-index: 100;
 
-  .transfer-btn {
-    width: 312px;
-  }
-
   .network-select,
   .connect-button {
-    width: 226px;
     height: 40px;
   }
 
@@ -610,6 +607,64 @@ export default {
       background-color: var(--btn-default);
     }
 
+  }
+}
+.to-mobile {
+  display: none;
+  justify-content: center;
+  padding: 14px 0;
+  font-size: 1.5rem;
+}
+.send-and-receive {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas:
+    "sendFrom . receiveOn"
+    "to to to"
+    "connect-button-left . connect-button-right";
+  .to {
+    grid-area: to;
+  }
+  .send-from{
+    grid-area: sendFrom;
+  }
+  .receive-on{
+    grid-area: receiveOn;
+  }
+  .connect-button-left {
+    grid-area: connect-button-left;
+  }
+  .connect-button-right {
+    grid-area: connect-button-right;
+  }
+}
+@media only screen and (max-width: 740px){
+  .send-and-receive {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    grid-template-areas:
+      "sendFrom"
+      "connect-button-left"
+      "to"
+      "receiveOn"
+      "connect-button-right"
+  }
+  .to-desktop {
+    display: none !important;
+  }
+  .to-mobile {
+    display: flex;
+  }
+  .amount-container{
+    gap: 4px;
+  }
+  .transfer-btn{
+    width: 100%;
+  }
+}
+@media only screen and (max-width: 480px){
+  .form {
+    padding: 16px 8px;
   }
 }
 </style>
@@ -633,8 +688,9 @@ export default {
 
   .max-btn {
     position: absolute;
-    top: 6px;
-    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 4px;
     font-size: 14px;
     background: var(--bg-alter-1);
     border: var(--border-1);
@@ -644,7 +700,7 @@ export default {
   }
 
   & .el-input__inner {
-    padding: 0 60px !important;
+    padding-left: 50px !important;
   }
 }
 </style>
