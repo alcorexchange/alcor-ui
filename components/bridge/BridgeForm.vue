@@ -112,7 +112,6 @@
         AlcorButton(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
           img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
           | TX Link
-
         AlcorButton(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))")
           img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
           | TX Link
