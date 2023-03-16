@@ -117,8 +117,14 @@ export default {
 .dot {}
 
 @media only screen and (max-width: 640px) {
-  .step .line{
-    width: 60px;
+  .slider{
+    gap: 8px;
+  }
+  .step {
+    gap: 8px;
+    .line{
+      width: 40px;
+    }
   }
   .step:not(.activeStep){
     .line{
