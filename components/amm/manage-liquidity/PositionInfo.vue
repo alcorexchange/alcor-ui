@@ -16,7 +16,7 @@
     .d-flex.align-items-center.gap-8
       TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
       span.f-18 {{ position.amountA.currency.symbol }}
-      .amount-percent.fs-10 50%
+      .amount-percent.fs-10 {{ basePercent }}%
     .d-flex.align-items-center.gap-8
       .fs-18 {{ position.amountA.toFixed() }}
       .fs-14.color-action ($0.00)
@@ -25,7 +25,7 @@
     .d-flex.align-items-center.gap-8
       TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
       span.f-18 {{ position.amountB.currency.symbol }}
-      .amount-percent.fs-10 50%
+      .amount-percent.fs-10 {{ issuePercent }}%
     .d-flex.align-items-center.gap-8
       .fs-18 {{ position.amountB.toFixed() }}
       .fs-14.color-action ($0.00)
@@ -58,7 +58,7 @@ export default {
     TokenImage,
     PairIcons
   },
-  props: ['noPL', 'position', 'tokensInverted']
+  props: ['noPL', 'position', 'tokensInverted', 'basePercent', 'issuePercent']
 }
 </script>
 
