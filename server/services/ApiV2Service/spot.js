@@ -108,8 +108,8 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
 
   return res.json({
     ticker_id,
-    bids: bids.map(b => [write_decimal(b[0], 8), write_decimal(b[1][1], market.base_token.symbol.precision)]),
-    asks: asks.map(a => [write_decimal(a[0], 8), write_decimal(a[1][1], market.quote_token.symbol.precision)])
+    bids: bids.map(b => [write_decimal(b[0], 8, false), write_decimal(b[1][1], market.base_token.symbol.precision, false)]),
+    asks: asks.map(a => [write_decimal(a[0], 8, false), write_decimal(a[1][1], market.quote_token.symbol.precision, false)])
   })
 })
 

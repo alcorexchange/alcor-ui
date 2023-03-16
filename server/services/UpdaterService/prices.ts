@@ -26,12 +26,14 @@ export async function updateSystemPrice(network: Network) {
 
 // system token and their USD prices
 export async function updateTokensPrices(network: Network) {
+  if (!redis.isOpen) await redis.connect()
   const tokens = await getAllTokensWithPrices(network)
   await redis.set(`${network.name}_token_prices`, JSON.stringify(tokens))
   console.log(network.name, 'token prices updated!')
 }
 
 export async function getAllTokensWithPrices(network: Network) {
+  if (!redis.isOpen) await redis.connect()
   // Based on swap only, right now
   const tokens = []
   const { baseToken } = network
@@ -72,6 +74,8 @@ export async function getAllTokensWithPrices(network: Network) {
 
       t.usd_price = t.system_price * systemPrice
     }
+
+    t.usd_price = parseFloat(t.usd_price.toFixed(6))
   }
 
   return tokens

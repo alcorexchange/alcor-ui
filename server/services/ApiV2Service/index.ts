@@ -13,6 +13,8 @@ axiosRetry(axios, { retries: 3 })
 
 import { networkResolver } from '../ApiService/middleware'
 import { spot } from './spot'
+import { swap } from './swap'
+import { tokens } from './tokens'
 
 const app = express()
 
@@ -43,6 +45,9 @@ async function start () {
 
   // Server routes
   app.use('/api/v2/', spot)
+  app.use('/api/v2/', swap)
+  app.use('/api/v2/', tokens)
+
 
   // Listen the server
   const PORT = process.env.PORT || 8000

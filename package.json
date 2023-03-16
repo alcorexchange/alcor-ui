@@ -98,6 +98,7 @@
     "@nuxtjs/eslint-module": "^2.0.0",
     "@nuxtjs/google-analytics": "^2.2.2",
     "@types/d3": "^7.4.0",
+    "@types/express": "^4.17.17",
     "@types/imagemin-svgo": "^10.0.2",
     "@types/node-fetch": "^2.6.2",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
