@@ -62,7 +62,7 @@ export default {
     ManageLiquidityMinMaxPrices
   },
 
-  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower'],
+  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower', 'basePercent', 'issuePercent'],
 
   data: () => ({
     amountA: null,

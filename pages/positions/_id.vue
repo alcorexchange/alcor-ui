@@ -11,6 +11,8 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
             :priceLower="priceLower"
             :priceUpper="priceUpper"
             @toggleTokens="toggleTokens"
+            :basePercent="getTokenComposedPercent('w', false)"
+            :issuePercent="getTokenComposedPercent('b', false)"
           )
 
       .separator.mt-2
