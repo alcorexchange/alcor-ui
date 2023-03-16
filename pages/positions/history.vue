@@ -1,11 +1,15 @@
 <template lang="pug">
-span history
+div
+  PositionHeader
+  span history
 
 </template>
 
 <script>
+import PositionHeader from '~/components/amm/Position/PositionHeader'
 export default {
-  mounted() {
+  components: {
+    PositionHeader
   },
 }
 </script>

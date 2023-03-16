@@ -1,64 +1,66 @@
 <template lang="pug">
-el-table.position-table(
-  :data='plainPositions',
-  style='width: 100%',
-  @row-click="managePosition"
-)
-  template(#empty)
-    .d-flex.flex-column.align-items-center.gap-30.py-5
-      i.el-icon-moon-night.fs-40
-      .fs-14.lh-14 Your active liquidity positions will appear here.
-  el-table-column(:label='$t("Assets in Position")' width="240")
-    template(slot-scope='{row}')
-      .d-flex.align-items-center.gap-12.px-3.py-2
-        pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
-        .fs-14 {{ row.tokenA.symbol }} / {{ row.tokenB.symbol }}
-        .tag {{ row.fee / 10000 }}%
+div
+  PositionHeader
+  el-table.position-table(
+    :data='plainPositions',
+    style='width: 100%',
+    @row-click="managePosition"
+  )
+    template(#empty)
+      .d-flex.flex-column.align-items-center.gap-30.py-5
+        i.el-icon-moon-night.fs-40
+        .fs-14.lh-14 Your active liquidity positions will appear here.
+    el-table-column(:label='$t("Assets in Position")' width="240")
+      template(slot-scope='{row}')
+        .d-flex.align-items-center.gap-12.px-3.py-2
+          pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
+          .fs-14 {{ row.tokenA.symbol }} / {{ row.tokenB.symbol }}
+          .tag {{ row.fee / 10000 }}%
 
-  el-table-column(:label='$t("Range")' width="220")
-    template(slot-scope='{row}')
-      .d-flex.flex-column
-        .d-flex.align-items-center.gap-4
-          .indicator(:class="{ 'in-range': row.inRange }")
-          .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
-        .d-flex.align-items-center.gap-6.flex-wrap
-          .d-flex.gap-4
-            .fs-12.disable MIN
-            .fs-12.contrast {{ row.priceLower }}
-          i.el-icon-sort.rot
-          .d-flex.gap-4
-            .fs-12.disable MAX
-            .fs-12.contrast {{ row.priceUpper }}
+    el-table-column(:label='$t("Range")' width="220")
+      template(slot-scope='{row}')
+        .d-flex.flex-column
+          .d-flex.align-items-center.gap-4
+            .indicator(:class="{ 'in-range': row.inRange }")
+            .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
+          .d-flex.align-items-center.gap-6.flex-wrap
+            .d-flex.gap-4
+              .fs-12.disable MIN
+              .fs-12.contrast {{ row.priceLower }}
+            i.el-icon-sort.rot
+            .d-flex.gap-4
+              .fs-12.disable MAX
+              .fs-12.contrast {{ row.priceUpper }}
 
-  el-table-column(:label='$t("Assets in Pool")' width="160")
-    template(slot-scope='{row}')
-      .d-flex.flex-column
-        .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
+    el-table-column(:label='$t("Assets in Pool")' width="160")
+      template(slot-scope='{row}')
+        .d-flex.flex-column
+          .d-flex.align-items-center.gap-4
+            token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4
-            span {{ row.amountA }}
-        .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)' height="12")
+            .fs-12.earn.d-flex.gap-4
+              span {{ row.amountA }}
+          .d-flex.align-items-center.gap-4
+            token-image(:src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
-            span {{ row.amountB }}
+            .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
+              span {{ row.amountB }}
 
-  el-table-column(:label='$t("Unclaimed Fees")' width="160")
-    template(slot-scope='{row}')
-      position-fees(:position="row")
+    el-table-column(:label='$t("Unclaimed Fees")' width="160")
+      template(slot-scope='{row}')
+        position-fees(:position="row")
 
-  el-table-column(:label='$t("Total Value")' width="100")
-    template(slot-scope='{row}')
-      span $1200
+    el-table-column(:label='$t("Total Value")' width="100")
+      template(slot-scope='{row}')
+        span $1200
 
-  el-table-column(:label='$t("P&L")' width="100")
-    template(slot-scope='{row}')
-      span.red $-1200
+    el-table-column(:label='$t("P&L")' width="100")
+      template(slot-scope='{row}')
+        span.red $-1200
 
-  el-table-column(:label='$t("Action")')
-    template(slot-scope='{row}')
-      alcor-button(compact) Manage
+    el-table-column(:label='$t("Action")')
+      template(slot-scope='{row}')
+        alcor-button(compact) Manage
 
 </template>
 
@@ -69,9 +71,10 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
 import AlcorButton from '~/components/AlcorButton'
+import PositionHeader from '~/components/amm/Position/PositionHeader'
 
 export default {
-  components: { PairIcons, TokenImage, PositionFees, AlcorButton },
+  components: { PairIcons, TokenImage, PositionFees, AlcorButton, PositionHeader },
   data: () => ({ positions: [] }),
 
   computed: {
