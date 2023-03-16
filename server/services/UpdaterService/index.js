@@ -8,7 +8,6 @@ import { startUpdaters } from './start'
 const redisClient = createClient()
 
 async function makeConnections() {
-  console.log(await redisClient.isOpen)
   if (!redisClient.isOpen) await redisClient.connect()
   console.log('Redis connected..')
 

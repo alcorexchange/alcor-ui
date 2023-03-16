@@ -3,11 +3,11 @@ module.exports = {
 
   parserOptions: {
     parser: 'babel-eslint',
-    sourceType: 'module'
+    sourceType: 'module',
   },
 
   env: {
-    browser: true
+    browser: true,
   },
 
   extends: [
@@ -17,18 +17,19 @@ module.exports = {
     'plugin:vue/essential',
     '@vue/standard',
     'plugin:nuxt/recommended',
-    '@nuxtjs'
+    '@nuxtjs',
+    'plugin:@typescript-eslint/recommended'
   ],
 
   // required to lint *.vue files
-  plugins: ['import', 'vue'],
+  plugins: ['import', 'vue', '@typescript-eslint'],
 
   globals: {
     ga: true, // Google Analytics
     cordova: true,
     __statics: true,
     process: true,
-    Capacitor: true
+    Capacitor: true,
   },
 
   // add your custom rules here
@@ -75,6 +76,27 @@ module.exports = {
     'no-useless-catch': 0,
 
     'vue/require-default-prop': 1,
-    'vue/require-prop-types': 0
-  }
+    'vue/require-prop-types': 0,
+  },
+
+  // settings: {
+  //   'import/parsers': {
+  //     '@typescript-eslint/parser': ['.ts', '.tsx'],
+  //   },
+  //   'import/resolver': {
+  //     typescript: {
+  //       //alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+
+  //       // Choose from one of the "project" configs below or omit to use <root>/tsconfig.json by default
+
+  //       // use <root>/path/to/folder/tsconfig.json
+  //       // project: 'path/to/folder',
+
+  //       // // Multiple tsconfigs (Useful for monorepos)
+
+  //       // // use a glob pattern
+  //       // project: 'packages/*/tsconfig.json',
+  //     },
+  //   },
+  // },
 }
