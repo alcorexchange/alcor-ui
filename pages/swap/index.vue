@@ -3,7 +3,9 @@
 .d-flex.gap-6.justify-content-center
   alcor-container.mt-5.swap-widget
     .d-flex.justify-content-between.align-items-center.p-1
-      .fs-18 {{ $t('Swap') }}
+      .d-flex.align-items-center.gap-16
+        .fs-18 {{ $t('Swap') }}
+        NuxtLink.navigation(:to="localeRoute('/positions')").fs-18.disable {{ $t('Pools') }}
       .d-flex.gap-16.align-items-center
         i.el-icon-refresh.pointer.fs-18(@click="loading = !loading")
         Settings
@@ -65,7 +67,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) {{ priceImpact }}
+              .price-impact.fs-12(v-else :style="priceImpactStyle && { color: `var(--main-${priceImpactStyle})` }") {{ priceImpact }}
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Minimum Received after slippage
@@ -166,6 +168,13 @@ export default {
     routerCollapse: ['1']
   }),
   computed: {
+    priceImpactStyle() {
+      const impact = parseInt(this.priceImpact.replace('%', ''))
+      if (impact >= 5) return 'red'
+      if (impact >= 2) return 'yellow'
+      if (impact < 2) return 'green'
+      return ''
+    },
     ...mapState(['user', 'network']),
     ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/swap', [
@@ -371,5 +380,14 @@ export default {
 }
 .arrow-pos {
   top: -12px;
+}
+.navigation {
+  transition: color 0.3s;
+  &:hover {
+    color: var(--text-default)
+  }
+}
+.price-impact {
+  font-weight: 500;
 }
 </style>

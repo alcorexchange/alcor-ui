@@ -1,29 +1,28 @@
 <template lang="pug">
 .d-flex.flex-column.gap-16
-  HeightTransition
-    .header-container(v-if="showHeader")
-      //- because first child of HeightTransition should not have vertical padding/margin
-      .header.d-flex.justify-content-between.mt-5
-        .d-flex.gap-16.navigation
-          nuxt-link(:to="localePath('positions', $i18n.locale)" :exact='true')
-            .fs-20 My Positions
-          nuxt-link(:to="localePath('positions-history', $i18n.locale)" :exact='true')
-            .fs-20 History
-        .actions.d-flex.gap-10
-          alcor-button Analytics
-          alcor-button(access @click="$router.push('/positions/new')")
-            i.el-icon-plus
-            .fs-14 New Position
+  //- HeightTransition
+  .header-container(v-if="showHeader")
+    //- because first child of HeightTransition should not have vertical padding/margin
+    .header.d-flex.justify-content-between.mt-5
+      .d-flex.gap-16.navigation
+        nuxt-link(:to="localePath('positions', $i18n.locale)" :exact='true')
+          .fs-20 My Positions
+        nuxt-link(:to="localePath('positions-history', $i18n.locale)" :exact='true')
+          .fs-20 History
+      .actions.d-flex.gap-10
+        alcor-button Analytics
+        alcor-button(access @click="$router.push('/positions/new')")
+          i.el-icon-plus
+          .fs-14 New Position
 
   nuxt-child
 </template>
 
 <script>
 import AlcorButton from '~/components/AlcorButton'
-import HeightTransition from '~/components/HeightTransition'
 
 export default {
-  components: { AlcorButton, HeightTransition },
+  components: { AlcorButton },
   fetch({ route, redirect }) {
     // No need to redirect to my-positions
     // if (route.path == '/positions') redirect('/positions/my-positions')
