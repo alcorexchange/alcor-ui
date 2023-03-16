@@ -1,8 +1,8 @@
 <template lang="pug">
-.d-flex.align-items-center.gap-16.slider.justify-content-center
+.d-flex.align-items-center.gap-16.slider.justify-content-center(v-if="step !== 4")
   .step.d-flex.align-items-center.gap-16(
-    v-for="{ id, progress, label, status, message } in steps"
-    :class="status"
+    v-for="{ id, progress, label, status, message }, i in steps"
+    :class="[status, { activeStep: step === i }]"
   )
     .line(v-if="id")
     .dot
@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  props: ['steps'],
+  props: ['steps', 'step'],
 
   mounted() {
     this.$watch(({ steps }) => steps.map(({ status }) => status), statuses => {
@@ -25,7 +25,7 @@ export default {
           this.steps[i].status = 'error'
         }
     }, { immediate: true })
-  }
+  },
 }
 </script>
 
@@ -115,4 +115,18 @@ export default {
 }
 
 .dot {}
+
+@media only screen and (max-width: 640px) {
+  .step .line{
+    width: 60px;
+  }
+  .step:not(.activeStep){
+    .line{
+      width: 10px;
+    }
+    .label{
+      display: none;
+    }
+  }
+}
 </style>
