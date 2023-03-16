@@ -28,12 +28,14 @@
 import StackedColumns from '~/components/charts/StackedColumns'
 import Line from '~/components/charts/Line'
 import MultiLine from '~/components/charts/MultiLine'
+import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 
 export default {
   components: {
     Price: Line,
     Tvl: MultiLine,
+    Depth: StepLine,
     Volume: StackedColumns,
     Fees: StackedColumns,
     AlcorContainer
@@ -44,7 +46,8 @@ export default {
       { label: 'Price', value: 'Price' },
       { label: 'TVL', value: 'Tvl' },
       { label: 'Volume', value: 'Volume' },
-      { label: 'Fees', value: 'Fees' }
+      { label: 'Fees', value: 'Fees' },
+      { label: 'Depth', value: 'Depth' }
     ],
     activeTime: 'moth',
     times: [
