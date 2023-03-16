@@ -4,18 +4,18 @@
     .fs-18.disable {{ $t('Unclaimed Fees') }}
     AlcorButton.claim-fees-button.f-14(access @click="submit") {{ $t('Claim Fees') }}
 
-  .d-flex.justify-content-between.mt-1
+  .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18 {{ feesA }}
+      .fs-18.lh-12 {{ feesA }}
       .fs-14.color-action ($0.00)
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18 {{ feesB }}
+      .fs-18.lh-12 {{ feesB }}
       .fs-14.color-action ($0.00)
 
 </template>
