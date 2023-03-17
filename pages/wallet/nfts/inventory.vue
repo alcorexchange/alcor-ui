@@ -2,7 +2,7 @@
 #wallet-nfts-inventory-page
   .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25
     vue-skeleton-loader(
-      v-if="!inventory"
+      v-if="!inventory.length"
       v-for="idx in [1, 2, 3, 4]"
       :key="idx"
       :width='220',
@@ -12,7 +12,7 @@
       :rounded='true'
     )
 
-    inventory-card(v-if="inventory" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+    inventory-card(v-if="inventory.length" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -24,7 +24,7 @@ import InventoryCard from '~/components/cards/InventoryCard'
 export default {
   components: { InventoryCard, VueSkeletonLoader },
   data: () => ({
-    inventory: null,
+    inventory: [],
     debounce: null
   }),
   computed: {
@@ -43,7 +43,7 @@ export default {
     getInventory() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
-        this.inventory = null
+        this.inventory = []
         this.inventory = await this.getAssets({
           owner: this.user.name,
           collection_name: this.$route.query?.collection,
