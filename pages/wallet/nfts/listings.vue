@@ -2,7 +2,7 @@
 #wallet-nfts-listings-page
   .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start
     vue-skeleton-loader(
-      v-if="!listings"
+      v-if="!listings.length"
       v-for="idx in [1,2,3,4]"
       :key="idx"
       :width='220',
@@ -11,7 +11,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    my-listing-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+    my-listing-card(v-if="listings.length" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -23,7 +23,7 @@ import MyListingCard from '~/components/cards/MyListingCard'
 export default {
   components: { MyListingCard, VueSkeletonLoader },
   data: () => ({
-    listings: null,
+    listings: [],
     debounce: null
   }),
   computed: {
@@ -42,7 +42,7 @@ export default {
     getListings() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
-        this.listings = null
+        this.listings = []
         this.listings = await this.getSales({
           seller: this.user.name,
           sort: this.$route.query?.sorting?.split('-')[0] || null,

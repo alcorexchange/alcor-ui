@@ -2,7 +2,7 @@
 #wallet-nfts-auctions-page
   .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start
     vue-skeleton-loader(
-      v-if="!auctions"
+      v-if="!auctions.length"
       v-for="idx in [1,2,3,4]",
       :key="idx",
       :width='220',
@@ -11,7 +11,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    my-auction-card(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+    my-auction-card(v-if="auctions.length" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -23,7 +23,7 @@ import MyAuctionCard from '~/components/cards/MyAuctionCard'
 export default {
   components: { MyAuctionCard, VueSkeletonLoader },
   data: () => ({
-    auctions: null,
+    auctions: [],
     ownerName: null,
     debounce: null
   }),
@@ -43,7 +43,7 @@ export default {
     getAuctions() {
       clearTimeout(this.debounce)
       this.debounce = setTimeout(async () => {
-        this.auctions = null
+        this.auctions = []
         this.auctions = await this.getAuctionData({
           participant: this.user.name,
           sort: this.$route.query?.sorting?.split('-')[0] || null,
