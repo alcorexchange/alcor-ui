@@ -10,7 +10,7 @@
     @close="visible = false"
     :before-close="undefined"
   )
-    PositionInfo(:noPL="true" v-bind="$props")
+    PositionInfo(:noPL="true" v-bind="$props" :composedPercent="composedPercent")
     .separator.my-2
     .d-flex.justify-content-between.gap-8
       .fs-18.current-price
@@ -62,7 +62,7 @@ export default {
     ManageLiquidityMinMaxPrices
   },
 
-  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower', 'basePercent', 'issuePercent'],
+  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower', 'composedPercent'],
 
   data: () => ({
     amountA: null,
