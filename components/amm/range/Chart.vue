@@ -90,8 +90,8 @@ export default {
       zoom: null,
       zoomBehavior: null,
 
-      westHandleColor: '#1aae80',
-      eastHandleColor: '#1873d8',
+      westHandleColor: '#e04c4c',
+      eastHandleColor: '#1aae80',
 
       // westHandleColor: '#1aae80',
       // eastHandleColor: '#1873d8',
