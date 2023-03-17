@@ -10,14 +10,14 @@ div
       .d-flex.flex-column.align-items-center.gap-30.py-5
         i.el-icon-moon-night.fs-40
         .fs-14.lh-14 Your active liquidity positions will appear here.
-    el-table-column(:label='$t("Assets in Position")' width="240")
+    el-table-column(:label='$t("Assets in Position")' width="240" className="assets")
       template(slot-scope='{row}')
-        .d-flex.align-items-center.gap-12.px-3.py-2
+        .assets-inner.d-flex.align-items-center.gap-12.px-3.py-2
           pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
           .fs-14 {{ row.tokenA.symbol }} / {{ row.tokenB.symbol }}
           .tag {{ row.fee / 10000 }}%
 
-    el-table-column(:label='$t("Range")' width="220")
+    el-table-column(:label='$t("Range")' width="220" class-name="min-max")
       template(slot-scope='{row}')
         .d-flex.flex-column
           .d-flex.align-items-center.gap-4
@@ -35,8 +35,9 @@ div
     el-table-column(:label='$t("Assets in Pool")' width="160")
       template(slot-scope='{row}')
         .d-flex.flex-column
+          .mobile-label {{ $t("Assets in Pool") }}
           .d-flex.align-items-center.gap-4
-            token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenB.contract)' height="12")
+            token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenA.contract)' height="12")
 
             .fs-12.earn.d-flex.gap-4
               span {{ row.amountA }}
@@ -46,19 +47,20 @@ div
             .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
               span {{ row.amountB }}
 
-    el-table-column(:label='$t("Unclaimed Fees")' width="160")
+    el-table-column(:label='$t("Unclaimed Fees")' width="160" class-name="unclaimed-fees")
       template(slot-scope='{row}')
-        position-fees(:position="row")
+        .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
+        position-fees.position-fees(:position="row")
 
-    el-table-column(:label='$t("Total Value")' width="100")
+    el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
       template(slot-scope='{row}')
         span $1200
 
-    el-table-column(:label='$t("P&L")' width="100")
+    el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
       template(slot-scope='{row}')
         span.red $-1200
 
-    el-table-column(:label='$t("Action")')
+    el-table-column(:label='$t("Action")' v-if="!isMobile")
       template(slot-scope='{row}')
         alcor-button(compact) Manage
 
@@ -134,6 +136,69 @@ export default {
   }
   .el-table__row {
     cursor: pointer;
+  }
+}
+.mobile-label {
+  display: none;
+}
+@media only screen and (max-width: 1100px) {
+  .mobile-label{
+    display: block;
+  }
+  .el-table__header-wrapper {
+    display: none;
+  }
+  .el-table__body {
+    width: auto !important;
+    display: flex;
+  }
+  tbody {
+    flex: 1;
+  }
+  colgroup {
+    display: none;
+  }
+  .el-table__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 8px;
+    &:hover {
+      background: var(--hover) !important;
+    }
+  }
+  .el-table__cell {
+    display: flex;
+    padding: 0 !important; 
+    border-bottom: none !important;
+    background-color: transparent !important;
+  }
+
+  .assets {
+    grid-column: 1 / 3;
+    .assets-inner {
+      padding: 8px 0 !important;
+    }
+  }
+  .min-max {
+    grid-column: 1 / 3;
+  }
+  // we need styling from parent so it overtakes default style specified in dark.css L: 3265
+  body .el-table--enable-row-hover .el-table__body tr:hover{
+    .el-table__cell {
+      background-color: transparent !important;
+    }
+  }
+  .unclaimed-fees {
+    margin-left: auto;
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .position-fees{
+      align-items: flex-end
+    }
   }
 }
 </style>

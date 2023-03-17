@@ -1,7 +1,7 @@
 <template lang="pug">
 .d-flex.flex-column
   .d-flex.align-items-center.gap-4
-    token-image(:src='$tokenLogo(position.tokenA.symbol, position.tokenB.contract)' height="12")
+    token-image(:src='$tokenLogo(position.tokenA.symbol, position.tokenA.contract)' height="12")
 
     .fs-12.earn.d-flex.gap-4
       span {{ position.feesA }}
