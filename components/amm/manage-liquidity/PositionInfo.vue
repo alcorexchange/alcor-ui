@@ -16,7 +16,7 @@
     .d-flex.justify-content-between.mt-1
       .d-flex.align-items-center.gap-8
         TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
-        span.f-18 {{ position.amountA.currency.symbol }}
+        span.f-18.symbol {{ position.amountA.currency.symbol }}
         .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
       .d-flex.align-items-center.gap-8
         .fs-18 {{ position.amountA.toFixed() }}
@@ -25,7 +25,7 @@
     .d-flex.justify-content-between.mt-1
       .d-flex.align-items-center.gap-8
         TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
-        span.f-18 {{ position.amountB.currency.symbol }}
+        span.f-18.symbol {{ position.amountB.currency.symbol }}
         .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
       .d-flex.align-items-center.gap-8
         .fs-18 {{ position.amountB.toFixed() }}
@@ -95,6 +95,9 @@ export default {
     padding: 2px 6px;
     border-radius: 4px;
     line-height: 1;
+  }
+  .symbol{
+    min-width: 38px;
   }
 }
 </style>
