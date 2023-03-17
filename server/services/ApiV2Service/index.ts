@@ -15,6 +15,7 @@ import { networkResolver } from '../ApiService/middleware'
 import { spot } from './spot'
 import { swap } from './swap'
 import { tokens } from './tokens'
+import { account } from './account'
 
 const app = express()
 
@@ -47,6 +48,7 @@ async function start () {
   app.use('/api/v2/', spot)
   app.use('/api/v2/', swap)
   app.use('/api/v2/', tokens)
+  app.use('/api/v2/account/', account)
 
 
   // Listen the server

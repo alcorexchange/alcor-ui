@@ -661,26 +661,17 @@ export default {
       if (!this.pool) {
         // Fetch last pool just to predict new created pool id
         try {
-          const { rows: [{ id }] } = await this.$rpc.get_table_rows({
+          const { rows: [{ poolIdCounter }] } = await this.$rpc.get_table_rows({
             code: this.network.amm.contract,
             scope: this.network.amm.contract,
-            table: 'pools',
-            limit: 1,
-            reverse: true
+            table: 'system',
+            limit: 1
           })
 
-          poolId = id + 1
+          poolId = poolIdCounter + 1
         } catch (e) {
-          try {
-            const { rows } = await this.$rpc.get_table_rows({
-              code: this.network.amm.contract,
-              scope: this.network.amm.contract,
-              table: 'pools',
-            })
-            if (rows.length == 0) { poolId = 0 } else { throw e }
-          } catch (e) {
-            throw e
-          }
+          console.error(e)
+          return this.$notify({ title: 'Position Create', message: 'Fetch new pool ID error: ' + e.message, type: 'error' })
         }
 
         actions.push({

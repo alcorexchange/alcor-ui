@@ -189,7 +189,7 @@ const SwapPoolSchema = new mongoose.Schema({
   feeProtocol: { type: Number, index: true },
   tickSpacing: { type: Number, index: true },
 
-  maxLiquidityPerTick: { type: Number },
+  maxLiquidityPerTick: { type: String },
 
   feeGrowthGlobalAX64: { type: String },
   feeGrowthGlobalBX64: { type: String },
@@ -211,6 +211,7 @@ const SwapPoolSchema = new mongoose.Schema({
   volumeAMonth: { type: Number },
   volumeBMonth: { type: Number },
 })
+SwapPoolSchema.index({ chain: 1, id: 1 }, { unique: true })
 
 // Every hour cahrt basic point for info
 const SwapChartPointSchema = new mongoose.Schema({
@@ -244,6 +245,18 @@ const SwapSchema = new mongoose.Schema({
   tokenB: { type: Number },
 
   time: { type: Date, index: true },
+})
+
+const PositionSchema = new mongoose.Schema({
+  id: { type: Number },
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  // In future owner might be changed
+  owner: { type: String, index: true },
+
+  // trx_id: { type: String },
+  // time: { type: Date, index: true },
 })
 
 // Position Change event add/remove liqudity
@@ -281,3 +294,4 @@ export const Settings = mongoose.model('Settings', SettingsSchema)
 export const Swap = mongoose.model('Swap', SwapSchema)
 export const SwapPool = mongoose.model('SwapPool', SwapPoolSchema)
 export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)
+export const Position = mongoose.model('Position', PositionSchema)

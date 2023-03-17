@@ -26,7 +26,6 @@ export const fetchAllRows =
     let rows = []
     let lowerBound = mergedOptions.lower_bound
 
-    /* eslint-disable no-await-in-loop */
     for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
       const result = await rpc.get_table_rows({
         ...mergedOptions,
@@ -37,6 +36,7 @@ export const fetchAllRows =
       if (!result.more || result.rows.length === 0) break
 
       // EOS 2.0 api
+      // TODO Add 'more' key
       if (typeof result.next_key !== 'undefined') {
         lowerBound = result.next_key
       } else {

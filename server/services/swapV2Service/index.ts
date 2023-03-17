@@ -4,11 +4,12 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { SwapPool, PositionHistory, Swap } from '../../models'
+import { SwapPool, Position, PositionHistory, Swap } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { getSingleEndpointRpc, getFailOverRpc } from './../../utils'
 import { parseToken } from '../../../utils/amm'
+import { updateTokensPrices } from '../updaterService/prices'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -41,18 +42,48 @@ function throttledPoolUpdate(chain: string, poolId: number) {
     return
   }
 
+  // TODO Refactor
   updatePool(chain, poolId)
   updateTicks(chain, poolId)
+  updatePositions(chain, poolId)
 
   throttles[`${chain}_${poolId}`] = false
-
   setTimeout(function() {
     if (throttles[`${chain}_${poolId}`] === true) {
+      updatePool(chain, poolId)
       updateTicks(chain, poolId)
+      updatePositions(chain, poolId)
     }
 
     delete throttles[`${chain}_${poolId}`]
   }, 500)
+}
+
+async function updatePositions(chain: string, poolId: number) {
+  console.log('updatePositions', poolId)
+  // TODO We can handle fee calculation here
+  const network = networks[chain]
+  const rpc = getFailOverRpc(network)
+
+  const positions = await fetchAllRows(rpc, {
+    code: network.amm.contract,
+    scope: poolId,
+    table: 'positions'
+  })
+
+  const bulkOps = positions.map(p => {
+    const { owner, id } = p
+
+    return {
+      updateOne: {
+          filter: { chain, pool: poolId, owner, id },
+          update: p,
+          upsert: true,
+      }
+    }
+  })
+
+  return await Position.bulkWrite(bulkOps)
 }
 
 async function updatePool(chain: string, poolId: number) {
@@ -71,10 +102,11 @@ async function updatePool(chain: string, poolId: number) {
 
   const parsedPool = parsePool(pool)
 
-  await SwapPool.updateOne({ chain, id: poolId, fee: pool.fee }, parsedPool, { upsert: true } )
+  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, parsedPool, { upsert: true, useFindAndModify: false } )
 }
 
 async function updateTicks(chain: string, poolId: number) {
+  console.log('update ticks:', poolId)
   const chainTicks = await getChianTicks(chain, poolId)
   const redisTicks = await getRedisTicks(chain, poolId)
 
@@ -187,17 +219,30 @@ export async function initialUpdate(chain: string, poolId?: number) {
 }
 
 async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
-  // TODO Hanble position closing by liquidity = 0
-  return
-  const { poolId, posId, owner } = data
+  const { poolId, posId, owner, liquidity } = data
+
+  if (type == 'collect' && liquidity == 0) {
+    // Removed position
+    type = 'closed'
+  }
 
   const tokenAamount = parseFloat(data.tokenA)
   const tokenBamount = parseFloat(data.tokenB)
 
-  if (tokenAamount == 0 && tokenBamount == 0) return undefined
+  if (tokenAamount == 0 && tokenBamount == 0 && type !== 'closed') return undefined
+
+  let pool = await SwapPool.findOne({ id: poolId, chain })
+
+  if (pool == null) {
+    console.warn(`WARNING: Updating non existing pool for ${type} action`)
+    pool = await updatePool(chain, poolId)
+
+    // It might be first position of just created pool
+    // Update token prices in that case
+    await updateTokensPrices(networks[chain])
+  }
 
   const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
-  const pool = await SwapPool.findOne({ id: poolId, chain })
 
   const tokenA = tokens.find(t => t.name == pool.tokenA.name)
   const tokenB = tokens.find(t => t.name == pool.tokenB.name)
@@ -258,6 +303,8 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
 
 export async function onSwapAction(message: string) {
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
+
+  console.log('swap action', name)
 
   if (['logmint', 'logburn', 'logswap', 'logpool', 'logcollect'].includes(name)) {
     throttledPoolUpdate(chain, Number(data.poolId))

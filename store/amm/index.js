@@ -66,6 +66,8 @@ export const actions = {
   async fetchTicksOfPool({ commit, rootState }, poolId) {
     if (isNaN(poolId)) return
 
+    // TODO use backend for it may be
+
     const ticks = await fetchAllRows(this.$rpc, { code: rootState.network.amm.contract, scope: poolId, table: 'ticks' })
     commit('setTicks', { poolId, ticks })
   },
@@ -125,6 +127,9 @@ export const actions = {
     const owner = rootState.user?.name
 
     const positions = []
+
+    // TODO use backend for it
+    //const pool_ids = ''
 
     for (const pool of state.pools) {
       const rows = await fetchAllRows(this.$rpc, {
