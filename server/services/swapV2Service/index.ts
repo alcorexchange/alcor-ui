@@ -187,6 +187,7 @@ export async function initialUpdate(chain: string, poolId?: number) {
 }
 
 async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
+  // TODO Hanble position closing by liquidity = 0
   return
   const { poolId, posId, owner } = data
 
