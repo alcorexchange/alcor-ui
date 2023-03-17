@@ -3,7 +3,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
   PageHeader(title="Manage Liquidity")
   .main.gap-16.pt-3
     .left
-      PositionInfo(:position="position" :tokensInverted="tokensInverted" :basePercent="getTokenComposedPercent('w', false)" :issuePercent="getTokenComposedPercent('b', false)")
+      PositionInfo(:position="position" :tokensInverted="tokensInverted" :composedPercent="composedPercent")
         template(#action)
           IncreaseLiquidity(
             :position="position"
@@ -11,8 +11,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
             :priceLower="priceLower"
             :priceUpper="priceUpper"
             @toggleTokens="toggleTokens"
-            :basePercent="getTokenComposedPercent('w', false)"
-            :issuePercent="getTokenComposedPercent('b', false)"
+            :composedPercent="composedPercent"
           )
 
       .separator.mt-2
@@ -47,8 +46,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
         :position="position"
         :priceLower="tokensInverted ? priceUpper : priceLower"
         :priceUpper="tokensInverted ? priceLower : priceUpper"
-        :minPercent="getTokenComposedPercent('w')"
-        :maxPercent="getTokenComposedPercent('b')"
+        :composedPercent="composedPercent"
       ).mt-3
 
       InfoContainer.info.mt-3(:access="true")
@@ -133,22 +131,16 @@ export default {
   },
 
   methods: {
-    getTokenComposedPercent(side, inversionHasEffect = true) {
-      const _amountA = parseFloat(this.position.amountA.toFixed())
-      const _amountB = parseFloat(this.position.amountB.toFixed())
-      const total = _amountA + _amountB
+    composedPercent(side) {
+      const tokenA = parseFloat(this.position.amountA.toFixed())
+      const tokenB = parseFloat(this.position.amountB.toFixed())
 
-      let amountA = _amountA
-      let amountB = _amountB
-      if (inversionHasEffect) {
-        amountA = this.tokensInverted ? _amountB : _amountA
-        amountB = this.tokensInverted ? _amountA : _amountB
-      }
-      const aPercent = ((100 * amountA) / total).toFixed(0)
-      const bPercent = ((100 * amountB) / total).toFixed(0)
-
-      return side === 'w' ? aPercent : bPercent
+      return (side == (this.tokensInverted ? 'e' : 'w')
+        ? (tokenA * 100) / (tokenA + tokenB)
+        : (tokenB * 100) / (tokenA + tokenB)
+      ).toFixed(0)
     },
+
     toggleTokens() {
       // this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
       this.tokensInverted = !this.tokensInverted

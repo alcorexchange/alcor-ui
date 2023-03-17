@@ -627,7 +627,7 @@ export default {
     async submit() {
       try {
         const poolId = await this.addLiquidity()
-        this.$router.push('/positions/my-positions')
+        this.$router.push('/positions')
         await this.$store.dispatch('amm/poolUpdate', poolId)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
@@ -752,7 +752,6 @@ export default {
           .then(() => this.$store.dispatch('amm/fetchPositions'))
       }, 2000)
 
-      setTimeout()
       console.log('New position', r)
 
       return poolId

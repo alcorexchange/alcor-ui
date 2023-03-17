@@ -82,7 +82,7 @@ export default {
       try {
         await this.remove()
 
-        if (this.percent == 100) this.$router.push('/positions/my-positions')
+        if (this.percent == 100) this.$router.push('/positions')
         this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
         this.$store.dispatch('amm/fetchPositions')
       } catch (e) {

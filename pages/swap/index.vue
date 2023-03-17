@@ -213,6 +213,8 @@ export default {
       }
 
       this.$store.dispatch('amm/swap/setTokenA', token)
+
+      if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
     setTokenB(token) {
@@ -225,6 +227,8 @@ export default {
       }
 
       this.$store.dispatch('amm/swap/setTokenB', token)
+
+      if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
     async submit() {

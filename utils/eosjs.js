@@ -1,4 +1,4 @@
-const MAX_PAGINATION_FETCHES = 5
+const MAX_PAGINATION_FETCHES = 10
 
 import fetch from 'node-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
