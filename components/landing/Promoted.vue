@@ -1,5 +1,5 @@
 <template lang="pug">
-.promoted-markets(v-if="promoted.length")
+.promoted-markets(v-if="promos.length")
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
@@ -22,7 +22,11 @@ export default {
       {
         bannerImg: 'novopangea',
         bannerUrl: 'https://wax.alcor.exchange/trade/novo-tokens.novo_wax-eosio.token'
-      }
+      },
+      {
+        bannerImg: 'zombiecointk',
+        bannerUrl: 'https://www.zombiecoin.io'
+      },
     ]
   }),
   computed: {
@@ -30,6 +34,7 @@ export default {
       promoted: 'promoted'
     }),
     promos() {
+      console.log('promoted', this.promotes)
       return [...this.promoted, ...this.bannerOnly].sort(() => Math.random() - 0.5)
     }
   }
