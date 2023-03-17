@@ -165,13 +165,11 @@ export default {
       const { svg } = this.$refs
       const { xScale, zoomBehavior, brushDomain, width } = this
 
-      const brushSize = xScale(brushDomain[1] - brushDomain[0])
+      const brushSize = xScale(brushDomain[1]) - xScale(brushDomain[0])
       const brushMiddle = xScale((brushDomain[0] + brushDomain[1]) / 2)
 
       const brushLeft = xScale(brushDomain[0])
       const brushRight = xScale(brushDomain[1])
-
-      console.log({ brushDomain, width, brushLeft })
 
       if (brushLeft >= 0 && brushRight <= width) {
         this.zoomInitial()
