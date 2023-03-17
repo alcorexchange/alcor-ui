@@ -2,7 +2,7 @@
 .pool-info
   .d-flex.justify-content-between
     .d-flex.gap-8.align-items-center
-      PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool.tokenA" :token2="position.pool.tokenB")
+      PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool[tokensInverted ? 'tokenB' : 'tokenA']" :token2="position.pool[tokensInverted ? 'tokenA' : 'tokenB']")
       .pairs(v-if="tokensInverted") {{ position.pool.tokenB.symbol }} / {{ position.pool.tokenA.symbol }}
       .pairs(v-else) {{ position.pool.tokenA.symbol }} / {{ position.pool.tokenB.symbol }}
       .tag {{ position.pool.fee / 10000 }}%
@@ -12,23 +12,24 @@
 
   .fs-18.disable.mt-2 {{ $t('Pool Amount') }}
 
-  .d-flex.justify-content-between.mt-1
-    .d-flex.align-items-center.gap-8
-      TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
-      span.f-18 {{ position.amountA.currency.symbol }}
-      .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
-    .d-flex.align-items-center.gap-8
-      .fs-18 {{ position.amountA.toFixed() }}
-      .fs-14.color-action ($0.00)
+  .d-flex.flex-column(:class="{'flex-column-reverse': tokensInverted}")
+    .d-flex.justify-content-between.mt-1
+      .d-flex.align-items-center.gap-8
+        TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
+        span.f-18 {{ position.amountA.currency.symbol }}
+        .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
+      .d-flex.align-items-center.gap-8
+        .fs-18 {{ position.amountA.toFixed() }}
+        .fs-14.color-action ($0.00)
 
-  .d-flex.justify-content-between.mt-1
-    .d-flex.align-items-center.gap-8
-      TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
-      span.f-18 {{ position.amountB.currency.symbol }}
-      .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
-    .d-flex.align-items-center.gap-8
-      .fs-18 {{ position.amountB.toFixed() }}
-      .fs-14.color-action ($0.00)
+    .d-flex.justify-content-between.mt-1
+      .d-flex.align-items-center.gap-8
+        TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
+        span.f-18 {{ position.amountB.currency.symbol }}
+        .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
+      .d-flex.align-items-center.gap-8
+        .fs-18 {{ position.amountB.toFixed() }}
+        .fs-14.color-action ($0.00)
 
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
