@@ -161,6 +161,8 @@ const networks = {
     },
 
     USD_TOKEN: 'USDT@tethertether',
+
+    popularTokens: [],
   },
 
   proton: {
@@ -223,7 +225,9 @@ const networks = {
       contract: 'alcornftswap'
     },
 
-    USD_TOKEN: 'XUSDC@xtokens'
+    USD_TOKEN: 'XUSDC@xtokens',
+
+    popularTokens: [],
   },
 
   ux: {
@@ -292,7 +296,9 @@ const networks = {
       contract: ''
     },
 
-    USD_TOKEN: ''
+    USD_TOKEN: '',
+
+    popularTokens: [],
   },
 
   wax: {
@@ -377,6 +383,17 @@ const networks = {
     },
 
     USD_TOKEN: 'WAXUSDT@eth.token',
+
+    popularTokens: [
+      { symbol: 'WAX', contract: 'eosio.token' },
+      { symbol: 'WAX', contract: 'eosio.token' },
+      { symbol: 'TLM', contract: 'alien.worlds' },
+      { symbol: 'WAX', contract: 'eosio.token' },
+      { symbol: 'TLM', contract: 'alien.worlds' },
+      { symbol: 'WAX', contract: 'eosio.token' },
+      { symbol: 'TLM', contract: 'alien.worlds' },
+      { symbol: 'WAX', contract: 'eosio.token' },
+    ],
   },
 
   telos: {
@@ -484,6 +501,8 @@ const networks = {
     },
 
     USD_TOKEN: 'XUSDC@xtokens',
+
+    popularTokens: [],
   },
 
   waxtest: {
@@ -537,6 +556,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap',
     },
+
+    popularTokens: [],
   },
 
   jungle: {
@@ -584,6 +605,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap',
     },
+
+    popularTokens: [],
   },
 
   local: {
@@ -635,6 +658,8 @@ const networks = {
       contract: 'nft',
     },
   },
+
+  popularTokens: [],
 }
 
 // Default markes layouts
