@@ -217,7 +217,7 @@ export default {
     },
 
     setTokenB(token) {
-      if (token.equals(this.tokenA)) {
+      if (this.tokenA && token.equals(this.tokenA)) {
         if (this.tokenB) {
           this.toggleTokens()
         } else {
