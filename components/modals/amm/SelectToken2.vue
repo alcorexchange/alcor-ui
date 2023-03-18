@@ -42,18 +42,18 @@
         .d-flex.flex-column.scrollable
           .d-flex.justify-content-between.pointer.p-2.br-8.hover-bg-lighter(
             v-if="filteredAssets.length"
-            v-for='({ currency, symbol, contract }, index) in [...filteredAssets, ...filteredAssets, ...filteredAssets, ...filteredAssets]',
-            @click='selectAsset(tokens[index])'
+            v-for='(token, index) in filteredAssets',
+            @click='selectAsset(token)'
           )
             .d-flex.align-items-center.gap-8
               TokenImage(
-                :src='$tokenLogo(currency || symbol, contract)',
+                :src='$tokenLogo(token.currency || token.symbol, token.contract)',
                 height='20'
               )
               .d-flex.gap-4.align-items-center
-                .fs-14.contrast {{ currency || symbol }}
-                .fs-10.disable {{ contract }}
-            .fs-14 {{ $tokenBalance(currency || symbol, contract) }}
+                .fs-14.contrast {{ token.currency || token.symbol }}
+                .fs-10.disable {{ token.contract }}
+            .fs-14 {{ $tokenBalance(token.currency || token.symbol, token.contract) }}
 
           .fs-16.text-center(v-if="!filteredAssets.length") No results found.
 
@@ -87,7 +87,7 @@ export default {
     },
     filteredAssets() {
       return this.tokens.filter((asset) =>
-        Object.values(asset).join().includes(this.search)
+        Object.values(asset).join().toLowerCase().includes(this.search.toLowerCase())
       )
     },
     ...mapState(['network'])
