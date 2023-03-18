@@ -32,7 +32,11 @@
           placeholder='Search'
         )
         .popular-tokens
-          .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(v-for="{ symbol, contract }, i in popularTokens" :key="i" :class="{ 'selected': false }")
+          .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
+            v-for="{ symbol, contract }, i in popularTokens"
+            :key="i"
+            :class="{ selected: token && symbol === token.symbol && contract === token.contract }"
+          )
             TokenImage(
               :src='$tokenLogo(symbol, contract)',
               height='20'
@@ -40,20 +44,21 @@
             .token-name {{ symbol }}
 
         .d-flex.flex-column.scrollable
-          .d-flex.justify-content-between.pointer.p-2.br-8.hover-bg-lighter(
+          .token-item.d-flex.justify-content-between.pointer.p-2.br-8.hover-bg-lighter(
             v-if="filteredAssets.length"
-            v-for='(token, index) in filteredAssets',
-            @click='selectAsset(token)'
+            v-for='(item, index) in filteredAssets',
+            @click='selectAsset(item)'
+            :class="{ selected: token && item.symbol === token.symbol && item.contract === token.contract }"
           )
             .d-flex.align-items-center.gap-8
               TokenImage(
-                :src='$tokenLogo(token.currency || token.symbol, token.contract)',
+                :src='$tokenLogo(item.currency || item.symbol, item.contract)',
                 height='20'
               )
               .d-flex.gap-4.align-items-center
-                .fs-14.contrast {{ token.currency || token.symbol }}
-                .fs-10.disable {{ token.contract }}
-            .fs-14 {{ $tokenBalance(token.currency || token.symbol, token.contract) }}
+                .fs-14.contrast {{ item.currency || item.symbol }}
+                .fs-10.disable {{ item.contract }}
+            .fs-14 {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
 
           .fs-16.text-center(v-if="!filteredAssets.length") No results found.
 
@@ -166,9 +171,17 @@ export default {
       align-items: center;
       padding: 4px 8px 4px 6px;
       border-radius: 14px;
+      &.selected {
+        border-color: var(--main-action-green);
+        pointer-events: none;
+      }
     }
   }
-  .input__inner {
+  .token-item.selected{
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .el-input__inner {
     border-radius: 8px;
   }
 
