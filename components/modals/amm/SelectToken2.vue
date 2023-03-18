@@ -36,29 +36,29 @@
             v-for="{ symbol, contract }, i in popularTokens"
             :key="i"
             :class="{ selected: token && symbol === token.symbol && contract === token.contract }"
+            @click='selectAsset({ symbol, contract })'
           )
             TokenImage(
               :src='$tokenLogo(symbol, contract)',
               height='20'
             )
             .token-name {{ symbol }}
-
+        //- .separator
         .d-flex.flex-column.scrollable
-          .token-item.d-flex.justify-content-between.pointer.p-2.br-8.hover-bg-lighter(
+          .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
             v-if="filteredAssets.length"
             v-for='(item, index) in filteredAssets',
             @click='selectAsset(item)'
             :class="{ selected: token && item.symbol === token.symbol && item.contract === token.contract }"
           )
-            .d-flex.align-items-center.gap-8
-              TokenImage(
-                :src='$tokenLogo(item.currency || item.symbol, item.contract)',
-                height='20'
-              )
-              .d-flex.gap-4.align-items-center
-                .fs-14.contrast {{ item.currency || item.symbol }}
-                .fs-10.disable {{ item.contract }}
-            .fs-14 {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
+            TokenImage(
+              :src='$tokenLogo(item.currency || item.symbol, item.contract)',
+              height='28'
+            )
+            .d-flex.flex-column.gap-2.flex-grow-1
+              .contrast {{ item.currency || item.symbol }}
+              .fs-12.disable {{ item.contract }}
+            div {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
 
           .fs-16.text-center(v-if="!filteredAssets.length") No results found.
 
@@ -110,6 +110,10 @@ export default {
 .scrollable {
   overflow: auto;
   max-height: 30vh;
+}
+.separator{
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
 }
 .select-token-modal {
   border-radius: 1rem !important;
