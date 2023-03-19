@@ -204,21 +204,20 @@ export default {
     },
 
     setTokenA(token) {
-      if (token.equals(this.tokenB)) {
+      if (this.tokenB && token.equals(this.tokenB)) {
         if (this.tokenA) {
           this.toggleTokens()
         } else {
           this.$store.dispatch('amm/swap/setTokenB', null)
         }
       }
-
       this.$store.dispatch('amm/swap/setTokenA', token)
 
       if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
     setTokenB(token) {
-      if (token.equals(this.tokenA)) {
+      if (this.tokenA && token.equals(this.tokenA)) {
         if (this.tokenB) {
           this.toggleTokens()
         } else {

@@ -21,13 +21,8 @@
     :before-close='beforeDialogClose',
     @mousedown.native='dialogMousedown',
     @mouseup.native='dialogMouseup'
-    :show-close="false"
   )
-    template(#title)
-      .d-flex.justify-content-between.align-items-center
-        .el-icon-arrow-left.disable.hover-c-contrast.pointer(@click="visible = !visible")
-        .fs-18.contrast.justify-self-center Select Token
-        span
+    template(#title) Select Token
     #assets-modal-component
       .d-flex.flex-column.gap-16.px-3.pb-3
         el-input.default.br-6(
@@ -36,36 +31,34 @@
           size='small',
           placeholder='Search'
         )
-        .d-flex.gap-8
-          //.grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': true }")
-            TokenImage(
-              :src='$tokenLogo("WAX", "eosio.token")',
-              height='20'
-            )
-            .fs-14 WAX
-
-          .grey-border.border-hover.pointer.br-4.px-2.py-1.d-flex.gap-4(:class="{ 'border-active': false }")
-            TokenImage(
-              :src='$tokenLogo("WAX", "eosio.token")',
-              height='20'
-            )
-            .fs-14 WAX
-
-        .d-flex.flex-column.scrollable
-          .d-flex.justify-content-between.pointer.p-2.br-8.hover-bg-lighter(
-            v-if="filteredAssets.length"
-            v-for='({ currency, symbol, contract }, index) in filteredAssets',
-            @click='selectAsset(tokens[index])'
+        .popular-tokens
+          .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
+            v-for="{ symbol, contract }, i in popularTokens"
+            :key="i"
+            :class="{ selected: token && symbol === token.symbol && contract === token.contract }"
+            @click='selectAsset({ symbol, contract })'
           )
-            .d-flex.align-items-center.gap-8
-              TokenImage(
-                :src='$tokenLogo(currency || symbol, contract)',
-                height='20'
-              )
-              .d-flex.gap-4.align-items-center
-                .fs-14.contrast {{ currency || symbol }}
-                .fs-10.disable {{ contract }}
-            .fs-14 {{ $tokenBalance(currency || symbol, contract) }}
+            TokenImage(
+              :src='$tokenLogo(symbol, contract)',
+              height='20'
+            )
+            .token-name {{ symbol }}
+        //- .separator
+        .d-flex.flex-column.scrollable
+          .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
+            v-if="filteredAssets.length"
+            v-for='(item, index) in filteredAssets',
+            @click='selectAsset(item)'
+            :class="{ selected: token && item.symbol === token.symbol && item.contract === token.contract }"
+          )
+            TokenImage(
+              :src='$tokenLogo(item.currency || item.symbol, item.contract)',
+              height='28'
+            )
+            .d-flex.flex-column.gap-2.flex-grow-1
+              .contrast {{ item.currency || item.symbol }}
+              .fs-12.disable {{ item.contract }}
+            div {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
 
           .fs-16.text-center(v-if="!filteredAssets.length") No results found.
 
@@ -74,6 +67,8 @@
 <script>
 import ReturnLink from '@/components/ReturnLink'
 import TokenImage from '~/components/elements/TokenImage'
+import { mapState } from 'vuex'
+import { networks } from '@/config'
 
 export default {
   components: { TokenImage, ReturnLink },
@@ -90,14 +85,17 @@ export default {
 
     search: '',
     selected: null,
-
   }),
   computed: {
+    popularTokens() {
+      return networks[this.network.name].popularTokens
+    },
     filteredAssets() {
       return this.tokens.filter((asset) =>
-        Object.values(asset).join().includes(this.search)
+        Object.values(asset).join().toLowerCase().includes(this.search.toLowerCase())
       )
     },
+    ...mapState(['network'])
   },
   methods: {
     selectAsset(v) {
@@ -110,25 +108,28 @@ export default {
 
 <style lang="scss">
 .scrollable {
-  overflow-y: scroll;
-  max-height: 300px;
+  overflow: auto;
+  max-height: 30vh;
+}
+.separator{
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
 }
 .select-token-modal {
   border-radius: 1rem !important;
   .el-dialog__header {
     padding: 15px;
   }
+  .el-dialog__headerbtn {
+    top: 16px !important;
+  }
 
   .el-dialog {
-    width: 400px;
+    width: 100%;
     max-width: 400px;
   }
   .el-dialog__body {
     padding: 0px;
-  }
-
-  hr {
-    background: var(--border-color);
   }
 
   .select-token-button {
@@ -165,5 +166,28 @@ export default {
       width: 100%;
     }
   }
+  
+  .popular-tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    .popular-token-item{
+      align-items: center;
+      padding: 4px 8px 4px 6px;
+      border-radius: 14px;
+      &.selected {
+        border-color: var(--main-action-green);
+        pointer-events: none;
+      }
+    }
+  }
+  .token-item.selected{
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .el-input__inner {
+    border-radius: 8px;
+  }
+
 }
 </style>

@@ -13,7 +13,7 @@ g
           path.HandleAccent(:d="brushHandleAccentPath")
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipWestHandle ? '1' : '-1'}, 1)`")
-          rect.TooltipBackground(y="0" x="-30" height="30" width="60" rx="8")
+          rect.TooltipBackground(y="1" height="24" v-bind="toolTipBackgroundAttrs('w')" rx="8" stroke-width="1" stroke="var(--border-color)" stroke-linejoin="round")
           text.Tooltip(transform="scale(-1, 1)" y="15" dominant-baseline="middle")
             | {{ brushLabel('w', localBrushExtent[0]) }}
 
@@ -24,7 +24,7 @@ g
           path.HandleAccent(:d="brushHandleAccentPath")
 
         g.LabelGroup(v-if="showLabels || hovering" :transform="`translate(50,0), scale(${flipEastHandle ? '-1' : '1'}, 1)`")
-          rect.TooltipBackground(y="0" x="-30" height="30" width="60" rx="8")
+          rect.TooltipBackground(y="1" height="24" v-bind="toolTipBackgroundAttrs('e')" rx="8" stroke-width="1" stroke="var(--border-color)" stroke-linejoin="round")
           text.Tooltip(y="15" dominant-baseline="middle")
             | {{ brushLabel('e', localBrushExtent[1]) }}
 
@@ -224,6 +224,14 @@ export default {
       }
 
       this.localBrushExtent = scaled
+    },
+    toolTipBackgroundAttrs(side) {
+      const characterCount = this.brushLabel(side, this.localBrushExtent[side === 'e' ? 1 : 0]).split('').length
+      const width = characterCount === 4 ? '48' : '40'
+      return {
+        width,
+        x: `-${width / 2}`
+      }
     }
   }
 }

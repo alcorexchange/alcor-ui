@@ -1,7 +1,7 @@
 <template lang="pug">
-.pool-token-input(:class="{focused}")
+.pool-token-input(:class="{focused, notSelected: !!token}")
   .label-and-balance
-    .label {{ label || '' }}
+    .label {{ renderLabel }}
     .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
@@ -14,7 +14,7 @@
       @focus="onFocus"
     )
     .input-after
-      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token")
+      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token")
       //- v-if='showMaxButton',
       select-token(
         :locked='!!locked',
@@ -22,7 +22,7 @@
         :tokens='tokens',
         @selected='$emit("tokenSelected", $event)'
       )
-  .bottom ~$0
+  .bottom {{ renderBottom }}
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock
@@ -85,6 +85,12 @@ export default {
   },
 
   computed: {
+    renderLabel() {
+      return !!this.token ? (this.label || '') : ''
+    },
+    renderBottom() {
+      return !!this.token ? '~$0.00' : ''
+    },
     ...mapState(['user'])
   },
 }
@@ -102,8 +108,8 @@ export default {
   padding: 8px;
   border: 1px solid transparent;
   transition: border-color 0.3s;
-  &:hover{
-    border: 1px solid var(--border-color)
+  &:hover {
+    border: 1px solid var(--border-color);
   }
   .label-and-balance {
     display: flex;
