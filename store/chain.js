@@ -639,6 +639,7 @@ export const actions = {
           : signedTx.serializedTransaction
       }
 
+      // TODO Протестить если ошибка от ноды
       return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e

@@ -49,7 +49,7 @@ swap.get('/pools/:id/positions', async (req, res) => {
   res.json(positions)
 })
 
-swap.get('/positions-history/:position_id', positionIdHandler, async (req, res) => {
+swap.get('/position-stats/:position_id', positionIdHandler, async (req, res) => {
   // TODO Test first positions in a pool
   const network: Network = req.app.get('network')
 

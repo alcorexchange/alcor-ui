@@ -219,13 +219,17 @@ const SwapChartPointSchema = new mongoose.Schema({
   pool: { type: Number, index: true },
 
   // Sqt
-  price: { type: Number },
-  liquidity: { type: Number },
+  price: { type: String },
 
-  volumeA: { type: Number, default: 0 },
-  volumeB: { type: Number, default: 0 },
+  // Liquidity reserves
+  tokenA: { type: Number },
+  tokenB: { type: Number },
 
-  time: { type: Date, index: true }
+  // Liquidity reserves in USD
+  tvlTokenA: { type: Number, default: 0 },
+  tvlTokenB: { type: Number, default: 0 },
+
+  time: { type: Date, default: () => Date.now(), index: true }
 })
 PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 
@@ -252,16 +256,19 @@ const PositionSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
 
+  tickLower: { type: Number },
+  tickUpper: { type: Number },
+  liquidity: { type: String },
+  feeGrowthInsideALastX64: { type: String },
+  feeGrowthInsideBLastX64: { type: String },
+
   // In future owner might be changed
   owner: { type: String, index: true },
-
-  // trx_id: { type: String },
-  // time: { type: Date, index: true },
 })
 
 // Position Change event add/remove liqudity
 const PositionHistorySchema = new mongoose.Schema({
-  id: { type: Number },
+  id: { type: Number, index: true },
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
 
@@ -282,6 +289,7 @@ const PositionHistorySchema = new mongoose.Schema({
   trx_id: { type: String },
   time: { type: Date, index: true },
 })
+PoolChartPointSchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
 
 export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
@@ -293,5 +301,6 @@ export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSch
 export const Settings = mongoose.model('Settings', SettingsSchema)
 export const Swap = mongoose.model('Swap', SwapSchema)
 export const SwapPool = mongoose.model('SwapPool', SwapPoolSchema)
+export const SwapChartPoint = mongoose.model('SwapChartPoint', SwapChartPointSchema)
 export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)
 export const Position = mongoose.model('Position', PositionSchema)

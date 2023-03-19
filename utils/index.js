@@ -270,3 +270,14 @@ export function shuffleArray(array) {
     [array[i], array[j]] = [array[j], array[i]]
   }
 }
+
+export function parseExtendedAssetPlain(asset) {
+  const symbol = asset.quantity.split(' ')[1]
+
+  return {
+    amount: parseFloat(asset.quantity),
+    id: symbol.toLowerCase() + '-' + asset.contract,
+    contract: asset.contract,
+    symbol,
+  }
+}

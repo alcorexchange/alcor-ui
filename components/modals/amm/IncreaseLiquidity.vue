@@ -79,8 +79,11 @@ export default {
     async submit() {
       try {
         await this.add()
-        await this.$store.dispatch('amm/poolUpdate', this.position.pool.id)
-        this.$store.dispatch('amm/fetchPositions')
+
+        setTimeout(() => {
+          this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+          this.$store.dispatch('amm/fetchPositions')
+        }, 1000)
       } catch (e) {
         this.$notify({ type: 'Error', title: 'Increase Liquidity', message: e.message })
       }

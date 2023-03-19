@@ -73,6 +73,12 @@ export default {
     }
   },
 
+  watch: {
+    position() {
+      this.percent = 100
+    }
+  },
+
   methods: {
     selectAsset(v) {
       this.$emit('selected', v)
@@ -81,10 +87,12 @@ export default {
     async submit() {
       try {
         await this.remove()
-
         if (this.percent == 100) this.$router.push('/positions')
-        this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-        this.$store.dispatch('amm/fetchPositions')
+
+        setTimeout(() => {
+          this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+          this.$store.dispatch('amm/fetchPositions')
+        }, 1000)
       } catch (e) {
         console.error('remove liquidity', e)
         return this.$notify({ type: 'error', title: 'Remove Liquidity Error', message: e.message })

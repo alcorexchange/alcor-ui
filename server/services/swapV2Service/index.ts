@@ -4,7 +4,9 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { SwapPool, Position, PositionHistory, Swap } from '../../models'
+import { getTokenPrices } from './../../utils'
+import { parseExtendedAssetPlain } from '../../../utils'
+import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { getSingleEndpointRpc, getFailOverRpc } from './../../utils'
@@ -14,6 +16,9 @@ import { updateTokensPrices } from '../updaterService/prices'
 const client = createClient()
 const publisher = client.duplicate()
 const subscriber = client.duplicate()
+
+// Used to wait for pool creation and fetching prices
+let poolCreationLock = null
 
 type Tick = {
   id: number,
@@ -25,6 +30,64 @@ type TicksList = Map<number, Tick>
 export async function getRedisTicks(chain: string, poolId: number) {
   const entries = await client.get(`ticks_${chain}_${poolId}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
+}
+
+async function updatePoolChart(chain: string, poolId: number, block_time: string) {
+  const network = networks[chain]
+  const rpc = getFailOverRpc(network)
+
+  const [pool] = await fetchAllRows(rpc, {
+    code: network.amm.contract,
+    scope: network.amm.contract,
+    table: 'pools',
+    limit: 1,
+    lower_bound: poolId,
+    upper_bound: poolId
+  })
+
+  const { tokenA, tokenB, currSlot: { sqrtPriceX64 } } = pool
+
+  const parsedA = parseExtendedAssetPlain(tokenA)
+  const parsedB = parseExtendedAssetPlain(tokenB)
+
+  // Pool are just creating now we are wait, to be able fetch prices
+  if (poolCreationLock) {
+    console.log('WAIT FOR LOCK')
+    await poolCreationLock
+    console.log('WAITED !!! END FOR LOCK')
+  }
+
+  const tokenAprice = await getTokenPrices(chain, parsedA.id)
+  const tokenBprice = await getTokenPrices(chain, parsedB.id)
+
+  const tvlTokenA = tokenAprice ? parsedA.amount * tokenAprice.usd_price : 0
+  const tvlTokenB = tokenBprice ? parsedB.amount * tokenBprice.usd_price : 0
+
+  const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
+
+  // Sptit by one minute
+  const resolution = 60 // One minute
+  if (last_point && Math.floor(last_point.time / 1000 / resolution) == Math.floor(new Date(block_time).getTime() / 1000 / resolution)) {
+    last_point.sqrtPriceX64 = sqrtPriceX64
+
+    last_point.tokenA += parsedA.amount
+    last_point.tokenB += parsedB.amount
+
+    last_point.tvlTokenA += tvlTokenA
+    last_point.tvlTokenB += tvlTokenB
+
+    return await last_point.save()
+  } else {
+    return await SwapChartPoint.create({
+      chain,
+      pool: poolId,
+      price: sqrtPriceX64,
+      tokenA: parsedA.amount,
+      tokenB: parsedB.amount,
+      tvlTokenA,
+      tvlTokenB
+    })
+  }
 }
 
 async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number, Tick]>) {
@@ -42,17 +105,12 @@ function throttledPoolUpdate(chain: string, poolId: number) {
     return
   }
 
-  // TODO Refactor
   updatePool(chain, poolId)
-  updateTicks(chain, poolId)
-  updatePositions(chain, poolId)
 
   throttles[`${chain}_${poolId}`] = false
   setTimeout(function() {
     if (throttles[`${chain}_${poolId}`] === true) {
       updatePool(chain, poolId)
-      updateTicks(chain, poolId)
-      updatePositions(chain, poolId)
     }
 
     delete throttles[`${chain}_${poolId}`]
@@ -100,9 +158,16 @@ async function updatePool(chain: string, poolId: number) {
     upper_bound: poolId
   })
 
+  // TODO May be change to warning
+  if (!pool) throw new Error('NOT FOUND POOL FOR UPDATE: ' + poolId)
+
+  updateTicks(chain, poolId)
+  updatePositions(chain, poolId)
+
   const parsedPool = parsePool(pool)
 
-  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, parsedPool, { upsert: true, useFindAndModify: false } )
+  // TODO FIX DEPRECATED
+  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, parsedPool, { upsert: true } )
 }
 
 async function updateTicks(chain: string, poolId: number) {
@@ -306,12 +371,18 @@ export async function onSwapAction(message: string) {
 
   console.log('swap action', name)
 
-  if (['logmint', 'logburn', 'logswap', 'logpool', 'logcollect'].includes(name)) {
-    throttledPoolUpdate(chain, Number(data.poolId))
+  if (name == 'logpool') {
+    poolCreationLock = new Promise(async (resolve, reject) => {
+      await updatePool(chain, data.poolId)
+      await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
+      resolve(true)
+      poolCreationLock = null
+    })
   }
 
   if (name == 'logswap') {
     await handleSwap({ chain, trx_id, data, block_time })
+    updatePoolChart(chain, data.poolId, block_time)
   }
 
   if (name == 'logmint') {
@@ -324,6 +395,10 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logcollect') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
+  }
+
+  if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+    throttledPoolUpdate(chain, Number(data.poolId))
   }
 }
 

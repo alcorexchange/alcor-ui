@@ -4,6 +4,16 @@ import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'
 
+const redis = createClient()
+
+export async function getTokenPrices(chain: string, id: string) {
+  if (!redis.isOpen) await redis.connect()
+
+  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
+
+  return tokens.find(t => t.name == id)
+}
+
 export function getFailOverRpc(network) {
   // Try alcore's node first for updating orderbook
   const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
