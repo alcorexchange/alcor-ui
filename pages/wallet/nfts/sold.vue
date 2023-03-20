@@ -68,7 +68,7 @@ export default {
     async onLoadMore() {
       this.page++
       this.isLoadingMore = true
-      await this.getInventory(false)
+      await this.getSold(false)
       this.isLoadingMore = false
     }
   }
