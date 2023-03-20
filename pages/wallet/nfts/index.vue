@@ -37,7 +37,6 @@ export default {
     disabledLoadMore() {
       return this.loading || this.noMoreItems
     },
-    ...mapGetters(['user'])
   },
   watch: {
     '$route.query'() {

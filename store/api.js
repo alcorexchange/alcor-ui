@@ -409,7 +409,6 @@ export const actions = {
   async getSales({ rootState }, options) {
     try {
       const { data } = await this.$api.post('atomicmarket/v2/sales', {
-        page: 1,
         limit: 20,
         state: '0,1,4',
         symbol: 'WAX',
