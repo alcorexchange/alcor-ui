@@ -28,17 +28,7 @@ export default {
   //   if (route.path == '/wallet/nfts') redirect('/wallet/nfts/inventory?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked')
   // },
   data: () => ({
-    filters: {
-      match: '',
-      sorting: null,
-      collection: null,
-      minMint: null,
-      maxMint: null,
-      minPrice: null,
-      maxPrice: null,
-      isDuplicates: null,
-      isBacked: null
-    },
+    filters: {},
     options: {
       collection: null,
       sorting: null

@@ -378,14 +378,14 @@ export const actions = {
     }
   },
 
-  async getAssets({ dispatch }, options) {
+  async getAssets({ rootState }, options) {
     try {
       const { data } = await this.$api.get('atomicassets/v1/assets', {
         params: {
+          owner: rootState.user.name,
+          // TODO: Handle pagination
           page: 1,
-          limit: '32',
-          order: options.order || 'desc',
-          sort: options.sort || 'asset_id',
+          limit: 32,
           ...options
         }
       })

@@ -1,9 +1,8 @@
 <template lang="pug">
 #wallet-nfts-inventory-page
-  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25
+  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25(v-if="loading")
     vue-skeleton-loader(
-      v-if="!inventory.length"
-      v-for="idx in [1, 2, 3, 4]"
+      v-for="idx in 4"
       :key="idx"
       :width='220',
       :height='397',
@@ -12,7 +11,8 @@
       :rounded='true'
     )
 
-    inventory-card(v-if="inventory.length" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25(v-else)
+    inventory-card(v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -25,7 +25,7 @@ export default {
   components: { InventoryCard, VueSkeletonLoader },
   data: () => ({
     inventory: [],
-    debounce: null
+    loading: false
   }),
   computed: {
     ...mapGetters(['user'])
@@ -40,15 +40,12 @@ export default {
   },
   methods: {
     ...mapActions('api', ['getAssets']),
-    getInventory() {
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(async () => {
-        this.inventory = []
-        this.inventory = await this.getAssets({
-          owner: this.user.name,
-          ...this.$route.query
-        })
-      }, 600)
+    async getInventory() {
+      this.loading = true
+      this.inventory = await this.getAssets({
+        ...this.$route.query
+      })
+      this.loading = false
     }
   }
 }
