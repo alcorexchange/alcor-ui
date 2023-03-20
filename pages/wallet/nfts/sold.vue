@@ -22,21 +22,28 @@
       :data='item',
       mode='sold'
     )
+  AlcorLoadMore(v-if="!disabledLoadMore" @loadMore="onLoadMore" :loading="isLoadingMore")
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import DetailWithCardPanel from '~/components/nft_markets/DetailWithCardPanel'
+import AlcorLoadMore from '~/components/AlcorLoadMore'
+import { NFT_LIST_ITEM_PP } from '~/config'
 
 export default {
-  components: { VueSkeletonLoader, DetailWithCardPanel },
+  components: { VueSkeletonLoader, DetailWithCardPanel, AlcorLoadMore },
   data: () => ({
     solds: [],
-    loading: true
+    loading: true,
+    isLoadingMore: false,
+    page: 1,
+    noMoreItems: false
   }),
   computed: {
-    ...mapState(['user'])
+    disabledLoadMore() {
+      return this.loading || this.noMoreItems
+    },
   },
   watch: {
     '$route.query'() {
@@ -47,21 +54,22 @@ export default {
     this.getSold()
   },
   methods: {
-    async getSold() {
-      this.loading = true
-      this.solds = await this.$store.dispatch('api/getSales', {
-        seller: this.user.name,
+    async getSold(hasLoading = true) {
+      if (hasLoading) this.loading = true
+      const res = await this.$store.dispatch('api/getSales', {
         state: '3',
-        sort: this.$route.query?.sorting?.split('-')[0] || null,
-        order: this.$route.query?.sorting?.split('-')[1] || null,
-        collection_name: this.$route.query?.collection,
-        match: this.$route.query?.match,
-        max_template_mint: this.$route.query?.maxMint,
-        min_template_mint: this.$route.query?.minMint,
-        max_price: this.$route.query?.maxPrice,
-        min_price: this.$route.query?.minPrice
+        ...this.$route.query,
+        page: this.page
       })
+      this.solds = hasLoading ? res : [...this.solds, ...res]
+      if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
       this.loading = false
+    },
+    async onLoadMore() {
+      this.page++
+      this.isLoadingMore = true
+      await this.getSold(false)
+      this.isLoadingMore = false
     }
   }
 }

@@ -1,9 +1,8 @@
 <template lang="pug">
 #wallet-nfts-inventory-page
-  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25
+  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25(v-if="loading")
     vue-skeleton-loader(
-      v-if="!inventory.length"
-      v-for="idx in [1, 2, 3, 4]"
+      v-for="idx in 4"
       :key="idx"
       :width='220',
       :height='397',
@@ -12,23 +11,32 @@
       :rounded='true'
     )
 
-    inventory-card(v-if="inventory.length" v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
-
+  .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25(v-else)
+    inventory-card(v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+  AlcorLoadMore(v-if="!disabledLoadMore" @loadMore="onLoadMore" :loading="isLoadingMore")
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import InventoryCard from '~/components/cards/InventoryCard'
+import AlcorLoadMore from '~/components/AlcorLoadMore'
+import { NFT_LIST_ITEM_PP } from '~/config'
 
 export default {
-  components: { InventoryCard, VueSkeletonLoader },
+  name: 'NFTInventory',
+  components: { InventoryCard, VueSkeletonLoader, AlcorLoadMore },
   data: () => ({
     inventory: [],
-    debounce: null
+    loading: false,
+    isLoadingMore: false,
+    page: 1,
+    noMoreItems: false
   }),
   computed: {
-    ...mapGetters(['user'])
+    disabledLoadMore() {
+      return this.loading || this.noMoreItems
+    },
   },
   watch: {
     '$route.query'() {
@@ -40,22 +48,21 @@ export default {
   },
   methods: {
     ...mapActions('api', ['getAssets']),
-    getInventory() {
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(async () => {
-        this.inventory = []
-        this.inventory = await this.getAssets({
-          owner: this.user.name,
-          collection_name: this.$route.query?.collection,
-          sort: this.$route.query?.sorting?.split('-')[0] || null,
-          order: this.$route.query?.sorting?.split('-')[1] || null,
-          match: this.$route.query?.match,
-          max_template_mint: this.$route.query?.maxMint,
-          min_template_mint: this.$route.query?.minMint,
-          has_backed_tokens: !!this.$route.query?.isBacked,
-          only_duplicate_templates: !!this.$route.query?.isDuplicates
-        })
-      }, 600)
+    async getInventory(hasLoading = true) {
+      if (hasLoading) this.loading = true
+      const res = await this.getAssets({
+        ...this.$route.query,
+        page: this.page
+      })
+      this.inventory = hasLoading ? res : [...this.inventory, ...res]
+      if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
+      this.loading = false
+    },
+    async onLoadMore() {
+      this.page++
+      this.isLoadingMore = true
+      await this.getInventory(false)
+      this.isLoadingMore = false
     }
   }
 }

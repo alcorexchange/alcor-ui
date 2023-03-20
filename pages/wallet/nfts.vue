@@ -29,15 +29,7 @@ export default {
   // },
   data: () => ({
     filters: {
-      match: '',
-      sorting: null,
-      collection: null,
-      minMint: null,
-      maxMint: null,
-      minPrice: null,
-      maxPrice: null,
-      isDuplicates: null,
-      isBacked: null
+      match: ''
     },
     options: {
       collection: null,
@@ -46,67 +38,64 @@ export default {
   }),
   computed: {
     ...mapState(['network', 'user']),
-    refetchProps() {
-      ;[
-        this.filters.match,
-        this.filters.minPrice,
-        this.filters.maxPrice,
-        this.filters.minMint,
-        this.filters.maxMint,
-        this.filters.sorting,
-        this.filters.collection,
-        this.filters.isDuplicates,
-        this.filters.isBacked
-      ]
-      return Date.now()
-    },
     tabs() {
       return [
         {
           label: 'Inventory',
-          route: '/wallet/nfts'
+          route: {
+            path: '/wallet/nfts',
+            query: this.$route.query
+          },
+          exact: true
         },
         {
           label: 'My Listings',
           route: {
             path: '/wallet/nfts/listings',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'My Auctions',
           route: {
             path: '/wallet/nfts/auctions',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Sold',
           route: {
             path: '/wallet/nfts/sold',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Bought',
           route: {
             path: '/wallet/nfts/bought',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Sets',
           route: {
             path: '/wallet/nfts/sets',
-            query: this.filters
+            query: this.$route.query
           }
         }
       ]
     }
   },
   watch: {
-    refetchProps() {
-      this.$router.push({ query: this.filters })
+    'filters.match'(e) {
+      this.$router.push(
+        this.localeRoute({
+          query: {
+            ...this.$route.query,
+            match: e || undefined
+          }
+        })
+      )
     },
     '$route.name'(route) {
       this.filters.sorting = null
@@ -116,6 +105,7 @@ export default {
   mounted() {
     this.getAccountCollections()
     this.setSortOptions()
+    this.filters.match = this.$route.query.match || ''
   },
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),

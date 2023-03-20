@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const AA_API_URLS = [
-  'https://wax.api.atomicassets.FAIL.io', // FIXME: on purpose to cause an error
+  'https://wax.api.atomicassets.io/',
   'https://wax-aa.eu.eosamsterdam.net/',
   'https://api.wax.liquidstudios.io/',
   'https://atomic.wax.tgg.gg/',
@@ -36,8 +36,10 @@ export default function (_, inject) {
       return new Promise((resolve) => {
         resolve(api(config))
       })
+    } else {
+      lastWorkingIndex = 0
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
 
   })
 

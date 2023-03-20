@@ -1,6 +1,6 @@
 <template lang="pug">
-#alcor-tabs-components.d-flex.flex-wrap.gap-28
-  alcor-tab-link(v-if="links" v-for="{ route, label } in tabs" :key="label" :to="route") {{ $t(label) }}
+#alcor-tabs-components.d-flex.flex-wrap.gap-28(v-if="links")
+  alcor-tab-link(v-for="{ route, label, exact } in tabs" :key="label" :to="route" :exact="exact") {{ $t(label) }}
 </template>
 
 <script>

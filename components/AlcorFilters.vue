@@ -17,7 +17,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
           el-select.fs-12.w-100(
             filterable
             v-if="options.collection"
-            v-model='filters.collection'
+            v-model='filters.collection_name'
             :placeholder='$t("Choose Collection") + " (" + options.collection.length + ")"'
             size="mini"
             clearable
@@ -37,7 +37,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
         .filter-col
           el-select.fs-12.w-100(
             v-if="options.sorting"
-            v-model='filters.sorting'
+            v-model='filters.order'
             :placeholder='$t("Choose a sorting order")'
             size="mini"
           )
@@ -52,35 +52,35 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
           .d-flex.gap-6
             el-input.dark(
               size='small',
-              v-model='filters.minMint',
+              v-model='filters.min_template_mint',
               :placeholder='$t("Min Mint")',
             )
             el-input.dark(
               size='small',
-              v-model='filters.maxMint',
+              v-model='filters.max_template_mint',
               :placeholder='$t("Max Mint")',
             )
-          .d-flex.gap-6
-            el-input.dark(
-              size='small',
-              v-model='filters.minPrice',
-              :placeholder='$t("Min Price")',
-            )
-            el-input.dark(
-              size='small',
-              v-model='filters.maxPrice',
-              :placeholder='$t("Max Price")',
-            )
+          //- .d-flex.gap-6
+          //-   el-input.dark(
+          //-     size='small',
+          //-     v-model='filters.minPrice',
+          //-     :placeholder='$t("Min Price")',
+          //-   )
+          //-   el-input.dark(
+          //-     size='small',
+          //-     v-model='filters.maxPrice',
+          //-     :placeholder='$t("Max Price")',
+          //-   )
 
         .filter-col
           el-checkbox(
-            v-model="filters.isDuplicates"
+            v-model="filters.only_duplicate_templates"
           ) {{ $t('Only Duplicates') }}
           el-checkbox(
-            v-model="filters.isBacked"
+            v-model="filters.has_backed_tokens"
           ) {{ $t('Only backed NFTs') }}
 
-      //.d-flex.justify-content-between.gap-16.mt-2
+      .d-flex.justify-content-between.gap-16.mt-2
         span
         alcor-button.apply-btn.w-33(outline compact @click="applyFilters") Apply
 
@@ -91,11 +91,46 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { AlcorButton },
-  props: ['filters', 'options', 'disabled'],
-  data: () => ({ active: false }),
+  props: ['options', 'disabled'],
+  data: () => ({
+    active: false,
+    filters: {
+      // match: '', TODO: Add later
+      sort: undefined,
+      order: undefined,
+      collection_name: undefined,
+      min_template_mint: undefined,
+      max_template_mint: undefined,
+      // minPrice: undefined, TODO: add later
+      // maxPrice: undefined, TODO: add later
+      only_duplicate_templates: false,
+      has_backed_tokens: false
+    }
+  }),
+  mounted() {
+    this.updateQueryToData()
+  },
   methods: {
+    updateQueryToData() {
+      const query = this.$route.query
+      this.filters = {
+        ...query,
+        only_duplicate_templates: !!query.only_duplicate_templates,
+        has_backed_tokens: !!query.has_backed_tokens
+      }
+    },
     applyFilters() {
-      this.$router.push({ query: this.filters })
+      this.$router.push({
+        query: {
+          ...this.filters,
+
+          // values to be removed when they are untrue
+          collection_name: this.filters.collection_name || undefined,
+          only_duplicate_templates:
+            this.filters.only_duplicate_templates || undefined,
+          has_backed_tokens: this.filters.has_backed_tokens || undefined
+        }
+      })
     }
   }
 }

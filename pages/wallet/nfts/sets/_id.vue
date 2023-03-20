@@ -1,5 +1,5 @@
 <template lang="pug">
-se
+div unimplemented
 </template>
 
 <script>
