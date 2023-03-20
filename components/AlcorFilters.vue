@@ -103,8 +103,8 @@ export default {
       max_template_mint: undefined,
       // minPrice: undefined, TODO: add later
       // maxPrice: undefined, TODO: add later
-      only_duplicate_templates: undefined,
-      has_backed_tokens: undefined
+      only_duplicate_templates: false,
+      has_backed_tokens: false
     }
   }),
   mounted() {
@@ -120,7 +120,17 @@ export default {
       }
     },
     applyFilters() {
-      this.$router.push({ query: { ...this.filters } })
+      this.$router.push({
+        query: {
+          ...this.filters,
+
+          // values to be removed when they are untrue
+          collection_name: this.filters.collection_name || undefined,
+          only_duplicate_templates:
+            this.filters.only_duplicate_templates || undefined,
+          has_backed_tokens: this.filters.has_backed_tokens || undefined
+        }
+      })
     }
   }
 }
