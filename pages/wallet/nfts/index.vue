@@ -46,14 +46,7 @@ export default {
         this.inventory = []
         this.inventory = await this.getAssets({
           owner: this.user.name,
-          collection_name: this.$route.query?.collection,
-          sort: this.$route.query?.sorting?.split('-')[0] || null,
-          order: this.$route.query?.sorting?.split('-')[1] || null,
-          match: this.$route.query?.match,
-          max_template_mint: this.$route.query?.maxMint,
-          min_template_mint: this.$route.query?.minMint,
-          has_backed_tokens: !!this.$route.query?.isBacked,
-          only_duplicate_templates: !!this.$route.query?.isDuplicates
+          ...this.$route.query
         })
       }, 600)
     }

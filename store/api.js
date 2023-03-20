@@ -379,26 +379,20 @@ export const actions = {
   },
 
   async getAssets({ dispatch }, options) {
-    const filteredOptions = Object.entries(options)
-      .filter(([key, value]) => value)
-      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
-
     try {
       const { data } = await this.$api.get('atomicassets/v1/assets', {
         params: {
-          ...filteredOptions
+          page: 1,
+          limit: '32',
+          order: options.order || 'desc',
+          sort: options.sort || 'asset_id',
+          ...options
         }
-        // page: 1,
-        // limit: options.limit || '32',
-        // order: options.order || 'desc',
-        // sort: options.sort || 'asset_id',
-        // ...filteredOptions
       })
-
+      console.log('done', data);
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
-      return await dispatch('getAssets', options) // refetch
     }
   },
 
