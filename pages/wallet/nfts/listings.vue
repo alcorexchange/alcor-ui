@@ -52,7 +52,7 @@ export default {
         ...this.$route.query,
         page: this.page
       })
-      this.listings = [...this.listings, ...res]
+      this.listings = hasLoading ? res : [...this.listings, ...res]
       const buyOffers = await this.getBuyOffers()
       if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
       this.loading = false

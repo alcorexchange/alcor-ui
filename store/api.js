@@ -796,7 +796,6 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      dispatch('getTemplatePrice', { templateID })
     }
   },
   // get price history for a template for NFT sale chart

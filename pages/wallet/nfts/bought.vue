@@ -62,7 +62,7 @@ export default {
         ...this.$route.query,
         page: this.page
       })
-      this.boughts = [...this.boughts, ...res]
+      this.boughts = hasLoading ? res : [...this.boughts, ...res]
       if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
       this.loading = false
     },

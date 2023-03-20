@@ -28,7 +28,9 @@ export default {
   //   if (route.path == '/wallet/nfts') redirect('/wallet/nfts/inventory?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked')
   // },
   data: () => ({
-    filters: {},
+    filters: {
+      match: ''
+    },
     options: {
       collection: null,
       sorting: null
@@ -85,6 +87,16 @@ export default {
     }
   },
   watch: {
+    'filters.match'(e) {
+      this.$router.push(
+        this.localeRoute({
+          query: {
+            ...this.$route.query,
+            match: e || undefined
+          }
+        })
+      )
+    },
     '$route.name'(route) {
       this.filters.sorting = null
       this.setSortOptions()
@@ -93,6 +105,7 @@ export default {
   mounted() {
     this.getAccountCollections()
     this.setSortOptions()
+    this.filters.match = this.$route.query.match || ''
   },
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),
