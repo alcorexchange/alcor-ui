@@ -13,14 +13,17 @@ const jsbi_1 = __importDefault(require("jsbi"));
  */
 class Token extends baseCurrency_1.BaseCurrency {
     /**
-     *
      * @param contract {@link BaseCurrency#contract}
      * @param decimals {@link BaseCurrency#decimals}
      * @param symbol {@link BaseCurrency#symbol}
-     * @param name {@link BaseCurrency#name}
+     * @param id {@link BaseCurrency#id}
      */
-    constructor(contract, decimals, symbol, name) {
-        super(contract, decimals, symbol, name);
+    constructor(contract, decimals, symbol, id) {
+        super(contract, decimals, symbol, id);
+    }
+    get name() {
+        console.warn('Token.name is deprecated, use token.id');
+        return this.symbol.toLowerCase() + '-' + this.contract;
     }
     /**
      * Returns true if the two tokens are equivalent, i.e. have the same contract and symbol.

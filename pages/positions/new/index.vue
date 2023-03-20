@@ -54,7 +54,7 @@
             InfoContainer.price-info-container
               .d-flex.justify-content-between
                 .fs-16 Current {{ tokenA ? tokenA.symbol : '' }} price
-                .fs-16.disable(v-if="price") {{ invertPrice ? price.invert().toSignificant(5) : price.toSignificant(5) + ' ' + (tokenB ? tokenB.symbol : 'zz') }}
+                .fs-16.disable(v-if="price") {{ (invertPrice ? price.invert() : price).toSignificant(5) + ' ' + (tokenB ? tokenB.symbol : '-') }}
                 .fs-16.disable(v-else) -
 
         template(v-else)
@@ -668,7 +668,7 @@ export default {
             limit: 1
           })
 
-          poolId = poolIdCounter + 1
+          poolId = poolIdCounter
         } catch (e) {
           console.error(e)
           return this.$notify({ title: 'Position Create', message: 'Fetch new pool ID error: ' + e.message, type: 'error' })
@@ -735,6 +735,7 @@ export default {
         }
       )
 
+      console.log('new position', { actions })
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
 
       // Only update new pool with delay

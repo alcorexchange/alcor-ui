@@ -5,6 +5,7 @@ import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction } from './swap'
 import { updateSystemPrice, updateTokensPrices } from './prices'
+import { updatePools } from '../swapV2Service'
 
 import { streamHyperion, streamByNode } from './streamers'
 
@@ -60,6 +61,8 @@ export async function updater(chain, provider, services) {
 
   if (services.includes('swap')) {
     console.log('start swap updater for', chain)
+
+    //await updatePools(chain)
 
     streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'])
       .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })

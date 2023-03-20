@@ -68,8 +68,6 @@ swap.get('/position-stats/:position_id', positionIdHandler, async (req, res) => 
   res.json({ absoluteTotal })
 })
 
-
-
 const ONEDAY = 60 * 60 * 24 * 1000
 
 const timeframes = {
@@ -88,60 +86,60 @@ const defCache = cacheSeconds(60 * 5, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
 })
 
-pools.get('/:pair_id/charts', defCache, async (req, res) => {
-  const network = req.app.get('network')
-  const { pair_id } = req.params
+// pools.get('/:pair_id/charts', defCache, async (req, res) => {
+//   const network = req.app.get('network')
+//   const { pair_id } = req.params
 
-  const { period } = req.query
-  const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
+//   const { period } = req.query
+//   const timeframe = (period && period in timeframes) ? timeframes[period] : Date.now()
 
-  const $match = { chain: network.name, pool: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } }
+//   const $match = { chain: network.name, pool: parseInt(pair_id), time: { $gte: new Date(Date.now() - timeframe) } }
 
-  const query = [{ $match }]
+//   const query = [{ $match }]
 
-  if (timeframe != '24H') {
-    query.push({
-      $group:
-      {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
-            ]
-          }
-        },
+//   if (timeframe != '24H') {
+//     query.push({
+//       $group:
+//       {
+//         _id: {
+//           $toDate: {
+//             $subtract: [
+//               { $toLong: '$time' },
+//               { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
+//             ]
+//           }
+//         },
 
-        price: { $avg: '$price' },
-        price_r: { $avg: '$price_r' },
+//         price: { $avg: '$price' },
+//         price_r: { $avg: '$price_r' },
 
-        liquidity1: { $avg: '$liquidity1' },
-        liquidity2: { $avg: '$liquidity2' },
+//         liquidity1: { $avg: '$liquidity1' },
+//         liquidity2: { $avg: '$liquidity2' },
 
-        volume1: { $sum: '$volume1' },
-        volume2: { $sum: '$volume2' }
-      }
-    })
+//         volume1: { $sum: '$volume1' },
+//         volume2: { $sum: '$volume2' }
+//       }
+//     })
 
-    query.push({ $project: { time: { $toLong: '$_id' }, price: 1, price_r: 1, liquidity1: 1, liquidity2: 1, volume1: 1, volume2: 1 } })
-  } else {
+//     query.push({ $project: { time: { $toLong: '$_id' }, price: 1, price_r: 1, liquidity1: 1, liquidity2: 1, volume1: 1, volume2: 1 } })
+//   } else {
 
-  }
+//   }
 
-  query.push({
-    $project: {
-      time: { $toLong: '$time' },
-      price: 1,
-      price_r: 1,
-      liquidity1: 1,
-      liquidity2: 1,
-      volume1: 1,
-      volume2: 1
-    }
-  })
+//   query.push({
+//     $project: {
+//       time: { $toLong: '$time' },
+//       price: 1,
+//       price_r: 1,
+//       liquidity1: 1,
+//       liquidity2: 1,
+//       volume1: 1,
+//       volume2: 1
+//     }
+//   })
 
-  query.push({ $sort: { time: 1 } })
+//   query.push({ $sort: { time: 1 } })
 
-  const charts = await PoolChartPoint.aggregate(query)
-  res.json(charts)
-})
+//   const charts = await PoolChartPoint.aggregate(query)
+//   res.json(charts)
+// })

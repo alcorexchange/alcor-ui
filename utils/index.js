@@ -281,3 +281,12 @@ export function parseExtendedAssetPlain(asset) {
     symbol,
   }
 }
+
+export function parseAssetPlain(quantity) {
+  const [amount, symbol] = quantity.split(' ')
+
+  return {
+    amount: parseFloat(amount),
+    symbol,
+  }
+}

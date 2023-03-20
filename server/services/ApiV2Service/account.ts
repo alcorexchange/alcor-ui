@@ -33,6 +33,7 @@ async function getPositionStats(chain, pool, id, owner) {
   }
 
   const absoluteTotal = +(total - sub).toFixed(4)
+  console.log({ id, total, sub })
 
   return { absoluteTotal, closed }
 }

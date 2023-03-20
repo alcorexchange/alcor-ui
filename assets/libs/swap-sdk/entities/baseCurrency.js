@@ -16,12 +16,12 @@ class BaseCurrency {
      * @param symbol symbol of the currency
      * @param name of the currency
      */
-    constructor(contract, decimals, symbol, name) {
+    constructor(contract, decimals, symbol, id) {
         (0, tiny_invariant_1.default)(decimals >= 0 && decimals < 19 && Number.isInteger(decimals), "DECIMALS");
         this.contract = contract;
         this.decimals = decimals;
         this.symbol = symbol;
-        this.name = name;
+        this.id = id;
     }
 }
 exports.BaseCurrency = BaseCurrency;
