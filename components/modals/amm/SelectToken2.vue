@@ -33,16 +33,15 @@
         )
         .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
-            v-for="{ symbol, contract }, i in popularTokens"
-            :key="i"
-            :class="{ selected: token && symbol === token.symbol && contract === token.contract }"
-            @click='selectAsset({ symbol, contract })'
+            v-for="token in popularTokens"
+            :key="token.name"
+            @click='selectAsset(token)'
           )
             TokenImage(
-              :src='$tokenLogo(symbol, contract)',
+              :src='$tokenLogo(token.symbol, token.contract)',
               height='20'
             )
-            .token-name {{ symbol }}
+            .token-name {{ token.symbol }}
         //- .separator
         .d-flex.flex-column.scrollable
           .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
@@ -68,7 +67,6 @@
 import ReturnLink from '@/components/ReturnLink'
 import TokenImage from '~/components/elements/TokenImage'
 import { mapState } from 'vuex'
-import { networks } from '@/config'
 
 export default {
   components: { TokenImage, ReturnLink },
@@ -86,19 +84,32 @@ export default {
     search: '',
     selected: null,
   }),
+
   computed: {
     popularTokens() {
-      return networks[this.network.name].popularTokens
+      const tokens = []
+
+      this.network.popularTokens.map(token => {
+        const tInstance = this.tokens.find(t => token == t.name)
+
+        if (tInstance) tokens.push(tInstance)
+      })
+
+      return tokens
     },
+
     filteredAssets() {
       return this.tokens.filter((asset) =>
         Object.values(asset).join().toLowerCase().includes(this.search.toLowerCase())
       )
     },
+
     ...mapState(['network'])
   },
+
   methods: {
     selectAsset(v) {
+      console.log('selectAsset', v)
       this.$emit('selected', v)
       this.visible = false
     },

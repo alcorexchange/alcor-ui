@@ -32,22 +32,9 @@ async function getPositionStats(chain, pool, id, owner) {
     if (h.type == 'closed') closed = true
   }
 
-  console.log({ total, sub })
   const absoluteTotal = +(total - sub).toFixed(4)
 
   return { absoluteTotal, closed }
-
-
-
-
-
-  // const total = history.filter(h => 'mint' == h.type).reduce((total, i) => total + i.totalUSDValue, 0)
-  // const sub = history.filter(h => ['burn', 'collect'].includes(h.type)).reduce((total, i) => total + i.totalUSDValue, 0)
-  
-
-  // const absoluteTotal = +(total - sub).toFixed(4)
-
-  // return { absoluteTotal }
 }
 
 

@@ -32,6 +32,7 @@ export async function getRedisTicks(chain: string, poolId: number) {
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }
 
+// FIXME redo without request pool
 async function updatePoolChart(chain: string, poolId: number, block_time: string) {
   const network = networks[chain]
   const rpc = getFailOverRpc(network)
@@ -66,8 +67,8 @@ async function updatePoolChart(chain: string, poolId: number, block_time: string
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
   // Sptit by one minute
-  const resolution = 60 // One minute
-  if (last_point && Math.floor(last_point.time / 1000 / resolution) == Math.floor(new Date(block_time).getTime() / 1000 / resolution)) {
+  const minResolution = 60 * 60 // One hour
+  if (last_point && Math.floor(last_point.time / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
     last_point.sqrtPriceX64 = sqrtPriceX64
 
     last_point.tokenA += parsedA.amount
@@ -75,6 +76,8 @@ async function updatePoolChart(chain: string, poolId: number, block_time: string
 
     last_point.tvlTokenA += tvlTokenA
     last_point.tvlTokenB += tvlTokenB
+
+    last_point.volumeUSD += tvlTokenA + tvlTokenB
 
     return await last_point.save()
   } else {
@@ -84,8 +87,10 @@ async function updatePoolChart(chain: string, poolId: number, block_time: string
       price: sqrtPriceX64,
       tokenA: parsedA.amount,
       tokenB: parsedB.amount,
+      volumeUSD: tvlTokenA + tvlTokenB,
       tvlTokenA,
-      tvlTokenB
+      tvlTokenB,
+      time: block_time
     })
   }
 }

@@ -229,6 +229,8 @@ const SwapChartPointSchema = new mongoose.Schema({
   tvlTokenA: { type: Number, default: 0 },
   tvlTokenB: { type: Number, default: 0 },
 
+  volumeUSD: { type: Number, default: 0 },
+
   time: { type: Date, default: () => Date.now(), index: true }
 })
 PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })

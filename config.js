@@ -385,14 +385,8 @@ const networks = {
     USD_TOKEN: 'WAXUSDT@eth.token',
 
     popularTokens: [
-      { symbol: 'WAX', contract: 'eosio.token' },
-      { symbol: 'WAX', contract: 'eosio.token' },
-      { symbol: 'TLM', contract: 'alien.worlds' },
-      { symbol: 'WAX', contract: 'eosio.token' },
-      { symbol: 'TLM', contract: 'alien.worlds' },
-      { symbol: 'WAX', contract: 'eosio.token' },
-      { symbol: 'TLM', contract: 'alien.worlds' },
-      { symbol: 'WAX', contract: 'eosio.token' },
+      'wax-eosio.token',
+      'tlm-alien.worlds'
     ],
   },
 
