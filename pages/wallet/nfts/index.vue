@@ -22,6 +22,7 @@ import VueSkeletonLoader from 'skeleton-loader-vue'
 import InventoryCard from '~/components/cards/InventoryCard'
 
 export default {
+  name: "NFTInventory",
   components: { InventoryCard, VueSkeletonLoader },
   data: () => ({
     inventory: [],

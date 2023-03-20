@@ -1,8 +1,7 @@
 <template lang="pug">
 #wallet-nfts-listings-page
-  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start
+  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start(v-if="loading")
     vue-skeleton-loader(
-      v-if="!listings.length"
       v-for="idx in [1,2,3,4]"
       :key="idx"
       :width='220',
@@ -11,7 +10,8 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    my-listing-card(v-if="listings.length" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start(v-else)
+    my-listing-card(v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
 </template>
 
@@ -24,11 +24,9 @@ export default {
   components: { MyListingCard, VueSkeletonLoader },
   data: () => ({
     listings: [],
-    debounce: null
+    debounce: null,
+    loading: false
   }),
-  computed: {
-    ...mapState(['user'])
-  },
   watch: {
     '$route.query'() {
       this.getListings()
@@ -39,44 +37,32 @@ export default {
   },
   methods: {
     ...mapActions('api', ['getSales', 'getBuyOffers']),
-    getListings() {
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(async () => {
-        this.listings = []
-        this.listings = await this.getSales({
-          seller: this.user.name,
-          sort: this.$route.query?.sorting?.split('-')[0] || null,
-          order: this.$route.query?.sorting?.split('-')[1] || null,
-          collection_name: this.$route.query?.collection,
-          match: this.$route.query?.match,
-          max_template_mint: this.$route.query?.maxMint,
-          min_template_mint: this.$route.query?.minMint,
-          max_price: this.$route.query?.maxPrice,
-          min_price: this.$route.query?.minPrice
-        })
-        const buyOffers = await this.getBuyOffers({
-          seller: this.user.name,
-          sort: 'price'
-        })
-        if (buyOffers.length)
-          this.listings = this.listings.map((listing) => ({
-            ...listing,
-            buy_offers: []
-          }))
-        buyOffers.forEach(async (offer) => {
-          if (offer.assets.length !== 1) return
+    async getListings() {
+      this.loading = true
+      this.listings = await this.getSales({
+        ...this.$route.query
+      })
+      const buyOffers = await this.getBuyOffers()
+      this.loading = false
 
-          offer.buyerImgSrc =
-            'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' +
-            offer.buyer
+      if (buyOffers.length)
+        this.listings = this.listings.map((listing) => ({
+          ...listing,
+          buy_offers: []
+        }))
+      buyOffers.forEach(async (offer) => {
+        if (offer.assets.length !== 1) return
 
-          this.listings[
-            this.listings.findIndex(
-              ({ assets }) => assets[0].asset_id === offer.assets[0].asset_id
-            )
-          ].buy_offers.push(offer)
-        })
-      }, 600)
+        offer.buyerImgSrc =
+          'https://wax-mainnet-ah.api.atomichub.io/v1/preview/avatar/' +
+          offer.buyer
+
+        this.listings[
+          this.listings.findIndex(
+            ({ assets }) => assets[0].asset_id === offer.assets[0].asset_id
+          )
+        ].buy_offers.push(offer)
+      })
     }
   }
 }

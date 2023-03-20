@@ -40,41 +40,44 @@ export default {
       return [
         {
           label: 'Inventory',
-          route: '/wallet/nfts'
+          route: {
+            path: '/wallet/nfts',
+            query: this.$route.query
+          }
         },
         {
           label: 'My Listings',
           route: {
             path: '/wallet/nfts/listings',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'My Auctions',
           route: {
             path: '/wallet/nfts/auctions',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Sold',
           route: {
             path: '/wallet/nfts/sold',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Bought',
           route: {
             path: '/wallet/nfts/bought',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Sets',
           route: {
             path: '/wallet/nfts/sets',
-            query: this.filters
+            query: this.$route.query
           }
         }
       ]

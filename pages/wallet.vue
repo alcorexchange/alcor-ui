@@ -17,6 +17,7 @@ import WalletTabBar from '~/components/wallet/WalletTabBar.vue'
 import AuthOnly from '~/components/AuthOnly'
 
 export default {
+  name: "WalletIndex",
   components: {
     WalletName,
     WalletHeader,
