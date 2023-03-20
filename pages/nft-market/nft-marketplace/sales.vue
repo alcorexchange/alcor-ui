@@ -11,7 +11,7 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    market-sale-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="item.seller")
+    MarketSaleCard(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="item.seller")
 </template>
 
 <script>

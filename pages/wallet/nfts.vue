@@ -24,9 +24,9 @@ export default {
     AlcorTabs,
     AlcorFilters
   },
-  fetch({ route, redirect }) {
-    if (route.path == '/wallet/nfts') redirect('/wallet/nfts/inventory?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked')
-  },
+  // fetch({ route, redirect }) {
+  //   if (route.path == '/wallet/nfts') redirect('/wallet/nfts/inventory?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked')
+  // },
   data: () => ({
     filters: {
       match: '',
@@ -64,10 +64,7 @@ export default {
       return [
         {
           label: 'Inventory',
-          route: {
-            path: '/wallet/nfts/inventory',
-            query: this.filters
-          }
+          route: '/wallet/nfts'
         },
         {
           label: 'My Listings',
