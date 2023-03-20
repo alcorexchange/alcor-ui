@@ -51,7 +51,7 @@ export default {
       const res = await this.getSales({
         ...this.$route.query,
         page: this.page,
-        seller: this.$store.user.name
+        seller: this.$store.state.user.name
       })
       this.listings = hasLoading ? res : [...this.listings, ...res]
       const buyOffers = await this.getBuyOffers()
