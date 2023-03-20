@@ -32,15 +32,17 @@ export default {
     noMoreItems: false
   }),
   watch: {
-    disabledLoadMore() {
-      return this.loading || this.noMoreItems
-    },
     '$route.query'() {
       this.getListings()
     }
   },
   mounted() {
     this.getListings()
+  },
+  computed: {
+    disabledLoadMore() {
+      return this.loading || this.noMoreItems
+    },
   },
   methods: {
     ...mapActions('api', ['getSales', 'getBuyOffers']),
