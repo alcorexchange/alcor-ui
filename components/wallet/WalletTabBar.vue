@@ -26,20 +26,7 @@ export default {
         {
           name: 'NFT’s',
           showInNetworks: ['wax'],
-          to: {
-            name: 'wallet-nfts',
-            query: {
-              match: '',
-              collection: null,
-              sorting: null,
-              minMint: null,
-              maxMint: null,
-              minPrice: null,
-              maxPrice: null,
-              isDuplicates: null,
-              isBacked: null
-            }
-          }
+          to: '/wallet/nfts'
         },
         { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
         { name: 'Resources', to: '/wallet/resources' }

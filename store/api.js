@@ -384,12 +384,15 @@ export const actions = {
       .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
     try {
-      const { data } = await this.$api.post('atomicmarket/v1/assets', {
-        page: 1,
-        limit: options.limit || '32',
-        order: options.order || 'desc',
-        sort: options.sort || 'asset_id',
-        ...filteredOptions
+      const { data } = await this.$api.get('atomicassets/v1/assets', {
+        params: {
+          ...filteredOptions
+        }
+        // page: 1,
+        // limit: options.limit || '32',
+        // order: options.order || 'desc',
+        // sort: options.sort || 'asset_id',
+        // ...filteredOptions
       })
 
       return data.data
