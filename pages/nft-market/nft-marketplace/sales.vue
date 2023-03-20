@@ -37,6 +37,7 @@ export default {
     ...mapActions('api', ['getSales', 'getBuyOffers']),
     getListings() {
       clearTimeout(this.debounce)
+      // TODO: GET FROM QUERY
       this.debounce = setTimeout(async () => {
         this.listings = null
         this.listings = await this.getSales({
