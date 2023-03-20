@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import InventoryCard from '~/components/cards/InventoryCard'
 import AlcorLoadMore from '~/components/AlcorLoadMore'
