@@ -1,5 +1,5 @@
 <template lang="pug">
-el-popover(placement='right' trigger='hover' width='575' :close-delay="0" :open-delay="0" transition="none")
+el-popover(placement='right' trigger='hover' width='575' :close-delay="0" :open-delay="200" transition="none")
     .d-flex.flex-column.gap-16.contrast.pe-none.hover-hide
       .d-flex.gap-24.w-100
         .first-column

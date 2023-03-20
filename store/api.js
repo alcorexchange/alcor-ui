@@ -1,6 +1,6 @@
 import { asset } from 'eos-common'
 import axios from 'axios'
-import { ITEMS_PER_PAGE } from '@/config'
+import { NFT_LIST_ITEM_PP } from '@/config'
 
 import { parseAsset, littleEndianToDesimal } from '~/utils'
 
@@ -386,7 +386,7 @@ export const actions = {
           owner: rootState.user.name,
           // TODO: Handle pagination
           page: 1,
-          limit: ITEMS_PER_PAGE,
+          limit: NFT_LIST_ITEM_PP,
           ...options
         }
       })

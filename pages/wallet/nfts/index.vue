@@ -21,7 +21,7 @@ import { mapActions, mapGetters } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import InventoryCard from '~/components/cards/InventoryCard'
 import AlcorLoadMore from '~/components/AlcorLoadMore'
-import { ITEMS_PER_PAGE } from '~/config'
+import { NFT_LIST_ITEM_PP } from '~/config'
 
 export default {
   name: 'NFTInventory',
@@ -56,7 +56,7 @@ export default {
         page: this.page
       })
       this.inventory = [...this.inventory, ...res]
-      if (res.length < ITEMS_PER_PAGE) this.noMoreItems = true
+      if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
       this.loading = false
     },
     async onLoadMore() {
