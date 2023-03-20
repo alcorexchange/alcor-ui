@@ -13,8 +13,8 @@ export async function streamByNode(network, account, callback, actions, delay = 
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
   const settings = await getSettings(network)
 
-  let offset = settings.actions_stream_offset[account] || 0
-  //let offset = 0
+  //let offset = settings.actions_stream_offset[account] || 0
+  let offset = 0
 
   // TODO короче тестить это все дерьмо с настройками
   console.log('start fetching actions by node from', offset, 'for', network.name, '(' + account + ')')

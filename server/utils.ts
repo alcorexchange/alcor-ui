@@ -11,7 +11,7 @@ export async function getTokenPrices(chain: string, id: string) {
 
   const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
-  return tokens.find(t => t.name == id)
+  return tokens.find(t => t.id == id)
 }
 
 export function getFailOverRpc(network) {

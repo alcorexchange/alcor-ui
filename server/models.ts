@@ -170,7 +170,7 @@ const SwapPoolSchema = new mongoose.Schema({
   tokenA: {
     contract: { type: String, index: true },
     symbol: { type: String, index: true },
-    name: { type: String, index: true },
+    id: { type: String, index: true },
     quantity: { type: Number },
     decimals: { type: Number },
   },
@@ -178,7 +178,7 @@ const SwapPoolSchema = new mongoose.Schema({
   tokenB: {
     contract: { type: String, index: true },
     symbol: { type: String, index: true },
-    name: { type: String, index: true },
+    id: { type: String, index: true },
     quantity: { type: Number },
     decimals: { type: Number }
   },
@@ -231,6 +231,7 @@ const SwapChartPointSchema = new mongoose.Schema({
 
   volumeUSD: { type: Number, default: 0 },
 
+  // We not user default here actually
   time: { type: Date, default: () => Date.now(), index: true }
 })
 PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
