@@ -1,9 +1,8 @@
 <template lang="pug">
 #wallet-nfts-auctions-page
-  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start
+  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start(v-if="loading")
     vue-skeleton-loader(
-      v-if="!auctions.length"
-      v-for="idx in [1,2,3,4]",
+      v-for="idx in 4",
       :key="idx",
       :width='220',
       :height='471',
@@ -11,24 +10,32 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    my-auction-card(v-if="auctions.length" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
 
+  .d-flex.flex-wrap.gap-25.justify-content-center.justify-content-md-start(v-else)
+    my-auction-card(v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
+  AlcorLoadMore(v-if="!disabledLoadMore" @loadMore="onLoadMore" :loading="isLoadingMore")
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import MyAuctionCard from '~/components/cards/MyAuctionCard'
+import AlcorLoadMore from '~/components/AlcorLoadMore'
+import { NFT_LIST_ITEM_PP } from '~/config'
 
 export default {
-  components: { MyAuctionCard, VueSkeletonLoader },
+  components: { MyAuctionCard, VueSkeletonLoader, AlcorLoadMore },
   data: () => ({
     auctions: [],
-    ownerName: null,
-    debounce: null
+    loading: false,
+    isLoadingMore: false,
+    page: 1,
+    noMoreItems: false
   }),
   computed: {
-    ...mapState(['user'])
+    disabledLoadMore() {
+      return this.loading || this.noMoreItems
+    }
   },
   watch: {
     '$route.query'() {
@@ -39,23 +46,23 @@ export default {
     this.getAuctions()
   },
   methods: {
-    ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
-    getAuctions() {
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(async () => {
-        this.auctions = []
-        this.auctions = await this.getAuctionData({
-          participant: this.user.name,
-          sort: this.$route.query?.sorting?.split('-')[0] || null,
-          order: this.$route.query?.sorting?.split('-')[1] || null,
-          collection_name: this.$route.query?.collection,
-          match: this.$route.query?.match,
-          max_template_mint: this.$route.query?.maxMint,
-          min_template_mint: this.$route.query?.minMint,
-          max_price: this.$route.query?.maxPrice,
-          min_price: this.$route.query?.minPrice
-        })
-      }, 600)
+    ...mapActions('api', ['getAuctionData']),
+    async getAuctions(hasLoading = true) {
+      if (hasLoading) this.loading = true
+      const res = await this.getAuctionData({
+        ...this.$route.query,
+        page: this.page
+      })
+      this.auctions = [...this.auctions, ...res]
+      if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
+      console.log({res, NFT_LIST_ITEM_PP});
+      this.loading = false
+    },
+    async onLoadMore() {
+      this.page++
+      this.isLoadingMore = true
+      await this.getAuctions(false)
+      this.isLoadingMore = false
     }
   }
 }

@@ -157,19 +157,21 @@ export const actions = {
     }
   },
 
-  async getAuctionData({ dispatch }, options) {
+  async getAuctionData({ rootState }, options) {
     try {
-      const { data } = await this.$api.post('atomicmarket/v1/auctions', {
-        page: 1,
-        limit: 20,
-        state: '0,1,4',
-        symbol: 'WAX',
-        ...options
+      const { data } = await this.$api.get('atomicmarket/v1/auctions', {
+        params: {
+          limit: NFT_LIST_ITEM_PP,
+          state: '0,1,4',
+          symbol: 'WAX',
+          participant: rootState.user.name,
+          ...options
+        }
       })
+      console.log({ options });
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      return await dispatch('getAuctionData', options)
     }
   },
 
@@ -409,7 +411,7 @@ export const actions = {
   async getSales({ rootState }, options) {
     try {
       const { data } = await this.$api.post('atomicmarket/v2/sales', {
-        limit: 20,
+        limit: NFT_LIST_ITEM_PP,
         state: '0,1,4',
         symbol: 'WAX',
         seller: rootState.user.name,
