@@ -51,7 +51,8 @@ export default {
       if (hasLoading) this.loading = true
       const res = await this.getAuctionData({
         ...this.$route.query,
-        page: this.page
+        page: this.page,
+        participant: this.$store.user.name,
       })
       this.auctions = hasLoading ? res : [...this.auctions, ...res]
       if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
