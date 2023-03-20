@@ -772,7 +772,11 @@ export const actions = {
   async getAccountValue({ getters, rootState }, { owner }) {
     try {
       const { data } = await this.$api.get(
-        `atomicmarket/v1/stats/accounts/` + owner + '?symbol=WAX'
+        `atomicmarket/v1/stats/accounts/${owner}`, {
+        params: {
+          symbol: 'WAX'
+        }
+      }
       )
       return data.data
     } catch (e) {

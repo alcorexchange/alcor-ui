@@ -43,7 +43,8 @@ export default {
           route: {
             path: '/wallet/nfts',
             query: this.$route.query
-          }
+          },
+          exact: true
         },
         {
           label: 'My Listings',
