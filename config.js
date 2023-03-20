@@ -945,6 +945,7 @@ module.exports = {
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
   IBC_NETWORKS: [networks.eos, networks.telos, networks.ux],
+  ITEMS_PER_PAGE: 2,
 
   networks
 }

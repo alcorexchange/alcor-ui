@@ -13,22 +13,30 @@
 
   .d-flex.flex-wrap.justify-content-center.justify-content-md-start.gap-25(v-else)
     inventory-card(v-for="item in inventory" :key="item.asset_id" :data="item" :ownerName="$store.state.user.name")
-
+  AlcorLoadMore(v-if="!disabledLoadMore" @loadMore="onLoadMore" :loading="isLoadingMore")
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import InventoryCard from '~/components/cards/InventoryCard'
+import AlcorLoadMore from '~/components/AlcorLoadMore'
+import { ITEMS_PER_PAGE } from '~/config'
 
 export default {
-  name: "NFTInventory",
-  components: { InventoryCard, VueSkeletonLoader },
+  name: 'NFTInventory',
+  components: { InventoryCard, VueSkeletonLoader, AlcorLoadMore },
   data: () => ({
     inventory: [],
-    loading: false
+    loading: false,
+    isLoadingMore: false,
+    page: 1,
+    noMoreItems: false
   }),
   computed: {
+    disabledLoadMore() {
+      return this.loading || this.noMoreItems
+    },
     ...mapGetters(['user'])
   },
   watch: {
@@ -41,12 +49,21 @@ export default {
   },
   methods: {
     ...mapActions('api', ['getAssets']),
-    async getInventory() {
-      this.loading = true
-      this.inventory = await this.getAssets({
-        ...this.$route.query
+    async getInventory(hasLoading = true) {
+      if (hasLoading) this.loading = true
+      const res = await this.getAssets({
+        ...this.$route.query,
+        page: this.page
       })
+      this.inventory = [...this.inventory, ...res]
+      if (res.length < ITEMS_PER_PAGE) this.noMoreItems = true
       this.loading = false
+    },
+    async onLoadMore() {
+      this.page++
+      this.isLoadingMore = true
+      await this.getInventory(false)
+      this.isLoadingMore = false
     }
   }
 }
