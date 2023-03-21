@@ -11,7 +11,7 @@ div
 
     .d-flex.justify-content-between.mt-4
       .d-flex.align-items-center.gap-8
-        token-image.token-image(src="token-conract" height="25")
+        token-image.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
         span {{ position.pool.tokenA.symbol }}
       .d-flex.align-items-center.gap-8
         .fs-18 {{ amountB }}
@@ -19,7 +19,7 @@ div
 
     .d-flex.justify-content-between.mt-1
       .d-flex.align-items-center.gap-8
-        token-image.token-image(src="token-conract" height="25")
+        token-image.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
         span {{ position.pool.tokenB.symbol }}
       .d-flex.align-items-center.gap-8
         .fs-18 {{ amountA }}
