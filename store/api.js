@@ -164,7 +164,6 @@ export const actions = {
           limit: NFT_LIST_ITEM_PP,
           state: '0,1,4',
           symbol: 'WAX',
-          participant: rootState.user.name,
           ...options
         }
       })
@@ -410,12 +409,13 @@ export const actions = {
 
   async getSales({ rootState }, options) {
     try {
-      const { data } = await this.$api.post('atomicmarket/v2/sales', {
-        limit: NFT_LIST_ITEM_PP,
-        state: '0,1,4',
-        symbol: 'WAX',
-        seller: rootState.user.name,
-        ...options
+      const { data } = await this.$api.get('atomicmarket/v2/sales', {
+        params: {
+          limit: NFT_LIST_ITEM_PP,
+          state: '0,1,4',
+          symbol: 'WAX',
+          ...options
+        }
       })
 
       return data.data

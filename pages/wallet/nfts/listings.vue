@@ -50,7 +50,8 @@ export default {
       if (hasLoading) this.loading = true
       const res = await this.getSales({
         ...this.$route.query,
-        page: this.page
+        page: this.page,
+        seller: this.$store.state.user.name
       })
       this.listings = hasLoading ? res : [...this.listings, ...res]
       const buyOffers = await this.getBuyOffers()

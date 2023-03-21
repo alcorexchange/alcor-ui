@@ -59,7 +59,8 @@ export default {
       const res = await this.$store.dispatch('api/getSales', {
         state: '3',
         ...this.$route.query,
-        page: this.page
+        page: this.page,
+        seller: this.$store.state.user.name
       })
       this.solds = hasLoading ? res : [...this.solds, ...res]
       if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true

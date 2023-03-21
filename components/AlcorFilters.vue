@@ -39,6 +39,7 @@ el-dropdown#alcor-filters-component.d-flex.justify-content-between.align-items-c
             v-if="options.sorting"
             v-model='filters.order'
             :placeholder='$t("Choose a sorting order")'
+            @input="onOrderInput"
             size="mini"
           )
             el-option(
@@ -111,6 +112,13 @@ export default {
     this.updateQueryToData()
   },
   methods: {
+    onOrderInput(e) {
+      console.log(e)
+      const [sort, order] = e?.split('-') || [undefined, undefined]
+      this.filters.sort = sort
+      this.filters.order = order
+      this.applyFilters()
+    },
     updateQueryToData() {
       const query = this.$route.query
       this.filters = {

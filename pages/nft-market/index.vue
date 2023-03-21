@@ -161,27 +161,14 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: {
-            name: `nft-market-nft-marketplace-sales___${this.$i18n.locale}`,
-            query: {
-              match: '',
-              collection: null,
-              sorting: null,
-              minMint: null,
-              maxMint: null,
-              minPrice: null,
-              maxPrice: null,
-              isDuplicates: null,
-              isBacked: null
-            }
-          }
+          to: this.localeRoute('/nft-market/nft-marketplace/sales')
         },
         {
           title: 'WALLET',
           subTItle: this.user ? this.user.name : '',
           img: Img2,
           subImage: subImg,
-          to: { name: `wallet-nfts___${this.$i18n.locale}` }
+          to: this.localeRoute('/wallet/nfts')
         },
         {
           title: 'ALCOR',

@@ -60,6 +60,7 @@ export default {
       const res = await this.$store.dispatch('api/getSales', {
         state: '3',
         ...this.$route.query,
+        seller: this.$store.state.user.name,
         page: this.page
       })
       this.boughts = hasLoading ? res : [...this.boughts, ...res]
