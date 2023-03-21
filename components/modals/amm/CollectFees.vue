@@ -82,12 +82,23 @@ export default {
     }
   },
   methods: {
-    async collect() {
-      //ammcontract1 subliquid '[0, lpaccount112, 0, -900, 900, "0.0000 A", "0.0000 B", 0]' -p lpaccount112
-      //ammcontract1 collect '[0, lpaccount112, lpaccount112, -900, 900, "0.0000 A", "0.0000 B"]' -p lpaccount112
-
+    async submit() {
       if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
 
+      try {
+        // TODO Notify & update position
+        this.visible = false
+        setTimeout(() => {
+          this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+          this.$store.dispatch('amm/fetchPositions')
+        }, 1000)
+      } catch (e) {
+        console.error(e)
+        this.$notify({ type: 'error', title: 'Collect', message: e.message })
+      }
+    },
+
+    async collect() {
       const { tokenA, tokenB } = this.position.pool
       const { owner, lower, upper } = this.position
 
@@ -124,15 +135,8 @@ export default {
       }]
 
       console.log({ actions })
-      try {
-        // TODO Notify & update position
-        const result = await this.$store.dispatch('chain/sendTransaction', actions)
-        console.log('result', result)
-        this.$store.dispatch('amm/fetchPositions')
-        this.visible = false
-      } catch (e) {
-        console.log(e)
-      }
+      const result = await this.$store.dispatch('chain/sendTransaction', actions)
+      console.log('result', result)
     }
   }
 }

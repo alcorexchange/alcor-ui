@@ -350,7 +350,7 @@ const networks = {
     },
 
     amm: {
-      contract: 'ammcontract3'
+      contract: 'ammcontract4'
     },
 
     withdraw: {},

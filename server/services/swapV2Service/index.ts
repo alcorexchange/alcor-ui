@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
 import { getTokenPrices } from './../../utils'
-import { parseExtendedAssetPlain, parseAssetPlain } from '../../../utils'
+import { parseAssetPlain } from '../../../utils'
 import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
@@ -27,45 +27,53 @@ type Tick = {
 
 type TicksList = Map<number, Tick>
 
+// Getting sqrt price fot given time
+export async function getClosestSqrtPrice(chain, pool, time) {
+  const closestSwap = await Swap.findOne({ chain, pool, time: { '$lte': new Date(time) } }).sort({ time: 1 }).limit(1).lean()
+
+  if (closestSwap === null) {
+    return (await getPool({ chain, id: pool })).sqrtPriceX64
+  } else {
+    return closestSwap.sqrtPriceX64
+  }
+}
+
 export async function getRedisTicks(chain: string, poolId: number) {
   const entries = await client.get(`ticks_${chain}_${poolId}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }
 
 // FIXME redo without request pool
-async function handlePoolChart(chain: string, poolId: number, block_time: string, data) {
+async function handlePoolChart(
+  chain: string,
+  poolId: number,
+  block_time: string,
+  sqrtPriceX64: string,
+  reserveA: number,
+  reserveB: number,
+  volumeA = 0,
+  volumeB = 0,
+  ) {
+
+  //console.log({ chain, poolId, block_time, sqrtPriceX64, reserveA, reserveB, volumeA, volumeB })
+
   const network = networks[chain]
 
-  // Pool are just creating now we are wait, to be able fetch prices
-  if (poolCreationLock) {
-    console.log('WAIT FOR LOCK')
-    await poolCreationLock
-    console.log('WAITED !!! END FOR LOCK')
-  }
-
-  const { tokenA, tokenB, reserveA, reserveB, sqrtPriceX64 } = data
-
-  const poolInstance = await SwapPool.findOne({ chain, id: poolId }).lean()
-
-  //console.log({ poolInstance })
+  const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
-
-  // It might be negative value from swap action
-  const parsedA = Math.abs(parseAssetPlain(tokenA).amount)
-  const parsedB = Math.abs(parseAssetPlain(tokenB).amount)
 
   const tokenAprice = await getTokenPrices(chain, tokenA_id)
   const tokenBprice = await getTokenPrices(chain, tokenB_id)
 
-  const tvlTokenA = parseAssetPlain(reserveA).amount * tokenAprice.usd_price
-  const tvlTokenB = parseAssetPlain(reserveB).amount * tokenBprice.usd_price
-
-  const volumeTokenA = tokenAprice ? parsedA * tokenAprice.usd_price : 0
-  const volumeTokenB = tokenBprice ? parsedB * tokenBprice.usd_price : 0
-
-  const volumeUSD = volumeTokenA + volumeTokenB
+  const usdReserveA = reserveA * tokenAprice.usd_price
+  const usdReserveB = reserveB * tokenBprice.usd_price
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
+
+  const volumeTokenA = tokenAprice ? volumeA * tokenAprice.usd_price : 0
+  const volumeTokenB = tokenBprice ? volumeB * tokenBprice.usd_price : 0
+
+  const volumeUSD = volumeTokenA + volumeTokenB
 
   // Sptit by one minute
   //const minResolution = 60 * 60 // One hour
@@ -73,11 +81,11 @@ async function handlePoolChart(chain: string, poolId: number, block_time: string
   if (last_point && Math.floor(last_point.time / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
     last_point.sqrtPriceX64 = sqrtPriceX64
 
-    last_point.tokenA += parsedA
-    last_point.tokenB += parsedB
+    last_point.reserveA = reserveA
+    last_point.reserveB = reserveB
 
-    last_point.tvlTokenA = tvlTokenA
-    last_point.tvlTokenB = tvlTokenB
+    last_point.usdReserveA = usdReserveA
+    last_point.usdReserveB = usdReserveB
 
     last_point.volumeUSD += volumeUSD
 
@@ -87,11 +95,11 @@ async function handlePoolChart(chain: string, poolId: number, block_time: string
       chain,
       pool: poolId,
       price: sqrtPriceX64,
-      tokenA: parsedA,
-      tokenB: parsedB,
+      reserveA,
+      reserveB,
       volumeUSD,
-      tvlTokenA,
-      tvlTokenB,
+      usdReserveA,
+      usdReserveB,
       time: block_time
     })
   }
@@ -102,6 +110,33 @@ async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number
   //ticks.sort((a, b) => a.id - b.id) они должны в сете сортернуться
   const mappedTicks = ticks.map(t => [t[0], t[1]])
   await client.set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
+}
+
+// Get pool and wait for pool lock while pool might be creating
+async function getPool(filter) {
+  if (poolCreationLock) {
+    //console.log('WAIT FOR LOCK')
+    await poolCreationLock
+    //console.log('WAITED !!! END FOR LOCK')
+  }
+
+  let pool = await SwapPool.findOne(filter).lean()
+
+  if (pool === null) {
+    //console.warn(`WARNING: Updating non existing pool ${filter.id} action`)
+    pool = await updatePool(filter.chain, filter.id)
+
+    // It might be first position of just created pool
+    // Update token prices in that case
+    await updateTokensPrices(networks[filter.chain])
+  }
+
+  if (pool === null) {
+    console.error('pool still null')
+    process.exit(1)
+  }
+
+  return pool
 }
 
 const throttles = {}
@@ -292,34 +327,16 @@ export async function initialUpdate(chain: string, poolId?: number) {
 }
 
 async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
+  // TODO Можно по ликвидности составить историю позиции складывать вычитать и сортировать по блоку
+  // find last mint/burn and update it with -sub or +mint
   const { poolId, posId, owner, liquidity } = data
-
-  if (type == 'collect' && liquidity == 0) {
-    // Removed position
-    type = 'closed'
-  }
 
   const tokenAamount = parseFloat(data.tokenA)
   const tokenBamount = parseFloat(data.tokenB)
 
-  if (tokenAamount == 0 && tokenBamount == 0 && type !== 'closed') return undefined
+  if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
-  let pool = await SwapPool.findOne({ id: poolId, chain }).lean()
-
-  if (pool == null) {
-    console.warn(`WARNING: Updating non existing pool for ${type} action`)
-    pool = await updatePool(chain, poolId)
-
-    // It might be first position of just created pool
-    // Update token prices in that case
-    await updateTokensPrices(networks[chain])
-  }
-
-  if (pool === null) {
-    console.log('pool is still NULL!!!!')
-    process.exit(1)
-  }
-
+  const pool = await getPool({ id: poolId, chain })
   const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
 
   const tokenA = tokens.find(t => t.id == pool.tokenA.id)
@@ -341,6 +358,7 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
     tokenAUSDPrice,
     tokenBUSDPrice,
     totalUSDValue,
+    liquidity,
     trx_id,
     time: block_time
   })
@@ -354,8 +372,8 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
 
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
+  const pool = await getPool({ id: poolId, chain })
   const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
-  const pool = await SwapPool.findOne({ id: poolId, chain })
 
   const tokenA = tokens.find(t => t.id == pool.tokenA.id)
   const tokenB = tokens.find(t => t.id == pool.tokenB.id)
@@ -396,21 +414,65 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logswap') {
     await handleSwap({ chain, trx_id, data, block_time })
-    handlePoolChart(chain, data.poolId, block_time, data)
+
+    handlePoolChart(
+      chain,
+      data.poolId, 
+      block_time,
+      data.sqrtPriceX64,
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount,
+
+      // Providing volume, that only available in swap action
+      // (should be positive for both values)
+      Math.abs(parseAssetPlain(data.tokenA).amount),
+      Math.abs(parseAssetPlain(data.tokenB).amount)
+    )
   }
 
   if (name == 'logmint') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
-    handlePoolChart(chain, data.poolId, block_time, data)
+
+    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
+
+    handlePoolChart(
+      chain,
+      data.poolId, 
+      block_time,
+      sqrtPriceX64,
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount,
+    )
   }
 
   if (name == 'logburn') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'burn', block_time })
-    handlePoolChart(chain, data.poolId, block_time, data)
+
+    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
+
+    handlePoolChart(
+      chain,
+      data.poolId, 
+      block_time,
+      sqrtPriceX64,
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount
+    )
   }
 
   if (name == 'logcollect') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
+
+    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
+
+    handlePoolChart(
+      chain,
+      data.poolId, 
+      block_time,
+      sqrtPriceX64,
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount,
+    )
   }
 
   if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {

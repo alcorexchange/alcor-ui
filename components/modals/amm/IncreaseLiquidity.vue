@@ -36,7 +36,7 @@
     PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
     PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB").mt-2
 
-    AlcorButton.claim-fees-button.submit.w-100(big @click="add").mt-2 Add Liquidity
+    AlcorButton.claim-fees-button.submit.w-100(big @click="submit").mt-2 Add Liquidity
 
 </template>
 
@@ -79,6 +79,10 @@ export default {
     async submit() {
       try {
         await this.add()
+        this.visible = false
+
+        this.amountA = null
+        this.amountB = null
 
         setTimeout(() => {
           this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
@@ -150,14 +154,8 @@ export default {
       })
 
       console.log({ actions })
-      try {
-        // TODO Notify & update position
-        const result = await this.$store.dispatch('chain/sendTransaction', actions)
-        console.log('result', result)
-        this.visible = false
-      } catch (e) {
-        console.log(e)
-      }
+      const result = await this.$store.dispatch('chain/sendTransaction', actions)
+      console.log('result', result)
     },
 
     onAmountAInput(value) {

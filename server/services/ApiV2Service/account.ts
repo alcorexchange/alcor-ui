@@ -1,3 +1,4 @@
+import JSBI from 'jsbi'
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { SwapPool, PositionHistory, Position } from '../../models'
@@ -11,31 +12,40 @@ async function getPositionStats(chain, pool, id, owner) {
 
   let total = 0
   let sub = 0
-  let closed = false
+  let liquidity = JSBI.BigInt(0)
+  let collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0 }
+
+  //console.log()
 
   for (const h of history) {
-    if (h.type == 'mint') {
-      if (closed) {
-        // Pool id are incremented by 1 from last one, so different positions might got repeated
-        // so we clear counters if there where already closed position with that id
-        total = 0
-        sub = 0
-        closed = false
-      }
+    if (h.type === 'burn') {
+      liquidity = JSBI.subtract(liquidity, JSBI.BigInt(h.liquidity))
+      sub += h.totalUSDValue
+    }
 
+    if (h.type === 'mint') {
+      liquidity = JSBI.add(liquidity, JSBI.BigInt(h.liquidity))
       total += h.totalUSDValue
     }
 
+    if (h.type === 'collect') {
+      collectedFees.tokenA += h.tokenA
+      collectedFees.tokenB += h.tokenB
+      collectedFees.inUSD += h.totalUSDValue
+      sub += h.totalUSDValue
+    }
+
+    if (h.type == 'mint') total += h.totalUSDValue
+
     // Might be after close
     if (['burn', 'collect'].includes(h.type)) sub += h.totalUSDValue
-
-    if (h.type == 'closed') closed = true
   }
 
   const absoluteTotal = +(total - sub).toFixed(4)
-  console.log({ id, total, sub })
 
-  return { absoluteTotal, closed }
+  let closed = JSBI.equal(liquidity, JSBI.BigInt(0))
+
+  return { absoluteTotal, closed, collectedFees }
 }
 
 
@@ -70,7 +80,7 @@ account.get('/:account/positions', async (req, res) => {
   const fullPositions = []
   for (const position of positions) {
     const stats = await getPositionStats(network.name, position.pool, position.id, position.owner)
-    fullPositions.push({ ...position, ...stats })
+    fullPositions.push({ ...position, stats })
   }
 
   res.json(fullPositions)

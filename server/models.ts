@@ -222,12 +222,12 @@ const SwapChartPointSchema = new mongoose.Schema({
   price: { type: String },
 
   // Liquidity reserves
-  tokenA: { type: Number },
-  tokenB: { type: Number },
+  reserveA: { type: Number },
+  reserveB: { type: Number },
 
   // Liquidity reserves in USD
-  tvlTokenA: { type: Number, default: 0 },
-  tvlTokenB: { type: Number, default: 0 },
+  usdReserveA: { type: Number, default: 0 },
+  usdReserveB: { type: Number, default: 0 },
 
   volumeUSD: { type: Number, default: 0 },
 
@@ -288,6 +288,7 @@ const PositionHistorySchema = new mongoose.Schema({
 
   // Total USD value of tokenA + tokenB  in a time of change
   totalUSDValue: { type: Number },
+  liquidity: { type: String },
 
   trx_id: { type: String },
   time: { type: Date, index: true },

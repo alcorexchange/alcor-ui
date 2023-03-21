@@ -45,30 +45,30 @@ export async function getAllTokensWithPrices(network: Network) {
 
   pools.map(p => {
     const { tokenA, tokenB } = p
-    if (tokens.filter(t => t.name == tokenA.name).length == 0) tokens.push(tokenA)
-    if (tokens.filter(t => t.name == tokenB.name).length == 0) tokens.push(tokenB)
+    if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+    if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
   })
 
   for (const t of tokens) {
-    if (t.name == system_token) {
+    if (t.id == system_token) {
       t.system_price = 1
       t.usd_price = systemPrice
       continue
     }
 
     const pool = pools.find(p => (
-      p.tokenA.name == (t.symbol + '-' + t.contract).toLowerCase() &&
-      p.tokenB.name == system_token
+      p.tokenA.id == (t.symbol + '-' + t.contract).toLowerCase() &&
+      p.tokenB.id == system_token
     ) || (
-      p.tokenB.name == (t.symbol + '-' + t.contract).toLowerCase() &&
-      p.tokenA.name == system_token
+      p.tokenB.id == (t.symbol + '-' + t.contract).toLowerCase() &&
+      p.tokenA.id == system_token
     ))
 
     if (!pool) {
       t.usd_price = 0.0
       t.system_price = 0.0
     } else {
-      t.system_price = parseFloat((pool.tokenA.name == system_token? pool.tokenBPrice : pool.tokenAPrice)
+      t.system_price = parseFloat((pool.tokenA.id == system_token? pool.tokenBPrice : pool.tokenAPrice)
         .toSignificant(6)
       )
 
