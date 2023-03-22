@@ -5,7 +5,6 @@ import { isTicksAtLimit, tryParsePrice, tryParseCurrencyAmount, parseToken, tryP
 import { Percent, Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
 
-
 const DEFAULT_SLIPPAGE = 0.3
 
 export const state = () => ({
@@ -15,6 +14,10 @@ export const state = () => ({
 
   // Store only one pool ticks at the time
   ticks: {},
+
+  // Api
+  poolStats: [],
+  positionStats: [],
 
   // TODO move to module
   selectedTokenA: null,

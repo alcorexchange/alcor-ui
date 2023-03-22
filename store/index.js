@@ -13,7 +13,7 @@ export const state = () => ({
   userOrders: [],
   userOrdersLoading: true,
   account: null,
-  liquidityPositions: [],
+  liquidityPositions: [], // v1 old pool
 
   accountLimits: {
     buyorders: {},

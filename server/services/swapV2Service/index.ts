@@ -166,6 +166,9 @@ async function updatePositions(chain: string, poolId: number) {
     table: 'positions'
   })
 
+  // Mapping pool id to position
+  positions.forEach(p => p.pool = poolId)
+
   const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
 
   // Merging
