@@ -20,10 +20,6 @@ export default {
   data: () => ({
     bannerOnly: [
       {
-        bannerImg: 'novopangea',
-        bannerUrl: 'https://wax.alcor.exchange/trade/novo-tokens.novo_wax-eosio.token'
-      },
-      {
         bannerImg: 'zombiecointk',
         bannerUrl: 'https://www.zombiecoin.io'
       },
