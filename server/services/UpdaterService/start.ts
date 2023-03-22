@@ -19,7 +19,7 @@ export function startUpdaters() {
     updater(process.env.NETWORK, 'node', ['prices', 'swap'])
   } else {
     updater('eos', 'node', ['markets', 'pools'])
-    updater('wax', 'node', ['markets', 'pools'])
+    updater('wax', 'node', ['markets', 'pools', 'prices', 'swap'])
     updater('proton', 'node', ['markets'])
     updater('telos', 'node', ['markets', 'pools'])
   }

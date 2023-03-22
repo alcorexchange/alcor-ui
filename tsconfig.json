@@ -3,7 +3,7 @@
         "files": true
     },
     "files": [
-        "src/global.d.ts"
+        "server/global.d.ts"
     ],
     "paths": {
         "*": ["server/*.d.ts"]
