@@ -52,11 +52,11 @@ el-table.position-table(
 
   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span $1200
+      span ${{ row.totalUSDValue }}
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span.red $-1200
+      span.red $ -1200
 
   el-table-column(:label='$t("Action")' v-if="!isMobile")
     template(slot-scope='{row}')
@@ -74,7 +74,6 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
-  data: () => ({ positions: [] }),
 
   computed: {
     ...mapGetters('amm', ['plainPositions'])
