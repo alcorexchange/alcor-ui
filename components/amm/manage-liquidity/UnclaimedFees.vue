@@ -9,14 +9,14 @@
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
       .fs-18.lh-12 {{ feesA }}
-      .fs-14.color-action ($0.00)
+      .fs-14.color-action (${{ $tokenToUSD(feesA, position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
       .fs-18.lh-12 {{ feesB }}
-      .fs-14.color-action ($0.00)
+      .fs-14.color-action (${{ $tokenToUSD(feesB, position.pool.tokenB.symbol, position.pool.tokenB.contract) }})
 
 </template>
 

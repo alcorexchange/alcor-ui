@@ -29,7 +29,7 @@
         .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
       .d-flex.align-items-center.gap-8
         .fs-18 {{ position.amountB.toFixed() }}
-        .fs-14.color-action ($0.00)
+        .fs-14.color-action ({{$tokenToUSD(position.amountB.toFixed(), position.pool.tokenB.symbol, position.pool.tokenB.contract)}})
 
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
