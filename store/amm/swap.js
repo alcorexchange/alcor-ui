@@ -74,7 +74,7 @@ export const actions = {
 
     let path = '/add-liquidity/'
 
-    if (state.tokenA && state.tokenA.name !== tokenA) {
+    if (state.tokenA && state.tokenA.id !== tokenA) {
       path += state.tokenA
     }
 
@@ -118,8 +118,8 @@ export const actions = {
 }
 
 export const getters = {
-  tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
-  tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
+  tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
+  tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
   sortedA: (state, getters) => getters.isSorted ? getters.tokenA : getters.tokenB,
   sortedB: (state, getters) => getters.isSorted ? getters.tokenB : getters.tokenA,
@@ -130,8 +130,8 @@ export const getters = {
     rootGetters['amm/pools'].map(p => {
       const { tokenA, tokenB } = p
 
-      if (tokens.filter(t => t.name == tokenA.name).length == 0) tokens.push(tokenA)
-      if (tokens.filter(t => t.name == tokenB.name).length == 0) tokens.push(tokenB)
+      if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+      if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
     })
 
     return tokens
