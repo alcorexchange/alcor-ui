@@ -5,10 +5,10 @@
     .fs-24 Bridge assets from different chains
 
   client-only
-    bridge-form.mt-4
+    BridgeForm.mt-4
 
-    circle1(:color="sourceColor" total="20").circle1
-    circle2(:color="destinationColor" total="20").circle2
+    Circle1(:color="sourceColor" total="20").circle1
+    Circle2(:color="destinationColor" total="20").circle2
 </template>
 
 <script>
