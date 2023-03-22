@@ -11,7 +11,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
-import { networkResolver } from '../ApiService/middleware'
+import { networkResolver } from '../apiService/middleware'
 import { spot } from './spot'
 import { swap } from './swap'
 import { tokens } from './tokens'
