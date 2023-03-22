@@ -62,7 +62,7 @@ export const actions = {
   },
 
   afterLoginHook({ dispatch, rootState }) {
-    dispatch('amm/init', {}, { root: true })
+    dispatch('amm/afterLogin', {}, { root: true })
 
     dispatch('loadAccountData', {}, { root: true })
 

@@ -44,7 +44,7 @@ export default class AnchoWallet extends WalletBase {
       chains: [
         {
           chainId: this.network.chainId,
-          nodeUrl: this.rpc.currentEndpoint
+          nodeUrl: `https://${this.network.name}.greymass.com`
         }
       ]
     })

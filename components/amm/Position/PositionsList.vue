@@ -52,11 +52,11 @@ el-table.position-table(
 
   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span $1200
+      span ${{ row.totalUSDValue }}
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span.red $-1200
+      span.red $ -1200
 
   el-table-column(:label='$t("Action")' v-if="!isMobile")
     template(slot-scope='{row}')
@@ -65,7 +65,7 @@ el-table.position-table(
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -74,22 +74,10 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
-  data: () => ({ positions: [] }),
 
   computed: {
-    ...mapState('amm', ['plainPositions'])
+    ...mapGetters('amm', ['plainPositions'])
   },
-
-  methods: {
-    async loadPositions() {
-      this.positions = await this.$store.dispatch('amm/getPlainPositions')
-    },
-
-    // managePosition({ link }) {
-    //   console.log({ link })
-    //   this.$router.push(link)
-    // }
-  }
 }
 </script>
 
