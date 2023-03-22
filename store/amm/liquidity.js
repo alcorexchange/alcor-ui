@@ -34,7 +34,7 @@ export const actions = {
 
     let path = '/add-liquidity/'
 
-    if (state.tokenA && state.tokenA.name !== tokenA) {
+    if (state.tokenA && state.tokenA.id !== tokenA) {
       path += state.tokenA
     }
 
@@ -56,13 +56,13 @@ export const actions = {
   },
 
   setTokenA({ state, dispatch, commit }, token) {
-    if (token.name == state.tokenB?.name) commit('setTokenB', null)
+    if (token.id == state.tokenB?.id) commit('setTokenB', null)
     commit('setTokenA', token)
     //dispatch('updateRoutePath')
   },
 
   setTokenB({ state, dispatch, commit }, token) {
-    if (token.name == state.tokenA?.name) return commit('setTokenB', null)
+    if (token.id == state.tokenA?.id) return commit('setTokenB', null)
 
     commit('setTokenB', token)
     //dispatch('updateRoutePath')
@@ -75,8 +75,8 @@ export const actions = {
 }
 
 export const getters = {
-  tokenA: (state, getters) => getters.tokens.find(t => t.name == state.tokenA?.name),
-  tokenB: (state, getters) => getters.tokens.find(t => t.name == state.tokenB?.name),
+  tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
+  tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
   sortedA: (state, getters) => getters.isSorted ? getters.tokenA : getters.tokenB,
   sortedB: (state, getters) => getters.isSorted ? getters.tokenB : getters.tokenA,
@@ -89,8 +89,8 @@ export const getters = {
     rootGetters['amm/pools'].map(p => {
       const { tokenA, tokenB } = p
 
-      if (tokens.filter(t => t.name == tokenA.name).length == 0) tokens.push(tokenA)
-      if (tokens.filter(t => t.name == tokenB.name).length == 0) tokens.push(tokenB)
+      if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+      if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
     })
 
     if (rootState.user?.balances)
@@ -102,7 +102,7 @@ export const getters = {
           b.id.replace('@', '-').toLowerCase()
         )
 
-        if (tokens.filter(t => t.name == token.name).length == 0) tokens.push(token)
+        if (tokens.filter(t => t.id == token.id).length == 0) tokens.push(token)
       })
 
     return tokens
@@ -113,8 +113,8 @@ export const getters = {
 
     const pool = rootGetters['amm/pools'].find(p => {
       return (
-        (p.tokenA.name == state.tokenA?.name && p.tokenB.name == state.tokenB?.name) ||
-        (p.tokenA.name == state.tokenB?.name && p.tokenB.name == state.tokenA?.name)
+        (p.tokenA.id == state.tokenA?.id && p.tokenB.id == state.tokenB?.id) ||
+        (p.tokenA.id == state.tokenB?.id && p.tokenB.id == state.tokenA?.id)
       ) && p.fee == state.feeAmount
     })
 
