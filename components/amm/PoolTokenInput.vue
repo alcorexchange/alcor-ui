@@ -89,7 +89,7 @@ export default {
       return !!this.token ? (this.label || '') : ''
     },
     renderBottom() {
-      return !!this.token ? '~$0.00' : ''
+      return !!this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
     },
     ...mapState(['user'])
   },
