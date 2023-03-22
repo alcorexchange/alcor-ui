@@ -167,7 +167,6 @@ async function updatePositions(chain: string, poolId: number) {
   })
 
   const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
-  console.log({ current })
 
   // Merging
   const toSet = new Map([...current.map(p => [p.id, p]), ...positions.map(p => [p.id, p])])

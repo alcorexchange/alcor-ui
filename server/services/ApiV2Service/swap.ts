@@ -26,7 +26,7 @@ function positionIdHandler(req, res, next) {
 swap.get('/pools', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const pools = await SwapPool.find({ chain: network.name }).select('tokenA tokenB').lean()
+  const pools = await SwapPool.find({ chain: network.name }).lean()
   res.json(pools)
 })
 
@@ -38,7 +38,7 @@ swap.get('/pools/:id', async (req, res) => {
 
   if (id) filter.id = parseInt(id)
 
-  const pools = await SwapPool.find(filter).select('tokenA tokenB').lean()
+  const pools = await SwapPool.find(filter).lean()
   res.json(pools)
 })
 
@@ -57,42 +57,23 @@ swap.get('/pools/:pool_id/ticks', async (req, res) => {
   res.json(Array.from(ticks.values()))
 })
 
-swap.get('/position-stats/:position_id', positionIdHandler, async (req, res) => {
-  // TODO Test first positions in a pool
-  const network: Network = req.app.get('network')
+// const ONEDAY = 60 * 60 * 24 * 1000
 
-  const { poolId, posId } = req.params.position_id as any
+// const timeframes = {
+//   '24H': ONEDAY,
+//   '7D': ONEDAY * 7,
+//   '30D': ONEDAY * 30
+// }
 
-  // TODO Handle reopen new position after closing (maybe we should check it in api)
-  // TODO Price for first position what creating pool will be wrong
-  // Need sort here and check for 'closed'
-  const history = await PositionHistory.find({ chain: network.name, pool: poolId, id: posId }).lean()
+// const timepoints = {
+//   '24H': 60 * 60 * 1000,
+//   '7D': 60 * 60 * 4 * 1000,
+//   '30D': 60 * 60 * 12 * 1000
+// }
 
-  const total = history.filter(h => 'mint' == h.type).reduce((total, i) => total + i.totalUSDValue, 0)
-  const sub = history.filter(h => ['burn', 'collect'].includes(h.type)).reduce((total, i) => total + i.totalUSDValue, 0)
-
-  const absoluteTotal = total - sub
-
-  res.json({ absoluteTotal })
-})
-
-const ONEDAY = 60 * 60 * 24 * 1000
-
-const timeframes = {
-  '24H': ONEDAY,
-  '7D': ONEDAY * 7,
-  '30D': ONEDAY * 30
-}
-
-const timepoints = {
-  '24H': 60 * 60 * 1000,
-  '7D': 60 * 60 * 4 * 1000,
-  '30D': 60 * 60 * 12 * 1000
-}
-
-const defCache = cacheSeconds(60 * 5, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
-})
+// const defCache = cacheSeconds(60 * 5, (req, res) => {
+//   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
+// })
 
 // pools.get('/:pair_id/charts', defCache, async (req, res) => {
 //   const network = req.app.get('network')
