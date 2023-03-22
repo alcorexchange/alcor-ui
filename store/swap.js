@@ -178,7 +178,7 @@ export const actions = {
     const { SCAM_CONTRACTS } = rootState.network
     commit(
       'setPairs',
-      pairs.filter(r => !(SCAM_CONTRACTS.includes(r.pool1.contract)) && !(SCAM_CONTRACTS.includes(r.pool1.contract)))
+      pairs.filter(r => !(SCAM_CONTRACTS.includes(r.pool1.contract)) && !(SCAM_CONTRACTS.includes(r.pool2.contract)))
     )
   },
 
