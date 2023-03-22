@@ -29,6 +29,7 @@ export const state = () => ({
 
   baseUrl: '',
   tokens: [],
+  eosAirdropTokens: [],
   ibcTokens: ['eth.token'],
   lihgHistoryBlock: null,
   blockNum: null
@@ -67,6 +68,7 @@ export const mutations = {
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
+  setEosAirdropTokens: (state, tokens) => state.eosAirdropTokens = tokens,
   setAccount: (state, account) => state.account = account,
   setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,
@@ -85,7 +87,8 @@ const loadOrdersDebounce = {}
 
 export const actions = {
   init({ dispatch, state, getters }) {
-    dispatch('fetchTokens')
+    dispatch('loadAllTokens')
+    dispatch('fetchEosAirdropTokens')
 
     if (state.network.name == 'local') return
 
@@ -142,12 +145,12 @@ export const actions = {
     this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : radio_value
   },
 
-  async fetchTokens({ commit }) {
+  async fetchEosAirdropTokens({ commit }) {
     try {
       const { data } = await this.$axios.get(
         'https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json'
       )
-      commit('setTokens', data)
+      commit('setEosAirdropTokens', data)
     } catch (e) {
       console.error('Fetching tokens from eos-airdrops', e)
     }
@@ -198,6 +201,11 @@ export const actions = {
     if (account) commit('setAccountLimits', account)
   },
 
+  async loadAllTokens({ state, commit, getters, dispatch }) {
+    const { data: tokens } = await this.$axios.get('/v2/tokens')
+    commit('setTokens', tokens)
+  },
+
   async loadMarkets({ state, commit, getters, dispatch }) {
     const { data } = await this.$axios.get('/markets')
     data.map(m => {
@@ -211,21 +219,6 @@ export const actions = {
       m.i256 = make256key(base_token.contract, base_token.symbol.name, quote_token.contract, quote_token.symbol.name)
     })
     commit('setMarkets', data)
-  },
-
-  async loadIbc({ state, commit, rootGetters }) {
-    // TODO
-    //const { rows: ibcTokens } = await this.$rpc.get_table_rows({
-    //  code: 'bosibc.io',
-    //  scope: 'bosibc.io',
-    //  table: 'accepts',
-    //  limit: 1000
-    //})
-
-    //const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
-
-    //commit('setIbcTokens', tokens)
-    //commit('setIbcAccepts', ibcTokens)
   },
 
   loadUserLiqudityPositions({ state, commit }) {

@@ -52,6 +52,13 @@ Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
   return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 5 })
 })
 
+Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
+  const id = symbol.toLowerCase() + '-' + contract
+
+  const price = this.$store.state.tokens.find(t => t.id == id)
+  return (amount * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
+}
+
 Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2) {
   let result = parseFloat(amount)
   if (this.$store.state.wallet.systemPrice) {
@@ -87,7 +94,7 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
       return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
     }
   } catch {
-    const tokens = this.$store.state.tokens
+    const tokens = this.$store.state.eosAirdropTokens
 
     const token = tokens.filter(t => t.chain == network && t.account == contract && t.symbol == symbol)[0]
 
