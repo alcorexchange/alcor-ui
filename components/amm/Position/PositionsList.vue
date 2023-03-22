@@ -65,7 +65,7 @@ el-table.position-table(
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -77,19 +77,8 @@ export default {
   data: () => ({ positions: [] }),
 
   computed: {
-    ...mapState('amm', ['plainPositions'])
+    ...mapGetters('amm', ['plainPositions'])
   },
-
-  methods: {
-    async loadPositions() {
-      this.positions = await this.$store.dispatch('amm/getPlainPositions')
-    },
-
-    // managePosition({ link }) {
-    //   console.log({ link })
-    //   this.$router.push(link)
-    // }
-  }
 }
 </script>
 

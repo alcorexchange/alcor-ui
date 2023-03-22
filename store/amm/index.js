@@ -10,14 +10,14 @@ const DEFAULT_SLIPPAGE = 0.3
 export const state = () => ({
   pools: [],
   positions: [],
-  plainPositions: [],
+  //plainPositions: [],
 
   // Store only one pool ticks at the time
   ticks: {},
 
   // Api
-  poolStats: [],
-  positionStats: [],
+  poolsStats: [],
+  positionsStats: [],
 
   // TODO move to module
   selectedTokenA: null,
@@ -30,6 +30,10 @@ export const mutations = {
   setPositions: (state, positions) => state.positions = positions,
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
+
+  setPoolsStats: (state, stats) => state.poolsStats = stats,
+  setPositionsStats: (state, stats) => state.positionsStats = stats,
+
   setTicks: (state, { poolId, ticks }) => {
     ticks.sort((a, b) => a.id - b.id)
     Vue.set(state.ticks, poolId, ticks)
@@ -44,8 +48,35 @@ export const mutations = {
 
 export const actions = {
   async init({ dispatch }) {
-    await dispatch('fetchPools')
-    await dispatch('fetchPositions')
+    dispatch('fetchPools')
+    dispatch('fetchPoolsStats')
+  },
+
+  async afterLogin({ dispatch }) {
+    dispatch('fetchPools')
+    dispatch('fetchPositions')
+    dispatch('fetchPositionsStats')
+  },
+
+
+  async fetchPoolsStats({ state, commit }) {
+    const { data: pools } = await this.$axios.get('/v2/pools')
+    commit('setPoolsStats', pools)
+  },
+
+  async fetchPositionsStats({ rootState, commit }) {
+    const owner = rootState.user?.name
+
+    const { data } = await this.$axios.get('/v2/account/' + owner + '/positions-stats')
+    console.log({ data })
+    commit('setPositionsStats', data)
+  },
+
+  async fetchPositions({ state, commit, rootState, dispatch }) {
+    const owner = rootState.user?.name
+
+    const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
+    commit('setPositions', positions)
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
@@ -106,60 +137,12 @@ export const actions = {
     commit('setPools', old_pools)
   },
 
-  async buildPlainPositions({ commit, getters }) {
-    const positions = []
-    for (const p of getters.positions) {
-      const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
-
-      const priceLower = isTicksAtLimit(fee, tickLower, tickUpper).LOWER ? '0' : p.tokenAPriceLower.toSignificant(5)
-      const priceUpper = isTicksAtLimit(fee, tickLower, tickUpper).UPPER ? '∞' : p.tokenAPriceUpper.toSignificant(5)
-
-      const amountA = p.amountA.toAsset()
-      const amountB = p.amountB.toAsset()
-      const { feesA, feesB } = await p.getFees()
-      const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
-
-      positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
-    }
-
-    commit('setPlainPositions', positions)
-  },
-
-  async fetchPositions({ state, commit, rootState, dispatch }) {
-    // TODO Make server api for it
-    const owner = rootState.user?.name
-
-    const positions = []
-
-    // TODO use backend for it
-    //const pool_ids = ''
-
-    for (const pool of state.pools) {
-      const rows = await fetchAllRows(this.$rpc, {
-        code: rootState.network.amm.contract,
-        scope: pool.id,
-        table: 'positions',
-        key_type: 'i64',
-        index_position: 3,
-        lower_bound: nameToUint64(owner),
-        upper_bound: nameToUint64(owner)
-      })
-
-      if (!rows) continue
-
-      rows.map(r => r.pool = pool.id)
-      positions.push(...rows)
-    }
-
-    commit('setPositions', positions)
-    dispatch('buildPlainPositions')
-  },
-
   async fetchPools({ state, commit, rootState, dispatch }) {
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
     commit('setPools', rows)
+    console.log('pools setted')
 
     for (const row of rows) {
       dispatch('fetchTicksOfPool', row.id)
@@ -183,6 +166,7 @@ export const getters = {
   pools(state, getters, rootState) {
     const pools = []
 
+    console.log('pools getter', state.pools)
     for (const row of state.pools) {
       const { tokenA, tokenB, protocolFeeA, protocolFeeB, currSlot: { sqrtPriceX64, tick } } = row
 
@@ -201,7 +185,7 @@ export const getters = {
       }))
     }
 
-    return state.ticks ? pools : pools
+    return pools
   },
 
   positions(state, getters) {
@@ -210,6 +194,8 @@ export const getters = {
     for (const position of state.positions) {
       const poolInstance = getters.pools.find(p => p.id == position.pool)
 
+      if (!poolInstance) continue
+
       positions.push(new Position({
         ...position,
         pool: poolInstance
@@ -217,5 +203,26 @@ export const getters = {
     }
 
     return positions
-  }
+  },
+
+  plainPositions(state, getters) {
+    const positions = []
+    for (const p of getters.positions) {
+      const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
+
+      const priceLower = isTicksAtLimit(fee, tickLower, tickUpper).LOWER ? '0' : p.tokenAPriceLower.toSignificant(5)
+      const priceUpper = isTicksAtLimit(fee, tickLower, tickUpper).UPPER ? '∞' : p.tokenAPriceUpper.toSignificant(5)
+
+      const amountA = p.amountA.toAsset()
+      const amountB = p.amountB.toAsset()
+      //const { feesA, feesB } = await p.getFees()
+      const [feesA, feesB] = [0, 0]
+      const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
+
+      //positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
+      positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA, feesB })
+    }
+
+    return positions
+  },
 }

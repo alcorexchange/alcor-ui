@@ -12,10 +12,6 @@ export default {
   components: { PositionsList, PositionHeader },
 
   methods: {
-    async loadPositions() {
-      this.positions = await this.$store.dispatch('amm/getPlainPositions')
-    },
-
     managePosition({ link }) {
       console.log({ link })
       this.$router.push(link)

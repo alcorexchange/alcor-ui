@@ -72,9 +72,9 @@ account.get('/:account/positions', async (req, res) => {
   const network: Network = req.app.get('network')
   const redis = req.app.get('redisClient')
 
-  const current = JSON.parse(await redis.get(`positions_${network.name}`))
+  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
 
-  res.json(current)
+  res.json(positions.filter(p => p.owner == req.params.account))
 })
 
 account.get('/:account/positions-stats', async (req, res) => {
