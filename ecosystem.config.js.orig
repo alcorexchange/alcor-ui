@@ -18,7 +18,7 @@ module.exports = {
     },
     {
       name: 'Alcor-apiV2-server',
-      script: './lib/server/services/ApiV2Service/index.js',
+      script: './lib/server/services/apiV2Service/index.js',
       exec_mode: 'cluster',
       instances: 2,
       kill_timeout: 3000,
@@ -30,7 +30,7 @@ module.exports = {
     },
     {
       name: 'Alcor-api-server',
-      script: './lib/server/services/ApiService/index.js',
+      script: './lib/server/services/apiService/index.js',
       exec_mode: 'cluster',
       instances: 2,
       kill_timeout: 3000,
@@ -56,7 +56,7 @@ module.exports = {
     },
     {
       name: 'Alcor-updater',
-      script: './lib/server/services/UpdaterService/index.js',
+      script: './lib/server/services/updaterService/index.js',
       node_args: '-r esm',
       cron_restart: '0 * * * *'
     },
