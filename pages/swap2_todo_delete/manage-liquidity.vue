@@ -51,7 +51,7 @@ export default {
 
     filteredPositions() {
       return this.positions.filter(({ pool: { tokenA, tokenB } }) =>
-        [tokenA.name, tokenB.name].join('').toLowerCase().includes(this.search.toLowerCase())
+        [tokenA.id, tokenB.id].join('').toLowerCase().includes(this.search.toLowerCase())
       )
     },
 

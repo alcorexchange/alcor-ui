@@ -90,7 +90,7 @@ export default {
       const tokens = []
 
       this.network.popularTokens.map(token => {
-        const tInstance = this.tokens.find(t => token == t.name)
+        const tInstance = this.tokens.find(t => token == t.id)
 
         if (tInstance) tokens.push(tInstance)
       })
