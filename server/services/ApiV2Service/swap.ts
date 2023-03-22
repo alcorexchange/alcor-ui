@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { SwapPool, PositionHistory, Position } from '../../models'
+import { getRedisTicks } from '../swapV2Service/utils'
 
 export const swap = Router()
 
@@ -47,6 +48,13 @@ swap.get('/pools/:id/positions', async (req, res) => {
   
   const positions = await Position.find({ chain: network.name, pool: parseInt(req.params.id)}).lean()
   res.json(positions)
+})
+
+swap.get('/pools/:pool_id/ticks', async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const ticks = await getRedisTicks(network.name, req.params.pool_id)
+  res.json(Array.from(ticks.values()))
 })
 
 swap.get('/position-stats/:position_id', positionIdHandler, async (req, res) => {

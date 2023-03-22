@@ -12,10 +12,11 @@ import { fetchAllRows } from '../../../utils/eosjs'
 import { getSingleEndpointRpc, getFailOverRpc } from './../../utils'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
+import { getRedisTicks } from './utils'
 
-const client = createClient()
-const publisher = client.duplicate()
-const subscriber = client.duplicate()
+const redis = createClient()
+const publisher = redis.duplicate()
+const subscriber = redis.duplicate()
 
 // Used to wait for pool creation and fetching prices
 let poolCreationLock = null
@@ -38,9 +39,11 @@ export async function getClosestSqrtPrice(chain, pool, time) {
   }
 }
 
-export async function getRedisTicks(chain: string, poolId: number) {
-  const entries = await client.get(`ticks_${chain}_${poolId}`)
-  return entries ? new Map(JSON.parse(entries) || []) : new Map()
+async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number, Tick]>) {
+  // Orderbook style sort
+  //ticks.sort((a, b) => a.id - b.id) они должны в сете сортернуться
+  const mappedTicks = ticks.map(t => [t[0], t[1]])
+  await redis.set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
 }
 
 // FIXME redo without request pool
@@ -105,13 +108,6 @@ async function handlePoolChart(
   }
 }
 
-async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number, Tick]>) {
-  // Orderbook style sort
-  //ticks.sort((a, b) => a.id - b.id) они должны в сете сортернуться
-  const mappedTicks = ticks.map(t => [t[0], t[1]])
-  await client.set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
-}
-
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
   if (poolCreationLock) {
@@ -161,7 +157,6 @@ function throttledPoolUpdate(chain: string, poolId: number) {
 
 async function updatePositions(chain: string, poolId: number) {
   console.log('updatePositions', poolId)
-  // TODO We can handle fee calculation here
   const network = networks[chain]
   const rpc = getFailOverRpc(network)
 
@@ -171,19 +166,28 @@ async function updatePositions(chain: string, poolId: number) {
     table: 'positions'
   })
 
-  const bulkOps = positions.map(p => {
-    const { owner, id } = p
+  const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
+  console.log({ current })
 
-    return {
-      updateOne: {
-          filter: { chain, pool: poolId, owner, id },
-          update: p,
-          upsert: true,
-      }
-    }
-  })
+  // Merging
+  const toSet = new Map([...current.map(p => [p.id, p]), ...positions.map(p => [p.id, p])])
 
-  return await Position.bulkWrite(bulkOps)
+  await redis.set(`positions_${chain}`, JSON.stringify(Array.from(toSet.values())))
+
+  // JUST BULK EXAMPLE
+  // FIXME Remove it's old, storing positions in mongo
+  // const bulkOps = positions.map(p => {
+  //   const { owner, id } = p
+
+  //   return {
+  //     updateOne: {
+  //         filter: { chain, pool: poolId, owner, id },
+  //         update: p,
+  //         upsert: true,
+  //     }
+  //   }
+  // })
+  //return await Position.bulkWrite(bulkOps)
 }
 
 async function updatePool(chain: string, poolId: number) {
@@ -249,7 +253,7 @@ async function connectAll() {
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
 
   // Redis
-  await client.connect()
+  await redis.connect()
   await publisher.connect()
   await subscriber.connect()
 }
@@ -337,7 +341,7 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
   const pool = await getPool({ id: poolId, chain })
-  const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
+  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
   const tokenA = tokens.find(t => t.id == pool.tokenA.id)
   const tokenB = tokens.find(t => t.id == pool.tokenB.id)
@@ -373,7 +377,7 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
   const pool = await getPool({ id: poolId, chain })
-  const tokens = JSON.parse(await client.get(`${chain}_token_prices`))
+  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
   const tokenA = tokens.find(t => t.id == pool.tokenA.id)
   const tokenB = tokens.find(t => t.id == pool.tokenB.id)

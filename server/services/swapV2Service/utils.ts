@@ -1,7 +1,10 @@
+import { createClient } from 'redis'
 import { SwapPool } from '../../models'
 
 import { Pool } from '../../../assets/libs/swap-sdk/entities/pool'
 import { Token } from '../../../assets/libs/swap-sdk/entities/token'
+
+const redis = createClient()
 
 export async function getPools(chain: string) {
   // Based on swap only, right now
@@ -17,4 +20,11 @@ export async function getPools(chain: string) {
       tickCurrent: pool.tick
     })
   })
+}
+
+export async function getRedisTicks(chain: string, poolId: number | string) {
+  if (!redis.isOpen) await redis.connect()
+
+  const entries = await redis.get(`ticks_${chain}_${poolId}`)
+  return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }

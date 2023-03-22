@@ -6,9 +6,9 @@ import { SwapPool, PositionHistory, Position } from '../../models'
 // TODO Account validation
 export const account = Router()
 
-async function getPositionStats(chain, pool, id, owner) {
+async function getPositionStats(chain, id, owner) {
   // Will sort "closed" to the end
-  const history = await PositionHistory.find({ chain, pool, id, owner }).sort({ time: 1, type: 1 }).lean()
+  const history = await PositionHistory.find({ chain, id, owner }).sort({ time: 1, type: 1 }).lean()
 
   let total = 0
   let sub = 0
@@ -70,17 +70,24 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
 
 account.get('/:account/positions', async (req, res) => {
   const network: Network = req.app.get('network')
+  const redis = req.app.get('redisClient')
+
+  const current = JSON.parse(await redis.get(`positions_${network.name}`))
+
+  res.json(current)
+})
+
+account.get('/:account/positions-stats', async (req, res) => {
+  const network: Network = req.app.get('network')
 
   const { account } = req.params
 
-  // Closed/not closed
-  // TODO Not closed
-  const positions = await Position.find({ chain: network.name, owner: account }).lean()
+  const positions = await PositionHistory.distinct('id', { chain: network.name, owner: account }).lean()
 
   const fullPositions = []
-  for (const position of positions) {
-    const stats = await getPositionStats(network.name, position.pool, position.id, position.owner)
-    fullPositions.push({ ...position, stats })
+  for (const id of positions) {
+    const stats = await getPositionStats(network.name, id, account)
+    fullPositions.push({ id, ...stats })
   }
 
   res.json(fullPositions)
