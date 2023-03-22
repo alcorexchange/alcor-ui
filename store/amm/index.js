@@ -68,7 +68,6 @@ export const actions = {
     const owner = rootState.user?.name
 
     const { data } = await this.$axios.get('/v2/account/' + owner + '/positions-stats')
-    console.log({ data })
     commit('setPositionsStats', data)
   },
 

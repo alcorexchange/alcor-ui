@@ -41,11 +41,11 @@ async function getPositionStats(chain, id, owner) {
     if (['burn', 'collect'].includes(h.type)) sub += h.totalUSDValue
   }
 
-  const absoluteTotal = +(total - sub).toFixed(4)
+  const absoluteUSDTotal = +(total - sub).toFixed(4)
 
   let closed = JSBI.equal(liquidity, JSBI.BigInt(0))
 
-  return { absoluteTotal, closed, collectedFees }
+  return { absoluteUSDTotal, closed, collectedFees }
 }
 
 
