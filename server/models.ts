@@ -200,6 +200,7 @@ const SwapPoolSchema = new mongoose.Schema({
   creator: { type: String },
 
   // TODO Change 24/week/month
+  // TODO TVL
 
   // New Fields
   volumeA24: { type: Number },
@@ -210,6 +211,15 @@ const SwapPoolSchema = new mongoose.Schema({
 
   volumeAMonth: { type: Number },
   volumeBMonth: { type: Number },
+
+  volumeUSD24: { type: Number },
+  volumeUSDWeek: { type: Number },
+  volumeUSDMonth: { type: Number },
+
+  // change24: { type: Number },
+  // changeWeek: { type: Number },
+  // high24: { type: Number },
+  // low24: { type: Number }
 })
 SwapPoolSchema.index({ chain: 1, id: 1 }, { unique: true })
 
