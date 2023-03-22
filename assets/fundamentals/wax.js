@@ -52,7 +52,8 @@ export const wax = {
       "NFT"
     ],
     socials: [
-      "https://t.me/pinupwarlords"
+      "https://discord.com/pinupwarlords",
+      "https://twitter.com/pinupwarlords"
     ],
     description: "PinupWarlords is a fun and fast-paced Play to Earn NFT trading card game, fully on-chain, with stunning ART and multi-PvP modes. It’s a game where players own the assets and can freely resell them and participate in its ecosystem."
   },
