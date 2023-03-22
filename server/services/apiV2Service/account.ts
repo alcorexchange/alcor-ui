@@ -33,8 +33,6 @@ async function getPositionStats(chain, id, owner, redisPosition) {
   let liquidity = JSBI.BigInt(0)
   let collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0 }
 
-  //console.log()
-
   for (const h of history) {
     if (h.type === 'burn') {
       liquidity = JSBI.subtract(liquidity, JSBI.BigInt(h.liquidity))
@@ -67,6 +65,9 @@ async function getPositionStats(chain, id, owner, redisPosition) {
   if (redisPosition) {
     stats.feesToClime = await calcPositionFees(chain, redisPosition)
   }
+
+  // TODO P&L
+  // TODO Total Value
 
   return stats
 }
