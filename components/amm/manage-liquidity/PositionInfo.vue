@@ -5,7 +5,7 @@
       PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool[tokensInverted ? 'tokenB' : 'tokenA']" :token2="position.pool[tokensInverted ? 'tokenA' : 'tokenB']")
       .pairs(v-if="tokensInverted") {{ position.pool.tokenB.symbol }} / {{ position.pool.tokenA.symbol }}
       .pairs(v-else) {{ position.pool.tokenA.symbol }} / {{ position.pool.tokenB.symbol }}
-      .tag {{ position.pool.fee / 10000 }}%
+      .tag {{ poolFee }}%
       RangeIndicator(:inRange="position.inRange")
 
     slot(name="action")
@@ -34,13 +34,13 @@
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
       .fs-16 P&L
-      .fs-16 $0.00
+      .fs-16 ${{ pNl }}
     .d-flex.justify-content-between.mt-1
       .fs-16 24H Estimated Fees
-      .fs-16 $5.0000
+      .fs-16 ${{ estimatedFees }}
     .d-flex.justify-content-between.mt-1
       .fs-16 Estimated APY
-      .fs-16 $0.00
+      .fs-16 ${{ APY }}
 
     // TODO We do not need probably
     //.d-flex.justify-content-between.mt-1
@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import { Fraction } from '~/assets/libs/swap-sdk'
+
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import TokenImage from '~/components/elements/TokenImage'
 import PairIcons from '~/components/PairIcons'
@@ -59,7 +61,43 @@ export default {
     TokenImage,
     PairIcons
   },
-  props: ['noPL', 'position', 'tokensInverted', 'composedPercent']
+
+  props: ['noPL', 'position', 'tokensInverted', 'composedPercent'],
+
+  computed: {
+    poolFee() {
+      return this.position.pool.fee / 10000
+    },
+
+    poolShare() {
+      return parseFloat(new Fraction(this.position.liquidity, this.position.pool.liquidity).toFixed(6)) * 100
+    },
+
+    estimatedFees() {
+      const { position } = this
+      const { pool } = position
+
+      const poolStats = this.$store.state.amm.poolsStats.find(p => p.id == position.pool.id)
+      if (!poolStats) return '0.0000'
+
+      const volume24 = poolStats.volumeUSD24 || 0
+      const poolFee = pool.fee / 10000
+
+      return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
+    },
+
+    pNl() {
+      const { position } = this
+      const positionStats = this.$store.state.amm.positionsStats.find(p => p.id == position.id)
+      if (!positionStats || !positionStats.pNl) return '0.0000'
+
+      return positionStats.pNl.toFixed(4)
+    },
+
+    APY() {
+      return (parseFloat(this.estimatedFees) * 365).toFixed(4)
+    }
+  }
 }
 </script>
 

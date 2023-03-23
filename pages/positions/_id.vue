@@ -123,7 +123,7 @@ export default {
 
   async mounted() {
     // TODO RegexTest url params
-    await this.$store.dispatch('amm/fetchPositions')
+    //await this.$store.dispatch('amm/fetchPositions')
   },
 
   methods: {
