@@ -225,6 +225,9 @@ async function updatePool(chain: string, poolId: number) {
   // TODO May be change to warning
   if (!pool) throw new Error('NOT FOUND POOL FOR UPDATE: ' + poolId)
 
+  const push = JSON.stringify({ chain, poolId, update: [pool] })
+  publisher.publish('swap:pool:update', push)
+
   updateTicks(chain, poolId)
 
   const parsedPool = parsePool(pool)
@@ -420,7 +423,6 @@ export async function onSwapAction(message: string) {
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
 
   console.log('swap action', name)
-  console.time('doSomething')
 
   if (name == 'logpool') {
     poolCreationLock = new Promise(async (resolve, reject) => {
@@ -474,7 +476,6 @@ export async function onSwapAction(message: string) {
     const { posId, owner } = data
     const push = { chain, account: owner, positions: [posId] }
 
-    console.log('redis push', Date.now())
     publisher.publish('account:update-positions', JSON.stringify(push))
   }
 

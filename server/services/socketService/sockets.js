@@ -33,6 +33,10 @@ export function subscribe(io, socket, client) {
       socket.join(`orders:${params.chain}.${params.market}`)
     }
 
+    if (room == 'swap') {
+      socket.join(`swap:${params.chain}.${params.poolId}`)
+    }
+
     if (room == 'pools') {
       socket.join(`pools:${params.chain}`)
     }
@@ -103,6 +107,10 @@ export function unsubscribe(io, socket) {
 
       socket.leave(`orderbook:${chain}.buy.${market}`)
       socket.leave(`orderbook:${chain}.sell.${market}`)
+    }
+
+    if (room == 'swap') {
+      socket.leave(`swap:${params.chain}.${params.poolId}`)
     }
   })
 }

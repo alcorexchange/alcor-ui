@@ -79,8 +79,17 @@ async function main() {
 
   subscriber.subscribe('account:update-positions', msg => {
     const { chain, account, positions } = JSON.parse(msg)
-    console.log('ws push', Date.now())
     io.to(`account:${chain}.${account}`).emit('account:update-positions', positions)
+  })
+
+  subscriber.subscribe('swap:ticks:update', msg => {
+    const { chain, poolId, update } = JSON.parse(msg)
+    io.to(`swap:${chain}.${poolId}`).emit('swap:ticks:update', { poolId, ticks: update })
+  })
+
+  subscriber.subscribe('swap:pool:update', msg => {
+    const { chain, poolId, update } = JSON.parse(msg)
+    io.to(`swap:${chain}.${poolId}`).emit('swap:pool:update', update)
   })
 }
 
