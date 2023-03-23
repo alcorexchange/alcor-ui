@@ -6,7 +6,7 @@
     style='width: 100%',
     @row-click='$emit("positionClick", $event)'
   )
-    //- TODO: Hide on empty
+    //- TODO: Hide  on empty
     el-table-column(
       :label='$t("Assets in Position")',
       width='240',
