@@ -79,9 +79,7 @@ async function main() {
 
   subscriber.subscribe('account:update-positions', msg => {
     const { chain, account, positions } = JSON.parse(msg)
-
-    console.log(`account:${chain}.${account}`, 'account:update-positions', positions)
-
+    console.log('ws push', Date.now())
     io.to(`account:${chain}.${account}`).emit('account:update-positions', positions)
   })
 }

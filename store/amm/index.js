@@ -53,7 +53,12 @@ export const actions = {
 
     this.$socket.on('account:update-positions', positions => {
       console.log('update positions push a', { positions })
-      dispatch('fetchPositions')
+      // dispatch('fetchPositions')
+      // dispatch('fetchPositionsStats')
+      setTimeout(() => {
+        dispatch('fetchPositions')
+        dispatch('fetchPositionsStats')
+      }, 4000)
     })
   },
 
@@ -81,6 +86,7 @@ export const actions = {
 
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
+    console.log('positions fetched', positions)
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
@@ -202,6 +208,7 @@ export const getters = {
       }))
     }
 
+    console.log('positions getter', positions)
     return positions
   },
 

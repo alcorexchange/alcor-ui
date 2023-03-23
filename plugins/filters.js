@@ -53,6 +53,7 @@ Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
 })
 
 Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
+  amount = (!amount || isNaN(amount)) ? 0 : parseFloat(amount)
   const id = symbol.toLowerCase() + '-' + contract
 
   const price = this.$store.state.tokens.find(t => t.id == id)
