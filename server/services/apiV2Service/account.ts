@@ -76,7 +76,6 @@ async function getPositionStats(chain, id, owner, redisPosition) {
     if (['burn', 'collect'].includes(h.type)) sub += h.totalUSDValue
   }
 
-  console.log({ id, total, sub })
   const depositedUSDTotal = +(total - sub).toFixed(4)
   let closed = JSBI.equal(liquidity, JSBI.BigInt(0))
 

@@ -217,20 +217,13 @@ export const getters = {
       const amountA = p.amountA.toAsset()
       const amountB = p.amountB.toAsset()
 
-      //console.log({ a: this })
-      //const totalValue = this._vm.tokenToUSD(p.amountA.toFixed(), p.pool.tokenA.symbol, p.pool.tokenA.contract)
-      // const pNl = this.tokenToUSD(
-      // )
-      //const { feesA, feesB } = await p.getFees()
-
-      const [feesA, feesB] = [0, 0]
       const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
 
-      //positions.push({ inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA: feesA.toAsset(), feesB: feesB.toAsset() })
-      positions.push({ ...stats, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee, feesA, feesB })
-    }
+      stats.totalValue = stats.totalValue.toFixed(2)
+      stats.pNl = stats.pNl.toFixed(2)
 
-    console.log({ positions })
+      positions.push({ ...stats, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
+    }
 
     return positions
   },
