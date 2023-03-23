@@ -50,6 +50,11 @@ export const actions = {
   async init({ dispatch }) {
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
+
+    this.$socket.on('account:update-positions', positions => {
+      console.log('update positions push a', { positions })
+      dispatch('fetchPositions')
+    })
   },
 
   async afterLogin({ dispatch }) {
@@ -122,12 +127,8 @@ export const actions = {
     })
 
     if (!pool) return console.error('Pool not found!', poolId)
-
     const old_pools = cloneDeep(state.pools)
-
     const old_pool = old_pools.findIndex(o => o.id == pool.id)
-
-    console.log({ old_pool, old_pools, pool })
 
     if (old_pool != -1) {
       old_pools[old_pool] = pool

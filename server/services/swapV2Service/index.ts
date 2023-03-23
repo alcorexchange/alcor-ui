@@ -170,14 +170,23 @@ async function updatePositions(chain: string, poolId: number) {
   positions.forEach(p => p.pool = poolId)
 
   const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
-
-  // TODO Find removed/added positions for push
   const keep = current.filter(p => p.pool != poolId)
 
-  // Merging
   const to_set = [...keep, ...positions]
-
   await redis.set(`positions_${chain}`, JSON.stringify(to_set))
+
+  // Find removed/added positions for push
+  // const changed = []
+
+  // const oldPositions = current.filter(p => p.pool == poolId)
+  // for (const old of oldPositions) {
+  //   if (positions.find(p => p.id == old.id))
+  // }
+
+
+  //const push = JSON.stringify({ chain, account, positions })
+
+  // Merging
 
   // JUST BULK EXAMPLE
   // FIXME Remove it's old, storing positions in mongo
@@ -487,8 +496,15 @@ export async function onSwapAction(message: string) {
   if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
     throttledPoolUpdate(chain, Number(data.poolId))
   }
-}
 
+  // Send push to update user position
+  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+    const { posId, owner } = data
+    const push = { chain, account: owner, positions: [posId] }
+
+    publisher.publish('account:update-positions', JSON.stringify(push))
+  }
+}
 
 export async function main() {
   await connectAll()

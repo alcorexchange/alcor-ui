@@ -1,19 +1,16 @@
 require('dotenv').config()
 
+import { createClient } from 'redis'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
-
-import { createAdapter } from '@socket.io/cluster-adapter'
-import { setupWorker } from '@socket.io/sticky'
 
 import { Match, Bar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
 
-const redis = require('redis')
-const client = redis.createClient()
+const client = createClient()
 const subscriber = client.duplicate()
 
 const httpServer = createServer()
@@ -45,17 +42,17 @@ async function main() {
   })
 
   io.on('connection', socket => {
-    console.log(socket.client.conn.server.clientsCount + 'users connected')
+    console.log((<any>socket.client.conn).server.clientsCount + 'users connected')
 
     subscribe(io, socket, client)
     unsubscribe(io, socket)
   })
 
-  Match.watch().on('change', ({ fullDocument: match, operationType }) => {
-    if (operationType != 'insert') return
+  Match.watch().on('change', (op) => {
+    if (op.operationType != 'insert') return
 
-    pushDeal(io, match)
-    pushAccountNewMatch(io, match)
+    pushDeal(io, op.fullDocument)
+    pushAccountNewMatch(io, op.fullDocument)
   })
 
   Bar.watch().on('change', async (op) => {
@@ -78,6 +75,14 @@ async function main() {
     const [chain, side, market] = key.split('_')
 
     io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
+  })
+
+  subscriber.subscribe('account:update-positions', msg => {
+    const { chain, account, positions } = JSON.parse(msg)
+
+    console.log(`account:${chain}.${account}`, 'account:update-positions', positions)
+
+    io.to(`account:${chain}.${account}`).emit('account:update-positions', positions)
   })
 }
 

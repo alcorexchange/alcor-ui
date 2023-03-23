@@ -66,6 +66,11 @@ export function subscribe(io, socket, client) {
       socket.emit(`orderbook_${side}`, orderbook)
       socket.join(`orderbook:${chain}.${side}.${market}`)
     }
+
+    // TODO Swap WS
+    // if (room == 'swap') {
+    //   socket.join(`account:${params.chain}.${params.name}`)
+    // }
   })
 }
 
