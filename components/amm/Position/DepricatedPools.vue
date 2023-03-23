@@ -1,5 +1,5 @@
 <template lang="pug">
-.depricated-pools.mt-4
+.depricated-pools.mt-4(v-if="[].length")
   .fs-20.mb-3 Depricated Pools
   el-table.position-table(
     :data='plainPositions',
