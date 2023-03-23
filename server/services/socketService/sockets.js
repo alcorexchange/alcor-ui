@@ -34,7 +34,11 @@ export function subscribe(io, socket, client) {
     }
 
     if (room == 'swap') {
-      socket.join(`swap:${params.chain}.${params.poolId}`)
+      if (params.allPools) {
+        socket.join(`swap:${params.chain}`)
+      } else {
+        socket.join(`swap:${params.chain}.${params.poolId}`)
+      }
     }
 
     if (room == 'pools') {
@@ -110,7 +114,11 @@ export function unsubscribe(io, socket) {
     }
 
     if (room == 'swap') {
-      socket.leave(`swap:${params.chain}.${params.poolId}`)
+      if (params.allPools) {
+        socket.leave(`swap:${params.chain}`)
+      } else {
+        socket.leave(`swap:${params.chain}.${params.poolId}`)
+      }
     }
   })
 }

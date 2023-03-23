@@ -60,11 +60,15 @@ export const actions = {
       dispatch('fetchPositionsStats')
     })
 
+    // TODO Do it on backend might be
+    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
+
+    this.$socket.on('swap:ticks:update', data => {
+      console.log('SWAP TICKS UPDATE!!!', data)
+    })
+
     this.$socket.on('swap:pool:update', data => {
       console.log('SWAP POOL UPDATE!!!', data)
-      // // TODO Handle positions id's
-      // dispatch('fetchPositions')
-      // dispatch('fetchPositionsStats')
     })
 
     this.$socket.io.on('reconnect', () => {
@@ -94,6 +98,7 @@ export const actions = {
     this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
 
     commit('setLastPoolSubscribed', poolId)
+    console.log('subscribed to pool', poolId)
     //commit('setStreaming', true)
   },
 

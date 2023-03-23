@@ -85,11 +85,17 @@ async function main() {
   subscriber.subscribe('swap:ticks:update', msg => {
     const { chain, poolId, update } = JSON.parse(msg)
     io.to(`swap:${chain}.${poolId}`).emit('swap:ticks:update', { poolId, ticks: update })
+
+    // Push to room with all swap events
+    io.to(`swap:${chain}`).emit('swap:ticks:update', { poolId, ticks: update })
   })
 
   subscriber.subscribe('swap:pool:update', msg => {
     const { chain, poolId, update } = JSON.parse(msg)
     io.to(`swap:${chain}.${poolId}`).emit('swap:pool:update', update)
+
+    // Push to room with all swap events
+    io.to(`swap:${chain}`).emit('swap:pool:update', update)
   })
 }
 
