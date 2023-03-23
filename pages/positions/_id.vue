@@ -89,10 +89,6 @@ export default {
   }),
 
   computed: {
-    poolId() {
-      const [poolId] = this.$route.params.id.split('-')
-      return poolId
-    },
     position() {
       const [pool_id, position_id, fee] = this.$route.params.id.split('-')
       return this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
@@ -142,7 +138,6 @@ export default {
     },
 
     toggleTokens() {
-      // this.$store.dispatch('amm/toggleTokens', { poolId: this.poolId })
       this.tokensInverted = !this.tokensInverted
     }
   },
