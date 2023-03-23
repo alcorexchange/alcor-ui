@@ -3,8 +3,14 @@
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
-    el-carousel-item(v-for="promo in promos" :key="promo.id")
-      promo(:promo="promo")
+    //el-carousel-item(v-for="promo in promos")
+      promo(:promo="promo" :bannerUrl="promo.bannerUrl")
+
+    el-carousel-item
+      promo(:promo="promos[0]" :bannerUrl="promos[0].bannerUrl")
+
+    el-carousel-item
+      promo(:promo="promos[1]" :bannerUrl="promos[1].bannerUrl")
 
   spacer
 </template>
@@ -14,6 +20,7 @@ import { mapGetters } from 'vuex'
 import Spacer from '@/components/Spacer.vue'
 import Promo from '@/components/landing/Promo'
 import SectionTitle from '@/components/landing/SectionTitle'
+import { shuffleArray } from '~/utils'
 
 export default {
   components: { Spacer, Promo, SectionTitle },
@@ -23,16 +30,38 @@ export default {
         bannerImg: 'zombiecointk',
         bannerUrl: 'https://www.zombiecoin.io'
       },
-    ]
+
+      {
+        bannerImg: 'pinup24heels',
+        bannerUrl: 'https://alcor.exchange/trade/heels-pinup24heels_wax-eosio.token'
+      },
+    ],
+
+    promos: []
   }),
+
+  mounted() {
+    this.promos = this.bannerOnly.sort(() => Math.random() - 0.5)
+  },
+
   computed: {
-    ...mapGetters({
-      promoted: 'promoted'
-    }),
-    promos() {
-      console.log('promoted', this.promotes)
-      return [...this.promoted, ...this.bannerOnly].sort(() => Math.random() - 0.5)
-    }
+    // ...mapGetters({
+    //   promoted: 'promoted'
+    // }),
+
+    // TODO Make this shit work
+    // promos() {
+    //   const promotedList = [...this.bannerOnly]
+
+    //   const shuffled = promotedList
+    //   return shuffled
+    //   // console.log('promoted', [...this.promoted, ...this.bannerOnly].sort(() => Math.random() - 0.5))
+    //   // const promotedList = [...this.promoted, ...this.bannerOnly]
+    //   // console.log('before shuffle', promotedList)
+    //   // shuffleArray(promotedList)
+    //   // console.log('after shuffle', promotedList)
+    //   // return this.bannerOnly
+    // }
   }
 }
 </script>
