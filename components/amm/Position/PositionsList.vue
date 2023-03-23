@@ -58,7 +58,7 @@ el-table.position-table(
     template(slot-scope='{row}')
       span(:style="{color: renderPLColor(row.pNl)}") {{ row.pNl }}$
 
-  el-table-column(:label='$t("Action")' v-if="!isMobile")
+  el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
       alcor-button(compact) Manage
 
