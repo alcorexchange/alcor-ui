@@ -56,7 +56,7 @@ el-table.position-table(
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span.red ${{ row.pNl }}
+      span(:style="{color: renderPLColor(row.pNl)}") ${{ row.pNl }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile")
     template(slot-scope='{row}')
@@ -74,7 +74,14 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
-
+  methods: {
+    renderPLColor(value){
+      const pl = parseFloat(value)
+      if(pl > 0) return `var(--main-green)`
+      if(pl < 0) return `var(--main-red)`
+      return undefined
+    }
+  },
   computed: {
     ...mapGetters('amm', ['plainPositions'])
   },

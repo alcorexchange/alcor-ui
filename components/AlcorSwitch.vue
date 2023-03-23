@@ -82,10 +82,6 @@ export default {
     height: calc(100% - 4px); // 2 bottom padding
     background: var(--btn-active);
   }
-  &.oneActive {
-    .background {
-    }
-  }
 }
 </style>
 
