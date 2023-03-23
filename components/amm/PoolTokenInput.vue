@@ -2,7 +2,7 @@
 .pool-token-input(:class="{focused, notSelected: !!token}")
   .label-and-balance
     .label {{ renderLabel }}
-    .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
+    .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }} 123
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(
