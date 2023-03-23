@@ -219,8 +219,8 @@ export const getters = {
 
       const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
 
-      stats.totalValue = stats.totalValue.toFixed(2)
-      stats.pNl = stats.pNl.toFixed(2)
+      if (stats.totalValue) stats.totalValue = parseFloat(stats.totalValue).toFixed(2)
+      if (stats.pNl) stats.pNl = parseFloat(stats.pNl).toFixed(2)
 
       positions.push({ ...stats, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
     }
