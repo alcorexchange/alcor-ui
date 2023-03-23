@@ -20,8 +20,8 @@
       :show-max-button="false"
     )
     .w-100.position-relative
-      .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos(@click="toggleTokens")
-        .bottom-icon
+      .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos
+        .bottom-icon(@click="toggleTokens")
           i.el-icon-bottom.text-center.fs-20.pointer
     PoolTokenInput.mt-1(
       label="Buy"
