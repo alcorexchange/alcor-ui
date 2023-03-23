@@ -1,30 +1,51 @@
 import JSBI from 'jsbi'
 import { Router } from 'express'
+import { createClient } from 'redis'
 import { cacheSeconds } from 'route-cache'
 import { SwapPool, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 
 import { Position as PositionClass } from '../../../assets/libs/swap-sdk/entities/position'
+import {strict} from 'assert'
 
 // TODO Account validation
 export const account = Router()
 
+const redis = createClient()
 
-async function calcPositionFees(chain, plainPosition) {
+
+async function getCurrentPositionState(chain, plainPosition) {
   const pool = await getPoolInstance(chain, plainPosition.pool)
 
   const position = new PositionClass({ ...plainPosition, pool })
   const fees = await position.getFees()
 
+  const feesA = fees.feesA.toFixed()
+  const feesB = fees.feesB.toFixed()
+
+  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
+
+  const tokenA = tokens.find(t => t.id == position.pool.tokenA.id)
+  const tokenB = tokens.find(t => t.id == position.pool.tokenB.id)
+
+  const tokenAUSDPrice = tokenA?.usd_price || 0
+  const tokenBUSDPrice = tokenB?.usd_price || 0
+
+  const totalValue = (parseFloat(position.amountA.toFixed()) * tokenAUSDPrice)
+    + (parseFloat(position.amountB.toFixed()) * tokenBUSDPrice)
+    + parseFloat(feesA) * tokenAUSDPrice
+    + parseFloat(feesB) * tokenBUSDPrice
+
   return {
-    feesA: fees.feesA.toFixed(),
-    feesB: fees.feesB.toFixed()
+    feesA,
+    feesB,
+    totalValue: parseFloat(totalValue.toFixed(2))
   }
 }
 
 
-
 async function getPositionStats(chain, id, owner, redisPosition) {
+  if (!redis.isOpen) await redis.connect()
   // Will sort "closed" to the end
   const history = await PositionHistory.find({ chain, id, owner }).sort({ time: 1, type: 1 }).lean()
 
@@ -48,7 +69,7 @@ async function getPositionStats(chain, id, owner, redisPosition) {
       collectedFees.tokenA += h.tokenA
       collectedFees.tokenB += h.tokenB
       collectedFees.inUSD += h.totalUSDValue
-      sub += h.totalUSDValue
+      //sub += h.totalUSDValue
     }
 
     if (h.type == 'mint') total += h.totalUSDValue
@@ -60,16 +81,16 @@ async function getPositionStats(chain, id, owner, redisPosition) {
   const depositedUSDTotal = +(total - sub).toFixed(4)
   let closed = JSBI.equal(liquidity, JSBI.BigInt(0))
 
-  const stats = { depositedUSDTotal, closed, collectedFees, feesToClime: {} }
+  const stats = { depositedUSDTotal, closed, collectedFees }
+
+  let current: { feesA: string, feesB: string, totalValue: number, pNl?: number } = { feesA: '0.0000', feesB: '0.0000', totalValue: 0 }
 
   if (redisPosition) {
-    stats.feesToClime = await calcPositionFees(chain, redisPosition)
+    current = await getCurrentPositionState(chain, redisPosition)
+    current.pNl = (current.totalValue + collectedFees.inUSD) - depositedUSDTotal
   }
 
-  // TODO P&L
-  // TODO Total Value
-
-  return stats
+  return { ...stats, ...current }
 }
 
 
@@ -100,7 +121,6 @@ account.get('/:account/positions', async (req, res) => {
 
   res.json(positions.filter(p => p.owner == req.params.account))
 })
-
 
 account.get('/:account/positions-stats', async (req, res) => {
   const network: Network = req.app.get('network')
