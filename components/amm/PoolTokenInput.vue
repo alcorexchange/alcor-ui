@@ -165,6 +165,7 @@ export default {
   .el-input__inner {
     border-color: var(--selector-bg);
     background: var(--selector-bg);
+    border-color: transparent !important;
     //display: flex;
   }
 
