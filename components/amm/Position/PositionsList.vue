@@ -52,11 +52,11 @@ el-table.position-table(
 
   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span ${{ row.totalValue }}
+      span $ {{ row.totalValue.toFixed(4) }}
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span(:style="{color: renderPLColor(row.pNl)}") {{ row.pNl }}$
+      span(:style="{color: renderPLColor(row.pNl)}") $ {{ row.pNl.toFixed(4) }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
