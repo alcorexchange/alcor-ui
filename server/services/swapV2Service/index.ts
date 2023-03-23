@@ -171,10 +171,13 @@ async function updatePositions(chain: string, poolId: number) {
 
   const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
 
-  // Merging
-  const toSet = new Map([...current.map(p => [p.id, p]), ...positions.map(p => [p.id, p])])
+  // TODO Find removed/added positions for push
+  const keep = current.filter(p => p.pool != poolId)
 
-  await redis.set(`positions_${chain}`, JSON.stringify(Array.from(toSet.values())))
+  // Merging
+  const to_set = [...keep, ...positions]
+
+  await redis.set(`positions_${chain}`, JSON.stringify(to_set))
 
   // JUST BULK EXAMPLE
   // FIXME Remove it's old, storing positions in mongo

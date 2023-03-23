@@ -52,11 +52,11 @@ el-table.position-table(
 
   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span ${{ row.totalUSDValue }}
+      span ${{ row.totalValue }}
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span.red $ -1200
+      span.red ${{ row.pNl }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile")
     template(slot-scope='{row}')

@@ -18,9 +18,14 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     commit('setNetwork', config.networks[process.env.NETWORK])
   } else if (process.server) {
     const protocol = process.env.isDev ? 'http' : 'https'
-    commit('setBaseUrl', `${protocol}://${req.headers.host}`)
 
     const subdomain = req.headers.host.split('.')
+
+    if (subdomain[0] == 'dev') {
+      commit('setBaseUrl', `${protocol}://dev.alcor.exchange`)
+    } else {
+      commit('setBaseUrl', `${protocol}://${req.headers.host}`)
+    }
 
     if (process.env.NETWORK) {
       commit('setNetwork', config.networks[process.env.NETWORK])
