@@ -56,7 +56,7 @@ el-table.position-table(
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span(:style="{color: renderPLColor(row.pNl)}") ${{ row.pNl }}
+      span(:style="{color: renderPLColor(row.pNl)}") {{ row.pNl }}$
 
   el-table-column(:label='$t("Action")' v-if="!isMobile")
     template(slot-scope='{row}')
@@ -80,7 +80,7 @@ export default {
       if(pl > 0) return `var(--main-green)`
       if(pl < 0) return `var(--main-red)`
       return undefined
-    }
+    },
   },
   computed: {
     ...mapGetters('amm', ['plainPositions'])
