@@ -32,7 +32,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import SelectToken from '~/components/modals/amm/SelectToken2'
+import SelectToken from '~/components/modals/amm/SelectToken'
 import MaxBage from '~/components/UI/input/MaxBage'
 import WarnMessage from '~/components/UI/input/WarnMessage'
 
