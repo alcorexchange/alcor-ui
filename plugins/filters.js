@@ -56,7 +56,7 @@ Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
   const id = symbol.toLowerCase() + '-' + contract
 
   const price = this.$store.state.tokens.find(t => t.id == id)
-  return (amount * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
+  return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
 }
 
 Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2) {
