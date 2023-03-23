@@ -50,18 +50,22 @@ export const mutations = {
 }
 
 export const actions = {
-  async init({ dispatch }) {
+  async init({ dispatch, rootState }) {
+    console.log('amminit')
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
+    console.log('1')
 
     this.$socket.on('account:update-positions', positions => {
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsStats')
     })
+    console.log('2')
 
     // TODO Do it on backend might be
     this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
+    console.log('subscribed to all swap updates')
 
     this.$socket.on('swap:ticks:update', data => {
       console.log('SWAP TICKS UPDATE!!!', data)

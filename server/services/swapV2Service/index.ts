@@ -246,6 +246,8 @@ async function updateTicks(chain: string, poolId: number) {
   chainTicks.forEach((tick, id) => {
     const tick_old = redisTicks.get(id)
 
+    console.log({ tick_old, tick })
+    console.log('lodash.isEqual(tick_old, tick)', lodash.isEqual(tick_old, tick))
     if (!lodash.isEqual(tick_old, tick)) {
       update.push(tick)
     }
@@ -260,6 +262,7 @@ async function updateTicks(chain: string, poolId: number) {
 
   await setRedisTicks(chain, poolId, Array.from(chainTicks))
 
+  console.log({ update })
   if (update.length == 0) return
 
   const push = JSON.stringify({ chain, poolId, update })
