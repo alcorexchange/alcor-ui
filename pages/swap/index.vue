@@ -394,3 +394,10 @@ export default {
   font-weight: 500;
 }
 </style>
+<style lang="scss">
+.theme-light{
+  --background-color-third: #E5E5EA;
+  --selector-bg: #F2F2F7;
+  --text-disable: rgba(35, 35, 37, 0.6);
+}
+</style>
