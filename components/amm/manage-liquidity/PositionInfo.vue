@@ -1,14 +1,14 @@
 <template lang="pug">
 .pool-info
-  .d-flex.justify-content-between
-    .d-flex.gap-8.align-items-center
+  .d-flex.gap-8.align-items-center.pool-info-header
+    .pool-info-header-left.d-flex.gap-8.align-items-center
       PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool[tokensInverted ? 'tokenB' : 'tokenA']" :token2="position.pool[tokensInverted ? 'tokenA' : 'tokenB']")
       .pairs(v-if="tokensInverted") {{ position.pool.tokenB.symbol }} / {{ position.pool.tokenA.symbol }}
       .pairs(v-else) {{ position.pool.tokenA.symbol }} / {{ position.pool.tokenB.symbol }}
       .tag {{ poolFee }}%
-      RangeIndicator(:inRange="position.inRange")
-
-    slot(name="action")
+    .pool-info-header-right
+      RangeIndicator.range-indicator(:inRange="position.inRange")
+      slot(name="action")
 
   .fs-18.disable.mt-2 {{ $t('Pool Amount') }}
 
@@ -118,6 +118,15 @@ export default {
       left: 40%
     }
   }
+  .pool-info-header{
+    &-right {
+      flex: 1;
+      display: flex;
+      .range-indicator{
+        flex: 1;
+      }
+    }
+  }
   .pairs{
     font-size: 1.2rem;
     font-weight: bold;
@@ -136,6 +145,27 @@ export default {
   }
   .symbol{
     min-width: 38px;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .pool-info {
+    .pairs {
+      font-size: 1rem;
+    }
+    .tag {
+      font-size: 0.74rem;
+    }
+    .pool-info-header{
+      &-right {
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 2px;
+      }
+    }
+    .range-indicator {
+      white-space: nowrap;
+      gap: 4px
+    }
   }
 }
 </style>
