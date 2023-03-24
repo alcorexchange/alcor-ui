@@ -7,6 +7,6 @@ import SwapWidget from '@/components/amm/SwapWidget'
 export default {
   components: {
     SwapWidget
-  }
+  },
 }
 </script>

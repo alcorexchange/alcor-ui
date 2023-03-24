@@ -40,7 +40,13 @@ export const mutations = {
 
   updatePool: (state, pool) => {
     const index = state.pools.findIndex((c) => c.id === pool.id)
-    Vue.set(state.categories, index, pool)
+
+    console.log('updatePool mutation')
+    if (index == -1) {
+      state.pools.push(pool)
+    } else {
+      Vue.set(state.pools, index, pool)
+    }
   },
 
   setTicks: (state, { poolId, ticks }) => {
@@ -50,18 +56,16 @@ export const mutations = {
 }
 
 export const actions = {
-  async init({ dispatch, rootState }) {
+  init({ dispatch, rootState, commit }) {
     console.log('amminit')
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
-    console.log('1')
 
     this.$socket.on('account:update-positions', positions => {
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsStats')
     })
-    console.log('2')
 
     // TODO Do it on backend might be
     this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
@@ -72,11 +76,10 @@ export const actions = {
     })
 
     this.$socket.on('swap:pool:update', data => {
-      data.forEach(pool => {
-        console.log({ pool })
-      })
-
       console.log('SWAP POOL UPDATE!!!', data)
+      data.forEach(pool => {
+        commit('updatePool', pool)
+      })
     })
 
     this.$socket.io.on('reconnect', () => {

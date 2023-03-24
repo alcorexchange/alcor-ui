@@ -34,7 +34,7 @@
         .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
             v-for="token in popularTokens"
-            :key="token.name"
+            :key="token.id"
             @click='selectAsset(token)'
           )
             TokenImage(
