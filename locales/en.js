@@ -637,5 +637,7 @@ export default {
   Range: 'Range',
   'Pool Amount': 'Pool Amount',
   'Claim Fees': 'Claim Fees',
-  'Remove Liquidity and Claim Fees': 'Remove Liquidity and Claim Fees'
+  'Remove Liquidity and Claim Fees': 'Remove Liquidity and Claim Fees',
+  Network: 'Network',
+  'Token Amount': 'Token Amount'
 }
