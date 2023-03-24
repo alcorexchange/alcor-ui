@@ -89,10 +89,10 @@ export default {
         await this.remove()
         if (this.percent == 100) this.$router.push('/positions')
 
-        setTimeout(() => {
-          this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-          this.$store.dispatch('amm/fetchPositions')
-        }, 1000)
+        // setTimeout(() => {
+        //   this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+        //   this.$store.dispatch('amm/fetchPositions')
+        // }, 1000)
       } catch (e) {
         console.error('remove liquidity', e)
         return this.$notify({ type: 'error', title: 'Remove Liquidity Error', message: e.message })

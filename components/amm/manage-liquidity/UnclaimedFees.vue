@@ -64,8 +64,8 @@ export default {
     async submit() {
       try {
         await this.collect()
-        this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-        this.$store.dispatch('amm/fetchPositions')
+        // this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+        // this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
         return this.$notify({ type: 'error', title: 'Collect Fees', message: e.message })
       }

@@ -84,10 +84,10 @@ export default {
         this.amountA = null
         this.amountB = null
 
-        setTimeout(() => {
-          this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-          //this.$store.dispatch('amm/fetchPositions')
-        }, 1000)
+        //setTimeout(() => {
+        //  this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+        //  //this.$store.dispatch('amm/fetchPositions')
+        //}, 1000)
       } catch (e) {
         this.$notify({ type: 'Error', title: 'Increase Liquidity', message: e.message })
       }
