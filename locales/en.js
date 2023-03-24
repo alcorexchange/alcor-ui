@@ -626,5 +626,16 @@ export default {
   'Claim Genesis': 'Claim Genesis',
   'Claim Both': 'Claim Both',
   'Claim Vote': 'Claim Vote',
-  'Receiver of Stake': 'Receiver of Stake'
+  'Receiver of Stake': 'Receiver of Stake',
+  Pool: 'Pool',
+  'Swap v1': 'Swap v1',
+  'P&L': 'P&L',
+  'Assets in Position': 'Assets in Position',
+  'Assets in Pool': 'Assets in Pool',
+  'Unclaimed Fees': 'Unclaimed Fees',
+  'Total Value': 'Total Value',
+  Range: 'Range',
+  'Pool Amount': 'Pool Amount',
+  'Claim Fees': 'Claim Fees',
+  'Remove Liquidity and Claim Fees': 'Remove Liquidity and Claim Fees'
 }
