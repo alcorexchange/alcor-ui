@@ -75,6 +75,7 @@ export const actions = {
 }
 
 export const getters = {
+  // TODO Check for optimisation
   tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
   tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
