@@ -159,7 +159,7 @@ export default {
   fetch() {
     console.log('111111111111111')
     // fetch has access to `this`
-    const { input, output } = this.route.query
+    const { input, output } = this.$route.query
 
     if (input) {
       const [symbol, contract] = input.split('-')
