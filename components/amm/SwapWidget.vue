@@ -176,7 +176,7 @@ export default {
       const impact = parseInt(this.priceImpact.replace('%', ''))
       if (impact >= 5) return 'red'
       if (impact >= 3) return 'yellow'
-      if (impact < 2) return 'green'
+      if (impact < 3) return 'green'
       return ''
     },
     ...mapState(['user', 'network']),

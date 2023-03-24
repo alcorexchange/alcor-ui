@@ -15,7 +15,7 @@
         )
         .fs-12.ml-3 {{ fee / 10000 }}%
 
-  token-image(src="token-conract" height="24")
+  token-image(:src="$tokenLogo(route.output.symbol, route.output.contract)" height="24")
 
 </template>
 
