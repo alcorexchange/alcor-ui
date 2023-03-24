@@ -177,7 +177,7 @@ export default {
       return ''
     },
     ...mapState(['user', 'network']),
-    ...mapGetters('amm', ['slippage']),
+    ...mapGetters('amm', ['slippage', 'pools']),
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
@@ -196,6 +196,11 @@ export default {
     tokenB() {
       this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
     },
+
+    pools() {
+      // Recalculate on pools update
+      this.calcOutput(this.amountA)
+    }
   },
 
   methods: {
