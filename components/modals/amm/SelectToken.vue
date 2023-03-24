@@ -103,7 +103,7 @@ export default {
 <style lang="scss">
 .select-token-modal {
   .el-dialog {
-    width: 400px;
+    width: 90%;
     max-width: 400px;
   }
   .el-dialog__body {

@@ -135,7 +135,7 @@ export default {
   }
 
   .el-dialog {
-    width: 100%;
+    width: 90%;
     max-width: 400px;
   }
   .el-dialog__body {
