@@ -88,9 +88,9 @@ export default {
   computed: {
     popularTokens() {
       const tokens = []
-
+      console.log(this.tokens);
       this.network.popularTokens.map(token => {
-        const tInstance = this.tokens.find(t => token == t.id)
+        const tInstance = this.tokens?.find(t => token == t.id)
 
         if (tInstance) tokens.push(tInstance)
       })
@@ -99,9 +99,9 @@ export default {
     },
 
     filteredAssets() {
-      return this.tokens.filter((asset) =>
+      return this.tokens?.filter((asset) =>
         Object.values(asset).join().toLowerCase().includes(this.search.toLowerCase())
-      )
+      ) || []
     },
 
     ...mapState(['network'])

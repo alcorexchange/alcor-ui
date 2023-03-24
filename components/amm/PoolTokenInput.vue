@@ -16,7 +16,7 @@
     .input-after
       MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token")
       //- v-if='showMaxButton',
-      select-token(
+      SelectToken(
         :locked='!!locked',
         :token='token',
         :tokens='tokens',
@@ -32,7 +32,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import SelectToken from '~/components/modals/amm/SelectToken'
+import SelectToken from '~/components/modals/amm/SelectToken2'
 import MaxBage from '~/components/UI/input/MaxBage'
 import WarnMessage from '~/components/UI/input/WarnMessage'
 

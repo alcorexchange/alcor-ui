@@ -9,8 +9,8 @@
         .fs-16.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
-          SelectToken2(:token="tokenA" :tokens="tokens" @selected="setTokenA").sustom-select-token
-          SelectToken2(:token="tokenB" :tokens="tokens" @selected="setTokenB").sustom-select-token
+          SelectToken2(:token="tokenA" :tokens="tokens" @selected="setTokenA").custom-select-token
+          SelectToken2(:token="tokenB" :tokens="tokens" @selected="setTokenB").custom-select-token
 
         div(v-mutted="!tokenA || !tokenB")
           .disable.mt-3.mb-2 Fee Tier
@@ -906,7 +906,7 @@ export default {
     padding: 8px 15px !important;
   }
 }
-.sustom-select-token {
+.custom-select-token {
   flex: 1;
   .select-token-button{
     flex: 1;
