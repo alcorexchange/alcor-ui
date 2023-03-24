@@ -64,9 +64,9 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import ReturnLink from '@/components/ReturnLink'
 import TokenImage from '~/components/elements/TokenImage'
-import { mapState } from 'vuex'
 
 export default {
   components: { TokenImage, ReturnLink },
@@ -177,7 +177,7 @@ export default {
       width: 100%;
     }
   }
-  
+
   .popular-tokens {
     display: flex;
     flex-wrap: wrap;

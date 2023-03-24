@@ -38,9 +38,8 @@ export default function (_, inject) {
       })
     } else {
       lastWorkingIndex = 0
-      return Promise.reject(error);
+      return Promise.reject(error)
     }
-
   })
 
   inject('api', api)

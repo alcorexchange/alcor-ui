@@ -56,7 +56,7 @@ export default {
       })
       this.auctions = hasLoading ? res : [...this.auctions, ...res]
       if (res.length < NFT_LIST_ITEM_PP) this.noMoreItems = true
-      console.log({res, NFT_LIST_ITEM_PP});
+      console.log({ res, NFT_LIST_ITEM_PP })
       this.loading = false
     },
     async onLoadMore() {

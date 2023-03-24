@@ -39,9 +39,9 @@ export const mutations = {
   setPositionsStats: (state, stats) => state.positionsStats = stats,
 
   updatePool: (state, pool) => {
-    const index = state.pools.findIndex(c => c.id === pool.id);
+    const index = state.pools.findIndex((c) => c.id === pool.id)
 
-    Vue.set(state.categories, index, category);
+    //Vue.set(state.categories, index, category)
   },
 
   setTicks: (state, { poolId, ticks }) => {
@@ -102,7 +102,7 @@ export const actions = {
   },
 
   subscribe({ rootState, commit }, poolId) {
-    if (market === undefined) return
+    //if (market === undefined) return
 
     this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
 
@@ -121,8 +121,8 @@ export const actions = {
   subscribeToPool() {
     this.$socket.on('account:update-positions', positions => {
       // TODO Handle positions id's
-      dispatch('fetchPositions')
-      dispatch('fetchPositionsStats')
+      // dispatch('fetchPositions')
+      // dispatch('fetchPositionsStats')
     })
   },
 

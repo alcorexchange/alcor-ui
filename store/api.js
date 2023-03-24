@@ -167,7 +167,7 @@ export const actions = {
           ...options
         }
       })
-      console.log({ options });
+      console.log({ options })
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
@@ -391,7 +391,7 @@ export const actions = {
           ...options
         }
       })
-      console.log('done', data);
+      console.log('done', data)
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
@@ -774,11 +774,12 @@ export const actions = {
   async getAccountValue({ getters, rootState }, { owner }) {
     try {
       const { data } = await this.$api.get(
-        `atomicmarket/v1/stats/accounts/${owner}`, {
-        params: {
-          symbol: 'WAX'
+        `atomicmarket/v1/stats/accounts/${owner}`,
+        {
+          params: {
+            symbol: 'WAX',
+          },
         }
-      }
       )
       return data.data
     } catch (e) {

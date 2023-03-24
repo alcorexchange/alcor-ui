@@ -86,7 +86,7 @@ export default {
 
   data: () => ({
     tokensInverted: false
-  }), 
+  }),
 
   watch: {
     position() {

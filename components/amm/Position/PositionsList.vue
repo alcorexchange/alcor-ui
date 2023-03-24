@@ -75,10 +75,10 @@ import AlcorButton from '~/components/AlcorButton'
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
   methods: {
-    renderPLColor(value){
+    renderPLColor(value) {
       const pl = parseFloat(value)
-      if(pl > 0) return `var(--main-green)`
-      if(pl < 0) return `var(--main-red)`
+      if (pl > 0) return `var(--main-green)`
+      if (pl < 0) return `var(--main-red)`
       return undefined
     },
   },
@@ -164,7 +164,7 @@ export default {
   }
   .el-table__cell {
     display: flex;
-    padding: 0 !important; 
+    padding: 0 !important;
     border-bottom: none !important;
     background-color: transparent !important;
   }
