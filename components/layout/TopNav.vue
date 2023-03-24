@@ -244,7 +244,7 @@ export default {
     .badge {
       position: absolute;
       bottom: 12px;
-      left: 42px;
+      left: 28px;
       z-index: 1;
     }
 

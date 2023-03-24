@@ -7,7 +7,7 @@
       .fs-20 History
   .actions.d-flex.gap-10
     AlcorButton Analytics
-    AlcorButton(access @click="$router.push('/positions/new')")
+    AlcorButton.new(access @click="$router.push('/positions/new')")
       i.el-icon-plus
       .fs-14 New Position
 </template>
@@ -28,6 +28,10 @@ export default {
   a.active {
     color: var(--text-contrast);
   }
+}
+.new:hover{
+  background: var(--main-green) !important;
+  color: var(--text-theme) !important;
 }
 @media only screen and (max-width: 540px) {
   .header {
