@@ -1,46 +1,47 @@
 <template lang="pug">
-el-table.history-table(
-  :data='plainPositions',
-  style='width: 100%',
-)
-  template(#empty)
-    .d-flex.flex-column.align-items-center.gap-30.py-5
-      i.el-icon-moon-night.fs-40
-      .fs-14.lh-14 Your position history will appear here.
-  //- Custom header
-  el-table-column(width="240" class-name="type")
-    template(#header)
-      HistoryFilter(v-model="filter")
-    template(slot-scope='{row}') Swap WAX for BLK
+.table-and-filter
+  HistoryFilter(v-model="filter" v-if="isMobile")
+  el-table.history-table(
+    :data='plainPositions',
+    style='width: 100%',
+  )
+    template(#empty)
+      .d-flex.flex-column.align-items-center.gap-30.py-5
+        i.el-icon-moon-night.fs-40
+        .fs-14.lh-14 Your position history will appear here.
+    el-table-column(width="240" class-name="type")
+      template(#header)
+        HistoryFilter(v-model="filter" v-if="!isMobile")
+      template(slot-scope='{row}') Swap WAX for BLK
 
-  el-table-column(:label='$t("Network")', width='220' class-name="network")
-    template(slot-scope='{ row }')
-      .d-flex.align-items-center.gap-8
-        TokenImage(
-          :src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)',
-          height='20'
-        )
-        div {{ row.tokenB.symbol }}
+    el-table-column(:label='$t("Network")', width='220' class-name="network")
+      template(slot-scope='{ row }')
+        .d-flex.align-items-center.gap-8
+          TokenImage(
+            :src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)',
+            height='20'
+          )
+          div {{ row.tokenB.symbol }}
 
-  el-table-column(:label='$t("Total Value")' width="160" )
-    template(slot-scope='{row}')
-      .d-flex.flex-column.gap-4
-        .mobile-label Total Value
-        span $558,001.05
+    el-table-column(:label='$t("Total Value")' width="160" )
+      template(slot-scope='{row}')
+        .d-flex.flex-column.gap-4
+          .mobile-label Total Value
+          span $558,001.05
 
-  el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
-    template(slot-scope='{row}')
-      .token-amount-inner.d-flex.flex-column.gap-4
-        .mobile-label Token Amount
-        span $558,001.05
+    el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
+      template(slot-scope='{row}')
+        .token-amount-inner.d-flex.flex-column.gap-4
+          .mobile-label Token Amount
+          span $558,001.05
 
-  el-table-column(:label='$t("Account")' width="100")
-    template(slot-scope='{row}')
-      .d-flex.flex-column.gap-4
-        .mobile-label Account
-        span eos.name
-  el-table-column(:label='$t("Time")' align="right" class-name="time")
-    template(slot-scope='{row}') 2d ago
+    el-table-column(:label='$t("Account")' width="100")
+      template(slot-scope='{row}')
+        .d-flex.flex-column.gap-4
+          .mobile-label Account
+          span eos.name
+    el-table-column(:label='$t("Time")' align="right" class-name="time")
+      template(slot-scope='{row}') 2d ago
 
 </template>
 
