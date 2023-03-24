@@ -170,6 +170,7 @@ export default {
       const [symbol, contract] = output.split('-')
       this.$store.commit('amm/swap/setOutput', { symbol, contract })
     }
+    this.$store.dispatch('amm/swap/setDefaultInputOutput')
   },
 
   computed: {
