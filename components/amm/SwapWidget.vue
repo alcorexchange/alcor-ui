@@ -128,7 +128,8 @@ import { tryParseCurrencyAmount } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 
 export default {
-  name: "SwapWidget",
+  name: 'SwapWidget',
+
   components: {
     AlcorContainer,
     ReturnLink,
@@ -138,20 +139,6 @@ export default {
     Settings,
     SwapRoute,
     VueSkeletonLoader
-  },
-
-  fetch({ store, route }) {
-    const { input, output } = route.query
-
-    if (input) {
-      const [symbol, contract] = input.split('-')
-      store.commit('amm/swap/setInput', { symbol, contract })
-    }
-
-    if (output) {
-      const [symbol, contract] = output.split('-')
-      store.commit('amm/swap/setOutput', { symbol, contract })
-    }
   },
 
   data: () => ({
@@ -169,11 +156,26 @@ export default {
     routerCollapse: ['1']
   }),
 
+  fetch({ store, route }) {
+    console.log('111111111111111')
+    const { input, output } = route.query
+
+    if (input) {
+      const [symbol, contract] = input.split('-')
+      store.commit('amm/swap/setInput', { symbol, contract })
+    }
+
+    if (output) {
+      const [symbol, contract] = output.split('-')
+      store.commit('amm/swap/setOutput', { symbol, contract })
+    }
+  },
+
   computed: {
     priceImpactStyle() {
       const impact = parseInt(this.priceImpact.replace('%', ''))
       if (impact >= 5) return 'red'
-      if (impact >= 2) return 'yellow'
+      if (impact >= 3) return 'yellow'
       if (impact < 2) return 'green'
       return ''
     },
@@ -250,6 +252,7 @@ export default {
     async submit() {
       try {
         await this.swap()
+        return this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
       } catch (e) {
         console.log(e)
         return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
