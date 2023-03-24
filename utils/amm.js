@@ -5,6 +5,9 @@ import { asset } from 'eos-common'
 
 import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '../assets/libs/swap-sdk'
 
+const PRICE_FIXED_DIGITS = 8
+
+
 export function parseToken(token) {
   return new Token(
     token.contract,
@@ -173,7 +176,7 @@ export function getLiquidityRangeChart(pool, tokenA, tokenB) {
     liquidityActive: JSBI.BigInt(pool.liquidity ?? 0),
     tick: activeTick,
     liquidityNet: Number(ticks[pivot].id) === activeTick ? JSBI.BigInt(ticks[pivot].liquidityNet) : JSBI.BigInt(0),
-    price0: tickToPrice(tokenA, tokenB, activeTick).toFixed(8),
+    price0: tickToPrice(tokenA, tokenB, activeTick).toFixed(PRICE_FIXED_DIGITS),
   }
 
   const subsequentTicks = computeSurroundingTicks(tokenA, tokenB, activeTickProcessed, ticks, pivot, true)
@@ -182,8 +185,6 @@ export function getLiquidityRangeChart(pool, tokenA, tokenB) {
 
   return ticksProcessed
 }
-
-const PRICE_FIXED_DIGITS = 8
 
 // Computes the numSurroundingTicks above or below the active tick.
 export default function computeSurroundingTicks(

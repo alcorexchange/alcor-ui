@@ -193,13 +193,13 @@ export default {
   },
 
   watch: {
-    tokenA() {
-      this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
-    },
+    // tokenA() {
+    //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
+    // },
 
-    tokenB() {
-      this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
-    },
+    // tokenB() {
+    //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
+    // },
 
     pools() {
       // Recalculate on pools update

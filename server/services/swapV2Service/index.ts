@@ -4,15 +4,14 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { getTokenPrices } from './../../utils'
 import { parseAssetPlain } from '../../../utils'
 import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
-import { getSingleEndpointRpc, getFailOverRpc } from './../../utils'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { getRedisTicks } from './utils'
+import { getSingleEndpointRpc, getFailOverRpc, getTokenPrices } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -30,7 +29,7 @@ type TicksList = Map<number, Tick>
 
 // Getting sqrt price fot given time
 export async function getClosestSqrtPrice(chain, pool, time) {
-  const closestSwap = await Swap.findOne({ chain, pool, time: { '$lte': new Date(time) } }).sort({ time: 1 }).limit(1).lean()
+  const closestSwap = await Swap.findOne({ chain, pool, time: { $lte: new Date(time) } }).sort({ time: 1 }).limit(1).lean()
 
   if (closestSwap === null) {
     return (await getPool({ chain, id: pool })).sqrtPriceX64
@@ -56,8 +55,7 @@ async function handlePoolChart(
   reserveB: number,
   volumeA = 0,
   volumeB = 0,
-  ) {
-
+) {
   //console.log({ chain, poolId, block_time, sqrtPriceX64, reserveA, reserveB, volumeA, volumeB })
 
   const network = networks[chain]
@@ -110,16 +108,16 @@ async function handlePoolChart(
 
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
-  if (poolCreationLock) {
-    //console.log('WAIT FOR LOCK')
-    await poolCreationLock
-    //console.log('WAITED !!! END FOR LOCK')
-  }
+  //if (poolCreationLock) {
+  //  //console.log('WAIT FOR LOCK')
+  //  await poolCreationLock
+  //  //console.log('WAITED !!! END FOR LOCK')
+  //}
 
   let pool = await SwapPool.findOne(filter).lean()
 
   if (pool === null) {
-    //console.warn(`WARNING: Updating non existing pool ${filter.id} action`)
+    console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
     pool = await updatePool(filter.chain, filter.id)
 
     // It might be first position of just created pool
@@ -174,7 +172,6 @@ async function updatePositions(chain: string, poolId: number) {
 
   const to_set = [...keep, ...positions]
   await redis.set(`positions_${chain}`, JSON.stringify(to_set))
-  console.log('positions updated', Date.now())
 
 
   // Find removed/added positions for push
@@ -207,8 +204,6 @@ async function updatePositions(chain: string, poolId: number) {
 }
 
 async function updatePool(chain: string, poolId: number) {
-    // TODO Generate stats for pools
-
   console.log('update pool', poolId)
   const network = networks[chain]
   const rpc = getFailOverRpc(network)
@@ -233,7 +228,7 @@ async function updatePool(chain: string, poolId: number) {
   const parsedPool = parsePool(pool)
 
   // TODO FIX DEPRECATED
-  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, parsedPool, { upsert: true } )
+  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, parsedPool, { upsert: true, new: true })
 }
 
 async function updateTicks(chain: string, poolId: number) {
@@ -246,8 +241,6 @@ async function updateTicks(chain: string, poolId: number) {
   chainTicks.forEach((tick, id) => {
     const tick_old = redisTicks.get(id)
 
-    console.log({ tick_old, tick })
-    console.log('lodash.isEqual(tick_old, tick)', lodash.isEqual(tick_old, tick))
     if (!lodash.isEqual(tick_old, tick)) {
       update.push(tick)
     }
@@ -262,7 +255,6 @@ async function updateTicks(chain: string, poolId: number) {
 
   await setRedisTicks(chain, poolId, Array.from(chainTicks))
 
-  console.log({ update })
   if (update.length == 0) return
 
   const push = JSON.stringify({ chain, poolId, update })
@@ -345,7 +337,6 @@ export async function initialUpdate(chain: string, poolId?: number) {
     console.log('updated ticks: ', chain, id)
     await updateTicks(chain, id)
 
-
     // Chain that we have our own nodes
     //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
   }
@@ -369,7 +360,7 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
 
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
-  
+
   const totalUSDValue = ((tokenAamount * tokenAUSDPrice) + (tokenBamount * tokenBUSDPrice)).toFixed(4)
 
   return await PositionHistory.create({
@@ -428,13 +419,16 @@ export async function onSwapAction(message: string) {
   console.log('swap action', name)
 
   if (name == 'logpool') {
-    poolCreationLock = new Promise(async (resolve, reject) => {
-      await updatePool(chain, data.poolId)
-      await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
+    await updatePool(chain, data.poolId)
+    await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
-      resolve(true)
-      poolCreationLock = null
-    })
+    // poolCreationLock = new Promise(async (resolve, reject) => {
+    //   await updatePool(chain, data.poolId)
+    //   await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
+
+    //   resolve(true)
+    //   poolCreationLock = null
+    // })
   }
 
   if (name == 'logswap') {
@@ -442,7 +436,7 @@ export async function onSwapAction(message: string) {
 
     handlePoolChart(
       chain,
-      data.poolId, 
+      data.poolId,
       block_time,
       data.sqrtPriceX64,
       parseAssetPlain(data.reserveA).amount,
@@ -486,7 +480,7 @@ export async function onSwapAction(message: string) {
     const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
     handlePoolChart(
       chain,
-      data.poolId, 
+      data.poolId,
       block_time,
       sqrtPriceX64,
       parseAssetPlain(data.reserveA).amount,
