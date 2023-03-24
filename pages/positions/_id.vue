@@ -90,7 +90,8 @@ export default {
 
   watch: {
     position() {
-      console.log('position updated', this.position, this.position.amountA.toFixed())
+      if (!this.position) this.$router.push('/positions')
+      //console.log('position updated', this.position, this.position.amountA.toFixed())
     }
   },
 

@@ -108,12 +108,6 @@ async function handlePoolChart(
 
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
-  //if (poolCreationLock) {
-  //  //console.log('WAIT FOR LOCK')
-  //  await poolCreationLock
-  //  //console.log('WAITED !!! END FOR LOCK')
-  //}
-
   let pool = await SwapPool.findOne(filter).lean()
 
   if (pool === null) {
