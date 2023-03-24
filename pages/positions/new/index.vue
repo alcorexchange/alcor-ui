@@ -628,8 +628,8 @@ export default {
       try {
         const poolId = await this.addLiquidity()
         this.$router.push('/positions')
-        await this.$store.dispatch('amm/poolUpdate', poolId)
-        this.$store.dispatch('amm/fetchPositions')
+        // await this.$store.dispatch('amm/poolUpdate', poolId)
+        // this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
         console.error(e)
         this.$notify({ title: 'Add Position', message: e.message, type: 'error' })
@@ -739,10 +739,10 @@ export default {
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
 
       // Only update new pool with delay
-      if (actions.length > 1) setTimeout(() => {
-        this.$store.dispatch('amm/poolUpdate', poolId)
-          .then(() => this.$store.dispatch('amm/fetchPositions'))
-      }, 2000)
+      // if (actions.length > 1) setTimeout(() => {
+      //   this.$store.dispatch('amm/poolUpdate', poolId)
+      //     .then(() => this.$store.dispatch('amm/fetchPositions'))
+      // }, 2000)
 
       console.log('New position', r)
 

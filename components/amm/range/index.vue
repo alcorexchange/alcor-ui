@@ -56,6 +56,7 @@ export default {
 
   computed: {
     series() {
+      console.log('series computed')
       // TODO Should be async
       // TODO Do optimisations, can lowerage perfomance due to large number of ticks
 
@@ -70,9 +71,11 @@ export default {
       const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
 
       return series.map(s => {
+        const y = Number(s.liquidityActive.toString())
+
         return {
           x: Number(s.price0),
-          y: Number(s.liquidityActive.toString())
+          y: y > 0 ? y : 0 // TODO This is hotfix, might be bug in calculation
         }
       })
     },

@@ -88,10 +88,10 @@ export default {
       try {
         // TODO Notify & update position
         this.visible = false
-        setTimeout(() => {
-          this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-          this.$store.dispatch('amm/fetchPositions')
-        }, 1000)
+        // setTimeout(() => {
+        //   this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
+        //   this.$store.dispatch('amm/fetchPositions')
+        // }, 1000)
       } catch (e) {
         console.error(e)
         this.$notify({ type: 'error', title: 'Collect', message: e.message })

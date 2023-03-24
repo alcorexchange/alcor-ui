@@ -14,6 +14,7 @@ export default {
     d() {
       const { xScale, yScale, series } = this
 
+      console.log({ series })
       return area()
         .curve(curveStepAfter)
         .x((d) => xScale(d.x))

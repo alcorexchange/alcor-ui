@@ -67,23 +67,31 @@ export const actions = {
       dispatch('fetchPositionsStats')
     })
 
-    // TODO Do it on backend might be
+    // TODO Do it on backend may be
     this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
     console.log('subscribed to all swap updates')
 
-    this.$socket.on('swap:ticks:update', data => {
-      console.log('SWAP TICKS UPDATE!!!', data)
+    this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
+      console.log('SWAP TICKS UPDATE!!!', { poolId, ticks })
+
+      ticks.forEach(tick => {
+        dispatch('updateTickOfPool', { poolId, tick })
+      })
     })
 
     this.$socket.on('swap:pool:update', data => {
       console.log('SWAP POOL UPDATE!!!', data)
+
       data.forEach(pool => {
         commit('updatePool', pool)
       })
     })
 
     this.$socket.io.on('reconnect', () => {
-      // TODO Fetch for ticks again
+      // TODO Fetch and set for ticks again
+      // TODO Fetch and set for pools again
+      // TODO Fetch and set positions
+
       // Connect to last poool updates
       //
       // commit('setBids', [])
@@ -152,18 +160,29 @@ export const actions = {
   updateTickOfPool({ state, commit }, { poolId, tick }) {
     const ticks = cloneDeep(state.ticks[poolId] ?? [])
 
-    const old = ticks.findIndex(old_tick => old_tick.id == tick.id)
+    console.log('update tick of pull, old:', JSON.stringify(ticks))
+
+    const old = ticks.findIndex(old_tick => {
+      console.log('findIndex:', old_tick.id, tick.id)
+      return old_tick.id == tick.id
+    })
+
+    console.log({ old })
 
     if (old != -1) {
       if (tick.liquidityGross == 0) {
+        console.log('removing tick', old)
         ticks.splice(old, 1)
       } else {
+        console.log('replacing tick', tick)
         ticks[old] = tick
       }
     } else if (tick.liquidityGross !== 0) {
+      console.log('add new tick', tick)
       ticks.push(tick)
     }
 
+    console.log('update tick of pull, new:', JSON.stringify(ticks))
     commit('setTicks', { poolId, ticks })
   },
 
@@ -266,7 +285,7 @@ export const getters = {
   plainPositions(state, getters) {
     const positions = []
     for (const p of getters.positions) {
-      const stats = state.positionsStats.find(pos => pos.id == p.id) || {}
+      const stats = state.positionsStats.find(pos => pos.id == p.id) || { totalValue: 0, pNl: 0, feesA: '0.0000', feesB: '0.0000' }
 
       const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
 

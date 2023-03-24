@@ -15,7 +15,6 @@ export default {
 
   methods: {
     managePosition({ link }) {
-      console.log({ link })
       this.$router.push(link)
     },
   },

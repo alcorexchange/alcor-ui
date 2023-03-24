@@ -157,7 +157,6 @@ export default {
   }),
 
   fetch() {
-    console.log('111111111111111')
     // fetch has access to `this`
     const { input, output } = this.$route.query
 
@@ -194,13 +193,13 @@ export default {
   },
 
   watch: {
-    tokenA() {
-      this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
-    },
+    // tokenA() {
+    //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
+    // },
 
-    tokenB() {
-      this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
-    },
+    // tokenB() {
+    //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
+    // },
 
     pools() {
       // Recalculate on pools update
