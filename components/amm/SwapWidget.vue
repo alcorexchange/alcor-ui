@@ -156,18 +156,19 @@ export default {
     routerCollapse: ['1']
   }),
 
-  fetch({ store, route }) {
+  fetch() {
     console.log('111111111111111')
-    const { input, output } = route.query
+    // fetch has access to `this`
+    const { input, output } = this.route.query
 
     if (input) {
       const [symbol, contract] = input.split('-')
-      store.commit('amm/swap/setInput', { symbol, contract })
+      this.$store.commit('amm/swap/setInput', { symbol, contract })
     }
 
     if (output) {
       const [symbol, contract] = output.split('-')
-      store.commit('amm/swap/setOutput', { symbol, contract })
+      this.$store.commit('amm/swap/setOutput', { symbol, contract })
     }
   },
 
