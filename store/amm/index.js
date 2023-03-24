@@ -40,8 +40,7 @@ export const mutations = {
 
   updatePool: (state, pool) => {
     const index = state.pools.findIndex((c) => c.id === pool.id)
-
-    //Vue.set(state.categories, index, category)
+    Vue.set(state.categories, index, pool)
   },
 
   setTicks: (state, { poolId, ticks }) => {
