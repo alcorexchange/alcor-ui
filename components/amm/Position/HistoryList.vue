@@ -1,6 +1,6 @@
 <template lang="pug">
 .table-and-filter
-  HistoryFilter(v-model="filter" v-if="isMobile")
+  HistoryFilter.mb-2(v-model="filter" v-if="isMobile")
   el-table.history-table(
     :data='plainPositions',
     style='width: 100%',
