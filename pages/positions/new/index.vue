@@ -961,10 +961,15 @@ export default {
     flex-wrap: wrap;
     justify-content: flex-start;
     .item{
+      padding: 4px 2px;
+      .inner {
+        font-size: 0.8rem !important;
+      }
       flex: 1;
     }
   }
   .add-liquidity-component{
+    padding: 8px !important;
     .main-section{
       grid-template-columns: 1fr;
       grid-template-areas:
