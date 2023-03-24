@@ -215,7 +215,8 @@ export default {
 <style lang="scss">
 .increase-liquidity {
   .el-dialog {
-    width: 480px;
+    width: 90%;
+    max-width: 480px;
   }
 }
 .separator {
