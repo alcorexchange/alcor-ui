@@ -174,6 +174,8 @@ async function updatePositions(chain: string, poolId: number) {
 
   const to_set = [...keep, ...positions]
   await redis.set(`positions_${chain}`, JSON.stringify(to_set))
+  console.log('positions updated', Date.now())
+
 
   // Find removed/added positions for push
   // const changed = []
@@ -223,8 +225,10 @@ async function updatePool(chain: string, poolId: number) {
   // TODO May be change to warning
   if (!pool) throw new Error('NOT FOUND POOL FOR UPDATE: ' + poolId)
 
+  const push = JSON.stringify({ chain, poolId, update: [pool] })
+  publisher.publish('swap:pool:update', push)
+
   updateTicks(chain, poolId)
-  updatePositions(chain, poolId)
 
   const parsedPool = parsePool(pool)
 
@@ -242,6 +246,8 @@ async function updateTicks(chain: string, poolId: number) {
   chainTicks.forEach((tick, id) => {
     const tick_old = redisTicks.get(id)
 
+    console.log({ tick_old, tick })
+    console.log('lodash.isEqual(tick_old, tick)', lodash.isEqual(tick_old, tick))
     if (!lodash.isEqual(tick_old, tick)) {
       update.push(tick)
     }
@@ -256,10 +262,11 @@ async function updateTicks(chain: string, poolId: number) {
 
   await setRedisTicks(chain, poolId, Array.from(chainTicks))
 
+  console.log({ update })
   if (update.length == 0) return
 
   const push = JSON.stringify({ chain, poolId, update })
-  publisher.publish('ticks_update', push)
+  publisher.publish('swap:ticks:update', push)
 }
 
 async function connectAll() {
@@ -450,47 +457,17 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logmint') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
-
-    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
-
-    handlePoolChart(
-      chain,
-      data.poolId, 
-      block_time,
-      sqrtPriceX64,
-      parseAssetPlain(data.reserveA).amount,
-      parseAssetPlain(data.reserveB).amount,
-    )
+    await updatePositions(chain, data.poolId)
   }
 
   if (name == 'logburn') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'burn', block_time })
-
-    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
-
-    handlePoolChart(
-      chain,
-      data.poolId, 
-      block_time,
-      sqrtPriceX64,
-      parseAssetPlain(data.reserveA).amount,
-      parseAssetPlain(data.reserveB).amount
-    )
+    await updatePositions(chain, data.poolId)
   }
 
   if (name == 'logcollect') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
-
-    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
-
-    handlePoolChart(
-      chain,
-      data.poolId, 
-      block_time,
-      sqrtPriceX64,
-      parseAssetPlain(data.reserveA).amount,
-      parseAssetPlain(data.reserveB).amount,
-    )
+    await updatePositions(chain, data.poolId)
   }
 
   if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
@@ -503,6 +480,18 @@ export async function onSwapAction(message: string) {
     const push = { chain, account: owner, positions: [posId] }
 
     publisher.publish('account:update-positions', JSON.stringify(push))
+  }
+
+  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+    const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
+    handlePoolChart(
+      chain,
+      data.poolId, 
+      block_time,
+      sqrtPriceX64,
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount,
+    )
   }
 }
 

@@ -86,7 +86,13 @@ export default {
 
   data: () => ({
     tokensInverted: false
-  }),
+  }), 
+
+  watch: {
+    position() {
+      console.log('position updated', this.position, this.position.amountA.toFixed())
+    }
+  },
 
   computed: {
     position() {

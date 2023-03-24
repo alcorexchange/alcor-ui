@@ -22,7 +22,9 @@ export const state = () => ({
   // TODO move to module
   selectedTokenA: null,
   selectedTokenB: null,
-  slippage: DEFAULT_SLIPPAGE
+  slippage: DEFAULT_SLIPPAGE,
+
+  last_pool_subscribed: null
 })
 
 export const mutations = {
@@ -30,6 +32,7 @@ export const mutations = {
   setPositions: (state, positions) => state.positions = positions,
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
+  setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,
   setPositionsStats: (state, stats) => state.positionsStats = stats,
@@ -47,20 +50,75 @@ export const mutations = {
 }
 
 export const actions = {
-  async init({ dispatch }) {
+  async init({ dispatch, rootState }) {
+    console.log('amminit')
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
+    console.log('1')
 
     this.$socket.on('account:update-positions', positions => {
-      console.log('update positions push a', { positions })
+      // TODO Handle positions id's
       dispatch('fetchPositions')
+      dispatch('fetchPositionsStats')
+    })
+    console.log('2')
+
+    // TODO Do it on backend might be
+    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
+    console.log('subscribed to all swap updates')
+
+    this.$socket.on('swap:ticks:update', data => {
+      console.log('SWAP TICKS UPDATE!!!', data)
+    })
+
+    this.$socket.on('swap:pool:update', data => {
+      console.log('SWAP POOL UPDATE!!!', data)
+    })
+
+    this.$socket.io.on('reconnect', () => {
+      // TODO Fetch for ticks again
+      // Connect to last poool updates
+      //
+      // commit('setBids', [])
+      // commit('setAsks', [])
+
+      // if (state.last_market_subscribed !== null) {
+      //   dispatch('unsubscribe', state.last_market_subscribed)
+      // }
+
+      // if (state.id && this._vm.$nuxt.$route.name.includes('trade-index-id')) {
+      //   dispatch('startStream', state.id)
+      // }
     })
   },
+
+  unsubscribe({ state, rootState, commit, dispatch }, poolId) {
+    this.$socket.emit('unsubscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
+  },
+
+  subscribe({ rootState, commit }, poolId) {
+    if (market === undefined) return
+
+    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
+
+    commit('setLastPoolSubscribed', poolId)
+    console.log('subscribed to pool', poolId)
+    //commit('setStreaming', true)
+  },
+
 
   async afterLogin({ dispatch }) {
     dispatch('fetchPools')
     dispatch('fetchPositions')
     dispatch('fetchPositionsStats')
+  },
+
+  subscribeToPool() {
+    this.$socket.on('account:update-positions', positions => {
+      // TODO Handle positions id's
+      dispatch('fetchPositions')
+      dispatch('fetchPositionsStats')
+    })
   },
 
 
@@ -81,6 +139,7 @@ export const actions = {
 
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
+    console.log('positions fetched', positions)
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
@@ -202,6 +261,7 @@ export const getters = {
       }))
     }
 
+    console.log('positions getter', positions)
     return positions
   },
 

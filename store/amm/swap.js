@@ -24,6 +24,17 @@ export const actions = {
     if (rootGetters['amm/pools'].length == 0) await dispatch('amm/fetchPools', null, { root: true })
     if (rootGetters['amm/pools'].length == 0) return
 
+    dispatch('setDefaultInputOutput')
+  },
+
+  async subscribeToCurrentPairPoolsUpdates({ getters }) {
+    // TODO Think how to implemente ticks update
+    //const pairPools = 
+    console.log('zz', getters.tokenA, getters.tokenB)
+    console.log('subscribeToCurrentPairPoolsUpdates')
+  },
+
+  async setDefaultInputOutput({ state, commit, getters, rootState }) {
     const { input, output } = state
 
     if (!input && !output) {

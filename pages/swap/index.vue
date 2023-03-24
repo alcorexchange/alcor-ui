@@ -167,6 +167,7 @@ export default {
 
     routerCollapse: ['1']
   }),
+
   computed: {
     priceImpactStyle() {
       const impact = parseInt(this.priceImpact.replace('%', ''))
@@ -185,6 +186,16 @@ export default {
       'sortedA',
       'sortedB'
     ]),
+  },
+
+  watch: {
+    tokenA() {
+      this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
+    },
+
+    tokenB() {
+      this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
+    },
   },
 
   methods: {
