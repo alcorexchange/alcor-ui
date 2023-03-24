@@ -1,9 +1,12 @@
 module.exports = {
-  root: false,
+  root: true,
 
   parserOptions: {
-    parser: 'babel-eslint',
-    sourceType: 'module',
+    // parser: 'babel-eslint',
+    // sourceType: 'module',
+
+    parser: '@typescript-eslint/parser',
+    //sourceType: 'module',
   },
 
   env: {
@@ -13,16 +16,25 @@ module.exports = {
   extends: [
     // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
-    'plugin:@typescript-eslint/recommended',
+    //
+    //'plugin:@typescript-eslint/recommended',
     'plugin:import/recommended',
     'plugin:vue/essential',
+    'plugin:vue/recommended',
+    'plugin:vue/strongly-recommended',
     'plugin:nuxt/recommended',
     '@vue/standard',
     '@nuxtjs',
+
+    // 'plugin:import/recommended',
+    // 'plugin:vue/essential',
+    // '@vue/standard',
+    // '@nuxtjs'
   ],
 
   // required to lint *.vue files
   plugins: ['import', 'vue', '@typescript-eslint'],
+  //plugins: ['import', 'vue'],
 
   globals: {
     ga: true, // Google Analytics
