@@ -1,15 +1,16 @@
 <template lang="pug">
 div
   PositionHeader
-  span history
-
+  HistoryList
 </template>
 
 <script>
 import PositionHeader from '~/components/amm/Position/PositionHeader'
+import HistoryList from '~/components/amm/Position/HistoryList'
 export default {
   components: {
-    PositionHeader
+    PositionHeader,
+    HistoryList
   },
 }
 </script>
