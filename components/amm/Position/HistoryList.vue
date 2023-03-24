@@ -8,7 +8,9 @@ el-table.history-table(
       i.el-icon-moon-night.fs-40
       .fs-14.lh-14 Your position history will appear here.
   //- Custom header
-  el-table-column(:label='$t("FILTER")' width="240" class-name="type")
+  el-table-column(width="240" class-name="type")
+    template(#header)
+      HistoryFilter(v-model="filter")
     template(slot-scope='{row}') Swap WAX for BLK
 
   el-table-column(:label='$t("Network")', width='220' class-name="network")
@@ -46,9 +48,13 @@ el-table.history-table(
 import { mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
+import HistoryFilter from '~/components/amm/Position/HistoryFilter'
 
 export default {
-  components: { TokenImage },
+  components: { TokenImage, HistoryFilter },
+  data: () => ({
+    filter: 'All'
+  }),
   computed: {
     ...mapGetters('amm', ['plainPositions'])
   },
