@@ -1,13 +1,12 @@
 <template lang="pug">
-// TODO Move to component SwapWidget
 .d-flex.gap-6.justify-content-center
-  alcor-container.mt-5.swap-widget
+  alcor-container.swap-widget
     .d-flex.justify-content-between.align-items-center.p-1
       .d-flex.align-items-center.gap-16
         .fs-18 {{ $t('Swap') }}
         NuxtLink.navigation(:to="localeRoute('/positions')").fs-18.disable {{ $t('Pool') }}
       .d-flex.gap-16.align-items-center
-        i.el-icon-refresh.pointer.fs-18(@click="loading = !loading")
+        i.el-icon-refresh.pointer.fs-18(@click="$emit('chart')")
         Settings
 
     PoolTokenInput.mt-2(

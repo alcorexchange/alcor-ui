@@ -1,5 +1,5 @@
 <template lang="pug">
-SwapWidget
+SwapWidget.mt-5
 </template>
 
 <script>

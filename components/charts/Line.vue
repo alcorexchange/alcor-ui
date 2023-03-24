@@ -230,7 +230,8 @@ export default {
 
 <style lang="scss">
 .stacked-column-chart-component {
-  width: 760px;
+  width: 100%;
+  min-height: 420px;
   .apexcharts-svg {
     height: 420px;
   }
