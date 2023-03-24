@@ -27,7 +27,6 @@
     .icon
       i.el-icon-lock
     .message(v-if="disabledMessage") {{ disabledMessage }}
-
 </template>
 
 <script>
