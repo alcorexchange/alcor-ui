@@ -193,13 +193,31 @@ export default {
   },
 
   watch: {
-    // tokenA() {
+    tokenA(token) {
+      const currentQuery = this.$route.query
+      this.$router.push(
+        this.localeRoute({
+          query: {
+            ...currentQuery,
+            input: `${token.symbol}-${token.contract}`
+          }
+        })
+      )
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
-    // },
+    },
 
-    // tokenB() {
+    tokenB(token) {
+      const currentQuery = this.$route.query
+      this.$router.push(
+        this.localeRoute({
+          query: {
+            ...currentQuery,
+            output: `${token.symbol}-${token.contract}`
+          }
+        })
+      )
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
-    // },
+    },
 
     pools() {
       // Recalculate on pools update
