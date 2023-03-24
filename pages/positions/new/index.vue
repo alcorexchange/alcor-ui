@@ -176,7 +176,16 @@ export default {
   },
 
   // Enabling managige route in nested component
-  fetch({ route, redirect }) {
+  fetch({ route, redirect, store }) {
+    const { left, right } = route.query || {}
+    console.log({ left, right })
+    if (left) {
+      store.commit('amm/liquidity/setTokenA', { id: left })
+    }
+
+    if (right) {
+      store.commit('amm/liquidity/setTokenB', { id: right })
+    }
     if (route.path == '/add-liquidity') redirect('/add-liquidity/')
   },
 
@@ -843,6 +852,35 @@ export default {
       onRightRangeInput(rightPrice.toFixed(5))
     },
   },
+  watch: {
+    tokenA(token) {
+      setTimeout(() => {
+        const currentQuery = this.$route.query
+        this.$router.push(
+          this.localeRoute({
+            query: {
+              ...currentQuery,
+              // undefined removes it from query
+              left: token ? token.id : undefined
+            }
+          })
+        )
+      }, 0)
+    },
+    tokenB(token) {
+      setTimeout(() => {
+        const currentQuery = this.$route.query
+        this.$router.push(
+          this.localeRoute({
+            query: {
+              ...currentQuery,
+              right: token ? token.id : undefined
+            }
+          })
+        )
+      }, 0)
+    },
+  }
 }
 </script>
 

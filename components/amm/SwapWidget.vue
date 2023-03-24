@@ -194,28 +194,32 @@ export default {
 
   watch: {
     tokenA(token) {
-      const currentQuery = this.$route.query
-      this.$router.push(
-        this.localeRoute({
-          query: {
-            ...currentQuery,
-            input: `${token.symbol}-${token.contract}`
-          }
-        })
-      )
+      setTimeout(() => {
+        const currentQuery = this.$route.query
+        this.$router.push(
+          this.localeRoute({
+            query: {
+              ...currentQuery,
+              input: `${token.symbol}-${token.contract}`
+            }
+          })
+        )
+      }, 0)
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
     },
 
     tokenB(token) {
-      const currentQuery = this.$route.query
-      this.$router.push(
-        this.localeRoute({
-          query: {
-            ...currentQuery,
-            output: `${token.symbol}-${token.contract}`
-          }
-        })
-      )
+      setTimeout(() => {
+        const currentQuery = this.$route.query
+        this.$router.push(
+          this.localeRoute({
+            query: {
+              ...currentQuery,
+              output: `${token.symbol}-${token.contract}`
+            }
+          })
+        )
+      }, 0)
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
     },
 
