@@ -29,6 +29,7 @@ export const state = () => ({
 
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
+
   setPositions: (state, positions) => state.positions = positions,
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
@@ -37,16 +38,16 @@ export const mutations = {
   setPoolsStats: (state, stats) => state.poolsStats = stats,
   setPositionsStats: (state, stats) => state.positionsStats = stats,
 
+  updatePool: (state, pool) => {
+    const index = state.pools.findIndex(c => c.id === pool.id);
+
+    Vue.set(state.categories, index, category);
+  },
+
   setTicks: (state, { poolId, ticks }) => {
     ticks.sort((a, b) => a.id - b.id)
     Vue.set(state.ticks, poolId, ticks)
-  },
-  setPoolTokens: (state, { poolIndex, tokenA, tokenB }) => {
-    const pool = state.pools[poolIndex]
-    Vue.set(state.pools, poolIndex, { ...pool, tokenA, tokenB })
-    // pool.tokenA = tokenA
-    // pool.tokenB = tokenB
-  },
+  }
 }
 
 export const actions = {
@@ -72,6 +73,10 @@ export const actions = {
     })
 
     this.$socket.on('swap:pool:update', data => {
+      data.forEach(pool => {
+        console.log({ pool })
+      })
+
       console.log('SWAP POOL UPDATE!!!', data)
     })
 
@@ -207,16 +212,6 @@ export const actions = {
       dispatch('fetchTicksOfPool', row.id)
     }
   },
-
-  toggleTokens({ state, commit }, { poolId }) {
-    console.log({ poolId })
-    console.log({ pool: state.pools })
-    const poolIndex = state.pools.findIndex(({ id }) => id === parseInt(poolId))
-    const { tokenA: _tokenA, tokenB: _tokenB } = state.pools[poolIndex]
-    commit('setPoolTokens', {
-      tokenA: _tokenB, tokenB: _tokenA, poolIndex
-    })
-  }
 }
 
 export const getters = {
@@ -244,6 +239,7 @@ export const getters = {
       }))
     }
 
+    console.log('pools getter triggered')
     return pools
   },
 
