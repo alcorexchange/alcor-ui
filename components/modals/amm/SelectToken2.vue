@@ -88,7 +88,6 @@ export default {
   computed: {
     popularTokens() {
       const tokens = []
-      console.log(this.tokens);
       this.network.popularTokens.map(token => {
         const tInstance = this.tokens?.find(t => token == t.id)
 
