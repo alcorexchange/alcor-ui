@@ -49,6 +49,10 @@ export default {
     }
   },
 
+  mounted() {
+    this.calcFees()
+  },
+
   methods: {
     async calcFees() {
       const { feesA, feesB } = await this.position.getFees()

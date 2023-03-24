@@ -157,7 +157,6 @@ export default {
   }),
 
   fetch() {
-    console.log('111111111111111')
     // fetch has access to `this`
     const { input, output } = this.$route.query
 

@@ -21,7 +21,8 @@ export default {
   //     const [symbol, contract] = output.split('-')
   //     store.commit('amm/swap/setOutput', { symbol, contract })
   //   }
-  // },
 
+  //   store.dispatch('amm/swap/setDefaultInputOutput')
+  // },
 }
 </script>

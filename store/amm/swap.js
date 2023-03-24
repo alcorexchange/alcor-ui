@@ -34,7 +34,7 @@ export const actions = {
     console.log('subscribeToCurrentPairPoolsUpdates')
   },
 
-  async setDefaultInputOutput({ state, commit, getters, rootState }) {
+  setDefaultInputOutput({ state, commit, getters, rootState }) {
     const { input, output } = state
 
     if (!input && !output) {

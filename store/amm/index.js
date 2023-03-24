@@ -266,7 +266,7 @@ export const getters = {
   plainPositions(state, getters) {
     const positions = []
     for (const p of getters.positions) {
-      const stats = state.positionsStats.find(pos => pos.id == p.id) || {}
+      const stats = state.positionsStats.find(pos => pos.id == p.id) || { totalValue: 0, pNl: 0, feesA: '0.0000', feesB: '0.0000' }
 
       const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
 
