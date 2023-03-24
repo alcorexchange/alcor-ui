@@ -108,7 +108,7 @@
                 .p-1
                   swap-route(:route="route")
 
-    alcor-button.w-100.mt-2(@click="submit" big access) Swap WAX to BRWL
+    alcor-button.w-100.mt-2.submit(@click="submit" big access) Swap WAX to BRWL
 </template>
 
 <script>
@@ -413,6 +413,13 @@ export default {
 }
 .price-impact {
   font-weight: 500;
+}
+.submit {
+  font-weight: 500;
+}
+.submit:hover{
+  background: var(--main-green) !important;
+  color: var(--text-theme) !important;
 }
 </style>
 <style lang="scss">
