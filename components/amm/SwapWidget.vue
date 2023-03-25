@@ -107,7 +107,7 @@
                 .p-1
                   swap-route(:route="route")
     AuthOnly.w-100.mt-2
-      AlcorButton.w-100.mt-2.submit(@click="submit" big access) Swap WAX to BRWL
+      AlcorButton.w-100.submit(@click="submit" big access) Swap WAX to BRWL
 </template>
 
 <script>
