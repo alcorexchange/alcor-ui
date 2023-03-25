@@ -158,6 +158,10 @@ export default {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+    &:last-child {
+      border-bottom: none;
+    }
     &:hover {
       background: var(--hover) !important;
     }
