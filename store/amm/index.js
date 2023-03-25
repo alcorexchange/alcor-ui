@@ -19,7 +19,7 @@ export const state = () => ({
   // Api
   poolsStats: [],
   positionsStats: [],
-  positionHistory: [],
+  history: [],
 
   // TODO move to module
   selectedTokenA: null,
@@ -39,6 +39,7 @@ export const mutations = {
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,
   setPositionsStats: (state, stats) => state.positionsStats = stats,
+  setHistory: (state, data) => state.history = data,
 
   updatePool: (state, pool) => {
     const index = state.pools.findIndex((c) => c.id === pool.id)
@@ -145,7 +146,7 @@ export const actions = {
       this.$axios.get('/v2/account/' + owner + '/swap-history'),
     ])
     console.log('history', position.data, swap.data)
-    // commit('setHistory', [...positions])
+    commit('setHistory', [...position.data, ...swap.data])
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {

@@ -1,8 +1,9 @@
 <template lang="pug">
 .table-and-filter
+  //- TODO: Differ Swap from position
   HistoryFilter.mb-2(v-model="filter" v-if="isMobile")
   el-table.history-table(
-    :data='plainPositions',
+    :data='listWithPool',
     style='width: 100%',
   )
     template(#empty)
@@ -12,22 +13,22 @@
     el-table-column(width="240" class-name="type")
       template(#header)
         HistoryFilter(v-model="filter" v-if="!isMobile")
-      template(slot-scope='{row}') Swap WAX for BLK
+      template(slot-scope='{row: {pool}}') Swap {{ pool.tokenA.symbol }} for {{ pool.tokenB.symbol }}
 
     el-table-column(:label='$t("Network")', width='220' class-name="network")
       template(slot-scope='{ row }')
         .d-flex.align-items-center.gap-8
           TokenImage(
-            :src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)',
+            :src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)',
             height='20'
           )
-          div {{ row.tokenB.symbol }}
+          div {{ row.pool.tokenB.symbol }}
 
     el-table-column(:label='$t("Total Value")' width="160" )
       template(slot-scope='{row}')
         .d-flex.flex-column.gap-4
           .mobile-label Total Value
-          span $558,001.05
+          span ${{row.totalUSDValue}}
 
     el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
       template(slot-scope='{row}')
@@ -39,14 +40,15 @@
       template(slot-scope='{row}')
         .d-flex.flex-column.gap-4
           .mobile-label Account
-          span eos.name
+          span {{ row.owner }}
     el-table-column(:label='$t("Time")' align="right" class-name="time")
-      template(slot-scope='{row}') 2d ago
+      //- TODO: How to render time?
+      template(slot-scope='{row}') {{ row.time }}
 
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 import HistoryFilter from '~/components/amm/Position/HistoryFilter'
@@ -57,7 +59,17 @@ export default {
     filter: 'All'
   }),
   computed: {
-    ...mapGetters('amm', ['plainPositions'])
+    listWithPool() {
+      return this.history.map((historyItem) => {
+        const pool = this.pools.find(({ id }) => historyItem.pool === id)
+        return {
+          ...historyItem,
+          pool
+        }
+      })
+    },
+    ...mapGetters('amm', ['pools']),
+    ...mapState('amm', ['history'])
   },
 }
 </script>
