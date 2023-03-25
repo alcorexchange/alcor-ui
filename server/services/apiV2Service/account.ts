@@ -1,7 +1,7 @@
 import JSBI from 'jsbi'
 import { Router } from 'express'
 import { createClient } from 'redis'
-import { SwapPool, PositionHistory, Position } from '../../models'
+import { Swap, SwapPool, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 
 import { Position as PositionClass } from '../../../assets/libs/swap-sdk/entities/position'
@@ -137,7 +137,8 @@ account.get('/:account/positions-stats', async (req, res) => {
   res.json(fullPositions)
 })
 
-account.get('/:account/swap-history', async (req, res) => {
+
+account.get('/:account/positions-history', async (req, res) => {
   const network: Network = req.app.get('network')
   const { account } = req.params
 
@@ -146,6 +147,19 @@ account.get('/:account/swap-history', async (req, res) => {
 
   const positions = await PositionHistory.find({ chain: network.name, owner: account })
     .skip(skip).limit(limit).select('-_id id owner pool time tokenA tokenAUSDPrice tokenB tokenBUSDPrice totalUSDValue trx_id type').lean()
+
+  res.json(positions)
+})
+
+account.get('/:account/swap-history', async (req, res) => {
+  const network: Network = req.app.get('network')
+  const { account } = req.params
+
+  const limit = parseInt(String(req.query?.limit) || '200')
+  const skip = parseInt(String(req.query?.skip) || '0')
+
+  const positions = await Swap.find({ chain: network.name, $or: [{ sender: account }, { recipient: account }] })
+    .skip(skip).limit(limit).select('-_id id sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type').lean()
 
   res.json(positions)
 })
