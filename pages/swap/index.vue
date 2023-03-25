@@ -4,8 +4,8 @@
 
   client-only
     transition(name="width")
-      .chart-container(v-if="showChart")
-        SwapChart
+      //.chart-container(v-if="showChart")
+      SwapChart
 </template>
 
 <script>

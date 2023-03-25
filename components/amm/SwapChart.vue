@@ -21,9 +21,11 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Spot $2.5 B
 
   component(:is="activeTab" :series="series")
+  | {{ series }}
 </template>
 
 <script>
+import JSBI from 'jsbi'
 import { mapGetters } from 'vuex'
 
 import { Price, Q128 } from '~/assets/libs/swap-sdk'
@@ -33,12 +35,12 @@ import StackedColumns from '~/components/charts/StackedColumns'
 import MultiLine from '~/components/charts/MultiLine'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
-import { littleEndianToDesimal, littleEndianToDesimalString } from '~/utils'
 
 export default {
   components: {
     Price: Line,
-    Tvl: MultiLine,
+    //Tvl: MultiLine,
+    Tvl: Line,
     Depth: StepLine,
     Volume: StackedColumns,
     Fees: StackedColumns,
@@ -50,7 +52,7 @@ export default {
     activeTab: 'Price',
     tabs: [
       { label: 'Price', value: 'Price' },
-      // { label: 'TVL', value: 'Tvl' },
+      { label: 'TVL', value: 'Tvl' },
       // { label: 'Volume', value: 'Volume' },
       // { label: 'Fees', value: 'Fees' },
       // { label: 'Depth', value: 'Depth' }
@@ -75,25 +77,67 @@ export default {
     ]),
 
     series() {
-      return this[this.activeTab + 'Series']
+      if (this.activeTab == 'Price') {
+        return this.charts.map(c => {
+          //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
+
+          return {
+            x: c._id,
+            //y: parseFloat(price.toSignificant())
+            y: Math.random() * 100
+          }
+        })
+      }
+
+      if (this.activeTab == 'Tvl') {
+        return this.charts.map(c => {
+          return {
+            x: c._id,
+            y: c.usdReserveA + c.usdReserveB
+          }
+        })
+      }
+      return []
+    },
+
+    TvlSeries() {
+      const { sortedA, sortedB } = this
+
+      let data = []
+
+      if (sortedA && sortedB) {
+        data = this.charts.map(c => {
+          return {
+            x: c._id,
+            y: c.usdReserveA + c.usdReserveB
+          }
+        })
+      }
+
+      return [
+        {
+          name: 'Price',
+          data
+        }
+      ]
     },
 
     PriceSeries() {
       const { sortedA, sortedB } = this
 
+      let data = []
 
-      const data = this.charts.map(c => {
-        if (sortedA || sortedB) {
-          //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(littleEndianToDesimal(c.price), littleEndianToDesimal(c.price)))
-          //console.log(price.toSignificant(), c.price, littleEndianToDesimal(c.price))
-          console.log(c.price, littleEndianToDesimal(c.price), littleEndianToDesimalString(c.price))
-        }
+      if (sortedA && sortedB) {
+        data = this.charts.map(c => {
+          const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
 
-        return {
-          x: c._id,
-          y: Math.random() * 100
-        }
-      })
+          console.log(c._id)
+          return {
+            x: c._id,
+            y: parseFloat(price.toSignificant())
+          }
+        })
+      }
 
       return [
         {
