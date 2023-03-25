@@ -106,8 +106,8 @@
                     i.el-icon-plus
                 .p-1
                   swap-route(:route="route")
-
-    alcor-button.w-100.mt-2.submit(@click="submit" big access) Swap WAX to BRWL
+    AuthOnly.w-100.mt-2
+      AlcorButton.w-100.mt-2.submit(@click="submit" big access) Swap WAX to BRWL
 </template>
 
 <script>
@@ -125,6 +125,7 @@ import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { getPrecision } from '~/utils'
+import AuthOnly from '~/components/AuthOnly'
 
 export default {
   name: 'SwapWidget',
@@ -137,7 +138,8 @@ export default {
     PoolTokenInput,
     Settings,
     SwapRoute,
-    VueSkeletonLoader
+    VueSkeletonLoader,
+    AuthOnly
   },
 
   data: () => ({
