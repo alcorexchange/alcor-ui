@@ -277,6 +277,9 @@ export default {
     async submit() {
       try {
         await this.swap()
+        this.amountA = null
+        this.amountB = null
+
         return this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
       } catch (e) {
         console.log(e)
