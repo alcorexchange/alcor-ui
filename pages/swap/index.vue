@@ -1,13 +1,14 @@
 <template lang="pug">
 #swap-page.mt-5(:class="{ showChart }")
-  SwapWidget.swap-widget-container(@chart="onChart")
-  transition(name="width")
-    .chart-container(v-if="showChart && canShowChart")
-      SwapChart
+  SwapWidget.swap-widget-container(@onChartClick="onChart")
+
+  client-only
+    transition(name="width")
+      .chart-container(v-if="showChart")
+        SwapChart
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
 import SwapWidget from '~/components/amm/SwapWidget'
 import SwapChart from '~/components/amm/SwapChart'
 
@@ -16,24 +17,23 @@ export default {
     SwapWidget,
     SwapChart
   },
+
   computed: {
-    ...mapGetters({
-      showChart: 'amm/swap/showChart'
-    })
+    showChart: {
+      get() {
+        return this.$store.state.amm.swap.showChart
+      },
+
+      set(val) {
+        this.$store.commit('amm/swap/setShowChart', val)
+      }
+    },
   },
-  data: () => ({
-    canShowChart: false
-  }),
-  mounted() {
-    this.canShowChart = true
-  },
+
   methods: {
     onChart() {
-      this.setShowChart(!this.showChart)
+      this.showChart = !this.showChart
     },
-    ...mapMutations({
-      setShowChart: 'amm/swap/setShowChart'
-    })
   }
 }
 </script>

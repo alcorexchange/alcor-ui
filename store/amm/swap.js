@@ -124,7 +124,6 @@ export const actions = {
 }
 
 export const getters = {
-  showChart: (state) => state.showChart,
   tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
   tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),

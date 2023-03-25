@@ -6,7 +6,7 @@
         .fs-18 {{ $t('Swap') }}
         NuxtLink.navigation(:to="localeRoute('/positions')").fs-18.disable {{ $t('Pool') }}
       .d-flex.gap-16.align-items-center
-        i.el-icon-refresh.pointer.fs-18(@click="$emit('chart')")
+        i.el-icon-refresh.pointer.fs-18(@click="$emit('onChartClick')")
         Settings
 
     PoolTokenInput.mt-2(
