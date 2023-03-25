@@ -46,8 +46,8 @@ async function start () {
 
   // Server routes
   app.use('/api/v2/', spot)
-  app.use('/api/v2/', swap)
   app.use('/api/v2/', tokens)
+  app.use('/api/v2/swap', swap)
   app.use('/api/v2/account/', account)
 
 
