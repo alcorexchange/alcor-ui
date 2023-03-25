@@ -1,5 +1,5 @@
 <template lang="pug">
-alcor-container.p-4.w-100.chart-container-inner
+alcor-container.p-3.w-100.chart-container-inner
   .d-flex.justify-content-between
     el-radio-group.custom-radio.p-1.bg-base.br-4(
       v-model='activeTab',
@@ -64,7 +64,13 @@ export default {
 .custom-radio {
   display: flex !important;
   flex-wrap: nowrap;
-  padding: 2px;
+  padding: 2px !important;
+  gap: 2px;
+  &::v-deep {
+    .el-radio-button__inner{
+      padding: 6px 8px !important;
+    }
+  }
 }
 .indicator {
   border-radius: 50%;
