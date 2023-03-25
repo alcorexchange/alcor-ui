@@ -1,12 +1,10 @@
 import JSBI from 'jsbi'
 import { Router } from 'express'
 import { createClient } from 'redis'
-import { cacheSeconds } from 'route-cache'
 import { SwapPool, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 
 import { Position as PositionClass } from '../../../assets/libs/swap-sdk/entities/position'
-import {strict} from 'assert'
 
 // TODO Account validation
 export const account = Router()
@@ -31,10 +29,11 @@ async function getCurrentPositionState(chain, plainPosition) {
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
 
-  const totalValue = (parseFloat(position.amountA.toFixed()) * tokenAUSDPrice)
-    + (parseFloat(position.amountB.toFixed()) * tokenBUSDPrice)
-    + parseFloat(feesA) * tokenAUSDPrice
-    + parseFloat(feesB) * tokenBUSDPrice
+  const totalValue =
+    parseFloat(position.amountA.toFixed()) * tokenAUSDPrice +
+    parseFloat(position.amountB.toFixed()) * tokenBUSDPrice +
+    parseFloat(feesA) * tokenAUSDPrice +
+    parseFloat(feesB) * tokenBUSDPrice
 
   return {
     feesA,
@@ -122,8 +121,6 @@ account.get('/:account/positions', async (req, res) => {
 
 account.get('/:account/positions-stats', async (req, res) => {
   const network: Network = req.app.get('network')
-  const redis = req.app.get('redisClient')
-
 
   const { account } = req.params
 
@@ -138,4 +135,17 @@ account.get('/:account/positions-stats', async (req, res) => {
   }
 
   res.json(fullPositions)
+})
+
+account.get('/:account/swap-history', async (req, res) => {
+  const network: Network = req.app.get('network')
+  const { account } = req.params
+
+  const limit = parseInt(String(req.query?.limit) || '200')
+  const skip = parseInt(String(req.query?.skip) || '0')
+
+  const positions = await PositionHistory.find({ chain: network.name, owner: account })
+    .skip(skip).limit(limit).select('-_id id owner pool time tokenA tokenAUSDPrice tokenB tokenBUSDPrice totalUSDValue trx_id type').lean()
+
+  res.json(positions)
 })

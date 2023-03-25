@@ -91,6 +91,17 @@ module.exports = {
     'vue/require-prop-types': 0,
   },
 
+  // Because ts do that check
+  overrides: [
+    {
+      files: ['*.ts', '*.vue'],
+      rules: {
+        'no-undef': 'off',
+      },
+    },
+  ],
+
+
   // settings: {
   //   'import/parsers': {
   //     '@typescript-eslint/parser': ['.ts', '.tsx'],
@@ -110,5 +121,5 @@ module.exports = {
   //       // project: 'packages/*/tsconfig.json',
   //     },
   //   },
-  // },
+  // }
 }
