@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep'
 import Vue from 'vue'
+import axios from 'axios'
 import { fetchAllRows } from '~/utils/eosjs'
 import { isTicksAtLimit, tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
 import { Percent, Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
@@ -18,6 +19,7 @@ export const state = () => ({
   // Api
   poolsStats: [],
   positionsStats: [],
+  positionHistory: [],
 
   // TODO move to module
   selectedTokenA: null,
@@ -66,6 +68,7 @@ export const actions = {
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsStats')
+      dispatch('fetchPositionsHistory')
     })
 
     this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
@@ -104,6 +107,7 @@ export const actions = {
   afterLogin({ dispatch }) {
     dispatch('fetchPositions')
     dispatch('fetchPositionsStats')
+    dispatch('fetchPositionsHistory')
   },
 
   subscribeToPool() {
@@ -133,6 +137,15 @@ export const actions = {
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
     console.log('positions fetched', positions)
+  },
+  async fetchPositionsHistory({ state, commit, rootState, dispatch }) {
+    const owner = rootState.user?.name
+    const [position, swap] = await axios.all([
+      this.$axios.get('/v2/account/' + owner + '/positions-history'),
+      this.$axios.get('/v2/account/' + owner + '/swap-history'),
+    ])
+    console.log('history', position.data, swap.data)
+    // commit('setHistory', [...positions])
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
