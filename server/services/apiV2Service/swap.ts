@@ -29,6 +29,89 @@ swap.get('/', async (req, res) => {
   res.json(pools)
 })
 
+
+//swap.get('/:id/charts', defCache, async (req, res) => {
+swap.get('/charts', async (req, res) => {
+  const network = req.app.get('network')
+
+  const { tokenA, tokenB } = req.query
+
+  if (typeof tokenA !== 'string' || typeof tokenB !== 'string') {
+    return res.status(403).send('Set tokenA and tokenB')
+  }
+
+  const [symbolA, contractA] = tokenA.split('-')
+  const [symbolB, contractB] = tokenB.split('-')
+  // TODO Validation
+
+  const pools = await SwapPool.distinct('id', {
+    $or: [
+      {
+        'tokenA.symbol': symbolA.toUpperCase(),
+        'tokenB.symbol': symbolB.toUpperCase(),
+        'tokenA.contract': contractA,
+        'tokenB.contract': contractB
+      },
+
+      {
+        'tokenA.symbol': symbolB.toUpperCase(),
+        'tokenB.symbol': symbolA.toUpperCase(),
+        'tokenA.contract': contractB,
+        'tokenB.contract': contractA
+      },
+    ]
+  }).lean()
+
+  const period = parseInt(String(req.query.period))
+  const timeframe =
+    period && period in timeframes ? timeframes[period] : Date.now()
+
+  const $match = {
+    chain: network.name,
+    pool: { $in: pools },
+    time: { $gte: new Date(Date.now() - timeframe) },
+  }
+
+  const query = []
+
+  query.push({ $match })
+
+  if (timeframe != '24H') {
+    query.push({
+      $group: {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              {
+                $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000],
+              },
+            ],
+          },
+        },
+
+        price: { $last: '$price' },
+
+        reserveA: { $last: '$reserveA' },
+        reserveB: { $last: '$reserveB' },
+
+        volumeUSD: { $sum: '$volumeUSD' },
+
+        usdReserveA: { $last: '$usdReserveA' },
+        usdReserveB: { $last: '$usdReserveB' },
+      },
+    })
+  }
+
+  query.push({ $sort: { _id: 1 } })
+
+  const charts = await SwapChartPoint.aggregate(query)
+  res.json(charts)
+})
+
+
+
+
 swap.get('/:id', async (req, res) => {
   const network: Network = req.app.get('network')
   const { id } = req.params
@@ -76,56 +159,4 @@ const timepoints = {
 
 const defCache = cacheSeconds(60 * 5, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.query.reverse + '|' + req.query.period
-})
-
-//swap.get('/:id/charts', defCache, async (req, res) => {
-swap.get('/:id/charts', async (req, res) => {
-  const network = req.app.get('network')
-  const { id } = req.params
-
-  const period = parseInt(String(req.query.period))
-  const timeframe =
-    period && period in timeframes ? timeframes[period] : Date.now()
-
-  const $match = {
-    chain: network.name,
-    pool: parseInt(id),
-    time: { $gte: new Date(Date.now() - timeframe) },
-  }
-
-  const query = []
-
-  query.push({ $match })
-
-  if (timeframe != '24H') {
-    query.push({
-      $group: {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              {
-                $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000],
-              },
-            ],
-          },
-        },
-
-        price: { $last: '$price' },
-
-        reserveA: { $last: '$reserveA' },
-        reserveB: { $last: '$reserveB' },
-
-        volumeUSD: { $sum: '$volumeUSD' },
-
-        usdReserveA: { $last: '$usdReserveA' },
-        usdReserveB: { $last: '$usdReserveB' },
-      },
-    })
-  }
-
-  query.push({ $sort: { _id: 1 } })
-
-  const charts = await SwapChartPoint.aggregate(query)
-  res.json(charts)
 })
