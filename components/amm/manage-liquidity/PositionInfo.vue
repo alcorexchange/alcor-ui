@@ -1,16 +1,16 @@
 <template lang="pug">
 .pool-info
-  .d-flex.gap-8.align-items-center.pool-info-header
-    .pool-info-header-left.d-flex.gap-8.align-items-center
+  .pool-info-header
+    .pool-info-header-main.d-flex.gap-8.align-items-center
       PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool[tokensInverted ? 'tokenB' : 'tokenA']" :token2="position.pool[tokensInverted ? 'tokenA' : 'tokenB']")
       .pairs(v-if="tokensInverted") {{ position.pool.tokenB.symbol }} / {{ position.pool.tokenA.symbol }}
       .pairs(v-else) {{ position.pool.tokenA.symbol }} / {{ position.pool.tokenB.symbol }}
       .tag {{ poolFee }}%
-    .pool-info-header-right
       RangeIndicator.range-indicator(:inRange="position.inRange")
+    .action-slot
       slot(name="action")
 
-  .fs-18.disable.mt-2 {{ $t('Pool Amount') }}
+    .pool-amount-title.fs-18.disable.mt-2 {{ $t('Pool Amount') }}
 
   .d-flex.flex-column(:class="{'flex-column-reverse': tokensInverted}")
     .d-flex.justify-content-between.mt-1
@@ -119,12 +119,20 @@ export default {
     }
   }
   .pool-info-header{
-    &-right {
-      flex: 1;
-      display: flex;
-      .range-indicator{
-        flex: 1;
-      }
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+      "main main slot"
+      "amount amount amount";
+    &-main {
+      grid-area: main;
+    }
+    .action-slot {
+      display: flex;justify-content: flex-end;
+      grid-area: slot;
+    }
+    .pool-amount-title {
+      grid-area: amount;
     }
   }
   .pairs{
@@ -149,22 +157,17 @@ export default {
 }
 @media only screen and (max-width: 640px) {
   .pool-info {
-    .pairs {
-      font-size: 1rem;
-    }
     .tag {
       font-size: 0.74rem;
     }
     .pool-info-header{
-      &-right {
-        align-items: flex-end;
-        flex-direction: column;
-        gap: 2px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "main main"
+        "amount slot";
+      .action-slot {
+        margin-top: 0.5rem;
       }
-    }
-    .range-indicator {
-      white-space: nowrap;
-      gap: 4px
     }
   }
 }
