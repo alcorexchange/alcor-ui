@@ -61,9 +61,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.custom-radio{
+.custom-radio {
   display: flex !important;
   flex-wrap: nowrap;
+  padding: 2px;
 }
 .indicator {
   border-radius: 50%;

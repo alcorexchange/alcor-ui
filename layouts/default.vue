@@ -1,14 +1,15 @@
 <template lang="pug">
-.unlim-width
-  TopNav.px-3.py-2
+.unlim-width.default-layout
+  .not-footer
+    TopNav.px-3.py-2
 
-  AlcorLoading
-  ResourcesModal
-  ModalsDialog
+    AlcorLoading
+    ResourcesModal
+    ModalsDialog
 
-  .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
-    nuxt
-  FooterBlock
+    .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
+      nuxt
+  FooterBlock.footer-block
 </template>
 
 <script>
@@ -147,7 +148,16 @@ export default {
   margin-left: auto;
   margin-right: 10px;
 }
-
+.default-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  .footer-block {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
 .nav {
   display: flex;
   align-items: center;
