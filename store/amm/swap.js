@@ -27,13 +27,6 @@ export const actions = {
     dispatch('setDefaultInputOutput')
   },
 
-  async subscribeToCurrentPairPoolsUpdates({ getters }) {
-    // TODO Think how to implemente ticks update
-    //const pairPools =
-    console.log('zz', getters.tokenA, getters.tokenB)
-    console.log('subscribeToCurrentPairPoolsUpdates')
-  },
-
   setDefaultInputOutput({ state, commit, getters, rootState }) {
     const { input, output } = state
 

@@ -62,14 +62,11 @@ export const actions = {
     dispatch('fetchPoolsStats')
 
     this.$socket.on('account:update-positions', positions => {
+      console.log('update positions')
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsStats')
     })
-
-    // TODO Do it on backend may be
-    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
-    console.log('subscribed to all swap updates')
 
     this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
       console.log('SWAP TICKS UPDATE!!!', { poolId, ticks })
@@ -87,7 +84,11 @@ export const actions = {
       })
     })
 
+    dispatch('subscribeForAllSwapEvents')
     this.$socket.io.on('reconnect', () => {
+      dispatch('subscribeForAllSwapEvents')
+      dispatch('fetchPools')
+      dispatch('fetchPoolsStats')
     })
   },
 
@@ -95,19 +96,12 @@ export const actions = {
     this.$socket.emit('unsubscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
   },
 
-  subscribe({ rootState, commit }, poolId) {
-    //if (market === undefined) return
-
-    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
-
-    commit('setLastPoolSubscribed', poolId)
-    console.log('subscribed to pool', poolId)
-    //commit('setStreaming', true)
+  subscribeForAllSwapEvents({ rootState, commit }) {
+    console.log('subscribe to all swap pushed')
+    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
   },
 
-
-  async afterLogin({ dispatch }) {
-    dispatch('fetchPools')
+  afterLogin({ dispatch }) {
     dispatch('fetchPositions')
     dispatch('fetchPositionsStats')
   },
@@ -207,6 +201,7 @@ export const actions = {
   },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
+    // TODO Redo with api (if it will work safely)
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
