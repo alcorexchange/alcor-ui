@@ -88,22 +88,6 @@ export const actions = {
     })
 
     this.$socket.io.on('reconnect', () => {
-      // TODO Fetch and set for ticks again
-      // TODO Fetch and set for pools again
-      // TODO Fetch and set positions
-
-      // Connect to last poool updates
-      //
-      // commit('setBids', [])
-      // commit('setAsks', [])
-
-      // if (state.last_market_subscribed !== null) {
-      //   dispatch('unsubscribe', state.last_market_subscribed)
-      // }
-
-      // if (state.id && this._vm.$nuxt.$route.name.includes('trade-index-id')) {
-      //   dispatch('startStream', state.id)
-      // }
     })
   },
 
@@ -241,9 +225,8 @@ export const getters = {
   pools(state, getters, rootState) {
     const pools = []
 
-    console.log('pools getter', state.pools)
     for (const row of state.pools) {
-      const { tokenA, tokenB, protocolFeeA, protocolFeeB, currSlot: { sqrtPriceX64, tick } } = row
+      const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = row
 
       const ticks = state.ticks[row.id] ?? []
 
@@ -255,8 +238,6 @@ export const getters = {
         ticks,
         sqrtPriceX64,
         tickCurrent: tick
-        // protocolFeeA: parseToken(protocolFeeA, protocolFeeB),
-        // protocolFeeB: parseToken(protocolFeeA, protocolFeeB)
       }))
     }
 

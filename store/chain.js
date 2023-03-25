@@ -84,6 +84,10 @@ export const actions = {
         name: rootState.user.name
       }
     })
+
+    this.$socket.io.on('reconnect', () => {
+      console.log('reconnect.....!!!')
+    })
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
