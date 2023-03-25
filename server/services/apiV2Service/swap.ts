@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { SwapPool, PoolChartPoint, Position } from '../../models'
+import { SwapPool, SwapChartPoint, Position } from '../../models'
 import { getRedisTicks } from '../swapV2Service/utils'
 
 export const swap = Router()
@@ -89,45 +89,43 @@ swap.get('/:id/charts', async (req, res) => {
 
   const $match = {
     chain: network.name,
-    //pool: parseInt(id),
-    //time: { $gte: new Date(Date.now() - timeframe) },
+    pool: parseInt(id),
+    time: { $gte: new Date(Date.now() - timeframe) },
   }
 
   const query = []
 
   query.push({ $match })
-  console.log($match)
 
-  // if (timeframe != '24H') {
-  //   query.push({
-  //     $group: {
-  //       _id: {
-  //         $toDate: {
-  //           $subtract: [
-  //             { $toLong: '$time' },
-  //             {
-  //               $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000],
-  //             },
-  //           ],
-  //         },
-  //       },
+  if (timeframe != '24H') {
+    query.push({
+      $group: {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              {
+                $mod: [{ $toLong: '$time' }, 60 * 60 * 24 * 1000],
+              },
+            ],
+          },
+        },
 
-  //       price: { $last: '$price' },
+        price: { $last: '$price' },
 
-  //       reserveA: { $last: '$reserveA' },
-  //       reserveB: { $last: '$reserveB' },
+        reserveA: { $last: '$reserveA' },
+        reserveB: { $last: '$reserveB' },
 
-  //       volumeUSD: { $sum: '$volumeUSD' },
+        volumeUSD: { $sum: '$volumeUSD' },
 
-  //       usdReserveA: { $last: '$usdReserveA' },
-  //       usdReserveB: { $last: '$usdReserveB' },
-  //     },
-  //   })
-  // }
+        usdReserveA: { $last: '$usdReserveA' },
+        usdReserveB: { $last: '$usdReserveB' },
+      },
+    })
+  }
 
-  // query.push({ $sort: { _id: 1 } })
+  query.push({ $sort: { _id: 1 } })
 
-  const charts = await PoolChartPoint.aggregate(query)
-  console.log('charts', charts)
+  const charts = await SwapChartPoint.aggregate(query)
   res.json(charts)
 })
