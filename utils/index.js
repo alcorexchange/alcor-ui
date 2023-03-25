@@ -1,3 +1,4 @@
+import { BigInt } from 'jsbi'
 import { Name, SymbolCode } from 'eos-common'
 import { Serialize } from 'eosjs'
 import { Big } from 'big.js'
@@ -56,6 +57,25 @@ export function e_asset_to_token(easset) {
     symbol: easset.quantity.symbol.code().to_string(),
     precision: easset.quantity.symbol.precision()
   }
+}
+
+export function littleEndianToDesimalString(string) {
+  if (typeof string === 'string' && string.startsWith('0x')) {
+    const boundary = string.length / 2
+    const lengthMinusTwo = string.length - 2
+    const littleEndian = []
+
+    for (let i = 0; i < boundary; i++) {
+      const readIndex = lengthMinusTwo - 2 * i
+      littleEndian[i] = string.substring(readIndex, readIndex + 2)
+    }
+
+    const bigEndian = littleEndian.join('').substring(0, lengthMinusTwo)
+
+    return BigInt('0x' + bigEndian).toString()
+  }
+
+  return string
 }
 
 export function littleEndianToDesimal(string) {

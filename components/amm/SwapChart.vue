@@ -20,15 +20,20 @@ alcor-container.p-3.w-100.chart-container-inner
       .indicator.secondary
       .fs-20 Spot $2.5 B
 
-  component(:is="activeTab")
+  component(:is="activeTab" :series="series")
 </template>
 
 <script>
-import StackedColumns from '~/components/charts/StackedColumns'
+import { mapGetters } from 'vuex'
+
+import { Price, Q128 } from '~/assets/libs/swap-sdk'
+
 import Line from '~/components/charts/Line'
+import StackedColumns from '~/components/charts/StackedColumns'
 import MultiLine from '~/components/charts/MultiLine'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
+import { littleEndianToDesimal, littleEndianToDesimalString } from '~/utils'
 
 export default {
   components: {
@@ -39,24 +44,83 @@ export default {
     Fees: StackedColumns,
     AlcorContainer,
   },
+
   data: () => ({
+    charts: [],
     activeTab: 'Price',
     tabs: [
       { label: 'Price', value: 'Price' },
-      { label: 'TVL', value: 'Tvl' },
-      { label: 'Volume', value: 'Volume' },
-      { label: 'Fees', value: 'Fees' },
-      { label: 'Depth', value: 'Depth' }
+      // { label: 'TVL', value: 'Tvl' },
+      // { label: 'Volume', value: 'Volume' },
+      // { label: 'Fees', value: 'Fees' },
+      // { label: 'Depth', value: 'Depth' }
     ],
-    activeTime: 'moth',
+    activeTime: '24H',
     times: [
-      { label: '1D', value: 'day' },
-      { label: '7D', value: 'week' },
-      { label: '30D', value: 'moth' },
-      { label: 'All', value: 'all' }
+      { label: '1D', value: '24H' },
+      { label: '7D', value: '7D' },
+      { label: '30D', value: '30D' },
+      { label: 'All', value: 'All' }
     ]
-  })
+  }),
 
+  computed: {
+    ...mapGetters('amm/swap', [
+      // 'tokenA',
+      // 'tokenB',
+      // 'tokens',
+      // 'isSorted',
+      'sortedA',
+      'sortedB'
+    ]),
+
+    series() {
+      return this[this.activeTab + 'Series']
+    },
+
+    PriceSeries() {
+      const { sortedA, sortedB } = this
+
+
+      const data = this.charts.map(c => {
+        if (sortedA || sortedB) {
+          //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(littleEndianToDesimal(c.price), littleEndianToDesimal(c.price)))
+          //console.log(price.toSignificant(), c.price, littleEndianToDesimal(c.price))
+          console.log(c.price, littleEndianToDesimal(c.price), littleEndianToDesimalString(c.price))
+        }
+
+        return {
+          x: c._id,
+          y: Math.random() * 100
+        }
+      })
+
+      return [
+        {
+          name: 'Price',
+          data
+        }
+      ]
+    },
+  },
+
+  watch: {
+    activeTime() {
+      this.fetchCharts()
+    }
+  },
+
+  mounted() {
+    this.fetchCharts()
+  },
+
+  methods: {
+    async fetchCharts() {
+      this.charts = (await this.$axios.get('/v2/swap/charts?tokenA=tlm-alien.worlds&tokenB=wax-eosio.token', {
+        params: { period: this.activeTime }
+      })).data
+    }
+  }
 }
 </script>
 

@@ -94,7 +94,7 @@ module.exports = {
   // Because ts do that check
   overrides: [
     {
-      files: ['*.ts', '*.vue'],
+      files: ['*.ts'],
       rules: {
         'no-undef': 'off',
       },

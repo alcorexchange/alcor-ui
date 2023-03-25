@@ -4,7 +4,7 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { parseAssetPlain } from '../../../utils'
+import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
 import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
@@ -80,7 +80,7 @@ async function handlePoolChart(
   //const minResolution = 60 * 60 // One hour
   const minResolution = 60 // FIXME
   if (last_point && Math.floor(last_point.time / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
-    last_point.sqrtPriceX64 = sqrtPriceX64
+    last_point.sqrtPriceX64 = littleEndianToDesimalString(sqrtPriceX64)
 
     last_point.reserveA = reserveA
     last_point.reserveB = reserveB
@@ -95,7 +95,7 @@ async function handlePoolChart(
     return await SwapChartPoint.create({
       chain,
       pool: poolId,
-      price: sqrtPriceX64,
+      price: littleEndianToDesimalString(sqrtPriceX64),
       reserveA,
       reserveB,
       volumeUSD,
@@ -399,7 +399,7 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
     recipient,
     trx_id,
     sender,
-    sqrtPriceX64,
+    sqrtPriceX64: littleEndianToDesimalString(sqrtPriceX64),
     totalUSDVolume,
     tokenA: tokenAamount,
     tokenB: tokenBamount,
@@ -432,7 +432,7 @@ export async function onSwapAction(message: string) {
       chain,
       data.poolId,
       block_time,
-      data.sqrtPriceX64,
+      littleEndianToDesimalString(data.sqrtPriceX64),
       parseAssetPlain(data.reserveA).amount,
       parseAssetPlain(data.reserveB).amount,
 
