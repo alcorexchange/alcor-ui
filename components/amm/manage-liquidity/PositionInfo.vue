@@ -120,6 +120,7 @@ export default {
   }
   .pool-info-header{
     display: grid;
+    align-items: center;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-areas:
       "main main slot"
