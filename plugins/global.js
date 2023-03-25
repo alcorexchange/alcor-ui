@@ -27,7 +27,9 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
       commit('setBaseUrl', `${protocol}://${req.headers.host}`)
     }
 
-    if (process.env.NETWORK) {
+    if (subdomain[0] == 'dev') {
+      commit('setNetwork', config.networks.wax)
+    } else if (process.env.NETWORK) {
       commit('setNetwork', config.networks[process.env.NETWORK])
     } else if (IP_REGEX.test(req.headers.host)) {
       commit('setNetwork', config.networks.eos)

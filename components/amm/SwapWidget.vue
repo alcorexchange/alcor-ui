@@ -154,7 +154,8 @@ export default {
     expectedOutput: null,
     route: null,
 
-    routerCollapse: ['1']
+    routerCollapse: ['1'],
+    lastField: 'input' // might be input/output
   }),
 
   fetch() {
@@ -226,7 +227,7 @@ export default {
 
     pools() {
       // Recalculate on pools update
-      this.calcOutput(this.amountA)
+      this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcOutput(this.amountB)
     }
   },
 
@@ -276,6 +277,9 @@ export default {
     async submit() {
       try {
         await this.swap()
+        this.amountA = null
+        this.amountB = null
+
         return this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
       } catch (e) {
         console.log(e)
@@ -347,6 +351,7 @@ export default {
       this.rate = executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
       this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+      this.lastField = 'output'
     },
 
     async calcOutput(value) {
@@ -377,6 +382,7 @@ export default {
       this.rate = executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
       this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+      this.lastField = 'input'
     }
   }
 }

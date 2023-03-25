@@ -69,6 +69,7 @@ export const actions = {
     dispatch('loadUserBalances', {}, { root: true }).then(() =>
       dispatch('market/updatePairBalances', {}, { root: true })
     )
+
     dispatch('loadAccountLimits', {}, { root: true })
       .then(() => dispatch('loadUserOrders', {}, { root: true }))
       .then(() => {
@@ -77,6 +78,14 @@ export const actions = {
 
     dispatch('loadOrders', rootState.market.id, { root: true })
 
+    dispatch('subscribeToAccountPushes')
+
+    this.$socket.io.on('reconnect', () => {
+      dispatch('subscribeToAccountPushes')
+    })
+  },
+
+  subscribeToAccountPushes({ rootState }) {
     this.$socket.emit('subscribe', {
       room: 'account',
       params: {

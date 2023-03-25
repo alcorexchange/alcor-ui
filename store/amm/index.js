@@ -62,14 +62,11 @@ export const actions = {
     dispatch('fetchPoolsStats')
 
     this.$socket.on('account:update-positions', positions => {
+      console.log('update positions')
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsStats')
     })
-
-    // TODO Do it on backend may be
-    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
-    console.log('subscribed to all swap updates')
 
     this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
       console.log('SWAP TICKS UPDATE!!!', { poolId, ticks })
@@ -87,23 +84,11 @@ export const actions = {
       })
     })
 
+    dispatch('subscribeForAllSwapEvents')
     this.$socket.io.on('reconnect', () => {
-      // TODO Fetch and set for ticks again
-      // TODO Fetch and set for pools again
-      // TODO Fetch and set positions
-
-      // Connect to last poool updates
-      //
-      // commit('setBids', [])
-      // commit('setAsks', [])
-
-      // if (state.last_market_subscribed !== null) {
-      //   dispatch('unsubscribe', state.last_market_subscribed)
-      // }
-
-      // if (state.id && this._vm.$nuxt.$route.name.includes('trade-index-id')) {
-      //   dispatch('startStream', state.id)
-      // }
+      dispatch('subscribeForAllSwapEvents')
+      dispatch('fetchPools')
+      dispatch('fetchPoolsStats')
     })
   },
 
@@ -111,19 +96,12 @@ export const actions = {
     this.$socket.emit('unsubscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
   },
 
-  subscribe({ rootState, commit }, poolId) {
-    //if (market === undefined) return
-
-    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, poolId } })
-
-    commit('setLastPoolSubscribed', poolId)
-    console.log('subscribed to pool', poolId)
-    //commit('setStreaming', true)
+  subscribeForAllSwapEvents({ rootState, commit }) {
+    console.log('subscribe to all swap pushed')
+    this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
   },
 
-
-  async afterLogin({ dispatch }) {
-    dispatch('fetchPools')
+  afterLogin({ dispatch }) {
     dispatch('fetchPositions')
     dispatch('fetchPositionsStats')
   },
@@ -223,6 +201,7 @@ export const actions = {
   },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
+    // TODO Redo with api (if it will work safely)
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
@@ -241,9 +220,8 @@ export const getters = {
   pools(state, getters, rootState) {
     const pools = []
 
-    console.log('pools getter', state.pools)
     for (const row of state.pools) {
-      const { tokenA, tokenB, protocolFeeA, protocolFeeB, currSlot: { sqrtPriceX64, tick } } = row
+      const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = row
 
       const ticks = state.ticks[row.id] ?? []
 
@@ -255,8 +233,6 @@ export const getters = {
         ticks,
         sqrtPriceX64,
         tickCurrent: tick
-        // protocolFeeA: parseToken(protocolFeeA, protocolFeeB),
-        // protocolFeeB: parseToken(protocolFeeA, protocolFeeB)
       }))
     }
 
