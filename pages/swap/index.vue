@@ -1,8 +1,8 @@
 <template lang="pug">
 #swap-page.mt-5(:class="{ showChart }")
-  SwapWidget.swap-widget-container(@chart="setShowChart(!showChart)")
+  SwapWidget.swap-widget-container(@chart="onChart")
   transition(name="width")
-    .chart-container(v-if="showChart")
+    .chart-container(v-if="showChart && canShowChart")
       SwapChart
 </template>
 
@@ -21,7 +21,16 @@ export default {
       showChart: 'amm/swap/showChart'
     })
   },
+  data: () => ({
+    canShowChart: false
+  }),
+  mounted() {
+    this.canShowChart = true
+  },
   methods: {
+    onChart() {
+      this.setShowChart(!this.showChart)
+    },
     ...mapMutations({
       setShowChart: 'amm/swap/setShowChart'
     })
