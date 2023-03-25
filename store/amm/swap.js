@@ -8,7 +8,8 @@ export const state = () => ({
   input: null,
   output: null,
 
-  liquidity: 30
+  liquidity: 30,
+  showChart: false
 })
 
 export const mutations = {
@@ -16,7 +17,8 @@ export const mutations = {
   setTokenB: (state, token) => state.tokenB = token,
 
   setInput: (state, token) => state.input = token,
-  setOutput: (state, token) => state.output = token
+  setOutput: (state, token) => state.output = token,
+  setShowChart: (state, data) => state.showChart = data
 }
 
 export const actions = {
@@ -122,6 +124,7 @@ export const actions = {
 }
 
 export const getters = {
+  showChart: (state) => state.showChart,
   tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
   tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),

@@ -18,7 +18,9 @@ export default ({ store }) => {
       'settings.markets_timesale_tab',
 
       'ibcBridge.step', 'ibcBridge.tx', 'ibcBridge.packedTx', 'ibcBridge.error', 'ibcBridge.result',
-      'ibcBridge.sourceName', 'ibcBridge.destinationName', 'ibcBridge.proofs', 'ibcBridge.asset'
+      'ibcBridge.sourceName', 'ibcBridge.destinationName', 'ibcBridge.proofs', 'ibcBridge.asset',
+
+      'amm.swap.showChart'
     ]
   })(store)
 }
