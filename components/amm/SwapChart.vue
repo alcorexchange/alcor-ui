@@ -140,7 +140,6 @@ export default {
         data = this.charts.map(c => {
           const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
 
-          console.log(c._id)
           return {
             x: c._id,
             y: parseFloat(price.toSignificant())
@@ -163,7 +162,6 @@ export default {
 
       if (sortedA && sortedB) {
         data = this.charts.map(c => {
-          console.log(c._id)
           return {
             x: c._id,
             y: c.volumeUSD
@@ -206,7 +204,6 @@ export default {
         const { data } = await this.$axios.get('/v2/swap/charts', {
           params: { period: this.activeTime, tokenA: this.tokenA.id, tokenB: this.tokenB.id }
         })
-        console.log('setting charts', data)
         this.charts = data
       } catch (e) {
         console.log('Getting Chart E', e)
