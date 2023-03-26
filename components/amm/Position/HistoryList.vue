@@ -24,23 +24,22 @@
 
     el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
       template(slot-scope='{row}')
-        .token-amount-inner.d-flex.flex-column.gap-4
-          .mobile-label Token Amount
-          .d-flex.flex-column.gap-4
+        .token-amount-inner.d-flex.flex-column.gap-2
+          .d-flex.flex-column.gap-2.token-amount-items
             .amount-item
               TokenImage(
                 :src='$tokenLogo(row.poolInfo.tokenA.symbol, row.poolInfo.tokenA.contract)',
-                height='20'
+                height='12'
               )
-              div {{ row.poolInfo.tokenA.symbol }}
-              div {{ row.tokenA }}
+              .fs-12 {{ row.tokenA }}
+              .fs-12 {{ row.poolInfo.tokenA.symbol }}
             .amount-item
               TokenImage(
                 :src='$tokenLogo(row.poolInfo.tokenB.symbol, row.poolInfo.tokenB.contract)',
-                height='20'
+                height='12'
               )
-              div {{ row.poolInfo.tokenB.symbol }}
-              div {{ row.tokenB }}
+              .fs-12 {{ row.tokenB }}
+              .fs-12 {{ row.poolInfo.tokenB.symbol }}
 
     el-table-column(:label='$t("Time")' align="right" class-name="time")
       template(slot-scope='{row}') {{ row.time | moment('YYYY-MM-DD HH:mm') }}
@@ -152,13 +151,15 @@ export default {
   colgroup {
     display: none;
   }
-  .el-table__row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 8px;
-    &:hover {
-      background: var(--hover) !important;
+  .history-table{
+    .el-table__row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 8px;
+      &:hover {
+        background: var(--hover) !important;
+      }
     }
   }
   .el-table__cell {
@@ -170,11 +171,21 @@ export default {
       padding: 0 !important;
     }
   }
-  .network, .token-amount, .time {
-    justify-content: flex-end;
+  .type {
+    display: flex;
+    justify-content: center;
   }
-  .token-amount-inner{
-    align-items: flex-end;
+  .token-amount {
+    .cell {
+      width: 100%;
+    }
+    &-items {
+      flex-direction: row !important;
+      justify-content: space-between;
+    }
+  }
+  .time {
+    justify-content: flex-end;
   }
   .time .cell{
     display: flex;
