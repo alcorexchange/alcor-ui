@@ -13,16 +13,16 @@
     el-table-column(width="240" class-name="type")
       template(#header)
         HistoryFilter(v-model="filter" v-if="!isMobile")
-      template(slot-scope='{row: {pool}}') Swap {{ pool.tokenA.symbol }} for {{ pool.tokenB.symbol }}
+      template(slot-scope='{row: {poolInfo}}') Swap {{ poolInfo.tokenA.symbol }} for {{ poolInfo.tokenB.symbol }}
 
     el-table-column(:label='$t("Network")', width='220' class-name="network")
       template(slot-scope='{ row }')
         .d-flex.align-items-center.gap-8
           TokenImage(
-            :src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)',
+            :src='$tokenLogo(row.poolInfo.tokenB.symbol, row.poolInfo.tokenB.contract)',
             height='20'
           )
-          div {{ row.pool.tokenB.symbol }}
+          div {{ row.poolInfo.tokenB.symbol }}
 
     el-table-column(:label='$t("Total Value")' width="160" )
       template(slot-scope='{row}')
@@ -62,10 +62,7 @@ export default {
     listWithPool() {
       return this.history.map((historyItem) => {
         const pool = this.pools.find(({ id }) => historyItem.pool === id)
-        return {
-          ...historyItem,
-          pool
-        }
+        return Object.assign(historyItem, { poolInfo: pool })
       })
     },
     ...mapGetters('amm', ['pools']),
