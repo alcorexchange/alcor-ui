@@ -3,8 +3,9 @@
   //- TODO: Differ Swap from position
   HistoryFilter.mb-2(v-model="filter" v-if="isMobile")
   el-table.history-table(
-    :data='listWithPool',
+    :data='filteredList',
     style='width: 100%',
+    @row-click="onRowClick"
   )
     template(#empty)
       .d-flex.flex-column.align-items-center.gap-30.py-5
@@ -13,37 +14,32 @@
     el-table-column(width="240" class-name="type")
       template(#header)
         HistoryFilter(v-model="filter" v-if="!isMobile")
-      template(slot-scope='{row: {poolInfo}}') Swap {{ poolInfo.tokenA.symbol }} for {{ poolInfo.tokenB.symbol }}
+      template(slot-scope='{row}') {{ renderTitle(row) }}
 
-    el-table-column(:label='$t("Network")', width='220' class-name="network")
-      template(slot-scope='{ row }')
-        .d-flex.align-items-center.gap-8
-          TokenImage(
-            :src='$tokenLogo(row.poolInfo.tokenB.symbol, row.poolInfo.tokenB.contract)',
-            height='20'
-          )
-          div {{ row.poolInfo.tokenB.symbol }}
+    //- el-table-column(:label='$t("Network")', width='220' class-name="network")
+    //-   template(slot-scope='{ row }')
+    //-     .d-flex.align-items-center.gap-8
+    //-       TokenImage(
+    //-         :src='$tokenLogo(row.poolInfo.tokenB.symbol, row.poolInfo.tokenB.contract)',
+    //-         height='20'
+    //-       )
+    //-       div {{ row.poolInfo.tokenB.symbol }}
 
     el-table-column(:label='$t("Total Value")' width="160" )
       template(slot-scope='{row}')
         .d-flex.flex-column.gap-4
           .mobile-label Total Value
-          span ${{row.totalUSDValue}}
+          span ${{ row.totalUSDValue || 'MOCK' }}
 
     el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
       template(slot-scope='{row}')
         .token-amount-inner.d-flex.flex-column.gap-4
           .mobile-label Token Amount
-          span $558,001.05
+          span A & B
 
-    el-table-column(:label='$t("Account")' width="100")
-      template(slot-scope='{row}')
-        .d-flex.flex-column.gap-4
-          .mobile-label Account
-          span {{ row.owner }}
     el-table-column(:label='$t("Time")' align="right" class-name="time")
       //- TODO: How to render time?
-      template(slot-scope='{row}') {{ row.time }}
+      template(slot-scope='{row}') {{ row.time | moment('YYYY-MM-DD HH:mm') }}
 
 </template>
 
@@ -56,7 +52,7 @@ import HistoryFilter from '~/components/amm/Position/HistoryFilter'
 export default {
   components: { TokenImage, HistoryFilter },
   data: () => ({
-    filter: 'All'
+    filter: 'all'
   }),
   computed: {
     listWithPool() {
@@ -65,9 +61,28 @@ export default {
         return Object.assign(historyItem, { poolInfo: pool })
       })
     },
+    filteredList() {
+      // Better to be new to old rather than old to new
+      return [...this.listWithPool].sort((a, b) => new Date(a.time) - new Date(b.time)).filter(({ type }) => {
+        return this.filter === 'all' ? true : type === this.filter
+      })
+    },
     ...mapGetters('amm', ['pools']),
     ...mapState('amm', ['history'])
   },
+  methods: {
+    renderTitle({ type, poolInfo, tokenA, tokenB }) {
+      if (type === 'swap') {
+        return `Swap ${poolInfo[tokenA > 0 ? 'tokenA' : 'tokenB'].symbol} for ${poolInfo[tokenB < 0 ? 'tokenB' : 'tokenA'].symbol}`
+      }
+      if (type === 'mint') return `Add Liquidity ${poolInfo.tokenA.symbol} for ${poolInfo.tokenB.symbol}`
+      if (type === 'burn') return `Remove Liquidity ${poolInfo.tokenA.symbol} for ${poolInfo.tokenB.symbol}`
+      if (type === 'collect') return `Collect Fees ${poolInfo.tokenA.symbol} for ${poolInfo.tokenB.symbol}`
+    },
+    onRowClick({ trx_id }) {
+      window.open(this.monitorTx(trx_id), '_blank')
+    }
+  }
 }
 </script>
 

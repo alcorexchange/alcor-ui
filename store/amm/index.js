@@ -139,14 +139,27 @@ export const actions = {
     commit('setPositions', positions)
     console.log('positions fetched', positions)
   },
-  async fetchPositionsHistory({ state, commit, rootState, dispatch }) {
+  async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
+    const ITEMS_PER_PAGE = 10
+    // const step = (page - 1) * ITEMS_PER_PAGE + 1
     const owner = rootState.user?.name
     const [position, swap] = await axios.all([
-      this.$axios.get('/v2/account/' + owner + '/positions-history'),
-      this.$axios.get('/v2/account/' + owner + '/swap-history'),
+      this.$axios.get('/v2/account/' + owner + '/positions-history', {
+        params: {
+          step: page,
+          limit: ITEMS_PER_PAGE
+        }
+      }),
+      this.$axios.get('/v2/account/' + owner + '/swap-history', {
+        params: {
+          step: page,
+          limit: ITEMS_PER_PAGE
+        }
+      }),
     ])
     console.log('history', position.data, swap.data)
-    commit('setHistory', [...position.data, ...swap.data])
+    const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
+    commit('setHistory', page == 1 ? merged : [...state.history, ...merged])
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
