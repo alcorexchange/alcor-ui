@@ -43,10 +43,9 @@
               div {{ row.tokenB }}
 
     el-table-column(:label='$t("Time")' align="right" class-name="time")
-      //- TODO: How to render time?
       template(slot-scope='{row}') {{ row.time | moment('YYYY-MM-DD HH:mm') }}
 
-  div(@click="loadMore") Load More
+  div(@click="loadMore" v-if="hasMore") Load More
 </template>
 
 <script>
@@ -59,7 +58,8 @@ export default {
   components: { TokenImage, HistoryFilter },
   data: () => ({
     filter: 'all',
-    page: 1
+    page: 1,
+    hasMore: true
   }),
   computed: {
     listWithPool() {
@@ -92,11 +92,12 @@ export default {
     onInfiniteScroll() {
       console.log('onInfiniteScroll')
     },
-    loadMore() {
+    async loadMore() {
       this.page++
-      this.$store.dispatch('amm/fetchPositionsHistory', {
+      const data = await this.$store.dispatch('amm/fetchPositionsHistory', {
         page: this.page
       })
+      if (!data.length) this.hasMore = false
     }
   }
 }

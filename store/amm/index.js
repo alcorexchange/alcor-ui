@@ -160,6 +160,9 @@ export const actions = {
     console.log('history', position.data, swap.data)
     const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
     commit('setHistory', page == 1 ? merged : [...state.history, ...merged])
+
+    // To check on LoadMore
+    return merged
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
