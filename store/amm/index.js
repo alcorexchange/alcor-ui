@@ -140,19 +140,19 @@ export const actions = {
     console.log('positions fetched', positions)
   },
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
-    const ITEMS_PER_PAGE = 10
-    // const step = (page - 1) * ITEMS_PER_PAGE + 1
+    const ITEMS_PER_PAGE = 2
+    const skip = (page - 1) * ITEMS_PER_PAGE
     const owner = rootState.user?.name
     const [position, swap] = await axios.all([
       this.$axios.get('/v2/account/' + owner + '/positions-history', {
         params: {
-          step: page,
+          skip,
           limit: ITEMS_PER_PAGE
         }
       }),
       this.$axios.get('/v2/account/' + owner + '/swap-history', {
         params: {
-          step: page,
+          skip,
           limit: ITEMS_PER_PAGE
         }
       }),

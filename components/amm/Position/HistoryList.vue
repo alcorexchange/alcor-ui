@@ -4,7 +4,7 @@
   HistoryFilter.mb-2(v-model="filter" v-if="isMobile")
   el-table.history-table(
     :data='filteredList',
-    style='width: 100%',
+    style='width: 100%;',
     @row-click="onRowClick"
   )
     template(#empty)
@@ -16,31 +16,37 @@
         HistoryFilter(v-model="filter" v-if="!isMobile")
       template(slot-scope='{row}') {{ renderTitle(row) }}
 
-    //- el-table-column(:label='$t("Network")', width='220' class-name="network")
-    //-   template(slot-scope='{ row }')
-    //-     .d-flex.align-items-center.gap-8
-    //-       TokenImage(
-    //-         :src='$tokenLogo(row.poolInfo.tokenB.symbol, row.poolInfo.tokenB.contract)',
-    //-         height='20'
-    //-       )
-    //-       div {{ row.poolInfo.tokenB.symbol }}
-
-    el-table-column(:label='$t("Total Value")' width="160" )
+    el-table-column(:label='$t("Total Value")' width="160" className="total-usd")
       template(slot-scope='{row}')
         .d-flex.flex-column.gap-4
           .mobile-label Total Value
-          span ${{ row.totalUSDValue || 'MOCK' }}
+          span ${{ row.totalUSDValue || 'MOCK' }} # {{ row.id }}
 
     el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
       template(slot-scope='{row}')
         .token-amount-inner.d-flex.flex-column.gap-4
           .mobile-label Token Amount
-          span A & B
+          .d-flex.flex-column.gap-4
+            .amount-item
+              TokenImage(
+                :src='$tokenLogo(row.poolInfo.tokenA.symbol, row.poolInfo.tokenA.contract)',
+                height='20'
+              )
+              div {{ row.poolInfo.tokenA.symbol }}
+              div {{ row.tokenA }}
+            .amount-item
+              TokenImage(
+                :src='$tokenLogo(row.poolInfo.tokenB.symbol, row.poolInfo.tokenB.contract)',
+                height='20'
+              )
+              div {{ row.poolInfo.tokenB.symbol }}
+              div {{ row.tokenB }}
 
     el-table-column(:label='$t("Time")' align="right" class-name="time")
       //- TODO: How to render time?
       template(slot-scope='{row}') {{ row.time | moment('YYYY-MM-DD HH:mm') }}
 
+  div(@click="loadMore") Load More
 </template>
 
 <script>
@@ -52,7 +58,8 @@ import HistoryFilter from '~/components/amm/Position/HistoryFilter'
 export default {
   components: { TokenImage, HistoryFilter },
   data: () => ({
-    filter: 'all'
+    filter: 'all',
+    page: 1
   }),
   computed: {
     listWithPool() {
@@ -81,6 +88,15 @@ export default {
     },
     onRowClick({ trx_id }) {
       window.open(this.monitorTx(trx_id), '_blank')
+    },
+    onInfiniteScroll() {
+      console.log('onInfiniteScroll')
+    },
+    loadMore() {
+      this.page++
+      this.$store.dispatch('amm/fetchPositionsHistory', {
+        page: this.page
+      })
     }
   }
 }
@@ -101,6 +117,12 @@ export default {
   }
   .el-table__row {
     cursor: pointer;
+  }
+  .amount-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.86rem;
   }
 }
 .mobile-label {
