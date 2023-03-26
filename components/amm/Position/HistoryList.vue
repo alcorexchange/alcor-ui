@@ -69,7 +69,7 @@ export default {
     },
     filteredList() {
       // Better to be new to old rather than old to new
-      return [...this.listWithPool].sort((a, b) => new Date(a.time) - new Date(b.time)).filter(({ type }) => {
+      return [...this.listWithPool].sort((a, b) => new Date(b.time) - new Date(a.time)).filter(({ type }) => {
         return this.filter === 'all' ? true : type === this.filter
       })
     },

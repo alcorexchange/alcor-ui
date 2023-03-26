@@ -140,7 +140,7 @@ export const actions = {
     console.log('positions fetched', positions)
   },
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
-    const ITEMS_PER_PAGE = 2
+    const ITEMS_PER_PAGE = 3
     const skip = (page - 1) * ITEMS_PER_PAGE
     const owner = rootState.user?.name
     const [position, swap] = await axios.all([
@@ -159,7 +159,7 @@ export const actions = {
     ])
     console.log('history', position.data, swap.data)
     const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
-    commit('setHistory', page == 1 ? merged : [...state.history, ...merged])
+    commit('setHistory', page == 1 ? merged : [...merged, ...state.history])
 
     // To check on LoadMore
     return merged
