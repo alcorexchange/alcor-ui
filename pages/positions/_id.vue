@@ -19,7 +19,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       .separator.mt-2
       RemoveLiquidityPercentage(:position="position")
     .right
-      // TODO Proper initial zooming
+      // TODO Proper initial zooming for infinite range
       LiquidityChartRangeInput(
         :tokenA="tokensInverted ? pool.tokenB : pool.tokenA"
         :tokenB="tokensInverted ? pool.tokenA : pool.tokenB"
