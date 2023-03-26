@@ -21,7 +21,6 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Spot $2.5 B
 
   component(:is="activeTab" :series="series")
-  | {{ series }}
 </template>
 
 <script>
