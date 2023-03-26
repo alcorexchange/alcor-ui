@@ -4,11 +4,13 @@
 
   client-only
     transition(name="width")
-      //.chart-container(v-if="showChart")
+      //- Show when both tokens are present
+      //- .chart-container(v-if="tokenA && tokenB")
       SwapChart
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import SwapWidget from '~/components/amm/SwapWidget'
 import SwapChart from '~/components/amm/SwapChart'
 
@@ -28,13 +30,17 @@ export default {
         this.$store.commit('amm/swap/setShowChart', val)
       }
     },
+    ...mapGetters('amm/swap', [
+      'tokenA',
+      'tokenB',
+    ]),
   },
 
   methods: {
     onChart() {
       this.showChart = !this.showChart
     },
-  }
+  },
 }
 </script>
 
