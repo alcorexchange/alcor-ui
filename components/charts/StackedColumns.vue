@@ -1,84 +1,32 @@
 <template lang="pug">
 .stacked-column-chart-component
-  vue-apex-charts(type="bar" height="400" :options="chartOptions" :series="series")
+  vue-apex-charts(type="bar" height="400" :options="chartOptions" :series="series" ref="chart")
 
 </template>
 
 <script>
 export default {
-  data: () => ({
-    series: [
+  props: ['series'],
+  watch: {
+    series() {
+      this.$refs.chart.updateOptions(
+        {
+          series: this.series
+        },
+        true
+      )
+    }
+  },
+
+  mounted() {
+    this.$refs.chart.updateOptions(
       {
-        name: 'PRODUCT A',
-        data: [
-          44,
-          55,
-          41,
-          67,
-          22,
-          43,
-          19,
-          22,
-          56,
-          22,
-          55,
-          41,
-          67,
-          22,
-          43,
-          44,
-          55,
-          41,
-          67,
-          22,
-          43,
-          19,
-          22,
-          56,
-          22,
-          55,
-          41,
-          67,
-          22,
-          43
-        ]
+        series: this.series
       },
-      {
-        name: 'PRODUCT B',
-        data: [
-          13,
-          23,
-          20,
-          8,
-          13,
-          27,
-          32,
-          15,
-          31,
-          44,
-          20,
-          8,
-          13,
-          27,
-          32,
-          44,
-          55,
-          41,
-          67,
-          22,
-          43,
-          19,
-          22,
-          56,
-          22,
-          55,
-          41,
-          67,
-          22,
-          43
-        ]
-      }
-    ],
+      true
+    )
+  },
+  data: () => ({
     chartOptions: {
       chart: {
         type: 'bar',

@@ -53,7 +53,7 @@ export default {
     tabs: [
       { label: 'Price', value: 'Price' },
       { label: 'TVL', value: 'Tvl' },
-      // { label: 'Volume', value: 'Volume' },
+      { label: 'Volume', value: 'Volume' },
       // { label: 'Fees', value: 'Fees' },
       // { label: 'Depth', value: 'Depth' }
     ],
@@ -76,28 +76,37 @@ export default {
       'sortedB'
     ]),
 
+    // series() {
+    //   if (this.activeTab == 'Price') {
+    //     return {
+    //       name: 'Price',
+    //       data: this.charts.map(c => {
+    //         //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
+
+    //         return {
+    //           x: c._id,
+    //           //y: parseFloat(price.toSignificant())
+    //           y: Math.random() * 100
+    //         }
+    //       })
+    //     }
+    //   }
+
+    //   if (this.activeTab == 'Tvl') {
+    //     return {
+    //       name: 'TVL',
+    //       data: this.charts.map(c => {
+    //         return {
+    //           x: c._id,
+    //           y: c.usdReserveA + c.usdReserveB
+    //         }
+    //       })
+    //     }
+    //   }
+    //   return []
+    // },
     series() {
-      if (this.activeTab == 'Price') {
-        return this.charts.map(c => {
-          //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
-
-          return {
-            x: c._id,
-            //y: parseFloat(price.toSignificant())
-            y: Math.random() * 100
-          }
-        })
-      }
-
-      if (this.activeTab == 'Tvl') {
-        return this.charts.map(c => {
-          return {
-            x: c._id,
-            y: c.usdReserveA + c.usdReserveB
-          }
-        })
-      }
-      return []
+      return this[`${this.activeTab}Series`]
     },
 
     TvlSeries() {
@@ -146,23 +155,60 @@ export default {
         }
       ]
     },
+
+    VolumeSeries() {
+      const { sortedA, sortedB } = this
+
+      let data = []
+
+      if (sortedA && sortedB) {
+        data = this.charts.map(c => {
+          console.log(c._id)
+          return {
+            x: c._id,
+            y: c.volumeUSD
+          }
+        })
+      }
+
+      return [
+        {
+          name: 'Price',
+          data
+        }
+      ]
+    },
   },
 
   watch: {
     activeTime() {
       this.fetchCharts()
+    },
+    '$route.query'() {
+      this.fetchCharts()
     }
   },
 
   mounted() {
-    this.fetchCharts()
+    // FIXME: setTimeout because I get Network Error on page reload
+    setTimeout(() => {
+      this.fetchCharts()
+    }, 100)
   },
 
   methods: {
     async fetchCharts() {
-      this.charts = (await this.$axios.get('/v2/swap/charts?tokenA=tlm-alien.worlds&tokenB=wax-eosio.token', {
-        params: { period: this.activeTime }
-      })).data
+      const { input, output } = this.$route.query || {}
+      if (!input || !output) return
+      try {
+        const { data } = await this.$axios.get('/v2/swap/charts', {
+          params: { period: this.activeTime, tokenA: input, tokenB: output }
+        })
+        console.log('setting charts', data)
+        this.charts = data
+      } catch (e) {
+        console.log('Getting Chart E', e)
+      }
     }
   }
 }
