@@ -34,16 +34,17 @@ export const actions = {
 
     if (!input && !output) {
       const { contract, symbol } = rootState.network.baseToken
+      commit('setTokenB', undefined)
       return commit('setTokenA', getters.tokens.find(t => t.symbol == symbol && t.contract == contract))
     }
 
     const tokenA = getters.tokens.find(t => t.symbol == state.input?.symbol && t.contract == state.input?.contract)
     const tokenB = getters.tokens.find(t => t.symbol == state.output?.symbol && t.contract == state.output?.contract)
-
     if (tokenA && tokenB && tokenA.equals(tokenB)) return commit('setTokenA', tokenA)
 
     if (tokenA) commit('setTokenA', tokenA)
     if (tokenB) commit('setTokenB', tokenB)
+    console.log({ tokenA, tokenB, state })
   },
 
   async bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
