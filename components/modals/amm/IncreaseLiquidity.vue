@@ -8,7 +8,10 @@
     title="Increase Liquidity"
     :visible="visible"
     @close="visible = false"
-    :before-close="undefined"
+    :before-close="beforeDialogClose"
+    @mousedown.native="dialogMousedown"
+    @mouseup.native="dialogMouseup"
+
   )
     PositionInfo(:noPL="true" v-bind="$props" :composedPercent="composedPercent")
     .separator.my-2
