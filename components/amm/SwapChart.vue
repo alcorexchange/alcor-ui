@@ -68,8 +68,8 @@ export default {
 
   computed: {
     ...mapGetters('amm/swap', [
-      // 'tokenA',
-      // 'tokenB',
+      'tokenA',
+      'tokenB',
       // 'tokens',
       // 'isSorted',
       'sortedA',
@@ -184,7 +184,10 @@ export default {
     activeTime() {
       this.fetchCharts()
     },
-    '$route.query'() {
+    tokenA() {
+      this.fetchCharts()
+    },
+    tokenB() {
       this.fetchCharts()
     }
   },
@@ -198,11 +201,10 @@ export default {
 
   methods: {
     async fetchCharts() {
-      const { input, output } = this.$route.query || {}
-      if (!input || !output) return
+      if (!this.tokenA || !this.tokenB) return
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
-          params: { period: this.activeTime, tokenA: input, tokenB: output }
+          params: { period: this.activeTime, tokenA: this.tokenA.id, tokenB: this.tokenB.id }
         })
         console.log('setting charts', data)
         this.charts = data
