@@ -44,7 +44,7 @@
     el-table-column(:label='$t("Time")' align="right" class-name="time")
       template(slot-scope='{row}') {{ row.time | moment('YYYY-MM-DD HH:mm') }}
 
-  div(@click="loadMore" v-if="hasMore") Load More
+  //div(@click="loadMore" v-if="hasMore") Load More
 </template>
 
 <script>
@@ -60,9 +60,11 @@ export default {
     page: 1,
     hasMore: true
   }),
+
   mounted() {
     this.$store.dispatch('amm/fetchPositionsHistory')
   },
+
   computed: {
     listWithPool() {
       return this.history.map((historyItem) => {

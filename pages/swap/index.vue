@@ -6,7 +6,7 @@
     transition(name="width")
       //- Show when both tokens are present
       //- .chart-container(v-if="tokenA && tokenB")
-      SwapChart
+      SwapChart(v-if="showChart")
 </template>
 
 <script>
