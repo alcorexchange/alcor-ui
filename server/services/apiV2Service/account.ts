@@ -146,6 +146,7 @@ account.get('/:account/positions-history', async (req, res) => {
   const skip = parseInt(String(req.query?.skip) || '0')
 
   const positions = await PositionHistory.find({ chain: network.name, owner: account })
+    .sort({ time: -1 })
     .skip(skip).limit(limit).select('-_id id owner pool time tokenA tokenAUSDPrice tokenB tokenBUSDPrice totalUSDValue trx_id type').lean()
 
   res.json(positions)
@@ -159,6 +160,7 @@ account.get('/:account/swap-history', async (req, res) => {
   const skip = parseInt(String(req.query?.skip) || '0')
 
   const positions = await Swap.find({ chain: network.name, $or: [{ sender: account }, { recipient: account }] })
+    .sort({ time: -1 })
     .skip(skip).limit(limit).select('-_id id sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type').lean()
 
   res.json(positions)
