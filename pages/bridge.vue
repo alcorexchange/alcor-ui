@@ -5,7 +5,7 @@
     .fs-16.md-fs-24 Bridge assets from different chains
 
   client-only
-    bridge-form.mt-2.mt-md-4
+    BridgeForm.mt-2.mt-md-4
 
     circle1(v-if="!isMobile" :color="sourceColor" total="20").circle1
     circle2(v-if="!isMobile" :color="destinationColor" total="20").circle2

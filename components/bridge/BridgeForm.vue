@@ -119,6 +119,7 @@
         alcor-button(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
           img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
           | TX Link
+    BridgeHistory
 </template>
 
 <script>
@@ -133,7 +134,7 @@ import AlcorSelect from '~/components/AlcorSelect.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
 import NetworkOption from '~/components/bridge/NetworkOption'
 import BridgeSlider from '~/components/bridge/BridgeSlider'
-
+import BridgeHistory from '~/components/bridge/BridgeHistory.vue'
 import TokenImage from '~/components/elements/TokenImage'
 
 export default {
@@ -144,7 +145,8 @@ export default {
     BridgeSlider,
     TokenImage,
     AlcorSelectTwo,
-    AlcorOptionTwo
+    AlcorOptionTwo,
+    BridgeHistory
   },
 
   data: () => ({
