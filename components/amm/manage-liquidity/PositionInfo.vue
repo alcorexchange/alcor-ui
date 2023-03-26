@@ -78,12 +78,14 @@ export default {
       const { pool } = position
 
       const poolStats = this.$store.state.amm.poolsStats.find(p => p.id == position.pool.id)
+      console.log({ poolStats }, this.$store.state.amm.poolsStats)
       if (!poolStats) return '0.0000'
 
       const volume24 = poolStats.volumeUSD24 || 0
       const poolFee = pool.fee / 10000
 
-      return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
+      //return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
+      return (10000 * (poolFee / 100) * (100 / 100)).toFixed(4)
     },
 
     pNl() {

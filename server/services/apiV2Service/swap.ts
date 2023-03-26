@@ -22,7 +22,7 @@ function positionIdHandler(req, res, next) {
   next()
 }
 
-swap.get('/', async (req, res) => {
+swap.get('/pools', async (req, res) => {
   const network: Network = req.app.get('network')
 
   const pools = await SwapPool.find({ chain: network.name }).lean()
@@ -109,10 +109,7 @@ swap.get('/charts', async (req, res) => {
   res.json(charts)
 })
 
-
-
-
-swap.get('/:id', async (req, res) => {
+swap.get('/pools/:id', async (req, res) => {
   const network: Network = req.app.get('network')
   const { id } = req.params
 
@@ -124,7 +121,7 @@ swap.get('/:id', async (req, res) => {
   res.json(pools)
 })
 
-swap.get('/:id/positions', async (req, res) => {
+swap.get('/pools/:id/positions', async (req, res) => {
   // TODO Pool share, top providers etc
   const network: Network = req.app.get('network')
 
@@ -136,7 +133,7 @@ swap.get('/:id/positions', async (req, res) => {
   res.json(positions)
 })
 
-swap.get('/:id/ticks', async (req, res) => {
+swap.get('/pools/:id/ticks', async (req, res) => {
   const network: Network = req.app.get('network')
 
   const ticks = await getRedisTicks(network.name, req.params.id)
