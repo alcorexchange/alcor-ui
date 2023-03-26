@@ -93,6 +93,7 @@ export const actions = {
       dispatch('subscribeForAllSwapEvents')
       dispatch('fetchPools')
       dispatch('fetchPoolsStats')
+      dispatch('fetchPositionsHistory')
     })
   },
 
