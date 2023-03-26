@@ -60,6 +60,9 @@ export default {
     page: 1,
     hasMore: true
   }),
+  mounted() {
+    this.$store.dispatch('amm/fetchPositionsHistory')
+  },
   computed: {
     listWithPool() {
       return this.history.map((historyItem) => {
