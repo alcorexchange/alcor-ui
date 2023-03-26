@@ -162,12 +162,12 @@ export default {
     },
 
     onAmountAInput(value) {
-      if (!value || isNaN(value)) return
+      if (!value || isNaN(value)) return this.amountB = null
       this.amountB = this.getDependedAmount('CURRENCY_A', value).toFixed()
     },
 
     onAmountBInput(value) {
-      if (!value || isNaN(value)) return
+      if (!value || isNaN(value)) return this.amountA = null
       this.amountA = this.getDependedAmount('CURRENCY_B', value).toFixed()
     },
 
