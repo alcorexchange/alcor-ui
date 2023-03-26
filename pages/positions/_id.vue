@@ -47,6 +47,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
         :priceLower="tokensInverted ? priceUpper : priceLower"
         :priceUpper="tokensInverted ? priceLower : priceUpper"
         :composedPercent="composedPercent"
+        :ticksAtLimit="ticksAtLimit"
       ).mt-3
 
       InfoContainer.info.mt-3(:access="true")
@@ -115,15 +116,15 @@ export default {
 
     // TODO Move to chart or make blobal
     tickSpaceLimits() {
-      return getPoolBounds(this.feeAmount)
+      return getPoolBounds(this.position?.pool?.fee)
     },
 
     ticksAtLimit() {
-      const { tickSpaceLimits, position: { tickLower, tickUpper, pool: { feeAmount } } } = this
+      const { tickSpaceLimits, position: { tickLower, tickUpper, pool: { fee } } } = this
 
       return {
-        LOWER: feeAmount && tickLower === tickSpaceLimits.LOWER,
-        UPPER: feeAmount && tickUpper === tickSpaceLimits.UPPER
+        LOWER: fee && tickLower === tickSpaceLimits.LOWER,
+        UPPER: fee && tickUpper === tickSpaceLimits.UPPER
       }
     },
   },

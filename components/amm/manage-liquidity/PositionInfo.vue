@@ -36,9 +36,12 @@
       .fs-16 P&L
       .fs-16 ${{ pNl }}
     .d-flex.justify-content-between.mt-1
+      .fs-16 Pool Share
+      .fs-16 {{ poolShare }}%
+    .d-flex.justify-content-between.mt-1
       .fs-16 24H Estimated Fees
       .fs-16 ${{ estimatedFees }}
-    .d-flex.justify-content-between.mt-1
+    //.d-flex.justify-content-between.mt-1
       .fs-16 Estimated APY
       .fs-16 ${{ APY }}
 
@@ -70,7 +73,7 @@ export default {
     },
 
     poolShare() {
-      return parseFloat(new Fraction(this.position.liquidity, this.position.pool.liquidity).toFixed(6)) * 100
+      return (parseFloat(new Fraction(this.position.liquidity, this.position.pool.liquidity).toFixed(6)) * 100).toFixed(2)
     },
 
     estimatedFees() {
@@ -78,14 +81,12 @@ export default {
       const { pool } = position
 
       const poolStats = this.$store.state.amm.poolsStats.find(p => p.id == position.pool.id)
-      console.log({ poolStats }, this.$store.state.amm.poolsStats)
       if (!poolStats) return '0.0000'
 
       const volume24 = poolStats.volumeUSD24 || 0
       const poolFee = pool.fee / 10000
 
-      //return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
-      return (10000 * (poolFee / 100) * (100 / 100)).toFixed(4)
+      return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
     },
 
     pNl() {

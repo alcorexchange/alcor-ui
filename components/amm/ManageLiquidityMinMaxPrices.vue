@@ -1,11 +1,11 @@
 <template lang="pug">
 .d-flex.gap-8
-  InputStepCounter.flex-1(:readOnly='true', :value='(tokensInverted ? priceLower.invert() : priceLower).toSignificant(5)')
+  InputStepCounter.flex-1(:readOnly='true', :value='leftPrice')
     template(#top)
       .fs-12.text-center Min Price
     .fs-12.text-center {{ tokenB.symbol }} per {{ tokenA.symbol }}
     .fs-12.text-center.disable Your position {{ composedPercent('w') }}% composed of {{ tokenA.symbol }} at this price
-  InputStepCounter.flex-1(:readOnly='true', :value='(tokensInverted ? priceUpper.invert() : priceUpper).toSignificant(5)')
+  InputStepCounter.flex-1(:readOnly='true', :value='rightPrice')
     template(#top)
       .fs-12.text-center Max Price
     .fs-12.text-center {{ tokenB.symbol }} per {{ tokenA.symbol }}
@@ -18,7 +18,7 @@ import InputStepCounter from '~/components/amm/InputStepCounter'
 export default {
   name: 'ManageLiquidityMinMaxPrices',
   components: { InputStepCounter },
-  props: ['priceLower', 'priceUpper', 'tokensInverted', 'position', 'composedPercent'],
+  props: ['priceLower', 'priceUpper', 'tokensInverted', 'position', 'composedPercent', 'ticksAtLimit'],
 
   computed: {
     tokenA() {
@@ -27,7 +27,21 @@ export default {
 
     tokenB() {
       return this.tokensInverted ? this.position.pool.tokenA : this.position.pool.tokenB
-    }
+    },
+
+    leftPrice() {
+      const { tokensInverted, ticksAtLimit, priceLower } = this
+      const price = tokensInverted ? priceLower.invert() : priceLower
+
+      return ticksAtLimit.LOWER ? '0' : price?.toSignificant(5) ?? ''
+    },
+
+    rightPrice() {
+      const { tokensInverted, ticksAtLimit, priceUpper } = this
+      const price = tokensInverted ? priceUpper.invert() : priceUpper
+
+      return ticksAtLimit.LOWER ? '∞' : price?.toSignificant(5) ?? ''
+    },
   },
 }
 </script>

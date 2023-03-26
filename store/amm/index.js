@@ -122,7 +122,7 @@ export const actions = {
 
 
   async fetchPoolsStats({ state, commit }) {
-    const { data: pools } = await this.$axios.get('/v2/pools')
+    const { data: pools } = await this.$axios.get('/v2/swap/pools')
     commit('setPoolsStats', pools)
   },
 
