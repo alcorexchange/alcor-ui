@@ -973,6 +973,11 @@ a {
     font-size: 24px !important;
   }
 }
+.md-fs-36 {
+  @media (min-width: 768px) {
+    font-size: 36px !important;
+  }
+}
 .md-fs-48 {
   @media (min-width: 768px) {
     font-size: 48px !important;

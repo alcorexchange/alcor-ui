@@ -593,7 +593,7 @@ export default {
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 18px;
   z-index: 100;
 
   .network-select,

@@ -1,11 +1,11 @@
 <template lang="pug">
-#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-2.mt-md-5
+#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-2
   .greet
-    h1.fs-20.md-fs-48 Alcor IBC Bridge
+    h1.fs-20.md-fs-36.text-center Alcor IBC Bridge
     .fs-16.md-fs-24 Bridge assets from different chains
 
   client-only
-    BridgeForm.mt-2.mt-md-4
+    BridgeForm.mt-2
 
     circle1(v-if="!isMobile" :color="sourceColor" total="20").circle1
     circle2(v-if="!isMobile" :color="destinationColor" total="20").circle2
@@ -92,5 +92,11 @@ export default {
   position: absolute;
   top: 50px;
   right: 0px;
+}
+</style>
+
+<style lang="scss">
+.default-layout {
+  overflow: hidden;
 }
 </style>
