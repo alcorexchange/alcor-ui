@@ -1,6 +1,6 @@
 <template lang="pug">
 el-dropdown(trigger="click")
-  AlcorButton.action(iconOnly flat)
+  AlcorButton.action.p-0(iconOnly flat round)
     i.el-icon-s-operation.pointer.fs-18
   el-dropdown-menu.dropdown(slot="dropdown")
     .px-2.d-flex.flex-column.gap-8

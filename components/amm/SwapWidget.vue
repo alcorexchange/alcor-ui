@@ -32,7 +32,7 @@
       @tokenSelected="setTokenB"
     )
 
-    alcor-container.mt-2(:alternative="true" v-if="tokenA && tokenB")
+    alcor-container.info-container.mt-2(:alternative="true" v-if="tokenA && tokenB")
       el-collapse(:value="routerCollapse").default
         el-collapse-item(name="1")
           template(#title)
@@ -450,6 +450,9 @@ export default {
 .submit:hover{
   background: var(--main-green) !important;
   color: var(--text-theme) !important;
+}
+.info-container {
+  border-radius: 8px !important;
 }
 </style>
 <style lang="scss">
