@@ -7,15 +7,14 @@
 
   el-table(
     :data="[{}, {}]"
-    class="bridge-history-table"
     v-if="active"
-  ).mt-4
+  ).bridge-history-table.custom-responsive-table.mt-4
     el-table-column(label="Time" width="100")
       template(slot-scope='{row}')
         .time
           .hour 13:48
           .date Jul 9, 2023
-    el-table-column(label="Transfer")
+    el-table-column(label="Transfer" className="main")
       template(slot-scope='{row}')
         .main-content
           .left
@@ -156,6 +155,26 @@ export default {
       padding: 2px 10px !important;
       display: flex;
       justify-content: flex-end;
+    }
+  }
+}
+@media only screen and (max-width: 1100px) {
+  .bridge-history-table {
+    .main {
+      grid-column: 1 / 3;
+      margin: auto
+    }
+    .cell{
+      padding: 0 !important;
+    }
+    .status-col {
+      margin-left: auto;
+      .cell {
+        padding: 2px !important;
+      }
+    }
+    .time {
+      flex-direction: row;
     }
   }
 }

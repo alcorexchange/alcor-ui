@@ -2,7 +2,7 @@
 .table-and-filter
   //- TODO: Differ Swap from position
   HistoryFilter.mb-2(v-model="filter" v-if="isMobile")
-  el-table.history-table(
+  el-table.history-table.custom-responsive-table(
     :data='filteredList',
     style='width: 100%;',
     @row-click="onRowClick"
@@ -108,98 +108,64 @@ export default {
 </script>
 
 <style lang="scss">
-.history-table {
-  border-radius: 12px;
-  .el-table__header {
-    th {
-      font-weight: 400 !important;
-      font-size: 12px !important;
-      color: var(--text-disable);
-      .cell {
-        padding: 0px 16px;
+.table-and-filter {
+  .history-table {
+    border-radius: 12px;
+    .el-table__header {
+      th {
+        font-weight: 400 !important;
+        font-size: 12px !important;
+        color: var(--text-disable);
+        .cell {
+          padding: 0px 16px;
+        }
       }
     }
-  }
-  .el-table__row {
-    cursor: pointer;
-  }
-  .amount-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.86rem;
-  }
-}
-.mobile-label {
-  display: none;
-}
-.type {
-  color: var(--main-green);
-}
-.el-table__cell {
-  border-top: none !important;
-}
-@media only screen and (max-width: 1100px) {
-  .mobile-label{
-    display: block;
-  }
-  .el-table__header-wrapper {
-    display: none;
-  }
-  .el-table__body {
-    width: auto !important;
-    display: flex;
-  }
-  tbody {
-    flex: 1;
-  }
-  colgroup {
-    display: none;
-  }
-  .history-table{
     .el-table__row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      padding: 8px;
-      &:hover {
-        background: var(--hover) !important;
-      }
+      cursor: pointer;
     }
-  }
-  .el-table__cell {
-    display: flex;
-    padding: 0 !important;
-    border-bottom: none !important;
-    background-color: transparent !important;
-    .cell{
-      padding: 0 !important;
+    .amount-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.86rem;
     }
   }
   .type {
-    display: flex;
-    justify-content: center;
+    color: var(--main-green);
   }
-  .token-amount {
-    .cell {
-      width: 100%;
+}
+@media only screen and (max-width: 1100px) {
+  .table-and-filter {
+    .history-table{
+      .el-table__row {
+        grid-template-columns: 1fr;
+      }
     }
-    &-items {
-      flex-direction: row !important;
-      justify-content: space-between;
-    }
-  }
-  .time {
-    justify-content: flex-end;
-  }
-  .time .cell{
-    display: flex;
-    align-items: flex-end;
-  }
-  // we need styling from parent so it overtakes default style specified in dark.css L: 3265
-  body .el-table--enable-row-hover .el-table__body tr:hover{
     .el-table__cell {
-      background-color: transparent !important;
+      .cell{
+        padding: 0 !important;
+      }
+    }
+    .type {
+      display: flex;
+      justify-content: center;
+    }
+    .token-amount {
+      .cell {
+        width: 100%;
+      }
+      &-items {
+        flex-direction: row !important;
+        justify-content: space-between;
+      }
+    }
+    .time {
+      justify-content: flex-end;
+    }
+    .time .cell{
+      display: flex;
+      align-items: flex-end;
     }
   }
 }

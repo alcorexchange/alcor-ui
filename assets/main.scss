@@ -1300,3 +1300,58 @@ a {
 .t-15 {
   top: 15px;
 }
+
+.custom-responsive-table {
+  .mobile-label {
+    display: none;
+  }
+  .el-table__cell {
+    border-top: none !important;
+  }
+}
+@media only screen and (max-width: 1100px) {
+  .custom-responsive-table{
+    .mobile-label{
+      display: block;
+    }
+    .el-table__header-wrapper {
+      display: none;
+    }
+    .el-table__body {
+      width: auto !important;
+      display: flex;
+    }
+    tbody {
+      flex: 1;
+    }
+    colgroup {
+      display: none;
+    }
+    .el-table__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 8px;
+      border-bottom: 1px solid var(--border-color);
+      &:last-child {
+        border-bottom: none;
+      }
+      &:hover {
+        background: var(--hover) !important;
+      }
+    }
+    .el-table__cell {
+      display: flex;
+      padding: 0 !important;
+      border-bottom: none !important;
+      background-color: transparent !important;
+    }
+  }
+}
+
+// we need styling from parent so it overtakes default style specified in dark.css L: 3265
+body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hover{
+  .el-table__cell {
+    background-color: transparent !important;
+  }
+}

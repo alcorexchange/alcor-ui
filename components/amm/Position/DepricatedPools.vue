@@ -1,7 +1,7 @@
 <template lang="pug">
 .depricated-pools.mt-4(v-if="[].length")
   .fs-20.mb-3 Depricated Pools
-  el-table.position-table(
+  el-table.position-table.custom-responsive-table(
     :data='plainPositions',
     style='width: 100%',
     @row-click='$emit("positionClick", $event)'
@@ -101,89 +101,50 @@ export default {
 </style>
 
 <style lang="scss">
-.position-table {
-  border-radius: 12px;
-  .el-table__header {
-    th {
-      font-weight: 400 !important;
-      font-size: 12px !important;
-      color: var(--text-disable);
-      .cell {
-        padding: 0px 16px;
+.depricated-pools {
+  .position-table {
+    border-radius: 12px;
+    .el-table__header {
+      th {
+        font-weight: 400 !important;
+        font-size: 12px !important;
+        color: var(--text-disable);
+        .cell {
+          padding: 0px 16px;
+        }
       }
     }
-  }
-  .el-table__row {
-    cursor: pointer;
-  }
-}
-.mobile-label {
-  display: none;
-}
-.el-table__cell {
-  border-top: none !important;
-}
-@media only screen and (max-width: 1100px) {
-  .mobile-label {
-    display: block;
-  }
-  .el-table__header-wrapper {
-    display: none;
-  }
-  .el-table__body {
-    width: auto !important;
-    display: flex;
-  }
-  tbody {
-    flex: 1;
-  }
-  colgroup {
-    display: none;
-  }
-  .el-table__row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 8px;
-    &:hover {
-      background: var(--hover) !important;
+    .el-table__row {
+      cursor: pointer;
     }
   }
-  .el-table__cell {
-    display: flex;
-    padding: 0 !important;
-    border-bottom: none !important;
-    background-color: transparent !important;
-  }
+}
 
-  .assets {
-    grid-column: 1 / 3;
-    .assets-inner {
-      padding: 8px 0 !important;
+@media only screen and (max-width: 1100px) {
+  .depricated-pools {
+    .assets {
+      grid-column: 1 / 3;
+      .assets-inner {
+        padding: 8px 0 !important;
+      }
     }
-  }
-  // we need styling from parent so it overtakes default style specified in dark.css L: 3265
-  body .el-table--enable-row-hover .el-table__body tr:hover {
-    .el-table__cell {
-      background-color: transparent !important;
+    .unclaimed-fees {
+      margin-left: auto;
+      .cell {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      .position-fees {
+        align-items: flex-end;
+      }
     }
-  }
-  .unclaimed-fees {
-    margin-left: auto;
-    .cell {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-    .position-fees {
-      align-items: flex-end;
-    }
-  }
-  .actions-container {
-    align-items: end;
-    justify-content: end;
-    .cell{
-      padding: 0 !important;
+    .actions-container {
+      align-items: end;
+      justify-content: end;
+      .cell{
+        padding: 0 !important;
+      }
     }
   }
 }

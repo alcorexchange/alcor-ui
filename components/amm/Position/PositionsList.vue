@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table.position-table(
+el-table.position-table.custom-responsive-table(
   :data='plainPositions',
   style='width: 100%',
   @row-click="$emit('positionClick', $event)"
@@ -130,73 +130,27 @@ export default {
     cursor: pointer;
   }
 }
-.mobile-label {
-  display: none;
-}
-.el-table__cell {
-  border-top: none !important;
-}
 @media only screen and (max-width: 1100px) {
-  .mobile-label{
-    display: block;
-  }
-  .el-table__header-wrapper {
-    display: none;
-  }
-  .el-table__body {
-    width: auto !important;
-    display: flex;
-  }
-  tbody {
-    flex: 1;
-  }
-  colgroup {
-    display: none;
-  }
-  .el-table__row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 8px;
-    border-bottom: 1px solid var(--border-color);
-    &:last-child {
-      border-bottom: none;
+  .custom-responsive-table{
+    .assets {
+      grid-column: 1 / 3;
+      .assets-inner {
+        padding: 8px 0 !important;
+      }
     }
-    &:hover {
-      background: var(--hover) !important;
+    .min-max {
+      grid-column: 1 / 3;
     }
-  }
-  .el-table__cell {
-    display: flex;
-    padding: 0 !important;
-    border-bottom: none !important;
-    background-color: transparent !important;
-  }
-
-  .assets {
-    grid-column: 1 / 3;
-    .assets-inner {
-      padding: 8px 0 !important;
-    }
-  }
-  .min-max {
-    grid-column: 1 / 3;
-  }
-  // we need styling from parent so it overtakes default style specified in dark.css L: 3265
-  body .el-table--enable-row-hover .el-table__body tr:hover{
-    .el-table__cell {
-      background-color: transparent !important;
-    }
-  }
-  .unclaimed-fees {
-    margin-left: auto;
-    .cell {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-    .position-fees{
-      align-items: flex-end
+    .unclaimed-fees {
+      margin-left: auto;
+      .cell {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      .position-fees{
+        align-items: flex-end
+      }
     }
   }
 }
