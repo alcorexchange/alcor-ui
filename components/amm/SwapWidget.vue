@@ -203,7 +203,7 @@ export default {
           this.localeRoute({
             query: {
               ...currentQuery,
-              input: `${token.symbol}-${token.contract}`
+              input: token ? `${token.symbol}-${token.contract}` : undefined
             }
           })
         )
@@ -218,7 +218,7 @@ export default {
           this.localeRoute({
             query: {
               ...currentQuery,
-              output: `${token.symbol}-${token.contract}`
+              output: token ? `${token.symbol}-${token.contract}` : undefined
             }
           })
         )
