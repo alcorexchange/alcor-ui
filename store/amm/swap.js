@@ -44,7 +44,6 @@ export const actions = {
 
     if (tokenA) commit('setTokenA', tokenA)
     if (tokenB) commit('setTokenB', tokenB)
-    console.log({ tokenA, tokenB, state })
   },
 
   async bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
@@ -75,33 +74,6 @@ export const actions = {
     }
   },
 
-  updateRoutePath({ state, getters, rootState }) {
-    // TODO Redo for swap
-    const { tokenA, tokenB } = getters.routes
-
-    let path = '/add-liquidity/'
-
-    if (state.tokenA && state.tokenA.id !== tokenA) {
-      path += state.tokenA
-    }
-
-    if (!state.tokenA && state.tokenB && state.tokenB !== tokenB) {
-      path += state.tokenB
-    }
-
-    if (state.tokenB && state.tokenB !== tokenB) {
-      path += `/${state.tokenB}`
-    }
-
-    if (state.tokenA && state.tokenB && state.feeAmount) {
-      path += `/${state.feeAmount}`
-    }
-
-    const currentRout = rootState.route.fullPath
-    console.log({ currentRout, path })
-    if (currentRout !== path) this.$router.push({ path })
-  },
-
   flipTokens({ state, commit }) {
     const [tokenA, tokenB] = [state.tokenB, state.tokenA]
 
@@ -113,18 +85,17 @@ export const actions = {
     if (token == state.tokenB) return dispatch('flipTokens')
 
     commit('setTokenA', token)
-    //dispatch('updateRoutePath')
   },
 
   setTokenB({ dispatch, commit }, token) {
     if (token == state.tokenA) return dispatch('flipTokens')
 
     commit('setTokenB', token)
-    //dispatch('updateRoutePath')
   },
 }
 
 export const getters = {
+  // TODO Getters perfomance test
   tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
   tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
