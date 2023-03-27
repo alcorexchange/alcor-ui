@@ -137,7 +137,6 @@ account.get('/:account/positions-stats', async (req, res) => {
   res.json(fullPositions)
 })
 
-
 account.get('/:account/positions-history', async (req, res) => {
   const network: Network = req.app.get('network')
   const { account } = req.params

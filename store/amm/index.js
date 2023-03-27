@@ -138,7 +138,6 @@ export const actions = {
 
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
-    console.log('positions fetched', positions)
   },
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
     const ITEMS_PER_PAGE = 2

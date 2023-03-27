@@ -11,7 +11,8 @@ export async function getPoolInstance(chain: string, id) {
   const pool = await SwapPool.findOne({ chain, id }).lean()
   if (!pool) return undefined
 
-  const ticks = Array.from((await getRedisTicks(chain, id)).values())
+  const ticks: any[] = Array.from((await getRedisTicks(chain, id)).values())
+  ticks.sort((a, b) => a.id - b.id)
 
   const { tokenA, tokenB } = pool
 
@@ -44,7 +45,10 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
   if (!redis.isOpen) await redis.connect()
 
   const entries = await redis.get(`ticks_${chain}_${poolId}`)
-  return entries ? new Map(JSON.parse(entries) || []) : new Map()
+  const plain = JSON.parse(entries || '[]') || []
+
+  const ticks = entries ? new Map([...plain].sort((a, b) => a.id - b.id)) : new Map()
+  return ticks
 }
 
 export async function getRedisPosition(chain, id) {
