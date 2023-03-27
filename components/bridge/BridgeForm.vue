@@ -642,6 +642,9 @@ export default {
     grid-area: connect-button-right;
   }
 }
+.transfer-btn {
+  width: 240px;
+}
 @media only screen and (max-width: 740px){
   .send-and-receive {
     grid-template-columns: 1fr;
