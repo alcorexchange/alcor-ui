@@ -44,7 +44,6 @@ export const mutations = {
   updatePool: (state, pool) => {
     const index = state.pools.findIndex((c) => c.id === pool.id)
 
-    console.log('updatePool mutation')
     if (index == -1) {
       state.pools.push(pool)
     } else {
@@ -60,12 +59,10 @@ export const mutations = {
 
 export const actions = {
   init({ dispatch, rootState, commit }) {
-    console.log('amminit')
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
 
     this.$socket.on('account:update-positions', positions => {
-      console.log('update positions')
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsStats')
@@ -73,16 +70,12 @@ export const actions = {
     })
 
     this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
-      console.log('SWAP TICKS UPDATE!!!', { poolId, ticks })
-
       ticks.forEach(tick => {
         dispatch('updateTickOfPool', { poolId, tick })
       })
     })
 
     this.$socket.on('swap:pool:update', data => {
-      console.log('SWAP POOL UPDATE!!!', data)
-
       data.forEach(pool => {
         commit('updatePool', pool)
       })
@@ -102,7 +95,6 @@ export const actions = {
   },
 
   subscribeForAllSwapEvents({ rootState, commit }) {
-    console.log('subscribe to all swap pushed')
     this.$socket.emit('subscribe', { room: 'swap', params: { chain: rootState.network.name, allPools: true } })
   },
 
@@ -138,7 +130,6 @@ export const actions = {
 
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
-    console.log('positions fetched', positions)
   },
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
     const ITEMS_PER_PAGE = 2
@@ -158,7 +149,6 @@ export const actions = {
         }
       }),
     ])
-    console.log('history', position.data, swap.data)
     const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
     commit('setHistory', page == 1 ? merged : [...merged, ...state.history])
 
@@ -169,29 +159,20 @@ export const actions = {
   updateTickOfPool({ state, commit }, { poolId, tick }) {
     const ticks = cloneDeep(state.ticks[poolId] ?? [])
 
-    console.log('update tick of pull, old:', JSON.stringify(ticks))
-
     const old = ticks.findIndex(old_tick => {
-      console.log('findIndex:', old_tick.id, tick.id)
       return old_tick.id == tick.id
     })
 
-    console.log({ old })
-
     if (old != -1) {
       if (tick.liquidityGross == 0) {
-        console.log('removing tick', old)
         ticks.splice(old, 1)
       } else {
-        console.log('replacing tick', tick)
         ticks[old] = tick
       }
     } else if (tick.liquidityGross !== 0) {
-      console.log('add new tick', tick)
       ticks.push(tick)
     }
 
-    console.log('update tick of pull, new:', JSON.stringify(ticks))
     commit('setTicks', { poolId, ticks })
   },
 
@@ -237,7 +218,6 @@ export const actions = {
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
     commit('setPools', rows)
-    console.log('pools setted')
 
     for (const row of rows) {
       dispatch('fetchTicksOfPool', row.id)
@@ -267,7 +247,6 @@ export const getters = {
       }))
     }
 
-    console.log('pools getter triggered')
     return pools
   },
 
@@ -285,7 +264,6 @@ export const getters = {
       }))
     }
 
-    console.log('positions getter', positions)
     return positions
   },
 

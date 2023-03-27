@@ -150,13 +150,11 @@ export default {
   },
 
   mounted() {
-    console.log('RangeChartMount: ', this.$props, this.brushDomain)
-
-    if (!this.interactive) {
+    if (this.interactive || this.ticksAtLimit?.LOWER) {
+      this.reset()
+    } else {
       this.installZoom()
       this.setExistingPositionZoom()
-    } else {
-      this.reset()
     }
   },
 
