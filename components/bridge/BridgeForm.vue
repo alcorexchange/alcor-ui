@@ -1,120 +1,123 @@
 <template lang="pug">
-  #bridge-form-component.form
-    .send-and-receive
-      .send-from.d-flex.flex-column
-        .mb-3 Send from
-        alcor-select.network-select(
-          :options="fromNetworkOptions"
-          :value.sync="sourceName"
-          :disabled="inProgress"
-          placeholder="Choose Network"
-          filterable
-        )
-          template(#prefix="{ value }")
-            img(
-              v-if="value"
-              :src='require("~/assets/icons/" + value + ".png")',
-              height=18
-            )
-          template(#option="{ option }")
-            network-option( :network="option")
-
-      .receive-on.d-flex.flex-column
-        .mb-3 Receive on
-        alcor-select.network-select(
-          :options="fromNetworkOptions"
-          :value.sync="destinationName"
-          :disabled="inProgress"
-          placeholder="Choose Network"
-          filterable
-        )
-          template(#prefix="{ value }")
-            img(
-              v-if="value"
-              :src='require("~/assets/icons/" + value + ".png")',
-              height=18
-            )
-          template(#option="{ option }")
-            network-option( :network="option")
-
-      .to
-        .to-desktop.d-flex.justify-content-center.align-items-center.gap-30
-          i.el-icon-right
-          span To
-          i.el-icon-right
-        i.to-mobile.el-icon-bottom
-
-      AlcorButton.connect-button.connect-button-left(
-        :disabled="(!sourceName) || (inProgress && this.sourceWallet)"
-        @click="connectFromWallet"
+#bridge-form-component.form
+  .send-and-receive
+    .send-from.d-flex.flex-column
+      .mb-3 Send from
+      alcor-select.network-select(
+        :options="fromNetworkOptions"
+        :value.sync="sourceName"
+        :disabled="inProgress"
+        placeholder="Choose Network"
+        filterable
       )
-        .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
-          .d-flex.align-items-center.gap-8
-            img(
-              :src='require("~/assets/icons/avatar.png")',
-              height=18
-            )
-            .fs-14 {{ formData.sender }}
-          .d-flex.align-items-center.gap-8(@click.stop="logout('sender')")
-            .fs-12 Logout
-            i.el-icon-right
-        .fs-14(v-else) Connect Wallet
+        template(#prefix="{ value }")
+          img(
+            v-if="value"
+            :src='require("~/assets/icons/" + value + ".png")',
+            height=18
+          )
+        template(#option="{ option }")
+          network-option( :network="option")
 
-      AlcorButton.connect-button.connect-button-right(
-        :disabled="(!destinationName) || (inProgress && this.destinationWallet)"
-        @click="connectToWallet"
+    .receive-on.d-flex.flex-column
+      .mb-3 Receive on
+      alcor-select.network-select(
+        :options="fromNetworkOptions"
+        :value.sync="destinationName"
+        :disabled="inProgress"
+        placeholder="Choose Network"
+        filterable
       )
-        .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
-          .d-flex.align-items-center.gap-8
-            img(
-              :src='require("~/assets/icons/avatar.png")',
-              height=18
-            )
-            .fs-14 {{ formData.receiver }}
-          .d-flex.align-items-center.gap-8(@click.stop="logout('receiver')")
-            .fs-12 Logout
-            i.el-icon-right
-        .fs-14(v-else) Connect Wallet
+        template(#prefix="{ value }")
+          img(
+            v-if="value"
+            :src='require("~/assets/icons/" + value + ".png")',
+            height=18
+          )
+        template(#option="{ option }")
+          network-option( :network="option")
 
-    .amount-container.d-flex.justify-content-between.gap-32.mt-4
-      .amount-input
-        el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
-        span.max-btn.pointer(@click="setMax") MAX
+    .to
+      .to-desktop.d-flex.justify-content-center.align-items-center.gap-30
+        i.el-icon-right
+        span To
+        i.el-icon-right
+      i.to-mobile.el-icon-bottom
 
-      AlcorSelectTwo.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress && !!this.asset" placeholder="IBC Token" filterable)
-        template(slot="empty")
-          .small.muted.text-center Chose Send & Receive
+    AlcorButton.connect-button.connect-button-left(
+      :disabled="(!sourceName) || (inProgress && this.sourceWallet)"
+      @click="connectFromWallet"
+    )
+      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
+        .d-flex.align-items-center.gap-8
+          img(
+            :src='require("~/assets/icons/avatar.png")',
+            height=18
+          )
+          .fs-14 {{ formData.sender }}
+        .d-flex.align-items-center.gap-8(@click.stop="logout('sender')")
+          .fs-12 Logout
+          i.el-icon-right
+      .fs-14(v-else) Connect Wallet
 
-        template(slot="prefix" v-if="this.asset")
-          TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="20")
+    AlcorButton.connect-button.connect-button-right(
+      :disabled="(!destinationName) || (inProgress && this.destinationWallet)"
+      @click="connectToWallet"
+    )
+      .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
+        .d-flex.align-items-center.gap-8
+          img(
+            :src='require("~/assets/icons/avatar.png")',
+            height=18
+          )
+          .fs-14 {{ formData.receiver }}
+        .d-flex.align-items-center.gap-8(@click.stop="logout('receiver')")
+          .fs-12 Logout
+          i.el-icon-right
+      .fs-14(v-else) Connect Wallet
 
-        AlcorOptionTwo(:value="asset" :label="asset.symbol" v-for="asset in availableAssets")
-          .d-flex.align-items-center.w-100
-            TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
-            .ml-2 {{ asset.symbol}}
+  .amount-container.d-flex.justify-content-between.gap-32.mt-4
+    .amount-input
+      el-input(type="number" placeholder="Amount" v-model="formData.amount" :disabled="inProgress")
+      span.max-btn.pointer(@click="setMax") MAX
 
-    .d-flex.justify-content-center.mt-4
-      AlcorButton.transfer-btn(v-if="!error" :disabled="!isValid || inProgress" access @click="transfer") Transfer and Prove
-      AlcorButton.transfer-btn(v-else outline @click="transfer") Complete transfer
+    AlcorSelectTwo.network-select(v-model="asset" value-key="symbol" @change="_setAsset" :disabled="inProgress && !!this.asset" placeholder="IBC Token" filterable)
+      template(slot="empty")
+        .small.muted.text-center Chose Send & Receive
 
-      // dev
-      //alcor-button.transfer-btn(access @click="help") help
-      //alcor-button.transfer-btn(access @click="transfer") Transfer and Prove
-      //alcor-button.transfer-btn(outline @click="clear") clear
+      template(slot="prefix" v-if="this.asset")
+        TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="20")
 
-    BridgeSlider(v-if="inProgress" :steps="steps")
+      AlcorOptionTwo(:value="asset" :label="asset.symbol" v-for="asset in availableAssets")
+        .d-flex.align-items-center.w-100
+          TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
+          .ml-2 {{ asset.symbol}}
 
-    div(v-if="step === 4")
-      .d-flex.justify-content-center.text-center.mt-4
-        .fs-18 Success! Assets have been bridged!
+  .d-flex.justify-content-center.mt-4
+    AlcorButton.transfer-btn(v-if="!error" :disabled="!isValid || inProgress" access @click="transfer") Transfer and Prove
+    AlcorButton.transfer-btn(v-else outline @click="transfer") Complete transfer
 
-      .d-flex.justify-content-center.mt-4.gap-10
-        AlcorButton(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
-          img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
-          | TX Link
-        AlcorButton(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))")
-          img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
-          | TX Link
+    // dev
+    //alcor-button.transfer-btn(access @click="help") help
+    //alcor-button.transfer-btn(access @click="transfer") Transfer and Prove
+    //alcor-button.transfer-btn(outline @click="clear") clear
+
+  BridgeSlider(v-if="inProgress" :steps="steps")
+
+  div(v-if="step === 4")
+    .d-flex.justify-content-center.text-center.mt-4
+      .fs-18 Success! Assets have been bridged!
+
+    .d-flex.justify-content-center.mt-4.gap-10
+      AlcorButton(outline v-if="sourceName" @click="openInNewTab(monitorTx(result.source, sourceName))")
+        img(:src='require(`~/assets/icons/${sourceName}.png`)' height=20)
+        | TX Link
+      AlcorButton(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))")
+        img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
+        | TX Link
+
+  BridgeHistory
+
 </template>
 
 <script>
@@ -129,6 +132,7 @@ import AlcorSelect from '~/components/AlcorSelect.vue'
 import AlcorButton from '~/components/AlcorButton.vue'
 import NetworkOption from '~/components/bridge/NetworkOption'
 import BridgeSlider from '~/components/bridge/BridgeSlider'
+import BridgeHistory from '~/components/bridge/BridgeHistory'
 
 import TokenImage from '~/components/elements/TokenImage'
 
@@ -140,7 +144,8 @@ export default {
     BridgeSlider,
     TokenImage,
     AlcorSelectTwo,
-    AlcorOptionTwo
+    AlcorOptionTwo,
+    BridgeHistory
   },
 
   data: () => ({

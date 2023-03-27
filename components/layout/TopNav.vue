@@ -240,6 +240,9 @@ export default {
     align-items: center;
     color: var(--text-disable);
     position: relative;
+    &:hover {
+      color: var(--text-default)
+    }
 
     .badge {
       position: absolute;

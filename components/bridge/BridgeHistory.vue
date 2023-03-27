@@ -8,6 +8,7 @@
   el-table(
     :data="[{}, {}]"
     class="bridge-history-table"
+    v-if="active"
   ).mt-4
     el-table-column(label="Time" width="100")
       template(slot-scope='{row}')
@@ -62,7 +63,7 @@ export default {
     AlcorButton,
   },
   data: () => ({
-    active: false
+    active: true
   })
 }
 </script>
