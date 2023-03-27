@@ -900,7 +900,10 @@ export default {
 </script>
 
 <style lang="scss">
+
 .add-liquidity-component {
+  --border-1: 1px solid rgba(40, 40, 40, 0.36);
+  --border-1-color: rgba(40, 40, 40, 0.36);
   padding: 14px !important;
   .main-section{
     display: grid;
