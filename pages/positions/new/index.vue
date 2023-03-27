@@ -180,6 +180,8 @@ export default {
   fetch({ route, redirect, store }) {
     const { left, right } = route.query || {}
     console.log({ left, right })
+    store.commit('amm/liquidity/setTokenA', null)
+    store.commit('amm/liquidity/setTokenB', null)
     if (left) {
       store.commit('amm/liquidity/setTokenA', { id: left })
     }
