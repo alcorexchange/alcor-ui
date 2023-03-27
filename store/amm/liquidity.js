@@ -122,6 +122,18 @@ export const getters = {
     return pool
   },
 
+  currnetPools(state, getters, rootState, rootGetters) {
+    if (!state.tokenA || !state.tokenB) return null
+
+    return rootGetters['amm/pools'].filter(p => {
+      return (
+        (p.tokenA.id == state.tokenA?.id && p.tokenB.id == state.tokenB?.id) ||
+        (p.tokenA.id == state.tokenB?.id && p.tokenB.id == state.tokenA?.id)
+      )
+    })
+  },
+
+
   routes(state, getters, rootState) {
     const [tokenA, tokenB, feeAmountFromUrl] = rootState
       .route.fullPath.replace('/add-liquidity/', '').split('/')

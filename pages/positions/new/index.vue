@@ -119,6 +119,7 @@
 </template>
 
 <script>
+import JSBI from 'jsbi'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import { asset } from 'eos-common'
 
@@ -152,7 +153,7 @@ import {
 import {
   Currency, Percent, Token, Pool, Tick, CurrencyAmount,
   Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
-  TickMath, Rounding, priceToClosestTick, tickToPrice
+  TickMath, Rounding, priceToClosestTick, tickToPrice, Fraction
 } from '~/assets/libs/swap-sdk'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
@@ -199,12 +200,6 @@ export default {
       leftRangeTypedValue: '',
       rightRangeTypedValue: '',
 
-      fees: [
-        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: 0 },
-        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: 44 },
-        { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: 56 }
-      ],
-
       // TODO Different ranges for different feeAmounts
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
@@ -231,8 +226,26 @@ export default {
       'invertPrice',
       'isSorted',
       'sortedA',
-      'sortedB'
+      'sortedB',
+      'currnetPools',
     ]),
+
+    fees() {
+      const { currnetPools } = this
+
+      const fees = {}
+
+      const totalLiquidity = currnetPools.reduce((total, b) => JSBI.add(total, JSBI.BigInt(b.liquidity)), JSBI.BigInt(0))
+      currnetPools.forEach(p => {
+        fees[p.fee] = parseInt((parseFloat(new Fraction(p.liquidity, totalLiquidity).toFixed(6)) * 100).toFixed())
+      })
+
+      return [
+        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: fees[FeeAmount.LOW] },
+        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: fees[FeeAmount.MEDIUM] },
+        { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: fees[FeeAmount.HIGH] }
+      ]
+    },
 
     sumbitButton() {
       const { depositADisabled, depositBDisabled, amountA, amountB } = this
