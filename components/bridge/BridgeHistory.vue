@@ -7,8 +7,9 @@
 
   el-table(
     :data="[{}, {}]"
+    class="bridge-history-table"
   )
-    el-table-column(label="Time")
+    el-table-column(label="Time" width="100")
       template(slot-scope='{row}')
         .time
           .hour 13:48
@@ -18,30 +19,34 @@
         .main-content
           .left
             .network
-              img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
-              span EOS
+              span.text Network
+              .network-content
+                img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
+                span EOS
             .token-container
               img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
               .amount 10.00
               .symbol TLM
-            .tx
-              img(:src="require(`~/assets/icons/${'eos'}.png`)").tx-img
-              span.tx-Link TX link
           .arrow
             i.el-icon-right
           .right
             .network
-              img(:src="require(`~/assets/icons/${'matic'}.png`)").network-img
-              span EOS
+              span.text Network
+              .network-content
+                img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
+                span EOS
             .token-container
               img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
               .amount 10.00
               .symbol TLM
-            .tx
-              img(:src="require(`~/assets/icons/${'eos'}.png`)").tx-img
-              span.tx-Link TX link
+
     el-table-column(label="Txs" width="100")
-    el-table-column(label="Status")
+      template(#default="{row}")
+       .tx
+          img(:src="require(`~/assets/icons/${'eos'}.png`)").tx-img
+          span.tx-Link TX link
+
+    el-table-column(label="Status" width="140" className="status-col" align="right")
       template(slot-scope='{row}')
         .status.red
           i.el-icon-error
@@ -74,7 +79,7 @@ export default {
     flex-direction: column;
   }
   .arrow i {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   .left {
     align-items: flex-end;
@@ -83,13 +88,21 @@ export default {
     align-items: flex-start;
   }
   .network {
-    background: var(--btn-active);
-    padding: 2px 4px;
-    border-radius: 20px;
     display: flex;
-    font-size: 0.86rem;
-    align-items: center;
     gap: 4px;
+    align-items: center;
+    &-content {
+      font-size: 0.86rem;
+      background: var(--btn-active);
+      padding: 2px 6px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .text {
+      font-size: 0.86rem;
+    }
     &-img {
       height: 18px;
     }
@@ -98,17 +111,18 @@ export default {
     display: flex;
     gap: 4px;
     align-items: center;
+    font-size: 1rem;
   }
   .token-img {
     height: 18px;
   }
-  .tx {
-    display: flex;
-    align-items: center;
-    font-size: 0.86rem;
-    .tx-img {
-      height: 18px;
-    }
+}
+.tx {
+  display: flex;
+  align-items: center;
+  font-size: 0.86rem;
+  .tx-img {
+    height: 18px;
   }
 }
 .status {
@@ -123,9 +137,20 @@ export default {
 .time {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   .hour {
     font-size: 0.86rem;
+  }
+}
+</style>
+
+<style lang="scss">
+.bridge-history-table {
+  .status-col {
+    .cell {
+      padding: 2px 10px !important;
+      display: flex;
+    }
   }
 }
 </style>
