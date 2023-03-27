@@ -9,15 +9,22 @@
     .fs-18 {{ fee.value / 10000 }}%
     .fs-12.disable.text-break {{ fee.desc }}
     .d-flex.gap-4.selected-percent(v-if="fee.selectedPercent !== undefined")
-      .fs-12(:class="{ red: fee.selectedPercent < 1}") {{ fee.selectedPercent }}%
+      .fs-12(:style="{ color: getColor(fee)}") {{ fee.selectedPercent }}%
       .fs-12() Selected
-    .tag.selected-percent(v-else="fee.notCreated") Not created
+    .tag.selected-percent(v-else) Not created
 
 </template>
 
 <script>
 export default {
-  props: ['selected', 'options']
+  props: ['selected', 'options'],
+  methods: {
+    getColor(fee) {
+      if (fee.selectedPercent < 1) return `var(--main-red)`
+      if (fee.selectedPercent > 50) return `var(--main-green)`
+      return `var(--text-default)`
+    }
+  }
 }
 </script>
 
