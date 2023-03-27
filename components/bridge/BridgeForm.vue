@@ -105,7 +105,7 @@
       //alcor-button.transfer-btn(access @click="transfer") Transfer and Prove
       //alcor-button.transfer-btn(outline @click="clear") clear
 
-    bridge-slider(v-if="inProgress" :steps="steps")
+    BridgeSlider(v-if="inProgress" :steps="steps")
 
     div(v-if="step === 4")
       .d-flex.justify-content-center.mt-4
