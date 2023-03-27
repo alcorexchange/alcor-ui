@@ -39,5 +39,22 @@ export const wax = {
       name: "farmersworld.io"
     },
     github: "https://github.com/shivsriv/FarmersWorld"
-  }
+  },
+  "HEELS@pinup24heels": {
+    name: "PinupWarlords",
+    website: {
+      link: "https://pinupwarlords.com/",
+      name: "pinupwarlords.com"
+    },
+    tags: [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    socials: [
+      "https://discord.com/pinupwarlords",
+      "https://twitter.com/pinupwarlords"
+    ],
+    description: "PinupWarlords is a fun and fast-paced Play to Earn NFT trading card game, fully on-chain, with stunning ART and multi-PvP modes. It’s a game where players own the assets and can freely resell them and participate in its ecosystem."
+  },
 }
