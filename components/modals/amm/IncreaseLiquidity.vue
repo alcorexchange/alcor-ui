@@ -162,13 +162,17 @@ export default {
     },
 
     onAmountAInput(value) {
-      if (!value || isNaN(value)) return this.amountB = null
-      this.amountB = this.getDependedAmount('CURRENCY_A', value).toFixed()
+      if (!parseFloat(value) || isNaN(value)) return this.amountB = null
+      const dependedAmount = this.getDependedAmount('CURRENCY_A', value)
+      if (!dependedAmount) return
+      this.amountB = dependedAmount.toFixed()
     },
 
     onAmountBInput(value) {
-      if (!value || isNaN(value)) return this.amountA = null
-      this.amountA = this.getDependedAmount('CURRENCY_B', value).toFixed()
+      if (!parseFloat(value) || isNaN(value)) return this.amountA = null
+      const dependedAmount = this.getDependedAmount('CURRENCY_B', value)
+      if (!dependedAmount) return
+      this.amountA = dependedAmount.toFixed()
     },
 
     getDependedAmount(independentField, value) {

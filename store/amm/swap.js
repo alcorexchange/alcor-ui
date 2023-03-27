@@ -34,7 +34,7 @@ export const actions = {
 
     if (!input && !output) {
       const { contract, symbol } = rootState.network.baseToken
-      commit('setTokenB', undefined)
+      commit('setTokenB', null)
       return commit('setTokenA', getters.tokens.find(t => t.symbol == symbol && t.contract == contract))
     }
 
