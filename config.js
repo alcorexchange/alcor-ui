@@ -46,6 +46,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://eosnode.alcor.exchange': 'Alcor',
       'https://eos.greymass.com': 'Greymass',
       //'https://mainnet.genereos.io': 'Generos',
       //'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
