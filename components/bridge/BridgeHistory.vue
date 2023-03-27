@@ -8,7 +8,7 @@
   el-table(
     :data="[{}, {}]"
     class="bridge-history-table"
-  )
+  ).mt-4
     el-table-column(label="Time" width="100")
       template(slot-scope='{row}')
         .time
@@ -133,6 +133,9 @@ export default {
   gap: 4px;
   font-size: 0.86rem;
   border-radius: 4px;
+  i {
+    line-height: 0;
+  }
 }
 .time {
   display: flex;
@@ -146,10 +149,12 @@ export default {
 
 <style lang="scss">
 .bridge-history-table {
+  border-radius: 8px;
   .status-col {
     .cell {
       padding: 2px 10px !important;
       display: flex;
+      justify-content: flex-end;
     }
   }
 }
