@@ -9,23 +9,14 @@ export default {
   props: ['series'],
   watch: {
     series() {
-      this.$refs.chart.updateOptions(
-        {
-          series: this.series
-        },
-        true
-      )
+      setTimeout(() => {
+        this.$refs.chart.updateOptions({ series: this.series }, true)
+      }, 100)
     }
   },
 
-  mounted() {
-    this.$refs.chart.updateOptions(
-      {
-        series: this.series
-      },
-      true
-    )
-  },
+  mounted() {},
+
   data: () => ({
     chartOptions: {
       chart: {

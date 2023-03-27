@@ -119,7 +119,7 @@
         alcor-button(outline v-if="destinationName" @click="openInNewTab(monitorTx(result.destination, destinationName))").ml-5
           img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
           | TX Link
-    BridgeHistory
+    //- BridgeHistory
 </template>
 
 <script>
