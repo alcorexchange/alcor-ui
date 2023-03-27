@@ -1,38 +1,56 @@
 <template lang="pug">
 .bridge-history.mt-4
   .toggle.d-flex.justify-content-center
-    AlcorButton Toggle
-  .items.mt-2
-    .item(v-for='x in 4')
-      .status.red
-        i.el-icon-error
-        span incomplete
-      .main-content
-        .left
-          .network
-            img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
-            span EOS
-          .token-container
-            img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
-            .amount 10.00
-            .symbol TLM
-          .tx
-            img(:src="require(`~/assets/icons/${'eos'}.png`)").tx-img
-            span.tx-Link TX link
-        .arrow
-          i.el-icon-right
-        .right
-          .network
-            img(:src="require(`~/assets/icons/${'matic'}.png`)").network-img
-            span EOS
-          .token-container
-            img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
-            .amount 10.00
-            .symbol TLM
-          .tx
-            img(:src="require(`~/assets/icons/${'eos'}.png`)").tx-img
-            span.tx-Link TX link
-      .date.disable 2d ago
+    AlcorButton(@click="active = !active")
+      span {{active ? 'Minimize' : 'Show'}} History
+      i(:class="`el-icon-arrow-${active ? 'up' : 'down'}`")
+
+  el-table(
+    :data="[{}, {}]"
+    class="bridge-history-table"
+  ).mt-4
+    el-table-column(label="Time" width="100")
+      template(slot-scope='{row}')
+        .time
+          .hour 13:48
+          .date Jul 9, 2023
+    el-table-column(label="Transfer")
+      template(slot-scope='{row}')
+        .main-content
+          .left
+            .network
+              span.text Network
+              .network-content
+                img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
+                span EOS
+            .token-container
+              img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
+              .amount 10.00
+              .symbol TLM
+          .arrow
+            i.el-icon-right
+          .right
+            .network
+              span.text Network
+              .network-content
+                img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
+                span EOS
+            .token-container
+              img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
+              .amount 10.00
+              .symbol TLM
+
+    el-table-column(label="Txs" width="100")
+      template(#default="{row}")
+       .tx
+          img(:src="require(`~/assets/icons/${'eos'}.png`)").tx-img
+          span.tx-Link TX link
+
+    el-table-column(label="Status" width="140" className="status-col" align="right")
+      template(slot-scope='{row}')
+        .status.red
+          i.el-icon-error
+          span incomplete
 </template>
 
 <script>
@@ -43,105 +61,101 @@ export default {
   components: {
     AlcorButton,
   },
+  data: () => ({
+    active: false
+  })
 }
 </script>
 
 <style scoped lang="scss">
-.items {
+.main-content {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  align-self: center;
   gap: 8px;
-}
-.item {
-  padding: 8px;
-  background: var(--background-color-secondary);
-  position: relative;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  .status {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    box-shadow: 0 0 0 1px var(--main-red);
-    padding: 2px 4px;
+  .left, .right {
     display: flex;
-    align-items: center;
     gap: 4px;
-    font-size: 0.86rem;
-    border-radius: 4px;
+    flex-direction: column;
   }
-  .main-content-container {
-    display: flex;
-    justify-content: center;
+  .arrow i {
+    font-size: 1.4rem;
   }
-  .main-content {
-    display: flex;
+  .left {
+    align-items: flex-end;
+  }
+  .right {
     align-items: flex-start;
-    align-self: center;
-    gap: 8px;
-    .left, .right {
-      display: flex;
-      gap: 4px;
-      flex-direction: column;
-    }
-    .arrow i {
-      font-size: 1.6rem;
-    }
-    .left {
-      align-items: flex-end;
-    }
-    .right {
-      align-items: flex-start;
-    }
-    .network {
+  }
+  .network {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    &-content {
+      font-size: 0.86rem;
       background: var(--btn-active);
-      padding: 2px 4px;
+      padding: 2px 6px;
       border-radius: 20px;
       display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .text {
       font-size: 0.86rem;
-      align-items: center;
-      gap: 4px;
-      &-img {
-        height: 18px;
-      }
     }
-    .token-container {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
-    .token-img {
+    &-img {
       height: 18px;
     }
-    .tx {
+  }
+  .token-container {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 1rem;
+  }
+  .token-img {
+    height: 18px;
+  }
+}
+.tx {
+  display: flex;
+  align-items: center;
+  font-size: 0.86rem;
+  .tx-img {
+    height: 18px;
+  }
+}
+.status {
+  box-shadow: 0 0 0 1px var(--main-red);
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.86rem;
+  border-radius: 4px;
+  i {
+    line-height: 0;
+  }
+}
+.time {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  .hour {
+    font-size: 0.86rem;
+  }
+}
+</style>
+
+<style lang="scss">
+.bridge-history-table {
+  border-radius: 8px;
+  .status-col {
+    .cell {
+      padding: 2px 10px !important;
       display: flex;
-      align-items: center;
-      font-size: 0.86rem;
-      .tx-img {
-        height: 18px;
-      }
+      justify-content: flex-end;
     }
-  }
-  .date {
-    align-self: flex-end;
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-  }
-  &:before {
-    content: "";
-    z-index: -1;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to left, #5c6fff 0%, #ff930f 100% );
-    transform: scale(0.998);
-    filter: blur(2px);
-    opacity: var(0.7);
-    border-radius: inherit;
   }
 }
 </style>

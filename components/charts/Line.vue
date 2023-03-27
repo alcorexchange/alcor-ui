@@ -1,6 +1,6 @@
 <template lang="pug">
 .stacked-column-chart-component
-  vue-apex-charts(type="area" height="400" :options="chartOptions" :series="series" ref="chart")
+  vue-apex-charts(type="area" height="400" :options="chartOptions" :series="series" v-if="series[0].data.length" ref="chart")
 
 </template>
 
@@ -10,27 +10,12 @@ export default {
 
   watch: {
     series() {
-      this.$refs.chart.updateOptions(
-        {
-          series: this.series
-        },
-        true
-      )
     }
   },
 
-  mounted() {
-    this.$refs.chart.updateOptions(
-      {
-        series: this.series
-      },
-      true
-    )
-  },
+  mounted() {},
 
   data: () => ({
-    data: [],
-
     chartOptions: {
       markers: {
         size: 0,
