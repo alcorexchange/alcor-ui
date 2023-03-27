@@ -123,7 +123,7 @@ export const getters = {
   },
 
   currnetPools(state, getters, rootState, rootGetters) {
-    if (!state.tokenA || !state.tokenB) return null
+    if (!state.tokenA || !state.tokenB) return []
 
     return rootGetters['amm/pools'].filter(p => {
       return (
