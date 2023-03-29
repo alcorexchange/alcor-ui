@@ -22,7 +22,7 @@
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
             :disabledMessage="disabledMessage" :locked="true" label="Token 1").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled"
-            :disabledMessage="disabledMessage" :locked="true" label="Token 2").mt-3
+            :disabledMessage="disabledMessage" :locked="true" label="Token 2").mt-2
       //- 2 end
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
@@ -110,6 +110,7 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
+        PositionFeeAndShare
         .error-container.mt-2(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 Invalid range selected. The min price must be lower than the max price.
@@ -139,6 +140,7 @@ import AuthOnly from '~/components/AuthOnly'
 import AlcorSwitch from '~/components/AlcorSwitch'
 import AlcorRadio from '~/components/AlcorRadio'
 import PageHeader from '~/components/amm/PageHeader'
+import PositionFeeAndShare from '~/components/amm/position/PositionFeeAndShare'
 
 import {
   tryParsePrice,
@@ -147,7 +149,7 @@ import {
   tryParseTick,
   getPoolBounds,
   getTickToPrice,
-  isPriceInvalid
+  isPriceInvalid,
 } from '~/utils/amm'
 
 import {
@@ -173,7 +175,8 @@ export default {
     AlcorSwitch,
     Zoom,
     AlcorRadio,
-    PageHeader
+    PageHeader,
+    PositionFeeAndShare
   },
 
   // Enabling managige route in nested component
@@ -912,7 +915,7 @@ export default {
       "tokenSelect range"
       "amounts range"
       "submit range";
-    gap: 18px;
+    gap: var(--amm-space-3);
   }
   .section {
     &-1 {
