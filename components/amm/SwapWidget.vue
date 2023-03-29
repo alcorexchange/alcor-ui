@@ -469,6 +469,11 @@ export default {
 }
 .info-container {
   border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  transition: border-color 0.3s;
+  &:hover {
+    border: 1px solid var(--border-color) !important;
+  }
 }
 </style>
 <style lang="scss">
