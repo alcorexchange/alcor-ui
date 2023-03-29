@@ -110,11 +110,11 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
-      .section-5
+      .section-5(v-if="tokenA && tokenB")
         //- tip: for yellow color add `is-warning` class
-        .error-container(v-if="invalidRange")
+        .error-container(v-if="renderError" :class="renderError.colorClass")
           i.el-icon-warning-outline.fs-24
-          .message.fs-14 Invalid range selected. The min price must be lower than the max price.
+          .message.fs-14 {{ renderError.text }}
         PositionFeeAndShare(v-else)
   // TODO ROUTES MANAGEMENT
   nuxt-child
@@ -264,6 +264,18 @@ export default {
       ) return { state: false, text: 'Add Liquidity' }
 
       return { state: true, text: 'Enter Amount' }
+    },
+
+    renderError() {
+      if (this.invalidRange) return {
+        text: 'Invalid range selected. The min price must be lower than the max price.',
+        colorClass: ''
+      }
+      if (this.outOfRange) return {
+        text: 'Your position will not earn fees or be used in trades until the market price moves into your range.',
+        colorClass: 'is-warning'
+      }
+      return false
     },
 
     feeAmount: {
