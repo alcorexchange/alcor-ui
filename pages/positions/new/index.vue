@@ -110,12 +110,12 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
-        PositionFeeAndShare
       .section-5
         //- tip: for yellow color add `is-warning` class
-        .error-container.mt-2(v-if="invalidRange")
+        .error-container(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 Invalid range selected. The min price must be lower than the max price.
+        PositionFeeAndShare(v-else)
   // TODO ROUTES MANAGEMENT
   nuxt-child
 
@@ -917,7 +917,7 @@ export default {
       "tokenSelect range"
       "amounts range"
       "submit range"
-      "errors errors";
+      "submit info";
     gap: var(--amm-space-3);
     row-gap: var(--amm-space-2);
   }
@@ -935,7 +935,7 @@ export default {
       grid-area: range;
     }
     &-5 {
-      grid-area: errors;
+      grid-area: info;
     }
   }
   .submit {
@@ -1044,7 +1044,7 @@ export default {
       grid-template-areas:
         "tokenSelect"
         "range"
-        "errors"
+        "info"
         "amounts"
         "submit";
     }

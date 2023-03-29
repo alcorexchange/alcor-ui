@@ -15,7 +15,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.position-fee-and-share {
-  margin-top: var(--amm-space-2);
-}
 </style>
