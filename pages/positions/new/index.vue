@@ -111,6 +111,8 @@
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
         PositionFeeAndShare
+      .section-5
+        //- tip: for yellow color add `is-warning` class
         .error-container.mt-2(v-if="invalidRange")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 Invalid range selected. The min price must be lower than the max price.
@@ -914,8 +916,10 @@ export default {
     grid-template-areas:
       "tokenSelect range"
       "amounts range"
-      "submit range";
+      "submit range"
+      "errors errors";
     gap: var(--amm-space-3);
+    row-gap: var(--amm-space-2);
   }
   .section {
     &-1 {
@@ -929,6 +933,9 @@ export default {
     }
     &-4 {
       grid-area: range;
+    }
+    &-5 {
+      grid-area: errors;
     }
   }
   .submit {
@@ -1009,6 +1016,9 @@ export default {
   border-radius: 8px;
   gap: 8px;
   align-items: center;
+  &.is-warning {
+    color: var(--main-yellow);
+  }
 }
 .min-max-price{
   > *{
@@ -1034,6 +1044,7 @@ export default {
       grid-template-areas:
         "tokenSelect"
         "range"
+        "errors"
         "amounts"
         "submit";
     }
