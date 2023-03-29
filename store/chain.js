@@ -15,7 +15,6 @@ export const state = () => ({
 
   payForUser: false,
   lastWallet: null,
-  loginContext: null
 })
 
 export const mutations = {
@@ -24,7 +23,6 @@ export const mutations = {
   setLoginPromise: (state, value) => (state.loginPromise = value),
   setPayForUser: (state, value) => (state.payForUser = value),
   setLastWallet: (state, value) => (state.lastWallet = value),
-  setLoginContext: (state, value) => state.loginContext = value
 }
 
 export const actions = {
@@ -63,7 +61,6 @@ export const actions = {
 
   afterLoginHook({ dispatch, rootState }) {
     dispatch('amm/afterLogin', {}, { root: true })
-
     dispatch('loadAccountData', {}, { root: true })
 
     dispatch('loadUserBalances', {}, { root: true }).then(() =>
@@ -132,7 +129,7 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters, rootState }, wallet_name) {
-    const network = state.loginContext?.chain ? config.networks[state.loginContext.chain] : rootState.network
+    const network = rootState.modal.context?.chain ? config.networks[rootState.modal.context.chain] : rootState.network
 
     const wallet = new state.wallets[wallet_name](network, getMultyEndRpc(Object.keys(network.client_nodes)))
 
@@ -178,7 +175,7 @@ export const actions = {
   },
 
   async asyncLogin({ rootState, commit, dispatch }, context) {
-    if (context) commit('setLoginContext', context)
+    if (context) commit('modal/setModalContext', context, { root: true })
 
     const loginPromise = new Promise((resolve, reject) => {
       commit('setLoginPromise', { resolve, reject })
@@ -190,7 +187,7 @@ export const actions = {
     } catch (e) {
       throw new Error(e)
     } finally {
-      if (context) commit('setLoginContext', null)
+      if (context) commit('modal/setModalContext', null, { root: true })
     }
   },
 
