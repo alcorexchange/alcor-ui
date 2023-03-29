@@ -31,17 +31,21 @@ export async function getVolumeFrom(date, pool, chain) {
 }
 
 export async function updatePoolsStats(chain: string) {
-  const pools = await SwapPool.find({ chain })
+  try {
+    const pools = await SwapPool.find({ chain })
 
-  for (const pool of pools) {
-    pool.volumeUSD24 = await getVolumeFrom(Date.now() - (ONEDAY), pool.id, chain)
-    pool.volumeUSDWeek = await getVolumeFrom(Date.now() - (WEEK), pool.id, chain)
-    pool.volumeUSDMonth = await getVolumeFrom(Date.now() - (ONEDAY * 30), pool.id, chain)
+    for (const pool of pools) {
+      pool.volumeUSD24 = await getVolumeFrom(Date.now() - (ONEDAY), pool.id, chain)
+      pool.volumeUSDWeek = await getVolumeFrom(Date.now() - (WEEK), pool.id, chain)
+      pool.volumeUSDMonth = await getVolumeFrom(Date.now() - (ONEDAY * 30), pool.id, chain)
 
-    await pool.save()
+      await pool.save()
+    }
+
+    console.log(chain, 'pools updated')
+  } catch (e) {
+    console.error(' UPDATE POOL STATS ERR', chain, e)
   }
-
-  console.log(chain, 'pools updated')
 }
 
 
