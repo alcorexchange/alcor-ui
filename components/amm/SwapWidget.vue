@@ -185,8 +185,8 @@ export default {
       return ''
     },
     renderSubmitText() {
-      if (!this.tokenA || !this.tokenB) return 'Select Token'
-      else if (!this.amountA || !this.amountB) return 'Enter Amount'
+      if (!this.tokenA || !this.tokenB) return 'Select Tokens'
+      else if (!this.amountA || !this.amountB) return 'Enter Amounts'
       else return `Swap ${this.tokenA.symbol} to ${this.tokenB.symbol}`
     },
     canSubmit() {

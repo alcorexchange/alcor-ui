@@ -2,7 +2,7 @@
 .pool-token-input(:class="{focused, notSelected: !!token}")
   .label-and-balance
     .label {{ renderLabel }}
-    .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }} 123
+    .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(
@@ -14,7 +14,7 @@
       @focus="onFocus"
     )
     .input-after
-      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token")
+      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token && user")
       //- v-if='showMaxButton',
       SelectToken(
         :locked='!!locked',
