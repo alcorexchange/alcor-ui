@@ -896,7 +896,7 @@ export default {
               left: token ? token.id : undefined
             }
           })
-        )
+        ).catch((e) => {})
       }, 0)
     },
     tokenB(token) {
@@ -909,7 +909,7 @@ export default {
               right: token ? token.id : undefined
             }
           })
-        )
+        ).catch((e) => {})
       }, 0)
     },
   }

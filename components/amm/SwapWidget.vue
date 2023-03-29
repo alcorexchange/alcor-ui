@@ -215,7 +215,7 @@ export default {
               input: token ? `${token.symbol}-${token.contract}` : undefined
             }
           })
-        )
+        ).catch((e) => {})
       }, 0)
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
     },
@@ -230,7 +230,7 @@ export default {
               output: token ? `${token.symbol}-${token.contract}` : undefined
             }
           })
-        )
+        ).catch((e) => {})
       }, 0)
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
     },
