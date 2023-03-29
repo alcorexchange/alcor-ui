@@ -1,9 +1,9 @@
 <template lang="pug">
 #assets-modal-component.login-modal
   .header
-    //.lead {{ loginContext }}
-    .text-center(v-if="loginContext && loginContext.message") {{ loginContext.message }}
-      .fs-20 {{ loginContext.chain}}
+    //.lead {{ context }}
+    .text-center(v-if="context && context.message") {{ context.message }}
+      .fs-20 {{ context.chain }}
     .text-center.p-3(v-else) Select wallet
   .body.row(v-loading='loading')
     .items
@@ -47,10 +47,10 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapState('chain', ['loginContext']),
+    ...mapState('modal', ['context']),
 
     wallets() {
-      const chain = this.loginContext ? this.loginContext.chain : this.network.name
+      const chain = this.context?.chain ? this.context.chain : this.network.name
 
       const wallets = [
         {
@@ -109,7 +109,7 @@ export default {
         })
       }
 
-      if (this.network.name == 'proton' || this.$store.state.chain.loginContext?.chain == 'proton') {
+      if (this.network.name == 'proton' || this.context?.chain == 'proton') {
         wallets.unshift({
           id: 'proton',
           name: 'Proton',

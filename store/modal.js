@@ -121,6 +121,6 @@ export const actions = {
 
   closeModal({ commit }) {
     commit('setVisible', false)
-    //commit('setModalContext', null)
+    commit('setModalContext', null)
   }
 }
