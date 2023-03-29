@@ -82,6 +82,9 @@ export default {
       return undefined
     },
   },
+  mounted() {
+    this.$store.dispatch('amm/fetchPositions')
+  },
   computed: {
     ...mapGetters('amm', ['plainPositions'])
   },
