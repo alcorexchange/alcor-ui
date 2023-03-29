@@ -213,6 +213,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.chart-container-inner {
+  padding: 8px 12px !important;
+}
 .custom-radio {
   display: flex !important;
   flex-wrap: nowrap;
@@ -221,6 +224,7 @@ export default {
   &::v-deep {
     .el-radio-button__inner{
       padding: 6px 8px !important;
+      font-size: 14px !important;
     }
   }
 }
