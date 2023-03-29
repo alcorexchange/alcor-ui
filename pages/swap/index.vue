@@ -64,4 +64,10 @@ export default {
     width: 100%;
   }
 }
+@media only screen and (max-width: 680px) {
+  .swap-widget-container {
+    max-width: 100%;
+    width: 100%;
+  }
+}
 </style>
