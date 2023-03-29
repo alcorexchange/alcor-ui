@@ -52,9 +52,16 @@ export default {
 .swap-widget-container {
   max-width: 450px;
 }
-</style>
-<style lang="scss">
-.chart-container{
+.chart-container {
   flex: 1;
+}
+@media only screen and (max-width: 1080px) {
+  #swap-page {
+    flex-direction: column;
+    align-items: center;
+  }
+  .chart-container {
+    width: 100%;
+  }
 }
 </style>

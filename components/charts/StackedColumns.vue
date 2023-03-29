@@ -153,6 +153,7 @@ export default {
       legend: {
         show: false
       },
+      colors: ['#0A84FF'],
       fill: {
         opacity: 1,
         pattern: {
