@@ -208,7 +208,7 @@ export default {
     tokenA(token) {
       setTimeout(() => {
         const currentQuery = this.$route.query
-        this.$router.push(
+        this.$router.replace(
           this.localeRoute({
             query: {
               ...currentQuery,
@@ -223,7 +223,7 @@ export default {
     tokenB(token) {
       setTimeout(() => {
         const currentQuery = this.$route.query
-        this.$router.push(
+        this.$router.replace(
           this.localeRoute({
             query: {
               ...currentQuery,
