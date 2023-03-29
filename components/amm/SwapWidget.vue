@@ -459,6 +459,7 @@ export default {
     background: var(--btn-default) !important;
     color: #636366 !important;
     border-color: var(--btn-default) !important;
+    opacity: 0.8;
     filter: none !important;
   }
 }
