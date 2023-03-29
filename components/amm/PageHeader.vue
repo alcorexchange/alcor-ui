@@ -4,10 +4,10 @@
   span.title {{ title }}
   .end
     slot(name='end')
-      .d-flex.gap-4.align-items-center
-        AlcorButton.action(iconOnly flat)
+      .d-flex.gap-2.align-items-center
+        AlcorButton.p-0(iconOnly flat)
           i.el-icon-refresh.pointer.fs-18(@click="$emit('refresh')")
-        Settings.settings
+        Settings
 </template>
 
 <script>
@@ -43,12 +43,6 @@ export default {
     justify-content: center;
     white-space: nowrap;
   }
-}
-.action::v-deep, .settings::v-deep .action {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  padding: 0;
 }
 @media only screen and (max-width: 380px){
   .page-header{
