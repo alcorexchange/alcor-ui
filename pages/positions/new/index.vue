@@ -142,7 +142,7 @@ import AuthOnly from '~/components/AuthOnly'
 import AlcorSwitch from '~/components/AlcorSwitch'
 import AlcorRadio from '~/components/AlcorRadio'
 import PageHeader from '~/components/amm/PageHeader'
-import PositionFeeAndShare from '~/components/amm/position/PositionFeeAndShare'
+import PositionFeeAndShare from '~/components/amm/Position/PositionFeeAndShare'
 
 import {
   tryParsePrice,
