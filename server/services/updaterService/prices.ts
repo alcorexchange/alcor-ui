@@ -9,19 +9,23 @@ const redis = createClient()
 export async function updateSystemPrice(network: Network) {
   if (!redis.isOpen) await redis.connect()
 
-  const { data } = await axios.get(
-    'https://api.coingecko.com/api/v3/simple/price',
-    {
-      params: {
-        ids: network.name,
-        vs_currencies: 'usd',
-      },
-    }
-  )
+  try {
+    const { data } = await axios.get(
+      'https://api.coingecko.com/api/v3/simple/price',
+      {
+        params: {
+          ids: network.name,
+          vs_currencies: 'usd',
+        },
+      }
+    )
 
-  const price = data[network.name].usd
-  redis.set(`${network.name}_price`, String(price))
-  console.log(`Updated ${network.name} price: `, price)
+    const price = data[network.name].usd
+    redis.set(`${network.name}_price`, String(price))
+    console.log(`Updated ${network.name} price: `, price)
+  } catch (e) {
+    console.error('SYSTEM PRICE UPDATE FAILED!', network.name, e)
+  }
 }
 
 // system token and their USD prices
