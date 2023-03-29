@@ -109,7 +109,7 @@
                 .p-1
                   swap-route(:route="route")
     AuthOnly.w-100.mt-2
-      AlcorButton.w-100.submit(@click="submit" big access) Swap WAX to BRWL
+      AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
 </template>
 
 <script>
@@ -183,6 +183,14 @@ export default {
       if (impact >= 3) return 'yellow'
       if (impact < 3) return 'green'
       return ''
+    },
+    renderSubmitText() {
+      if (!this.tokenA || !this.tokenB) return 'Select Token'
+      else if (!this.amountA || !this.amountB) return 'Enter Amount'
+      else return `Swap ${this.tokenA.symbol} to ${this.tokenB.symbol}`
+    },
+    canSubmit() {
+      return this.tokenA && this.tokenB && this.amountA && this.amountB
     },
     ...mapState(['user', 'network']),
     ...mapGetters('amm', ['slippage', 'pools']),
@@ -447,6 +455,12 @@ export default {
 }
 .submit {
   font-weight: 500;
+  &.disabled {
+    background: var(--btn-default) !important;
+    color: #636366 !important;
+    border-color: var(--btn-default) !important;
+    filter: none !important;
+  }
 }
 .submit:hover{
   background: var(--main-green) !important;
