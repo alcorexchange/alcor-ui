@@ -909,6 +909,8 @@ export default {
 .add-liquidity-component {
   --border-1: 1px solid rgba(40, 40, 40, 0.36);
   --border-1-color: rgba(40, 40, 40, 0.36);
+  --border-2: 2px solid rgb(90, 90, 90, 0.8);
+  --border-2-color: rgb(90, 90, 90, 0.8);
   padding: 14px !important;
   .main-section{
     display: grid;
