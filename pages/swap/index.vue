@@ -3,10 +3,8 @@
   SwapWidget.swap-widget-container(@onChartClick="onChart")
 
   client-only
-    transition(name="width")
-      //- Show when both tokens are present
-      //- .chart-container(v-if="tokenA && tokenB")
-      SwapChart(v-if="showChart")
+    .chart-container(v-if="showChart")
+      SwapChart()
 </template>
 
 <script>
@@ -49,11 +47,7 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 0;
-  &.showChart {
-    gap: 8px;
-  }
-  transition: gap 0.1s;
+  gap: var(--amm-space-1);
 }
 .swap-widget-container {
   max-width: 450px;
@@ -61,13 +55,6 @@ export default {
 </style>
 <style lang="scss">
 .chart-container{
-  transition: all 0.1s;
-  overflow: hidden;
   flex: 1;
-}
-.width-enter,
-.width-leave-to {
-  flex: 0.001;
-  opacity: 0;
 }
 </style>

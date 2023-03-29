@@ -409,7 +409,7 @@ export default {
 
 <style lang="scss" scoped>
 .swap-widget {
-  width: 450px;
+  width: 100%;
 }
 .bottom-icon {
   background: var(--btn-default);
