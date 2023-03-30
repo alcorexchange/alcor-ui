@@ -26,6 +26,11 @@
       //- 2 end
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
+        pre
+        | depositADisabled: {{ depositADisabled }}
+        | depositBDisabled: {{ depositBDisabled }}
+        | amountA: {{ amountA }}
+        | amountB: {{ amountB }}
         AuthOnly.w-100
           AlcorButton.submit(@click='submit',:class='{ disabled: sumbitButton.state }' :disabled="sumbitButton.state") {{ sumbitButton.text }}
       //- 3 end
@@ -159,6 +164,7 @@ import {
   Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
   TickMath, Rounding, priceToClosestTick, tickToPrice, Fraction
 } from '~/assets/libs/swap-sdk'
+import { isSorted } from '~/assets/libs/swap-sdk/utils/isSorted'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 
@@ -255,14 +261,13 @@ export default {
     },
 
     sumbitButton() {
-      const { depositADisabled, depositBDisabled, amountA, amountB } = this
+      const { depositADisabled, depositBDisabled, amountA, amountB, isSorted } = this
 
       if (
-        (depositADisabled && amountB) ||
-        (depositBDisabled && amountA) ||
+        (depositADisabled && isSorted ? amountB : amountA) ||
+        (depositBDisabled && isSorted ? amountA : amountB) ||
         (amountA && amountB)
       ) return { state: false, text: 'Add Liquidity' }
-
       return { state: true, text: 'Enter Amount' }
     },
 
