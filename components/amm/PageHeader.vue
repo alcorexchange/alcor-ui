@@ -5,8 +5,6 @@
   .end
     slot(name='end')
       .d-flex.gap-2.align-items-center
-        AlcorButton.p-0(iconOnly flat)
-          i.el-icon-refresh.pointer.fs-18(@click="$emit('refresh')")
         Settings
 </template>
 
