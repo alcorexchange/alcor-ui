@@ -260,7 +260,7 @@ export default {
         (amountA && amountB)
       ) return { state: false, text: 'Add Liquidity' }
 
-      return { state: false, text: 'Add Liquidity' }
+      return { state: true, text: 'Enter amount' }
     },
 
     renderError() {
