@@ -37,14 +37,15 @@
       el-collapse(:value="routerCollapse").default
         el-collapse-item(name="1")
           template(#title)
-            .d-flex.align-items-center.gap-8.py-1(v-if="loading")
-              i.el-icon-loading.el-icon-refresh.h-fit
-              .fs-12.disable Fetching Best price...
-            .d-flex.align-items-center.gap-8.py-1(v-else)
-              .disable.fs-12 Rate
-              .d-flex.gap-4
-                .fs-12 {{ rate }} {{ tokenB.symbol }} per {{ tokenA.symbol}}
-                .fs-12.disable (0.00$)
+            .rate-container(@click.prevent.stop="onRateClick")
+              .d-flex.align-items-center.gap-8.py-1(v-if="loading")
+                i.el-icon-loading.el-icon-refresh.h-fit
+                .fs-12.disable Fetching Best price...
+              .d-flex.align-items-center.gap-8.py-1(v-else)
+                .disable.fs-12 Rate
+                .d-flex.gap-4
+                  .fs-12 {{ rate }} {{ rateInverted ? tokenA.symbol : tokenB.symbol }} per {{ rateInverted ? tokenB.symbol : tokenA.symbol}}
+                  .fs-12.disable (0.00$)
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
               .fs-12.disable Expected Output
@@ -157,7 +158,9 @@ export default {
     route: null,
 
     routerCollapse: ['1'],
-    lastField: 'input' // might be input/output
+    lastField: 'input', // might be input/output
+
+    rateInverted: false
   }),
 
   fetch() {
@@ -334,7 +337,7 @@ export default {
 
     // TODO Refactor into one function
     async calcInput(value) {
-      const { tokenA, tokenB, slippage } = this
+      const { tokenA, tokenB, slippage, rateInverted } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
 
@@ -358,14 +361,14 @@ export default {
       this.expectedOutput = inputAmount.toAsset()
 
       this.route = JSON.parse(JSON.stringify(route))
-      this.rate = executionPrice.toSignificant(6)
+      this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
       this.miniumOut = best.minimumAmountOut(slippage).toFixed()
       this.lastField = 'output'
     },
 
     async calcOutput(value) {
-      const { tokenA, tokenB, slippage } = this
+      const { tokenA, tokenB, slippage, rateInverted } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
 
@@ -389,10 +392,15 @@ export default {
       this.expectedOutput = outputAmount.toAsset()
 
       this.route = JSON.parse(JSON.stringify(route))
-      this.rate = executionPrice.toSignificant(6)
+      this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
       this.miniumOut = best.minimumAmountOut(slippage).toFixed()
       this.lastField = 'input'
+    },
+    onRateClick() {
+      console.log('on rate click')
+      this.rateInverted = !this.rateInverted
+      this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcOutput(this.amountB)
     }
   }
 }
