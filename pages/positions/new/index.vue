@@ -1,5 +1,6 @@
 <template lang="pug">
 // TODO Handle no position found
+// TODO Handle existing position range
 .row.justify-content-center
   AlcorContainer.add-liquidity-component.w-100
     PageHeader(title="Add Liquidity")
@@ -183,7 +184,6 @@ export default {
   // Enabling managige route in nested component
   fetch({ route, redirect, store }) {
     const { left, right } = route.query || {}
-    console.log({ left, right })
     store.commit('amm/liquidity/setTokenA', null)
     store.commit('amm/liquidity/setTokenB', null)
     if (left) {
