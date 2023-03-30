@@ -26,13 +26,8 @@
       //- 2 end
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
-        pre
-        | depositADisabled: {{ depositADisabled }}
-        | depositBDisabled: {{ depositBDisabled }}
-        | amountA: {{ amountA }}
-        | amountB: {{ amountB }}
         AuthOnly.w-100
-          AlcorButton.submit(@click='submit',:class='{ disabled: sumbitButton.state }' :disabled="sumbitButton.state") {{ sumbitButton.text }}
+          AlcorButton.submit(@click='submit',:class='{ disabled: submitDisabled.state }' :disabled="submitDisabled.state") {{ submitDisabled.text }}
       //- 3 end
 
       //- 4 start end is end of page
@@ -121,7 +116,6 @@
           i.el-icon-warning-outline.fs-24
           .message.fs-14 {{ renderError.text }}
         PositionFeeAndShare(v-else)
-  // TODO ROUTES MANAGEMENT
   nuxt-child
 
 </template>
@@ -129,8 +123,6 @@
 <script>
 import JSBI from 'jsbi'
 import { mapActions, mapState, mapGetters } from 'vuex'
-import { asset } from 'eos-common'
-
 
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -259,17 +251,14 @@ export default {
       ]
     },
 
-    sumbitButton() {
-      const { depositADisabled, depositBDisabled, outOfRange, amountA, amountB } = this
+    submitDisabled() {
+      const { inputADisabled, inputBDisabled, amountA, amountB } = this
 
       if (
-        depositADisabled && depositBDisabled
-      ) return { state: true, text: 'Enter Amount' }
-      if (
-        (outOfRange && depositADisabled && !amountB) ||
-        (outOfRange && depositBDisabled && !amountA) ||
-        (!amountA && !amountB)
-      ) return { state: true, text: 'Enter Amount' }
+        (inputADisabled && amountB) ||
+        (inputBDisabled && amountA) ||
+        (amountA && amountB)
+      ) return { state: false, text: 'Add Liquidity' }
 
       return { state: false, text: 'Add Liquidity' }
     },
@@ -470,10 +459,6 @@ export default {
     }
   },
 
-  mounted() {
-    this.init()
-  },
-
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
 
@@ -531,19 +516,9 @@ export default {
       this.onInputAmountA(this.amountA)
     },
 
-    init() {
-
-      //this.parseUrlParams()
-      //this.checkPosition()
-
-      //this.tokenA = this.tokens[1]
-      //this.tokenB = this.tokens[2]
-    },
-
     onInputAmountA(value) {
       if (!value) return this.amountB = null
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
-      console.log({ dependentAmount })
       if (dependentAmount) {
         this.amountB = dependentAmount.toFixed()
         console.log(dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_UP), dependentAmount.toFixed())
@@ -892,6 +867,7 @@ export default {
       onRightRangeInput(rightPrice.toFixed(5))
     },
   },
+
   watch: {
     tokenA(token) {
       setTimeout(() => {

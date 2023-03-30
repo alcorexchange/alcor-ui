@@ -92,10 +92,7 @@ export const actions = {
     })
   },
 
-  logout({ state, dispatch, commit, getters, rootState }) {
-    console.log('logout..')
-    state.wallet.logout()
-    commit('setLastWallet', null)
+  unsubscribeToAccountPushes({ rootState }) {
     this.$socket.emit('unsubscribe', {
       room: 'account',
       params: {
@@ -103,6 +100,14 @@ export const actions = {
         name: rootState.user.name
       }
     })
+  },
+
+  logout({ state, dispatch, commit, getters, rootState }) {
+    console.log('logout..')
+    state.wallet.logout()
+    commit('setLastWallet', null)
+
+    dispatch('unsubscribeToAccountPushes')
 
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
