@@ -84,7 +84,7 @@
         .pre-defined-ranges.mt-2(v-mutted="!price")
           AlcorButton.item(bordered v-for="range in priceRangeItems" @click="onPreDefinedRangeSelect(range)") {{ range.text }}
 
-        //PositionFeeAndShare.mt-3.mb-3
+        PositionFeeAndShare(:positionLiquidity="positionLiquidity" :pool="pool").mt-3.mb-3
 
         .min-max-price.d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
@@ -217,7 +217,8 @@ export default {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       }),
 
-      disabledMessage: 'The market price is outside your specified price range. Single-asset deposit only.'
+      disabledMessage: 'The market price is outside your specified price range. Single-asset deposit only.',
+      positionLiquidity: '0'
     }
   },
 
@@ -519,15 +520,21 @@ export default {
     },
 
     onInputAmountA(value) {
-      if (!value) return this.amountB = null
-      const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
-      if (dependentAmount) {
-        this.amountB = dependentAmount.toFixed()
-        console.log(dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_UP), dependentAmount.toFixed())
+      if (!value) {
+        this.positionLiquidity = '0'
+        return this.amountB = null
       }
+
+      const dependentAmount = this.getDependedAmount(value, 'CURRENCY_A')
+      if (dependentAmount) this.amountB = dependentAmount.toFixed()
     },
 
     onInputAmountB(value) {
+      if (!value) {
+        this.positionLiquidity = '0'
+        return this.amountA = null
+      }
+
       const dependentAmount = this.getDependedAmount(value, 'CURRENCY_B')
       if (dependentAmount) this.amountA = dependentAmount.toFixed(undefined, undefined, Rounding.ROUND_DOWN)
     },
@@ -559,6 +566,7 @@ export default {
       ) {
         // if price is out of range or invalid range - return 0 (single deposit will be independent)
         if (outOfRange || invalidRange) {
+          this.positionLiquidity = '0'
           return undefined
         }
 
@@ -580,9 +588,15 @@ export default {
             amountB: independentAmount.quotient,
           })
 
-        const dependentTokenAmount = independentAmount.currency.equals(pool.tokenA)
-          ? position.amountB
-          : position.amountA
+        let dependentTokenAmount = null
+
+        if (independentAmount.currency.equals(pool.tokenA)) {
+          dependentTokenAmount = position.amountB
+        } else {
+          dependentTokenAmount = position.amountA
+        }
+
+        this.positionLiquidity = position.liquidity.toString()
 
         return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
       }
