@@ -84,6 +84,8 @@
         .pre-defined-ranges.mt-2(v-mutted="!price")
           AlcorButton.item(bordered v-for="range in priceRangeItems" @click="onPreDefinedRangeSelect(range)") {{ range.text }}
 
+        //PositionFeeAndShare.mt-3.mb-3
+
         .min-max-price.d-flex.gap-8.mt-2.justify-content-center
           InputStepCounter(
             :value="leftRangeValue"
@@ -115,7 +117,7 @@
         .error-container(v-if="renderError" :class="renderError.colorClass")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 {{ renderError.text }}
-        PositionFeeAndShare(v-else)
+        //PositionFeeAndShare(v-else)
   nuxt-child
 
 </template>
