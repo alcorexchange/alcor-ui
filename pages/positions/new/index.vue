@@ -26,11 +26,6 @@
       //- 2 end
       //- 3 start
       .section-3(v-mutted="!tokenA || !tokenB")
-        pre
-        | depositADisabled: {{ depositADisabled }}
-        | depositBDisabled: {{ depositBDisabled }}
-        | amountA: {{ amountA }}
-        | amountB: {{ amountB }}
         AuthOnly.w-100
           AlcorButton.submit(@click='submit',:class='{ disabled: submitDisabled.state }' :disabled="submitDisabled.state") {{ submitDisabled.text }}
       //- 3 end
@@ -121,7 +116,6 @@
           i.el-icon-warning-outline.fs-24
           .message.fs-14 {{ renderError.text }}
         PositionFeeAndShare(v-else)
-  // TODO ROUTES MANAGEMENT
   nuxt-child
 
 </template>
@@ -129,8 +123,6 @@
 <script>
 import JSBI from 'jsbi'
 import { mapActions, mapState, mapGetters } from 'vuex'
-import { asset } from 'eos-common'
-
 
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
