@@ -164,7 +164,6 @@ import {
   Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
   TickMath, Rounding, priceToClosestTick, tickToPrice, Fraction
 } from '~/assets/libs/swap-sdk'
-import { isSorted } from '~/assets/libs/swap-sdk/utils/isSorted'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 
@@ -261,14 +260,18 @@ export default {
     },
 
     sumbitButton() {
-      const { depositADisabled, depositBDisabled, amountA, amountB, isSorted } = this
+      const { depositADisabled, depositBDisabled, outOfRange, amountA, amountB } = this
 
       if (
-        (depositADisabled && isSorted ? amountB : amountA) ||
-        (depositBDisabled && isSorted ? amountA : amountB) ||
-        (amountA && amountB)
-      ) return { state: false, text: 'Add Liquidity' }
-      return { state: true, text: 'Enter Amount' }
+        depositADisabled && depositBDisabled
+      ) return { state: true, text: 'Enter Amount' }
+      if (
+        (outOfRange && depositADisabled && !amountB) ||
+        (outOfRange && depositBDisabled && !amountA) ||
+        (!amountA && !amountB)
+      ) return { state: true, text: 'Enter Amount' }
+
+      return { state: false, text: 'Add Liquidity' }
     },
 
     renderError() {
