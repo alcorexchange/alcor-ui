@@ -135,6 +135,7 @@ export const actions = {
     const ITEMS_PER_PAGE = 2
     const skip = (page - 1) * ITEMS_PER_PAGE
     const owner = rootState.user?.name
+    if (!owner) return
     const [position, swap] = await axios.all([
       this.$axios.get('/v2/account/' + owner + '/positions-history', {
         params: {
