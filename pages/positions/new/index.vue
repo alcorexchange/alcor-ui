@@ -193,8 +193,12 @@ export default {
     if (right) {
       store.commit('amm/liquidity/setTokenB', { id: right })
     }
+
+    store.dispatch('amm/liquidity/setDefaultTokenA')
+
     if (route.path == '/add-liquidity') redirect('/add-liquidity/')
   },
+  fetchOnServer: false,
 
   data() {
     return {
