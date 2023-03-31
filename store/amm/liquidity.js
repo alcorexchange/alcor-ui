@@ -19,13 +19,12 @@ export const actions = {
     //await dispatch('fetchPairs')
     //await dispatch('fetchCoins')
   },
+
   setDefaultTokenA({ state, commit, getters, rootState }) {
     const { tokenA, tokenB } = state
 
-    const { contract, symbol } = rootState.network.baseToken
-    const baseToken = getters.tokens.find(t => t.symbol == symbol && t.contract == contract)
-
-    console.log({ baseToken }, rootState.network.baseToken)
+    const { contract, symbol, precision } = rootState.network.baseToken
+    const baseToken = new Token(contract, precision, symbol, symbol.toLowerCase() + '-' + contract)
 
     if (!tokenA && ((!tokenB) || (tokenB && baseToken && baseToken.id == tokenB.id))) {
       commit('setTokenA', baseToken)

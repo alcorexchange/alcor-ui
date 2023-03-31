@@ -86,6 +86,16 @@ const playOrderMatchSound = debounce(() => {
 const loadOrdersDebounce = {}
 
 export const actions = {
+  // TODO
+  // async nuxtServerInit({ dispatch }) {
+  //   try {
+  //     // TODO Make sure dns cached (it's server call)
+  //     await dispatch('loadAllTokens')
+  //   } catch (e) {
+  //     console.error('SERVER API CALL ERR (loadAllTokens)', e)
+  //   }
+  // },
+
   init({ dispatch, state, getters }) {
     dispatch('loadAllTokens')
     dispatch('fetchEosAirdropTokens')
@@ -201,7 +211,7 @@ export const actions = {
     if (account) commit('setAccountLimits', account)
   },
 
-  async loadAllTokens({ state, commit, getters, dispatch }) {
+  async loadAllTokens({ commit }) {
     const { data: tokens } = await this.$axios.get('/v2/tokens')
     commit('setTokens', tokens)
   },
