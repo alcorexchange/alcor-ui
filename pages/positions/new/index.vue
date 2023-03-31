@@ -113,12 +113,10 @@
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
-      .section-5(v-if="tokenA && tokenB")
-        //- tip: for yellow color add `is-warning` class
+      .section-5
         .error-container(v-if="renderError" :class="renderError.colorClass")
           i.el-icon-warning-outline.fs-24
           .message.fs-14 {{ renderError.text }}
-        //PositionFeeAndShare(v-else)
   nuxt-child
 
 </template>
@@ -943,7 +941,7 @@ export default {
       "tokenSelect range"
       "amounts range"
       "submit range"
-      "submit info";
+      "info info";
     gap: var(--amm-space-3);
     row-gap: var(--amm-space-2);
   }
