@@ -224,7 +224,7 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapGetters('amm', ['slippage']),
+    ...mapGetters('amm', ['slippage', 'positions']),
     ...mapGetters('amm/liquidity', [
       'tokenA',
       'tokenB',
@@ -236,6 +236,12 @@ export default {
       'sortedB',
       'currnetPools',
     ]),
+
+    existingPosition() {
+      const { positions, tickLower, tickUpper } = this
+
+      return positions.find(p => p.tickLower == tickLower && p.tickUpper == tickUpper)
+    },
 
     fees() {
       const { currnetPools } = this
@@ -271,8 +277,14 @@ export default {
         text: 'Invalid range selected. The min price must be lower than the max price.',
         colorClass: ''
       }
+
       if (this.outOfRange) return {
         text: 'Your position will not earn fees or be used in trades until the market price moves into your range.',
+        colorClass: 'is-warning'
+      }
+
+      if (this.existingPosition) return {
+        text: 'You already have a position with this range. The liquidity in the existing position will be increased.',
         colorClass: 'is-warning'
       }
       return false
@@ -641,10 +653,6 @@ export default {
     //  },
     //  [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
     //)
-
-    existingPosition() {
-      // TODO Warning on existing position
-    },
 
     onLeftRangeInput(value) {
       this.leftRangeTypedValue = value // To trigger computed to calc price and after update with corrected
