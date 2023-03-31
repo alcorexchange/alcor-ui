@@ -27,7 +27,7 @@ export const actions = {
 
     console.log({ baseToken }, rootState.network.baseToken)
 
-    if (!tokenA && ((!tokenB) || (tokenB && baseToken && baseToken.contract == tokenB.contract && baseToken.symbol == tokenB.symbol))) {
+    if (!tokenA && ((!tokenB) || (tokenB && baseToken && baseToken.id == tokenB.id))) {
       commit('setTokenA', baseToken)
     }
   },
