@@ -66,7 +66,12 @@
         @setBrushExtent="setBrushExtent"
         :westHandleColor="westHandleColor"
         :eastHandleColor="eastHandleColor")
-
+    svg(width="14" height="14" viewBox="0 0 20 20" style="fill: var(--text-disable)" :x="width - 14" :y="height - 16")
+      path(d="M10.296 7.71 14.621 12l-4.325 4.29 1.408 1.42L17.461 12l-5.757-5.71z")
+      path(d="M6.704 6.29 5.296 7.71 9.621 12l-4.325 4.29 1.408 1.42L12.461 12z")
+    svg(width="14" height="14" viewBox="0 0 20 20" style="fill: var(--text-disable)" :x="0" :y="height - 16")
+      path(d="m12.707 7.707-1.414-1.414L5.586 12l5.707 5.707 1.414-1.414L8.414 12z")
+      path(d="M16.293 6.293 10.586 12l5.707 5.707 1.414-1.414L13.414 12l4.293-4.293z")
 </template>
 
 <script>
