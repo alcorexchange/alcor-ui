@@ -44,6 +44,7 @@
     el-table-column(:label='$t("Time")' align="right" class-name="time")
       template(slot-scope='{row}') {{ row.time | moment('YYYY-MM-DD HH:mm') }}
 
+  infinite-loading(@infinite='loadMore' v-if="canInfinite" :identifier="$store.state.user")
   //div(@click="loadMore" v-if="hasMore") Load More
 </template>
 
@@ -58,11 +59,16 @@ export default {
   data: () => ({
     filter: 'all',
     page: 1,
-    hasMore: true
+    canInfinite: false
   }),
 
   mounted() {
-    this.$store.dispatch('amm/fetchPositionsHistory')
+    this.$store.commit('amm/setHistory', [])
+    this.loadMore({
+      loaded: () => {},
+      complete: () => {},
+      reset: () => {}
+    })
   },
 
   computed: {
@@ -96,12 +102,20 @@ export default {
     onInfiniteScroll() {
       console.log('onInfiniteScroll')
     },
-    async loadMore() {
-      this.page++
+    async loadMore($state) {
+      console.log('load more', this.page)
       const data = await this.$store.dispatch('amm/fetchPositionsHistory', {
         page: this.page
       })
-      if (!data.length) this.hasMore = false
+      this.canInfinite = true
+      if (data) this.page++
+      if (data && data.length) $state.loaded()
+      else $state.complete()
+    }
+  },
+  watch: {
+    "$store.state.user"() {
+      this.page = 1
     }
   }
 }

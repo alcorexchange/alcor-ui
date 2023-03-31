@@ -132,7 +132,7 @@ export const actions = {
     commit('setPositions', positions)
   },
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
-    const ITEMS_PER_PAGE = 2
+    const ITEMS_PER_PAGE = 20
     const skip = (page - 1) * ITEMS_PER_PAGE
     const owner = rootState.user?.name
     if (!owner) return
