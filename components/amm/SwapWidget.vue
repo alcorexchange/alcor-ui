@@ -108,7 +108,7 @@
 
                     i.el-icon-plus
                 .p-1
-                  swap-route(:route="route")
+                  SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
 </template>
