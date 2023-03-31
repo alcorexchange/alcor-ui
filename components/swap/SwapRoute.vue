@@ -6,14 +6,16 @@
     .line
     .node.mx-2 100%
     .w-100.d-flex.justify-content-around
-      .node.d-flex.align-items-center.gap-8(v-for="{fee, tokenA, tokenB} in route.pools")
-        pair-icons(
-          :token1="{ symbol: tokenA.symbol, contract: tokenA.contract}"
-          :token2="{ symbol: tokenB.symbol, contract: tokenB.contract}"
-          size="24"
-          direction="row"
-        )
-        .fs-12.ml-3 {{ fee / 10000 }}%
+        template(v-for="{fee, tokenA, tokenB} in route.pools")
+          el-tooltip(:content="`${tokenA.symbol}/${tokenB.symbol} ${fee / 10000}% pool`")
+            .node.d-flex.align-items-center.gap-8
+              pair-icons(
+                :token1="{ symbol: tokenA.symbol, contract: tokenA.contract}"
+                :token2="{ symbol: tokenB.symbol, contract: tokenB.contract}"
+                size="24"
+                direction="row"
+              )
+              .fs-12.ml-3 {{ fee / 10000 }}%
 
   token-image(:src="$tokenLogo(route.output.symbol, route.output.contract)" height="24")
 
