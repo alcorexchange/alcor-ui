@@ -20,10 +20,12 @@
       @tokenSelected="setTokenA"
       :show-max-button="false"
     )
+
     .w-100.position-relative
       .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos
         .bottom-icon(@click="toggleTokens")
           i.el-icon-bottom.text-center.fs-20.pointer
+
     PoolTokenInput.mt-1(
       label="Buy"
       :token="tokenB"
@@ -349,7 +351,15 @@ export default {
       const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
       if (!currencyAmountOut) return this.amountA = null
 
-      const [best] = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+      const routes = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+
+      const [best] = routes
+
+      // routes.forEach(r => {
+      //   console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
+      // })
+
+      console.log({ routes })
 
       if (!best) {
         // TODO clear tokenB
@@ -380,7 +390,13 @@ export default {
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
       if (!currencyAmountIn) return this.amountB = null
 
-      const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      const routes = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+
+      // routes.forEach(r => console.log(r.inputAmount.toFixed()))
+      // console.log(routes)
+
+      const [best] = routes
 
       if (!best) {
         // TODO clear tokenB
