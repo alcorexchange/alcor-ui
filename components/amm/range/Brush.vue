@@ -265,6 +265,6 @@ export default {
 .Tooltip {
   text-anchor: middle;
   font-size: 13px;
-  fill: white;
+  fill: currentColor;
 }
 </style>
