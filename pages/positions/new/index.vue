@@ -7,19 +7,19 @@
     .main-section.mt-2
       //- 1 start
       .section-1
-        .fs-16.disable.mb-2 Select Pool
+        .position-section-title.disable.mb-2 Select Pool
 
         .d-flex.mt-1.gap-10
           SelectToken2(:token="tokenA" :tokens="tokens" @selected="setTokenA").custom-select-token
           SelectToken2(:token="tokenB" :tokens="tokens" @selected="setTokenB").custom-select-token
 
         div(v-mutted="!tokenA || !tokenB")
-          .disable.mt-3.mb-2 Fee Tier
+          .position-section-title.disable.mt-3.mb-2 Fee Tier
           CommissionSelect(:selected="feeAmount" :options="fees" @change="changeFee")
       //- 1 end
       //- 2 start
       .section-2(v-mutted="!tokenA || !tokenB || !price || !tickLower || !tickUpper")
-        .fs-16.disable Deposit
+        .position-section-title.disable Deposit
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
             :disabledMessage="disabledMessage" :locked="true" label="Token 1").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled"
@@ -36,7 +36,7 @@
         template(v-if="!pool")
           .d-flex.flex-column.gap-10
             .d-flex.justify-content-between
-              .fs-16.disable Set Starting Price
+              .position-section-title.disable Set Starting Price
               AlcorSwitch(
                 v-if='tokenA && tokenB',
                 @toggle='toggleTokens',

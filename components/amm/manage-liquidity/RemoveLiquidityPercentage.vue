@@ -156,11 +156,22 @@ export default {
 </script>
 
 <style lang="scss">
+.remove-liquidity-percentage {
+  border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  transition: border-color 0.3s;
+  &:hover {
+    border: 1px solid var(--border-2-color) !important;
+  }
+}
 .percentage{
   font-weight: bold;
 }
 .slider-buy{
   padding: 0 18px;
+  .el-slider__marks-text {
+    font-size: 12px
+  }
 }
 </style>
 

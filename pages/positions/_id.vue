@@ -189,7 +189,7 @@ export default {
   }
   .separator{
     width: 100%;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-1-color);
   }
   .info{
     background-color: var(--selector-bg) !important;

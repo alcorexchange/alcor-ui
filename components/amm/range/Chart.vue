@@ -1,7 +1,7 @@
 <template lang="pug">
 .add-liquidity-chart
   .chart-header.d-flex.mb-2
-    .fs-18.disable {{ title }}
+    .position-section-title.disable {{ title }}
     .zoom-container
       Zoom(
         name="header"
