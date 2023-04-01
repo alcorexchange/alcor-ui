@@ -25,7 +25,8 @@ export default {
 
 <style scoped lang="scss">
 .page-header {
-  border-bottom: 1px solid var(--border-color);
+  --border-1-color: rgba(60, 60, 67, 0.36);
+  border-bottom: 1px solid var(--border-1-color);
   gap: 8px;
   > * {
     flex: 1;
