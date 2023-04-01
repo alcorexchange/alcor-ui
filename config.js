@@ -946,7 +946,7 @@ module.exports = {
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
   IBC_NETWORKS: [networks.eos, networks.telos, networks.ux],
-  NFT_LIST_ITEM_PP: 2,
+  NFT_LIST_ITEM_PP: 8,
 
   networks
 }

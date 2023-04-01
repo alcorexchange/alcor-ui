@@ -12,6 +12,7 @@
       :rounded='true'
     )
     MarketAuctionCard(v-if="auctions" v-for="item in auctions" :key="item.asset_id" :data="item" :ownerName="item.seller")
+  infinite-loading(@infinite='getAuctions' v-if="canInfinite" :identifier="$route.query")
 </template>
 
 <script>
@@ -22,23 +23,44 @@ import MarketAuctionCard from '~/components/cards/MarketAuctionCard'
 export default {
   components: { MarketAuctionCard, VueSkeletonLoader },
   data: () => ({
-    auctions: null,
-    debounce: null
+    auctions: [],
+    loading: false,
+    page: 1,
+    canInfinite: false
   }),
   watch: {
     '$route.query'() {
-      this.getAuctions()
+      this.page = 1
+      this.getAuctions({
+        loaded: () => { },
+        complete: () => { }
+      })
     }
   },
   mounted() {
-    this.getAuctions()
+    this.getAuctions({
+      loaded: () => { },
+      complete: () => { }
+    })
   },
   methods: {
     ...mapActions('api', ['getAuctionData', 'getBuyOffers']),
-    async getAuctions() {
-      this.auctions = await this.getAuctionData({
+    async getAuctions($state) {
+      if (this.page == 1) this.loading = true
+      const res = await this.getAuctionData({
         ...this.$route.query
       })
+      this.auctions = this.page == 1 ? res : [...this.auctions, ...(res || [])]
+      this.page++
+      this.canInfinite = true
+      this.loading = false
+      if (res && res.length) {
+        $state.loaded()
+      } else if (res && !res.length) {
+        $state.complete()
+      } else if (!res) {
+        $state.error()
+      }
     }
   }
 }

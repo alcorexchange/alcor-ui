@@ -99,9 +99,6 @@ export default {
     onRowClick({ trx_id }) {
       window.open(this.monitorTx(trx_id), '_blank')
     },
-    onInfiniteScroll() {
-      console.log('onInfiniteScroll')
-    },
     async loadMore($state) {
       console.log('load more', this.page)
       const data = await this.$store.dispatch('amm/fetchPositionsHistory', {

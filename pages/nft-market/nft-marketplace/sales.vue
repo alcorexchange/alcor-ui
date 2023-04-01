@@ -13,6 +13,7 @@
     )
   .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25(v-else)
     MarketSaleCard(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="item.seller")
+  infinite-loading(@infinite='getListings' v-if="canInfinite" :identifier="$route.query")
 </template>
 
 <script>
@@ -23,25 +24,45 @@ import MarketSaleCard from '~/components/cards/MarketSaleCard'
 export default {
   components: { MarketSaleCard, VueSkeletonLoader },
   data: () => ({
-    listings: null,
-    loading: false
+    listings: [],
+    loading: false,
+    page: 1,
+    canInfinite: false
   }),
   watch: {
     '$route.query'() {
-      this.getListings()
+      this.page = 1
+      this.getListings({
+        loaded: () => { },
+        complete: () => { }
+      })
     }
   },
   mounted() {
-    this.getListings()
+    this.getListings({
+      loaded: () => { },
+      complete: () => { }
+    })
   },
   methods: {
     ...mapActions('api', ['getSales', 'getBuyOffers']),
-    async getListings() {
-      this.loading = true
-      this.listings = await this.getSales({
+    async getListings($state) {
+      console.log('get listings, page:', this.page)
+      if (this.page == 1) this.loading = true
+      const res = await this.getSales({
         ...this.$route.query
       })
+      this.listings = this.page == 1 ? res : [...this.listings, ...(res || [])]
+      this.page++
+      this.canInfinite = true
       this.loading = false
+      if (res && res.length) {
+        $state.loaded()
+      } else if (res && !res.length) {
+        $state.complete()
+      } else if (!res) {
+        $state.error()
+      }
     }
   }
 }
