@@ -347,8 +347,8 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [742, 162],
-    BANNER_MARKETS: [742],
+    PINNED_MARKETS: [231, 162],
+    BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
