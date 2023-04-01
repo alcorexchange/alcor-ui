@@ -196,7 +196,6 @@ export default {
 
     if (route.path == '/add-liquidity') redirect('/add-liquidity/')
   },
-  fetchOnServer: false,
 
   data() {
     return {
