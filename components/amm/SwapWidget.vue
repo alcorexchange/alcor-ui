@@ -483,6 +483,10 @@ export default {
     border: 1px solid var(--border-color) !important;
   }
 }
+.rate-container {
+  user-select: none;
+  color: var(--text-default);
+}
 </style>
 <style lang="scss">
 .theme-light{
