@@ -181,11 +181,11 @@ export default {
 
   computed: {
     priceImpactStyle() {
-      const impact = parseInt(this.priceImpact.replace('%', ''))
-      if (impact >= 5) return 'red'
-      if (impact >= 3) return 'yellow'
-      if (impact < 3) return 'green'
-      return ''
+      const impact = parseFloat(this.priceImpact.replace('%', ''))
+      if (impact < 0) return 'red'
+      if (impact <= 3) return 'green'
+      if (impact <= 5) return 'yellow'
+      return 'red'
     },
     renderSubmitText() {
       if (!this.tokenA || !this.tokenB) return 'Select Tokens'
