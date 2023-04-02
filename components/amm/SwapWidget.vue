@@ -16,7 +16,7 @@
       :token="tokenA"
       :tokens="tokens"
       v-model="amountA"
-      @input="calcOutput"
+      @input="calcOutputDebounced"
       @tokenSelected="setTokenA"
       :show-max-button="false"
     )
@@ -31,7 +31,7 @@
       :token="tokenB"
       :tokens="tokens"
       v-model="amountB"
-      @input="calcInput"
+      @input="calcInputDebounced"
       @tokenSelected="setTokenB"
     )
 
@@ -119,6 +119,7 @@
 // TODO DEBOUINCE FOR INPUTS
 // https://stackoverflow.com/questions/42199956/how-to-implement-debounce-in-vue2
 
+import { debounce } from 'lodash'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import { mapState, mapActions, mapGetters } from 'vuex'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -335,10 +336,38 @@ export default {
         })
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
+      console.log('SWAP: ', r)
     },
+
+    calcInputDebounced: debounce(function(value) {
+      this.loading = true
+      setTimeout(() => {
+        try {
+          this.calcInput(value)
+        } catch (e) {
+          console.error('calcOutput', e)
+        } finally {
+          this.loading = false
+        }
+      }, 0)
+    }, 500),
+
+    calcOutputDebounced: debounce(function(value) {
+      this.loading = true
+      setTimeout(() => {
+        try {
+          this.calcOutput(value)
+        } catch (e) {
+          console.error('calcOutput', e)
+        } finally {
+          this.loading = false
+        }
+      }, 0)
+    }, 500),
 
     // TODO Refactor into one function
     async calcInput(value) {
+      console.log('calcInput')
       const { tokenA, tokenB, slippage, rateInverted } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
