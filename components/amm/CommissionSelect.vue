@@ -3,7 +3,7 @@
   .fee.d-flex.flex-column.gap-10.justify-content-between.align-items-start.p-2.br-8.border-hover(
     :class="{ 'border-active': selected == fee.value }"
     v-for="fee in options"
-    @click="$emit('change', fee.value)"
+    @click="onItemClick(fee)"
   )
     i.check-icon.el-icon-circle-check(v-if="selected == fee.value")
     .fs-18 {{ fee.value / 10000 }}%
@@ -23,6 +23,9 @@ export default {
       if (fee.selectedPercent < 1) return `var(--main-red)`
       if (fee.selectedPercent > 50) return `var(--main-green)`
       return `var(--text-default)`
+    },
+    onItemClick(fee) {
+      if (this.selected != fee.value) this.$emit('change', fee.value)
     }
   }
 }
