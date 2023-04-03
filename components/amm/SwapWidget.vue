@@ -72,8 +72,9 @@
                 :rounded='true',
               )
               .price-impact.fs-12(v-else :style="priceImpactStyle && { color: `var(--main-${priceImpactStyle})` }") {{ priceImpact }}
+
           .d-flex.flex-column.gap-4
-            .d-flex.justify-content-between.align-items-center
+            .d-flex.justify-content-between.align-items-center(v-if="lastField == 'input'")
               .fs-12.disable Minimum Received after slippage
               vue-skeleton-loader(
                 v-if='loading'
@@ -84,6 +85,18 @@
                 :rounded='true',
               )
               .fs-12(v-else) {{ miniumOut }} WAX ({{ slippage.toFixed() }}%)
+
+            .d-flex.justify-content-between.align-items-center(v-else)
+              .fs-12.disable Maximum Send after slippage
+              vue-skeleton-loader(
+                v-if='loading'
+                :width='52',
+                :height='14',
+                animation='wave',
+                wave-color='rgba(150, 150, 150, 0.1)',
+                :rounded='true',
+              )
+              .fs-12(v-else) {{ maximumSend }} WAX ({{ slippage.toFixed() }}%)
 
           // TODO PROVIDER FEE
           //- .d-flex.flex-column.gap-4
@@ -157,6 +170,7 @@ export default {
     rate: '0.00',
     priceImpact: '0.00%',
     miniumOut: 0,
+    maximumSend: 0,
     expectedOutput: null,
     route: null,
 
@@ -304,23 +318,32 @@ export default {
     },
 
     async swap() {
-      // TODO Check that input amount is overmuch
-      const { amountA, tokenA, tokenB, slippage } = this
+      const { amountA, amountB, tokenA, tokenB, slippage } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const currencyAmountIn = tryParseCurrencyAmount(parseFloat(amountA).toFixed(tokenA.decimals), tokenA)
+      const currencyAmountOut = tryParseCurrencyAmount(parseFloat(amountB).toFixed(tokenB.decimals), tokenB)
+
       if (!currencyAmountIn) return console.log({ currencyAmountIn })
+      if (!currencyAmountOut) return console.log({ currencyAmountIn })
+
+      const exactIn = this.lastField == 'input'
 
       const actions = []
-      // TODO Swap with 2 same pools with different fee (router)
-      const [trade] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB }) // First is the best trade
-      const { swaps: [{ inputAmount, route }] } = trade
 
-      const path = route.pools.map(p => p.id).join(',')
-      const min = trade.minimumAmountOut(slippage) // TODO Manage slippages
+      const [trade] = exactIn
+        ? await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+        : await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+
+      const inputAmount = exactIn ? trade.inputAmount : trade.maximumAmountIn(slippage)
+
+      const method = exactIn ? 'swapexactin' : 'swapexactout'
+      const path = trade.route.pools.map(p => p.id).join(',')
+
+      const out = exactIn ? trade.minimumAmountOut(slippage) : trade.outputAmount
 
       // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
-      const memo = `swapexactin#${path}#${this.user.name}#${min.toExtendedAsset()}#0`
+      const memo = `${method}#${path}#${this.user.name}#${out.toExtendedAsset()}#0`
 
       if (parseFloat(amountA) > 0)
         actions.push({
@@ -371,7 +394,7 @@ export default {
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
 
-      if (getPrecision(value) > tokenB.decimals) {
+      if (getPrecision(value) > tokenA.decimals) {
         const [num, fraction] = value.split('.')
         return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
       }
@@ -394,14 +417,14 @@ export default {
         return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
       }
 
-      const { inputAmount, executionPrice, priceImpact, route } = best
+      const { inputAmount, outputAmount, executionPrice, priceImpact, route } = best
       this.amountA = inputAmount.toFixed()
-      this.expectedOutput = inputAmount.toAsset()
+      this.expectedOutput = outputAmount.toAsset()
 
       this.route = JSON.parse(JSON.stringify(route))
       this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
       this.priceImpact = priceImpact.toFixed(2)
-      this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+      this.maximumSend = best.maximumAmountIn(slippage).toFixed()
       this.lastField = 'output'
     },
 
