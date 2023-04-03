@@ -16,6 +16,7 @@ import { spot } from './spot'
 import { swap } from './swap'
 import { tokens } from './tokens'
 import { account } from './account'
+import { swapRouter } from './swapRouter'
 
 const app = express()
 
@@ -48,6 +49,7 @@ async function start () {
   app.use('/api/v2/', spot)
   app.use('/api/v2/', tokens)
   app.use('/api/v2/swap', swap)
+  app.use('/api/v2/swapRouter', swapRouter)
   app.use('/api/v2/account/', account)
 
 
