@@ -367,12 +367,11 @@ export default {
 
     // TODO Refactor into one function
     async calcInput(value) {
-      console.log('calcInput')
       const { tokenA, tokenB, slippage, rateInverted } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
 
-      if (getPrecision(value) > tokenA.decimals) {
+      if (getPrecision(value) > tokenB.decimals) {
         const [num, fraction] = value.split('.')
         return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
       }
