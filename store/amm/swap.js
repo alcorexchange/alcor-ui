@@ -66,7 +66,7 @@ export const actions = {
         rootGetters['amm/pools'].filter(p => p.tickDataProvider.ticks.length > 0),
         currencyIn,
         currencyAmountOut,
-        { maxNumResults: 5, maxHops: 5, ...options }
+        { maxNumResults: 1, maxHops: 5, ...options }
       )
     } catch (e) {
       console.error(e.message)

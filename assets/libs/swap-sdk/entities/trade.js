@@ -441,7 +441,12 @@ class Trade {
                 }
                 // we have arrived at the input token, so this is the first trade of one of the paths
                 if (amountIn.currency.equals(tokenIn)) {
-                    (0, utils_1.sortedInsert)(bestTrades, yield Trade.fromRoute(new route_1.Route([pool, ...currentPools], currencyIn, currencyAmountOut.currency), currencyAmountOut, internalConstants_1.TradeType.EXACT_OUTPUT), maxNumResults, tradeComparator);
+                    const trade = yield Trade.fromRoute(new route_1.Route([pool, ...currentPools], currencyIn, currencyAmountOut.currency), currencyAmountOut, internalConstants_1.TradeType.EXACT_OUTPUT);
+                    // FIX hotfix, i do not really sure about it
+                    if (!trade.inputAmount.greaterThan(0) || trade.priceImpact.lessThan(0))
+                        continue;
+                    //
+                    (0, utils_1.sortedInsert)(bestTrades, trade, maxNumResults, tradeComparator);
                 }
                 else if (maxHops > 1 && pools.length > 1) {
                     const poolsExcludingThisPool = pools.slice(0, i).concat(pools.slice(i + 1, pools.length));

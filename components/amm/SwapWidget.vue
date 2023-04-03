@@ -384,11 +384,11 @@ export default {
 
       const [best] = routes
 
-      // routes.forEach(r => {
-      //   console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
-      // })
+      routes.forEach(r => {
+        console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
+      })
 
-      console.log({ routes })
+      //console.log({ routes })
 
       if (!best) {
         // TODO clear tokenB
