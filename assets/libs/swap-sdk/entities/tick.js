@@ -8,7 +8,7 @@ const jsbi_1 = __importDefault(require("jsbi"));
 const tiny_invariant_1 = __importDefault(require("tiny-invariant"));
 const utils_1 = require("../utils");
 class Tick {
-    constructor({ id, liquidityGross, liquidityNet, feeGrowthOutsideAX64, feeGrowthOutsideBX64, tickCumulativeOutside, secondsOutside, secondsPerLiquidityOutsideX64, }) {
+    constructor({ id, liquidityGross, liquidityNet, feeGrowthOutsideAX64 = 0, feeGrowthOutsideBX64 = 0, tickCumulativeOutside = 0, secondsOutside = 0, secondsPerLiquidityOutsideX64 = 0, }) {
         (0, tiny_invariant_1.default)(id >= utils_1.TickMath.MIN_TICK && id <= utils_1.TickMath.MAX_TICK, "TICK");
         this.id = id;
         this.liquidityGross = jsbi_1.default.BigInt(liquidityGross);
