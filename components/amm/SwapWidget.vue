@@ -168,7 +168,9 @@ export default {
     amountB: null,
     details: ['1'], // Details are open by default
 
-    rate: '0.00',
+    priceInverted: '0.00',
+    price: '0.00',
+
     priceImpact: '0.00%',
     minReceived: 0,
     maximumSend: 0,
@@ -199,6 +201,12 @@ export default {
   },
 
   computed: {
+    rate() {
+      const { rateInverted, price, priceInverted } = this
+
+      return rateInverted ? priceInverted : price
+    },
+
     priceImpactStyle() {
       const impact = parseFloat(this.priceImpact.replace('%', ''))
       if (impact < 0) return 'red'
@@ -258,7 +266,10 @@ export default {
     },
 
     pools() {
-      // Recalculate on pools update
+      this.recelculate()
+    },
+
+    slippage() {
       this.recelculate()
     }
   },
@@ -269,8 +280,8 @@ export default {
       'bestTradeExactOut'
     ]),
 
-    recelculate() {
-      this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcOutput(this.amountB)
+    async recelculate() {
+      this.lastField == 'input' ? await this.calcOutput(this.amountA) : await this.calcOutput(this.amountB)
     },
 
     toggleTokens() {
@@ -413,7 +424,8 @@ export default {
 
       const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      this.rate = rateInverted ? price.invert().toSignificant(6) : price.toSignificant(6)
+      this.priceInverted = price.invert().toSignificant(6)
+      this.price = price.toSignificant(6)
 
       this.memo = memo
       this.amountA = input
@@ -491,7 +503,8 @@ export default {
 
       const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      this.rate = rateInverted ? price.invert().toSignificant(6) : price.toSignificant(6)
+      this.priceInverted = price.invert().toSignificant(6)
+      this.price = price.toSignificant(6)
 
       this.memo = memo
       this.amountB = output
@@ -539,11 +552,10 @@ export default {
     //  this.lastField = 'input'
     //},
 
-    //onRateClick() {
-    //  console.log('on rate click')
-    //  this.rateInverted = !this.rateInverted
-    //  this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcOutput(this.amountB)
-    //}
+    async onRateClick() {
+      //await this.recelculate()
+      this.rateInverted = !this.rateInverted
+    }
   }
 }
 </script>
