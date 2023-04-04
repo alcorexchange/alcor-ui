@@ -145,6 +145,7 @@ import SwapRoute from '~/components/swap/SwapRoute'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 import AuthOnly from '~/components/AuthOnly'
+import { Price } from '~/assets/libs/swap-sdk'
 
 export default {
   name: 'SwapWidget',
@@ -388,7 +389,6 @@ export default {
       }, 0)
     }, 500),
 
-    // TODO Refactor into one function
     async calcInput(value) {
       const { tokenA, tokenB, slippage, rateInverted } = this
 
@@ -402,31 +402,67 @@ export default {
       const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
       if (!currencyAmountOut) return this.amountA = null
 
-      const routes = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
-      const [best] = routes
-
-      routes.forEach(r => {
-        console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
+      const { data: { executionPrice, input, maxSent, memo, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
+        params: {
+          trade_type: 'EXACT_OUTPUT',
+          input: 'wax-eosio.token',
+          output: 'tlm-alien.worlds',
+          amount: currencyAmountOut.toFixed()
+        }
       })
 
-      //console.log({ routes })
+      const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      if (!best) {
-        // TODO clear tokenB
-        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
-      }
+      this.rate = rateInverted ? price.invert().toSignificant(6) : price.toSignificant(6)
 
-      const { inputAmount, outputAmount, executionPrice, priceImpact, route } = best
-      this.amountA = inputAmount.toFixed()
-      this.expectedOutput = outputAmount.toAsset()
-
-      this.route = JSON.parse(JSON.stringify(route))
-      this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
-      this.priceImpact = priceImpact.toFixed(2)
-      this.maximumSend = best.maximumAmountIn(slippage).toFixed()
+      this.amountA = input
+      this.expectedOutput = output
+      this.priceImpact = priceImpact
+      this.maximumSend = maxSent
+      //this.route = JSON.parse(JSON.stringify(route))
       this.lastField = 'output'
     },
+
+    // TODO Refactor into one function
+    // CLIENT SIDE
+    //async calcInput(value) {
+    //  const { tokenA, tokenB, slippage, rateInverted } = this
+
+    //  if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
+
+    //  if (getPrecision(value) > tokenA.decimals) {
+    //    const [num, fraction] = value.split('.')
+    //    return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
+    //  }
+
+    //  const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+    //  if (!currencyAmountOut) return this.amountA = null
+
+    //  const routes = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+
+    //  const [best] = routes
+
+    //  routes.forEach(r => {
+    //    console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
+    //  })
+
+    //  //console.log({ routes })
+
+    //  if (!best) {
+    //    // TODO clear tokenB
+    //    return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+    //  }
+
+    //  const { inputAmount, outputAmount, executionPrice, priceImpact, route } = best
+    //  this.amountA = inputAmount.toFixed()
+    //  this.expectedOutput = outputAmount.toAsset()
+
+    //  this.route = JSON.parse(JSON.stringify(route))
+    //  this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
+    //  this.priceImpact = priceImpact.toFixed(2)
+    //  this.maximumSend = best.maximumAmountIn(slippage).toFixed()
+    //  this.lastField = 'output'
+    //},
 
     async calcOutput(value) {
       const { tokenA, tokenB, slippage, rateInverted } = this

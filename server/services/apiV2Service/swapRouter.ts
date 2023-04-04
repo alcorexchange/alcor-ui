@@ -73,7 +73,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
   const memo = `${method}#${route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
 
-  console.log(route)
+  console.log(trade.executionPrice)
   const result = {
     input: trade.inputAmount.toFixed(),
     output: trade.outputAmount.toFixed(),
@@ -82,23 +82,11 @@ swapRouter.get('/getRoute', async (req, res) => {
     priceImpact: trade.priceImpact.toSignificant(),
     memo,
     route,
-    executionPrice: trade.executionPrice
+    executionPrice: {
+      numerator: trade.executionPrice.numerator.toString(),
+      denominator: trade.executionPrice.denominator.toString()
+    }
   }
-
-  //trade
-
-  // const [trade] = exactIn
-  //   ? await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-  //   : await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
-
-
-
-  //const input = tryParseCurrencyAmount('123.321', new Token('eosio.token', 8, 'WAX', 'wax-eosio.token'))
-  //console.log(input)
-  //const trade =
-
-
 
   res.json(result)
 })
