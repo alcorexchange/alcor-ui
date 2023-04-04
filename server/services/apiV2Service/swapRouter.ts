@@ -25,26 +25,44 @@ const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 6 }
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const mongoPools = await SwapPool.find({ chain: network.name }).lean()
-  const tokens = await getAllTokensWithPrices(network)
+  let { trade_type, input, output, amount, slippage, receiver = '<receiver>' } = <any>req.query
 
-  const exactIn = true
-  const receiver = 'avral.pro'
+  if (!trade_type || !input || !output || !amount)
+    return res.status(403).send('Invalid request')
+
+  if (!slippage) slippage = 0.3
+  slippage = new Percent(slippage * 100, 10000)
+
+  const exactIn = trade_type == 'EXACT_INPUT'
 
   const pools = await getPools(network.name)
 
-  const input = tryParseCurrencyAmount('0.01', new Token('eosio.token', 8, 'WAX', 'wax-eosio.token'))
-  const output = tryParseCurrencyAmount('1', new Token('alien.worlds', 4, 'TLM', 'tlm-alien.worlds'))
+  input = pools.find(p => p.tokenA.id == input)?.tokenA || pools.find(p => p.tokenB.id == input)?.tokenB
+  output = pools.find(p => p.tokenA.id == output)?.tokenA || pools.find(p => p.tokenB.id == output)?.tokenB
 
-  const [trade] = await Trade.bestTradeExactIn(
-    pools.filter(p => p.tickDataProvider.ticks.length > 0),
-    input,
-    output.currency,
-    TRADE_OPTIONS
-  )
+  if (!input || !output) res.status(403).send('Invalid input/output')
 
-  const slippage = new Percent(0.3 * 100, 10000)
+  amount = tryParseCurrencyAmount(amount, exactIn ? input : output)
+  if (!amount) res.status(403).send('Invalid amount')
 
+  //console.log('amount', amount)
+
+  let trade
+  if (exactIn) {
+    [trade] = await Trade.bestTradeExactIn(
+      pools.filter(p => p.tickDataProvider.ticks.length > 0),
+      amount,
+      output,
+      TRADE_OPTIONS
+    )
+  } else {
+    [trade] = await Trade.bestTradeExactOut(
+      pools.filter(p => p.tickDataProvider.ticks.length > 0),
+      input,
+      amount,
+      TRADE_OPTIONS
+    )
+  }
 
   const method = exactIn ? 'swapexactin' : 'swapexactout'
   const route = trade.route.pools.map(p => p.id)
