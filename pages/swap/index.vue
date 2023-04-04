@@ -44,30 +44,33 @@ export default {
 
 <style lang="scss" scoped>
 #swap-page{
-  display: flex;
+  display: grid;
   align-items: flex-start;
-  justify-content: center;
+  grid-template-columns: 1fr;
   gap: var(--amm-space-1);
+  justify-items: center;
+  &.showChart {
+    grid-template-columns: 450px 1fr;
+  }
 }
 .swap-widget-container {
   max-width: 450px;
+  width: 100%;
 }
 .chart-container {
-  flex: 1;
+  width: 100%
 }
 @media only screen and (max-width: 1080px) {
   #swap-page {
-    flex-direction: column;
-    align-items: center;
-  }
-  .chart-container {
-    width: 100%;
+    grid-template-columns: 1fr;
+    &.showChart {
+      grid-template-columns: 1fr;
+    }
   }
 }
 @media only screen and (max-width: 680px) {
   .swap-widget-container {
     max-width: 100%;
-    width: 100%;
   }
 }
 </style>
