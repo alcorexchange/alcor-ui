@@ -41,7 +41,7 @@
           template(#title)
             .rate-container(@click.prevent.stop="onRateClick")
               .d-flex.align-items-center.gap-8.py-1(v-if="loading")
-                i.el-icon-loading.el-icon-refresh.h-fit
+                i.el-icon-refresh.rotate-reverse.h-fit
                 .fs-12.disable Fetching Best price...
               .d-flex.align-items-center.gap-8.py-1(v-else)
                 .disable.fs-12 Rate

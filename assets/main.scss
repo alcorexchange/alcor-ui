@@ -1373,3 +1373,17 @@ body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hove
 .position-section-title {
   font-size: 18px; 
 }
+
+.rotate-reverse {
+  animation: rotating-reverse 2s linear infinite
+}
+
+@keyframes rotating-reverse {
+  0% {
+      transform: rotateZ(0)
+  }
+
+  100% {
+      transform: rotateZ(-360deg)
+  }
+}
