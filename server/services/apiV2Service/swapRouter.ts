@@ -73,7 +73,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
   const memo = `${method}#${route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
 
-  console.log(trade.executionPrice)
   const result = {
     input: trade.inputAmount.toFixed(),
     output: trade.outputAmount.toFixed(),
