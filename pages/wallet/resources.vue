@@ -6,7 +6,7 @@
         span.title.fwr CPU
         alcor-progress(:percentage="cpuPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#66C167" :stroke-width="32" stroke-linecap="butt")
         .details.w-100.text-center
-          .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
+          .amount.cancel {{ cpuFraction }}
           .staked
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.cpu_weight }}
@@ -38,7 +38,7 @@
                         el-button(slot='suffix' size="mini") %
 
                   .w-100.text-center.mt-3
-                    .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
+                    .amount.cancel {{ account.cpu_limit.used }} ms / {{ account.cpu_limit.max }} ms
                     .staked
                       span.cancel {{ $t('Staked') }}:&nbsp;
                       span.fwr {{ account.total_resources.cpu_weight }}
@@ -51,7 +51,7 @@
         span.title.fwr NET
         alcor-progress(:percentage="netPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#FB3155" :stroke-width="32" stroke-linecap="butt")
         .details.w-100.text-center
-          .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
+          .amount.cancel {{ netFraction }}
           .staked
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.net_weight }}
@@ -95,10 +95,10 @@
         span.title.fwr Ram
         alcor-progress(:percentage="ramPercent" :width="154" type="circle" background="var(--bg-alter-2)" color="#486CF6" :stroke-width="32" stroke-linecap="butt")
         .details.w-100.text-center
-          .amount.cancel {{ ramUsageKB }} KB / {{ ramQuotaKB }} KB
+          .amount.cancel {{ ramFraction }}
           .staked
             span.cancel {{ $t('Staked') }}:&nbsp;
-            span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
+            span.fwr {{ ramStakedAmount }}
           .d-flex.gap-16.justify-content-center.mt-3
             alcor-button.w-100(@click="openRAMBuyPopup") Buy RAM
 
@@ -183,7 +183,7 @@ export default {
     netUnstake: false,
     percentStake: 0,
     receiver: null,
-    ram_price: 0,
+    ramCost: 0,
     amount: 0,
     amountPercent: 0,
     stakePopup: {
@@ -198,7 +198,7 @@ export default {
   }),
 
   computed: {
-    ...mapState(['account', 'user']),
+    ...mapState(['account', 'user', 'network']),
 
     baseTokenBalance() {
       const baseToken = this.$store.state.network.baseToken
@@ -225,13 +225,28 @@ export default {
     ramUsageKB() {
       return this.account.ram_usage / 1000
     },
+    ramFraction() {
+      return `${this.ramUsageKB} KB / ${this.ramQuotaKB} KB`
+    },
+
+    ramStakedAmount() {
+      return `${(this.ramCost * this.account.total_resources.ram_bytes).toFixed(this.network.baseToken.precision)} ${this.network.baseToken.symbol}`
+    },
 
     cpuPercent() {
       return Math.round((this.account.cpu_limit.used * 100) / this.account.cpu_limit.max)
     },
 
+    cpuFraction() {
+      return `${this.account.cpu_limit.used / 1000} ms / ${this.account.cpu_limit.max / 1000} ms`
+    },
+
     netPercent() {
       return Math.round((this.account.net_limit.used * 100) / this.account.net_limit.max) || 0
+    },
+
+    netFraction() {
+      return `${this.account.net_limit.used / 1000} KB / ${this.account.net_limit.max / 1000} KB`
     }
   },
 
@@ -247,8 +262,7 @@ export default {
         table: 'rammarket',
         limit: 1
       })
-
-      this.ram_price = (parseFloat(quote.balance) / parseFloat(base.balance)) * 1024
+      this.ramCost = (parseFloat(quote.balance) / parseFloat(base.balance)) * 1.005
     },
     onAmountUpdate(e) {
       this.amountPercent = parseFloat(((e / this.baseTokenBalance) * 100).toFixed(2))
@@ -265,7 +279,7 @@ export default {
         receiverTitle: 'Receiver of Stake',
         amountTitle: 'CPU Stake Amount',
         stakeType: 'CPU',
-        amount: `${this.ramUsageKB} ms / ${this.ramQuotaKB} ms`,
+        amount: this.cpuFraction,
         staked: this.account.total_resources.cpu_weight
       }
     },
@@ -276,7 +290,7 @@ export default {
         receiverTitle: 'Receiver of Stake',
         amountTitle: 'NET Stake Amount',
         stakeType: 'NET',
-        amount: `${this.account.net_limit.used / 1000} kb / ${this.account.net_limit.available} kb`,
+        amount: this.netFraction,
         staked: this.account.total_resources.net_weight
       }
     },
@@ -287,8 +301,8 @@ export default {
         receiverTitle: 'Receiver of Stake',
         amountTitle: 'RAM Buy Amount',
         stakeType: 'RAM',
-        amount: `${this.ramUsageKB} ms / ${this.ramQuotaKB} ms`,
-        staked: `${(this.ramUsageKB * this.ram_price).toFixed(4)} ${this.$store.state.network.baseToken.symbol}`
+        amount: this.ramFraction,
+        staked: this.ramStakedAmount
       }
     },
     async onStake(type = 'CPU') {
