@@ -281,7 +281,7 @@ export default {
     },
 
     netPercent() {
-      return Math.round((this.account.net_limit.used * 100) / this.account.net_limit.max)
+      return Math.round((this.account.net_limit.used * 100) / this.account.net_limit.max) || 0
     }
   },
 
