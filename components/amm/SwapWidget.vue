@@ -16,7 +16,7 @@
       :token="tokenA"
       :tokens="tokens"
       v-model="amountA"
-      @input="calcOutputDebounced"
+      @input="onTokenAInput"
       @tokenSelected="setTokenA"
       :show-max-button="false"
     )
@@ -31,7 +31,7 @@
       :token="tokenB"
       :tokens="tokens"
       v-model="amountB"
-      @input="calcInputDebounced"
+      @input="onTokenBInput"
       @tokenSelected="setTokenB"
     )
 
@@ -84,7 +84,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) {{ miniumOut }} WAX ({{ slippage.toFixed() }}%)
+              .fs-12(v-else) {{ minReceived }} WAX ({{ slippage.toFixed() }}%)
 
             .d-flex.justify-content-between.align-items-center(v-else)
               .fs-12.disable Maximum Send after slippage
@@ -145,6 +145,7 @@ import SwapRoute from '~/components/swap/SwapRoute'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 import AuthOnly from '~/components/AuthOnly'
+import { Price } from '~/assets/libs/swap-sdk'
 
 export default {
   name: 'SwapWidget',
@@ -167,13 +168,16 @@ export default {
     amountB: null,
     details: ['1'], // Details are open by default
 
-    rate: '0.00',
+    priceInverted: '0.00',
+    price: '0.00',
+
     priceImpact: '0.00%',
-    miniumOut: 0,
+    minReceived: 0,
     maximumSend: 0,
     expectedOutput: null,
     route: null,
 
+    memo: '', // Used for swap
     routerCollapse: ['1'],
     lastField: 'input', // might be input/output
 
@@ -197,6 +201,12 @@ export default {
   },
 
   computed: {
+    rate() {
+      const { rateInverted, price, priceInverted } = this
+
+      return rateInverted ? priceInverted : price
+    },
+
     priceImpactStyle() {
       const impact = parseFloat(this.priceImpact.replace('%', ''))
       if (impact < 0) return 'red'
@@ -256,8 +266,11 @@ export default {
     },
 
     pools() {
-      // Recalculate on pools update
-      this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcOutput(this.amountB)
+      this.recelculate()
+    },
+
+    slippage() {
+      this.recelculate()
     }
   },
 
@@ -266,6 +279,10 @@ export default {
       'bestTradeExactIn',
       'bestTradeExactOut'
     ]),
+
+    async recelculate() {
+      this.lastField == 'input' ? await this.calcOutput(this.amountA) : await this.calcOutput(this.amountB)
+    },
 
     toggleTokens() {
       const [amountA, amountB] = [this.amountB, this.amountA]
@@ -321,30 +338,17 @@ export default {
       const { amountA, amountB, tokenA, tokenB, slippage } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
-      const currencyAmountIn = tryParseCurrencyAmount(parseFloat(amountA).toFixed(tokenA.decimals), tokenA)
+      const exactIn = this.lastField == 'input'
+
+      const currencyAmountIn = tryParseCurrencyAmount((exactIn ? parseFloat(amountA) : parseFloat(this.maximumSend)).toFixed(tokenA.decimals), tokenA)
       const currencyAmountOut = tryParseCurrencyAmount(parseFloat(amountB).toFixed(tokenB.decimals), tokenB)
 
       if (!currencyAmountIn) return console.log({ currencyAmountIn })
       if (!currencyAmountOut) return console.log({ currencyAmountIn })
 
-      const exactIn = this.lastField == 'input'
-
       const actions = []
 
-      const [trade] = exactIn
-        ? await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-        : await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
-      const inputAmount = exactIn ? trade.inputAmount : trade.maximumAmountIn(slippage)
-
-      const method = exactIn ? 'swapexactin' : 'swapexactout'
-      const path = trade.route.pools.map(p => p.id).join(',')
-
-      const out = exactIn ? trade.minimumAmountOut(slippage) : trade.outputAmount
-
       // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
-      const memo = `${method}#${path}#${this.user.name}#${out.toExtendedAsset()}#0`
-
       if (parseFloat(amountA) > 0)
         actions.push({
           account: tokenA.contract,
@@ -353,8 +357,8 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: inputAmount.toAsset(),
-            memo
+            quantity: currencyAmountIn.toAsset(),
+            memo: this.memo
           }
         })
 
@@ -362,33 +366,38 @@ export default {
       console.log('SWAP: ', r)
     },
 
-    calcInputDebounced: debounce(function(value) {
+    onTokenBInput(val) {
       this.loading = true
-      setTimeout(() => {
+      this.calcInputDebounced(val)
+    },
+
+    onTokenAInput(val) {
+      this.loading = true
+      this.calcOutputDebounced(val)
+    },
+
+    calcInputDebounced: debounce(function(value) {
+      setTimeout(async () => {
         try {
-          this.calcInput(value)
+          await this.calcInput(value)
+          this.loading = false
         } catch (e) {
           console.error('calcOutput', e)
-        } finally {
-          this.loading = false
         }
       }, 0)
     }, 500),
 
     calcOutputDebounced: debounce(function(value) {
-      this.loading = true
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
-          this.calcOutput(value)
+          await this.calcOutput(value)
+          this.loading = false
         } catch (e) {
           console.error('calcOutput', e)
-        } finally {
-          this.loading = false
         }
       }, 0)
     }, 500),
 
-    // TODO Refactor into one function
     async calcInput(value) {
       const { tokenA, tokenB, slippage, rateInverted } = this
 
@@ -402,31 +411,71 @@ export default {
       const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
       if (!currencyAmountOut) return this.amountA = null
 
-      const routes = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
-      const [best] = routes
-
-      routes.forEach(r => {
-        console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
+      const { data: { executionPrice, input, maxSent, memo, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
+        params: {
+          trade_type: 'EXACT_OUTPUT',
+          input: tokenA.id,
+          output: tokenB.id,
+          amount: currencyAmountOut.toFixed(),
+          slippage: slippage.toFixed(),
+          receiver: this.user?.name
+        }
       })
 
-      //console.log({ routes })
+      const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      if (!best) {
-        // TODO clear tokenB
-        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
-      }
+      this.priceInverted = price.invert().toSignificant(6)
+      this.price = price.toSignificant(6)
 
-      const { inputAmount, outputAmount, executionPrice, priceImpact, route } = best
-      this.amountA = inputAmount.toFixed()
-      this.expectedOutput = outputAmount.toAsset()
-
-      this.route = JSON.parse(JSON.stringify(route))
-      this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
-      this.priceImpact = priceImpact.toFixed(2)
-      this.maximumSend = best.maximumAmountIn(slippage).toFixed()
+      this.memo = memo
+      this.amountA = input
+      this.expectedOutput = output
+      this.priceImpact = priceImpact
+      this.route = { pools: route.map(poolId => this.pools.find(p => p.id == poolId)), input: tokenA, output: tokenB }
+      this.maximumSend = maxSent
       this.lastField = 'output'
     },
+
+    // TODO Refactor into one function
+    // CLIENT SIDE
+    //async calcInput(value) {
+    //  const { tokenA, tokenB, slippage, rateInverted } = this
+
+    //  if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
+
+    //  if (getPrecision(value) > tokenA.decimals) {
+    //    const [num, fraction] = value.split('.')
+    //    return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
+    //  }
+
+    //  const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
+    //  if (!currencyAmountOut) return this.amountA = null
+
+    //  const routes = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
+
+    //  const [best] = routes
+
+    //  routes.forEach(r => {
+    //    console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
+    //  })
+
+    //  //console.log({ routes })
+
+    //  if (!best) {
+    //    // TODO clear tokenB
+    //    return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+    //  }
+
+    //  const { inputAmount, outputAmount, executionPrice, priceImpact, route } = best
+    //  this.amountA = inputAmount.toFixed()
+    //  this.expectedOutput = outputAmount.toAsset()
+
+    //  this.route = JSON.parse(JSON.stringify(route))
+    //  this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
+    //  this.priceImpact = priceImpact.toFixed(2)
+    //  this.maximumSend = best.maximumAmountIn(slippage).toFixed()
+    //  this.lastField = 'output'
+    //},
 
     async calcOutput(value) {
       const { tokenA, tokenB, slippage, rateInverted } = this
@@ -441,33 +490,71 @@ export default {
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
       if (!currencyAmountIn) return this.amountB = null
 
-      //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-      const routes = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+      const { data: { executionPrice, minReceived, memo, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
+        params: {
+          trade_type: 'EXACT_INPUT',
+          input: tokenA.id,
+          output: tokenB.id,
+          amount: currencyAmountIn.toFixed(),
+          slippage: slippage.toFixed(),
+          receiver: this.user?.name
+        }
+      })
 
-      // routes.forEach(r => console.log(r.inputAmount.toFixed()))
-      // console.log(routes)
+      const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      const [best] = routes
+      this.priceInverted = price.invert().toSignificant(6)
+      this.price = price.toSignificant(6)
 
-      if (!best) {
-        // TODO clear tokenB
-        return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
-      }
-
-      const { outputAmount, executionPrice, priceImpact, route } = best
-      this.amountB = this.$options.filters.commaFloat(outputAmount.toFixed(), tokenB.decimals)
-      this.expectedOutput = outputAmount.toAsset()
-
-      this.route = JSON.parse(JSON.stringify(route))
-      this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
-      this.priceImpact = priceImpact.toFixed(2)
-      this.miniumOut = best.minimumAmountOut(slippage).toFixed()
+      this.memo = memo
+      this.amountB = output
+      this.expectedOutput = output
+      this.priceImpact = priceImpact
+      this.minReceived = minReceived
+      this.route = { pools: route.map(poolId => this.pools.find(p => p.id == poolId)), input: tokenA, output: tokenB }
       this.lastField = 'input'
     },
-    onRateClick() {
-      console.log('on rate click')
+
+    //async calcOutput(value) {
+    //  const { tokenA, tokenB, slippage, rateInverted } = this
+
+    //  if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
+
+    //  if (getPrecision(value) > tokenA.decimals) {
+    //    const [num, fraction] = value.split('.')
+    //    value = `${num}.${fraction.slice(0, tokenA.decimals)}`
+    //  }
+
+    //  const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
+    //  if (!currencyAmountIn) return this.amountB = null
+
+    //  //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+    //  const routes = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
+
+    //  // routes.forEach(r => console.log(r.inputAmount.toFixed()))
+    //  // console.log(routes)
+
+    //  const [best] = routes
+
+    //  if (!best) {
+    //    // TODO clear tokenB
+    //    return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
+    //  }
+
+    //  const { outputAmount, executionPrice, priceImpact, route } = best
+    //  this.amountB = this.$options.filters.commaFloat(outputAmount.toFixed(), tokenB.decimals)
+    //  this.expectedOutput = outputAmount.toAsset()
+
+    //  this.route = JSON.parse(JSON.stringify(route))
+    //  this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
+    //  this.priceImpact = priceImpact.toFixed(2)
+    //  this.minReceived = best.minimumAmountOut(slippage).toFixed()
+    //  this.lastField = 'input'
+    //},
+
+    async onRateClick() {
+      //await this.recelculate()
       this.rateInverted = !this.rateInverted
-      this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcOutput(this.amountB)
     }
   }
 }

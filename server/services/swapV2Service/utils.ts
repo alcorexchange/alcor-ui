@@ -27,18 +27,23 @@ export async function getPoolInstance(chain: string, id) {
 
 export async function getPools(chain: string) {
   // Based on swap only, right now
-  const pools = await SwapPool.find({ chain }).lean()
+  const mongoPools = await SwapPool.find({ chain }).lean()
 
-  return pools.map(pool => {
-    const { tokenA, tokenB } = pool
+  const pools = []
+  for (const p of mongoPools) {
+    const ticks = await getRedisTicks(chain, p.id)
 
-    return new Pool({
-      ...pool,
-      tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol, tokenA.symbol.toLowerCase() + '-' + tokenA.contract),
-      tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol, tokenB.symbol.toLowerCase() + '-' + tokenB.contract),
-      tickCurrent: pool.tick
-    })
-  })
+    pools.push(new Pool({
+      ...p,
+      tokenA: new Token(p.tokenA.contract, p.tokenA.decimals, p.tokenA.symbol, p.tokenA.id),
+      tokenB: new Token(p.tokenB.contract, p.tokenB.decimals, p.tokenB.symbol, p.tokenB.id),
+
+      ticks: Array.from(ticks.values()).sort((a, b) => a.id - b.id),
+      tickCurrent: p.tick
+    }))
+  }
+
+  return pools
 }
 
 export async function getRedisTicks(chain: string, poolId: number | string) {
