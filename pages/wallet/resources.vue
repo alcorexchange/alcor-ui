@@ -235,18 +235,21 @@ export default {
     }
   },
 
-  async mounted() {
-    const { rows: [{ base, quote }] } = await this.$rpc.get_table_rows({
-      code: 'eosio',
-      scope: 'eosio',
-      table: 'rammarket',
-      limit: 1
-    })
-
-    this.ram_price = (parseFloat(quote.balance) / parseFloat(base.balance)) * 1024
+  mounted() {
+    this.init()
   },
 
   methods: {
+    async init() {
+      const { rows: [{ base, quote }] } = await this.$rpc.get_table_rows({
+        code: 'eosio',
+        scope: 'eosio',
+        table: 'rammarket',
+        limit: 1
+      })
+
+      this.ram_price = (parseFloat(quote.balance) / parseFloat(base.balance)) * 1024
+    },
     onAmountUpdate(e) {
       this.amountPercent = parseFloat(((e / this.baseTokenBalance) * 100).toFixed(2))
     },
@@ -307,7 +310,7 @@ export default {
           stake_cpu_quantity: type == 'NET' ? zeroAmount : amount,
           transfer: false
         }
-      } else {
+      } else { // RAM
         authorization = [
           {
             actor: this.user.name,
@@ -330,6 +333,7 @@ export default {
           data
         }])
         this.stakePopup.active = false
+        this.init()
       } catch (e) {
         console.log('error on staking / buying RAM', e)
       }
