@@ -11,40 +11,7 @@
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.cpu_weight }}
           .d-flex.gap-16.justify-content-center.mt-3
-            alcor-button.w-100(access @click="cpuStake = true") {{ $t('Stake') }}
-
-            el-dialog.staking-dialog(
-              title="CPU Staking"
-              :visible="cpuStake"
-              @close="cpuStake = false"
-
-            )
-              .row
-                .col.d-flex.flex-column.align-items-start.gap-16
-                  .fs-14.disable {{ $t('Receiver of Stake') }}
-                  el-input(v-model="receiverOfStake")
-                  .fs-14.disable {{ $t('CPU Stake Amount') }}
-                  el-input(v-model="amount" @input="onAmountUpdate")
-                    .mr-1(slot='suffix') {{ $store.state.network.name }}
-                  .d-flex.align-items-center.gap-24.w-100
-                    el-slider(
-                      :step='1',
-                      v-model='amountPercent',
-                      @change="onPercentUpdate"
-                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
-                      :show-tooltip="false"
-                    ).slider-buy.w-100.px-2
-                    .w-40
-                      el-input.percent(size="mini" v-model.number="amountPercent", @input="onPercentUpdate")
-                        el-button(slot='suffix' size="mini") %
-
-                  .w-100.text-center.mt-3
-                    .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
-                    .staked
-                      span.cancel {{ $t('Staked') }}:&nbsp;
-                      span.fwr {{ account.total_resources.cpu_weight }}
-
-                  alcor-button.w-100(access big @click="onStake('CPU')") {{ $t('Stake') }}
+            alcor-button.w-100(access @click="openCPUStakePopup") {{ $t('Stake') }}
 
             alcor-button(@click="cpuUnstake = true") {{ $t('Unstake') }}
 
@@ -89,40 +56,7 @@
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ account.total_resources.net_weight }}
           .d-flex.gap-16.justify-content-center.mt-3
-            alcor-button.w-100(access @click="netStake = true") Stake
-
-            el-dialog.staking-dialog(
-              title="NET Staking"
-              :visible="netStake"
-              @close="netStake = false"
-
-            )
-              .row
-                .col.d-flex.flex-column.align-items-start.gap-16
-                  .fs-14.disable {{ $t('Receiver of Stake') }}
-                  el-input(v-model="receiverOfStake")
-                  .fs-14.disable {{ $t('NET Stake Amount') }}
-                  el-input
-                    .mr-1(slot='suffix') {{ $store.state.network.name }}
-                  .d-flex.align-items-center.gap-24.w-100
-                    el-slider(
-                      :step='1',
-                      v-model='percentStake',
-                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
-                      :show-tooltip="false"
-                    ).slider-buy.w-100.px-2
-                    .w-40
-                      el-input.percent(size="mini" v-model="percentStake")
-                        el-button(slot='suffix' size="mini") %
-
-                  .w-100.text-center.mt-3
-                    .amount.cancel {{ account.net_limit.used / 1000 }} kb / {{ account.net_limit.available / 1000 }} kb
-                    .staked
-                      span.cancel {{ $t('Staked') }}:&nbsp;
-                      span.fwr {{ account.total_resources.net_weight }}
-
-                  alcor-button.w-100(access big) {{ $t('Stake') }}
-
+            alcor-button.w-100(access @click="openNETStakePopup") Stake
             alcor-button(@click="netUnstake = true") Unstake
 
             el-dialog.staking-dialog(
@@ -166,40 +100,7 @@
             span.cancel {{ $t('Staked') }}:&nbsp;
             span.fwr {{ (ramUsageKB * ram_price).toFixed(4) }} WAX
           .d-flex.gap-16.justify-content-center.mt-3
-            alcor-button.w-100(@click="buyRam = true") Buy RAM
-
-            el-dialog.staking-dialog(
-              title="Buy RAM"
-              :visible="buyRam"
-              @close="buyRam = false"
-
-            )
-              .row
-                .col.d-flex.flex-column.align-items-start.gap-16
-                  .fs-14.disable {{ $t('Receiver of Stake') }}
-                  el-input(v-model="receiverOfStake")
-                  .fs-14.disable {{ $t('RAM Buy Amount') }}
-                  el-input
-                    .mr-1(slot='suffix') {{ $store.state.network.name }}
-                  .d-flex.align-items-center.gap-24.w-100
-                    el-slider(
-                      :step='1',
-                      v-model='percentStake',
-                      :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
-                      :show-tooltip="false"
-                    ).slider-buy.w-100.px-2
-                    .w-40
-                      el-input.percent(size="mini" v-model="percentStake")
-                        el-button(slot='suffix' size="mini") %
-
-                  .w-100.text-center.mt-3
-                    .amount.cancel {{ ramUsageKB }} ms / {{ ramQuotaKB }} ms
-                    .staked
-                      span.cancel {{ $t('Staked') }}:&nbsp;
-                      span.fwr {{ account.total_resources.cpu_weight }}
-
-                  alcor-button.w-100(access big) {{ $t('Buy') }}
-
+            alcor-button.w-100(@click="openRAMBuyPopup") Buy RAM
 
   .rewards-and-actions
     RewardsCard
@@ -212,6 +113,38 @@
   Validators
   //SSpacer(:high="true")
   //Proxies
+  el-dialog.staking-dialog(
+    :title="stakePopup.title"
+    :visible="stakePopup.active"
+    @close="stakePopup.active = false"
+  )
+    .row
+      .col.d-flex.flex-column.align-items-start.gap-16
+        .fs-14.disable {{ stakePopup.receiverTitle }}
+        el-input(v-model="receiverOfStake")
+        .fs-14.disable {{ stakePopup.amountTitle }}
+        el-input(v-model="amount" @input="onAmountUpdate")
+          .mr-1(slot='suffix') {{ $store.state.network.name }}
+        .d-flex.align-items-center.gap-24.w-100
+          el-slider(
+            :step='1',
+            v-model='amountPercent',
+            @change="onPercentUpdate"
+            :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
+            :show-tooltip="false"
+          ).slider-buy.w-100.px-2
+          .w-40
+            el-input.percent(size="mini" v-model.number="amountPercent", @input="onPercentUpdate")
+              el-button(slot='suffix' size="mini") %
+
+        .w-100.text-center.mt-3
+          .amount.cancel {{ stakePopup.amount }}
+          .staked
+            span.cancel {{ $t('Staked') }}:&nbsp;
+            span.fwr {{ stakePopup.staked }}
+
+        alcor-button.w-100(access big @click="onStake(stakePopup.stakeType)") {{ $t('Stake') }}
+
 </template>
 
 <script>
@@ -252,7 +185,16 @@ export default {
     receiver: null,
     ram_price: 0,
     amount: 0,
-    amountPercent: 0
+    amountPercent: 0,
+    stakePopup: {
+      active: false,
+      title: '',
+      receiverTitle: 'Receiver of Stake',
+      amountTitle: '',
+      stakeType: 'CPU', // | 'NET' | 'RAM'
+      amount: '',
+      staked: ''
+    }
   }),
 
   computed: {
@@ -313,6 +255,39 @@ export default {
       if (parseInt(e) > 100) e = 100
       this.amount = parseFloat((this.baseTokenBalance * (parseInt(e) / 100)).toFixed(this.$store.state.network.baseToken.precision)) || 0
     },
+    openCPUStakePopup() {
+      this.stakePopup = {
+        active: true,
+        title: 'CPU Staking',
+        receiverTitle: 'Receiver of Stake',
+        amountTitle: 'CPU Stake Amount',
+        stakeType: 'CPU',
+        amount: `${this.ramUsageKB} ms / ${this.ramQuotaKB} ms`,
+        staked: this.account.total_resources.cpu_weight
+      }
+    },
+    openNETStakePopup() {
+      this.stakePopup = {
+        active: true,
+        title: 'NET Staking',
+        receiverTitle: 'Receiver of Stake',
+        amountTitle: 'NET Stake Amount',
+        stakeType: 'NET',
+        amount: `${this.account.net_limit.used / 1000} kb / ${this.account.net_limit.available} kb`,
+        staked: this.account.total_resources.net_weight
+      }
+    },
+    openRAMBuyPopup() {
+      this.stakePopup = {
+        active: true,
+        title: 'Buy RAM',
+        receiverTitle: 'Receiver of Stake',
+        amountTitle: 'RAM Buy Amount',
+        stakeType: 'RAM',
+        amount: `${this.ramUsageKB} ms / ${this.ramQuotaKB} ms`,
+        staked: `${(this.ramUsageKB * this.ram_price).toFixed(4)} ${this.$store.state.network.baseToken.symbol}`
+      }
+    },
     async onStake(type = 'CPU') {
       const baseToken = this.$store.state.network.baseToken
       const amount = `${parseFloat(this.amount).toFixed(this.$store.state.network.baseToken.precision)} ${baseToken.symbol}`
@@ -354,7 +329,7 @@ export default {
           authorization,
           data
         }])
-
+        this.stakePopup.active = false
       } catch (e) {
         console.log('error on staking / buying RAM', e)
       }
