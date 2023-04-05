@@ -24,17 +24,18 @@
                   .fs-14.disable {{ $t('Receiver of Stake') }}
                   el-input(v-model="receiverOfStake")
                   .fs-14.disable {{ $t('CPU Stake Amount') }}
-                  el-input
+                  el-input(v-model="amount" @input="onAmountUpdate")
                     .mr-1(slot='suffix') {{ $store.state.network.name }}
                   .d-flex.align-items-center.gap-24.w-100
                     el-slider(
                       :step='1',
-                      v-model='percentStake',
+                      v-model='amountPercent',
+                      @change="onPercentUpdate"
                       :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
                       :show-tooltip="false"
                     ).slider-buy.w-100.px-2
                     .w-40
-                      el-input.percent(size="mini" v-model="percentStake")
+                      el-input.percent(size="mini" v-model.number="amountPercent", @input="onPercentUpdate")
                         el-button(slot='suffix' size="mini") %
 
                   .w-100.text-center.mt-3
@@ -249,11 +250,18 @@ export default {
     netUnstake: false,
     percentStake: 0,
     receiver: null,
-    ram_price: 0
+    ram_price: 0,
+    amount: 0,
+    amountPercent: 0
   }),
 
   computed: {
     ...mapState(['account', 'user']),
+
+    baseTokenBalance() {
+      const baseToken = this.$store.state.network.baseToken
+      return this.$tokenBalance(baseToken.symbol, baseToken.contract)
+    },
 
     receiverOfStake: {
       get() {
@@ -294,6 +302,17 @@ export default {
     })
 
     this.ram_price = (parseFloat(quote.balance) / parseFloat(base.balance)) * 1024
+  },
+
+  methods: {
+    onAmountUpdate(e) {
+      this.amountPercent = parseFloat(((e / this.baseTokenBalance) * 100).toFixed(2))
+    },
+    onPercentUpdate(e) {
+      if (!e) this.amountPercent = 0
+      if (parseInt(e) > 100) e = 100
+      this.amount = parseFloat((this.baseTokenBalance * (parseInt(e) / 100)).toFixed(this.$store.state.network.baseToken.precision)) || 0
+    }
   }
 }
 </script>
