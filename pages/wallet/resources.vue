@@ -44,7 +44,7 @@
                       span.cancel {{ $t('Staked') }}:&nbsp;
                       span.fwr {{ account.total_resources.cpu_weight }}
 
-                  alcor-button.w-100(access big) {{ $t('Stake') }}
+                  alcor-button.w-100(access big @click="onStake('CPU')") {{ $t('Stake') }}
 
             alcor-button(@click="cpuUnstake = true") {{ $t('Unstake') }}
 
@@ -312,6 +312,52 @@ export default {
       if (!e) this.amountPercent = 0
       if (parseInt(e) > 100) e = 100
       this.amount = parseFloat((this.baseTokenBalance * (parseInt(e) / 100)).toFixed(this.$store.state.network.baseToken.precision)) || 0
+    },
+    async onStake(type = 'CPU') {
+      const baseToken = this.$store.state.network.baseToken
+      const amount = `${parseFloat(this.amount).toFixed(this.$store.state.network.baseToken.precision)} ${baseToken.symbol}`
+      const zeroAmount = `${Number(0).toFixed(this.$store.state.network.baseToken.precision)} ${baseToken.symbol}`
+
+      let authorization
+      let name
+      let data
+
+      if (type === 'CPU' || type === 'NET') {
+        authorization = [this.user.authorization]
+        name = 'delegatebw'
+        data = {
+          from: this.user.name,
+          receiver: this.user.name,
+          stake_net_quantity: type == 'CPU' ? zeroAmount : amount,
+          stake_cpu_quantity: type == 'NET' ? zeroAmount : amount,
+          transfer: false
+        }
+      } else {
+        authorization = [
+          {
+            actor: this.user.name,
+            permission: 'active',
+          },
+        ]
+        name = 'buyram'
+        data = {
+          payer: this.user.name,
+          receiver: this.user.name,
+          quant: amount,
+        }
+      }
+
+      try {
+        await this.$store.dispatch('chain/sendTransaction', [{
+          account: 'eosio',
+          name,
+          authorization,
+          data
+        }])
+
+      } catch (e) {
+        console.log('error on staking / buying RAM', e)
+      }
     }
   }
 }
@@ -321,6 +367,7 @@ export default {
 .percent .el-input__suffix {
   right: 0px;
 }
+
 .staking-dialog {
   .el-dialog {
     width: 352px;
