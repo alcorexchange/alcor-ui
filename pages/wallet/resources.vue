@@ -354,8 +354,7 @@ export default {
         authorization = [this.user.authorization]
         data = {
           from: this.user.name,
-          // USER RECIEVER OF STAKE
-          receiver: this.user.name,
+          receiver: this.receiverOfStake,
           [actionName === 'delegatebw' ? 'stake_net_quantity' : 'unstake_net_quantity']: type == 'CPU' ? zeroAmount : amount,
           [actionName === 'delegatebw' ? 'stake_cpu_quantity' : 'unstake_cpu_quantity']: type == 'NET' ? zeroAmount : amount,
           transfer: false
@@ -369,7 +368,7 @@ export default {
         ]
         data = actionName === 'buyram' ? {
           payer: this.user.name,
-          receiver: this.user.name,
+          receiver: this.receiverOfStake,
           quant: amount,
         } : {
           account: this.user.name,
