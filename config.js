@@ -217,7 +217,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: [],
+    SCAM_CONTRACTS: ['eosiotokens'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
