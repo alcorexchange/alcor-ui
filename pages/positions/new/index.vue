@@ -618,44 +618,6 @@ export default {
       return undefined
     },
 
-    parseUrlParams() {
-      // TODO GET FROM QUERYSTRING
-      //currencyIdA,
-      //currencyIdB,
-      //feeAmount: feeAmountFromUrl,
-      //tokenId,
-
-      // TODO щас разбираемся с этим
-      //if (
-      //  parsedQs.minPrice &&
-      //  typeof parsedQs.minPrice === 'string' &&
-      //  parsedQs.minPrice !== leftRangeTypedValue &&
-      //  !isNaN(parsedQs.minPrice as any)
-      //) {
-      //  onLeftRangeInput(parsedQs.minPrice)
-      //}
-
-      //if (
-      //  parsedQs.maxPrice &&
-      //  typeof parsedQs.maxPrice === 'string' &&
-      //  parsedQs.maxPrice !== rightRangeTypedValue &&
-      //  !isNaN(parsedQs.maxPrice as any)
-      //) {
-      //  onRightRangeInput(parsedQs.maxPrice)
-      //}
-      return 0
-    },
-
-    // TODO RESET ON POOL CHANGE
-    //const handleFeePoolSelect = useCallback(
-    //  (newFeeAmount: FeeAmount) => {
-    //    onLeftRangeInput('')
-    //    onRightRangeInput('')
-    //    navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
-    //  },
-    //  [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
-    //)
-
     onLeftRangeInput(value) {
       this.leftRangeTypedValue = value // To trigger computed to calc price and after update with corrected
       this.onInputAmountB(this.amountB)

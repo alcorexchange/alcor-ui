@@ -78,7 +78,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     output: trade.outputAmount.toFixed(),
     minReceived: minReceived.toFixed(),
     maxSent: maxSent.toFixed(),
-    priceImpact: trade.priceImpact.toSignificant(),
+    priceImpact: trade.priceImpact.toSignificant(2),
     memo,
     route,
     executionPrice: {

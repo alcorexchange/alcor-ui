@@ -41,7 +41,10 @@ export default {
 
   methods: {
     input(value) {
-      if (!isNaN(value)) this.localValue = value
+      if (isNaN(value)) return
+
+      this.localValue = value
+      this.$emit('input', this.localValue)
     },
 
     onChange(event) {

@@ -71,7 +71,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .price-impact.fs-12(v-else :style="priceImpactStyle && { color: `var(--main-${priceImpactStyle})` }") {{ priceImpact }}
+              .price-impact.fs-12(v-else :style="priceImpactStyle && { color: `var(--main-${priceImpactStyle})` }") {{ priceImpact }}%
 
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center(v-if="lastField == 'input'")
@@ -171,7 +171,7 @@ export default {
     priceInverted: '0.00',
     price: '0.00',
 
-    priceImpact: '0.00%',
+    priceImpact: '0.00',
     minReceived: 0,
     maximumSend: 0,
     expectedOutput: null,
