@@ -34,6 +34,7 @@ import { mapState } from 'vuex'
 import SelectToken from '~/components/modals/amm/SelectToken2'
 import MaxBage from '~/components/UI/input/MaxBage'
 import WarnMessage from '~/components/UI/input/WarnMessage'
+import { getPrecision } from '~/utils'
 
 export default {
   components: {
@@ -77,6 +78,8 @@ export default {
 
     input(value) {
       if (isNaN(value)) return
+
+      if (this.token && getPrecision(value) > this.token.decimals) return
 
       this.localValue = value
       this.$emit('input', value)
