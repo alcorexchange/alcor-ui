@@ -59,7 +59,7 @@
               .fs-12.disable {{ item.contract }}
             div {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
 
-          .fs-16.text-center(v-if="!filteredAssets.length") No results found.
+          .fs-16.text-center(v-if="!filteredAssets.length") No tokens found.
 
 </template>
 

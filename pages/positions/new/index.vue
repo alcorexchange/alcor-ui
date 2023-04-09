@@ -48,7 +48,7 @@
               | This pool must be initialized before you can add liquidity.
               | To initialize, select a starting price for the pool.
               | Then, enter your liquidity price range and deposit amount.
-              | Gas fees will be higher than usual due to the initialization transaction.
+              | Pool and position will be created in single transaction.
 
             el-input.starting-price-input(placeholder="0" v-model="startPriceTypedValue")
 

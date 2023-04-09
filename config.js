@@ -64,6 +64,10 @@ const networks = {
       fee: 'avral.pro',
     },
 
+    amm: {
+      contract: 'swap.alcor'
+    },
+
     ibc: {
       name: 'eos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
@@ -214,6 +218,10 @@ const networks = {
       fee: 'aw.aq.waa',
     },
 
+    amm: {
+      contract: 'swap.alcor'
+    },
+
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
@@ -273,6 +281,10 @@ const networks = {
       // TODO
       contract: 'alcorammswap',
       fee: 'aw.aq.waa'
+    },
+
+    amm: {
+      contract: 'swap.alcor'
     },
 
     ibc: {
@@ -352,6 +364,7 @@ const networks = {
 
     amm: {
       contract: 'ammcontract4'
+      //contract: 'swap.alcor'
     },
 
     withdraw: {},
@@ -430,6 +443,10 @@ const networks = {
     pools: {
       contract: 'alcorammswap',
       fee: 'alcordexdivs',
+    },
+
+    amm: {
+      contract: 'swap.alcor'
     },
 
     RECOMMENDED_MARKETS: [
