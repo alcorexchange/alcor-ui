@@ -16,16 +16,18 @@ const providers = {
 
 export function startUpdaters() {
   if (process.env.NETWORK) {
+    console.log('NETWORK=', process.env.NETWORK)
     updater(process.env.NETWORK, 'node', ['prices', 'swap'])
   } else {
     updater('eos', 'node', ['markets', 'pools'])
     updater('wax', 'node', ['markets', 'pools', 'prices', 'swap'])
-    updater('proton', 'node', ['markets'])
+    updater('proton', 'node', ['markets', 'prices', 'swap'])
     updater('telos', 'node', ['markets', 'pools'])
   }
 }
 
 export async function updater(chain, provider, services) {
+  console.log('run updater for', chain)
   const network = config.networks[chain]
   const streamer = providers[provider]
 
