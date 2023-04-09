@@ -2,7 +2,7 @@
 .pool-token-input(:class="{focused, notSelected: !!token}")
   .label-and-balance
     .label {{ renderLabel }}
-    .balance.disable(v-if="token") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
+    .balance.disable.pointer(v-if="token" @click="onBalanceClick" :class="{clickable: !!user}") Balance: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(
@@ -83,6 +83,9 @@ export default {
 
       this.localValue = value
       this.$emit('input', value)
+    },
+    onBalanceClick() {
+      if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol, this.token.contract))
     }
   },
 
@@ -120,6 +123,12 @@ export default {
     color: var(--text-default);
     min-height: 18px;
     align-items: center;
+  }
+  .balance.clickable {
+    transition: color 0.2s;
+    &:hover {
+      color: var(--text-default);
+    }
   }
   .bottom{
     min-height: 18px;
