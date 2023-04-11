@@ -44,35 +44,56 @@ export async function markeBar(timeframe, match) {
 
   const resolution = resolutions[timeframe]
 
-  // FIXME It work not properly as it 1 candle late
-  if (Math.floor(last_bar.time / 1000 / resolution) == Math.floor(match.time / 1000 / resolution)) {
-    //console.log('updates bar for market:', match.market, 'for timeframe:', timeframe)
+  const last_bar_end_time = last_bar.time.getTime() + resolution * 1000
 
-    // match in same timeframe
+  if (match.time.getTime() < last_bar_end_time) {
+    // Match in the same timeframe as the last bar
     if (last_bar.high < match.unit_price) {
       last_bar.high = match.unit_price
     } else if (last_bar.low > match.unit_price) {
       last_bar.low = match.unit_price
     }
-
-    //last_bar.time = match.time
+    last_bar.close = match.unit_price
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
+    await last_bar.save()
   } else {
+    // Create empty bars for the timeframe(s) without trades
+    const emptyBars = []
+    let emptyTime = last_bar_end_time
+    while (emptyTime < match.time.getTime()) {
+      emptyBars.push({
+        timeframe,
+        chain: match.chain,
+        market: match.market,
+        time: new Date(emptyTime),
+        open: last_bar.close,
+        high: last_bar.close,
+        low: last_bar.close,
+        close: last_bar.close,
+        volume: 0
+      })
+      emptyTime += resolution * 1000
+    }
+    if (emptyBars) {
+      await Bar.insertMany(emptyBars)
+    }
+      
+    // Create a new bar for the new timeframe
     await Bar.create({
       timeframe,
       chain: match.chain,
       market: match.market,
-      time: match.time,
-      open: match.unit_price,
+      time: new Date(last_bar_end_time),
+      open: last_bar.close,
       high: match.unit_price,
       low: match.unit_price,
       close: match.unit_price,
       volume: match.type == 'buymatch' ? match.bid : match.ask
     })
+    
+    last_bar.close = match.unit_price
+    await last_bar.save()    
   }
-
-  last_bar.close = match.unit_price
-  await last_bar.save()
 }
 
 export async function getVolumeFrom(date, market, chain) {

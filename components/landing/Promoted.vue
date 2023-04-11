@@ -27,8 +27,8 @@ export default {
   data: () => ({
     bannerOnly: [
       {
-        bannerImg: 'zombiecointk',
-        bannerUrl: 'https://www.zombiecoin.io'
+        bannerImg: 'outlawtroopers',
+        bannerUrl: 'https://outlawtroopers.io/?utm_source=alcor&utm_medium=banner'
       },
 
       {

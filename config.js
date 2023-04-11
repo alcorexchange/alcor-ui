@@ -227,7 +227,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: [],
+    SCAM_CONTRACTS: ['eosiotokens'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
@@ -370,8 +370,8 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [742, 162],
-    BANNER_MARKETS: [742],
+    PINNED_MARKETS: [231, 742],
+    BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
