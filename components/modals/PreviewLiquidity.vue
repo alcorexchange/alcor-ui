@@ -70,7 +70,7 @@ export default {
     fees: [
       {
         value: 0.05,
-        desc: 'Best forvery high liquidity tokens',
+        desc: 'Best for very high liquidity tokens',
         selectedPercent: 0
       },
       { value: 0.3, desc: 'Best for most pairs', selectedPercent: 44 },
