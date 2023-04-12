@@ -104,9 +104,8 @@ export default {
 
       if (['wax'].includes(this.$store.state.network.name)) {
         items.push({ index: '/swap', name: 'Swap', new: true })
+        items.push({ index: '/positions', name: 'Pool' })
       }
-
-      items.push({ index: '/positions', name: 'Pool' })
 
       if (
         ['eos', 'wax', 'jungle', 'telos', 'local', 'waxtest'].includes(
