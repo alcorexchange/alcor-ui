@@ -29,6 +29,7 @@ export const state = () => ({
 
   baseUrl: '',
   tokens: [],
+  tokenLogos: [],
   eosAirdropTokens: [],
   ibcTokens: ['eth.token'],
   lihgHistoryBlock: null,
@@ -162,7 +163,8 @@ export const actions = {
       )
 
       if (typeof data !== 'object') return
-      commit('setTokens', data)
+
+      commit('setEosAirdropTokens', data)
     } catch (e) {
       console.error('Fetching tokens from eos-airdrops', e)
     }

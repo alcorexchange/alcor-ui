@@ -56,7 +56,7 @@ Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
   amount = (!amount || isNaN(amount)) ? 0 : parseFloat(amount)
   const id = symbol.toLowerCase() + '-' + contract
 
-  const price = this.$store.state.tokens.find(t => t.id == id)
+  const price = this.$store.state.tokenLogos.find(t => t.id == id)
   return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
 }
 
@@ -97,7 +97,7 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
   } catch {
     const tokens = this.$store.state.eosAirdropTokens
 
-    const token = tokens.filter(t => t.chain == network && t.account == contract && t.symbol == symbol)[0]
+    const token = tokens.find(t => t.chain == network && t.account == contract && t.symbol == symbol)
 
     if (token) {
       return token.logo
