@@ -33,22 +33,23 @@
         )
         .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
-            v-for="token in popularTokens"
-            :key="token.id"
-            @click='selectAsset(token)'
+            v-for="item in popularTokens"
+            :key="item.id"
+            :class="{'is-selected': token && item.symbol === token.symbol && item.contract === token.contract}"
+            @click='selectAsset(item)'
           )
             TokenImage(
-              :src='$tokenLogo(token.symbol, token.contract)',
+              :src='$tokenLogo(item.symbol, item.contract)',
               height='20'
             )
-            .token-name {{ token.symbol }}
+            .token-name {{ item.symbol }}
         //- .separator
         .d-flex.flex-column.scrollable
           .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
             v-if="filteredAssets.length"
             v-for='(item, index) in filteredAssets',
             @click='selectAsset(item)'
-            :class="{ selected: token && item.symbol === token.symbol && item.contract === token.contract }"
+            :class="{ 'is-selected': token && item.symbol === token.symbol && item.contract === token.contract }"
           )
             TokenImage(
               :src='$tokenLogo(item.currency || item.symbol, item.contract)',
@@ -185,13 +186,13 @@ export default {
       align-items: center;
       padding: 4px 8px 4px 6px;
       border-radius: 14px;
-      &.selected {
+      &.is-selected {
         border-color: var(--main-action-green);
         pointer-events: none;
       }
     }
   }
-  .token-item.selected{
+  .token-item.is-selected{
     opacity: 0.6;
     pointer-events: none;
   }
