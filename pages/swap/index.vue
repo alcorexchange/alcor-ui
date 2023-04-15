@@ -21,8 +21,20 @@ export default {
     SwapChart,
     SwapBackground
   },
-
+  data: () => ({
+    colors: [
+      { name: 'eos', color: '50, 215, 75' },
+      { name: 'wax', color: '248, 144, 34' },
+      { name: 'telos', color: '96, 64, 159' },
+      { name: 'proton', color: '117, 67, 227' },
+      { name: 'bos', color: '34, 139, 233' },
+    ]
+  }),
   computed: {
+    currentColor() {
+      const item = this.colors.find(({ name }) => this.$store.state.network.name === name)
+      return item ? item.color : this.colors[0].color
+    },
     showChart: {
       get() {
         return this.$store.state.amm.swap.showChart
@@ -36,6 +48,14 @@ export default {
       'tokenA',
       'tokenB',
     ]),
+  },
+
+  head() {
+    return {
+      bodyAttrs: {
+        style: `--swap-color: ${this.currentColor}`
+      }
+    }
   },
 
   methods: {
@@ -53,8 +73,6 @@ export default {
   grid-template-columns: 1fr;
   gap: var(--amm-space-1);
   justify-items: center;
-  position: relative;
-  z-index: 2;
   &.showChart {
     grid-template-columns: 450px 1fr;
   }
@@ -78,5 +96,11 @@ export default {
   .swap-widget-container {
     max-width: 100%;
   }
+}
+</style>
+
+<style lang="scss">
+.default-layout {
+  background: radial-gradient(circle at 50% 20%, rgba(var(--swap-color), 0.06) 0%, transparent 40%);
 }
 </style>
