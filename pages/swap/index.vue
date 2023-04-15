@@ -1,21 +1,25 @@
 <template lang="pug">
-#swap-page.mt-5(:class="{ showChart }")
-  SwapWidget.swap-widget-container(@onChartClick="onChart")
+.swap-page-container
+  SwapBackground
+  #swap-page.mt-5(:class="{ showChart }")
+    SwapWidget.swap-widget-container(@onChartClick="onChart")
 
-  client-only
-    .chart-container(v-if="showChart")
-      SwapChart()
+    client-only
+      .chart-container(v-if="showChart")
+        SwapChart()
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import SwapWidget from '~/components/amm/SwapWidget'
 import SwapChart from '~/components/amm/SwapChart'
+import SwapBackground from '~/components/amm/SwapBackground'
 
 export default {
   components: {
     SwapWidget,
-    SwapChart
+    SwapChart,
+    SwapBackground
   },
 
   computed: {
@@ -49,6 +53,8 @@ export default {
   grid-template-columns: 1fr;
   gap: var(--amm-space-1);
   justify-items: center;
+  position: relative;
+  z-index: 2;
   &.showChart {
     grid-template-columns: 450px 1fr;
   }
