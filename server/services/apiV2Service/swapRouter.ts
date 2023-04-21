@@ -64,6 +64,8 @@ swapRouter.get('/getRoute', async (req, res) => {
     )
   }
 
+  if (!trade) return res.status(403).send('No route found')
+
   const method = exactIn ? 'swapexactin' : 'swapexactout'
   const route = trade.route.pools.map(p => p.id)
 
