@@ -214,11 +214,13 @@ export default {
       if (impact <= 5) return 'yellow'
       return 'red'
     },
+
     renderSubmitText() {
       if (!this.tokenA || !this.tokenB) return 'Select Tokens'
       else if (!this.amountA || !this.amountB) return 'Enter Amounts'
       else return `Swap ${this.tokenA.symbol} to ${this.tokenB.symbol}`
     },
+
     canSubmit() {
       return this.tokenA && this.tokenB && this.amountA && this.amountB
     },
@@ -378,30 +380,22 @@ export default {
       this.calcOutputDebounced(val)
     },
 
-    calcInputDebounced: debounce(function(value) {
-      setTimeout(async () => {
-        try {
-          await this.calcInput(value)
-          this.loading = false
-        } catch (e) {
-          console.error('calcOutput', e)
-        }
-      }, 0)
-    }, 500),
-
-    calcOutputDebounced: debounce(function(value) {
-      setTimeout(async () => {
-        try {
-          await this.calcOutput(value)
-          this.loading = false
-        } catch (e) {
-          console.error('calcOutput', e)
-        }
-      }, 0)
-    }, 500),
+    calcInputDebounced: debounce(function(value) { this.calcInput(value) }, 500),
+    calcOutputDebounced: debounce(function(value) { this.calcOutput(value) }, 500),
 
     async calcInput(value) {
-      const { tokenA, tokenB, slippage, rateInverted } = this
+      try {
+        await this.tryCalcInput(value)
+      } catch (e) {
+        console.error('calcInput', e)
+        this.$notify({ type: 'error', title: 'Input Calculation', message: e.message })
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async tryCalcInput(value) {
+      const { tokenA, tokenB, slippage } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
 
@@ -438,49 +432,19 @@ export default {
       this.lastField = 'output'
     },
 
-    // TODO Refactor into one function
-    // CLIENT SIDE
-    //async calcInput(value) {
-    //  const { tokenA, tokenB, slippage, rateInverted } = this
-
-    //  if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountA = null
-
-    //  if (getPrecision(value) > tokenA.decimals) {
-    //    const [num, fraction] = value.split('.')
-    //    return this.amountB = `${num}.${fraction.slice(0, tokenB.decimals)}`
-    //  }
-
-    //  const currencyAmountOut = tryParseCurrencyAmount(value, tokenB)
-    //  if (!currencyAmountOut) return this.amountA = null
-
-    //  const routes = await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
-    //  const [best] = routes
-
-    //  routes.forEach(r => {
-    //    console.log('input: ', r.inputAmount.toFixed(), 'output: ', r.outputAmount.toFixed(), 'priceImpact:', r.priceImpact.toSignificant())
-    //  })
-
-    //  //console.log({ routes })
-
-    //  if (!best) {
-    //    // TODO clear tokenB
-    //    return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
-    //  }
-
-    //  const { inputAmount, outputAmount, executionPrice, priceImpact, route } = best
-    //  this.amountA = inputAmount.toFixed()
-    //  this.expectedOutput = outputAmount.toAsset()
-
-    //  this.route = JSON.parse(JSON.stringify(route))
-    //  this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
-    //  this.priceImpact = priceImpact.toFixed(2)
-    //  this.maximumSend = best.maximumAmountIn(slippage).toFixed()
-    //  this.lastField = 'output'
-    //},
-
     async calcOutput(value) {
-      const { tokenA, tokenB, slippage, rateInverted } = this
+      try {
+        await this.tryCalcOutput(value)
+      } catch (e) {
+        console.error('calcOutput', e)
+        this.$notify({ type: 'error', title: 'Output Calculation', message: e.message })
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async tryCalcOutput(value) {
+      const { tokenA, tokenB, slippage } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
 
@@ -517,45 +481,7 @@ export default {
       this.lastField = 'input'
     },
 
-    //async calcOutput(value) {
-    //  const { tokenA, tokenB, slippage, rateInverted } = this
-
-    //  if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
-
-    //  if (getPrecision(value) > tokenA.decimals) {
-    //    const [num, fraction] = value.split('.')
-    //    value = `${num}.${fraction.slice(0, tokenA.decimals)}`
-    //  }
-
-    //  const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
-    //  if (!currencyAmountIn) return this.amountB = null
-
-    //  //const [best] = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-    //  const routes = await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-
-    //  // routes.forEach(r => console.log(r.inputAmount.toFixed()))
-    //  // console.log(routes)
-
-    //  const [best] = routes
-
-    //  if (!best) {
-    //    // TODO clear tokenB
-    //    return this.$notify({ type: 'error', title: 'Swap Error', message: 'No swap route found' })
-    //  }
-
-    //  const { outputAmount, executionPrice, priceImpact, route } = best
-    //  this.amountB = this.$options.filters.commaFloat(outputAmount.toFixed(), tokenB.decimals)
-    //  this.expectedOutput = outputAmount.toAsset()
-
-    //  this.route = JSON.parse(JSON.stringify(route))
-    //  this.rate = rateInverted ? executionPrice.invert().toSignificant(6) : executionPrice.toSignificant(6)
-    //  this.priceImpact = priceImpact.toFixed(2)
-    //  this.minReceived = best.minimumAmountOut(slippage).toFixed()
-    //  this.lastField = 'input'
-    //},
-
-    async onRateClick() {
-      //await this.recelculate()
+    onRateClick() {
       this.rateInverted = !this.rateInverted
     }
   }
