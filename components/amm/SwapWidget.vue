@@ -388,7 +388,8 @@ export default {
         await this.tryCalcInput(value)
       } catch (e) {
         console.error('calcInput', e)
-        this.$notify({ type: 'error', title: 'Input Calculation', message: e.message })
+        const reason = e?.response?.data ? e?.response?.data : e.message
+        this.$notify({ type: 'error', title: 'Input Calculation', message: reason })
       } finally {
         this.loading = false
       }
@@ -437,7 +438,9 @@ export default {
         await this.tryCalcOutput(value)
       } catch (e) {
         console.error('calcOutput', e)
-        this.$notify({ type: 'error', title: 'Output Calculation', message: e.message })
+        console.log({ e })
+        const reason = e?.response?.data ? e?.response?.data : e.message
+        this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
       } finally {
         this.loading = false
       }
