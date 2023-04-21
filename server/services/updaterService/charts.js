@@ -44,10 +44,9 @@ export async function markeBar(timeframe, match) {
 
   const resolution = resolutions[timeframe]
 
-  const start_time = last_bar.time.getTime();
-  let end_time = start_time + resolution * 1000
+  const last_bar_end_time = last_bar.time.getTime() + resolution * 1000
 
-  if (match.time.getTime() < end_time) {
+  if (match.time.getTime() < last_bar_end_time) {
     // Match in the same timeframe as the last bar
     if (last_bar.high < match.unit_price) {
       last_bar.high = match.unit_price
@@ -58,21 +57,40 @@ export async function markeBar(timeframe, match) {
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
     await last_bar.save()
   } else {
-    const time_diff = match.time.getTime() - endTime;
-    const intervals_to_add = Math.ceil(time_diff / (resolution * 1000));
-    end_time += intervals_to_add * resolution * 1000;    
+    // Create empty bars for the timeframe(s) without trades
+    const emptyBars = []
+    let emptyTime = last_bar_end_time
+    while (emptyTime < match.time.getTime()) {
+      emptyBars.push({
+        timeframe,
+        chain: match.chain,
+        market: match.market,
+        time: new Date(emptyTime),
+        open: last_bar.close,
+        high: last_bar.close,
+        low: last_bar.close,
+        close: last_bar.close,
+        volume: 0
+      })
+      emptyTime += resolution * 1000
+    }
+    if (emptyBars) {
+      await Bar.insertMany(emptyBars)
+    }
+      
     // Create a new bar for the new timeframe
     await Bar.create({
       timeframe,
       chain: match.chain,
       market: match.market,
-      time: new Date(end_time),
+      time: new Date(last_bar_end_time),
       open: last_bar.close,
       high: match.unit_price,
       low: match.unit_price,
       close: match.unit_price,
       volume: match.type == 'buymatch' ? match.bid : match.ask
     })
+    
     last_bar.close = match.unit_price
     await last_bar.save()    
   }
