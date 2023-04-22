@@ -212,9 +212,16 @@ export default {
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
         { text: '+/-5%', lowerValue: -5, higherValue: 5 },
-        { text: '+/-10%', lowerValue: -10, higherValue: 10 },
+        { text: '+/-30%', lowerValue: -30, higherValue: 30 },
         { text: '-2%/+10', lowerValue: -2, higherValue: 10 },
         { text: '-10%/+2', lowerValue: -10, higherValue: 2 },
+
+        // 500
+        // { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        // { text: '+/-5%', lowerValue: -5, higherValue: 5 },
+        // { text: '+/-10%', lowerValue: -10, higherValue: 10 },
+        // { text: '-2%/+10', lowerValue: -2, higherValue: 10 },
+        // { text: '-10%/+2', lowerValue: -10, higherValue: 2 },
       ].map((item) => {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       }),
