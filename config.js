@@ -176,12 +176,12 @@ const networks = {
     contract: 'alcor',
 
     baseToken: {
-      contract: 'xtokens',
-      symbol: 'XUSDT',
-      precision: 6,
+      contract: 'eosio.token',
+      symbol: 'XPR',
+      precision: 4,
     },
 
-    marketCreationFee: '1.000000 XUSDT',
+    marketCreationFee: '1000.0000 XPR',
     feeAccount: 'avral',
 
     chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
