@@ -11,11 +11,13 @@ const redisClient = createClient()
 export async function newSwapAction(action, network: Network) {
   if (!redisClient.isOpen) redisClient.connect()
 
+  console.log('newSwapAction', action.act.name)
+
   const { trx_id, block_time, block_num, act: { name, data } } = action
 
   const message = JSON.stringify({ chain: network.name, name, trx_id, block_num, block_time, data })
 
-  onSwapAction(message)
+  await onSwapAction(message)
 
   // TODO Make it async after tests
   //redisClient.publish('swap_action', message)
