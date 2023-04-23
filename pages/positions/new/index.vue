@@ -257,7 +257,9 @@ export default {
 
       const fees = {}
 
-      const totalLiquidity = currnetPools.reduce((total, b) => JSBI.add(total, JSBI.BigInt(b.liquidity)), JSBI.BigInt(0))
+      // Default 1 so to not get devision by 0
+      const totalLiquidity = currnetPools.reduce((total, b) => JSBI.add(total, JSBI.BigInt(b.liquidity)), JSBI.BigInt(1))
+
       currnetPools.forEach(p => {
         fees[p.fee] = parseInt((parseFloat(new Fraction(p.liquidity, totalLiquidity).toFixed(6)) * 100).toFixed())
       })
