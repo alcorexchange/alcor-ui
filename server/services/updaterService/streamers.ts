@@ -49,11 +49,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
     // MongoDB does not support . in keys, so we have to convert it using getAccountAsKey
     $set[`actions_stream_offset.${getAccountAsKey(account)}`] = offset
 
-    const startTime = performance.now()
     await Settings.updateOne({ chain: network.name }, { $set })
-    console.log('updated settings', $set)
-    const endTime = performance.now()
-    console.log(`update setting in mongo(${network.name}) --> ${Math.round(endTime - startTime)}ms`)
 
     if (r.actions.length < 100) {
       console.log(`waitForNewActions(${network.name}, ${account})...`)
