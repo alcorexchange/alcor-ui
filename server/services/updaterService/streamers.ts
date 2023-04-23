@@ -6,6 +6,10 @@ import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 import { Match, Settings } from '../../models'
 import { getSettings } from '../../utils'
 
+function getAccountAsKey(account: string) {
+  return account.replace('.', '-')
+}
+
 export async function streamByNode(network, account, callback, actions, delay = 500) {
   console.info(`Start NODE updater for ${network.name} (${account})...`)
 
@@ -13,7 +17,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
   const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
   const settings = await getSettings(network)
 
-  let offset = settings.actions_stream_offset[account] || 0
+  let offset = settings.actions_stream_offset[getAccountAsKey(account)] || 0
   //let offset = 0
 
   // TODO короче тестить это все дерьмо с настройками
@@ -41,9 +45,13 @@ export async function streamByNode(network, account, callback, actions, delay = 
     }
 
     const $set = {}
-    $set[`actions_stream_offset.${account}`] = offset
+
+    // MongoDB does not support . in keys, so we have to convert it using getAccountAsKey
+    $set[`actions_stream_offset.${getAccountAsKey(account)}`] = offset
+
     const startTime = performance.now()
     await Settings.updateOne({ chain: network.name }, { $set })
+    console.log('updated settings', $set)
     const endTime = performance.now()
     console.log(`update setting in mongo(${network.name}) --> ${Math.round(endTime - startTime)}ms`)
 
