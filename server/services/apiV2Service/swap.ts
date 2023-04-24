@@ -145,13 +145,13 @@ swap.get('/pools/:id/ticks', async (req, res) => {
 swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
   const network: Network = req.app.get('network')
   const { id } = req.params
-  const { inverted } = req.query
+  const { inverted }: any = req.query
 
   const pool: any = await getPoolInstance(network.name, id)
 
   let { tokenA, tokenB } = pool
 
-  if (inverted) {
+  if (inverted.toLowerCase() == 'true') {
     [tokenA, tokenB] = [tokenB, tokenA]
   }
 
