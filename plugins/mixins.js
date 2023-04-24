@@ -80,7 +80,8 @@ Vue.mixin({
     beforeDialogClose(done) {
       const isWrapper = this.mousedownCls.includes('el-dialog__wrapper') && this.mouseupCls.includes('el-dialog__wrapper')
       const isClose = this.mousedownCls.includes('el-dialog__headerbtn') && this.mouseupCls.includes('el-dialog__headerbtn')
-      if (isWrapper || isClose) {
+      const isCloseIcon = this.mousedownCls.includes('el-dialog__close') && this.mouseupCls.includes('el-dialog__close')
+      if (isWrapper || isClose || isCloseIcon) {
         done()
       }
     },
