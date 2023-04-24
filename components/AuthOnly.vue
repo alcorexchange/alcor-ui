@@ -22,3 +22,12 @@ export default {
   border-radius: 6px;
 }
 </style>
+<style lang="scss">
+.theme-light {
+  .swap-widget, .add-liquidity-component {
+    .auth-only {
+      --btn-default: var(--btn-active);
+    }
+  }
+}
+</style>
