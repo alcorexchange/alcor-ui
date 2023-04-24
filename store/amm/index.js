@@ -188,6 +188,7 @@ export const actions = {
 
   async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
     if (isNaN(poolId)) return
+    console.log('pool update triggered')
 
     dispatch('fetchTicksOfPool', poolId)
 
@@ -214,15 +215,19 @@ export const actions = {
   },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
+    console.log('fetchPools')
     // TODO Redo with api (if it will work safely)
+    // and load ticks with single api call
+
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
     commit('setPools', rows)
 
-    for (const row of rows) {
-      dispatch('fetchTicksOfPool', row.id)
-    }
+    // Seem like we do not need ticks
+    // for (const row of rows) {
+    //   dispatch('fetchTicksOfPool', row.id)
+    // }
   },
 }
 
