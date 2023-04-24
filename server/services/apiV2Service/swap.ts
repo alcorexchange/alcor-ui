@@ -1,7 +1,9 @@
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { SwapPool, SwapChartPoint, Position } from '../../models'
-import { getRedisTicks } from '../swapV2Service/utils'
+import { getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
+import { getLiquidityRangeChart } from '../../../utils/amm.js'
+
 
 export const swap = Router()
 
@@ -117,8 +119,8 @@ swap.get('/pools/:id', async (req, res) => {
 
   if (id) filter.id = parseInt(id)
 
-  const pools = await SwapPool.find(filter).lean()
-  res.json(pools)
+  const pool = await SwapPool.findOne(filter).lean()
+  res.json(pool)
 })
 
 swap.get('/pools/:id/positions', async (req, res) => {
@@ -138,6 +140,33 @@ swap.get('/pools/:id/ticks', async (req, res) => {
 
   const ticks = await getRedisTicks(network.name, req.params.id)
   res.json(Array.from(ticks.values()))
+})
+
+swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
+  const network: Network = req.app.get('network')
+  const { id } = req.params
+  const { inverted } = req.query
+
+  const pool: any = await getPoolInstance(network.name, id)
+
+  let { tokenA, tokenB } = pool
+
+  if (inverted) {
+    [tokenA, tokenB] = [tokenB, tokenA]
+  }
+
+  const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
+
+  const result = series.map(s => {
+    const y = Number(s.liquidityActive.toString())
+
+    return {
+      x: Number(s.price0),
+      y: y > 0 ? y : 0 // TODO This is hotfix, might be bug in calculation
+    }
+  })
+
+  res.json(result)
 })
 
 const ONEDAY = 60 * 60 * 24 * 1000
