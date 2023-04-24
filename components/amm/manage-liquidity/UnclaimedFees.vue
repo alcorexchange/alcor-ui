@@ -32,35 +32,32 @@ export default {
 
   props: ['position'],
 
-  data: () => {
-    return {
-      feesA: null,
-      feesB: null
-    }
-  },
+  // data: () => {
+  //   return {
+  //     feesA: null,
+  //     feesB: null
+  //   }
+  // },
 
   computed: {
     ...mapState(['network', 'user']),
-  },
 
-  watch: {
-    position() {
-      this.calcFees()
+    positionStats() {
+      return this.$store.state.amm.positionsStats.find(p => p.id == this.position.id)
+    },
+
+    feesA() {
+      const { tokenA } = this.position.pool
+      return this.positionStats?.feesA + ' ' + tokenA.symbol
+    },
+
+    feesB() {
+      const { tokenB } = this.position.pool
+      return this.positionStats?.feesB + ' ' + tokenB.symbol
     }
   },
 
-  mounted() {
-    this.calcFees()
-  },
-
   methods: {
-    async calcFees() {
-      const { feesA, feesB } = await this.position.getFees()
-
-      this.feesA = feesA.toAsset()
-      this.feesB = feesB.toAsset()
-    },
-
     async submit() {
       try {
         await this.collect()

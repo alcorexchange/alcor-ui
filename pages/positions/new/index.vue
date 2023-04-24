@@ -212,9 +212,16 @@ export default {
       priceRangeItems: [
         { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
         { text: '+/-5%', lowerValue: -5, higherValue: 5 },
-        { text: '+/-10%', lowerValue: -10, higherValue: 10 },
+        { text: '+/-30%', lowerValue: -30, higherValue: 30 },
         { text: '-2%/+10', lowerValue: -2, higherValue: 10 },
         { text: '-10%/+2', lowerValue: -10, higherValue: 2 },
+
+        // 500
+        // { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        // { text: '+/-5%', lowerValue: -5, higherValue: 5 },
+        // { text: '+/-10%', lowerValue: -10, higherValue: 10 },
+        // { text: '-2%/+10', lowerValue: -2, higherValue: 10 },
+        // { text: '-10%/+2', lowerValue: -10, higherValue: 2 },
       ].map((item) => {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       }),
@@ -250,7 +257,9 @@ export default {
 
       const fees = {}
 
-      const totalLiquidity = currnetPools.reduce((total, b) => JSBI.add(total, JSBI.BigInt(b.liquidity)), JSBI.BigInt(0))
+      // Default 1 so to not get devision by 0
+      const totalLiquidity = currnetPools.reduce((total, b) => JSBI.add(total, JSBI.BigInt(b.liquidity)), JSBI.BigInt(1))
+
       currnetPools.forEach(p => {
         fees[p.fee] = parseInt((parseFloat(new Fraction(p.liquidity, totalLiquidity).toFixed(6)) * 100).toFixed())
       })

@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks'
+
 import { Router } from 'express'
 import { SwapPool, SwapChartPoint, Position } from '../../models'
 
@@ -14,24 +16,20 @@ import { getRedisTicks, getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 6 }
-
-
-// const [trade] = exactIn
-//   ? await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-//   : await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
+const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 4 }
 
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  let { trade_type, input, output, amount, slippage, receiver = '<receiver>' } = <any>req.query
+  let { trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
 
   if (!trade_type || !input || !output || !amount)
     return res.status(403).send('Invalid request')
 
   if (!slippage) slippage = 0.3
   slippage = new Percent(slippage * 100, 10000)
+
+  if (maxHops !== undefined) TRADE_OPTIONS.maxHops = parseInt(maxHops)
 
   const exactIn = trade_type == 'EXACT_INPUT'
 
@@ -45,7 +43,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   amount = tryParseCurrencyAmount(amount, exactIn ? input : output)
   if (!amount) res.status(403).send('Invalid amount')
 
-  //console.log('amount', amount)
+  const startTime = performance.now()
 
   let trade
   if (exactIn) {
@@ -63,6 +61,10 @@ swapRouter.get('/getRoute', async (req, res) => {
       TRADE_OPTIONS
     )
   }
+
+  const endTime = performance.now()
+
+  console.log(network.name, `find route took ${endTime - startTime} milliseconds`)
 
   if (!trade) return res.status(403).send('No route found')
 

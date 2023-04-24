@@ -3,14 +3,8 @@
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
-    //el-carousel-item(v-for="promo in promos")
+    el-carousel-item(v-for="promo in promos")
       promo(:promo="promo" :bannerUrl="promo.bannerUrl")
-
-    el-carousel-item
-      promo(:promo="promos[0]" :bannerUrl="promos[0].bannerUrl")
-
-    el-carousel-item
-      promo(:promo="promos[1]" :bannerUrl="promos[1].bannerUrl")
 
   spacer
 </template>
@@ -29,12 +23,7 @@ export default {
       {
         bannerImg: 'outlawtroopers',
         bannerUrl: 'https://outlawtroopers.io/?utm_source=alcor&utm_medium=banner'
-      },
-
-      {
-        bannerImg: 'pinup24heels',
-        bannerUrl: 'https://alcor.exchange/trade/heels-pinup24heels_wax-eosio.token'
-      },
+      }
     ],
 
     promos: []
