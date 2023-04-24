@@ -16,13 +16,7 @@ import { getRedisTicks, getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 6 }
-
-
-// const [trade] = exactIn
-//   ? await this.bestTradeExactIn({ currencyAmountIn, currencyOut: tokenB })
-//   : await this.bestTradeExactOut({ currencyIn: tokenA, currencyAmountOut })
-
+const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 4 }
 
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
@@ -48,8 +42,6 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   amount = tryParseCurrencyAmount(amount, exactIn ? input : output)
   if (!amount) res.status(403).send('Invalid amount')
-
-  //console.log('amount', amount)
 
   const startTime = performance.now()
 
@@ -99,7 +91,5 @@ swapRouter.get('/getRoute', async (req, res) => {
     }
   }
 
-  console.log('before res')
   res.json(result)
-  console.log('after res')
 })
