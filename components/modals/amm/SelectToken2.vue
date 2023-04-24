@@ -1,7 +1,7 @@
 <template lang="pug">
 .select-token-modal.d-flex.align-items-center.gap-8
   .select-token-button(
-    @click='locked ? "" : (visible = true)',
+    @click='open',
     :class='{ locked, w100, notSelected: !token }'
   )
     .d-flex.align-items-center(v-if='token')
@@ -30,6 +30,7 @@
           v-model='search',
           size='small',
           placeholder='Search'
+          ref='searchInput'
         )
         .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
@@ -108,6 +109,13 @@ export default {
   },
 
   methods: {
+    open() {
+      if (this.locked) return
+      this.visible = true
+      this.$nextTick(() => {
+        this.$refs.searchInput.focus()
+      })
+    },
     selectAsset(v) {
       console.log('selectAsset', v)
       this.$emit('selected', v)
