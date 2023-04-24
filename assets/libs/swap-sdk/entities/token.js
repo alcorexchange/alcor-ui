@@ -6,8 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Token = void 0;
 const tiny_invariant_1 = __importDefault(require("tiny-invariant"));
 const baseCurrency_1 = require("./baseCurrency");
-const eosjs_account_name_1 = require("eosjs-account-name");
-const jsbi_1 = __importDefault(require("jsbi"));
+const eos_common_1 = require("eos-common");
 /**
  * Represents an ERC20 token with a unique address and some metadata.
  */
@@ -42,10 +41,12 @@ class Token extends baseCurrency_1.BaseCurrency {
     sortsBefore(other) {
         if (this.contract === other.contract) {
             (0, tiny_invariant_1.default)(this.symbol !== other.symbol, "SYMBOLS");
-            return this.symbol.toLowerCase() < other.symbol.toLowerCase();
+            const token0Symbol = (0, eos_common_1.symbol)(this.symbol, this.decimals);
+            const token1Symbol = (0, eos_common_1.symbol)(other.symbol, other.decimals);
+            return token0Symbol.raw().lt(token1Symbol.raw());
         }
         else {
-            return jsbi_1.default.lessThan(jsbi_1.default.BigInt((0, eosjs_account_name_1.nameToUint64)(this.contract)), jsbi_1.default.BigInt((0, eosjs_account_name_1.nameToUint64)(other.contract)));
+            return (0, eos_common_1.name)(this.contract).raw().lt((0, eos_common_1.name)(other.contract).raw());
         }
     }
 }
