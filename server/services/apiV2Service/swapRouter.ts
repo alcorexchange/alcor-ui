@@ -97,5 +97,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     }
   }
 
+  console.log('before res')
   res.json(result)
+  console.log('after res')
 })
