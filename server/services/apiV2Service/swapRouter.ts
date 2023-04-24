@@ -16,7 +16,7 @@ import { getRedisTicks, getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 5 }
+const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 6 }
 
 
 // const [trade] = exactIn
@@ -27,13 +27,15 @@ const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 5 }
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  let { trade_type, input, output, amount, slippage, receiver = '<receiver>' } = <any>req.query
+  let { trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
 
   if (!trade_type || !input || !output || !amount)
     return res.status(403).send('Invalid request')
 
   if (!slippage) slippage = 0.3
   slippage = new Percent(slippage * 100, 10000)
+
+  if (maxHops !== undefined) TRADE_OPTIONS.maxHops = parseInt(maxHops)
 
   const exactIn = trade_type == 'EXACT_INPUT'
 

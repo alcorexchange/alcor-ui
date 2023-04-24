@@ -269,11 +269,11 @@ export default {
 
     pools() {
       console.log('pools changed')
-      //this.recelculate()
+      //this.recalculate()
     },
 
     slippage() {
-      //this.recelculate()
+      this.recalculate()
     }
   },
 
@@ -283,8 +283,8 @@ export default {
       'bestTradeExactOut'
     ]),
 
-    async recelculate() {
-      console.log('recelculate')
+    async recalculate() {
+      console.log('recalculate')
       this.lastField == 'input' ? await this.calcOutput(this.amountA) : await this.calcOutput(this.amountB)
     },
 
