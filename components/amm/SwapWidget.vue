@@ -268,11 +268,12 @@ export default {
     },
 
     pools() {
-      this.recelculate()
+      console.log('pools changed')
+      //this.recelculate()
     },
 
     slippage() {
-      this.recelculate()
+      //this.recelculate()
     }
   },
 
@@ -283,6 +284,7 @@ export default {
     ]),
 
     async recelculate() {
+      console.log('recelculate')
       this.lastField == 'input' ? await this.calcOutput(this.amountA) : await this.calcOutput(this.amountB)
     },
 
@@ -435,7 +437,6 @@ export default {
     },
 
     async calcOutput(value) {
-      console.log('calcOutput')
       try {
         await this.tryCalcOutput(value)
       } catch (e) {
@@ -449,7 +450,6 @@ export default {
     },
 
     async tryCalcOutput(value) {
-      console.log('tryCalcOutput')
       const { tokenA, tokenB, slippage } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null
