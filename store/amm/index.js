@@ -104,15 +104,6 @@ export const actions = {
     dispatch('fetchPositionsHistory')
   },
 
-  subscribeToPool() {
-    this.$socket.on('account:update-positions', positions => {
-      // TODO Handle positions id's
-      // dispatch('fetchPositions')
-      // dispatch('fetchPositionsStats')
-    })
-  },
-
-
   async fetchPoolsStats({ state, commit }) {
     const { data: pools } = await this.$axios.get('/v2/swap/pools')
     commit('setPoolsStats', pools)
@@ -188,6 +179,7 @@ export const actions = {
 
   async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
     if (isNaN(poolId)) return
+    console.log('pool update triggered')
 
     dispatch('fetchTicksOfPool', poolId)
 
@@ -214,15 +206,19 @@ export const actions = {
   },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
+    console.log('fetchPools')
     // TODO Redo with api (if it will work safely)
+    // and load ticks with single api call
+
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
     commit('setPools', rows)
 
-    for (const row of rows) {
-      dispatch('fetchTicksOfPool', row.id)
-    }
+    // Seem like we do not need ticks
+    // for (const row of rows) {
+    //   dispatch('fetchTicksOfPool', row.id)
+    // }
   },
 }
 
@@ -230,6 +226,7 @@ export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
   pools(state, getters, rootState) {
+    console.log('pools getter triggered')
     const pools = []
 
     for (const row of state.pools) {
@@ -282,9 +279,6 @@ export const getters = {
       const amountB = p.amountB.toAsset()
 
       const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
-
-      // if (stats.totalValue) stats.totalValue = parseFloat(stats.totalValue).toFixed(2)
-      // if (stats.pNl) stats.pNl = parseFloat(stats.pNl).toFixed(2)
 
       positions.push({ ...stats, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
     }

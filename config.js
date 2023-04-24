@@ -167,7 +167,13 @@ const networks = {
 
     USD_TOKEN: 'USDT@tethertether',
 
-    popularTokens: [],
+    popularTokens: [
+      'eos-eosio.token',
+      'usdt-tethertether',
+      'tlos-ibc.wt.tlos',
+      'utx-ibc.wt.ux',
+      'pgl-prospectorsg',
+    ],
   },
 
   proton: {
@@ -370,7 +376,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [231, 742],
+    PINNED_MARKETS: [231],
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [

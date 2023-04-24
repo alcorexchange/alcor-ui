@@ -31,6 +31,7 @@
           size='small',
           placeholder='Search'
           ref='searchInput'
+          clearable
         )
         .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
