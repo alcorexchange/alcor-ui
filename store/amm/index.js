@@ -104,15 +104,6 @@ export const actions = {
     dispatch('fetchPositionsHistory')
   },
 
-  subscribeToPool() {
-    this.$socket.on('account:update-positions', positions => {
-      // TODO Handle positions id's
-      // dispatch('fetchPositions')
-      // dispatch('fetchPositionsStats')
-    })
-  },
-
-
   async fetchPoolsStats({ state, commit }) {
     const { data: pools } = await this.$axios.get('/v2/swap/pools')
     commit('setPoolsStats', pools)
@@ -288,9 +279,6 @@ export const getters = {
       const amountB = p.amountB.toAsset()
 
       const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
-
-      // if (stats.totalValue) stats.totalValue = parseFloat(stats.totalValue).toFixed(2)
-      // if (stats.pNl) stats.pNl = parseFloat(stats.pNl).toFixed(2)
 
       positions.push({ ...stats, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
     }

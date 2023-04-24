@@ -167,7 +167,13 @@ const networks = {
 
     USD_TOKEN: 'USDT@tethertether',
 
-    popularTokens: [],
+    popularTokens: [
+      'eos-eosio.token',
+      'usdt-tethertether',
+      'tlos-ibc.wt.tlos',
+      'utx-ibc.wt.ux',
+      'pgl-prospectorsg',
+    ],
   },
 
   proton: {

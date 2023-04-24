@@ -30,6 +30,7 @@
           v-model='search',
           size='small',
           placeholder='Search'
+          clearable
         )
         .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
