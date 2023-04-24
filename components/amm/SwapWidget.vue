@@ -84,7 +84,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) {{ minReceived }} WAX ({{ slippage.toFixed() }}%)
+              .fs-12(v-else) {{ minReceived }} {{ tokenB.symbol }} ({{ slippage.toFixed() }}%)
 
             .d-flex.justify-content-between.align-items-center(v-else)
               .fs-12.disable Maximum Send after slippage
@@ -96,7 +96,7 @@
                 wave-color='rgba(150, 150, 150, 0.1)',
                 :rounded='true',
               )
-              .fs-12(v-else) {{ maximumSend }} WAX ({{ slippage.toFixed() }}%)
+              .fs-12(v-else) {{ maximumSend }} {{ tokenA.symbol }} ({{ slippage.toFixed() }}%)
 
           // TODO PROVIDER FEE
           //- .d-flex.flex-column.gap-4
@@ -376,6 +376,7 @@ export default {
     },
 
     onTokenAInput(val) {
+      console.log('onTokenAInput')
       this.loading = true
       this.calcOutputDebounced(val)
     },
@@ -434,6 +435,7 @@ export default {
     },
 
     async calcOutput(value) {
+      console.log('calcOutput')
       try {
         await this.tryCalcOutput(value)
       } catch (e) {
@@ -447,6 +449,7 @@ export default {
     },
 
     async tryCalcOutput(value) {
+      console.log('tryCalcOutput')
       const { tokenA, tokenB, slippage } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return this.amountB = null

@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks'
+
 import { Router } from 'express'
 import { SwapPool, SwapChartPoint, Position } from '../../models'
 
@@ -14,7 +16,7 @@ import { getRedisTicks, getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 6 }
+const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 10 }
 
 
 // const [trade] = exactIn
@@ -47,6 +49,8 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   //console.log('amount', amount)
 
+  const startTime = performance.now()
+
   let trade
   if (exactIn) {
     [trade] = await Trade.bestTradeExactIn(
@@ -63,6 +67,10 @@ swapRouter.get('/getRoute', async (req, res) => {
       TRADE_OPTIONS
     )
   }
+
+  const endTime = performance.now()
+
+  console.log(network.name, `find route took ${endTime - startTime} milliseconds`)
 
   if (!trade) return res.status(403).send('No route found')
 

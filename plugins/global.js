@@ -41,7 +41,6 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     }
   }
 
-  console.log('state.baseUrl', state.baseUrl)
   $axios.setBaseURL(state.baseUrl.replace('https', 'http') + '/api')
 
   inject('fundamentals', fundamentals)
