@@ -8,13 +8,6 @@
 export default {
   props: ['series'],
 
-  watch: {
-    series() {
-    }
-  },
-
-  mounted() {},
-
   data: () => ({
     chartOptions: {
       markers: {

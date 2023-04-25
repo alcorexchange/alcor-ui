@@ -50,36 +50,29 @@ export default {
       error: false,
       ZOOM_LEVELS,
       FeeAmount,
-      width: 400
+      width: 400,
+      series: [],
+      // series: [
+      //   {
+      //     x: 1834304665020282,
+      //     y: 7082829
+      //   },
+      //   {
+      //     x: 0.94743466,
+      //     y: 7082829
+      //   },
+      //   {
+      //     x: 0.46955859,
+      //     y: 57359
+      //   },
+      //   {
+      //     x: 0,
+      //     y: 0
+      //   }]
     }
   },
 
   computed: {
-    series() {
-      console.log('series computed')
-      // TODO Should be async
-      // TODO Do optimisations, can lowerage perfomance due to large number of ticks
-
-      // Try to fetch series if there is a pool
-      const { tokenA, tokenB, feeAmount } = this
-
-      const pool = this.$store.getters['amm/pools'].find(p => {
-        return (p.tokenA.equals(tokenA) && p.tokenB.equals(tokenB) && p.fee == feeAmount) ||
-        (p.tokenA.equals(tokenB) && p.tokenB.equals(tokenA) && p.fee == feeAmount)
-      })
-
-      const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
-
-      return series.map(s => {
-        const y = Number(s.liquidityActive.toString())
-
-        return {
-          x: Number(s.price0),
-          y: y > 0 ? y : 0 // TODO This is hotfix, might be bug in calculation
-        }
-      })
-    },
-
     isSorted() {
       return this.tokenA.sortsBefore(this.tokenB)
     },
@@ -107,7 +100,31 @@ export default {
     }
   },
 
+  watch: {
+    isSorted() {
+      this.fetchSeries()
+    }
+  },
+
+  mounted() {
+    this.fetchSeries()
+  },
+
   methods: {
+    async fetchSeries() {
+      const { tokenA, tokenB, feeAmount } = this
+
+      const pool = this.$store.getters['amm/pools'].find(p => {
+        return (p.tokenA.equals(tokenA) && p.tokenB.equals(tokenB) && p.fee == feeAmount) ||
+        (p.tokenA.equals(tokenB) && p.tokenB.equals(tokenA) && p.fee == feeAmount)
+      })
+
+      //const { data: series } = await this.$axios.get('/v2/swap/pools/' + pool.id + '/liquidityChartSeries', { params: { inverted: !this.isSorted } })
+      const { data: series } = await this.$axios.get('/v2/swap/pools/' + pool.id + '/liquidityChartSeries', { params: { inverted: !this.isSorted } })
+      this.series = series
+      console.log(series[0])
+    },
+
     brushLabel(d, x) {
       const { price, ticksAtLimit, isSorted } = this
 

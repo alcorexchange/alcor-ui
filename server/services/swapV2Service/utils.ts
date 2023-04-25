@@ -6,7 +6,7 @@ import { Token } from '../../../assets/libs/swap-sdk/entities/token'
 
 const redis = createClient()
 
-export async function getPoolInstance(chain: string, id) {
+export async function getPoolInstance(chain: string, id): Promise<Pool> {
   // Based on swap only, right now
   const pool = await SwapPool.findOne({ chain, id }).lean()
   if (!pool) return undefined

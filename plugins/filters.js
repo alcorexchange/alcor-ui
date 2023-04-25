@@ -56,7 +56,7 @@ Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
   amount = (!amount || isNaN(amount)) ? 0 : parseFloat(amount)
   const id = symbol.toLowerCase() + '-' + contract
 
-  const price = this.$store.state.tokenLogos.find(t => t.id == id)
+  const price = this.$store.state.tokens.find(t => t.id == id)
   return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
 }
 
