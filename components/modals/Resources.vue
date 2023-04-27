@@ -7,17 +7,17 @@ el-dialog(
   :append-to-body='true'
 )
   div
-    .title $t('You are low on CPU! Need more resources')}}?
+    .title {{$t('You are low on CPU! Need more resources')}}?
     .desc {{ $t('Stake') }} {{ $store.state.network.baseToken.symbol }}. {{ $t('You can unstake your') }} {{ $store.state.network.baseToken.symbol }} {{ $t('at any time') }}.
     .progresses
       .progress-continaer
         el-progress(:percentage="getPercentage('cpu_limit')" :width="100" type="circle" :color="generateColor(getPercentage('cpu_limit'))")
-        .details
+        .details.mt-3
           .title CPU
           .total {{ $t('Total Staked') }}: {{ totalResources.cpu_weight }}
       .progress-continaer
         el-progress(:percentage="getPercentage('net_limit')" :width="100" type="circle" :color="generateColor(getPercentage('net_limit'))")
-        .details
+        .details.mt-3
           .title NET
           .total {{ $t('Total Staked') }}: {{ totalResources.net_weight }}
       //.progress-continaer
@@ -75,7 +75,7 @@ export default {
       if (!this.account) return
       const total = this.account[resource].max
       const used = this.account[resource].used
-      return parseInt((used / total) * 100)
+      return parseInt((used / total) * 100) || 0
     },
     generateColor(value) {
       //value from 0 to 100
@@ -150,6 +150,11 @@ export default {
 
   .select {
     width: 80px;
+    &::v-deep {
+      input {
+        padding-left: 14px;
+      }
+    }
   }
 
   .input {
