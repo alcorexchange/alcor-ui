@@ -16,7 +16,7 @@ import { getRedisTicks, getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 4 }
+const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 3 }
 
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
