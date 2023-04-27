@@ -170,7 +170,7 @@ export default {
 
       return [
         {
-          name: 'Price',
+          name: 'Volume',
           data
         }
       ]
