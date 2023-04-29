@@ -265,7 +265,7 @@ export default {
       })
 
       return [
-        { value: FeeAmount.LOW, desc: 'Best forvery high liquidity tokens', selectedPercent: fees[FeeAmount.LOW] },
+        { value: FeeAmount.LOW, desc: 'Best for very high liquidity tokens', selectedPercent: fees[FeeAmount.LOW] },
         { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: fees[FeeAmount.MEDIUM] },
         { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: fees[FeeAmount.HIGH] }
       ]
