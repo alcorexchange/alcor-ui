@@ -33,6 +33,7 @@ export async function getPools(chain: string) {
   for (const p of mongoPools) {
     const ticks = await getRedisTicks(chain, p.id)
 
+    console.log('ticks of', p.id, Array.from(ticks.values()).sort((a, b) => a.id - b.id))
     pools.push(new Pool({
       ...p,
       tokenA: new Token(p.tokenA.contract, p.tokenA.decimals, p.tokenA.symbol, p.tokenA.id),
