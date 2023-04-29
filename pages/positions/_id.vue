@@ -53,7 +53,7 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
       InfoContainer.info.mt-3(:access="true")
         | To update the price range, you need to close this position and open a new one,
         | you can read about automating the price range here&nbsp;
-        nuxt-link(to="https://docs.alcor.exchange/alcor-swap/introduction") Learn about liquidity price range
+        a(href="https://docs.alcor.exchange/alcor-swap/introduction" target="_blank") Learn about liquidity price range
 
 </template>
 
