@@ -14,18 +14,20 @@
 
   .d-flex.flex-column(:class="{'flex-column-reverse': tokensInverted}")
     .d-flex.justify-content-between.mt-1
-      .d-flex.align-items-center.gap-8
+      .d-flex.align-items-center.gap-6
         TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
         span.f-18.symbol {{ position.amountA.currency.symbol }}
+        span.contract {{ position.pool.tokenA.contract }}
         .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
       .d-flex.align-items-center.gap-8
         .fs-18 {{ position.amountA.toFixed() }}
         .fs-14.color-action (${{ $tokenToUSD(position.amountA.toFixed(), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
     .d-flex.justify-content-between.mt-1
-      .d-flex.align-items-center.gap-8
+      .d-flex.align-items-center.gap-6
         TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
         span.f-18.symbol {{ position.amountB.currency.symbol }}
+        span.contract {{ position.pool.tokenB.contract }}
         .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
       .d-flex.align-items-center.gap-8
         .fs-18 {{ position.amountB.toFixed() }}
@@ -143,6 +145,15 @@ export default {
     font-size: 1.2rem;
     font-weight: bold;
   }
+  // .symbol-and-contract {
+  //   display: flex;
+  //   flex-direction: column;
+  //   // gap: 4px;
+  // }
+  .contract {
+    font-size: 0.8rem;
+    color: var(--text-disable);
+  }
   .tag{
     font-size: 0.8rem;
     background: var(--btn-default);
@@ -156,7 +167,7 @@ export default {
     line-height: 1;
   }
   .symbol{
-    min-width: 38px;
+    min-width: 40px;
   }
 }
 @media only screen and (max-width: 640px) {

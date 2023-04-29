@@ -13,7 +13,7 @@ alcor-container.p-3.w-100.chart-container-inner
     )
       el-radio-button.pointer(v-for="{ label, value } in times" :label='value') {{ label }}
 
-  .p-absolute
+  //- .p-absolute
     .d-flex.gap-6.align-items-center.p-relative.t-15
       .indicator.primary
       .fs-20 Swap $2.5 B
@@ -170,7 +170,7 @@ export default {
 
       return [
         {
-          name: 'Price',
+          name: 'Volume',
           data
         }
       ]
