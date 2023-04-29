@@ -107,15 +107,6 @@ export default {
         items.push({ index: '/positions', name: 'Pool' })
       }
 
-      if (
-        ['wax'].includes(
-          this.$store.state.network.name
-        )
-      ) {
-        items.push({ index: '/swp_old', name: 'Swap v1' })
-      }
-
-
       items.push({ index: '/markets', name: 'Markets' })
       items.push({ index: '/bridge', name: 'Bridge' })
 
