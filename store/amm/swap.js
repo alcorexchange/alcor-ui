@@ -1,5 +1,6 @@
 import { Token, Trade } from '~/assets/libs/swap-sdk'
 
+
 export const state = () => ({
   tokenA: null,
   tokenB: null,
@@ -112,7 +113,7 @@ export const getters = {
       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
     })
 
-    return tokens
+    return tokens.filter(t => !rootState.network.SCAM_CONTRACTS.includes(t.contract))
   },
 
   routes(state, getters, rootState) {
