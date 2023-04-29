@@ -354,7 +354,7 @@ const networks = {
 
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
-      'https://wax.eosn.io': 'EOS Nation - Canada',
+      //'https://wax.eosn.io': 'EOS Nation - Canada',
       'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
@@ -369,8 +369,8 @@ const networks = {
     },
 
     amm: {
-      contract: 'ammcontract4'
-      //contract: 'swap.alcor'
+      //contract: 'ammcontract4'
+      contract: 'swap.alcor'
     },
 
     withdraw: {},
