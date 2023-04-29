@@ -226,7 +226,6 @@ export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
   pools(state, getters, rootState) {
-    console.log('pools getter triggered')
     const pools = []
 
     for (const row of state.pools) {
