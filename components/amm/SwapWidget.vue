@@ -418,7 +418,8 @@ export default {
           output: tokenB.id,
           amount: currencyAmountOut.toFixed(),
           slippage: slippage.toFixed(),
-          receiver: this.user?.name
+          receiver: this.user?.name,
+          maxHops: 2
         }
       })
 
@@ -469,7 +470,8 @@ export default {
           output: tokenB.id,
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
-          receiver: this.user?.name
+          receiver: this.user?.name,
+          maxHops: 2
         }
       })
 
