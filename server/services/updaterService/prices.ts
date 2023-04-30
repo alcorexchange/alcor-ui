@@ -72,7 +72,7 @@ export async function getAllTokensWithPrices(network: Network) {
       t.usd_price = 0.0
       t.system_price = 0.0
     } else {
-      t.system_price = parseFloat((pool.tokenA.id == system_token? pool.tokenBPrice : pool.tokenAPrice)
+      t.system_price = parseFloat((pool.tokenA.id == system_token ? pool.tokenBPrice : pool.tokenAPrice)
         .toSignificant(6)
       )
 
