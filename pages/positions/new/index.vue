@@ -247,9 +247,8 @@ export default {
     ]),
 
     existingPosition() {
-      const { positions, tickLower, tickUpper } = this
-
-      return positions.find(p => p.tickLower == tickLower && p.tickUpper == tickUpper)
+      const { positions, tickLower, tickUpper, pool } = this
+      return positions.find(p => p.tickLower == tickLower && p.tickUpper == tickUpper && p.pool.id == pool?.id)
     },
 
     fees() {
