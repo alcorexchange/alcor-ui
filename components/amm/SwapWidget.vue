@@ -126,7 +126,7 @@
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
-  a.d-flex.banner.w-100(href="#" target="_blank")
+  //a.d-flex.banner.w-100(href="#" target="_blank")
     img.w-100(src="@/assets/images/swap_v2_live_banner.png")
 </template>
 
