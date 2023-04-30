@@ -66,6 +66,7 @@ export async function updater(chain, provider, services) {
 
     await updatePools(chain)
     await updatePoolsStats(chain)
+    setInterval(() => updatePools(chain), 1 * 60 * 1000)
     setInterval(() => updatePoolsStats(chain), 1 * 60 * 1000)
 
     streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'])
