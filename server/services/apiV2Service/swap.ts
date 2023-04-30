@@ -124,15 +124,11 @@ swap.get('/pools/:id', async (req, res) => {
 })
 
 swap.get('/pools/:id/positions', async (req, res) => {
-  // TODO Pool share, top providers etc
   const network: Network = req.app.get('network')
+  const redis = req.app.get('redisClient')
 
-  const positions = await Position.find({
-    chain: network.name,
-    pool: parseInt(req.params.id),
-  }).lean()
-
-  res.json(positions)
+  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
+  res.json(positions.filter(p => p.pool == req.params.id))
 })
 
 swap.get('/pools/:id/ticks', async (req, res) => {
