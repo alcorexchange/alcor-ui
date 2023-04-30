@@ -158,7 +158,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
@@ -233,7 +233,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['eosiotokens'],
+    SCAM_CONTRACTS: ['eosiotokens', 'albabank'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
@@ -388,7 +388,8 @@ const networks = {
       'onfederation',
       'martaintoken',
       'martiantoken',
-      'superruncoin'
+      'superruncoin',
+      'bosibc.io'
     ],
 
     CEX_CONTRACTS: [
@@ -462,7 +463,7 @@ const networks = {
     ],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['usdcoinchain'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
