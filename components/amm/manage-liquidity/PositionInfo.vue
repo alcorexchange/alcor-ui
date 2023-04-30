@@ -12,7 +12,7 @@
 
     .pool-amount-title.fs-18.disable.mt-2 {{ $t('Pool Amount') }}
 
-  .pool-amount(:class="{'flex-column-reverse': tokensInverted}")
+  .pool-amount(:class="{'reversed': tokensInverted}")
     .d-flex.align-items-center.gap-6
       TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
       span.f-18.symbol {{ position.amountA.currency.symbol }}
@@ -23,13 +23,13 @@
       .fs-18 {{ position.amountA.toFixed() }}
       .fs-14.color-action (${{ $tokenToUSD(position.amountA.toFixed(), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
-    .d-flex.align-items-center.gap-6
+    .d-flex.align-items-center.gap-6.token-b
       TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
       span.f-18.symbol {{ position.amountB.currency.symbol }}
       span.contract {{ position.pool.tokenB.contract }}
-    .amount-percent-container
+    .amount-percent-container.token-b
       .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
-    .d-flex.align-items-center.gap-8
+    .d-flex.align-items-center.gap-8.token-b
       .fs-18 {{ position.amountB.toFixed() }}
       .fs-14.color-action (${{$tokenToUSD(position.amountB.toFixed(), position.pool.tokenB.symbol, position.pool.tokenB.contract)}})
 
@@ -147,6 +147,11 @@ export default {
     align-items: center;
     column-gap: 6px;
     row-gap: 2px;
+    &.reversed {
+      .token-b {
+        grid-row-start: 1;
+      }
+    }
   }
   .pairs{
     font-size: 1.2rem;
