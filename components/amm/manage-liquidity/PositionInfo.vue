@@ -19,7 +19,7 @@
       span.contract {{ position.pool.tokenA.contract }}
     .amount-percent-container
       .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
-    .d-flex.align-items-center.gap-8
+    .d-flex.align-items-center.justify-content-end.gap-8
       .fs-18 {{ position.amountA.toFixed() }}
       .fs-14.color-action (${{ $tokenToUSD(position.amountA.toFixed(), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
@@ -29,7 +29,7 @@
       span.contract {{ position.pool.tokenB.contract }}
     .amount-percent-container.token-b
       .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
-    .d-flex.align-items-center.gap-8.token-b
+    .d-flex.align-items-center.justify-content-end.gap-8.token-b
       .fs-18 {{ position.amountB.toFixed() }}
       .fs-14.color-action (${{$tokenToUSD(position.amountB.toFixed(), position.pool.tokenB.symbol, position.pool.tokenB.contract)}})
 
