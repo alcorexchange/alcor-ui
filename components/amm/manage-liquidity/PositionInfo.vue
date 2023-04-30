@@ -12,26 +12,26 @@
 
     .pool-amount-title.fs-18.disable.mt-2 {{ $t('Pool Amount') }}
 
-  .d-flex.flex-column(:class="{'flex-column-reverse': tokensInverted}")
-    .d-flex.justify-content-between.mt-1
-      .d-flex.align-items-center.gap-6
-        TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
-        span.f-18.symbol {{ position.amountA.currency.symbol }}
-        span.contract {{ position.pool.tokenA.contract }}
-        .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
-      .d-flex.align-items-center.gap-8
-        .fs-18 {{ position.amountA.toFixed() }}
-        .fs-14.color-action (${{ $tokenToUSD(position.amountA.toFixed(), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
+  .pool-amount(:class="{'reversed': tokensInverted}")
+    .d-flex.align-items-center.gap-6
+      TokenImage.token-image(:src="$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)" height="25")
+      span.f-18.symbol {{ position.amountA.currency.symbol }}
+      span.contract {{ position.pool.tokenA.contract }}
+    .amount-percent-container
+      .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'e' : 'w') }}%
+    .d-flex.align-items-center.gap-8
+      .fs-18 {{ position.amountA.toFixed() }}
+      .fs-14.color-action (${{ $tokenToUSD(position.amountA.toFixed(), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
-    .d-flex.justify-content-between.mt-1
-      .d-flex.align-items-center.gap-6
-        TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
-        span.f-18.symbol {{ position.amountB.currency.symbol }}
-        span.contract {{ position.pool.tokenB.contract }}
-        .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
-      .d-flex.align-items-center.gap-8
-        .fs-18 {{ position.amountB.toFixed() }}
-        .fs-14.color-action (${{$tokenToUSD(position.amountB.toFixed(), position.pool.tokenB.symbol, position.pool.tokenB.contract)}})
+    .d-flex.align-items-center.gap-6.token-b
+      TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
+      span.f-18.symbol {{ position.amountB.currency.symbol }}
+      span.contract {{ position.pool.tokenB.contract }}
+    .amount-percent-container.token-b
+      .amount-percent.fs-10 {{ composedPercent(tokensInverted ? 'w' : 'e') }}%
+    .d-flex.align-items-center.gap-8.token-b
+      .fs-18 {{ position.amountB.toFixed() }}
+      .fs-14.color-action (${{$tokenToUSD(position.amountB.toFixed(), position.pool.tokenB.symbol, position.pool.tokenB.contract)}})
 
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
@@ -141,6 +141,18 @@ export default {
       grid-area: amount;
     }
   }
+  .pool-amount {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 6px;
+    row-gap: 2px;
+    &.reversed {
+      .token-b {
+        grid-row-start: 1;
+      }
+    }
+  }
   .pairs{
     font-size: 1.2rem;
     font-weight: bold;
@@ -160,15 +172,18 @@ export default {
     padding: 2px 4px;
     border-radius: 4px;
   }
+  .amount-percent-container {
+    display: flex;
+  }
   .amount-percent {
     border: 1px solid var(--border-color);
     padding: 2px 6px;
     border-radius: 4px;
     line-height: 1;
   }
-  .symbol{
-    min-width: 40px;
-  }
+  // .symbol{
+  //   min-width: 40px;
+  // }
 }
 @media only screen and (max-width: 640px) {
   .pool-info {

@@ -46,23 +46,27 @@
             )
             .token-name {{ item.symbol }}
         //- .separator
-        .d-flex.flex-column.scrollable
-          .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
-            v-if="filteredAssets.length"
-            v-for='(item, index) in filteredAssets',
-            @click='selectAsset(item)'
-            :class="{ 'is-selected': token && item.symbol === token.symbol && item.contract === token.contract }"
-          )
-            TokenImage(
-              :src='$tokenLogo(item.currency || item.symbol, item.contract)',
-              height='28'
+        RecycleScroller(
+          class="virtual-scroller"
+          :items="filteredAssets"
+          :item-size="48"
+          v-if="filteredAssets.length"
+        )
+          template(#default="{ item }")
+            .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
+              @click='selectAsset(item)'
+              :class="{ 'is-selected': token && item.symbol === token.symbol && item.contract === token.contract }"
             )
-            .d-flex.flex-column.gap-2.flex-grow-1
-              .contrast {{ item.currency || item.symbol }}
-              .fs-12.disable {{ item.contract }}
-            div {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
+              TokenImage(
+                :src='$tokenLogo(item.currency || item.symbol, item.contract)',
+                height='28'
+              )
+              .d-flex.flex-column.gap-2.flex-grow-1
+                .contrast {{ item.currency || item.symbol }}
+                .fs-12.disable {{ item.contract }}
+              div {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
 
-          .fs-16.text-center(v-if="!filteredAssets.length") No tokens found.
+        .fs-16.text-center(v-if="!filteredAssets.length") No tokens found.
 
 </template>
 
@@ -127,10 +131,6 @@ export default {
 </script>
 
 <style lang="scss">
-.scrollable {
-  overflow: auto;
-  max-height: 30vh;
-}
 .separator{
   width: 100%;
   border-bottom: 1px solid var(--border-color);
@@ -200,6 +200,9 @@ export default {
         pointer-events: none;
       }
     }
+  }
+  .virtual-scroller {
+    max-height: 40vh;
   }
   .token-item.is-selected{
     opacity: 0.6;

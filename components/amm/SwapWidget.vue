@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.gap-6.justify-content-center
+.d-flex.justify-content-center.flex-column
   alcor-container.swap-widget
     .d-flex.justify-content-between.align-items-center.p-1
       .d-flex.align-items-center.gap-16
@@ -126,6 +126,8 @@
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
+  a.d-flex.banner.w-100(href="#" target="_blank")
+    img.w-100(src="@/assets/images/swap_v2_live_banner.png")
 </template>
 
 <script>
@@ -576,6 +578,9 @@ export default {
 .rate-container {
   user-select: none;
   color: var(--text-default);
+}
+.banner {
+  margin: 32px 0;
 }
 </style>
 <style lang="scss">
