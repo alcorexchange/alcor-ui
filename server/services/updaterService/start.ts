@@ -1,11 +1,11 @@
 import config from '../../../config'
 
 import { getSettings } from '../../utils'
+import { updatePools } from '../swapV2Service'
 import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
 import { updateSystemPrice, updateTokensPrices } from './prices'
-import { updatePools } from '../swapV2Service'
 
 import { streamHyperion, streamByNode } from './streamers'
 
@@ -65,6 +65,7 @@ export async function updater(chain, provider, services) {
     console.log('start swap updater for', chain)
 
     await updatePoolsStats(chain)
+    setInterval(() => updatePools(chain), 1 * 60 * 1000)
     setInterval(() => updatePoolsStats(chain), 1 * 60 * 1000)
 
     streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'])
