@@ -47,7 +47,7 @@
             .token-name {{ item.symbol }}
         //- .separator
         RecycleScroller(
-          class="scroller"
+          class="virtual-scroller"
           :items="filteredAssets"
           :item-size="48"
           v-if="filteredAssets.length"
@@ -131,10 +131,6 @@ export default {
 </script>
 
 <style lang="scss">
-.scrollable {
-  overflow: auto;
-  max-height: 30vh;
-}
 .separator{
   width: 100%;
   border-bottom: 1px solid var(--border-color);
@@ -205,7 +201,7 @@ export default {
       }
     }
   }
-  .scroller {
+  .virtual-scroller {
     max-height: 40vh;
   }
   .token-item.is-selected{
