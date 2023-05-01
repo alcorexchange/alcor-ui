@@ -569,7 +569,9 @@ export const actions = {
       }, { root: true })
   },
 
-  updatePairBalances({ state, dispatch, rootState }) {
+  updatePairBalances({ state, dispatch }) {
+    if (!state.base_token?.symbol?.name || !state.quote_token?.symbol?.name) return
+
     dispatch('updateBalance', {
       contract: state.base_token.contract,
       symbol: state.base_token.symbol.name

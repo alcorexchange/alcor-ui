@@ -29,7 +29,8 @@ swapRouter.get('/getRoute', async (req, res) => {
   if (!slippage) slippage = 0.3
   slippage = new Percent(slippage * 100, 10000)
 
-  if (maxHops !== undefined) TRADE_OPTIONS.maxHops = Math.min(parseInt(maxHops), 4) // Max hoop can be only 4
+  // Max hoop can be only 3 due to perfomance
+  if (maxHops !== undefined) TRADE_OPTIONS.maxHops = Math.min(parseInt(maxHops), 3)
 
   const exactIn = trade_type == 'EXACT_INPUT'
 
