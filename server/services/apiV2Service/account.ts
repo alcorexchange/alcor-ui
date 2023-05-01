@@ -2,7 +2,7 @@ import JSBI from 'jsbi'
 import { Router } from 'express'
 import { createClient } from 'redis'
 import { Swap, SwapPool, PositionHistory, Position } from '../../models'
-import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
+import { getRedisPosition, getPoolInstance, getPools } from '../swapV2Service/utils'
 
 import { Position as PositionClass } from '../../../assets/libs/swap-sdk/entities/position'
 
@@ -16,8 +16,11 @@ async function getCurrentPositionState(chain, plainPosition) {
   const pool = await getPoolInstance(chain, plainPosition.pool)
 
   const position = new PositionClass({ ...plainPosition, pool })
-  const fees = await position.getFees()
 
+  const amountA = position.amountA.toAsset()
+  const amountB = position.amountB.toAsset()
+
+  const fees = await position.getFees()
   const feesA = fees.feesA.toFixed()
   const feesB = fees.feesB.toFixed()
 
@@ -38,15 +41,17 @@ async function getCurrentPositionState(chain, plainPosition) {
   return {
     feesA,
     feesB,
+    amountA,
+    amountB,
     totalValue: parseFloat(totalValue.toFixed(2))
   }
 }
 
 
-async function getPositionStats(chain, id, owner, redisPosition) {
+async function getPositionStats(chain, redisPosition) {
   if (!redis.isOpen) await redis.connect()
   // Will sort "closed" to the end
-  const history = await PositionHistory.find({ chain, id, owner }).sort({ time: 1, type: 1 }).lean()
+  const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
 
   let total = 0
   let sub = 0
@@ -116,7 +121,14 @@ account.get('/:account/positions', async (req, res) => {
 
   const positions = JSON.parse(await redis.get(`positions_${network.name}`))
 
-  res.json(positions.filter(p => p.owner == req.params.account))
+  const result = []
+  for (const position of positions.filter(p => p.owner == req.params.account)) {
+    const stats = await getPositionStats(network.name, position)
+
+    result.push({ ...position, ...stats })
+  }
+
+  res.json(result)
 })
 
 account.get('/:account/positions-stats', async (req, res) => {
@@ -130,7 +142,7 @@ account.get('/:account/positions-stats', async (req, res) => {
   for (const id of positions) {
     const redisPosition = await getRedisPosition(network.name, id)
 
-    const stats = await getPositionStats(network.name, id, account, redisPosition)
+    const stats = await getPositionStats(network.name, redisPosition)
     fullPositions.push({ id, ...stats })
   }
 
