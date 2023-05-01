@@ -93,10 +93,9 @@ export default {
 
     pNl() {
       const { position } = this
-      const positionStats = this.$store.state.amm.positionsStats.find(p => p.id == position.id)
-      if (!positionStats || !positionStats.pNl) return '0.0000'
+      if (!position.pNl) return '0.0000'
 
-      return positionStats.pNl.toFixed(4)
+      return position.pNl.toFixed(4)
     },
 
     APY() {

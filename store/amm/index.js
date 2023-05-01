@@ -255,10 +255,20 @@ export const getters = {
 
       if (!poolInstance) continue
 
-      positions.push(new Position({
+      const tempPosition = new Position({
         ...position,
         pool: poolInstance
-      }))
+      })
+
+      // Add Stats
+      Object.assign(tempPosition, {
+        feesA: position.feesA || '0.0000',
+        feesB: position.feesB || '0.0000',
+        pNl: position.pNl | 0,
+        totalValue: position.totalValue || 0
+      })
+
+      positions.push(tempPosition)
     }
 
     return positions
@@ -267,9 +277,9 @@ export const getters = {
   plainPositions(state, getters) {
     const positions = []
     for (const p of getters.positions) {
-      const stats = state.positionsStats.find(pos => pos.id == p.id) || { totalValue: 0, pNl: 0, feesA: '0.0000', feesB: '0.0000' }
+      // const stats = state.positionsStats.find(pos => pos.id == p.id) || { totalValue: 0, pNl: 0, feesA: '0.0000', feesB: '0.0000' }
 
-      const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee } } = p
+      const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee }, feesA, feesB, pNl, totalValue } = p
 
       const priceLower = isTicksAtLimit(fee, tickLower, tickUpper).LOWER ? '0' : p.tokenAPriceLower.toSignificant(5)
       const priceUpper = isTicksAtLimit(fee, tickLower, tickUpper).UPPER ? '∞' : p.tokenAPriceUpper.toSignificant(5)
@@ -279,7 +289,7 @@ export const getters = {
 
       const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
 
-      positions.push({ ...stats, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
+      positions.push({ feesA, feesB, pNl, totalValue, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
     }
 
     return positions

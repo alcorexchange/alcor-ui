@@ -8,15 +8,15 @@
     .d-flex.align-items-center.gap-8
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ feesA }}
-      .fs-14.color-action (${{ $tokenToUSD(parseFloat(feesA), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
+      .fs-18.lh-12 {{ position.feesA }}
+      .fs-14.color-action (${{ $tokenToUSD(parseFloat(position.feesA), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ feesB }}
-      .fs-14.color-action (${{ $tokenToUSD(parseFloat(feesB), position.pool.tokenB.symbol, position.pool.tokenB.contract) }})
+      .fs-18.lh-12 {{ position.feesB }}
+      .fs-14.color-action (${{ $tokenToUSD(parseFloat(position.feesB), position.pool.tokenB.symbol, position.pool.tokenB.contract) }})
 
 </template>
 
@@ -42,19 +42,6 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
 
-    positionStats() {
-      return this.$store.state.amm.positionsStats.find(p => p.id == this.position.id)
-    },
-
-    feesA() {
-      const { tokenA } = this.position.pool
-      return this.positionStats?.feesA + ' ' + tokenA.symbol
-    },
-
-    feesB() {
-      const { tokenB } = this.position.pool
-      return this.positionStats?.feesB + ' ' + tokenB.symbol
-    }
   },
 
   methods: {
