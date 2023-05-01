@@ -35,7 +35,7 @@
       @tokenSelected="setTokenB"
     )
 
-    alcor-container.info-container.mt-2(:alternative="true" v-if="tokenA && tokenB")
+    alcor-container.info-container.mt-2(:alternative="true" v-if="tokenA && tokenB && (amountA && amountB)")
       el-collapse(:value="routerCollapse").default
         el-collapse-item(name="1")
           template(#title)
@@ -297,6 +297,7 @@ export default {
       this.amountB = amountB
       this.$store.dispatch('amm/swap/flipTokens')
 
+      this.loading = true
       this.calcOutput(this.amountA)
     },
 
