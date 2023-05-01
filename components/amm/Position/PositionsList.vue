@@ -30,7 +30,7 @@ el-table.position-table.custom-responsive-table(
             .fs-12.disable MAX
             .fs-12.contrast {{ row.priceUpper }}
 
-  el-table-column(:label='$t("Assets in Pool")' width="160")
+  el-table-column(:label='$t("Assets in Pool")' width="180")
     template(slot-scope='{row}')
       .d-flex.flex-column
         .mobile-label {{ $t("Assets in Pool") }}
@@ -45,7 +45,7 @@ el-table.position-table.custom-responsive-table(
           .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
             span {{ row.amountB }}
 
-  el-table-column(:label='$t("Unclaimed Fees")' width="160" class-name="unclaimed-fees")
+  el-table-column(:label='$t("Unclaimed Fees")' width="180" class-name="unclaimed-fees")
     template(slot-scope='{row}')
       .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
       position-fees.position-fees(:position="row")
@@ -54,7 +54,7 @@ el-table.position-table.custom-responsive-table(
     template(slot-scope='{row}')
       span $ {{ row.totalValue && row.totalValue.toFixed(4) }}
 
-  el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
+  el-table-column(:label='$t("P&L")' width="80" v-if="!isMobile")
     template(slot-scope='{row}')
       span(:style="{color: renderPLColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(4) }}
 
