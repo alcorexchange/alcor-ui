@@ -59,10 +59,6 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
 export async function getRedisPosition(chain, id) {
   if (!redis.isOpen) await redis.connect()
 
-  const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
-
-  // Merging
-  const positions = new Map([...current.map(p => [p.id, p])])
-
-  return positions.get(id)
+  const positions = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
+  return positions.find(p => p.id == id)
 }
