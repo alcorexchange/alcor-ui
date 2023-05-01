@@ -142,6 +142,11 @@ account.get('/:account/positions-stats', async (req, res) => {
   for (const id of positions) {
     const redisPosition = await getRedisPosition(network.name, id)
 
+    if (!redisPosition) {
+      console.log('NO FOUND POSITION FOR EXISTING HISTORY:', network.name, id)
+      continue
+    }
+
     const stats = await getPositionStats(network.name, redisPosition)
     fullPositions.push({ id, ...stats })
   }
