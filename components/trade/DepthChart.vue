@@ -32,7 +32,16 @@ export default {
 
   data() {
     return {
-      chartOptions: {
+      bids: [],
+      asks: [],
+      parentHeight: 0
+    }
+  },
+
+  computed: {
+    chartOptions() {
+      return {
+
         //credits: {
         //  enabled: false,
         //  align: 'right',
@@ -240,7 +249,7 @@ export default {
         },
         series: [
           {
-            name: 'WAX',
+            name: this.base_token?.symbol.name,
             marker: {
               enabled: false
             },
@@ -248,7 +257,7 @@ export default {
             color: 'var(--color-secondary-op)'
           },
           {
-            name: 'WAX',
+            name: this.base_token?.symbol.name,
             marker: {
               enabled: false
             },
@@ -256,14 +265,8 @@ export default {
             color: 'var(--color-primary-op)'
           }
         ]
-      },
-      bids: [],
-      asks: [],
-      parentHeight: 0
-    }
-  },
-
-  computed: {
+      }
+    },
     ...mapState(['network', 'user', 'userOrders']),
     ...mapGetters('market', ['price']),
     ...mapState('market', [
