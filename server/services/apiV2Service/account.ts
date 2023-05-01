@@ -21,8 +21,8 @@ async function getCurrentPositionState(chain, plainPosition) {
   const amountB = position.amountB.toAsset()
 
   const fees = await position.getFees()
-  const feesA = fees.feesA.toFixed()
-  const feesB = fees.feesB.toFixed()
+  const feesA = fees.feesA.toAsset()
+  const feesB = fees.feesB.toAsset()
 
   const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
