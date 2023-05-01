@@ -49,6 +49,7 @@ async function getCurrentPositionState(chain, plainPosition) {
 
 
 async function getPositionStats(chain, redisPosition) {
+  console.log({ redisPosition })
   if (!redis.isOpen) await redis.connect()
   // Will sort "closed" to the end
   const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
