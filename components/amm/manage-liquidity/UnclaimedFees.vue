@@ -8,7 +8,7 @@
     .d-flex.align-items-center.gap-8
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ position.feesA }}
+      .fs-18.lh-12 {{ feesA }}
       .fs-14.color-action (${{ $tokenToUSD(parseFloat(feesA), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
   .d-flex.justify-content-between.mt-1
@@ -47,13 +47,11 @@ export default {
     },
 
     feesA() {
-      const { tokenA } = this.position.pool
-      return this.positionStats?.feesA + ' ' + tokenA.symbol
+      return this.positionStats?.feesA
     },
 
     feesB() {
-      const { tokenB } = this.position.pool
-      return this.positionStats?.feesB + ' ' + tokenB.symbol
+      return this.positionStats?.feesB
     }
   },
 

@@ -107,6 +107,8 @@ export default {
     filteredAssets() {
       const tokens = this.tokens
 
+      if (!tokens) return []
+
       tokens.forEach(t => t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract))
       tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
 
