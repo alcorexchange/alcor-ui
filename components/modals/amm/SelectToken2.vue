@@ -64,7 +64,7 @@
               .d-flex.flex-column.gap-2.flex-grow-1
                 .contrast {{ item.currency || item.symbol }}
                 .fs-12.disable {{ item.contract }}
-              div {{ $tokenBalance(item.currency || item.symbol, item.contract) }}
+              div {{ item.balance }}
 
         .fs-16.text-center(v-if="!filteredAssets.length") No tokens found.
 
@@ -105,7 +105,14 @@ export default {
     },
 
     filteredAssets() {
-      return this.tokens?.filter((asset) =>
+      const tokens = this.tokens
+
+      if (!tokens) return []
+
+      tokens.forEach(t => t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract))
+      tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
+
+      return tokens?.filter((asset) =>
         Object.values(asset).join().toLowerCase().includes(this.search.toLowerCase())
       ) || []
     },

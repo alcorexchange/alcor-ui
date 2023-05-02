@@ -1,7 +1,11 @@
+import { performance } from 'perf_hooks'
+
+import { Position } from '@alcorexchange/alcor-swap-sdk'
+
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { SwapPool, SwapChartPoint, Position } from '../../models'
-import { getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
+import { SwapPool, SwapChartPoint } from '../../models'
+import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { getLiquidityRangeChart } from '../../../utils/amm.js'
 
 
@@ -124,6 +128,24 @@ swap.get('/pools/:id', async (req, res) => {
 })
 
 swap.get('/pools/:id/positions', async (req, res) => {
+  const network: Network = req.app.get('network')
+  const redis = req.app.get('redisClient')
+
+  const pool = await getPoolInstance(network.name, req.params.id)
+  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
+
+  const result = positions.filter(p => p.pool == req.params.id).map(p => {
+    const position = new Position({ ...p, pool })
+    p.amountA = position.amountA.toAsset()
+    p.amountB = position.amountB.toAsset()
+
+    return p
+  })
+
+  res.json(result)
+})
+
+swap.get('/pools/:id/table-positions', async (req, res) => {
   const network: Network = req.app.get('network')
   const redis = req.app.get('redisClient')
 

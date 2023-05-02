@@ -9,7 +9,7 @@
       .d-flex.gap-2.align-items-center
         AlcorButton(iconOnly flat).p-0
           i.el-icon-data-analysis.pointer.fs-18(@click="$emit('onChartClick')")
-        Settings
+        Settings(:swapPage="true")
 
     PoolTokenInput.mt-2(
       label="Sell"
@@ -227,6 +227,7 @@ export default {
       return this.tokenA && this.tokenB && this.amountA && this.amountB
     },
     ...mapState(['user', 'network']),
+    ...mapState('amm', ['maxHops']),
     ...mapGetters('amm', ['slippage', 'pools']),
     ...mapGetters('amm/swap', [
       'tokenA',
@@ -269,8 +270,12 @@ export default {
     //   this.$store.dispatch('amm/swap/subscribeToCurrentPairPoolsUpdates')
     },
 
+    maxHops() {
+      this.recalculate()
+    },
+
     pools() {
-      console.log('pools changed')
+      // Do we actually need that?
       //this.recalculate()
     },
 
@@ -285,9 +290,9 @@ export default {
       'bestTradeExactOut'
     ]),
 
-    async recalculate() {
-      console.log('recalculate')
-      this.lastField == 'input' ? await this.calcOutput(this.amountA) : await this.calcOutput(this.amountB)
+    recalculate() {
+      if (this.loading) return
+      this.lastField == 'input' ? this.onTokenAInput(this.amountA) : this.onTokenBInput(this.amountB)
     },
 
     toggleTokens() {
@@ -377,12 +382,13 @@ export default {
 
     onTokenBInput(val) {
       this.loading = true
+      this.lastField = 'output'
       this.calcInputDebounced(val)
     },
 
     onTokenAInput(val) {
-      console.log('onTokenAInput')
       this.loading = true
+      this.lastField = 'input'
       this.calcOutputDebounced(val)
     },
 
@@ -422,7 +428,7 @@ export default {
           amount: currencyAmountOut.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
-          maxHops: 2
+          maxHops: this.maxHops
         }
       })
 
@@ -437,7 +443,6 @@ export default {
       this.priceImpact = priceImpact
       this.route = { pools: route.map(poolId => this.pools.find(p => p.id == poolId)), input: tokenA, output: tokenB }
       this.maximumSend = maxSent
-      this.lastField = 'output'
     },
 
     async calcOutput(value) {
@@ -474,7 +479,7 @@ export default {
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
-          maxHops: 2
+          maxHops: this.maxHops
         }
       })
 
@@ -489,7 +494,6 @@ export default {
       this.priceImpact = priceImpact
       this.minReceived = minReceived
       this.route = { pools: route.map(poolId => this.pools.find(p => p.id == poolId)), input: tokenA, output: tokenB }
-      this.lastField = 'input'
     },
 
     onRateClick() {
