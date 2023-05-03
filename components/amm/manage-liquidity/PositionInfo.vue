@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import JSBI from 'jsbi'
 import { Fraction } from '~/assets/libs/swap-sdk'
 
 import RangeIndicator from '~/components/amm/RangeIndicator'
@@ -75,6 +76,7 @@ export default {
     },
 
     poolShare() {
+      if (JSBI.equal(this.position.pool.liquidity, JSBI.BigInt(0))) return '0.00'
       return (parseFloat(new Fraction(this.position.liquidity, this.position.pool.liquidity).toFixed(6)) * 100).toFixed(2)
     },
 
