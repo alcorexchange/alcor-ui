@@ -21,8 +21,8 @@ export default {
   data: () => ({
     bannerOnly: [
       {
-        bannerImg: 'outlawtroopers',
-        bannerUrl: 'https://outlawtroopers.io/?utm_source=alcor&utm_medium=banner'
+        bannerImg: 'farmerpets',
+        bannerUrl: 'https://discord.gg/wGy3BuvU'
       }
     ],
 
