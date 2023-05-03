@@ -21,6 +21,7 @@ async function getCurrentPositionState(chain, plainPosition) {
   const amountB = position.amountB.toAsset()
 
   const fees = await position.getFees()
+
   const feesA = fees.feesA.toAsset()
   const feesB = fees.feesB.toAsset()
 
