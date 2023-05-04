@@ -47,10 +47,10 @@
                 .disable.fs-12 {{ $t('Rate') }}
                 .d-flex.gap-4
                   .fs-12 {{ rate }} {{ rateInverted ? tokenA.symbol : tokenB.symbol }} per {{ rateInverted ? tokenB.symbol : tokenA.symbol}}
-                  .fs-12.disable (0.00$)
+                  .fs-12.disable ({{$tokenToUSD(rate, rateInverted ? tokenA.symbol : tokenB.symbol, rateInverted ? tokenA.contract : tokenB.contract)}}$)
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
-              .fs-12.disable Expected Output
+              .fs-12.disable {{ $t('Expected Output') }}
               vue-skeleton-loader(
                 v-if='loading'
                 :width='52',

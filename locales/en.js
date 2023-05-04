@@ -672,5 +672,6 @@ export default {
   'Inifinity Range': 'Inifinity Range',
   'Your position will appear here.': 'Your position will appear here.',
   Loading: 'Loading',
-  'Liquidity data not available.': 'Liquidity data not available.'
+  'Liquidity data not available.': 'Liquidity data not available.',
+  'Expected Output': 'Expected Output'
 }
