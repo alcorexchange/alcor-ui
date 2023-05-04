@@ -666,5 +666,7 @@ export default {
   'You already have a position with this range. The liquidity in the existing position will be increased.': 'You already have a position with this range. The liquidity in the existing position will be increased.',
   'The market price is outside your specified price range. Single-asset deposit only.': 'The market price is outside your specified price range. Single-asset deposit only.',
   noPoolMessage: 'This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Pool and position will be created in single transaction.',
-  'Estimated Fees (24H) / Fees Share:': 'Estimated Fees (24H) / Fees Share:'
+  'Estimated Fees (24H) / Fees Share:': 'Estimated Fees (24H) / Fees Share:',
+  'Token 1': 'Token 1',
+  'Token 2': 'Token 2',
 }
