@@ -278,7 +278,7 @@ export default {
         (amountA && amountB)
       ) return { state: false, text: this.$t('Add Liquidity') }
 
-      return { state: true, text: this.$t('Enter amount') }
+      return { state: true, text: this.$t('Enter Amount') }
     },
 
     renderError() {
