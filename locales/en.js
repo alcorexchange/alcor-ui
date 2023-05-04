@@ -639,5 +639,12 @@ export default {
   'Claim Fees': 'Claim Fees',
   'Remove Liquidity and Claim Fees': 'Remove Liquidity and Claim Fees',
   Network: 'Network',
-  'Token Amount': 'Token Amount'
+  'Token Amount': 'Token Amount',
+  'Select Tokens': 'Select Tokens',
+  'Enter Amounts': 'Enter Amounts',
+  'Swap A To B': 'Swap {A} To {B}',
+  Multiroute: 'Multiroute',
+  'Fetching Best price...': 'Fetching Best price...',
+  'Minimum Received after slippage': 'Minimum Received after slippage',
+  pool: 'pool' // this is lowercase
 }

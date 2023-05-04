@@ -4,7 +4,7 @@
     //.lead {{ context }}
     .text-center(v-if="context && context.message") {{ context.message }}
       .fs-20 {{ context.chain }}
-    .text-center.p-3(v-else) Select wallet
+    .text-center.p-3(v-else) {{ $t('Select wallet') }}
   .body.row(v-loading='loading')
     .items
       .item(v-for='wallet in wallets')

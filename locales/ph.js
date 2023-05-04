@@ -304,7 +304,7 @@ export default {
   'Only sell orders': 'Mga Binentang orders lamang',
   'Total orders': 'Kabuuang mga order',
   'Order slot limit': 'Limitasyon ng Order slot',
-  "There is no NFT's yet": "Wala pang mga NFTÕs",
+  "There is no NFT's yet": "Wala pang mga NFTï¿½s",
   'With Alcor you can trade any EOS.IO tokens for system EOS tokens, atomically, without the participation of third parties! The tokens should comply with the standard eosio.token of the contract': 'Sa Alcor maaari mong ipagpalit ang anumang mga tokens ng EOS.IO para sa mga system EOS tokens, nang awtomiko, at walang paglahok sa mga third party! Ang mga tokens ay dapat sumunod sa karaniwang kontrata ng eosio.token',
   Fully: 'Fully',
   onchain: 'onchain',
@@ -515,5 +515,6 @@ export default {
   'Min Mint': 'Min Mint',
   'Max Mint': 'Max Mint',
   'Only Duplicates': 'Only Duplicates',
-  'Only backed NFTs': 'Only backed NFTs'
+  'Only backed NFTs': 'Only backed NFTs',
+  'Swap A To B': 'Swap {A} To {B}'
 }

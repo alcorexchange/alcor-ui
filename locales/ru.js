@@ -561,5 +561,6 @@ export default {
   'Min Mint': 'Min Mint',
   'Max Mint': 'Max Mint',
   'Only Duplicates': 'Only Duplicates',
-  'Only backed NFTs': 'Only backed NFTs'
+  'Only backed NFTs': 'Only backed NFTs',
+  'Swap A To B': 'Обмен {A} → {B}'
 }

@@ -12,7 +12,7 @@
         Settings(:swapPage="true")
 
     PoolTokenInput.mt-2(
-      label="Sell"
+      :label="$t('Sell')"
       :token="tokenA"
       :tokens="tokens"
       v-model="amountA"
@@ -27,7 +27,7 @@
           i.el-icon-bottom.text-center.fs-20.pointer
 
     PoolTokenInput.mt-1(
-      label="Buy"
+      :label="$t('Buy')"
       :token="tokenB"
       :tokens="tokens"
       v-model="amountB"
@@ -42,9 +42,9 @@
             .rate-container(@click.prevent.stop="onRateClick")
               .d-flex.align-items-center.gap-8.py-1(v-if="loading")
                 i.el-icon-refresh.rotate-reverse.h-fit
-                .fs-12.disable Fetching Best price...
+                .fs-12.disable {{ $t('Fetching Best price...') }}
               .d-flex.align-items-center.gap-8.py-1(v-else)
-                .disable.fs-12 Rate
+                .disable.fs-12 {{ $t('Rate') }}
                 .d-flex.gap-4
                   .fs-12 {{ rate }} {{ rateInverted ? tokenA.symbol : tokenB.symbol }} per {{ rateInverted ? tokenB.symbol : tokenA.symbol}}
                   .fs-12.disable (0.00$)
@@ -62,7 +62,7 @@
               .fs-12(v-else) {{ expectedOutput ? expectedOutput : '0.0000 ' + tokenB.symbol }}
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center
-              .fs-12.disable Price Impact
+              .fs-12.disable {{ $t('Price Impact') }}
               vue-skeleton-loader(
                 v-if='loading'
                 :width='52',
@@ -75,7 +75,7 @@
 
           .d-flex.flex-column.gap-4
             .d-flex.justify-content-between.align-items-center(v-if="lastField == 'input'")
-              .fs-12.disable Minimum Received after slippage
+              .fs-12.disable {{ $t('Minimum Received after slippage') }}
               vue-skeleton-loader(
                 v-if='loading'
                 :width='52',
@@ -119,7 +119,7 @@
                   .d-flex.justify-content-between.align-items-center.w-100.p-1
                     .d-flex.gap-8.color-action.align-items-center
                       i.el-icon-connection
-                      .fs-12 Multiroute
+                      .fs-12 {{ $t('Multiroute') }}
 
                     i.el-icon-plus
                 .p-1
@@ -218,9 +218,9 @@ export default {
     },
 
     renderSubmitText() {
-      if (!this.tokenA || !this.tokenB) return 'Select Tokens'
-      else if (!this.amountA || !this.amountB) return 'Enter Amounts'
-      else return `Swap ${this.tokenA.symbol} to ${this.tokenB.symbol}`
+      if (!this.tokenA || !this.tokenB) return this.$t('Select Tokens')
+      else if (!this.amountA || !this.amountB) return this.$t('Enter Amounts')
+      else return this.$t('Swap A To B', { A: this.tokenA.symbol, B: this.tokenB.symbol })
     },
 
     canSubmit() {

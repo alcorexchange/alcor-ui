@@ -7,7 +7,7 @@
     .node.mx-2 100%
     .w-100.d-flex.justify-content-around
         template(v-for="{fee, tokenA, tokenB} in route.pools")
-          el-tooltip(:content="`${tokenA.symbol}/${tokenB.symbol} ${fee / 10000}% pool`" class="fee-tooltip")
+          el-tooltip(:content="`${tokenA.symbol}/${tokenB.symbol} ${fee / 10000}% ${$t('pool')}`" class="fee-tooltip")
             .node.d-flex.align-items-center.gap-8
               pair-icons(
                 :token1="{ symbol: tokenA.symbol, contract: tokenA.contract}"

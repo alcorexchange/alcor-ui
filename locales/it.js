@@ -516,5 +516,6 @@ export default {
   'cancel all': 'annulla tutto',
   'Cancel All Orders': 'Annulla tutti gli ordini',
   'Alcor API Docs': 'Documentazione Alcor API',
-  'By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund': 'Di default, qualsiasi mercato appena creato non ha commissioni. Alcuni mercati potrebbero avere commissioni fissate dalla governance Alcor. I mercati con una commissione e le sue dimensioni sono mostrati nell’elenco sottostante. Questa commissione di scambio va al fondo per lo sviluppo di Alcor'
+  'By default, any newly created market has no fees. Some markets may have fees that are set by the Alcor government. The markets with a commission and its size are shown in the list below. This exchange fee goes towards the Alcor development fund': 'Di default, qualsiasi mercato appena creato non ha commissioni. Alcuni mercati potrebbero avere commissioni fissate dalla governance Alcor. I mercati con una commissione e le sue dimensioni sono mostrati nell’elenco sottostante. Questa commissione di scambio va al fondo per lo sviluppo di Alcor',
+  'Swap A To B': 'Swap {A} To {B}'
 }
