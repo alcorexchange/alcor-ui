@@ -10,7 +10,7 @@
     template(#empty)
       .d-flex.flex-column.align-items-center.gap-30.py-5
         i.el-icon-moon-night.fs-40
-        .fs-14.lh-14 Your position history will appear here.
+        .fs-14.lh-14 {{ $t('Your position history will appear here.') }}
     el-table-column(width="240" class-name="type")
       template(#header)
         HistoryFilter(v-model="filter" v-if="!isMobile")

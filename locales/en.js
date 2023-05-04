@@ -650,4 +650,8 @@ export default {
   Search: 'Search',
   'No tokens found': 'No tokens found.',
   TVL: 'TVL',
+  'Your active liquidity positions will appear here.': 'Your active liquidity positions will appear here.',
+  'My Positions': 'My Positions',
+  'New Position': 'New Position',
+  'Your position history will appear here.': 'Your position history will appear here.',
 }

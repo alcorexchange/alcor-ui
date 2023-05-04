@@ -7,7 +7,7 @@ el-table.position-table.custom-responsive-table(
   template(#empty)
     .d-flex.flex-column.align-items-center.gap-30.py-5
       i.el-icon-moon-night.fs-40
-      .fs-14.lh-14 Your active liquidity positions will appear here.
+      .fs-14.lh-14 {{ $t('Your active liquidity positions will appear here.') }}
   el-table-column(:label='$t("Assets in Position")' width="240" className="assets")
     template(slot-scope='{row}')
       .assets-inner.d-flex.align-items-center.gap-12.px-3.py-2
@@ -60,7 +60,7 @@ el-table.position-table.custom-responsive-table(
 
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
-      alcor-button(compact) Manage
+      alcor-button(compact) {{ $t('Manage') }}
 
 </template>
 

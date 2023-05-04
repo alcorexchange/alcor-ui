@@ -2,14 +2,14 @@
 .header.d-flex.justify-content-between.mt-5.mb-3
   .d-flex.gap-16.navigation
     nuxt-link(:to="localePath('positions', $i18n.locale)" :exact='true')
-      .fs-20 My Positions
+      .fs-20 {{ $t('My Positions') }}
     nuxt-link(:to="localePath('positions-history', $i18n.locale)" :exact='true')
-      .fs-20 History
+      .fs-20 {{ $t('History') }}
   .actions.d-flex.gap-10
     // AlcorButton Analytics
     AlcorButton.new(access @click="$router.push('/positions/new')")
       i.el-icon-plus
-      .fs-14 New Position
+      .fs-14 {{ $t('New Position') }}
 </template>
 
 <script>
