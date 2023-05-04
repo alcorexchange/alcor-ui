@@ -25,6 +25,7 @@ export const state = () => ({
   selectedTokenA: null,
   selectedTokenB: null,
   slippage: DEFAULT_SLIPPAGE,
+  maxHops: 2,
 
   last_pool_subscribed: null
 })
@@ -35,6 +36,7 @@ export const mutations = {
   setPositions: (state, positions) => state.positions = positions,
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
+  setMaxHops: (state, maxHops) => state.maxHops = maxHops,
   setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,
@@ -69,11 +71,12 @@ export const actions = {
       dispatch('fetchPositionsHistory')
     })
 
-    this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
-      ticks.forEach(tick => {
-        dispatch('updateTickOfPool', { poolId, tick })
-      })
-    })
+    // We do not need ticks on UI anymore
+    // this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
+    //   ticks.forEach(tick => {
+    //     dispatch('updateTickOfPool', { poolId, tick })
+    //   })
+    // })
 
     this.$socket.on('swap:pool:update', data => {
       data.forEach(pool => {
@@ -149,6 +152,7 @@ export const actions = {
   },
 
   updateTickOfPool({ state, commit }, { poolId, tick }) {
+    // FIXME We do not user ticks on UI side
     const ticks = cloneDeep(state.ticks[poolId] ?? [])
 
     const old = ticks.findIndex(old_tick => {
@@ -181,7 +185,8 @@ export const actions = {
     if (isNaN(poolId)) return
     console.log('pool update triggered')
 
-    dispatch('fetchTicksOfPool', poolId)
+    // FIXME We do not user that in UI
+    //dispatch('fetchTicksOfPool', poolId)
 
     const { network } = rootState
 
@@ -231,14 +236,11 @@ export const getters = {
     for (const row of state.pools) {
       const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = row
 
-      const ticks = state.ticks[row.id] ?? []
-
       pools.push(new Pool({
         ...row,
 
         tokenA: parseToken(tokenA),
         tokenB: parseToken(tokenB),
-        ticks,
         sqrtPriceX64,
         tickCurrent: tick
       }))

@@ -25,13 +25,13 @@ export async function getPoolInstance(chain: string, id): Promise<Pool> {
   })
 }
 
-export async function getPools(chain: string) {
+export async function getPools(chain: string, fetchTicks = true) {
   // Based on swap only, right now
   const mongoPools = await SwapPool.find({ chain }).lean()
 
   const pools = []
   for (const p of mongoPools) {
-    const ticks = await getRedisTicks(chain, p.id)
+    const ticks = fetchTicks ? await getRedisTicks(chain, p.id) : []
 
     pools.push(new Pool({
       ...p,
@@ -59,10 +59,6 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
 export async function getRedisPosition(chain, id) {
   if (!redis.isOpen) await redis.connect()
 
-  const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
-
-  // Merging
-  const positions = new Map([...current.map(p => [p.id, p])])
-
-  return positions.get(id)
+  const positions = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
+  return positions.find(p => p.id == id)
 }

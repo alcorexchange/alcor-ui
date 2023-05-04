@@ -41,7 +41,6 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
-
   },
 
   methods: {
