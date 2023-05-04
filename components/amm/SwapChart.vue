@@ -49,13 +49,6 @@ export default {
   data: () => ({
     charts: [],
     activeTab: 'Price',
-    tabs: [
-      { label: 'Price', value: 'Price' },
-      { label: 'TVL', value: 'Tvl' },
-      { label: 'Volume', value: 'Volume' },
-      // { label: 'Fees', value: 'Fees' },
-      // { label: 'Depth', value: 'Depth' }
-    ],
     activeTime: '24H',
     times: [
       { label: '1D', value: '24H' },
@@ -66,6 +59,15 @@ export default {
   }),
 
   computed: {
+    tabs() {
+      return [
+        { label: this.$t('Price'), value: 'Price' },
+        { label: this.$t('TVL'), value: 'Tvl' },
+        { label: this.$t('Volume'), value: 'Volume' },
+        // { label: 'Fees', value: 'Fees' },
+        // { label: 'Depth', value: 'Depth' }
+      ]
+    },
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',

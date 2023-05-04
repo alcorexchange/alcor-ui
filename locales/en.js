@@ -646,5 +646,8 @@ export default {
   Multiroute: 'Multiroute',
   'Fetching Best price...': 'Fetching Best price...',
   'Minimum Received after slippage': 'Minimum Received after slippage',
-  pool: 'pool' // this is lowercase
+  pool: 'pool', // this is lowercase
+  Search: 'Search',
+  'No tokens found': 'No tokens found.',
+  TVL: 'TVL',
 }

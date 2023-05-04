@@ -10,7 +10,7 @@
         height='25'
       )
       .ft-14 {{ token.currency || token.symbol }}
-    .d-flex.align-items-center.select-token-text(v-else) Select token
+    .d-flex.align-items-center.select-token-text(v-else) {{ $t('Select Token') }}
     i.el-icon-arrow-down.ml-auto(v-if='!locked')
 
   //append-to-body
@@ -22,15 +22,15 @@
     @mousedown.native='dialogMousedown',
     @mouseup.native='dialogMouseup'
   )
-    template(#title) Select Token
+    template(#title) {{ $t('Select Token') }}
     #assets-modal-component
       .d-flex.flex-column.gap-16.px-3.pb-3
         el-input.default.br-6(
-          prefix-icon='el-icon-search',
-          v-model='search',
-          size='small',
-          placeholder='Search'
-          ref='searchInput'
+          prefix-icon="el-icon-search",
+          v-model="search",
+          size="small",
+          :placeholder="$t('Search')"
+          ref="searchInput"
           clearable
         )
         .popular-tokens
@@ -66,7 +66,7 @@
                 .fs-12.disable {{ item.contract }}
               div {{ item.balance }}
 
-        .fs-16.text-center(v-if="!filteredAssets.length") No tokens found.
+        .fs-16.text-center(v-if="!filteredAssets.length") {{ $t('No tokens found') }}
 
 </template>
 
