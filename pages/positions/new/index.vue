@@ -105,7 +105,7 @@
             :disabled="!price && !startPriceTypedValue"
             :hasError="tickLower >= tickUpper"
           )
-            template(#top) Max Price
+            template(#top) {{ $t('Max Price') }}
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{tokenB.symbol}} per {{tokenA.symbol}}
               .info.disable(v-if="tokenB") Your position will be {{ getTokenComposedPercent('e') }}% composed of {{tokenB.symbol}} at this price
