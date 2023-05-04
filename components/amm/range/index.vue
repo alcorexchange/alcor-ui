@@ -3,9 +3,9 @@ client-only
   .div
 
     // TODO This things
-    p.infoBox(v-if="isUninitialized") Your position will appear here.
-    p.infoBox(v-if="isLoading") Loading
-    p.infoBox(v-if="error") Liquidity data not available.
+    p.infoBox(v-if="isUninitialized") {{ $t('Your position will appear here.') }}
+    p.infoBox(v-if="isLoading") {{ $t('Loading') }}
+    p.infoBox(v-if="error") {{ $t('Liquidity data not available.') }}
     //
 
     .chartWrapper(ref="chartWrapper")
@@ -25,7 +25,7 @@ client-only
 
         template(slot="header")
           .fs-18.current-price(v-if="price && tokenA && tokenB")
-            span.disable Current Price:&nbsp;
+            span.disable {{ $t('Current Price') }}:&nbsp;
             span {{ price }} {{ tokenB.symbol }} per {{ tokenA.symbol }}
         template(#afterZoomIcons)
           slot(name="afterZoomIcons")

@@ -669,5 +669,8 @@ export default {
   'Estimated Fees (24H) / Fees Share:': 'Estimated Fees (24H) / Fees Share:',
   'Token 1': 'Token 1',
   'Token 2': 'Token 2',
-  'Inifinity Range': 'Inifinity Range'
+  'Inifinity Range': 'Inifinity Range',
+  'Your position will appear here.': 'Your position will appear here.',
+  Loading: 'Loading',
+  'Liquidity data not available.': 'Liquidity data not available.'
 }

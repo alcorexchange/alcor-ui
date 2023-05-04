@@ -19,7 +19,7 @@
       //- 1 end
       //- 2 start
       .section-2(v-mutted="!tokenA || !tokenB || !price || !tickLower || !tickUpper")
-        .position-section-title.disable Deposit
+        .position-section-title.disable {{ $t('Deposit') }}
           PoolTokenInput(:token="tokenA" v-model="amountA" @input="onInputAmountA" :disabled="inputADisabled"
             :disabledMessage="disabledMessage" :locked="true" :label="$t('Token 1')").mt-2
           PoolTokenInput(:token="tokenB" v-model="amountB" @input="onInputAmountB" :disabled="inputBDisabled"
