@@ -351,7 +351,6 @@ const networks = {
     client_nodes: {
       //'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
       'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
-
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
       //'https://wax.eosn.io': 'EOS Nation - Canada',
@@ -370,7 +369,7 @@ const networks = {
 
     amm: {
       //contract: 'ammcontract4'
-      contract: 'swap.alcor'
+      contract: 'swap.alcor',
     },
 
     withdraw: {},
