@@ -645,8 +645,7 @@ export default {
 
     async submit() {
       try {
-        const poolId = await this.addLiquidity()
-        this.$router.push('/positions')
+        await this.addLiquidity()
         // await this.$store.dispatch('amm/poolUpdate', poolId)
         // this.$store.dispatch('amm/fetchPositions')
       } catch (e) {
@@ -678,6 +677,16 @@ export default {
       let poolId = this.pool?.id
 
       if (!this.pool) {
+        try {
+          await this.$confirm('Fee is: ' + this.network.marketCreationFee + ' Continue?', 'New pool creation fee', {
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          })
+        } catch (e) {
+          return
+        }
+
         // Fetch last pool just to predict new created pool id
         try {
           const { rows: [{ poolIdCounter }] } = await this.$rpc.get_table_rows({
@@ -703,6 +712,18 @@ export default {
             tokenB: { contract: sortedB.contract, quantity: tokenBZero.toAsset() },
             sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
             fee: this.feeAmount
+          }
+        })
+
+        actions.push({
+          account: this.network.baseToken.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: this.network.marketCreationFee,
+            memo: `activepool#${poolId}`
           }
         })
       }
@@ -765,6 +786,7 @@ export default {
 
       console.log('New position', r)
 
+      this.$router.push('/positions')
       return poolId
     },
 
