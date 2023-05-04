@@ -10,8 +10,8 @@
     .fs-12.disable.text-break {{ fee.desc }}
     .d-flex.gap-4.selected-percent(v-if="fee.selectedPercent !== undefined")
       .fs-12(:style="{ color: getColor(fee)}") {{ fee.selectedPercent }}%
-      .fs-12() Selected
-    .tag.selected-percent(v-else) Not created
+      .fs-12() {{ $t('Selected') }}
+    .tag.selected-percent(v-else) {{ $t('Not created') }}
 
 </template>
 

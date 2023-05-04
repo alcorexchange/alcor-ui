@@ -7,14 +7,14 @@
     .main-section.mt-2
       //- 1 start
       .section-1
-        .position-section-title.disable.mb-2 Select Pool
+        .position-section-title.disable.mb-2 {{ $t('Select Pool') }}
 
         .d-flex.mt-1.gap-10
           SelectToken2(:token="tokenA" :tokens="tokens" @selected="setTokenA").custom-select-token
           SelectToken2(:token="tokenB" :tokens="tokens" @selected="setTokenB").custom-select-token
 
         div(v-mutted="!tokenA || !tokenB")
-          .position-section-title.disable.mt-3.mb-2 Fee Tier
+          .position-section-title.disable.mt-3.mb-2 {{ $t('Fee Tier') }}
           CommissionSelect(:selected="feeAmount" :options="fees" @change="changeFee")
       //- 1 end
       //- 2 start
@@ -44,11 +44,7 @@
                 :two='invertPrice ? tokenA.symbol : tokenB.symbol',
                 :active='invertPrice ? "two" : "one"'
               )
-            InfoContainer.info-container(:access="true")
-              | This pool must be initialized before you can add liquidity.
-              | To initialize, select a starting price for the pool.
-              | Then, enter your liquidity price range and deposit amount.
-              | Pool and position will be created in single transaction.
+            InfoContainer.info-container(:access="true") {{ $t('noPoolMessage') }}
 
             el-input.starting-price-input(placeholder="0" v-model="startPriceTypedValue")
 
@@ -70,7 +66,7 @@
             :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(6)) : undefined"
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
-            chartTitle="Set Price Range"
+            :chartTitle="$t('Set Price Range')"
             :interactive="true")
 
               template(#afterZoomIcons)
@@ -96,7 +92,7 @@
             :disabled="!price && !startPriceTypedValue"
             :hasError="tickLower >= tickUpper"
           )
-            template(#top) Min Price
+            template(#top) {{ $t('Min Price') }}
             template
               .pair-names.mb-1(v-if="tokenA && tokenB") {{ tokenB.symbol }} per {{ tokenA.symbol }}
               .info.disable(v-if="tokenA") Your position will be {{ getTokenComposedPercent('w') }}% composed of {{ tokenA.symbol }} at this price
@@ -226,7 +222,6 @@ export default {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       }),
 
-      disabledMessage: 'The market price is outside your specified price range. Single-asset deposit only.',
       positionLiquidity: '0'
     }
   },
@@ -251,6 +246,10 @@ export default {
       return positions.find(p => p.tickLower == tickLower && p.tickUpper == tickUpper && p.pool.id == pool?.id)
     },
 
+    disabledMessage() {
+      return this.$t('The market price is outside your specified price range. Single-asset deposit only.')
+    },
+
     fees() {
       const { currnetPools } = this
 
@@ -264,9 +263,9 @@ export default {
       })
 
       return [
-        { value: FeeAmount.LOW, desc: 'Best for very high liquidity tokens', selectedPercent: fees[FeeAmount.LOW] },
-        { value: FeeAmount.MEDIUM, desc: 'Best for most pairs', selectedPercent: fees[FeeAmount.MEDIUM] },
-        { value: FeeAmount.HIGH, desc: 'Best for low liqudity pairs', selectedPercent: fees[FeeAmount.HIGH] }
+        { value: FeeAmount.LOW, desc: this.$t('Best for very high liquidity tokens'), selectedPercent: fees[FeeAmount.LOW] },
+        { value: FeeAmount.MEDIUM, desc: this.$t('Best for most pairs'), selectedPercent: fees[FeeAmount.MEDIUM] },
+        { value: FeeAmount.HIGH, desc: this.$t('Best for low liqudity pairs'), selectedPercent: fees[FeeAmount.HIGH] }
       ]
     },
 
@@ -277,24 +276,24 @@ export default {
         (inputADisabled && amountB) ||
         (inputBDisabled && amountA) ||
         (amountA && amountB)
-      ) return { state: false, text: 'Add Liquidity' }
+      ) return { state: false, text: this.$t('Add Liquidity') }
 
-      return { state: true, text: 'Enter amount' }
+      return { state: true, text: this.$t('Enter amount') }
     },
 
     renderError() {
       if (this.invalidRange) return {
-        text: 'Invalid range selected. The min price must be lower than the max price.',
+        text: this.$t('Invalid range selected. The min price must be lower than the max price.'),
         colorClass: ''
       }
 
       if (this.outOfRange) return {
-        text: 'Your position will not earn fees or be used in trades until the market price moves into your range.',
+        text: this.$t('Your position will not earn fees or be used in trades until the market price moves into your range.'),
         colorClass: 'is-warning'
       }
 
       if (this.existingPosition) return {
-        text: 'You already have a position with this range. The liquidity in the existing position will be increased.',
+        text: this.$t('You already have a position with this range. The liquidity in the existing position will be increased.'),
         colorClass: 'is-warning'
       }
       return false

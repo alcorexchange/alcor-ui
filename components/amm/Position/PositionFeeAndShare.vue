@@ -2,7 +2,7 @@
 .position-fee-and-share.d-flex.flex-column.gap-2.fs-14
   //.item.d-flex
   .item.d-flex.justify-content-between
-    .title.disable Estimated Fees (24H) / Fees Share:
+    .title.disable {{ $t('Estimated Fees (24H) / Fees Share:') }}
     .value ${{ estimatedFees }} / {{ poolShare }}%
 
     //span
