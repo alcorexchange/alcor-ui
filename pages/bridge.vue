@@ -27,7 +27,8 @@ export default {
       { value: 'eos', color: '#fff' },
       { value: 'proton', color: '#7c30ff' },
       { value: 'telos', color: '#571aff' },
-      { value: 'ux', color: '#00e5e5' }
+      { value: 'ux', color: '#00e5e5' },
+      { value: 'wax', color: '#fa972f' },
     ]
   }),
 

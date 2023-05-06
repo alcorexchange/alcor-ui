@@ -39,7 +39,7 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://eos.light-api.net',
-    hyperion: 'https://api.eossweden.org/',
+    hyperion: 'https://eos.eosusa.io',
     //hyperion: 'https://api.eossweden.org/',
     //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
@@ -71,8 +71,14 @@ const networks = {
     ibc: {
       name: 'eos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
-      bridgeContract: 'ibc.prove',
-      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos']
+
+      bridgeContracts: {
+        telos: 'ibc.prove',
+        ux: 'ibc.prove',
+        wax: 'ibc.alcor'
+      },
+
+      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos', 'w.ibc.alcor']
     },
 
     withdraw: {
@@ -267,7 +273,7 @@ const networks = {
     monitor: 'https://explorer.uxnetwork.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosrio.io',
+    hyperion: 'https://ux.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -296,7 +302,13 @@ const networks = {
     ibc: {
       name: 'ux',
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
-      bridgeContract: 'ibc.prove',
+
+      bridgeContracts: {
+        telos: 'ibc.prove',
+        eos: 'ibc.prove',
+        wax: 'ibc.alcor'
+      },
+
       wrapLockContractsArray: ['ibc.wl.eos', 'ibc.wl.tlos']
     },
 
@@ -342,7 +354,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosrio.io',
+    hyperion: 'https://wax.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -370,12 +382,22 @@ const networks = {
     amm: {
       //contract: 'ammcontract4'
       contract: 'swap.alcor',
+      creationFee: '150.00000000 WAX'
     },
 
     withdraw: {},
 
+    ibc: {
+      name: 'wax',
+      proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
+      bridgeContracts: {
+        eos: 'ibc.alcor'
+      },
+      wrapLockContractsArray: []
+    },
+
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [231, 171],
+    PINNED_MARKETS: [231, 171, /* USDT */ 763],
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
@@ -402,10 +424,11 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'WAXUSDT@eth.token',
+    USD_TOKEN: 'USDT@usdt.alcor',
 
     popularTokens: [
       'wax-eosio.token',
+      'usdt-usdt.alcor',
       'tlm-alien.worlds'
     ],
   },
@@ -434,7 +457,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://telos.light-api.net',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'http://api.kainosbp.com',
+    hyperion: 'https://telos.eosusa.io',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
@@ -472,7 +495,12 @@ const networks = {
     ibc: {
       name: 'tlos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
-      bridgeContract: 'ibc.prove',
+
+      bridgeContracts: {
+        eos: 'ibc.prove',
+        ux: 'ibc.prove',
+      },
+
       wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.eos']
     },
 
@@ -968,7 +996,7 @@ module.exports = {
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
-  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux],
+  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux, networks.wax],
   NFT_LIST_ITEM_PP: 8,
 
   networks

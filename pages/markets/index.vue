@@ -193,7 +193,9 @@ export default {
 
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
-            i => i.base_token.symbol.name == this.network.baseToken.symbol)
+            i => i.base_token.symbol.name == this.network.baseToken.symbol ||
+            this.network.USD_TOKEN.includes(i.base_token.contract)
+          )
           break
 
         case 'USDT':
@@ -215,11 +217,13 @@ export default {
           break
 
         default: {
+          // Cross Chain
           const ibcTokens = this.$store.state.ibcTokens.filter(
             i => i != this.network.baseToken.contract
           )
           markets = this.markets.filter((i) => {
             return (
+              this.network.USD_TOKEN.includes(i.base_token.contract) ||
               ibcTokens.includes(i.base_token.contract) ||
               ibcTokens.includes(i.quote_token.contract) ||
 

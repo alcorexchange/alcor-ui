@@ -677,8 +677,10 @@ export default {
       let poolId = this.pool?.id
 
       if (!this.pool) {
+        const creationFee = this.network.amm?.creationFee || this.network.marketCreationFee
+
         try {
-          await this.$confirm('Fee is: ' + this.network.marketCreationFee + ' Continue?', 'New pool creation fee', {
+          await this.$confirm('Fee is: ' + creationFee + ' Continue?', 'New pool creation fee', {
             confirmButtonText: 'OK',
             cancelButtonText: 'Cancel',
             type: 'warning'
@@ -722,7 +724,7 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: this.network.marketCreationFee,
+            quantity: creationFee,
             memo: `activepool#${poolId}`
           }
         })

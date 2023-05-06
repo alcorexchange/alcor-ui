@@ -22,7 +22,7 @@ export default {
     bannerOnly: [
       {
         bannerImg: 'farmerpets',
-        bannerUrl: 'https://discord.gg/wGy3BuvU'
+        bannerUrl: 'https://play.farmerpets.com/drops'
       }
     ],
 

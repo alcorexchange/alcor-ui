@@ -266,7 +266,7 @@ export class IBCTransfer {
               ? 'issuea'
               : 'withdrawa',
           account: !action
-            ? this.destination.ibc.bridgeContract
+            ? this.destination.ibc.bridgeContracts[this.source.ibc.name]
             : this.asset.native
               ? this.asset.pairedWrapTokenContract
               : this.asset.wrapLockContract,
@@ -313,7 +313,7 @@ export class IBCTransfer {
         let min_block = 2
         //fetch last proved block to use as min block for schedule change search
         const lastBlockProved = await this.destination.rpc.get_table_rows({
-          code: this.destination.ibc.bridgeContract,
+          code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
           table: 'lastproofs',
           scope: this.source.ibc.name,
           limit: 1,
@@ -364,7 +364,7 @@ export class IBCTransfer {
 
     const proofs = []
     const bridgeScheduleData = await this.destination.rpc.get_table_rows({
-      code: this.destination.ibc.bridgeContract,
+      code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
       table: 'schedules',
       scope: this.source.ibc.name,
       limit: 1,
