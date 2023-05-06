@@ -121,9 +121,7 @@
       AlcorButton.action.p-0(iconOnly flat)
         i.el-icon-s-tools
       el-dropdown-menu.bridge-setting-dropdown.p-2
-        AlcorButton
-          i.el-icon-warning
-          span {{ $t('Reset State') }}
+        AlcorButton ⚠️ {{ $t('Reset State') }}
 
   //- BridgeHistory
 
