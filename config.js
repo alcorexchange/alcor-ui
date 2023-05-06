@@ -397,7 +397,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [231, 171],
+    PINNED_MARKETS: [231, 171, /* USDT */ 763],
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
@@ -424,12 +424,12 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'WAXUSDT@eth.token',
+    USD_TOKEN: 'USDT@usdt.alcor',
 
     popularTokens: [
       'wax-eosio.token',
-      'tlm-alien.worlds',
-      'usdt-usdt.alcor'
+      'usdt-usdt.alcor',
+      'tlm-alien.worlds'
     ],
   },
 
