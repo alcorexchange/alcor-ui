@@ -167,10 +167,10 @@ export default {
       value: 'eos',
       label: 'EOS'
     },
-    //{
-    //  value: 'wax',
-    //  label: 'WAX'
-    //},
+    {
+      value: 'wax',
+      label: 'WAX'
+    },
     //{
     //  value: 'proton',
     //  label: 'Proton'
@@ -309,6 +309,8 @@ export default {
       if (this.sourceName == this.destinationName) {
         this.destinationName = null
         if (this.step === 4 || this.step === null) this.asset = null
+      } else if (this.sourceWallet) {
+        this.logout('sender')
       }
     },
 
@@ -316,6 +318,8 @@ export default {
       if (this.destinationName == this.sourceName) {
         this.sourceName = null
         if (this.step === 4 || this.step === null) this.asset = null
+      } else if (this.destinationWallet) {
+        this.logout('receiver')
       }
     }
   },
@@ -354,8 +358,8 @@ export default {
     logout(data) {
       if (this.inProgress) return
 
-      if (data == 'sender') this.sourceWallet.wallet.logout()
-      if (data == 'receiver') this.destinationWallet.wallet.logout()
+      if (data == 'sender') this.sourceWallet?.wallet?.logout()
+      if (data == 'receiver') this.destinationWallet?.wallet?.logout()
 
       this.formData[data] = null
     },

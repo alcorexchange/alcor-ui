@@ -724,7 +724,7 @@ export default {
           data: {
             from: this.user.name,
             to: this.network.amm.contract,
-            quantity: this.network.marketCreationFee,
+            quantity: creationFee,
             memo: `activepool#${poolId}`
           }
         })

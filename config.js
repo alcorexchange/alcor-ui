@@ -71,8 +71,14 @@ const networks = {
     ibc: {
       name: 'eos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
-      bridgeContract: 'ibc.prove',
-      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos']
+
+      bridgeContracts: {
+        telos: 'ibc.prove',
+        ux: 'ibc.prove',
+        wax: 'ibc.alcor'
+      },
+
+      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos', 'w.ibc.alcor']
     },
 
     withdraw: {
@@ -296,7 +302,13 @@ const networks = {
     ibc: {
       name: 'ux',
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
-      bridgeContract: 'ibc.prove',
+
+      bridgeContracts: {
+        telos: 'ibc.prove',
+        eos: 'ibc.prove',
+        wax: 'ibc.alcor'
+      },
+
       wrapLockContractsArray: ['ibc.wl.eos', 'ibc.wl.tlos']
     },
 
@@ -375,6 +387,15 @@ const networks = {
 
     withdraw: {},
 
+    ibc: {
+      name: 'wax',
+      proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
+      bridgeContracts: {
+        eos: 'ibc.alcor'
+      },
+      wrapLockContractsArray: []
+    },
+
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [231, 171],
     BANNER_MARKETS: [],
@@ -407,7 +428,8 @@ const networks = {
 
     popularTokens: [
       'wax-eosio.token',
-      'tlm-alien.worlds'
+      'tlm-alien.worlds',
+      'usdt-usdt.alcor'
     ],
   },
 
@@ -473,7 +495,12 @@ const networks = {
     ibc: {
       name: 'tlos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
-      bridgeContract: 'ibc.prove',
+
+      bridgeContracts: {
+        eos: 'ibc.prove',
+        ux: 'ibc.prove',
+      },
+
       wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.eos']
     },
 
@@ -969,7 +996,7 @@ module.exports = {
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
-  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux],
+  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux, networks.wax],
   NFT_LIST_ITEM_PP: 8,
 
   networks
