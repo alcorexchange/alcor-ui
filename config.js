@@ -370,6 +370,7 @@ const networks = {
     amm: {
       //contract: 'ammcontract4'
       contract: 'swap.alcor',
+      creationFee: '150.00000000 WAX'
     },
 
     withdraw: {},
