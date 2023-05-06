@@ -116,6 +116,15 @@
         img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
         | TX Link
 
+  .settings
+    el-dropdown(trigger="click")
+      AlcorButton.action.p-0(iconOnly flat)
+        i.el-icon-s-tools
+      el-dropdown-menu.bridge-setting-dropdown.p-2
+        AlcorButton
+          i.el-icon-warning
+          span {{ $t('Reset State') }}
+
   //- BridgeHistory
 
 </template>
@@ -595,6 +604,7 @@ export default {
   margin: 0 auto;
   padding: 18px;
   z-index: 100;
+  position: relative;
 
   .network-select,
   .connect-button {
@@ -644,6 +654,17 @@ export default {
 }
 .transfer-btn {
   width: 240px;
+}
+.settings {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.bridge-setting-dropdown {
+  min-width: 140px;
+  .alcor-button {
+    width: 100%;
+  }
 }
 @media only screen and (max-width: 740px){
   .send-and-receive {
