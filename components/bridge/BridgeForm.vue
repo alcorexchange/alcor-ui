@@ -116,7 +116,7 @@
         img(:src='require(`~/assets/icons/${destinationName}.png`)' height=20)
         | TX Link
 
-  //- BridgeHistory
+  //BridgeHistory
 
 </template>
 
@@ -135,6 +135,8 @@ import BridgeSlider from '~/components/bridge/BridgeSlider'
 import BridgeHistory from '~/components/bridge/BridgeHistory'
 
 import TokenImage from '~/components/elements/TokenImage'
+
+import { getMultyEndRpc } from '~/utils/eosjs'
 
 export default {
   components: {
@@ -306,6 +308,8 @@ export default {
     },
 
     sourceName() {
+      //this.loadUncompletedTransfers()
+
       if (this.sourceName == this.destinationName) {
         this.destinationName = null
         if (this.step === 4 || this.step === null) this.asset = null
@@ -315,6 +319,8 @@ export default {
     },
 
     destinationName() {
+      //this.loadUncompletedTransfers()
+
       if (this.destinationName == this.sourceName) {
         this.sourceName = null
         if (this.step === 4 || this.step === null) this.asset = null
@@ -328,6 +334,8 @@ export default {
     // TODO source and destination by query params
     if (this.inProgress && this.asset?.quantity) this.formData.amount = parseFloat(this.asset.quantity)
     if (this.inProgress && !this.error) this.setError('Window was closed')
+
+    this.loadUncompletedTransfers()
   },
 
   methods: {
@@ -342,6 +350,23 @@ export default {
       setResult: 'ibcBridge/setResult',
       setAsset: 'ibcBridge/setAsset'
     }),
+
+    loadUncompletedTransfers() {
+      //console.log('loadUncompletedTransfers')
+      ////if (!this.sourceWallet || !this.destinationWallet) return
+      //if (!this.sourceWallet) return
+
+      //const { source, sourceWallet } = this
+
+      //// Load from source
+
+      //console.log('this.sourceWallet.name', sourceWallet.name)
+
+      //const url =
+      //  `${source.hyperion}/v2/history/get_actions?account=${tokenRow.wrapLockContract}&filter=${tokenRow.nativeTokenContract}:transfer&transfer.from=${sourceWallet.name}&transfer.memo=${destinationChain.auth.actor}&limit=15`
+
+      //if(tokenRow.native) url = `${sourceChain.hyperion}/v2/history/get_actions?account=${tokenRow.wrapLockContract}&filter=${tokenRow.nativeTokenContract}:transfer&transfer.from=${sourceChain.auth.actor}&transfer.memo=${destinationChain.auth.actor}&limit=15`; //else url = `${sourceChain.hyperion}/v2/history/get_actions?account=${sourceChain.auth.actor}&filter=${tokenRow.pairedWrapTokenContract}:retire&limit=15`;
+    },
 
     clear() {
       this.setTx(null)
@@ -382,6 +407,16 @@ export default {
     },
 
     async transfer() {
+      const { destination, destinationWallet } = this
+      const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
+
+      try {
+        // TODO CPU/NET warning probably
+        await destinationRpc.get_account(destinationWallet.name)
+      } catch (e) {
+        return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
+      }
+
       if (this.step === 4 || !this.step) {
         if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
         if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
@@ -564,6 +599,7 @@ export default {
 
         this.formData.sender = name
         this.sourceWallet = { wallet, name, authorization }
+        this.loadUncompletedTransfers()
       } catch (e) {
         this.$notify({ type: 'warning', title: 'Wallet not connected', message: e })
       }

@@ -54,16 +54,19 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import AlcorButton from '~/components/AlcorButton.vue'
 
 export default {
   name: 'BridgeHistory',
+
   components: {
     AlcorButton,
   },
+
   data: () => ({
     active: true
-  })
+  }),
 }
 </script>
 

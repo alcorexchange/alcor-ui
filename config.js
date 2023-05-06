@@ -39,7 +39,7 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://eos.light-api.net',
-    hyperion: 'https://api.eossweden.org/',
+    hyperion: 'https://eos.eosusa.io',
     //hyperion: 'https://api.eossweden.org/',
     //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
@@ -273,7 +273,7 @@ const networks = {
     monitor: 'https://explorer.uxnetwork.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosrio.io',
+    hyperion: 'https://ux.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -354,7 +354,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosrio.io',
+    hyperion: 'https://wax.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -457,7 +457,7 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://telos.light-api.net',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'http://api.kainosbp.com',
+    hyperion: 'https://telos.eosusa.io',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
