@@ -121,7 +121,7 @@
       AlcorButton.action.p-0(iconOnly flat)
         i.el-icon-s-tools
       el-dropdown-menu.bridge-setting-dropdown.p-2
-        AlcorButton ⚠️ {{ $t('Reset State') }}
+        AlcorButton(@click="resetState") ⚠️ {{ $t('Reset State') }}
 
   //- BridgeHistory
 </template>
@@ -372,6 +372,18 @@ export default {
       //  `${source.hyperion}/v2/history/get_actions?account=${tokenRow.wrapLockContract}&filter=${tokenRow.nativeTokenContract}:transfer&transfer.from=${sourceWallet.name}&transfer.memo=${destinationChain.auth.actor}&limit=15`
 
       //if(tokenRow.native) url = `${sourceChain.hyperion}/v2/history/get_actions?account=${tokenRow.wrapLockContract}&filter=${tokenRow.nativeTokenContract}:transfer&transfer.from=${sourceChain.auth.actor}&transfer.memo=${destinationChain.auth.actor}&limit=15`; //else url = `${sourceChain.hyperion}/v2/history/get_actions?account=${sourceChain.auth.actor}&filter=${tokenRow.pairedWrapTokenContract}:retire&limit=15`;
+    },
+
+    resetState() {
+      this.$confirm(
+        'You current state of transfer will be cleaned. If you have issue with bridge transfer, ask help in telegram chat!',
+        'Reset State', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+        this.clear()
+      }).catch(() => {})
     },
 
     clear() {
