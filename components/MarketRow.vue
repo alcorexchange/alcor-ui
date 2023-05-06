@@ -11,7 +11,7 @@
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price(:class="{ down: item.change24 < 0 }")
-    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
+    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8, 2, item.base_name == 'USDT') }}
     span(v-else)
       span {{ item.last_price }}
       span(v-if="!isMobile")
