@@ -33,9 +33,9 @@ body {
 
 p {
   margin: 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  // white-space: nowrap;
+  // text-overflow: ellipsis;
+  // overflow: hidden;
 
   &.disable {
     color: var(--text-disable);
