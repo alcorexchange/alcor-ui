@@ -92,14 +92,15 @@ export default {
   watch: {
     position() {
       if (!this.position) this.$router.push('/positions')
-      //console.log('position updated', this.position, this.position.amountA.toFixed())
     }
   },
 
   computed: {
     position() {
       const [pool_id, position_id, fee] = this.$route.params.id.split('-')
-      return this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
+      const position = this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
+
+      return position || this.loadedPosition
     },
 
     pool() {
@@ -129,12 +130,21 @@ export default {
     },
   },
 
-  async mounted() {
-    // TODO RegexTest url params
-    //await this.$store.dispatch('amm/fetchPositions')
+  mounted() {
+    this.loadPosition()
   },
 
   methods: {
+    async loadPosition() {
+      console.log('loadPosition')
+      const [, position_id] = this.$route.params.id.split('-')
+
+      const position = await this.$axios.get('/v2/swap/pools/positions/' + position_id)
+
+      console.log('this.position', position)
+      // TODO RegexTest url params
+      //await this.$store.dispatch('amm/fetchPositions')
+    },
     composedPercent(side) {
       const tokenA = parseFloat(this.position.amountA.toFixed())
       const tokenB = parseFloat(this.position.amountB.toFixed())
