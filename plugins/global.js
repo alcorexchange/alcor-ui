@@ -41,12 +41,11 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     }
   }
 
-  //$axios.setBaseURL(state.baseUrl.replace('https', 'http') + '/api')
-  $axios.setBaseURL(state.baseUrl + '/api')
-
   inject('fundamentals', fundamentals)
 
   if (process.client) {
+    $axios.setBaseURL(state.baseUrl + '/api')
+
     // Тут RPC с возможностью менять эндпоинт
     const socket = io(
       (process.env.isDev && !process.env.DISABLE_DB)
@@ -83,6 +82,8 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
   }
 
   if (process.server) {
+    $axios.setBaseURL(state.baseUrl.replace('https', 'http') + '/api')
+
     const rpc = new JsonRpc(state.network.protocol + '://' + state.network.host + ':' + state.network.port, { fetch })
     inject('rpc', rpc)
   }
