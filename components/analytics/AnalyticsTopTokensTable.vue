@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table(:data="tableData").analytics-top-token-table
+el-table(:data="tableData").analytics-table.analytics-top-token-table
   el-table-column(label="Token")
     template(#default="")
       .token-container
@@ -38,12 +38,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.analytics-top-token-table {
-  border-radius: 8px;
-  ::v-deep th {
-    font-weight: 400;
-  }
-}
 .token-container {
   display: flex;
   align-items: center;
@@ -63,11 +57,6 @@ img {
     &:not(:first-child) {
       margin-left: -8px;
     }
-  }
-}
-.pagination::v-deep li {
-  &.active, &:hover {
-    color: var(--main-green)
   }
 }
 </style>
