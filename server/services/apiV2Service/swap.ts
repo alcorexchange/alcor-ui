@@ -7,6 +7,7 @@ import { cacheSeconds } from 'route-cache'
 import { SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { getLiquidityRangeChart } from '../../../utils/amm.js'
+import { getPositionStats } from './account'
 
 
 export const swap = Router()
@@ -136,13 +137,9 @@ swap.get('/pools/positions/:id', async (req, res) => {
 
   if (!p) return res.status(404).send('Position is not found')
 
-  const pool = await getPoolInstance(network.name, p.pool)
-  const position = new Position({ ...p, pool })
+  const stats = await getPositionStats(network.name, p)
 
-  p.amountA = position.amountA.toAsset()
-  p.amountB = position.amountB.toAsset()
-
-  res.json(p)
+  res.json({ ...p, ...stats })
 })
 
 swap.get('/pools/:id/positions', async (req, res) => {
