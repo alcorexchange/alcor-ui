@@ -6,7 +6,7 @@
     nuxt-link(:to="localePath('positions-history', $i18n.locale)" :exact='true')
       .fs-20 {{ $t('History') }}
   .actions.d-flex.gap-10
-    AlcorButton(tag="nuxt-link" :to="localeRoute('/analytics')") Analytics
+    //AlcorButton(tag="nuxt-link" :to="localeRoute('/analytics')") Analytics
     AlcorButton.new(access @click="$router.push('/positions/new')")
       i.el-icon-plus
       .fs-14 {{ $t('New Position') }}
