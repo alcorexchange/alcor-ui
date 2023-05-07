@@ -61,6 +61,7 @@ el-table.position-table.custom-responsive-table(
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
       alcor-button(compact) {{ $t('Manage') }}
+  //.text-muted {{ plainPositions.length }}
 
 </template>
 

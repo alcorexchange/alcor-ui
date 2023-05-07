@@ -1,9 +1,11 @@
-import cloneDeep from 'lodash/cloneDeep'
 import Vue from 'vue'
 import axios from 'axios'
+import cloneDeep from 'lodash/cloneDeep'
+
+import { Percent, Pool, Position } from '@alcorexchange/alcor-swap-sdk'
+
 import { fetchAllRows } from '~/utils/eosjs'
 import { isTicksAtLimit, tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
-import { Percent, Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
 import { nameToUint64 } from '~/utils'
 
 const DEFAULT_SLIPPAGE = 0.3
