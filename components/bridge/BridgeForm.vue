@@ -5,7 +5,7 @@
       title="Bridge BETA Version"
       type="warning"
       show-icon)
-      div The Bridge in a BETA state right now.
+      div The Bridge UI in a BETA state right now.
       div We recommend to wait for a stable release or use it with Anchor <-> Anchor wallet.
   .send-and-receive
     .send-from.d-flex.flex-column
