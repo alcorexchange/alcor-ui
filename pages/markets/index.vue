@@ -78,7 +78,8 @@ export default {
 
     markets_active_tab: {
       get() {
-        return this.$store.state.market.markets_active_tab || this.network.baseToken.symbol
+        const def = this.network.name == 'proton' ? 'all' : this.network.baseToken.symbol
+        return this.$store.state.market.markets_active_tab || def
       },
 
       set(value) {

@@ -63,9 +63,7 @@ Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
 Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2, usdt = false) {
   let result = parseFloat(amount)
 
-  console.log(usdt)
   if (usdt) {
-    console.log('zzzzzzzz')
     return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
   }
 
