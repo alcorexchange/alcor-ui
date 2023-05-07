@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table(:data="tableData").analytics-table.analytics-top-pool-table
+el-table(:data="tableData").analytics-table.analytics-spot-pairs-table
   el-table-column(label="Pool" width="160")
     template(#default="")
       .token-container
@@ -16,16 +16,16 @@ el-table(:data="tableData").analytics-table.analytics-top-pool-table
       .d-flex.align-items-center.gap-4
         img.network-img(src="~/assets/icons/wax.png")
         span WAX
+  el-table-column(label="Price")
+    template(#default="") $558,001.05
   el-table-column(label="Volume 24h")
     template(#default="") $558,001.05
-  el-table-column(label="TVL")
+  el-table-column(label="Volume 7d")
     template(#default="") $558,001.05
-  el-table-column(label="Tick/TVL")
-    template(#default="") $558,001.05
-  el-table-column(label="Imp. Volatility")
-    template(#default="") $558,001.05
-  el-table-column(label="IV rank 90d")
-    template(#default="") $558,001.05
+  el-table-column(label="Spread")
+    template(#default="") 2%
+  el-table-column(label="Depth")
+    template(#default="") $558,001.05$
   el-table-column(label="Action" align="right" width="100")
     template(#default="")
       AlcorButton Details

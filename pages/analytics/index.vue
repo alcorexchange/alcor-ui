@@ -12,6 +12,10 @@
     template(#action)
       AlcorButton Explore
   AnalyticsTopPoolsTable(:tableData="['', '']")
+  AnalyticsSectionHeader(title="Top Spot Pairs")
+    template(#action)
+      AlcorButton Explore
+  AnalyticsSpotPairsTable(:tableData="['', '']")
 </template>
 
 <script>
@@ -21,6 +25,7 @@ import AnalyticsChart from '@/components/analytics/AnalyticsChart'
 import AnalyticsSectionHeader from '@/components/analytics/AnalyticsSectionHeader'
 import AnalyticsTopTokensTable from '@/components/analytics/AnalyticsTopTokensTable'
 import AnalyticsTopPoolsTable from '@/components/analytics/AnalyticsTopPoolsTable'
+import AnalyticsSpotPairsTable from '@/components/analytics/AnalyticsSpotPairsTable'
 import AlcorButton from '@/components/AlcorButton'
 export default {
   name: 'AnalyticsPage',
@@ -31,7 +36,8 @@ export default {
     AnalyticsSectionHeader,
     AlcorButton,
     AnalyticsTopTokensTable,
-    AnalyticsTopPoolsTable
+    AnalyticsTopPoolsTable,
+    AnalyticsSpotPairsTable
   }
 }
 </script>
