@@ -67,7 +67,7 @@ export const actions = {
     this.$socket.on('account:update-positions', positions => {
       // TODO Handle positions id's
       dispatch('fetchPositions')
-      dispatch('fetchPositionsStats')
+      //dispatch('fetchPositionsStats')
       dispatch('fetchPositionsHistory')
     })
 
@@ -103,7 +103,7 @@ export const actions = {
 
   afterLogin({ dispatch }) {
     dispatch('fetchPositions')
-    dispatch('fetchPositionsStats')
+    //dispatch('fetchPositionsStats')
     dispatch('fetchPositionsHistory')
   },
 

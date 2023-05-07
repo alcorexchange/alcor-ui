@@ -97,10 +97,12 @@ export default {
 
   computed: {
     position() {
+      // TODO Support for non-login view position
       const [pool_id, position_id, fee] = this.$route.params.id.split('-')
       const position = this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
 
-      return position || this.loadedPosition
+      return position
+      //return position || this.loadedPosition
     },
 
     pool() {
@@ -136,15 +138,12 @@ export default {
 
   methods: {
     async loadPosition() {
-      console.log('loadPosition')
       const [, position_id] = this.$route.params.id.split('-')
+      const { data } = await this.$axios.get('/v2/swap/pools/positions/' + position_id)
 
-      const position = await this.$axios.get('/v2/swap/pools/positions/' + position_id)
-
-      console.log('this.position', position)
-      // TODO RegexTest url params
-      //await this.$store.dispatch('amm/fetchPositions')
+      this.loadedPosition = data
     },
+
     composedPercent(side) {
       const tokenA = parseFloat(this.position.amountA.toFixed())
       const tokenB = parseFloat(this.position.amountB.toFixed())
