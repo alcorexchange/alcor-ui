@@ -399,24 +399,9 @@ export const actions = {
       // Calc USD value
       balances.map(token => {
         token.id = token.currency + '@' + token.contract
+        const price = state.tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
 
-        const { systemPrice } = rootState.wallet
-        const market = state.markets.filter(m => {
-          return m.base_token.contract == state.network.baseToken.contract &&
-            m.quote_token.contract == token.contract &&
-            m.quote_token.symbol.name == token.currency
-        })[0]
-
-        if (market) {
-          token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
-        } else {
-          token.usd_value = 0
-        }
-
-        if (token.contract == state.network.baseToken.contract) {
-          token.usd_value = parseFloat(token.amount) * systemPrice
-        }
-
+        token.usd_value = parseFloat(token.amount) * price
         commit('updateBalance', token)
       })
     }
