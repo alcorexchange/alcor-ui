@@ -46,6 +46,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
       'https://eosnode.alcor.exchange': 'Alcor',
       'https://eos.greymass.com': 'Greymass',
       //'https://mainnet.genereos.io': 'Generos',
@@ -462,6 +463,7 @@ const networks = {
 
     client_nodes: {
       'https://telos.greymass.com': 'Greymass - Canada',
+      'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
     },
 
     otc: {
