@@ -1,0 +1,68 @@
+{
+  "producer_account_name": "bp.alcor",
+  "org": {
+    "candidate_name": "Alcor Exchange",
+    "website": "https://bp.alcor.exchange",
+    "code_of_conduct": "https://medium.com/@alcorexchange/alcor-exchange-code-of-conduct-51ef91279337",
+    "ownership_disclosure": "https://bp.alcor.exchange",
+    "other_resources": [
+      "https://wax.alcor.exchange"
+    ],
+    "email": "admin@alcor.exchange",
+    "github_user": "alcorexchange",
+    "branding": {
+      "Logo_256": "https://alcor.exchange/android-chrome-256x256.png",
+      "Logo_1024": "https://alcor.exchange/logo_1024.png",
+      "Logo_svg": "https://alcor.exchange/safari-pinned-tab.svg"
+    },
+    "location": {
+      "name": "Finland",
+      "country": "FI",
+      "latitude": 60.1719,
+      "longitude": 24.9347
+    },
+    "social": {
+      "medium": "alcorexchange",
+      "twitter": "alcorexchange",
+      "github": "alcorexchange",
+      "telegram": "alcorexchange"
+    }
+  },
+  "nodes": [
+    {
+      "location": {
+        "name": "Finland",
+        "country": "FI",
+        "latitude": 60.1719,
+        "longitude": 24.9347
+      },
+      "node_type": "producer"
+    },
+    {
+      "location": {
+        "name": "Finland",
+        "country": "FI",
+        "latitude": 60.1719,
+        "longitude": 24.9347
+      },
+      "node_type": "seed",
+      "p2p_endpoint": "waxtest-p2p.alcor.exchange:8100"
+    },
+    {
+      "location": {
+        "name": "Finland",
+        "country": "FI",
+        "latitude": 60.1719,
+        "longitude": 24.9347
+      },
+      "full": false,
+      "node_type": "query",
+      "api_endpoint": "http://waxtest-api.alcor.exchange",
+      "ssl_endpoint": "https://waxtes-api.alcor.exchange",
+      "features": [
+        "chain-api",
+        "account-query"
+      ]
+    }
+  ]
+}
