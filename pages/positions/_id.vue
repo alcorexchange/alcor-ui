@@ -46,7 +46,6 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
         :position="position"
         :priceLower="tokensInverted ? priceUpper : priceLower"
         :priceUpper="tokensInverted ? priceLower : priceUpper"
-        :composedPercent="composedPercent"
         :ticksAtLimit="ticksAtLimit"
       ).mt-3
 
