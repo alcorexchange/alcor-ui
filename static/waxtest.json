@@ -46,7 +46,7 @@
         "longitude": 24.9347
       },
       "node_type": "seed",
-      "p2p_endpoint": "waxtest-p2p.alcor.exchange:8100"
+      "p2p_endpoint": "waxtest-p2p.alcor.exchange:9876"
     },
     {
       "location": {
