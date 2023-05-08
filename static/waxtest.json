@@ -58,7 +58,7 @@
       "full": false,
       "node_type": "query",
       "api_endpoint": "http://waxtest-api.alcor.exchange",
-      "ssl_endpoint": "https://waxtes-api.alcor.exchange",
+      "ssl_endpoint": "https://waxtest-api.alcor.exchange",
       "features": [
         "chain-api",
         "account-query"
