@@ -220,7 +220,9 @@ export const actions = {
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
-    commit('setPools', rows)
+
+    commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
+      !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
 
     // Seem like we do not need ticks
     // for (const row of rows) {
