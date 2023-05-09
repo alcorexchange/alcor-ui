@@ -1,6 +1,6 @@
 <template lang="pug">
 AlcorContainer.analytics-stats
-  .item(v-for="x in 8")
+  .item(v-for="x in 10")
     .key Total value locked
     .value $900K
     .percent +6.66%

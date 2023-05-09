@@ -125,7 +125,8 @@ export default {
 <style scoped lang="scss">
 .analytics-chart {
   display: flex;flex-direction: column;
-  min-height: 380px;
+  // min-height: 100%;
+  height: 100%;
 }
 .chart-container {
   flex: 1;
