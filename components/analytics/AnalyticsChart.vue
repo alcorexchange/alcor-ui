@@ -4,7 +4,8 @@ AlcorContainer.analytics-chart
     .mode-items
       .mode(v-for="item in modes" :class="{active: selectedMode === item.value}" @click="selectedMode = item.value") {{ item.value }}
   .chart-container
-    VueApexCharts(width='100%' height="100%" type="area" :options='chartOptions' :series='series' ref="chart")
+    client-only
+      VueApexCharts(width='100%' height="100%" type="area" :options='chartOptions' :series='series' ref="chart")
 </template>
 
 <script>

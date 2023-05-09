@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table(:data="tableData").analytics-table.analytics-top-pool-table
+el-table(:data="tableData").analytics-table.analytics-pools-table
   el-table-column(label="Pool" width="160")
     template(#default="")
       .token-container
@@ -38,7 +38,7 @@ el-table(:data="tableData").analytics-table.analytics-top-pool-table
 import AlcorButton from '@/components/AlcorButton'
 import PairIcons from '@/components/PairIcons'
 export default {
-  name: 'AnalyticsTopTokensTable',
+  name: 'AnalyticsPoolsTable',
   components: {
     AlcorButton,
     PairIcons

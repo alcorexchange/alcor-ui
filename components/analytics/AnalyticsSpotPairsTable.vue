@@ -28,7 +28,7 @@ el-table(:data="tableData").analytics-table.analytics-spot-pairs-table
     template(#default="") $558,001.05$
   el-table-column(label="Action" align="right" width="100")
     template(#default="")
-      AlcorButton Details
+      AlcorButton Trade
   template(#append)
     .d-flex.justify-content-center.p-2
       el-pagination.pagination(:total="100" :page-size="10" layout="prev, pager, next")

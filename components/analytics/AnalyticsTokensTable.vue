@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table(:data="tableData").analytics-table.analytics-top-token-table
+el-table(:data="tableData").analytics-table.analytics-tokens-table
   el-table-column(label="Token")
     template(#default="")
       .token-container
@@ -29,7 +29,7 @@ el-table(:data="tableData").analytics-table.analytics-top-token-table
 <script>
 import AlcorButton from '@/components/AlcorButton'
 export default {
-  name: 'AnalyticsTopTokensTable',
+  name: 'AnalyticsTokensTable',
   components: {
     AlcorButton
   },
