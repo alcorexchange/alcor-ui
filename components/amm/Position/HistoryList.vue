@@ -22,9 +22,9 @@
           .mobile-label Total Value
           span ${{ (row.totalUSDValue || row.totalUSDVolume).toFixed(4) }}
 
-    el-table-column(:label='$t("Token Amount")' width="160" class-name="token-amount")
+    el-table-column(:label='$t("Token Amount")' class-name="token-amount")
       template(slot-scope='{row}')
-        .token-amount-inner.d-flex.flex-column.gap-2
+        .token-amount-inner.d-flex.flex-column.gap-4
           .d-flex.flex-column.gap-2.token-amount-items
             .amount-item
               TokenImage(
@@ -161,6 +161,10 @@ export default {
     .type {
       display: flex;
       justify-content: center;
+    }
+    .token-amount-items {
+      flex-wrap: wrap;
+      gap: 4px;
     }
     .token-amount {
       .cell {
