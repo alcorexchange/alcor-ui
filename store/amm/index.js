@@ -65,6 +65,7 @@ export const actions = {
     dispatch('fetchPoolsStats')
 
     this.$socket.on('account:update-positions', positions => {
+      console.log('account:update-positions!!!')
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsHistory')
