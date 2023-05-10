@@ -3,7 +3,7 @@ import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
 import { asset } from 'eos-common'
 
-import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '../assets/libs/swap-sdk'
+import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
 const PRICE_FIXED_DIGITS = 8
 

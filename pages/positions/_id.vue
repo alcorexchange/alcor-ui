@@ -101,7 +101,6 @@ export default {
       const position = this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
 
       return position
-      //return position || this.loadedPosition
     },
 
     pool() {

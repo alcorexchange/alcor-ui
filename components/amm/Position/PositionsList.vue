@@ -1,6 +1,6 @@
 <template lang="pug">
 el-table.position-table.custom-responsive-table(
-  :data='plainPositions',
+  :data='positions',
   style='width: 100%',
   @row-click="$emit('positionClick', $event)"
 )
@@ -11,9 +11,9 @@ el-table.position-table.custom-responsive-table(
   el-table-column(:label='$t("Assets in Position")' width="240" className="assets")
     template(slot-scope='{row}')
       .assets-inner.d-flex.align-items-center.gap-12.px-3.py-2
-        pair-icons(:token1="row.tokenA" :token2="row.tokenB" size="20")
-        .fs-14 {{ row.tokenA.symbol }} / {{ row.tokenB.symbol }}
-        .tag {{ row.fee / 10000 }}%
+        pair-icons(:token1="row.pool.tokenA" :token2="row.pool.tokenB" size="20")
+        .fs-14 {{ row.pool.tokenA.symbol }} / {{ row.pool.tokenB.symbol }}
+        .tag {{ row.pool.fee / 10000 }}%
 
   el-table-column(:label='$t("Range")' width="220" class-name="min-max")
     template(slot-scope='{row}')
@@ -35,12 +35,12 @@ el-table.position-table.custom-responsive-table(
       .d-flex.flex-column
         .mobile-label {{ $t("Assets in Pool") }}
         .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.tokenA.symbol, row.tokenA.contract)' height="12")
+          token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
           .fs-12.earn.d-flex.gap-4
             span {{ row.amountA }}
         .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.tokenB.symbol, row.tokenB.contract)' height="12")
+          token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
           .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
             span {{ row.amountB }}
@@ -48,7 +48,18 @@ el-table.position-table.custom-responsive-table(
   el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
     template(slot-scope='{row}')
       .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
-      position-fees.position-fees(:position="row")
+
+      .d-flex.flex-column
+        .d-flex.align-items-center.gap-4
+          token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
+
+          .fs-12.earn.d-flex.gap-4
+            span {{ row.feesA }}
+        .d-flex.align-items-center.gap-4
+          token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
+
+          .fs-12.earn.d-flex.gap-4
+            span {{ row.feesB }}
 
   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
@@ -61,12 +72,12 @@ el-table.position-table.custom-responsive-table(
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
       alcor-button(compact) {{ $t('Manage') }}
-  //.text-muted {{ plainPositions.length }}
 
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { tickToPrice } from '@alcorexchange/alcor-swap-sdk'
+import { isTicksAtLimit } from '~/utils/amm'
 
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -75,6 +86,30 @@ import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
+
+  computed: {
+    positions() {
+      return this.$store.state.amm.positions.map(p => {
+        const pool = this.$store.getters['amm/pools'].find(pool => pool.id == p.pool)
+
+        if (!pool) return {}
+
+        const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
+        const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
+
+        const link = `/positions/${pool.id}-${p.id}-${pool.fee}`
+
+        return {
+          ...p,
+          pool,
+          priceUpper,
+          priceLower,
+          link
+        }
+      }).filter(p => p.pool)
+    }
+  },
+
   methods: {
     renderPLColor(value) {
       const pl = parseFloat(value)
@@ -83,12 +118,7 @@ export default {
       return undefined
     },
   },
-  mounted() {
-    this.$store.dispatch('amm/fetchPositions')
-  },
-  computed: {
-    ...mapGetters('amm', ['plainPositions'])
-  },
+
 }
 </script>
 
