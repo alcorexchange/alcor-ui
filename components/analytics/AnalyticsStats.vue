@@ -1,5 +1,5 @@
 <template lang="pug">
-AlcorContainer.analytics-stats
+AlcorContainer.analytics-stats.fs-14
   .item(v-for="x in 10")
     .key Total value locked
     .value $900K

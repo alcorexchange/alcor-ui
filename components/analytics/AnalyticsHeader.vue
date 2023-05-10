@@ -39,9 +39,15 @@ export default {
   gap: 10px;
 }
 .select::v-deep {
-  width: 140px;
   .el-input__inner {
-    padding-left: 14px;
+    width: 120px;
+    padding-left: 8px;
+    height: 32px;
+    line-height: 32px;
+  }
+  .el-input__suffix {
+    display: flex;
+    align-items: center;
   }
 }
 </style>

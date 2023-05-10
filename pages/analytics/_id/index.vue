@@ -2,7 +2,7 @@
 .analytics-page
   AnalyticsHeader
   AnalyticsBreadcrumb(
-    :token="{symbol: 'WAX', contract: 'wax.spider'}"
+    :token="{symbol: 'WAX', contract: 'wax.alcor'}"
   )
   AnalyticsTokenHeader
   .analytics-stats-and-chart
