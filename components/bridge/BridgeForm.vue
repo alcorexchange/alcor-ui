@@ -528,6 +528,7 @@ export default {
         try {
           //throw new Error('test asdfasf 2')
 
+          console.log('this.tx', this.tx)
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
           //throw new Error('test')
           console.log('scheduleProofs', scheduleProofs)

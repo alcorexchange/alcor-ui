@@ -1,12 +1,13 @@
 <template>
-  <button
+  <component
+    :is="tag"
     :class="['alcor-button', { flat, alternative, access, orange, danger, outline, bordered, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
     @click.prevent="$emit('click')"
     v-bind="$attrs">
     <div class="inner">
       <slot />
     </div>
-  </button>
+  </component>
 </template>
 
 <script>
@@ -64,6 +65,9 @@ export default {
     iconOnlyAlt: {
       default: false,
       type: Boolean
+    },
+    tag: {
+      default: 'button'
     }
   }
 }

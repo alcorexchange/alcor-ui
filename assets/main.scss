@@ -925,6 +925,10 @@ a {
   font-size: 36px;
 }
 
+.fs-32 {
+  font-size: 32px;
+}
+
 .fs-24 {
   font-size: 24px;
 }
@@ -1386,4 +1390,29 @@ body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hove
   100% {
       transform: rotateZ(-360deg)
   }
+}
+
+// ANALYTICS PAGES
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 40px;
+}
+.analytics-table {
+  border-radius: 8px;
+  th {
+    font-weight: 400 !important;
+  }
+  .pagination li {
+    &.active, &:hover {
+      color: var(--main-green) !important;
+    }
+  }
+}
+.analytics-stats-and-chart {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  align-items: start;
 }
