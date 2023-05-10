@@ -74,7 +74,7 @@ const networks = {
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
 
       bridgeContracts: {
-        telos: 'ibc.prove',
+        tlos: 'ibc.prove',
         ux: 'ibc.prove',
         wax: 'ibc.alcor'
       },
