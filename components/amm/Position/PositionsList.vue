@@ -78,6 +78,7 @@ el-table.position-table.custom-responsive-table(
 <script>
 import { tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit } from '~/utils/amm'
+import { constructPoolInstance } from '~/utils/amm'
 
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -90,7 +91,10 @@ export default {
   computed: {
     positions() {
       return this.$store.state.amm.positions.map(p => {
-        const pool = this.$store.getters['amm/pools'].find(pool => pool.id == p.pool)
+        const _pool = this.$store.state.amm.pools.find(pool => pool.id == p.pool)
+
+        if (!_pool) return {}
+        const pool = constructPoolInstance(_pool)
 
         if (!pool) return {}
 

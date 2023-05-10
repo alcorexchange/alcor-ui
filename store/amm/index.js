@@ -2,11 +2,10 @@ import Vue from 'vue'
 import axios from 'axios'
 import cloneDeep from 'lodash/cloneDeep'
 
-import { Percent, Pool, Position } from '@alcorexchange/alcor-swap-sdk'
+import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
 
 import { fetchAllRows } from '~/utils/eosjs'
-import { isTicksAtLimit, tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
-import { nameToUint64 } from '~/utils'
+import { constructPoolInstance } from '~/utils/amm'
 
 const DEFAULT_SLIPPAGE = 0.3
 
@@ -225,20 +224,11 @@ export const actions = {
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
-  pools(state, getters, rootState) {
+  pools(state) {
     const pools = []
 
     for (const row of state.pools) {
-      const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = row
-
-      pools.push(new Pool({
-        ...row,
-
-        tokenA: parseToken(tokenA),
-        tokenB: parseToken(tokenB),
-        sqrtPriceX64,
-        tickCurrent: tick
-      }))
+      pools.push(constructPoolInstance(row))
     }
 
     return pools
@@ -253,22 +243,14 @@ export const getters = {
 
       const pool = state.pools.find(p => p.id == position.pool)
       if (!pool) continue
-      const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = pool
 
-      const poolInstance = new Pool({
-        ...pool,
-
-        tokenA: parseToken(tokenA),
-        tokenB: parseToken(tokenB),
-        sqrtPriceX64,
-        tickCurrent: tick
-      })
+      const poolInstance = constructPoolInstance(pool)
 
       if (!poolInstance) continue
 
       const tempPosition = new Position({
         ...position,
-        pool: new Pool({ ...poolInstance })
+        pool: poolInstance
       })
 
       // Add Stats

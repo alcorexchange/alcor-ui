@@ -1,4 +1,5 @@
-import { FeeAmount, PositionLibrary, TickLibrary, CurrencyAmount, Token } from '~/assets/libs/swap-sdk'
+import { FeeAmount, Token } from '@alcorexchange/alcor-swap-sdk'
+import { constructPoolInstance } from '~/utils/amm'
 
 export const state = () => ({
   tokenA: null,
@@ -124,7 +125,7 @@ export const getters = {
   pool(state, getters, rootState, rootGetters) {
     if (!state.tokenA || !state.tokenB) return null
 
-    const pool = rootGetters['amm/pools'].find(p => {
+    const pool = rootState.amm.pools.map(p => constructPoolInstance(p)).find(p => {
       return (
         (p.tokenA.id == state.tokenA?.id && p.tokenB.id == state.tokenB?.id) ||
         (p.tokenA.id == state.tokenB?.id && p.tokenB.id == state.tokenA?.id)
@@ -137,7 +138,7 @@ export const getters = {
   currnetPools(state, getters, rootState, rootGetters) {
     if (!state.tokenA || !state.tokenB) return []
 
-    return rootGetters['amm/pools'].filter(p => {
+    return rootState.amm.pools.map(p => constructPoolInstance(p)).filter(p => {
       return (
         (p.tokenA.id == state.tokenA?.id && p.tokenB.id == state.tokenB?.id) ||
         (p.tokenA.id == state.tokenB?.id && p.tokenB.id == state.tokenA?.id)

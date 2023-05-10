@@ -3,7 +3,7 @@ import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
 import { asset } from 'eos-common'
 
-import { Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
+import { Pool, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
 const PRICE_FIXED_DIGITS = 8
 
@@ -236,4 +236,18 @@ export default function computeSurroundingTicks(
   }
 
   return processedTicks
+}
+
+// Awoid braking BigInt because of getters
+export function constructPoolInstance(row) {
+  const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = row
+
+  return new Pool({
+    ...row,
+
+    tokenA: parseToken(tokenA),
+    tokenB: parseToken(tokenB),
+    sqrtPriceX64,
+    tickCurrent: tick,
+  })
 }
