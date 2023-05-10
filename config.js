@@ -238,7 +238,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
-    PINNED_MARKETS: [],
+    PINNED_MARKETS: [282],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['eosiotokens', 'albabank', 'bayramela'],
     CEX_CONTRACTS: [],
