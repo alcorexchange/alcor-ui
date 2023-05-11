@@ -209,6 +209,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://proton-api.alcor.exchange': 'Alcor Proton node',
       'https://nodeproton.alcor.exchange': 'Alcor Proton node',
       'https://proton.greymass.com': 'Greymass',
       'https://proton.pink.gg': 'Pink GG',
@@ -461,6 +462,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://telos-api.alcor.exchange': 'Alcor - Finland',
       'https://telos.greymass.com': 'Greymass - Canada',
       'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
     },
