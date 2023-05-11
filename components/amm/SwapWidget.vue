@@ -341,6 +341,7 @@ export default {
         this.amountA = null
         this.amountB = null
 
+        this.updateBalances()
         return this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
       } catch (e) {
         console.log(e)
@@ -348,8 +349,15 @@ export default {
       }
     },
 
+    updateBalances() {
+      const { tokenA, tokenB } = this
+
+      this.$store.dispatch('updateBalance', tokenA, { root: true })
+      this.$store.dispatch('updateBalance', tokenB, { root: true })
+    },
+
     async swap() {
-      const { amountA, amountB, tokenA, tokenB, slippage } = this
+      const { amountA, amountB, tokenA, tokenB } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const exactIn = this.lastField == 'input'
