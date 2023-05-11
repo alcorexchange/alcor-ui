@@ -35,11 +35,11 @@ export const actions = {
     if (!input && !output) {
       const { contract, symbol } = rootState.network.baseToken
       commit('setTokenB', null)
-      return commit('setTokenA', getters.tokens.find(t => t.symbol == symbol && t.contract == contract))
+      return commit('setTokenA', getters.tokens.find(t => t.symbol.toLowerCase() == symbol.toLowerCase() && t.contract == contract))
     }
 
-    const tokenA = getters.tokens.find(t => t.symbol == state.input?.symbol && t.contract == state.input?.contract)
-    const tokenB = getters.tokens.find(t => t.symbol == state.output?.symbol && t.contract == state.output?.contract)
+    const tokenA = getters.tokens.find(t => t.symbol.toLowerCase() == state.input?.symbol.toLowerCase() && t.contract == state.input?.contract)
+    const tokenB = getters.tokens.find(t => t.symbol.toLowerCase() == state.output?.symbol.toLowerCase() && t.contract == state.output?.contract)
     if (tokenA && tokenB && tokenA.equals(tokenB)) return commit('setTokenA', tokenA)
 
     if (tokenA) commit('setTokenA', tokenA)
