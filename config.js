@@ -362,11 +362,10 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      //'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
+      'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
       'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
-      //'https://wax.eosn.io': 'EOS Nation - Canada',
       'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
