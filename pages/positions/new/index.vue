@@ -486,6 +486,13 @@ export default {
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
 
+    updateBalances() {
+      const { tokenA, tokenB } = this
+
+      this.$store.dispatch('updateBalance', tokenA, { root: true })
+      this.$store.dispatch('updateBalance', tokenB, { root: true })
+    },
+
     reset() {
       this.amountA = ''
       this.amountB = ''
