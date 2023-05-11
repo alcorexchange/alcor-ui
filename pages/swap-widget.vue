@@ -1,5 +1,5 @@
 <template lang="pug">
-  SwapWidget.swap-widget-container
+  SwapWidget
 </template>
 
 <script>
@@ -13,11 +13,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.swap-widget-container {
-  max-width: 450px;
-  width: 100%;
-}
-</style>
-

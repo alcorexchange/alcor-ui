@@ -1,5 +1,5 @@
 <template lang="pug">
-.unlim-width.default-layout
+.unlim-width.default-layout.swap-widget-container
   .not-footer
     AlcorLoading
     ResourcesModal
@@ -27,3 +27,11 @@ export default {
   },
 }
 </script>
+
+<style>
+.swap-widget-container {
+  max-width: 450px;
+  width: 100%;
+}
+</style>
+

@@ -118,6 +118,7 @@ export default {
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
+      //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
