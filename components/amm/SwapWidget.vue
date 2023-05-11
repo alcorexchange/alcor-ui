@@ -372,7 +372,7 @@ export default {
             from: this.user.name,
             to: this.network.amm.contract,
             quantity: currencyAmountIn.toAsset(),
-            memo: this.memo
+            memo: this.memo.replace('<receiver>', this.user.name) // In case we got route without login
           }
         })
 
