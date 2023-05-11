@@ -191,14 +191,13 @@ export default {
     const { input, output } = this.$route.query
 
     if (input) {
-      const [symbol, contract] = input.split('-')
-      this.$store.commit('amm/swap/setInput', { symbol, contract })
+      this.$store.commit('amm/swap/setInput', input.toLowerCase())
     }
 
     if (output) {
-      const [symbol, contract] = output.split('-')
-      this.$store.commit('amm/swap/setOutput', { symbol, contract })
+      this.$store.commit('amm/swap/setOutput', output.toLowerCase())
     }
+
     this.$store.dispatch('amm/swap/setDefaultInputOutput')
   },
 

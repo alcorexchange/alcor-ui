@@ -38,8 +38,8 @@ export const actions = {
       return commit('setTokenA', getters.tokens.find(t => t.symbol.toLowerCase() == symbol.toLowerCase() && t.contract == contract))
     }
 
-    const tokenA = getters.tokens.find(t => t.symbol.toLowerCase() == state.input?.symbol.toLowerCase() && t.contract == state.input?.contract)
-    const tokenB = getters.tokens.find(t => t.symbol.toLowerCase() == state.output?.symbol.toLowerCase() && t.contract == state.output?.contract)
+    const tokenA = getters.tokens.find(t => t.id == state.input?.toLowerCase())
+    const tokenB = getters.tokens.find(t => t.id == state.output?.toLowerCase())
     if (tokenA && tokenB && tokenA.equals(tokenB)) return commit('setTokenA', tokenA)
 
     if (tokenA) commit('setTokenA', tokenA)
