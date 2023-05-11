@@ -49,7 +49,7 @@ nav.nav(v-if='!isMobile')
 
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
 
-    AlcorButton(@click='openMenu', :icon-only-alt='true')
+    AlcorButton(@click='openMenu', :icon-only-alt='true' v-if="!$route.path.includes('swap-widget')")
       i.el-icon-more
     nav(:class='["menu", { menuActive }]')
       .logo
