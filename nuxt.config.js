@@ -202,7 +202,8 @@ module.exports = {
    */
   sentry: {
     dsn: 'https://b28cbcd4c0ba438bbb8b6baeebf5fba0@sentry.alcor.exchange/2',
-    disabled: isDev
+    disabled: isDev,
+    publishRelease: true
   },
 
   buildModules: [
