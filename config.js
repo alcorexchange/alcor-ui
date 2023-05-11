@@ -46,6 +46,7 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
       'https://eosnode.alcor.exchange': 'Alcor',
       'https://eos.greymass.com': 'Greymass',
       //'https://mainnet.genereos.io': 'Generos',
@@ -73,7 +74,7 @@ const networks = {
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
 
       bridgeContracts: {
-        telos: 'ibc.prove',
+        tlos: 'ibc.prove',
         ux: 'ibc.prove',
         wax: 'ibc.alcor'
       },
@@ -236,8 +237,8 @@ const networks = {
 
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
-    PINNED_MARKETS: [],
+    RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
+    PINNED_MARKETS: [282],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['eosiotokens', 'albabank', 'bayramela'],
     CEX_CONTRACTS: [],
@@ -397,7 +398,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [231, 171, /* USDT */ 763],
+    PINNED_MARKETS: [171, /* USDT */ 763],
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
@@ -462,6 +463,7 @@ const networks = {
 
     client_nodes: {
       'https://telos.greymass.com': 'Greymass - Canada',
+      'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
     },
 
     otc: {

@@ -1,5 +1,4 @@
-import { Token, Trade } from '~/assets/libs/swap-sdk'
-
+import { Token, Trade } from '@alcorexchange/alcor-swap-sdk'
 
 export const state = () => ({
   tokenA: null,

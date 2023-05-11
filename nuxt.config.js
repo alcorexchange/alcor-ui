@@ -201,9 +201,7 @@ module.exports = {
    ** Sentry module configuration
    */
   sentry: {
-    dsn:
-      process.env.SENTRY_DSN ||
-      'https://a0486e29af0f4630a29b820ee4226fa8@sentry.io/1792380',
+    dsn: 'https://b28cbcd4c0ba438bbb8b6baeebf5fba0@sentry.alcor.exchange/2',
     disabled: isDev
   },
 
