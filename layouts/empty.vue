@@ -5,7 +5,7 @@
     ResourcesModal
     ModalsDialog
 
-    .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
+    .alcor-inner.main
       nuxt
 </template>
 
