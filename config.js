@@ -47,7 +47,7 @@ const networks = {
 
     client_nodes: {
       'https://eos-api.alcor.exchange': 'Alcor - Finland',
-      'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
+      //'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
       'https://eos.greymass.com': 'Greymass',
       //'https://mainnet.genereos.io': 'Generos',
       //'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
@@ -210,7 +210,8 @@ const networks = {
 
     client_nodes: {
       'https://proton-api.alcor.exchange': 'Alcor Proton node',
-      'https://nodeproton.alcor.exchange': 'Alcor Proton node',
+
+      //'https://nodeproton.alcor.exchange': 'Alcor Proton node',
       'https://proton.greymass.com': 'Greymass',
       'https://proton.pink.gg': 'Pink GG',
       'https://proton.eu.eosamsterdam.net': 'EOS Amsterdam',
@@ -364,7 +365,7 @@ const networks = {
 
     client_nodes: {
       'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
-      'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
+      //'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
       'https://wax.pink.gg': 'Pink GG - Germany',
@@ -464,7 +465,7 @@ const networks = {
     client_nodes: {
       'https://telos-api.alcor.exchange': 'Alcor - Finland',
       'https://telos.greymass.com': 'Greymass - Canada',
-      'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
+      //'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
     },
 
     otc: {
