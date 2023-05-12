@@ -24,6 +24,11 @@
             img(src='~/assets/icons/Twitter.svg')
           span.name Twitter
           span.desc {{ $t('ANOUNCEMENT') }}
+        a.item(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+          .icon
+            img(src='~/assets/icons/Discord.svg')
+          span.name Discord
+          span.desc {{ $t('General Chatting') }}
         a.item(href="https://avral.medium.com/" target="_blank")
           .icon
             img(src='~/assets/icons/Monogram.svg')
@@ -39,11 +44,7 @@
             img(src='~/assets/icons/Api.svg')
           span.name API
           span.desc {{ $t('Alcor API Docs') }}
-        a.item(href="https://discord.gg/Sxum2ETSzq" target="_blank")
-          .icon
-            img(src='~/assets/icons/Discord.svg')
-          span.name Discord
-          span.desc {{ $t('General Chatting') }}
+
       span.title {{ $t('PARTNERS_PROVIDERS') }}
       .items
         a.item(v-for="{ image, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
