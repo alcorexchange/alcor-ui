@@ -1,0 +1,7 @@
+[defaults]
+url = https://sentry.alcor.exchange/
+org = sentry
+project = alcor
+
+[auth]
+token = ...
