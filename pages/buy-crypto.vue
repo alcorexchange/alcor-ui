@@ -30,7 +30,8 @@ export default {
         locales: true,
         logo: true,
         primaryColor: '#66c167',
-        to,
+        //to,
+        to: 'waxp',
         //toFiat: 'eth',
         toTheMoon: false
       }
