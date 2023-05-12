@@ -114,15 +114,6 @@ export default {
     }
   },
 
-  methods: {
-    renderPLColor(value) {
-      const pl = parseFloat(value)
-      if (pl > 0) return `var(--main-green)`
-      if (pl < 0) return `var(--main-red)`
-      return undefined
-    },
-  },
-
 }
 </script>
 

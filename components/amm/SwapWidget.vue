@@ -126,8 +126,8 @@
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
-  //a.d-flex.banner.w-100(href="#" target="_blank")
-    img.w-100(src="@/assets/images/swap_v2_live_banner.png")
+  a.d-flex.banner.w-100(href="https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3" target="_blank")
+    img.w-100(src="@/assets/images/alcor_summer.png")
 </template>
 
 <script>
@@ -586,6 +586,21 @@ export default {
 }
 .banner {
   margin: 32px 0;
+  position: relative;
+  transform-style: preserve-3d;
+  img {
+    border-radius: 14px;
+  }
+  &:before {
+    content: "";
+    position: absolute;
+    inset: 0px;
+    background: linear-gradient(0deg, rgba(76,112,119,1) 13%, rgba(184,76,84,0.9) 50%, rgba(82,48,54,1) 100%);
+    filter: blur(8px);
+    transform: translate3d(0px,0px,-1px);
+    border-radius: 14px;
+    pointer-events: none;
+  }
 }
 </style>
 <style lang="scss">
