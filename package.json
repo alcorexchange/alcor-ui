@@ -25,7 +25,7 @@
     "@ethersproject/units": "^5.7.0",
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/i18n": "^7.2.2",
-    "@nuxtjs/sentry": "^4.3.4",
+    "@nuxtjs/sentry": "5.1.7",
     "@proton/web-sdk": "^4.2.15",
     "@scatterjs/core": "^2.7.54",
     "@scatterjs/eosjs2": "^1.5.36",

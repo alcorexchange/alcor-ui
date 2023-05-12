@@ -1,10 +1,11 @@
-import cloneDeep from 'lodash/cloneDeep'
 import Vue from 'vue'
 import axios from 'axios'
+import cloneDeep from 'lodash/cloneDeep'
+
+import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
+
 import { fetchAllRows } from '~/utils/eosjs'
-import { isTicksAtLimit, tryParsePrice, tryParseCurrencyAmount, parseToken, tryParseTick } from '~/utils/amm'
-import { Percent, Token, Pool, Tick, CurrencyAmount, Price, Position } from '~/assets/libs/swap-sdk'
-import { nameToUint64 } from '~/utils'
+import { constructPoolInstance } from '~/utils/amm'
 
 const DEFAULT_SLIPPAGE = 0.3
 
@@ -18,7 +19,6 @@ export const state = () => ({
 
   // Api
   poolsStats: [],
-  positionsStats: [],
   history: [],
 
   // TODO move to module
@@ -40,7 +40,6 @@ export const mutations = {
   setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,
-  setPositionsStats: (state, stats) => state.positionsStats = stats,
   setHistory: (state, data) => state.history = data,
 
   updatePool: (state, pool) => {
@@ -65,9 +64,9 @@ export const actions = {
     dispatch('fetchPoolsStats')
 
     this.$socket.on('account:update-positions', positions => {
+      console.log('account:update-positions!!!')
       // TODO Handle positions id's
       dispatch('fetchPositions')
-      //dispatch('fetchPositionsStats')
       dispatch('fetchPositionsHistory')
     })
 
@@ -103,7 +102,6 @@ export const actions = {
 
   afterLogin({ dispatch }) {
     dispatch('fetchPositions')
-    //dispatch('fetchPositionsStats')
     dispatch('fetchPositionsHistory')
   },
 
@@ -112,19 +110,13 @@ export const actions = {
     commit('setPoolsStats', pools)
   },
 
-  async fetchPositionsStats({ rootState, commit }) {
-    const owner = rootState.user?.name
-
-    const { data } = await this.$axios.get('/v2/account/' + owner + '/positions-stats')
-    commit('setPositionsStats', data)
-  },
-
   async fetchPositions({ state, commit, rootState, dispatch }) {
     const owner = rootState.user?.name
 
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
   },
+
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
     const ITEMS_PER_PAGE = 20
     const skip = (page - 1) * ITEMS_PER_PAGE
@@ -211,14 +203,16 @@ export const actions = {
   },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
-    console.log('fetchPools')
+    //console.log('fetchPools')
     // TODO Redo with api (if it will work safely)
     // and load ticks with single api call
 
     const { network } = rootState
 
     const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
-    commit('setPools', rows)
+
+    commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
+      !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
 
     // Seem like we do not need ticks
     // for (const row of rows) {
@@ -230,20 +224,11 @@ export const actions = {
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
-  pools(state, getters, rootState) {
+  pools(state) {
     const pools = []
 
     for (const row of state.pools) {
-      const { tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = row
-
-      pools.push(new Pool({
-        ...row,
-
-        tokenA: parseToken(tokenA),
-        tokenB: parseToken(tokenB),
-        sqrtPriceX64,
-        tickCurrent: tick
-      }))
+      pools.push(constructPoolInstance(row))
     }
 
     return pools
@@ -253,7 +238,13 @@ export const getters = {
     const positions = []
 
     for (const position of state.positions) {
-      const poolInstance = getters.pools.find(p => p.id == position.pool)
+      // Pools are broken here, we have to construct it manually again here
+      // BROKEN const poolInstance = getters.pools.find(p => p.id == position.pool)
+
+      const pool = state.pools.find(p => p.id == position.pool)
+      if (!pool) continue
+
+      const poolInstance = constructPoolInstance(pool)
 
       if (!poolInstance) continue
 
@@ -271,27 +262,6 @@ export const getters = {
       })
 
       positions.push(tempPosition)
-    }
-
-    return positions
-  },
-
-  plainPositions(state, getters) {
-    const positions = []
-    for (const p of getters.positions) {
-      // const stats = state.positionsStats.find(pos => pos.id == p.id) || { totalValue: 0, pNl: 0, feesA: '0.0000', feesB: '0.0000' }
-
-      const { tickLower, tickUpper, inRange, pool: { tokenA, tokenB, fee }, feesA, feesB, pNl, totalValue } = p
-
-      const priceLower = isTicksAtLimit(fee, tickLower, tickUpper).LOWER ? '0' : p.tokenAPriceLower.toSignificant(5)
-      const priceUpper = isTicksAtLimit(fee, tickLower, tickUpper).UPPER ? '∞' : p.tokenAPriceUpper.toSignificant(5)
-
-      const amountA = p.amountA.toAsset()
-      const amountB = p.amountB.toAsset()
-
-      const link = `/positions/${p.pool.id}-${p.id}-${p.pool.fee}`
-
-      positions.push({ feesA, feesB, pNl, totalValue, inRange, tokenA, tokenB, priceLower, priceUpper, amountA, amountB, link, fee })
     }
 
     return positions

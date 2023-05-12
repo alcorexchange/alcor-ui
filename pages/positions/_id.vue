@@ -46,7 +46,6 @@ alcor-container.manage-liquidity-component(v-if="position && position.pool")
         :position="position"
         :priceLower="tokensInverted ? priceUpper : priceLower"
         :priceUpper="tokensInverted ? priceLower : priceUpper"
-        :composedPercent="composedPercent"
         :ticksAtLimit="ticksAtLimit"
       ).mt-3
 
@@ -102,7 +101,6 @@ export default {
       const position = this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
 
       return position
-      //return position || this.loadedPosition
     },
 
     pool() {

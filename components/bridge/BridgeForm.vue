@@ -130,7 +130,7 @@
       el-dropdown-menu.bridge-setting-dropdown.p-2
         AlcorButton(@click="resetState") ⚠️ {{ $t('Reset State') }}
 
-  //- BridgeHistory
+  //BridgeHistory
 </template>
 
 <script>
@@ -435,13 +435,6 @@ export default {
       const { destination, destinationWallet } = this
       const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
 
-      try {
-        // TODO CPU/NET warning probably
-        await destinationRpc.get_account(destinationWallet.name)
-      } catch (e) {
-        return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
-      }
-
       if (this.step === 4 || !this.step) {
         if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
         if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
@@ -475,6 +468,13 @@ export default {
         }
 
         this.setError(null)
+      }
+
+      try {
+        // TODO CPU/NET warning probably
+        await destinationRpc.get_account(this.destinationWallet.name)
+      } catch (e) {
+        return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
       }
 
       const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset)

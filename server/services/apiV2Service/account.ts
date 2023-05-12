@@ -17,6 +17,7 @@ async function getCurrentPositionState(chain, plainPosition) {
 
   const position = new PositionClass({ ...plainPosition, pool })
 
+  const inRange = position.inRange
   const amountA = position.amountA.toAsset()
   const amountB = position.amountB.toAsset()
 
@@ -40,6 +41,7 @@ async function getCurrentPositionState(chain, plainPosition) {
     parseFloat(feesB) * tokenBUSDPrice
 
   return {
+    inRange,
     feesA,
     feesB,
     amountA,

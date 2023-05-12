@@ -79,6 +79,7 @@ async function main() {
 
   subscriber.subscribe('account:update-positions', msg => {
     const { chain, account, positions } = JSON.parse(msg)
+    console.log('push to clicent:', 'account:update-positions', account)
     io.to(`account:${chain}.${account}`).emit('account:update-positions', positions)
   })
 

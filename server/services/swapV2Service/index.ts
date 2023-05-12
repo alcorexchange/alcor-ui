@@ -467,6 +467,7 @@ export async function onSwapAction(message: string) {
     const { posId, owner } = data
     const push = { chain, account: owner, positions: [posId] }
 
+    console.log('account:update-positions', owner)
     publisher.publish('account:update-positions', JSON.stringify(push))
   }
 

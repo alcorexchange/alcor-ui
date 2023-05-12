@@ -679,16 +679,6 @@ export default {
       if (!this.pool) {
         const creationFee = this.network.amm?.creationFee || this.network.marketCreationFee
 
-        try {
-          await this.$confirm('Fee is: ' + creationFee + ' Continue?', 'New pool creation fee', {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
-            type: 'warning'
-          })
-        } catch (e) {
-          return
-        }
-
         // Fetch last pool just to predict new created pool id
         try {
           const { rows: [{ poolIdCounter }] } = await this.$rpc.get_table_rows({
@@ -704,6 +694,30 @@ export default {
           return this.$notify({ title: 'Position Create', message: 'Fetch new pool ID error: ' + e.message, type: 'error' })
         }
 
+        if (this.network.name == 'wax') {
+          try {
+            await this.$confirm('Fee is: ' + creationFee + ' Continue?', 'New pool creation fee', {
+              confirmButtonText: 'OK',
+              cancelButtonText: 'Cancel',
+              type: 'warning'
+            })
+          } catch (e) {
+            return
+          }
+
+          actions.push({
+            account: this.network.baseToken.contract,
+            name: 'transfer',
+            authorization: [this.user.authorization],
+            data: {
+              from: this.user.name,
+              to: this.network.amm.contract,
+              quantity: creationFee,
+              memo: `activepool#${poolId}`
+            }
+          })
+        }
+
         actions.push({
           account: this.network.amm.contract,
           name: 'createpool',
@@ -714,18 +728,6 @@ export default {
             tokenB: { contract: sortedB.contract, quantity: tokenBZero.toAsset() },
             sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
             fee: this.feeAmount
-          }
-        })
-
-        actions.push({
-          account: this.network.baseToken.contract,
-          name: 'transfer',
-          authorization: [this.user.authorization],
-          data: {
-            from: this.user.name,
-            to: this.network.amm.contract,
-            quantity: creationFee,
-            memo: `activepool#${poolId}`
           }
         })
       }
