@@ -351,8 +351,10 @@ export default {
     updateBalances() {
       const { tokenA, tokenB } = this
 
-      this.$store.dispatch('updateBalance', tokenA, { root: true })
-      this.$store.dispatch('updateBalance', tokenB, { root: true })
+      setTimeout(() => {
+        this.$store.dispatch('updateBalance', tokenA, { root: true })
+        this.$store.dispatch('updateBalance', tokenB, { root: true })
+      }, 1000)
     },
 
     async swap() {
