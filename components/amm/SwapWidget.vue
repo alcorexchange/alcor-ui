@@ -588,6 +588,8 @@ export default {
   margin: 32px 0;
   position: relative;
   transform-style: preserve-3d;
+  border: 1px solid rgba(120, 120, 135, 0.36);
+  border-radius: 14px;
   img {
     border-radius: 14px;
   }
@@ -596,10 +598,11 @@ export default {
     position: absolute;
     inset: 0px;
     background: linear-gradient(0deg, rgba(76,112,119,1) 13%, rgba(184,76,84,0.9) 50%, rgba(82,48,54,1) 100%);
-    filter: blur(8px);
-    transform: translate3d(0px,0px,-1px);
-    border-radius: 14px;
+    filter: blur(12px);
+    transform: translate3d(0px, 16px,-1px);
+    border-radius: inherit;
     pointer-events: none;
+    opacity: 0.25;
   }
 }
 </style>
