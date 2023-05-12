@@ -89,3 +89,4 @@ data/
 ecosystem.config.js
 
 .vscode
+sentry.properties
