@@ -56,7 +56,7 @@ el-table.position-table.custom-responsive-table(
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span(:style="{color: renderPLColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
+      span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')

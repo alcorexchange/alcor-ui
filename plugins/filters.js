@@ -111,3 +111,13 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
     }
   }
 }
+
+Vue.prototype.$percentColor = function(percent, zeroColor = 'var(--text-default)') {
+  percent = parseFloat(percent).toFixed(2)
+  percent = parseFloat(percent)
+
+  if (isNaN(percent)) return zeroColor
+  if (percent > 0) return `var(--main-green)`
+  if (percent < 0) return `var(--main-red)`
+  return zeroColor
+}
