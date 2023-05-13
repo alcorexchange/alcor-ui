@@ -527,6 +527,8 @@ export default {
       if (this.step === 2) {
         try {
           //throw new Error('test asdfasf 2')
+          const last_proven_block = await ibcTransfer.getLastProvenBlock()
+
 
           console.log('this.tx', this.tx)
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
@@ -536,12 +538,29 @@ export default {
           const emitxferAction = ibcTransfer.findEmitxferAction(this.tx)
           console.log('emitxferAction', emitxferAction)
 
-          const emitxferProof = await ibcTransfer.getProof({
-            type: 'heavyProof',
+          //const light = last_proven_block && last_proven_block > this.tx.processed.block_num
+          const light = false
+
+          console.log({ light })
+
+          // const emitxferProof = await ibcTransfer.getProof({
+          //   type: 'heavyProof',
+          //   action: emitxferAction,
+          //   onProgress: this.updateProgress,
+          //   block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
+          // })
+
+          // TODO Test lightProof
+          const query = {
+            type: light ? 'lightProof' : 'heavyProof',
             action: emitxferAction,
             onProgress: this.updateProgress,
             block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
-          })
+          }
+
+          if (light) query.last_proven_block = last_proven_block
+
+          const emitxferProof = await ibcTransfer.getProof(query)
 
           console.log('emitxferProof', emitxferProof)
 
