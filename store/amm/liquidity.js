@@ -41,33 +41,6 @@ export const actions = {
     commit('setTokenB', tokenA)
   },
 
-  updateRoutePath({ state, getters, rootState }) {
-    // TODO Handle fee!
-    const { tokenA, tokenB } = getters.routes
-
-    let path = '/add-liquidity/'
-
-    if (state.tokenA && state.tokenA.id !== tokenA) {
-      path += state.tokenA
-    }
-
-    if (!state.tokenA && state.tokenB && state.tokenB !== tokenB) {
-      path += state.tokenB
-    }
-
-    if (state.tokenB && state.tokenB !== tokenB) {
-      path += `/${state.tokenB}`
-    }
-
-    if (state.tokenA && state.tokenB && state.feeAmount) {
-      path += `/${state.feeAmount}`
-    }
-
-    const currentRout = rootState.route.fullPath
-    console.log({ currentRout, path })
-    if (currentRout !== path) this.$router.push({ path })
-  },
-
   setTokenA({ state, dispatch, commit }, token) {
     if (token.id == state.tokenB?.id) commit('setTokenB', null)
     commit('setTokenA', token)

@@ -46,8 +46,8 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
-      'https://eosnode.alcor.exchange': 'Alcor',
+      'https://eos-api.alcor.exchange': 'Alcor - Finland',
+      //'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
       'https://eos.greymass.com': 'Greymass',
       //'https://mainnet.genereos.io': 'Generos',
       //'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
@@ -202,14 +202,16 @@ const networks = {
     host: 'proton.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'http://proton.bloks.io',
+    monitor: 'https://protonscan.io',
     monitor_params: '',
     lightapi: 'https://proton.light-api.net',
     hyperion: 'https://proton.eu.eosamsterdam.net',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://nodeproton.alcor.exchange': 'Alcor Proton node',
+      'https://proton-api.alcor.exchange': 'Alcor Proton node',
+
+      //'https://nodeproton.alcor.exchange': 'Alcor Proton node',
       'https://proton.greymass.com': 'Greymass',
       'https://proton.pink.gg': 'Pink GG',
       'https://proton.eu.eosamsterdam.net': 'EOS Amsterdam',
@@ -362,11 +364,10 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      //'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
-      'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
+      'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
+      //'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
-      //'https://wax.eosn.io': 'EOS Nation - Canada',
       'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
@@ -462,8 +463,9 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://telos-api.alcor.exchange': 'Alcor - Finland',
       'https://telos.greymass.com': 'Greymass - Canada',
-      'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
+      //'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
     },
 
     otc: {

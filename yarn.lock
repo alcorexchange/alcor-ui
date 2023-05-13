@@ -2299,15 +2299,14 @@
   dependencies:
     http-proxy-middleware "^1.0.6"
 
-"@nuxtjs/sentry@5.1.7":
-  version "5.1.7"
-  resolved "https://registry.yarnpkg.com/@nuxtjs/sentry/-/sentry-5.1.7.tgz#1e03205cd38cf1b7f7f6a797f8b5fca1fbaa5b44"
-  integrity sha512-VO8V6Yj3Y9SdNuOGi/kVnyHIuFtDNLtLpcdB52P3c/FGrSh6wXlzRiDGc0mY+znMhzYazeOwe9oW5Ej8MptrHA==
+"@nuxtjs/sentry@6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@nuxtjs/sentry/-/sentry-6.0.3.tgz#c36e6cbcbd7c3d7a7cd6f15c543fa61031607aff"
+  integrity sha512-udGb1PWAzrZCe4jsb4KbUpvnvGLoOJkZUJ9UPsNdjOggRjLuJ0BZT04eA3DID3RC9M/a672O5vMm0/Ckm9yVYA==
   dependencies:
-    "@sentry/browser" "^6.17.3"
-    "@sentry/integrations" "^6.17.3"
-    "@sentry/node" "^6.17.3"
-    "@sentry/webpack-plugin" "^1.18.4"
+    "@sentry/browser" "^6.19.7"
+    "@sentry/integrations" "^6.19.7"
+    "@sentry/node" "^6.19.7"
     consola "^2.15.3"
     lodash.mergewith "^4.6.2"
 
@@ -2442,7 +2441,7 @@
   dependencies:
     "@scatterjs/core" "^2.7.54"
 
-"@sentry/browser@^6.17.3":
+"@sentry/browser@^6.19.7":
   version "6.19.7"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-6.19.7.tgz#a40b6b72d911b5f1ed70ed3b4e7d4d4e625c0b5f"
   integrity sha512-oDbklp4O3MtAM4mtuwyZLrgO1qDVYIujzNJQzXmi9YzymJCuzMLSRDvhY83NNDCRxf0pds4DShgYeZdbSyKraA==
@@ -2484,7 +2483,7 @@
     "@sentry/utils" "6.19.7"
     tslib "^1.9.3"
 
-"@sentry/integrations@^6.17.3":
+"@sentry/integrations@^6.19.7":
   version "6.19.7"
   resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-6.19.7.tgz#e6e126b692077c8731644224c754012bed65b425"
   integrity sha512-yNeeFyuygJaV7Mdc5qWuDa13xVj5mVdECaaw2Xs4pfeHaXmRfRzZY17N8ypWFegKWxKBHynyQRMD10W5pBwJvA==
@@ -2503,7 +2502,7 @@
     "@sentry/types" "6.19.7"
     tslib "^1.9.3"
 
-"@sentry/node@^6.17.3":
+"@sentry/node@^6.19.7":
   version "6.19.7"
   resolved "https://registry.yarnpkg.com/@sentry/node/-/node-6.19.7.tgz#32963b36b48daebbd559e6f13b1deb2415448592"
   integrity sha512-gtmRC4dAXKODMpHXKfrkfvyBL3cI8y64vEi3fDD046uqYcrWdgoQsffuBbxMAizc6Ez1ia+f0Flue6p15Qaltg==
@@ -2530,7 +2529,7 @@
     "@sentry/types" "6.19.7"
     tslib "^1.9.3"
 
-"@sentry/webpack-plugin@^1.18.4":
+"@sentry/webpack-plugin@^1.20.1":
   version "1.20.1"
   resolved "https://registry.yarnpkg.com/@sentry/webpack-plugin/-/webpack-plugin-1.20.1.tgz#e70a2fe516f3a39a132acfa841e4f2ea2a1cecd2"
   integrity sha512-klOLkfM/oSYzcR2M9oDmJA5/Mdaw0Mtck/h820Z+gqpd6WJepjhqVDel1z2VddaP/XMY0Dj6elCGp2/nDWNr0w==
@@ -4957,6 +4956,11 @@ caniuse-lite@^1.0.30001449:
   version "1.0.30001464"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001464.tgz#888922718df48ce5e33dcfe1a2af7d42676c5eb7"
   integrity sha512-oww27MtUmusatpRpCGSOneQk2/l5czXANDSFvsc7VuOQ86s3ANhZetpwXNf1zY/zdfP63Xvjz325DAdAoES13g==
+
+caniuse-lite@^1.0.30001486:
+  version "1.0.30001486"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001486.tgz#56a08885228edf62cbe1ac8980f2b5dae159997e"
+  integrity sha512-uv7/gXuHi10Whlj0pp5q/tsK/32J2QSqVRKQhs2j8VsDCjgyruAh/eEXHF822VqO9yT6iZKw3nRwZRSPBE9OQg==
 
 caw@^2.0.0, caw@^2.0.1:
   version "2.0.1"

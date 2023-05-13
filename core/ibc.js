@@ -1,3 +1,5 @@
+import { captureException } from '@sentry/browser'
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const arrayToHex = (data) => {
@@ -41,6 +43,23 @@ export class IBCTransfer {
         quantity,
         beneficiary: this.destinationWallet.name
       }
+    }
+  }
+
+  async getLastProvenBlock() {
+    const lastBlockProved = await this.destination.rpc.get_table_rows({
+      code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+      table: 'lastproofs',
+      scope: this.source.ibc.name,
+      limit: 1,
+      reverse: true,
+      show_payer: false
+    })
+
+    if (lastBlockProved && lastBlockProved.rows[0]) {
+      return lastBlockProved.rows[0].block_height
+    } else {
+      return null
     }
   }
 
@@ -173,6 +192,7 @@ export class IBCTransfer {
               tx
             )
           } catch (ex) {
+            captureException(ex)
             //handle duplicate tx error, in case it auto got included in next block than reported, check next block and so on
             console.log(ex)
             //TODO verify exception is duplicate tx error
@@ -184,6 +204,8 @@ export class IBCTransfer {
           }
         }
       } catch (ex) {
+        captureException(ex)
+
         console.log('lost internet, retrying', ex)
       }
     } // end of while
@@ -231,7 +253,7 @@ export class IBCTransfer {
   }
 
   getProof({ type = 'heavyProof', block_to_prove, action, onProgress }) {
-    console.log('get proof txID: ', action.trx_id)
+    console.log('get proof txID: ', action?.trx_id)
     return new Promise((resolve) => {
       //initialize socket to proof server
       const ws = new WebSocket(this.source.ibc.proofSocket)
@@ -249,7 +271,7 @@ export class IBCTransfer {
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
-          onProgress(res.progress)
+          if (onProgress) onProgress(res.progress)
           console.log('progress', res.progress)
         }
 
@@ -305,8 +327,9 @@ export class IBCTransfer {
   }
 
   async getScheduleProofs(transferBlock) {
-    async function getProducerScheduleBlock(blocknum) {
+    const getProducerScheduleBlock = async (blocknum) => {
       try {
+        console.log('this.source', this)
         let header = await this.source.rpc.get_block(blocknum)
         const target_schedule = header.schedule_version
 
@@ -334,6 +357,7 @@ export class IBCTransfer {
             if (header.schedule_version < target_schedule) min_block = blocknum
             else max_block = blocknum
           } catch (ex) {
+            captureException(ex)
             console.log('Internet connection lost, retrying')
           }
         }
@@ -357,8 +381,9 @@ export class IBCTransfer {
         blocknum = header.block_num
         return blocknum
       } catch (ex) {
+        captureException(ex)
         console.log('getProducerScheduleBlock ex', ex)
-        return null
+        throw new Error(ex)
       }
     }
 
