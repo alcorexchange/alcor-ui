@@ -579,6 +579,7 @@ export default {
         try {
           //throw new Error('test asdfasf 3')
           console.log('this.proofs', this.proofs)
+          // TODO Submit schedule separated in case we are limited by time execution like on eos
           const { tx } = await ibcTransfer.submitProofs(this.proofs)
           this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)
