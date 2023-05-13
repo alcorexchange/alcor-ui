@@ -192,6 +192,8 @@ export const actions = {
     })
 
     if (!pool) return console.error('Pool not found!', poolId)
+
+    // FIXME Here pools are broken JSBI i guess
     const old_pools = cloneDeep(state.pools)
     const old_pool = old_pools.findIndex(o => o.id == pool.id)
 
