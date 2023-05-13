@@ -21,7 +21,6 @@
     "@alcorexchange/alcor-swap-sdk": "^1.0.1",
     "@azukisiromochi/vue-mo.js": "^1.0.2",
     "@bloks/web-sdk": "^2.7.23-55",
-    "@eosrio/hyperion-stream-client": "^0.4.0-beta.5",
     "@ethersproject/units": "^5.7.0",
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/i18n": "^7.2.2",

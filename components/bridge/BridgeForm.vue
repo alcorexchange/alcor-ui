@@ -538,17 +538,10 @@ export default {
           const emitxferAction = ibcTransfer.findEmitxferAction(this.tx)
           console.log('emitxferAction', emitxferAction)
 
-          //const light = last_proven_block && last_proven_block > this.tx.processed.block_num
-          const light = false
+          const light = last_proven_block && last_proven_block.block_height > this.tx.processed.block_num
+          //const light = false
 
           console.log({ light })
-
-          // const emitxferProof = await ibcTransfer.getProof({
-          //   type: 'heavyProof',
-          //   action: emitxferAction,
-          //   onProgress: this.updateProgress,
-          //   block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
-          // })
 
           // TODO Test lightProof
           const query = {
@@ -558,11 +551,15 @@ export default {
             block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
           }
 
-          if (light) query.last_proven_block = last_proven_block
+          if (light) query.last_proven_block = last_proven_block.block_height
 
           const emitxferProof = await ibcTransfer.getProof(query)
 
+          if (light) emitxferProof.data.blockproof.root = last_proven_block.block_merkle_root
+
           console.log('emitxferProof', emitxferProof)
+
+          //throw new Error('test')
 
           console.log('setProofs', [...scheduleProofs, emitxferProof])
           this.setProofs([...scheduleProofs, emitxferProof])
