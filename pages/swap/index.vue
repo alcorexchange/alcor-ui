@@ -82,7 +82,9 @@ export default {
   width: 100%;
 }
 .chart-container {
-  width: 100%
+  width: 100%;
+  position: relative;
+  z-index: 2;
 }
 @media only screen and (max-width: 1080px) {
   #swap-page {
