@@ -191,14 +191,13 @@ export default {
     const { input, output } = this.$route.query
 
     if (input) {
-      const [symbol, contract] = input.split('-')
-      this.$store.commit('amm/swap/setInput', { symbol, contract })
+      this.$store.commit('amm/swap/setInput', input.toLowerCase())
     }
 
     if (output) {
-      const [symbol, contract] = output.split('-')
-      this.$store.commit('amm/swap/setOutput', { symbol, contract })
+      this.$store.commit('amm/swap/setOutput', output.toLowerCase())
     }
+
     this.$store.dispatch('amm/swap/setDefaultInputOutput')
   },
 
@@ -341,6 +340,7 @@ export default {
         this.amountA = null
         this.amountB = null
 
+        this.updateBalances()
         return this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
       } catch (e) {
         console.log(e)
@@ -348,8 +348,17 @@ export default {
       }
     },
 
+    updateBalances() {
+      const { tokenA, tokenB } = this
+
+      setTimeout(() => {
+        this.$store.dispatch('updateBalance', tokenA, { root: true })
+        this.$store.dispatch('updateBalance', tokenB, { root: true })
+      }, 1000)
+    },
+
     async swap() {
-      const { amountA, amountB, tokenA, tokenB, slippage } = this
+      const { amountA, amountB, tokenA, tokenB } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const exactIn = this.lastField == 'input'
@@ -372,7 +381,7 @@ export default {
             from: this.user.name,
             to: this.network.amm.contract,
             quantity: currencyAmountIn.toAsset(),
-            memo: this.memo
+            memo: this.memo.replace('<receiver>', this.user.name) // In case we got route without login
           }
         })
 

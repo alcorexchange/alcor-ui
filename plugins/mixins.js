@@ -15,7 +15,7 @@ Vue.mixin({
 
   computed: {
     isMobile() {
-      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175)
+      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175) || this.$route.path.includes('swap-widget')
     }
   },
 

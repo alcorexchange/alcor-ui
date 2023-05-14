@@ -181,12 +181,13 @@ export default {
     const { left, right } = route.query || {}
     store.commit('amm/liquidity/setTokenA', null)
     store.commit('amm/liquidity/setTokenB', null)
+
     if (left) {
-      store.commit('amm/liquidity/setTokenA', { id: left })
+      store.commit('amm/liquidity/setTokenA', { id: left.toLowerCase() })
     }
 
     if (right) {
-      store.commit('amm/liquidity/setTokenB', { id: right })
+      store.commit('amm/liquidity/setTokenB', { id: right.toLowerCase() })
     }
 
     store.dispatch('amm/liquidity/setDefaultTokenA')
@@ -486,6 +487,13 @@ export default {
   methods: {
     ...mapActions('modal', ['previewLiquidity']),
 
+    updateBalances() {
+      const { tokenA, tokenB } = this
+
+      this.$store.dispatch('updateBalance', tokenA, { root: true })
+      this.$store.dispatch('updateBalance', tokenB, { root: true })
+    },
+
     reset() {
       this.amountA = ''
       this.amountB = ''
@@ -646,6 +654,7 @@ export default {
     async submit() {
       try {
         await this.addLiquidity()
+        this.updateBalances()
         // await this.$store.dispatch('amm/poolUpdate', poolId)
         // this.$store.dispatch('amm/fetchPositions')
       } catch (e) {

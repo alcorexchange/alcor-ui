@@ -49,7 +49,7 @@ nav.nav(v-if='!isMobile')
 
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
 
-    AlcorButton(@click='openMenu', :icon-only-alt='true')
+    AlcorButton(@click='openMenu', :icon-only-alt='true' v-if="!$route.path.includes('swap-widget')")
       i.el-icon-more
     nav(:class='["menu", { menuActive }]')
       .logo
@@ -118,6 +118,7 @@ export default {
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
+      //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
