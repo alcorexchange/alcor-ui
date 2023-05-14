@@ -10,7 +10,7 @@
       NftRelation(:data='relationData', :price='getPrice')
       h1.recent-title {{ $t('Recent Listenings') }}
   CatCarousel.nft-market-carousel(
-    v-if='listings.length',
+    v-if='listings && listings.length',
     :items='listings',
     :item-per-page='isMobile ? 1 : 4',
     :centerMode="{enabled: isMobile, paddingCenter: 10}"
@@ -31,7 +31,7 @@
 
   h1.recent-title {{ $t('New NFTs') }}
   CatCarousel.nft-market-carousel(
-    v-if='nfts.length',
+    v-if='nfts && nfts.length',
     :items='nfts',
     :item-per-page='isMobile ? 1 : 4',
     :centerMode="{enabled: isMobile, paddingCenter: 10}"
