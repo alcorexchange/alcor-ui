@@ -14,11 +14,11 @@ import SwapWidget from '~/components/amm/SwapWidget'
 import SwapChart from '~/components/amm/SwapChart'
 
 export default {
+  name: 'SwapPage',
   components: {
     SwapWidget,
     SwapChart,
   },
-  name: "SwapPage",
   data: () => ({
     colors: [
       { name: 'eos', color: '50, 215, 75' },
