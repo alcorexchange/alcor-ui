@@ -22,6 +22,7 @@
     "@azukisiromochi/vue-mo.js": "^1.0.2",
     "@bloks/web-sdk": "^2.7.23-55",
     "@ethersproject/units": "^5.7.0",
+    "@mathieustan/vue-intercom": "^0.0.9",
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/i18n": "^7.2.2",
     "@nuxtjs/sentry": "6.0.3",

@@ -1832,6 +1832,11 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@mathieustan/vue-intercom@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@mathieustan/vue-intercom/-/vue-intercom-0.0.9.tgz#878fe16336384dc802df78c86ff4fd1c2a2ec20b"
+  integrity sha512-AF9Qdtmoj0fP5JM3v+O7Kf9F6gB1qwhkbRvFzr8+TN5WMwz1IQ/9oAJQlE66tEm+9UPhm/c9iyEtozw+vy4wOw==
+
 "@mojs/core@^0.288.2":
   version "0.288.2"
   resolved "https://registry.npmjs.org/@mojs/core/-/core-0.288.2.tgz"

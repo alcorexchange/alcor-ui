@@ -20,10 +20,25 @@ Vue.mixin({
   },
 
   mounted() {
+    // ⚠️  CALLING MULTIPLE TIMES!!
     this.windowWidth = window.innerWidth
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth
     })
+
+    if (this.$store) {
+      return
+      this.$intercom.shutdown()
+
+      if (this.$store.state.network.name == 'eos') {
+        this.$intercom.once('ready', () => {
+          this.$intercom.boot({
+            app: 'Alcor Exchange',
+          })
+          this.$intercom.show()
+        })
+      }
+    }
   },
 
   methods: {
