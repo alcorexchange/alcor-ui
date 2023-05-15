@@ -18,6 +18,7 @@ export default {
     SwapWidget,
     SwapChart,
   },
+  name: "SwapPage",
   data: () => ({
     colors: [
       { name: 'eos', color: '50, 215, 75' },
