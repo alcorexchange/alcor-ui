@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import axios from 'axios'
-import cloneDeep from 'lodash/cloneDeep'
 
 import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
 
@@ -143,26 +142,26 @@ export const actions = {
     return merged
   },
 
-  updateTickOfPool({ state, commit }, { poolId, tick }) {
-    // FIXME We do not user ticks on UI side
-    const ticks = cloneDeep(state.ticks[poolId] ?? [])
+  // FIXME We do not user ticks on UI side
+  // updateTickOfPool({ state, commit }, { poolId, tick }) {
+  //   const ticks = cloneDeep(state.ticks[poolId] ?? [])
 
-    const old = ticks.findIndex(old_tick => {
-      return old_tick.id == tick.id
-    })
+  //   const old = ticks.findIndex(old_tick => {
+  //     return old_tick.id == tick.id
+  //   })
 
-    if (old != -1) {
-      if (tick.liquidityGross == 0) {
-        ticks.splice(old, 1)
-      } else {
-        ticks[old] = tick
-      }
-    } else if (tick.liquidityGross !== 0) {
-      ticks.push(tick)
-    }
+  //   if (old != -1) {
+  //     if (tick.liquidityGross == 0) {
+  //       ticks.splice(old, 1)
+  //     } else {
+  //       ticks[old] = tick
+  //     }
+  //   } else if (tick.liquidityGross !== 0) {
+  //     ticks.push(tick)
+  //   }
 
-    commit('setTicks', { poolId, ticks })
-  },
+  //   commit('setTicks', { poolId, ticks })
+  // },
 
   async fetchTicksOfPool({ commit, rootState }, poolId) {
     if (isNaN(poolId)) return
@@ -173,36 +172,34 @@ export const actions = {
     commit('setTicks', { poolId, ticks })
   },
 
-  async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
-    if (isNaN(poolId)) return
-    console.log('pool update triggered')
+  // async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
+  //   if (isNaN(poolId)) return
+  //   console.log('pool update triggered')
 
-    // FIXME We do not user that in UI
-    //dispatch('fetchTicksOfPool', poolId)
+  //   const { network } = rootState
 
-    const { network } = rootState
+  //   // TODO Send pool with push
+  //   const [pool] = await fetchAllRows(this.$rpc, {
+  //     code: network.amm.contract,
+  //     scope: network.amm.contract,
+  //     table: 'pools',
+  //     limit: 1,
+  //     lower_bound: poolId,
+  //     upper_bound: poolId
+  //   })
 
-    const [pool] = await fetchAllRows(this.$rpc, {
-      code: network.amm.contract,
-      scope: network.amm.contract,
-      table: 'pools',
-      limit: 1,
-      lower_bound: poolId,
-      upper_bound: poolId
-    })
+  //   if (!pool) return console.error('Pool not found!', poolId)
 
-    if (!pool) return console.error('Pool not found!', poolId)
+  //   // FIXME Here pools are broken JSBI i guess
+  //   const old_pools = cloneDeep(state.pools)
+  //   const old_pool = old_pools.findIndex(o => o.id == pool.id)
 
-    // FIXME Here pools are broken JSBI i guess
-    const old_pools = cloneDeep(state.pools)
-    const old_pool = old_pools.findIndex(o => o.id == pool.id)
+  //   if (old_pool != -1) {
+  //     old_pools[old_pool] = pool
+  //   } else { old_pools.push(pool) }
 
-    if (old_pool != -1) {
-      old_pools[old_pool] = pool
-    } else { old_pools.push(pool) }
-
-    commit('setPools', old_pools)
-  },
+  //   commit('setPools', old_pools)
+  // },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
     //console.log('fetchPools')
@@ -215,11 +212,6 @@ export const actions = {
 
     commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
       !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
-
-    // Seem like we do not need ticks
-    // for (const row of rows) {
-    //   dispatch('fetchTicksOfPool', row.id)
-    // }
   },
 }
 
@@ -229,9 +221,12 @@ export const getters = {
   pools(state) {
     const pools = []
 
+    console.time('pools_perf')
+
     for (const row of state.pools) {
       pools.push(constructPoolInstance(row))
     }
+    console.timeEnd('pools_perf')
 
     return pools
   },
