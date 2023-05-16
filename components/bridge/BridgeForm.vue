@@ -435,6 +435,11 @@ export default {
       const { destination, destinationWallet } = this
       const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
 
+      if (this.error && this.step == 3) {
+        // We are trying to generate proofs again
+        this.setStep(2)
+      }
+
       if (this.step === 4 || !this.step) {
         if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
         if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
@@ -483,7 +488,7 @@ export default {
         try {
           const signedTx = await ibcTransfer.signSourceTrx()
 
-          const { tx, packedTx, leap } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
+          const { tx, packedTx } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
 
           // TODO Handle if no
           //const emitxferAction = ibcTransfer.findEmitxferAction(tx)
@@ -528,7 +533,6 @@ export default {
         try {
           //throw new Error('test asdfasf 2')
           const last_proven_block = await ibcTransfer.getLastProvenBlock()
-
 
           console.log('this.tx', this.tx)
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
