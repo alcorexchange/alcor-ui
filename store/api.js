@@ -384,7 +384,7 @@ export const actions = {
     try {
       const { data } = await this.$api.get('atomicassets/v1/assets', {
         params: {
-          owner: rootState.user.name,
+          owner: rootState.user?.name,
           // TODO: Handle pagination
           page: 1,
           limit: NFT_LIST_ITEM_PP,
@@ -394,7 +394,7 @@ export const actions = {
       console.log('done', data)
       return data.data
     } catch (e) {
-      console.error('Get accounts error', e)
+      console.error('Get accounts error x', e)
     }
   },
 
