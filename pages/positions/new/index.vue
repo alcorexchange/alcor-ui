@@ -686,6 +686,18 @@ export default {
       let poolId = this.pool?.id
 
       if (!this.pool) {
+        actions.push({
+          account: this.network.amm.contract,
+          name: 'createpool',
+          authorization: [this.user.authorization],
+          data: {
+            account: this.$store.state.user.name,
+            tokenA: { contract: sortedA.contract, quantity: tokenAZero.toAsset() },
+            tokenB: { contract: sortedB.contract, quantity: tokenBZero.toAsset() },
+            sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
+            fee: this.feeAmount
+          }
+        })
         const creationFee = this.network.amm?.creationFee || this.network.marketCreationFee
 
         // Fetch last pool just to predict new created pool id
@@ -726,19 +738,6 @@ export default {
             }
           })
         }
-
-        actions.push({
-          account: this.network.amm.contract,
-          name: 'createpool',
-          authorization: [this.user.authorization],
-          data: {
-            account: this.$store.state.user.name,
-            tokenA: { contract: sortedA.contract, quantity: tokenAZero.toAsset() },
-            tokenB: { contract: sortedB.contract, quantity: tokenBZero.toAsset() },
-            sqrtPriceX64: mockPool.sqrtPriceX64.toString(),
-            fee: this.feeAmount
-          }
-        })
       }
 
       if (tokenADesired.greaterThan(0))
