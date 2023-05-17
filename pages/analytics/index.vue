@@ -14,7 +14,7 @@
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
       AlcorButton Explore
-  AnalyticsSpotPairsTable(:tableData="paginatedMarkets" @pageChange="getSpots")
+  AnalyticsSpotPairsTable(:tableData="paginatedMarkets" :length="markets.length" @pageChange="getSpots")
 </template>
 
 <script>
@@ -51,13 +51,12 @@ export default {
       const PER_PAGE = 10
       const lowestItem = (this.spotsPage - 1) * PER_PAGE
       const highestItem = this.spotsPage * PER_PAGE
-      console.log({ lowestItem, highestItem })
       return this.markets.filter((_, i) => lowestItem <= i && i < highestItem)
     }
   },
   methods: {
     getTokens(page = 1) {
-      // get tokens from API for the specific page
+      // get tokens from API
       console.log(page)
     },
     getPools(page = 1) {
@@ -65,7 +64,7 @@ export default {
       console.log(page)
     },
     getSpots(page = 1) {
-      // get tokens from API for the specific page
+      // get spots from API
       this.spotsPage = page
     }
   },
