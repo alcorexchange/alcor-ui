@@ -1,42 +1,43 @@
 <template lang="pug">
 el-table(:data="tableData").analytics-table.analytics-spot-pairs-table
-  el-table-column(label="Pool" width="160")
-    template(#default="")
+  el-table-column(label="Pair" min-width="140")
+    template(#default="{ row }")
       .token-container
         span.rank #1
         PairIcons.pair-icons(
           size="18"
-          :token1="{contract: 'eosio.token', symbol: 'WAX'}"
-          :token2="{contract: 'usdt.alcor', symbol: 'USDT'}"
+          :token1="{contract: row.quote_token.contract, symbol: row.quote_token.symbol.name}"
+          :token2="{contract: row.base_token.contract, symbol: row.base_token.symbol.name}"
         )
-        span.name WAX
+        span.name {{ row.quote_token.symbol.name }}/{{ row.base_token.symbol.name }}
         span.tag.fs-12 0.3%
   el-table-column(label="Network")
     template(#default="")
       .d-flex.align-items-center.gap-4
-        img.network-img(src="~/assets/icons/wax.png")
-        span WAX
+        img.network-img(:src="require(`~/assets/icons/${network.name}.png`)")
+        span {{ network.name.toUpperCase() }}
   el-table-column(label="Price")
     template(#default="") $558,001.05
   el-table-column(label="Volume 24h")
     template(#default="") $558,001.05
   el-table-column(label="Volume 7d")
     template(#default="") $558,001.05
-  el-table-column(label="Spread")
+  el-table-column(label="Spread" width="80")
     template(#default="") 2%
   el-table-column(label="Depth")
     template(#default="") $558,001.05$
-  el-table-column(label="Action" align="right" width="100")
+  el-table-column(label="Action" align="right" width="80")
     template(#default="")
       AlcorButton Trade
   template(#append)
     .d-flex.justify-content-center.p-2
-      el-pagination.pagination(:total="100" :page-size="10" layout="prev, pager, next")
+      el-pagination.pagination(:total="100" :page-size="10" layout="prev, pager, next" v-model="page" @current-change="$emit('pageChange', $event)")
 </template>
 
 <script>
 import AlcorButton from '@/components/AlcorButton'
 import PairIcons from '@/components/PairIcons'
+import { mapState } from 'vuex'
 export default {
   name: 'AnalyticsTopTokensTable',
   components: {
@@ -44,6 +45,12 @@ export default {
     PairIcons
   },
   props: ['tableData'],
+  data: () => ({
+    page: 1
+  }),
+  computed: {
+    ...mapState(['network'])
+  }
 }
 </script>
 
@@ -52,6 +59,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+  // white-space: nowrap;
   .rank {
     color: var(--text-disable);
     white-space: nowrap;
