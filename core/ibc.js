@@ -57,7 +57,7 @@ export class IBCTransfer {
     })
 
     if (lastBlockProved && lastBlockProved.rows[0]) {
-      return lastBlockProved.rows[0].block_height
+      return lastBlockProved.rows[0]
     } else {
       return null
     }
@@ -252,7 +252,7 @@ export class IBCTransfer {
     })
   }
 
-  getProof({ type = 'heavyProof', block_to_prove, action, onProgress }) {
+  getProof({ type = 'heavyProof', block_to_prove, action, onProgress, last_proven_block }) {
     console.log('get proof txID: ', action?.trx_id)
     return new Promise((resolve) => {
       //initialize socket to proof server
@@ -260,6 +260,7 @@ export class IBCTransfer {
       ws.addEventListener('open', (event) => {
         // connected to websocket server
         const query = { type, block_to_prove }
+        if (last_proven_block) query.last_proven_block = last_proven_block
         if (action) query.action_receipt = action.receipt
         ws.send(JSON.stringify(query))
       })
@@ -279,14 +280,14 @@ export class IBCTransfer {
 
         ws.close()
 
+        let name
+        if (type === 'lightProof') name = this.asset.native ? 'issueb' : 'withdrawb'
+        else name = !action ? 'checkproofd' : this.asset.native ? 'issuea' : 'withdrawa'
+
         //handle issue/withdraw if proving transfer/retire 's emitxfer action, else submit block proof to bridge directly (for schedules)
         const actionToSubmit = {
           authorization: [this.destinationWallet.authorization],
-          name: !action
-            ? 'checkproofd'
-            : this.asset.native
-              ? 'issuea'
-              : 'withdrawa',
+          name,
           account: !action
             ? this.destination.ibc.bridgeContracts[this.source.ibc.name]
             : this.asset.native

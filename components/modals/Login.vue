@@ -58,23 +58,26 @@ export default {
           name: 'Anchor',
           logo: require('@/assets/logos/anchor.svg'),
           create: 'https://greymass.com/en/anchor/'
-        },
-        {
-          id: 'scatter',
-          name: 'Scatter / TP / Starteos',
-          logo: require('@/assets/logos/scatter.svg'),
-          create:
-            'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
-        },
-        {
-          name: 'SimplEOS',
-          logo: require('@/assets/logos/simpleos.svg')
-        },
-        //{ name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
-        { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
+        }
       ]
 
-      if (chain == 'telos') {
+      if (this.network.name == 'proton' || this.context?.chain == 'proton') {
+        wallets.push({
+          id: 'proton',
+          name: 'Proton',
+          logo: require('@/assets/icons/proton.png'),
+          create: 'https://www.protonchain.com/wallet/'
+        })
+      }
+
+      if (chain == 'wax') {
+        wallets.push({
+          id: 'wcw',
+          name: 'Wax Cloud Wallet',
+          logo: require('@/assets/logos/wax.svg'),
+          index: 'wax',
+          create: 'https://all-access.wax.io/'
+        })
         wallets.push({
           id: 'wombat',
           name: '',
@@ -94,27 +97,24 @@ export default {
         })
       }
 
-      if (chain == 'wax') {
-        wallets.unshift({
-          id: 'wcw',
-          name: 'Wax Cloud Wallet',
-          logo: require('@/assets/logos/wax.svg'),
-          index: 'wax',
-          create: 'https://all-access.wax.io/'
-        })
+      wallets.push({
+        id: 'scatter',
+        name: 'Scatter / TP / Starteos',
+        logo: require('@/assets/logos/scatter.svg'),
+        create:
+          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
+      }, {
+        name: 'SimplEOS',
+        logo: require('@/assets/logos/simpleos.svg')
+      }, {
+        name: 'Ledger', logo: require('@/assets/logos/ledger.svg')
+      })
+
+      if (chain == 'telos') {
         wallets.push({
           id: 'wombat',
           name: '',
           logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
-      }
-
-      if (this.network.name == 'proton' || this.context?.chain == 'proton') {
-        wallets.unshift({
-          id: 'proton',
-          name: 'Proton',
-          logo: require('@/assets/icons/proton.png'),
-          create: 'https://www.protonchain.com/wallet/'
         })
       }
 

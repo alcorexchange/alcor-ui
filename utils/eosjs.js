@@ -4,7 +4,6 @@ import fetch from 'node-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
 import { shuffleArray } from './index'
 
-
 export function getMultyEndRpc(nodes) {
   shuffleArray(nodes)
   nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)

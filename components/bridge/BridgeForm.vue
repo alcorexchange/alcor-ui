@@ -435,6 +435,11 @@ export default {
       const { destination, destinationWallet } = this
       const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
 
+      if (this.error && this.step == 3) {
+        // We are trying to generate proofs again
+        this.setStep(2)
+      }
+
       if (this.step === 4 || !this.step) {
         if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
         if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
@@ -483,7 +488,7 @@ export default {
         try {
           const signedTx = await ibcTransfer.signSourceTrx()
 
-          const { tx, packedTx, leap } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
+          const { tx, packedTx } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
 
           // TODO Handle if no
           //const emitxferAction = ibcTransfer.findEmitxferAction(tx)
@@ -529,7 +534,6 @@ export default {
           //throw new Error('test asdfasf 2')
           const last_proven_block = await ibcTransfer.getLastProvenBlock()
 
-
           console.log('this.tx', this.tx)
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
           //throw new Error('test')
@@ -538,17 +542,10 @@ export default {
           const emitxferAction = ibcTransfer.findEmitxferAction(this.tx)
           console.log('emitxferAction', emitxferAction)
 
-          //const light = last_proven_block && last_proven_block > this.tx.processed.block_num
-          const light = false
+          const light = last_proven_block && last_proven_block.block_height > this.tx.processed.block_num
+          //const light = false
 
           console.log({ light })
-
-          // const emitxferProof = await ibcTransfer.getProof({
-          //   type: 'heavyProof',
-          //   action: emitxferAction,
-          //   onProgress: this.updateProgress,
-          //   block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
-          // })
 
           // TODO Test lightProof
           const query = {
@@ -558,11 +555,15 @@ export default {
             block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
           }
 
-          if (light) query.last_proven_block = last_proven_block
+          if (light) query.last_proven_block = last_proven_block.block_height
 
           const emitxferProof = await ibcTransfer.getProof(query)
 
+          if (light) emitxferProof.data.blockproof.root = last_proven_block.block_merkle_root
+
           console.log('emitxferProof', emitxferProof)
+
+          //throw new Error('test')
 
           console.log('setProofs', [...scheduleProofs, emitxferProof])
           this.setProofs([...scheduleProofs, emitxferProof])
@@ -582,6 +583,7 @@ export default {
         try {
           //throw new Error('test asdfasf 3')
           console.log('this.proofs', this.proofs)
+          // TODO Submit schedule separated in case we are limited by time execution like on eos
           const { tx } = await ibcTransfer.submitProofs(this.proofs)
           this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)
