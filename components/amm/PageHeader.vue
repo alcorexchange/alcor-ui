@@ -1,7 +1,6 @@
 <template lang="pug">
 .page-header.d-flex.align-items-center.pb-2
-  .start
-    ReturnLink.fs-20
+  ReturnLink.start.fs-20
   span.title {{ title }}
   .end
     slot(name='end')
@@ -29,7 +28,7 @@ export default {
   --border-1-color: rgba(60, 60, 67, 0.36);
   border-bottom: 1px solid var(--border-1-color);
   gap: 8px;
-  > * {
+  .start, .end {
     flex: 1;
   }
   .end {
