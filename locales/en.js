@@ -674,5 +674,7 @@ export default {
   Loading: 'Loading',
   'Liquidity data not available.': 'Liquidity data not available.',
   'Expected Output': 'Expected Output',
-  'Reset State': 'Reset State'
+  'Reset State': 'Reset State',
+  'Antelope Account Creator': 'Antelope Account Creator',
+  'From Greymass Team': 'From Greymass Team'
 }

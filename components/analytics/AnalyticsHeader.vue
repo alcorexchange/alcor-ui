@@ -1,6 +1,10 @@
 <template lang="pug">
 .analytics-header
   .left
+    AlcorLink(to="/analytics/" exact flat) Overview
+    AlcorLink(to="/analytics/tokens" flat) Tokens
+    AlcorLink(to="/analytics/pools" flat) Pools
+    AlcorLink(to="/analytics/spots" flat) Spot Pairs
   .right
     el-select(v-model="selectedNetwork").select
       el-option(v-for="item in networks" :value="item.id" :label="item.name")
@@ -11,10 +15,12 @@
 
 <script>
 import AlcorButton from '@/components/AlcorButton'
+import AlcorLink from '@/components/AlcorLink'
 export default {
   name: 'AnalyticsHeader',
   components: {
-    AlcorButton
+    AlcorButton,
+    AlcorLink
   },
   // Accept urls and list of networks as props
   data: () => ({
@@ -37,6 +43,9 @@ export default {
 .left, .right {
   display: flex;
   gap: 10px;
+}
+.active {
+  background: var(--btn-active) !important;
 }
 .select::v-deep {
   .el-input__inner {

@@ -15,7 +15,6 @@
       span.line
       .text {{ $t("Don't have any wallet yet") }} ?
       span.line
-    .footer-actions
     .items(v-if='wallets.length > 0')
       .item
         AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
@@ -25,6 +24,17 @@
         AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
           img.mr-2(:src='wallets[1].logo', height='30')
           span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+    .divider
+      span.line
+      .text {{ $t("Create Account") }}
+      span.line
+    .items(v-if='wallets[0]')
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab("https://create.anchor.link/create?return_url=https%3A%2F%2Funicove.com%2F&scope=unicove")')
+          img.mr-2(:src='wallets[0].logo', height='30')
+          .details
+            span {{ $t('Antelope Account Creator') }}
+            span.description {{ $t('From Greymass Team') }}
 </template>
 
 <script>
@@ -162,6 +172,13 @@ export default {
   .item {
     width: 50%;
     padding: 6px;
+    .details {
+      flex: 1;
+      .description {
+        color: var(--text-disable);
+        font-size: 12px;
+      }
+    }
   }
 }
 
