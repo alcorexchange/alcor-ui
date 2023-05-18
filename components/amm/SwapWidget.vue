@@ -273,6 +273,10 @@ export default {
       this.recalculate()
     },
 
+    'user.name'() {
+      this.recalculate()
+    },
+
     pools() {
       // Do we actually need that?
       //this.recalculate()
