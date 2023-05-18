@@ -22,7 +22,7 @@ export default class AnchoWallet extends WalletBase {
       transportOptions: { requestAccount: this.network.contract },
       selectorOptions: {
         appName: 'Alcor',
-        appLogo: 'https://wax.alcor.exchange/android-chrome-192x192.svg'
+        appLogo: 'https://proton.alcor.exchange/android-chrome-192x192.svg'
       }
     })
 
@@ -43,6 +43,7 @@ export default class AnchoWallet extends WalletBase {
   }
 
   async login() {
+    console.log('this.network.contract', this.network.contract)
     const { link, session } = await ConnectWallet({
       linkOptions: {
         endpoints: ['https://proton.greymass.com']
@@ -55,7 +56,7 @@ export default class AnchoWallet extends WalletBase {
 
       selectorOptions: {
         appName: 'Alcor',
-        appLogo: 'https://wax.alcor.exchange/android-chrome-192x192.svg',
+        appLogo: 'https://proton.alcor.exchange/android-chrome-192x192.svg',
         customStyleOptions: {
           modalBackgroundColor: '#F4F7FA',
           logoBackgroundColor: 'white',
