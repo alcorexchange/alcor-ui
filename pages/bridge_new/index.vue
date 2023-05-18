@@ -1,6 +1,6 @@
 <template lang="pug">
 .bridge-page.pt-5
-  AlcorContainer.d-flex.flex-column.gap-4
+  AlcorContainer.d-flex.flex-column.gap-8
     .header
       BridgeHeader
     .side.from
@@ -9,8 +9,9 @@
     .side.to
       BridgeConnect(label="to").my-1
       BridgeInput(label="to" :locked="true")
-    .recepient
+    //- .recepient
     .process
+      BridgeProcess
     .submit-container
 </template>
 
@@ -19,13 +20,15 @@ import AlcorContainer from '@/components/AlcorContainer'
 import BridgeHeader from '@/components/bridge/BridgeHeader'
 import BridgeInput from '@/components/bridge/BridgeInput'
 import BridgeConnect from '@/components/bridge/BridgeConnect'
+import BridgeProcess from '@/components/bridge/BridgeProcess'
 export default {
   name: 'Bridge',
   components: {
     AlcorContainer,
     BridgeHeader,
     BridgeInput,
-    BridgeConnect
+    BridgeConnect,
+    BridgeProcess
   }
 }
 </script>

@@ -56,6 +56,13 @@ export default {
     focused: false
   }),
 
+  computed: {
+    renderBottom() {
+      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
+    },
+    ...mapState(['user'])
+  },
+
   watch: {
     value(value) {
       this.localValue = value
@@ -85,12 +92,6 @@ export default {
     }
   },
 
-  computed: {
-    renderBottom() {
-      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
-    },
-    ...mapState(['user'])
-  },
 }
 </script>
 
