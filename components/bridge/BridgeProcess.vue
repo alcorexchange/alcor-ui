@@ -2,7 +2,7 @@
 .bridge-process
   el-collapse.default
     el-collapse-item(title="Bridge TX Process")
-      .bridge-process-items.mt-1
+      .bridge-process-items.mt-2
         .bridge-process-item(v-for="item, i in processMOCK" :style="{ '--color': states[item.state].color }")
           .text {{ i + 1 }}. {{ item.name }}
           .icon
