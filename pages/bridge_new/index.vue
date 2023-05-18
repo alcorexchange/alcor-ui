@@ -1,19 +1,16 @@
 <template lang="pug">
-.bridge-page.pt-5
-  AlcorContainer.d-flex.flex-column.gap-8
-    .header
-      BridgeHeader
-    .side.from
-      BridgeConnect(label="from").my-1
-      BridgeInput(label="from")
-    .side.to
-      BridgeConnect(label="to").my-1
-      BridgeInput(label="to" :locked="true")
-    //- .recepient
-    .process
-      BridgeProcess
-    .submit-container
-      AlcorButton.w-100.submit(big access :disabled="false") {{ renderSubmitText }}
+.bridge-page.d-flex.flex-column.gap-8
+  .side.from
+    BridgeConnect(label="from").my-1
+    BridgeInput(label="from")
+  .side.to
+    BridgeConnect(label="to").my-1
+    BridgeInput(label="to" :locked="true")
+  //- .recepient
+  .process
+    BridgeProcess
+  .submit-container
+    AlcorButton.w-100.submit(big access :disabled="false") {{ renderSubmitText }}
 </template>
 
 <script>
