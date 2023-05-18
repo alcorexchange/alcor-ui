@@ -482,7 +482,7 @@ export default {
         return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
       }
 
-      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset)
+      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset, this.updateProgress)
 
       if (this.step === 0) {
         try {
@@ -536,7 +536,13 @@ export default {
 
           console.log('this.tx', this.tx)
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
-          //throw new Error('test')
+
+          // TODO Popup
+          for (const proof of scheduleProofs) {
+            await ibcTransfer.submitProofs([proof])
+          }
+
+          // We have to push scheduleProofs one by one here
           console.log('scheduleProofs', scheduleProofs)
 
           const emitxferAction = ibcTransfer.findEmitxferAction(this.tx)
@@ -551,7 +557,6 @@ export default {
           const query = {
             type: light ? 'lightProof' : 'heavyProof',
             action: emitxferAction,
-            onProgress: this.updateProgress,
             block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
           }
 
@@ -565,8 +570,10 @@ export default {
 
           //throw new Error('test')
 
-          console.log('setProofs', [...scheduleProofs, emitxferProof])
-          this.setProofs([...scheduleProofs, emitxferProof])
+          console.log('setProofs', [emitxferProof])
+          //this.setProofs([...scheduleProofs, emitxferProof])
+
+          this.setProofs([emitxferProof])
           console.log('this.proofs', this.proofs)
 
           this.setStep(3)
