@@ -1,8 +1,8 @@
 <template lang="pug">
 .bridge-process
-  el-collapse
+  el-collapse.default
     el-collapse-item(title="Bridge TX Process")
-      .bridge-process-items
+      .bridge-process-items.mt-1
         .bridge-process-item(v-for="item, i in processMOCK" :style="{ '--color': states[item.state].color }")
           .text {{ i + 1 }}. {{ item.name }}
           .icon
@@ -10,8 +10,10 @@
 </template>
 
 <script>
+import AlcorContainer from '@/components/AlcorContainer'
 export default {
   components: {
+    AlcorContainer
   },
 
   props: [
@@ -49,20 +51,26 @@ export default {
 
 <style scoped lang="scss">
 .bridge-process {
-
+  background: var(--selector-bg) !important;
+  padding: 8px;
+  border-radius: 6px;
+  &::v-deep {
+    // .el-collapse-item {
+    // }
+  }
   &-items {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
   &-item {
+    background: var(--background-color-third);
     color: var(--color);
-    padding: 6px;
+    padding: 4px 6px;
     border-radius: 4px;
-    background: var(--background-color-base);
     display: flex;
     justify-content: space-between;
-    gap: 4px;
+    gap: 2px;
     align-items: center;
     .icon {
       display: flex;
