@@ -58,7 +58,13 @@ export const mutations = {
 }
 
 export const actions = {
-  init({ dispatch, rootState, commit }) {
+  init({ state, dispatch, rootState, commit }) {
+    // FIXME !!!! TESTS!!!
+
+    // setInterval(() => {
+    //   commit('setPools', [...state.pools])
+    // }, 5000)
+
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
 
@@ -78,7 +84,9 @@ export const actions = {
 
     this.$socket.on('swap:pool:update', data => {
       data.forEach(pool => {
+        console.time('update_pools_commit_perf')
         commit('updatePool', pool)
+        console.time('update_pools_commit_perf')
       })
     })
 
@@ -221,12 +229,11 @@ export const getters = {
   pools(state) {
     const pools = []
 
-    console.time('pools_perf')
-
+    console.time('pools_getter_perf')
     for (const row of state.pools) {
       pools.push(constructPoolInstance(row))
     }
-    console.timeEnd('pools_perf')
+    console.timeEnd('pools_getter_perf')
 
     return pools
   },

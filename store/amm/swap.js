@@ -1,4 +1,5 @@
 import { Token, Trade } from '@alcorexchange/alcor-swap-sdk'
+import { parseToken } from '~/utils/amm'
 
 export const state = () => ({
   tokenA: null,
@@ -96,23 +97,50 @@ export const actions = {
 
 export const getters = {
   // TODO Getters perfomance test
-  tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
-  tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
-  isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
-  sortedA: (state, getters) => getters.isSorted ? getters.tokenA : getters.tokenB,
-  sortedB: (state, getters) => getters.isSorted ? getters.tokenB : getters.tokenA,
+
+  tokenA: (state, getters) => {
+    console.log('swap/tokenA getter call')
+    return getters.tokens.find(t => t.id == state.tokenA?.id)
+  },
+
+  tokenB: (state, getters) => {
+    console.log('swap/tokenB getter call')
+    return getters.tokens.find(t => t.id == state.tokenB?.id)
+  },
+
+  isSorted: (state, getters) => {
+    console.log('swap/isSorted getter call')
+    return getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB)
+  },
+
+  sortedA: (state, getters) => {
+    console.log('swap/sortedA getter call')
+    return getters.isSorted ? getters.tokenA : getters.tokenB
+  },
+
+  sortedB: (state, getters) => {
+    console.log('swap/sortedB getter call')
+    return getters.isSorted ? getters.tokenB : getters.tokenA
+  },
 
   tokens(state, getters, rootState, rootGetters) {
+    console.log('swap/tokens getter call')
     const tokens = []
 
-    rootGetters['amm/pools'].map(p => {
-      const { tokenA, tokenB } = p
+    rootState.amm.pools.forEach(p => {
+      const tokenA = parseToken(p.tokenA)
+      const tokenB = parseToken(p.tokenB)
+
+      if (
+        rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
+        rootState.network.SCAM_CONTRACTS.includes(tokenB.contract)
+      ) return
 
       if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
     })
 
-    return tokens.filter(t => !rootState.network.SCAM_CONTRACTS.includes(t.contract))
+    return tokens
   },
 
   routes(state, getters, rootState) {
