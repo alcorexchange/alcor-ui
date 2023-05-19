@@ -24,8 +24,8 @@ export const mutations = {
 
 export const actions = {
   async init({ state, commit, dispatch, getters, rootGetters, rootState }) {
-    if (rootGetters['amm/pools'].length == 0) await dispatch('amm/fetchPools', null, { root: true })
-    if (rootGetters['amm/pools'].length == 0) return
+    if (rootState.amm.pools.length == 0) await dispatch('amm/fetchPools', null, { root: true })
+    if (rootState.amm.pools.length == 0) return
 
     dispatch('setDefaultInputOutput')
   },
@@ -45,34 +45,6 @@ export const actions = {
 
     if (tokenA) commit('setTokenA', tokenA)
     if (tokenB) commit('setTokenB', tokenB)
-  },
-
-  async bestTradeExactIn({ rootGetters }, { currencyAmountIn, currencyOut, options }) {
-    try {
-      return await Trade.bestTradeExactIn(
-        rootGetters['amm/pools'].filter(p => p.tickDataProvider.ticks.length > 0),
-        currencyAmountIn,
-        currencyOut,
-        { maxNumResults: 5, maxHops: 6, ...options }
-      )
-    } catch (e) {
-      console.error(e.message)
-      return []
-    }
-  },
-
-  async bestTradeExactOut({ rootGetters }, { currencyIn, currencyAmountOut, options }) {
-    try {
-      return await Trade.bestTradeExactOut(
-        rootGetters['amm/pools'].filter(p => p.tickDataProvider.ticks.length > 0),
-        currencyIn,
-        currencyAmountOut,
-        { maxNumResults: 1, maxHops: 6, ...options }
-      )
-    } catch (e) {
-      console.error(e.message)
-      return []
-    }
   },
 
   flipTokens({ state, commit }) {

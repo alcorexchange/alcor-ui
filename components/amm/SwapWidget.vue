@@ -226,8 +226,8 @@ export default {
       return this.tokenA && this.tokenB && this.amountA && this.amountB
     },
     ...mapState(['user', 'network']),
-    ...mapState('amm', ['maxHops']),
-    ...mapGetters('amm', ['slippage', 'pools']),
+    ...mapState('amm', ['maxHops', 'pools']),
+    ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',

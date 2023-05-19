@@ -1,4 +1,4 @@
-import ProtonWebSDK from '@proton/web-sdk'
+const ProtonWebSDK = (...args) => import('@proton/web-sdk').then(({ default: fetch }) => fetch(...args))
 
 class WalletBase {
   network = null

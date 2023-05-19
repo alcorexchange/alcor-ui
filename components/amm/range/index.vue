@@ -33,13 +33,13 @@ client-only
 
 <script>
 import { format } from 'd3'
+import { FeeAmount } from '@alcorexchange/alcor-swap-sdk'
 
 import Chart from './Chart.vue'
 
 import { ZOOM_LEVELS } from './constants'
 
-import { getLiquidityRangeChart } from '~/utils/amm'
-import { FeeAmount } from '~/assets/libs/swap-sdk'
+import { parseToken } from '~/utils/amm'
 
 export default {
   components: { Chart },
@@ -114,9 +114,9 @@ export default {
     async fetchSeries() {
       const { tokenA, tokenB, feeAmount } = this
 
-      const pool = this.$store.getters['amm/pools'].find(p => {
-        return (p.tokenA.equals(tokenA) && p.tokenB.equals(tokenB) && p.fee == feeAmount) ||
-        (p.tokenA.equals(tokenB) && p.tokenB.equals(tokenA) && p.fee == feeAmount)
+      const pool = this.$store.state.amm.pools.find(p => {
+        return (parseToken(p.tokenA).equals(tokenA) && parseToken(p.tokenB).equals(tokenB) && p.fee == feeAmount) ||
+        (parseToken(p.tokenA).equals(tokenB) && parseToken(p.tokenB).equals(tokenA) && p.fee == feeAmount)
       })
 
       const { data: series } = await this.$axios.get('/v2/swap/pools/' + pool.id + '/liquidityChartSeries', { params: { inverted: !this.isSorted } })

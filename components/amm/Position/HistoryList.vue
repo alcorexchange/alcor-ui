@@ -50,6 +50,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import { constructPoolInstance } from '~/utils/amm'
 
 import TokenImage from '~/components/elements/TokenImage'
 import HistoryFilter from '~/components/amm/Position/HistoryFilter'
@@ -75,7 +76,7 @@ export default {
     listWithPool() {
       return this.history.map((historyItem) => {
         const pool = this.pools.find(({ id }) => historyItem.pool === id)
-        return Object.assign(historyItem, { poolInfo: pool })
+        return Object.assign(historyItem, { poolInfo: constructPoolInstance(pool) })
       })
     },
     filteredList() {
@@ -84,8 +85,7 @@ export default {
         return this.filter === 'all' ? true : type === this.filter
       })
     },
-    ...mapGetters('amm', ['pools']),
-    ...mapState('amm', ['history'])
+    ...mapState('amm', ['history', 'pools'])
   },
   methods: {
     renderTitle({ type, poolInfo, tokenA, tokenB }) {
