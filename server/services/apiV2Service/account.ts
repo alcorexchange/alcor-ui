@@ -1,10 +1,10 @@
 import JSBI from 'jsbi'
+import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
+
 import { Router } from 'express'
 import { createClient } from 'redis'
-import { Swap, SwapPool, PositionHistory, Position } from '../../models'
-import { getRedisPosition, getPoolInstance, getPools } from '../swapV2Service/utils'
-
-import { Position as PositionClass } from '../../../assets/libs/swap-sdk/entities/position'
+import { Swap, PositionHistory, Position } from '../../models'
+import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 
 // TODO Account validation
 export const account = Router()

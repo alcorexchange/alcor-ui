@@ -84,9 +84,7 @@ export const actions = {
 
     this.$socket.on('swap:pool:update', data => {
       data.forEach(pool => {
-        console.time('update_pools_commit_perf')
         commit('updatePool', pool)
-        console.time('update_pools_commit_perf')
       })
     })
 

@@ -62,6 +62,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import { encodeSqrtRatioX64 } from '@alcorexchange/alcor-swap-sdk'
 
 import { asset, Sym } from 'eos-common'
 
@@ -74,7 +75,6 @@ import TokenImage from '~/components/elements/TokenImage'
 import AlcorSelect from '~/components/alcor-element/select/select'
 import AlcorOption from '~/components/alcor-element/select/option'
 
-import { encodeSqrtRatioX64 } from '~/assets/libs/swap-sdk'
 
 export default {
   components: { AlcorSelect, AlcorOption, TokenSelect, AlcorButton, TokenImage },

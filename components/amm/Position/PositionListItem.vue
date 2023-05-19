@@ -51,7 +51,6 @@ nuxt-link(:to="`/new-manage-liquidity/${position.pool.id}-${position.id}-${posit
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import { isTicksAtLimit } from '~/utils/amm'
-import { FeeAmount } from '~/assets/libs/swap-sdk'
 
 function getPositionPrice(position) {
   if (!position) {
