@@ -1,19 +1,22 @@
 // TODO TS Support
 import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
-import { asset } from 'eos-common'
 
 import { Pool, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
 const PRICE_FIXED_DIGITS = 8
 
-
 export function parseToken(token) {
+  const [amount, symbol] = token.quantity.split(' ')
+
+  const decimal = amount.split('.')
+  const precision = decimal[1] ? decimal[1].length : 0
+
   return new Token(
     token.contract,
-    asset(token.quantity).symbol.precision(),
-    asset(token.quantity).symbol.code().to_string(),
-    (asset(token.quantity).symbol.code().to_string() + '-' + token.contract).toLowerCase()
+    precision,
+    symbol,
+    (symbol + '-' + token.contract).toLowerCase()
   )
 }
 

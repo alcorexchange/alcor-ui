@@ -118,6 +118,12 @@
 </template>
 
 <script>
+import {
+  Percent, Pool, CurrencyAmount,
+  Price, Position, FeeAmount, TICK_SPACINGS,
+  TickMath, Rounding, priceToClosestTick, tickToPrice, Fraction
+} from '@alcorexchange/alcor-swap-sdk'
+
 import JSBI from 'jsbi'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
@@ -139,23 +145,12 @@ import PageHeader from '~/components/amm/PageHeader'
 import PositionFeeAndShare from '~/components/amm/Position/PositionFeeAndShare'
 
 import {
-  tryParsePrice,
   tryParseCurrencyAmount,
-  parseToken,
   tryParseTick,
   getPoolBounds,
   getTickToPrice,
   isPriceInvalid,
 } from '~/utils/amm'
-
-
-import {
-  Currency, Percent, Token, Pool, Tick, CurrencyAmount,
-  Price, Position, FeeAmount, nearestUsableTick, TICK_SPACINGS,
-  TickMath, Rounding, priceToClosestTick, tickToPrice, Fraction
-} from '~/assets/libs/swap-sdk'
-
-const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10000)
 
 export default {
   components: {

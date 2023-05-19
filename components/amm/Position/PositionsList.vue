@@ -77,8 +77,7 @@ el-table.position-table.custom-responsive-table(
 
 <script>
 import { tickToPrice } from '@alcorexchange/alcor-swap-sdk'
-import { isTicksAtLimit } from '~/utils/amm'
-import { constructPoolInstance } from '~/utils/amm'
+import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'

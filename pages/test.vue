@@ -32,9 +32,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
-
-import { PositionLibrary, TickLibrary, CurrencyAmount, Token } from '~/assets/libs/swap-sdk'
+import { mapState, mapActions } from 'vuex'
 
 import SelectToken from '~/components/modals/amm/SelectToken'
 import AlcorContainer from '~/components/AlcorContainer'

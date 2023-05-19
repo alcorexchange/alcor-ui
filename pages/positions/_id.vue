@@ -98,6 +98,7 @@ export default {
     position() {
       // TODO Support for non-login view position
       const [pool_id, position_id, fee] = this.$route.params.id.split('-')
+
       const position = this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
 
       return position

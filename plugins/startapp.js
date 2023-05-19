@@ -1,3 +1,4 @@
+//import Vue from 'vue'
 import { uuidv4 } from '~/utils'
 
 export default ({ app: { store, $axios } }, inject) => {
@@ -21,9 +22,9 @@ export default ({ app: { store, $axios } }, inject) => {
     store.dispatch('amm/init')
     store.dispatch('amm/swap/init')
 
-    if (process.env.isDev) {
-      //const VConsole = require('vconsole')
-      //Vue.prototype.$vConsole = new VConsole()
-    }
+    // if (process.env.isDev) {
+    //   const VConsole = require('vconsole')
+    //   Vue.prototype.$vConsole = new VConsole()
+    // }
   })
 }

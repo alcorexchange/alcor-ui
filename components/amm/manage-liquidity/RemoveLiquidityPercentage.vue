@@ -30,7 +30,7 @@ div
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { Percent } from '~/assets/libs/swap-sdk'
+import { Percent } from '@alcorexchange/alcor-swap-sdk'
 
 import AlcorContainer from '~/components/AlcorContainer'
 import TokenImage from '~/components/elements/TokenImage'

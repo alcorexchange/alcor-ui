@@ -1,4 +1,3 @@
-import { HyperionStreamClient, StreamClientEvents } from '@eosrio/hyperion-stream-client'
 import { SymbolCode } from 'eos-common'
 
 import { networks } from '../../../config'
@@ -6,12 +5,6 @@ import { networks } from '../../../config'
 import { getMultyEndRpc } from '../../../utils/eosjs'
 //import { IBC_NETWORKS } from '~/config'
 import { nameToUint64 } from '../../../utils'
-
-const client = new HyperionStreamClient({
-  endpoint: 'https://eos.eosusa.io',
-  debug: true,
-  libStream: false,
-})
 
 //const supportedNetworks = ['eos', 'wax', 'proton', 'ux']
 const supportedNetworks = ['eos']
@@ -84,53 +77,29 @@ async function streamTransfer() {}
 
 
 function stream(contracts) {
-
-                        url = f'{self.api_endpoint}/v2/history/get_actions'
-                        params = {
-                            'sort': 'asc',
-                            'after': self.last_irreversible_action_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                            'skip': qi * self.row_limit,
-                            'limit': self.row_limit,
-                            'checkLib': 'true'
-                        }
-                        if self.filter_param:
-                            params['filter'] = self.filter_param
-                        response = requests.get(url, params=params, timeout=20)
-                        response = response.json()
+  // url = f'{self.api_endpoint}/v2/history/get_actions'
+  // params = {
+  //     'sort': 'asc',
+  //     'after': self.last_irreversible_action_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+  //     'skip': qi * self.row_limit,
+  //     'limit': self.row_limit,
+  //     'checkLib': 'true'
+  // }
+  // if self.filter_param:
+  //     params['filter'] = self.filter_param
+  // response = requests.get(url, params=params, timeout=20)
+  // response = response.json()
 }
 
 
 async function main() {
-  await client.connect()
+  for (const chain of supportedNetworks) {
+    await loadTokens(chain)
+  }
 
-  client.on('connect', () => {
-    console.log('connected!')
-  })
-
-  client.setAsyncDataHandler(async (data) => {
-    console.log(data)
-    // process incoming data, replace with your code
-    // await processSomethingHere();
-  })
-
-  client.streamActions({
-    contract: 'swap.alcor',
-    action: 'logswap',
-    account: '',
-    start_from: '2020-03-15T00:00:00.000Z',
-    read_until: 0,
-    //filters: [{ field: '@transfer.to', value: 'mapalamapala' }],
-    filters: [],
-  })
-
-
-  // for (const chain of supportedNetworks) {
-  //   await loadTokens(chain)
-  // }
-
-  // for (const chain of Object.values(chains) as any[]) {
-  //   console.log(chain.network.ibc, chain.wrapLockContracts)
-  // }
+  for (const chain of Object.values(chains) as any[]) {
+    console.log(chain.network.ibc, chain.wrapLockContracts)
+  }
 
   // if (tokenRow.native)
   //   url = `${sourceChain.hyperion}/v2/history/get_actions?account=${tokenRow.wrapLockContract}&filter=${tokenRow.nativeTokenContract}:transfer&transfer.from=${sourceChain.auth.actor}&transfer.memo=${destinationChain.auth.actor}&limit=15`

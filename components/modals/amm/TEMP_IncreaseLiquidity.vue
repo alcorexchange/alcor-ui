@@ -78,6 +78,8 @@
 
 <script>
 import { mapState } from 'vuex'
+import { CurrencyAmount, Position } from '@alcorexchange/alcor-swap-sdk'
+
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'
 import CompactTabs from '~/components/CompactTabs.vue'
@@ -88,7 +90,6 @@ import AlcorContainer from '~/components/AlcorContainer'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 
 import { tryParseCurrencyAmount } from '~/utils/amm'
-import { CurrencyAmount, Position } from '~/assets/libs/swap-sdk'
 
 export default {
   components: {

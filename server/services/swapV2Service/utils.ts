@@ -1,8 +1,7 @@
+import { Pool, Token } from '@alcorexchange/alcor-swap-sdk'
+
 import { createClient } from 'redis'
 import { SwapPool } from '../../models'
-
-import { Pool } from '../../../assets/libs/swap-sdk/entities/pool'
-import { Token } from '../../../assets/libs/swap-sdk/entities/token'
 
 const redis = createClient()
 
