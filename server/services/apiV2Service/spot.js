@@ -14,6 +14,7 @@ function tickerHandler(req, res, next) {
   const ticker_id = req.query.ticker_id || req.params.ticker_id
 
   if (!ticker_id || ticker_id.match(/.*-.*_.*-[A-Za-z0-9.]+$/) == null)
+    // TODO Fixme не понятная ошибка
     return res.status(403).send('Invalid ticker_id')
 
   req.query.ticker_id = ticker_id.toLowerCase()

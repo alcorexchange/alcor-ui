@@ -1,4 +1,4 @@
-const ConnectWallet = (...args) => import('@proton/web-sdk').then(({ default: fetch }) => fetch(...args))
+import ProtonWebSDK from '@proton/web-sdk'
 
 class WalletBase {
   network = null
@@ -17,14 +17,36 @@ export default class AnchoWallet extends WalletBase {
   session = null
 
   async checkLogin() {
-    const { link, session } = await ConnectWallet({
-      linkOptions: { chainId: this.network.chainId, endpoints: Object.keys(this.network.client_nodes), restoreSession: true },
-      transportOptions: { requestAccount: this.network.contract },
+    console.log('check login')
+    const { link, session } = await ProtonWebSDK({
+      linkOptions: {
+        chainId: this.network.chainId,
+        endpoints: Object.keys(this.network.client_nodes),
+        restoreSession: true,
+      },
+
+      transportOptions: {
+        //requestAccount: this.network.contract,
+        requestAccount: 'alcor',
+      },
+
       selectorOptions: {
         appName: 'Alcor',
-        appLogo: 'https://proton.alcor.exchange/android-chrome-192x192.svg'
-      }
+        appLogo: 'https://proton.alcor.exchange/android-chrome-192x192.svg',
+        customStyleOptions: {
+          modalBackgroundColor: '#F4F7FA',
+          logoBackgroundColor: 'white',
+          isLogoRound: true,
+          optionBackgroundColor: 'white',
+          optionFontColor: 'black',
+          primaryFontColor: 'black',
+          secondaryFontColor: '#6B727F',
+          linkColor: '#752EEB',
+        },
+      },
     })
+
+    console.log(link, session)
 
     if (session) {
       this.link = link
@@ -44,14 +66,21 @@ export default class AnchoWallet extends WalletBase {
 
   async login() {
     console.log('this.network.contract', this.network.contract)
-    const { link, session } = await ConnectWallet({
+    console.log('chainID', this.network.chainId)
+
+    const { link, session } = await ProtonWebSDK({
       linkOptions: {
-        endpoints: ['https://proton.greymass.com']
+        chainId: this.network.chainId,
+        endpoints: Object.keys(this.network.client_nodes),
+
+        // chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
+        // endpoints: ['https://proton.greymass.com'],
+        //restoreSession: true,
       },
 
       transportOptions: {
-        requestAccount: this.network.contract,
-        requestStatus: true /* Optional: Display request success and error messages, Default true */
+        //requestAccount: this.network.contract,
+        requestAccount: 'alcor',
       },
 
       selectorOptions: {
@@ -65,11 +94,12 @@ export default class AnchoWallet extends WalletBase {
           optionFontColor: 'black',
           primaryFontColor: 'black',
           secondaryFontColor: '#6B727F',
-          linkColor: '#752EEB'
-        }
-        //walletType: 'proton'
-      }
+          linkColor: '#752EEB',
+        },
+      },
     })
+
+    console.log('zzz', session, link)
 
     if (session) {
       this.link = link
