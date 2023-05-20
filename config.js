@@ -251,7 +251,11 @@ const networks = {
 
     USD_TOKEN: 'XUSDC@xtokens',
 
-    popularTokens: [],
+    popularTokens: [
+      'xpr-eosio.token',
+      'xusdt-xtokens',
+      'xusdc-xtokens',
+    ],
   },
 
   ux: {

@@ -111,7 +111,7 @@ export const getters = {
       ) && p.fee == state.feeAmount
     })
 
-    return constructPoolInstance(pool)
+    return pool ? constructPoolInstance(pool) : undefined
   },
 
   currnetPools(state, getters, rootState, rootGetters) {
