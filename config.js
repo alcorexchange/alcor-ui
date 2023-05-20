@@ -391,6 +391,7 @@ const networks = {
 
     ibc: {
       name: 'wax',
+      //proofSocket: 'wss://wax.eosusa.io/ibc',
       proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
       bridgeContracts: {
         eos: 'ibc.alcor'

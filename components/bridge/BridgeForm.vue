@@ -475,16 +475,16 @@ export default {
         this.setError(null)
       }
 
-      try {
-        // TODO CPU/NET warning probably
-        await destinationRpc.get_account(this.destinationWallet.name)
-      } catch (e) {
-        return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
-      }
-
       const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset, this.updateProgress)
 
       if (this.step === 0) {
+        try {
+          // TODO CPU/NET warning probably
+          await destinationRpc.get_account(this.destinationWallet.name)
+        } catch (e) {
+          return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
+        }
+
         try {
           const signedTx = await ibcTransfer.signSourceTrx()
 
@@ -532,6 +532,8 @@ export default {
       if (this.step === 2) {
         try {
           //throw new Error('test asdfasf 2')
+          //const tx = await ibcTransfer.waitForLIB(this.source, this.tx, this.packedTx)
+
           const last_proven_block = await ibcTransfer.getLastProvenBlock()
 
           console.log('this.tx', this.tx)

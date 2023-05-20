@@ -216,6 +216,8 @@ export class IBCTransfer {
 
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.source.ibc.proofSocket)
+
+      console.log('getBlockActions', tx.processed.block_num)
       ws.addEventListener('open', (event) =>
         ws.send(
           JSON.stringify({
@@ -229,7 +231,7 @@ export class IBCTransfer {
         const res = JSON.parse(event.data)
         console.log('res', res)
         const firhoseTx = res.txs.find((r) =>
-          r.find((s) => s.transactionId === transaction_id)
+          r.find((s) => s.transactionId.toLowerCase() === transaction_id.toLowerCase())
         )
         console.log('firhoseTx', firhoseTx)
         const firehoseEmitxfer = firhoseTx.find(
