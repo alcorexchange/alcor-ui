@@ -1,7 +1,7 @@
 <template lang="pug">
 .bridge-token(:class="{focused, notSelected: !!token}")
   .before
-    SelectNetwork
+    SelectNetwork(:networks="networksMock" :network="selectedNetwork" @selected="onNetworkSelect")
   .main
     .label-and-balance
       .label {{ label }}
@@ -53,7 +53,25 @@ export default {
   data: () => ({
     localValue: null,
     search: '',
-    focused: false
+    focused: false,
+    selectedNetwork: {},
+    networksMock: [
+      {
+        value: 'eos',
+        label: 'EOS'
+      },
+      {
+        value: 'wax',
+        label: 'WAX'
+      },
+      {
+        value: 'telos',
+        label: 'Telos'
+      }, {
+        value: 'ux',
+        label: 'UX Network'
+      }
+    ]
   }),
 
   computed: {
@@ -86,6 +104,9 @@ export default {
 
       this.localValue = value
       this.$emit('input', value)
+    },
+    onNetworkSelect(e) {
+      this.selectedNetwork = e
     },
     onBalanceClick() {
       if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol, this.token.contract))
@@ -129,10 +150,11 @@ export default {
       color: var(--text-default);
     }
   }
-  .bottom{
+  .bottom {
     min-height: 18px;
     font-size: 0.8rem;
-    display: flex; align-items: center;
+    display: flex;
+    align-items: center;
   }
   .input-and-select {
     display: flex;
@@ -148,7 +170,7 @@ export default {
       padding: 0;
       height: auto;
       line-height: 1;
-      &::placeholder{
+      &::placeholder {
         opacity: 0.6;
       }
     }
@@ -187,7 +209,7 @@ export default {
   input {
     background-color: var(--selector-bg);
   }
-  .max-bage{
+  .max-bage {
     font-size: 0.9rem;
   }
 
