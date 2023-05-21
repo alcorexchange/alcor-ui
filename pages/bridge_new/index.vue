@@ -2,7 +2,7 @@
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
     BridgeConnect(label="from").my-1
-    BridgeInput(label="from" :isSource="true")
+    BridgeInput(label="from" :isSource="true" :tokens="availableAssets")
   .side.to
     BridgeConnect(label="to").my-1
     BridgeInput(label="to" :isSource="false" :locked="true")
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import BridgeHeader from '@/components/bridge/BridgeHeader'
 import BridgeInput from '@/components/bridge/BridgeInput'
@@ -31,6 +32,9 @@ export default {
     BridgeProcess
   },
   computed: {
+    ...mapGetters({
+      availableAssets: 'ibcBridge/availableAssets'
+    }),
     renderSubmitText() {
       return 'Bridge X TO C'
     }

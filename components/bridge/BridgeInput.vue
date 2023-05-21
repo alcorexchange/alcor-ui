@@ -87,7 +87,7 @@ export default {
         return this.$store.state.ibcBridge[this.isSource ? 'sourceName' : 'destinationName']
       }
     },
-    ...mapState(['user'])
+    ...mapState(['user']),
   },
 
   watch: {
