@@ -1,9 +1,9 @@
 <template lang="pug">
 .select-network-modal.flex-1
-  .selected(@click="visible = true" :class="{noValue: !value.value}")
+  .selected(@click="visible = true" :class="{noValue: !value}")
     .image-container
-      img(:src="require(`@/assets/icons/${value && value.value || 'select_network'}.png`)")
-    .name.fs-10 {{ value && value.label || $t('Select Network') }}
+      img(:src="image")
+    .name.fs-10 {{ value || $t('Select Network') }}
   //append-to-body
   el-dialog(
     :visible='visible',
@@ -15,7 +15,7 @@
   )
     template(#title) {{ $t('Select Network') }}
     .networks
-      .network.d-flex.flex-column.gap-8(v-for="item in networks" @click="onNetworkClick(item)" :class="{active: item.value == value.value}")
+      .network.d-flex.flex-column.gap-8(v-for="item in networks" @click="onNetworkClick(item.value)" :class="{active: item.value == value}")
         .image-container
           img(:src="require(`@/assets/icons/${item.value}.png`)")
         span.network-name.fs-10 {{ item.label }}
@@ -31,7 +31,11 @@ export default {
     visible: false,
   }),
 
-  computed: {},
+  computed: {
+    image() {
+      return this.value ? require(`@/assets/icons/${this.value}.png`) : require('@/assets/icons/select_network.png')
+    }
+  },
 
   methods: {
     open() {
@@ -80,7 +84,13 @@ export default {
     &:hover {
       background: var(--hover);
     }
+    .name {
+      text-transform: uppercase;
+    }
     &.noValue {
+      .name {
+        text-transform: none;
+      }
       .image-container {
         padding: 0;
       }

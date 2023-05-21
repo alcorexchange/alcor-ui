@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import SelectNetwork from '@/components/modals/SelectNetwork'
 import SelectToken from '~/components/modals/amm/SelectToken2'
 import MaxBage from '~/components/UI/input/MaxBage'
@@ -48,13 +48,13 @@ export default {
     'showMaxButton',
     'locked',
     'label',
+    'isSource'
   ],
 
   data: () => ({
     localValue: null,
     search: '',
     focused: false,
-    selectedNetwork: {},
     networksMock: [
       {
         value: 'eos',
@@ -78,6 +78,15 @@ export default {
     renderBottom() {
       return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
     },
+    selectedNetwork: {
+      set (chain) {
+        return this[this.isSource ? 'setSourceName' : 'setDestinationName'](chain)
+      },
+
+      get () {
+        return this.$store.state.ibcBridge[this.isSource ? 'sourceName' : 'destinationName']
+      }
+    },
     ...mapState(['user'])
   },
 
@@ -88,6 +97,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      setSourceName: 'ibcBridge/setSourceName',
+      setDestinationName: 'ibcBridge/setDestinationName',
+    }),
     onBlur() {
       this.$emit('blur')
       this.focused = false

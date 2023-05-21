@@ -2,10 +2,10 @@
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
     BridgeConnect(label="from").my-1
-    BridgeInput(label="from")
+    BridgeInput(label="from" :isSource="true")
   .side.to
     BridgeConnect(label="to").my-1
-    BridgeInput(label="to" :locked="true")
+    BridgeInput(label="to" :isSource="false" :locked="true")
   //- .recepient
   .process
     BridgeProcess
@@ -34,6 +34,8 @@ export default {
     renderSubmitText() {
       return 'Bridge X TO C'
     }
+  },
+  methods: {
   }
 }
 </script>
