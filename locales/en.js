@@ -676,5 +676,6 @@ export default {
   'Expected Output': 'Expected Output',
   'Reset State': 'Reset State',
   'Antelope Account Creator': 'Antelope Account Creator',
-  'From Greymass Team': 'From Greymass Team'
+  'From Greymass Team': 'From Greymass Team',
+  'General Chatting': 'General Chatting'
 }
