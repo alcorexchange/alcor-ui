@@ -2,6 +2,7 @@
 .select-network-modal.flex-1
   .selected(@click="visible = true" :class="{noValue: !value}")
     .image-container
+      // FIXME: when setting initially the image does not update!
       img(:src="image" v-if="value" :key="1")
       img(src="@/assets/icons/select_network.png" v-else :key="2")
     .name.fs-10 {{ value || $t('Select Network') }}
