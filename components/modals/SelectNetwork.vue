@@ -2,7 +2,8 @@
 .select-network-modal.flex-1
   .selected(@click="visible = true" :class="{noValue: !value}")
     .image-container
-      img(:src="image")
+      img(:src="image" v-if="value" :key="1")
+      img(src="@/assets/icons/select_network.png" v-else :key="2")
     .name.fs-10 {{ value || $t('Select Network') }}
   //append-to-body
   el-dialog(
@@ -33,7 +34,7 @@ export default {
 
   computed: {
     image() {
-      return this.value ? require(`@/assets/icons/${this.value}.png`) : require('@/assets/icons/select_network.png')
+      return require(`@/assets/icons/${this.value}.png`)
     }
   },
 
