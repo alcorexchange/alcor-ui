@@ -1,9 +1,9 @@
 <template lang="pug">
 .select-network-modal.flex-1
-  .selected(@click="visible = true")
+  .selected(@click="visible = true" :class="{noValue: !value.value}")
     .image-container
-      img(:src="require(`@/assets/icons/${network.value || 'select_network'}.png`)")
-    .name.fs-10 {{ network.label || $t('Select Network') }}
+      img(:src="require(`@/assets/icons/${value && value.value || 'select_network'}.png`)")
+    .name.fs-10 {{ value && value.label || $t('Select Network') }}
   //append-to-body
   el-dialog(
     :visible='visible',
@@ -15,7 +15,7 @@
   )
     template(#title) {{ $t('Select Network') }}
     .networks
-      .network.d-flex.flex-column.gap-8(v-for="item in networks" @click="onNetworkClick(item)" :class="{active: item.value == network.value}")
+      .network.d-flex.flex-column.gap-8(v-for="item in networks" @click="onNetworkClick(item)" :class="{active: item.value == value.value}")
         .image-container
           img(:src="require(`@/assets/icons/${item.value}.png`)")
         span.network-name.fs-10 {{ item.label }}
@@ -25,7 +25,7 @@
 export default {
   components: {},
 
-  props: ['networks', 'network', 'locked'],
+  props: ['networks', 'value', 'locked'],
 
   data: () => ({
     visible: false,
@@ -39,7 +39,7 @@ export default {
       this.visible = true
     },
     onNetworkClick(network) {
-      this.$emit('selected', network)
+      this.$emit('input', network)
       this.visible = false
     },
   },
@@ -79,6 +79,11 @@ export default {
     transition: background 0.2s;
     &:hover {
       background: var(--hover);
+    }
+    &.noValue {
+      .image-container {
+        padding: 0;
+      }
     }
   }
 

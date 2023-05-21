@@ -1,7 +1,7 @@
 <template lang="pug">
 .bridge-token(:class="{focused, notSelected: !!token}")
   .before
-    SelectNetwork(:networks="networksMock" :network="selectedNetwork" @selected="onNetworkSelect")
+    SelectNetwork(:networks="networksMock" v-model="selectedNetwork")
   .main
     .label-and-balance
       .label {{ label }}
