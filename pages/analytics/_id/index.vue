@@ -1,6 +1,5 @@
 <template lang="pug">
 .analytics-page
-  AnalyticsHeader
   AnalyticsBreadcrumb(
     :token="{symbol: 'WAX', contract: 'wax.alcor'}"
   )

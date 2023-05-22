@@ -13,7 +13,7 @@
 
 <script>
 import JSBI from 'jsbi'
-import { Fraction } from '~/assets/libs/swap-sdk'
+import { Fraction } from '@alcorexchange/alcor-swap-sdk'
 
 export default {
   props: ['pool', 'positionLiquidity'],

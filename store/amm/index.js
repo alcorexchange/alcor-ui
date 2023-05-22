@@ -58,7 +58,13 @@ export const mutations = {
 }
 
 export const actions = {
-  init({ dispatch, rootState, commit }) {
+  init({ state, dispatch, rootState, commit }) {
+    // FIXME !!!! TESTS!!!
+
+    // setInterval(() => {
+    //   commit('setPools', [...state.pools])
+    // }, 5000)
+
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
 
@@ -218,26 +224,10 @@ export const actions = {
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
-  pools(state) {
-    const pools = []
-
-    console.time('pools_perf')
-
-    for (const row of state.pools) {
-      pools.push(constructPoolInstance(row))
-    }
-    console.timeEnd('pools_perf')
-
-    return pools
-  },
-
-  positions(state, getters) {
+  positions(state) {
     const positions = []
 
     for (const position of state.positions) {
-      // Pools are broken here, we have to construct it manually again here
-      // BROKEN const poolInstance = getters.pools.find(p => p.id == position.pool)
-
       const pool = state.pools.find(p => p.id == position.pool)
       if (!pool) continue
 

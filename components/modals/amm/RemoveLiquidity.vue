@@ -73,7 +73,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { Percent } from '~/assets/libs/swap-sdk'
+import { Percent } from '@alcorexchange/alcor-swap-sdk'
 
 import AlcorButton from '~/components/AlcorButton.vue'
 import AlcorModal from '~/components/AlcorModal.vue'

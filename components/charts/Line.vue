@@ -76,7 +76,7 @@ export default {
       },
       tooltip: {
         y: {
-          formatter: (v) => '$' + v
+          formatter: (v) => v
         },
         marker: {
           show: false
@@ -107,7 +107,7 @@ export default {
           show: true,
           offsetX: -10,
           formatter: (v) => {
-            return '$' + v.toFixed(2)
+            return v.toFixed(2)
           },
           style: {
             colors: 'var(--text-disable)',

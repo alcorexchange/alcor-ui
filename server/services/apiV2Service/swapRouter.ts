@@ -1,18 +1,11 @@
 import { performance } from 'perf_hooks'
 
+import { Trade, Percent } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
-import { SwapPool, SwapChartPoint, Position } from '../../models'
 
 import { tryParseCurrencyAmount } from '../../../utils/amm'
-import { getAllTokensWithPrices } from '../updaterService/prices'
 
-import { CurrencyAmount } from '../../../assets/libs/swap-sdk/entities/fractions/currencyAmount'
-import { Pool } from '../../../assets/libs/swap-sdk/entities/pool'
-import { Token } from '../../../assets/libs/swap-sdk/entities/token'
-import { Trade } from '../../../assets/libs/swap-sdk/entities/trade'
-import { Percent } from '../../../assets/libs/swap-sdk/entities/fractions/percent'
-
-import { getRedisTicks, getPools } from '../swapV2Service/utils'
+import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 

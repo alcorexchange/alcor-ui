@@ -134,6 +134,8 @@
 // TODO DEBOUINCE FOR INPUTS
 // https://stackoverflow.com/questions/42199956/how-to-implement-debounce-in-vue2
 
+import { Price } from '@alcorexchange/alcor-swap-sdk'
+
 import { debounce } from 'lodash'
 import VueSkeletonLoader from 'skeleton-loader-vue'
 import { mapState, mapActions, mapGetters } from 'vuex'
@@ -144,10 +146,9 @@ import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
-import { tryParseCurrencyAmount } from '~/utils/amm'
+import { tryParseCurrencyAmount, constructPoolInstance } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 import AuthOnly from '~/components/AuthOnly'
-import { Price } from '~/assets/libs/swap-sdk'
 
 export default {
   name: 'SwapWidget',
@@ -226,8 +227,8 @@ export default {
       return this.tokenA && this.tokenB && this.amountA && this.amountB
     },
     ...mapState(['user', 'network']),
-    ...mapState('amm', ['maxHops']),
-    ...mapGetters('amm', ['slippage', 'pools']),
+    ...mapState('amm', ['maxHops', 'pools']),
+    ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
@@ -270,6 +271,10 @@ export default {
     },
 
     maxHops() {
+      this.recalculate()
+    },
+
+    'user.name'() {
       this.recalculate()
     },
 
@@ -450,7 +455,7 @@ export default {
       this.amountA = input
       this.expectedOutput = output
       this.priceImpact = priceImpact
-      this.route = { pools: route.map(poolId => this.pools.find(p => p.id == poolId)), input: tokenA, output: tokenB }
+      this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
       this.maximumSend = maxSent
     },
 
@@ -502,7 +507,8 @@ export default {
       this.expectedOutput = output
       this.priceImpact = priceImpact
       this.minReceived = minReceived
-      this.route = { pools: route.map(poolId => this.pools.find(p => p.id == poolId)), input: tokenA, output: tokenB }
+      this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
+
     },
 
     onRateClick() {

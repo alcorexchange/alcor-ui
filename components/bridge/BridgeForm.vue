@@ -5,8 +5,12 @@
       title="Bridge BETA Version"
       type="warning"
       show-icon)
-      div The Bridge UI in a BETA state right now.
       div We recommend to wait for a stable release or use it with Anchor <-> Anchor wallet.
+      div If your swap stack somehow, you can retry it on alternative UI:
+        a(href="https://ibc-retry.alcor.exchange/" target="_blank")  EOS <-> WAX
+        |  |
+        a(href="https://ibc-retry.uxnetwork.io/" target="_blank")  Other Networks
+        //div.d-flex.flex-column
   .send-and-receive
     .send-from.d-flex.flex-column
       .mb-3 Send from
@@ -435,6 +439,11 @@ export default {
       const { destination, destinationWallet } = this
       const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
 
+      if (this.error && this.step == 3) {
+        // We are trying to generate proofs again
+        this.setStep(2)
+      }
+
       if (this.step === 4 || !this.step) {
         if (!this.sourceName || !this.destinationName) return this.$notify({ type: 'info', title: 'IBC', message: 'Select chains' })
         if (!this.sourceWallet || !this.destinationWallet) return this.$notify({ type: 'info', title: 'IBC', message: 'Connect wallets' })
@@ -470,20 +479,20 @@ export default {
         this.setError(null)
       }
 
-      try {
-        // TODO CPU/NET warning probably
-        await destinationRpc.get_account(this.destinationWallet.name)
-      } catch (e) {
-        return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
-      }
-
-      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset)
+      const ibcTransfer = new IBCTransfer(this.source, this.destination, this.sourceWallet, this.destinationWallet, this.asset, this.updateProgress)
 
       if (this.step === 0) {
         try {
+          // TODO CPU/NET warning probably
+          await destinationRpc.get_account(this.destinationWallet.name)
+        } catch (e) {
+          return this.$notify({ type: 'warning', title: 'Bridge Transfer', message: 'Destination account does not exists' })
+        }
+
+        try {
           const signedTx = await ibcTransfer.signSourceTrx()
 
-          const { tx, packedTx, leap } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
+          const { tx, packedTx } = await ibcTransfer.sourceTransfer(signedTx) // TODO leap
 
           // TODO Handle if no
           //const emitxferAction = ibcTransfer.findEmitxferAction(tx)
@@ -527,12 +536,19 @@ export default {
       if (this.step === 2) {
         try {
           //throw new Error('test asdfasf 2')
-          const last_proven_block = await ibcTransfer.getLastProvenBlock()
+          //const tx = await ibcTransfer.waitForLIB(this.source, this.tx, this.packedTx)
 
+          const last_proven_block = await ibcTransfer.getLastProvenBlock()
 
           console.log('this.tx', this.tx)
           const scheduleProofs = (await ibcTransfer.getScheduleProofs(this.tx)) || []
-          //throw new Error('test')
+
+          // TODO Popup
+          for (const proof of scheduleProofs) {
+            await ibcTransfer.submitProofs([proof])
+          }
+
+          // We have to push scheduleProofs one by one here
           console.log('scheduleProofs', scheduleProofs)
 
           const emitxferAction = ibcTransfer.findEmitxferAction(this.tx)
@@ -547,7 +563,6 @@ export default {
           const query = {
             type: light ? 'lightProof' : 'heavyProof',
             action: emitxferAction,
-            onProgress: this.updateProgress,
             block_to_prove: this.tx.processed.block_num //block that includes the emitxfer action we want to prove
           }
 
@@ -561,8 +576,10 @@ export default {
 
           //throw new Error('test')
 
-          console.log('setProofs', [...scheduleProofs, emitxferProof])
-          this.setProofs([...scheduleProofs, emitxferProof])
+          console.log('setProofs', [emitxferProof])
+          //this.setProofs([...scheduleProofs, emitxferProof])
+
+          this.setProofs([emitxferProof])
           console.log('this.proofs', this.proofs)
 
           this.setStep(3)
@@ -580,6 +597,8 @@ export default {
           //throw new Error('test asdfasf 3')
           console.log('this.proofs', this.proofs)
           // TODO Submit schedule separated in case we are limited by time execution like on eos
+          console.log('submitProofs...')
+          //throw new Error('test')
           const { tx } = await ibcTransfer.submitProofs(this.proofs)
           this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)

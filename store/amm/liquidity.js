@@ -1,5 +1,5 @@
 import { FeeAmount, Token } from '@alcorexchange/alcor-swap-sdk'
-import { constructPoolInstance } from '~/utils/amm'
+import { constructPoolInstance, parseToken } from '~/utils/amm'
 
 export const state = () => ({
   tokenA: null,
@@ -73,8 +73,14 @@ export const getters = {
     // Тут вообще все
     const tokens = []
 
-    rootGetters['amm/pools'].map(p => {
-      const { tokenA, tokenB } = p
+    rootState.amm.pools.forEach(p => {
+      const tokenA = parseToken(p.tokenA)
+      const tokenB = parseToken(p.tokenB)
+
+      if (
+        rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
+        rootState.network.SCAM_CONTRACTS.includes(tokenB.contract)
+      ) return
 
       if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
@@ -98,27 +104,26 @@ export const getters = {
   pool(state, getters, rootState, rootGetters) {
     if (!state.tokenA || !state.tokenB) return null
 
-    const pool = rootState.amm.pools.map(p => constructPoolInstance(p)).find(p => {
+    const pool = rootState.amm.pools.find(p => {
       return (
-        (p.tokenA.id == state.tokenA?.id && p.tokenB.id == state.tokenB?.id) ||
-        (p.tokenA.id == state.tokenB?.id && p.tokenB.id == state.tokenA?.id)
+        (parseToken(p.tokenA).id == state.tokenA?.id && parseToken(p.tokenB).id == state.tokenB?.id) ||
+        (parseToken(p.tokenA).id == state.tokenB?.id && parseToken(p.tokenB).id == state.tokenA?.id)
       ) && p.fee == state.feeAmount
     })
 
-    return pool
+    return pool ? constructPoolInstance(pool) : undefined
   },
 
   currnetPools(state, getters, rootState, rootGetters) {
     if (!state.tokenA || !state.tokenB) return []
 
-    return rootState.amm.pools.map(p => constructPoolInstance(p)).filter(p => {
+    return rootState.amm.pools.filter(p => {
       return (
-        (p.tokenA.id == state.tokenA?.id && p.tokenB.id == state.tokenB?.id) ||
-        (p.tokenA.id == state.tokenB?.id && p.tokenB.id == state.tokenA?.id)
+        (parseToken(p.tokenA).id == state.tokenA?.id && parseToken(p.tokenB).id == state.tokenB?.id) ||
+        (parseToken(p.tokenA).id == state.tokenB?.id && parseToken(p.tokenB).id == state.tokenA?.id)
       )
-    })
+    }).map(p => constructPoolInstance(p))
   },
-
 
   routes(state, getters, rootState) {
     const [tokenA, tokenB, feeAmountFromUrl] = rootState

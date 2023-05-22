@@ -27,7 +27,7 @@ alcor-container.p-3.w-100.chart-container-inner
 import JSBI from 'jsbi'
 import { mapGetters } from 'vuex'
 
-import { Price, Q128 } from '~/assets/libs/swap-sdk'
+import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 
 import Line from '~/components/charts/Line'
 import StackedColumns from '~/components/charts/StackedColumns'

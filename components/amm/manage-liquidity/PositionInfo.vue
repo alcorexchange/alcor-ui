@@ -56,7 +56,7 @@
 
 <script>
 import JSBI from 'jsbi'
-import { Fraction } from '~/assets/libs/swap-sdk'
+import { Fraction } from '@alcorexchange/alcor-swap-sdk'
 
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import TokenImage from '~/components/elements/TokenImage'

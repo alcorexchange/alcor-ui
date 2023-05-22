@@ -11,12 +11,13 @@ const arrayToHex = (data) => {
 export class IBCTransfer {
   emitxferAction = null
 
-  constructor(source, destination, sourceWallet, destinationWallet, asset) {
+  constructor(source, destination, sourceWallet, destinationWallet, asset, onProgress) {
     this.source = source
     this.destination = destination
     this.asset = asset
     this.sourceWallet = sourceWallet
     this.destinationWallet = destinationWallet
+    this.onProgress = onProgress
   }
 
   getTransferAction({ wrapLockContract, quantity, nativeTokenContract }) {
@@ -193,6 +194,7 @@ export class IBCTransfer {
             )
           } catch (ex) {
             captureException(ex)
+            chain.rpc.nextEndpoint()
             //handle duplicate tx error, in case it auto got included in next block than reported, check next block and so on
             console.log(ex)
             //TODO verify exception is duplicate tx error
@@ -205,6 +207,7 @@ export class IBCTransfer {
         }
       } catch (ex) {
         captureException(ex)
+        chain.rpc.nextEndpoint()
 
         console.log('lost internet, retrying', ex)
       }
@@ -213,6 +216,8 @@ export class IBCTransfer {
 
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.source.ibc.proofSocket)
+
+      console.log('getBlockActions', tx.processed.block_num)
       ws.addEventListener('open', (event) =>
         ws.send(
           JSON.stringify({
@@ -226,7 +231,7 @@ export class IBCTransfer {
         const res = JSON.parse(event.data)
         console.log('res', res)
         const firhoseTx = res.txs.find((r) =>
-          r.find((s) => s.transactionId === transaction_id)
+          r.find((s) => s.transactionId.toLowerCase() === transaction_id.toLowerCase())
         )
         console.log('firhoseTx', firhoseTx)
         const firehoseEmitxfer = firhoseTx.find(
@@ -252,7 +257,7 @@ export class IBCTransfer {
     })
   }
 
-  getProof({ type = 'heavyProof', block_to_prove, action, onProgress, last_proven_block }) {
+  getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
     console.log('get proof txID: ', action?.trx_id)
     return new Promise((resolve) => {
       //initialize socket to proof server
@@ -272,7 +277,7 @@ export class IBCTransfer {
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
-          if (onProgress) onProgress(res.progress)
+          if (this.onProgress) this.onProgress(res.progress)
           console.log('progress', res.progress)
         }
 
@@ -359,6 +364,7 @@ export class IBCTransfer {
             else max_block = blocknum
           } catch (ex) {
             captureException(ex)
+            this.source.rpc.nextEndpoint()
             console.log('Internet connection lost, retrying')
           }
         }
@@ -375,6 +381,7 @@ export class IBCTransfer {
             header = await this.source.rpc.get_block(blocknum)
             blocknum++
           } catch (ex) {
+            this.source.rpc.nextEndpoint()
             console.log('Internet connection lost, retrying')
           }
         }
@@ -383,6 +390,7 @@ export class IBCTransfer {
         return blocknum
       } catch (ex) {
         captureException(ex)
+        this.destination.rpc.nextEndpoint()
         console.log('getProducerScheduleBlock ex', ex)
         throw new Error(ex)
       }
@@ -438,9 +446,15 @@ export class IBCTransfer {
       let currentBlock = transferBlock + 0
 
       while (!newPendingBlockHeader) {
-        const bHeader = await this.source.rpc.get_block(currentBlock)
-        if (bHeader.new_producer_schedule) newPendingBlockHeader = bHeader
-        else currentBlock--
+        try {
+          const bHeader = await this.source.rpc.get_block(currentBlock)
+          if (bHeader.new_producer_schedule) newPendingBlockHeader = bHeader
+          else currentBlock--
+        } catch (ex) {
+          captureException(ex)
+          this.source.rpc.nextEndpoint()
+          console.log('Internet connection lost, retrying')
+        }
       }
 
       const pendingProof = await this.getProof({

@@ -23,7 +23,7 @@ el-table(:data="tableData").analytics-table.analytics-tokens-table
       AlcorButton Details
   template(#append)
     .d-flex.justify-content-center.p-2
-      el-pagination.pagination(:total="100" :page-size="10" layout="prev, pager, next")
+      el-pagination.pagination(:total="100" :page-size="10" layout="prev, pager, next" v-model="page" @current-change="$emit('pageChange', $event)")
 </template>
 
 <script>
@@ -34,6 +34,9 @@ export default {
     AlcorButton
   },
   props: ['tableData'],
+  data: () => ({
+    page: 1
+  })
 }
 </script>
 

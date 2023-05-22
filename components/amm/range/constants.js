@@ -1,4 +1,4 @@
-import { FeeAmount } from '~/assets/libs/swap-sdk'
+import { FeeAmount } from '@alcorexchange/alcor-swap-sdk'
 
 export const ZOOM_LEVELS = {
   [FeeAmount.LOWEST]: { // Not userd for now

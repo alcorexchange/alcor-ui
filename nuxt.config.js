@@ -245,6 +245,12 @@ module.exports = {
         }
       })
 
+      config.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      })
+
       if (isSPA) {
         config.output.publicPath = './_nuxt/'
       }

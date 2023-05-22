@@ -251,7 +251,11 @@ const networks = {
 
     USD_TOKEN: 'XUSDC@xtokens',
 
-    popularTokens: [],
+    popularTokens: [
+      'xpr-eosio.token',
+      'xusdt-xtokens',
+      'xusdc-xtokens',
+    ],
   },
 
   ux: {
@@ -391,6 +395,7 @@ const networks = {
 
     ibc: {
       name: 'wax',
+      //proofSocket: 'wss://wax.eosusa.io/ibc',
       proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
       bridgeContracts: {
         eos: 'ibc.alcor'

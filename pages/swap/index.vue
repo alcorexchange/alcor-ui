@@ -1,6 +1,5 @@
 <template lang="pug">
 .swap-page-container
-  SwapBackground
   #swap-page.mt-5(:class="{ showChart }")
     SwapWidget.swap-widget-container(@onChartClick="onChart")
 
@@ -13,13 +12,12 @@
 import { mapGetters } from 'vuex'
 import SwapWidget from '~/components/amm/SwapWidget'
 import SwapChart from '~/components/amm/SwapChart'
-import SwapBackground from '~/components/amm/SwapBackground'
 
 export default {
+  name: 'SwapPage',
   components: {
     SwapWidget,
     SwapChart,
-    SwapBackground
   },
   data: () => ({
     colors: [
@@ -82,7 +80,9 @@ export default {
   width: 100%;
 }
 .chart-container {
-  width: 100%
+  width: 100%;
+  position: relative;
+  z-index: 2;
 }
 @media only screen and (max-width: 1080px) {
   #swap-page {
