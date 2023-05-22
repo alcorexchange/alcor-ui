@@ -9,7 +9,6 @@ export default ({ store }) => {
   if (store.state.network.name == 'eos') {
     intercom.once('ready', () => {
       intercom.boot('alcor')
-      intercom.show()
       console.log('intercom booted')
     })
   }
