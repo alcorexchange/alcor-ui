@@ -1,7 +1,16 @@
-import Vue from 'vue'
-import VueIntercom from '@mathieustan/vue-intercom'
+import { Intercom } from '@mathieustan/vue-intercom'
 
-Vue.use(VueIntercom, { appId: 'tcs47dbx' })
+const appId = 'tcs47dbx'
 
-export default ({ app, store }) => {
+export default ({ store }) => {
+  const intercom = new Intercom({ appId })
+  intercom.shutdown()
+
+  if (store.state.network.name == 'eos') {
+    intercom.once('ready', () => {
+      intercom.boot('alcor')
+      intercom.show()
+      console.log('intercom booted')
+    })
+  }
 }
