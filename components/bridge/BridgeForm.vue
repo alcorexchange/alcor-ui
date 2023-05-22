@@ -5,8 +5,12 @@
       title="Bridge BETA Version"
       type="warning"
       show-icon)
-      div The Bridge UI in a BETA state right now.
       div We recommend to wait for a stable release or use it with Anchor <-> Anchor wallet.
+      div If your swap stack somehow, you can retry it on alternative UI:
+        a(href="https://ibc-retry.alcor.exchange/" target="_blank")  EOS <-> WAX
+        |  |
+        a(href="https://ibc-retry.uxnetwork.io/" target="_blank")  Other Networks
+        //div.d-flex.flex-column
   .send-and-receive
     .send-from.d-flex.flex-column
       .mb-3 Send from
@@ -593,6 +597,8 @@ export default {
           //throw new Error('test asdfasf 3')
           console.log('this.proofs', this.proofs)
           // TODO Submit schedule separated in case we are limited by time execution like on eos
+          console.log('submitProofs...')
+          //throw new Error('test')
           const { tx } = await ibcTransfer.submitProofs(this.proofs)
           this.setResult({ ...this.result, destination: tx.transaction_id })
           this.setStep(4)
