@@ -389,6 +389,7 @@ export default {
         this.init()
       } catch (e) {
         console.log('error on staking / buying RAM', e)
+        return this.$notify({ type: 'error', title: 'Error', message: e.message })
       }
     }
   },
