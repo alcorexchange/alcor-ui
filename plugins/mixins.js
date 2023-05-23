@@ -9,7 +9,7 @@ Vue.mixin({
       windowWidth: 0,
 
       mousedownCls: [],
-      mouseupCls: []
+      mouseupCls: [],
     }
   },
 
@@ -20,6 +20,7 @@ Vue.mixin({
   },
 
   mounted() {
+    // ⚠️  CALLING MULTIPLE TIMES!! FIXME
     this.windowWidth = window.innerWidth
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth
