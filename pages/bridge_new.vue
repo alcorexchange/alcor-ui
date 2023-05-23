@@ -10,6 +10,7 @@
 import AlcorContainer from '@/components/AlcorContainer'
 import BridgeHeader from '@/components/bridge/BridgeHeader'
 export default {
+  name: 'BridgeLayout',
   components: {
     AlcorContainer,
     BridgeHeader

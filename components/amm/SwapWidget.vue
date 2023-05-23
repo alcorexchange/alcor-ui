@@ -127,7 +127,7 @@
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
   a.d-flex.banner.w-100(href="https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3" target="_blank")
-    img.w-100(src="@/assets/images/alcor_summer.png")
+    img.w-100(src="@/assets/images/swap_banner.png")
 </template>
 
 <script>
@@ -612,7 +612,7 @@ export default {
     content: "";
     position: absolute;
     inset: 0px;
-    background: linear-gradient(0deg, rgba(76,112,119,1) 13%, rgba(184,76,84,0.9) 50%, rgba(82,48,54,1) 100%);
+    background: linear-gradient(0deg, rgba(39,46,85,1) 13%, rgba(33,39,68,0.9) 50%, rgba(85,96,229,1) 100%);
     filter: blur(12px);
     transform: translate3d(0px, 16px,-1px);
     border-radius: inherit;
