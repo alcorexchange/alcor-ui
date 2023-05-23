@@ -204,7 +204,6 @@ export default {
       border-radius: 14px;
       &.is-selected {
         border-color: var(--main-action-green);
-        pointer-events: none;
       }
     }
   }
@@ -213,7 +212,6 @@ export default {
   }
   .token-item.is-selected{
     opacity: 0.6;
-    pointer-events: none;
   }
   .el-input__inner {
     border-radius: 8px;
