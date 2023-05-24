@@ -80,7 +80,9 @@ export const getters = {
       if (
         rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
         rootState.network.SCAM_CONTRACTS.includes(tokenB.contract)
-      ) return
+      ) {
+        return
+      }
 
       if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
@@ -94,6 +96,10 @@ export const getters = {
           b.currency,
           b.id.replace('@', '-').toLowerCase()
         )
+
+        if (rootState.network.SCAM_CONTRACTS.includes(token.contract)) {
+          return
+        }
 
         if (tokens.filter(t => t.id == token.id).length == 0) tokens.push(token)
       })
