@@ -174,6 +174,7 @@ const networks = {
     popularTokens: [
       'eos-eosio.token',
       'usdt-tethertether',
+      'wax-ibc.wt.wax',
       'tlos-ibc.wt.tlos',
       'utx-ibc.wt.ux',
       'pgl-prospectorsg',
@@ -430,6 +431,7 @@ const networks = {
     popularTokens: [
       'wax-eosio.token',
       'usdt-usdt.alcor',
+      'eos-ibc.wt.eos',
       'tlm-alien.worlds'
     ],
   },
