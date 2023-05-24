@@ -5,6 +5,7 @@ import { networks } from '../../../config'
 import { getMultyEndRpc } from '../../../utils/eosjs'
 //import { IBC_NETWORKS } from '~/config'
 import { nameToUint64 } from '../../../utils'
+import { getAllLockContracts } from '../../../utils/ibc'
 
 //const supportedNetworks = ['eos', 'wax', 'proton', 'ux']
 const supportedNetworks = ['eos']
@@ -27,8 +28,8 @@ async function loadTokens(chainName: string) {
   const rpc = chains[chainName].rpc
 
   const wrapLockContracts = []
-  for (const lockContract of chains[chainName].network.ibc
-    .wrapLockContractsArray) {
+
+  for (const lockContract of getAllLockContracts(chains[chainName])) {
     const {
       rows: [global],
     } = await rpc.get_table_rows({

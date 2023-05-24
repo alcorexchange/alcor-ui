@@ -502,7 +502,7 @@ export default {
           this.setTx(tx)
           this.setPackedTx(packedTx)
           this.setResult({ ...this.result, source: tx.transaction_id })
-          return this.transfer()
+          return await this.transfer()
         } catch (e) {
           this.setStep(null)
           return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
@@ -523,7 +523,7 @@ export default {
           this.setStep(2)
           console.log('clean error step 1')
           if (this.error) this.setError(null)
-          return this.transfer()
+          return await this.transfer()
         } catch (e) {
           this.setError(e.message)
           return this.$notify({ type: 'error', title: 'Waiting for LIB', message: e })
@@ -608,6 +608,7 @@ export default {
 
           this.asset = null
           this.formData.amount = null
+          this.updateProgress(0)
         } catch (e) {
           this.setError(e.message)
           return this.$notify({ type: 'error', title: 'Submitting Destination Proofs ', message: e })
