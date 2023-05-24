@@ -2,14 +2,14 @@
 #bridge-form-component.form
   .p-3
     el-alert(
-      title="Bridge BETA Version"
+      title="Bridge UI BETA Version"
       type="warning"
       show-icon)
-      div We recommend to wait for a stable release or use it with Anchor <-> Anchor wallet.
-      div If your swap stack somehow, you can retry it on alternative UI:
-        a(href="https://ibc-retry.alcor.exchange/" target="_blank")  EOS <-> WAX
+      div We recommend use it with Anchor <-> Anchor wallet.
+      div You can always use an alternative UI to continue the transaction:
+        a(href="https://ibc-retry.alcor.exchange/" target="_blank")  USDT (Alcor)
         |  |
-        a(href="https://ibc-retry.uxnetwork.io/" target="_blank")  Other Networks
+        a(href="https://ibc-retry.uxnetwork.io/" target="_blank")  Other Tokens
         //div.d-flex.flex-column
   .send-and-receive
     .send-from.d-flex.flex-column
