@@ -126,8 +126,6 @@
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
-  a.d-flex.banner.w-100(href="https://discord.com/invite/Sxum2ETSzq" target="_blank")
-    img.w-100(src="@/assets/images/swap_banner.png")
   RandomBanner(
     :banners="banners"
   )
@@ -192,12 +190,13 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3',
-        image: '@/assets/images/swap_banner.png',
-      },
-      {
-        link: 'https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3',
-        image: '@/assets/images/wax.png',
+        link: 'https://discord.com/invite/Sxum2ETSzq',
+        image: require('@/assets/images/swap_banner.png'),
+        colors: [
+          'rgba(39,46,85,1)',
+          'rgba(33,39,68,0.9)',
+          'rgba(85,96,229,1)'
+        ]
       },
     ]
   }),

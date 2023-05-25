@@ -1,11 +1,11 @@
 <template lang="pug">
-a.d-flex.banner.w-100.random-banner(:href="activeBanner.link" target="_blank" v-if="activeBanner")
-  img.w-100(:src="require(activeBanner.image)")
+a.d-flex.banner.w-100.random-banner(:href="activeBanner.link" target="_blank" v-if="activeBanner" :style="{ '--color-1': activeBanner.colors[0], '--color-2': activeBanner.colors[1], '--color-3': activeBanner.colors[2] }")
+  img.w-100(:src="activeBanner.image")
 </template>
 
 <script>
 export default {
-  props: ['banners'], // Array<{link: string, image: string, colors: string[] }>
+  props: ['banners'], // Array<{link: string, image: string, colors: string[] x 3 }>
   data: () => ({
     randomIndex: undefined
   }),
@@ -29,7 +29,7 @@ export default {
   methods: {
     getRandomNumber() {
       const rand = Math.floor(Math.random() * this.banners.length)
-      console.log(rand)
+      this.randomIndex = rand
     }
   },
 }
@@ -49,7 +49,7 @@ export default {
     content: "";
     position: absolute;
     inset: 0px;
-    background: linear-gradient(0deg, rgba(39,46,85,1) 13%, rgba(33,39,68,0.9) 50%, rgba(85,96,229,1) 100%);
+    background: linear-gradient(0deg, var(--color-1) 13%, var(--color-2) 50%, var(--color-3) 100%);
     filter: blur(12px);
     transform: translate3d(0px, 16px,-1px);
     border-radius: inherit;
