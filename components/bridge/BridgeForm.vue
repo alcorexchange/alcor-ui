@@ -2,14 +2,14 @@
 #bridge-form-component.form
   .p-3
     el-alert(
-      title="Bridge BETA Version"
+      title="Bridge UI BETA Version"
       type="warning"
       show-icon)
-      div We recommend to wait for a stable release or use it with Anchor <-> Anchor wallet.
-      div If your swap stack somehow, you can retry it on alternative UI:
-        a(href="https://ibc-retry.alcor.exchange/" target="_blank")  EOS <-> WAX
+      div We recommend use it with Anchor <-> Anchor wallet.
+      div You can always use an alternative UI to continue the transaction:
+        a(href="https://ibc-retry.alcor.exchange/" target="_blank")  USDT (Alcor)
         |  |
-        a(href="https://ibc-retry.uxnetwork.io/" target="_blank")  Other Networks
+        a(href="https://ibc-retry.uxnetwork.io/" target="_blank")  Other Tokens
         //div.d-flex.flex-column
   .send-and-receive
     .send-from.d-flex.flex-column
@@ -502,7 +502,7 @@ export default {
           this.setTx(tx)
           this.setPackedTx(packedTx)
           this.setResult({ ...this.result, source: tx.transaction_id })
-          return this.transfer()
+          return await this.transfer()
         } catch (e) {
           this.setStep(null)
           return this.$notify({ type: 'warning', title: 'Sign transaction', message: e })
@@ -523,7 +523,7 @@ export default {
           this.setStep(2)
           console.log('clean error step 1')
           if (this.error) this.setError(null)
-          return this.transfer()
+          return await this.transfer()
         } catch (e) {
           this.setError(e.message)
           return this.$notify({ type: 'error', title: 'Waiting for LIB', message: e })
@@ -608,6 +608,7 @@ export default {
 
           this.asset = null
           this.formData.amount = null
+          this.updateProgress(0)
         } catch (e) {
           this.setError(e.message)
           return this.$notify({ type: 'error', title: 'Submitting Destination Proofs ', message: e })

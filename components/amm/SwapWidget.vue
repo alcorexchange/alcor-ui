@@ -126,7 +126,7 @@
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
-  a.d-flex.banner.w-100(href="https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3" target="_blank")
+  a.d-flex.banner.w-100(href="https://discord.com/invite/Sxum2ETSzq" target="_blank")
     img.w-100(src="@/assets/images/swap_banner.png")
   RandomBanner(
     :banners="banners"

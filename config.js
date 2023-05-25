@@ -73,13 +73,10 @@ const networks = {
       name: 'eos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
 
-      bridgeContracts: {
-        tlos: 'ibc.prove',
-        ux: 'ibc.prove',
-        wax: 'ibc.alcor'
-      },
-
-      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos', 'w.ibc.alcor']
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
+        'ibc.alcor': ['w.ibc.alcor']
+      }
     },
 
     withdraw: {
@@ -177,6 +174,7 @@ const networks = {
     popularTokens: [
       'eos-eosio.token',
       'usdt-tethertether',
+      'wax-ibc.wt.wax',
       'tlos-ibc.wt.tlos',
       'utx-ibc.wt.ux',
       'pgl-prospectorsg',
@@ -310,13 +308,9 @@ const networks = {
       name: 'ux',
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
 
-      bridgeContracts: {
-        telos: 'ibc.prove',
-        eos: 'ibc.prove',
-        wax: 'ibc.alcor'
-      },
-
-      wrapLockContractsArray: ['ibc.wl.eos', 'ibc.wl.tlos']
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos']
+      }
     },
 
     withdraw: {},
@@ -397,10 +391,11 @@ const networks = {
       name: 'wax',
       //proofSocket: 'wss://wax.eosusa.io/ibc',
       proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
-      bridgeContracts: {
-        eos: 'ibc.alcor'
-      },
-      wrapLockContractsArray: []
+      //proofSocket: 'ws://95.217.224.229:7788',
+
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.eos']
+      }
     },
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
@@ -436,6 +431,7 @@ const networks = {
     popularTokens: [
       'wax-eosio.token',
       'usdt-usdt.alcor',
+      'eos-ibc.wt.eos',
       'tlm-alien.worlds'
     ],
   },
@@ -505,12 +501,9 @@ const networks = {
       name: 'tlos',
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
 
-      bridgeContracts: {
-        eos: 'ibc.prove',
-        ux: 'ibc.prove',
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.ux', 'ibc.wl.eos']
       },
-
-      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.eos']
     },
 
     withdraw: {

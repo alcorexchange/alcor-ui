@@ -1,4 +1,5 @@
 import { captureException } from '@sentry/browser'
+import { getProveContract } from '../utils/ibc'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -49,7 +50,7 @@ export class IBCTransfer {
 
   async getLastProvenBlock() {
     const lastBlockProved = await this.destination.rpc.get_table_rows({
-      code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+      code: this.asset.bridgeContract, // TODO Assuming prove contract have same name in both chains. (we need check here)
       table: 'lastproofs',
       scope: this.source.ibc.name,
       limit: 1,
@@ -294,7 +295,8 @@ export class IBCTransfer {
           authorization: [this.destinationWallet.authorization],
           name,
           account: !action
-            ? this.destination.ibc.bridgeContracts[this.source.ibc.name]
+            //? this.destination.ibc.bridgeContracts[this.source.ibc.name]
+            ? this.asset.bridgeContract
             : this.asset.native
               ? this.asset.pairedWrapTokenContract
               : this.asset.wrapLockContract,
@@ -342,7 +344,8 @@ export class IBCTransfer {
         let min_block = 2
         //fetch last proved block to use as min block for schedule change search
         const lastBlockProved = await this.destination.rpc.get_table_rows({
-          code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+          //code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+          code: this.asset.bridgeContract,
           table: 'lastproofs',
           scope: this.source.ibc.name,
           limit: 1,
@@ -398,7 +401,8 @@ export class IBCTransfer {
 
     const proofs = []
     const bridgeScheduleData = await this.destination.rpc.get_table_rows({
-      code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+      //code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+      code: this.asset.bridgeContract,
       table: 'schedules',
       scope: this.source.ibc.name,
       limit: 1,
@@ -438,6 +442,9 @@ export class IBCTransfer {
         proof.data.blockproof.blocktoprove.block.header.schedule_version
       schedule_block = block_num
       proofs.unshift(proof)
+
+      // FIXME TEST
+      //break
     }
 
     // check for pending schedule and prove pending schedule if found;
