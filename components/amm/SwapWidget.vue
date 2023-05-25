@@ -126,8 +126,11 @@
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
-  a.d-flex.banner.w-100(href="https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3" target="_blank")
-    img.w-100(src="@/assets/images/swap_banner.png")
+  //- a.d-flex.banner.w-100(href="https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3" target="_blank")
+  //-   img.w-100(src="@/assets/images/swap_banner.png")
+  RandomBanner(
+    :banners="banners"
+  )
 </template>
 
 <script>
@@ -149,6 +152,7 @@ import SwapRoute from '~/components/swap/SwapRoute'
 import { tryParseCurrencyAmount, constructPoolInstance } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 import AuthOnly from '~/components/AuthOnly'
+import RandomBanner from '~/components/alcor-element/RandomBanner'
 
 export default {
   name: 'SwapWidget',
@@ -162,7 +166,8 @@ export default {
     Settings,
     SwapRoute,
     VueSkeletonLoader,
-    AuthOnly
+    AuthOnly,
+    RandomBanner
   },
 
   data: () => ({
@@ -184,7 +189,17 @@ export default {
     routerCollapse: ['1'],
     lastField: 'input', // might be input/output
 
-    rateInverted: false
+    rateInverted: false,
+    banners: [
+      {
+        link: 'https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3',
+        image: '@/assets/images/swap_banner.png',
+      },
+      {
+        link: 'https://wax.contest.bountyblok.io/contest/732c02fc-9131-499e-b2e3-3c0d017676c3',
+        image: '@/assets/images/wax.png',
+      },
+    ]
   }),
 
   fetch() {
