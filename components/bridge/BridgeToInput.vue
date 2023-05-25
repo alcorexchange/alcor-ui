@@ -6,6 +6,7 @@
     el-input.amount(
       placeholder='Enter Adderss',
       :value='localValue',
+      :disabled='inputDisabled'
       @input='input',
       @blur='onBlur',
       @focus="onFocus"
@@ -20,9 +21,10 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 import SelectNetwork from '@/components/modals/SelectNetwork'
 import AlcorButton from '@/components/AlcorButton'
+import { getMultyEndRpc } from '~/utils/eosjs'
 
 export default {
   components: {
@@ -62,13 +64,22 @@ export default {
   computed: {
     selectedNetwork: {
       set (chain) {
-        return this.setDestinationName(chain)
+        this.setDestinationName(chain)
+        this.validateAddress()
       },
 
       get () {
         return this.$store.state.ibcBridge.destinationName
       }
     },
+
+    inputDisabled() {
+      return !this.selectedNetwork
+    },
+
+    ...mapGetters({
+      destination: 'ibcBridge/destination',
+    })
   },
 
   watch: {
@@ -82,6 +93,23 @@ export default {
       setSourceName: 'ibcBridge/setSourceName',
       setDestinationName: 'ibcBridge/setDestinationName',
     }),
+
+    async validateAddress() {
+      const { destination } = this
+      if (!destination || !this.localValue || (this.localValue && this.localValue.length < 4)) {
+        this.addressStatus = undefined
+        return
+      }
+      const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
+      try {
+        this.addressStatus = 'loading'
+        await destinationRpc.get_account(this.localValue)
+        this.addressStatus = 'valid'
+      } catch (e) {
+        this.addressStatus = 'invalid'
+      }
+    },
+
     async onPaste() {
       try {
         const res = await navigator.clipboard.readText()
@@ -101,6 +129,7 @@ export default {
     input(value) {
       this.localValue = value
       this.$emit('input', value)
+      this.validateAddress()
     },
     onNetworkSelect(e) {
       this.selectedNetwork = e
