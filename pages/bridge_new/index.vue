@@ -2,10 +2,11 @@
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
     BridgeConnect(label="from").my-1
-    BridgeInput(label="from" :isSource="true" :tokens="availableAssets")
+    BridgeInput(label="from" :tokens="availableAssets")
   .side.to
-    BridgeConnect(label="to").my-1
-    BridgeInput(label="to" :isSource="false" :locked="true")
+    // hide label when connected.
+    BridgeConnect(label="To custom recipient" beforeConnect="or" :hideLabel="false").my-1
+    BridgeToInput(label="to" :locked="true")
   //- .recepient
   .process
     BridgeProcess
@@ -18,6 +19,7 @@ import { mapGetters } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import BridgeHeader from '@/components/bridge/BridgeHeader'
 import BridgeInput from '@/components/bridge/BridgeInput'
+import BridgeToInput from '@/components/bridge/BridgeToInput'
 import BridgeConnect from '@/components/bridge/BridgeConnect'
 import BridgeProcess from '@/components/bridge/BridgeProcess'
 import AlcorButton from '@/components/AlcorButton'
@@ -28,6 +30,7 @@ export default {
     AlcorContainer,
     BridgeHeader,
     BridgeInput,
+    BridgeToInput,
     BridgeConnect,
     BridgeProcess
   },

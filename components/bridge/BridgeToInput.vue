@@ -1,54 +1,38 @@
 <template lang="pug">
-.bridge-token(:class="{focused, notSelected: !!token}")
+.bridge-to-input(:class="{focused}")
   .before
     SelectNetwork(:networks="networksMock" v-model="selectedNetwork")
   .main
-    .label-and-balance
-      .label {{ label }}
-      .balance.disable(v-if="token" @click="onBalanceClick" :class="{clickable: !!user}") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
-    .input-and-select
-      // TODO Make dot separation for decimal point instead comma
-      el-input.amount(
-        placeholder='0.0',
-        :value='localValue',
-        @input='input',
-        @blur='onBlur',
-        @focus="onFocus"
-      )
-      .input-after
-        MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token && user")
-        //- v-if='showMaxButton',
-        SelectToken(
-          :locked='!!locked',
-          :token='token',
-          :tokens='tokens',
-          @selected='$emit("tokenSelected", $event)'
-        )
-    .bottom {{ renderBottom }}
+    el-input.amount(
+      placeholder='Enter Adderss',
+      :value='localValue',
+      @input='input',
+      @blur='onBlur',
+      @focus="onFocus"
+    )
+    .input-after.d-flex.items-center.gap-4
+      .address-status(v-if="addressStatus" :class="addressStatus || ''")
+        i.el-icon-loading(v-if="addressStatus === 'loading'")
+        i.el-icon-check(v-if="addressStatus === 'valid'")
+        i.el-icon-close(v-if="addressStatus === 'invalid'")
+      AlcorButton(iconOnly @click="onPaste")
+        i.el-icon-copy-document
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapMutations } from 'vuex'
 import SelectNetwork from '@/components/modals/SelectNetwork'
-import SelectToken from '~/components/modals/amm/SelectToken2'
-import MaxBage from '~/components/UI/input/MaxBage'
-import { getPrecision } from '~/utils'
+import AlcorButton from '@/components/AlcorButton'
 
 export default {
   components: {
-    SelectToken,
-    MaxBage,
     SelectNetwork,
+    AlcorButton
   },
 
   props: [
-    'token',
-    'tokens',
     'value',
-    'showMaxButton',
-    'locked',
     'label',
-    'isSource'
   ],
 
   data: () => ({
@@ -71,23 +55,20 @@ export default {
         value: 'ux',
         label: 'UX Network'
       }
-    ]
+    ],
+    addressStatus: undefined, // 'valid', 'invalid', 'loading'
   }),
 
   computed: {
-    renderBottom() {
-      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
-    },
     selectedNetwork: {
       set (chain) {
-        return this.setSourceName(chain)
+        return this.setDestinationName(chain)
       },
 
       get () {
-        return this.$store.state.ibcBridge.sourceName
+        return this.$store.state.ibcBridge.destinationName
       }
     },
-    ...mapState(['user']),
   },
 
   watch: {
@@ -101,6 +82,13 @@ export default {
       setSourceName: 'ibcBridge/setSourceName',
       setDestinationName: 'ibcBridge/setDestinationName',
     }),
+    async onPaste() {
+      try {
+        const res = await navigator.clipboard.readText()
+        this.localValue = res
+      } catch (e) {
+      }
+    },
     onBlur() {
       this.$emit('blur')
       this.focused = false
@@ -111,26 +99,19 @@ export default {
     },
 
     input(value) {
-      if (isNaN(value)) return
-
-      if (this.token && getPrecision(value) > this.token.decimals) return
-
       this.localValue = value
       this.$emit('input', value)
     },
     onNetworkSelect(e) {
       this.selectedNetwork = e
     },
-    onBalanceClick() {
-      if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol, this.token.contract))
-    }
   },
 
 }
 </script>
 
 <style lang="scss">
-.bridge-token {
+.bridge-to-input {
   position: relative;
   width: 100%;
   display: flex;
@@ -140,38 +121,15 @@ export default {
   gap: 10px;
   border: 1px solid transparent;
   transition: border-color 0.3s;
+  min-height: 94px;
   .main {
     display: flex;
-    flex-direction: column;
+    align-self: center;
     gap: 4px;
+    flex: 1;
   }
   &:hover {
     border: 1px solid var(--border-color);
-  }
-  .label-and-balance {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--text-default);
-    min-height: 18px;
-    align-items: center;
-  }
-  .balance.clickable {
-    cursor: pointer;
-    transition: color 0.2s;
-    &:hover {
-      color: var(--text-default);
-    }
-  }
-  .bottom {
-    min-height: 18px;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-  }
-  .input-and-select {
-    display: flex;
-    align-items: center;
   }
   .amount {
     flex: 1;
@@ -192,18 +150,10 @@ export default {
     display: flex;
     align-items: center;
   }
-  .select-token-button {
-    display: flex;
-    align-items: center;
-    //background: transparent;
-    padding: 5px 9px;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &:hover {
-      border-color: var(--text-disable);
-      color: var(--text-disable);
-    }
+  .address-status {
+    &.loading { color: var(--text-default) }
+    &.valid { color: var(--main-green) }
+    &.invalid { color: var(--main-red) }
   }
 
   .el-input-group__append,
@@ -221,9 +171,6 @@ export default {
 
   input {
     background-color: var(--selector-bg);
-  }
-  .max-bage {
-    font-size: 0.9rem;
   }
 
   .before {

@@ -1,7 +1,8 @@
 <template lang="pug">
 .bridge-connect()
-  .label {{ label }}
+  .label {{ hideLabel ? '' : label }}
   .connect
+    .beforeConnect {{ hideLabel ? '' : beforeConnect }}
     AlcorButton Connect
 </template>
 
@@ -11,7 +12,7 @@ export default {
   components: {
     AlcorButton
   },
-  props: ['label'],
+  props: ['label', 'beforeConnect', 'hideLabel'],
 }
 </script>
 
@@ -20,5 +21,10 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.connect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>
