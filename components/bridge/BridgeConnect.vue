@@ -3,7 +3,16 @@
   .label {{ hideLabel ? '' : label }}
   .connect
     .beforeConnect {{ hideLabel ? '' : beforeConnect }}
-    AlcorButton Connect
+    // not connected
+    //- AlcorButton Connect
+    // connected
+    AlcorButton
+      .logged-in-button.fs-14
+        .image-container
+          img(src="@/assets/icons/eos.png")
+        span gus.fring
+        // TODO: find proper logout icon
+        i.el-icon-right
 </template>
 
 <script>
@@ -26,5 +35,25 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.logged-in-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  .image-container {
+    width: 16px;
+    height: 16px;
+    background: var(--background-grid-layout);
+    padding: 2px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
 }
 </style>
