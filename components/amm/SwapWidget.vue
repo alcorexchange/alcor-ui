@@ -189,7 +189,7 @@ export default {
 
   fetch() {
     // fetch has access to `this`
-    const { input, output } = this.$route.query
+    const { input, output, only } = this.$route.query
 
     if (input) {
       this.$store.commit('amm/swap/setInput', input.toLowerCase())
@@ -197,6 +197,11 @@ export default {
 
     if (output) {
       this.$store.commit('amm/swap/setOutput', output.toLowerCase())
+    }
+
+    if (only) {
+      const tokens = only.toLowerCase().split(',')
+      this.$store.commit('amm/swap/setOnly', tokens)
     }
 
     this.$store.dispatch('amm/swap/setDefaultInputOutput')

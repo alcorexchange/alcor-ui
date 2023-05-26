@@ -9,6 +9,9 @@ export const state = () => ({
   input: null,
   output: null,
 
+  // Only show that tokens for swap
+  only: [],
+
   liquidity: 30,
   showChart: false
 })
@@ -19,6 +22,7 @@ export const mutations = {
 
   setInput: (state, token) => state.input = token,
   setOutput: (state, token) => state.output = token,
+  setOnly: (state, tokens) => state.only = tokens,
   setShowChart: (state, data) => state.showChart = data
 }
 
@@ -111,6 +115,10 @@ export const getters = {
       if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
     })
+
+    if (state.only.length > 0) {
+      return tokens.filter(t => state.only.includes(t.id))
+    }
 
     return tokens
   },
