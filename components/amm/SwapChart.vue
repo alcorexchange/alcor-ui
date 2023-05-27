@@ -183,9 +183,11 @@ export default {
     activeTime() {
       this.fetchCharts()
     },
+
     tokenA() {
       this.fetchCharts()
     },
+
     tokenB() {
       this.fetchCharts()
     }
