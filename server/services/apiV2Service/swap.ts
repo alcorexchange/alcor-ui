@@ -69,7 +69,8 @@ swap.get('/charts', async (req, res) => {
     ]
   }).lean()
 
-  const period = parseInt(String(req.query.period))
+  const period = String(req.query.period)
+
   const timeframe =
     period && period in timeframes ? timeframes[period] : Date.now()
 
@@ -99,13 +100,13 @@ swap.get('/charts', async (req, res) => {
 
         price: { $last: '$price' },
 
-        reserveA: { $last: '$reserveA' },
-        reserveB: { $last: '$reserveB' },
+        reserveA: { $max: '$reserveA' },
+        reserveB: { $max: '$reserveB' },
 
         volumeUSD: { $sum: '$volumeUSD' },
 
-        usdReserveA: { $last: '$usdReserveA' },
-        usdReserveB: { $last: '$usdReserveB' },
+        usdReserveA: { $max: '$usdReserveA' },
+        usdReserveB: { $max: '$usdReserveB' },
       },
     })
   }

@@ -8,6 +8,17 @@
 export default {
   props: ['series'],
 
+  watch: {
+    series() {
+      if (!this.$refs?.chart?.chart) return
+
+      this.$refs.chart.updateSeries(
+        this.series,
+        true
+      )
+    }
+  },
+
   data: () => ({
     chartOptions: {
       markers: {
@@ -37,6 +48,7 @@ export default {
         }
       },
       chart: {
+        id: 'Line',
         type: 'line',
         background: 'transparent',
         toolbar: {
