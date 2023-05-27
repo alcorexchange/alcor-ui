@@ -74,8 +74,6 @@ swap.get('/charts', async (req, res) => {
   const timeframe =
     period && period in timeframes ? timeframes[period] : Date.now()
 
-  console.log(timeframe)
-
   const $match = {
     chain: network.name,
     pool: { $in: pools },

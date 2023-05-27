@@ -31,7 +31,6 @@ import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 
 import Line from '~/components/charts/Line'
 import StackedColumns from '~/components/charts/StackedColumns'
-import MultiLine from '~/components/charts/MultiLine'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 
@@ -49,7 +48,7 @@ export default {
   data: () => ({
     charts: [],
     activeTab: 'Price',
-    activeTime: '24H',
+    activeTime: '7D',
     times: [
       { label: '1D', value: '24H' },
       { label: '7D', value: '7D' },
