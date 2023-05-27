@@ -73,4 +73,10 @@ export default {
   gap: 4px;
 }
 
+.request {
+  .alcor-button {
+    color: var(--main-green);
+  }
+}
+
 </style>
