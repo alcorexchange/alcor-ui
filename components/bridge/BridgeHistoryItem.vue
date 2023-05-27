@@ -50,6 +50,10 @@ export default {
   flex-direction: column;
 }
 
+.date {
+  color: var(--text-grey-thirdly);
+}
+
 .sides {
   display: flex;
   align-items: center;

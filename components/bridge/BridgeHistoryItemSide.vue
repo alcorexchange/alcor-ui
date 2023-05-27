@@ -1,14 +1,14 @@
 <template lang="pug">
 .side
   .network-and-label
-    span.fs-12.mr-1 {{ label }}
+    span.label.fs-12.mr-1 {{ label }}
     img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
     span.network-name.fs-12 WAX
   .token-container
     img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
     span.token-amount 5,000 USDT
   .tx-link.fs-12
-    template
+    a.tx-link-inner.pointer
       i.el-icon-link
       | &nbsp;
       span TX Link
@@ -41,5 +41,11 @@ export default {
   .token-img {
     width: 18px;
   }
+}
+.tx-link-inner {
+  text-decoration: underline !important;
+}
+.label, .tx-link-inner {
+  color: var(--text-grey-thirdly);
 }
 </style>
