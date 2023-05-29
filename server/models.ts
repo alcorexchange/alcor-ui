@@ -65,6 +65,27 @@ const PoolPairSchema = new mongoose.Schema({
   }
 })
 
+// Updating each 24H
+const GlobalStatsSchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  time: { type: Date, index: true },
+
+  totalValueLocked: { type: Number },
+  swapValueLocked: { type: Number },
+  spotValueLocked: { type: Number },
+  swapTradingVolume: { type: Number },
+  spotTradingVolume: { type: Number },
+  swapFees: { type: Number },
+  spotFees: { type: Number },
+  UAW: { type: Number },
+  // activeUsers: { type: Number },
+  // uniqueUsers: { type: Number },
+  swapTransactions: { type: Number },
+  spotTransactions: { type: Number },
+  totalLiquidityPools: { type: Number },
+  totalSpotPairs: { type: Number },
+})
+
 const LiquiditySchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pair_id: { type: Number, index: true },
@@ -318,3 +339,4 @@ export const SwapPool = mongoose.model('SwapPool', SwapPoolSchema)
 export const SwapChartPoint = mongoose.model('SwapChartPoint', SwapChartPointSchema)
 export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)
 export const Position = mongoose.model('Position', PositionSchema)
+export const GlobalStats = mongoose.model('GlobalStats', GlobalStatsSchema)

@@ -1,7 +1,10 @@
+import schedule from 'node-schedule'
+
 import config from '../../../config'
 
 import { getSettings } from '../../utils'
 import { updatePools } from '../swapV2Service'
+import { updateGlobalStats } from './analytics'
 import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
@@ -31,8 +34,16 @@ export async function updater(chain, provider, services) {
   const network = config.networks[chain]
   const streamer = providers[provider]
 
+
   // If no setting, create them..
   await getSettings(network)
+
+  // TODO Fetch for last 30 days
+  // Global stats every our
+  await updateGlobalStats(network)
+  //setInterval(() => updateGlobalStats(network), 60 * 60 * 4 * 1000)
+  //schedule.scheduleJob('0 0 * * *', updateGlobalStats(network)) // run everyday at midnight
+  return
 
   if (services.includes('prices')) {
     console.log('Start price updater for', chain)
