@@ -237,7 +237,11 @@ export const getters = {
 
       const tempPosition = new Position({
         ...position,
-        pool: poolInstance
+        pool: poolInstance,
+
+        // Because we have feesA as asset here from backend api
+        feesA: 0,
+        feesB: 0
       })
 
       // Add Stats
