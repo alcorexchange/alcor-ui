@@ -18,7 +18,7 @@
     "analyze": "nuxt build --analyze"
   },
   "dependencies": {
-    "@alcorexchange/alcor-swap-sdk": "^1.0.2",
+    "@alcorexchange/alcor-swap-sdk": "^1.0.5",
     "@azukisiromochi/vue-mo.js": "^1.0.2",
     "@eosrio/hyperion-stream-client": "^1.0.3",
     "@ethersproject/units": "^5.7.0",
