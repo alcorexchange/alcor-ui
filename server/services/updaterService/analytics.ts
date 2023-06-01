@@ -1,6 +1,6 @@
 import axios from 'axios'
+import { SwapPool, Market, Match, GlobalStats, SwapChartPoint } from '../../models'
 import { getAllTokensWithPrices } from './prices'
-import { SwapPool, Market, Match, GlobalStats, SwapChartPoint } from '~/server/models'
 
 
 export async function updateGlobalStats(network, day?) {

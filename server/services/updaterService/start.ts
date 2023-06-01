@@ -40,10 +40,10 @@ export async function updater(chain, provider, services) {
 
   // TODO Fetch for last 30 days
   // Global stats every our
-  await updateGlobalStats(network)
+  //await updateGlobalStats(network)
   //setInterval(() => updateGlobalStats(network), 60 * 60 * 4 * 1000)
   //schedule.scheduleJob('0 0 * * *', updateGlobalStats(network)) // run everyday at midnight
-  return
+  //return
 
   if (services.includes('prices')) {
     console.log('Start price updater for', chain)
