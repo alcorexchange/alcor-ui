@@ -119,6 +119,7 @@ export default {
           show: true,
           offsetX: -10,
           formatter: (v) => {
+            // TODO: use dynamic number.
             return v.toFixed(2)
           },
           style: {

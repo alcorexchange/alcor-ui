@@ -1,30 +1,30 @@
 <template lang="pug">
-table.wrapper
-  tr.header(:class="{ 'mobile': isMobile }")
-    th.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
-      span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
-      sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
-  recycle-scroller(
-    v-if="sortedData.length"
-    :emit-update="true"
-    @update="(...args) => $emit('update', (args))"
-    class="scroller"
-    :class="{ window: !table.pageMode }"
-    :items="sortedData"
-    :item-size="table.itemSize"
-    :pageMode="table.pageMode"
-    :buffer="buffer || 450"
-  )
-    template(v-slot="{ item }")
-      slot(name="row" :item="item")
-  span.no-data(v-else) {{ $t('No Data') }}
+recycle-scroller(
+  :emit-update="true"
+  @update="(...args) => $emit('update', (args))"
+  class="scroller wrapper"
+  :class="{ window: !table.pageMode }"
+  :items="sortedData"
+  :item-size="table.itemSize"
+  :pageMode="table.pageMode"
+  :buffer="buffer || 450"
+  list-tag="table"
+)
+  template(#before)
+    div.header(:class="{ 'mobile': isMobile }")
+      div.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
+        span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
+        sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
+  template(v-slot="{ item }")
+    slot(name="row" :item="item")
 </template>
 
 <script>
+import { RecycleScroller } from 'vue-virtual-scroller'
 import Sorter from '~/components/Sorter'
 
 export default {
-  components: { Sorter },
+  components: { Sorter, RecycleScroller },
   props: ['table', 'buffer'],
   data: () => ({ sortKey: null, route: 1 }),
   computed: {
