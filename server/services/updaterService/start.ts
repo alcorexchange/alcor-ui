@@ -22,10 +22,10 @@ export function startUpdaters() {
     console.log('NETWORK=', process.env.NETWORK)
     updater(process.env.NETWORK, 'node', ['swap'])
   } else {
-    updater('eos', 'node', ['markets', 'pools', 'prices', 'swap'])
-    updater('wax', 'node', ['markets', 'pools', 'prices', 'swap'])
+    updater('eos', 'node', ['markets', 'prices', 'swap'])
+    updater('wax', 'node', ['markets', 'prices', 'swap'])
     updater('proton', 'node', ['markets', 'prices', 'swap'])
-    updater('telos', 'node', ['markets', 'pools', 'prices', 'swap'])
+    updater('telos', 'node', ['markets', 'prices', 'swap'])
   }
 }
 
