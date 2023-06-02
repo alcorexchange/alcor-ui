@@ -1,5 +1,5 @@
 <template lang="pug">
-.wrapper(@click="redirect" :class="{ 'mobile': isMobile }")
+NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': isMobile }")
   .label
     token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
     .name
@@ -62,6 +62,7 @@ export default {
   gap: 10px;
   border-bottom: 1px solid var(--background-color-base);
   cursor: pointer;
+  color: inherit;
 }
 
 .wrapper:hover {
