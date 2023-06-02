@@ -224,18 +224,18 @@ const SwapPoolSchema = new mongoose.Schema({
   // TODO TVL
 
   // New Fields
-  volumeA24: { type: Number },
-  volumeB24: { type: Number },
+  volumeA24: { type: Number, default: 0 },
+  volumeB24: { type: Number, default: 0 },
 
-  volumeAWeek: { type: Number },
-  volumeBWeek: { type: Number },
+  volumeAWeek: { type: Number, default: 0 },
+  volumeBWeek: { type: Number, default: 0 },
 
-  volumeAMonth: { type: Number },
-  volumeBMonth: { type: Number },
+  volumeAMonth: { type: Number, default: 0 },
+  volumeBMonth: { type: Number, default: 0 },
 
-  volumeUSD24: { type: Number },
-  volumeUSDWeek: { type: Number },
-  volumeUSDMonth: { type: Number },
+  volumeUSD24: { type: Number, default: 0 },
+  volumeUSDWeek: { type: Number, default: 0 },
+  volumeUSDMonth: { type: Number, default: 0 },
 
   // change24: { type: Number },
   // changeWeek: { type: Number },

@@ -153,7 +153,6 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: [
-      'WAX@bosibc.io',
       'SAND@sandiegocoin',
       'TCN@capitaltatch',
       'HASH@eoshashcoins',
@@ -484,10 +483,10 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: [
-      'EOS@bosibc.io',
       'KANDA@telokandaone',
       'GUX@vapaeetokens',
     ],
+
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],

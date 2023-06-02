@@ -260,9 +260,11 @@ async function connectAll() {
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
 
   // Redis
-  await redis.connect()
-  await publisher.connect()
-  await subscriber.connect()
+  if (!redis.isOpen) {
+    await redis.connect()
+    await publisher.connect()
+    await subscriber.connect()
+  }
 }
 
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
@@ -317,6 +319,7 @@ export async function updatePools(chain) {
 }
 
 export async function initialUpdate(chain: string, poolId?: number) {
+  console.log('swap initialUpdate started: ', chain)
   await connectAll()
   await updatePools(chain)
 
@@ -328,7 +331,6 @@ export async function initialUpdate(chain: string, poolId?: number) {
   const markets = await SwapPool.find({ chain })
 
   for (const { chain, id } of markets) {
-    console.log('updated ticks: ', chain, id)
     await updateTicks(chain, id)
 
     // Chain that we have our own nodes
@@ -487,6 +489,12 @@ export async function onSwapAction(message: string) {
 export async function main() {
   await connectAll()
 
+  // const command = process.argv[2]
+
+  // if (command == 'initial') {
+  //   await initialUpdate(process.argv[3])
+  // }
+
   subscriber.subscribe('swap_action', message => {
     onSwapAction(message)
   })
@@ -494,11 +502,5 @@ export async function main() {
   console.log('SwapService started!')
 }
 
-
-const command = process.argv[2]
-
-if (command == 'initial') {
-  initialUpdate(process.argv[3])
-} else {
-  main()
-}
+// TODO Run as separate service
+main()
