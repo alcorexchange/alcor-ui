@@ -64,6 +64,7 @@ export async function newMatch(match, network) {
 }
 
 export async function getVolumeFrom(date, market, chain) {
+  // TODO Объем должен считаться входной + выходной
   const volume = await Match.aggregate([
     { $match: { chain, market, time: { $gte: new Date(date) } } },
     {
