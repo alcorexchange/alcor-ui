@@ -411,7 +411,8 @@ const networks = {
       'martaintoken',
       'martiantoken',
       'superruncoin',
-      'bosibc.io'
+      'bosibc.io',
+      'junkoqwertyu'
     ],
 
     CEX_CONTRACTS: [
