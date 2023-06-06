@@ -1,7 +1,8 @@
 <template lang="pug">
 .bridge-history
   .overflower
-    BridgeHistoryItem(v-for="x in 10")
+    template(v-for="item in items")
+      BridgeHistoryItem(:item="item" :key="item.id")
   .overflow-cover
 </template>
 
@@ -10,6 +11,16 @@ import BridgeHistoryItem from '~/components/bridge/BridgeHistoryItem.vue'
 export default {
   components: {
     BridgeHistoryItem
+  },
+  data() {
+    return {
+      items: [],
+    }
+  },
+  async mounted() {
+    const historyApiUrl = 'http://116.202.36.122:8082'
+    const accountName = 'alcordexfund' // this.$store.state.user?.name;
+    this.items = await fetch(`${historyApiUrl}/dev/ibc/${accountName}`).then(it => it.json())
   }
 }
 </script>

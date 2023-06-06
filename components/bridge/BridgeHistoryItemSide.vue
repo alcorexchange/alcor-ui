@@ -1,14 +1,14 @@
 <template lang="pug">
 .side
   .network-and-label
-    span.label.fs-12.mr-1 {{ label }}
-    img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
-    span.network-name.fs-12 WAX
+    span.label.fs-12.mr-1 {{ account }}
+    img(:src="require(`~/assets/icons/${chain}.png`)").network-img
+    span.network-name.fs-12 {{ chain }}
   .token-container
     img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
-    span.token-amount 5,000 USDT
+    span.token-amount {{ quantity }}
   .tx-link.fs-12
-    a.tx-link-inner.pointer
+    a.tx-link-inner.pointer(:href="monitorTx(trxId, chain)" target="_blank")
       i.el-icon-link
       | &nbsp;
       span TX Link
@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  props: ['label']
+  props: ['chain', 'quantity', 'link', 'account', 'trxId']
 }
 </script>
 

@@ -3,22 +3,24 @@
   .main.fs-14
     .date.fs-12.mb-2 13:48 Jul 19, 2023
     .sides
-      BridgeHistoryItemSide(label="From")
+      BridgeHistoryItemSide(
+        :chain="item.source", :quantity="item.quantity", :account="item.sender", :trxId="item.sourceTrx")
       .arrow
         i.el-icon-right
-      BridgeHistoryItemSide(label="To")
+      BridgeHistoryItemSide(:chain="item.destination", :quantity="item.quantity", :account="item.recipient", :trxId="item.destinationTrx")
   .status-container
-    .status(:style="{color: statusColor}")
-      i(:class="statusIcon")
-      span.status-text.fs-14 Completed
-    .request
-      AlcorButton Submit Request
+      .status(v-if="item.completed" :style="{color: statusColor}")
+        i(:class="statusIcon")
+        span.status-text.fs-14 Completed
+      .request(v-else)
+        AlcorButton(@click="submitRequest") Submit Request
 </template>
 
 <script>
 import AlcorButton from '@/components/AlcorButton'
 import BridgeHistoryItemSide from './BridgeHistoryItemSide.vue'
 export default {
+  props: ['item'],
   components: {
     BridgeHistoryItemSide,
     AlcorButton
@@ -30,6 +32,38 @@ export default {
     statusIcon() {
       return 'el-icon-check'
     },
+  },
+  methods: {
+    async submitRequest() {
+      console.log('not implemented');
+    /*
+      const account = await this.$store.dispatch('chain/asyncLogin', {
+        chain: 'wax',
+        message: 'connect'
+      });
+      const destinationWallet = {
+        wallet: account.wallet,
+        name: account.name,
+        authorization: account.authorization,
+      };
+      const ibcTransfer = new IBCTransfer(
+        'eos',
+        'wax',
+        null,
+        this.destinationWallet,
+        (...args) => { console.log(args); }
+      );
+      const { scheduledProofs, restActions } = await fetchActionsToSign();
+      if (scheduledProofs) {
+        destinationWallet.wallet.transact({
+          actions: [...scheduledProofs],
+        }, settings);
+      }
+      destinationWallet.wallet.transact({
+        actions: [...restActions],
+      }, settings);
+    */
+    }
   }
 }
 </script>

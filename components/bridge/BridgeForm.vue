@@ -5,7 +5,7 @@
       title="Bridge UI BETA Version"
       type="warning"
       show-icon)
-      div We recommend use it with Anchor <-> Anchor wallet.
+
       div You can always use an alternative UI to continue the transaction:
         a(href="https://ibc-retry.alcor.exchange/" target="_blank")  USDT (Alcor)
         |  |
