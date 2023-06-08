@@ -30,6 +30,7 @@ export default {
     getRandomNumber() {
       const rand = Math.floor(Math.random() * this.banners.length)
       this.randomIndex = rand
+      console.log('getting random color')
     }
   },
 }
