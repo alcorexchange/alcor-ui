@@ -193,9 +193,18 @@ export default {
         link: 'https://discord.com/invite/Sxum2ETSzq',
         image: require('@/assets/images/swap_banner.png'),
         colors: [
-          'rgba(39,46,85,1)',
-          'rgba(33,39,68,0.9)',
-          'rgba(85,96,229,1)'
+          'rgb(39,46,85)',
+          'rgb(33,39,68)',
+          'rgb(85,96,229)'
+        ]
+      },
+      {
+        link: 'https://medium.com/@Novopangea.io/more-ways-to-novo-a32f35337c09',
+        image: require('@/assets/images/swap-banner-2.jpg'),
+        colors: [
+          'rgba(127, 12, 129, 0.4)',
+          '#47566d',
+          'rgba(255, 148, 23, 0.8)',
         ]
       },
     ]
@@ -617,27 +626,6 @@ export default {
 .rate-container {
   user-select: none;
   color: var(--text-default);
-}
-.banner {
-  margin: 32px 0;
-  position: relative;
-  transform-style: preserve-3d;
-  border: 1px solid rgba(120, 120, 135, 0.36);
-  border-radius: 14px;
-  img {
-    border-radius: 14px;
-  }
-  &:before {
-    content: "";
-    position: absolute;
-    inset: 0px;
-    background: linear-gradient(0deg, rgba(39,46,85,1) 13%, rgba(33,39,68,0.9) 50%, rgba(85,96,229,1) 100%);
-    filter: blur(12px);
-    transform: translate3d(0px, 16px,-1px);
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: 0.25;
-  }
 }
 </style>
 <style lang="scss">

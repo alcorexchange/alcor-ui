@@ -19,12 +19,7 @@ import { shuffleArray } from '~/utils'
 export default {
   components: { Spacer, Promo, SectionTitle },
   data: () => ({
-    bannerOnly: [
-      {
-        bannerImg: 'farmerpets',
-        bannerUrl: 'https://farmerpets.com/'
-      }
-    ],
+    bannerOnly: [],
 
     promos: []
   }),

@@ -398,7 +398,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [171, /* USDT */ 763],
+    PINNED_MARKETS: [732, /* USDT */ 763],
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
