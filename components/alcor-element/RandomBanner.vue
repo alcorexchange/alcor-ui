@@ -51,7 +51,6 @@ export default {
     runInterval() {
       clearInterval(this.interval)
       this.interval = setInterval(() => {
-        console.log('interval -------------------------------')
         this.increaseIndex()
       }, 6000)
     },
@@ -67,12 +66,10 @@ export default {
 
     onMouseEnter() {
       clearInterval(this.interval)
-      console.log('enter')
     },
 
     onMouseLeave() {
       this.runInterval()
-      console.log('leave')
     }
   },
 }
