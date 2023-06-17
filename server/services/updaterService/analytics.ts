@@ -89,7 +89,7 @@ export async function updateGlobalStats(network, day?) {
 
   if (['eos', 'wax', 'telos'].includes(network.name)) {
     const { data: { results: { metrics } } } = await axios.get(
-      'https://api.dappradar.com/trader/dapps/3572',
+      'https://api.dappradar.com/4tsxo4vuhotaojtl/dapps/3572',
       { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
     )
 
