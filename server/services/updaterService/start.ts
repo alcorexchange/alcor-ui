@@ -44,7 +44,7 @@ export async function updater(chain, provider, services) {
   await getSettings(network)
 
   // TODO Remove after test
-  await updateGlobalStats(network)
+  //await updateGlobalStats(network)
 
   schedule.scheduleJob('0 0 * * *', () => updateGlobalStats(network))
 
