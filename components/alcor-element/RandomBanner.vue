@@ -7,7 +7,7 @@ a.d-flex.banner.w-100.random-banner(
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
   )
-  img.w-100(:src="activeBanner.image")
+  img.w-100(:src="activeBanner.image" :key="activeBanner.image")
 </template>
 
 <script>

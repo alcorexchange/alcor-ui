@@ -199,12 +199,12 @@ export default {
         ]
       },
       {
-        link: 'https://medium.com/@Novopangea.io/more-ways-to-novo-a32f35337c09',
+        link: 'https://neftyblocks.com/collection/miningvoxels/drops',
         image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(127, 12, 129, 0.4)',
-          '#47566d',
-          'rgba(255, 148, 23, 0.8)',
+          'rgba(192,93,0,0.5)',
+          'rgba(45,24,140, 1)',
+          'rgba(10,150,245,1)',
         ]
       },
     ]
