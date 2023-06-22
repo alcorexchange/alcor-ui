@@ -1,19 +1,35 @@
 <template lang="pug">
-a.d-flex.banner.w-100.random-banner(:href="activeBanner.link" target="_blank" v-if="activeBanner" :style="{ '--color-1': activeBanner.colors[0], '--color-2': activeBanner.colors[1], '--color-3': activeBanner.colors[2] }")
-  img.w-100(:src="activeBanner.image")
+a.d-flex.banner.w-100.random-banner(
+    :href="activeBanner.link"
+    target="_blank"
+    v-if="activeBanner"
+    :style="{ '--color-1': activeBanner.colors[0], '--color-2': activeBanner.colors[1], '--color-3': activeBanner.colors[2] }"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
+  )
+  img.w-100(:src="activeBanner.image" :key="activeBanner.image")
 </template>
 
 <script>
 export default {
   props: ['banners'], // Array<{link: string, image: string, colors: string[] x 3 }>
   data: () => ({
-    randomIndex: undefined
+    randomIndex: undefined,
+    interval: undefined
   }),
 
   computed: {
     activeBanner() {
       return this.banners[this.randomIndex]
     }
+  },
+
+  mounted() {
+    this.runInterval()
+  },
+
+  beforeDestroy() {
+    clearInterval(this.interval)
   },
 
   watch: {
@@ -30,7 +46,30 @@ export default {
     getRandomNumber() {
       const rand = Math.floor(Math.random() * this.banners.length)
       this.randomIndex = rand
-      console.log('getting random color')
+    },
+
+    runInterval() {
+      clearInterval(this.interval)
+      this.interval = setInterval(() => {
+        this.increaseIndex()
+      }, 6000)
+    },
+
+    increaseIndex() {
+      if (this.randomIndex == this.banners.length - 1) {
+        this.randomIndex = 0 // reset to 0 if on last
+        return
+      }
+
+      this.randomIndex++
+    },
+
+    onMouseEnter() {
+      clearInterval(this.interval)
+    },
+
+    onMouseLeave() {
+      this.runInterval()
     }
   },
 }

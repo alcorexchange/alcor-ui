@@ -246,8 +246,10 @@ export const actions = {
     if (!state.user || !state.user.name) return
 
     try {
-      const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
-      const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
+      const sellOrders = state.accountLimits.sellorders
+      const buyOrders = state.accountLimits.buyorders
+      const sellOrdersMarkets = Array.isArray(sellOrders) ? sellOrders.map(o => o.key) : []
+      const buyOrdersMarkets = Array.isArray(buyOrders) ? buyOrders.map(o => o.key) : []
 
       const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
 
