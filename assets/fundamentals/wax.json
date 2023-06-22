@@ -67,5 +67,22 @@
       "https://twitter.com/pinupwarlords"
     ],
     "description": "PinupWarlords is a fun and fast-paced Play to Earn NFT trading card game, fully on-chain, with stunning ART and multi-PvP modes. It’s a game where players own the assets and can freely resell them and participate in its ecosystem."
+  },
+  "MVT@miningvoxelt": {
+    "name": "MiningVoxels Token",
+    "website": {
+      "link": "https://miningvoxels.com/",
+      "name": "MiningVoxels Website"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://discord.gg/butkKKH8Nr",
+      "https://twitter.com/miningvoxels"
+    ],
+    "description": "MiningVoxels is a large play-to-earn game that simulates the real-world economy."
   }
 }
