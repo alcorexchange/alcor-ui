@@ -26,6 +26,8 @@ async function updateBidAsk(chain, side, market_id, orders) {
 }
 
 export async function getOrderbook(chain, side, market) {
+  if (!client.isOpen) await client.connect()
+
   const entries = await client.get(`orderbook_${chain}_${side}_${market}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }

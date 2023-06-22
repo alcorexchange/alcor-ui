@@ -1,5 +1,6 @@
-import { SwapPool, Swap } from '../../models'
 import { createClient } from 'redis'
+
+import { SwapPool, Swap } from '../../models'
 import { onSwapAction } from '../swapV2Service'
 
 const ONEDAY = 60 * 60 * 24 * 1000

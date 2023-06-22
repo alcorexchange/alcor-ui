@@ -1,6 +1,7 @@
 import schedule from 'node-schedule'
 
 import config from '../../../config'
+import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
 import { updatePools } from '../swapV2Service'
@@ -20,12 +21,12 @@ const providers = {
 export function startUpdaters() {
   if (process.env.NETWORK) {
     console.log('NETWORK=', process.env.NETWORK)
-    updater(process.env.NETWORK, 'node', ['swap'])
+    updater(process.env.NETWORK, 'node', ['swap', 'markets'])
   } else {
-    updater('eos', 'node', ['markets', 'pools', 'prices', 'swap'])
-    updater('wax', 'node', ['markets', 'pools', 'prices', 'swap'])
+    updater('eos', 'node', ['markets', 'prices', 'swap'])
+    updater('wax', 'node', ['markets', 'prices', 'swap'])
     updater('proton', 'node', ['markets', 'prices', 'swap'])
-    updater('telos', 'node', ['markets', 'pools', 'prices', 'swap'])
+    updater('telos', 'node', ['markets', 'prices', 'swap'])
   }
 }
 
@@ -34,16 +35,18 @@ export async function updater(chain, provider, services) {
   const network = config.networks[chain]
   const streamer = providers[provider]
 
+  const command = process.argv[2]
+  if (command == 'initial') {
+    await swapInitialUpdate(chain)
+  }
 
   // If no setting, create them..
   await getSettings(network)
 
-  // TODO Fetch for last 30 days
-  // Global stats every our
-  await updateGlobalStats(network)
-  //setInterval(() => updateGlobalStats(network), 60 * 60 * 4 * 1000)
-  //schedule.scheduleJob('0 0 * * *', updateGlobalStats(network)) // run everyday at midnight
-  return
+  // TODO Remove after test
+  //await updateGlobalStats(network)
+
+  schedule.scheduleJob('0 0 * * *', () => updateGlobalStats(network))
 
   if (services.includes('prices')) {
     console.log('Start price updater for', chain)
