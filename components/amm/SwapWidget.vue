@@ -190,19 +190,19 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.com/invite/Sxum2ETSzq',
-        image: require('@/assets/images/swap_banner.png'),
+        link: 'https://neftyblocks.com/collection/fglmetaverse/drops/184993',
+        image: require('@/assets/images/swap_banner_3.png'),
         colors: [
-          'rgb(39,46,85)',
-          'rgb(33,39,68)',
-          'rgb(85,96,229)'
+          'rgb(15,15,76)',
+          'rgb(48,191,214)',
+          'rgb(132,81,98)'
         ]
       },
       {
         link: 'https://neftyblocks.com/collection/miningvoxels/drops',
         image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(192,93,0,0.5)',
+          'rgba(192,93,0,0.4)',
           'rgba(45,24,140, 1)',
           'rgba(10,150,245,1)',
         ]
