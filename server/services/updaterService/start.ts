@@ -44,9 +44,13 @@ export async function updater(chain, provider, services) {
   await getSettings(network)
 
   // TODO Remove after test
-  //await updateGlobalStats(network)
+  try {
+    await updateGlobalStats(network)
+  } catch (e) {
+    console.log('GlobalStats err', e)
+  }
 
-  schedule.scheduleJob('0 0 * * *', () => updateGlobalStats(network))
+  schedule.scheduleJob('58 23 * * *', () => updateGlobalStats(network))
 
   if (services.includes('prices')) {
     console.log('Start price updater for', chain)

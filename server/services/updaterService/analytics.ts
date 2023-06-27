@@ -7,6 +7,8 @@ import { getAllTokensWithPrices } from './prices'
 const MIN_SYSTEM_TVL = 100
 
 export async function updateGlobalStats(network, day?) {
+  console.log('fetching global stats for', network.name)
+
   const now = day || new Date()
   const dayAgo = new Date(new Date().setDate(now.getDate() - 1))
   const already_exists = await GlobalStats.findOne({ chain: network.name, time: { $gt: dayAgo } })
@@ -89,7 +91,7 @@ export async function updateGlobalStats(network, day?) {
 
   if (['eos', 'wax', 'telos'].includes(network.name)) {
     const { data: { results: { metrics } } } = await axios.get(
-      'https://api.dappradar.com/trader/dapps/3572',
+      'https://api.dappradar.com/4tsxo4vuhotaojtl/dapps/3572',
       { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
     )
 
