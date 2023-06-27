@@ -61,8 +61,6 @@ analytics.get('/charts', cacheSeconds(0, (req, res) => {
   //const $match = { chain: network.name }
 
   const $group = {
-    //_id: '$chain',
-    chain: 1,
     _id: {
       $toDate: {
         $subtract: [
