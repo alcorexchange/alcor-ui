@@ -183,11 +183,13 @@ export default {
       this.fetchCharts()
     },
 
-    tokenA() {
+    tokenA(from, to) {
+      if ((from && to) && from.id == to.id) return
       this.fetchCharts()
     },
 
-    tokenB() {
+    tokenB(from, to) {
+      if ((from && to) && from.id == to.id) return
       this.fetchCharts()
     }
   },
@@ -201,6 +203,7 @@ export default {
 
   methods: {
     async fetchCharts() {
+      console.log('fetchCharts')
       if (!this.tokenA || !this.tokenB) return
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
