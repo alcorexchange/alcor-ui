@@ -2,20 +2,22 @@
 AlcorContainer.analytics-stats.fs-14
   .item(v-for="item in items")
     .key {{ item.title }}
-    .value {{ defaultFormatter(stats[item.key]) }}
-    //- .percent +6.66%
+    VueSkeletonLoader(variant="p" width="40px" height="1rem" rounded animation="wave" v-if="isLoading")
+    .value(v-else) {{ item.formatter ? item.formatter(stats[item.key]) : defaultFormatter(stats[item.key]) }}
 </template>
 
 <script>
 import AlcorContainer from '@/components/AlcorContainer'
+import VueSkeletonLoader from 'skeleton-loader-vue'
 export default {
   name: 'AnalyticsStats',
   components: {
     AlcorContainer,
+    VueSkeletonLoader,
   },
   data: () => ({
     stats: {},
-    isLoading: false,
+    isLoading: true,
   }),
   computed: {
     items() {
@@ -51,6 +53,7 @@ export default {
         {
           title: 'Daily active users (30d a.)',
           key: 'dailyActiveUsers',
+          formatter: (val) => parseInt(val),
         },
         {
           title: 'Total Liquidity Pools',
@@ -83,14 +86,8 @@ export default {
         this.isLoading = false
       }
     },
-    defaultFormatter: (number) => {
-      if (number >= 1000000) {
-        return (number / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
-      }
-      if (number >= 1000) {
-        return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
-      }
-      return number
+    defaultFormatter: (number = 0) => {
+      return `$${number.toFixed(1)}`
     },
   },
 }
@@ -101,6 +98,7 @@ export default {
   display: grid;
   .item {
     display: flex;
+    align-items: center;
     padding: 8px;
     border-radius: 8px;
     &:nth-child(odd) {
