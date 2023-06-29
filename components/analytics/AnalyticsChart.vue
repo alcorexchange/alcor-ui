@@ -15,117 +15,156 @@ export default {
   name: 'AnalyticsChart',
   components: {
     AlcorContainer,
-    AlcorRadio
+    AlcorRadio,
   },
-  data: () => ({
-    selectedMode: 'TVL',
-    modes: [
-      { value: 'TVL' },
-      { value: 'Volume' },
-      { value: 'Depth TVL' },
-      { value: 'Fees' },
-    ],
-    series: [
-      {
-        name: 'Price',
-        data: Array.from({ length: 20 }, (_, index) => ({
-          y: (Math.random() * 100).toFixed(2),
-          x: index + 10
-        }))
-      }
-    ],
-    chartOptions: {
-      colors: ['#30B27C'],
+  data() {
+    return {
+      chartData: [],
+      selectedMode: 'TVL',
+      modes: [
+        { value: 'TVL' },
+        { value: 'Volume' },
+        { value: 'Depth TVL' },
+        { value: 'Fees' },
+      ],
+      // series: [
+      //   {
+      //     name: 'Price',
+      //     data: Array.from({ length: 20 }, (_, index) => ({
+      //       y: (Math.random() * 100).toFixed(2),
+      //       x: index + 10,
+      //     })),
+      //   },
+      // ],
+      chartOptions: {
+        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
 
-      fill: {
-        gradient: {
-          shade: 'dark',
-          type: 'horizontal',
-          shadeIntensity: 0.5,
-          gradientToColors: undefined,
-          inverseColors: true,
-          opacityFrom: 0.15,
-          opacityTo: 0.7
-        }
-      },
-
-      chart: {
-        height: 350,
-
-        zoom: {
-          enabled: false
-        },
-
-        toolbar: {
-          show: false
-        },
-
-        animations: {
-          enabled: true,
-          easing: 'easeinout',
-          speed: 800,
-          animateGradually: {
-            enabled: true,
-            delay: 150
+        fill: {
+          gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            shadeIntensity: 0.5,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 0.15,
+            opacityTo: 0.7,
           },
-          dynamicAnimation: {
-            enabled: true,
-            speed: 350
-          }
         },
 
-      },
+        chart: {
+          height: 350,
 
-      grid: {
+          zoom: {
+            enabled: false,
+          },
+
+          toolbar: {
+            show: false,
+          },
+
+          animations: {
+            enabled: true,
+            easing: 'easeinout',
+            speed: 800,
+            animateGradually: {
+              enabled: true,
+              delay: 150,
+            },
+            dynamicAnimation: {
+              enabled: true,
+              speed: 350,
+            },
+          },
+        },
+
+        grid: {
+          xaxis: {
+            lines: {
+              show: false,
+            },
+          },
+
+          yaxis: {
+            lines: {
+              show: false,
+            },
+          },
+        },
+
+        dataLabels: {
+          enabled: false,
+        },
+
+        stroke: {
+          curve: 'smooth',
+          width: 2,
+        },
+
         xaxis: {
-          lines: {
-            show: false
-          }
+          lines: { show: false },
+          type: 'datetime',
+          tooltip: {
+            enabled: false,
+          },
+          labels: {
+            datetimeUTC: false,
+          },
         },
 
         yaxis: {
-          lines: {
-            show: false
-          }
-        }
-      },
-
-      dataLabels: {
-        enabled: false
-      },
-
-      stroke: {
-        curve: 'smooth',
-        width: 2
-      },
-
-      xaxis: {
-        lines: { show: false },
-        // type: 'datetime',
-        tooltip: {
-          enabled: false
+          lines: { show: false },
+          opposite: true,
         },
-        labels: {
-          datetimeUTC: false
-        }
-      },
 
-      yaxis: {
-        lines: { show: false },
-        opposite: true
+        tooltip: {
+          x: { show: false },
+        },
       },
-
-      tooltip: {
-        x: { show: false }
-      }
     }
-  })
+  },
+  computed: {
+    series() {
+      return [
+        {
+          name: this.selectedMode,
+          data: this.chartData.map((item) => {
+            return {
+              x: new Date(item._id).valueOf(),
+              y: item.spotTradingVolume,
+            }
+          }),
+        },
+      ]
+    },
+  },
+  mounted() {
+    this.getChart()
+  },
+  methods: {
+    async getChart() {
+      this.isLoading = true
+      try {
+        const { data } = await this.$axios.get('/v2/analytics/charts', {
+          params: {
+            resolution: '1M',
+          },
+        })
+        console.log(data)
+        this.chartData = data
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.isLoading = false
+      }
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
 .analytics-chart {
-  display: flex;flex-direction: column;
+  display: flex;
+  flex-direction: column;
   // min-height: 100%;
   height: 100%;
 }
