@@ -1,8 +1,12 @@
 <template lang="pug">
 AlcorContainer.analytics-chart
-  .d-flex
-    .mode-items
-      .mode(v-for="item in modes" :class="{active: selectedMode === item.value}" @click="selectedMode = item.value") {{ item.value }}
+  .header.d-flex
+    .d-flex
+      .mode-items
+        .mode(v-for="item in modes" :class="{active: selectedMode === item.value}" @click="selectedMode = item.value") {{ item.value }}
+    .d-flex
+      .mode-items
+        .mode(v-for="item in resolutions" :class="{active: selectedResolution === item.value}" @click="selectedResolution = item.value") {{ item.title }}
   .chart-container
     client-only
       VueApexCharts(width='100%' height="100%" type="area" :options='chartOptions' :series='series' ref="chart")
@@ -21,11 +25,18 @@ export default {
     return {
       chartData: [],
       selectedMode: 'TVL',
+      selectedResolution: '1M',
       modes: [
         { value: 'TVL' },
         { value: 'Volume' },
         { value: 'Depth TVL' },
         { value: 'Fees' },
+      ],
+      resolutions: [
+        { title: '1D', value: '1D' },
+        { title: '7D', value: '7D' },
+        { title: '1M', value: '1M' },
+        { title: 'All', value: 'All' },
       ],
       // series: [
       //   {
@@ -124,19 +135,35 @@ export default {
   },
   computed: {
     series() {
+      const currentY = (item) => {
+        if (this.selectedMode === 'TVL') return item.totalValueLocked.toFixed(2)
+        if (this.selectedMode === 'Volume')
+          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
+        if (this.selectedMode === 'Depth TVL')
+          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
+        if (this.selectedMode === 'Fees')
+          return (item.swapFees + item.spotFees).toFixed(2)
+      }
       return [
         {
           name: this.selectedMode,
           data: this.chartData.map((item) => {
             return {
               x: new Date(item._id).valueOf(),
-              y: item.spotTradingVolume,
+              y: currentY(item),
             }
           }),
         },
       ]
     },
   },
+
+  watch: {
+    selectedResolution() {
+      this.getChart()
+    },
+  },
+
   mounted() {
     this.getChart()
   },
@@ -146,7 +173,7 @@ export default {
       try {
         const { data } = await this.$axios.get('/v2/analytics/charts', {
           params: {
-            resolution: '1M',
+            resolution: this.selectedResolution,
           },
         })
         console.log(data)
@@ -170,6 +197,9 @@ export default {
 }
 .chart-container {
   flex: 1;
+}
+.header {
+  justify-content: space-between;
 }
 .mode-items {
   display: flex;
