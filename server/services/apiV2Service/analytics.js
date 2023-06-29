@@ -61,16 +61,14 @@ analytics.get('/charts', cacheSeconds(0, (req, res) => {
   //const $match = { chain: network.name }
 
   const $group = {
-    //chain: 1,
-    // _id: {
-    //   $toDate: {
-    //     $subtract: [
-    //       { $toLong: '$time' },
-    //       { $mod: [{ $toLong: '$time' }, timepoints[period] || 60 * 60 * 24 * 1000] }
-    //     ]
-    //   }
-    // },
-    _id: '$chain',
+    _id: {
+      $toDate: {
+        $subtract: [
+          { $toLong: '$time' },
+          { $mod: [{ $toLong: '$time' }, resolution || 60 * 60 * 24 * 1000] }
+        ]
+      }
+    },
 
     totalValueLocked: { $last: '$totalValueLocked' },
 
@@ -83,7 +81,7 @@ analytics.get('/charts', cacheSeconds(0, (req, res) => {
     swapFees: { $sum: '$swapFees' },
     spotFees: { $sum: '$spotFees' },
 
-    dailyActiveUsers: { $avg: '$dailyActiveUsers' }, // TODO Make db call for resolution here
+    dailyActiveUsers: { $max: '$dailyActiveUsers' }, // TODO Make db call for resolution here
 
     swapTransactions: { $sum: '$swapTransactions' },
     spotTransactions: { $sum: '$spotTransactions' },

@@ -75,32 +75,26 @@ export const getters = {
   // TODO Getters perfomance test
 
   tokenA: (state, getters) => {
-    console.log('swap/tokenA getter call')
     return getters.tokens.find(t => t.id == state.tokenA?.id)
   },
 
   tokenB: (state, getters) => {
-    console.log('swap/tokenB getter call')
     return getters.tokens.find(t => t.id == state.tokenB?.id)
   },
 
   isSorted: (state, getters) => {
-    console.log('swap/isSorted getter call')
     return getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB)
   },
 
   sortedA: (state, getters) => {
-    console.log('swap/sortedA getter call')
     return getters.isSorted ? getters.tokenA : getters.tokenB
   },
 
   sortedB: (state, getters) => {
-    console.log('swap/sortedB getter call')
     return getters.isSorted ? getters.tokenB : getters.tokenA
   },
 
   tokens(state, getters, rootState, rootGetters) {
-    console.log('swap/tokens getter call')
     const tokens = []
 
     rootState.amm.pools.forEach(p => {
