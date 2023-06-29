@@ -131,6 +131,7 @@ export default {
         if (this.selectedMode === 'Volume')
           return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
         if (this.selectedMode === 'Depth TVL')
+          // TODO: calculate depth TVL
           return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
         if (this.selectedMode === 'Fees')
           return (item.swapFees + item.spotFees).toFixed(2)

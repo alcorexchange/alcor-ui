@@ -22,40 +22,35 @@ export default {
   data: () => ({
     chartOptions: {
       markers: {
-        size: 0,
-        colors: ['#32D74B'],
         strokeColors: '#111113'
       },
-      colors: ['#E91E63', '#FF9800'],
       theme: {
         mode: 'dark'
       },
+      colors: ['#32D74B'],
       stroke: {
-        curve: 'straight',
-        width: 1,
-        colors: ['#32D74B']
+        curve: 'smooth',
+        width: 2
       },
       fill: {
-        colors: ['#32D74B', ''],
-        type: 'gradient',
         gradient: {
           shade: 'dark',
-          type: 'vertical',
+          type: 'horizontal',
+          shadeIntensity: 0.5,
+          gradientToColors: undefined,
           inverseColors: true,
-          shadeIntensity: 0.9,
-          opacityFrom: 0.0,
-          opacityTo: 0.2
+          opacityFrom: 0.15,
+          opacityTo: 0.7
         }
       },
       chart: {
         id: 'Line',
-        type: 'line',
         background: 'transparent',
         toolbar: {
           show: false
         },
         zoom: {
-          enabled: true
+          enabled: false
         }
       },
       responsive: [
@@ -87,74 +82,26 @@ export default {
         }
       },
       tooltip: {
-        y: {
-          formatter: (v) => v
-        },
-        marker: {
-          show: false
-        },
-        custom: () => ''
+        x: { show: false }
       },
       yaxis: {
-        crosshairs: {
-          show: true,
-          stroke: {
-            color: 'var(--border-color)',
-            width: 2,
-            dashArray: 3
-          }
-        },
-        tooltip: {
-          enabled: true,
-          custom: () => ''
-        },
         opposite: true,
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
         labels: {
           show: true,
-          offsetX: -10,
           formatter: (v) => {
             // TODO: use dynamic number.
-            return v.toFixed(2)
+            return v.toFixed(6)
           },
           style: {
             colors: 'var(--text-disable)',
             fontSize: '12px',
-            fontWeight: 400
           }
         }
       },
       xaxis: {
-        crosshairs: {
-          show: true,
-          width: 1.2,
-          stroke: {
-            color: 'var(--border-color)',
-            width: 1,
-            dashArray: 0
-          },
-          fill: {
-            type: 'solid',
-            color: 'var(--border-color)'
-          }
-        },
-        axisBorder: {
-          show: true,
-          color: 'var(--border-color)',
-          height: 1,
-          width: '100%',
-          offsetY: 10
-        },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'var(--border-color)',
-          height: 4
+        lines: { show: false },
+        tooltip: {
+          enabled: false
         },
         type: 'datetime',
         labels: {
@@ -162,7 +109,6 @@ export default {
           style: {
             colors: 'var(--text-disable)',
             fontSize: '12px',
-            fontWeight: 400
           }
         },
       },
