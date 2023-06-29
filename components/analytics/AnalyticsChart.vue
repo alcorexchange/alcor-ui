@@ -38,8 +38,35 @@ export default {
         { title: '1M', value: '1M' },
         { title: 'All', value: 'ALL' },
       ],
-      chartOptions: {
-        colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
+    }
+  },
+  computed: {
+    series() {
+      const currentY = (item) => {
+        if (this.selectedMode === 'TVL') return item.totalValueLocked.toFixed(2)
+        if (this.selectedMode === 'Volume')
+          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
+        if (this.selectedMode === 'Depth TVL')
+          // TODO: calculate depth TVL
+          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
+        if (this.selectedMode === 'Fees')
+          return (item.swapFees + item.spotFees).toFixed(2)
+      }
+      return [
+        {
+          name: this.selectedMode,
+          data: this.chartData.map((item) => {
+            return {
+              x: new Date(item._id).valueOf(),
+              y: currentY(item),
+            }
+          }),
+        },
+      ]
+    },
+    chartOptions() {
+      return {
+        colors: [this.selectedMode === 'Volume' ? '#723de4' : '#30B27C'],
 
         fill: {
           gradient: {
@@ -121,32 +148,7 @@ export default {
         tooltip: {
           x: { show: false },
         },
-      },
-    }
-  },
-  computed: {
-    series() {
-      const currentY = (item) => {
-        if (this.selectedMode === 'TVL') return item.totalValueLocked.toFixed(2)
-        if (this.selectedMode === 'Volume')
-          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
-        if (this.selectedMode === 'Depth TVL')
-          // TODO: calculate depth TVL
-          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
-        if (this.selectedMode === 'Fees')
-          return (item.swapFees + item.spotFees).toFixed(2)
       }
-      return [
-        {
-          name: this.selectedMode,
-          data: this.chartData.map((item) => {
-            return {
-              x: new Date(item._id).valueOf(),
-              y: currentY(item),
-            }
-          }),
-        },
-      ]
     },
   },
 
