@@ -66,7 +66,7 @@ export default {
     },
     chartOptions() {
       return {
-        colors: [this.selectedMode === 'Volume' ? '#723de4' : '#30B27C'],
+        colors: ['#30B27C'],
 
         fill: {
           gradient: {

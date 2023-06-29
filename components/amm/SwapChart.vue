@@ -20,7 +20,7 @@ alcor-container.p-3.w-100.chart-container-inner
       .indicator.secondary
       .fs-20 Spot $2.5 B
 
-  component(:is="activeTab" :series="series")
+  component(:is="activeTab" :series="series" :color="activeTab === 'Tvl' ? '#723de4' : undefined")
 </template>
 
 <script>
@@ -53,8 +53,8 @@ export default {
       { label: '1D', value: '24H' },
       { label: '7D', value: '7D' },
       { label: '30D', value: '30D' },
-      { label: 'All', value: 'All' }
-    ]
+      { label: 'All', value: 'All' },
+    ],
   }),
 
   computed: {
@@ -73,7 +73,7 @@ export default {
       // 'tokens',
       // 'isSorted',
       'sortedA',
-      'sortedB'
+      'sortedB',
     ]),
 
     // series() {
@@ -115,10 +115,10 @@ export default {
       let data = []
 
       if (sortedA && sortedB) {
-        data = this.charts.map(c => {
+        data = this.charts.map((c) => {
           return {
             x: c._id,
-            y: c.usdReserveA + c.usdReserveB
+            y: c.usdReserveA + c.usdReserveB,
           }
         })
       }
@@ -126,8 +126,8 @@ export default {
       return [
         {
           name: 'Price',
-          data
-        }
+          data,
+        },
       ]
     },
 
@@ -137,12 +137,17 @@ export default {
       let data = []
 
       if (sortedA && sortedB) {
-        data = this.charts.map(c => {
-          const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
+        data = this.charts.map((c) => {
+          const price = new Price(
+            sortedA,
+            sortedB,
+            Q128,
+            JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
+          )
 
           return {
             x: c._id,
-            y: parseFloat(price.toSignificant())
+            y: parseFloat(price.toSignificant()),
           }
         })
       }
@@ -150,8 +155,8 @@ export default {
       return [
         {
           name: 'Price',
-          data
-        }
+          data,
+        },
       ]
     },
 
@@ -161,10 +166,10 @@ export default {
       let data = []
 
       if (sortedA && sortedB) {
-        data = this.charts.map(c => {
+        data = this.charts.map((c) => {
           return {
             x: c._id,
-            y: c.volumeUSD
+            y: c.volumeUSD,
           }
         })
       }
@@ -172,8 +177,8 @@ export default {
       return [
         {
           name: 'Volume',
-          data
-        }
+          data,
+        },
       ]
     },
   },
@@ -184,14 +189,14 @@ export default {
     },
 
     tokenA(from, to) {
-      if ((from && to) && from.id == to.id) return
+      if (from && to && from.id == to.id) return
       this.fetchCharts()
     },
 
     tokenB(from, to) {
-      if ((from && to) && from.id == to.id) return
+      if (from && to && from.id == to.id) return
       this.fetchCharts()
-    }
+    },
   },
 
   mounted() {
@@ -207,14 +212,18 @@ export default {
       if (!this.tokenA || !this.tokenB) return
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
-          params: { period: this.activeTime, tokenA: this.tokenA.id, tokenB: this.tokenB.id }
+          params: {
+            period: this.activeTime,
+            tokenA: this.tokenA.id,
+            tokenB: this.tokenB.id,
+          },
         })
         this.charts = data
       } catch (e) {
         console.log('Getting Chart E', e)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -228,7 +237,7 @@ export default {
   padding: 2px !important;
   gap: 2px;
   &::v-deep {
-    .el-radio-button__inner{
+    .el-radio-button__inner {
       padding: 6px 8px !important;
       font-size: 14px !important;
     }
