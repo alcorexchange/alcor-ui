@@ -2,7 +2,7 @@
 el-table(:data="tableData").analytics-table.analytics-spot-pairs-table
   el-table-column(label="Pair" min-width="140")
     template(#default="{ row }")
-      .token-container
+      .token-container(v-if="row")
         span.rank #1
         PairIcons.pair-icons(
           size="18"
