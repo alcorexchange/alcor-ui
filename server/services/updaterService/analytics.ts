@@ -26,6 +26,7 @@ export async function updateGlobalStats(network, day?) {
 
   let spotTradingVolume = 0
   let spotFees = 0
+  let swapFees = 0
   for (const market of markets) {
     const price = tokens.find(t => t.id == market.base_token.id)?.usd_price || 0
     spotTradingVolume += market.volume24 * price
@@ -39,6 +40,7 @@ export async function updateGlobalStats(network, day?) {
     const priceB = tokens.find(t => t.id == pool.tokenB.id)?.usd_price || 0
 
     swapTradingVolume += pool.volumeUSD24
+    swapFees += pool.volumeUSD24 * pool.fee / 10000
 
     const isTokenASystem = pool.tokenA.id == system_token
     const isTokenBSystem = pool.tokenB.id == system_token
@@ -126,7 +128,7 @@ export async function updateGlobalStats(network, day?) {
     spotValueLocked,
     swapTradingVolume,
     spotTradingVolume,
-    swapFees: 0,
+    swapFees,
     spotFees,
     dailyActiveUsers,
     totalTransactions,
