@@ -58,10 +58,12 @@ export default {
         {
           title: 'Total Liquidity Pools',
           key: 'totalLiquidityPools',
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
         {
           title: 'Total Spot Pairs',
           key: 'totalSpotPairs',
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
       ]
     },
