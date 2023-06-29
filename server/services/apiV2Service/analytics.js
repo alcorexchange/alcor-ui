@@ -90,7 +90,7 @@ analytics.get('/charts', cacheSeconds(0, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const stats = await GlobalStats.aggregate([{ $match }, { $sort: { time: 1 } }, { $group }])
+  const stats = await GlobalStats.aggregate([{ $match }, { $group }, { $sort: { _id: 1 } }])
 
   res.json(stats)
 })
