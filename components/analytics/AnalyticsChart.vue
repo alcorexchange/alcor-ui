@@ -9,7 +9,7 @@ AlcorContainer.analytics-chart
         .mode(v-for="item in resolutions" :class="{active: selectedResolution === item.value}" @click="selectedResolution = item.value") {{ item.title }}
   .chart-container
     client-only
-      VueApexCharts(width='100%' height="100%" type="area" :options='chartOptions' :series='series' ref="chart")
+      VueApexCharts(width='100%' height="100%" type="area" :options='chartOptions' :series='series' ref="chart" class="chart")
 </template>
 
 <script>
@@ -38,15 +38,6 @@ export default {
         { title: '1M', value: '1M' },
         { title: 'All', value: 'ALL' },
       ],
-      // series: [
-      //   {
-      //     name: 'Price',
-      //     data: Array.from({ length: 20 }, (_, index) => ({
-      //       y: (Math.random() * 100).toFixed(2),
-      //       x: index + 10,
-      //     })),
-      //   },
-      // ],
       chartOptions: {
         colors: [this.$colorMode.value == 'light' ? '#3E3A3B' : '#30B27C'],
 
@@ -197,6 +188,11 @@ export default {
 }
 .chart-container {
   flex: 1;
+}
+.chart::v-deep {
+  .apexcharts-tooltip {
+    color: black !important;
+  }
 }
 .header {
   justify-content: space-between;
