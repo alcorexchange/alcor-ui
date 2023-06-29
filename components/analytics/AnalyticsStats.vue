@@ -53,7 +53,7 @@ export default {
         {
           title: 'Daily active users (30d a.)',
           key: 'dailyActiveUsers',
-          formatter: (val) => parseInt(val),
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
         {
           title: 'Total Liquidity Pools',
@@ -86,8 +86,8 @@ export default {
         this.isLoading = false
       }
     },
-    defaultFormatter: (number = 0) => {
-      return `$${number.toFixed(1)}`
+    defaultFormatter(number = 0) {
+      return `$${this.$options.filters.commaFloat(number, 1)}`
     },
   },
 }
