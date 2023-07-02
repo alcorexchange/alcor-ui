@@ -190,21 +190,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://neftyblocks.com/collection/fglmetaverse/drops/184993',
-        image: require('@/assets/images/swap_banner_3.png'),
+        link: 'https://game.nftbattleminers.com/shadow_depths',
+        image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgb(15,15,76)',
-          'rgb(48,191,214)',
-          'rgb(132,81,98)'
+          'rgb(0,188,25)',
+          'rgb(213,170,66)',
+          'rgb(61,25,27)'
         ]
       },
       {
-        link: 'https://neftyblocks.com/collection/miningvoxels/drops',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        link: 'https://nfthive.io/drop/nfthivedrops/4266',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(192,93,0,0.4)',
-          'rgba(45,24,140, 1)',
-          'rgba(10,150,245,1)',
+          'rgba(138,30,19,0.4)',
+          'rgba(100,134,45, 1)',
+          'rgba(120,115,108,1)',
         ]
       },
     ]
