@@ -193,7 +193,7 @@ export default {
         link: 'https://game.nftbattleminers.com/shadow_depths',
         image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgb(0,188,25)',
+          'rgb(0,188,25, 0.2)',
           'rgb(213,170,66)',
           'rgb(61,25,27)'
         ]
