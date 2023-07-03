@@ -29,7 +29,7 @@ export default {
       modes: [
         { value: 'TVL' },
         { value: 'Volume' },
-        { value: 'Depth TVL' },
+        //{ value: 'Depth TVL' },
         { value: 'Fees' },
       ],
       resolutions: [
@@ -43,14 +43,14 @@ export default {
   computed: {
     series() {
       const currentY = (item) => {
-        if (this.selectedMode === 'TVL') return item.totalValueLocked.toFixed(2)
+        if (this.selectedMode === 'TVL') return item.totalValueLocked.toFixed(0)
         if (this.selectedMode === 'Volume')
-          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
-        if (this.selectedMode === 'Depth TVL')
-          // TODO: calculate depth TVL
-          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
+          return (item.spotTradingVolume + item.swapTradingVolume).toFixed(0)
+        // if (this.selectedMode === 'Depth TVL')
+        //   // TODO: calculate depth TVL
+        //   return (item.spotTradingVolume + item.swapTradingVolume).toFixed(2)
         if (this.selectedMode === 'Fees')
-          return (item.swapFees + item.spotFees).toFixed(2)
+          return (item.swapFees + item.spotFees).toFixed(0)
       }
       return [
         {

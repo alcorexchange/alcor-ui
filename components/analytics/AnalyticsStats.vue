@@ -35,20 +35,22 @@ export default {
           key: 'spotTradingVolume',
         },
         {
-          title: 'Spot Transactions',
-          key: 'spotTransactions',
-        },
-        {
-          title: 'Swap Transactions',
-          key: 'swapTransactions',
-        },
-        {
           title: 'Swap Fees (30d)',
           key: 'swapFees',
         },
         {
           title: 'Spot Fees (30d)',
           key: 'spotFees',
+        },
+        {
+          title: 'Spot Transactions',
+          key: 'spotTransactions',
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
+        },
+        {
+          title: 'Swap Transactions',
+          key: 'swapTransactions',
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
         {
           title: 'Daily active users (30d a.)',
@@ -89,7 +91,7 @@ export default {
       }
     },
     defaultFormatter(number = 0) {
-      return `$${this.$options.filters.commaFloat(number, 1)}`
+      return `$${this.$options.filters.commaFloat(number, 0)}`
     },
   },
 }
