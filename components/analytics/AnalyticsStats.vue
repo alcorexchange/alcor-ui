@@ -37,10 +37,12 @@ export default {
         {
           title: 'Spot Transactions',
           key: 'spotTransactions',
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
         {
           title: 'Swap Transactions',
           key: 'swapTransactions',
+          formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
         {
           title: 'Swap Fees (30d)',
