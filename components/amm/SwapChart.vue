@@ -20,7 +20,7 @@ alcor-container.p-3.w-100.chart-container-inner
       .indicator.secondary
       .fs-20 Spot $2.5 B
 
-  component(:is="activeTab" :series="series" :color="activeTab === 'Tvl' ? '#723de4' : undefined")
+  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px")
 </template>
 
 <script>
