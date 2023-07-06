@@ -19,7 +19,27 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Swap $2.5 B
       .indicator.secondary
       .fs-20 Spot $2.5 B
-
+  .header
+    .pair-container
+      PairIcons(
+        :token1="{}"
+        :token2="{}"
+        size="18"
+      )
+      .name-container
+        .names WAX/TLM
+    .both-prices
+      .item
+        TokenImage(:src="$tokenLogo()" height="15")
+        span.text.muted.ml-1 1 WAX = 100 TLM
+      .item
+        TokenImage(:src="$tokenLogo()" height="15")
+        span.text.muted.ml-1 1 WAX = 100 TLM
+    .price-container
+      .price 0.2342
+      .change()
+        i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
+        span.text 10%
   component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px")
 </template>
 
@@ -33,6 +53,7 @@ import Line from '~/components/charts/Line'
 import StackedColumns from '~/components/charts/StackedColumns'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
+import PairIcons from '~/components/PairIcons'
 
 export default {
   components: {
@@ -43,6 +64,7 @@ export default {
     Volume: StackedColumns,
     Fees: StackedColumns,
     AlcorContainer,
+    PairIcons,
   },
 
   data: () => ({
@@ -252,6 +274,85 @@ export default {
   }
   &.secondary {
     background-color: rgb(3, 169, 244);
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+
+  .pair-container {
+    display: flex;
+    align-items: center;
+
+    .icons {
+      position: relative;
+      display: flex;
+      height: 20px;
+      width: 20px;
+    }
+
+    .name-container {
+      padding-left: 10px;
+
+      .names {
+        font-size: 1.4rem;
+        font-weight: bold;
+      }
+
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+.both-prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+
+  .item {
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    border-radius: var(--radius);
+    border: var(--border-1);
+
+    .icon {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+  }
+}
+
+.price-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: -30px;
+
+  .price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-right: 4px;
+  }
+
+  .change {
+    display: flex;
+    align-items: center;
+    color: var(--main-green);
+    padding: 0 4px;
+
+    &.isRed {
+      color: var(--main-red);
+    }
+
+    &.isZero {
+      color: var(--text-default);
+    }
   }
 }
 </style>
