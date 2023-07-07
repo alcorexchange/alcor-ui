@@ -199,7 +199,7 @@ export default {
         ]
       },
       {
-        link: 'https://nfthive.io/drop/nfthivedrops/4266',
+        link: 'https://nfthive.io/drop/nfthivedrops/4289',
         image: require('@/assets/images/swap-banner-2.png'),
         colors: [
           'rgba(138,30,19,0.4)',
