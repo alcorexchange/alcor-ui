@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  props: ['series', 'color', 'width', 'height'],
+  props: ['series', 'color', 'width', 'height', 'events'],
 
   watch: {
     series() {
@@ -50,6 +50,7 @@ export default {
           zoom: {
             enabled: false,
           },
+          events: this.events,
         },
         responsive: [
           {

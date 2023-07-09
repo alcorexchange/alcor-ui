@@ -19,15 +19,15 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Swap $2.5 B
       .indicator.secondary
       .fs-20 Spot $2.5 B
-  //- .header
+  .header(v-if="tokenA && tokenB")
     .pair-container
       PairIcons(
-        :token1="{}"
-        :token2="{}"
+        :token1="tokenA"
+        :token2="tokenB"
         size="18"
       )
       .name-container
-        .names WAX/TLM
+        .names {{ tokenA.symbol }}/{{ tokenB.symbol }}
     .both-prices
       .item
         TokenImage(:src="$tokenLogo()" height="15")
@@ -36,11 +36,11 @@ alcor-container.p-3.w-100.chart-container-inner
         TokenImage(:src="$tokenLogo()" height="15")
         span.text.muted.ml-1 1 WAX = 100 TLM
     .price-container
-      .price 0.2342
+      .price {{ price }}
       .change()
         i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
         span.text 10%
-  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px")
+  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px" :events="chartEvents")
 </template>
 
 <script>
@@ -54,6 +54,7 @@ import StackedColumns from '~/components/charts/StackedColumns'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 import PairIcons from '~/components/PairIcons'
+import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
@@ -65,6 +66,7 @@ export default {
     Fees: StackedColumns,
     AlcorContainer,
     PairIcons,
+    TokenImage,
   },
 
   data: () => ({
@@ -77,6 +79,7 @@ export default {
       { label: '30D', value: '30D' },
       { label: 'All', value: 'All' },
     ],
+    price: undefined,
   }),
 
   computed: {
@@ -98,35 +101,6 @@ export default {
       'sortedB',
     ]),
 
-    // series() {
-    //   if (this.activeTab == 'Price') {
-    //     return {
-    //       name: 'Price',
-    //       data: this.charts.map(c => {
-    //         //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
-
-    //         return {
-    //           x: c._id,
-    //           //y: parseFloat(price.toSignificant())
-    //           y: Math.random() * 100
-    //         }
-    //       })
-    //     }
-    //   }
-
-    //   if (this.activeTab == 'Tvl') {
-    //     return {
-    //       name: 'TVL',
-    //       data: this.charts.map(c => {
-    //         return {
-    //           x: c._id,
-    //           y: c.usdReserveA + c.usdReserveB
-    //         }
-    //       })
-    //     }
-    //   }
-    //   return []
-    // },
     series() {
       return this[`${this.activeTab}Series`]
     },
@@ -203,6 +177,21 @@ export default {
         },
       ]
     },
+
+    chartEvents() {
+      if (this.activeTab !== 'Price') return {}
+      return {
+        mouseMove: (_, __, config) => {
+          if (config.dataPointIndex < 0) return
+          const data = this.series[0].data
+          const y = data[config.dataPointIndex].y
+          this.price = y
+        },
+        mouseLeave: () => {
+          this.setCurrentPrice()
+        },
+      }
+    },
   },
 
   watch: {
@@ -226,6 +215,7 @@ export default {
     setTimeout(() => {
       this.fetchCharts()
     }, 100)
+    this.setCurrentPrice()
   },
 
   methods: {
@@ -244,6 +234,10 @@ export default {
       } catch (e) {
         console.log('Getting Chart E', e)
       }
+    },
+
+    setCurrentPrice() {
+      this.price = 0 // TODO: Get current price
     },
   },
 }
@@ -280,7 +274,7 @@ export default {
 .header {
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  padding-top: 8px;
 
   .pair-container {
     display: flex;
@@ -332,7 +326,7 @@ export default {
 .price-container {
   display: flex;
   align-items: center;
-  margin-bottom: -30px;
+  margin-bottom: 0px;
 
   .price {
     font-size: 1.2rem;
