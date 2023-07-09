@@ -19,7 +19,7 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Swap $2.5 B
       .indicator.secondary
       .fs-20 Spot $2.5 B
-  .header(v-if="tokenA && tokenB")
+  //- .header(v-if="tokenA && tokenB")
     .pair-container
       PairIcons(
         :token1="tokenA"

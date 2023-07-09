@@ -199,8 +199,9 @@ export default {
         ]
       },
       {
-        link: 'https://nfthive.io/drop/nfthivedrops/4289',
-        image: require('@/assets/images/swap-banner-2.png'),
+        link: 'https://neftyblocks.com/collection/apheliumgame/drops/187818+187847+187819+187849+187853+187854+187855+187856',
+        image: require('@/assets/images/swap-banner-2.gif.mp4'),
+        isVideo: true,
         colors: [
           'rgba(138,30,19,0.4)',
           'rgba(100,134,45, 1)',

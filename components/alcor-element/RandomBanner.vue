@@ -7,7 +7,8 @@ a.d-flex.banner.w-100.random-banner(
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
   )
-  img.w-100(:src="activeBanner.image" :key="activeBanner.image")
+  video(:src="activeBanner.image" :key="activeBanner.image" v-if="activeBanner.isVideo" autoplay loop muted)
+  img.w-100(:src="activeBanner.image" :key="activeBanner.image" v-else)
 </template>
 
 <script>
@@ -15,13 +16,13 @@ export default {
   props: ['banners'], // Array<{link: string, image: string, colors: string[] x 3 }>
   data: () => ({
     randomIndex: undefined,
-    interval: undefined
+    interval: undefined,
   }),
 
   computed: {
     activeBanner() {
       return this.banners[this.randomIndex]
-    }
+    },
   },
 
   mounted() {
@@ -35,11 +36,10 @@ export default {
   watch: {
     banners: {
       handler(current, prev) {
-        if (current?.length !== prev?.length)
-          this.getRandomNumber()
+        if (current?.length !== prev?.length) this.getRandomNumber()
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
@@ -70,7 +70,7 @@ export default {
 
     onMouseLeave() {
       this.runInterval()
-    }
+    },
   },
 }
 </script>
@@ -82,16 +82,23 @@ export default {
   transform-style: preserve-3d;
   border: 1px solid rgba(120, 120, 135, 0.36);
   border-radius: 14px;
-  img {
+  img,
+  video {
     border-radius: 14px;
+    width: 100%;
   }
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0px;
-    background: linear-gradient(0deg, var(--color-1) 13%, var(--color-2) 50%, var(--color-3) 100%);
+    background: linear-gradient(
+      0deg,
+      var(--color-1) 13%,
+      var(--color-2) 50%,
+      var(--color-3) 100%
+    );
     filter: blur(12px);
-    transform: translate3d(0px, 16px,-1px);
+    transform: translate3d(0px, 16px, -1px);
     border-radius: inherit;
     pointer-events: none;
     opacity: 0.25;
