@@ -1,12 +1,12 @@
 <template lang="pug">
 .stacked-column-chart-component
-  vue-apex-charts(type="bar" height="400" :options="chartOptions" :series="series" v-if="series[0].data.length" ref="chart")
+  vue-apex-charts(type="bar" :height="height || 400" :options="chartOptions" :series="series" v-if="series[0].data.length" ref="chart")
 
 </template>
 
 <script>
 export default {
-  props: ['series'],
+  props: ['series', 'height'],
   watch: {
     series() {}
   },
@@ -100,10 +100,9 @@ export default {
           color: 'var(--border-color)',
           height: 1,
           width: '100%',
-          offsetY: 10
         },
         axisTicks: {
-          show: true,
+          show: false,
           borderType: 'solid',
           color: 'var(--border-color)',
           height: 4
@@ -168,12 +167,9 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .stacked-column-chart-component {
+  height: 100%;
   width: 100%;
-  min-height: 420px;
-  .apexcharts-svg {
-    height: 420px;
-  }
 }
 </style>

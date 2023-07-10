@@ -9,17 +9,22 @@ AlcorContainer.analytics-chart
         .mode(v-for="item in resolutions" :class="{active: selectedResolution === item.value}" @click="selectedResolution = item.value") {{ item.title }}
   .chart-container
     client-only
-      VueApexCharts(width='100%' height="100%" type="area" :options='chartOptions' :series='series' ref="chart" class="chart")
+      component(:is="renderChart" width='100%' height="100%" :series='series' ref="chart" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined")
 </template>
 
 <script>
 import AlcorContainer from '@/components/AlcorContainer'
 import AlcorRadio from '@/components/AlcorRadio'
+import Line from '~/components/charts/Line'
+import StackedColumns from '~/components/charts/StackedColumns'
+
 export default {
   name: 'AnalyticsChart',
   components: {
     AlcorContainer,
     AlcorRadio,
+    LineChart: Line,
+    Volume: StackedColumns,
   },
   data() {
     return {
@@ -41,6 +46,10 @@ export default {
     }
   },
   computed: {
+    renderChart() {
+      if (this.selectedMode === 'Volume') return 'Volume'
+      return 'LineChart'
+    },
     series() {
       const currentY = (item) => {
         if (this.selectedMode === 'TVL') return item.totalValueLocked.toFixed(0)
@@ -192,11 +201,11 @@ export default {
 .chart-container {
   flex: 1;
 }
-.chart::v-deep {
-  .apexcharts-tooltip {
-    color: black !important;
-  }
-}
+// .chart::v-deep {
+//   .apexcharts-tooltip {
+//     color: black !important;
+//   }
+// }
 .header {
   justify-content: space-between;
 }
