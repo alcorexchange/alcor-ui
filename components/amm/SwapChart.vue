@@ -19,7 +19,7 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Swap $2.5 B
       .indicator.secondary
       .fs-20 Spot $2.5 B
-  //- .header(v-if="tokenA && tokenB")
+  .header(v-if="tokenA && tokenB")
     .pair-container
       PairIcons(
         :token1="tokenA"
@@ -31,21 +31,21 @@ alcor-container.p-3.w-100.chart-container-inner
     .both-prices
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 WAX = 100 TLM
+        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ currentPool.tokenAPrice.toSignificant(5) }} {{ tokenB.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 WAX = 100 TLM
+        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ currentPool.tokenBPrice.toSignificant(5) }} {{ tokenA.symbol }}
     .price-container
       .price {{ price }}
-      .change()
-        i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
-        span.text 10%
+      //- .change()
+      //-   i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
+      //-   span.text 10%
   component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px" :events="chartEvents")
 </template>
 
 <script>
 import JSBI from 'jsbi'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 
@@ -55,6 +55,7 @@ import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
+import { constructPoolInstance } from '~/utils/amm'
 
 export default {
   components: {
@@ -100,6 +101,7 @@ export default {
       'sortedA',
       'sortedB',
     ]),
+    ...mapState('amm', ['pools']),
 
     series() {
       return this[`${this.activeTab}Series`]
@@ -192,6 +194,18 @@ export default {
         },
       }
     },
+
+    currentPool() {
+      if (!this.pools || !this.tokenA || !this.tokenB) return
+      const pool = this.pools.find((p) => {
+        return (
+          p.tokenB.contract === this.tokenB.contract &&
+          p.tokenA.contract === this.tokenA.contract
+        )
+      })
+      if (pool) return constructPoolInstance(pool)
+      return undefined
+    },
   },
 
   watch: {
@@ -202,11 +216,17 @@ export default {
     tokenA(from, to) {
       if (from && to && from.id == to.id) return
       this.fetchCharts()
+      this.setCurrentPrice()
     },
 
     tokenB(from, to) {
       if (from && to && from.id == to.id) return
       this.fetchCharts()
+      this.setCurrentPrice()
+    },
+
+    pools() {
+      this.setCurrentPrice()
     },
   },
 
@@ -237,7 +257,9 @@ export default {
     },
 
     setCurrentPrice() {
-      this.price = 0 // TODO: Get current price
+      if (!this.currentPool) return
+      console.log('setting current price')
+      this.price = this.currentPool.tokenAPrice.toSignificant(5)
     },
   },
 }
