@@ -31,7 +31,7 @@ alcor-container.p-3.w-100.chart-container-inner
     .both-prices
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ 0 }} {{ tokenB.symbol }}
+        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ (1 / price).toFixed(5) }} {{ tokenB.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
         span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ price }} {{ tokenA.symbol }}
