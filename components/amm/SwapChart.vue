@@ -31,10 +31,10 @@ alcor-container.p-3.w-100.chart-container-inner
     .both-prices
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ currentPool.tokenAPrice.toSignificant(5) }} {{ tokenB.symbol }}
+        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ 0 }} {{ tokenB.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ currentPool.tokenBPrice.toSignificant(5) }} {{ tokenA.symbol }}
+        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ 0 }} {{ tokenA.symbol }}
     .price-container
       .price {{ price }}
       //- .change()
@@ -194,18 +194,6 @@ export default {
         },
       }
     },
-
-    currentPool() {
-      if (!this.pools || !this.tokenA || !this.tokenB) return
-      const pool = this.pools.find((p) => {
-        return (
-          p.tokenB.contract === this.tokenB.contract &&
-          p.tokenA.contract === this.tokenA.contract
-        )
-      })
-      if (pool) return constructPoolInstance(pool)
-      return undefined
-    },
   },
 
   watch: {
@@ -257,9 +245,12 @@ export default {
     },
 
     setCurrentPrice() {
-      if (!this.currentPool) return
+      const series = this.PriceSeries[0].data
+      if (!series) return
+      const lastItem = series[series.length - 1]
+      if (!lastItem) return
       console.log('setting current price')
-      this.price = this.currentPool.tokenAPrice.toSignificant(5)
+      this.price = lastItem.y
     },
   },
 }
