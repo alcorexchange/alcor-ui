@@ -19,22 +19,22 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Swap $2.5 B
       .indicator.secondary
       .fs-20 Spot $2.5 B
-  .header(v-if="tokenA && tokenB")
+  .header(v-if="sortedA && sortedB")
     .pair-container
       PairIcons(
-        :token1="tokenA"
-        :token2="tokenB"
+        :token1="sortedA"
+        :token2="sortedB"
         size="18"
       )
       .name-container
-        .names {{ tokenA.symbol }}/{{ tokenB.symbol }}
+        .names {{ sortedA.symbol }}/{{ sortedB.symbol }}
     .both-prices(v-if="price")
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ (1 / price).toFixed(5) }} {{ tokenB.symbol }}
+        span.text.muted.ml-1 1 {{ sortedA.symbol }} = {{ (1 / price).toFixed(5) }} {{ sortedB.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ price }} {{ tokenA.symbol }}
+        span.text.muted.ml-1 1 {{ sortedB.symbol }} = {{ price }} {{ sortedA.symbol }}
     .price-container
       .price {{ price }}
       //- .change()
