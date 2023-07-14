@@ -72,8 +72,6 @@ export const actions = {
 }
 
 export const getters = {
-  // TODO Getters perfomance test
-
   tokenA: (state, getters) => {
     return getters.tokens.find(t => t.id == state.tokenA?.id)
   },
