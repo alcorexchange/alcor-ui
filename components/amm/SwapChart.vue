@@ -31,10 +31,10 @@ alcor-container.p-3.w-100.chart-container-inner
     .both-prices(v-if="price")
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ sortedA.symbol }} = {{ (1 / price).toFixed(5) }} {{ sortedB.symbol }}
+        span.text.muted.ml-1 1 {{ sortedB.symbol }} = {{ (1 / price).toFixed(8) }} {{ sortedA.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ sortedB.symbol }} = {{ price }} {{ sortedA.symbol }}
+        span.text.muted.ml-1 1 {{ sortedA.symbol }} = {{ price }} {{ sortedB.symbol }}
     .price-container
       .price {{ price }}
       //- .change()
