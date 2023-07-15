@@ -228,7 +228,6 @@ export default {
 
   methods: {
     async fetchCharts() {
-      console.log('fetchCharts')
       if (!this.tokenA || !this.tokenB) return
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
@@ -249,7 +248,6 @@ export default {
       if (!series) return
       const lastItem = series[series.length - 1]
       if (!lastItem) return
-      console.log('setting current price')
       this.price = lastItem.y
     },
   },
