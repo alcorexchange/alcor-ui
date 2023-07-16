@@ -28,14 +28,14 @@ alcor-container.p-3.w-100.chart-container-inner
       )
       .name-container
         .names {{ sortedA.symbol }}/{{ sortedB.symbol }}
-    .both-prices(v-if="price")
+    .both-prices(v-if="price && charts.length")
       .item
         TokenImage(:src="$tokenLogo()" height="15")
         span.text.muted.ml-1 1 {{ sortedB.symbol }} = {{ (1 / price).toFixed(8) }} {{ sortedA.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
         span.text.muted.ml-1 1 {{ sortedA.symbol }} = {{ price }} {{ sortedB.symbol }}
-    .price-container
+    .price-container(v-if="price && charts.length")
       .price {{ price }}
       //- .change()
       //-   i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
@@ -204,17 +204,11 @@ export default {
     tokenA(from, to) {
       if (from && to && from.id == to.id) return
       this.fetchCharts()
-      this.setCurrentPrice()
     },
 
     tokenB(from, to) {
       if (from && to && from.id == to.id) return
       this.fetchCharts()
-      this.setCurrentPrice()
-    },
-
-    pools() {
-      this.setCurrentPrice()
     },
   },
 
@@ -223,7 +217,6 @@ export default {
     setTimeout(() => {
       this.fetchCharts()
     }, 100)
-    this.setCurrentPrice()
   },
 
   methods: {
@@ -238,6 +231,7 @@ export default {
           },
         })
         this.charts = data
+        this.setCurrentPrice()
       } catch (e) {
         console.log('Getting Chart E', e)
       }
