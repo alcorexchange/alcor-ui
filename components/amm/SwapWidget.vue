@@ -190,12 +190,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://game.nftbattleminers.com/shadow_depths',
-        image: require('@/assets/images/swap-banner-1.jpg'),
+        link: 'https://neftyblocks.com/collection/duckingfuzzz/drops',
+        image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgb(0,188,25, 0.2)',
-          'rgb(213,170,66)',
-          'rgb(61,25,27)'
+          'rgb(255,190,4, 0.2)',
+          'rgb(99,49,160)',
+          'rgb(56,74,253)'
         ]
       },
       {
