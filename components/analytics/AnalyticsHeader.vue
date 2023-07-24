@@ -6,8 +6,8 @@
     //- AlcorLink(to="/analytics/pools" flat) Pools
     //- AlcorLink(to="/analytics/spots" flat) Spot Pairs
   .right
-    el-select(v-model="selectedNetwork").select
-      el-option(v-for="item in networks" :value="item.id" :label="item.name")
+    //- el-select(v-model="selectedNetwork").select
+    //-   el-option(v-for="item in networks" :value="item.id" :label="item.name")
     AlcorButton Swap
     AlcorButton Trade on Spot
     AlcorButton Add Liquidity
