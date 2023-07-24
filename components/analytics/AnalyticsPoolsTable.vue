@@ -17,16 +17,21 @@ el-table(:data="pools").analytics-table.analytics-pools-table
   //-     .d-flex.align-items-center.gap-4
   //-       img.network-img(src="~/assets/icons/wax.png")
   //-       span WAX
-  el-table-column(label="Volume 24h")
+
+  el-table-column(label="Token A")
+    template(slot-scope="{row}") {{ row.tokenA.quantity | commaFloat(0) }} {{ row.tokenA.symbol }}
+
+  el-table-column(label="Token B")
+    template(slot-scope="{row}") {{ row.tokenB.quantity | commaFloat(0) }} {{ row.tokenB.symbol }}
+
+  el-table-column(label="Volume 24h" width=150)
     template(slot-scope="{row}") $ {{ row.volumeUSD24 | commaFloat(2) }}
 
-  el-table-column(label="Volume 7D")
+  el-table-column(label="Volume 7D" width=150)
     template(slot-scope="{row}") $ {{ row.volumeUSDWeek | commaFloat(2) }}
 
   el-table-column(label="Volume 30D")
     template(slot-scope="{row}") $ {{ row.volumeUSDMonth | commaFloat(2) }}
-
-
 
   //- el-table-column(label="TVL")
   //-   template(#default="") $558,001.05
@@ -36,12 +41,13 @@ el-table(:data="pools").analytics-table.analytics-pools-table
   //-   template(#default="") $558,001.05
   //- el-table-column(label="IV rank 90d")
   //-   template(#default="") $558,001.05
-  el-table-column(label="Action" align="right" width="100")
-    template(#default="")
-      AlcorButton Details
+
+  //- el-table-column(label="Action" align="right" width="100")
+  //-   template(#default="")
+  //-     AlcorButton Details
   template(#append)
     .d-flex.justify-content-center.p-2
-      el-pagination.pagination(:total="100" :page-size="10" layout="prev, pager, next" @current-change="(value) => page = value")
+      el-pagination.pagination(:total="total" :page-size="10" layout="prev, pager, next" @current-change="(value) => page = value")
 </template>
 
 <script>
@@ -59,6 +65,14 @@ export default {
   }),
 
   computed: {
+    total() {
+      if (this.$store.state.amm.poolsStats) {
+        return this.$store.state.amm.poolsStats.length
+      }
+
+      return 0
+    },
+
     pools() {
       const chunk = this.$store.state.amm.poolsStats
       chunk.sort((a, b) => b.volumeUSDMonth - a.volumeUSDMonth)
