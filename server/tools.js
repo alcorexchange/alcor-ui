@@ -12,7 +12,7 @@ import { Match, Market, Bar } from './models'
 import { initialUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
 
-const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
+const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
 
 let redisClient
 const ONEDAY = 60 * 60 * 24 * 1000
