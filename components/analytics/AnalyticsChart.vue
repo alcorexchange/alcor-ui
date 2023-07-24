@@ -38,7 +38,6 @@ export default {
         { value: 'Fees' },
       ],
       resolutions: [
-        { title: '1D', value: '1D' },
         { title: '7D', value: '1W' },
         { title: '1M', value: '1M' },
         { title: 'All', value: 'ALL' },

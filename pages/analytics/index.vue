@@ -3,10 +3,13 @@
   .analytics-stats-and-chart
     AnalyticsStats
     AnalyticsChart.analytics-chart
-  AnalyticsSectionHeader(title="Top Tokens")
-    template(#action)
-      AlcorButton Explore
-  AnalyticsTokensTable(:tableData="tokens" @pageChange="getTokens")
+
+  // TODO
+  //- AnalyticsSectionHeader(title="Top Tokens")
+  //-   template(#action)
+  //-     AlcorButton Explore
+  //- AnalyticsTokensTable(:tableData="tokens" @pageChange="getTokens")
+
   AnalyticsSectionHeader(title="Top Pools")
     template(#action)
       AlcorButton Explore

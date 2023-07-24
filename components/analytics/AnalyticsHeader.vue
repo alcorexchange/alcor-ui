@@ -2,9 +2,9 @@
 .analytics-header
   .left
     AlcorLink(to="/analytics/" exact flat) Overview
-    AlcorLink(to="/analytics/tokens" flat) Tokens
-    AlcorLink(to="/analytics/pools" flat) Pools
-    AlcorLink(to="/analytics/spots" flat) Spot Pairs
+    //- AlcorLink(to="/analytics/tokens" flat) Tokens
+    //- AlcorLink(to="/analytics/pools" flat) Pools
+    //- AlcorLink(to="/analytics/spots" flat) Spot Pairs
   .right
     el-select(v-model="selectedNetwork").select
       el-option(v-for="item in networks" :value="item.id" :label="item.name")
