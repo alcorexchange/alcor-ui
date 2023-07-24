@@ -178,7 +178,6 @@ export default {
             resolution: this.selectedResolution,
           },
         })
-        console.log(data)
         this.chartData = data
       } catch (error) {
         console.log(error)

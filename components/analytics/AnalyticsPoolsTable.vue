@@ -53,6 +53,7 @@ el-table(:data="pools").analytics-table.analytics-pools-table
 <script>
 import AlcorButton from '@/components/AlcorButton'
 import PairIcons from '@/components/PairIcons'
+
 export default {
   name: 'AnalyticsPoolsTable',
   components: {
@@ -79,7 +80,7 @@ export default {
       const offset = (this.page - 1) * 10
 
       return chunk.slice(offset, offset + 10)
-    }
+    },
   }
 }
 </script>

@@ -53,7 +53,7 @@ export default {
           formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
         {
-          title: 'Daily active users (30d a.)',
+          title: 'Daily active users (30d avg.)',
           key: 'dailyActiveUsers',
           formatter: (val) => this.$options.filters.commaFloat(val, 0),
         },
