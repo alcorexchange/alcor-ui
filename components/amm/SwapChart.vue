@@ -123,7 +123,7 @@ export default {
 
       return [
         {
-          name: 'Price',
+          name: 'TVL',
           data,
         },
       ]
