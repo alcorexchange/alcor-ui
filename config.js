@@ -71,11 +71,16 @@ const networks = {
 
     ibc: {
       name: 'eos',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
         'ibc.alcor': ['w.ibc.alcor'],
+      },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
       },
     },
 
@@ -306,6 +311,7 @@ const networks = {
 
     ibc: {
       name: 'ux',
+      returnValueEnabled: false,
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
 
       wrapLockContracts: {
@@ -390,6 +396,7 @@ const networks = {
     ibc: {
       name: 'wax',
       //proofSocket: 'wss://wax.eosusa.io/ibc',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
       //proofSocket: 'ws://95.217.224.229:7788',
 
@@ -497,6 +504,7 @@ const networks = {
 
     ibc: {
       name: 'tlos',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
 
       wrapLockContracts: {

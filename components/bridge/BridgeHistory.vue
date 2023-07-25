@@ -1,5 +1,7 @@
 <template lang="pug">
 .bridge-history.mt-4
+  el-button(@click="test") test
+
   .toggle.d-flex.justify-content-center
     AlcorButton(@click="active = !active")
       span {{active ? 'Minimize' : 'Show'}} History
@@ -54,7 +56,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
+
+import { getReceiptDigest } from '~/core/ibc'
 import AlcorButton from '~/components/AlcorButton.vue'
 
 export default {
@@ -64,11 +68,148 @@ export default {
     AlcorButton,
   },
 
+  props: ['sourceWallet', 'destinationWallet'],
+
   data: () => ({
     active: true,
+    provenList: {}
   }),
 
+  computed: {
+    ...mapState({
+      ibcChains: state => state.ibcBridge.chains
+    }),
+
+    ...mapGetters({
+      source: 'ibcBridge/source',
+      destination: 'ibcBridge/destination',
+      availableAssets: 'ibcBridge/availableAssets',
+    })
+  },
+
+  watch: {
+    sourceWallet() {
+      //this.fetchHistoryFrom(this.source)
+    },
+
+    destinationWallet() {
+      console.log('destinationWallet change', this.destinationWallet)
+    }
+  },
+
   methods: {
+    test() {
+      console.log('test')
+      console.log('ibcChains', this.ibcChains)
+      this.fetchHistoryFrom(this.source)
+    },
+
+    async fetchProvenList(chain, contract) {
+      if (`${chain}_${contract}` in this.provenList) return
+
+      const rpc = Object.values(this.ibcChains).find(c => c.name == chain).rpc
+
+      const { rows } = await rpc.get_table_rows({
+        code: contract,
+        scope: contract,
+        table: 'processed',
+        limit: 1000,
+        reverse: true
+      })
+
+      this.provenList[`${chain}_${contract}`] = rows
+    },
+
+    async fetchHistoryFrom(chain) {
+      console.log('source:', this.source)
+      console.log('sourceWallet change', this.sourceWallet)
+
+      const wrapLockContracts = []
+      for (const proofContract in chain.ibc.wrapLockContracts) {
+        wrapLockContracts.push(...chain.ibc.wrapLockContracts[proofContract])
+      }
+
+      const wrapTokenContracts = []
+      for (const proofContract in chain.ibc.wrapTokenContracts) {
+        wrapTokenContracts.push(...chain.ibc.wrapTokenContracts[proofContract])
+      }
+
+      console.log({ wrapLockContracts, wrapTokenContracts })
+
+      const wrappedContractsTxs = []
+      for (const contract of wrapTokenContracts) {
+        const { data: { actions } } = await this.$axios.get(
+          `${chain.hyperion}/v2/history/get_actions?account=${this.sourceWallet.name}&filter=${contract}:retire&limit=15`
+        )
+
+        wrappedContractsTxs.push(...actions)
+      }
+
+      const lockContractsTxs = []
+      for (const contract of wrapLockContracts) {
+        const { data: { actions } } = await this.$axios.get(
+          chain.hyperion +
+          `/v2/history/get_actions?account=${contract}&filter=*:transfer&transfer.from=${this.sourceWallet.name}&limit=100`
+        )
+
+        lockContractsTxs.push(...actions)
+      }
+
+      //const txPromises = [...lockContractsTxs, ...wrappedContractsTxs].map(tx => {
+      const lockContractPromises = lockContractsTxs.map(tx => {
+        return this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`)
+      })
+
+      const wrappedTokenPromises = wrappedContractsTxs.map(tx => {
+        return this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`)
+      })
+
+      const locktxResults = await Promise.all(lockContractPromises)
+      locktxResults.forEach(i => i.data.native = true)
+
+      const wrappedResults = await Promise.all(wrappedTokenPromises)
+      wrappedResults.forEach(i => i.data.native = false)
+
+      //console.log({ locktxResults, wrappedResults })
+
+      for (const { data: tx } of [...locktxResults, ...wrappedResults]) {
+        const _xfer = tx.actions.find(action => action.act.name === 'emitxfer')
+
+        if (!_xfer) {
+          console.log('NO XFER!!', tx)
+          continue
+        }
+
+        //console.log('try get digist', _xfer)
+        const digest = await getReceiptDigest(this.source.rpc, _xfer.receipts[0], _xfer, true)
+
+        const { timestamp, act: { account, data: { xfer: { beneficiary, quantity: { quantity, contract } } } } } = _xfer
+
+        // Find dest chain details by lock contract
+        let wrapLockContractDetails
+
+        for (const chain of Object.values(this.ibcChains)) {
+          for (const details of chain.wrapLockContracts) {
+            if (tx.native && details.wrapLockContract == account && details.symbols.includes(quantity.split(' ')[1])) {
+              wrapLockContractDetails = details
+            }
+
+            if (!tx.native && details.pairedWrapTokenContract == account && details.symbols.includes(quantity.split(' ')[1])) {
+              wrapLockContractDetails = details
+            }
+          }
+        }
+
+        await this.fetchProvenList(wrapLockContractDetails.pairedChain,
+          tx.native ? wrapLockContractDetails.pairedWrapTokenContract : wrapLockContractDetails.wrapLockContract)
+
+        const provenList = this.provenList[`${wrapLockContractDetails.pairedChain}_${wrapLockContractDetails.pairedWrapTokenContract}`]
+        const proven = provenList.map(i => i.receipt_digest).includes(digest)
+
+        console.log({ proven, timestamp, account, beneficiary, quantity, contract, wrapLockContractDetails })
+      }
+    },
+
     getStatus(completed) {
       return completed
         ? {
@@ -82,7 +223,7 @@ export default {
           isCompleted: false,
         }
     },
-  },
+  }
 }
 </script>
 
