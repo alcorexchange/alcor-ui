@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  props: ['series', 'color', 'width', 'height', 'events'],
+  props: ['series', 'color', 'width', 'height', 'events', 'prependDollorSign'],
 
   watch: {
     series() {
@@ -50,7 +50,7 @@ export default {
           zoom: {
             enabled: false,
           },
-          events: this.events,
+          events: this.events || {},
         },
         responsive: [
           {
@@ -89,7 +89,7 @@ export default {
             show: true,
             formatter: (v) => {
               // TODO: use dynamic number.
-              return v.toFixed(6)
+              return this.prependDollorSign ? `$${v}` : v
             },
             style: {
               colors: 'var(--text-disable)',

@@ -40,7 +40,7 @@ alcor-container.p-3.w-100.chart-container-inner
       //- .change()
       //-   i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
       //-   span.text 10%
-  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px" :events="chartEvents")
+  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px" :events="chartEvents" :prependDollorSign="activeTab === 'Tvl'")
 </template>
 
 <script>
@@ -116,14 +116,14 @@ export default {
         data = this.charts.map((c) => {
           return {
             x: c._id,
-            y: c.usdReserveA + c.usdReserveB,
+            y: (c.usdReserveA + c.usdReserveB).toFixed(0),
           }
         })
       }
 
       return [
         {
-          name: 'Price',
+          name: 'TVL',
           data,
         },
       ]

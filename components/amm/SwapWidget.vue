@@ -190,21 +190,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://neftyblocks.com/collection/duckingfuzzz/drops',
+        link: 'https://www.crypto-shots.com/',
         image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgb(255,190,4, 0.2)',
-          'rgb(99,49,160)',
-          'rgb(56,74,253)'
+          'rgb(102,229,243, 0.2)',
+          'rgb(11,83,95)',
+          'rgb(11,83,95)'
         ]
       },
       {
-        link: 'https://neftyblocks.com/collection/apheliumgame/drops/187818+187847+187819+187849+187853+187854+187855+187856',
+        link: 'https://neftyblocks.com/collection/novopangeaio/drops',
         image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(138,30,19,0.4)',
-          'rgba(100,134,45, 1)',
-          'rgba(120,115,108,1)',
+          'rgba(255,193,0,0.2)',
+          'rgba(127,36,131, 1)',
+          'rgba(68,72,81,1)',
         ]
       },
     ]
