@@ -202,8 +202,12 @@ export default {
       align-items: center;
       padding: 4px 8px 4px 6px;
       border-radius: 14px;
+      transition: all 0.4s;
       &.is-selected {
         border-color: var(--main-action-green);
+      }
+      &:hover {
+        background: var(--hover);
       }
     }
   }
