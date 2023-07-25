@@ -62,7 +62,7 @@
       .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.sender")
         .d-flex.align-items-center.gap-8
           img(
-            :src='require("~/assets/icons/avatar.png")',
+            :src='require("~/assets/icons/" + sourceName + ".png")',
             height=18
           )
           .fs-14 {{ formData.sender }}
@@ -78,7 +78,7 @@
       .d-flex.justify-content-between.align-items-center.w-100(v-if="formData.receiver")
         .d-flex.align-items-center.gap-8
           img(
-            :src='require("~/assets/icons/avatar.png")',
+            :src='require("~/assets/icons/" + destinationName + ".png")',
             height=18
           )
           .fs-14 {{ formData.receiver }}
