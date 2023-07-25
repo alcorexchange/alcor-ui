@@ -48,9 +48,9 @@
 
     el-table-column(label="Status" width="140" className="status-col" align="right")
       template(slot-scope='{row}')
-        .status.red
-          i.el-icon-error
-          span incomplete
+        .status(:class="{completed: getStatus(true).isCompleted}")
+          i(:class="getStatus(true).icon")
+          span {{ getStatus(true).text }}
 </template>
 
 <script>
@@ -65,8 +65,24 @@ export default {
   },
 
   data: () => ({
-    active: true
+    active: true,
   }),
+
+  methods: {
+    getStatus(completed) {
+      return completed
+        ? {
+          icon: 'el-icon-check',
+          text: 'Completed',
+          isCompleted: true,
+        }
+        : {
+          icon: 'el-icon-error',
+          text: 'Not Completed',
+          isCompleted: false,
+        }
+    },
+  },
 }
 </script>
 
@@ -76,7 +92,8 @@ export default {
   align-items: flex-start;
   align-self: center;
   gap: 8px;
-  .left, .right {
+  .left,
+  .right {
     display: flex;
     gap: 4px;
     flex-direction: column;
@@ -136,8 +153,14 @@ export default {
   gap: 4px;
   font-size: 0.86rem;
   border-radius: 4px;
+  color: var(--main-red);
   i {
     line-height: 0;
+  }
+
+  &.completed {
+    box-shadow: none;
+    color: var(--main-green);
   }
 }
 .time {
@@ -165,9 +188,9 @@ export default {
   .bridge-history-table {
     .main {
       grid-column: 1 / 3;
-      margin: auto
+      margin: auto;
     }
-    .cell{
+    .cell {
       padding: 0 !important;
     }
     .status-col {
