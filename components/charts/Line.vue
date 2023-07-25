@@ -50,7 +50,7 @@ export default {
           zoom: {
             enabled: false,
           },
-          events: this.events,
+          events: this.events || {},
         },
         responsive: [
           {

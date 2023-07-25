@@ -8,9 +8,9 @@
   .right
     //- el-select(v-model="selectedNetwork").select
     //-   el-option(v-for="item in networks" :value="item.id" :label="item.name")
-    AlcorLink(:to="localeRoute('/swap')") Swap
-    AlcorLink(:to="localeRoute('/markets')") Trade on Spot
-    AlcorLink(:to="localeRoute('/positions/new')") Add Liquidity
+    AlcorLink(to="/swap") Swap
+    AlcorLink(to="/markets") Trade on Spot
+    AlcorLink(to="/positions/new") Add Liquidity
 </template>
 
 <script>
