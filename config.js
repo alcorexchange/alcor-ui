@@ -71,11 +71,16 @@ const networks = {
 
     ibc: {
       name: 'eos',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
         'ibc.alcor': ['w.ibc.alcor'],
+      },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
       },
     },
 
@@ -306,6 +311,7 @@ const networks = {
 
     ibc: {
       name: 'ux',
+      returnValueEnabled: false,
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
 
       wrapLockContracts: {
@@ -355,7 +361,7 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosusa.io',
+    hyperion: 'https://wax-history.eosdac.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -389,12 +395,18 @@ const networks = {
 
     ibc: {
       name: 'wax',
-      //proofSocket: 'wss://wax.eosusa.io/ibc',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
-      //proofSocket: 'ws://95.217.224.229:7788',
+      //proofSocket: 'wss://wax.eosusa.io/ibc',
+      //proofSocket: 'wss://wax.ibc.animus.is',
 
       wrapLockContracts: {
-        'ibc.prove': ['ibc.wl.eos'],
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.ux'],
+      },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
+        'ibc.alcor': ['usdt.alcor'],
       },
     },
 
@@ -497,6 +509,7 @@ const networks = {
 
     ibc: {
       name: 'tlos',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
 
       wrapLockContracts: {
@@ -571,7 +584,7 @@ const networks = {
     monitor: 'https://wax-test.bloks.io/',
     monitor_params: '',
     lightapi: 'https://testnet-lightapi.eosams.xeos.me',
-    hyperion: 'https://jungle3.cryptolions.io/',
+    hyperion: 'https://jungle3.cryptolions.io',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {
@@ -626,7 +639,7 @@ const networks = {
     monitor: 'http://jungle3.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'https://jungle3.cryptolions.io/',
+    hyperion: 'https://jungle3.cryptolions.io',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {},
@@ -675,7 +688,7 @@ const networks = {
     monitor: 'http://jungle.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'https://api.eossweden.org/v2/',
+    hyperion: 'https://api.eossweden.org',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {},

@@ -103,6 +103,8 @@ export const actions = {
 
         console.log(`${chain.name} -> ${pairedChain.name} tokens: ${symbols}`)
         chain.wrapLockContracts.push({
+          chain: chain.name,
+          pairedChain: pairedChain.name,
           chain_id: global.chain_id,
           wrapLockContract: allWraplockContracts[tokenResultsIndex],
           nativeTokenContract: map.native_token_contract,

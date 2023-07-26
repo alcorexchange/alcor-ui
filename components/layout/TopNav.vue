@@ -103,7 +103,7 @@ export default {
       const items = []
 
       if (['wax', 'eos', 'telos', 'proton'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/swap', name: 'Swap', new: true })
+        items.push({ index: '/swap', name: 'Swap' })
         items.push({ index: '/positions', name: 'Pool' })
       }
 
@@ -119,7 +119,7 @@ export default {
 
       items.push({ index: '/wallet', name: 'Wallet' })
       //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
-      // items.push({ index: '/analytics', name: 'Analytics', new: true })
+      items.push({ index: '/analytics', name: 'Analytics', new: true })
       // items.push({ index: '/farms', name: 'Farms', new: true })
       items.push({ index: '/docs', name: 'Docs' })
 
