@@ -119,8 +119,7 @@ export default {
 
     async complete(row) {
       if (row.proven || isNaN(this.retrying)) {
-        // TODO Link to explorer
-        //return
+        return
       }
 
       const asset = this.availableAssets.find(a => a.nativeTokenContract == row.contract && a.symbol == row.quantity.split(' ')[1])
