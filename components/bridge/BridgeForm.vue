@@ -134,7 +134,7 @@
       el-dropdown-menu.bridge-setting-dropdown.p-2
         AlcorButton(@click="resetState") ⚠️ {{ $t('Reset State') }}
 
-  //BridgeHistory
+  BridgeHistory
 </template>
 
 <script>
