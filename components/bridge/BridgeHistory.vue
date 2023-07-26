@@ -1,10 +1,9 @@
 <template lang="pug">
 .bridge-history.mt-4
   .toggle.d-flex.justify-content-center
-    el-badge(:value="3")
-      AlcorButton(@click="active = !active")
-        span {{active ? 'Minimize' : 'Show'}} History
-        i(:class="`el-icon-arrow-${active ? 'up' : 'down'}`")
+    AlcorButton(@click="active = !active")
+      span {{active ? 'Minimize' : 'Show'}} History
+      i(:class="`el-icon-arrow-${active ? 'up' : 'down'}`")
 
   el-table(
     :data="[{}, {}]"
