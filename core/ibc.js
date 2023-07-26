@@ -271,8 +271,9 @@ export class IBCTransfer {
   }
 
   getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
-    console.log('get proof txID: ', action?.trx_id)
-    return new Promise((resolve) => {
+    //console.log('get proof txID: ', action?.trx_id)
+    console.log('get proof txID: ', action)
+    return new Promise((resolve, reject) => {
       //initialize socket to proof server
       const ws = new WebSocket(this.source.ibc.proofSocket)
       ws.addEventListener('open', (event) => {
@@ -287,6 +288,7 @@ export class IBCTransfer {
       ws.addEventListener('message', (event) => {
         const res = JSON.parse(event.data)
         //log non-progress messages from ibc server
+        if (res.type == 'error') return reject(res.error)
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
@@ -487,9 +489,13 @@ export class IBCTransfer {
   }
 }
 
-export async function getReceiptDigest(rpc, receipt, action, returnValueEnabled) {
-  const eosApi = new Api({ rpc })
-  const lockAbi = await eosApi.getAbi(action.act.account)
+const abis = {}
+export async function getReceiptDigest(source, receipt, action, returnValueEnabled) {
+  const eosApi = new Api({ rpc: source.rpc })
+  const cache = source.name + action.act.name
+
+  const lockAbi = cache in abis ? abis[cache] : await eosApi.getAbi(action.act.account)
+  abis[cache] = lockAbi
 
   const abiTypes = getTypesFromAbi(createInitialTypes(), lockAbi)
 
