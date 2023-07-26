@@ -122,23 +122,15 @@ export default {
         return
       }
 
-      const asset = this.availableAssets.find(a => a.nativeTokenContract == row.contract && a.symbol == row.quantity.split(' ')[1])
-
-      // const asset = row.tx.native
-      //   ? this.availableAssets.find(a => a.nativeTokenContract == row.contract && a.symbol == row.quantity.split(' ')[1])
-      //   : this.availableAssets.find(a => a.sourceTokenContract == row.contract && a.symbol == row.quantity.split(' ')[1])
-
-      // console.log({ row })
-      // console.log('this.availableAssets', this.availableAssets)
-      // console.log(asset)
-      // return
-
-      this.retrying = row.tx.trx_id
-
       this.setDestinationName(row.chain)
       if (!this.destinationWallet) {
-        await this.connectToWallet()
+        const { status } = await this.connectToWallet()
+        if (!status) return
       }
+
+      const asset = this.availableAssets.find(a => a.nativeTokenContract == row.contract && a.symbol == row.quantity.split(' ')[1])
+
+      this.retrying = row.tx.trx_id
 
       const ibcTransfer = new IBCTransfer(
         this.source,
@@ -267,8 +259,6 @@ export default {
           wrapTokenContracts.push(...chain.ibc.wrapTokenContracts[proofContract])
         }
 
-        console.log({ wrapLockContracts, wrapTokenContracts })
-
         const wrappedContractsTxs = []
         for (const contract of wrapTokenContracts) {
           const { data: { actions } } = await this.$axios.get(
@@ -303,8 +293,6 @@ export default {
         const wrappedResults = await Promise.all(wrappedTokenPromises)
         wrappedResults.forEach(i => i.data.native = false)
 
-        //console.log({ locktxResults, wrappedResults })
-
         for (const { data: tx } of [...locktxResults, ...wrappedResults]) {
           const _xfer = tx.actions.find(action => action.act.name === 'emitxfer')
 
@@ -322,11 +310,19 @@ export default {
 
           for (const chain of Object.values(this.ibcChains)) {
             for (const details of chain.wrapLockContracts) {
-              if (tx.native && details.wrapLockContract == account && details.symbols.includes(quantity.split(' ')[1])) {
+              if (tx.native &&
+                details.wrapLockContract == account &&
+                details.symbols.includes(quantity.split(' ')[1]) &&
+                details.chain == this.source.name
+              ) {
                 wrapLockContractDetails = details
               }
 
-              if (!tx.native && details.pairedWrapTokenContract == account && details.symbols.includes(quantity.split(' ')[1])) {
+              if (!tx.native &&
+                details.pairedWrapTokenContract == account &&
+                details.symbols.includes(quantity.split(' ')[1]) &&
+                details.pairedChain == this.source.name
+              ) {
                 wrapLockContractDetails = details
               }
             }
