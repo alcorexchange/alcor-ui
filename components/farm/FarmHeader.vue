@@ -12,15 +12,20 @@
         el-switch(
           active-text="Stacked only"
         )
-    .right New
+    .right
+      AlcorButton(class="new-farm")
+        i.el-icon-circle-plus-outline
+        span Open New Farm
 </template>
 
 <script>
 import AlcorSwitch from '@/components/AlcorSwitch'
+import AlcorButton from '@/components/AlcorButton'
 export default {
   name: 'FarmHeader',
   components: {
     AlcorSwitch,
+    AlcorButton,
   },
 }
 </script>
@@ -44,7 +49,7 @@ export default {
   }
 }
 .alcor-switch {
-  font-size: 1rem;
+  font-size: 0.9rem;
   background: var(--btn-active);
   &::v-deep {
     .item {
@@ -54,5 +59,9 @@ export default {
       background: var(--select-color);
     }
   }
+}
+
+.new-farm {
+  padding: 8px 16px !important;
 }
 </style>
