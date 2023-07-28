@@ -1,5 +1,6 @@
 <template lang="pug">
-  .farms-page FARMS
+  .farms-page
+    FarmHeader
 </template>
 
 <script>
