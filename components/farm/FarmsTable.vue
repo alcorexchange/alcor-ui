@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-table(:data="[0, 0, 0, 0]")
+  el-table(:data="[0, 0, 0, 0]" class="farms-table")
     el-table-column(label="Pair" min-width="100%")
       template(#default="")
         .token-container
@@ -31,8 +31,29 @@
     el-table-column(align="right")
       template(#default="")
         AlcorButton(access) Stake
+
+    //- DETAILS START
     el-table-column(type="expand")
-      div some expandable data
+      el-table(:data="[0]" class="details-table")
+        el-table-column(label="Your Stake" )
+          .icon-and-value(v-for="x in 2")
+            TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+            span 484.86K
+        el-table-column(label="Pool Share")
+          span 0.84%
+        el-table-column(label="Daily Rewards")
+          .icon-and-value(v-for="x in 2")
+            TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+            span 484.86K
+        el-table-column(label="Your Farmed Rewards")
+          .icon-and-value(v-for="x in 2")
+            TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+            span 484.86K
+        el-table-column(align="right" min-width="200px")
+          .detail-table-actions
+            AlcorButton(access) Claim Rewards
+            AlcorButton() Manage LP Positions
+            AlcorButton(bordered danger) Unstake
 </template>
 
 <script>
@@ -70,5 +91,21 @@ export default {
   span {
     font-size: 0.8rem;
   }
+}
+.farms-table::v-deep {
+  .el-table__expanded-cell {
+    padding: 0 !important;
+  }
+}
+
+.details-table::v-deep {
+  .el-table__cell {
+    background: var(--btn-active) !important;
+  }
+}
+.detail-table-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
 }
 </style>

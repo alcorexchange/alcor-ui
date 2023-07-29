@@ -165,7 +165,6 @@ button {
 .alcor-button.danger {
   background: var(--main-action-red);
   border: 1px solid var(--main-action-red);
-  color: var(--text-theme);
 }
 
 .alcor-button.danger:hover {
