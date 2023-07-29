@@ -6,7 +6,7 @@
         class="alcor-switch"
         one="Active"
         two="Finished"
-        active="two"
+        active="one"
       )
       .stacked-only
         el-switch(
