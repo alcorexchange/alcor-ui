@@ -13,19 +13,19 @@
           active-text="Stacked only"
         )
     .right
-      AlcorButton(class="new-farm")
+      AlcorLink(class="new-farm" to="/farms/create")
         i.el-icon-circle-plus-outline
         span Open New Farm
 </template>
 
 <script>
 import AlcorSwitch from '@/components/AlcorSwitch'
-import AlcorButton from '@/components/AlcorButton'
+import AlcorLink from '@/components/AlcorLink'
 export default {
   name: 'FarmHeader',
   components: {
     AlcorSwitch,
-    AlcorButton,
+    AlcorLink,
   },
 }
 </script>
