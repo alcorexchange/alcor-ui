@@ -30,7 +30,14 @@
           span 32 Days
     el-table-column(align="right")
       template(#default="")
-        AlcorButton(access) Stake
+        //- View 1
+        AlcorButton(v-if="true" access) Stake
+        //- View 2
+        .claim-rewards-container(v-else)
+          .stacking-status
+            .the-dot
+            span Staking
+          AlcorButton(access compact) Claim Rewards
 
     //- DETAILS START
     el-table-column(type="expand")
@@ -107,5 +114,24 @@ export default {
   display: flex;
   gap: 4px;
   justify-content: flex-end;
+}
+
+.claim-rewards-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4;
+  .stacking-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--main-green);
+  }
+  .the-dot {
+    background: var(--main-green);
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+  }
 }
 </style>
