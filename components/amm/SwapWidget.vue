@@ -199,12 +199,12 @@ export default {
         ]
       },
       {
-        link: 'https://neftyblocks.com/collection/novopangeaio/drops',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        link: 'https://chainchamps.com/collection/nftgamertv/drop/81',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(255,193,0,0.2)',
-          'rgba(127,36,131, 1)',
-          'rgba(68,72,81,1)',
+          'rgba(239,180,50,0.2)',
+          'rgba(245,61,139, 1)',
+          'rgba(109,179,251,1)',
         ]
       },
     ]
