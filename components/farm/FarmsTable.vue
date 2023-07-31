@@ -30,9 +30,9 @@
           span 32 Days
     el-table-column(align="right")
       template(#default="")
-        //- View 1
+        //- VIEW 1
         AlcorButton(v-if="true" access) Stake
-        //- View 2
+        //- VIEW 2
         .claim-rewards-container(v-else)
           .stacking-status
             .the-dot
@@ -41,6 +41,7 @@
 
     //- DETAILS START
     el-table-column(type="expand")
+      //- VIEW 1
       el-table(:data="[0]" class="details-table")
         el-table-column(label="Your Stake" )
           .icon-and-value(v-for="x in 2")
@@ -61,6 +62,15 @@
             AlcorButton(access) Claim Rewards
             AlcorButton() Manage LP Positions
             AlcorButton(bordered danger) Unstake
+
+      //- VIEW 2
+      .table-detail-container(v-if="false")
+        AlcorButton(access) Add Liquidity to Stake In This Farm
+
+      //- VIEW 3
+      .table-detail-container(v-if="false")
+        AlcorButton(access bordered style="color: var(--main-green)") You have existing LP Positions and can stake them in this farm
+
 </template>
 
 <script>
@@ -133,5 +143,12 @@ export default {
     height: 4px;
     border-radius: 4px;
   }
+}
+
+.table-detail-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
 }
 </style>
