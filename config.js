@@ -249,7 +249,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
     PINNED_MARKETS: [282],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['eosiotokens', 'albabank', 'bayramela'],
+    SCAM_CONTRACTS: ['eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
