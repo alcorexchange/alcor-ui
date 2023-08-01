@@ -749,12 +749,23 @@ export default {
           this.formData.amount = null
           this.updateProgress(0)
         } catch (e) {
-          this.setError(e.message)
-          return this.$notify({
-            type: 'error',
-            title: 'Submitting Destination Proofs ',
-            message: e,
-          })
+          if (!e.message?.includes('action already proved')) {
+            this.setError(e.message)
+            return this.$notify({
+              type: 'error',
+              title: 'Submitting Destination Proofs ',
+              message: e,
+            })
+          } else {
+            this.setStep(4)
+
+            console.log('clean error step 3')
+            if (this.error) this.setError(null)
+
+            this.asset = null
+            this.formData.amount = null
+            this.updateProgress(0)
+          }
         }
       }
     },
