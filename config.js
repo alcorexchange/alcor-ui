@@ -251,7 +251,7 @@ const networks = {
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
-      'xprjesus', 'lgbtqxpr', 'pikachuxpr'
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr',
     ],
     CEX_CONTRACTS: [],
 
