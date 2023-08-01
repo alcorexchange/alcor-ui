@@ -9,30 +9,30 @@ export default {
   name: 'AlcorButton',
   props: {
     to: {
-      default: '/'
+      default: '/',
     },
     big: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     exact: {
-      default: false
+      default: false,
     },
     flat: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     iconOnly: {
-      default: false
+      default: false,
     },
     iconOnlyAlt: {
-      default: false
+      default: false,
     },
     green: {
       default: false,
-      type: Boolean
-    }
-  }
+      type: Boolean,
+    },
+  },
 }
 </script>
 
@@ -86,6 +86,7 @@ button {
   justify-content: center;
   align-items: center;
   font-size: 14px;
+  gap: 4px;
 }
 
 .iconOnly {
