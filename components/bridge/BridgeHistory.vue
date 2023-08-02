@@ -248,6 +248,8 @@ export default {
 
       const history = []
 
+      //this.sourceWallet.name = 'playrashid24'
+
       try {
         const wrapLockContracts = []
         for (const proofContract in chain.ibc.wrapLockContracts) {
