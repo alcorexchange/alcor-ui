@@ -13,6 +13,8 @@
     RewardList(class="mt-4" @newReward="onNewReward")
       FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
 
+    DistributionSelection(:options="distributionOptions" class="mt-4"  value="1 Days")
+
 </template>
 
 <script>
@@ -21,6 +23,7 @@ import PageHeader from '@/components/amm/PageHeader'
 import Note from '@/components/farm/Note'
 import TokenSelection from '@/components/farm/TokenSelection'
 import FeeTierSelection from '@/components/farm/FeeTierSelection'
+import DistributionSelection from '@/components/farm/DistributionSelection'
 import RewardList from '@/components/farm/RewardList'
 import FarmTokenInput from '@/components/farm/FarmTokenInput'
 export default {
@@ -33,12 +36,23 @@ export default {
     FeeTierSelection,
     RewardList,
     FarmTokenInput,
+    DistributionSelection,
   },
 
   data: () => ({
     feeOptions: [{ value: 0.05 }, { value: 0.3 }, { value: 1 }],
     rewardList: [{ token: '', amount: 0 }],
   }),
+
+  computed: {
+    distributionOptions() {
+      const tempAmount = 1000
+      return [1, 7, 30, 90, 180, 360].map((number) => ({
+        value: `${number} Days`,
+        daily: (tempAmount / number).toFixed(2),
+      }))
+    },
+  },
 
   methods: {
     onNewReward() {
