@@ -26,7 +26,7 @@
     .bottom-end(v-if="canRemove")
       AlcorButton(@click="$emit('remove')" bordered class="remove-button")
         i.el-icon-minus
-        span Remove Reward
+        span(class="fs-12") Remove Reward
 </template>
 
 <script>
@@ -153,7 +153,9 @@ export default {
     border-color: var(--main-red) !important;
     color: var(--main-red) !important;
     padding: 4px 8px;
-    gap: 4px;
+    .inner {
+      gap: 4px !important;
+    }
     &:hover {
       background: var(--hover);
     }

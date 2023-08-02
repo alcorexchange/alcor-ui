@@ -6,12 +6,12 @@
 
     Note(class="mt-2 fs-14") You can only create a farm for a base token that you are the project owner of.
 
-    TokenSelection(class="mt-3")
+    TokenSelection(class="mt-4")
 
-    FeeTierSelection(:options="feeOptions" class="mt-3"  :value="1")
+    FeeTierSelection(:options="feeOptions" class="mt-4"  :value="1")
 
-    RewardList(class="mt-3" @newReward="onNewReward")
-      FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)")
+    RewardList(class="mt-4" @newReward="onNewReward")
+      FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
 
 </template>
 
