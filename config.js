@@ -39,13 +39,15 @@ const networks = {
     monitor: 'http://bloks.io',
     monitor_params: '',
     lightapi: 'https://eos.light-api.net',
-    hyperion: 'https://api.eossweden.org/',
+    hyperion: 'https://eos.eosusa.io',
     //hyperion: 'https://api.eossweden.org/',
     //hyperion: 'https://eos.hyperion.eosrio.io/v2/',
     //hyperion: 'https://mainnet.eosn.io/v2/', // ALERT It's GIVE BROKET HISTORY!!!
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://eos-api.alcor.exchange': 'Alcor - Finland',
+      //'https://eos-api-1.alcor.exchange': 'Alcor - Finland',
       'https://eos.greymass.com': 'Greymass',
       //'https://mainnet.genereos.io': 'Generos',
       //'https://mainnet.eosamsterdam.net': 'EOS Amsterdam',
@@ -63,11 +65,23 @@ const networks = {
       fee: 'avral.pro',
     },
 
+    amm: {
+      contract: 'swap.alcor',
+    },
+
     ibc: {
       name: 'eos',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
-      bridgeContract: 'ibc.prove',
-      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.tlos']
+
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
+        'ibc.alcor': ['w.ibc.alcor'],
+      },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
+      },
     },
 
     withdraw: {
@@ -126,11 +140,11 @@ const networks = {
         desc: 'Telos wrapped token. You can trade it and transfer between chains with no fee',
         network: {
           name: 'Telos',
-          symbol: 'TLOS'
+          symbol: 'TLOS',
         },
         withdrawMemo: '{account}',
-        gateway: 'cross.chain'
-      }
+        gateway: 'cross.chain',
+      },
 
       //'PETH@eth.ptokens': {
       //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
@@ -144,23 +158,36 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: [
-      'WAX@bosibc.io',
       'SAND@sandiegocoin',
       'TCN@capitaltatch',
       'HASH@eoshashcoins',
-      'JOKER@joker.eos'
+      'JOKER@joker.eos',
     ],
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['usdcoinchain', 'effectaiswap', 'tcapitalnote'],
+    SCAM_CONTRACTS: [
+      'usdcoinchain',
+      'effectaiswap',
+      'tcapitalnote',
+      'bosibc.io',
+    ],
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
+      contract: 'alcornftswap',
     },
 
     USD_TOKEN: 'USDT@tethertether',
+
+    popularTokens: [
+      'eos-eosio.token',
+      'usdt-tethertether',
+      'wax-ibc.wt.wax',
+      'tlos-ibc.wt.tlos',
+      'utx-ibc.wt.ux',
+      'pgl-prospectorsg',
+    ],
   },
 
   proton: {
@@ -169,12 +196,12 @@ const networks = {
     contract: 'alcor',
 
     baseToken: {
-      contract: 'xtokens',
-      symbol: 'XUSDT',
-      precision: 6,
+      contract: 'eosio.token',
+      symbol: 'XPR',
+      precision: 4,
     },
 
-    marketCreationFee: '1.000000 XUSDT',
+    marketCreationFee: '1000.0000 XPR',
     feeAccount: 'avral',
 
     chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
@@ -182,14 +209,16 @@ const networks = {
     host: 'proton.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'http://proton.bloks.io',
+    monitor: 'https://protonscan.io',
     monitor_params: '',
     lightapi: 'https://proton.light-api.net',
     hyperion: 'https://proton.eu.eosamsterdam.net',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://nodeproton.alcor.exchange': 'Alcor Proton node',
+      'https://proton-api.alcor.exchange': 'Alcor Proton node',
+
+      //'https://nodeproton.alcor.exchange': 'Alcor Proton node',
       'https://proton.greymass.com': 'Greymass',
       'https://proton.pink.gg': 'Pink GG',
       'https://proton.eu.eosamsterdam.net': 'EOS Amsterdam',
@@ -211,19 +240,28 @@ const networks = {
       fee: 'aw.aq.waa',
     },
 
+    amm: {
+      contract: 'swap.alcor',
+    },
+
     withdraw: {},
 
-    RECOMMENDED_MARKETS: ['PIXEL@thomashp'],
-    PINNED_MARKETS: [],
+    RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
+    PINNED_MARKETS: [282],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: [],
+    SCAM_CONTRACTS: [
+      'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr',
+    ],
     CEX_CONTRACTS: [],
 
     nftMarket: {
-      contract: 'alcornftswap'
+      contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'XUSDC@xtokens'
+    USD_TOKEN: 'XUSDC@xtokens',
+
+    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
   },
 
   ux: {
@@ -234,7 +272,7 @@ const networks = {
     baseToken: {
       contract: 'eosio.token',
       symbol: 'UTX',
-      precision: 4
+      precision: 4,
     },
 
     marketCreationFee: '1000.0000 UTX',
@@ -248,33 +286,40 @@ const networks = {
     monitor: 'https://explorer.uxnetwork.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosrio.io',
+    hyperion: 'https://ux.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://explorer.uxnetwork.io': 'UX Explorer'
+      'https://explorer.uxnetwork.io': 'UX Explorer',
     },
 
     otc: {
       // TODO
       contract: 'alcorotcswap',
-      divs: 'aw.aq.waa'
+      divs: 'aw.aq.waa',
     },
 
     pools: {
       // TODO
       contract: 'alcorammswap',
-      fee: 'aw.aq.waa'
+      fee: 'aw.aq.waa',
+    },
+
+    amm: {
+      contract: 'swap.alcor',
     },
 
     ibc: {
       name: 'ux',
+      returnValueEnabled: false,
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
-      bridgeContract: 'ibc.prove',
-      wrapLockContractsArray: ['ibc.wl.eos', 'ibc.wl.tlos']
+
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos'],
+      },
     },
 
     withdraw: {},
@@ -289,10 +334,12 @@ const networks = {
 
     nftMarket: {
       // TODO
-      contract: ''
+      contract: '',
     },
 
-    USD_TOKEN: ''
+    USD_TOKEN: '',
+
+    popularTokens: [],
   },
 
   wax: {
@@ -317,19 +364,17 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax.eosrio.io',
+    hyperion: 'https://wax-history.eosdac.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      //'https://waxnode01.alcor.exchange': 'WAX Alcor - Finland',
-      'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
-
+      'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
+      //'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
       'https://wax.greymass.com': 'Greymass - Canada',
       'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
-      'https://wax.eosn.io': 'EOS Nation - Canada',
       'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
@@ -343,11 +388,34 @@ const networks = {
       fee: 'aw.aq.waa',
     },
 
+    amm: {
+      //contract: 'ammcontract4'
+      contract: 'swap.alcor',
+      creationFee: '150.00000000 WAX',
+    },
+
     withdraw: {},
 
+    ibc: {
+      name: 'wax',
+      returnValueEnabled: true,
+      proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
+      //proofSocket: 'wss://wax.eosusa.io/ibc',
+      //proofSocket: 'wss://wax.ibc.animus.is',
+
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.ux'],
+      },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
+        'ibc.alcor': ['usdt.alcor'],
+      },
+    },
+
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
-    PINNED_MARKETS: [156, 726],
-    BANNER_MARKETS: [156],
+    PINNED_MARKETS: [368, /* USDT */763],
+    BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
       'usdcoinchain',
@@ -358,7 +426,9 @@ const networks = {
       'onfederation',
       'martaintoken',
       'martiantoken',
-      'superruncoin'
+      'superruncoin',
+      'bosibc.io',
+      'junkoqwertyu',
     ],
 
     CEX_CONTRACTS: [
@@ -372,7 +442,14 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'WAXUSDT@eth.token',
+    USD_TOKEN: 'USDT@usdt.alcor',
+
+    popularTokens: [
+      'wax-eosio.token',
+      'usdt-usdt.alcor',
+      'eos-ibc.wt.eos',
+      'tlm-alien.worlds',
+    ],
   },
 
   telos: {
@@ -399,11 +476,13 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://telos.light-api.net',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
-    hyperion: 'http://api.kainosbp.com',
+    hyperion: 'https://telos.eosusa.io',
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://telos-api.alcor.exchange': 'Alcor - Finland',
       'https://telos.greymass.com': 'Greymass - Canada',
+      //'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
     },
 
     otc: {
@@ -416,14 +495,15 @@ const networks = {
       fee: 'alcordexdivs',
     },
 
-    RECOMMENDED_MARKETS: [
-      'EOS@bosibc.io',
-      'KANDA@telokandaone',
-      'GUX@vapaeetokens',
-    ],
+    amm: {
+      contract: 'swap.alcor',
+    },
+
+    RECOMMENDED_MARKETS: ['KANDA@telokandaone', 'GUX@vapaeetokens'],
+
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['usdcoinchain'],
+    SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
     nftMarket: {
@@ -432,9 +512,12 @@ const networks = {
 
     ibc: {
       name: 'tlos',
+      returnValueEnabled: true,
       proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
-      bridgeContract: 'ibc.prove',
-      wrapLockContractsArray: ['ibc.wl.ux', 'ibc.wl.eos']
+
+      wrapLockContracts: {
+        'ibc.prove': ['ibc.wl.ux', 'ibc.wl.eos'],
+      },
     },
 
     withdraw: {
@@ -475,11 +558,13 @@ const networks = {
           symbol: 'Hive',
         },
         withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin'
-      }
+        gateway: 'sandiegocoin',
+      },
     },
 
     USD_TOKEN: 'XUSDC@xtokens',
+
+    popularTokens: [],
   },
 
   waxtest: {
@@ -501,11 +586,13 @@ const networks = {
     protocol: 'https',
     monitor: 'https://wax-test.bloks.io/',
     monitor_params: '',
-    lightapi: 'ttps://testnet-lightapi.eosams.xeos.me',
-    hyperion: 'https://jungle3.cryptolions.io/',
+    lightapi: 'https://testnet-lightapi.eosams.xeos.me',
+    hyperion: 'https://jungle3.cryptolions.io',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: {},
+    client_nodes: {
+      'https://waxtestnet.greymass.com': 'Greymass - Canada',
+    },
 
     otc: {
       contract: 'wwweosswapio',
@@ -513,8 +600,12 @@ const networks = {
     },
 
     pools: {
-      contract: 'alcordexswap',
-      fee: 'evodextester',
+      //contract: 'alcordexswap',
+      //fee: 'evodextester',
+    },
+
+    amm: {
+      contract: 'ammcontract3',
     },
 
     withdraw: {},
@@ -527,6 +618,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap',
     },
+
+    popularTokens: [],
   },
 
   jungle: {
@@ -549,7 +642,7 @@ const networks = {
     monitor: 'http://jungle3.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'https://jungle3.cryptolions.io/',
+    hyperion: 'https://jungle3.cryptolions.io',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {},
@@ -574,6 +667,8 @@ const networks = {
     nftMarket: {
       contract: 'alcornftswap',
     },
+
+    popularTokens: [],
   },
 
   local: {
@@ -596,7 +691,7 @@ const networks = {
     monitor: 'http://jungle.bloks.io',
     monitor_params: '',
     lightapi: 'https://lightapi.eosgeneva.io',
-    hyperion: 'https://api.eossweden.org/v2/',
+    hyperion: 'https://api.eossweden.org',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {},
@@ -610,6 +705,10 @@ const networks = {
       contract: 'pools',
     },
 
+    amm: {
+      contract: 'ammcontract1',
+    },
+
     withdraw: {},
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
@@ -621,6 +720,8 @@ const networks = {
       contract: 'nft',
     },
   },
+
+  popularTokens: [],
 }
 
 // Default markes layouts
@@ -911,7 +1012,8 @@ module.exports = {
   CONTRACT_ACTIONS,
   MARKET_STATS_CACHE_TIME,
   TRADE_LAYOUTS,
-  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux],
+  IBC_NETWORKS: [networks.eos, networks.telos, networks.ux, networks.wax],
+  NFT_LIST_ITEM_PP: 8,
 
-  networks
+  networks,
 }

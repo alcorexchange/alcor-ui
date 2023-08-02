@@ -19,7 +19,6 @@ import Partners from '@/components/landing/Partners'
 import Promoted from '~/components/landing/Promoted.vue'
 export default {
   layout: 'homeLayout',
-  colorMode: 'dark',
 
   components: {
     SectionTitle,

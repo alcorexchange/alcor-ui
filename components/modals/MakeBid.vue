@@ -33,7 +33,7 @@
           .status.mt-2(v-if='isTopBider') You are currently the top bidder of this auction
           .status.error.mt-2(v-else-if="!isValidAmount") You need to increase your bid
         .d-flex.flex-column.gap-16
-          el-input.dark(v-model='waxAmount', size='small', placeholder='Amount of WAX')
+          el-input.dark(v-model.number='waxAmount', size='small', placeholder='Amount of WAX')
             template(slot="append") WAX
           span.text-center(v-if="waxAmount") {{ waxAmount }} WAX equals ${{ $systemToUSD(waxAmount) }}
           alcor-button(access :disabled="!waxAmount || !isValidAmount || isTopBider" @click="placeBid") Place Bid
@@ -100,7 +100,6 @@ export default {
   methods: {
     ...mapActions('chain', ['makeBid']),
     setAmount() {
-      console.log('sssss')
       this.waxAmount =
         this.waxFormat(Math.floor(+this.topBidder?.amount * 1.11)) ||
         this.waxFormat(this.context.price.amount) ||
@@ -108,7 +107,8 @@ export default {
     },
     placeBid() {
       this.makeBid({
-        waxAmount: this.waxAmount,
+        // when user sets amount type is string
+        waxAmount: parseFloat(this.waxAmount),
         auction_id: this.context.auction_id
       })
     },

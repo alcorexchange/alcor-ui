@@ -1,4 +1,5 @@
 import { SymbolCode } from 'eos-common'
+import { getAllLockContracts } from '../utils/ibc'
 import { getMultyEndRpc } from '../utils/eosjs'
 import { IBC_NETWORKS } from '~/config'
 import { nameToUint64 } from '~/utils'
@@ -59,7 +60,7 @@ export const actions = {
     const allWraplockContracts = []
     const { chains } = state
 
-    for (const chain of chains) for (const wrapLockContract of chain.ibc.wrapLockContractsArray) {
+    for (const chain of chains) for (const wrapLockContract of getAllLockContracts(chain)) {
       allWraplockContracts.push(wrapLockContract)
 
       promises.push(
@@ -102,10 +103,13 @@ export const actions = {
 
         console.log(`${chain.name} -> ${pairedChain.name} tokens: ${symbols}`)
         chain.wrapLockContracts.push({
+          chain: chain.name,
+          pairedChain: pairedChain.name,
           chain_id: global.chain_id,
           wrapLockContract: allWraplockContracts[tokenResultsIndex],
           nativeTokenContract: map.native_token_contract,
           pairedChainId: global.paired_chain_id,
+          bridgeContract: global.bridge_contract,
           pairedWrapTokenContract: map.paired_wraptoken_contract,
           symbols
         })

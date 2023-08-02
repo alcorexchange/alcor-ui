@@ -1,3 +1,6 @@
+require('dotenv').config()
+const path = require('path')
+
 const config = require('./config')
 const pkg = require('./package')
 
@@ -132,6 +135,8 @@ module.exports = {
     '~/plugins/filters',
     '~/plugins/global',
     '~/plugins/vClickOutside.js',
+    '~/plugins/muttedDirective.js',
+    '~/plugins/routerSync.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
     { ssr: false, src: '~/plugins/apiInstance.js' },
@@ -141,7 +146,8 @@ module.exports = {
     { ssr: false, src: '~/plugins/localStorage.js' },
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
     { ssr: false, src: '~/plugins/vue-grid.js' },
-    { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' }
+    { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' },
+    { ssr: false, src: '~/plugins/intercom.js' }
   ],
 
   /*
@@ -196,10 +202,9 @@ module.exports = {
    ** Sentry module configuration
    */
   sentry: {
-    dsn:
-      process.env.SENTRY_DSN ||
-      'https://a0486e29af0f4630a29b820ee4226fa8@sentry.io/1792380',
-    disabled: isDev
+    dsn: 'https://b28cbcd4c0ba438bbb8b6baeebf5fba0@sentry.alcor.exchange/2',
+    disabled: isDev,
+    publishRelease: true
   },
 
   buildModules: [
@@ -212,7 +217,11 @@ module.exports = {
    ** Build configuration
    */
   build: {
+    standalone: true,
+
     extend(config, ctx) {
+      config.resolve.alias.jsbi = path.resolve(__dirname, 'node_modules', 'jsbi', 'dist', 'jsbi-cjs.js')
+
       config.node = {
         fs: 'empty'
       }
@@ -234,6 +243,12 @@ module.exports = {
           esModule: false,
           name: '[path][name].[ext]'
         }
+      })
+
+      config.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
       })
 
       if (isSPA) {

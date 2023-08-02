@@ -9,11 +9,12 @@ export const strict = false
 
 export const state = () => ({
   user: null,
+  //user: { name: 'jamestaggart' },
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
   account: null,
-  liquidityPositions: [],
+  liquidityPositions: [], // v1 old pool
 
   accountLimits: {
     buyorders: {},
@@ -29,6 +30,8 @@ export const state = () => ({
 
   baseUrl: '',
   tokens: [],
+  tokenLogos: [],
+  eosAirdropTokens: [],
   ibcTokens: ['eth.token'],
   lihgHistoryBlock: null,
   blockNum: null
@@ -67,6 +70,7 @@ export const mutations = {
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
+  setEosAirdropTokens: (state, tokens) => state.eosAirdropTokens = tokens,
   setAccount: (state, account) => state.account = account,
   setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,
@@ -84,8 +88,19 @@ const playOrderMatchSound = debounce(() => {
 const loadOrdersDebounce = {}
 
 export const actions = {
+  // TODO
+  // async nuxtServerInit({ dispatch }) {
+  //   try {
+  //     // TODO Make sure dns cached (it's server call)
+  //     await dispatch('loadAllTokens')
+  //   } catch (e) {
+  //     console.error('SERVER API CALL ERR (loadAllTokens)', e)
+  //   }
+  // },
+
   init({ dispatch, state, getters }) {
-    dispatch('fetchTokens')
+    dispatch('loadAllTokens')
+    dispatch('fetchEosAirdropTokens')
 
     if (state.network.name == 'local') return
 
@@ -142,12 +157,15 @@ export const actions = {
     this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : radio_value
   },
 
-  async fetchTokens({ commit }) {
+  async fetchEosAirdropTokens({ commit }) {
     try {
       const { data } = await this.$axios.get(
         'https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json'
       )
-      commit('setTokens', data)
+
+      if (typeof data !== 'object') return
+
+      commit('setEosAirdropTokens', data)
     } catch (e) {
       console.error('Fetching tokens from eos-airdrops', e)
     }
@@ -198,6 +216,11 @@ export const actions = {
     if (account) commit('setAccountLimits', account)
   },
 
+  async loadAllTokens({ commit }) {
+    const { data: tokens } = await this.$axios.get('/v2/tokens')
+    commit('setTokens', tokens)
+  },
+
   async loadMarkets({ state, commit, getters, dispatch }) {
     const { data } = await this.$axios.get('/markets')
     data.map(m => {
@@ -213,21 +236,6 @@ export const actions = {
     commit('setMarkets', data)
   },
 
-  async loadIbc({ state, commit, rootGetters }) {
-    // TODO
-    //const { rows: ibcTokens } = await this.$rpc.get_table_rows({
-    //  code: 'bosibc.io',
-    //  scope: 'bosibc.io',
-    //  table: 'accepts',
-    //  limit: 1000
-    //})
-
-    //const tokens = [...new Set([...state.ibcTokens, ...ibcTokens.map(t => t.original_contract)])]
-
-    //commit('setIbcTokens', tokens)
-    //commit('setIbcAccepts', ibcTokens)
-  },
-
   loadUserLiqudityPositions({ state, commit }) {
     this.$axios.get(`/account/${state.user.name}/liquidity_positions`).then(r => {
       commit('setLiquidityPositions', r.data)
@@ -238,8 +246,10 @@ export const actions = {
     if (!state.user || !state.user.name) return
 
     try {
-      const sellOrdersMarkets = state.accountLimits.sellorders.map(o => o.key)
-      const buyOrdersMarkets = state.accountLimits.buyorders.map(o => o.key)
+      const sellOrders = state.accountLimits.sellorders
+      const buyOrders = state.accountLimits.buyorders
+      const sellOrdersMarkets = Array.isArray(sellOrders) ? sellOrders.map(o => o.key) : []
+      const buyOrdersMarkets = Array.isArray(buyOrders) ? buyOrders.map(o => o.key) : []
 
       const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
 
@@ -255,7 +265,7 @@ export const actions = {
   },
 
   async loadOrders({ state, commit, dispatch }, market_id) {
-    if (market_id == null) return console.error('LoadOrders for NULL market!') // FIXME Happends on first load
+    if (market_id == null) return
     if (!state.user || !state.user.name) return
 
     const { name } = state.user
@@ -392,24 +402,9 @@ export const actions = {
       // Calc USD value
       balances.map(token => {
         token.id = token.currency + '@' + token.contract
+        const price = state.tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
 
-        const { systemPrice } = rootState.wallet
-        const market = state.markets.filter(m => {
-          return m.base_token.contract == state.network.baseToken.contract &&
-            m.quote_token.contract == token.contract &&
-            m.quote_token.symbol.name == token.currency
-        })[0]
-
-        if (market) {
-          token.usd_value = (parseFloat(token.amount) * market.last_price) * systemPrice
-        } else {
-          token.usd_value = 0
-        }
-
-        if (token.contract == state.network.baseToken.contract) {
-          token.usd_value = parseFloat(token.amount) * systemPrice
-        }
-
+        token.usd_value = parseFloat(token.amount) * price
         commit('updateBalance', token)
       })
     }

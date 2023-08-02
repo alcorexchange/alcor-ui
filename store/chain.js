@@ -15,7 +15,6 @@ export const state = () => ({
 
   payForUser: false,
   lastWallet: null,
-  loginContext: null
 })
 
 export const mutations = {
@@ -24,7 +23,6 @@ export const mutations = {
   setLoginPromise: (state, value) => (state.loginPromise = value),
   setPayForUser: (state, value) => (state.payForUser = value),
   setLastWallet: (state, value) => (state.lastWallet = value),
-  setLoginContext: (state, value) => state.loginContext = value
 }
 
 export const actions = {
@@ -62,11 +60,13 @@ export const actions = {
   },
 
   afterLoginHook({ dispatch, rootState }) {
+    dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 
     dispatch('loadUserBalances', {}, { root: true }).then(() =>
       dispatch('market/updatePairBalances', {}, { root: true })
     )
+
     dispatch('loadAccountLimits', {}, { root: true })
       .then(() => dispatch('loadUserOrders', {}, { root: true }))
       .then(() => {
@@ -75,7 +75,25 @@ export const actions = {
 
     dispatch('loadOrders', rootState.market.id, { root: true })
 
+    dispatch('subscribeToAccountPushes')
+
+    this.$socket.io.on('reconnect', () => {
+      dispatch('subscribeToAccountPushes')
+    })
+  },
+
+  subscribeToAccountPushes({ rootState }) {
     this.$socket.emit('subscribe', {
+      room: 'account',
+      params: {
+        chain: rootState.network.name,
+        name: rootState.user.name
+      }
+    })
+  },
+
+  unsubscribeToAccountPushes({ rootState }) {
+    this.$socket.emit('unsubscribe', {
       room: 'account',
       params: {
         chain: rootState.network.name,
@@ -88,13 +106,8 @@ export const actions = {
     console.log('logout..')
     state.wallet.logout()
     commit('setLastWallet', null)
-    this.$socket.emit('unsubscribe', {
-      room: 'account',
-      params: {
-        chain: rootState.network.name,
-        name: rootState.user.name
-      }
-    })
+
+    dispatch('unsubscribeToAccountPushes')
 
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
@@ -121,7 +134,7 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch, getters, rootState }, wallet_name) {
-    const network = state.loginContext?.chain ? config.networks[state.loginContext.chain] : rootState.network
+    const network = rootState.modal.context?.chain ? config.networks[rootState.modal.context.chain] : rootState.network
 
     const wallet = new state.wallets[wallet_name](network, getMultyEndRpc(Object.keys(network.client_nodes)))
 
@@ -167,7 +180,7 @@ export const actions = {
   },
 
   async asyncLogin({ rootState, commit, dispatch }, context) {
-    if (context) commit('setLoginContext', context)
+    if (context) commit('modal/setModalContext', context, { root: true })
 
     const loginPromise = new Promise((resolve, reject) => {
       commit('setLoginPromise', { resolve, reject })
@@ -179,7 +192,7 @@ export const actions = {
     } catch (e) {
       throw new Error(e)
     } finally {
-      if (context) commit('setLoginContext', null)
+      if (context) commit('modal/setModalContext', null, { root: true })
     }
   },
 
@@ -415,7 +428,7 @@ export const actions = {
         data: {
           from: rootState.user.name,
           to: 'atomicmarket',
-          quantity: waxAmount + ' WAX',
+          quantity: waxAmount.toFixed(8) + ' WAX',
           memo: 'deposit'
         }
       },
@@ -426,13 +439,11 @@ export const actions = {
         data: {
           bidder: rootState.user.name,
           auction_id,
-          bid: waxAmount + ' WAX',
+          bid: waxAmount.toFixed(8) + ' WAX',
           taker_marketplace: 'alcor'
         }
       }
     ]
-
-    console.log('aaaaa', actions)
 
     await dispatch('sendTransaction', actions)
   },
@@ -610,6 +621,7 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  // TODO Relogin after check chain and relogin if possible
   async sendTransaction(
     { state, rootState, dispatch, getters, commit },
     actions
@@ -638,6 +650,7 @@ export const actions = {
           : signedTx.serializedTransaction
       }
 
+      // TODO Протестить если ошибка от ноды
       return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e

@@ -114,8 +114,9 @@ export default {
     refetchProps() {
       this.fetchAssets()
     },
-    context() {
+    context(c) {
       this.giftAssets = []
+      if (!c) return
       this.context.giftAssets && this.giftAssets.push(...this.context.giftAssets)
     }
   },

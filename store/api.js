@@ -1,5 +1,6 @@
 import { asset } from 'eos-common'
 import axios from 'axios'
+import { NFT_LIST_ITEM_PP } from '@/config'
 
 import { parseAsset, littleEndianToDesimal } from '~/utils'
 
@@ -156,19 +157,20 @@ export const actions = {
     }
   },
 
-  async getAuctionData({ dispatch }, options) {
+  async getAuctionData({ rootState }, options) {
     try {
-      const { data } = await this.$api.post('atomicmarket/v1/auctions', {
-        page: 1,
-        limit: 20,
-        state: '0,1,4',
-        symbol: 'WAX',
-        ...options
+      const { data } = await this.$api.get('atomicmarket/v1/auctions', {
+        params: {
+          limit: NFT_LIST_ITEM_PP,
+          state: '0,1,4',
+          symbol: 'WAX',
+          ...options
+        }
       })
+      console.log({ options })
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      return await dispatch('getAuctionData', options)
     }
   },
 
@@ -310,14 +312,15 @@ export const actions = {
     }
   },
 
-  async getAccountSpecificStats(_, { account }) {
+  async getAccountSpecificStats({ dispatch }, { account }) {
     try {
       const { data } = await this.$api.post(
         `atomicassets/v1/accounts/${account}`
       )
       return data.data
     } catch (e) {
-      console.error('Get template error', e)
+      console.error('Get stats error', e)
+      return await dispatch('getAccountSpecificStats', { account }) // refetch
     }
   },
 
@@ -377,24 +380,21 @@ export const actions = {
     }
   },
 
-  async getAssets({ dispatch }, options) {
-    const filteredOptions = Object.entries(options)
-      .filter(([key, value]) => value)
-      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
-
+  async getAssets({ rootState }, options) {
     try {
-      const { data } = await this.$api.post('atomicmarket/v1/assets', {
-        page: 1,
-        limit: options.limit || '32',
-        order: options.order || 'desc',
-        sort: options.sort || 'asset_id',
-        ...filteredOptions
+      const { data } = await this.$api.get('atomicassets/v1/assets', {
+        params: {
+          owner: rootState.user?.name,
+          // TODO: Handle pagination
+          page: 1,
+          limit: NFT_LIST_ITEM_PP,
+          ...options
+        }
       })
-
+      console.log('done', data)
       return data.data
     } catch (e) {
-      console.error('Get accounts error', e)
-      return await dispatch('getAssets', options) // refetch
+      console.error('Get accounts error x', e)
     }
   },
 
@@ -407,20 +407,20 @@ export const actions = {
     }
   },
 
-  async getSales({ dispatch }, options) {
+  async getSales({ rootState }, options) {
     try {
-      const { data } = await this.$api.post('atomicmarket/v2/sales', {
-        page: 1,
-        limit: 20,
-        state: '0,1,4',
-        symbol: 'WAX',
-        ...options
+      const { data } = await this.$api.get('atomicmarket/v2/sales', {
+        params: {
+          limit: NFT_LIST_ITEM_PP,
+          state: '0,1,4',
+          symbol: 'WAX',
+          ...options
+        }
       })
 
       return data.data
     } catch (e) {
       console.error('Get accounts error', e)
-      return await dispatch('getSales', options)
     }
   },
 
@@ -631,7 +631,7 @@ export const actions = {
       return await dispatch('getBuyOffersBySide', arguments[1]) // refetch
     }
   },
-  async getGiftLink({ dispatch, rootState }, link_id) {
+  async getGiftLink({ rootState }, link_id) {
     try {
       const { data } = await this.$api.get(`atomictools/v1/links/${link_id}`)
       return data.data
@@ -639,7 +639,7 @@ export const actions = {
       console.error('Get Gift Link Error', e)
     }
   },
-  async getBuyOffer({ dispatch, rootState }, buyoffer_id) {
+  async getBuyOffer({ rootState }, buyoffer_id) {
     try {
       const { data } = await this.$api.get(
         `atomicmarket/v1/buyoffers/${buyoffer_id}`
@@ -649,22 +649,22 @@ export const actions = {
       console.error('Get buy offer error', e)
     }
   },
-  async getBuyOffers({ dispatch, rootState }, { sort, seller }) {
+  async getBuyOffers({ rootState }, options) {
     try {
       const { data } = await this.$api.post('atomicmarket/v1/buyoffers', {
         limit: '10',
         min_price: '3',
         order: 'desc',
         page: '1',
-        seller: seller || rootState.user.name,
         sort: 'created',
         state: '0,4',
-        symbol: 'WAX'
+        symbol: 'WAX',
+        seller: rootState.user.name,
+        ...options,
       })
       return data.data
     } catch (e) {
       console.error('Get buy offers error', e)
-      return await dispatch('getBuyOffers', { sort, seller }) // refetch
     }
   },
   async getTradeOffer(_, offerID) {
@@ -774,7 +774,12 @@ export const actions = {
   async getAccountValue({ getters, rootState }, { owner }) {
     try {
       const { data } = await this.$api.get(
-        `atomicmarket/v1/stats/accounts/` + owner + '?symbol=WAX'
+        `atomicmarket/v1/stats/accounts/${owner}`,
+        {
+          params: {
+            symbol: 'WAX',
+          },
+        }
       )
       return data.data
     } catch (e) {
@@ -792,7 +797,6 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      dispatch('getTemplatePrice', { templateID })
     }
   },
   // get price history for a template for NFT sale chart
@@ -809,7 +813,6 @@ export const actions = {
       return data.data
     } catch (e) {
       console.error('Get symbol info error', e)
-      dispatch('getChartData', { schema_name, template_id, burned })
     }
   },
   // get collection set

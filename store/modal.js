@@ -17,8 +17,26 @@ export const actions = {
     context && commit('setModalContext', context)
   },
 
+  createPool({ commit }, context) {
+    commit('setCurrent', 'create-pool')
+    commit('setVisible', true)
+    context && commit('setModalContext', context)
+  },
+
   addLiquidity({ commit }, context) {
     commit('setCurrent', 'add-liquidity')
+    commit('setVisible', true)
+    context && commit('setModalContext', context)
+  },
+
+  migration({ commit }, context) {
+    commit('setCurrent', 'migration')
+    commit('setVisible', true)
+    context && commit('setModalContext', context)
+  },
+
+  previewLiquidity({ commit }, context) {
+    commit('setCurrent', 'preview-liquidity')
     commit('setVisible', true)
     context && commit('setModalContext', context)
   },
@@ -103,6 +121,6 @@ export const actions = {
 
   closeModal({ commit }) {
     commit('setVisible', false)
-    //commit('setModalContext', null)
+    commit('setModalContext', null)
   }
 }

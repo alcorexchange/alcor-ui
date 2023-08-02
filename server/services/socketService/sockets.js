@@ -33,6 +33,14 @@ export function subscribe(io, socket, client) {
       socket.join(`orders:${params.chain}.${params.market}`)
     }
 
+    if (room == 'swap') {
+      if (params.allPools) {
+        socket.join(`swap:${params.chain}`)
+      } else {
+        socket.join(`swap:${params.chain}.${params.poolId}`)
+      }
+    }
+
     if (room == 'pools') {
       socket.join(`pools:${params.chain}`)
     }
@@ -66,6 +74,11 @@ export function subscribe(io, socket, client) {
       socket.emit(`orderbook_${side}`, orderbook)
       socket.join(`orderbook:${chain}.${side}.${market}`)
     }
+
+    // TODO Swap WS
+    // if (room == 'swap') {
+    //   socket.join(`account:${params.chain}.${params.name}`)
+    // }
   })
 }
 
@@ -98,6 +111,14 @@ export function unsubscribe(io, socket) {
 
       socket.leave(`orderbook:${chain}.buy.${market}`)
       socket.leave(`orderbook:${chain}.sell.${market}`)
+    }
+
+    if (room == 'swap') {
+      if (params.allPools) {
+        socket.leave(`swap:${params.chain}`)
+      } else {
+        socket.leave(`swap:${params.chain}.${params.poolId}`)
+      }
     }
   })
 }

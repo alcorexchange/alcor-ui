@@ -29,12 +29,11 @@
       span.main 0.0000
       span.symbol.cancel WAX
     .info.cancel.fs-12 {{ $t('Last Claim') }}: 0.00000
-  .item
+  .item.pointer(@click="$router.push('/positions')")
     .title.cancel.fs-12 {{ $t('LP rewards') }}
     .value
-      span.main.green +0.0000
-      span.symbol.cancel WAX
-    .info.cancel.fs-12 0 {{ $t("Liquidity Pools") }}
+      span.main.green + ${{ lpRewards }}
+    .info.cancel.fs-12(v-if="this.$store.state.amm.positions") {{ this.$store.state.amm.positions.length }} {{ $t("Liquidity Pools") }}
 </template>
 
 <script>
@@ -50,7 +49,20 @@ export default {
       pairsCount: 'wallet/pairsCount',
       systemBalance: 'systemBalance',
       network: 'network'
-    })
+    }),
+
+    lpRewards() {
+      let total = 0
+
+      this.$store.getters['amm/positions'].forEach(p => {
+        const { tokenA, tokenB } = p.pool
+
+        total += parseFloat(this.$tokenToUSD(p.feesA, tokenA.symbol, tokenA.contract))
+        total += parseFloat(this.$tokenToUSD(p.feesB, tokenB.symbol, tokenB.contract))
+      })
+
+      return total.toFixed(2)
+    }
   }
 }
 </script>

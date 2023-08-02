@@ -22,16 +22,18 @@ export default class AnchoWallet extends WalletBase {
 
     this.createLink()
 
-    window.addEventListener('eosjsRpcSwitched', async e => {
-      this.createLink()
+    // TODO Manage changing RPC
+    // TODO Broke IBC Logic
+    // window.addEventListener('eosjsRpcSwitched', async e => {
+    //   this.createLink()
 
-      const session = await this.link.restoreSession('Alcor Exchange')
+    //   const session = await this.link.restoreSession('Alcor Exchange')
 
-      if (session) {
-        this.session = session
-        console.log('Anchor Provider session updated during rpc change')
-      }
-    })
+    //   if (session) {
+    //     this.session = session
+    //     console.log('Anchor Provider session updated during rpc change')
+    //   }
+    // })
   }
 
   logout() {
@@ -82,6 +84,7 @@ export default class AnchoWallet extends WalletBase {
   }
 
   transact(...args) {
+    console.log('anchor seeion in transact: ', this.session)
     return this.session.transact(...args)
   }
 }

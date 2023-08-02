@@ -1,6 +1,6 @@
 <template lang="pug">
 #nfts-marketplace-sales-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25(v-if="loading")
     vue-skeleton-loader(
       v-if="!listings"
       v-for="idx in [1,2,3,4]"
@@ -11,7 +11,9 @@
       wave-color='rgba(150, 150, 150, 0.1)',
       :rounded='true'
     )
-    market-sale-card(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="item.seller")
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25(v-else)
+    MarketSaleCard(v-if="listings" v-for="item in listings" :key="item.asset_id" :data="item" :ownerName="item.seller")
+  infinite-loading(@infinite='getListings' v-if="canInfinite" :identifier="$route.query")
 </template>
 
 <script>
@@ -22,34 +24,45 @@ import MarketSaleCard from '~/components/cards/MarketSaleCard'
 export default {
   components: { MarketSaleCard, VueSkeletonLoader },
   data: () => ({
-    listings: null,
-    debounce: null
+    listings: [],
+    loading: false,
+    page: 1,
+    canInfinite: false
   }),
   watch: {
     '$route.query'() {
-      this.getListings()
+      this.page = 1
+      this.getListings({
+        loaded: () => { },
+        complete: () => { }
+      })
     }
   },
   mounted() {
-    this.getListings()
+    this.getListings({
+      loaded: () => { },
+      complete: () => { }
+    })
   },
   methods: {
     ...mapActions('api', ['getSales', 'getBuyOffers']),
-    getListings() {
-      clearTimeout(this.debounce)
-      this.debounce = setTimeout(async () => {
-        this.listings = null
-        this.listings = await this.getSales({
-          sort: this.$route.query?.sorting?.split('-')[0] || null,
-          order: this.$route.query?.sorting?.split('-')[1] || null,
-          collection_name: this.$route.query?.collection,
-          match: this.$route.query?.match,
-          max_template_mint: this.$route.query?.maxMint,
-          min_template_mint: this.$route.query?.minMint,
-          max_price: this.$route.query?.maxPrice,
-          min_price: this.$route.query?.minPrice
-        })
-      }, 600)
+    async getListings($state) {
+      console.log('get listings, page:', this.page)
+      if (this.page == 1) this.loading = true
+      const res = await this.getSales({
+        ...this.$route.query
+      })
+      this.listings = this.page == 1 ? res : [...this.listings, ...(res || [])]
+      this.page++
+      this.canInfinite = true
+      this.loading = false
+      if (res && res.length) {
+        $state.loaded()
+      } else if (res && !res.length) {
+        $state.complete()
+      } else if (!res) {
+        $state.error()
+      }
     }
   }
 }

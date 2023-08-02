@@ -1,6 +1,6 @@
 <template lang="pug">
 #wallet-nfts-sets-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if='loading'
       :width='304',
@@ -35,6 +35,7 @@ export default {
   watch: {
     '$route.query'() {
       this.getSets()
+      //this.getUserCollections()
     }
   },
   async mounted() {
@@ -50,6 +51,7 @@ export default {
       this.userCollections = collections.map(({ collection: { collection_name } }) => collection_name).join(',')
     },
     async getSets() {
+      if (!this.userCollections) await this.getUserCollections()
       this.loading = true
       this.sets = await this.$store.dispatch('api/getCollections', {
         search: this.$route.query?.match,

@@ -5,7 +5,6 @@
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
       span {{ $t("Before transferring to exchange, you have to withdraw it to it's original chain using BOS IBC Transfer button") }} !
 
-    h1 sdafdsfdf
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mt-1(prop="address")
         template(slot="label")

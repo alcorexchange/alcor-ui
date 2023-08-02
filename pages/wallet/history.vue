@@ -1,6 +1,6 @@
 <template lang="pug">
 .wallet
-  virtual-table(v-if="loaded" :table="virtualTableData")
+  virtual-table(v-if="loaded" :table="virtualTableData" @update="update")
     template(#row="{ item }")
       .history-row(@touch="() => redirect(item)" @click="() => redirect(item)")
         .type
@@ -26,13 +26,14 @@ export default {
   components: { VirtualTable },
   data() {
     return {
-      deals: [],
-      skip: 0
+      userDeals: [],
+      skip: 0,
+      limit: 25
     }
   },
 
   computed: {
-    ...mapState(['user', 'markets_obj', 'userDeals']),
+    ...mapState(['user', 'markets_obj']),
     ...mapState('market', ['base_token', 'quote_token', 'id']),
     loaded() {
       return this.markets_obj[0] && this.userDeals.length
@@ -106,13 +107,29 @@ export default {
     }
   },
 
-  watch: {
-    '$store.state.user'() {
-      this.$store.dispatch('fetchUserDeals')
-    }
+  mounted() {
+    this.userDeals = []
+    this.fetchDealsChank()
   },
 
   methods: {
+    update([start, end]) {
+      if (end === this.skip + this.limit) {
+        this.skip += this.limit
+        this.fetchDealsChank()
+      }
+    },
+    async fetchDealsChank() {
+      const { skip, limit } = this
+      const params = { skip, limit }
+
+      const { data: chank } = await this.$axios.get(
+        `/account/${this.$store.state.user.name}/deals`,
+        { params }
+      )
+
+      if (chank.length) this.userDeals.push(...chank)
+    },
     redirect(item) {
       if (this.isMobile) window.location.href = this.monitorTx(item.trx_id)
     },

@@ -3,7 +3,7 @@
   nuxt-link(:to="localePath('nft-market', $i18n.locale)" :exact='true')
     #return-btn {{ $t('Return') }}
   h4 {{ $t('Marketplace') }}
-  .d-flex.align-items-center.gap-24
+  .d-flex.align-items-center.gap-24.flex-wrap
     input-search(v-model="filters.match")
     alcor-filters(:filters.sync="filters", :options="options")
     alcor-tabs(:links="true" :tabs="tabs")

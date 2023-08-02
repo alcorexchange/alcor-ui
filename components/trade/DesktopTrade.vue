@@ -302,7 +302,6 @@ export default {
 
     layouts: {
       handler(newValue) {
-        console.log('layouts: ', JSON.stringify(newValue))
         // We update only for advanced mode
         if (this.current_market_layout != 'advanced') return
 

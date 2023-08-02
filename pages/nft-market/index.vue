@@ -10,16 +10,17 @@
       NftRelation(:data='relationData', :price='getPrice')
       h1.recent-title {{ $t('Recent Listenings') }}
   CatCarousel.nft-market-carousel(
-    v-if='listings.length',
+    v-if='listings && listings.length',
     :items='listings',
-    :item-per-page='4',
+    :item-per-page='isMobile ? 1 : 4',
+    :centerMode="{enabled: isMobile, paddingCenter: 10}"
     :indicators-config='{ hideIndicators: true }'
   )
     template(slot='item', slot-scope='{ data, index }')
       market-sale-card(:key="data.assets[0].asset_id" :data="data" :ownerName="data.seller")
   .d-flex.gap-24(v-else)
     vue-skeleton-loader(
-      v-for="idx in [1,2,3,4]",
+      v-for="idx in isMobile ? [1] : [1,2,3,4]",
       :key="idx",
       :width='220',
       :height='394',
@@ -30,16 +31,17 @@
 
   h1.recent-title {{ $t('New NFTs') }}
   CatCarousel.nft-market-carousel(
-    v-if='nfts.length',
+    v-if='nfts && nfts.length',
     :items='nfts',
-    :item-per-page='4',
+    :item-per-page='isMobile ? 1 : 4',
+    :centerMode="{enabled: isMobile, paddingCenter: 10}"
     :indicators-config='{ hideIndicators: true }'
   )
     template(slot='item', slot-scope='{ data, index }')
       asset-card(:key="data.asset_id" :data="data" :ownerName="data.owner")
   .d-flex.gap-24(v-else)
     vue-skeleton-loader(
-      v-for="idx in [1,2,3,4]",
+      v-for="idx in isMobile ? [1] : [1,2,3,4]",
       :key="idx",
       :width='220',
       :height='394',
@@ -159,27 +161,14 @@ export default {
           title: 'ALCOR',
           subTItle: 'NFT MARKETPLACE',
           img: Img1,
-          to: {
-            name: `nft-market-nft-marketplace-sales___${this.$i18n.locale}`,
-            query: {
-              match: '',
-              collection: null,
-              sorting: null,
-              minMint: null,
-              maxMint: null,
-              minPrice: null,
-              maxPrice: null,
-              isDuplicates: null,
-              isBacked: null
-            }
-          }
+          to: this.localeRoute('/nft-market/nft-marketplace/sales')
         },
         {
           title: 'WALLET',
           subTItle: this.user ? this.user.name : '',
           img: Img2,
           subImage: subImg,
-          to: { name: `wallet-nfts___${this.$i18n.locale}` }
+          to: this.localeRoute('/wallet/nfts')
         },
         {
           title: 'ALCOR',
@@ -377,8 +366,12 @@ export default {
 }
 
 .card-container {
-  width: 470px;
-  height: 200px;
+  max-width: 470px;
+  width: 100%;
+
+  video {
+    width: 100%;
+  }
 }
 
 #loading {

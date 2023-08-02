@@ -4,11 +4,17 @@
   --main-action-red: #FF7262;
   --main-wax: #F89022;
   --main-red: #f96c6c;
+  --main-yellow: #ffc107;
   --secondary-green: #1fc781;
   --black-primary: #161617;
   --radius: 4px;
   --radius-2: 8px;
   --slider-bg: #5E5E5E;
+
+  // AMM Spaces
+  --amm-space-1: 5px;
+  --amm-space-2: 8px;
+  --amm-space-3: 12px;
 }
 
 [trade-theme="default"] {
@@ -64,6 +70,10 @@
   --disabled-indicator: #C4C4C4;
   --access-indicator: #66C167;
 
+  // continer
+  --access-text-color: #66C167;
+  --access-bg: rgba(102, 193, 103, .2);
+
   // buttons
   --btn-default: #333333;
   --btn-alternative: #333333;
@@ -73,13 +83,15 @@
   --dark-btn-sm: #383838;
   --swap-tab-active: #141415;
 
+  --tag-color: rgba(120, 120, 135, 0.36);
+
   --text-default: #f2f2f2;
   --text-theme: #000;
   --text-contrast: #fff;
   --text-secondary: #d9d9d9;
   --text-grey-thirdly: #bdbdbd;
   --text-dark: #888;
-  --text-disable: #BEC6CB;
+  --text-disable: #8E8E93;
   --text-transparent: rgba(242, 242, 242, 0.3);
 
   --card-shadow: 0px -0.5px 0px rgba(0, 0, 0, 0.2);
@@ -87,6 +99,9 @@
 
   --color-text-primary: #F2F2F2;
   --border-color: #3F3F3F;
+  --border-hover-color: #1fc7816e;
+  --border-active-color: #32D74B;
+  --light-border-color: rgba(120, 120, 135, 0.36);
 
   --color-success: #8cc176;
   --color-danger: #b82c0d;
@@ -95,7 +110,8 @@
 
   --border-1: 1px solid rgba(60, 60, 67, 0.36);
   --border-1-color: rgba(60, 60, 67, 0.36); 
-  --border-2: 2px solid #3F3F3F;
+  --border-2: 2px solid rgb(63, 63, 63, 1);
+  --border-2-color: rgb(63, 63, 63, 1);
 
   --selector-bg: #282828;
 
@@ -119,6 +135,7 @@
   --cancel: #c4c4c4;
 
   --select-color: #333333;
+  --select-color-dark: #161617;
 }
 
 .theme-light {
@@ -159,7 +176,12 @@
   --text-disable: #c4c4c4;
   --text-transparent: rgba(0, 0, 0, 0.3);
 
+  --tag-color: rgba(120, 120, 135, 0.36);
+
   --border-color: #CDD0D6;
+  --border-hover-color: #1fc7816e;
+  --border-active-color: #32D74B;
+  --light-border-color: rgba(120, 120, 135, 0.36);
 
   --card-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
   --dropdown-shadow: 0px 5px 20px rgba(0, 0, 0, 0.08);
@@ -189,5 +211,6 @@
 
   --normal-card-shadow: #aaaaaa8a;
   --select-color: #ffffff;
+  --select-color-dark: #f2f2f2;
 }
 

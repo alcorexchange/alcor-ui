@@ -1,7 +1,7 @@
 <template lang="pug">
 #nftexplorer-page
   .text-center(v-if="!$route.query.match") {{ $t('Accounts can only be searched') }}
-  .d-flex.flex-wrap.gap-25(v-else)
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25(v-else)
     vue-skeleton-loader(
       v-if="!accounts"
       v-for="idx in [1,2,3,4]"

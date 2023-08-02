@@ -1,4 +1,6 @@
+import Vue from 'vue'
 import { uuidv4 } from '~/utils'
+
 
 export default ({ app: { store, $axios } }, inject) => {
   window.onNuxtReady(() => {
@@ -10,6 +12,7 @@ export default ({ app: { store, $axios } }, inject) => {
     }
 
     store.dispatch('init')
+
     store.dispatch('swap/init')
     store.dispatch('chain/init')
     store.dispatch('market/init')
@@ -17,9 +20,12 @@ export default ({ app: { store, $axios } }, inject) => {
     store.dispatch('settings/init')
     store.dispatch('ibcBridge/init')
 
-    if (process.env.isDev) {
-      //const VConsole = require('vconsole')
-      //Vue.prototype.$vConsole = new VConsole()
-    }
+    store.dispatch('amm/init')
+    store.dispatch('amm/swap/init')
+
+    // if (process.env.isDev) {
+    //   const VConsole = require('vconsole')
+    //   Vue.prototype.$vConsole = new VConsole()
+    // }
   })
 }

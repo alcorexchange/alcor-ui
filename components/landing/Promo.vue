@@ -131,7 +131,7 @@ export default {
   destroyed() { clearInterval(this.interval) },
   methods: {
     async fetchCharts() {
-      if (this.promo) {
+      if (this.promo && this.promo.poolId) {
         const charts = (await this.$axios.get(`/pools/${this.promo.poolId}/charts`, { params: { period: '24H' } })).data
         const newData = charts.map(point =>
           ({ x: point.time, y: this.$options.filters.commaFloat(point.price) })
@@ -140,6 +140,7 @@ export default {
           ({ x: point.time, y: point.liquidity1.toFixed(6) })
         )
         this.series[0].data = newData
+        // FIXME: Maybe move it out of 'if'.
         this.options.colors = [COLORS[this.$colorMode.value][this.isRed ? 'down' : 'up']]
       }
     },

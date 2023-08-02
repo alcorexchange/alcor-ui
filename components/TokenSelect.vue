@@ -2,7 +2,7 @@
 element-select.token-select(:options="[1]" :disableList="true")
   template(#preOptions v-show="visible")
     el-input.search(v-model='search' placeholder="Search by name or contract")
-    recycle-scroller.scroller(:emit-update="true" class="scroller" :items="tokensFiltered" :item-size="42")
+    recycle-scroller.token-select(:emit-update="true" class="scroller" :items="tokensFiltered" :item-size="42")
       template(v-slot="{ item: token }")
         .token.d-flex.justify-content-between.align-items-center.p-2(@click="changeSelected(token)" :class="{ active: isActiveToken(token) }")
           .d-flex.gap-8.align-items-center
@@ -98,7 +98,7 @@ export default {
 .token-select,
 .el-popup-parent--hidden {
 
-  .scroller {
+  .token-select.scroller {
     padding: 0px 10px;
   }
 
@@ -114,17 +114,6 @@ export default {
       background: var(--background-color-secondary);
       font-size: 12px;
       border-radius: 4px;
-    }
-  }
-
-  .amount {
-    .el-input__inner {
-      font-size: 18px;
-    }
-    &.is-disabled {
-      .el-input__inner {
-        background-color: var(--background-color-secondary);
-      }
     }
   }
 
@@ -145,7 +134,7 @@ export default {
     max-height: 300px;
   }
 
-  .el-input {
+  .el-input-number .el-input {
     font-size: 16px;
   }
 

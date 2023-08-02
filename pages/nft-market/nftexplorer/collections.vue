@@ -1,6 +1,6 @@
 <template lang="pug">
 #nftexplorer-page
-  .d-flex.flex-wrap.gap-25
+  .d-flex.justify-content-center.justify-content-md-start.flex-wrap.gap-25
     vue-skeleton-loader(
       v-if="!collections"
       v-for="idx in [1,2,3,4]"

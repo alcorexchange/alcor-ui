@@ -8,8 +8,6 @@ export const mutations = {
 
 export const actions = {
   async init({ state, commit, dispatch, rootState, getters }) {
-    if (rootState.network.name == 'proton') return commit('setSystemPrice', 1)
-
     const { data } = await this.$axios.get('https://api.coingecko.com/api/v3/simple/price',
       {
         params: {

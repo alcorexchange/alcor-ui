@@ -1,8 +1,8 @@
-const MAX_PAGINATION_FETCHES = 5
+const MAX_PAGINATION_FETCHES = 10
 
+import fetch from 'node-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
 import { shuffleArray } from './index'
-
 
 export function getMultyEndRpc(nodes) {
   shuffleArray(nodes)
@@ -25,7 +25,6 @@ export const fetchAllRows =
     let rows = []
     let lowerBound = mergedOptions.lower_bound
 
-    /* eslint-disable no-await-in-loop */
     for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
       const result = await rpc.get_table_rows({
         ...mergedOptions,
@@ -36,6 +35,7 @@ export const fetchAllRows =
       if (!result.more || result.rows.length === 0) break
 
       // EOS 2.0 api
+      // TODO Add 'more' key
       if (typeof result.next_key !== 'undefined') {
         lowerBound = result.next_key
       } else {

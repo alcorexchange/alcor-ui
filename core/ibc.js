@@ -1,3 +1,10 @@
+import createHash from 'create-hash'
+import { SerialBuffer, createInitialTypes, getTypesFromAbi } from 'eosjs/dist/eosjs-serialize'
+import { Api } from 'eosjs'
+
+import { captureException } from '@sentry/browser'
+import { getProveContract } from '../utils/ibc'
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const arrayToHex = (data) => {
@@ -6,15 +13,24 @@ const arrayToHex = (data) => {
   return result.toUpperCase()
 }
 
+//eosio name helper functions
+const char_to_symbol = c => {
+  if (typeof c == 'string') c = c.charCodeAt(0)
+  if (c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) return c - 'a'.charCodeAt(0) + 6
+  if (c >= '1'.charCodeAt(0) && c <= '5'.charCodeAt(0)) return c - '1'.charCodeAt(0) + 1
+  return 0
+}
+
 export class IBCTransfer {
   emitxferAction = null
 
-  constructor(source, destination, sourceWallet, destinationWallet, asset) {
+  constructor(source, destination, sourceWallet, destinationWallet, asset, onProgress) {
     this.source = source
     this.destination = destination
     this.asset = asset
     this.sourceWallet = sourceWallet
     this.destinationWallet = destinationWallet
+    this.onProgress = onProgress
   }
 
   getTransferAction({ wrapLockContract, quantity, nativeTokenContract }) {
@@ -41,6 +57,23 @@ export class IBCTransfer {
         quantity,
         beneficiary: this.destinationWallet.name
       }
+    }
+  }
+
+  async getLastProvenBlock() {
+    const lastBlockProved = await this.destination.rpc.get_table_rows({
+      code: this.asset.bridgeContract, // TODO Assuming prove contract have same name in both chains. (we need check here)
+      table: 'lastproofs',
+      scope: this.source.ibc.name,
+      limit: 1,
+      reverse: true,
+      show_payer: false
+    })
+
+    if (lastBlockProved && lastBlockProved.rows[0]) {
+      return lastBlockProved.rows[0]
+    } else {
+      return null
     }
   }
 
@@ -173,6 +206,8 @@ export class IBCTransfer {
               tx
             )
           } catch (ex) {
+            captureException(ex)
+            chain.rpc.nextEndpoint()
             //handle duplicate tx error, in case it auto got included in next block than reported, check next block and so on
             console.log(ex)
             //TODO verify exception is duplicate tx error
@@ -184,6 +219,9 @@ export class IBCTransfer {
           }
         }
       } catch (ex) {
+        captureException(ex)
+        chain.rpc.nextEndpoint()
+
         console.log('lost internet, retrying', ex)
       }
     } // end of while
@@ -191,6 +229,8 @@ export class IBCTransfer {
 
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.source.ibc.proofSocket)
+
+      console.log('getBlockActions', tx.processed.block_num)
       ws.addEventListener('open', (event) =>
         ws.send(
           JSON.stringify({
@@ -204,7 +244,7 @@ export class IBCTransfer {
         const res = JSON.parse(event.data)
         console.log('res', res)
         const firhoseTx = res.txs.find((r) =>
-          r.find((s) => s.transactionId === transaction_id)
+          r.find((s) => s.transactionId.toLowerCase() === transaction_id.toLowerCase())
         )
         console.log('firhoseTx', firhoseTx)
         const firehoseEmitxfer = firhoseTx.find(
@@ -230,14 +270,16 @@ export class IBCTransfer {
     })
   }
 
-  getProof({ type = 'heavyProof', block_to_prove, action, onProgress }) {
-    console.log('get proof txID: ', action.trx_id)
-    return new Promise((resolve) => {
+  getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
+    //console.log('get proof txID: ', action?.trx_id)
+    console.log('get proof txID: ', action)
+    return new Promise((resolve, reject) => {
       //initialize socket to proof server
       const ws = new WebSocket(this.source.ibc.proofSocket)
       ws.addEventListener('open', (event) => {
         // connected to websocket server
         const query = { type, block_to_prove }
+        if (last_proven_block) query.last_proven_block = last_proven_block
         if (action) query.action_receipt = action.receipt
         ws.send(JSON.stringify(query))
       })
@@ -246,10 +288,11 @@ export class IBCTransfer {
       ws.addEventListener('message', (event) => {
         const res = JSON.parse(event.data)
         //log non-progress messages from ibc server
+        if (res.type == 'error') return reject(res.error)
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
-          onProgress(res.progress)
+          if (this.onProgress) this.onProgress(res.progress)
           console.log('progress', res.progress)
         }
 
@@ -257,16 +300,17 @@ export class IBCTransfer {
 
         ws.close()
 
+        let name
+        if (type === 'lightProof') name = this.asset.native ? 'issueb' : 'withdrawb'
+        else name = !action ? 'checkproofd' : this.asset.native ? 'issuea' : 'withdrawa'
+
         //handle issue/withdraw if proving transfer/retire 's emitxfer action, else submit block proof to bridge directly (for schedules)
         const actionToSubmit = {
           authorization: [this.destinationWallet.authorization],
-          name: !action
-            ? 'checkproofd'
-            : this.asset.native
-              ? 'issuea'
-              : 'withdrawa',
+          name,
           account: !action
-            ? this.destination.ibc.bridgeContract
+            //? this.destination.ibc.bridgeContracts[this.source.ibc.name]
+            ? this.asset.bridgeContract
             : this.asset.native
               ? this.asset.pairedWrapTokenContract
               : this.asset.wrapLockContract,
@@ -305,15 +349,17 @@ export class IBCTransfer {
   }
 
   async getScheduleProofs(transferBlock) {
-    async function getProducerScheduleBlock(blocknum) {
+    const getProducerScheduleBlock = async (blocknum) => {
       try {
+        console.log('this.source', this)
         let header = await this.source.rpc.get_block(blocknum)
         const target_schedule = header.schedule_version
 
         let min_block = 2
         //fetch last proved block to use as min block for schedule change search
         const lastBlockProved = await this.destination.rpc.get_table_rows({
-          code: this.destination.ibc.bridgeContract,
+          //code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+          code: this.asset.bridgeContract,
           table: 'lastproofs',
           scope: this.source.ibc.name,
           limit: 1,
@@ -334,6 +380,8 @@ export class IBCTransfer {
             if (header.schedule_version < target_schedule) min_block = blocknum
             else max_block = blocknum
           } catch (ex) {
+            captureException(ex)
+            this.source.rpc.nextEndpoint()
             console.log('Internet connection lost, retrying')
           }
         }
@@ -350,6 +398,7 @@ export class IBCTransfer {
             header = await this.source.rpc.get_block(blocknum)
             blocknum++
           } catch (ex) {
+            this.source.rpc.nextEndpoint()
             console.log('Internet connection lost, retrying')
           }
         }
@@ -357,14 +406,17 @@ export class IBCTransfer {
         blocknum = header.block_num
         return blocknum
       } catch (ex) {
+        captureException(ex)
+        this.destination.rpc.nextEndpoint()
         console.log('getProducerScheduleBlock ex', ex)
-        return null
+        throw new Error(ex)
       }
     }
 
     const proofs = []
     const bridgeScheduleData = await this.destination.rpc.get_table_rows({
-      code: this.destination.ibc.bridgeContract,
+      //code: this.destination.ibc.bridgeContracts[this.source.ibc.name],
+      code: this.asset.bridgeContract,
       table: 'schedules',
       scope: this.source.ibc.name,
       limit: 1,
@@ -404,6 +456,9 @@ export class IBCTransfer {
         proof.data.blockproof.blocktoprove.block.header.schedule_version
       schedule_block = block_num
       proofs.unshift(proof)
+
+      // FIXME TEST
+      //break
     }
 
     // check for pending schedule and prove pending schedule if found;
@@ -412,9 +467,15 @@ export class IBCTransfer {
       let currentBlock = transferBlock + 0
 
       while (!newPendingBlockHeader) {
-        const bHeader = await this.source.rpc.get_block(currentBlock)
-        if (bHeader.new_producer_schedule) newPendingBlockHeader = bHeader
-        else currentBlock--
+        try {
+          const bHeader = await this.source.rpc.get_block(currentBlock)
+          if (bHeader.new_producer_schedule) newPendingBlockHeader = bHeader
+          else currentBlock--
+        } catch (ex) {
+          captureException(ex)
+          this.source.rpc.nextEndpoint()
+          console.log('Internet connection lost, retrying')
+        }
       }
 
       const pendingProof = await this.getProof({
@@ -426,4 +487,145 @@ export class IBCTransfer {
 
     return proofs
   }
+}
+
+const abis = {}
+export async function getReceiptDigest(source, receipt, action, returnValueEnabled) {
+  const eosApi = new Api({ rpc: source.rpc })
+  const cache = source.name + action.act.name
+
+  const lockAbi = cache in abis ? abis[cache] : await eosApi.getAbi(action.act.account)
+  abis[cache] = lockAbi
+
+  const abiTypes = getTypesFromAbi(createInitialTypes(), lockAbi)
+
+  const types = createInitialTypes()
+  const eosjsTypes = {
+    name: types.get('name'),
+    bytes: types.get('bytes'),
+    uint8: types.get('uint8'),
+    uint16: types.get('uint16'),
+    uint32: types.get('uint32'),
+    uint64: types.get('uint64'),
+    varuint32: types.get('varuint32'),
+    checksum256: types.get('checksum256'),
+  }
+
+  const { name, uint8, uint64, varuint32, checksum256, bytes } = eosjsTypes
+
+  const nameToUint64 = (s) => {
+    let n = 0n
+    let i = 0
+    for (; i < 12 && s[i]; i++)
+      n |=
+        BigInt(char_to_symbol(s.charCodeAt(i)) & 0x1f) <<
+        BigInt(64 - 5 * (i + 1))
+    if (i == 12) n |= BigInt(char_to_symbol(s.charCodeAt(i)) & 0x0f)
+    return n.toString()
+  }
+
+  const getBaseActionDigest = (a) => {
+    const buff = new SerialBuffer({ TextEncoder, TextDecoder })
+
+    uint64.serialize(buff, nameToUint64(a.account))
+    uint64.serialize(buff, nameToUint64(a.name))
+    varuint32.serialize(buff, a.authorization.length)
+
+    for (let i = 0; i < a.authorization.length; i++) {
+      uint64.serialize(buff, nameToUint64(a.authorization[i].actor))
+      uint64.serialize(buff, nameToUint64(a.authorization[i].permission))
+    }
+
+    return createHash('sha256').update(buff.asUint8Array()).digest('hex')
+  }
+
+  const getDataDigest = (act, returnValue) => {
+    const buff = new SerialBuffer({ TextEncoder, TextDecoder })
+    bytes.serialize(buff, act.hex_data)
+    bytes.serialize(buff, returnValue)
+    return createHash('sha256').update(buff.asUint8Array()).digest('hex')
+  }
+
+  //if act_digest and hex_data is not part of receipt (hyperion) then calculate them
+  if (!receipt.act_digest) {
+    const buff = new SerialBuffer({ TextEncoder, TextDecoder })
+    abiTypes.get('emitxfer').serialize(buff, action.act.data)
+    const serializedTransferData = Buffer.from(buff.asUint8Array()).toString(
+      'hex'
+    )
+    action.act.hex_data = serializedTransferData
+
+    receipt.abi_sequence = action.abi_sequence
+    receipt.code_sequence = action.code_sequence
+
+    //calculate receipt digest
+
+    if (returnValueEnabled) {
+      const base_hash = await getBaseActionDigest(action.act)
+      const data_hash = await getDataDigest(action.act, '')
+
+      const buff1 = Buffer.from(base_hash, 'hex')
+      const buff2 = Buffer.from(data_hash, 'hex')
+
+      const buffFinal = Buffer.concat([buff1, buff2])
+      receipt.act_digest = await createHash('sha256')
+        .update(buffFinal)
+        .digest('hex')
+    } else {
+      const actionBuffer = new SerialBuffer({ TextEncoder, TextDecoder })
+      const action2 = {
+        account: action.act.account,
+        name: action.act.name,
+        authorization: action.act.authorization,
+        data: serializedTransferData,
+      }
+
+      abiTypes.get('action').serialize(actionBuffer, action2)
+      receipt.act_digest = await createHash('sha256')
+        .update(actionBuffer.asUint8Array())
+        .digest('hex')
+    }
+  }
+
+  const buff = new SerialBuffer({ TextEncoder, TextDecoder })
+
+  //handle different formats of receipt for dfuse (camelCase) and nodeos
+
+  //if receipt is in nodeos format, convert to dfuse format
+  if (receipt.act_digest && !receipt.digest) {
+    const authSequence = []
+    for (const auth of receipt.auth_sequence)
+      authSequence.push({ accountName: auth.account, sequence: auth.sequence })
+
+    receipt = {
+      receiver: receipt.receiver,
+      digest: receipt.act_digest,
+      globalSequence: parseInt(receipt.global_sequence),
+      recvSequence: parseInt(receipt.recv_sequence),
+      authSequence,
+      codeSequence: action.code_sequence,
+      abiSequence: action.abi_sequence,
+    }
+  }
+
+  name.serialize(buff, receipt.receiver)
+  checksum256.serialize(buff, receipt.digest)
+  uint64.serialize(buff, receipt.globalSequence)
+  uint64.serialize(buff, receipt.recvSequence)
+
+  if (receipt.authSequence) {
+    varuint32.serialize(buff, receipt.authSequence.length)
+    for (const auth of receipt.authSequence) {
+      name.serialize(buff, auth.accountName)
+      uint64.serialize(buff, auth.sequence)
+    }
+  } else varuint32.serialize(buff, 0)
+
+  if (receipt.codeSequence) varuint32.serialize(buff, receipt.codeSequence)
+  else varuint32.serialize(buff, 0)
+
+  if (receipt.abiSequence) varuint32.serialize(buff, receipt.abiSequence)
+  else varuint32.serialize(buff, 0)
+
+  return await createHash('sha256').update(buff.asUint8Array()).digest('hex')
 }

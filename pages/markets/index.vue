@@ -78,7 +78,8 @@ export default {
 
     markets_active_tab: {
       get() {
-        return this.$store.state.market.markets_active_tab || this.network.baseToken.symbol
+        const def = this.network.name == 'proton' ? 'all' : this.network.baseToken.symbol
+        return this.$store.state.market.markets_active_tab || def
       },
 
       set(value) {
@@ -193,7 +194,9 @@ export default {
 
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
-            i => i.base_token.symbol.name == this.network.baseToken.symbol)
+            i => i.base_token.symbol.name == this.network.baseToken.symbol ||
+            this.network.USD_TOKEN == i.base_token.str
+          )
           break
 
         case 'USDT':
@@ -215,11 +218,13 @@ export default {
           break
 
         default: {
+          // Cross Chain
           const ibcTokens = this.$store.state.ibcTokens.filter(
             i => i != this.network.baseToken.contract
           )
           markets = this.markets.filter((i) => {
             return (
+              this.network.USD_TOKEN.includes(i.base_token.contract) ||
               ibcTokens.includes(i.base_token.contract) ||
               ibcTokens.includes(i.quote_token.contract) ||
 

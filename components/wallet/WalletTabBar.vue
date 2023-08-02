@@ -1,7 +1,8 @@
 <template lang="pug">
 div.wallet-tab-bar
   AlcorLink.tab-bar-item(
-    v-for="{name, to, exact, isNFT} in urls"
+    v-for="{name, to, exact, isNFT, showInNetworks} in urls"
+    v-if="!showInNetworks || showInNetworks.includes($store.state.network.name)"
     :class="{'nft-tab': isNFT}"
     :to="to"
     :exact="exact"
@@ -24,20 +25,8 @@ export default {
         { name: 'History', to: '/wallet/history' },
         {
           name: 'NFT’s',
-          to: {
-            name: 'wallet-nfts',
-            query: {
-              match: '',
-              collection: null,
-              sorting: null,
-              minMint: null,
-              maxMint: null,
-              minPrice: null,
-              maxPrice: null,
-              isDuplicates: null,
-              isBacked: null
-            }
-          }
+          showInNetworks: ['wax'],
+          to: '/wallet/nfts'
         },
         { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
         { name: 'Resources', to: '/wallet/resources' }

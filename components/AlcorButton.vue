@@ -1,12 +1,13 @@
 <template>
-  <button
-    :class="['alcor-button', { flat, alternative, access, orange, danger, outline, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
+  <component
+    :is="tag"
+    :class="['alcor-button', { flat, alternative, access, orange, danger, outline, bordered, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
     @click.prevent="$emit('click')"
     v-bind="$attrs">
     <div class="inner">
       <slot />
     </div>
-  </button>
+  </component>
 </template>
 
 <script>
@@ -45,6 +46,10 @@ export default {
       default: false,
       type: Boolean
     },
+    bordered: {
+      default: false,
+      type: Boolean
+    },
     compact: {
       default: false,
       type: Boolean
@@ -60,6 +65,9 @@ export default {
     iconOnlyAlt: {
       default: false,
       type: Boolean
+    },
+    tag: {
+      default: 'button'
     }
   }
 }
@@ -68,10 +76,11 @@ export default {
 <style scoped lang="scss">
 button {
   border: none;
-  font-family: 'Sans', sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: inherit;
   font-size: 1rem;
   cursor: pointer;
+  line-height: 1.2;
 }
 
 .alcor-button {
@@ -91,6 +100,7 @@ button {
   }
   &:disabled {
     cursor: not-allowed;
+    pointer-events: none;
   }
 }
 
@@ -126,6 +136,15 @@ button {
   background: var(--btn-outline);
 }
 
+.alcor-button.bordered {
+  background: transparent !important;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  &:hover{
+    border: 1px solid var(--border-2-color);
+  }
+}
+
 .alcor-button.orange {
   background: linear-gradient(90deg, #854000 0%, #FF8A00 100%);
   border: 1px solid #854000;
@@ -146,7 +165,6 @@ button {
 .alcor-button.danger {
   background: var(--main-action-red);
   border: 1px solid var(--main-action-red);
-  color: var(--text-theme);
 }
 
 .alcor-button.danger:hover {

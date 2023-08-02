@@ -1,4 +1,4 @@
-<template lang='pug'>
+<template lang="pug">
 .wallet-row
   .token
     .token-image

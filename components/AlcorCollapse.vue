@@ -11,7 +11,6 @@ el-collapse#alcor-collapse
 #alcor-collapse {
   .el-collapse-item {
     &__header {
-      border-radius: 10px;
       color: var(--text-default);
       padding: 15px;
       &.is-active {

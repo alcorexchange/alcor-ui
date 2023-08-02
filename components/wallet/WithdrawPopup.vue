@@ -19,6 +19,7 @@
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
           span(slot="suffix").mr-1 {{ this.token.currency }}
+        .text ~${{ usdValue }}
 
       el-form-item
         .label Memo
@@ -84,6 +85,13 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
+
+    usdValue() {
+      if (!this.user || !this.user.balances || !this.token.currency)
+        return '0.00'
+
+      return this.$tokenToUSD(this.form.amount, this.token.currency, this.token.contract)
+    },
 
     networks() {
       return Object.values(config.networks)

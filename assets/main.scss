@@ -5,7 +5,7 @@
 // Add elements scss (themed by variables)
 @import './element.scss';
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;350;400;500;700&display=swap');
 
 @font-face {
   font-family: element-icons;
@@ -33,9 +33,9 @@ body {
 
 p {
   margin: 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  // white-space: nowrap;
+  // text-overflow: ellipsis;
+  // overflow: hidden;
 
   &.disable {
     color: var(--text-disable);
@@ -77,6 +77,10 @@ label {
   margin: 0px;
 }
 
+.empty-div {
+  display: contents;
+}
+
 .pointer {
   cursor: pointer;
 }
@@ -87,13 +91,9 @@ label {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1175px) {
   .container {
     max-width: 100%;
-  }
-
-  .el-dialog {
-    width: 90% !important;
   }
 
   .el-menu-item {
@@ -589,6 +589,16 @@ a {
   }
 }
 
+.increase-liquidity .el-dialog {
+  .el-dialog__header,
+  .el-dialog__body {
+    padding: 10px !important;
+  }
+  .el-dialog__headerbtn {
+    top: 10px;
+  }
+}
+
 .el-popup-parent--hidden {
   padding-right: 0 !important;
 }
@@ -701,6 +711,14 @@ a {
 
   &:hover {
     opacity: 0.8;
+  }
+}
+
+.hover-bg-lighter {
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--hover);
   }
 }
 
@@ -899,8 +917,16 @@ a {
   width: 25%;
 }
 
+.fs-40 {
+  font-size: 40px;
+}
+
 .fs-36 {
   font-size: 36px;
+}
+
+.fs-32 {
+  font-size: 32px;
 }
 
 .fs-24 {
@@ -929,6 +955,37 @@ a {
 
 .fs-12 {
   font-size: 12px;
+}
+.md-fs-14 {
+  @media (min-width: 768px) {
+    font-size: 14px !important;
+  }
+}
+.md-fs-16 {
+  @media (min-width: 768px) {
+    font-size: 16px !important;
+  }
+}
+.md-fs-20 {
+  @media (min-width: 768px) {
+    font-size: 20px !important;
+  }
+}
+
+.md-fs-24 {
+  @media (min-width: 768px) {
+    font-size: 24px !important;
+  }
+}
+.md-fs-36 {
+  @media (min-width: 768px) {
+    font-size: 36px !important;
+  }
+}
+.md-fs-48 {
+  @media (min-width: 768px) {
+    font-size: 48px !important;
+  }
 }
 
 .lh-12 {
@@ -962,6 +1019,39 @@ a {
 .br-4 {
   border-radius: 4px;
 }
+.br-6 {
+  border-radius: 6px;
+}
+.br-8 {
+  border-radius: 8px;
+}
+.el-input.br-20 {
+  .el-input__inner {
+    border-radius: 20px;
+  }
+}
+.el-input.dark {
+  & .el-input__inner {
+    border: 1px solid var(--select-color-dark);
+    background: var(--select-color-dark) !important;
+  }
+}
+.el-input.default {
+  & .el-input__inner {
+    border: 1px solid var(--select-color);
+    background: var(--select-color) !important;
+  }
+}
+
+.gap-space-1 {
+  gap: var(--amm-space-1);
+}
+.gap-space-2 {
+  gap: var(--amm-space-2);
+}
+.gap-space-3 {
+  gap: var(--amm-space-3);
+}
 
 .gap-8 {
   gap: 8px;
@@ -969,6 +1059,10 @@ a {
 
 .gap-10 {
   gap: 10px;
+}
+
+.gap-12 {
+  gap: 12px;
 }
 
 .gap-16 {
@@ -1041,17 +1135,29 @@ a {
 .bg-green {
   background: var(--main-green);
 }
+.bg-base {
+  background-color: var(--background-color-base);
+}
 
 .disable {
-  color: var(--text-disable) !important;
+  color: var(--text-disable);
 }
 .contrast {
   color: var(--text-contrast) !important;
 }
 
 .grey-border {
-  border: 1px solid var(--border-color);  
+  border: 1px solid var(--light-border-color);
 }
+
+.grey-border.border-hover:hover:not(.border-active) {
+  border-color: var(--border-2-color) !important;
+}
+
+.grey-border.border-active {
+  border: 1px solid var(--border-active-color);
+}
+
 .active-border {
   border: 1px solid var(--main-green);
   height: fit-content;
@@ -1083,8 +1189,8 @@ a {
 }
 
 .el-dropdown-menu.dropdown {
-  border: 2px solid var(--dropdown-border);
-  padding: 0;
+  border: 1px solid var(--dropdown-border);
+  border-radius: 16px;
 
   .dropdown__item {
     border-bottom: 1px solid var(--dropdown-border);
@@ -1138,4 +1244,174 @@ a {
 }
 .gap-32 {
   gap: 32px;
+}
+
+.h-fit {
+  height: fit-content;
+}
+
+.mutted {
+  cursor: not-allowed;
+  filter: opacity(0.2);
+  pointer-events: none;
+}
+
+.hover-hide:hover {
+  display: none !important;
+}
+.hover-c-contrast:hover {
+  color: var(--text-contrastt);
+}
+
+.slider-sell .el-slider__bar {
+  background-color: var(--color-secondary);
+}
+
+.slider-buy .el-slider__bar {
+  background-color: var(--color-primary);
+}
+
+.hr {
+  width: 100%;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.el-collapse.default {
+  .el-collapse-item__header {
+    height: auto;
+    line-height: unset;
+  }
+  .el-collapse-item__content {
+    padding-bottom: 0px;
+  }
+  .el-collapse-item__header,
+  .el-collapse-item__wrap {
+    background: transparent;
+  }
+}
+.w-fit {
+  width: fit-content;
+}
+.h-fit {
+  height: fit-content;
+}
+.z-1 {
+  z-index: 1;
+}
+.lh-14 {
+  line-height: 14px;
+}
+.p-relative {
+  position: relative;
+}
+.p-absolute {
+  position: absolute;
+}
+.t-10 {
+  top: 10px;
+}
+.t-15 {
+  top: 15px;
+}
+
+.custom-responsive-table {
+  .mobile-label {
+    display: none;
+  }
+  .el-table__cell {
+    border-top: none !important;
+  }
+  .el-table__row {
+    &:hover {
+      background: var(--hover) !important;
+    }
+  }
+}
+@media only screen and (max-width: 1100px) {
+  .custom-responsive-table{
+    .mobile-label{
+      display: block;
+    }
+    .el-table__header-wrapper {
+      display: none;
+    }
+    .el-table__body {
+      width: auto !important;
+      display: flex;
+    }
+    tbody {
+      flex: 1;
+    }
+    colgroup {
+      display: none;
+    }
+    .el-table__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 8px;
+      border-bottom: 1px solid var(--border-color);
+      &:last-child {
+        border-bottom: none;
+      }
+      &:hover {
+        background: var(--hover) !important;
+      }
+    }
+    .el-table__cell {
+      display: flex;
+      padding: 0 !important;
+      border-bottom: none !important;
+      background-color: transparent !important;
+    }
+  }
+}
+
+// we need styling from parent so it overtakes default style specified in dark.css L: 3265
+body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hover{
+  .el-table__cell {
+    background-color: transparent !important;
+  }
+}
+.position-section-title {
+  font-size: 18px; 
+}
+
+.rotate-reverse {
+  animation: rotating-reverse 2s linear infinite
+}
+
+@keyframes rotating-reverse {
+  0% {
+      transform: rotateZ(0)
+  }
+
+  100% {
+      transform: rotateZ(-360deg)
+  }
+}
+
+// ANALYTICS PAGES
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.analytics-table {
+  border-radius: 8px;
+  th {
+    font-weight: 400 !important;
+  }
+  .pagination li {
+    &.active, &:hover {
+      color: var(--main-green) !important;
+    }
+  }
+}
+.analytics-stats-and-chart {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  align-items: start;
 }

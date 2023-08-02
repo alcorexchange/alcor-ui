@@ -1,10 +1,10 @@
 <template lang="pug">
-.promoted-markets(v-if="promoted.length")
+.promoted-markets(v-if="promos.length")
   SectionTitle.section-title {{ $t('Promotions') }}
 
   el-carousel(indicator-position="outside" arrow="never" :interval="7000")
-    el-carousel-item(v-for="promo in promos" :key="promo.id")
-      promo(:promo="promo")
+    el-carousel-item(v-for="promo in promos")
+      promo(:promo="promo" :bannerUrl="promo.bannerUrl")
 
   spacer
 </template>
@@ -14,24 +14,38 @@ import { mapGetters } from 'vuex'
 import Spacer from '@/components/Spacer.vue'
 import Promo from '@/components/landing/Promo'
 import SectionTitle from '@/components/landing/SectionTitle'
+import { shuffleArray } from '~/utils'
 
 export default {
   components: { Spacer, Promo, SectionTitle },
   data: () => ({
-    bannerOnly: [
-      {
-        bannerImg: "novopangea",
-        bannerUrl: "https://novopangea.io/token?utm_source=Alcor&utm_medium=Banner&utm_campaign=PreLaunch"
-      }
-    ]
+    bannerOnly: [],
+
+    promos: []
   }),
+
+  mounted() {
+    this.promos = this.bannerOnly.sort(() => Math.random() - 0.5)
+  },
+
   computed: {
-    ...mapGetters({
-      promoted: 'promoted'
-    }),
-    promos() {
-      return [...this.promoted, ...this.bannerOnly].sort(() => Math.random() - 0.5)
-    }
+    // ...mapGetters({
+    //   promoted: 'promoted'
+    // }),
+
+    // TODO Make this shit work
+    // promos() {
+    //   const promotedList = [...this.bannerOnly]
+
+    //   const shuffled = promotedList
+    //   return shuffled
+    //   // console.log('promoted', [...this.promoted, ...this.bannerOnly].sort(() => Math.random() - 0.5))
+    //   // const promotedList = [...this.promoted, ...this.bannerOnly]
+    //   // console.log('before shuffle', promotedList)
+    //   // shuffleArray(promotedList)
+    //   // console.log('after shuffle', promotedList)
+    //   // return this.bannerOnly
+    // }
   }
 }
 </script>

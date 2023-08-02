@@ -1,14 +1,14 @@
 <template lang="pug">
-#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-5
+#bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-2
   .greet
-    h1.fs-48 Alcor IBC Bridge
-    .fs-24 Bridge assets from different chains
+    h1.fs-20.md-fs-36.text-center Alcor IBC Bridge
+    .fs-16.md-fs-24 Bridge assets from different chains
 
   client-only
-    bridge-form.mt-4
+    BridgeForm.mt-2
 
-    circle1(:color="sourceColor" total="20").circle1
-    circle2(:color="destinationColor" total="20").circle2
+    circle1(v-if="!isMobile" :color="sourceColor" total="20").circle1
+    circle2(v-if="!isMobile" :color="destinationColor" total="20").circle2
 </template>
 
 <script>
@@ -20,6 +20,9 @@ import Circle2 from '~/components/bridge/Circle2.vue'
 const DEFAULT_COLOR = '#575757'
 
 export default {
+
+  name: "BridgePage",
+
   components: { BridgeForm, CirclesBg, Circle1, Circle2 },
 
   data: () => ({
@@ -27,7 +30,8 @@ export default {
       { value: 'eos', color: '#fff' },
       { value: 'proton', color: '#7c30ff' },
       { value: 'telos', color: '#571aff' },
-      { value: 'ux', color: '#00e5e5' }
+      { value: 'ux', color: '#00e5e5' },
+      { value: 'wax', color: '#fa972f' },
     ]
   }),
 
@@ -92,5 +96,11 @@ export default {
   position: absolute;
   top: 50px;
   right: 0px;
+}
+</style>
+
+<style lang="scss">
+.default-layout {
+  overflow: hidden;
 }
 </style>

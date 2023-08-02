@@ -17,14 +17,20 @@ import MakeBid from '~/components/modals/MakeBid'
 import Transfer from '~/components/modals/Transfer'
 import RemoveFriend from '~/components/modals/RemoveFriend'
 import AddFriend from '~/components/modals/AddFriend'
-import AddLiquidity from '~/components/modals/AddLiquidity'
+import PreviewLiquidity from '~/components/modals/PreviewLiquidity'
 import Trade from '~/components/modals/Trade'
 import BlockUser from '~/components/modals/BlockUser'
 import Assets from '~/components/modals/Assets'
 import AlcorModal from '~/components/AlcorModal.vue'
 
+// AMM
+import CreatePool from '~/components/modals/amm/CreatePool.vue'
+import Migration from '~/components/modals/amm/Migration.vue'
+
 export default {
   components: {
+    CreatePool,
+    Migration,
     Login,
     Listing,
     Back,
@@ -36,7 +42,7 @@ export default {
     Transfer,
     RemoveFriend,
     AddFriend,
-    AddLiquidity,
+    PreviewLiquidity,
     Trade,
     BlockUser,
     Assets,

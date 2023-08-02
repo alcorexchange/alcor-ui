@@ -195,3 +195,10 @@ export default {
 }
 </script>
 
+<style scoped lang="scss">
+.trade-type-selection::v-deep {
+  .el-input__inner {
+    padding-left: 8px;
+  }
+}
+</style>

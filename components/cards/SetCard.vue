@@ -19,7 +19,9 @@ export default {
   props: ['data'],
   methods: {
     goToSet() {
-      //this.$router.push({ name: `wallet-nfts-sets-id___${this.$i18n.locale}`, params: { id: this.data.collection_name } })
+      this.$router.push(
+        this.localeRoute(`/wallet/nfts/sets/${this.data.collection_name}`)
+      )
     }
   }
 }

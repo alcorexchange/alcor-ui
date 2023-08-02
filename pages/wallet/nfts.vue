@@ -1,7 +1,7 @@
 <template lang="pug">
 #wallet-nfts-layout.d-flex.flex-column.gap-16.mt-2
   nft-header
-  .d-flex.align-items-center.gap-24
+  .d-flex.align-items-center.gap-24.flex-wrap
     input-search(v-model="filters.match")
     alcor-filters(:filters.sync="filters", :options="options" :disabled="$route.name.split('___')[0] === 'wallet-nfts-sets'")
     alcor-tabs(:links="true" :tabs="tabs")
@@ -24,17 +24,12 @@ export default {
     AlcorTabs,
     AlcorFilters
   },
+  // fetch({ route, redirect }) {
+  //   if (route.path == '/wallet/nfts') redirect('/wallet/nfts/inventory?match&sorting&collection&minMint&maxMint&minPrice&maxPrice&isDuplicates&isBacked')
+  // },
   data: () => ({
     filters: {
-      match: '',
-      sorting: null,
-      collection: null,
-      minMint: null,
-      maxMint: null,
-      minPrice: null,
-      maxPrice: null,
-      isDuplicates: null,
-      isBacked: null
+      match: ''
     },
     options: {
       collection: null,
@@ -43,70 +38,64 @@ export default {
   }),
   computed: {
     ...mapState(['network', 'user']),
-    refetchProps() {
-      ;[
-        this.filters.match,
-        this.filters.minPrice,
-        this.filters.maxPrice,
-        this.filters.minMint,
-        this.filters.maxMint,
-        this.filters.sorting,
-        this.filters.collection,
-        this.filters.isDuplicates,
-        this.filters.isBacked
-      ]
-      return Date.now()
-    },
     tabs() {
       return [
         {
           label: 'Inventory',
           route: {
-            path: '/wallet/nfts/inventory',
-            query: this.filters
-          }
+            path: '/wallet/nfts',
+            query: this.$route.query
+          },
+          exact: true
         },
         {
           label: 'My Listings',
           route: {
             path: '/wallet/nfts/listings',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'My Auctions',
           route: {
             path: '/wallet/nfts/auctions',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Sold',
           route: {
             path: '/wallet/nfts/sold',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Bought',
           route: {
             path: '/wallet/nfts/bought',
-            query: this.filters
+            query: this.$route.query
           }
         },
         {
           label: 'Sets',
           route: {
             path: '/wallet/nfts/sets',
-            query: this.filters
+            query: this.$route.query
           }
         }
       ]
     }
   },
   watch: {
-    refetchProps() {
-      this.$router.push({ query: this.filters })
+    'filters.match'(e) {
+      this.$router.push(
+        this.localeRoute({
+          query: {
+            ...this.$route.query,
+            match: e || undefined
+          }
+        })
+      )
     },
     '$route.name'(route) {
       this.filters.sorting = null
@@ -114,12 +103,9 @@ export default {
     }
   },
   mounted() {
-    this.$router.push({
-      name: `wallet-nfts-inventory___${this.$i18n.locale}`,
-      query: this.filters
-    })
     this.getAccountCollections()
     this.setSortOptions()
+    this.filters.match = this.$route.query.match || ''
   },
   methods: {
     ...mapActions('api', ['getAccountSpecificStats']),

@@ -1,7 +1,7 @@
 <template lang="pug">
-.detailWithCardPanel.mb-5.d-flex.gap-32.justify-content-between
-  .nft-info.border-radius5.d-flex.flex-column.normal-card-shadow
-    .d-flex.gap-64
+.detailWithCardPanel.mb-5.d-flex.flex-wrap.gap-32.justify-content-center.justify-content-md-start
+  .nft-info.border-radius5.normal-card-shadow
+    .d-flex.gap-64.flex-wrap
       .d-flex.flex-column.gap-16
         .d-flex.flex-column
           .fs-14.disable {{ $t('Sale ID') }}
@@ -74,7 +74,8 @@ export default {
 
 <style lang="scss" scoped>
 .nft-info {
-  width: 595px;
+  max-width: 595px;
+  width: 100%;
   background-color: var(--background-color-third);
   padding: 14px;
 }

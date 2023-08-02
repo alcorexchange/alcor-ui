@@ -9,17 +9,18 @@ Vue.mixin({
       windowWidth: 0,
 
       mousedownCls: [],
-      mouseupCls: []
+      mouseupCls: [],
     }
   },
 
   computed: {
     isMobile() {
-      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175)
+      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175) || this.$route.path.includes('swap-widget')
     }
   },
 
   mounted() {
+    // ⚠️  CALLING MULTIPLE TIMES!! FIXME
     this.windowWidth = window.innerWidth
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth
@@ -78,12 +79,12 @@ Vue.mixin({
     },
 
     beforeDialogClose(done) {
-      console.log('beforeDialogClose')
       const isWrapper = this.mousedownCls.includes('el-dialog__wrapper') && this.mouseupCls.includes('el-dialog__wrapper')
-      const isClose = this.mousedownCls.includes('el-dialog__close') && this.mouseupCls.includes('el-dialog__close')
-      if (isWrapper || isClose) {
+      const isClose = this.mousedownCls.includes('el-dialog__headerbtn') && this.mouseupCls.includes('el-dialog__headerbtn')
+      const isCloseIcon = this.mousedownCls.includes('el-dialog__close') && this.mouseupCls.includes('el-dialog__close')
+      if (isWrapper || isClose || isCloseIcon) {
         done()
       }
-    }
+    },
   }
 })

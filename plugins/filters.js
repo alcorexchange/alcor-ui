@@ -52,8 +52,22 @@ Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
   return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 5 })
 })
 
-Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2) {
+Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
+  const parsed = parseFloat(amount)
+  amount = (!amount || isNaN(parsed)) ? 0 : parsed
+  const id = symbol.toLowerCase() + '-' + contract
+
+  const price = this.$store.state.tokens.find(t => t.id == id)
+  return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
+}
+
+Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2, usdt = false) {
   let result = parseFloat(amount)
+
+  if (usdt) {
+    return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
+  }
+
   if (this.$store.state.wallet.systemPrice) {
     result *= this.$store.state.wallet.systemPrice
   } else {
@@ -74,7 +88,7 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
     }
   }
 
-  return '0.0000'
+  return full ? '0.0000 ' + symbol : '0.0000'
 }
 
 Vue.prototype.$tokenLogo = function(symbol, contract) {
@@ -87,9 +101,9 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
       return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
     }
   } catch {
-    const tokens = this.$store.state.tokens
+    const tokens = this.$store.state.eosAirdropTokens
 
-    const token = tokens.filter(t => t.chain == network && t.account == contract && t.symbol == symbol)[0]
+    const token = tokens.find(t => t.chain == network && t.account == contract && t.symbol == symbol)
 
     if (token) {
       return token.logo
@@ -97,4 +111,14 @@ Vue.prototype.$tokenLogo = function(symbol, contract) {
       return null
     }
   }
+}
+
+Vue.prototype.$percentColor = function(percent, zeroColor = 'var(--text-default)') {
+  percent = parseFloat(percent).toFixed(2)
+  percent = parseFloat(percent)
+
+  if (isNaN(percent)) return zeroColor
+  if (percent > 0) return `var(--main-green)`
+  if (percent < 0) return `var(--main-red)`
+  return zeroColor
 }

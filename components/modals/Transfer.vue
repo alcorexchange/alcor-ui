@@ -112,15 +112,16 @@ export default {
   computed: {
     ...mapState('modal', ['context']),
     ...mapState(['user']),
-    isTransferReady() { return this.transferAssets.length && this.reciever },
+    isTransferReady() { return this.transferAssets?.length && this.reciever },
     refetchProps() { [this.selectedCollection, this.isDuplicates, this.isBacked, this.minMint, this.maxMint, this.search]; return Date.now() }
   },
   watch: {
     refetchProps() {
       this.fetchAssets()
     },
-    context() {
-      this.reciever = this.context.name
+    context(c) {
+      if (!c) return
+      this.reciever = this.context?.name
       this.setOptions()
     }
   },
@@ -138,8 +139,8 @@ export default {
         : this.transferAssets.push(asset)
     },
     setOptions() {
-      this.reciever = this.context.reciever
-      this.transferAssets = this.context.transferAssets
+      this.reciever = this.context?.reciever
+      this.transferAssets = this.context?.transferAssets || []
     },
     transfer() {
       this.transferNft({ memo: this.memo, reciever: this.reciever, asset_ids: this.transferAssets.map(({ asset_id }) => asset_id) })

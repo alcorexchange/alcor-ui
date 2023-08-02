@@ -140,7 +140,6 @@ export default {
 
   methods: {
     toggleInputs() {
-
     }
     //try {
     //  await this.$store.dispatch('chain/sendTransaction', actions)

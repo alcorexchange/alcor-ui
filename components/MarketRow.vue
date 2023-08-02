@@ -1,5 +1,5 @@
 <template lang="pug">
-.wrapper(@click="redirect" :class="{ 'mobile': isMobile }")
+NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': isMobile }")
   .label
     token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
     .name
@@ -11,18 +11,18 @@
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price(:class="{ down: item.change24 < 0 }")
-    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
+    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") $ {{ $systemToUSD(item.last_price, 8, 8, item.base_name == 'USDT') }}
     span(v-else)
       span {{ item.last_price }}
       span(v-if="!isMobile")
         |  {{ item.base_name }}
   .day-vol(v-if='!isMobile')
-    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume24) }}
+    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") $ {{ $systemToUSD(item.volume24, 2, 2, item.base_name == 'USDT') }}
     span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat }} {{ item.base_name }}
   .day-change(v-if='!isMobile')
     change-percent(:change='item.change24')
   .week-vol
-    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume_week) }}
+    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") $ {{ $systemToUSD(item.volume_week, 2, 2, item.base_name == 'USDT') }}
     span.text-mutted(v-else)
       | {{ item.volume_week.toFixed(2) | commaFloat }}
       span(v-if="!isMobile")
@@ -62,6 +62,7 @@ export default {
   gap: 10px;
   border-bottom: 1px solid var(--background-color-base);
   cursor: pointer;
+  color: inherit;
 }
 
 .wrapper:hover {

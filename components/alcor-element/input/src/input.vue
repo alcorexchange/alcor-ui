@@ -113,9 +113,9 @@
 <script>
 import emitter from 'element-ui/lib/mixins/emitter'
 import Migrating from 'element-ui/lib/mixins/migrating'
-import calcTextareaHeight from './calcTextareaHeight'
 import merge from 'element-ui/lib/utils/merge'
 import { isKorean } from 'element-ui/lib/utils/shared'
+import calcTextareaHeight from './calcTextareaHeight'
 
 export default {
   name: 'ElInput',
