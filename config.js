@@ -320,6 +320,10 @@ const networks = {
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos'],
       },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.wax', 'ibc.wt.tlos', 'ibc.wt.eos'],
+      },
     },
 
     withdraw: {},
@@ -408,7 +412,7 @@ const networks = {
       },
 
       wrapTokenContracts: {
-        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.eos'],
         'ibc.alcor': ['usdt.alcor'],
       },
     },
