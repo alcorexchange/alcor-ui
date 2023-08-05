@@ -31,34 +31,39 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.fee-tier-selection {
-  .items {
-    user-select: none;
-    display: flex;
-    gap: 8px;
-    .item {
-      flex: 1;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid var(--light-border-color);
-      padding: 16px 24px;
-      font-weight: bold;
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.2s;
-      &:hover {
-        background: var(--hover);
-      }
-      &.active {
-        border-color: var(--main-green);
-        background: var(--hover);
-      }
-    }
-    .check {
-      color: var(--main-green);
-    }
+.items {
+  user-select: none;
+  display: flex;
+  gap: 8px;
+  .check {
+    color: var(--main-green);
+  }
+}
+.item {
+  flex: 1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--light-border-color);
+  padding: 16px 24px;
+  font-weight: bold;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: var(--hover);
+  }
+  &.active {
+    border-color: var(--main-green);
+    background: var(--hover);
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .item {
+    padding: 8px 12px;
+    font-size: 18px;
   }
 }
 </style>

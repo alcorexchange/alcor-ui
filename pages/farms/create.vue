@@ -115,4 +115,10 @@ main {
   font-size: 18px;
   color: var(--disabled-indicator);
 }
+
+@media only screen and (max-width: 480px) {
+  .farm-create-section-title {
+    font-size: 16px;
+  }
+}
 </style>
