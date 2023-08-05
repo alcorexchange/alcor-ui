@@ -4,16 +4,18 @@
     PageHeader(class="page-header" title="Create Farm")
       template(#end) &nbsp;
 
-    Note(class="mt-2 fs-14") You can only create a farm for a base token that you are the project owner of.
+    Note(class="sfs-14") You can only create a farm for a base token that you are the project owner of.
 
-    TokenSelection(class="mt-4")
+    TokenSelection(class="")
 
-    FeeTierSelection(:options="feeOptions" class="mt-4"  :value="1")
+    FeeTierSelection(:options="feeOptions" class=""  :value="1")
 
-    RewardList(class="mt-4" @newReward="onNewReward")
+    RewardList(class="" @newReward="onNewReward")
       FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
 
-    DistributionSelection(:options="distributionOptions" class="mt-4"  value="1 Days")
+    DistributionSelection(:options="distributionOptions" class=""  value="1 Days")
+
+    AlcorButton(class="submit" access) Create Farm
 
 </template>
 
@@ -26,6 +28,7 @@ import FeeTierSelection from '@/components/farm/FeeTierSelection'
 import DistributionSelection from '@/components/farm/DistributionSelection'
 import RewardList from '@/components/farm/RewardList'
 import FarmTokenInput from '@/components/farm/FarmTokenInput'
+import AlcorButton from '@/components/AlcorButton'
 export default {
   name: 'CreateFarm',
   components: {
@@ -37,6 +40,7 @@ export default {
     RewardList,
     FarmTokenInput,
     DistributionSelection,
+    AlcorButton,
   },
 
   data: () => ({
@@ -75,15 +79,23 @@ export default {
     width: 100%;
     max-width: 600px;
     margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
 }
 .page-header {
   flex: 1;
+}
+
+.submit {
+  padding: 10px 14px;
 }
 </style>
 
 <style lang="scss">
 .farm-create-section-title {
   font-size: 18px;
+  color: var(--disabled-indicator);
 }
 </style>

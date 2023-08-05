@@ -66,6 +66,7 @@ export default {
       padding: 6px 12px;
       border-radius: 80px;
       background: var(--background-color-base);
+      color: var(--disabled-indicator);
     }
     .check {
       color: var(--main-green);

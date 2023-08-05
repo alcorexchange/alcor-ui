@@ -24,6 +24,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.rewards-list {
+  display: flex;
+  flex-direction: column;
+}
 .header {
   display: flex;
   justify-content: space-between;
@@ -39,6 +43,7 @@ export default {
   padding: 10px 14px;
   border-color: var(--main-green) !important;
   color: var(--main-green);
+  align-self: flex-end;
 
   &:hover {
     background: var(--hover) !important;
