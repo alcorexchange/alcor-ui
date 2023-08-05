@@ -2,7 +2,7 @@
 .distribution-selection
   .farm-create-section-title Select Distribution Duration
   .items(class="mt-2")
-    .item(v-for="option in options" :class="{active: value == option.value}")
+    .item(v-for="option in options" :class="{active: value == option.value}" @click="onItemClick(option)")
       .main
         .value {{ option.value }}
         .check(v-if="value == option.value")
@@ -23,6 +23,12 @@ export default {
     },
     options: {
       default: undefined,
+    },
+  },
+
+  methods: {
+    onItemClick(option) {
+      this.$emit('input', option.value)
     },
   },
 }

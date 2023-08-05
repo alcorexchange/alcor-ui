@@ -24,7 +24,6 @@ export default {
 
   methods: {
     onItemClick(option) {
-      console.log('on item click')
       this.$emit('input', option.value)
     },
   },

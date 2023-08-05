@@ -13,7 +13,7 @@
     RewardList(class="" @newReward="onNewReward")
       FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
 
-    DistributionSelection(:options="distributionOptions" class=""  value="1 Days")
+    DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
     AlcorButton(class="submit" access) Create Farm
 
@@ -48,6 +48,7 @@ export default {
     rewardList: [{ token: '', amount: 0 }],
 
     selectedFeeTier: 1,
+    selectedDistribution: '1 Days',
   }),
 
   computed: {
