@@ -2,7 +2,7 @@
 .fee-tier-selection
   .farm-create-section-title Select Fee Tier
   .items(class="mt-2")
-    .item(v-for="option in options" :class="{active: value == option.value}")
+    .item(v-for="option in options" :class="{active: value == option.value}" @click="onItemClick(option)")
       .value {{ option.value }}%
       .check(v-if="value == option.value")
         i.el-icon-circle-check
@@ -19,6 +19,13 @@ export default {
     },
     options: {
       default: undefined,
+    },
+  },
+
+  methods: {
+    onItemClick(option) {
+      console.log('on item click')
+      this.$emit('input', option.value)
     },
   },
 }

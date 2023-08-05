@@ -8,7 +8,7 @@
 
     TokenSelection(class="")
 
-    FeeTierSelection(:options="feeOptions" class=""  :value="1")
+    FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
 
     RewardList(class="" @newReward="onNewReward")
       FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
@@ -46,6 +46,8 @@ export default {
   data: () => ({
     feeOptions: [{ value: 0.05 }, { value: 0.3 }, { value: 1 }],
     rewardList: [{ token: '', amount: 0 }],
+
+    selectedFeeTier: 1,
   }),
 
   computed: {
