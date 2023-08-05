@@ -16,4 +16,7 @@ export default {
   font-weight: 500;
   color: #64d2ff;
 }
+.main {
+  color: var(--disabled-indicator);
+}
 </style>

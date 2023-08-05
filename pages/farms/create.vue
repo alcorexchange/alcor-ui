@@ -3,19 +3,23 @@
   AlcorContainer(class="alcor-container")
     PageHeader(class="page-header" title="Create Farm")
       template(#end) &nbsp;
+      .header-title.d-flex.gap-2
+        i.el-icon-sunrise
+        span Create Farm
 
-    Note(class="sfs-14") You can only create a farm for a base token that you are the project owner of.
+    main
+      Note(class="fs-14") You can only create a farm for a base token that you are the project owner of.
 
-    TokenSelection(class="")
+      TokenSelection(class="")
 
-    FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
+      FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
 
-    RewardList(class="" @newReward="onNewReward")
-      FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
+      RewardList(class="" @newReward="onNewReward")
+        FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
 
-    DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
+      DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
-    AlcorButton(class="submit" access) Create Farm
+      AlcorButton(class="submit" access) Create Farm
 
 </template>
 
@@ -82,13 +86,23 @@ export default {
     width: 100%;
     max-width: 600px;
     margin: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
   }
+}
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-top: 16px;
 }
 .page-header {
   flex: 1;
+}
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .submit {
