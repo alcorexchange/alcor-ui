@@ -394,7 +394,7 @@ const networks = {
 
     amm: {
       //contract: 'ammcontract4'
-      contract: 'swap.alcor',
+      contract: process.env.WAX_SWAP_CONTRACT || 'swap.alcor',
       creationFee: '150.00000000 WAX',
     },
 
