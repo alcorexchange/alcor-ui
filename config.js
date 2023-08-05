@@ -249,7 +249,10 @@ const networks = {
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
     PINNED_MARKETS: [282],
     BANNER_MARKETS: [],
-    SCAM_CONTRACTS: ['eosiotokens', 'albabank', 'bayramela'],
+    SCAM_CONTRACTS: [
+      'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr',
+    ],
     CEX_CONTRACTS: [],
 
     nftMarket: {
@@ -316,6 +319,10 @@ const networks = {
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos'],
+      },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.wax', 'ibc.wt.tlos', 'ibc.wt.eos'],
       },
     },
 
@@ -387,7 +394,7 @@ const networks = {
 
     amm: {
       //contract: 'ammcontract4'
-      contract: 'swap.alcor',
+      contract: process.env.WAX_SWAP_CONTRACT || 'swap.alcor',
       creationFee: '150.00000000 WAX',
     },
 
@@ -405,7 +412,7 @@ const networks = {
       },
 
       wrapTokenContracts: {
-        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.eos'],
         'ibc.alcor': ['usdt.alcor'],
       },
     },
