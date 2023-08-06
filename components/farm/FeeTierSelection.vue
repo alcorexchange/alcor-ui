@@ -46,9 +46,9 @@ export default {
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--light-border-color);
-  padding: 16px 24px;
+  padding: 10px 18px;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
