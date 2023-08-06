@@ -7,16 +7,26 @@
       AlcorLink(to="/farms/create" class="create-farm")
         i.el-icon-circle-plus-outline
         span Create Farm
+
+  FarmsOwnedTable(class="mt-2")
+
+  WalletFarmHeader(title="Your Staked Farms" class="mt-5")
+
+  FarmsTable(class="mt-2")
 </template>
 
 <script>
 import WalletFarmHeader from '~/components/wallet/WalletFarmHeader.vue'
+import FarmsOwnedTable from '~/components/farm/FarmsOwnedTable.vue'
+import FarmsTable from '~/components/farm/FarmsTable.vue'
 import AlcorLink from '~/components/AlcorLink.vue'
 export default {
   name: 'WalletFarms',
   components: {
     WalletFarmHeader,
     AlcorLink,
+    FarmsOwnedTable,
+    FarmsTable,
   },
   data: () => ({}),
 }
@@ -25,10 +35,10 @@ export default {
 <style scoped lang="scss">
 .create-farm {
   &::v-deep {
-    background: var(--main-green);
+    background: var(--main-action-green);
     color: black;
     &:hover {
-      color: var(--main-green);
+      color: var(--main-action-green);
     }
   }
 }

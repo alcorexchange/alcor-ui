@@ -31,12 +31,10 @@
     el-table-column(align="right")
       template(#default="")
         //- VIEW 1
-        AlcorButton(v-if="true" access) Stake
+        AlcorButton(v-if="false" access) Stake
         //- VIEW 2
         .claim-rewards-container(v-else)
-          .stacking-status
-            .the-dot
-            span Staking
+          StakingStatus
           AlcorButton(access compact) Claim Rewards
 
     //- DETAILS START
@@ -77,12 +75,14 @@
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
+import StakingStatus from '~/components/farm/StakingStatus.vue'
 export default {
   name: 'FarmsTable',
   components: {
     PairIcons,
     TokenImage,
     AlcorButton,
+    StakingStatus,
   },
 }
 </script>
