@@ -12,7 +12,7 @@
 
   WalletFarmHeader(title="Your Staked Farms" class="mt-5")
 
-  FarmsTable(class="mt-2")
+  FarmsTable(class="mt-2" :noClaim="true")
 </template>
 
 <script>

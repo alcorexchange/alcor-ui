@@ -35,7 +35,7 @@
         //- VIEW 2
         .claim-rewards-container(v-else)
           StakingStatus
-          AlcorButton(access compact) Claim Rewards
+          AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     //- DETAILS START
     el-table-column(type="expand")
@@ -84,6 +84,7 @@ export default {
     AlcorButton,
     StakingStatus,
   },
+  props: ['noClaim'],
 }
 </script>
 
@@ -129,7 +130,7 @@ export default {
 .claim-rewards-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 4;
   .stacking-status {
     display: flex;
