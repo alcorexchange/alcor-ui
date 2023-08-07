@@ -190,21 +190,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://www.crypto-shots.com/',
+        link: 'https://www.zombiecoin.io/',
         image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgb(102,229,243, 0.2)',
-          'rgb(11,83,95)',
-          'rgb(11,83,95)'
+          'rgb(0,207,217, 0.2)',
+          'rgb(62,184,204)',
+          'rgb(250,244,169)'
         ]
       },
       {
-        link: 'https://chainchamps.com/collection/nftgamertv/drop/81',
+        link: 'https://aphelium.io?utm=alcor',
         image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(239,180,50,0.2)',
-          'rgba(245,61,139, 1)',
-          'rgba(109,179,251,1)',
+          'rgba(64,93,122,0.2)',
+          'rgba(0,183,250, 1)',
+          'rgba(104,69,169,1)',
         ]
       },
     ]
