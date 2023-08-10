@@ -1,35 +1,44 @@
 <template lang="pug">
-  el-table(:data="[0, 0, 0, 0]" class="farms-table")
+  el-table(:data="famPools" class="farms-table")
     el-table-column(label="Pair" min-width="100%")
-      template(#default="")
+      template(slot-scope='{ row }')
         .token-container
           PairIcons(
-            :token1="{contact: 'usdt.alcor', symbol: 'usdt'}"
-            :token2="{contact: 'eosio.token', symbol: 'wax'}"
+            :token1="{contract: row.tokenA.contract, symbol: row.tokenA.quantity.split(' ')[1]}"
+            :token2="{contract: row.tokenB.contract, symbol: row.tokenB.quantity.split(' ')[1]}"
           )
           .token-container-info
-            .token-names USDT/WAX
-            .token-contracts.muted usdt.alcor/eosio.token
+            .token-names {{ row.tokenA.quantity.split(' ')[1] }}/{{ row.tokenB.quantity.split(' ')[1] }}
+            .token-contracts.muted {{ row.tokenA.contract }}/{{ row.tokenB.contract }}
+
     el-table-column(label="Total Staked")
-      template(#default="")
-        .icon-and-value(v-for="x in 2")
-          TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-          span 484.86K
+      template(slot-scope='{ row }')
+        .icon-and-value
+          TokenImage(:src="$tokenLogo(row.tokenA.quantity.split(' ')[1], row.tokenA.contract)" width="14px" height="14px")
+          span {{ row.tokenA.quantity }}
+
+        .icon-and-value
+          TokenImage(:src="$tokenLogo(row.tokenB.quantity.split(' ')[1], row.tokenB.contract)" width="14px" height="14px")
+          span {{ row.tokenB.quantity }}
+
     el-table-column(label="APR")
-      template(#default="")
-        .apr {{ `${38.14}%` }}
+      template(slot-scope='{ row }')
+        .apr {{ `${38.14}%` }} TODO
+
     el-table-column(label="Daily Rewards")
-      template(#default="")
-        .icon-and-value(v-for="x in 2")
-          TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-          span 484.86K
+      template(slot-scope='{ row }')
+        .icon-and-value(v-for="incentive in row.incentives")
+          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+          span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
+
     el-table-column(label="Remaining Time")
-      template(#default="")
-        .icon-and-value(v-for="x in 2")
-          TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-          span 32 Days
+      template(slot-scope='{ row }')
+        .icon-and-value(v-for="incentive in row.incentives")
+          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+          span {{ incentive.daysRemain }} Days
+
     el-table-column(align="right")
-      template(#default="")
+      template(slot-scope='{ row }')
         //- VIEW 1
         AlcorButton(v-if="false" access) Stake
         //- VIEW 2
@@ -84,12 +93,22 @@ export default {
     AlcorButton,
     StakingStatus,
   },
+
   props: ['noClaim'],
+
+  computed: {
+    famPools() {
+      console.log(this.$store.getters['farms/farmPools'])
+      return this.$store.getters['farms/farmPools']
+    }
+  }
+
 }
 </script>
 
 <style scoped lang="scss">
 .token-container {
+  margin-left: 10px;
   display: flex;
   gap: 12px;
   align-items: center;

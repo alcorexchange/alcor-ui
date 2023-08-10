@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(class="mb-2")
+    FarmHeader(class="mb-2 mt-4")
     FarmsTable
 </template>
 
