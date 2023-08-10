@@ -319,7 +319,7 @@ const networks = {
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
 
       wrapLockContracts: {
-        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos'],
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
       },
 
       wrapTokenContracts: {

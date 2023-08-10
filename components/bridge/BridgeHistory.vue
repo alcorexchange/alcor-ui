@@ -248,7 +248,7 @@ export default {
 
       const history = []
 
-      //this.sourceWallet.name = 'playrashid24'
+      //this.sourceWallet.name = 'waxwaxdepot1'
 
       try {
         const wrapLockContracts = []
@@ -328,6 +328,11 @@ export default {
                 wrapLockContractDetails = details
               }
             }
+          }
+
+          if (!wrapLockContractDetails) {
+            console.error('NOT FOUND RELATION FOR IBC: ', _xfer)
+            continue
           }
 
           const chain = tx.native ? wrapLockContractDetails.pairedChain : wrapLockContractDetails.chain
