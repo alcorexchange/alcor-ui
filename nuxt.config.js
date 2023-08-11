@@ -19,7 +19,8 @@ module.exports = {
     isDev,
     isSPA,
     NETWORK: process.env.NETWORK,
-    DISABLE_DB: process.env.DISABLE_DB
+    DISABLE_DB: process.env.DISABLE_DB,
+    WAX_SWAP_CONTRACT: process.env.WAX_SWAP_CONTRACT,
   },
 
   version: pkg.version,

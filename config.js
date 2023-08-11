@@ -81,6 +81,7 @@ const networks = {
 
       wrapTokenContracts: {
         'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
+        'ibc.alcor': ['wombatbridge'],
       },
     },
 
@@ -318,7 +319,7 @@ const networks = {
       proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
 
       wrapLockContracts: {
-        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos'],
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
       },
 
       wrapTokenContracts: {
@@ -403,12 +404,13 @@ const networks = {
     ibc: {
       name: 'wax',
       returnValueEnabled: true,
-      proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
+      //proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
       //proofSocket: 'wss://wax.eosusa.io/ibc',
-      //proofSocket: 'wss://wax.ibc.animus.is',
+      proofSocket: 'wss://wax.ibc.animus.is',
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.ux'],
+        'ibc.alcor': ['wombatbridge'],
       },
 
       wrapTokenContracts: {
