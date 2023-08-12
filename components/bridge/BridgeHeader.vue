@@ -3,7 +3,7 @@
   NuxtLink.item(:to="localeRoute('/bridge_new')" exact).fs-18 Bridge
   .history-item-container
     NuxtLink.item(:to="localeRoute('/bridge_new/history')").fs-18 History
-    .pending-count 10
+    .pending-count 1
 </template>
 
 <script>
