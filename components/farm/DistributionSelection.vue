@@ -4,7 +4,7 @@
   .items(class="mt-2")
     .item(v-for="option in options" :class="{active: value == option.value}" @click="onItemClick(option)")
       .main
-        .value {{ option.value }}
+        .value {{ option.display }}
         .check(v-if="value == option.value")
           i.el-icon-circle-check
       .daily.fs-14

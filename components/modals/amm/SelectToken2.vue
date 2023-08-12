@@ -105,7 +105,7 @@ export default {
     },
 
     filteredAssets() {
-      const tokens = this.tokens
+      const tokens = [...this.tokens || []]
 
       if (!tokens) return []
 
@@ -125,7 +125,7 @@ export default {
       if (this.locked) return
       this.visible = true
       this.$nextTick(() => {
-        this.$refs.searchInput.focus()
+        this.$refs.searchInput?.focus()
       })
     },
     selectAsset(v) {
