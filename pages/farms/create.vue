@@ -15,7 +15,16 @@
       FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
 
       RewardList(class="" @newReward="onNewReward")
-        FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
+        FarmTokenInput(
+          v-for="reward, index in rewardList"
+          label="Amount"
+          :canRemove="index > 0"
+          @remove="() => onRemoveReward(index)"
+          @tokenSelected="onRewardTokenSelect($event, index)"
+          :tokens="rewardTokens"
+          :token="reward.token"
+          v-model="reward.amount"
+        )
 
       DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
@@ -49,13 +58,17 @@ export default {
 
   data: () => ({
     feeOptions: [{ value: 0.05 }, { value: 0.3 }, { value: 1 }],
-    rewardList: [{ token: '', amount: 0 }],
+    rewardList: [{ token: undefined, amount: 0 }],
 
     selectedFeeTier: 1,
     selectedDistribution: '1 Days',
   }),
 
   computed: {
+    rewardTokens() {
+      return this.$store.state.user?.balances || []
+    },
+
     distributionOptions() {
       const tempAmount = 1000
       return [1, 7, 30, 90, 180, 360].map((number) => ({
@@ -66,11 +79,17 @@ export default {
   },
 
   methods: {
+    onRewardTokenSelect(token, index) {
+      this.rewardList[index].token = token
+    },
     onNewReward() {
-      this.rewardList.push({
-        token: '',
-        amount: 0,
-      })
+      this.rewardList = [
+        ...this.rewardList,
+        {
+          token: undefined,
+          amount: 0,
+        },
+      ]
     },
     onRemoveReward(index) {
       this.rewardList = this.rewardList.filter((_, i) => i !== index)

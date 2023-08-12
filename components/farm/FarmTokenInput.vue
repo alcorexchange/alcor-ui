@@ -2,7 +2,7 @@
 .farm-token-input(:class="{focused, notSelected: !!token}")
   .label-and-balance
     .label {{ renderLabel }}
-    .balance.disable(v-if="token" @click="onBalanceClick" :class="{clickable: !!user}") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
+    .balance.disable(v-if="token" @click="onBalanceClick" :class="{clickable: !!user}") {{ $t('Balance') }}: {{ $tokenBalance(token.currency, token.contract) | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(
@@ -87,7 +87,7 @@ export default {
       if (this.user)
         this.$emit(
           'input',
-          this.$tokenBalance(this.token.symbol, this.token.contract)
+          this.$tokenBalance(this.token.currency, this.token.contract)
         )
     },
   },
@@ -100,7 +100,7 @@ export default {
       return this.token
         ? `~$${this.$tokenToUSD(
             this.localValue,
-            this.token.symbol,
+            this.token.currency,
             this.token.contract
           )}`
         : ''
