@@ -71,7 +71,8 @@ export default {
     distributionOptions() {
       const tempAmount = 1000
       return [1, 7, 30, 90, 180, 360].map((number) => ({
-        value: `${number} Days`,
+        value: number * 86400,
+        display: `${number} Days`,
         daily: (tempAmount / number).toFixed(2),
       }))
     },
