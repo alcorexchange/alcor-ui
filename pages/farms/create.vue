@@ -60,7 +60,7 @@ export default {
     rewardList: [{ token: undefined, amount: 0 }],
 
     selectedFeeTier: 1,
-    selectedDistribution: '1 Days',
+    selectedDistribution: 86400,
   }),
 
   computed: {
