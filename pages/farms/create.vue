@@ -13,7 +13,6 @@
       TokenSelection(class="")
 
       FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
-
       RewardList(class="" @newReward="onNewReward")
         FarmTokenInput(
           v-for="reward, index in rewardList"
