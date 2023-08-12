@@ -10,9 +10,13 @@
     main
       Note(class="fs-14") You can only create a farm for a base token that you are the project owner of.
 
-      TokenSelection(class="")
+      el-select(v-model='poolId' placeholder='Select pool')
+        el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' / ' + pool.tokenB.symbol + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
+          span(style='float: left') {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
+          span.ml-1 {{ pool.fee / 10000 }}%
 
-      FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
+      //TokenSelection(class="")
+      //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
 
       RewardList(class="" @newReward="onNewReward")
         FarmTokenInput(v-for="reward, index in rewardList" :canRemove="index > 0" @remove="onRemoveReward(index)" label="Amount")
@@ -48,6 +52,7 @@ export default {
   },
 
   data: () => ({
+    poolId: null,
     feeOptions: [{ value: 0.05 }, { value: 0.3 }, { value: 1 }],
     rewardList: [{ token: '', amount: 0 }],
 
@@ -56,6 +61,10 @@ export default {
   }),
 
   computed: {
+    pools() {
+      return this.$store.state.amm.poolsStats
+    },
+
     distributionOptions() {
       const tempAmount = 1000
       return [1, 7, 30, 90, 180, 360].map((number) => ({
