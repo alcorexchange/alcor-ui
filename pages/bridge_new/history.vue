@@ -1,7 +1,7 @@
 <template lang="pug">
 .bridge-history
   .overflower
-    BridgeHistoryItem(v-for="x in 10")
+    BridgeHistoryItem(v-for="item in items" v-bind="item")
   .overflow-cover
 </template>
 
@@ -9,8 +9,17 @@
 import BridgeHistoryItem from '~/components/bridge/BridgeHistoryItem.vue'
 export default {
   components: {
-    BridgeHistoryItem
-  }
+    BridgeHistoryItem,
+  },
+  computed: {
+    items() {
+      return Array.from({ length: 10 }, (_, index) => {
+        return {
+          status: index % 2 ? 'completed' : 'incomplete',
+        }
+      })
+    },
+  },
 }
 </script>
 
@@ -33,7 +42,11 @@ export default {
   width: 100%;
   height: var(--cover-height);
   pointer-events: none;
-  background: linear-gradient(to top, var(--background-color-third), transparent);
+  background: linear-gradient(
+    to top,
+    var(--background-color-third),
+    transparent
+  );
   z-index: 2;
 }
 </style>
