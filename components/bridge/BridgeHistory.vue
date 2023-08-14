@@ -292,6 +292,9 @@ export default {
           wrappedResults.push(await this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`))
         }
 
+        locktxResults.forEach(i => i.data.native = true)
+        wrappedResults.forEach(i => i.data.native = false)
+
         for (const { data: tx } of [...locktxResults, ...wrappedResults]) {
           const _xfer = tx.actions.find(action => action.act.name === 'emitxfer')
 

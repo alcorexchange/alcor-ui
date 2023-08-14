@@ -410,7 +410,7 @@ const networks = {
       proofSocket: 'wss://wax.ibc.animus.is',
 
       wrapLockContracts: {
-        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.ux'],
+        'ibc.prove': ['ibc.wl.eos', 'ibc.wl.ux', 'ibc.wl.tlos'],
         'ibc.alcor': ['wombatbridge'],
       },
 
