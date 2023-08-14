@@ -264,7 +264,7 @@ export default {
         const wrappedContractsTxs = []
         for (const contract of wrapTokenContracts) {
           const { data: { actions } } = await this.$axios.get(
-            `${chain.hyperion}/v2/history/get_actions?account=${this.sourceWallet.name}&filter=${contract}:retire&limit=100`
+            `${chain.hyperion}/v2/history/get_actions?account=${this.sourceWallet.name}&filter=${contract}:retire&limit=40`
           )
 
           wrappedContractsTxs.push(...actions)
@@ -274,26 +274,23 @@ export default {
         for (const contract of wrapLockContracts) {
           const { data: { actions } } = await this.$axios.get(
             chain.hyperion +
-            `/v2/history/get_actions?account=${contract}&filter=*:transfer&transfer.from=${this.sourceWallet.name}&limit=100`
+            `/v2/history/get_actions?account=${contract}&filter=*:transfer&transfer.from=${this.sourceWallet.name}&limit=40`
           )
 
           lockContractsTxs.push(...actions)
         }
 
-        //const txPromises = [...lockContractsTxs, ...wrappedContractsTxs].map(tx => {
-        const lockContractPromises = lockContractsTxs.map(tx => {
-          return this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`)
-        })
+        const locktxResults = []
+        for (const tx of lockContractsTxs) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          locktxResults.push(await this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`))
+        }
 
-        const wrappedTokenPromises = wrappedContractsTxs.map(tx => {
-          return this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`)
-        })
-
-        const locktxResults = await Promise.all(lockContractPromises)
-        locktxResults.forEach(i => i.data.native = true)
-
-        const wrappedResults = await Promise.all(wrappedTokenPromises)
-        wrappedResults.forEach(i => i.data.native = false)
+        const wrappedResults = []
+        for (const tx of wrappedContractsTxs) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          wrappedResults.push(await this.$axios.get(chain.hyperion + `/v2/history/get_transaction?id=${tx.trx_id}`))
+        }
 
         for (const { data: tx } of [...locktxResults, ...wrappedResults]) {
           const _xfer = tx.actions.find(action => action.act.name === 'emitxfer')

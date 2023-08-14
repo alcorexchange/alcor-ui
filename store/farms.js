@@ -25,7 +25,7 @@ export const actions = {
 function formatIncentive(incentive) {
   incentive.durationInDays = incentive.rewardsDuration / 86400
   incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
-  incentive.daysRemain = incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400
+  incentive.daysRemain = Math.round(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
   incentive.rewardPerDay = (parseFloat(incentive.reward.quantity) / incentive.durationInDays).toFixed(2)
 
   console.log({ incentive })

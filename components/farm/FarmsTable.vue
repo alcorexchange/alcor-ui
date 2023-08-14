@@ -23,7 +23,8 @@
 
     el-table-column(label="APR")
       template(slot-scope='{ row }')
-        .apr {{ `${38.14}%` }} TODO
+        .icon-and-value(v-for="incentive in row.incentives")
+          .apr {{ `${10.00}%` }} TODO
 
     el-table-column(label="Daily Rewards")
       template(slot-scope='{ row }')
@@ -39,12 +40,13 @@
 
     el-table-column(align="right")
       template(slot-scope='{ row }')
-        //- VIEW 1
-        AlcorButton(v-if="false" access) Stake
-        //- VIEW 2
-        .claim-rewards-container(v-else)
-          StakingStatus
-          AlcorButton(access compact v-if="!noClaim") Claim Rewards
+        div(v-for="incentive in row.incentives")
+          //- VIEW 1
+          AlcorButton(v-if="false" access) Stake
+          //- VIEW 2
+          .claim-rewards-container(v-else)
+            StakingStatus
+            //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     //- DETAILS START
     el-table-column(type="expand")

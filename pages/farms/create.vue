@@ -34,11 +34,12 @@
 
       DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
-      AlcorButton(class="submit" access) Create Farm
+      AlcorButton(class="submit" access @click="submit") Create Farm
 
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import PageHeader from '@/components/amm/PageHeader'
 import Note from '@/components/farm/Note'
@@ -72,6 +73,8 @@ export default {
   }),
 
   computed: {
+    ...mapState(['network', 'user']),
+
     pools() {
       return this.$store.state.amm.poolsStats
     },
@@ -94,6 +97,7 @@ export default {
     onRewardTokenSelect(token, index) {
       this.rewardList[index].token = token
     },
+
     onNewReward() {
       this.rewardList = [
         ...this.rewardList,
@@ -103,9 +107,63 @@ export default {
         },
       ]
     },
+
     onRemoveReward(index) {
       this.rewardList = this.rewardList.filter((_, i) => i !== index)
     },
+
+    async submit() {
+      const actions = []
+
+      const { rows: [lastIncentive] } = await this.$rpc.get_table_rows({
+        code: this.network.amm.contract,
+        scope: this.network.amm.contract,
+        table: 'incentives',
+        limit: 1,
+        reverse: true
+      })
+
+      let lastIncentiveId = lastIncentive.id
+
+      this.rewardList.forEach(r => {
+        lastIncentiveId += 1
+        const reward = { quantity: parseFloat(r.amount).toFixed(r.token.decimals) + ' ' + r.token.currency, contract: r.token.contract }
+
+        actions.push({
+          account: this.network.amm.contract,
+          name: 'newincentive',
+          authorization: [this.user.authorization],
+          data: {
+            creator: this.user.name,
+            poolId: this.poolId,
+            rewardToken: { quantity: (0).toFixed(r.token.decimals) + ' ' + r.token.currency, contract: r.token.contract },
+            duration: this.selectedDistribution
+          }
+        })
+
+        actions.push({
+          account: reward.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: reward.quantity,
+            memo: 'incentreward#' + lastIncentiveId
+          }
+        })
+      })
+
+      const r = await this.$store.dispatch('chain/sendTransaction', actions)
+      console.log({ r })
+
+      this.$notify({
+        type: 'info',
+        title: 'Farm Creation',
+        message: 'Farm created succesfully'
+      })
+    }
   },
 }
 </script>
