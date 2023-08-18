@@ -51,26 +51,32 @@
     //- DETAILS START
     el-table-column(type="expand")
       //- VIEW 1
-      el-table(:data="[0]" class="details-table")
-        el-table-column(label="Your Stake" )
-          .icon-and-value(v-for="x in 2")
-            TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-            span 484.86K
-        el-table-column(label="Pool Share")
-          span 0.84%
-        el-table-column(label="Daily Rewards")
-          .icon-and-value(v-for="x in 2")
-            TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-            span 484.86K
-        el-table-column(label="Your Farmed Rewards")
-          .icon-and-value(v-for="x in 2")
-            TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-            span 484.86K
-        el-table-column(align="right" min-width="200px")
-          .detail-table-actions
-            AlcorButton(access) Claim Rewards
-            AlcorButton() Manage LP Positions
-            AlcorButton(bordered danger) Unstake
+      template(slot-scope='{ row }')
+        el-table(:data="getFamrs(row.id)" class="details-table")
+          el-table-column(label="PositionID" )
+            span {{ row.posId }}
+            //.icon-and-value(v-for="x in 2")
+              TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+              span 484.86K
+          el-table-column(label="Pool Share")
+            template(slot-scope='{ row }')
+              span {{ row.userSharePercent }}%
+          el-table-column(label="Daily Rewards")
+            template(slot-scope='{ row }')
+              .icon-and-value
+                TokenImage(:src="$tokenLogo(row.incentive.reward.quantity.split(' ')[1], row.incentive.reward.contract)" width="14px" height="14px")
+                span {{ row.dailyRewards }}
+          el-table-column(label="Your Farmed Rewards")
+            template(slot-scope='{ row }')
+              .icon-and-value
+                TokenImage(:src="$tokenLogo(row.incentive.reward.quantity.split(' ')[1], row.incentive.reward.contract)" width="14px" height="14px")
+                span {{ row.farmedReward }}
+          el-table-column(align="right" min-width="200px")
+            template(slot-scope='{ row }')
+              .detail-table-actions
+                AlcorButton(access @click="claim(row)") Claim Rewards
+                AlcorButton() Manage LP Positions
+                AlcorButton(bordered danger) Unstake
 
       //- VIEW 2
       .table-detail-container(v-if="false")
@@ -96,15 +102,26 @@ export default {
     StakingStatus,
   },
 
-  props: ['noClaim'],
+  props: ['noClaim', 'finished'],
 
   computed: {
     famPools() {
       console.log(this.$store.getters['farms/farmPools'])
       return this.$store.getters['farms/farmPools']
     }
-  }
+  },
 
+  methods: {
+    getFamrs(poolId) {
+      const stakes = this.$store.state.farms.userStakes
+
+      return stakes.filter(s => s.pool == poolId)
+    },
+
+    async claim(stake) {
+      await this.$store.dispatch('farms/getReward', stake)
+    }
+  }
 }
 </script>
 

@@ -7,6 +7,8 @@
         one="Active"
         two="Finished"
         active="one"
+        :value="finished"
+        @toggle="toggle"
       )
       .stacked-only
         el-switch(
@@ -27,6 +29,19 @@ export default {
     AlcorSwitch,
     AlcorLink,
   },
+
+  data: () => {
+    return {
+      finished: false
+    }
+  },
+
+  methods: {
+    toggle() {
+      this.toggle = !this.toggle
+      this.$emit('setFinished', this.toggle)
+    }
+  }
 }
 </script>
 
