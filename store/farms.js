@@ -5,6 +5,28 @@ import { fetchAllRows } from '~/utils/eosjs'
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
+const getLastTimeRewardApplicable = periodFinish => {
+  const currentTime = Math.floor(Date.now() / 1000)
+  return currentTime < periodFinish ? currentTime : periodFinish
+}
+
+const getRewardPerToken = incentive => {
+  const totalStakedLiquidity = bigInt(incentive.totalStakedLiquidity)
+  const rewardPerTokenStored = bigInt(incentive.rewardPerTokenStored)
+  const periodFinish = incentive.periodFinish
+  const lastUpdateTime = bigInt(incentive.lastUpdateTime)
+  const rewardRateE18 = bigInt(incentive.rewardRateE18)
+
+  if (totalStakedLiquidity.eq(0)) {
+    return rewardPerTokenStored
+  }
+
+  return rewardPerTokenStored.add(
+    bigInt(getLastTimeRewardApplicable(periodFinish)).subtract(lastUpdateTime)
+      .multiply(rewardRateE18).divide(totalStakedLiquidity)
+  )
+}
+
 export const state = () => ({
   incentives: [],
   userStakes: []
@@ -26,8 +48,35 @@ export const actions = {
     commit('setIncentives', incentives)
   },
 
+  async stake({ dispatch, rootState }, { incentiveId, posId }) {
+    const actions = [{
+      account: rootState.network.amm.contract,
+      name: 'stake',
+      authorization: [rootState.user.authorization],
+      data: {
+        incentiveId,
+        posId
+      }
+    }]
+
+    return await dispatch('chain/sendTransaction', actions, { root: true })
+  },
+
+  async unstake({ dispatch, rootState }, { incentiveId, posId }) {
+    const actions = [{
+      account: rootState.network.amm.contract,
+      name: 'unstake',
+      authorization: [rootState.user.authorization],
+      data: {
+        incentiveId,
+        posId
+      }
+    }]
+
+    return await dispatch('chain/sendTransaction', actions, { root: true })
+  },
+
   async getReward({ dispatch, rootState }, { incentiveId, posId }) {
-    console.log('gg', incentiveId, posId)
     const actions = [{
       account: rootState.network.amm.contract,
       name: 'getreward',
@@ -38,9 +87,7 @@ export const actions = {
       }
     }]
 
-    const r = await dispatch('chain/sendTransaction', actions, { root: true })
-    console.log('RRR!', { r })
-    dispatch('loadUserFarms')
+    return await dispatch('chain/sendTransaction', actions, { root: true })
   },
 
   async loadUserFarms({ state, commit, dispatch, rootState, getters }) {
@@ -86,30 +133,26 @@ export const actions = {
 
         const totalStakedLiquidity = bigInt(r.incentive.totalStakedLiquidity)
         const stakedLiquidity = bigInt(r.stakedLiquidity)
-        const rewardPerToken = bigInt(r.incentive.rewardPerTokenStored)
         const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
         const rewards = bigInt(r.rewards)
 
-        //const userSharePercent = totalStakedLiquidity.multiply(1000000000000).divide(stakedLiquidity).divide(10000000000)
         r.userSharePercent = stakedLiquidity.multiply(100).divide(totalStakedLiquidity).toJSNumber()
         r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
         r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
-        const reward = stakedLiquidity.multiply(rewardPerToken.subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+        const reward = stakedLiquidity.multiply(
+          getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+
         const rewardToken = asset(r.incentive.reward.quantity)
         rewardToken.set_amount(reward)
 
         r.farmedReward = rewardToken.to_string()
-        //r.userSharePercent = (userSharePercent.toJSNumber() / 100).toFixed(2)
-        //r.userSharePercent = (userSharePercent.toJSNumber() / 100).toFixed(2)
 
         return r
       })
 
       userStakes.push(...stakes)
     }
-
-    console.log({ userStakes })
 
     commit('setUserStakes', userStakes)
   }
