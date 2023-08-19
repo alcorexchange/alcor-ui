@@ -6,13 +6,14 @@
         class="alcor-switch"
         one="Active"
         two="Finished"
-        active="one"
-        :value="finished"
+        :active="finished ? 'two' : 'one'"
         @toggle="toggle"
       )
       .stacked-only
         el-switch(
           active-text="Stacked only"
+          :value="stakedOnly"
+          @change="$emit('update:stakedOnly', $event)"
         )
     .right
       AlcorLink(class="new-farm" to="/farms/create")
@@ -29,19 +30,17 @@ export default {
     AlcorSwitch,
     AlcorLink,
   },
+  props: ['finished', 'stakedOnly'],
 
   data: () => {
-    return {
-      finished: false
-    }
+    return {}
   },
 
   methods: {
     toggle() {
-      this.toggle = !this.toggle
-      this.$emit('setFinished', this.toggle)
-    }
-  }
+      this.$emit('update:finished', !this.finished)
+    },
+  },
 }
 </script>
 
