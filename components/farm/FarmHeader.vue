@@ -6,7 +6,7 @@
         class="alcor-switch"
         one="Active"
         two="Finished"
-        :active="finished ? 'one' : 'two'"
+        :active="finished ? 'two' : 'one'"
         @toggle="toggle"
       )
       .stacked-only
