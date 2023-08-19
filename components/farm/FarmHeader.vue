@@ -6,8 +6,7 @@
         class="alcor-switch"
         one="Active"
         two="Finished"
-        active="one"
-        :value="finished"
+        :active="finished ? 'one' : 'two'"
         @toggle="toggle"
       )
       .stacked-only
@@ -32,16 +31,16 @@ export default {
 
   data: () => {
     return {
-      finished: false
+      finished: false,
     }
   },
 
   methods: {
     toggle() {
-      this.toggle = !this.toggle
-      this.$emit('setFinished', this.toggle)
-    }
-  }
+      this.finished = !this.finished
+      this.$emit('setFinished', this.finished)
+    },
+  },
 }
 </script>
 
