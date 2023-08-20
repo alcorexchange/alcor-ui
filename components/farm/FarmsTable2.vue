@@ -45,12 +45,50 @@
           AlcorButton(v-if="false" access) Stake
           //- VIEW 2
           .claim-rewards-container(v-else)
-            StakingStatus
+            StakingStatus(status="pariallyStaked")
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     el-table-column(type="expand")
       template(#default="{row}")
-        div test
+        .incentive-list
+          .incentive-item(v-for="x in 2")
+            .incentive-header
+              .left
+                .key-value
+                  span.key.muted Daily Reward
+                  .icon-and-value
+                    TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+                    span 484.86K
+                span.muted •
+                .key-value
+                  span.muted Remaining Time
+                  span 3 Days
+              .right
+                AlcorButton(access compact @click="") Claim All Rewards
+            .incentive-content
+              table.fs-14
+                thead
+                  tr
+                    th
+                    th Pool Share
+                    th Daily Reward
+                    th Farmed Reward
+                    th
+                tbody
+                  tr(v-for="x in 2")
+                    td #1
+                    td 25%
+                    td
+                      .icon-and-value
+                        TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+                        span 484.86K
+                    td
+                      .icon-and-value
+                        TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
+                        span 484.86K
+                    td
+                      FarmsTableActions
+
 
 
     //- DETAILS START
@@ -89,7 +127,8 @@
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
-import StakingStatus from '~/components/farm/StakingStatus.vue'
+import StakingStatus from '~/components/farm/StakingStatus'
+import FarmsTableActions from '~/components/farm/FarmsTableActions'
 export default {
   name: 'FarmsTable',
   components: {
@@ -97,6 +136,7 @@ export default {
     TokenImage,
     AlcorButton,
     StakingStatus,
+    FarmsTableActions,
   },
 
   props: ['noClaim', 'finished'],
@@ -137,6 +177,12 @@ export default {
     font-size: 0.8rem;
   }
 }
+
+.key-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .icon-and-value {
   display: flex;
   align-items: center;
@@ -145,6 +191,55 @@ export default {
     font-size: 0.8rem;
   }
 }
+
+.incentive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--amm-space-1);
+  background: var(--table-background) !important;
+}
+
+.incentive-item {
+  border-radius: var(--radius);
+  padding: var(--amm-space-1);
+  border: 1px solid var(--border-color);
+}
+
+.incentive-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 4px;
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.incentive-content {
+  table {
+    width: 100%;
+    th,
+    td {
+      padding: 2px 0;
+      border-bottom: none;
+    }
+    tr,
+    td {
+      background: transparent !important;
+      &:hover {
+        background: transparent !important;
+      }
+    }
+
+    th {
+      font-weight: 400;
+    }
+  }
+}
+
 .farms-table::v-deep {
   .el-table__expanded-cell {
     padding: 0 !important;
