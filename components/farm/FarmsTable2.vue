@@ -45,7 +45,7 @@
           AlcorButton(v-if="false" access) Stake
           //- VIEW 2
           .claim-rewards-container(v-else)
-            StakingStatus(status="pariallyStaked")
+            StakingStatus(status="partiallyStaked")
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     el-table-column(type="expand")
