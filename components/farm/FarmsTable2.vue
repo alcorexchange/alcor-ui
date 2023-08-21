@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-table(:data="[ 0, 0 ]" class="farms-table")
+  el-table(:data="[ 1, 2 ]" class="farms-table" @row-click="onRowClick" row-key="item" ref="table")
     el-table-column(label="Pair" min-width="100%")
       template(slot-scope='{ row }')
         .token-container
@@ -65,6 +65,8 @@
                   span 3 Days
               .right
                 AlcorButton(access compact @click="") Claim All Rewards
+                AlcorButton(access compact @click="") Stake All
+                AlcorButton(bordered danger compact @click="") Unstake All
             .incentive-content
               table.fs-14
                 thead
@@ -158,6 +160,11 @@ export default {
     async claim(stake) {
       await this.$store.dispatch('farms/getReward', stake)
     },
+
+    onRowClick(row, col) {
+      console.log(row, col)
+      this.$refs.table.toggleRowExpansion(row)
+    },
   },
 }
 </script>
@@ -210,11 +217,21 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   .left {
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    // ::v-deep {
+    //   .access {
+    //     color: var(--main-green) !important;
+    //   }
+    // }
   }
 }
 

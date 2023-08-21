@@ -1,6 +1,6 @@
 <template lang="pug">
 .detail-table-actions.fs-12
-  AlcorButton(access compact @click="emit('claim')") Claim Rewards
+  AlcorButton(compact @click="emit('claim')") Claim Rewards
   AlcorButton(compact @click="$emit('manage')") Manage LP Positions
   .space
   AlcorButton(bordered danger compact @click="$emit('unstake')") Unstake
