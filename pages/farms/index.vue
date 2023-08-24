@@ -1,7 +1,7 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(class="mb-2 mt-4")
-    FarmsTable
+    FarmHeader(class="mb-2 mt-4" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly")
+    FarmsTable(:finished="finished")
 </template>
 
 <script>
@@ -12,6 +12,20 @@ export default {
   components: {
     FarmHeader,
     FarmsTable,
+  },
+
+  data: () => {
+    return {
+      finished: false,
+      stakedOnly: false,
+    }
+  },
+
+  methods: {
+    finishedUpdate() {
+      // value is automatically synced with child.
+      console.log(this.finished)
+    },
   },
 }
 </script>
