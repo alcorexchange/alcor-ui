@@ -1,24 +1,38 @@
 <template lang="pug">
-.stacking-status
-  .the-dot
-  span Staking
+.staking-status(:class="{ status }" :style="{'--color': renderColor}")
+  .the-dot(v-if="status != 'notStaked'")
+  span {{ renderText }}
 </template>
 
 <script>
 export default {
   name: 'StakingStatus',
+  props: ['status'], // 'staking', 'partiallyStaked', 'notStaked',
+
+  computed: {
+    renderColor() {
+      if (this.status === 'staking') return 'var(--main-action-green)'
+      if (this.status === 'partiallyStaked') return 'var(--main-yellow)'
+      return 'var(--main-action-red)'
+    },
+    renderText() {
+      if (this.status === 'staking') return 'Staking'
+      if (this.status === 'partiallyStaked') return 'Partially Staked'
+      return 'Not Staked'
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
-.stacking-status {
+.staking-status {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--main-green);
+  color: var(--color);
 }
 .the-dot {
-  background: var(--main-green);
+  background: var(--color);
   width: 4px;
   height: 4px;
   border-radius: 4px;

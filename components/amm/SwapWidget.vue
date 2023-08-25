@@ -199,8 +199,8 @@ export default {
         ]
       },
       {
-        link: 'https://aphelium.io?utm=alcor',
-        image: require('@/assets/images/swap-banner-2.png'),
+        link: 'https://medium.com/wombat/wax-eos-wombat-bridge-is-live-1c685a6fbdc4',
+        image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
           'rgba(64,93,122,0.2)',
           'rgba(0,183,250, 1)',
