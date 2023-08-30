@@ -8,7 +8,7 @@ import fetch from 'node-fetch'
 import config from '../config'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { fetchAllRows } from '../utils/eosjs'
-import { Match, Market, Bar } from './models'
+import { Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
 
@@ -75,6 +75,19 @@ async function main() {
       days_back -= 1
     }
   }
+
+  // TODO
+  // if (command == 'fix_fees') {
+  //   const network = config.networks[process.argv[3]]
+  //   if (!network) { console.log('No network provided!'); process.exit() }
+
+  //   const globals = await GlobalStats.find({
+  //     chain: network.name,
+  //     time: {
+  //       $gte: new Date('')
+  //     }
+  //   })
+  // }
 }
 
 main()
