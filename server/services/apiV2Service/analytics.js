@@ -62,7 +62,7 @@ analytics.get('/charts', cacheSeconds(360, (req, res) => {
   const $match = {
     chain: network.name,
     time: {
-      $gte: isAll ? 0 : new Date(Date.now() - resolution * 1000)
+      $gte: isAll ? new Date(0) : new Date(Date.now() - resolution * 1000)
     }
   }
 
