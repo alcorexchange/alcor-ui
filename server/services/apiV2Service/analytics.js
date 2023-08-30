@@ -49,16 +49,22 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
   res.json(stats)
 })
 
-analytics.get('/charts', cacheSeconds(0, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
+analytics.get('/charts', cacheSeconds(360, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + req.query.resolution
 }), async (req, res) => {
   const network = req.app.get('network')
 
   const resolution = resolutions[req.query.resolution]
-  if (!resolution) return res.status(404).send('Invalid resolution')
+  const isAll = req.query.resolution == 'ALL'
 
-  const $match = { chain: network.name, time: { $gte: new Date(Date.now() - resolution * 1000) } }
-  //const $match = { chain: network.name }
+  if (!resolution && !isAll) return res.status(404).send('Invalid resolution')
+
+  const $match = {
+    chain: network.name,
+    time: {
+      $gte: isAll ? 0 : new Date(Date.now() - resolution * 1000)
+    }
+  }
 
   const $group = {
     _id: {
