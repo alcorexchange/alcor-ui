@@ -190,22 +190,18 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://www.zombiecoin.io/',
-        image: require('@/assets/images/swap-banner-1.png'),
-        colors: [
-          'rgb(0,207,217, 0.2)',
-          'rgb(62,184,204)',
-          'rgb(250,244,169)'
-        ]
+        link: 'https://nfthive.io/drop/nfthivedrops/5181',
+        image: require('@/assets/images/swap-banner-1.jpg'),
+        colors: ['rgb(208,44,105, 0.2)', 'rgb(70,31,114)', 'rgb(171,157,190)'],
       },
       {
-        link: 'https://medium.com/wombat/wax-eos-wombat-bridge-is-live-1c685a6fbdc4',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        link: 'https://parsecgame.io/',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(64,93,122,0.2)',
-          'rgba(0,183,250, 1)',
-          'rgba(104,69,169,1)',
-        ]
+          'rgba(81,145,127,0.2)',
+          'rgba(209,146,42, 1)',
+          'rgba(93,93,94,1)',
+        ],
       },
     ]
   }),
