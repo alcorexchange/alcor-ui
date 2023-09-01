@@ -11,8 +11,8 @@
       "NFT"
     ],
     "socials": [
-      "https://t.me/asdfasdf",
-      "https://vk.com/asdfasdf"
+      "https://twitter.com/bc_brawlers",
+      "https://discord.com/invite/W9XzVNDrMS"
     ],
     "description": "Blockchain Brawlers is the first play-to-earn (P2E) game experience built by WAX Game Studios on the WAX Blockchain. You can collect Brawlers, equip them with gear and send them to Brawl in the Ring for rewards."
   },
@@ -22,7 +22,18 @@
       "link": "https://farmersworld.io/",
       "name": "farmersworld.io"
     },
-    "github": "https://github.com/shivsriv/FarmersWorld"
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://t.me/farmersworldofficial",
+      "https://twitter.com/FarmersWorldNFT",
+      "https://discord.com/invite/V2pdyGdB9V"
+    ],
+    "github": "https://github.com/shivsriv/FarmersWorld",
+    "description": "FarmersWorld is the first farming game to function on the NFTs platform. Pick for yourself suitable tools, exploit various resources, buy land to build enormous farms, and enjoy the fascinating experiences of a farmer working in Farmersworld’s Ecosystem."
   },
   "FWG@farmerstoken": {
     "name": "Farmers World",
@@ -39,5 +50,245 @@
       "name": "farmersworld.io"
     },
     "github": "https://github.com/shivsriv/FarmersWorld"
+  },
+  "HEELS@pinup24heels": {
+    "name": "PinupWarlords",
+    "website": {
+      "link": "https://pinupwarlords.com/",
+      "name": "pinupwarlords.com"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://discord.com/pinupwarlords",
+      "https://twitter.com/pinupwarlords"
+    ],
+    "description": "PinupWarlords is a fun and fast-paced Play to Earn NFT trading card game, fully on-chain, with stunning ART and multi-PvP modes. It’s a game where players own the assets and can freely resell them and participate in its ecosystem."
+  },
+  "MVT@miningvoxelt": {
+    "name": "MiningVoxels Token",
+    "website": {
+      "link": "https://miningvoxels.com/",
+      "name": "MiningVoxels Website"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://discord.gg/butkKKH8Nr",
+      "https://twitter.com/miningvoxels"
+    ],
+    "description": "MiningVoxels is a large play-to-earn game that simulates the real-world economy."
+  },
+  "DBLN@dbln1wallet1": {
+    "name": "Doubloon",
+    "website": {
+      "link": "https://discord.gg/psyberx",
+      "name": "Psyber-X / Serfdom & Sorcery Discord"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "RPG"
+    ],
+    "socials": [
+      "https://twitter.com/SerfdomSorcery",
+      "https://discord.gg/psyberx",
+      "https://peakd.com/@masterrpgbot"
+    ],
+    "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
+  },
+  "FRCT@token.parsec": {
+    "name": "Few Parsec Away",
+    "website": {
+      "link": "https://parsecgame.io/",
+      "name": "parsecgame.io"
+    },
+    "description": "Few Parsec Away is a captivating, massively multiplayer online game that combines both player-versus-player (PvP) and player-versus-environment (PvE) elements. It is a browser-based strategy game set in space, specifically within the solar system. Few Parsec Away is a free-to-play game based on blockchain technology, integrating elements related to NFTs and cryptocurrencies as premium features.",
+    "tags": ["Play2Earn", "Gaming"],
+    "socials": ["https://twitter.com/Parsec_game"]
+  },
+  "USDT@usdt.alcor": {
+    "name": "EOS USDT",
+    "website": {
+      "link": "https://eosnetwork.com/blog/antelope-ibc-deep-dive-seamless-horizontal-scaling-launches-on-eos/",
+      "name": "EOS Network IBC Deep Dive"
+    },
+    "description": "USDT bridged from EOS to WAX via IBC facilitates seamless cross-chain transfers of USDT between the EOSIO blockchains, enhancing liquidity and accessibility across ecosystems.",
+    "tags": ["IBC", "USDT Bridged"],
+    "socials": ["https://twitter.com/AntelopeIO", "https://twitter.com/alcorexchange"]
+  },
+  "TLM@alien.worlds": {
+    "name": "Alien Worlds",
+    "website": {
+      "link": "https://alienworlds.io/",
+      "name": "alienworlds.io"
+    },
+    "description": "Alien Worlds is a Digital Item Metaverse in Faraway Space. Own land on distant planets, explore and find strange artefacts, mine for Trilium with hyper-advanced tools or fight using alien weapons.",
+    "tags": ["Gaming", "DeFi"],
+    "socials": ["https://twitter.com/AlienWorlds"]
+  },
+  "MARTIA@martia": {
+    "name": "Colonize Mars",
+    "website": {
+      "link": "https://colonizemars.com/",
+      "name": "colonizemars.com"
+    },
+    "description": "Own part of the first-ever mars colony on the blockchain! Purchase supply crates, unlock unique cards, and upgrade them for a chance at owning different parts of the colony forever.",
+    "tags": ["Play2Own", "Gaming", "Simulation"],
+    "socials": ["https://twitter.com/colonizemarsnft"]
+  },
+  "RLM@realmnftgame": {
+    "name": "Realm NFT Game",
+    "website": {
+      "link": "https://realmnft.io/",
+      "name": "realmnft.io"
+    },
+    "description": "Realm NFT's are playable, blockchain-based collectables for using in Realm, a play-to-earn resource management game. In Realm players strategically utilize their NFT Leaders, Helpers and Boosts to save the world from devastation.",
+    "tags": ["Strategy", "Gaming"],
+    "socials": ["https://twitter.com/RealmNft"]
+  },
+  "LOOT@warsaken": {
+    "name": "The Warsaken",
+    "website": {
+      "link": "https://www.warsaken.com/",
+      "name": "warsaken.com"
+    },
+    "description": "Not your father's war game",
+    "tags": ["Card Game", "Strategy"],
+    "socials": ["https://twitter.com/thewarsaken"]
+  },
+  "HONEY@nfthivehoney": {
+    "name": "Honey",
+    "website": {
+      "link": "https://nfthive.io/",
+      "name": "nfthive.io"
+    },
+    "description": "Buy, Sell and Trade WAX NFTs - P2E Games - NFT Collectibles - NFT Tools: Set Builder, Bulk Operations, NFT Crafting, Drops",
+    "tags": ["Marketplace"],
+    "socials": ["https://twitter.com/nfthiveio"]
+  },
+  "AETHER@e.rplanet": {
+    "name": "RPlanet",
+    "website": {
+      "link": "https://rplanet.io/",
+      "name": "rplanet.io"
+    },
+    "description": "RPlanet assets are playable, blockchain-based collectibles for use in the game RPlanet Conquest.",
+    "tags": ["Gaming"],
+    "socials": ["https://twitter.com/RPLANETio"]
+  },
+  "NBMFUS@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
+    },
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "NBMACT@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
+    },
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "NBMMIN@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
+    },
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "NBMACT@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
+    },
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "NBMMIN@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
+    },
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "WOMBAT@wombattokens": {
+    "name": "Wombat",
+    "website": {
+      "link": "https://www.wombat.app/",
+      "name": "wombat.app"
+    },
+    "description": "Wombat is your home for NFT-Gaming. Become part of the gaming revolution and play together with millions of gamers across the globe.",
+    "tags": ["Ecosystem"],
+    "socials": ["https://twitter.com/adoptwombat"]
+  },
+  "NOVO@tokens.novo": {
+    "name": "Novopangea",
+    "website": {
+      "link": "https://novopangea.io/welcome/",
+      "name": "novopangea.io"
+    },
+    "description": "Novopangea is a fun and immersive MPOG experience where you build your economic empire across the six realms of Novopangea. You can purchase land, and buildings and produce resources to earn Obsidian. Take your Obsidian and then level up your in-game assets. As our game expands to PVP you will be able to produce specific resources that can be crafted with weapons, armor, accessories, and items.",
+    "tags": ["Gaming", "Art", "Storytelling"],
+    "socials": ["https://twitter.com/novopangeaio"]
+  },
+  "ZBC@zombiecointk": {
+    "name": "Zombiecoin",
+    "website": {
+      "link": "https://www.zombiecoin.io/",
+      "name": "zombiecoin.io"
+    },
+    "description": "Zombiecoin is an NFT resource gathering and crafting game on the WAX blockchain. Players perform work tasks to gather various resources. The resources are used in crafting and upgrading to higher tier materials. For example, walls can be made from wood and combined with other parts to build a house. You can also trade the resources and assets on the secondary market.",
+    "tags": ["Gaming", "Art", "Storytelling"],
+    "socials": ["https://twitter.com/ZombiecoinNFT"]
+  },
+  "SEST@farmingtoken": {
+    "name": "Farming Tales",
+    "website": {
+      "link": "https://www.zombiecoin.io/",
+      "name": "zombiecoin.io"
+    },
+    "description": "A crypto farm where NFTs represent real products from real farms. The NFTs of this collection represent the tools that, every day, accompany the farmers in their hard work. By putting these tools together it is possible to generate new NFTs that are linked to real goods and products from our farms. Ownership of these NFTs therefore guarantees ownership of these products.",
+    "socials": ["https://twitter.com/farming_tales"]
+  },
+  "FGL@fgltokenmgmt": {
+    "name": "FGL",
+    "website": {
+      "link": "https://www.fgltoken.com/fgltoken",
+      "name": "fgltoken.com"
+    },
+    "description": "Cosmic Clash, Mecha World and Nifty Fish are part of the FGL ecosystem. Lucrative Gaming, aka “FGL” was founded in 2007 and pioneered web games, helping web and Flash developers get their games published and distributed at a time when the web game market was considered the “wild west”.",
+    "socials": ["https://twitter.com/FGL_NFT"]
+  },
+  "NEFTY@token.nefty": {
+    "name": "Nefty Blocks",
+    "website": {
+      "link": "https://neftyblocks.com/",
+      "name": "neftyblocks.com"
+    },
+    "description": "NeftyBlocks is the #1 trade to Earn marketplace for buying, selling and creating digital collectibles.",
+    "socials": ["https://twitter.com/neftyblocks"]
   }
 }
+
