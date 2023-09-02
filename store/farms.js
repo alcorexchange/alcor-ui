@@ -45,7 +45,7 @@ export const actions = {
       table: 'incentives',
     })
 
-    commit('setIncentives', incentives)
+    commit('setIncentives', incentives.map(i => formatIncentive(i)))
   },
 
   async stake({ dispatch, rootState }, { incentiveId, posId }) {
@@ -164,7 +164,6 @@ function formatIncentive(incentive) {
   incentive.daysRemain = Math.round(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
   incentive.rewardPerDay = (parseFloat(incentive.reward.quantity) / incentive.durationInDays).toFixed(2)
 
-  //console.log({ incentive })
   return incentive
 }
 
@@ -178,7 +177,7 @@ export const getters = {
 
       pools.push({
         ...pool,
-        incentives: incentives.map(i => formatIncentive(i))
+        incentives
       })
     }
 
