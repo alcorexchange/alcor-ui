@@ -5,6 +5,15 @@ import { fetchAllRows } from '~/utils/eosjs'
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
+function formatIncentive(incentive) {
+  incentive.durationInDays = incentive.rewardsDuration / 86400
+  incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
+  incentive.daysRemain = Math.round(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
+  incentive.rewardPerDay = (parseFloat(incentive.reward.quantity) / incentive.durationInDays).toFixed(2)
+
+  return incentive
+}
+
 const getLastTimeRewardApplicable = periodFinish => {
   const currentTime = Math.floor(Date.now() / 1000)
   return currentTime < periodFinish ? currentTime : periodFinish
@@ -29,12 +38,16 @@ const getRewardPerToken = incentive => {
 
 export const state = () => ({
   incentives: [],
-  userStakes: []
+  userStakes: [],
+  plainUserStakes: [],
+  farmPools: []
 })
 
 export const mutations = {
   setUserStakes: (state, stakes) => state.userStakes = stakes,
-  setIncentives: (state, incentives) => state.incentives = incentives
+  setPlainUserStakes: (state, stakes) => state.plainUserStakes = stakes,
+  setIncentives: (state, incentives) => state.incentives = incentives,
+  setFarmPools: (state, farmPools) => state.farmPools = farmPools
 }
 
 export const actions = {
@@ -46,51 +59,97 @@ export const actions = {
     })
 
     commit('setIncentives', incentives.map(i => formatIncentive(i)))
-  },
 
-  async stake({ dispatch, rootState }, { incentiveId, posId }) {
-    const actions = [{
-      account: rootState.network.amm.contract,
-      name: 'stake',
-      authorization: [rootState.user.authorization],
-      data: {
-        incentiveId,
-        posId
+    setInterval(() => {
+      // Recelculate rewards
+      if (this._vm.$nuxt.$route.name.includes('farms')) {
+        dispatch('calculateUserStakes')
       }
-    }]
+    }, 1000)
+  },
+  async stakeAction({ dispatch, rootState }, { stakes, action }) {
+    const actions = stakes.map(s => {
+      const { incentiveId, posId } = s
+
+      return {
+        account: rootState.network.amm.contract,
+        name: action,
+        authorization: [rootState.user.authorization],
+        data: {
+          incentiveId,
+          posId
+        }
+      }
+    })
+
+    if (actions.length == 0) return console.error('NOT ACTION TO SUBMIT')
 
     return await dispatch('chain/sendTransaction', actions, { root: true })
   },
 
-  async unstake({ dispatch, rootState }, { incentiveId, posId }) {
-    const actions = [{
-      account: rootState.network.amm.contract,
-      name: 'unstake',
-      authorization: [rootState.user.authorization],
-      data: {
-        incentiveId,
-        posId
-      }
-    }]
+  calculateUserStakes({ state, commit, dispatch, rootState, getters }) {
+    // We need this method to trigger to recalculate user rewards (that depends on time)
+    const userStakes = []
 
-    return await dispatch('chain/sendTransaction', actions, { root: true })
+    for (const r of state.plainUserStakes) {
+      const totalStakedLiquidity = bigInt(r.incentive.totalStakedLiquidity)
+      const stakedLiquidity = bigInt(r.stakedLiquidity)
+      const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
+      const rewards = bigInt(r.rewards)
+
+      r.userSharePercent = stakedLiquidity.multiply(100).divide(totalStakedLiquidity).toJSNumber()
+      r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
+      r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
+
+      const reward = stakedLiquidity.multiply(
+        getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+
+      const rewardToken = asset(r.incentive.reward.quantity)
+      rewardToken.set_amount(reward)
+
+      r.farmedReward = rewardToken.to_string()
+
+      userStakes.push(r)
+    }
+
+    commit('setUserStakes', userStakes)
   },
 
-  async getReward({ dispatch, rootState }, { incentiveId, posId }) {
-    const actions = [{
-      account: rootState.network.amm.contract,
-      name: 'getreward',
-      authorization: [rootState.user.authorization],
-      data: {
-        incentiveId,
-        posId
-      }
-    }]
+  calculateFarmPools({ state, commit, dispatch, rootState, getters }) {
+    const { userStakes, incentives } = state
 
-    return await dispatch('chain/sendTransaction', actions, { root: true })
+    const pools = []
+    for (const pool of rootState.amm.pools) {
+      const positions = rootState.amm.positions.filter(p => p.pool == pool.id)
+
+      const farmIncentives = []
+      for (const incentive of incentives.filter(i => i.poolId == pool.id)) {
+        const incentiveStats = []
+
+        for (const position of positions) {
+          const stake = userStakes.find(s => s.incentiveId == incentive.id && s.pool == pool.id && s.posId == position.id)
+
+          if (!stake) {
+            incentiveStats.push({ staked: false, incentive, incentiveId: incentive.id, posId: position.id })
+          } else {
+            incentiveStats.push({ staked: true, incentive, ...stake, incentiveId: incentive.id, posId: position.id })
+          }
+        }
+
+        farmIncentives.push({ ...incentive, incentiveStats })
+      }
+
+      pools.push({
+        ...pool,
+        incentives: farmIncentives
+      })
+    }
+
+    commit('setFarmPools', pools)
   },
 
-  async loadUserFarms({ state, commit, dispatch, rootState, getters }) {
+  async loadUserStakes({ state, commit, dispatch, rootState, getters }) {
+    // TODO Refactor table calls
     const positions = rootState.amm.positions
 
     const positionIds = rootState.amm.positions.map(p => Number(p.id))
@@ -129,77 +188,49 @@ export const actions = {
       const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {
         r.incentiveId = incentiveScope
         r.incentive = state.incentives.find(i => i.id == incentiveScope)
-        r.pool = positions.find(p => p.id = r.posId).pool
-
-        const totalStakedLiquidity = bigInt(r.incentive.totalStakedLiquidity)
-        const stakedLiquidity = bigInt(r.stakedLiquidity)
-        const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
-        const rewards = bigInt(r.rewards)
-
-        r.userSharePercent = stakedLiquidity.multiply(100).divide(totalStakedLiquidity).toJSNumber()
-        r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
-        r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
-
-        const reward = stakedLiquidity.multiply(
-          getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
-
-        const rewardToken = asset(r.incentive.reward.quantity)
-        rewardToken.set_amount(reward)
-
-        r.farmedReward = rewardToken.to_string()
-
+        r.pool = positions.find(p => p.id == r.posId).pool
         return r
       })
 
       userStakes.push(...stakes)
     }
 
-    commit('setUserStakes', userStakes)
+    commit('setPlainUserStakes', userStakes)
+    dispatch('calculateUserStakes')
   }
-}
-
-function formatIncentive(incentive) {
-  incentive.durationInDays = incentive.rewardsDuration / 86400
-  incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
-  incentive.daysRemain = Math.round(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
-  incentive.rewardPerDay = (parseFloat(incentive.reward.quantity) / incentive.durationInDays).toFixed(2)
-
-  return incentive
 }
 
 export const getters = {
   farmPools(state, getters, rootState) {
-    const pools = []
+    const { incentives, userStakes } = state
 
+    const pools = []
     for (const pool of rootState.amm.pools) {
-      const incentives = state.incentives.filter(i => i.poolId == pool.id)
-      if (incentives.length == 0) continue
+      const positions = rootState.amm.positions.filter(p => p.pool == pool.id)
+
+      const farmIncentives = []
+      for (const incentive of incentives.filter(i => i.poolId == pool.id)) {
+        const incentiveStats = []
+
+        for (const position of positions) {
+          const stake = userStakes.find(s => s.incentiveId == incentive.id && s.pool == pool.id && s.posId == position.id)
+
+          if (!stake) {
+            incentiveStats.push({ staked: false, incentive, incentiveId: incentive.id, posId: position.id })
+          } else {
+            incentiveStats.push({ staked: true, incentive, ...stake, incentiveId: incentive.id, posId: position.id })
+          }
+        }
+
+        farmIncentives.push({ ...incentive, incentiveStats })
+      }
 
       pools.push({
         ...pool,
-        incentives
+        incentives: farmIncentives
       })
     }
 
     return pools
   },
-
-  // incentives(state, getters, rootState) {
-  //   // TODO perfomance check on swap pool update
-  //   console.log('incentives calculation')
-  //   const incentives = []
-
-  //   for (const i of state.incentives) {
-  //     const pool = rootState.amm.pools.find(p => p.id == i.poolId)
-
-  //     if (!pool) continue
-
-  //     incentives.push({
-  //       ...i,
-  //       pool
-  //     })
-  //   }
-
-  //   return incentives
-  // },
 }

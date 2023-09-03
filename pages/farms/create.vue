@@ -127,6 +127,7 @@ export default {
 
       this.rewardList.forEach(r => {
         lastIncentiveId += 1
+        console.log('r.token', r.token)
         const reward = { quantity: parseFloat(r.amount).toFixed(r.token.decimals) + ' ' + r.token.currency, contract: r.token.contract }
 
         actions.push({

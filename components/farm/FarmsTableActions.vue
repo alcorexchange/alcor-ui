@@ -1,9 +1,10 @@
 <template lang="pug">
-.detail-table-actions.fs-12
-  AlcorButton(compact @click="emit('claim')") Claim Rewards
-  AlcorButton(compact @click="$emit('manage')") Manage LP Positions
+.detail-table-actions.fs-12(v-if="staked")
+  AlcorButton(compact @click="$emit('claim', row)") Claim Rewards
   .space
-  AlcorButton(bordered danger compact @click="$emit('unstake')") Unstake
+  AlcorButton(bordered danger compact @click="$emit('unstake', row)") Unstake
+.detail-table-actions.fs-12(v-else)
+  AlcorButton(bordered compact @click="$emit('stake', row)") Stake
 </template>
 
 <script>
@@ -13,6 +14,8 @@ export default {
   components: {
     AlcorButton,
   },
+
+  props: ['staked', 'row'],
 
   computed: {},
 

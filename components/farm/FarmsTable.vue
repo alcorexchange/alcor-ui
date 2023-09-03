@@ -51,7 +51,6 @@
 
     //- DETAILS START
     el-table-column(type="expand")
-      //- VIEW 1
       template(slot-scope='{ row }')
         el-table(:data="getFamrs(row.id)" class="details-table")
           el-table-column(label="PositionID" )
