@@ -45,14 +45,14 @@
           AlcorButton(v-if="false" access @click="stake(row)") Stake
           //- VIEW 2
           .claim-rewards-container(v-else)
-            StakingStatus(:status="getStakingStatus(incentive)")
+            StakingStatus(:status="incentive.stakeStatus")
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     el-table-column(type="expand")
       template(slot-scope='{ row }')
         .incentive-list
           // TODO Make it separete computed to make it reactive
-          .incentive-item(v-for="incentive in userStakes")
+          .incentive-item(v-for="incentive in row.incentives")
             .incentive-header
               .left
                 .key-value
@@ -133,11 +133,6 @@ export default {
         return { ...p, incentives }
       }).filter(p => p.incentives.length > 0)
     },
-
-    userStakes() {
-      const row = this.farmPools.find(fp => fp.id == this.extendedRow.id)
-      return row.incentives
-    }
   },
 
   methods: {
@@ -147,24 +142,6 @@ export default {
 
     onExpand(row) {
       this.extendedRow = row
-    },
-
-    getStakingStatus(incentive) {
-      //const stakes = this.getFamrs(incentive.poolId)
-
-      //console.log('stakes', stakes)
-      //const incentiveIds = row.incentives.map(i => i.id)
-
-      //const statuses = []
-      //stakes.forEach(s => statuses.push(incentiveIds.includes(s.incentiveId)))
-
-      ////if (statuses.every(Boolean)) return 'Staking'
-
-      //console.log({ row })
-      // console.log({ stakes })
-      //console.log({ statuses })
-
-      return 'partiallyStaked'
     },
 
     async claimAll(incentive) {

@@ -202,6 +202,8 @@ export const actions = {
 
 export const getters = {
   farmPools(state, getters, rootState) {
+    console.log('farm pools trigerred...')
+
     const { incentives, userStakes } = state
 
     const pools = []
@@ -222,7 +224,19 @@ export const getters = {
           }
         }
 
-        farmIncentives.push({ ...incentive, incentiveStats })
+        const stakingStatuses = incentiveStats.map(i => i.staked)
+
+        let stakeStatus = 'notStaked'
+
+        if (stakingStatuses.length == 0) {
+          stakeStatus = null
+        } else if (stakingStatuses.every(Boolean)) {
+          stakeStatus = 'staked'
+        } else if (stakingStatuses.includes(true)) {
+          stakeStatus = 'partiallyStaked'
+        }
+
+        farmIncentives.push({ ...incentive, incentiveStats, stakeStatus })
       }
 
       pools.push({
