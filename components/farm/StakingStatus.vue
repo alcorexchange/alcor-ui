@@ -1,6 +1,6 @@
 <template lang="pug">
 .staking-status(:class="{ status }" :style="{'--color': renderColor}")
-  .the-dot(v-if="status != 'notStaked' && status != null")
+  .the-dot(v-if="status != null")
   span {{ renderText }}
 </template>
 

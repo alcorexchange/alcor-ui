@@ -52,6 +52,17 @@ export const mutations = {
 
 export const actions = {
   async init({ state, commit, dispatch, rootState, getters }) {
+    dispatch('loadIncentives')
+
+    setInterval(() => {
+      // Recelculate rewards
+      if (this._vm.$nuxt.$route.name.includes('farms')) {
+        dispatch('calculateUserStakes')
+      }
+    }, 2000)
+  },
+
+  async loadIncentives({ rootState, commit }) {
     const incentives = await fetchAllRows(this.$rpc, {
       code: rootState.network.amm.contract,
       scope: rootState.network.amm.contract,
@@ -59,14 +70,8 @@ export const actions = {
     })
 
     commit('setIncentives', incentives.map(i => formatIncentive(i)))
-
-    setInterval(() => {
-      // Recelculate rewards
-      if (this._vm.$nuxt.$route.name.includes('farms')) {
-        dispatch('calculateUserStakes')
-      }
-    }, 1000)
   },
+
   async stakeAction({ dispatch, rootState }, { stakes, action }) {
     const actions = stakes.map(s => {
       const { incentiveId, posId } = s
@@ -88,16 +93,20 @@ export const actions = {
   },
 
   calculateUserStakes({ state, commit, dispatch, rootState, getters }) {
+    //console.log('calculateUserStakes..')
     // We need this method to trigger to recalculate user rewards (that depends on time)
     const userStakes = []
 
     for (const r of state.plainUserStakes) {
-      const totalStakedLiquidity = bigInt(r.incentive.totalStakedLiquidity)
+      const totalStakedLiquidity = r.incentive.totalStakedLiquidity
       const stakedLiquidity = bigInt(r.stakedLiquidity)
       const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
       const rewards = bigInt(r.rewards)
 
-      r.userSharePercent = stakedLiquidity.multiply(100).divide(totalStakedLiquidity).toJSNumber()
+      // console.log('r.incentive', r.incentive)
+      // if (totalStakedLiquidity.eq(0)) return console.error('totalStakedLiquidity is 0!')
+
+      r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
       r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
       r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
@@ -148,7 +157,13 @@ export const actions = {
     commit('setFarmPools', pools)
   },
 
+  async updateStakesAfterAction({ dispatch }) {
+    await dispatch('loadIncentives')
+    await dispatch('loadUserStakes')
+  },
+
   async loadUserStakes({ state, commit, dispatch, rootState, getters }) {
+    // console.log('loadUserStakes...')
     // TODO Refactor table calls
     const positions = rootState.amm.positions
 
@@ -202,9 +217,9 @@ export const actions = {
 
 export const getters = {
   farmPools(state, getters, rootState) {
-    console.log('farm pools trigerred...')
-
-    const { incentives, userStakes } = state
+    // console.log('farmPools triggered')
+    const incentives = state.incentives
+    const userStakes = state.userStakes
 
     const pools = []
     for (const pool of rootState.amm.pools) {
