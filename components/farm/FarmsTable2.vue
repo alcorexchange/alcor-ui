@@ -52,7 +52,9 @@
       template(slot-scope='{ row }')
         .incentive-list
           // TODO Make it separete computed to make it reactive
-          .incentive-item(v-for="incentive in userStakes")
+          // FIXME MAY BE WE DO NOT NEED IT HERE
+          //.incentive-item(v-for="incentive in userStakes")
+          .incentive-item(v-for="incentive in row.incentives")
             .incentive-header
               .left
                 .key-value
