@@ -190,9 +190,9 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://nfthive.io/drop/nfthivedrops/5181',
+        link: 'https://pixygon.io/',
         image: require('@/assets/images/swap-banner-1.jpg'),
-        colors: ['rgb(208,44,105, 0.2)', 'rgb(70,31,114)', 'rgb(171,157,190)'],
+        colors: ['rgb(34,104,193, 0.2)', 'rgb(44,231,255)', 'rgb(139,53,82)'],
       },
       {
         link: 'https://parsecgame.io/',
