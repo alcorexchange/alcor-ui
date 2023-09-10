@@ -1,6 +1,6 @@
 <template lang="pug">
 .staking-status(:class="{ status }" :style="{'--color': renderColor}")
-  .the-dot(v-if="status != 'notStaked'")
+  .the-dot(v-if="status != null")
   span {{ renderText }}
 </template>
 
@@ -11,12 +11,14 @@ export default {
 
   computed: {
     renderColor() {
-      if (this.status === 'staking') return 'var(--main-action-green)'
+      if (this.status === 'staked') return 'var(--main-action-green)'
       if (this.status === 'partiallyStaked') return 'var(--main-yellow)'
       return 'var(--main-action-red)'
     },
+
     renderText() {
-      if (this.status === 'staking') return 'Staking'
+      if (this.status == null) return ''
+      if (this.status === 'staked') return 'Staking'
       if (this.status === 'partiallyStaked') return 'Partially Staked'
       return 'Not Staked'
     },

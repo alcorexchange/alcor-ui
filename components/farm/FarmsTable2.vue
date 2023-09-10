@@ -1,127 +1,106 @@
 <template lang="pug">
-  el-table(:data="[ 1, 2 ]" class="farms-table" @row-click="onRowClick" row-key="item" ref="table")
+  el-table(:data="farmPools" class="farms-table" row-key="id" ref="table" @row-click="onRowClick" @expand-change="onExpand" row-class-name="pointer")
     el-table-column(label="Pair" min-width="100%")
       template(slot-scope='{ row }')
         .token-container
           PairIcons(
-            :token1="{contract: 'wax.eosio', symbol: 'WAX'}"
-            :token2="{contract: 'usdt.wax', symbol: 'WAX'}"
+            :token1="{contract: row.tokenA.contract, symbol: row.tokenA.quantity.split(' ')[1]}"
+            :token2="{contract: row.tokenB.contract, symbol: row.tokenB.quantity.split(' ')[1]}"
           )
           .token-container-info
-            .token-names {{ 'WAX' }}/{{ 'USDT' }}
-            .token-contracts.muted {{ 'wax' }}/{{ 'usdt' }}
+            .token-names {{ row.tokenA.quantity.split(' ')[1] }}/{{ row.tokenB.quantity.split(' ')[1] }}
+            .token-contracts.muted {{ row.tokenA.contract }}/{{ row.tokenB.contract }}
 
     el-table-column(label="Total Staked")
       template(slot-scope='{ row }')
         .icon-and-value
-          TokenImage(:src="$tokenLogo('wax.eosio', 'WAX')" width="14px" height="14px")
-          span {{ '0' }}
+          TokenImage(:src="$tokenLogo(row.tokenA.quantity.split(' ')[1], row.tokenA.contract)" width="14px" height="14px")
+          span {{ row.tokenA.quantity }}
 
         .icon-and-value
-          TokenImage(:src="$tokenLogo('wax.eosio', 'WAX')" width="14px" height="14px")
-          span {{ '0' }}
+          TokenImage(:src="$tokenLogo(row.tokenB.quantity.split(' ')[1], row.tokenB.contract)" width="14px" height="14px")
+          span {{ row.tokenB.quantity }}
 
     el-table-column(label="APR")
       template(slot-scope='{ row }')
-        .icon-and-value(v-for="incentive in 2")
+        .icon-and-value(v-for="incentive in row.incentives")
           .apr {{ `${10.00}%` }} TODO
 
     el-table-column(label="Daily Rewards")
       template(slot-scope='{ row }')
-        .icon-and-value(v-for="incentive in 2")
-          TokenImage(:src="$tokenLogo('', '')" width="14px" height="14px")
-          span {{ 4 }} {{ '' }}
+        .icon-and-value(v-for="incentive in row.incentives")
+          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+          span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
 
     el-table-column(label="Remaining Time")
       template(slot-scope='{ row }')
-        .icon-and-value(v-for="incentive in 2")
-          TokenImage(:src="$tokenLogo('', '')" width="14px" height="14px")
-          span {{ 4 }} Days
+        .icon-and-value(v-for="incentive in row.incentives")
+          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+          span {{ incentive.daysRemain }} Days
 
     el-table-column(align="right")
       template(slot-scope='{ row }')
-        div(v-for="incentive in 3")
+        div(v-for="incentive in row.incentives")
           //- VIEW 1
-          AlcorButton(v-if="false" access) Stake
+          AlcorButton(v-if="false" access @click="stake(row)") Stake
           //- VIEW 2
           .claim-rewards-container(v-else)
-            StakingStatus(status="partiallyStaked")
+            StakingStatus(:status="incentive.stakeStatus")
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     el-table-column(type="expand")
-      template(#default="{row}")
+      template(slot-scope='{ row }')
         .incentive-list
-          .incentive-item(v-for="x in 2")
+          // TODO Make it separete computed to make it reactive
+          // FIXME MAY BE WE DO NOT NEED IT HERE
+          //.incentive-item(v-for="incentive in userStakes")
+          .incentive-item(v-for="incentive in row.incentives")
             .incentive-header
               .left
                 .key-value
                   span.key.muted Daily Reward
                   .icon-and-value
-                    TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-                    span 484.86K
+                    TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+                    span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
                 span.muted •
                 .key-value
                   span.muted Remaining Time
-                  span 3 Days
-              .right
-                AlcorButton(access compact @click="") Claim All Rewards
-                AlcorButton(access compact @click="") Stake All
-                AlcorButton(bordered danger compact @click="") Unstake All
+                  span {{ incentive.daysRemain }} Days
+              .right(v-if="incentive.incentiveStats.length > 0")
+                AlcorButton(access compact @click="claimAll(incentive)") Claim All Rewards
+                AlcorButton(access compact @click="stakeAll(incentive)") Stake All
+                AlcorButton(bordered danger compact @click="unstakeAll(incentive)") Unstake All
             .incentive-content
               table.fs-14
                 thead
                   tr
-                    th
+                    th Position ID
                     th Pool Share
                     th Daily Reward
                     th Farmed Reward
                     th
                 tbody
-                  tr(v-for="x in 2")
-                    td #1
-                    td 25%
-                    td
-                      .icon-and-value
-                        TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-                        span 484.86K
-                    td
-                      .icon-and-value
-                        TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-                        span 484.86K
-                    td
-                      FarmsTableActions
-
-
-
-    //- DETAILS START
-    //- el-table-column(type="expand")
-      //- VIEW 1
-      template(slot-scope='{ row }')
-        el-table(:data="getFamrs(row.id)" class="details-table")
-          el-table-column(label="PositionID" )
-            span {{ row.posId }}
-            //.icon-and-value(v-for="x in 2")
-              TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
-              span 484.86K
-          el-table-column(label="Pool Share")
-            template(slot-scope='{ row }')
-              span {{ row.userSharePercent }}%
-          el-table-column(label="Daily Rewards")
-            template(slot-scope='{ row }')
-              .icon-and-value
-                TokenImage(:src="$tokenLogo(row.incentive.reward.quantity.split(' ')[1], row.incentive.reward.contract)" width="14px" height="14px")
-                span {{ row.dailyRewards }}
-          el-table-column(label="Your Farmed Rewards")
-            template(slot-scope='{ row }')
-              .icon-and-value
-                TokenImage(:src="$tokenLogo(row.incentive.reward.quantity.split(' ')[1], row.incentive.reward.contract)" width="14px" height="14px")
-                span {{ row.farmedReward }}
-          el-table-column(align="right" min-width="200px")
-            template(slot-scope='{ row }')
-              .detail-table-actions
-                AlcorButton(access @click="claim(row)") Claim Rewards
-                AlcorButton() Manage LP Positions
-                AlcorButton(bordered danger) Unstake
+                  template(v-for="stat in incentive.incentiveStats")
+                    tr(v-if="stat.staked")
+                      td # {{ stat.posId }}
+                      td {{ stat.userSharePercent }}%
+                      td
+                        .icon-and-value
+                          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+                          span {{ stat.dailyRewards }}
+                      td
+                        .icon-and-value
+                          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+                          span {{ stat.farmedReward }}
+                      td
+                        FarmsTableActions(:row="stat" :staked="true" @stake="stake" @claim="claim" @unstake="unstake")
+                    tr(v-else)
+                      td # {{ stat.posId }}
+                      td Not Staked
+                      td
+                      td
+                      td
+                        FarmsTableActions(:row="stat" :staked="false" @stake="stake" @claim="claim" @unstake="unstake")
 
 </template>
 
@@ -143,29 +122,70 @@ export default {
 
   props: ['noClaim', 'finished'],
 
+  data: () => {
+    return {
+      extendedRow: null
+    }
+  },
+
   computed: {
-    famPools() {
-      console.log(this.$store.getters['farms/farmPools'])
-      return this.$store.getters['farms/farmPools']
+    farmPools() {
+      return this.$store.getters['farms/farmPools'].map(p => {
+        const incentives = p.incentives.filter(i => i.isFinished == this.finished)
+        return { ...p, incentives }
+      }).filter(p => p.incentives.length > 0)
     },
+
+    userStakes() {
+      // TODO что то теперь состояние стейкед не обновляет
+      const pool = this.farmPools.find(fp => fp.id == this.extendedRow.id)
+
+      return pool.incentives
+    }
   },
 
   methods: {
-    getFamrs(poolId) {
-      const stakes = this.$store.state.farms.userStakes
+    onRowClick(row) {
+      this.$refs.table.toggleRowExpansion(row)
+    },
 
-      return stakes.filter((s) => s.pool == poolId)
+    onExpand(row) {
+      this.extendedRow = row
+    },
+
+    async claimAll(incentive) {
+      const stakes = incentive.incentiveStats.filter(i => i.staked)
+      await this.$store.dispatch('farms/stakeAction', { stakes, action: 'getreward' })
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+    },
+
+    async stakeAll(incentive) {
+      const stakes = incentive.incentiveStats.filter(i => !i.staked)
+      await this.$store.dispatch('farms/stakeAction', { stakes, action: 'stake' })
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+    },
+
+    async unstakeAll(incentive) {
+      const stakes = incentive.incentiveStats.filter(i => i.staked)
+      await this.$store.dispatch('farms/stakeAction', { stakes, action: 'unstake' })
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
     },
 
     async claim(stake) {
-      await this.$store.dispatch('farms/getReward', stake)
+      await this.$store.dispatch('farms/stakeAction', { stakes: [stake], action: 'getreward' })
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
     },
 
-    onRowClick(row, col) {
-      console.log(row, col)
-      this.$refs.table.toggleRowExpansion(row)
+    async unstake(stake) {
+      await this.$store.dispatch('farms/stakeAction', { stakes: [stake], action: 'unstake' })
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
     },
-  },
+
+    async stake(stake) {
+      await this.$store.dispatch('farms/stakeAction', { stakes: [stake], action: 'stake' })
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 1000)
+    }
+  }
 }
 </script>
 

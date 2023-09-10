@@ -42,19 +42,20 @@
       template(slot-scope='{ row }')
         div(v-for="incentive in row.incentives")
           //- VIEW 1
-          AlcorButton(v-if="false" access) Stake
+          AlcorButton(v-if="false" access @click="stake(row)") Stake
           //- VIEW 2
           .claim-rewards-container(v-else)
-            StakingStatus
+            span {{ getStakingStatus(incentive) }}
+            //StakingStatus
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
     //- DETAILS START
     el-table-column(type="expand")
-      //- VIEW 1
       template(slot-scope='{ row }')
         el-table(:data="getFamrs(row.id)" class="details-table")
           el-table-column(label="PositionID" )
-            span {{ row.posId }}
+            template(slot-scope='{ row }')
+              span {{ row.posId }}
             //.icon-and-value(v-for="x in 2")
               TokenImage(:src="$tokenLogo('usdt', 'usdt.alcor')" width="14px" height="14px")
               span 484.86K
@@ -76,7 +77,7 @@
               .detail-table-actions
                 AlcorButton(access @click="claim(row)") Claim Rewards
                 AlcorButton() Manage LP Positions
-                AlcorButton(bordered danger) Unstake
+                AlcorButton(bordered danger @click="unstake(row)") Unstake
 
       //- VIEW 2
       .table-detail-container(v-if="false")
@@ -106,8 +107,11 @@ export default {
 
   computed: {
     famPools() {
-      console.log(this.$store.getters['farms/farmPools'])
-      return this.$store.getters['farms/farmPools']
+      return this.$store.getters['farms/farmPools'].map(p => {
+        const incentives = p.incentives.filter(i => i.isFinished == this.finished)
+
+        return { ...p, incentives }
+      })
     }
   },
 
@@ -115,11 +119,45 @@ export default {
     getFamrs(poolId) {
       const stakes = this.$store.state.farms.userStakes
 
-      return stakes.filter(s => s.pool == poolId)
+      const filtered = stakes.filter(s => {
+        return s.pool == poolId && s.incentive.isFinished == this.finished
+      })
+
+      return filtered
     },
 
+    getStakingStatus(incentive) {
+      const stakes = this.getFamrs(incentive.poolId)
+
+      console.log('stakes', stakes)
+      //const incentiveIds = row.incentives.map(i => i.id)
+
+      //const statuses = []
+      //stakes.forEach(s => statuses.push(incentiveIds.includes(s.incentiveId)))
+
+      ////if (statuses.every(Boolean)) return 'Staking'
+
+      //console.log({ row })
+      // console.log({ stakes })
+      //console.log({ statuses })
+
+      return 'Staking'
+    },
+
+    // TODO Trycatch
     async claim(stake) {
       await this.$store.dispatch('farms/getReward', stake)
+      this.$store.dispatch('farms/loadUserFarms', stake)
+    },
+
+    async unstake(stake) {
+      await this.$store.dispatch('farms/unstake', stake)
+      this.$store.dispatch('farms/loadUserFarms', stake)
+    },
+
+    async stake(stake) {
+      await this.$store.dispatch('farms/stake', stake)
+      this.$store.dispatch('farms/loadUserFarms', stake)
     }
   }
 }

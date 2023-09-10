@@ -84,5 +84,23 @@
       "https://twitter.com/miningvoxels"
     ],
     "description": "MiningVoxels is a large play-to-earn game that simulates the real-world economy."
+  },
+    "DBLN@dbln1wallet1": {
+    "name": "Doubloon",
+    "website": {
+      "link": "https://discord.gg/psyberx",
+      "name": "Psyber-X / Serfdom & Sorcery Discord"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "RPG"
+    ],
+    "socials": [
+      "https://twitter.com/SerfdomSorcery",
+      "https://discord.gg/psyberx",
+      "https://peakd.com/@masterrpgbot"
+    ],
+    "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
   }
 }
