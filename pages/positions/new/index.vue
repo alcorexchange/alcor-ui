@@ -782,14 +782,24 @@ export default {
         }
       )
 
+      // TODO Auto Stake
+      if (!this.existingPosition) {
+        const incentives = this.$store.state.farms.incentives.filter(i => i.poolId == poolId && !i.isFinished)
+
+        for (const incentive of incentives) {
+          actions.push({
+            account: this.network.amm.contract,
+            name: 'stakelastpos',
+            authorization: [this.user.authorization],
+            data: {
+              incentiveId: incentive.id,
+            }
+          })
+        }
+      }
+
       console.log('new position', { actions })
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
-
-      // Only update new pool with delay
-      // if (actions.length > 1) setTimeout(() => {
-      //   this.$store.dispatch('amm/poolUpdate', poolId)
-      //     .then(() => this.$store.dispatch('amm/fetchPositions'))
-      // }, 2000)
 
       console.log('New position', r)
 
