@@ -24,7 +24,6 @@ export default {
   methods: {
     finishedUpdate() {
       // value is automatically synced with child.
-      console.log(this.finished)
     },
   },
 }

@@ -7,10 +7,16 @@
 <script>
 export default {
   name: 'StakingStatus',
-  props: ['status'], // 'staking', 'partiallyStaked', 'notStaked',
+  props: ['status', 'finished'], //status: 'staking', 'partiallyStaked', 'notStaked',
 
   computed: {
     renderColor() {
+      if (this.finished) {
+        if (this.status === 'staked') return 'var(--main-action-red)'
+        if (this.status === 'partiallyStaked') return 'var(--main-yellow)'
+        return 'var(--main-action-green)'
+      }
+
       if (this.status === 'staked') return 'var(--main-action-green)'
       if (this.status === 'partiallyStaked') return 'var(--main-yellow)'
       return 'var(--main-action-red)'
