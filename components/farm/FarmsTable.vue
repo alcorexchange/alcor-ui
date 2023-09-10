@@ -21,10 +21,12 @@
           TokenImage(:src="$tokenLogo(row.tokenB.quantity.split(' ')[1], row.tokenB.contract)" width="14px" height="14px")
           span {{ row.tokenB.quantity }}
 
-    el-table-column(label="APR")
+    // TODO APR
+    el-table-column(label="Total Reward")
       template(slot-scope='{ row }')
         .icon-and-value(v-for="incentive in row.incentives")
-          .apr {{ `${10.00}%` }} TODO
+          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+          .apr {{ incentive.reward.quantity }}
 
     el-table-column(label="Daily Rewards")
       template(slot-scope='{ row }')
