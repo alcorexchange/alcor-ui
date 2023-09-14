@@ -102,5 +102,15 @@
       "https://peakd.com/@masterrpgbot"
     ],
     "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
+  },
+   "LEAF@naturestoken": {
+    "name": "Leaf Token",
+    "tags": [
+      "tipbot",
+      "gaming",
+    ],
+    "socials": [
+      "https://t.me/leaf_chat",
+    ],
+    "description": "The Leaf token is the official token for @LeafTipBot on Telegram. It's used to pay fees for adding new tokens and for playing games in Telegram chats. It's an important part of the bot's world."
   }
-}
