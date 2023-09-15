@@ -169,13 +169,27 @@ export const actions = {
 
     const positionIds = rootState.amm.positions.map(p => Number(p.id))
 
-    const rows = await fetchAllRows(this.$rpc, {
-      code: rootState.network.amm.contract,
-      scope: rootState.network.amm.contract,
-      table: 'stakingpos',
-      lower_bound: Math.min(positionIds),
-      upper_bound: Math.max(positionIds)
+    const stakingpos_requests = positionIds.map(posId => {
+      return fetchAllRows(this.$rpc, {
+        code: rootState.network.amm.contract,
+        scope: rootState.network.amm.contract,
+        table: 'stakingpos',
+        lower_bound: posId,
+        upper_bound: posId
+      })
     })
+
+    const rows = (await Promise.all(stakingpos_requests)).flat(1)
+
+    //const rows = stakingpos_requests.flat(2)
+    //console.log({ rows })
+    // const rows = await fetchAllRows(this.$rpc, {
+    //   code: rootState.network.amm.contract,
+    //   scope: rootState.network.amm.contract,
+    //   table: 'stakingpos',
+    //   lower_bound: Math.min(positionIds),
+    //   upper_bound: Math.max(positionIds)
+    // })
 
     const farmPositions = []
     const stakedPositions = rows.filter(i => positionIds.includes(i.posId))
