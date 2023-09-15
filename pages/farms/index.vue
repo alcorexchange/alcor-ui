@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(class="mb-2 mt-4" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly")
+    FarmHeader(:search.sync="search" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly").mb-2.mt-4
     FarmsTable(:farmPools="farmPools" :finished="finished")
 </template>
 
@@ -16,6 +16,7 @@ export default {
 
   data: () => {
     return {
+      search: '',
       finished: false,
       stakedOnly: false,
     }
@@ -41,6 +42,11 @@ export default {
           return p.incentives.map(i => i.incentiveStats).flat(1).map(i => i.staked).some(s => s == true)
         })
       }
+
+      pools = pools.filter(p => {
+        const slug = p.tokenA.contract + p.tokenA.quantity.split(' ')[1] + p.tokenB.contract + p.tokenB.quantity.split(' ')[1]
+        return slug.toLowerCase().includes(this.search)
+      })
 
       return pools
     }

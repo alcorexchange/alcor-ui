@@ -1,7 +1,7 @@
 <template lang="pug">
   .farm-header
     .left
-      el-input(class="farms-search-input" placeholder="Search Tokens")
+      el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
       AlcorSwitch(
         class="alcor-switch"
         one="Active"
@@ -26,14 +26,24 @@ import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
 export default {
   name: 'FarmHeader',
+
   components: {
     AlcorSwitch,
     AlcorLink,
   },
+
   props: ['finished', 'stakedOnly'],
 
   data: () => {
-    return {}
+    return {
+      search: ''
+    }
+  },
+
+  watch: {
+    search(val) {
+      this.$emit('update:search', val)
+    }
   },
 
   methods: {
