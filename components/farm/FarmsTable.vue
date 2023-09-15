@@ -122,7 +122,7 @@ export default {
     FarmsTableActions,
   },
 
-  props: ['noClaim', 'finished'],
+  props: ['noClaim', 'finished', 'farmPools'],
 
   data: () => {
     return {
@@ -131,19 +131,6 @@ export default {
   },
 
   computed: {
-    farmPools() {
-      return this.$store.getters['farms/farmPools'].map(p => {
-        const incentives = p.incentives.filter(i => {
-          if (this.finished) {
-            return i.isFinished && i.stakeStatus != 'notStaked'
-          } else {
-            return i.isFinished == false
-          }
-        })
-        return { ...p, incentives }
-      }).filter(p => p.incentives.length > 0)
-    },
-
     userStakes() {
       // TODO что то теперь состояние стейкед не обновляет
       const pool = this.farmPools.find(fp => fp.id == this.extendedRow.id)
