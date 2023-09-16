@@ -678,5 +678,6 @@ export default {
   'Antelope Account Creator': 'Antelope Account Creator',
   'From Greymass Team': 'From Greymass Team',
   'General Chatting': 'General Chatting',
-  'Select Network': 'Select Network'
+  'Select Network': 'Select Network',
+  Analytics: 'Analytics'
 }
