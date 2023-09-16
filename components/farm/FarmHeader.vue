@@ -2,13 +2,14 @@
   .farm-header
     .left
       el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
-      AlcorSwitch(
-        class="alcor-switch"
-        one="Active"
-        two="Finished"
-        :active="finished ? 'two' : 'one'"
-        @toggle="toggle"
-      )
+      el-badge(:value="2")
+        AlcorSwitch(
+          class="alcor-switch"
+          one="Active"
+          two="Finished"
+          :active="finished ? 'two' : 'one'"
+          @toggle="toggle"
+        )
       .stacked-only
         el-switch(
           active-text="Stacked only"
@@ -36,14 +37,14 @@ export default {
 
   data: () => {
     return {
-      search: ''
+      search: '',
     }
   },
 
   watch: {
     search(val) {
       this.$emit('update:search', val)
-    }
+    },
   },
 
   methods: {
