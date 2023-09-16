@@ -84,7 +84,8 @@
                 tbody
                   template(v-for="stat in incentive.incentiveStats")
                     tr(v-if="stat.staked")
-                      td # {{ stat.posId }}
+                      td
+                        NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
                       td {{ stat.userSharePercent }}%
                       td
                         .icon-and-value
@@ -97,7 +98,8 @@
                       td
                         FarmsTableActions(:row="stat" :staked="true" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
                     tr(v-else)
-                      td # {{ stat.posId }}
+                      td
+                        NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
                       td Not Staked
                       td
                       td
@@ -126,17 +128,17 @@ export default {
 
   data: () => {
     return {
-      extendedRow: null
+      extendedRow: null,
     }
   },
 
   computed: {
     userStakes() {
       // TODO что то теперь состояние стейкед не обновляет
-      const pool = this.farmPools.find(fp => fp.id == this.extendedRow.id)
+      const pool = this.farmPools.find((fp) => fp.id == this.extendedRow.id)
 
       return pool.incentives
-    }
+    },
   },
 
   methods: {
@@ -149,38 +151,74 @@ export default {
     },
 
     async claimAll(incentive) {
-      const stakes = incentive.incentiveStats.filter(i => i.staked)
-      await this.$store.dispatch('farms/stakeAction', { stakes, action: 'getreward' })
-      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      const stakes = incentive.incentiveStats.filter((i) => i.staked)
+      await this.$store.dispatch('farms/stakeAction', {
+        stakes,
+        action: 'getreward',
+      })
+      setTimeout(
+        () => this.$store.dispatch('farms/updateStakesAfterAction'),
+        500
+      )
     },
 
     async stakeAll(incentive) {
-      const stakes = incentive.incentiveStats.filter(i => !i.staked)
-      await this.$store.dispatch('farms/stakeAction', { stakes, action: 'stake' })
-      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      const stakes = incentive.incentiveStats.filter((i) => !i.staked)
+      await this.$store.dispatch('farms/stakeAction', {
+        stakes,
+        action: 'stake',
+      })
+      setTimeout(
+        () => this.$store.dispatch('farms/updateStakesAfterAction'),
+        500
+      )
     },
 
     async unstakeAll(incentive) {
-      const stakes = incentive.incentiveStats.filter(i => i.staked)
-      await this.$store.dispatch('farms/stakeAction', { stakes, action: 'unstake' })
-      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      const stakes = incentive.incentiveStats.filter((i) => i.staked)
+      await this.$store.dispatch('farms/stakeAction', {
+        stakes,
+        action: 'unstake',
+      })
+      setTimeout(
+        () => this.$store.dispatch('farms/updateStakesAfterAction'),
+        500
+      )
     },
 
     async claim(stake) {
-      await this.$store.dispatch('farms/stakeAction', { stakes: [stake], action: 'getreward' })
-      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      await this.$store.dispatch('farms/stakeAction', {
+        stakes: [stake],
+        action: 'getreward',
+      })
+      setTimeout(
+        () => this.$store.dispatch('farms/updateStakesAfterAction'),
+        500
+      )
     },
 
     async unstake(stake) {
-      await this.$store.dispatch('farms/stakeAction', { stakes: [stake], action: 'unstake' })
-      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      await this.$store.dispatch('farms/stakeAction', {
+        stakes: [stake],
+        action: 'unstake',
+      })
+      setTimeout(
+        () => this.$store.dispatch('farms/updateStakesAfterAction'),
+        500
+      )
     },
 
     async stake(stake) {
-      await this.$store.dispatch('farms/stakeAction', { stakes: [stake], action: 'stake' })
-      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 1000)
-    }
-  }
+      await this.$store.dispatch('farms/stakeAction', {
+        stakes: [stake],
+        action: 'stake',
+      })
+      setTimeout(
+        () => this.$store.dispatch('farms/updateStakesAfterAction'),
+        1000
+      )
+    },
+  },
 }
 </script>
 
