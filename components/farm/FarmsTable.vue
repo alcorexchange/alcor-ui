@@ -53,7 +53,7 @@
     el-table-column(type="expand")
       template(slot-scope='{ row }')
         AuthOnly.auth-only
-          .incentive-list
+          .incentive-list(v-if="hasStats(row.incentives)")
             // TODO Make it separete computed to make it reactive
             // FIXME: MAY BE WE DO NOT NEED IT HERE
             //.incentive-item(v-for="incentive in userStakes")
@@ -106,6 +106,8 @@
                         td
                         td
                           FarmsTableActions(:row="stat" :staked="false" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
+          .add-liquidity(v-else)
+            AlcorButton(access) Add Liquidity
 
 </template>
 
@@ -221,6 +223,14 @@ export default {
         1000
       )
     },
+
+    hasStats(incentives) {
+      let hasChildren = false
+      incentives.forEach(({ incentiveStats }) => {
+        if (incentiveStats.length) hasChildren = true
+      })
+      return hasChildren
+    },
   },
 }
 </script>
@@ -252,6 +262,19 @@ export default {
   gap: 4px;
   span {
     font-size: 0.8rem;
+  }
+}
+
+.add-liquidity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  ::v-deep {
+    .alcor-button .inner {
+      font-weight: 500;
+      font-size: 16px !important;
+    }
   }
 }
 
