@@ -53,7 +53,7 @@
     el-table-column(type="expand")
       template(slot-scope='{ row }')
         AuthOnly.auth-only
-          .incentive-list(v-if="hasStats(row.incentives)")
+          .incentive-list(v-if="hasPosition(row.incentives)")
             // TODO Make it separete computed to make it reactive
             // FIXME: MAY BE WE DO NOT NEED IT HERE
             //.incentive-item(v-for="incentive in userStakes")
@@ -224,7 +224,8 @@ export default {
       )
     },
 
-    hasStats(incentives) {
+    hasPosition(incentives) {
+      // FIXME: Wrong logic fix based on positions
       let hasChildren = false
       incentives.forEach(({ incentiveStats }) => {
         if (incentiveStats.length) hasChildren = true
