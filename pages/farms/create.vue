@@ -8,7 +8,7 @@
         span Create Farm
 
     main
-      Note(class="fs-14") You can only create a farm for a base token that you are the project owner of.
+      Note(class="fs-14") You can only create a farm for a pool that you are owner of one of token.
 
       el-select(v-model='poolId' placeholder='Select pool')
         el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' / ' + pool.tokenB.symbol + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
