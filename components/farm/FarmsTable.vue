@@ -57,55 +57,9 @@
             // TODO Make it separete computed to make it reactive
             // FIXME: MAY BE WE DO NOT NEED IT HERE
             //.incentive-item(v-for="incentive in userStakes")
-            .incentive-item(v-for="incentive in row.incentives")
-              .incentive-header
-                .left
-                  .key-value
-                    span.key.muted Daily Reward
-                    .icon-and-value
-                      TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                      span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
-                  span.muted •
-                  .key-value
-                    span.muted Remaining Time
-                    span {{ incentive.daysRemain }} Days
-                .right(v-if="incentive.incentiveStats.length > 0")
-                  AlcorButton(access compact @click="claimAll(incentive)" v-if="!finished") Claim All Rewards
-                  AlcorButton(access compact @click="stakeAll(incentive)" v-if="!finished") Stake All
-                  AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="unstakeAll(incentive)") {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
-              .incentive-content
-                table.fs-14
-                  thead
-                    tr
-                      th Position ID
-                      th Pool Share
-                      th Your Daily Reward
-                      th Farmed Reward
-                      th
-                  tbody
-                    template(v-for="stat in incentive.incentiveStats")
-                      tr(v-if="stat.staked")
-                        td
-                          NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
-                        td {{ stat.userSharePercent }}%
-                        td
-                          .icon-and-value
-                            TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                            span {{ stat.dailyRewards }}
-                        td
-                          .icon-and-value
-                            TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                            span {{ stat.farmedReward }}
-                        td
-                          FarmsTableActions(:row="stat" :staked="true" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
-                      tr(v-else)
-                        td
-                          NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
-                        td Not Staked
-                        td
-                        td
-                        td
-                          FarmsTableActions(:row="stat" :staked="false" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
+            IncentiveItem(v-for="incentive in row.incentives" :incentive="incentive" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
+              template(#actions="{ stat }")
+                FarmsTableActions(:row="stat" :staked="true" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
           .add-liquidity(v-else)
             AlcorButton(access) Add Liquidity
 
@@ -117,6 +71,7 @@ import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
 import StakingStatus from '~/components/farm/StakingStatus'
 import FarmsTableActions from '~/components/farm/FarmsTableActions'
+import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 import AuthOnly from '~/components/AuthOnly.vue'
 export default {
   name: 'FarmsTable',
@@ -127,6 +82,7 @@ export default {
     StakingStatus,
     FarmsTableActions,
     AuthOnly,
+    IncentiveItem,
   },
 
   props: ['noClaim', 'finished', 'farmPools'],
@@ -225,6 +181,7 @@ export default {
     },
 
     hasPosition(incentives) {
+      return true
       // FIXME: Wrong logic fix based on positions
       let hasChildren = false
       incentives.forEach(({ incentiveStats }) => {
@@ -252,11 +209,6 @@ export default {
   }
 }
 
-.key-value {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 .icon-and-value {
   display: flex;
   align-items: center;
@@ -295,56 +247,6 @@ export default {
   gap: 4px;
   padding: var(--amm-space-1);
   background: var(--table-background) !important;
-}
-
-.incentive-item {
-  border-radius: var(--radius);
-  padding: var(--amm-space-1);
-  border: 1px solid var(--border-color);
-}
-
-.incentive-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 6px;
-  .left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    // ::v-deep {
-    //   .access {
-    //     color: var(--main-green) !important;
-    //   }
-    // }
-  }
-}
-
-.incentive-content {
-  table {
-    width: 100%;
-    th,
-    td {
-      padding: 2px 0;
-      border-bottom: none;
-    }
-    tr,
-    td {
-      background: transparent !important;
-      &:hover {
-        background: transparent !important;
-      }
-    }
-
-    th {
-      font-weight: 400;
-    }
-  }
 }
 
 .farms-table::v-deep {
