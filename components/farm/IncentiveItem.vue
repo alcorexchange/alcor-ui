@@ -9,7 +9,7 @@
           span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
       span.muted •
       .key-value
-        span.muted Remaining Time
+        //- span.muted Remaining Time
         span {{ incentive.daysRemain }} Days
     .right(v-if="incentive.incentiveStats.length > 0")
       AlcorButton(access compact @click="claimAll(incentive)" v-if="!finished") Claim All Rewards
@@ -65,7 +65,7 @@ export default {
 <style lang="scss" scoped>
 .incentive-item {
   border-radius: var(--radius);
-  padding: var(--amm-space-1);
+  padding: var(--amm-space-3);
   border: 1px solid var(--light-border-color);
 }
 
@@ -73,7 +73,7 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  padding-bottom: 6px;
+  padding-bottom: var(--amm-space-3);
   .left {
     display: flex;
     align-items: center;
