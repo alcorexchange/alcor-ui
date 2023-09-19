@@ -59,7 +59,7 @@
             //.incentive-item(v-for="incentive in userStakes")
             IncentiveItem(v-for="incentive in row.incentives" :incentive="incentive" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
               template(#actions="{ stat }")
-                FarmsTableActions(:row="stat" :staked="true" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
+                FarmsTableActions(:row="stat" :staked="stat.staked" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
           .add-liquidity(v-else)
             AlcorButton(access @click="addLiquidity(row)") Add Liquidity
 
