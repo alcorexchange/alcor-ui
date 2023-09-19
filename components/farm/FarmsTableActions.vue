@@ -6,7 +6,7 @@
       .space
       AlcorButton(bordered danger compact @click="$emit('unstake', row)") Unstake
     template(v-else)
-      AlcorButton(bordered compact @click="$emit('stake', row)") Stake
+      AlcorButton(bordered access compact @click="$emit('stake', row)").stake-button Stake
 
   .detail-table-actions.fs-12(v-else)
       AlcorButton(access compact @click="$emit('unstake', row)" v-if="staked") Claim & Unstake
@@ -55,6 +55,14 @@ export default {
   flex-direction: column;
   padding: 4px;
 }
+.stake-button {
+  color: var(--main-action-green) !important;
+  &:hover {
+    background: var(--main-action-green) !important;
+    color: black !important;
+  }
+}
+
 .danger {
   // color: var(--main-red);
 }
