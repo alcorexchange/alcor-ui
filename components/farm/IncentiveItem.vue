@@ -28,7 +28,7 @@
         template(v-for="stat in incentive.incentiveStats")
           tr(v-if="stat.staked")
             td
-              NuxtLink.position-link(:to="localeRoute(`/positions/${stat.pool}-${stat.posId}-${poolFee}`)") # {{ stat.posId }}
+              NuxtLink(:to="localeRoute(`/positions/${stat.pool}-${stat.posId}-${poolFee}`)") # {{ stat.posId }}
             td {{ stat.userSharePercent }}%
             td
               .icon-and-value
@@ -42,7 +42,7 @@
               slot(name="actions" :stat="stat")
           tr(v-else)
             td
-              NuxtLink.position-link(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
+              NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
             td Not Staked
             td
             td
@@ -95,13 +95,6 @@ export default {
   &:hover {
     background: var(--main-action-green) !important;
     color: black !important;
-  }
-}
-
-.position-link {
-  color: var(--main-green);
-  &:hover {
-    text-decoration: underline !important;
   }
 }
 
