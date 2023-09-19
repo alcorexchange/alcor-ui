@@ -20,7 +20,7 @@
 
       //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
 
-      RewardList(class="" @newReward="onNewReward")
+      RewardList(class="")
         FarmTokenInput(
           v-for="reward, index in rewardList"
           label="Amount"
@@ -84,11 +84,14 @@ export default {
     },
 
     distributionOptions() {
-      const tempAmount = 1000
+      const amount = this.rewardList[0].amount || 0
+      const token = this.rewardList[0].token
       return [1, 7, 30, 90, 180, 360].map((number) => ({
         value: number * 86400,
         display: `${number} Days`,
-        daily: (tempAmount / number).toFixed(2),
+        daily: token
+          ? `${(amount / number).toFixed(2)} ${token.currency}`
+          : '-',
       }))
     },
   },
@@ -115,20 +118,28 @@ export default {
     async submit() {
       const actions = []
 
-      const { rows: [lastIncentive] } = await this.$rpc.get_table_rows({
+      const {
+        rows: [lastIncentive],
+      } = await this.$rpc.get_table_rows({
         code: this.network.amm.contract,
         scope: this.network.amm.contract,
         table: 'incentives',
         limit: 1,
-        reverse: true
+        reverse: true,
       })
 
       let lastIncentiveId = lastIncentive.id
 
-      this.rewardList.forEach(r => {
+      this.rewardList.forEach((r) => {
         lastIncentiveId += 1
         console.log('r.token', r.token)
-        const reward = { quantity: parseFloat(r.amount).toFixed(r.token.decimals) + ' ' + r.token.currency, contract: r.token.contract }
+        const reward = {
+          quantity:
+            parseFloat(r.amount).toFixed(r.token.decimals) +
+            ' ' +
+            r.token.currency,
+          contract: r.token.contract,
+        }
 
         actions.push({
           account: this.network.amm.contract,
@@ -137,9 +148,12 @@ export default {
           data: {
             creator: this.user.name,
             poolId: this.poolId,
-            rewardToken: { quantity: (0).toFixed(r.token.decimals) + ' ' + r.token.currency, contract: r.token.contract },
-            duration: this.selectedDistribution
-          }
+            rewardToken: {
+              quantity: (0).toFixed(r.token.decimals) + ' ' + r.token.currency,
+              contract: r.token.contract,
+            },
+            duration: this.selectedDistribution,
+          },
         })
 
         actions.push({
@@ -151,8 +165,8 @@ export default {
             from: this.user.name,
             to: this.network.amm.contract,
             quantity: reward.quantity,
-            memo: 'incentreward#' + lastIncentiveId
-          }
+            memo: 'incentreward#' + lastIncentiveId,
+          },
         })
       })
 
@@ -162,9 +176,9 @@ export default {
       this.$notify({
         type: 'info',
         title: 'Farm Creation',
-        message: 'Farm created succesfully'
+        message: 'Farm created succesfully',
       })
-    }
+    },
   },
 }
 </script>

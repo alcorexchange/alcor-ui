@@ -8,7 +8,7 @@
         .check(v-if="value == option.value")
           i.el-icon-circle-check
       .daily.fs-14
-        .left {{ option.daily }} WAX
+        .left {{ option.daily }}
         .right Daily
 </template>
 
@@ -22,6 +22,9 @@ export default {
       default: undefined,
     },
     options: {
+      default: undefined,
+    },
+    token: {
       default: undefined,
     },
   },

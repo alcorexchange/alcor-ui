@@ -3,12 +3,11 @@
   .header
     .farm-create-section-title Select Reward Token
     Note You can only select whitelisted tokens
-  //- inputs
   .inputs
     slot
-  AlcorButton(class="add-button" @click="$emit('newReward')" bordered)
-    i.el-icon-plus
-    span Add Another Reward
+  //- AlcorButton(class="add-button" @click="$emit('newReward')" bordered)
+  //-   i.el-icon-plus
+  //-   span Add Another Reward
 </template>
 
 <script>
