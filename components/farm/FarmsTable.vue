@@ -59,9 +59,9 @@
             //.incentive-item(v-for="incentive in userStakes")
             IncentiveItem(v-for="incentive in row.incentives" :incentive="incentive" :poolFee="row.fee" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
               template(#actions="{ stat }")
-                FarmsTableActions(:row="stat" :staked="true" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
+                FarmsTableActions(:row="stat" :staked="stat.staked" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
           .add-liquidity(v-else)
-            AlcorButton(access) Add Liquidity
+            AlcorButton(access @click="addLiquidity(row)") Add Liquidity
 
 </template>
 
@@ -103,6 +103,16 @@ export default {
   },
 
   methods: {
+    addLiquidity(row) {
+      this.$router.push({
+        path: '/positions/new',
+        query: {
+          left: row.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenA.contract,
+          right: row.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenB.contract
+        }
+      })
+    },
+
     onRowClick(row) {
       this.$refs.table.toggleRowExpansion(row)
     },
