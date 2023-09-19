@@ -43,10 +43,7 @@
     el-table-column(align="right")
       template(slot-scope='{ row }')
         div(v-for="incentive in row.incentives")
-          //- VIEW 1
-          AlcorButton(v-if="false" access @click="stake(row)") Stake
-          //- VIEW 2
-          .claim-rewards-container(v-else-if="$store.state.user")
+          .claim-rewards-container(v-if="$store.state.user")
             StakingStatus(:status="incentive.stakeStatus" :finished="finished")
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
@@ -107,9 +104,15 @@ export default {
       this.$router.push({
         path: '/positions/new',
         query: {
-          left: row.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenA.contract,
-          right: row.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenB.contract
-        }
+          left:
+            row.tokenA.quantity.split(' ')[1].toLowerCase() +
+            '-' +
+            row.tokenA.contract,
+          right:
+            row.tokenB.quantity.split(' ')[1].toLowerCase() +
+            '-' +
+            row.tokenB.contract,
+        },
       })
     },
 
