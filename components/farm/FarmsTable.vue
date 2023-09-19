@@ -181,8 +181,6 @@ export default {
     },
 
     hasPosition(incentives) {
-      return true
-      // FIXME: Wrong logic fix based on positions
       let hasChildren = false
       incentives.forEach(({ incentiveStats }) => {
         if (incentiveStats.length) hasChildren = true
