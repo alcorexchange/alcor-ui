@@ -46,7 +46,7 @@
           //- VIEW 1
           AlcorButton(v-if="false" access @click="stake(row)") Stake
           //- VIEW 2
-          .claim-rewards-container(v-else)
+          .claim-rewards-container(v-else-if="$store.state.user")
             StakingStatus(:status="incentive.stakeStatus" :finished="finished")
             //AlcorButton(access compact v-if="!noClaim") Claim Rewards
 
