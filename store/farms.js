@@ -59,7 +59,7 @@ export const actions = {
       if (this._vm.$nuxt.$route.name.includes('farms')) {
         dispatch('calculateUserStakes')
       }
-    }, 2000)
+    }, 1000)
   },
 
   async loadIncentives({ rootState, commit }) {
