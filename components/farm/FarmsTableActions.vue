@@ -9,7 +9,7 @@
       AlcorButton(bordered access compact @click="$emit('stake', row)").stake-button Stake
 
   .detail-table-actions.fs-12(v-else)
-      AlcorButton(access compact @click="$emit('unstake', row)" v-if="staked") Claim & Unstake
+      AlcorButton(bordered access compact @click="$emit('unstake', row)" v-if="staked").stake-button Claim & Unstake
 </template>
 
 <script>
