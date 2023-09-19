@@ -57,7 +57,7 @@
             // TODO Make it separete computed to make it reactive
             // FIXME: MAY BE WE DO NOT NEED IT HERE
             //.incentive-item(v-for="incentive in userStakes")
-            IncentiveItem(v-for="incentive in row.incentives" :incentive="incentive" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
+            IncentiveItem(v-for="incentive in row.incentives" :incentive="incentive" :poolFee="row.fee" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
               template(#actions="{ stat }")
                 FarmsTableActions(:row="stat" :staked="true" :finished="finished" @stake="stake" @claim="claim" @unstake="unstake")
           .add-liquidity(v-else)
