@@ -13,7 +13,7 @@
         span {{ incentive.daysRemain }} Days
     .right(v-if="incentive.incentiveStats.length > 0")
       AlcorButton(access compact @click="claimAll(incentive)" v-if="!finished") Claim All Rewards
-      AlcorButton(access compact @click="stakeAll(incentive)" v-if="!finished") Stake All
+      AlcorButton(access bordered compact @click="stakeAll(incentive)" v-if="!finished").stake-button Stake All
       AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="unstakeAll(incentive)") {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
   .incentive-content
     table.fs-14
@@ -88,6 +88,13 @@ export default {
     //     color: var(--main-green) !important;
     //   }
     // }
+  }
+}
+.stake-button {
+  color: var(--main-action-green) !important;
+  &:hover {
+    background: var(--main-action-green) !important;
+    color: black !important;
   }
 }
 

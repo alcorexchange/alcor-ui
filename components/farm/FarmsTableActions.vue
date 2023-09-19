@@ -1,20 +1,20 @@
 <template lang="pug">
 .actions-container
-  el-dropdown(v-if="!finished" trigger="click")
-    AlcorButton
-      i.el-icon-more
-    template(#dropdown)
-      el-dropdown-menu.farms-actions-dropdown-container
-        .farms-actions-dropdown-content
-          AlcorButton(access @click="$emit('claim', row)") Claim Rewards
-          AlcorButton(bordered danger @click="$emit('unstake', row)") Unstake
-  //- .detail-table-actions.fs-12(v-if="!finished")
-  //-   template(v-if="staked")
-  //-     AlcorButton(compact @click="$emit('claim', row)") Claim Rewards
-  //-     .space
-  //-     AlcorButton(bordered danger compact @click="$emit('unstake', row)") Unstake
-  //-   template(v-else)
-  //-     AlcorButton(bordered compact @click="$emit('stake', row)") Stake
+  //- el-dropdown(v-if="!finished" trigger="click")
+  //-   AlcorButton
+  //-     i.el-icon-more
+  //-   template(#dropdown)
+  //-     el-dropdown-menu.farms-actions-dropdown-container
+  //-       .farms-actions-dropdown-content
+  //-         AlcorButton(access @click="$emit('claim', row)") Claim Rewards
+  //-         AlcorButton(bordered danger @click="$emit('unstake', row)") Unstake
+  .detail-table-actions.fs-12(v-if="!finished")
+    template(v-if="staked")
+      AlcorButton(compact @click="$emit('claim', row)") Claim Rewards
+      .space
+      AlcorButton(bordered danger compact @click="$emit('unstake', row)") Unstake
+    template(v-else)
+      AlcorButton(bordered compact @click="$emit('stake', row)") Stake
 
   .detail-table-actions.fs-12(v-else)
       AlcorButton(access compact @click="$emit('unstake', row)" v-if="staked") Claim & Unstake
@@ -64,6 +64,6 @@ export default {
   padding: 4px;
 }
 .danger {
-  color: var(--main-red);
+  // color: var(--main-red);
 }
 </style>
