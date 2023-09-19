@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(:search.sync="search" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly").mb-2.mt-4
+    FarmHeader(:search.sync="search" :unstakedFinished="unstakedFinished" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly").mb-2.mt-4
     FarmsTable(:farmPools="farmPools" :finished="finished")
 </template>
 
@@ -23,8 +23,8 @@ export default {
   },
 
   computed: {
-    farmPools() {
-      let pools = this.$store.getters['farms/farmPools']
+    pools() {
+      return this.$store.getters['farms/farmPools']
         .map(p => {
           const incentives = p.incentives.filter(i => {
             if (this.finished) {
@@ -36,6 +36,10 @@ export default {
           return { ...p, incentives }
         })
         .filter(p => p.incentives.length > 0)
+    },
+
+    farmPools() {
+      let pools = this.pools
 
       if (this.stakedOnly) {
         pools = pools.filter(p => {
@@ -49,7 +53,21 @@ export default {
       })
 
       return pools
-    }
+    },
+
+    unstakedFinished() {
+      let count = 0
+      this.$store.getters['farms/farmPools']
+        .forEach(p => p.incentives.filter(i => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
+          .forEach(i => {
+            if (i.stakeStatus != 'notStaked') {
+              count += 1
+              console.log(i)
+            }
+          }))
+
+      return count
+    },
   },
 
   methods: {

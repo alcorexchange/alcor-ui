@@ -2,7 +2,7 @@
   .farm-header
     .left
       el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
-      el-badge(:value="2")
+      el-badge(:value="unstakedFinished")
         AlcorSwitch(
           class="alcor-switch"
           one="Active"
@@ -33,7 +33,7 @@ export default {
     AlcorLink,
   },
 
-  props: ['finished', 'stakedOnly'],
+  props: ['finished', 'stakedOnly', 'unstakedFinished'],
 
   data: () => {
     return {
