@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(:search.sync="search" :unstakedFinished="unstakedFinished" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly").mb-2.mt-4
+    FarmHeader(:search.sync="search" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly").mb-2.mt-4
     FarmsTable(:farmPools="farmPools" :finished="finished")
 </template>
 
@@ -49,25 +49,11 @@ export default {
 
       pools = pools.filter(p => {
         const slug = p.tokenA.contract + p.tokenA.quantity.split(' ')[1] + p.tokenB.contract + p.tokenB.quantity.split(' ')[1]
-        return slug.toLowerCase().includes(this.search)
+        return slug.toLowerCase().includes(this.search.toLowerCase())
       })
 
       return pools
-    },
-
-    unstakedFinished() {
-      let count = 0
-      this.$store.getters['farms/farmPools']
-        .forEach(p => p.incentives.filter(i => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
-          .forEach(i => {
-            if (i.stakeStatus != 'notStaked') {
-              count += 1
-              console.log(i)
-            }
-          }))
-
-      return count
-    },
+    }
   },
 
   methods: {
