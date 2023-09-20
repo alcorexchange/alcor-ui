@@ -126,71 +126,119 @@ export default {
 
     async claimAll(incentive) {
       const stakes = incentive.incentiveStats.filter((i) => i.staked)
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes,
-        action: 'getreward',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'getreward',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
     async stakeAll(incentive) {
-      const stakes = incentive.incentiveStats.filter((i) => !i.staked)
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes,
-        action: 'stake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        const stakes = incentive.incentiveStats.filter((i) => !i.staked)
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'stake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
     async unstakeAll(incentive) {
-      const stakes = incentive.incentiveStats.filter((i) => i.staked)
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes,
-        action: 'unstake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        const stakes = incentive.incentiveStats.filter((i) => i.staked)
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'unstake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
     async claim(stake) {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: [stake],
-        action: 'getreward',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: [stake],
+          action: 'getreward',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
     async unstake(stake) {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: [stake],
-        action: 'unstake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: [stake],
+          action: 'unstake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
     async stake(stake) {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: [stake],
-        action: 'stake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        1000
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: [stake],
+          action: 'stake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          1000
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
     hasPosition(incentives) {
