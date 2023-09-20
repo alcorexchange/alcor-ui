@@ -21,7 +21,7 @@
         tr
           th Position ID
           th Pool Share
-          th Your Daily Reward
+          th Estimated Daily Reward
           th Farmed Reward
           th
       tbody

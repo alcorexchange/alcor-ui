@@ -102,13 +102,12 @@ export default {
     menuItems() {
       const items = []
 
-      if (['wax', 'eos', 'telos', 'proton'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/swap', name: 'Swap' })
-        items.push({ index: '/positions', name: 'Pool' })
-      }
+      items.push({ index: '/swap', name: 'Swap' })
+      items.push({ index: '/positions', name: 'Pool' })
 
       items.push({ index: '/markets', name: 'Markets' })
       items.push({ index: '/bridge', name: 'Bridge' })
+      items.push({ index: '/farms', name: 'Farms', new: true })
 
       items.push({ index: '/otc', name: 'OTC' })
 
@@ -119,7 +118,7 @@ export default {
 
       items.push({ index: '/wallet', name: 'Wallet' })
       //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
-      items.push({ index: '/analytics', name: 'Analytics', new: true })
+      items.push({ index: '/analytics', name: 'Analytics' })
       // items.push({ index: '/farms', name: 'Farms', new: true })
       items.push({ index: '/docs', name: 'Docs' })
 
