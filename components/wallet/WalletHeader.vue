@@ -4,8 +4,10 @@
     .title.cancel.fs-12 {{ $t('Portfolio value') }}
     .value
       span.main {{ systemBalance.split(' ')[0] | commaFloat }}
+      //span.main {{ portfolioUSDValue | commaFloat }}
       span.symbol.cancel {{ this.$store.state.network.baseToken.symbol }}
-    .info.cancel.fs-12 = ${{ $systemToUSD(systemBalance) }}
+    //.info.cancel.fs-12 = ${{ $systemToUSD(systemBalance) }}
+    .info.cancel.fs-12 = ${{ portfolioUSDValue | commaFloat(2) }}
   .item
     .title.cancel.fs-12 {{ $t('Active positions') }}
       el-tooltip(class="item" effect="dark" content="Scanning for active positions might take some time"
@@ -47,6 +49,7 @@ export default {
       buyPositionsCount: 'wallet/buyPositionsCount',
       sellPositionsCount: 'wallet/sellPositionsCount',
       pairsCount: 'wallet/pairsCount',
+      portfolioUSDValue: 'wallet/portfolioUSDValue',
       systemBalance: 'systemBalance',
       network: 'network'
     }),
