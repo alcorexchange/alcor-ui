@@ -71,7 +71,7 @@ export default {
       if (!this.user) return []
       if (!this.user.balances) return []
 
-      return this.user.balances
+      return this.$store.getters['wallet/balances']
         .filter((b) => {
           if (parseFloat(b.amount) == 0) return false
 
