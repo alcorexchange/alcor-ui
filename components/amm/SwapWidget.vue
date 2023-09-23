@@ -195,12 +195,12 @@ export default {
         colors: ['rgb(34,104,193, 0.2)', 'rgb(44,231,255)', 'rgb(139,53,82)'],
       },
       {
-        link: 'https://parsecgame.io/',
-        image: require('@/assets/images/swap-banner-2.png'),
+        link: 'https://giv.gg/deepmine-giveaway',
+        image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(81,145,127,0.2)',
-          'rgba(209,146,42, 1)',
-          'rgba(93,93,94,1)',
+          'rgba(250,186,61,0.2)',
+          'rgba(113,128,125, 1)',
+          'rgba(254,25,14,1)',
         ],
       },
     ]
