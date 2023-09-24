@@ -30,17 +30,35 @@
 
       .minimized(v-if="minimizedIncentives")
         .icons
-          TokenImage(v-for="token in minimizedIncentives.icons" :src="$tokenLogo(token.symbol, token.contract)" width="12px" height="12px")
+          TokenImage.icon(v-for="token in minimizedIncentives.icons" :src="$tokenLogo(token.symbol, token.contract)" width="12px" height="12px")
         .text {{ minimizedIncentives.text }}
     .daily-rewards-section
-      .icon-and-value(v-for="incentive in farm.incentives")
-        TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-        span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
+      .icon-and-value
+        TokenImage(:src="$tokenLogo(firstIncentive.reward.quantity.split(' ')[1], firstIncentive.reward.contract)" width="14px" height="14px")
+        span {{ firstIncentive.rewardPerDay }} {{ firstIncentive.reward.quantity.split(' ')[1] }}
+
+      .icon-and-value(v-if="secondIncentive")
+        TokenImage(:src="$tokenLogo(secondIncentive.reward.quantity.split(' ')[1], secondIncentive.reward.contract)" width="14px" height="14px")
+        span {{ secondIncentive.rewardPerDay }}
+
+      .minimized(v-if="minimizedIncentives")
+        .icons
+          TokenImage.icon(v-for="token in minimizedIncentives.icons" :src="$tokenLogo(token.symbol, token.contract)" width="12px" height="12px")
+        .text {{ minimizedIncentives.text }}
 
     .remaining-time-section
-      .icon-and-value(v-for="incentive in farm.incentives")
-        TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-        span {{ incentive.daysRemain }} Days
+      .icon-and-value
+        TokenImage(:src="$tokenLogo(firstIncentive.reward.quantity.split(' ')[1], firstIncentive.reward.contract)" width="14px" height="14px")
+        span {{ firstIncentive.daysRemain }} Days
+
+      .icon-and-value(v-if="secondIncentive")
+        TokenImage(:src="$tokenLogo(secondIncentive.reward.quantity.split(' ')[1], secondIncentive.reward.contract)" width="14px" height="14px")
+        span {{ secondIncentive.daysRemain }} Days
+
+      .minimized(v-if="minimizedIncentives")
+        .icons
+          TokenImage.icon(v-for="token in minimizedIncentives.icons" :src="$tokenLogo(token.symbol, token.contract)" width="12px" height="12px")
+        .text {{ minimizedIncentives.text }}
 
     .actions-section
   .farm-item-expand
@@ -94,7 +112,7 @@ export default {
       }))
       return {
         count: rest.length,
-        text: `+${rest.left} more`,
+        text: `+${rest.length} more`,
         icons,
       }
     },
@@ -298,5 +316,25 @@ export default {
   flex-direction: column;
   gap: 4px;
   justify-content: center;
+  align-items: flex-start;
+}
+
+.minimized {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 2px 4px;
+  .icons {
+    display: flex;
+    align-items: center;
+    position: relative;
+    .icon:not(:first-child) {
+      position: relative;
+      transform: translateX(-4px);
+      z-index: 2;
+    }
+  }
 }
 </style>
