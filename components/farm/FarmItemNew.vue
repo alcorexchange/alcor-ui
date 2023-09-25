@@ -1,6 +1,6 @@
 <template lang="pug">
 .farm-item-container
-  .farm-item
+  .farm-item(@click="onItemClick")
     .token-container
       PairIcons(
         :token1="{contract: farm.tokenA.contract, symbol: farm.tokenA.quantity.split(' ')[1]}"
@@ -61,7 +61,10 @@
         .text {{ minimizedIncentives.text }}
 
     .actions-section
-  .farm-item-expand
+      .status status here
+      .arrow
+        i.el-icon-arrow-down
+  .farm-item-expand(v-if="expanded") expand
 </template>
 
 <script>
@@ -88,7 +91,7 @@ export default {
 
   data: () => {
     return {
-      extendedRow: null,
+      expanded: false,
     }
   },
 
@@ -142,129 +145,8 @@ export default {
       })
     },
 
-    onRowClick(row) {
-      this.$refs.table.toggleRowExpansion(row)
-    },
-
-    onExpand(row) {
-      this.extendedRow = row
-    },
-
-    async claimAll(incentive) {
-      const stakes = incentive.incentiveStats.filter((i) => i.staked)
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes,
-          action: 'getreward',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async stakeAll(incentive) {
-      try {
-        const stakes = incentive.incentiveStats.filter((i) => !i.staked)
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes,
-          action: 'stake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async unstakeAll(incentive) {
-      try {
-        const stakes = incentive.incentiveStats.filter((i) => i.staked)
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes,
-          action: 'unstake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async claim(stake) {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: [stake],
-          action: 'getreward',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async unstake(stake) {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: [stake],
-          action: 'unstake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async stake(stake) {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: [stake],
-          action: 'stake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          1000
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
+    onItemClick() {
+      this.expanded = !this.expanded
     },
 
     hasPosition(incentives) {
@@ -279,6 +161,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.farm-item {
+  &:hover {
+    background: var(--hover);
+  }
+}
+
 .token-container {
   margin-left: 10px;
   display: flex;
@@ -335,6 +223,15 @@ export default {
       transform: translateX(-4px);
       z-index: 2;
     }
+  }
+}
+.actions-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  .arrow {
+    cursor: pointer;
   }
 }
 </style>
