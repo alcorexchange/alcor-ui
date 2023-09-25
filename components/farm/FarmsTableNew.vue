@@ -6,7 +6,7 @@
     .header-item Total Reward
     .header-item Daily Rewards
     .header-item Remaining Time
-    .header-item Actions
+    .header-item
   .table-items
     FarmItemNew(v-for="farm in farmPools" :farm="farm")
 </template>
@@ -80,123 +80,6 @@ export default {
       this.extendedRow = row
     },
 
-    async claimAll(incentive) {
-      const stakes = incentive.incentiveStats.filter((i) => i.staked)
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes,
-          action: 'getreward',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async stakeAll(incentive) {
-      try {
-        const stakes = incentive.incentiveStats.filter((i) => !i.staked)
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes,
-          action: 'stake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async unstakeAll(incentive) {
-      try {
-        const stakes = incentive.incentiveStats.filter((i) => i.staked)
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes,
-          action: 'unstake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async claim(stake) {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: [stake],
-          action: 'getreward',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async unstake(stake) {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: [stake],
-          action: 'unstake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
-    async stake(stake) {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: [stake],
-          action: 'stake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          1000
-        )
-      } catch (e) {
-        this.$notify({
-          title: 'Error',
-          message: e.message || e,
-          type: 'error',
-        })
-      }
-    },
-
     hasPosition(incentives) {
       let hasChildren = false
       incentives.forEach(({ incentiveStats }) => {
@@ -224,6 +107,7 @@ export default {
   background: var(--table-background);
   margin-top: 12px;
   border-radius: 6px;
+  overflow: hidden;
 }
 .farm-item {
   display: grid;
