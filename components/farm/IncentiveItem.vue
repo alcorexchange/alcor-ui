@@ -10,7 +10,7 @@
       span.muted •
       .key-value
         //- span.muted Remaining Time
-        span {{ incentive.daysRemain }} Days
+        span.fs-12 {{ incentive.daysRemain }} Days
     .right(v-if="incentive.incentiveStats.length > 0")
       AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished") Claim All Rewards
       AlcorButton(access bordered compact @click="$emit('stakeAll', incentive)" v-if="!finished").stake-button Stake All

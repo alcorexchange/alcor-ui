@@ -1,5 +1,5 @@
 <template lang="pug">
-.farm-item-expand
+.farm-item-expand-simple
   .left
     .title.muted.fs-14.mb-1 Farmed Rewards
     .rewards
@@ -8,9 +8,9 @@
         span 124.8340 WAX
 
   .actions
-    AlcorButton(access).claim-button Claim All
-    AlcorButton(bordered access).stake-button Stake All
-    AlcorButton(bordered danger).unstake-button UnStake All
+    AlcorButton(access).farm-claim-button Claim All
+    AlcorButton(bordered access).farm-stake-button Stake All
+    AlcorButton(bordered danger).farm-unstake-button UnStake All
 </template>
 
 <script>
@@ -27,9 +27,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.farm-item-expand {
-  background: var(--hover);
-  padding: 14px;
+.farm-item-expand-simple {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,25 +36,5 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-}
-.stake-button {
-  color: var(--main-action-green) !important;
-  &:hover {
-    background: var(--main-action-green) !important;
-    color: black !important;
-  }
-}
-.unstake-button {
-  color: var(--main-action-red);
-  &:hover {
-    background: var(--main-action-red) !important;
-    color: black !important;
-  }
-}
-.claim-button {
-  color: var(--text-theme) !important;
-  &:hover {
-    background: var(--main-green) !important;
-  }
 }
 </style>

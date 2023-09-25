@@ -64,7 +64,12 @@
       .status status here
       .arrow
         i.el-icon-arrow-down
-  FarmItemExpandSimple(v-if="expanded" :farm="farm")
+  AuthOnly.auth-only.farm-item-expand(v-if="expanded")
+    template(v-if="hasPosition")
+      FarmItemExpandSimple(:farm="farm" v-if="$store.state.farms.view === 'SIMPLE'")
+      FarmItemExpandAdvanced(:farm="farm" v-else)
+    .add-liquidity(v-else)
+      AlcorButton(access @click="") Add Liquidity
 </template>
 
 <script>
@@ -76,6 +81,7 @@ import FarmsTableActions from '~/components/farm/FarmsTableActions'
 import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemExpandSimple from '~/components/farm/FarmItemExpandSimple.vue'
+import FarmItemExpandAdvanced from '~/components/farm/FarmItemExpandAdvanced.vue'
 export default {
   name: 'FarmsTable',
   components: {
@@ -87,6 +93,7 @@ export default {
     AuthOnly,
     IncentiveItem,
     FarmItemExpandSimple,
+    FarmItemExpandAdvanced,
   },
 
   props: ['farm'],
@@ -122,6 +129,14 @@ export default {
       }
     },
 
+    hasPosition() {
+      let hasChildren = false
+      this.farm.incentives.forEach(({ incentiveStats }) => {
+        if (incentiveStats.length) hasChildren = true
+      })
+      return hasChildren
+    },
+
     userStakes() {
       // TODO что то теперь состояние стейкед не обновляет
       const pool = this.farmPools.find((fp) => fp.id == this.extendedRow.id)
@@ -149,14 +164,6 @@ export default {
 
     onItemClick() {
       this.expanded = !this.expanded
-    },
-
-    hasPosition(incentives) {
-      let hasChildren = false
-      incentives.forEach(({ incentiveStats }) => {
-        if (incentiveStats.length) hasChildren = true
-      })
-      return hasChildren
     },
   },
 }
@@ -225,6 +232,34 @@ export default {
   gap: 10px;
   .arrow {
     cursor: pointer;
+  }
+}
+
+.farm-item-expand {
+  background: var(--hover);
+  padding: 14px;
+}
+
+.auth-only::v-deep {
+  .auth-only-button {
+    padding: 8px;
+    .connect {
+      width: auto;
+      padding: 12px 18px;
+    }
+  }
+}
+
+.add-liquidity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  ::v-deep {
+    .alcor-button .inner {
+      font-weight: 500;
+      font-size: 16px !important;
+    }
   }
 }
 </style>

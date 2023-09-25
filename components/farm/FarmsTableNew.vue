@@ -108,6 +108,27 @@ export default {
     font-size: 0.8rem;
   }
 }
+
+.farm-stake-button {
+  color: var(--main-action-green) !important;
+  &:hover {
+    background: var(--main-action-green) !important;
+    color: black !important;
+  }
+}
+.farm-unstake-button {
+  color: var(--main-action-red);
+  &:hover {
+    background: var(--main-action-red) !important;
+    color: black !important;
+  }
+}
+.farm-claim-button {
+  color: var(--text-theme) !important;
+  &:hover {
+    background: var(--main-green) !important;
+  }
+}
 </style>
 
 <style scoped lang="scss">
