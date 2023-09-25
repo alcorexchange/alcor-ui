@@ -64,7 +64,7 @@
       .status status here
       .arrow
         i.el-icon-arrow-down
-  .farm-item-expand(v-if="expanded") expand
+  FarmItemExpandSimple(v-if="expanded" :farm="farm")
 </template>
 
 <script>
@@ -75,6 +75,7 @@ import StakingStatus from '~/components/farm/StakingStatus'
 import FarmsTableActions from '~/components/farm/FarmsTableActions'
 import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 import AuthOnly from '~/components/AuthOnly.vue'
+import FarmItemExpandSimple from '~/components/farm/FarmItemExpandSimple.vue'
 export default {
   name: 'FarmsTable',
   components: {
@@ -85,6 +86,7 @@ export default {
     FarmsTableActions,
     AuthOnly,
     IncentiveItem,
+    FarmItemExpandSimple,
   },
 
   props: ['farm'],
@@ -186,15 +188,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.icon-and-value {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  span {
-    font-size: 0.8rem;
-  }
 }
 
 .total-reward-section,

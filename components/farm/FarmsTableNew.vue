@@ -99,6 +99,15 @@ export default {
     padding: 10px;
   }
 }
+
+.icon-and-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  span {
+    font-size: 0.8rem;
+  }
+}
 </style>
 
 <style scoped lang="scss">

@@ -40,14 +40,16 @@ export const state = () => ({
   incentives: [],
   userStakes: [],
   plainUserStakes: [],
-  farmPools: []
+  farmPools: [],
+  view: 'SIMPLE'
 })
 
 export const mutations = {
   setUserStakes: (state, stakes) => state.userStakes = stakes,
   setPlainUserStakes: (state, stakes) => state.plainUserStakes = stakes,
   setIncentives: (state, incentives) => state.incentives = incentives,
-  setFarmPools: (state, farmPools) => state.farmPools = farmPools
+  setFarmPools: (state, farmPools) => state.farmPools = farmPools,
+  toggleView: (state) => state.view = state.view === 'SIMPLE' ? 'ADVANCED' : 'SIMPLE'
 }
 
 export const actions = {
