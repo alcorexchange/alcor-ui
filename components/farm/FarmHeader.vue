@@ -16,6 +16,12 @@
           @change="$emit('update:stakedOnly', $event)"
         )
     .right
+      AlcorSwitch(
+      one="Simple"
+        two="Advanced"
+        :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
+        @toggle="$store.commit('farms/toggleView')"
+      )
       el-badge(v-if="finished" type="success" :value="stakedStakes.length")
         el-button(@click="unstakeAll") Unstake All Positions
 
@@ -65,12 +71,21 @@ export default {
       const stakes = []
       this.$store.getters['farms/farmPools']
         // pools
-        .forEach(p => p.incentives.filter(i => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
-          //incentives
-          .forEach(i => i.incentiveStats.filter(i => i.staked)
-            // staked stats
-            .forEach(s => stakes.push(s))
-          )
+        .forEach((p) =>
+          p.incentives
+            .filter(
+              (i) =>
+                i.isFinished &&
+                i.stakeStatus != 'notStaked' &&
+                i.incentiveStats.length > 0
+            )
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => i.staked)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
         )
 
       return stakes
@@ -80,16 +95,25 @@ export default {
       const stakes = []
       this.$store.getters['farms/farmPools']
         // pools
-        .forEach(p => p.incentives.filter(i => !i.isFinished && i.stakeStatus != 'staked' && i.incentiveStats.length > 0)
-          //incentives
-          .forEach(i => i.incentiveStats.filter(i => !i.staked)
-            // staked stats
-            .forEach(s => stakes.push(s))
-          )
+        .forEach((p) =>
+          p.incentives
+            .filter(
+              (i) =>
+                !i.isFinished &&
+                i.stakeStatus != 'staked' &&
+                i.incentiveStats.length > 0
+            )
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => !i.staked)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
         )
 
       return stakes
-    }
+    },
   },
 
   watch: {
@@ -123,7 +147,7 @@ export default {
         () => this.$store.dispatch('farms/updateStakesAfterAction'),
         500
       )
-    }
+    },
   },
 }
 </script>
@@ -139,6 +163,11 @@ export default {
   align-items: center;
   gap: 8px;
   flex: 1;
+}
+.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .farms-search-input::v-deep {
   max-width: 240px;
