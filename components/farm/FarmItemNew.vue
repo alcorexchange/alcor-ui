@@ -42,7 +42,7 @@
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
     template(v-if="hasPosition")
       FarmItemExpandSimple(:farm="farm" v-if="$store.state.farms.view === 'SIMPLE'")
-      FarmItemExpandAdvanced(:farm="farm" v-else)
+      FarmItemExpandAdvanced(:farm="farm" :finished="finished" v-else)
     .add-liquidity(v-else)
       AlcorButton(access @click="") Add Liquidity
 </template>
