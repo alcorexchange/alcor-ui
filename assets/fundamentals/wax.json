@@ -102,5 +102,18 @@
       "https://peakd.com/@masterrpgbot"
     ],
     "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
+  },
+   "HERB@naturestoken": {
+    "name": "HERB",
+    "tags": [
+      "tipbot",
+      "gaming",
+    ],
+    "socials": [
+      "https://t.me/chat_herb",
+    ],
+
+    "description": "HERB tokens are the official currency for @HerbTipBot on Telegram, providing a 50% discount for token whitelisting and enhancing your Telegram chat experience with fun games and features. They're essential for maximizing your engagement within the bot's ecosystem."
   }
+
 }
