@@ -35,7 +35,8 @@
         span {{ item.daysRemain }} Days
 
     .actions-section
-      .status status here
+      .statuses.fs-14
+        StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
       .arrow
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
@@ -70,7 +71,7 @@ export default {
     FarmItemExpandAdvanced,
   },
 
-  props: ['farm'],
+  props: ['farm', 'finished'],
 
   data: () => {
     return {
@@ -157,31 +158,18 @@ export default {
   align-items: flex-start;
 }
 
-.minimized {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 2px 4px;
-  .icons {
-    display: flex;
-    align-items: center;
-    position: relative;
-    .icon:not(:first-child) {
-      position: relative;
-      transform: translateX(-4px);
-      z-index: 2;
-    }
-  }
-}
 .actions-section {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 14px;
   .arrow {
     cursor: pointer;
+  }
+
+  .statuses {
+    display: flex;
+    flex-direction: column;
   }
 }
 

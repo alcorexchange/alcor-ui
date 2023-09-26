@@ -8,7 +8,7 @@
     .header-item Remaining Time
     .header-item
   .table-items
-    FarmItemNew(v-for="farm in farmPools" :farm="farm")
+    FarmItemNew(v-for="farm in farmPools" :farm="farm" :finished="finished")
 </template>
 
 <script>
