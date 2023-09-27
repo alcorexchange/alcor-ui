@@ -13,11 +13,13 @@ import FarmsTableActions from '~/components/farm/FarmsTableActions'
 import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 export default {
   name: 'FarmItemExpandAdvanced',
-  props: ['farm', 'finished'],
+
   components: {
     FarmsTableActions,
     IncentiveItem,
   },
+
+  props: ['farm', 'finished'],
 }
 </script>
 

@@ -3,9 +3,9 @@
   .left
     .title.muted.fs-14.mb-1 Farmed Rewards
     .rewards
-      .icon-and-value(v-for="x in 2")
+      .icon-and-value(v-for="reward in farmedRewards")
         TokenImage(:src="$tokenLogo('WAX', 'eosio.token')" width="14px" height="14px")
-        span 124.8340 WAX
+        span {{ reward }}
 
   .actions
     AlcorButton(access).farm-claim-button Claim All
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { getPrecision } from '~/utils'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
 export default {
@@ -22,7 +23,33 @@ export default {
     TokenImage,
     AlcorButton,
   },
+
   props: ['farm'],
+
+  computed: {
+    farmedRewards() {
+      // Aggregated reward
+      const reward = {}
+
+      const precisions = {}
+      this.farm.incentives.forEach(incentive => {
+        incentive.incentiveStats.filter(s => s.staked).forEach(s => {
+          const [amount, key] = s.farmedReward.split(' ')
+          precisions[key] = getPrecision(incentive.reward.quantity.split(' ')[0])
+
+          if (reward[key]) {
+            reward[key] = reward[key] + parseFloat(amount)
+          } else {
+            reward[key] = parseFloat(amount)
+          }
+        })
+      })
+
+      return Object.entries(reward).map(([symbol, amount]) => {
+        return `${amount.toFixed(precisions[symbol])} ${symbol}`
+      })
+    }
+  }
 }
 </script>
 
