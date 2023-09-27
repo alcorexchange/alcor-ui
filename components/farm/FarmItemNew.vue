@@ -42,7 +42,7 @@
       .statuses.fs-14
         StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
     .detail-toggle-section
-      span.mobile-only.muted.fs-14.details-text View Details
+      span.mobile-only.fs-14.details-text View Details
       .arrow
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
