@@ -58,7 +58,7 @@ export default {
 
       return Object.values(reward).map((r) => {
         return {
-          amount: r.amount.toFixed(r.precision),
+          amount: r.amount?.toFixed(r.precision),
           ...r,
         }
       })
