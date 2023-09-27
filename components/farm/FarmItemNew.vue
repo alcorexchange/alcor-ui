@@ -138,6 +138,11 @@ export default {
 
 <style scoped lang="scss">
 .farm-item {
+  display: grid;
+  grid-template-columns: 20% 15% 15% 15% 15% 1fr;
+  & > * {
+    padding: 10px;
+  }
   &:hover {
     background: var(--hover);
   }
@@ -209,6 +214,16 @@ export default {
       font-weight: 500;
       font-size: 16px !important;
     }
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .farm-item {
+    grid-template-columns: 1fr 1fr;
+  }
+  .token-container,
+  .actions-section {
+    grid-column: 1 / 3;
   }
 }
 </style>

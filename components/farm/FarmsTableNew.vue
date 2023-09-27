@@ -245,90 +245,15 @@ export default {
   border-radius: 6px;
   overflow: hidden;
 }
-.farm-item {
-  display: grid;
-  grid-template-columns: 20% 15% 15% 15% 15% 1fr;
-  & > * {
-    padding: 10px;
-  }
-}
 .table-header {
   color: #909399;
   font-weight: 500;
   font-size: 14px;
 }
 
-.add-liquidity {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px;
-  ::v-deep {
-    .alcor-button .inner {
-      font-weight: 500;
-      font-size: 16px !important;
-    }
+@media only screen and (max-width: 900px) {
+  .table-header {
+    display: none;
   }
-}
-
-.auth-only::v-deep {
-  .auth-only-button {
-    padding: 8px;
-    .connect {
-      width: auto;
-      padding: 12px 18px;
-    }
-  }
-}
-
-.incentive-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: var(--amm-space-1);
-  background: var(--table-background) !important;
-}
-
-.farms-table::v-deep {
-  .el-table__expanded-cell {
-    padding: 0 !important;
-  }
-}
-
-.details-table::v-deep {
-  .el-table__cell {
-    background: var(--btn-active) !important;
-  }
-}
-.detail-table-actions {
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
-}
-
-.claim-rewards-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4;
-  .stacking-status {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--main-green);
-  }
-  .the-dot {
-    background: var(--main-green);
-    width: 4px;
-    height: 4px;
-    border-radius: 4px;
-  }
-}
-
-.table-detail-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px;
 }
 </style>

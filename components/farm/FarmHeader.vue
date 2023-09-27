@@ -2,6 +2,12 @@
   .farm-header
     .left
       el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
+      .stacked-only
+        el-switch(
+          active-text="Stacked only"
+          :value="$store.state.farms.stakedOnly"
+          @change="$store.commit('farms/setStakedOnly', $event)"
+        )
       AlcorSwitch(
         class="alcor-switch"
         one="Active"
@@ -9,24 +15,18 @@
         :active="finished ? 'two' : 'one'"
         @toggle="toggle"
       )
-      .stacked-only
-        el-switch(
-          active-text="Stacked only"
-          :value="$store.state.farms.stakedOnly"
-          @change="$store.commit('farms/setStakedOnly', $event)"
-        )
-    .right
       AlcorSwitch(
       one="Simple"
         two="Advanced"
         :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
         @toggle="$store.commit('farms/toggleView')"
       )
+    .right
       el-badge(v-if="finished" type="success" :value="stakedStakes.length")
-        el-button(@click="unstakeAll") Unstake All Positions
+        AlcorButton(@click="unstakeAll") Unstake All Positions
 
       el-badge(v-else type="warning" :value="unstakedStakes.length")
-        el-button(@click="stakeAll") Stake All Positions
+        AlcorButton(@click="stakeAll") Stake All Positions
     //.right
       AlcorLink(class="new-farm" to="/farms/create")
         i.el-icon-circle-plus-outline
@@ -36,12 +36,14 @@
 <script>
 import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
+import AlcorButton from '@/components/AlcorButton'
 export default {
   name: 'FarmHeader',
 
   components: {
     AlcorSwitch,
     AlcorLink,
+    AlcorButton,
   },
 
   props: ['finished', 'stakedOnly'],
@@ -157,6 +159,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 }
 .left {
   display: flex;
@@ -188,7 +191,31 @@ export default {
   }
 }
 
+.stacked-only {
+  white-space: nowrap;
+}
+
 .new-farm {
   padding: 8px 16px !important;
+}
+
+@media only screen and (max-width: 800px) {
+  .farm-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .left {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .farms-search-input {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 </style>
