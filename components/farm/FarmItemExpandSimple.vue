@@ -8,7 +8,7 @@
         span {{ reward.amount }} {{ reward.symbol }}
 
   .actions
-    AlcorButton(access).farm-claim-button Claim
+    AlcorButton(access @click="").farm-claim-button Claim
     AlcorButton(bordered access).farm-stake-button Stake
     AlcorButton(bordered danger).farm-unstake-button UnStake
 </template>
@@ -32,32 +32,38 @@ export default {
       const reward = {}
 
       const precisions = {}
-      this.farm.incentives.forEach(incentive => {
-        incentive.incentiveStats.filter(s => s.staked).forEach(s => {
-          const [amount, symbol] = s.farmedReward.split(' ')
-          precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
+      this.farm.incentives.forEach((incentive) => {
+        incentive.incentiveStats
+          .filter((s) => s.staked)
+          .forEach((s) => {
+            const [amount, symbol] = s.farmedReward.split(' ')
+            precisions[symbol] = getPrecision(
+              incentive.reward.quantity.split(' ')[0]
+            )
 
-          if (reward[symbol]) {
-            reward[symbol] = reward[symbol].amount + parseFloat(amount)
-          } else {
-            reward[symbol] = {
-              symbol,
-              amount: parseFloat(amount),
-              precision: getPrecision(incentive.reward.quantity.split(' ')[0]),
-              contract: incentive.reward.contract
+            if (reward[symbol]) {
+              reward[symbol] = reward[symbol].amount + parseFloat(amount)
+            } else {
+              reward[symbol] = {
+                symbol,
+                amount: parseFloat(amount),
+                precision: getPrecision(
+                  incentive.reward.quantity.split(' ')[0]
+                ),
+                contract: incentive.reward.contract,
+              }
             }
-          }
-        })
+          })
       })
 
-      return Object.values(reward).map(r => {
+      return Object.values(reward).map((r) => {
         return {
           amount: r.amount.toFixed(r.precision),
-          ...r
+          ...r,
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

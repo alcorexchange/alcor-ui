@@ -41,8 +41,24 @@
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
     template(v-if="hasPosition")
-      FarmItemExpandSimple(:farm="farm" v-if="$store.state.farms.view === 'SIMPLE'")
-      FarmItemExpandAdvanced(:farm="farm" :finished="finished" v-else)
+      FarmItemExpandSimple(
+        :farm="farm"
+        v-if="$store.state.farms.view === 'SIMPLE'"
+        @claimAll="$emit('claimAll', $event)"
+        @stakeAll="$emit('stakeAll', $event)"
+        @unstakeAll="$emit('unstakeAll', $event)"
+      )
+      FarmItemExpandAdvanced(
+        :farm="farm"
+        :finished="finished"
+        @claimAll="$emit('claimAll', $event)"
+        @stakeAll="$emit('stakeAll', $event)"
+        @unstakeAll="$emit('unstakeAll', $event)"
+        @claim="$emit('claim', $event)"
+        @stake="$emit('stake', $event)"
+        @unstake="$emit('unstake', $event)"
+        v-else
+      )
     .add-liquidity(v-else)
       AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>

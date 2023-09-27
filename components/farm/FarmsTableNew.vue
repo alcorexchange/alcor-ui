@@ -8,7 +8,7 @@
     .header-item Remaining Time
     .header-item
   .table-items
-    FarmItemNew(v-for="farm in farmPools" :farm="farm" :finished="finished")
+    FarmItemNew(v-for="farm in farmPools" :farm="farm" :finished="finished" @claimAll="claimAll" @stakeAll="stakeAll" @unstakeAll="unstakeAll")
 </template>
 
 <script>
@@ -51,11 +51,6 @@ export default {
   },
 
   methods: {
-    shouldMinimize(incentives) {
-      return incentives.length > 2
-    },
-    firstReward: (incentives) => incentives[0],
-
     addLiquidity(row) {
       this.$router.push({
         path: '/positions/new',
@@ -72,12 +67,64 @@ export default {
       })
     },
 
-    onRowClick(row) {
-      this.$refs.table.toggleRowExpansion(row)
+    async claimAll(incentive) {
+      const stakes = incentive.incentiveStats.filter((i) => i.staked)
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'getreward',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
 
-    onExpand(row) {
-      this.extendedRow = row
+    async stakeAll(incentive) {
+      try {
+        const stakes = incentive.incentiveStats.filter((i) => !i.staked)
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'stake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
+    },
+
+    async unstakeAll(incentive) {
+      try {
+        const stakes = incentive.incentiveStats.filter((i) => i.staked)
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'unstake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
     },
   },
 }
