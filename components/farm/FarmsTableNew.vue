@@ -8,7 +8,17 @@
     .header-item Remaining Time
     .header-item
   .table-items
-    FarmItemNew(v-for="farm in farmPools" :farm="farm" :finished="finished" @claimAll="claimAll" @stakeAll="stakeAll" @unstakeAll="unstakeAll")
+    FarmItemNew(
+      v-for="farm in farmPools"
+      :farm="farm"
+      :finished="finished"
+      @claimAll="claimAll"
+      @stakeAll="stakeAll"
+      @unstakeAll="unstakeAll"
+      @claim="claim"
+      @stake="stake"
+      @unstake="unstake"
+    )
 </template>
 
 <script>
@@ -117,6 +127,63 @@ export default {
         setTimeout(
           () => this.$store.dispatch('farms/updateStakesAfterAction'),
           500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
+    },
+
+    async claim(stake) {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: [stake],
+          action: 'getreward',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
+    },
+
+    async unstake(stake) {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: [stake],
+          action: 'unstake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
+    },
+
+    async stake(stake) {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: [stake],
+          action: 'stake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          1000
         )
       } catch (e) {
         this.$notify({
