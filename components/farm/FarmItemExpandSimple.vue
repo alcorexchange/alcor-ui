@@ -4,13 +4,13 @@
     .title.muted.fs-14.mb-1 Farmed Rewards
     .rewards
       .icon-and-value(v-for="reward in farmedRewards")
-        TokenImage(:src="$tokenLogo('WAX', 'eosio.token')" width="14px" height="14px")
-        span {{ reward }}
+        TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
+        span {{ reward.amount }} {{ reward.symbol }}
 
   .actions
-    AlcorButton(access).farm-claim-button Claim All
-    AlcorButton(bordered access).farm-stake-button Stake All
-    AlcorButton(bordered danger).farm-unstake-button UnStake All
+    AlcorButton(access).farm-claim-button Claim
+    AlcorButton(bordered access).farm-stake-button Stake
+    AlcorButton(bordered danger).farm-unstake-button UnStake
 </template>
 
 <script>
@@ -34,19 +34,27 @@ export default {
       const precisions = {}
       this.farm.incentives.forEach(incentive => {
         incentive.incentiveStats.filter(s => s.staked).forEach(s => {
-          const [amount, key] = s.farmedReward.split(' ')
-          precisions[key] = getPrecision(incentive.reward.quantity.split(' ')[0])
+          const [amount, symbol] = s.farmedReward.split(' ')
+          precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
 
-          if (reward[key]) {
-            reward[key] = reward[key] + parseFloat(amount)
+          if (reward[symbol]) {
+            reward[symbol] = reward[symbol].amount + parseFloat(amount)
           } else {
-            reward[key] = parseFloat(amount)
+            reward[symbol] = {
+              symbol,
+              amount: parseFloat(amount),
+              precision: getPrecision(incentive.reward.quantity.split(' ')[0]),
+              contract: incentive.reward.contract
+            }
           }
         })
       })
 
-      return Object.entries(reward).map(([symbol, amount]) => {
-        return `${amount.toFixed(precisions[symbol])} ${symbol}`
+      return Object.values(reward).map(r => {
+        return {
+          amount: r.amount.toFixed(r.precision),
+          ...r
+        }
       })
     }
   }
