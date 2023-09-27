@@ -9,8 +9,8 @@
 
   .actions
     AlcorButton(access @click="").farm-claim-button Claim
-    AlcorButton(bordered access).farm-stake-button Stake
-    AlcorButton(bordered danger).farm-unstake-button UnStake
+    AlcorButton(bordered access v-if="canStake").farm-stake-button Stake
+    AlcorButton(bordered danger v-if="canUnstake").farm-unstake-button UnStake
 </template>
 
 <script>
@@ -27,6 +27,17 @@ export default {
   props: ['farm'],
 
   computed: {
+    canStake() {
+      return !!this.farm.incentives.find((incentive) => {
+        return !!incentive.incentiveStats.find((stat) => !stat.staked)
+      })
+    },
+    canUnstake() {
+      return !!this.farm.incentives.find((incentive) => {
+        return !!incentive.incentiveStats.find((stat) => stat.staked)
+      })
+    },
+
     farmedRewards() {
       // Aggregated reward
       const reward = {}
