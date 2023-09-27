@@ -44,7 +44,7 @@
       FarmItemExpandSimple(:farm="farm" v-if="$store.state.farms.view === 'SIMPLE'")
       FarmItemExpandAdvanced(:farm="farm" :finished="finished" v-else)
     .add-liquidity(v-else)
-      AlcorButton(access @click="") Add Liquidity
+      AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
 
 <script>
@@ -97,18 +97,18 @@ export default {
   },
 
   methods: {
-    addLiquidity(row) {
+    addLiquidity() {
       this.$router.push({
         path: '/positions/new',
         query: {
           left:
-            row.tokenA.quantity.split(' ')[1].toLowerCase() +
+            this.farm.tokenA.quantity.split(' ')[1].toLowerCase() +
             '-' +
-            row.tokenA.contract,
+            this.farm.tokenA.contract,
           right:
-            row.tokenB.quantity.split(' ')[1].toLowerCase() +
+            this.farm.tokenB.quantity.split(' ')[1].toLowerCase() +
             '-' +
-            row.tokenB.contract,
+            this.farm.tokenB.contract,
         },
       })
     },
