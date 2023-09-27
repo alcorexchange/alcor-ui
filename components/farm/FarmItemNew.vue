@@ -158,15 +158,10 @@ export default {
   }
 }
 
-.total-staked-section {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .total-reward-section,
 .daily-rewards-section,
-.remaining-time-section {
+.remaining-time-section,
+.total-staked-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
