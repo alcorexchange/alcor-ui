@@ -3,7 +3,7 @@
   .incentive-header
     .left
       .key-value
-        span.key.muted.fs-12 Daily Reward
+        span.key.muted.fs-14 Daily Reward
         .icon-and-value
           TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
           span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}

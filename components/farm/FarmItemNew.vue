@@ -11,6 +11,7 @@
         .token-contracts.muted {{ farm.tokenA.contract }}/{{ farm.tokenB.contract }}
 
     .total-staked-section
+      span.mobile-only.muted.fs-14 Total Staked
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenA.quantity.split(' ')[1], farm.tokenA.contract)" width="14px" height="14px")
         span {{ farm.tokenA.quantity }}
@@ -20,16 +21,19 @@
         span {{ farm.tokenB.quantity }}
 
     .total-reward-section
+      span.mobile-only.muted.fs-14 Total Reward
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.reward.quantity }}
 
     .daily-rewards-section
+      span.mobile-only.muted.fs-14 Daily Rewards
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.rewardPerDay }} {{ item.reward.quantity.split(' ')[1] }}
 
     .remaining-time-section
+      span.mobile-only.muted.fs-14 Remaining Time
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.daysRemain }} Days
@@ -37,6 +41,8 @@
     .actions-section
       .statuses.fs-14
         StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
+    .detail-toggle-section
+      span.mobile-only.muted.fs-14.details-text View Details
       .arrow
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
@@ -137,9 +143,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.farm-item-container {
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--light-border-color);
+  }
+}
 .farm-item {
   display: grid;
-  grid-template-columns: 20% 15% 15% 15% 15% 1fr;
+  grid-template-columns: 20% 15% 15% 15% 15% 1fr auto;
   & > * {
     padding: 10px;
   }
@@ -173,15 +184,18 @@ export default {
   justify-content: center;
   align-items: flex-start;
 }
+.detail-toggle-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
 
 .actions-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  .arrow {
-    cursor: pointer;
-  }
 
   .statuses {
     display: flex;
@@ -217,13 +231,28 @@ export default {
   }
 }
 
+.mobile-only {
+  display: none;
+}
+
 @media only screen and (max-width: 900px) {
+  .mobile-only {
+    display: block;
+  }
   .farm-item {
     grid-template-columns: 1fr 1fr;
   }
   .token-container,
-  .actions-section {
+  .total-staked-section,
+  .detail-toggle-section {
     grid-column: 1 / 3;
+  }
+  .actions-section {
+    align-items: flex-end;
+  }
+
+  .detail-toggle-section {
+    justify-content: center;
   }
 }
 </style>
