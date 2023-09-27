@@ -79,14 +79,6 @@ export default {
     onExpand(row) {
       this.extendedRow = row
     },
-
-    hasPosition(incentives) {
-      let hasChildren = false
-      incentives.forEach(({ incentiveStats }) => {
-        if (incentiveStats.length) hasChildren = true
-      })
-      return hasChildren
-    },
   },
 }
 </script>
