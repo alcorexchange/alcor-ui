@@ -12,8 +12,8 @@
       .stacked-only
         el-switch(
           active-text="Stacked only"
-          :value="stakedOnly"
-          @change="$emit('update:stakedOnly', $event)"
+          :value="$store.state.farms.stakedOnly"
+          @change="$store.commit('farms/setStakedOnly', $event)"
         )
     .right
       AlcorSwitch(
