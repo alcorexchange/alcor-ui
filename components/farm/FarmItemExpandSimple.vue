@@ -8,9 +8,9 @@
         span {{ reward.amount }} {{ reward.symbol }}
 
   .actions
-    AlcorButton(access @click="").farm-claim-button Claim
-    AlcorButton(bordered access v-if="canStake").farm-stake-button Stake
-    AlcorButton(bordered danger v-if="canUnstake").farm-unstake-button Unstake
+    AlcorButton(access @click="claimAllIncentives").farm-claim-button Claim
+    AlcorButton(bordered access @click="stakeAllIncentives" v-if="canStake").farm-stake-button Stake
+    AlcorButton(bordered danger @click="unstakeAllIncentives" v-if="canUnstake").farm-unstake-button Unstake
 </template>
 
 <script>
@@ -73,6 +73,27 @@ export default {
           ...r,
         }
       })
+    },
+
+    aggregatedStakes() {
+      const allStats = []
+      this.farm.incentives.forEach(({ incentiveStats }) => {
+        incentiveStats.forEach((stat) => allStats.push(stat))
+      })
+
+      return allStats
+    },
+  },
+
+  methods: {
+    claimAllIncentives() {
+      this.$emit('claimAll', { incentiveStats: this.aggregatedStakes })
+    },
+    stakeAllIncentives() {
+      this.$emit('stakeAll', { incentiveStats: this.aggregatedStakes })
+    },
+    unstakeAllIncentives() {
+      this.$emit('unstakeAll', { incentiveStats: this.aggregatedStakes })
     },
   },
 }
