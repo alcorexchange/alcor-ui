@@ -14,7 +14,6 @@
       AlcorButton(bordered danger @click="unstakeAllIncentives" v-if="canUnstake || finished").farm-unstake-button Unstake
 
     AlcorButton(access @click="unstakeAllIncentives" v-else).farm-claim-button Claim And Unstake
-
 </template>
 
 <script>
@@ -61,14 +60,12 @@ export default {
             )
 
             if (reward[symbol]) {
-              reward[symbol] = reward[symbol].amount + parseFloat(amount)
+              reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
             } else {
               reward[symbol] = {
                 symbol,
                 amount: parseFloat(amount),
-                precision: getPrecision(
-                  incentive.reward.quantity.split(' ')[0]
-                ),
+                precision: precisions[symbol],
                 contract: incentive.reward.contract,
               }
             }
@@ -77,8 +74,8 @@ export default {
 
       return Object.values(reward).map((r) => {
         return {
-          amount: r.amount?.toFixed(r.precision),
           ...r,
+          amount: r.amount?.toFixed(r.precision)
         }
       })
     },
