@@ -12,9 +12,9 @@
         //- span.muted Remaining Time
         span.fs-14 {{ incentive.daysRemain }} Days
     .right(v-if="incentive.incentiveStats.length > 0")
-      AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished") Claim All Rewards
+      AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished").farm-claim-button Claim All Rewards
       AlcorButton(access bordered compact @click="$emit('stakeAll', incentive)" v-if="!finished").farm-stake-button Stake All
-      AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)") {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
+      AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)").farm-unstake-button {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
   .incentive-content
     table.fs-14
       thead
@@ -123,6 +123,27 @@ export default {
   gap: 4px;
   span {
     font-size: 0.8rem;
+  }
+}
+
+.farm-stake-button::v-deep {
+  color: var(--main-action-green) !important;
+  &:hover {
+    background: var(--main-action-green) !important;
+    color: black !important;
+  }
+}
+.farm-unstake-button::v-deep {
+  color: var(--main-action-red);
+  &:hover {
+    background: var(--main-action-red) !important;
+    color: black !important;
+  }
+}
+.farm-claim-button::v-deep {
+  color: var(--text-theme) !important;
+  &:hover {
+    background: var(--main-green) !important;
   }
 }
 

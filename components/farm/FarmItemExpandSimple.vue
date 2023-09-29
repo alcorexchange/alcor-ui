@@ -10,7 +10,7 @@
   .actions
     AlcorButton(access @click="").farm-claim-button Claim
     AlcorButton(bordered access v-if="canStake").farm-stake-button Stake
-    AlcorButton(bordered danger v-if="canUnstake").farm-unstake-button UnStake
+    AlcorButton(bordered danger v-if="canUnstake").farm-unstake-button Unstake
 </template>
 
 <script>
@@ -88,5 +88,26 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.farm-stake-button {
+  color: var(--main-action-green) !important;
+  &:hover {
+    background: var(--main-action-green) !important;
+    color: black !important;
+  }
+}
+.farm-unstake-button {
+  color: var(--main-action-red);
+  &:hover {
+    background: var(--main-action-red) !important;
+    color: black !important;
+  }
+}
+.farm-claim-button {
+  color: var(--text-theme) !important;
+  &:hover {
+    background: var(--main-green) !important;
+  }
 }
 </style>
