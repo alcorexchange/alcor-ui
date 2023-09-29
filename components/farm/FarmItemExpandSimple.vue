@@ -8,9 +8,13 @@
         span {{ reward.amount }} {{ reward.symbol }}
 
   .actions
-    AlcorButton(access @click="claimAllIncentives").farm-claim-button Claim
-    AlcorButton(bordered access @click="stakeAllIncentives" v-if="canStake").farm-stake-button Stake
-    AlcorButton(bordered danger @click="unstakeAllIncentives" v-if="canUnstake").farm-unstake-button Unstake
+    template(v-if="!finished")
+      AlcorButton(access @click="claimAllIncentives" v-if="canClaim").farm-claim-button Claim
+      AlcorButton(bordered access @click="stakeAllIncentives" v-if="canStake").farm-stake-button Stake
+      AlcorButton(bordered danger @click="unstakeAllIncentives" v-if="canUnstake || finished").farm-unstake-button Unstake
+
+    AlcorButton(access @click="unstakeAllIncentives" v-else).farm-claim-button Claim And Unstake
+
 </template>
 
 <script>
@@ -24,10 +28,14 @@ export default {
     AlcorButton,
   },
 
-  props: ['farm'],
+  props: ['farm', 'finished'],
 
   computed: {
+    canClaim() {
+      return !this.finished
+    },
     canStake() {
+      if (this.finished) return false
       return !!this.farm.incentives.find((incentive) => {
         return !!incentive.incentiveStats.find((stat) => !stat.staked)
       })

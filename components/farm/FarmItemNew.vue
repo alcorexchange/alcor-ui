@@ -49,6 +49,7 @@
     template(v-if="hasPosition")
       FarmItemExpandSimple(
         :farm="farm"
+        :finished="finished"
         v-if="$store.state.farms.view === 'SIMPLE'"
         @claimAll="$emit('claimAll', $event)"
         @stakeAll="$emit('stakeAll', $event)"
