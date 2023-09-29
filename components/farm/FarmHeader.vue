@@ -23,7 +23,7 @@
       )
     .right
       el-badge(v-if="finished" type="success" :value="stakedStakes.length")
-        AlcorButton(@click="unstakeAll") Unstake All Positions
+        AlcorButton(@click="unstakeAll") Claim & Unstake All
 
       el-badge(v-else type="warning" :value="unstakedStakes.length")
         AlcorButton(@click="stakeAll") Stake All Positions
