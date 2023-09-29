@@ -87,6 +87,9 @@ export default {
     async submit() {
       try {
         await this.remove()
+
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+
         if (this.percent == 100) this.$router.push('/positions')
 
         // setTimeout(() => {
