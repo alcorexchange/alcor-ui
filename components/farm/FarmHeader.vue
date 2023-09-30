@@ -22,10 +22,10 @@
         @toggle="$store.commit('farms/toggleView')"
       )
     .right
-      el-badge(v-if="finished" type="success" :value="stakedStakes.length")
+      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
         AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-      el-badge(v-else type="warning" :value="unstakedStakes.length")
+      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
         AlcorButton(@click="stakeAll") Stake All Positions
     //.right
       AlcorLink(class="new-farm" to="/farms/create")

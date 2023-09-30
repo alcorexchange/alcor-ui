@@ -10,14 +10,13 @@
     main
       Note(class="fs-14") You can only create a farm for a pool that you are owner of one of token.
 
-      el-select(v-model='poolId' placeholder='Select pool')
+      el-select(v-model='poolId' placeholder='Select pool' filterable)
         el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' / ' + pool.tokenB.symbol + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
           span(style='float: left') {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
           span.ml-1 {{ pool.fee / 10000 }}%
 
       //TokenSelection(class="")
       //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
-
       //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
 
       RewardList(class="")
@@ -34,7 +33,7 @@
 
       DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
-      AlcorButton(class="submit" access @click="submit") Create Farm
+      AlcorButton(class="submit" access @click="create") Create Farm
 
 </template>
 
@@ -115,6 +114,23 @@ export default {
       this.rewardList = this.rewardList.filter((_, i) => i !== index)
     },
 
+    async create() {
+      try {
+        await this.submit()
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+
+        this.$notify({
+          type: 'info',
+          title: 'Farm Creation',
+          message: 'Farm created succesfully',
+        })
+
+        this.$router.push('/farms')
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'Create Farm', message: e.message })
+      }
+    },
+
     async submit() {
       const actions = []
 
@@ -172,12 +188,6 @@ export default {
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
       console.log({ r })
-
-      this.$notify({
-        type: 'info',
-        title: 'Farm Creation',
-        message: 'Farm created succesfully',
-      })
     },
   },
 }
