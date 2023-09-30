@@ -138,6 +138,7 @@ module.exports = {
     '~/plugins/vClickOutside.js',
     '~/plugins/muttedDirective.js',
     '~/plugins/routerSync.js',
+    '~/plugins/analytics.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
     { ssr: false, src: '~/plugins/apiInstance.js' },
@@ -209,7 +210,6 @@ module.exports = {
   },
 
   buildModules: [
-    ['@nuxtjs/google-analytics', { id: 'UA-155720239-1' }],
     '@nuxtjs/color-mode',
     '@nuxtjs/device'
   ],
