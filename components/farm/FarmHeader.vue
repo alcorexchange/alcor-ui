@@ -130,25 +130,33 @@ export default {
     },
 
     async unstakeAll() {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: this.unstakedStakes,
-        action: 'unstake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.stakedStakes,
+          action: 'unstake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
     },
 
     async stakeAll() {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: this.unstakedStakes,
-        action: 'stake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.unstakedStakes,
+          action: 'stake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
     },
   },
 }

@@ -104,7 +104,7 @@ export const actions = {
 
   logout({ state, dispatch, commit, getters, rootState }) {
     console.log('logout..')
-    state.wallet.logout()
+    state?.wallet?.logout()
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
