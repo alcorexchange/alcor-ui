@@ -150,11 +150,7 @@ export default {
   }
 }
 .farm-item {
-  display: grid;
-  grid-template-columns: 20% 15% 15% 15% 15% 1fr auto;
-  & > * {
-    padding: 10px;
-  }
+  cursor: pointer;
   &:hover {
     background: var(--hover);
   }

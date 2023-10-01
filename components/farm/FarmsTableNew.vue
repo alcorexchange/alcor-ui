@@ -7,6 +7,7 @@
     .header-item Daily Rewards
     .header-item Remaining Time
     .header-item
+    .header-item
   .table-items
     FarmItemNew(
       v-for="farm in farmPools"
@@ -200,7 +201,7 @@ export default {
 <style lang="scss">
 .farm-item {
   display: grid;
-  grid-template-columns: 20% 15% 15% 15% 15% 1fr;
+  grid-template-columns: 20% 15% 15% 15% 15% 1fr auto;
   & > * {
     padding: 10px;
   }
