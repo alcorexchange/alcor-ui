@@ -8,15 +8,14 @@
           :value="$store.state.farms.stakedOnly"
           @change="$store.commit('farms/setStakedOnly', $event)"
         )
-      AlcorSwitch(
-        class="alcor-switch"
+      AlcorSwitch.alcor-switch(
         one="Active"
         two="Finished"
         :active="finished ? 'two' : 'one'"
         @toggle="toggle"
       )
-      AlcorSwitch(
-      one="Simple"
+      AlcorSwitch.alcor-switch(
+        one="Simple"
         two="Advanced"
         :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
         @toggle="$store.commit('farms/toggleView')"
@@ -201,16 +200,14 @@ export default {
     background: var(--select-color);
   }
 }
-.alcor-switch {
+.alcor-switch::v-deep {
   font-size: 0.9rem;
   background: var(--btn-active);
-  &::v-deep {
-    .item {
-      padding: 4px 10px;
-    }
-    .background {
-      background: var(--select-color);
-    }
+  .item {
+    padding: 4px 10px;
+  }
+  .background {
+    background: var(--select-color);
   }
 }
 
