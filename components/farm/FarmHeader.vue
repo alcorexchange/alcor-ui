@@ -1,37 +1,44 @@
 <template lang="pug">
-  .farm-header
-    .left
-      el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
-      .stacked-only
-        el-switch(
-          active-text="Stacked only"
-          :value="$store.state.farms.stakedOnly"
-          @change="$store.commit('farms/setStakedOnly', $event)"
+  .farm-header-container
+    .farm-header
+      .left
+        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
+        .stacked-only
+          el-switch(
+            active-text="Stacked only"
+            :value="$store.state.farms.stakedOnly"
+            @change="$store.commit('farms/setStakedOnly', $event)"
+          )
+        AlcorSwitch.alcor-switch(
+          one="Active"
+          two="Finished"
+          :active="finished ? 'two' : 'one'"
+          @toggle="toggle"
         )
-      AlcorSwitch.alcor-switch(
-        one="Active"
-        two="Finished"
-        :active="finished ? 'two' : 'one'"
-        @toggle="toggle"
-      )
-      AlcorSwitch.alcor-switch(
-        one="Simple"
-        two="Advanced"
-        :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
-        @toggle="$store.commit('farms/toggleView')"
-      )
-    .right
-      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-        GradientBorder.gradient-border
-          AlcorButton(@click="unstakeAll") Claim & Unstake All
+        AlcorSwitch.alcor-switch(
+          one="Simple"
+          two="Advanced"
+          :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
+          @toggle="$store.commit('farms/toggleView')"
+        )
+      .right
+        el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+          GradientBorder.gradient-border
+            AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
-        GradientBorder.gradient-border
-          AlcorButton(@click="stakeAll") Stake All Positions
-    //.right
-      AlcorLink(class="new-farm" to="/farms/create")
-        i.el-icon-circle-plus-outline
-        span Open New Farm
+        el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+          GradientBorder.gradient-border
+            AlcorButton(@click="stakeAll") Stake All Positions
+      //.right
+        AlcorLink(class="new-farm" to="/farms/create")
+          i.el-icon-circle-plus-outline
+          span Open New Farm
+    el-alert(
+      v-if="finished && stakedStakes.length"
+      title="Unstake to free account RAM"
+      type="warning"
+      show-icon
+    )
 </template>
 
 <script>
@@ -166,6 +173,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.farm-header-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .farm-header {
   display: flex;
   align-items: center;
