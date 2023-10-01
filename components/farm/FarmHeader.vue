@@ -26,7 +26,8 @@
         AlcorButton(@click="unstakeAll") Claim & Unstake All
 
       el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
-        AlcorButton(@click="stakeAll") Stake All Positions
+        GradientBorder.gradient-border
+          AlcorButton(@click="stakeAll") Stake All Positions
     //.right
       AlcorLink(class="new-farm" to="/farms/create")
         i.el-icon-circle-plus-outline
@@ -37,6 +38,7 @@
 import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
 import AlcorButton from '@/components/AlcorButton'
+import GradientBorder from '@/components/alcor-element/GradientBorder'
 export default {
   name: 'FarmHeader',
 
@@ -44,6 +46,7 @@ export default {
     AlcorSwitch,
     AlcorLink,
     AlcorButton,
+    GradientBorder,
   },
 
   props: ['finished', 'stakedOnly'],
@@ -179,6 +182,17 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+  .gradient-border {
+    &:hover {
+      --border-width: 4px !important;
+    }
+  }
+  .alcor-button {
+    position: relative;
+    &:hover {
+      background: var(--btn-default);
+    }
+  }
 }
 .farms-search-input::v-deep {
   max-width: 240px;
