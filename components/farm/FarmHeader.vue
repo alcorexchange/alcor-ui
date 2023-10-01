@@ -35,7 +35,7 @@
           span Open New Farm
     el-alert(
       v-if="finished && stakedStakes.length"
-      title="Unstake to free account RAM"
+      title="Unstake your finished farms to free account RAM"
       type="warning"
       show-icon
     )
