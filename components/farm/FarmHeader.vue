@@ -23,8 +23,9 @@
         )
       .right
         el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-          GradientBorder.gradient-border
-            AlcorButton(@click="unstakeAll") Claim & Unstake All
+          el-tooltip(content="Unstake your finished farms to free account RAM")
+            GradientBorder.gradient-border
+              AlcorButton(@click="unstakeAll") Claim & Unstake All
 
         el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
           GradientBorder.gradient-border
@@ -33,12 +34,6 @@
         AlcorLink(class="new-farm" to="/farms/create")
           i.el-icon-circle-plus-outline
           span Open New Farm
-    el-alert(
-      v-if="finished && stakedStakes.length"
-      title="Unstake your finished farms to free account RAM"
-      type="warning"
-      show-icon
-    )
 </template>
 
 <script>
