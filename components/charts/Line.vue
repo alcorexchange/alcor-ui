@@ -89,7 +89,9 @@ export default {
             show: true,
             formatter: (v) => {
               // TODO: use dynamic number.
-              return this.prependDollorSign ? `$${v}` : v
+              return this.prependDollorSign
+                ? `$${this.$options.filters.commaFloat(v)}`
+                : v
             },
             style: {
               colors: 'var(--text-disable)',
