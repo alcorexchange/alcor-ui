@@ -46,7 +46,7 @@
       .arrow
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
-    template(v-if="hasPosition")
+    template(v-if="hasPosition && finished")
       FarmItemExpandSimple(
         :farm="farm"
         :finished="finished"
@@ -66,7 +66,7 @@
         @unstake="$emit('unstake', $event)"
         v-else
       )
-    .add-liquidity(v-else)
+    .add-liquidity(v-else-if="!finished")
       AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
 
