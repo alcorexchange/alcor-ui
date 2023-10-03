@@ -3,7 +3,7 @@
   .incentive-header
     .left
       .key-value
-        span.key.muted Daily Reward
+        span.key.muted.fs-14 Daily Reward
         .icon-and-value
           TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
           span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
@@ -12,9 +12,9 @@
         //- span.muted Remaining Time
         span.fs-14 {{ incentive.daysRemain }} Days
     .right(v-if="incentive.incentiveStats.length > 0")
-      AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished") Claim All Rewards
-      AlcorButton(access bordered compact @click="$emit('stakeAll', incentive)" v-if="!finished").stake-button Stake All
-      AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)") {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
+      AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished").farm-claim-button Claim All Rewards
+      AlcorButton(access bordered compact @click="$emit('stakeAll', incentive)" v-if="!finished").farm-stake-button Stake All
+      AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)").farm-unstake-button {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
   .incentive-content
     table.fs-14
       thead
@@ -83,27 +83,17 @@ export default {
     display: flex;
     align-items: center;
     gap: 4px;
-    // ::v-deep {
-    //   .access {
-    //     color: var(--main-green) !important;
-    //   }
-    // }
-  }
-}
-.stake-button {
-  color: var(--main-action-green) !important;
-  &:hover {
-    background: var(--main-action-green) !important;
-    color: black !important;
   }
 }
 
 .incentive-content {
+  overflow: auto;
   table {
     width: 100%;
+    min-width: 600px;
     th,
     td {
-      padding: 2px 0;
+      padding: 2px 6px;
       border-bottom: none;
     }
     tr,
@@ -116,6 +106,7 @@ export default {
 
     th {
       font-weight: 400;
+      white-space: nowrap;
     }
   }
 }
@@ -132,6 +123,44 @@ export default {
   gap: 4px;
   span {
     font-size: 0.8rem;
+  }
+}
+
+.farm-stake-button::v-deep {
+  color: var(--main-action-green) !important;
+  &:hover {
+    background: var(--main-action-green) !important;
+    color: black !important;
+  }
+}
+.farm-unstake-button::v-deep {
+  color: var(--main-action-red);
+  &:hover {
+    background: var(--main-action-red) !important;
+    color: black !important;
+  }
+}
+.farm-claim-button::v-deep {
+  color: var(--text-theme) !important;
+  &:hover {
+    background: var(--main-green) !important;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .incentive-header {
+    flex-direction: column;
+    .right {
+      flex-wrap: wrap;
+      align-self: flex-end;
+    }
+  }
+}
+@media only screen and (max-width: 600px) {
+  .incentive-header {
+    .left {
+      gap: 4px;
+    }
   }
 }
 </style>

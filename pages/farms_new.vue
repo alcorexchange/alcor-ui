@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(:search.sync="search" :finished.sync="finished" @update:finished="finishedUpdate" :stakedOnly.sync="stakedOnly").mb-2.mt-4
+    FarmHeader(:search.sync="search" :finished.sync="finished" @update:finished="finishedUpdate").mb-2.mt-4
     FarmsTableNew(:farmPools="farmPools" :finished="finished")
 </template>
 
@@ -18,11 +18,14 @@ export default {
     return {
       search: '',
       finished: false,
-      stakedOnly: false,
     }
   },
 
   computed: {
+    stakedOnly() {
+      return this.$store.state.farms.stakedOnly
+    },
+
     pools() {
       return this.$store.getters['farms/farmPools']
         .map((p) => {

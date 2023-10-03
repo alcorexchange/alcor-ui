@@ -83,6 +83,8 @@ export default {
     async submit() {
       try {
         await this.add()
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+
         this.visible = false
 
         this.amountA = null

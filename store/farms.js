@@ -41,7 +41,8 @@ export const state = () => ({
   userStakes: [],
   plainUserStakes: [],
   farmPools: [],
-  view: 'SIMPLE'
+  view: 'SIMPLE',
+  stakedOnly: false,
 })
 
 export const mutations = {
@@ -49,7 +50,8 @@ export const mutations = {
   setPlainUserStakes: (state, stakes) => state.plainUserStakes = stakes,
   setIncentives: (state, incentives) => state.incentives = incentives,
   setFarmPools: (state, farmPools) => state.farmPools = farmPools,
-  toggleView: (state) => state.view = state.view === 'SIMPLE' ? 'ADVANCED' : 'SIMPLE'
+  toggleView: (state) => state.view = state.view === 'SIMPLE' ? 'ADVANCED' : 'SIMPLE',
+  setStakedOnly: (state, value) => state.stakedOnly = value
 }
 
 export const actions = {
@@ -104,9 +106,6 @@ export const actions = {
       const stakedLiquidity = bigInt(r.stakedLiquidity)
       const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
       const rewards = bigInt(r.rewards)
-
-      // console.log('r.incentive', r.incentive)
-      // if (totalStakedLiquidity.eq(0)) return console.error('totalStakedLiquidity is 0!')
 
       r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
       r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100

@@ -11,6 +11,7 @@
         .token-contracts.muted {{ farm.tokenA.contract }}/{{ farm.tokenB.contract }}
 
     .total-staked-section
+      span.mobile-only.muted.fs-14 Total Staked
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenA.quantity.split(' ')[1], farm.tokenA.contract)" width="14px" height="14px")
         span {{ farm.tokenA.quantity }}
@@ -20,30 +21,54 @@
         span {{ farm.tokenB.quantity }}
 
     .total-reward-section
+      span.mobile-only.muted.fs-14 Total Reward
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.reward.quantity }}
 
     .daily-rewards-section
+      span.mobile-only.muted.fs-14 Daily Rewards
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.rewardPerDay }} {{ item.reward.quantity.split(' ')[1] }}
 
     .remaining-time-section
+      span.mobile-only.muted.fs-14 Remaining Time
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.daysRemain }} Days
 
     .actions-section
-      .status status here
+      .statuses.fs-14
+        StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
+    .detail-toggle-section
+      span.mobile-only.fs-14.details-text View Details
       .arrow
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
     template(v-if="hasPosition")
-      FarmItemExpandSimple(:farm="farm" v-if="$store.state.farms.view === 'SIMPLE'")
-      FarmItemExpandAdvanced(:farm="farm" v-else)
-    .add-liquidity(v-else)
-      AlcorButton(access @click="") Add Liquidity
+      FarmItemExpandSimple(
+        :farm="farm"
+        :finished="finished"
+        v-if="$store.state.farms.view === 'SIMPLE'"
+        @claimAll="$emit('claimAll', $event)"
+        @stakeAll="$emit('stakeAll', $event)"
+        @unstakeAll="$emit('unstakeAll', $event)"
+      )
+      FarmItemExpandAdvanced(
+        :farm="farm"
+        :finished="finished"
+        @claimAll="$emit('claimAll', $event)"
+        @stakeAll="$emit('stakeAll', $event)"
+        @unstakeAll="$emit('unstakeAll', $event)"
+        @claim="$emit('claim', $event)"
+        @stake="$emit('stake', $event)"
+        @unstake="$emit('unstake', $event)"
+        v-else
+      )
+      //- TODO: do do not expand at all if finished
+    .add-liquidity(v-if="!finished && !hasPosition")
+      AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
 
 <script>
@@ -70,7 +95,7 @@ export default {
     FarmItemExpandAdvanced,
   },
 
-  props: ['farm'],
+  props: ['farm', 'finished'],
 
   data: () => {
     return {
@@ -84,6 +109,7 @@ export default {
       this.farm.incentives.forEach(({ incentiveStats }) => {
         if (incentiveStats.length) hasChildren = true
       })
+
       return hasChildren
     },
 
@@ -96,18 +122,18 @@ export default {
   },
 
   methods: {
-    addLiquidity(row) {
+    addLiquidity() {
       this.$router.push({
         path: '/positions/new',
         query: {
           left:
-            row.tokenA.quantity.split(' ')[1].toLowerCase() +
+            this.farm.tokenA.quantity.split(' ')[1].toLowerCase() +
             '-' +
-            row.tokenA.contract,
+            this.farm.tokenA.contract,
           right:
-            row.tokenB.quantity.split(' ')[1].toLowerCase() +
+            this.farm.tokenB.quantity.split(' ')[1].toLowerCase() +
             '-' +
-            row.tokenB.contract,
+            this.farm.tokenB.contract,
         },
       })
     },
@@ -120,7 +146,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.farm-item-container {
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--light-border-color);
+  }
+}
 .farm-item {
+  cursor: pointer;
   &:hover {
     background: var(--hover);
   }
@@ -141,47 +173,32 @@ export default {
   }
 }
 
-.total-staked-section {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .total-reward-section,
 .daily-rewards-section,
-.remaining-time-section {
+.remaining-time-section,
+.total-staked-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
   justify-content: center;
   align-items: flex-start;
 }
-
-.minimized {
-  display: inline-flex;
+.detail-toggle-section {
+  display: flex;
   align-items: center;
-  font-size: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 2px 4px;
-  .icons {
-    display: flex;
-    align-items: center;
-    position: relative;
-    .icon:not(:first-child) {
-      position: relative;
-      transform: translateX(-4px);
-      z-index: 2;
-    }
-  }
+  gap: 8px;
+  cursor: pointer;
 }
+
 .actions-section {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  .arrow {
-    cursor: pointer;
+  justify-content: space-between;
+  gap: 14px;
+
+  .statuses {
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -210,6 +227,31 @@ export default {
       font-weight: 500;
       font-size: 16px !important;
     }
+  }
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media only screen and (max-width: 900px) {
+  .mobile-only {
+    display: block;
+  }
+  .farm-item {
+    grid-template-columns: 1fr 1fr;
+  }
+  .token-container,
+  .total-staked-section,
+  .detail-toggle-section {
+    grid-column: 1 / 3;
+  }
+  .actions-section {
+    align-items: flex-end;
+  }
+
+  .detail-toggle-section {
+    justify-content: center;
   }
 }
 </style>

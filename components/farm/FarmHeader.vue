@@ -1,47 +1,54 @@
 <template lang="pug">
-  .farm-header
-    .left
-      el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
-      AlcorSwitch(
-        class="alcor-switch"
-        one="Active"
-        two="Finished"
-        :active="finished ? 'two' : 'one'"
-        @toggle="toggle"
-      )
-      .stacked-only
-        el-switch(
-          active-text="Stacked only"
-          :value="stakedOnly"
-          @change="$emit('update:stakedOnly', $event)"
+  .farm-header-container
+    .farm-header
+      .left
+        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
+        .stacked-only
+          el-switch(
+            active-text="Stacked only"
+            :value="$store.state.farms.stakedOnly"
+            @change="$store.commit('farms/setStakedOnly', $event)"
+          )
+        AlcorSwitch.alcor-switch(
+          one="Active"
+          two="Finished"
+          :active="finished ? 'two' : 'one'"
+          @toggle="toggle"
         )
-    .right
-      AlcorSwitch(
-      one="Simple"
-        two="Advanced"
-        :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
-        @toggle="$store.commit('farms/toggleView')"
-      )
-      el-badge(v-if="finished" type="success" :value="stakedStakes.length")
-        el-button(@click="unstakeAll") Unstake All Positions
+        AlcorSwitch.alcor-switch(
+          one="Simple"
+          two="Advanced"
+          :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
+          @toggle="$store.commit('farms/toggleView')"
+        )
+      .right
+        el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+          el-tooltip(content="Unstake your finished farms to free account RAM")
+            GradientBorder.gradient-border
+              AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-      el-badge(v-else type="warning" :value="unstakedStakes.length")
-        el-button(@click="stakeAll") Stake All Positions
-    //.right
-      AlcorLink(class="new-farm" to="/farms/create")
-        i.el-icon-circle-plus-outline
-        span Open New Farm
+        el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+          GradientBorder.gradient-border
+            AlcorButton(@click="stakeAll") Stake All Positions
+      //.right
+        AlcorLink(class="new-farm" to="/farms/create")
+          i.el-icon-circle-plus-outline
+          span Open New Farm
 </template>
 
 <script>
 import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
+import AlcorButton from '@/components/AlcorButton'
+import GradientBorder from '@/components/alcor-element/GradientBorder'
 export default {
   name: 'FarmHeader',
 
   components: {
     AlcorSwitch,
     AlcorLink,
+    AlcorButton,
+    GradientBorder,
   },
 
   props: ['finished', 'stakedOnly'],
@@ -128,35 +135,49 @@ export default {
     },
 
     async unstakeAll() {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: this.unstakedStakes,
-        action: 'unstake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.stakedStakes,
+          action: 'unstake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
     },
 
     async stakeAll() {
-      await this.$store.dispatch('farms/stakeAction', {
-        stakes: this.unstakedStakes,
-        action: 'stake',
-      })
-      setTimeout(
-        () => this.$store.dispatch('farms/updateStakesAfterAction'),
-        500
-      )
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.unstakedStakes,
+          action: 'stake',
+        })
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
     },
   },
 }
 </script>
 
 <style scoped lang="scss">
+.farm-header-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .farm-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 }
 .left {
   display: flex;
@@ -168,6 +189,17 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+  .gradient-border {
+    &:hover {
+      --border-width: 4px !important;
+    }
+  }
+  .alcor-button {
+    position: relative;
+    &:hover {
+      background: var(--btn-default);
+    }
+  }
 }
 .farms-search-input::v-deep {
   max-width: 240px;
@@ -175,20 +207,42 @@ export default {
     background: var(--select-color);
   }
 }
-.alcor-switch {
+.alcor-switch::v-deep {
   font-size: 0.9rem;
   background: var(--btn-active);
-  &::v-deep {
-    .item {
-      padding: 4px 10px;
-    }
-    .background {
-      background: var(--select-color);
-    }
+  .item {
+    padding: 4px 10px;
   }
+  .background {
+    background: var(--select-color);
+  }
+}
+
+.stacked-only {
+  white-space: nowrap;
 }
 
 .new-farm {
   padding: 8px 16px !important;
+}
+
+@media only screen and (max-width: 800px) {
+  .farm-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .left {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .farms-search-input {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 </style>

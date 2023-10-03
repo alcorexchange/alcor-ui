@@ -4,12 +4,12 @@
     template(v-if="staked")
       AlcorButton(compact @click="$emit('claim', row)") Claim Rewards
       .space
-      AlcorButton(bordered danger compact @click="$emit('unstake', row)") Unstake
+      AlcorButton(bordered danger compact @click="$emit('unstake', row)").farm-unstake-button Unstake
     template(v-else)
-      AlcorButton(bordered access compact @click="$emit('stake', row)").stake-button Stake
+      AlcorButton(bordered access compact @click="$emit('stake', row)").farm-stake-button Stake
 
   .detail-table-actions.fs-12(v-else)
-      AlcorButton(bordered access compact @click="$emit('unstake', row)" v-if="staked").stake-button Claim & Unstake
+      AlcorButton(bordered access compact @click="$emit('unstake', row)" v-if="staked").farm-stake-button Claim & Unstake
 </template>
 
 <script>
@@ -55,15 +55,19 @@ export default {
   flex-direction: column;
   padding: 4px;
 }
-.stake-button {
+
+.farm-stake-button::v-deep {
   color: var(--main-action-green) !important;
   &:hover {
     background: var(--main-action-green) !important;
     color: black !important;
   }
 }
-
-.danger {
-  // color: var(--main-red);
+.farm-unstake-button::v-deep {
+  color: var(--main-action-red);
+  &:hover {
+    background: var(--main-action-red) !important;
+    color: black !important;
+  }
 }
 </style>
