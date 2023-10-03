@@ -69,6 +69,7 @@ export default {
 
     selectedFeeTier: 1,
     selectedDistribution: 86400,
+    rewardTokensWhitelist: []
   }),
 
   computed: {
@@ -79,7 +80,9 @@ export default {
     },
 
     rewardTokens() {
-      return this.$store.state.user?.balances || []
+      return this.$store.state.user?.balances?.filter(b => {
+        return this.rewardTokensWhitelist.some(e => e.token.contract == b.contract && e.token.quantity.split(' ')[1] == b.currency)
+      }) || []
     },
 
     distributionOptions() {
@@ -93,6 +96,17 @@ export default {
           : '-',
       }))
     },
+  },
+
+  async mounted() {
+    const { rows } = await this.$rpc.get_table_rows({
+      code: this.network.amm.contract,
+      scope: this.network.amm.contract,
+      table: 'whitelist',
+      limit: 1000
+    })
+
+    this.rewardTokensWhitelist = rows
   },
 
   methods: {
