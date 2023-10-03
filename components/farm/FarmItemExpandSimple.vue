@@ -8,7 +8,7 @@
           TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
           span {{ reward.amount }} {{ reward.symbol }}
     .item.fs-14
-      .muted.mb-1 Pool Share
+      .muted.mb-1 Reward Share
       span {{ aggregatedPoolShare }}%
   .actions
     template(v-if="!finished")
@@ -93,13 +93,17 @@ export default {
     },
 
     aggregatedPoolShare() {
-      let poolShare = 0
+      // AVG Share by staked to incentive
+      const sharesByIncentive = []
       this.farm.incentives.forEach((incentive) => {
+        let poolShare = 0
         incentive.incentiveStats.forEach((stat) => {
           if (stat.userSharePercent) poolShare += stat.userSharePercent
         })
+        sharesByIncentive.push(poolShare)
       })
-      return poolShare
+
+      return Math.round((sharesByIncentive.reduce((a, b) => a + b) / sharesByIncentive.length) * 100) / 100
     },
   },
 
