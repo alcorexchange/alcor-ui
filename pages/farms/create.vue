@@ -38,6 +38,7 @@
 </template>
 
 <script>
+// TODO Sort and add tokens logos
 import { mapState } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import PageHeader from '@/components/amm/PageHeader'

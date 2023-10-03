@@ -5,7 +5,7 @@
         el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
         .stacked-only
           el-switch(
-            active-text="Stacked only"
+            active-text="Staked only"
             :value="$store.state.farms.stakedOnly"
             @change="$store.commit('farms/setStakedOnly', $event)"
           )
