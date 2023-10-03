@@ -110,7 +110,6 @@ export default {
         if (incentiveStats.length) hasChildren = true
       })
 
-      console.log({ hasChildren }, this.farm)
       return hasChildren
     },
 
