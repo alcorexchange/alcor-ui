@@ -66,8 +66,7 @@
         @stake="$emit('stake', $event)"
         @unstake="$emit('unstake', $event)"
         v-else
-      )
-      //- TODO: do do not expand at all if finished
+      )\
     .add-liquidity(v-if="!finished && !hasPosition")
       AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
