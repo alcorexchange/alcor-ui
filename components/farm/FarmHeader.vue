@@ -4,7 +4,8 @@
       .left
         el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
         .stacked-only
-          el-switch(
+          el-switch.custom-switch(
+            active-color="var(--main-action-green)"
             active-text="Stacked only"
             :value="$store.state.farms.stakedOnly"
             @change="$store.commit('farms/setStakedOnly', $event)"
@@ -168,6 +169,28 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.custom-switch::v-deep {
+  .el-switch__core {
+    height: 22px;
+    border-radius: 40px;
+    &::after {
+      left: 2px;
+      height: 16px;
+      width: 16px;
+      top: 2px;
+      border-radius: 50%;
+    }
+  }
+  &.is-checked .el-switch__core::after {
+    margin-left: -18px;
+  }
+  // &.is-checked {
+  //   .el-switch__core {
+  //     background-color: var(--main-action-green);
+  //     border-color: var(--main-action-green);
+  //   }
+  // }
+}
 .farm-header-container {
   display: flex;
   flex-direction: column;
