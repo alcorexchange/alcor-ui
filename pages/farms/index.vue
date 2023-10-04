@@ -72,6 +72,12 @@ export default {
       // value is automatically synced with child.
     },
   },
+
+  head() {
+    return {
+      title: `Alcor Exchange | Earn on providing liquidity | ${this.$store.state.network.name.toUpperCase()}`,
+    }
+  },
 }
 </script>
 

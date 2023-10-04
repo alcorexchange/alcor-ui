@@ -268,7 +268,13 @@ export default {
     if (search) {
       this.search = search
     }
-  }
+  },
+
+  head() {
+    return {
+      title: `Alcor Exchange | Trade tokens on ${this.$store.state.network.name.toUpperCase()}`,
+    }
+  },
 }
 </script>
 
