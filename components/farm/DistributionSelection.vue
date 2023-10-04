@@ -7,7 +7,7 @@
         .value {{ option.display }}
         .check(v-if="value == option.value")
           i.el-icon-circle-check
-      .daily.fs-14
+      .daily.fs-12
         .left {{ option.daily }}
         .right Daily
 </template>
@@ -67,7 +67,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
 }
 .daily {
   display: flex;

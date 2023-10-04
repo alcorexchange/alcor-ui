@@ -2,7 +2,7 @@
 .rewards-list
   .header
     .farm-create-section-title Select Reward Token
-    Note You can only select whitelisted tokens
+    Note.fs-14 You can only select whitelisted tokens
   .inputs
     slot
   //- AlcorButton(class="add-button" @click="$emit('newReward')" bordered)
