@@ -10,7 +10,7 @@
     main
       Note(class="fs-14") You can only create a farm for a pool that you are owner of one of token.
 
-      el-select(v-model='poolId' placeholder='Select pool' filterable)
+      el-select.pool-select(v-model='poolId' placeholder='Select pool' filterable)
         el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' / ' + pool.tokenB.symbol + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
           span(style='float: left') {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
           span.ml-1 {{ pool.fee / 10000 }}%
@@ -70,7 +70,7 @@ export default {
 
     selectedFeeTier: 1,
     selectedDistribution: 86400,
-    rewardTokensWhitelist: []
+    rewardTokensWhitelist: [],
   }),
 
   computed: {
@@ -81,9 +81,15 @@ export default {
     },
 
     rewardTokens() {
-      return this.$store.state.user?.balances?.filter(b => {
-        return this.rewardTokensWhitelist.some(e => e.token.contract == b.contract && e.token.quantity.split(' ')[1] == b.currency)
-      }) || []
+      return (
+        this.$store.state.user?.balances?.filter((b) => {
+          return this.rewardTokensWhitelist.some(
+            (e) =>
+              e.token.contract == b.contract &&
+              e.token.quantity.split(' ')[1] == b.currency
+          )
+        }) || []
+      )
     },
 
     distributionOptions() {
@@ -104,7 +110,7 @@ export default {
       code: this.network.amm.contract,
       scope: this.network.amm.contract,
       table: 'whitelist',
-      limit: 1000
+      limit: 1000,
     })
 
     this.rewardTokensWhitelist = rows
@@ -132,7 +138,10 @@ export default {
     async create() {
       try {
         await this.submit()
-        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+        setTimeout(
+          () => this.$store.dispatch('farms/updateStakesAfterAction'),
+          500
+        )
 
         this.$notify({
           type: 'info',
@@ -142,7 +151,11 @@ export default {
 
         this.$router.push('/farms')
       } catch (e) {
-        this.$notify({ type: 'error', title: 'Create Farm', message: e.message })
+        this.$notify({
+          type: 'error',
+          title: 'Create Farm',
+          message: e.message,
+        })
       }
     },
 
@@ -213,8 +226,13 @@ export default {
   padding-top: 60px;
   .alcor-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 450px;
     margin: auto;
+  }
+}
+.pool-select::v-deep {
+  .el-input__inner {
+    padding-left: 14px;
   }
 }
 main {

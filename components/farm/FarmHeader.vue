@@ -182,7 +182,7 @@ export default {
     }
   }
   &.is-checked .el-switch__core::after {
-    margin-left: -18px;
+    margin-left: -18px !important;
   }
   // &.is-checked {
   //   .el-switch__core {
@@ -231,13 +231,13 @@ export default {
   }
 }
 .alcor-switch::v-deep {
-  font-size: 0.9rem;
-  background: var(--btn-active);
+  font-size: 0.9rem !important;
+  background: var(--btn-active) !important;
   .item {
-    padding: 4px 10px;
+    padding: 4px 10px !important;
   }
   .background {
-    background: var(--select-color);
+    background: var(--select-color) !important;
   }
 }
 

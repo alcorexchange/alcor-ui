@@ -67,7 +67,6 @@
         @unstake="$emit('unstake', $event)"
         v-else
       )
-      //- TODO: do do not expand at all if finished
     .add-liquidity(v-if="!finished && !hasPosition")
       AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
@@ -122,8 +121,7 @@ export default {
     },
 
     isExpandable() {
-      if (this.finished && !this.hasPosition) return false
-      return true
+      return !this.finished || this.hasPosition
     },
   },
 
