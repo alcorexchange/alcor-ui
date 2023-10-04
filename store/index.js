@@ -223,7 +223,6 @@ export const actions = {
     const { data: tokens } = await this.$axios.get('/v2/tokens')
     commit('setTokens', tokens)
 
-    console.log('tokens loaded')
     const { contract, symbol } = state.network.baseToken
     const system_token = tokens.find(t => t.contract == contract && t.symbol == symbol)
 

@@ -107,9 +107,6 @@ export const actions = {
       const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
       const rewards = bigInt(r.rewards)
 
-      // console.log('r.incentive', r.incentive)
-      // if (totalStakedLiquidity.eq(0)) return console.error('totalStakedLiquidity is 0!')
-
       r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
       r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
       r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]

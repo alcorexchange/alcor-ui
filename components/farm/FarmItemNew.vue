@@ -46,7 +46,7 @@
       .arrow
         i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
-    template(v-if="hasPosition && finished")
+    template(v-if="hasPosition")
       FarmItemExpandSimple(
         :farm="farm"
         :finished="finished"
@@ -67,7 +67,7 @@
         v-else
       )
       //- TODO: do do not expand at all if finished
-    .add-liquidity(v-else-if="!finished")
+    .add-liquidity(v-if="!finished && !hasPosition")
       AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
 
@@ -109,6 +109,7 @@ export default {
       this.farm.incentives.forEach(({ incentiveStats }) => {
         if (incentiveStats.length) hasChildren = true
       })
+
       return hasChildren
     },
 

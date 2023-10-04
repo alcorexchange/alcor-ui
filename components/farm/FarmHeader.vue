@@ -6,7 +6,7 @@
         .stacked-only
           el-switch.custom-switch(
             active-color="var(--main-action-green)"
-            active-text="Stacked only"
+            active-text="Staked only"
             :value="$store.state.farms.stakedOnly"
             @change="$store.commit('farms/setStakedOnly', $event)"
           )

@@ -2207,13 +2207,6 @@
     consola "^2.11.3"
     eslint-loader "^4.0.2"
 
-"@nuxtjs/google-analytics@^2.2.2":
-  version "2.4.0"
-  resolved "https://registry.npmjs.org/@nuxtjs/google-analytics/-/google-analytics-2.4.0.tgz"
-  integrity sha512-rDQTwHIjyjVrx8GywHPuWykJ3jRFGaHl5Iqji/y8tQWUc0yGEeHxOoR0yimzxnTS1Ph2/PubQYpgnVeEPEdL/A==
-  dependencies:
-    vue-analytics "^5.22.1"
-
 "@nuxtjs/i18n@^7.2.2":
   version "7.2.2"
   resolved "https://registry.npmjs.org/@nuxtjs/i18n/-/i18n-7.2.2.tgz"
@@ -14831,11 +14824,6 @@ void-elements@^3.1.0:
   resolved "https://registry.npmjs.org/void-elements/-/void-elements-3.1.0.tgz"
   integrity sha1-YU9/v42AHwu18GYfWy9XhXUOTwk=
 
-vue-analytics@^5.22.1:
-  version "5.22.1"
-  resolved "https://registry.npmjs.org/vue-analytics/-/vue-analytics-5.22.1.tgz"
-  integrity sha512-HPKQMN7gfcUqS5SxoO0VxqLRRSPkG1H1FqglsHccz6BatBatNtm/Vyy8brApktZxNCfnAkrSVDpxg3/FNDeOgQ==
-
 vue-apexcharts@^1.6.0:
   version "1.6.2"
   resolved "https://registry.npmjs.org/vue-apexcharts/-/vue-apexcharts-1.6.2.tgz"
@@ -14888,6 +14876,11 @@ vue-grid-layout@^2.3.12:
     "@interactjs/interactjs" "^1.10.2"
     "@interactjs/modifiers" "^1.10.2"
     element-resize-detector "^1.2.1"
+
+vue-gtag@1.16.1:
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/vue-gtag/-/vue-gtag-1.16.1.tgz#edb2f20ab4f6c4d4d372dfecf8c1fcc8ab890181"
+  integrity sha512-5vs0pSGxdqrfXqN1Qwt0ZFXG0iTYjRMu/saddc7QIC5yp+DKgjWQRpGYVa7Pq+KbThxwzzMfo0sGi7ISa6NowA==
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
