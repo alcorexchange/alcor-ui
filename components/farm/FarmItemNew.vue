@@ -1,6 +1,6 @@
 <template lang="pug">
 .farm-item-container
-  .farm-item(@click="onItemClick")
+  .farm-item(@click="onItemClick" :class="{ isExpandable }")
     .token-container
       PairIcons(
         :token1="{contract: farm.tokenA.contract, symbol: farm.tokenA.quantity.split(' ')[1]}"
@@ -42,9 +42,10 @@
       .statuses.fs-14
         StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
     .detail-toggle-section
-      span.mobile-only.fs-14.details-text View Details
-      .arrow
-        i.el-icon-arrow-down
+      template(v-if="isExpandable")
+        span.mobile-only.fs-14.details-text View Details
+        .arrow
+          i.el-icon-arrow-down
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
     template(v-if="hasPosition")
       FarmItemExpandSimple(
@@ -119,6 +120,11 @@ export default {
 
       return pool.incentives
     },
+
+    isExpandable() {
+      if (this.finished && !this.hasPosition) return false
+      return true
+    },
   },
 
   methods: {
@@ -139,6 +145,7 @@ export default {
     },
 
     onItemClick() {
+      if (!this.isExpandable) return
       this.expanded = !this.expanded
     },
   },
@@ -151,7 +158,7 @@ export default {
     border-bottom: 1px solid var(--light-border-color);
   }
 }
-.farm-item {
+.farm-item.isExpandable {
   cursor: pointer;
   &:hover {
     background: var(--hover);
