@@ -190,17 +190,17 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://pixygon.io/',
+        link: 'https://nftbattleminers.com/',
         image: require('@/assets/images/swap-banner-1.jpg'),
-        colors: ['rgb(34,104,193, 0.2)', 'rgb(44,231,255)', 'rgb(139,53,82)'],
+        colors: ['rgb(224,203,147, 0.2)', 'rgb(200,225,230)', 'rgb(65,183,236)'],
       },
       {
-        link: 'https://giv.gg/deepmine-giveaway',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        // link: 'https://giv.gg/deepmine-giveaway',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(250,186,61,0.2)',
-          'rgba(113,128,125, 1)',
-          'rgba(254,25,14,1)',
+          'rgba(103, 194, 58,0.2)',
+          'rgba(28,28,29, 1)',
+          'rgba(20,56,21,1)',
         ],
       },
     ]
@@ -532,7 +532,6 @@ export default {
       this.priceImpact = priceImpact
       this.minReceived = minReceived
       this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
-
     },
 
     onRateClick() {
