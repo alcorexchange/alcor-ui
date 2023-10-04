@@ -122,8 +122,7 @@ export default {
     },
 
     isExpandable() {
-      if (this.finished && !this.hasPosition) return false
-      return true
+      return !this.finished || this.hasPosition
     },
   },
 
