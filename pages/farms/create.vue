@@ -77,7 +77,24 @@ export default {
     ...mapState(['network', 'user']),
 
     pools() {
-      return this.$store.state.amm.poolsStats
+      const pools = [...this.$store.state.amm.poolsStats]
+      return (
+        pools
+          // sort by pool fee
+          .sort((poolA, poolB) => {
+            if (poolA.fee < poolB.fee) return -1
+            if (poolA.fee > poolB.fee) return 1
+            return 0
+          })
+          // sort by token symbols
+          .sort((poolA, poolB) => {
+            const poolATokens = poolA.tokenA.symbol + poolA.tokenB.symbol
+            const poolBTokens = poolB.tokenA.symbol + poolB.tokenB.symbol
+            if (poolATokens < poolBTokens) return -1
+            if (poolATokens > poolBTokens) return 1
+            return 0
+          })
+      )
     },
 
     rewardTokens() {
