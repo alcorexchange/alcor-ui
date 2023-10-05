@@ -8,12 +8,12 @@
         span Create Farm
 
     main
-      Note(class="fs-14") You can only create a farm for a pool that you are owner of one of token.
-
-      el-select.pool-select(v-model='poolId' placeholder='Select pool' filterable)
-        el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' / ' + pool.tokenB.symbol + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
-          span(style='float: left') {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
-          span.ml-1 {{ pool.fee / 10000 }}%
+      div.pool-select-container
+        Note(class="fs-14") You can only create a farm for a pool that you are owner of one of token.
+        el-select.pool-select(v-model='poolId' placeholder='Select pool' filterable)
+          el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' / ' + pool.tokenB.symbol + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
+            span(style='float: left') {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
+            span.ml-1 {{ pool.fee / 10000 }}%
 
       //TokenSelection(class="")
       //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
@@ -77,7 +77,24 @@ export default {
     ...mapState(['network', 'user']),
 
     pools() {
-      return this.$store.state.amm.poolsStats
+      const pools = [...this.$store.state.amm.poolsStats]
+      return (
+        pools
+          // sort by pool fee
+          .sort((poolA, poolB) => {
+            if (poolA.fee < poolB.fee) return -1
+            if (poolA.fee > poolB.fee) return 1
+            return 0
+          })
+          // sort by token symbols
+          .sort((poolA, poolB) => {
+            const poolATokens = poolA.tokenA.symbol + poolA.tokenB.symbol
+            const poolBTokens = poolB.tokenA.symbol + poolB.tokenB.symbol
+            if (poolATokens < poolBTokens) return -1
+            if (poolATokens > poolBTokens) return 1
+            return 0
+          })
+      )
     },
 
     rewardTokens() {
@@ -230,7 +247,13 @@ export default {
     margin: auto;
   }
 }
+.pool-select-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .pool-select::v-deep {
+  width: 100%;
   .el-input__inner {
     padding-left: 14px;
   }
@@ -238,7 +261,7 @@ export default {
 main {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   padding-top: 16px;
 }
 .page-header {
@@ -248,7 +271,7 @@ main {
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
 }
 
