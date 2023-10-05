@@ -66,7 +66,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: bold;
+  // font-weight: bold;
   font-size: 16px;
 }
 .daily {
