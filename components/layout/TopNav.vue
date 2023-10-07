@@ -120,7 +120,11 @@ export default {
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
-      items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
+
+      if (['wax', 'eos'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
+      }
+
       items.push({ index: '/analytics', name: 'Analytics' })
       items.push({ index: '/docs', name: 'Docs' })
 

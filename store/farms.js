@@ -107,17 +107,19 @@ export const actions = {
       const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
       const rewards = bigInt(r.rewards)
 
-      r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
-      r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
-      r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
-
       const reward = stakedLiquidity.multiply(
         getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
 
       const rewardToken = asset(r.incentive.reward.quantity)
-      rewardToken.set_amount(reward)
 
+      rewardToken.set_amount(reward)
       r.farmedReward = rewardToken.to_string()
+
+      //r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
+      r.userSharePercent = Math.round(parseFloat(stakedLiquidity) * 100 / bigInt.max(totalStakedLiquidity, 1).toJSNumber() * 100) / 100
+      r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
+      r.dailyRewards = r.dailyRewards.toFixed(rewardToken.symbol.precision())
+      r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
       userStakes.push(r)
     }

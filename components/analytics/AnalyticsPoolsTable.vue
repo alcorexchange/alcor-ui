@@ -18,10 +18,10 @@ el-table(:data="pools").analytics-table.analytics-pools-table
   //-       img.network-img(src="~/assets/icons/wax.png")
   //-       span WAX
 
-  el-table-column(label="Token A")
+  el-table-column(label="Liquidity A")
     template(slot-scope="{row}") {{ row.tokenA.quantity | commaFloat(0) }} {{ row.tokenA.symbol }}
 
-  el-table-column(label="Token B")
+  el-table-column(label="Liquidity B")
     template(slot-scope="{row}") {{ row.tokenB.quantity | commaFloat(0) }} {{ row.tokenB.symbol }}
 
   el-table-column(label="Volume 24h" width=150)
