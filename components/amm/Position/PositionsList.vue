@@ -37,12 +37,12 @@ el-table.position-table.custom-responsive-table(
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4
+          .fs-12.d-flex.gap-4
             span {{ row.amountA }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
+          .fs-12.d-flex.gap-4(:class="{ red: false }")
             span {{ row.amountB }}
 
   el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
@@ -156,6 +156,12 @@ export default {
   }
   .el-table__row {
     cursor: pointer;
+  }
+}
+.earn {
+  color: var(--main-green);
+  &.red {
+    color: var(--main-red);
   }
 }
 @media only screen and (max-width: 1100px) {

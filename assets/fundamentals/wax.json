@@ -1,4 +1,22 @@
 {
+   "INDEX@stabletokens": {
+    "name": "INDEX token",
+    "website": {
+      "link": "https://waxtools.net/index-main",
+      "name": "waxtools.net"
+    },
+    "tags": [
+      "Stablecoin",
+      "Trade-Bots",
+      "P2E",
+      "WAXTOOLS"
+    ],
+    "socials": [
+      "https://t.me/waxtools",
+      "https://discord.gg/vScMnQKMxh"
+    ],
+    "description": "The INDEX token serves as an investment index on the WAX blockchain, aimed at long-term and minimally risky investments. You can read more in the White Paper"
+  },
   "BRWL@brawlertoken": {
     "name": "Brawlers",
     "website": {
@@ -84,5 +102,35 @@
       "https://twitter.com/miningvoxels"
     ],
     "description": "MiningVoxels is a large play-to-earn game that simulates the real-world economy."
+  },
+    "DBLN@dbln1wallet1": {
+    "name": "Doubloon",
+    "website": {
+      "link": "https://discord.gg/psyberx",
+      "name": "Psyber-X / Serfdom & Sorcery Discord"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "RPG"
+    ],
+    "socials": [
+      "https://twitter.com/SerfdomSorcery",
+      "https://discord.gg/psyberx",
+      "https://peakd.com/@masterrpgbot"
+    ],
+    "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
+  },
+   "HERB@naturestoken": {
+    "name": "HERB",
+    "tags": [
+      "tipbot",
+      "gaming"
+    ],
+    "socials": [
+      "https://t.me/chat_herb"
+    ],
+
+    "description": "HERB tokens are the official currency for @HerbTipBot on Telegram, providing a 50% discount for token whitelisting and enhancing your Telegram chat experience with fun games and features. They're essential for maximizing your engagement within the bot's ecosystem."
   }
 }

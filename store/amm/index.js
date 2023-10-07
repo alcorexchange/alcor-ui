@@ -120,6 +120,7 @@ export const actions = {
 
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
+    dispatch('farms/loadUserStakes', {}, { root: true })
   },
 
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {

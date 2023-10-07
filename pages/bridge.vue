@@ -20,6 +20,9 @@ import Circle2 from '~/components/bridge/Circle2.vue'
 const DEFAULT_COLOR = '#575757'
 
 export default {
+
+  name: "BridgePage",
+
   components: { BridgeForm, CirclesBg, Circle1, Circle2 },
 
   data: () => ({

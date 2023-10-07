@@ -57,27 +57,29 @@ export async function markeBar(timeframe, match) {
     last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
     await last_bar.save()
   } else {
+    // TODO FIX! Memory leak on production
     // Create empty bars for the timeframe(s) without trades
-    const emptyBars = []
-    let emptyTime = last_bar_end_time
-    while (emptyTime < match.time.getTime()) {
-      emptyBars.push({
-        timeframe,
-        chain: match.chain,
-        market: match.market,
-        time: new Date(emptyTime),
-        open: last_bar.close,
-        high: last_bar.close,
-        low: last_bar.close,
-        close: last_bar.close,
-        volume: 0
-      })
-      emptyTime += resolution * 1000
-    }
-    if (emptyBars) {
-      await Bar.insertMany(emptyBars)
-    }
-      
+    // const emptyBars = []
+    // let emptyTime = last_bar_end_time
+    // while (emptyTime < match.time.getTime()) {
+    //   emptyBars.push({
+    //     timeframe,
+    //     chain: match.chain,
+    //     market: match.market,
+    //     time: new Date(emptyTime),
+    //     open: last_bar.close,
+    //     high: last_bar.close,
+    //     low: last_bar.close,
+    //     close: last_bar.close,
+    //     volume: 0
+    //   })
+    //   emptyTime += resolution * 1000
+    // }
+
+    // if (emptyBars) {
+    //   await Bar.insertMany(emptyBars)
+    // }
+
     // Create a new bar for the new timeframe
     await Bar.create({
       timeframe,
@@ -90,9 +92,9 @@ export async function markeBar(timeframe, match) {
       close: match.unit_price,
       volume: match.type == 'buymatch' ? match.bid : match.ask
     })
-    
+
     last_bar.close = match.unit_price
-    await last_bar.save()    
+    await last_bar.save()
   }
 }
 

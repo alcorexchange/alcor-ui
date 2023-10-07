@@ -9,7 +9,7 @@ export const strict = false
 
 export const state = () => ({
   user: null,
-  //user: { name: 'jamestaggart' },
+  //user: { name: 'jeanlemichel' },
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -60,6 +60,9 @@ export const mutations = {
   },
 
   setUser: (state, user) => state.user = user,
+  setUserBalances: (state, balances) => {
+    if (state.user) state.user.balances = balances
+  },
   setMarkets: (state, markets) => {
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
     state.markets = markets
@@ -216,9 +219,14 @@ export const actions = {
     if (account) commit('setAccountLimits', account)
   },
 
-  async loadAllTokens({ commit }) {
+  async loadAllTokens({ commit, state }) {
     const { data: tokens } = await this.$axios.get('/v2/tokens')
     commit('setTokens', tokens)
+
+    const { contract, symbol } = state.network.baseToken
+    const system_token = tokens.find(t => t.contract == contract && t.symbol == symbol)
+
+    commit('wallet/setSystemPrice', system_token.usd_price, { root: true })
   },
 
   async loadMarkets({ state, commit, getters, dispatch }) {
@@ -296,7 +304,6 @@ export const actions = {
         o.market_id = market_id
       })
 
-
       // TODO Need optimization so much!
       commit('setUserOrders', state.userOrders.filter(o => o.market_id != market_id).concat(buyOrders.concat(sellOrders)))
     }).catch(e => console.log(e))
@@ -307,7 +314,6 @@ export const actions = {
 
     const balance = await this.$rpc.get_currency_balance(contract, state.user.name, symbol)
     if (!balance[0]) return
-
 
     const asset = parseAsset(balance[0])
 
@@ -384,30 +390,31 @@ export const actions = {
     })
   },
   async loadUserBalancesLightAPI({ state, rootState, commit }) {
-    if (state.user) {
-      //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
-      // FIXME Почему то нукстовский аксиос не работает для телефонов
-      const r = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`)
+    if (!state.user) return
 
-      // Check sync is correct
-      const block_time = new Date(r.data.chain.block_time + ' UTC')
-      const diff = (new Date().getTime() - block_time.getTime()) / 1000
+    //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
+    // FIXME Почему то нукстовский аксиос не работает для телефонов
+    const r = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`)
 
-      if (diff > 60) throw new Error('LightAPI sync is more the one minute out.')
+    // Check sync is correct
+    const block_time = new Date(r.data.chain.block_time + ' UTC')
+    const diff = (new Date().getTime() - block_time.getTime()) / 1000
 
-      const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
-      commit('setLihgHistoryBlock', r.data.chain.block_num)
+    if (diff > 60) throw new Error('LightAPI sync is more the one minute out.')
 
-      // TODO Refactor this and make separate filter/computed for getting token in USD
-      // Calc USD value
-      balances.map(token => {
-        token.id = token.currency + '@' + token.contract
-        const price = state.tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
+    const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
+    commit('setLihgHistoryBlock', r.data.chain.block_num)
 
-        token.usd_value = parseFloat(token.amount) * price
-        commit('updateBalance', token)
-      })
-    }
+    // TODO Refactor this and make separate filter/computed for getting token in USD
+    // Calc USD value
+    balances.map(token => {
+      token.id = token.currency + '@' + token.contract
+      const price = state.tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
+
+      token.usd_value = parseFloat(token.amount) * price
+    })
+
+    commit('setUserBalances', balances)
   },
 
   // Using Hyperion

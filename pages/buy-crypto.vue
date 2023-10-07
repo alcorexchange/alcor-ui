@@ -6,41 +6,44 @@
 
 <script>
 export default {
+  fetch({ error, store }) {
+    if (!['eos', 'wax'].includes(store.state.network.name)) {
+      return error({ statusCode: 404, type: 'PAGE_NOT_FOUND', message: 'This network are not supported' })
+    }
+  },
+
   computed: {
-    widgetSrc() {
-      const to = {
+    to () {
+      return {
         eos: 'eos',
         wax: 'waxp',
       }[this.$store.state.network.name]
+    },
 
+    widgetSrc() {
       const params = {
-        FAQ: 'true',
-        amount: '100',
-        //amountFiat: '1500',
-        //backgroundColor: this.$colorMode.value == 'light' ? '#F3FAFC' : '#212121',
-        backgroundColor: '#F3FAFC',
-        //darkMode: true,
-        darkMode: false,
-        from: 'usdttrc',
-        //fromFiat: 'eur',
+        FAQ: true,
+        amount: '10',
+        amountFiat: '100',
+        backgroundColor: this.$colorMode.value == 'light' ? '#F3FAFC' : '333333',
+        //backgroundColor: '#F3FAFC',
+        darkMode: true,
         horizontal: false,
-        //isFiat: true,
+        isFiat: false,
         lang: 'en-US',
-        link_id: '7bfa6da946d248',
+        link_id: '45eedac1055cac',
         locales: true,
         logo: true,
         primaryColor: '#66c167',
-        //to,
-        to: 'waxp',
-        //toFiat: 'eth',
-        toTheMoon: false
+        from: 'usdttrc20',
+        fromFiat: 'usd',
+        to: this.to,
+        toFiat: this.to,
+        toTheMoon: true
       }
 
-      console.log({ params })
-
-      return 'https://changenow.io/embeds/exchange-widget/v2/widget.html' + new URLSearchParams(params).toString()
+      return 'https://changenow.io/embeds/exchange-widget/v2/widget.html?' + new URLSearchParams(params).toString()
     },
-
   },
 
   head: {

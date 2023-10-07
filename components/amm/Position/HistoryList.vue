@@ -20,7 +20,7 @@
       template(slot-scope='{row}')
         .d-flex.flex-column.gap-4
           .mobile-label Total Value
-          span ${{ (row.totalUSDValue || row.totalUSDVolume).toFixed(4) }}
+          span ${{ (row.totalUSDValue || row.totalUSDVolume || 0).toFixed(4) }}
 
     el-table-column(:label='$t("Token Amount")' class-name="token-amount")
       template(slot-scope='{row}')

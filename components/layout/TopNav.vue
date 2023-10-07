@@ -102,13 +102,15 @@ export default {
     menuItems() {
       const items = []
 
-      if (['wax', 'eos', 'telos', 'proton'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/swap', name: 'Swap', new: true })
-        items.push({ index: '/positions', name: 'Pool' })
-      }
+      items.push({ index: '/swap', name: 'Swap' })
+      items.push({ index: '/positions', name: 'Pool' })
 
       items.push({ index: '/markets', name: 'Markets' })
       items.push({ index: '/bridge', name: 'Bridge' })
+
+      // if (['wax', 'eos'].includes(this.$store.state.network.name)) {
+      //   items.push({ index: '/farms', name: 'Farm', new: true })
+      // }
 
       items.push({ index: '/otc', name: 'OTC' })
 
@@ -118,7 +120,8 @@ export default {
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
-      //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
+      items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
+      items.push({ index: '/analytics', name: 'Analytics' })
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
@@ -199,7 +202,7 @@ export default {
 
   .nav-left {
     width: 100%;
-    max-width: 700px;
+    max-width: 60%;
   }
 
   @media only screen and (max-width: 1300px) {

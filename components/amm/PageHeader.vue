@@ -1,7 +1,8 @@
 <template lang="pug">
 .page-header.d-flex.align-items-center.pb-2
   ReturnLink.start.fs-20
-  span.title {{ title }}
+  slot
+    span.title {{ title }}
   .end
     slot(name='end')
       .d-flex.gap-2.align-items-center

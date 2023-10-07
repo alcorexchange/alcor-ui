@@ -19,7 +19,8 @@ module.exports = {
     isDev,
     isSPA,
     NETWORK: process.env.NETWORK,
-    DISABLE_DB: process.env.DISABLE_DB
+    DISABLE_DB: process.env.DISABLE_DB,
+    WAX_SWAP_CONTRACT: process.env.WAX_SWAP_CONTRACT,
   },
 
   version: pkg.version,
@@ -137,6 +138,7 @@ module.exports = {
     '~/plugins/vClickOutside.js',
     '~/plugins/muttedDirective.js',
     '~/plugins/routerSync.js',
+    '~/plugins/analytics.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
     { ssr: false, src: '~/plugins/apiInstance.js' },
@@ -208,7 +210,6 @@ module.exports = {
   },
 
   buildModules: [
-    ['@nuxtjs/google-analytics', { id: 'UA-155720239-1' }],
     '@nuxtjs/color-mode',
     '@nuxtjs/device'
   ],

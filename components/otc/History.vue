@@ -53,11 +53,11 @@ export default {
         const {
           data: { actions }
         } = await this.$axios.get(
-          this.$store.state.network.hyperion + 'v2/history/get_actions',
+          this.$store.state.network.hyperion + '/v2/history/get_actions',
           {
             params: {
               account: contract,
-              limit: 1000,
+              limit: 50,
               filter: `${contract}:matchrecord`
             }
           }

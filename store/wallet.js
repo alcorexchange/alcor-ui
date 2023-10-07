@@ -8,20 +8,36 @@ export const mutations = {
 
 export const actions = {
   async init({ state, commit, dispatch, rootState, getters }) {
-    const { data } = await this.$axios.get('https://api.coingecko.com/api/v3/simple/price',
-      {
-        params: {
-          ids: rootState.network.name,
-          vs_currencies: 'usd'
-        }
-      }
-    )
-    commit('setSystemPrice', data[rootState.network.name].usd)
+    // const { data } = await this.$axios.get('https://api.coingecko.com/api/v3/simple/price',
+    //   {
+    //     params: {
+    //       ids: rootState.network.name,
+    //       vs_currencies: 'usd'
+    //     }
+    //   }
+    // )
+    // commit('setSystemPrice', data[rootState.network.name].usd)
     dispatch('loadUserBalances', {}, { root: true })
   }
 }
 
 export const getters = {
+  balances(state, getters, rootState) {
+    const tokens = rootState.tokens
+    const balances = rootState.user?.balances || []
+
+    return balances.map(token => {
+      const price = tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
+      const usd_value = parseFloat(token.amount) * price
+
+      return { ...token, usd_value }
+    })
+  },
+
+  portfolioUSDValue(state, getters, rootState) {
+    return getters.balances.reduce((sum, b) => sum + b.usd_value, 0)
+  },
+
   buyPositionsCount(state, getters, rootState) {
     return rootState.userOrders.filter(p => p.type == 'buy').length
   },

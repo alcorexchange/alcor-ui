@@ -105,7 +105,7 @@ export default {
     },
 
     filteredAssets() {
-      const tokens = this.tokens
+      const tokens = [...this.tokens || []]
 
       if (!tokens) return []
 
@@ -125,7 +125,7 @@ export default {
       if (this.locked) return
       this.visible = true
       this.$nextTick(() => {
-        this.$refs.searchInput.focus()
+        this.$refs.searchInput?.focus()
       })
     },
     selectAsset(v) {
@@ -202,8 +202,12 @@ export default {
       align-items: center;
       padding: 4px 8px 4px 6px;
       border-radius: 14px;
+      transition: all 0.4s;
       &.is-selected {
         border-color: var(--main-action-green);
+      }
+      &:hover {
+        background: var(--hover);
       }
     }
   }

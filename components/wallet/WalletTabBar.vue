@@ -26,19 +26,20 @@ export default {
         {
           name: 'NFT’s',
           showInNetworks: ['wax'],
-          to: '/wallet/nfts'
+          to: '/wallet/nfts',
         },
         { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
-        { name: 'Resources', to: '/wallet/resources' }
+        // { name: 'Farms', to: '/wallet/farms' },
+        { name: 'Resources', to: '/wallet/resources' },
       ]
-    }
+    },
   },
   watch: {
     $route() {
       this.$nextTick(() => {
         this.funcScrollTo()
       })
-    }
+    },
   },
   mounted() {
     this.funcScrollTo()
@@ -48,10 +49,10 @@ export default {
       this.$scrollTo('.wallet-tab-bar .active', {
         container: '.wallet-tab-bar',
         offset: -100,
-        x: true
+        x: true,
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

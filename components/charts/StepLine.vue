@@ -276,7 +276,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .stacked-column-chart-component {
   width: 100%;
   min-height: 420px;

@@ -1,185 +1,125 @@
 <template lang="pug">
 .stacked-column-chart-component
-  vue-apex-charts(type="area" height="400" :options="chartOptions" :series="series" v-if="series[0].data.length" ref="chart")
+  vue-apex-charts(type="area" :height="height || 400" :options="chartOptions" :series="series" v-if="series[0].data.length" ref="chart")
 
 </template>
 
 <script>
 export default {
-  props: ['series'],
+  props: ['series', 'color', 'width', 'height', 'events', 'prependDollorSign'],
 
   watch: {
     series() {
       if (!this.$refs?.chart?.chart) return
 
-      this.$refs.chart.updateSeries(
-        this.series,
-        true
-      )
-    }
+      this.$refs.chart.updateSeries(this.series, true)
+    },
   },
 
-  data: () => ({
-    chartOptions: {
-      markers: {
-        size: 0,
-        colors: ['#32D74B'],
-        strokeColors: '#111113'
-      },
-      colors: ['#E91E63', '#FF9800'],
-      theme: {
-        mode: 'dark'
-      },
-      stroke: {
-        curve: 'straight',
-        width: 1,
-        colors: ['#32D74B']
-      },
-      fill: {
-        colors: ['#32D74B', ''],
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          type: 'vertical',
-          inverseColors: true,
-          shadeIntensity: 0.9,
-          opacityFrom: 0.0,
-          opacityTo: 0.2
-        }
-      },
-      chart: {
-        id: 'Line',
-        type: 'line',
-        background: 'transparent',
-        toolbar: {
-          show: false
+  computed: {
+    chartOptions() {
+      return {
+        markers: {
+          strokeColors: '#111113',
         },
-        zoom: {
-          enabled: true
-        }
-      },
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            legend: {
-              position: 'bottom',
-              offsetX: -10,
-              offsetY: 0
-            }
-          }
-        }
-      ],
-      dataLabels: {
-        enabled: false
-      },
-      grid: {
-        xaxis: {
-          lines: {
-            show: false
-          }
+        theme: {
+          mode: 'dark',
         },
+        colors: [this.color || '#30B27C'],
+        stroke: {
+          curve: 'smooth',
+          width: 2,
+        },
+        fill: {
+          gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            shadeIntensity: 0.5,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 0.15,
+            opacityTo: 0.7,
+          },
+        },
+        chart: {
+          id: 'Line',
+          background: 'transparent',
+          toolbar: {
+            show: false,
+          },
+          zoom: {
+            enabled: false,
+          },
+          events: this.events || {},
+        },
+        responsive: [
+          {
+            breakpoint: 480,
+            options: {
+              legend: {
+                position: 'bottom',
+                offsetX: -10,
+                offsetY: 0,
+              },
+            },
+          },
+        ],
+        dataLabels: {
+          enabled: false,
+        },
+        grid: {
+          xaxis: {
+            lines: {
+              show: false,
+            },
+          },
 
-        yaxis: {
-          lines: {
-            show: false
-          }
-        }
-      },
-      tooltip: {
-        y: {
-          formatter: (v) => v
-        },
-        marker: {
-          show: false
-        },
-        custom: () => ''
-      },
-      yaxis: {
-        crosshairs: {
-          show: true,
-          stroke: {
-            color: 'var(--border-color)',
-            width: 2,
-            dashArray: 3
-          }
+          yaxis: {
+            lines: {
+              show: false,
+            },
+          },
         },
         tooltip: {
-          enabled: true,
-          custom: () => ''
+          x: { show: false },
         },
-        opposite: true,
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-        labels: {
-          show: true,
-          offsetX: -10,
-          formatter: (v) => {
-            // TODO: use dynamic number.
-            return v.toFixed(2)
+        yaxis: {
+          tickAmount: 6,
+          opposite: true,
+          labels: {
+            show: true,
+            style: {
+              colors: 'var(--text-disable)',
+              fontSize: '12px',
+            },
           },
-          style: {
-            colors: 'var(--text-disable)',
-            fontSize: '12px',
-            fontWeight: 400
-          }
-        }
-      },
-      xaxis: {
-        crosshairs: {
-          show: true,
-          width: 1.2,
-          stroke: {
-            color: 'var(--border-color)',
-            width: 1,
-            dashArray: 0
+        },
+        xaxis: {
+          lines: { show: false },
+          tooltip: {
+            enabled: false,
           },
-          fill: {
-            type: 'solid',
-            color: 'var(--border-color)'
-          }
+          type: 'datetime',
+          labels: {
+            show: true,
+            style: {
+              colors: 'var(--text-disable)',
+              fontSize: '12px',
+            },
+          },
         },
-        axisBorder: {
-          show: true,
-          color: 'var(--border-color)',
-          height: 1,
-          width: '100%',
-          offsetY: 10
+        legend: {
+          show: false,
         },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'var(--border-color)',
-          height: 4
-        },
-        type: 'datetime',
-        labels: {
-          show: true,
-          style: {
-            colors: 'var(--text-disable)',
-            fontSize: '12px',
-            fontWeight: 400
-          }
-        },
-      },
-      legend: {
-        show: false
       }
-    }
-  })
+    },
+  },
 }
 </script>
 
 <style lang="scss">
 .stacked-column-chart-component {
+  height: 100%;
   width: 100%;
-  min-height: 420px;
-  .apexcharts-svg {
-    height: 420px;
-  }
 }
 </style>

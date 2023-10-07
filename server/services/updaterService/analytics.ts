@@ -7,9 +7,11 @@ import { getAllTokensWithPrices } from './prices'
 const MIN_SYSTEM_TVL = 100
 
 export async function updateGlobalStats(network, day?) {
+  console.log('fetching global stats for', network.name)
+
   const now = day || new Date()
   const dayAgo = new Date(new Date().setDate(now.getDate() - 1))
-  const already_exists = await GlobalStats.findOne({ chain: network.name, time: { $gt: dayAgo } })
+  const already_exists = await GlobalStats.findOne({ chain: network.name, time: { $gt: dayAgo, $lt: now } })
 
   const { baseToken } = network
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
@@ -24,6 +26,7 @@ export async function updateGlobalStats(network, day?) {
 
   let spotTradingVolume = 0
   let spotFees = 0
+  let swapFees = 0
   for (const market of markets) {
     const price = tokens.find(t => t.id == market.base_token.id)?.usd_price || 0
     spotTradingVolume += market.volume24 * price
@@ -37,6 +40,8 @@ export async function updateGlobalStats(network, day?) {
     const priceB = tokens.find(t => t.id == pool.tokenB.id)?.usd_price || 0
 
     swapTradingVolume += pool.volumeUSD24
+    //swapFees += pool.volumeUSD24 * (pool.fee / 10000 / 100) / 2 // divide by 2 because we get fee only from output token
+    swapFees += pool.volumeUSD24 * (pool.fee / 10000 / 100)
 
     const isTokenASystem = pool.tokenA.id == system_token
     const isTokenBSystem = pool.tokenB.id == system_token
@@ -87,30 +92,35 @@ export async function updateGlobalStats(network, day?) {
   let dailyActiveUsers = 0
   let totalTransactions = 0
 
-  if (['eos', 'wax', 'telos'].includes(network.name)) {
-    const { data: { results: { metrics } } } = await axios.get(
-      'https://api.dappradar.com/trader/dapps/3572',
-      { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
-    )
+  // if (['eos', 'wax', 'telos'].includes(network.name)) {
+  //   console.log('request: ', { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY })
 
-    dailyActiveUsers = metrics.dailyActiveUsers
-    totalTransactions = metrics.totalTransactions
-  } else {
-    // Manually for proton
-    // TODO HERE IS NO PLACE/CANCEL ORDERS
-    const matchUsersAsker = await Match.distinct('asker', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const matchUsersBidder = await Match.distinct('bidder', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const swapUsersSender = await Swap.distinct('recipient', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const swapUsersReceiver = await Swap.distinct('sender', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const positionOwners = await PositionHistory.distinct('owner', { chain: network.name, time: { $gte: dayAgo } }).lean()
+  //   const { data: { results: { metrics } } } = await axios.get(
+  //     'https://api.dappradar.com/4tsxo4vuhotaojtl/dapps/3572',
+  //     { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
+  //   )
 
-    const matchTransactions = await Match.countDocuments({ chain: network.name, time: { $gte: dayAgo } })
-    const swapTransactions = await Swap.countDocuments({ chain: network.name, time: { $gte: dayAgo } })
-    const positionTransactions = await PositionHistory.countDocuments({ chain: network.name, time: { $gte: dayAgo } })
+  //   dailyActiveUsers = metrics.dailyActiveUsers
+  //   totalTransactions = metrics.totalTransactions
+  // } else {
 
-    dailyActiveUsers = (new Set([...matchUsersAsker, ...matchUsersBidder, ...positionOwners, ...swapUsersSender, ...swapUsersReceiver])).size
-    totalTransactions = matchTransactions + swapTransactions + positionTransactions
-  }
+  // TODO HERE IS NO PLACE/CANCEL ORDERS
+  const matchUsersAsker = await Match.distinct('asker', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
+  const matchUsersBidder = await Match.distinct('bidder', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
+  const swapUsersSender = await Swap.distinct('recipient', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
+  const swapUsersReceiver = await Swap.distinct('sender', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
+  const positionOwners = await PositionHistory.distinct('owner', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
+
+  const matchTransactions = await Match.countDocuments({ chain: network.name, time: { $gte: dayAgo, $lt: now } })
+  const swapActionTransactions = await Swap.countDocuments({ chain: network.name, time: { $gte: dayAgo, $lt: now } })
+  const positionTransactions = await PositionHistory.countDocuments({ chain: network.name, time: { $gte: dayAgo, $lt: now } })
+
+  dailyActiveUsers = (new Set([...matchUsersAsker, ...matchUsersBidder, ...positionOwners, ...swapUsersSender, ...swapUsersReceiver])).size
+  totalTransactions = matchTransactions + swapActionTransactions + positionTransactions
+
+  const swapTransactions = swapActionTransactions + positionTransactions
+  const spotTransactions = matchTransactions
+  //}
 
   await GlobalStats.create({
     chain: network.name,
@@ -119,13 +129,15 @@ export async function updateGlobalStats(network, day?) {
     spotValueLocked,
     swapTradingVolume,
     spotTradingVolume,
-    swapFees: 0,
+    swapFees,
     spotFees,
     dailyActiveUsers,
     totalTransactions,
     totalLiquidityPools,
     totalSpotPairs,
-    time: new Date()
+    time: now,
+    swapTransactions,
+    spotTransactions
   })
 
   console.log('Updated Gobal Stats for', network.name)

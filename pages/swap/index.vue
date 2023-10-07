@@ -50,6 +50,7 @@ export default {
 
   head() {
     return {
+      title: `Alcor Exchange | Swap tokens on ${this.$store.state.network.name.toUpperCase()}`,
       bodyAttrs: {
         style: `--swap-color: ${this.currentColor}`
       }

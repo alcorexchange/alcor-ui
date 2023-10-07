@@ -127,6 +127,7 @@
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
   RandomBanner(
+    v-if="!hideBanner"
     :banners="banners"
   )
 </template>
@@ -154,6 +155,8 @@ import RandomBanner from '~/components/alcor-element/RandomBanner'
 
 export default {
   name: 'SwapWidget',
+
+  props: ['hideBanner'],
 
   components: {
     AlcorContainer,
@@ -190,22 +193,18 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.com/invite/Sxum2ETSzq',
-        image: require('@/assets/images/swap_banner.png'),
-        colors: [
-          'rgb(39,46,85)',
-          'rgb(33,39,68)',
-          'rgb(85,96,229)'
-        ]
+        link: 'https://nftbattleminers.com/',
+        image: require('@/assets/images/swap-banner-1.jpg'),
+        colors: ['rgb(224,203,147, 0.2)', 'rgb(200,225,230)', 'rgb(65,183,236)'],
       },
       {
-        link: 'https://neftyblocks.com/collection/miningvoxels/drops',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        // link: 'https://giv.gg/deepmine-giveaway',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(192,93,0,0.5)',
-          'rgba(45,24,140, 1)',
-          'rgba(10,150,245,1)',
-        ]
+          'rgba(103, 194, 58,0.2)',
+          'rgba(28,28,29, 1)',
+          'rgba(20,56,21,1)',
+        ],
       },
     ]
   }),
@@ -536,7 +535,6 @@ export default {
       this.priceImpact = priceImpact
       this.minReceived = minReceived
       this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
-
     },
 
     onRateClick() {

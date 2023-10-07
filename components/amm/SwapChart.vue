@@ -19,13 +19,33 @@ alcor-container.p-3.w-100.chart-container-inner
       .fs-20 Swap $2.5 B
       .indicator.secondary
       .fs-20 Spot $2.5 B
-
-  component(:is="activeTab" :series="series")
+  .header(v-if="sortedA && sortedB")
+    .pair-container
+      PairIcons(
+        :token1="sortedA"
+        :token2="sortedB"
+        size="18"
+      )
+      .name-container
+        .names {{ sortedA.symbol }}/{{ sortedB.symbol }}
+    .both-prices(v-if="price && charts.length")
+      .item
+        TokenImage(:src="$tokenLogo()" height="15")
+        span.text.muted.ml-1 1 {{ sortedB.symbol }} = {{ (1 / price).toFixed(8) }} {{ sortedA.symbol }}
+      .item
+        TokenImage(:src="$tokenLogo()" height="15")
+        span.text.muted.ml-1 1 {{ sortedA.symbol }} = {{ price }} {{ sortedB.symbol }}
+    .price-container(v-if="price && charts.length")
+      .price {{ price }}
+      //- .change()
+      //-   i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
+      //-   span.text 10%
+  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px" :events="chartEvents" :prependDollorSign="activeTab === 'Tvl'")
 </template>
 
 <script>
 import JSBI from 'jsbi'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 
@@ -33,6 +53,9 @@ import Line from '~/components/charts/Line'
 import StackedColumns from '~/components/charts/StackedColumns'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
+import PairIcons from '~/components/PairIcons'
+import TokenImage from '~/components/elements/TokenImage'
+import { constructPoolInstance } from '~/utils/amm'
 
 export default {
   components: {
@@ -43,6 +66,8 @@ export default {
     Volume: StackedColumns,
     Fees: StackedColumns,
     AlcorContainer,
+    PairIcons,
+    TokenImage,
   },
 
   data: () => ({
@@ -53,8 +78,9 @@ export default {
       { label: '1D', value: '24H' },
       { label: '7D', value: '7D' },
       { label: '30D', value: '30D' },
-      { label: 'All', value: 'All' }
-    ]
+      { label: 'All', value: 'All' },
+    ],
+    price: undefined,
   }),
 
   computed: {
@@ -73,38 +99,10 @@ export default {
       // 'tokens',
       // 'isSorted',
       'sortedA',
-      'sortedB'
+      'sortedB',
     ]),
+    ...mapState('amm', ['pools']),
 
-    // series() {
-    //   if (this.activeTab == 'Price') {
-    //     return {
-    //       name: 'Price',
-    //       data: this.charts.map(c => {
-    //         //const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
-
-    //         return {
-    //           x: c._id,
-    //           //y: parseFloat(price.toSignificant())
-    //           y: Math.random() * 100
-    //         }
-    //       })
-    //     }
-    //   }
-
-    //   if (this.activeTab == 'Tvl') {
-    //     return {
-    //       name: 'TVL',
-    //       data: this.charts.map(c => {
-    //         return {
-    //           x: c._id,
-    //           y: c.usdReserveA + c.usdReserveB
-    //         }
-    //       })
-    //     }
-    //   }
-    //   return []
-    // },
     series() {
       return this[`${this.activeTab}Series`]
     },
@@ -115,19 +113,19 @@ export default {
       let data = []
 
       if (sortedA && sortedB) {
-        data = this.charts.map(c => {
+        data = this.charts.map((c) => {
           return {
             x: c._id,
-            y: c.usdReserveA + c.usdReserveB
+            y: (c.usdReserveA + c.usdReserveB).toFixed(0),
           }
         })
       }
 
       return [
         {
-          name: 'Price',
-          data
-        }
+          name: 'TVL',
+          data,
+        },
       ]
     },
 
@@ -137,12 +135,17 @@ export default {
       let data = []
 
       if (sortedA && sortedB) {
-        data = this.charts.map(c => {
-          const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
+        data = this.charts.map((c) => {
+          const price = new Price(
+            sortedA,
+            sortedB,
+            Q128,
+            JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
+          )
 
           return {
             x: c._id,
-            y: parseFloat(price.toSignificant())
+            y: parseFloat(price.toSignificant()),
           }
         })
       }
@@ -150,8 +153,8 @@ export default {
       return [
         {
           name: 'Price',
-          data
-        }
+          data,
+        },
       ]
     },
 
@@ -161,10 +164,10 @@ export default {
       let data = []
 
       if (sortedA && sortedB) {
-        data = this.charts.map(c => {
+        data = this.charts.map((c) => {
           return {
             x: c._id,
-            y: c.volumeUSD
+            y: c.volumeUSD,
           }
         })
       }
@@ -172,9 +175,24 @@ export default {
       return [
         {
           name: 'Volume',
-          data
-        }
+          data,
+        },
       ]
+    },
+
+    chartEvents() {
+      if (this.activeTab !== 'Price') return {}
+      return {
+        mouseMove: (_, __, config) => {
+          if (config.dataPointIndex < 0) return
+          const data = this.series[0].data
+          const y = data[config.dataPointIndex].y
+          this.price = y
+        },
+        mouseLeave: () => {
+          this.setCurrentPrice()
+        },
+      }
     },
   },
 
@@ -183,13 +201,15 @@ export default {
       this.fetchCharts()
     },
 
-    tokenA() {
+    tokenA(from, to) {
+      if (from && to && from.id == to.id) return
       this.fetchCharts()
     },
 
-    tokenB() {
+    tokenB(from, to) {
+      if (from && to && from.id == to.id) return
       this.fetchCharts()
-    }
+    },
   },
 
   mounted() {
@@ -204,14 +224,27 @@ export default {
       if (!this.tokenA || !this.tokenB) return
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
-          params: { period: this.activeTime, tokenA: this.tokenA.id, tokenB: this.tokenB.id }
+          params: {
+            period: this.activeTime,
+            tokenA: this.tokenA.id,
+            tokenB: this.tokenB.id,
+          },
         })
         this.charts = data
+        this.setCurrentPrice()
       } catch (e) {
         console.log('Getting Chart E', e)
       }
-    }
-  }
+    },
+
+    setCurrentPrice() {
+      const series = this.PriceSeries[0].data
+      if (!series) return
+      const lastItem = series[series.length - 1]
+      if (!lastItem) return
+      this.price = lastItem.y
+    },
+  },
 }
 </script>
 
@@ -225,7 +258,7 @@ export default {
   padding: 2px !important;
   gap: 2px;
   &::v-deep {
-    .el-radio-button__inner{
+    .el-radio-button__inner {
       padding: 6px 8px !important;
       font-size: 14px !important;
     }
@@ -240,6 +273,85 @@ export default {
   }
   &.secondary {
     background-color: rgb(3, 169, 244);
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+
+  .pair-container {
+    display: flex;
+    align-items: center;
+
+    .icons {
+      position: relative;
+      display: flex;
+      height: 20px;
+      width: 20px;
+    }
+
+    .name-container {
+      padding-left: 10px;
+
+      .names {
+        font-size: 1.4rem;
+        font-weight: bold;
+      }
+
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+.both-prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+
+  .item {
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    border-radius: var(--radius);
+    border: var(--border-1);
+
+    .icon {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+  }
+}
+
+.price-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0px;
+
+  .price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-right: 4px;
+  }
+
+  .change {
+    display: flex;
+    align-items: center;
+    color: var(--main-green);
+    padding: 0 4px;
+
+    &.isRed {
+      color: var(--main-red);
+    }
+
+    &.isZero {
+      color: var(--text-default);
+    }
   }
 }
 </style>

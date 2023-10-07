@@ -20,9 +20,9 @@ export default {
   props: ['selected', 'options'],
   methods: {
     getColor(fee) {
-      if (fee.selectedPercent < 1) return `var(--main-red)`
-      if (fee.selectedPercent > 50) return `var(--main-green)`
-      return `var(--text-default)`
+      if (fee.selectedPercent < 1) return 'var(--main-red)'
+      if (fee.selectedPercent > 50) return 'var(--main-green)'
+      return 'var(--text-default)'
     },
     onItemClick(fee) {
       if (this.selected != fee.value) this.$emit('change', fee.value)
