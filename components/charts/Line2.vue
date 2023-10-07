@@ -62,6 +62,13 @@ export default {
       topColor: color,
       bottomColor: color + '00',
       lineWidth: 2,
+      // TODO: manage decimals
+      priceFormat: {
+        // type: 'price',
+        type: 'custom',
+        formatter: (v) => v.toFixed(6),
+        minMove: 0.000001,
+      },
     })
     this.localSeries.setData(this.series)
     this.chart.timeScale().fitContent()
