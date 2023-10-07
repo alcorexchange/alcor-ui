@@ -49,7 +49,7 @@ import { mapGetters, mapState } from 'vuex'
 
 import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 
-import Line from '~/components/charts/Line'
+import Line from '~/components/charts/Line2.vue'
 import StackedColumns from '~/components/charts/StackedColumns'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
@@ -115,18 +115,13 @@ export default {
       if (sortedA && sortedB) {
         data = this.charts.map((c) => {
           return {
-            x: c._id,
-            y: (c.usdReserveA + c.usdReserveB).toFixed(0),
+            time: c._id,
+            value: (c.usdReserveA + c.usdReserveB).toFixed(0),
           }
         })
       }
 
-      return [
-        {
-          name: 'TVL',
-          data,
-        },
-      ]
+      return data
     },
 
     PriceSeries() {
@@ -144,18 +139,13 @@ export default {
           )
 
           return {
-            x: c._id,
-            y: parseFloat(price.toSignificant()),
+            time: c._id,
+            value: parseFloat(price.toSignificant()),
           }
         })
       }
 
-      return [
-        {
-          name: 'Price',
-          data,
-        },
-      ]
+      return data
     },
 
     VolumeSeries() {
