@@ -60,7 +60,7 @@ export const actions = {
 
     setInterval(() => {
       // Recelculate rewards
-      if (this._vm.$nuxt.$route.name.includes('farms')) {
+      if (this._vm.$nuxt.$route.name.includes('farm')) {
         dispatch('calculateUserStakes')
       }
     }, 1000)
