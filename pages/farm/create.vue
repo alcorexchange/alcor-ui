@@ -166,7 +166,7 @@ export default {
           message: 'Farm created succesfully',
         })
 
-        this.$router.push('/farms')
+        this.$router.push('/farm')
       } catch (e) {
         this.$notify({
           type: 'error',
