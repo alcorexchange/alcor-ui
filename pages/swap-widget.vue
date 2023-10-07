@@ -1,5 +1,5 @@
 <template lang="pug">
-  SwapWidget
+  SwapWidget(:hideBanner="true")
 </template>
 
 <script>

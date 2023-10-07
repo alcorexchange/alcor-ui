@@ -127,6 +127,7 @@
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
   RandomBanner(
+    v-if="!hideBanner"
     :banners="banners"
   )
 </template>
@@ -154,6 +155,8 @@ import RandomBanner from '~/components/alcor-element/RandomBanner'
 
 export default {
   name: 'SwapWidget',
+
+  props: ['hideBanner'],
 
   components: {
     AlcorContainer,

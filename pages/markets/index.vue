@@ -98,7 +98,7 @@ export default {
     },
 
     newListings() {
-      return this.markets.slice(0, 3)
+      return this.markets.slice(-3)
     },
 
     topGainers() {
@@ -268,7 +268,13 @@ export default {
     if (search) {
       this.search = search
     }
-  }
+  },
+
+  head() {
+    return {
+      title: `Alcor Exchange | Trade tokens on ${this.$store.state.network.name.toUpperCase()}`,
+    }
+  },
 }
 </script>
 

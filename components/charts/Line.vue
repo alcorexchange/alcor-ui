@@ -84,15 +84,10 @@ export default {
           x: { show: false },
         },
         yaxis: {
+          tickAmount: 6,
           opposite: true,
           labels: {
             show: true,
-            formatter: (v) => {
-              // TODO: use dynamic number.
-              return this.prependDollorSign
-                ? `$${this.$options.filters.commaFloat(v)}`
-                : v
-            },
             style: {
               colors: 'var(--text-disable)',
               fontSize: '12px',

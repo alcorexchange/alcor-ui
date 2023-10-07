@@ -120,7 +120,7 @@ export default {
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
-      //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
+      items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
       items.push({ index: '/analytics', name: 'Analytics' })
       items.push({ index: '/docs', name: 'Docs' })
 
@@ -202,7 +202,7 @@ export default {
 
   .nav-left {
     width: 100%;
-    max-width: 700px;
+    max-width: 60%;
   }
 
   @media only screen and (max-width: 1300px) {

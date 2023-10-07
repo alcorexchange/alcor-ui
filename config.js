@@ -16,7 +16,7 @@ const MARKET_STATS_CACHE_TIME = 60 * 30
 const networks = {
   eos: {
     name: 'eos',
-    desc: 'EOS Mainnet',
+    desc: 'EOS',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -193,7 +193,7 @@ const networks = {
 
   proton: {
     name: 'proton',
-    desc: 'Proton Mainnet',
+    desc: 'Proton',
     contract: 'alcor',
 
     baseToken: {
@@ -349,7 +349,7 @@ const networks = {
 
   wax: {
     name: 'wax',
-    desc: 'WAX Mainnet',
+    desc: 'WAX',
     contract: 'alcordexmain',
 
     baseToken: {
@@ -461,7 +461,7 @@ const networks = {
 
   telos: {
     name: 'telos',
-    desc: 'Telos Mainnet',
+    desc: 'Telos',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -533,7 +533,7 @@ const networks = {
         withdrawMemo: 'TLOS {account}',
         gateway: 'steemenginex',
         network: {
-          name: 'EOS Mainnet',
+          name: 'EOS',
           symbol: 'EOS',
         },
       },
