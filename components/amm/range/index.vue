@@ -101,6 +101,10 @@ export default {
   },
 
   watch: {
+    feeAmount() {
+      this.fetchSeries()
+    },
+
     isSorted() {
       this.fetchSeries()
     }

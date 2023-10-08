@@ -14,23 +14,23 @@
       span.mobile-only.muted.fs-14 Total Staked
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenA.quantity.split(' ')[1], farm.tokenA.contract)" width="14px" height="14px")
-        span {{ farm.tokenA.quantity }}
+        span {{ farm.tokenA.quantity | commaFloat }}
 
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenB.quantity.split(' ')[1], farm.tokenB.contract)" width="14px" height="14px")
-        span {{ farm.tokenB.quantity }}
+        span {{ farm.tokenB.quantity | commaFloat }}
 
     .total-reward-section
       span.mobile-only.muted.fs-14 Total Reward
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.reward.quantity }}
+        span {{ item.reward.quantity | commaFloat }}
 
     .daily-rewards-section
       span.mobile-only.muted.fs-14 Daily Rewards
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.rewardPerDay }} {{ item.reward.quantity.split(' ')[1] }}
+        span {{ item.rewardPerDay | commaFloat }} {{ item.reward.quantity.split(' ')[1] }}
 
     .remaining-time-section
       span.mobile-only.muted.fs-14 Remaining Time

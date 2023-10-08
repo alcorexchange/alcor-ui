@@ -6,7 +6,7 @@
       .rewards
         .icon-and-value(v-for="reward in farmedRewards")
           TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
-          span {{ reward.amount }} {{ reward.symbol }}
+          span {{ reward.amount | commaFloat }} {{ reward.symbol }}
     .item.fs-14
       .muted.mb-1 Reward Share
       span {{ aggregatedPoolShare }}%
@@ -92,6 +92,7 @@ export default {
       return allStats
     },
 
+    // TODO Estimated reward
     aggregatedPoolShare() {
       // AVG Share by staked to incentive
       const sharesByIncentive = []

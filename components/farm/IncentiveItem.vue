@@ -6,7 +6,7 @@
         span.key.muted.fs-14 Daily Reward
         .icon-and-value
           TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-          span {{ incentive.rewardPerDay }} {{ incentive.reward.quantity.split(' ')[1] }}
+          span {{ incentive.rewardPerDay | commaFloat }} {{ incentive.reward.quantity.split(' ')[1] }}
       span.muted •
       .key-value
         //- span.muted Remaining Time
@@ -33,11 +33,11 @@
             td
               .icon-and-value
                 TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.dailyRewards }}
+                span {{ stat.dailyRewards | commaFloat }}
             td
               .icon-and-value
                 TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.farmedReward }}
+                span {{ stat.farmedReward | commaFloat }}
             td
               slot(name="actions" :stat="stat")
           tr(v-else)
