@@ -29,7 +29,7 @@ export default {
           to: '/wallet/nfts',
         },
         { name: 'Liquidity Pools', to: '/wallet/liquidity_pools' },
-        // { name: 'Farms', to: '/wallet/farms' },
+        { name: 'Farms', to: '/wallet/farms' },
         { name: 'Resources', to: '/wallet/resources' },
       ]
     },
