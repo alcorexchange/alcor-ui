@@ -101,6 +101,10 @@ export default {
   },
 
   watch: {
+    feeAmount() {
+      this.fetchSeries()
+    },
+
     isSorted() {
       this.fetchSeries()
     }
@@ -112,6 +116,7 @@ export default {
 
   methods: {
     async fetchSeries() {
+      this.series = []
       const { tokenA, tokenB, feeAmount } = this
 
       const pool = this.$store.state.amm.pools.find(p => {

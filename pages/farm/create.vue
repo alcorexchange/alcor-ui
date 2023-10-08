@@ -166,7 +166,7 @@ export default {
           message: 'Farm created succesfully',
         })
 
-        this.$router.push('/farms')
+        this.$router.push('/farm')
       } catch (e) {
         this.$notify({
           type: 'error',
@@ -189,7 +189,7 @@ export default {
         reverse: true,
       })
 
-      let lastIncentiveId = lastIncentive.id
+      let lastIncentiveId = lastIncentive?.id || -1 // In case no incentives yet
 
       this.rewardList.forEach((r) => {
         lastIncentiveId += 1

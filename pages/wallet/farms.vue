@@ -4,7 +4,7 @@
     template(#start)
       el-input(placeholder="Search by token name or address" class="search-input")
     template(#end)
-      AlcorLink(to="/farms/create" class="create-farm")
+      AlcorLink(to="/farm/create" class="create-farm")
         i.el-icon-circle-plus-outline
         span Create Farm
 
