@@ -189,7 +189,7 @@ export default {
         reverse: true,
       })
 
-      let lastIncentiveId = lastIncentive?.id || -1 // In case no incentives yet
+      let lastIncentiveId = lastIncentive?.id ?? -1 // In case no incentives yet
 
       this.rewardList.forEach((r) => {
         lastIncentiveId += 1
