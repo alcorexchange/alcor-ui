@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(:search.sync="search" :finished.sync="finished" @update:finished="finishedUpdate").mb-2.mt-4
+    FarmHeader(:search.sync="search" :finished.sync="finished").mb-2.mt-4
     FarmsTableNew(:farmPools="farmPools" :finished="finished")
 </template>
 
@@ -67,11 +67,7 @@ export default {
     },
   },
 
-  methods: {
-    finishedUpdate() {
-      // value is automatically synced with child.
-    },
-  },
+  methods: {},
 
   head() {
     return {
