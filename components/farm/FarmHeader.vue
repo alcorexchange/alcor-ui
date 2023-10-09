@@ -3,7 +3,7 @@
     .farm-header
       .left
         el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
-        .stacked-only
+        .stacked-only(v-if="!hideStakedOnly")
           el-switch.custom-switch(
             active-color="var(--main-action-green)"
             active-text="Staked only"
@@ -28,7 +28,7 @@
             GradientBorder.gradient-border
               AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-        el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+        el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
           GradientBorder.gradient-border
             AlcorButton(@click="stakeAll") Stake All Positions
       //.right
@@ -52,7 +52,7 @@ export default {
     GradientBorder,
   },
 
-  props: ['finished', 'stakedOnly'],
+  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll'],
 
   data: () => {
     return {

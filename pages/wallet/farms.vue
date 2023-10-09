@@ -1,45 +1,65 @@
 <template lang="pug">
-.wallet-farms
-  WalletFarmHeader(title="Your Owned Farms")
-    template(#start)
-      el-input(placeholder="Search by token name or address" class="search-input")
-    template(#end)
-      AlcorLink(to="/farm/create" class="create-farm")
-        i.el-icon-circle-plus-outline
-        span Create Farm
-
-  FarmsOwnedTable(class="mt-2")
-
-  WalletFarmHeader(title="Your Staked Farms" class="mt-5")
-
-  FarmsTable(class="mt-2" :noClaim="true")
+.farms-page
+  FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
+  FarmsTableNew(:farmPools="farmPools" :finished="finished")
 </template>
 
 <script>
-import WalletFarmHeader from '~/components/wallet/WalletFarmHeader.vue'
-import FarmsOwnedTable from '~/components/farm/FarmsOwnedTable.vue'
-import FarmsTable from '~/components/farm/FarmsTable.vue'
-import AlcorLink from '~/components/AlcorLink.vue'
+import FarmHeader from '@/components/farm/FarmHeader'
+import FarmsTableNew from '@/components/farm/FarmsTableNew'
 export default {
   name: 'WalletFarms',
   components: {
-    WalletFarmHeader,
-    AlcorLink,
-    FarmsOwnedTable,
-    FarmsTable,
+    FarmHeader,
+    FarmsTableNew,
   },
-  data: () => ({}),
+
+  data: () => {
+    return {
+      search: '',
+      finished: false,
+    }
+  },
+  computed: {
+    pools() {
+      return this.$store.getters['farms/farmPools']
+        .map((p) => {
+          const incentives = p.incentives.filter((i) => {
+            if (this.finished) {
+              return i.isFinished && i.stakeStatus != 'notStaked'
+            } else {
+              return i.isFinished == false
+            }
+          })
+          return { ...p, incentives }
+        })
+        .filter((p) => p.incentives.length > 0)
+    },
+
+    farmPools() {
+      let pools = this.pools
+
+      pools = pools.filter((p) => {
+        return p.incentives
+          .map((i) => i.incentiveStats)
+          .flat(1)
+          .map((i) => i.staked)
+          .some((s) => s == true)
+      })
+
+      pools = pools.filter((p) => {
+        const slug =
+          p.tokenA.contract +
+          p.tokenA.quantity.split(' ')[1] +
+          p.tokenB.contract +
+          p.tokenB.quantity.split(' ')[1]
+        return slug.toLowerCase().includes(this.search.toLowerCase())
+      })
+
+      return pools
+    },
+  },
 }
 </script>
 
-<style scoped lang="scss">
-.create-farm {
-  &::v-deep {
-    background: var(--main-action-green);
-    color: black;
-    &:hover {
-      color: var(--main-action-green);
-    }
-  }
-}
-</style>
+<style scoped lang="scss"></style>
