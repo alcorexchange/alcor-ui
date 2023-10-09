@@ -32,7 +32,7 @@ export const fetchAllRows = async (
     let result
 
     if (options.bigNumberFix) {
-      const response = await fetch(rpc.endpoint + '/v1/chain/get_table_rows', {
+      const response = await fetch(rpc.endpoint ?? rpc.currentEndpoint + '/v1/chain/get_table_rows', {
         method: 'POST',
         body: JSON.stringify({
           ...mergedOptions,
