@@ -2,20 +2,26 @@
 div.pools
   .table-header
     el-input(prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')")
+    .end
+      AlcorLink(to="/positions/new")
+        i.el-icon-plus
+        .fs-14 {{ $t('New Position') }}
   .table.el-card.is-always-shadow
     PositionsList(@positionClick="$router.push(localeRoute($event.link))")
 </template>
 
 <script>
 import PositionsList from '~/components/amm/Position/PositionsList'
+import AlcorLink from '~/components/AlcorLink'
 
 export default {
   name: 'WalletLiquidityPools',
   components: {
-    PositionsList
+    PositionsList,
+    AlcorLink,
   },
   data: () => ({
-    search: ''
+    search: '',
   }),
 }
 </script>
@@ -23,6 +29,7 @@ export default {
 <style scoped lang="scss">
 .table-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 
