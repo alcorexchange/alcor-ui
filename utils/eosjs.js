@@ -25,14 +25,20 @@ export const fetchAllRows = async (
     ...options,
   }
 
+  const bigNumberFix = options.bigNumberFix ?? false
+
+  if (bigNumberFix) {
+    delete mergedOptions.bigNumberFix
+  }
+
   let rows = []
   let lowerBound = mergedOptions.lower_bound
 
   for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
     let result
 
-    if (options.bigNumberFix) {
-      const response = await fetch(rpc.endpoint ?? rpc.currentEndpoint + '/v1/chain/get_table_rows', {
+    if (bigNumberFix) {
+      const response = await fetch((rpc.endpoint ?? rpc.currentEndpoint) + '/v1/chain/get_table_rows', {
         method: 'POST',
         body: JSON.stringify({
           ...mergedOptions,
@@ -55,7 +61,7 @@ export const fetchAllRows = async (
 
     rows = rows.concat(result.rows)
 
-    if (!result.more || result.rows.length === 0) break
+    if (!result.more || result.rows.length === 0 || rows.length >= mergedOptions.limit) break
 
     // EOS 2.0 api
     // TODO Add 'more' key
