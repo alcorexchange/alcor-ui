@@ -60,7 +60,7 @@ export const actions = {
 
     setInterval(() => {
       // Recelculate rewards
-      if (this._vm.$nuxt.$route.name.includes('farm')) {
+      if (this._vm.$nuxt.$route.name && this._vm.$nuxt.$route.name.includes('farm')) {
         dispatch('calculateUserStakes')
       }
     }, 1000)
@@ -107,6 +107,8 @@ export const actions = {
       const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
       const rewards = bigInt(r.rewards)
 
+      //console.log(stakedLiquidity.toString(), totalStakedLiquidity.toString())
+
       const reward = stakedLiquidity.multiply(
         getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
 
@@ -116,7 +118,7 @@ export const actions = {
       r.farmedReward = rewardToken.to_string()
 
       //r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
-      r.userSharePercent = Math.round(parseFloat(stakedLiquidity) * 100 / bigInt.max(totalStakedLiquidity, 1).toJSNumber() * 100) / 100
+      r.userSharePercent = Math.round(parseFloat(stakedLiquidity) * 100 / bigInt.max(totalStakedLiquidity, 1).toJSNumber() * 10000) / 10000
       r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
       r.dailyRewards = r.dailyRewards.toFixed(rewardToken.symbol.precision())
       r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
