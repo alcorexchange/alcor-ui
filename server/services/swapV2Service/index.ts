@@ -274,8 +274,11 @@ async function getChianTicks(chain: string, poolId: number): Promise<TicksList> 
   const rows = await fetchAllRows(rpc, {
     code: network.amm.contract,
     scope: poolId,
-    table: 'ticks'
+    table: 'ticks',
+    bigNumberFix: true
   })
+
+  rows.forEach(i => { i.id = parseFloat(i.id) })
 
   return new Map(rows.map(r => [r.id, r]))
 }
