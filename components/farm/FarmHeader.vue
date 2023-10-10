@@ -23,6 +23,10 @@
           @toggle="$store.commit('farms/toggleView')"
         )
       .right
+        AlcorLink(class="new-farm" to="/farms/create")
+          i.el-icon-circle-plus-outline
+          span Open New Farm
+
         el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
           el-tooltip(content="Unstake your finished farms to free account RAM")
             GradientBorder.gradient-border
@@ -31,10 +35,7 @@
         el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
           GradientBorder.gradient-border
             AlcorButton(@click="stakeAll") Stake All Positions
-      //.right
-        AlcorLink(class="new-farm" to="/farms/create")
-          i.el-icon-circle-plus-outline
-          span Open New Farm
+      //- .right
 </template>
 
 <script>
@@ -246,7 +247,7 @@ export default {
 }
 
 .new-farm {
-  padding: 8px 16px !important;
+  line-height: 1.2;
 }
 
 @media only screen and (max-width: 800px) {
