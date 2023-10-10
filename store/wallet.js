@@ -24,7 +24,7 @@ export const actions = {
 export const getters = {
   balances(state, getters, rootState) {
     const tokens = rootState.tokens
-    const balances = rootState.user?.balances || []
+    const balances = rootState.user?.balances ?? []
 
     return balances.map(token => {
       const price = tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0

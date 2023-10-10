@@ -98,15 +98,15 @@ export default {
     },
 
     rewardTokens() {
-      return (
-        this.$store.state.user?.balances?.filter((b) => {
-          return this.rewardTokensWhitelist.some(
-            (e) =>
-              e.token.contract == b.contract &&
-              e.token.quantity.split(' ')[1] == b.currency
-          )
-        }) || []
-      )
+      const balances = this.$store.getters['wallet/balances']
+
+      return balances.filter((b) => {
+        return this.rewardTokensWhitelist.some(
+          (e) =>
+            e.token.contract == b.contract &&
+            e.token.quantity.split(' ')[1] == b.currency
+        )
+      })
     },
 
     distributionOptions() {
@@ -189,7 +189,7 @@ export default {
         reverse: true,
       })
 
-      let lastIncentiveId = lastIncentive?.id || -1 // In case no incentives yet
+      let lastIncentiveId = lastIncentive?.id ?? -1 // In case no incentives yet
 
       this.rewardList.forEach((r) => {
         lastIncentiveId += 1

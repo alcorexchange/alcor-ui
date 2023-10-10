@@ -20,19 +20,19 @@ const getLastTimeRewardApplicable = periodFinish => {
 }
 
 const getRewardPerToken = incentive => {
-  const totalStakedLiquidity = bigInt(incentive.totalStakedLiquidity)
+  const totalStakingWeight = bigInt(incentive.totalStakingWeight)
   const rewardPerTokenStored = bigInt(incentive.rewardPerTokenStored)
   const periodFinish = incentive.periodFinish
   const lastUpdateTime = bigInt(incentive.lastUpdateTime)
   const rewardRateE18 = bigInt(incentive.rewardRateE18)
 
-  if (totalStakedLiquidity.eq(0)) {
+  if (totalStakingWeight.eq(0)) {
     return rewardPerTokenStored
   }
 
   return rewardPerTokenStored.add(
     bigInt(getLastTimeRewardApplicable(periodFinish)).subtract(lastUpdateTime)
-      .multiply(rewardRateE18).divide(totalStakedLiquidity)
+      .multiply(rewardRateE18).divide(totalStakingWeight)
   )
 }
 
@@ -60,13 +60,15 @@ export const actions = {
 
     setInterval(() => {
       // Recelculate rewards
-      if (this._vm.$nuxt.$route.name.includes('farm')) {
+      if (this._vm.$nuxt.$route.name && this._vm.$nuxt.$route.name.includes('farm')) {
         dispatch('calculateUserStakes')
       }
     }, 1000)
   },
 
   async loadIncentives({ rootState, commit }) {
+    if (!['eos', 'wax'].includes(rootState.network.name)) return
+
     const incentives = await fetchAllRows(this.$rpc, {
       code: rootState.network.amm.contract,
       scope: rootState.network.amm.contract,
@@ -102,12 +104,14 @@ export const actions = {
     const userStakes = []
 
     for (const r of state.plainUserStakes) {
-      const totalStakedLiquidity = r.incentive.totalStakedLiquidity
-      const stakedLiquidity = bigInt(r.stakedLiquidity)
+      const totalStakingWeight = r.incentive.totalStakingWeight
+      const stakingWeight = bigInt(r.stakingWeight)
       const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
       const rewards = bigInt(r.rewards)
 
-      const reward = stakedLiquidity.multiply(
+      //console.log(stakingWeight.toString(), totalStakingWeight.toString())
+
+      const reward = stakingWeight.multiply(
         getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
 
       const rewardToken = asset(r.incentive.reward.quantity)
@@ -115,8 +119,8 @@ export const actions = {
       rewardToken.set_amount(reward)
       r.farmedReward = rewardToken.to_string()
 
-      //r.userSharePercent = stakedLiquidity.multiply(100).divide(bigInt.max(totalStakedLiquidity, 1)).toJSNumber()
-      r.userSharePercent = Math.round(parseFloat(stakedLiquidity) * 100 / bigInt.max(totalStakedLiquidity, 1).toJSNumber() * 100) / 100
+      //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
+      r.userSharePercent = Math.round(parseFloat(stakingWeight) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
       r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
       r.dailyRewards = r.dailyRewards.toFixed(rewardToken.symbol.precision())
       r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
