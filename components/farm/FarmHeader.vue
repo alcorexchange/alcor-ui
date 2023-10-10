@@ -32,7 +32,7 @@
             GradientBorder.gradient-border
               AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-        el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
+        el-badge( type="warning" :value="unstakedStakes.length")
           GradientBorder.gradient-border
             AlcorButton(@click="stakeAll") Stake All Positions
       //- .right
@@ -217,11 +217,11 @@ export default {
     &:hover {
       --border-width: 4px !important;
     }
-  }
-  .alcor-button {
-    position: relative;
-    &:hover {
-      background: var(--btn-default);
+    .alcor-button {
+      position: relative;
+      &:hover {
+        background: var(--btn-default);
+      }
     }
   }
 }
