@@ -23,7 +23,7 @@
           @toggle="$store.commit('farms/toggleView')"
         )
       .right
-        AlcorLink(class="new-farm" to="/farms/create")
+        AlcorLink(class="new-farm" to="/farm/create")
           i.el-icon-circle-plus-outline
           span Open New Farm
 
