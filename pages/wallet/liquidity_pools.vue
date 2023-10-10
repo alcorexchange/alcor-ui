@@ -30,12 +30,13 @@ export default {
 .table-header {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
   margin-bottom: 10px;
+  gap: 8px;
 
   .el-input {
     max-width: 300px;
-    margin-right: 8px;
   }
 
   .el-input__inner {
