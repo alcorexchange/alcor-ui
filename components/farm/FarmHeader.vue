@@ -23,7 +23,7 @@
           @toggle="$store.commit('farms/toggleView')"
         )
       .right
-        AlcorLink(class="new-farm" to="/farm/create")
+        AlcorLink(class="new-farm" to="/farm/create" v-if="!hideCreateNew")
           i.el-icon-circle-plus-outline
           span Open New Farm
 
@@ -32,7 +32,7 @@
             GradientBorder.gradient-border
               AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-        el-badge( type="warning" :value="unstakedStakes.length")
+        el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
           GradientBorder.gradient-border
             AlcorButton(@click="stakeAll") Stake All Positions
       //- .right
@@ -53,7 +53,7 @@ export default {
     GradientBorder,
   },
 
-  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll'],
+  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll', 'hideCreateNew'],
 
   data: () => {
     return {
