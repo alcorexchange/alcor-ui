@@ -4,7 +4,7 @@
       .left
         el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
         .stacked-only(v-if="!hideStakedOnly")
-          el-switch.custom-switch(
+          el-switch.staked-only-switch(
             active-color="var(--main-action-green)"
             active-text="Staked only"
             :value="$store.state.farms.stakedOnly"
@@ -170,7 +170,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.custom-switch::v-deep {
+.staked-only-switch::v-deep {
   .el-switch__core {
     height: 22px;
     border-radius: 40px;
