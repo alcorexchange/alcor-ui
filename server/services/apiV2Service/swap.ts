@@ -1,4 +1,5 @@
 import { performance } from 'perf_hooks'
+import JSBI from 'jsbi'
 
 import { Position } from '@alcorexchange/alcor-swap-sdk'
 
@@ -192,14 +193,15 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
   const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
 
   const result = series.map(s => {
-    const y = Number(s.liquidityActive.toString())
+    const y = s.liquidityActive
 
     return {
-      x: Number(s.price0),
-      y: y > 0 ? y : 0 // TODO This is hotfix, might be bug in calculation
+      x: parseFloat(s.price0),
+      y: parseFloat(y.toString())
     }
-  })
+  }).filter(r => r.y > 0)
 
+  //res.header('Access-Control-Allow-Origin', '*')
   res.json(result)
 })
 

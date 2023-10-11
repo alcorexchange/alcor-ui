@@ -1,7 +1,6 @@
 <template lang="pug">
 path(:fill="fill" :d="d")
 
-
 </template>
 
 <script>
