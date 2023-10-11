@@ -146,7 +146,6 @@ export function isPriceInvalid(price) {
 const getActiveTick = (tickCurrent, feeAmount) =>
   tickCurrent && feeAmount ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount] : undefined
 
-
 export function getLiquidityRangeChart(pool, tokenA, tokenB) {
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = getActiveTick(pool.tickCurrent, pool.fee)

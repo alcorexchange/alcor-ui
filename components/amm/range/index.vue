@@ -125,7 +125,9 @@ export default {
       })
 
       const { data: series } = await this.$axios.get('/v2/swap/pools/' + pool.id + '/liquidityChartSeries', { params: { inverted: !this.isSorted } })
-      this.series = series
+      //const { data: series } = await this.$axios.get('http://127.0.0.1:8000/api/v2/swap/pools/0/liquidityChartSeries?inverted=false')
+
+      this.series = series.filter(s => Math.max(s.x, s.y) <= 1247497401346422) // TEMP FIX
     },
 
     brushLabel(d, x) {

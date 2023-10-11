@@ -498,6 +498,8 @@ export async function main() {
   //   await initialUpdate(process.argv[3])
   // }
 
+  //updatePool('wax', 0)
+
   subscriber.subscribe('swap_action', message => {
     onSwapAction(message)
   })
