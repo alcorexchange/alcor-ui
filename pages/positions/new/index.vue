@@ -756,8 +756,7 @@ export default {
         }
       )
 
-      // TODO Auto Stake
-      if (!this.existingPosition) {
+      if (!this.existingPosition && !this.outOfRange) {
         const incentives = this.$store.state.farms.incentives.filter(i => i.poolId == poolId && !i.isFinished)
 
         for (const incentive of incentives) {
