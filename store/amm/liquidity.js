@@ -25,7 +25,7 @@ export const actions = {
     const { tokenA, tokenB } = state
 
     const { contract, symbol, precision } = rootState.network.baseToken
-    const baseToken = new Token(contract, precision, symbol, symbol.toLowerCase() + '-' + contract)
+    const baseToken = new Token(contract, precision, symbol)
 
     if (!tokenA && ((!tokenB) || (tokenB && baseToken && baseToken.id == tokenB.id))) {
       commit('setTokenA', baseToken)
@@ -93,8 +93,7 @@ export const getters = {
         const token = new Token(
           b.contract,
           parseInt(b.decimals),
-          b.currency,
-          b.id.replace('@', '-').toLowerCase()
+          b.currency
         )
 
         if (rootState.network.SCAM_CONTRACTS.includes(token.contract)) {

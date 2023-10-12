@@ -17,8 +17,8 @@ export async function getPoolInstance(chain: string, id): Promise<Pool> {
 
   return new Pool({
     ...pool,
-    tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol, tokenA.symbol.toLowerCase() + '-' + tokenA.contract),
-    tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol, tokenB.symbol.toLowerCase() + '-' + tokenB.contract),
+    tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol),
+    tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol),
     tickCurrent: pool.tick,
     ticks
   })
@@ -34,8 +34,8 @@ export async function getPools(chain: string, fetchTicks = true) {
 
     pools.push(new Pool({
       ...p,
-      tokenA: new Token(p.tokenA.contract, p.tokenA.decimals, p.tokenA.symbol, p.tokenA.id),
-      tokenB: new Token(p.tokenB.contract, p.tokenB.decimals, p.tokenB.symbol, p.tokenB.id),
+      tokenA: new Token(p.tokenA.contract, p.tokenA.decimals, p.tokenA.symbol),
+      tokenB: new Token(p.tokenB.contract, p.tokenB.decimals, p.tokenB.symbol),
 
       ticks: Array.from(ticks.values()).sort((a, b) => a.id - b.id),
       tickCurrent: p.tick

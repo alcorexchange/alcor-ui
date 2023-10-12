@@ -15,8 +15,7 @@ export function parseToken(token) {
   return new Token(
     token.contract,
     precision,
-    symbol,
-    (symbol + '-' + token.contract).toLowerCase(),
+    symbol
   )
 }
 
