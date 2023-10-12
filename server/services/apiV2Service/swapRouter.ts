@@ -9,7 +9,7 @@ import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const ROUTES_CACHE_TIMEOUT = 60 * 10 // In seconds
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // In seconds
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 
 // storing pools globally for access by getRoute(for cache)
