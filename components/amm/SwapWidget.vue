@@ -469,7 +469,8 @@ export default {
           amount: currencyAmountOut.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
-          maxHops: this.maxHops
+          maxHops: this.maxHops,
+          v2: true
         }
       })
 
@@ -520,7 +521,8 @@ export default {
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
-          maxHops: this.maxHops
+          maxHops: this.maxHops,
+          v2: true
         }
       })
 
