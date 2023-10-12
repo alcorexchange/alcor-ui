@@ -9,7 +9,7 @@ function formatIncentive(incentive) {
   incentive.durationInDays = incentive.rewardsDuration / 86400
   incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
   incentive.daysRemain = Math.ceil(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
-  incentive.rewardPerDay = (parseFloat(incentive.reward.quantity) / incentive.durationInDays).toFixed(2)
+  incentive.rewardPerDay = parseFloat(incentive.reward.quantity) / incentive.durationInDays
 
   return incentive
 }
@@ -121,8 +121,8 @@ export const actions = {
 
       //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
       r.userSharePercent = Math.round(parseFloat(stakingWeight) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
-      r.dailyRewards = r.incentive.isFinished ? 0 : parseFloat(r.incentive.rewardPerDay.split(' ')[0]) * r.userSharePercent / 100
-      r.dailyRewards = r.dailyRewards.toFixed(rewardToken.symbol.precision())
+      r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
+      r.dailyRewards = this._vm.$options.filters.commaFloat(r.dailyRewards, rewardToken.symbol.precision())
       r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
       userStakes.push(r)

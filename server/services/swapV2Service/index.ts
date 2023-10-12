@@ -255,7 +255,7 @@ async function updateTicks(chain: string, poolId: number) {
   publisher.publish('swap:ticks:update', push)
 }
 
-async function connectAll() {
+export async function connectAll() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
 
