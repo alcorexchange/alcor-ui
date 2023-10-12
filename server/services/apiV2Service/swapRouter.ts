@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import { Trade, Percent } from '@alcorexchange/alcor-swap-sdk'
+import { Trade, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 
 import { tryParseCurrencyAmount } from '../../../utils/amm'
@@ -9,12 +9,37 @@ import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const TRADE_OPTIONS = { maxNumResults: 1, maxHops: 3 }
+const ROUTES_CACHE_TIMEOUT = 60 * 2 // In seconds
+const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
+
+// storing pools globally for access by getRoute(for cache)
+let POOLS = []
+
+const ROUTES = {}
+function getRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
+  const cache_key = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
+
+  if (ROUTES[cache_key]) {
+    return ROUTES[cache_key]
+  }
+
+  // We pass chain to keep cache for different chains
+  const input = POOLS.find(p => p.tokenA.id == inputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == inputTokenID)?.tokenB
+  const output = POOLS.find(p => p.tokenA.id == outputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == outputTokenID)?.tokenB
+
+  const routes = computeAllRoutes(input, output, POOLS, maxHops)
+
+  // Caching
+  ROUTES[cache_key] = routes
+  setTimeout(() => delete ROUTES[cache_key], ROUTES_CACHE_TIMEOUT * 1000)
+
+  return routes
+}
 
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  let { trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
+  let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
 
   if (!trade_type || !input || !output || !amount)
     return res.status(403).send('Invalid request')
@@ -23,42 +48,51 @@ swapRouter.get('/getRoute', async (req, res) => {
   slippage = new Percent(slippage * 100, 10000)
 
   // Max hoop can be only 3 due to perfomance
-  if (maxHops !== undefined) TRADE_OPTIONS.maxHops = Math.min(parseInt(maxHops), 3)
+  maxHops = (!isNaN(parseInt(maxHops))) ? parseInt(maxHops) : TRADE_LIMITS.maxHops
 
   const exactIn = trade_type == 'EXACT_INPUT'
 
-  const pools = await getPools(network.name)
+  // Updating global pools
+  const allPools = await getPools(network.name)
 
-  input = pools.find(p => p.tokenA.id == input)?.tokenA || pools.find(p => p.tokenB.id == input)?.tokenB
-  output = pools.find(p => p.tokenA.id == output)?.tokenA || pools.find(p => p.tokenB.id == output)?.tokenB
+  const inputToken = allPools.find(p => p.tokenA.id == input)?.tokenA || allPools.find(p => p.tokenB.id == input)?.tokenB
+  const outputToken = allPools.find(p => p.tokenA.id == output)?.tokenA || allPools.find(p => p.tokenB.id == output)?.tokenB
 
-  if (!input || !output) res.status(403).send('Invalid input/output')
+  if (!inputToken || !outputToken) return res.status(403).send('Invalid input/output')
 
-  amount = tryParseCurrencyAmount(amount, exactIn ? input : output)
-  if (!amount) res.status(403).send('Invalid amount')
+  POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
+
+  amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
+  if (!amount) return res.status(403).send('Invalid amount')
 
   const startTime = performance.now()
 
-  let trade
+  let trade: any
   if (exactIn) {
-    [trade] = await Trade.bestTradeExactIn(
-      pools.filter(p => p.tickDataProvider.ticks.length > 0),
-      amount,
-      output,
-      TRADE_OPTIONS
-    )
+    // Doing with v2 function + caching routes
+    if (v2) {
+      const routes = getRoutes(network.name, input, output, Math.min(maxHops, 5))
+      ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(5, maxHops))
+    } else {
+      [trade] = await Trade.bestTradeExactIn(
+        POOLS,
+        amount,
+        outputToken,
+        { maxNumResults: 1, maxHops }
+      )
+    }
   } else {
     [trade] = await Trade.bestTradeExactOut(
-      pools.filter(p => p.tickDataProvider.ticks.length > 0),
-      input,
+      POOLS,
+      inputToken,
       amount,
-      TRADE_OPTIONS
+      { maxNumResults: 1, maxHops }
     )
   }
 
   const endTime = performance.now()
 
-  console.log(network.name, `find route took maxHops('${TRADE_OPTIONS.maxHops}') ${endTime - startTime} milliseconds`)
+  console.log(network.name, `find route took maxHops('${maxHops}') ${endTime - startTime} milliseconds v2: ${Boolean(v2)}`)
 
   if (!trade) return res.status(403).send('No route found')
 
@@ -85,5 +119,5 @@ swapRouter.get('/getRoute', async (req, res) => {
     }
   }
 
-  res.json(result)
+  return res.json(result)
 })
