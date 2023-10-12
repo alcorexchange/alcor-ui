@@ -71,8 +71,8 @@ swapRouter.get('/getRoute', async (req, res) => {
   if (exactIn) {
     // Doing with v2 function + caching routes
     //if (v2) {
-    const routes = getRoutes(network.name, input, output, Math.min(maxHops, 5))
-    ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(5, maxHops))
+    const routes = getRoutes(network.name, input, output, Math.min(maxHops, 3))
+    ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(3, maxHops))
     // } else {
     //   [trade] = await Trade.bestTradeExactIn(
     //     POOLS,
