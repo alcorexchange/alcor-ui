@@ -5,7 +5,7 @@ import { Position } from '@alcorexchange/alcor-swap-sdk'
 
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { SwapPool, SwapChartPoint } from '../../models'
+import { Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { getLiquidityRangeChart } from '../../../utils/amm.js'
 import { getPositionStats } from './account'
@@ -203,6 +203,39 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
 
   //res.header('Access-Control-Allow-Origin', '*')
   res.json(result)
+})
+
+swap.get('/pools/:id/swaps', async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const pool = parseInt(req.params.id)
+
+  const { from, to, recipient, sender } = req.query
+
+  const limit = parseInt(req.query.limit as any) || 200
+  const skip = parseInt(req.query.skip as any) || 0
+
+  const q: any = { chain: network.name, pool }
+
+  if (recipient) q.recipient = recipient
+  if (sender) q.sender = sender
+
+  if (from || to) {
+    q.time = {}
+
+    if (from) q.time.$gte = new Date(parseInt(from as any))
+    if (to) q.time.$lte = new Date(parseInt(to as any))
+  }
+
+  console.log(q)
+  const swaps = await Swap.find(q)
+    .select('pool recipient trx_id sender sqrtPriceX64 totalUSDVolume tokenA tokenB time')
+    .sort({ time: 1 })
+    .skip(skip)
+    .limit(limit)
+    .lean()
+
+  res.json(swaps)
 })
 
 const ONEDAY = 60 * 60 * 24 * 1000
