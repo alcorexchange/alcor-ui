@@ -9,7 +9,7 @@ import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const ROUTES_CACHE_TIMEOUT = 60 * 2 // In seconds
+const ROUTES_CACHE_TIMEOUT = 60 * 10 // In seconds
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 
 // storing pools globally for access by getRoute(for cache)
@@ -70,17 +70,17 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade: any
   if (exactIn) {
     // Doing with v2 function + caching routes
-    if (v2) {
-      const routes = getRoutes(network.name, input, output, Math.min(maxHops, 5))
-      ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(5, maxHops))
-    } else {
-      [trade] = await Trade.bestTradeExactIn(
-        POOLS,
-        amount,
-        outputToken,
-        { maxNumResults: 1, maxHops }
-      )
-    }
+    //if (v2) {
+    const routes = getRoutes(network.name, input, output, Math.min(maxHops, 5))
+    ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(5, maxHops))
+    // } else {
+    //   [trade] = await Trade.bestTradeExactIn(
+    //     POOLS,
+    //     amount,
+    //     outputToken,
+    //     { maxNumResults: 1, maxHops }
+    //   )
+    // }
   } else {
     [trade] = await Trade.bestTradeExactOut(
       POOLS,
