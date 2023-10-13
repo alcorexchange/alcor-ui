@@ -144,20 +144,20 @@ swap.get('/pools/positions/:id', async (req, res) => {
   res.json({ ...p, ...stats })
 })
 
-swap.get('/pools/:id/positions', async (req, res) => {
+swap.get('/pools/:id/positions', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.id
+}), async (req, res) => {
   const network: Network = req.app.get('network')
   const redis = req.app.get('redisClient')
 
-  const pool = await getPoolInstance(network.name, req.params.id)
   const positions = JSON.parse(await redis.get(`positions_${network.name}`))
 
-  const result = positions.filter(p => p.pool == req.params.id).map(p => {
-    const position = new Position({ ...p, pool })
-    p.amountA = position.amountA.toAsset()
-    p.amountB = position.amountB.toAsset()
+  const result = []
+  for (const position of positions.filter(p => p.pool == req.params.id)) {
+    const stats = await getPositionStats(network.name, position)
 
-    return p
-  })
+    result.push({ ...position, ...stats })
+  }
 
   res.json(result)
 })
