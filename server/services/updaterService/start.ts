@@ -68,7 +68,7 @@ export async function updater(chain, provider, services) {
     await updateMarkets(network)
     setInterval(() => updateMarkets(network), 1 * 60 * 1000)
 
-    streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS, 200)
+    streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
       // Production PM2 should restart updater after it
       .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`, e); process.exit(1) })
   }
@@ -86,7 +86,7 @@ export async function updater(chain, provider, services) {
     await updatePoolsStats(chain)
     setInterval(() => updatePoolsStats(chain), 1 * 60 * 1000)
 
-    streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 200)
+    streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
       .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })
   }
 }
