@@ -29,7 +29,7 @@ type TicksList = Map<number, Tick>
 
 // Getting sqrt price fot given time
 export async function getClosestSqrtPrice(chain, pool, time) {
-  const closestSwap = await Swap.findOne({ chain, pool, time: { $lte: new Date(time) } }).sort({ time: 1 }).limit(1).lean()
+  const closestSwap = await Swap.findOne({ chain, pool, time: { $lte: new Date(time) } }).sort({ time: -1 }).limit(1).lean()
 
   if (closestSwap === null) {
     return (await getPool({ chain, id: pool })).sqrtPriceX64
@@ -499,6 +499,7 @@ export async function main() {
   // }
 
   //updatePool('wax', 1095)
+  //updatePositions
 
   subscriber.subscribe('swap_action', message => {
     onSwapAction(message)
