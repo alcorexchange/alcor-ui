@@ -28,7 +28,9 @@ export async function streamByNode(network, account, callback, actions, delay = 
       const startTime = performance.now()
       r = await rpc.history_get_actions(account, offset, 100)
       const endTime = performance.now()
-      console.log(`receive actions(${network.name}, ${account}): ${r.actions.length} -> ${Math.round(endTime - startTime)}ms`)
+      if (r.actions.length > 0) {
+        console.log(`receive actions(${network.name}, ${account}): ${r.actions.length} -> ${Math.round(endTime - startTime)}ms`)
+      }
     } catch (e) {
       // TODO Почему то не срабатывает перезапуск при ошибке сети или днс
       console.log(`getActionsByNode(${network.name}) err: `, e.message)
@@ -52,7 +54,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
     await Settings.updateOne({ chain: network.name }, { $set })
 
     if (r.actions.length < 100) {
-      console.log(`waitForNewActions(${network.name}, ${account})...`)
+      //console.log(`waitForNewActions(${network.name}, ${account})...`)
       await new Promise((resolve, reject) => setTimeout(resolve, delay))
     }
   }
