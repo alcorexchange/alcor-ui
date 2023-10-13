@@ -2,7 +2,12 @@
 .unclaimed-fees
   .d-flex.justify-content-between.mt-2
     .fs-18.disable {{ $t('Unclaimed Fees') }}
-    AlcorButton.claim-fees-button.f-14(access @click="submit") {{ $t('Claim Fees') }}
+    AlcorButton.claim-fees-button.f-14(v-if="isMyPosition" access @click="submit") {{ $t('Claim Fees') }}
+
+    // TODO Think about design
+    //.mutted(v-else)
+      el-tooltip(class="item" effect="dark" content="Top Center prompts info" placement="top")
+        AlcorButton.claim-fees-button.f-14(access) {{ $t('Claim Fees') }}
 
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
@@ -30,14 +35,7 @@ export default {
     AlcorButton
   },
 
-  props: ['position'],
-
-  // data: () => {
-  //   return {
-  //     feesA: null,
-  //     feesB: null
-  //   }
-  // },
+  props: ['position', 'isMyPosition'],
 
   computed: {
     ...mapState(['network', 'user']),

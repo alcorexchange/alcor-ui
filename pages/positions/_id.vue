@@ -1,59 +1,67 @@
 <template lang="pug">
-alcor-container.manage-liquidity-component(v-if="position && position.pool")
-  PageHeader(title="Manage Liquidity")
-  .main.gap-16.pt-3
-    .left
-      PositionInfo(:position="position" :tokensInverted="tokensInverted" :composedPercent="composedPercent")
-        template(#action)
-          IncreaseLiquidity(
-            :position="position"
-            :tokensInverted="tokensInverted"
-            :priceLower="priceLower"
-            :priceUpper="priceUpper"
-            @toggleTokens="toggleTokens"
-            :composedPercent="composedPercent"
-          )
+div(v-loading="!position && !this.positionNotFound")
+  alcor-container.manage-liquidity-component(v-if="position && position.pool")
+    PageHeader(:title="title")
+    .main.gap-16.pt-3
+      .left
+        PositionInfo(:position="position" :tokensInverted="tokensInverted" :composedPercent="composedPercent")
+          template(#action)
+            IncreaseLiquidity(
+              v-if="isMyPosition"
+              :position="position"
+              :tokensInverted="tokensInverted"
+              :priceLower="priceLower"
+              :priceUpper="priceUpper"
+              @toggleTokens="toggleTokens"
+              :composedPercent="composedPercent"
+            )
 
-      .separator.mt-2
-      UnclaimedFees(:position="position")
-      .separator.mt-2
-      RemoveLiquidityPercentage(:position="position")
-    .right
-      // TODO Proper initial zooming for infinite range
-      LiquidityChartRangeInput(
-        :tokenA="tokensInverted ? pool.tokenB : pool.tokenA"
-        :tokenB="tokensInverted ? pool.tokenA : pool.tokenB"
-        :feeAmount="pool.fee"
-        :priceLower="priceLower"
-        :priceUpper="priceUpper"
-        :price="(tokensInverted ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(5)"
-        :ticksAtLimit="ticksAtLimit"
-        chartTitle="Price Range"
-        :interactive="false")
+            AlcorButton.increase-button(v-else @click="openInNewTab(monitorAccount(position.owner))")
+              span {{ position.owner }}
+        .separator.mt-2
+        UnclaimedFees(:position="position" :isMyPosition="isMyPosition")
+        .separator.mt-2
+        RemoveLiquidityPercentage(:class="{ mutted: !isMyPosition }" :position="position")
+      .right
+        // TODO Proper initial zooming for infinite range
+        LiquidityChartRangeInput(
+          :tokenA="tokensInverted ? position.pool.tokenB : position.pool.tokenA"
+          :tokenB="tokensInverted ? position.pool.tokenA : position.pool.tokenB"
+          :feeAmount="position.pool.fee"
+          :priceLower="priceLower"
+          :priceUpper="priceUpper"
+          :price="(tokensInverted ? position.pool.tokenBPrice : position.pool.tokenAPrice).toSignificant(5)"
+          :ticksAtLimit="ticksAtLimit"
+          chartTitle="Price Range"
+          :interactive="false")
 
-        template(#afterZoomIcons)
-          //- TODO: add one and two based on invert price
-          AlcorSwitch(
-            v-if='pool.tokenA && pool.tokenB',
-            @toggle="toggleTokens",
-            :one='pool.tokenA.symbol',
-            :two='pool.tokenB.symbol',
-            :active='tokensInverted ? "two" : "one"'
-          )
+          template(#afterZoomIcons)
+            //- TODO: add one and two based on invert price
+            AlcorSwitch(
+              v-if='position.pool.tokenA && position.pool.tokenB',
+              @toggle="toggleTokens",
+              :one='position.pool.tokenA.symbol',
+              :two='position.pool.tokenB.symbol',
+              :active='tokensInverted ? "two" : "one"'
+            )
 
-      ManageLiquidityMinMaxPrices(
-        :tokensInverted="tokensInverted"
-        :position="position"
-        :priceLower="tokensInverted ? priceUpper : priceLower"
-        :priceUpper="tokensInverted ? priceLower : priceUpper"
-        :ticksAtLimit="ticksAtLimit"
-      ).mt-3
+        ManageLiquidityMinMaxPrices(
+          :tokensInverted="tokensInverted"
+          :position="position"
+          :priceLower="tokensInverted ? priceUpper : priceLower"
+          :priceUpper="tokensInverted ? priceLower : priceUpper"
+          :ticksAtLimit="ticksAtLimit"
+        ).mt-3
 
-      InfoContainer.info.mt-3(:access="true")
-        | To update the price range, you need to close this position and open a new one,
-        | you can read about automating the price range here&nbsp;
-        a(href="https://docs.alcor.exchange/alcor-swap/introduction" target="_blank") Learn about liquidity price range
+        InfoContainer.info.mt-3(:access="true")
+          | To update the price range, you need to close this position and open a new one,
+          | you can read about automating the price range here&nbsp;
+          a(href="https://docs.alcor.exchange/alcor-swap/introduction" target="_blank") Learn about liquidity price range
 
+  .position-loading(v-else)
+    alcor-container.manage-liquidity-component(v-if="positionNotFound")
+      h1 404
+      .label The position is closed or has not yet been created
 </template>
 
 <script>
@@ -67,8 +75,9 @@ import IncreaseLiquidity from '~/components/modals/amm/IncreaseLiquidity'
 import LiquidityChartRangeInput from '~/components/amm/range'
 import ManageLiquidityMinMaxPrices from '~/components/amm/ManageLiquidityMinMaxPrices'
 import AlcorSwitch from '~/components/AlcorSwitch'
+import AlcorButton from '~/components/AlcorButton.vue'
 
-import { getPoolBounds, getTickToPrice } from '~/utils/amm'
+import { getPoolBounds, getTickToPrice, constructPosition, constructPoolInstance } from '~/utils/amm'
 
 export default {
   components: {
@@ -81,39 +90,53 @@ export default {
     IncreaseLiquidity,
     LiquidityChartRangeInput,
     AlcorSwitch,
+    AlcorButton,
     ManageLiquidityMinMaxPrices
   },
 
   data: () => ({
-    tokensInverted: false
+    loading: true,
+    loadedPosition: null,
+    tokensInverted: false,
+    positionNotFound: false
   }),
 
-  watch: {
-    position() {
-      if (!this.position) this.$router.push('/positions')
-    }
-  },
-
   computed: {
-    position() {
-      // TODO Support for non-login view position
-      const [pool_id, position_id, fee] = this.$route.params.id.split('-')
+    title() {
+      return this.isMyPosition ? 'Manage Liquidity' : 'Position View'
+    },
 
-      const position = this.$store.getters['amm/positions']?.find(p => p.pool.id == pool_id && p.id == position_id && p.pool.fee == fee)
+    position() {
+      const posId = this.$route.params.id
+      const position = this.$store.getters['amm/positions']?.find(p => p.id == posId)
+
+      if (!position && this.loadedPosition) {
+        const pool = this.$store.state.amm.pools.find(p => p.id == this.loadedPosition.pool)
+        if (!pool) return
+
+        const positionInstance = constructPosition(
+          constructPoolInstance(pool),
+          this.loadedPosition
+        )
+
+        return positionInstance
+      }
 
       return position
     },
 
-    pool() {
-      return this.position?.pool
+    isMyPosition() {
+      if (!this.position) return false
+
+      return this.$store.state.user?.name == this.position.owner
     },
 
     priceLower() {
-      return getTickToPrice(this.pool?.tokenA, this.pool?.tokenB, this.position.tickLower)
+      return getTickToPrice(this.position.pool?.tokenA, this.position.pool?.tokenB, this.position.tickLower)
     },
 
     priceUpper() {
-      return getTickToPrice(this.pool?.tokenA, this.pool.tokenB, this.position.tickUpper)
+      return getTickToPrice(this.position.pool?.tokenA, this.position.pool.tokenB, this.position.tickUpper)
     },
 
     // TODO Move to chart or make blobal
@@ -137,10 +160,17 @@ export default {
 
   methods: {
     async loadPosition() {
-      const [, position_id] = this.$route.params.id.split('-')
-      const { data } = await this.$axios.get('/v2/swap/pools/positions/' + position_id)
+      try {
+        const { data } = await this.$axios.get('/v2/swap/pools/positions/' + this.$route.params.id)
 
-      this.loadedPosition = data
+        if (data) {
+          this.loadedPosition = data
+        } else {
+          this.positionNotFound = true
+        }
+      } catch (e) {
+        this.positionNotFound = true
+      }
     },
 
     composedPercent(side) {
@@ -162,6 +192,10 @@ export default {
 </script>
 
 <style lang="scss">
+.position-loading {
+  min-height: 300px;
+}
+
 .manage-liquidity-component {
   padding: 12px !important;
   width: 100%;

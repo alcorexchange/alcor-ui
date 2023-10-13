@@ -4,7 +4,7 @@ import axios from 'axios'
 import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
 
 import { fetchAllRows } from '~/utils/eosjs'
-import { constructPoolInstance } from '~/utils/amm'
+import { constructPosition, constructPoolInstance } from '~/utils/amm'
 
 const DEFAULT_SLIPPAGE = 0.3
 
@@ -232,28 +232,12 @@ export const getters = {
       const pool = state.pools.find(p => p.id == position.pool)
       if (!pool) continue
 
-      const poolInstance = constructPoolInstance(pool)
+      const positionInstance = constructPosition(
+        constructPoolInstance(pool),
+        position
+      )
 
-      if (!poolInstance) continue
-
-      const tempPosition = new Position({
-        ...position,
-        pool: poolInstance,
-
-        // Because we have feesA as asset here from backend api
-        feesA: 0,
-        feesB: 0
-      })
-
-      // Add Stats
-      Object.assign(tempPosition, {
-        feesA: position.feesA || '0.0000',
-        feesB: position.feesB || '0.0000',
-        pNl: position.pNl | 0,
-        totalValue: position.totalValue || 0
-      })
-
-      positions.push(tempPosition)
+      if (positionInstance) positions.push(positionInstance)
     }
 
     return positions

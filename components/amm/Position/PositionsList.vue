@@ -100,7 +100,7 @@ export default {
         const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
         const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
 
-        const link = `/positions/${pool.id}-${p.id}-${pool.fee}`
+        const link = `/positions/${p.id}`
 
         return {
           ...p,

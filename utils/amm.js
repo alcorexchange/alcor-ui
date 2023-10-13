@@ -2,7 +2,7 @@
 import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
 
-import { Pool, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
+import { Pool, Position, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
 const PRICE_FIXED_DIGITS = 8
 
@@ -251,4 +251,25 @@ export function constructPoolInstance(row) {
     sqrtPriceX64,
     tickCurrent: tick,
   })
+}
+
+export function constructPosition(pool, position) {
+  const tempPosition = new Position({
+    ...position,
+    pool,
+
+    // Because we have feesA as asset here from backend api
+    feesA: 0,
+    feesB: 0
+  })
+
+  // Add Stats
+  Object.assign(tempPosition, {
+    feesA: position.feesA ?? '0.0000',
+    feesB: position.feesB ?? '0.0000',
+    pNl: position.pNl ?? 0,
+    totalValue: position.totalValue ?? 0
+  })
+
+  return tempPosition
 }
