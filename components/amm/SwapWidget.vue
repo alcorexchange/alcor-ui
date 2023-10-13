@@ -148,7 +148,7 @@ import AlcorButton from '~/components/AlcorButton'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import Settings from '~/components/amm/Settings'
 import SwapRoute from '~/components/swap/SwapRoute'
-import { tryParseCurrencyAmount, constructPoolInstance } from '~/utils/amm'
+import { parseToken, tryParseCurrencyAmount, constructPoolInstance } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 import AuthOnly from '~/components/AuthOnly'
 import RandomBanner from '~/components/alcor-element/RandomBanner'
@@ -190,6 +190,9 @@ export default {
     routerCollapse: ['1'],
     lastField: 'input', // might be input/output
 
+    // Event listener
+    swapListener: null,
+
     rateInverted: false,
     banners: [
       {
@@ -227,6 +230,28 @@ export default {
     }
 
     this.$store.dispatch('amm/swap/setDefaultInputOutput')
+  },
+
+  mounted() {
+    this.swapListener = this.$socket.on('swap:pool:update', data => {
+      if (!this.tokenA || !this.tokenB) return
+
+      for (const pool of data) {
+        const tokenA = parseToken(pool.tokenA)
+        const tokenB = parseToken(pool.tokenB)
+
+        if (
+          (this.tokenA.equals(tokenA) && this.tokenB.equals(tokenB)) ||
+          (this.tokenA.equals(tokenB) && this.tokenB.equals(tokenA))
+        ) {
+          this.lastField == 'input' ? this.onTokenAInput(this.amountA) : this.onTokenBInput(this.amountB)
+        }
+      }
+    })
+  },
+
+  beforeDestroy() {
+    this.$socket.off('swap:pool:update', this.listener)
   },
 
   computed: {
@@ -305,11 +330,6 @@ export default {
       this.recalculate()
     },
 
-    pools() {
-      // Do we actually need that?
-      //this.recalculate()
-    },
-
     slippage() {
       this.recalculate()
     }
@@ -323,7 +343,7 @@ export default {
 
     recalculate() {
       if (this.loading) return
-      this.lastField == 'input' ? this.onTokenAInput(this.amountA) : this.onTokenBInput(this.amountB)
+      this.lastField == 'input' ? this.calcInput(this.amountA) : this.calcOutput(this.amountB)
     },
 
     toggleTokens() {
