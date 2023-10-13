@@ -38,12 +38,12 @@ el-table.position-table.custom-responsive-table(
           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
           .fs-12.d-flex.gap-4
-            span {{ row.amountA }}
+            span {{ row.amountA | commaFloat }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
           .fs-12.d-flex.gap-4(:class="{ red: false }")
-            span {{ row.amountB }}
+            span {{ row.amountB | commaFloat }}
 
   el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
     template(slot-scope='{row}')
@@ -54,20 +54,20 @@ el-table.position-table.custom-responsive-table(
           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
           .fs-12.earn.d-flex.gap-4
-            span {{ row.feesA }}
+            span {{ row.feesA | commaFloat }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
           .fs-12.earn.d-flex.gap-4
-            span {{ row.feesB }}
+            span {{ row.feesB | commaFloat }}
 
   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span $ {{ row.totalValue && row.totalValue.toFixed(2) }}
+      span $ {{ row.totalValue | commaFloat(2) }}
 
   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
     template(slot-scope='{row}')
-      span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
+      span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl | commaFloat(2) }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
