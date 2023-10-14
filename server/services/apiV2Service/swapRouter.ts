@@ -96,7 +96,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const endTime = performance.now()
 
-  console.log(network.name, `find route took maxHops('${maxHops}') ${endTime - startTime} milliseconds v2: ${Boolean(v1)}`)
+  console.log(network.name, `find route took maxHops('${maxHops}') ${endTime - startTime} milliseconds v1: ${Boolean(v1)}`)
 
   if (!trade) return res.status(403).send('No route found')
 
