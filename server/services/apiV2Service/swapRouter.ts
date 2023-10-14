@@ -16,7 +16,7 @@ const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 let POOLS = []
 
 const ROUTES = {}
-function getRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
+function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   const cache_key = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
 
   if (ROUTES[cache_key]) {
@@ -71,8 +71,12 @@ swapRouter.get('/getRoute', async (req, res) => {
   if (exactIn) {
     // Doing with v2 function + caching routes
     if (!v1) {
-      const routes = getRoutes(network.name, input, output, Math.min(maxHops, 3))
-      ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(3, maxHops))
+      try {
+        const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
+        ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(3, maxHops))
+      } catch (e) {
+        console.log('getCachedRoutes', e, { input, output })
+      }
     } else {
       [trade] = await Trade.bestTradeExactIn(
         POOLS,
