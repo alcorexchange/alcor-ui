@@ -244,7 +244,7 @@ export default {
           (this.tokenA.equals(tokenA) && this.tokenB.equals(tokenB)) ||
           (this.tokenA.equals(tokenB) && this.tokenB.equals(tokenA))
         ) {
-          this.lastField == 'input' ? this.onTokenAInput(this.amountA) : this.onTokenBInput(this.amountB)
+          this.recalculateDelayed()
         }
       }
     })
@@ -331,7 +331,7 @@ export default {
     },
 
     slippage() {
-      this.recalculate()
+      this.recalculateDelayed()
     }
   },
 
@@ -341,9 +341,18 @@ export default {
       'bestTradeExactOut'
     ]),
 
+    recalculateDelayed() {
+      if (this.loading) return
+
+      this.loading = true
+      this.lastField == 'input' ? this.onTokenAInput(this.amountA) : this.onTokenBInput(this.amountB)
+    },
+
     recalculate() {
       if (this.loading) return
-      this.lastField == 'input' ? this.calcInput(this.amountA) : this.calcOutput(this.amountB)
+
+      this.loading = true
+      this.lastField == 'input' ? this.calcOutput(this.amountA) : this.calcInput(this.amountB)
     },
 
     toggleTokens() {

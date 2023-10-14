@@ -6,7 +6,7 @@ import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
 import { fetchAllRows } from '~/utils/eosjs'
 import { constructPosition, constructPoolInstance } from '~/utils/amm'
 
-const DEFAULT_SLIPPAGE = 1
+const DEFAULT_SLIPPAGE = 0.5
 
 export const state = () => ({
   pools: [],
