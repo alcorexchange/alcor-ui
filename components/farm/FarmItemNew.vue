@@ -153,7 +153,7 @@ export default {
 <style scoped lang="scss">
 .farm-item-container {
   &:not(:last-child) {
-    border-bottom: 1px solid var(--light-border-color);
+    border-bottom: 1px solid var(--background-color-base);
   }
 }
 .farm-item.isExpandable {
