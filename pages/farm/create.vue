@@ -49,6 +49,7 @@ import DistributionSelection from '@/components/farm/DistributionSelection'
 import RewardList from '@/components/farm/RewardList'
 import FarmTokenInput from '@/components/farm/FarmTokenInput'
 import AlcorButton from '@/components/AlcorButton'
+import { parseToken } from '~/utils/amm'
 export default {
   name: 'CreateFarm',
   components: {
@@ -100,6 +101,7 @@ export default {
     rewardTokens() {
       return this.rewardTokensWhitelist.map(({ token }) => {
         return {
+          id: parseToken(token).id,
           contract: token.contract,
           symbol: token.quantity.split(' ')[1],
           currency: token.quantity.split(' ')[1]
