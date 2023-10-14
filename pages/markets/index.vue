@@ -246,7 +246,13 @@ export default {
         .reduce((res, subArr) => {
           res.push(...subArr)
           return res
-        }, [])
+        }, []).sort((a, b) => {
+          if (a.promoted && b.promoted) {
+            return this.network.PINNED_MARKETS.indexOf(a.id) - this.network.PINNED_MARKETS.indexOf(b.id)
+          }
+
+          return 0
+        })
 
       return markets
     }
