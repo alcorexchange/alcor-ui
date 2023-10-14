@@ -90,16 +90,24 @@ export default {
 
   methods: {
     pools(token) {
-      this.$router.push({
-        //query: { input: token.id.replace('@', '-') }
-        name: `swap___${this.$i18n.locale}`
-      })
+      this.$router.push(
+        this.localeRoute({
+          path: '/swap',
+          query: {
+            input: `${token.currency}-${token.contract}`,
+          },
+        })
+      )
+      // this.$router.push({
+      //   //query: { input: token.id.replace('@', '-') }
+      //   name: `swap___${this.$i18n.locale}`
+      // })
 
-      this.$store.commit('swap/setInput', {
-        contract: token.contract,
-        symbol: token.currency,
-        precision: parseFloat(token.decimals)
-      })
+      // this.$store.commit('swap/setInput', {
+      //   contract: token.contract,
+      //   symbol: token.currency,
+      //   precision: parseFloat(token.decimals)
+      // })
     },
 
     trade(token) {
