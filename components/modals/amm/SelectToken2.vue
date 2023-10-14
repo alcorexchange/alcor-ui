@@ -109,10 +109,14 @@ export default {
 
       if (!tokens) return []
 
-      tokens.forEach(t => {
-        t.id = (t.currency ?? t.symbol) + '-' + t.contract
-        t.balance = this.$tokenBalance(t.currency ?? t.symbol, t.contract)
-      })
+      tokens.forEach(t => t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract))
+
+      // TODO ID are broken here
+      // tokens.forEach(t => {
+      //   t.id = (t.currency ?? t.symbol) + '-' + t.contract
+      //   t.balance = this.$tokenBalance(t.currency ?? t.symbol, t.contract)
+      // })
+
       tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
 
       return tokens?.filter((asset) =>
