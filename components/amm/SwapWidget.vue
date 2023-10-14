@@ -490,7 +490,7 @@ export default {
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
           maxHops: this.maxHops,
-          v1: true
+          //v1: true
         }
       })
 
@@ -542,7 +542,7 @@ export default {
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
           maxHops: this.maxHops,
-          v1: true
+          //v1: true
         }
       })
 
