@@ -84,7 +84,7 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
     const balance = user.balances.filter(b => b.currency == symbol.toUpperCase() && b.contract == contract)[0]
 
     if (balance) {
-      return full ? balance.amount : balance.amount
+      return full ? parseFloat(balance.amount) + ' ' + symbol : balance.amount
     }
   }
 

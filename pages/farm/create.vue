@@ -98,14 +98,12 @@ export default {
     },
 
     rewardTokens() {
-      const balances = this.$store.getters['wallet/balances']
-
-      return balances.filter((b) => {
-        return this.rewardTokensWhitelist.some(
-          (e) =>
-            e.token.contract == b.contract &&
-            e.token.quantity.split(' ')[1] == b.currency
-        )
+      return this.rewardTokensWhitelist.map(({ token }) => {
+        return {
+          contract: token.contract,
+          symbol: token.quantity.split(' ')[1],
+          currency: token.quantity.split(' ')[1]
+        }
       })
     },
 

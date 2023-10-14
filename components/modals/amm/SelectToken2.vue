@@ -64,7 +64,7 @@
               .d-flex.flex-column.gap-2.flex-grow-1
                 .contrast {{ item.currency || item.symbol }}
                 .fs-12.disable {{ item.contract }}
-              div {{ item.balance }}
+              div {{ item.balance | commaFloat(4) }}
 
         .fs-16.text-center(v-if="!filteredAssets.length") {{ $t('No tokens found') }}
 
@@ -109,7 +109,10 @@ export default {
 
       if (!tokens) return []
 
-      tokens.forEach(t => t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract))
+      tokens.forEach(t => {
+        t.id = (t.currency ?? t.symbol) + '-' + t.contract
+        t.balance = this.$tokenBalance(t.currency ?? t.symbol, t.contract)
+      })
       tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
 
       return tokens?.filter((asset) =>
