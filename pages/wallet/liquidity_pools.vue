@@ -3,7 +3,7 @@ div.pools
   .table-header
     el-input(prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')")
     .end
-      AlcorLink(to="/positions/new")
+      AlcorButton(to="/positions/new" access tag="nuxt-link")
         i.el-icon-plus
         .fs-14 {{ $t('New Position') }}
   .table.el-card.is-always-shadow
@@ -12,13 +12,13 @@ div.pools
 
 <script>
 import PositionsList from '~/components/amm/Position/PositionsList'
-import AlcorLink from '~/components/AlcorLink'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   name: 'WalletLiquidityPools',
   components: {
     PositionsList,
-    AlcorLink,
+    AlcorButton,
   },
   data: () => ({
     search: '',
