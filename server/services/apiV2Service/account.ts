@@ -34,11 +34,12 @@ async function getCurrentPositionState(chain, plainPosition) {
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
 
+  const totalFeesUSD = (parseFloat(feesA) * tokenAUSDPrice) + (parseFloat(feesB) * tokenBUSDPrice)
+
   const totalValue =
     parseFloat(position.amountA.toFixed()) * tokenAUSDPrice +
     parseFloat(position.amountB.toFixed()) * tokenBUSDPrice +
-    parseFloat(feesA) * tokenAUSDPrice +
-    parseFloat(feesB) * tokenBUSDPrice
+    totalFeesUSD
 
   return {
     inRange,
@@ -46,10 +47,10 @@ async function getCurrentPositionState(chain, plainPosition) {
     feesB,
     amountA,
     amountB,
-    totalValue: parseFloat(totalValue.toFixed(2))
+    totalValue: parseFloat(totalValue.toFixed(2)),
+    totalFeesUSD: parseFloat(totalFeesUSD.toFixed(2))
   }
 }
-
 
 export async function getPositionStats(chain, redisPosition) {
   if (!redis.isOpen) await redis.connect()
@@ -92,6 +93,7 @@ export async function getPositionStats(chain, redisPosition) {
 
   if (redisPosition) {
     current = await getCurrentPositionState(chain, redisPosition)
+    // pNL is not cout current fees
     current.pNl = (current.totalValue + collectedFees.inUSD) - depositedUSDTotal
   }
 
