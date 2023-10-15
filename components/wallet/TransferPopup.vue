@@ -1,11 +1,12 @@
 <template lang="pug">
-  el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left.dialog
+  el-dialog(:visible.sync="visible" width="25%" v-if="user").text-left.dialog
     template(#title)
       .title-container
         i.el-icon-wallet
         .text Transfer
-    el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
-      span {{ $t('WITHDRAW_POPUP_MESSAGE') }}
+
+    el-alert(title="Transfering to SCAM account!" type="error" effect="dark" v-if="scam")
+      span You are transfering to SCAM account, or FAKE CEX deposit adress.
 
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mt-1(prop="address")
@@ -18,7 +19,7 @@
           el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
 
         el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
-          span(slot="suffix").mr-1 {{ this.token.currency }}
+          span(slot="suffix").mr-1 {{ token.currency }}
         .text ~${{ usdValue }}
 
       el-form-item
@@ -27,7 +28,7 @@
 
       el-form-item.mt-1.mb-0
         span.dialog-footer.mb-4
-          el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid" :loading="loading").w-100.done
+          el-button(type='primary' @click="submit" :disabled="!form.amount || !addressValid || scam" :loading="loading").w-100.done
             | {{ $t('Transfer') }} {{ token.currency }} {{$t('to')}} {{ form.address }}
 </template>
 
@@ -41,6 +42,12 @@ import TokenImage from '~/components/elements/TokenImage'
 export default {
   components: {
     TokenImage
+  },
+
+  watch: {
+    token() {
+      console.log('AAA', this.token)
+    }
   },
 
   data() {
@@ -85,6 +92,10 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
+
+    scam() {
+      return this.network.SCAM_CONTRACTS.includes(this.form.address?.trim())
+    },
 
     usdValue() {
       if (!this.user || !this.user.balances || !this.token.currency)

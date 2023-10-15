@@ -430,6 +430,8 @@ const networks = {
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
+      'kucoindoteos',
+      'eosbndeposit',
       'usdcoinchain',
       'pornhubgames',
       'createtokens',
