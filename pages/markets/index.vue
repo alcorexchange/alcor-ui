@@ -168,6 +168,7 @@ export default {
         quote_name: market.quote_token.symbol.name,
         contract: market.quote_token.contract,
         base_name: market.base_token.symbol.name,
+        base_contract: market.base_token.contract,
         promoted: market.promoted,
         change_week: market.changeWeek,
         volume_week: market.volumeWeek,

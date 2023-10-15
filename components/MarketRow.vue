@@ -1,11 +1,18 @@
 <template lang="pug">
 NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': isMobile }")
   .label
-    token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
+    PairIcons(
+      v-if="isUSDTbase"
+      :token1="{ symbol: item.quote_name, contract: item.contract }"
+      :token2="{ symbol: item.base_name, contract: item.base_contract }")
+
+    token-image.token(v-else :src='$tokenLogo(item.quote_name, item.contract)')
+
     .name
       span {{ item.quote_name }}
       .text-muted(v-if='!isMobile') {{ item.contract }}
       span /
+      //token-image.token(v-if="network.USD_TOKEN.includes(item.base_contract)" :src='$tokenLogo(item.base_name, item.base_contract)' height="23")
       span {{ item.base_name }}
       span.promo-label(v-if="isMobile && item.promoted") top
   .promoted
@@ -35,12 +42,17 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
 import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import PairIcons from '~/components/PairIcons'
 
 export default {
-  components: { TokenImage, ChangePercent },
+  components: { TokenImage, ChangePercent, PairIcons },
   props: ['item', 'showVolumeInUSD', 'marketsActiveTab'],
   computed: {
-    ...mapState(['network'])
+    ...mapState(['network']),
+
+    isUSDTbase() {
+      return this.network.USD_TOKEN.includes(this.item.base_contract)
+    }
   },
   methods: {
     redirect() {
