@@ -211,9 +211,10 @@ export default {
       border-radius: 14px;
       transition: all 0.4s;
       &.is-selected {
-        border-color: var(--main-action-green);
+        border-color: var(--main-action-green) !important;
       }
       &:hover {
+        border-color: var(--main-green) !important;
         background: var(--hover);
       }
     }

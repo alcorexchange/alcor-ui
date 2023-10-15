@@ -3,8 +3,14 @@
   .pool-info-header
     .pool-info-header-main.d-flex.gap-8.align-items-center
       PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool[tokensInverted ? 'tokenB' : 'tokenA']" :token2="position.pool[tokensInverted ? 'tokenA' : 'tokenB']")
-      .pairs(v-if="tokensInverted") {{ position.pool.tokenB.symbol }} / {{ position.pool.tokenA.symbol }}
-      .pairs(v-else) {{ position.pool.tokenA.symbol }} / {{ position.pool.tokenB.symbol }}
+      .pairs(v-if="tokensInverted")
+        span {{ position.pool.tokenB.symbol }}
+        span /
+        span {{ position.pool.tokenA.symbol }}
+      .pairs(v-else)
+        span {{ position.pool.tokenA.symbol }}
+        span /
+        span {{ position.pool.tokenB.symbol }}
       .tag {{ poolFee }}%
       RangeIndicator.range-indicator(:inRange="position.inRange")
     .action-slot
@@ -127,10 +133,11 @@ export default {
   .pool-info-header{
     display: grid;
     align-items: center;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr auto;
     grid-template-areas:
-      "main main slot"
-      "amount amount amount";
+      "main slot"
+      "amount amount";
+    column-gap: 8px;
     &-main {
       grid-area: main;
     }
@@ -155,8 +162,15 @@ export default {
     }
   }
   .pairs{
+    // white-space: nowrap;
+    display: inline-flex;
+    gap: 4px;
     font-size: 1.2rem;
     font-weight: bold;
+    flex-wrap: wrap;
+    span {
+      white-space: nowrap;
+    }
   }
   // .symbol-and-contract {
   //   display: flex;

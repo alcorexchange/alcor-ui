@@ -6,13 +6,14 @@
 
 <script>
 export default {
-  props: ['inRange']
+  props: ['inRange'],
 }
 </script>
 
 <style lang="scss" scoped>
-span{
+span {
   font-size: 0.86rem;
+  white-space: nowrap;
 }
 .indicator {
   width: 10px;

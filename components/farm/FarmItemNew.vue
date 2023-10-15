@@ -7,7 +7,9 @@
         :token2="{contract: farm.tokenB.contract, symbol: farm.tokenB.quantity.split(' ')[1]}"
       )
       .token-container-info
-        .token-names {{ farm.tokenA.quantity.split(' ')[1] }}/{{ farm.tokenB.quantity.split(' ')[1] }}
+        .token-names
+          span {{ farm.tokenA.quantity.split(' ')[1] }}/{{ farm.tokenB.quantity.split(' ')[1] }}
+          Tag {{ farm.fee / 10000 }} %
         .token-contracts.muted {{ farm.tokenA.contract }}/{{ farm.tokenB.contract }}
 
     .total-staked-section
@@ -81,6 +83,7 @@ import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemExpandSimple from '~/components/farm/FarmItemExpandSimple.vue'
 import FarmItemExpandAdvanced from '~/components/farm/FarmItemExpandAdvanced.vue'
+import Tag from '~/components/elements/Tag.vue'
 export default {
   name: 'FarmsTable',
   components: {
@@ -93,6 +96,7 @@ export default {
     IncentiveItem,
     FarmItemExpandSimple,
     FarmItemExpandAdvanced,
+    Tag,
   },
 
   props: ['farm', 'finished'],
@@ -153,7 +157,7 @@ export default {
 <style scoped lang="scss">
 .farm-item-container {
   &:not(:last-child) {
-    border-bottom: 1px solid var(--light-border-color);
+    border-bottom: 1px solid var(--background-color-base);
   }
 }
 .farm-item.isExpandable {
@@ -173,6 +177,11 @@ export default {
   display: flex;
   flex-direction: column;
   // gap: 8px;
+  .token-names {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
   .token-contracts {
     font-size: 0.8rem;
   }
