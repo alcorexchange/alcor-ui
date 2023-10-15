@@ -4,7 +4,7 @@
     AlcorLink(to="/analytics/" exact flat) Overview
     AlcorButton.wax-tools-link(tag="a" href="https://grafana.waxtools.net/" target="_blank")
       img(src="@/assets/images/waxtools.png")
-      span.text Wax Tools
+      span.text WAXTools Analytics
     //- AlcorLink(to="/analytics/tokens" flat) Tokens
     //- AlcorLink(to="/analytics/pools" flat) Pools
     //- AlcorLink(to="/analytics/spots" flat) Spot Pairs
@@ -65,7 +65,7 @@ export default {
 }
 .wax-tools-link {
   img {
-    height: 18px;
+    height: 14px;
   }
 }
 </style>
