@@ -1,9 +1,27 @@
 <template>
   <component
     :is="tag"
-    :class="['alcor-button', { flat, alternative, access, orange, danger, outline, bordered, transparent, iconOnly, iconOnlyAlt, round, big, compact }]"
-    @click.prevent="$emit('click')"
-    v-bind="$attrs">
+    :class="[
+      'alcor-button',
+      {
+        flat,
+        alternative,
+        access,
+        orange,
+        danger,
+        outline,
+        bordered,
+        transparent,
+        iconOnly,
+        iconOnlyAlt,
+        round,
+        big,
+        compact,
+      },
+    ]"
+    @click="$emit('click')"
+    v-bind="$attrs"
+  >
     <div class="inner">
       <slot />
     </div>
@@ -16,60 +34,60 @@ export default {
   props: {
     flat: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     alternative: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     access: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     danger: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     orange: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     outline: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     transparent: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     round: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     bordered: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     compact: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     big: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     iconOnly: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     iconOnlyAlt: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     tag: {
-      default: 'button'
-    }
-  }
+      default: 'button',
+    },
+  },
 }
 </script>
 
@@ -132,7 +150,7 @@ button {
 }
 
 .alcor-button.outline:hover {
-  box-shadow: 0px 0px 30px 0px #54A05466 inset;
+  box-shadow: 0px 0px 30px 0px #54a05466 inset;
   background: var(--btn-outline);
 }
 
@@ -140,20 +158,20 @@ button {
   background: transparent !important;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  &:hover{
+  &:hover {
     border: 1px solid var(--border-2-color);
   }
 }
 
 .alcor-button.orange {
-  background: linear-gradient(90deg, #854000 0%, #FF8A00 100%);
+  background: linear-gradient(90deg, #854000 0%, #ff8a00 100%);
   border: 1px solid #854000;
 }
 
 .alcor-button.orange:hover {
   background: transparent;
-  border: 1px solid #FF8A00;
-  color: #FF8A00;
+  border: 1px solid #ff8a00;
+  color: #ff8a00;
 }
 
 .alcor-button.orange:disabled {

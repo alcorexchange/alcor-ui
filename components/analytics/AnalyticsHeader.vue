@@ -2,6 +2,9 @@
 .analytics-header
   .left
     AlcorLink(to="/analytics/" exact flat) Overview
+    AlcorButton.wax-tools-link(tag="a" href="https://grafana.waxtools.net/" target="_blank")
+      img(src="@/assets/images/waxtools.png")
+      span.text Wax Tools
     //- AlcorLink(to="/analytics/tokens" flat) Tokens
     //- AlcorLink(to="/analytics/pools" flat) Pools
     //- AlcorLink(to="/analytics/spots" flat) Spot Pairs
@@ -58,6 +61,11 @@ export default {
   .el-input__suffix {
     display: flex;
     align-items: center;
+  }
+}
+.wax-tools-link {
+  img {
+    height: 18px;
   }
 }
 </style>
