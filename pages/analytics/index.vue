@@ -41,7 +41,7 @@ export default {
     AlcorButton,
     AnalyticsTokensTable,
     AnalyticsPoolsTable,
-    AnalyticsSpotPairsTable
+    AnalyticsSpotPairsTable,
   },
   data: () => ({
     tokens: Array.from({ length: 10 }),
@@ -55,7 +55,7 @@ export default {
       const lowestItem = (this.spotsPage - 1) * PER_PAGE
       const highestItem = this.spotsPage * PER_PAGE
       return this.markets.filter((_, i) => lowestItem <= i && i < highestItem)
-    }
+    },
   },
   methods: {
     getTokens(page = 1) {
@@ -69,10 +69,9 @@ export default {
     getSpots(page = 1) {
       // get spots from API
       this.spotsPage = page
-    }
+    },
   },
 }
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>
