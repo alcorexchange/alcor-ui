@@ -91,6 +91,10 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = false) {
   return full ? '0.0000 ' + symbol : '0.0000'
 }
 
+Vue.prototype.$getToken = function(id) {
+  return this.$store.state.tokens.find(t => t.id == id)
+}
+
 Vue.prototype.$tokenLogo = function(symbol, contract) {
   const network = this.$store.state.network.name
 

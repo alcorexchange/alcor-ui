@@ -27,7 +27,11 @@ export const getters = {
     const balances = rootState.user?.balances ?? []
 
     return balances.map(token => {
-      const price = tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
+      // Patching new standart price
+      token.id = (token.currency + '-' + token.contract).toLowerCase()
+      token.symbol = token.currency
+
+      const price = tokens.find(t => t.id == token.id)?.usd_price || 0
       const usd_value = parseFloat(token.amount) * price
 
       return { ...token, usd_value }
