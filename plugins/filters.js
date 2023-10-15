@@ -77,14 +77,14 @@ Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2, us
   return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
 }
 
-Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
+Vue.prototype.$tokenBalance = function(symbol, contract, full = false) {
   const user = this.$store.state.user
 
   if (user && user.balances) {
     const balance = user.balances.filter(b => b.currency == symbol.toUpperCase() && b.contract == contract)[0]
 
     if (balance) {
-      return full ? balance.amount : balance.amount
+      return full ? parseFloat(balance.amount) + ' ' + symbol : balance.amount
     }
   }
 
