@@ -15,7 +15,7 @@ el-table.position-table.custom-responsive-table(
         .fs-14 {{ row.pool.tokenA.symbol }} / {{ row.pool.tokenB.symbol }}
         .tag {{ row.pool.fee / 10000 }}%
 
-  el-table-column(:label='$t("Range")' width="220" class-name="min-max")
+  el-table-column(:label='$t("Range")' width="250" class-name="min-max")
     template(slot-scope='{row}')
       .d-flex.flex-column
         .d-flex.align-items-center.gap-4
@@ -30,7 +30,7 @@ el-table.position-table.custom-responsive-table(
             .fs-12.disable MAX
             .fs-12.contrast {{ row.priceUpper }}
 
-  el-table-column(:label='$t("Assets in Pool")' width="180")
+  el-table-column(:label='$t("Assets in Pool")' width="200")
     template(slot-scope='{row}')
       .d-flex.flex-column
         .mobile-label {{ $t("Assets in Pool") }}
@@ -45,29 +45,38 @@ el-table.position-table.custom-responsive-table(
           .fs-12.d-flex.gap-4(:class="{ red: false }")
             span {{ row.amountB | commaFloat }}
 
-  el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
-    template(slot-scope='{row}')
-      .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
+  //- el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
+  //-   template(slot-scope='{row}')
+  //-     .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
 
-      .d-flex.flex-column
-        .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
+  //-     .d-flex.flex-column
+  //-       .d-flex.align-items-center.gap-4
+  //-         token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4
-            span {{ row.feesA | commaFloat }}
-        .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
+  //-         .fs-12.earn.d-flex.gap-4
+  //-           span {{ row.feesA | commaFloat }}
+  //-       .d-flex.align-items-center.gap-4
+  //-         token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4
-            span {{ row.feesB | commaFloat }}
+  //-         .fs-12.earn.d-flex.gap-4
+  //-           span {{ row.feesB | commaFloat }}
 
-  el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
+  el-table-column(:label='$t("Total Value")' width="130" v-if="!isMobile" sortable sort-by="totalValue")
     template(slot-scope='{row}')
       span $ {{ row.totalValue | commaFloat(2) }}
 
-  el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
+  el-table-column(label='Unclaimed Fees' width="150" v-if="!isMobile" sortable sort-by="totalFeesUSD")
     template(slot-scope='{row}')
-      span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl | commaFloat(2) }}
+      span(:style="{color: $percentColor(1)}") $ {{ row.totalFeesUSD | commaFloat(3) }}
+
+
+  //- el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
+  //-   template(slot-scope='{row}')
+  //-     span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl | commaFloat(2) }}
+
+  //- el-table-column(label='Earnings' width="100" v-if="!isMobile")
+  //-   template(slot-scope='{row}')
+  //-     span(:style="{color: $percentColor(1)}") $ {{ row.totalFeesUSD | commaFloat(3) }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
