@@ -132,5 +132,24 @@
     ],
 
     "description": "HERB tokens are the official currency for @HerbTipBot on Telegram, providing a 50% discount for token whitelisting and enhancing your Telegram chat experience with fun games and features. They're essential for maximizing your engagement within the bot's ecosystem."
+  },
+    "USDT@usdt.alcor": {
+    "name": "USDT",
+    "website": {
+      "link": "https://wax.alcor.exchange/fundamentals/USDT@usdt.alcor",
+      "name": "Tether USDT"
+    },
+    "tags": [
+      "Stablecoin",
+      "Tether",
+      "USD"
+    ],
+    "github": "https://github.com/CryptoMechanics/eosio-ibc-bridge-contract",
+    "socials": [
+      "https://ibc-docs.uxnetwork.io",
+      "https://wax.bloks.io/account/usdt.alcor",
+      "https://wax.bloks.io/account/ibc.alcor"
+    ],
+    "description": "Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography, it does not use any centralized point of management, or any back-end and third-party services. It's audited, secure solution for bridging tokens on Antelope chains. Bridge fee are 0% both ways, and process takes only ~2 minute."
   }
 }
