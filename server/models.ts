@@ -218,8 +218,9 @@ const SwapPoolSchema = new mongoose.Schema({
   liquidity: { type: String },
   creator: { type: String },
 
+  tvlUSD: { type: Number, index: true },
+
   // TODO Change 24/week/month
-  // TODO TVL
 
   // New Fields
   volumeA24: { type: Number, default: 0 },

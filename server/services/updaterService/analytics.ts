@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import { SwapPool, Market, Match, GlobalStats, PositionHistory, Swap } from '../../models'
 import { getOrderbook } from '../orderbookService/start'
-import { getTokens } from '~/server/utils'
+import { getTokens } from '../../utils'
 
 const MIN_SYSTEM_TVL = 100
 
