@@ -430,6 +430,9 @@ const networks = {
     BANNER_MARKETS: [],
 
     SCAM_CONTRACTS: [
+      'okbtothemoon',
+      'huobideposit',
+      'binancecleos',
       'kucoindoteos',
       'eosbndeposit',
       'usdcoinchain',
