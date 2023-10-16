@@ -11,7 +11,7 @@ import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { getRedisTicks } from './utils'
-import { getSingleEndpointRpc, getFailOverRpc, getTokenPrices } from './../../utils'
+import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -63,8 +63,8 @@ async function handlePoolChart(
   const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
 
-  const tokenAprice = await getTokenPrices(chain, tokenA_id)
-  const tokenBprice = await getTokenPrices(chain, tokenB_id)
+  const tokenAprice = await getToken(chain, tokenA_id)
+  const tokenBprice = await getToken(chain, tokenB_id)
 
   const usdReserveA = reserveA * tokenAprice.usd_price
   const usdReserveB = reserveB * tokenBprice.usd_price
@@ -352,10 +352,9 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
   const pool = await getPool({ id: poolId, chain })
-  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
-  const tokenA = tokens.find(t => t.id == pool.tokenA.id)
-  const tokenB = tokens.find(t => t.id == pool.tokenB.id)
+  const tokenA = await getToken(chain, pool.tokenA.id)
+  const tokenB = await getToken(chain, pool.tokenB.id)
 
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
@@ -388,10 +387,9 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
   const pool = await getPool({ id: poolId, chain })
-  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
-  const tokenA = tokens.find(t => t.id == pool.tokenA.id)
-  const tokenB = tokens.find(t => t.id == pool.tokenB.id)
+  const tokenA = await getToken(chain, pool.tokenA.id)
+  const tokenB = await getToken(chain, pool.tokenB.id)
 
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0

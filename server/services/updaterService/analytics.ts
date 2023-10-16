@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import { SwapPool, Market, Match, GlobalStats, PositionHistory, Swap } from '../../models'
 import { getOrderbook } from '../orderbookService/start'
-import { getAllTokensWithPrices } from './prices'
+import { getTokens } from '~/server/utils'
 
 const MIN_SYSTEM_TVL = 100
 
@@ -20,7 +20,7 @@ export async function updateGlobalStats(network, day?) {
     return console.log('GlobalStats for ', now, 'already exists')
   }
 
-  const tokens = await getAllTokensWithPrices(network)
+  const tokens = await getTokens(network.name)
   const markets = await Market.find({ chain: network.name })
   const pools = await SwapPool.find({ chain: network.name })
 
