@@ -228,7 +228,7 @@ async function updatePool(chain: string, poolId: number) {
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
 
-  const tvlUSD = parsedPool.tokenA.quantity * tokenAUSDPrice + parsedPool.tokenA.quantity * tokenBUSDPrice
+  const tvlUSD = parsedPool.tokenA.quantity * tokenAUSDPrice + parsedPool.tokenB.quantity * tokenBUSDPrice
 
   // TODO FIX DEPRECATED
   return await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, tvlUSD }, { upsert: true, new: true })
