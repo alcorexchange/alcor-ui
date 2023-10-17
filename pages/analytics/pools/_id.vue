@@ -7,11 +7,12 @@ div
     vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
 
   //StackedColumns(:series="liquiditySeries" height="400px" style="min-height: 400px")
-  VirtualTable.virtual-table(
-    :table="tableData"
-  )
-    template(#row="{ item }")
-      AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
+  .virtual-table-container
+    VirtualTable.virtual-table(
+      :table="tableData"
+    )
+      template(#row="{ item }")
+        AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
 
   //- el-table.position-table.custom-responsive-table(
   //-   v-loading="loading"
@@ -349,8 +350,13 @@ export default {
   }
 }
 
+.virtual-table-container {
+  overflow: auto;
+}
+
 .virtual-table {
   --grid-template: 10% 18% 20% 20% 10% 10% auto;
+  min-width: 1100px;
   &::v-deep {
     .header {
       display: grid;

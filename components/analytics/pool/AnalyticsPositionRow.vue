@@ -86,4 +86,5 @@ export default {
   color: var(--main-green);
   text-decoration: underline;
 }
+
 </style>
