@@ -11,7 +11,7 @@ div
     :table="tableData"
   )
     template(#row="{ item }")
-      AnalyticsPositionRow.analytics-position-row(:position="item")
+      AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
 
   //- el-table.position-table.custom-responsive-table(
   //-   v-loading="loading"

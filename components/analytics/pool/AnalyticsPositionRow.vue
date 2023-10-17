@@ -1,5 +1,5 @@
 <template lang="pug">
-.analytics-position-row
+.analytics-position-row(@click="$emit('showPosition', position)")
   .address.fs-14 {{ position.owner }}
   .range
     .d-flex.flex-column
