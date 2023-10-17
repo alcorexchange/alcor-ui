@@ -349,10 +349,11 @@ export default {
 }
 
 .virtual-table {
+  --grid-template: 10% 18% 20% 20% 10% 10% auto;
   &::v-deep {
     .header {
       display: grid;
-      grid-template-columns: 10% 10% 20% 20% 10% 10% auto;
+      grid-template-columns: var(--grid-template);
       color: #909399;
       font-weight: 500;
       font-size: 14px;
@@ -366,7 +367,7 @@ export default {
 }
 .analytics-position-row {
   display: grid;
-  grid-template-columns: 10% 10% 20% 20% 10% 10% auto;
+  grid-template-columns: var(--grid-template);
 }
 </style>
 
