@@ -1,6 +1,7 @@
 <template lang="pug">
-.analytics-position-row(@click="$emit('showPosition', position)")
-  .address.fs-14 {{ position.owner }}
+.analytics-position-row.cursor-pointer(@click="$emit('showPosition', position)")
+  .address.fs-14
+   span(@click.stop="monitorOwner") {{ position.owner }}
   .range
     .d-flex.flex-column
       .d-flex.align-items-center.gap-4
@@ -61,11 +62,17 @@ export default {
   },
   props: ['position'],
   computed: {},
+  methods: {
+    monitorOwner() {
+      this.openInNewTab(this.monitorAccount(this.position.owner))
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
 .analytics-position-row {
+  cursor: pointer;
   & > * {
     padding: 10px;
   }
@@ -74,13 +81,9 @@ export default {
 .mobile-only {
   display: none;
 }
-// .address,
-// .range,
-// .assets,
-// .unclaimed-fees,
-// .total-value,
-// .p-n-L,
-// .actions {
-//   padding: 10px;
-// }
+
+.address {
+  color: var(--main-green);
+  text-decoration: underline;
+}
 </style>
