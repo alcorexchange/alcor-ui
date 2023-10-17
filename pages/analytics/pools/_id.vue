@@ -3,7 +3,8 @@ div
 
   h5 chart
 
-  vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
+  client-only
+    vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
 
   //StackedColumns(:series="liquiditySeries" height="400px" style="min-height: 400px")
   VirtualTable.virtual-table(
