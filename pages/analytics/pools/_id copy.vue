@@ -6,11 +6,6 @@ div
   vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
 
   //StackedColumns(:series="liquiditySeries" height="400px" style="min-height: 400px")
-  VirtualTable.virtual-table(
-    :table="tableData"
-  )
-    template(#row="{ item }")
-      AnalyticsPositionRow.analytics-position-row(:position="item")
 
   el-table.position-table.custom-responsive-table(
     v-loading="loading"
@@ -95,12 +90,11 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
 import AlcorButton from '~/components/AlcorButton'
+
 import StackedColumns from '~/components/charts/StackedColumns'
-import VirtualTable from '~/components/VirtualTable.vue'
-import AnalyticsPositionRow from '~/components/analytics/pool/AnalyticsPositionRow.vue'
 
 export default {
-  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns, VirtualTable, AnalyticsPositionRow },
+  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns },
 
   fetch({ params, error }) {
     // TODO 404
@@ -253,38 +247,18 @@ export default {
       }).filter(p => p.pool)
     },
     tableData() {
+      const data = this.positions
       const header = [
         {
-          label: 'Account',
-        },
-        {
-          label: 'Range',
-        },
-        {
-          label: 'Assets In Pool',
-        },
-        {
-          label: 'Unclaimed Fees',
+          label: 'Pair',
+          value: 'quote_name',
+          width: '335px',
           sortable: true,
-          value: 'feesA'
-        },
-        {
-          label: 'Total Value',
-        },
-        {
-          label: 'P&L',
-        },
-        {
-          label: '',
         },
       ]
 
-      const data = this.positions || []
-      const itemSize = 54
-      const pageMode = true
-
-      return { header, data, itemSize, pageMode }
-    }
+      return { data, header }
+    },
   },
 
   mounted() {
@@ -347,30 +321,9 @@ export default {
     background: var(--access-indicator);
   }
 }
-
-.virtual-table {
-  &::v-deep {
-    .header {
-      display: grid;
-      grid-template-columns: 10% 10% 20% 20% 10% 10% auto;
-      color: #909399;
-      font-weight: 500;
-      font-size: 14px;
-      padding: 0;
-      .header__column {
-        padding: 10px;
-        justify-content: flex-start;
-      }
-    }
-  }
-}
-.analytics-position-row {
-  display: grid;
-  grid-template-columns: 10% 10% 20% 20% 10% 10% auto;
-}
 </style>
 
-<style scoped lang="scss">
+<style lang="scss">
 .position-table {
   border-radius: 12px;
   .el-table__header {

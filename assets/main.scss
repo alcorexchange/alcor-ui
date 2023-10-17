@@ -1329,8 +1329,8 @@ a {
   }
 }
 @media only screen and (max-width: 1100px) {
-  .custom-responsive-table{
-    .mobile-label{
+  .custom-responsive-table {
+    .mobile-label {
       display: block;
     }
     .el-table__header-wrapper {
@@ -1369,26 +1369,29 @@ a {
 }
 
 // we need styling from parent so it overtakes default style specified in dark.css L: 3265
-body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hover{
+body
+  .custom-responsive-table.el-table--enable-row-hover
+  .el-table__body
+  tr:hover {
   .el-table__cell {
     background-color: transparent !important;
   }
 }
 .position-section-title {
-  font-size: 18px; 
+  font-size: 18px;
 }
 
 .rotate-reverse {
-  animation: rotating-reverse 2s linear infinite
+  animation: rotating-reverse 2s linear infinite;
 }
 
 @keyframes rotating-reverse {
   0% {
-      transform: rotateZ(0)
+    transform: rotateZ(0);
   }
 
   100% {
-      transform: rotateZ(-360deg)
+    transform: rotateZ(-360deg);
   }
 }
 
@@ -1404,7 +1407,8 @@ body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hove
     font-weight: 400 !important;
   }
   .pagination li {
-    &.active, &:hover {
+    &.active,
+    &:hover {
       color: var(--main-green) !important;
     }
   }
