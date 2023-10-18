@@ -10,9 +10,6 @@
   //-     AlcorButton Explore
   //- AnalyticsTokensTable(:tableData="tokens" @pageChange="getTokens")
 
-  AnalyticsSectionHeader(title="Top Pools")
-    template(#action)
-      AlcorButton Explore
   AnalyticsPoolsTable(:tableData="pools" @pageChange="getPools")
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
