@@ -3,89 +3,82 @@ div
 
   h5 chart
 
-  client-only
-    vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
+  vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
 
   //StackedColumns(:series="liquiditySeries" height="400px" style="min-height: 400px")
-  .virtual-table-container
-    VirtualTable.virtual-table(
-      :table="tableData"
-    )
-      template(#row="{ item }")
-        AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
 
-  //- el-table.position-table.custom-responsive-table(
-  //-   v-loading="loading"
-  //-   :data='positions',
-  //-   style='width: 100%',
-  //-   @row-click="showPosition"
-  //- )
-  //-   template(#empty)
-  //-     .d-flex.flex-column.align-items-center.gap-30.py-5
-  //-       i.el-icon-moon-night.fs-40
-  //-       .fs-14.lh-14 No liquidity positions yet
-  //-   el-table-column(:label='$t("Assets in Position")' width="140" className="assets")
-  //-     template(slot-scope='{row}')
-  //-       AlcorButton(@click="openInNewTab(monitorAccount(row.owner))")
-  //-         span {{ row.owner }}
+  el-table.position-table.custom-responsive-table(
+    v-loading="loading"
+    :data='positions',
+    style='width: 100%',
+    @row-click="showPosition"
+  )
+    template(#empty)
+      .d-flex.flex-column.align-items-center.gap-30.py-5
+        i.el-icon-moon-night.fs-40
+        .fs-14.lh-14 No liquidity positions yet
+    el-table-column(:label='$t("Assets in Position")' width="140" className="assets")
+      template(slot-scope='{row}')
+        AlcorButton(@click="openInNewTab(monitorAccount(row.owner))")
+          span {{ row.owner }}
 
-  //-   el-table-column(:label='$t("Range")' width="220" class-name="min-max")
-  //-     template(slot-scope='{row}')
-  //-       .d-flex.flex-column
-  //-         .d-flex.align-items-center.gap-4
-  //-           .indicator(:class="{ 'in-range': row.inRange }")
-  //-           .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
-  //-         .d-flex.align-items-center.gap-6.flex-wrap
-  //-           .d-flex.gap-4
-  //-             .fs-12.disable MIN
-  //-             .fs-12.contrast {{ row.priceLower }}
-  //-           i.el-icon-sort.rot
-  //-           .d-flex.gap-4
-  //-             .fs-12.disable MAX
-  //-             .fs-12.contrast {{ row.priceUpper }}
+    el-table-column(:label='$t("Range")' width="220" class-name="min-max")
+      template(slot-scope='{row}')
+        .d-flex.flex-column
+          .d-flex.align-items-center.gap-4
+            .indicator(:class="{ 'in-range': row.inRange }")
+            .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
+          .d-flex.align-items-center.gap-6.flex-wrap
+            .d-flex.gap-4
+              .fs-12.disable MIN
+              .fs-12.contrast {{ row.priceLower }}
+            i.el-icon-sort.rot
+            .d-flex.gap-4
+              .fs-12.disable MAX
+              .fs-12.contrast {{ row.priceUpper }}
 
-  //-   el-table-column(:label='$t("Assets in Pool")' width="180")
-  //-     template(slot-scope='{row}')
-  //-       .d-flex.flex-column
-  //-         .mobile-label {{ $t("Assets in Pool") }}
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
+    el-table-column(:label='$t("Assets in Pool")' width="180")
+      template(slot-scope='{row}')
+        .d-flex.flex-column
+          .mobile-label {{ $t("Assets in Pool") }}
+          .d-flex.align-items-center.gap-4
+            token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
-  //-           .fs-12.d-flex.gap-4
-  //-             span {{ row.amountA }}
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
+            .fs-12.d-flex.gap-4
+              span {{ row.amountA }}
+          .d-flex.align-items-center.gap-4
+            token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
-  //-           .fs-12.d-flex.gap-4(:class="{ red: false }")
-  //-             span {{ row.amountB }}
+            .fs-12.d-flex.gap-4(:class="{ red: false }")
+              span {{ row.amountB }}
 
-  //-   el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees" sortable sort-by='feesA')
-  //-     template(slot-scope='{row}')
-  //-       .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
+    el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees" sortable sort-by='feesA')
+      template(slot-scope='{row}')
+        .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
 
-  //-       .d-flex.flex-column
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
+        .d-flex.flex-column
+          .d-flex.align-items-center.gap-4
+            token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
-  //-           .fs-12.earn.d-flex.gap-4
-  //-             span {{ row.feesA }}
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
+            .fs-12.earn.d-flex.gap-4
+              span {{ row.feesA }}
+          .d-flex.align-items-center.gap-4
+            token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
-  //-           .fs-12.earn.d-flex.gap-4
-  //-             span {{ row.feesB }}
+            .fs-12.earn.d-flex.gap-4
+              span {{ row.feesB }}
 
-  //-   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile" sortable sort-by='totalValue')
-  //-     template(slot-scope='{row}')
-  //-       span $ {{ row.totalValue && row.totalValue.toFixed(2) }}
+    el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile" sortable sort-by='totalValue')
+      template(slot-scope='{row}')
+        span $ {{ row.totalValue && row.totalValue.toFixed(2) }}
 
-  //-   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile" sortable sort-by='pNl')
-  //-     template(slot-scope='{row}')
-  //-       span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
+    el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile" sortable sort-by='pNl')
+      template(slot-scope='{row}')
+        span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
 
-  //-   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
-  //-     template(slot-scope='{row}')
-  //-       alcor-button(compact) {{ $t('Manage') }}
+    el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
+      template(slot-scope='{row}')
+        alcor-button(compact) {{ $t('Manage') }}
 
 </template>
 
@@ -97,12 +90,11 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
 import AlcorButton from '~/components/AlcorButton'
+
 import StackedColumns from '~/components/charts/StackedColumns'
-import VirtualTable from '~/components/VirtualTable.vue'
-import AnalyticsPositionRow from '~/components/analytics/pool/AnalyticsPositionRow.vue'
 
 export default {
-  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns, VirtualTable, AnalyticsPositionRow },
+  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns },
 
   fetch({ params, error }) {
     // TODO 404
@@ -255,38 +247,18 @@ export default {
       }).filter(p => p.pool)
     },
     tableData() {
+      const data = this.positions
       const header = [
         {
-          label: 'Account',
-        },
-        {
-          label: 'Range',
-        },
-        {
-          label: 'Assets In Pool',
-        },
-        {
-          label: 'Unclaimed Fees',
+          label: 'Pair',
+          value: 'quote_name',
+          width: '335px',
           sortable: true,
-          value: 'feesA'
-        },
-        {
-          label: 'Total Value',
-        },
-        {
-          label: 'P&L',
-        },
-        {
-          label: '',
         },
       ]
 
-      const data = this.positions || []
-      const itemSize = 54
-      const pageMode = true
-
-      return { header, data, itemSize, pageMode }
-    }
+      return { data, header }
+    },
   },
 
   mounted() {
@@ -349,36 +321,9 @@ export default {
     background: var(--access-indicator);
   }
 }
-
-.virtual-table-container {
-  overflow: auto;
-}
-
-.virtual-table {
-  --grid-template: 10% 18% 20% 20% 10% 10% auto;
-  min-width: 1100px;
-  &::v-deep {
-    .header {
-      display: grid;
-      grid-template-columns: var(--grid-template);
-      color: #909399;
-      font-weight: 500;
-      font-size: 14px;
-      padding: 0;
-      .header__column {
-        padding: 10px;
-        justify-content: flex-start;
-      }
-    }
-  }
-}
-.analytics-position-row {
-  display: grid;
-  grid-template-columns: var(--grid-template);
-}
 </style>
 
-<style scoped lang="scss">
+<style lang="scss">
 .position-table {
   border-radius: 12px;
   .el-table__header {

@@ -8,7 +8,7 @@ recycle-scroller(
   :item-size="table.itemSize"
   :pageMode="table.pageMode"
   :buffer="buffer || 450"
-  list-tag="table"
+  list-tag="div"
 )
   template(#before)
     div.header(:class="{ 'mobile': isMobile }")
@@ -36,7 +36,7 @@ export default {
     },
     activeSort() {
       return { key: this.sortKey, route: this.route }
-    }
+    },
   },
   methods: {
     sort(updated) {
@@ -47,8 +47,8 @@ export default {
       }
       this.sortKey = updated.key
       this.route = updated.route
-    }
-  }
+    },
+  },
 }
 </script>
 
