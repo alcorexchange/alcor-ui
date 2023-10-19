@@ -1,7 +1,7 @@
 <template lang="pug">
 .analytics-position-row.cursor-pointer(@click="$emit('showPosition', position)")
   .address.fs-14
-   span(@click.stop="monitorOwner") {{ position.owner }}
+    span(@click.stop="monitorOwner") {{ position.owner }}
   .range
     .d-flex.flex-column
       .d-flex.align-items-center.gap-4
@@ -86,5 +86,4 @@ export default {
   color: var(--main-green);
   text-decoration: underline;
 }
-
 </style>

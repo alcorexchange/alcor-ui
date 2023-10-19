@@ -679,5 +679,5 @@ export default {
   'From Greymass Team': 'From Greymass Team',
   'General Chatting': 'General Chatting',
   'Select Network': 'Select Network',
-  Analytics: 'Analytics'
+  Analytics: 'Analytics',
 }

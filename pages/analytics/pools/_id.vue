@@ -263,7 +263,7 @@ export default {
           label: 'Range',
         },
         {
-          label: 'Assets In Pool',
+          label: 'Assets in Pool',
         },
         {
           label: 'Unclaimed Fees',
@@ -282,7 +282,7 @@ export default {
       ]
 
       const data = this.positions || []
-      const itemSize = 54
+      const itemSize = 56
       const pageMode = true
 
       return { header, data, itemSize, pageMode }
@@ -351,11 +351,11 @@ export default {
 }
 
 .virtual-table-container {
-  overflow: auto;
+  overflow-x: auto;
 }
 
 .virtual-table {
-  --grid-template: 10% 18% 20% 20% 10% 10% auto;
+  --grid-template: 10% 22% 18% 17% 10% 10% auto;
   min-width: 1100px;
   &::v-deep {
     .header {
