@@ -33,7 +33,7 @@
             td
               .icon-and-value
                 TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.dailyRewards | commaFloat }}
+                span {{ stat.dailyRewards }}
             td
               .icon-and-value
                 TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
