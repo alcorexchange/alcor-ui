@@ -28,7 +28,7 @@
         template(v-for="stat in incentive.incentiveStats")
           tr(v-if="stat.staked")
             td
-              NuxtLink(:to="localeRoute(`/positions/${stat.pool}-${stat.posId}-${poolFee}`)") # {{ stat.posId }}
+              NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
             td {{ stat.userSharePercent }}%
             td
               .icon-and-value
