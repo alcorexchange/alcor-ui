@@ -42,6 +42,11 @@
   template(v-if="!noPL")
     .d-flex.justify-content-between.mt-1
       .fs-16 P&L
+        el-popover(placement='bottom-start' width='300' trigger='hover')
+          template
+            .text
+              p Cumulative sum of historical liquidity deposits and withdrawals in USD by the time of action, along with accrued fees.
+          .el-icon-info(slot="reference").ml-2.pointer
       .fs-16 ${{ pNl }}
     .d-flex.justify-content-between.mt-1
       .fs-16 Pool Share
@@ -82,6 +87,8 @@ export default {
     },
 
     poolShare() {
+      if (!this.position.inRange) return '0.00'
+
       if (JSBI.equal(this.position.pool.liquidity, JSBI.BigInt(0))) return '0.00'
       return (parseFloat(new Fraction(this.position.liquidity, this.position.pool.liquidity).toFixed(6)) * 100).toFixed(2)
     },

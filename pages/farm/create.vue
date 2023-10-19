@@ -33,6 +33,11 @@
 
       DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
+      el-tag(v-if="feeToken" size="big" @click="buyFeeToken").pointer
+        | Farm creation fee
+        | {{ feeToken.quantity }}
+        //img(:src="$tokenLogo(feeToken.symbol, feeToken.contract)" height="12").ml-1
+
       AlcorButton(class="submit" access @click="create") Create Farm
 
 </template>
@@ -77,6 +82,17 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
 
+    feeToken() {
+      const feeToken = this.$getToken(this.network?.farmCreationFee?.token)
+
+      if (!feeToken) return null
+
+      return {
+        ...feeToken,
+        quantity: this.network.farmCreationFee.amount.toFixed(feeToken.decimals) + ' ' + feeToken.symbol
+      }
+    },
+
     pools() {
       const pools = [...this.$store.state.amm.poolsStats]
       return (
@@ -99,14 +115,30 @@ export default {
     },
 
     rewardTokens() {
-      return this.rewardTokensWhitelist.map(({ token }) => {
-        return {
-          id: parseToken(token).id,
-          contract: token.contract,
-          symbol: token.quantity.split(' ')[1],
-          currency: token.quantity.split(' ')[1]
-        }
-      })
+      return this.$store.getters['wallet/balances']
+
+      // .filter((b) => {
+      //   if (parseFloat(b.amount) == 0) return false
+
+      //   return b.id.toLowerCase().includes(this.search.toLowerCase())
+      // })
+      // .sort((a, b) => {
+      //   if (a.contract == this.network.baseToken.contract) return -1
+
+      //   if (a.usd_value > b.usd_value) return -1
+      //   if (a.usd_value < b.usd_value) return 1
+
+      //   return 0
+      // })
+
+      // return this.rewardTokensWhitelist.map(({ token }) => {
+      // return {
+      //   id: parseToken(token).id,
+      //   contract: token.contract,
+      //   symbol: token.quantity.split(' ')[1],
+      //   currency: token.quantity.split(' ')[1]
+      // }
+      // })
     },
 
     distributionOptions() {
@@ -134,6 +166,17 @@ export default {
   },
 
   methods: {
+    buyFeeToken() {
+      this.$router.push(
+        this.localeRoute({
+          path: '/swap',
+          query: {
+            output: this.feeToken.id,
+          },
+        })
+      )
+    },
+
     onRewardTokenSelect(token, index) {
       this.rewardList[index].token = token
     },
@@ -230,6 +273,21 @@ export default {
           },
         })
       })
+
+      if (this.feeToken) {
+        actions.push({
+          account: this.feeToken.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+
+          data: {
+            from: this.user.name,
+            to: this.network.feeAccount,
+            quantity: this.feeToken.quantity,
+            memo: 'farm creation',
+          },
+        })
+      }
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
       console.log({ r })

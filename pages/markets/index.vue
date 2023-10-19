@@ -1,45 +1,46 @@
 <template lang="pug">
-.markets
-  market-top(v-if="!isMobile" :newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
-  .table-intro
-    el-radio-group.radio-chain-select.custom-radio(
-      v-model='markets_active_tab',
-      size='small'
-    ).mr-3
-      el-radio-button(label='fav')
-        i.el-icon-star-on
-        span {{ $t('Fav') }}
+no-ssr
+  .markets
+    market-top(v-if="!isMobile" :newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
+    .table-intro
+      el-radio-group.radio-chain-select.custom-radio(
+        v-model='markets_active_tab',
+        size='small'
+      ).mr-3
+        el-radio-button(label='fav')
+          i.el-icon-star-on
+          span {{ $t('Fav') }}
 
-      el-radio-button(label='all')
-        span {{ $t('All') }}
+        el-radio-button(label='all')
+          span {{ $t('All') }}
 
-      el-radio-button(:label='network.baseToken.symbol')
-        span {{ network.baseToken.symbol }}
+        el-radio-button(:label='network.baseToken.symbol')
+          span {{ network.baseToken.symbol }}
 
-      el-radio-button(v-if='network.name == "eos"', label='USDT')
-        span {{ $t('USDT') }}
+        el-radio-button(v-if='network.name == "eos"', label='USDT')
+          span {{ $t('USDT') }}
 
-      el-radio-button(value='cross-chain', label='Cross-Chain')
-        span {{ $t('Cross-Chain') }}
+        el-radio-button(value='cross-chain', label='Cross-Chain')
+          span {{ $t('Cross-Chain') }}
 
-    .search-container
-      el-input(
-        v-model='search',
-        :placeholder='$t("Search market")',
-        size='small',
-        prefix-icon='el-icon-search'
-        clearable
-      )
+      .search-container
+        el-input(
+          v-model='search',
+          :placeholder='$t("Search market")',
+          size='small',
+          prefix-icon='el-icon-search'
+          clearable
+        )
 
-    el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
+      el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
-    .ml-auto(v-if="!isMobile")
-      nuxt-link(:to="localePath('new_market', $i18n.locale)")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
+      .ml-auto(v-if="!isMobile")
+        nuxt-link(:to="localePath('new_market', $i18n.locale)")
+          el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
 
-  virtual-table(:table="virtualTableData")
-    template(#row="{ item }")
-      market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
+    virtual-table(:table="virtualTableData")
+      template(#row="{ item }")
+        market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
 </template>
 
 <script>
@@ -168,6 +169,7 @@ export default {
         quote_name: market.quote_token.symbol.name,
         contract: market.quote_token.contract,
         base_name: market.base_token.symbol.name,
+        base_contract: market.base_token.contract,
         promoted: market.promoted,
         change_week: market.changeWeek,
         volume_week: market.volumeWeek,
@@ -211,13 +213,7 @@ export default {
           )
           break
 
-        case 'Terraformers':
-          markets = this.markets.filter(
-            i => i.quote_token.contract == 'unboundtoken'
-          )
-          break
-
-        default: {
+        case 'Cross-Chain': {
           // Cross Chain
           const ibcTokens = this.$store.state.ibcTokens.filter(
             i => i != this.network.baseToken.contract
@@ -246,7 +242,13 @@ export default {
         .reduce((res, subArr) => {
           res.push(...subArr)
           return res
-        }, [])
+        }, []).sort((a, b) => {
+          if (a.promoted && b.promoted) {
+            return this.network.PINNED_MARKETS.indexOf(a.id) - this.network.PINNED_MARKETS.indexOf(b.id)
+          }
+
+          return 0
+        })
 
       return markets
     }

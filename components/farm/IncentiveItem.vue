@@ -28,12 +28,12 @@
         template(v-for="stat in incentive.incentiveStats")
           tr(v-if="stat.staked")
             td
-              NuxtLink(:to="localeRoute(`/positions/${stat.pool}-${stat.posId}-${poolFee}`)") # {{ stat.posId }}
+              NuxtLink(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
             td {{ stat.userSharePercent }}%
             td
               .icon-and-value
                 TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.dailyRewards | commaFloat }}
+                span {{ stat.dailyRewards }}
             td
               .icon-and-value
                 TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")

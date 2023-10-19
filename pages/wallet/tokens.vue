@@ -8,14 +8,14 @@
       wallet-row(:item="item" :useActions="true" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
 
   DepositPopup(ref="depositPopup")
-  WithdrawPopup(ref="withdrawPopup")
+  TransferPopup(ref="transferPopup")
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 import DepositPopup from '@/components/wallet/DepositPopup'
-import WithdrawPopup from '@/components/wallet/WithdrawPopup'
+import TransferPopup from '@/components/wallet/TransferPopup'
 import VirtualTable from '@/components/VirtualTable'
 import WalletRow from '@/components/wallet/WalletRow'
 
@@ -24,7 +24,7 @@ export default {
   components: {
     TokenImage,
     DepositPopup,
-    WithdrawPopup,
+    TransferPopup,
     VirtualTable,
     WalletRow
   },
@@ -123,7 +123,7 @@ export default {
     },
 
     openWithdraw(row) {
-      this.$refs.withdrawPopup.openPopup({
+      this.$refs.transferPopup.openPopup({
         token: {
           contract: row.contract,
           currency: row.currency,

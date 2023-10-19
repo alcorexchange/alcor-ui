@@ -217,6 +217,7 @@ export const actions = {
     })
 
     this.$socket.io.on('reconnect', () => {
+      console.warn('SOCKETIO RECONNECTED')
       commit('setBids', [])
       commit('setAsks', [])
 
@@ -670,8 +671,6 @@ export const getters = {
     } else {
       pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
     }
-
-    console.log('new pool price:', pool.pool2.quantity.to_string())
 
     return pool
   },

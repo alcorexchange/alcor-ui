@@ -25,6 +25,7 @@ export async function newSwapAction(action, network: Network) {
 }
 
 export async function getFieldSumFrom(field, date, pool, chain) {
+  // FIXME Need absolute sum!!
   const volume: { total_volume: number }[] = await Swap.aggregate([
     { $match: { chain, pool, time: { $gte: new Date(date) } } },
     { $group: { _id: '$pool', total_volume: { $sum: `$${field}` } } }

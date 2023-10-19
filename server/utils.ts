@@ -6,10 +6,14 @@ import { Settings } from './models'
 
 const redis = createClient()
 
-export async function getTokenPrices(chain: string, id: string) {
+export async function getTokens(chain: string) {
   if (!redis.isOpen) await redis.connect()
 
-  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
+  return JSON.parse(await redis.get(`${chain}_token_prices`))
+}
+
+export async function getToken(chain: string, id: string) {
+  const tokens = await getTokens(chain)
 
   return tokens.find(t => t.id == id)
 }

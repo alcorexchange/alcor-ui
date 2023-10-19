@@ -51,7 +51,7 @@
       .label.disable
         img(src="~/assets/icons/contract.svg")
         span {{ $t('Contract') }}
-      a.value.link(v-if="currentMarket" :href='monitorAccount(currentMarket.quote_token.contract)', target='_blank') {{ currentMarket.quote_token.contract }}
+      a.value.link(:href='monitorAccount(contract)', target='_blank') {{ contract }}
 
     .column
       .label.disable
@@ -177,27 +177,35 @@ export default {
     ...mapState(['markets']),
     ...mapGetters('market', ['relatedPool']),
     ...mapState(['network']),
+
+    contract() {
+      return this.$route.params.slug.split('@')[1]
+    },
+
     contractMarkets() {
       return this.markets.filter(
         (market) =>
-          market.quote_token.contract == this.$route.params.slug.split('@')[1]
+          market.quote_token.contract == this.contract ||
+          market.base_token.contract == this.contract
       )
     },
+
     contractDayVolume() {
       return this.contractMarkets.reduce(
         (sum, { volume24 }) => sum + volume24,
         0
       )
     },
+
     currentMarket() {
       return this.contractMarkets.find(
-        ({ quote_token }) =>
-          quote_token.symbol.name === this.$route.params.slug.split('@')[0]
+        ({ quote_token, base_token }) =>
+          quote_token.symbol.name === this.contract ||
+          base_token.symbol.name === this.contract
       )
     },
 
     fundamental() {
-      console.log('this.$fundamentals', this.$fundamentals)
       if (!this.$fundamentals[this.$store.state.network.name]) return null
 
       return this.$fundamentals[this.$store.state.network.name][
@@ -205,11 +213,13 @@ export default {
       ]
     }
   },
+
   watch: {
     currentMarket(market) {
       this.$store.dispatch('market/setMarket', market)
     }
   },
+
   mounted() {
     const [scope, contract] = this.$route.params.slug.split('@')
     this.$rpc

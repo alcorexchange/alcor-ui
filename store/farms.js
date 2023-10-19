@@ -56,7 +56,7 @@ export const mutations = {
 
 export const actions = {
   async init({ state, commit, dispatch, rootState, getters }) {
-    dispatch('loadIncentives')
+    dispatch('loadIncentives') //We do it after all tokens fetched
 
     setInterval(() => {
       // Recelculate rewards
@@ -225,6 +225,7 @@ export const actions = {
         r.incentiveId = incentiveScope
         r.incentive = state.incentives.find(i => i.id == incentiveScope)
         r.pool = positions.find(p => p.id == r.posId).pool
+        r.poolStats = positions.find(p => p.id == r.posId).pool
         return r
       })
 
@@ -238,16 +239,20 @@ export const actions = {
 
 export const getters = {
   farmPools(state, getters, rootState) {
-    // console.log('farmPools triggered')
+    //console.log('farmPools triggered')
     const incentives = state.incentives
     const userStakes = state.userStakes
 
     const pools = []
     for (const pool of rootState.amm.pools) {
+      const _incentives = incentives.filter(i => i.poolId == pool.id)
+      if (!_incentives) continue
+
+      const poolStats = rootState.amm.poolsStats.find(p => p.id == pool.id)
       const positions = rootState.amm.positions.filter(p => p.pool == pool.id)
 
       const farmIncentives = []
-      for (const incentive of incentives.filter(i => i.poolId == pool.id)) {
+      for (const incentive of _incentives) {
         const incentiveStats = []
 
         for (const position of positions) {
@@ -277,6 +282,7 @@ export const getters = {
 
       pools.push({
         ...pool,
+        poolStats,
         incentives: farmIncentives
       })
     }

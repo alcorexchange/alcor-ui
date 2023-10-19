@@ -70,6 +70,7 @@ export const mutations = {
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
+  setIbcTokens: (state, tokens) => state.ibcTokens = tokens,
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
@@ -102,6 +103,8 @@ export const actions = {
   // },
 
   init({ dispatch, state, getters }) {
+    dispatch('addIBCTokens')
+
     dispatch('loadAllTokens')
     dispatch('fetchEosAirdropTokens')
 
@@ -158,6 +161,11 @@ export const actions = {
 
   dynamicTheme({ state, commit }, radio_value) {
     this.$colorMode.preference = this.$colorMode.preference !== 'dark' ? 'dark' : radio_value
+  },
+
+  addIBCTokens({ state, commit }) {
+    const wrapTokenContracts = Object.values(state.network?.ibc?.wrapTokenContracts || []).flat(1)
+    commit('setIbcTokens', [...state.ibcTokens, ...wrapTokenContracts])
   },
 
   async fetchEosAirdropTokens({ commit }) {
@@ -219,7 +227,7 @@ export const actions = {
     if (account) commit('setAccountLimits', account)
   },
 
-  async loadAllTokens({ commit, state }) {
+  async loadAllTokens({ dispatch, commit, state }) {
     const { data: tokens } = await this.$axios.get('/v2/tokens')
     commit('setTokens', tokens)
 

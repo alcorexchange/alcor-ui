@@ -92,12 +92,10 @@ export default {
     },
 
     deals(to, from, x) {
-      console.log(to.length, from.length)
       if (to.length > from.length) this.gridExecution()
     },
 
     id(to, from) {
-      console.log('market changed!!')
       this.isReady = false
       this.reset()
       //this.load()
@@ -143,11 +141,6 @@ export default {
   },
 
   methods: {
-    lol() {
-      console.log('lol called')
-      this.widget.activeChart().removeAllShapes()
-    },
-
     save() {
       const twChart = JSON.parse(
         JSON.stringify(this.$store.state.settings.twChart)
@@ -155,7 +148,6 @@ export default {
       this.widget.save((o) => {
         twChart[this.id] = o
         this.$store.commit('settings/setTwChart', twChart)
-        console.log('CHART SAVED')
       })
     },
 
@@ -209,7 +201,6 @@ export default {
     },
 
     reset() {
-      console.log('reset called..', this.onResetCacheNeededCallback)
       if (this.widget && this.onResetCacheNeededCallback) {
         this.cleanOrders()
         this.onResetCacheNeededCallback()
@@ -366,7 +357,6 @@ export default {
 
     async loadHistory({ from, to }) {
       if (!this.user || !this.user.name) return
-      console.log('loadHistory..')
 
       const { data: deals } = await this.$axios.get(
         `/account/${this.user.name}/deals`,
@@ -388,8 +378,6 @@ export default {
 
     gridExecution() {
       if (!this.user || !this.widget || !this.chart_orders_settings.show_trade_executions) return
-
-      console.log('Grid execution...')
 
       //this.gridExecutions.map(e => e.remove())
       //this.gridExecutions = []
@@ -460,7 +448,6 @@ export default {
 
     mountChart() {
       const { $TVChart: { Widget } } = this
-      console.log('mountChart')
 
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
@@ -470,7 +457,6 @@ export default {
 
         datafeed: {
           onReady: (cb) => {
-            console.log('onReady called...')
             setTimeout(() => {
               cb({
                 //exchanges: [{ value: 'asdfasdf', name: 'aaaa', desc: 'df' }],
