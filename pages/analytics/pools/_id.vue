@@ -7,12 +7,13 @@ div
     vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
 
   //StackedColumns(:series="liquiditySeries" height="400px" style="min-height: 400px")
-  .virtual-table-container
-    VirtualTable.virtual-table(
-      :table="tableData"
-    )
-      template(#row="{ item }")
-        AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
+
+  VirtualTable.virtual-table(
+    :table="tableData"
+    v-loading="loading"
+  )
+    template(#row="{ item }")
+      AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
 
   //- el-table.position-table.custom-responsive-table(
   //-   v-loading="loading"
@@ -261,6 +262,7 @@ export default {
         },
         {
           label: 'Range',
+          desktopOnly: true
         },
         {
           label: 'Assets in Pool',
@@ -268,16 +270,20 @@ export default {
         {
           label: 'Unclaimed Fees',
           sortable: true,
-          value: 'feesA'
+          value: 'feesA',
+          desktopOnly: true
         },
         {
           label: 'Total Value',
+          desktopOnly: true
         },
         {
           label: 'P&L',
+          desktopOnly: true
         },
         {
           label: '',
+          desktopOnly: true
         },
       ]
 
@@ -350,13 +356,8 @@ export default {
   }
 }
 
-.virtual-table-container {
-  overflow-x: auto;
-}
-
 .virtual-table {
   --grid-template: 10% 22% 18% 17% 10% 10% auto;
-  min-width: 1100px;
   &::v-deep {
     .header {
       display: grid;
@@ -375,6 +376,19 @@ export default {
 .analytics-position-row {
   display: grid;
   grid-template-columns: var(--grid-template);
+}
+
+
+@media only screen and (max-width: 1100px) {
+  .virtual-table {
+    --grid-template: 1fr 180px;
+  }
+  .analytics-position-row::v-deep {
+    .desktopOnly {
+      font-size: 12px !important;
+      display: none !important;
+    }
+  }
 }
 </style>
 
