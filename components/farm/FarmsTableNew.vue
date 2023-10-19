@@ -3,6 +3,7 @@
   .table-header.farm-item
     .header-item Pair
     .header-item Total Staked
+    .header-item APR
     .header-item Total Reward
     .header-item Daily Rewards
     .header-item Remaining Time
@@ -201,7 +202,7 @@ export default {
 <style lang="scss">
 .farm-item {
   display: grid;
-  grid-template-columns: 20% 20% 15% 15% 15% 1fr auto;
+  grid-template-columns: 20% 16% 8% 15% 15% 11% 1fr auto;
   & > * {
     padding: 10px;
   }

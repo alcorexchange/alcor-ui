@@ -227,7 +227,7 @@ export const actions = {
     if (account) commit('setAccountLimits', account)
   },
 
-  async loadAllTokens({ commit, state }) {
+  async loadAllTokens({ dispatch, commit, state }) {
     const { data: tokens } = await this.$axios.get('/v2/tokens')
     commit('setTokens', tokens)
 

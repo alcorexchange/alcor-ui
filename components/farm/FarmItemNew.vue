@@ -10,6 +10,7 @@
         .token-names
           span {{ farm.tokenA.quantity.split(' ')[1] }}/{{ farm.tokenB.quantity.split(' ')[1] }}
           Tag {{ farm.fee / 10000 }} %
+          //span {{ farm.poolStats.tvlUSD }}
         .token-contracts.muted {{ farm.tokenA.contract }}/{{ farm.tokenB.contract }}
 
     .total-staked-section
@@ -21,6 +22,12 @@
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenB.quantity.split(' ')[1], farm.tokenB.contract)" width="14px" height="14px")
         span {{ farm.tokenB.quantity | commaFloat }}
+
+    .total-reward-section
+      span.mobile-only.muted.fs-14 APR
+      .icon-and-value(v-for="item in farm.incentives")
+        TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
+        span {{ getAPR(item) }}%
 
     .total-reward-section
       span.mobile-only.muted.fs-14 Total Reward
@@ -130,6 +137,20 @@ export default {
   },
 
   methods: {
+    getAPR(incentive) {
+      const poolStats = this.farm.poolStats
+      if (!poolStats) return null
+
+      const tvlUSD = poolStats.tvlUSD
+      const dayRewardInUSD = parseFloat(this.$tokenToUSD(
+        parseFloat(incentive.rewardPerDay),
+        incentive.reward.quantity.split(' ')[1],
+        incentive.reward.contract)
+      )
+
+      return (dayRewardInUSD / tvlUSD * 365 * 100).toFixed()
+    },
+
     addLiquidity() {
       this.$router.push({
         path: '/positions/new',
