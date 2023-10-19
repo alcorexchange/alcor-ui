@@ -275,10 +275,14 @@ export default {
         },
         {
           label: 'Total Value',
+          sortable: true,
+          value: 'totalValue',
           desktopOnly: true
         },
         {
           label: 'P&L',
+          sortable: true,
+          value: 'pNl',
           desktopOnly: true
         },
         {
