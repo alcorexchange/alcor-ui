@@ -217,6 +217,7 @@ export const actions = {
     })
 
     this.$socket.io.on('reconnect', () => {
+      console.warn('SOCKETIO RECONNECTED')
       commit('setBids', [])
       commit('setAsks', [])
 
