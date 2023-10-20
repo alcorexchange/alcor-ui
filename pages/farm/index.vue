@@ -64,7 +64,7 @@ export default {
       })
 
       pools.sort((a, b) => {
-        return (b.poolStats.tvlUSD || 0) - (a.poolStats.tvlUSD || 0)
+        return (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0)
       })
 
       return pools
