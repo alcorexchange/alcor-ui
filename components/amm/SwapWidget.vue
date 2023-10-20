@@ -196,17 +196,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://nftbattleminers.com/',
+        link: 'https://wax.alcor.exchange/farm/',
         image: require('@/assets/images/swap-banner-1.jpg'),
-        colors: ['rgb(224,203,147, 0.2)', 'rgb(200,225,230)', 'rgb(65,183,236)'],
-      },
-      {
-        // link: 'https://giv.gg/deepmine-giveaway',
-        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
           'rgba(103, 194, 58,0.2)',
           'rgba(28,28,29, 1)',
           'rgba(20,56,21,1)',
+        ],
+      },
+      {
+        link: 'https://nfthive.io/drop/6411',
+        image: require('@/assets/images/swap-banner-2.png'),
+        colors: [
+          'rgba(25,201,254,0.2)',
+          'rgba(63,102,180,1)',
+          'rgba(197,3,14, 1)',
         ],
       },
     ]
