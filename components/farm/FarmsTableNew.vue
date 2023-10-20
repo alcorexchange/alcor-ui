@@ -202,7 +202,7 @@ export default {
 <style lang="scss">
 .farm-item {
   display: grid;
-  grid-template-columns: 20% 16% 8% 15% 15% 11% 1fr auto;
+  grid-template-columns: 21% 16% 8% 15% 15% 10% 1fr auto;
   & > * {
     padding: 10px;
   }
