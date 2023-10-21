@@ -4,14 +4,6 @@
   .analytics-stats-and-chart
     AnalyticsStats
     AnalyticsChart
-  AnalyticsSectionHeader(title="Pools")
-    template(#action)
-      AlcorButton Explore
-  AnalyticsPoolsTable
-  AnalyticsSectionHeader(title="Spot Pairs")
-    template(#action)
-      AlcorButton Explore
-  AnalyticsSpotPairsTable(:tableData="Array.from({length: 8})")
 </template>
 
 <script>
