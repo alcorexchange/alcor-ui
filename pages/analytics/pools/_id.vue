@@ -1,5 +1,6 @@
 <template lang="pug">
 div
+  AnalyticsPoolHeader
 
   h5 chart
 
@@ -101,9 +102,13 @@ import AlcorButton from '~/components/AlcorButton'
 import StackedColumns from '~/components/charts/StackedColumns'
 import VirtualTable from '~/components/VirtualTable.vue'
 import AnalyticsPositionRow from '~/components/analytics/pool/AnalyticsPositionRow.vue'
+import AnalyticsBreadcrumb from '~/components/analytics/AnalyticsBreadcrumb'
+import AnalyticsStats from '~/components/analytics/AnalyticsStats'
+import AnalyticsChart from '~/components/analytics/AnalyticsChart'
+import AnalyticsPoolHeader from '~/components/analytics/AnalyticsPoolHeader'
 
 export default {
-  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns, VirtualTable, AnalyticsPositionRow },
+  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns, VirtualTable, AnalyticsPositionRow, AnalyticsPoolHeader, AnalyticsChart, AnalyticsStats, AnalyticsBreadcrumb },
 
   fetch({ params, error }) {
     // TODO 404
