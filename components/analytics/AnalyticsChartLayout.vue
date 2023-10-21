@@ -2,7 +2,7 @@
 AlcorContainer.analytics-chart
   .header.d-flex
     .d-flex
-      .mode-items
+      .mode-items(v-if="modes")
         .mode(v-for="item in modes" :class="{active: selectedMode === item.value}" @click="$emit('update:selectedMode', item.value)") {{ item.value }}
     .d-flex
       .mode-items

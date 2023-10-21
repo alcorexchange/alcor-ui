@@ -3,29 +3,20 @@
   AnalyticsTokenHeader
   .analytics-stats-and-chart
     AnalyticsStats
-    AnalyticsChart
+    AnalyticsChartLayout
+      div price chart here
 </template>
 
 <script>
-import AnalyticsHeader from '@/components/analytics/AnalyticsHeader'
-import AnalyticsSectionHeader from '@/components/analytics/AnalyticsSectionHeader'
-import AnalyticsStats from '@/components/analytics/AnalyticsStats'
-import AnalyticsChart from '@/components/analytics/AnalyticsChart'
-import AnalyticsPoolsTable from '@/components/analytics/AnalyticsPoolsTable'
-import AnalyticsSpotPairsTable from '@/components/analytics/AnalyticsSpotPairsTable'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
-import AlcorButton from '@/components/AlcorButton'
+import AnalyticsStats from '@/components/analytics/AnalyticsStats'
+import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout.vue'
 
 export default {
   components: {
-    AnalyticsHeader,
-    AnalyticsSectionHeader,
-    AnalyticsStats,
-    AnalyticsChart,
-    AnalyticsPoolsTable,
-    AnalyticsSpotPairsTable,
     AnalyticsTokenHeader,
-    AlcorButton,
+    AnalyticsStats,
+    AnalyticsChartLayout,
   },
 }
 </script>
