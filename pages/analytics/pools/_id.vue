@@ -1,5 +1,6 @@
 <template lang="pug">
 div
+  AnalyticsBreadcrumb
   AnalyticsPoolHeader
 
   h5 chart
@@ -108,7 +109,19 @@ import AnalyticsChart from '~/components/analytics/AnalyticsChart'
 import AnalyticsPoolHeader from '~/components/analytics/AnalyticsPoolHeader'
 
 export default {
-  components: { PairIcons, TokenImage, PositionFees, AlcorButton, StackedColumns, VirtualTable, AnalyticsPositionRow, AnalyticsPoolHeader, AnalyticsChart, AnalyticsStats, AnalyticsBreadcrumb },
+  components: {
+    PairIcons,
+    TokenImage,
+    PositionFees,
+    AlcorButton,
+    StackedColumns,
+    VirtualTable,
+    AnalyticsPositionRow,
+    AnalyticsPoolHeader,
+    AnalyticsChart,
+    AnalyticsStats,
+    AnalyticsBreadcrumb,
+  },
 
   fetch({ params, error }) {
     // TODO 404
@@ -132,7 +145,7 @@ export default {
           // stacked: true,
           background: 'transparent',
           toolbar: {
-            show: false
+            show: false,
           },
           // zoom: {
           //   enabled: true
@@ -164,27 +177,27 @@ export default {
             //     }
             //   }
             // }
-          }
+          },
         },
         theme: {
           mode: 'dark',
-          palette: 'palette2'
+          palette: 'palette2',
         },
         dataLabels: {
-          enabled: false
+          enabled: false,
         },
         grid: {
           xaxis: {
             lines: {
-              show: false
-            }
+              show: false,
+            },
           },
 
           yaxis: {
             lines: {
-              show: false
-            }
-          }
+              show: false,
+            },
+          },
         },
         xaxis: {
           //type: 'numeric',
@@ -212,7 +225,7 @@ export default {
           //},
         },
         legend: {
-          show: false
+          show: false,
         },
         //colors: ['#0A84FF'],
         fill: {
@@ -221,10 +234,10 @@ export default {
             style: 'verticalLines',
             width: 1,
             height: 1,
-            strokeWidth: 10
-          }
-        }
-      } // options chart
+            strokeWidth: 10,
+          },
+        },
+      }, // options chart
     }
   },
 
@@ -234,31 +247,34 @@ export default {
     },
 
     pool() {
-      const _pool = this.$store.state.amm.pools.find(p => p.id == this.id)
+      const _pool = this.$store.state.amm.pools.find((p) => p.id == this.id)
       if (!_pool) return
 
       return constructPoolInstance(_pool)
     },
 
     positions() {
-      return this.loadedPositions.map(p => {
-        if (!this.pool) return {}
+      return this.loadedPositions
+        .map((p) => {
+          if (!this.pool) return {}
 
-        const { pool } = this
+          const { pool } = this
+          // prettier-ignore
+          const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
+          // prettier-ignore
+          const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
 
-        const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
-        const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
+          const link = `/positions/${p.id}`
 
-        const link = `/positions/${p.id}`
-
-        return {
-          ...p,
-          pool,
-          priceUpper,
-          priceLower,
-          link
-        }
-      }).filter(p => p.pool)
+          return {
+            ...p,
+            pool,
+            priceUpper,
+            priceLower,
+            link,
+          }
+        })
+        .filter((p) => p.pool)
     },
     tableData() {
       const header = [
@@ -267,7 +283,7 @@ export default {
         },
         {
           label: 'Range',
-          desktopOnly: true
+          desktopOnly: true,
         },
         {
           label: 'Assets in Pool',
@@ -276,23 +292,23 @@ export default {
           label: 'Unclaimed Fees',
           sortable: true,
           value: 'feesA',
-          desktopOnly: true
+          desktopOnly: true,
         },
         {
           label: 'Total Value',
           sortable: true,
           value: 'totalValue',
-          desktopOnly: true
+          desktopOnly: true,
         },
         {
           label: 'P&L',
           sortable: true,
           value: 'pNl',
-          desktopOnly: true
+          desktopOnly: true,
         },
         {
           label: '',
-          desktopOnly: true
+          desktopOnly: true,
         },
       ]
 
@@ -301,7 +317,7 @@ export default {
       const pageMode = true
 
       return { header, data, itemSize, pageMode }
-    }
+    },
   },
 
   mounted() {
@@ -311,33 +327,39 @@ export default {
 
   methods: {
     async fetchPositions() {
-      const { data } = await this.$axios.get(`/v2/swap/pools/${this.id}/positions`)
+      const { data } = await this.$axios.get(
+        `/v2/swap/pools/${this.id}/positions`
+      )
       this.loading = false
       this.loadedPositions = data
     },
 
     async fetchLiquidityChart() {
-      let { data } = await this.$axios.get('/v2/swap/pools/' + this.id + '/liquidityChartSeries', { params: { inverted: false } })
+      let { data } = await this.$axios.get(
+        '/v2/swap/pools/' + this.id + '/liquidityChartSeries',
+        { params: { inverted: false } }
+      )
 
-
-      data = data.filter(s => Math.max(s.x, s.y) <= 1247497401346422)
+      data = data.filter((s) => Math.max(s.x, s.y) <= 1247497401346422)
 
       console.log('data', data)
 
-      this.liquiditySeries = [{
-        name: 'lol',
-        type: 'area',
-        data // TEMP FIX
-        //data: [{ x: 1, y: 4 }, { x: 2, y: 10 }]
-      }]
+      this.liquiditySeries = [
+        {
+          name: 'lol',
+          type: 'area',
+          data, // TEMP FIX
+          //data: [{ x: 1, y: 4 }, { x: 2, y: 10 }]
+        },
+      ]
 
       console.log(this.liquiditySeries)
     },
 
     showPosition(position) {
       this.$router.push(position.link)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -387,7 +409,6 @@ export default {
   grid-template-columns: var(--grid-template);
 }
 
-
 @media only screen and (max-width: 1100px) {
   .virtual-table {
     --grid-template: 1fr 180px;
@@ -425,7 +446,7 @@ export default {
   }
 }
 @media only screen and (max-width: 1100px) {
-  .custom-responsive-table{
+  .custom-responsive-table {
     .assets {
       grid-column: 1 / 3;
       .assets-inner {
@@ -442,8 +463,8 @@ export default {
         flex-direction: column;
         align-items: flex-end;
       }
-      .position-fees{
-        align-items: flex-end
+      .position-fees {
+        align-items: flex-end;
       }
     }
   }
