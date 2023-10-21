@@ -108,7 +108,7 @@ export default {
       items.push({ index: '/markets', name: 'Markets' })
       items.push({ index: '/bridge', name: 'Bridge' })
 
-      if (['wax', 'eos'].includes(this.$store.state.network.name)) {
+      if (['wax', 'eos', 'proton'].includes(this.$store.state.network.name)) {
         items.push({ index: '/farm', name: 'Farm', new: true })
       }
 

@@ -25,7 +25,7 @@
   .actions(v-if="!isMobile && useActions")
     el-button(size="medium" type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
     el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
-    el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
+    el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Swap') }}
     el-button.hover-opacity(size="medium" type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
 </template>
 

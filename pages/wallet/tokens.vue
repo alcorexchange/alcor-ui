@@ -5,7 +5,7 @@
     el-checkbox() {{ $t('Hide small balances') }}
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
-      wallet-row(:item="item" :useActions="true" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
+      WalletRow(:item="item" :useActions="true" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
 
   DepositPopup(ref="depositPopup")
   TransferPopup(ref="transferPopup")
