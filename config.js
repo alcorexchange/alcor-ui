@@ -464,7 +464,8 @@ const networks = {
     popularTokens: [
       'wax-eosio.token',
       'usdt-usdt.alcor',
-      'eos-ibc.wt.eos',
+      //'eos-ibc.wt.eos',
+      //'wombat-wombattokens',
       'tlm-alien.worlds',
     ],
   },
