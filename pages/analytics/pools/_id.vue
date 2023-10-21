@@ -3,7 +3,13 @@ div
   AnalyticsBreadcrumb.mb-2
   AnalyticsPoolHeader
 
-  h5 chart
+  .analytics-stats-and-chart
+    AnalyticsStats
+    AnalyticsChartLayout(
+      :modes="chartModes"
+      selectedMode="TVL"
+      selectedResolution="1W"
+    )
 
   client-only
     vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
@@ -105,6 +111,7 @@ import VirtualTable from '~/components/VirtualTable.vue'
 import AnalyticsPositionRow from '~/components/analytics/pool/AnalyticsPositionRow.vue'
 import AnalyticsBreadcrumb from '~/components/analytics/AnalyticsBreadcrumb'
 import AnalyticsStats from '~/components/analytics/AnalyticsStats'
+import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout'
 import AnalyticsChart from '~/components/analytics/AnalyticsChart'
 import AnalyticsPoolHeader from '~/components/analytics/AnalyticsPoolHeader'
 
@@ -118,6 +125,7 @@ export default {
     VirtualTable,
     AnalyticsPositionRow,
     AnalyticsPoolHeader,
+    AnalyticsChartLayout,
     AnalyticsChart,
     AnalyticsStats,
     AnalyticsBreadcrumb,
@@ -242,6 +250,14 @@ export default {
   },
 
   computed: {
+    chartModes() {
+      return [
+        { value: 'TVL' },
+        { value: 'Volume' },
+        { value: 'Fees' },
+        { value: 'Ticks' },
+      ]
+    },
     id() {
       return this.$route.params.id
     },
