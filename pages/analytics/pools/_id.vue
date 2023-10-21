@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  AnalyticsBreadcrumb
+  AnalyticsBreadcrumb.mb-2
   AnalyticsPoolHeader
 
   h5 chart
