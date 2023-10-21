@@ -1,20 +1,17 @@
 <template lang="pug">
-div
+div.analytics-pool-detail-page
   AnalyticsBreadcrumb.mb-2
   AnalyticsPoolHeader
 
-  .analytics-stats-and-chart
+  .analytics-stats-and-chart.mb-3
+    // TODO: make stats dynamic
     AnalyticsStats
     AnalyticsChartLayout(
       :modes="chartModes"
-      selectedMode="TVL"
-      selectedResolution="1W"
+      :selectedMode.sync="selectedMode"
+      :selectedResolution.sync="selectedResolution"
     )
-
-  client-only
-    vue-apex-charts(type="bar" :height="400" :options="chartOptions" :series="liquiditySeries" ref="chart")
-
-  //StackedColumns(:series="liquiditySeries" height="400px" style="min-height: 400px")
+      component(:is="renderChart" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined")
 
   VirtualTable.virtual-table(
     :table="tableData"
@@ -22,80 +19,6 @@ div
   )
     template(#row="{ item }")
       AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
-
-  //- el-table.position-table.custom-responsive-table(
-  //-   v-loading="loading"
-  //-   :data='positions',
-  //-   style='width: 100%',
-  //-   @row-click="showPosition"
-  //- )
-  //-   template(#empty)
-  //-     .d-flex.flex-column.align-items-center.gap-30.py-5
-  //-       i.el-icon-moon-night.fs-40
-  //-       .fs-14.lh-14 No liquidity positions yet
-  //-   el-table-column(:label='$t("Assets in Position")' width="140" className="assets")
-  //-     template(slot-scope='{row}')
-  //-       AlcorButton(@click="openInNewTab(monitorAccount(row.owner))")
-  //-         span {{ row.owner }}
-
-  //-   el-table-column(:label='$t("Range")' width="220" class-name="min-max")
-  //-     template(slot-scope='{row}')
-  //-       .d-flex.flex-column
-  //-         .d-flex.align-items-center.gap-4
-  //-           .indicator(:class="{ 'in-range': row.inRange }")
-  //-           .fs-10 {{ row.inRange ? 'In Range': 'Out of Range' }}
-  //-         .d-flex.align-items-center.gap-6.flex-wrap
-  //-           .d-flex.gap-4
-  //-             .fs-12.disable MIN
-  //-             .fs-12.contrast {{ row.priceLower }}
-  //-           i.el-icon-sort.rot
-  //-           .d-flex.gap-4
-  //-             .fs-12.disable MAX
-  //-             .fs-12.contrast {{ row.priceUpper }}
-
-  //-   el-table-column(:label='$t("Assets in Pool")' width="180")
-  //-     template(slot-scope='{row}')
-  //-       .d-flex.flex-column
-  //-         .mobile-label {{ $t("Assets in Pool") }}
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
-
-  //-           .fs-12.d-flex.gap-4
-  //-             span {{ row.amountA }}
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
-
-  //-           .fs-12.d-flex.gap-4(:class="{ red: false }")
-  //-             span {{ row.amountB }}
-
-  //-   el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees" sortable sort-by='feesA')
-  //-     template(slot-scope='{row}')
-  //-       .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
-
-  //-       .d-flex.flex-column
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
-
-  //-           .fs-12.earn.d-flex.gap-4
-  //-             span {{ row.feesA }}
-  //-         .d-flex.align-items-center.gap-4
-  //-           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
-
-  //-           .fs-12.earn.d-flex.gap-4
-  //-             span {{ row.feesB }}
-
-  //-   el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile" sortable sort-by='totalValue')
-  //-     template(slot-scope='{row}')
-  //-       span $ {{ row.totalValue && row.totalValue.toFixed(2) }}
-
-  //-   el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile" sortable sort-by='pNl')
-  //-     template(slot-scope='{row}')
-  //-       span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
-
-  //-   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
-  //-     template(slot-scope='{row}')
-  //-       alcor-button(compact) {{ $t('Manage') }}
-
 </template>
 
 <script>
@@ -106,6 +29,8 @@ import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
 import AlcorButton from '~/components/AlcorButton'
+import Line from '~/components/charts/Line'
+import Bars from '~/components/charts/Bars.vue'
 import StackedColumns from '~/components/charts/StackedColumns'
 import VirtualTable from '~/components/VirtualTable.vue'
 import AnalyticsPositionRow from '~/components/analytics/pool/AnalyticsPositionRow.vue'
@@ -129,6 +54,9 @@ export default {
     AnalyticsChart,
     AnalyticsStats,
     AnalyticsBreadcrumb,
+    LineChart: Line,
+    Volume: StackedColumns,
+    Bars,
   },
 
   fetch({ params, error }) {
@@ -139,117 +67,28 @@ export default {
     return {
       loading: true,
       loadedPositions: [],
+      selectedResolution: '1w',
+      selectedMode: 'TVL',
 
       liquiditySeries: [{ name: 'lol', data: [], type: 'area' }],
-
-      chartOptions: {
-        stroke: {
-          curve: 'straight',
-          // colors: ['transparent'],
-          // width: 2,
-        },
-        chart: {
-          //type: 'bar',
-          // stacked: true,
-          background: 'transparent',
-          toolbar: {
-            show: false,
-          },
-          // zoom: {
-          //   enabled: true
-          // }
-        },
-        // TODO
-        // responsive: [
-        //   {
-        //     breakpoint: 480,
-        //     options: {
-        //       legend: {
-        //         position: 'bottom',
-        //         offsetX: -10,
-        //         offsetY: 0
-        //       }
-        //     }
-        //   }
-        // ],
-        plotOptions: {
-          bar: {
-            //columnWidth: 400 + '%',
-            // dataLabels: {
-            //   maxItems: 0,
-            //   total: {
-            //     enabled: false,
-            //     formatter: (_) => '',
-            //     style: {
-            //       color: 'red'
-            //     }
-            //   }
-            // }
-          },
-        },
-        theme: {
-          mode: 'dark',
-          palette: 'palette2',
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        grid: {
-          xaxis: {
-            lines: {
-              show: false,
-            },
-          },
-
-          yaxis: {
-            lines: {
-              show: false,
-            },
-          },
-        },
-        xaxis: {
-          //type: 'numeric',
-          //decimalsInFloat: 5,
-          // axisBorder: {
-          //   show: true,
-          //   color: 'var(--border-color)',
-          //   height: 1,
-          //   width: '100%',
-          // },
-          //axisTicks: {
-          //  show: false,
-          //  borderType: 'solid',
-          //  color: 'var(--border-color)',
-          //  height: 4
-          //},
-          ////type: 'datetime',
-          //labels: {
-          //  show: true,
-          //  style: {
-          //    colors: 'var(--text-disable)',
-          //    fontSize: '12px',
-          //    fontWeight: 400
-          //  }
-          //},
-        },
-        legend: {
-          show: false,
-        },
-        //colors: ['#0A84FF'],
-        fill: {
-          opacity: 1,
-          pattern: {
-            style: 'verticalLines',
-            width: 1,
-            height: 1,
-            strokeWidth: 10,
-          },
-        },
-      }, // options chart
     }
   },
 
   computed: {
+    renderSeries() {
+      if (this.selectedMode === 'Ticks') return this.liquiditySeries
+      return [
+        {
+          name: 'lol',
+          data: [],
+        },
+      ]
+    },
+    renderChart() {
+      if (this.selectedMode === 'Volume') return 'Volume'
+      if (this.selectedMode === 'Ticks') return 'Bars'
+      return 'LineChart'
+    },
     chartModes() {
       return [
         { value: 'TVL' },
