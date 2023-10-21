@@ -1,6 +1,5 @@
 <template lang="pug">
 div.analytics-pool-detail-page
-  AnalyticsBreadcrumb.mb-2
   AnalyticsPoolHeader
 
   .analytics-stats-and-chart.mb-3
@@ -38,7 +37,8 @@ import AnalyticsBreadcrumb from '~/components/analytics/AnalyticsBreadcrumb'
 import AnalyticsStats from '~/components/analytics/AnalyticsStats'
 import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout'
 import AnalyticsChart from '~/components/analytics/AnalyticsChart'
-import AnalyticsPoolHeader from '~/components/analytics/AnalyticsPoolHeader'
+import AnalyticsPoolHeader from '~/components/analytics/pool/AnalyticsPoolHeader'
+import ReturnLink from '~/components/ReturnLink.vue'
 
 export default {
   components: {
@@ -57,6 +57,7 @@ export default {
     LineChart: Line,
     Volume: StackedColumns,
     Bars,
+    ReturnLink,
   },
 
   fetch({ params, error }) {

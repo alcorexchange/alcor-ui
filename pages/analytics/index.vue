@@ -1,5 +1,6 @@
 <template lang="pug">
 .analytics-page
+  AnalyticsHeader
   .analytics-stats-and-chart
     AnalyticsStats
     AnalyticsChart.analytics-chart
