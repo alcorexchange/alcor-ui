@@ -1,8 +1,8 @@
 <template lang="pug">
 .analytics-position-row.cursor-pointer(@click="$emit('showPosition', position)")
   .address.fs-14
-   span(@click.stop="monitorOwner") {{ position.owner }}
-  .range
+    span(@click.stop="monitorOwner") {{ position.owner }}
+  .range.desktopOnly
     .d-flex.flex-column
       .d-flex.align-items-center.gap-4
         .indicator(:class="{ 'in-range': position.inRange }")
@@ -17,7 +17,6 @@
           .fs-12.contrast {{ position.priceUpper }}
   .assets
     .d-flex.flex-column
-      .mobile-only {{ $t("Assets in Pool") }}
       .d-flex.align-items-center.gap-4
         token-image(:src='$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)' height="12")
 
@@ -28,9 +27,7 @@
 
         .fs-12.d-flex.gap-4(:class="{ red: false }")
           span {{ position.amountB }}
-  .unclaimed-fees
-    .mobile-only.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
-
+  .unclaimed-fees.desktopOnly
     .d-flex.flex-column
       .d-flex.align-items-center.gap-4
         token-image(:src='$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)' height="12")
@@ -43,11 +40,11 @@
         .fs-12.earn.d-flex.gap-4
           span {{ position.feesB }}
 
-  .total-value.fs-14
+  .total-value.fs-14.desktopOnly
     span $ {{ position.totalValue && position.totalValue.toFixed(2) }}
-  .p-n-L.fs-14
+  .p-n-L.fs-14.desktopOnly
     span(:style="{color: $percentColor(position.pNl)}") $ {{ position.pNl && position.pNl.toFixed(2) }}
-  .actions
+  .actions.desktopOnly
     AlcorButton(compact) {{ $t('Manage') }}
 </template>
 
@@ -72,6 +69,7 @@ export default {
 
 <style scoped lang="scss">
 .analytics-position-row {
+  height: 56%;
   cursor: pointer;
   & > * {
     padding: 10px;
@@ -86,5 +84,4 @@ export default {
   color: var(--main-green);
   text-decoration: underline;
 }
-
 </style>
