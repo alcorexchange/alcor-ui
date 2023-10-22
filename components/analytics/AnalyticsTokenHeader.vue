@@ -23,7 +23,7 @@ import AlcorButton from '@/components/AlcorButton'
 export default {
   name: 'AnalyticsTokenHeader',
   components: {
-    AlcorButton
+    AlcorButton,
   },
 }
 </script>
@@ -45,7 +45,8 @@ export default {
     color: var(--text-disable);
     margin: 0 4px;
   }
-  .name, .price {
+  .name,
+  .price {
     line-height: 1.2;
   }
 }
