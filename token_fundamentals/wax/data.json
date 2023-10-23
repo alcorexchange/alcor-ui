@@ -289,6 +289,25 @@
     },
     "description": "NeftyBlocks is the #1 trade to Earn marketplace for buying, selling and creating digital collectibles.",
     "socials": ["https://twitter.com/neftyblocks"]
-  }
+  },
+  "MILK@starcadiamlk": {
+    "name": "Starcadia",
+    "website": {
+      "link": "https://www.starcadia.io/",
+      "name": "starcadia.com"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT",
+      "FARMING",
+      "STAKING",
+    ],
+    "socials": [
+      "https://twitter.com/Starcadia_io",
+      "https://discord.com/invite/r4S76AtfzW"
+    ],
+    "description": "Join the https://starcadia.io/ community with the explorers."
+  },
 }
 
