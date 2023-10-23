@@ -1,13 +1,13 @@
 <template lang="pug">
 div.pools
   .table-header
-    el-input(prefix-icon="el-icon-search" :placeholder="$t('Search name or paste address')")
+    el-input(v-model="search" prefix-icon="el-icon-search" :placeholder="$t('Search Token')")
     .end
       AlcorButton(to="/positions/new" access tag="nuxt-link")
         i.el-icon-plus
         .fs-14 {{ $t('New Position') }}
   .table.el-card.is-always-shadow
-    PositionsList(@positionClick="$router.push(localeRoute($event.link))")
+    PositionsList(@positionClick="$router.push(localeRoute($event.link))" :search="search")
 </template>
 
 <script>

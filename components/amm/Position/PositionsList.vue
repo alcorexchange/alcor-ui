@@ -96,32 +96,43 @@ import AlcorButton from '~/components/AlcorButton'
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
 
+  props: ['search'],
+
   computed: {
     positions() {
-      return this.$store.state.amm.positions.map(p => {
-        const _pool = this.$store.state.amm.pools.find(pool => pool.id == p.pool)
+      return this.$store.state.amm.positions
+        .map((p) => {
+          const _pool = this.$store.state.amm.pools.find(
+            (pool) => pool.id == p.pool
+          )
 
-        if (!_pool) return {}
-        const pool = constructPoolInstance(_pool)
+          if (!_pool) return {}
+          const pool = constructPoolInstance(_pool)
 
-        if (!pool) return {}
+          if (!pool) return {}
 
-        const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
-        const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
+          // prettier-ignore
+          const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
+          // prettier-ignore
+          const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
 
-        const link = `/positions/${p.id}`
+          const link = `/positions/${p.id}`
 
-        return {
-          ...p,
-          pool,
-          priceUpper,
-          priceLower,
-          link
-        }
-      }).filter(p => p.pool)
-    }
+          return {
+            ...p,
+            pool,
+            priceUpper,
+            priceLower,
+            link,
+          }
+        })
+        .filter((p) => p.pool)
+        .filter((p) => {
+          // prettier-ignore
+          return `${p.feesA.split(' ')[1]}${p.feesB.split(' ')[1]}`.toLowerCase().includes(this.search?.toLowerCase() || '')
+        })
+    },
   },
-
 }
 </script>
 
@@ -174,7 +185,7 @@ export default {
   }
 }
 @media only screen and (max-width: 1100px) {
-  .custom-responsive-table{
+  .custom-responsive-table {
     .assets {
       grid-column: 1 / 3;
       .assets-inner {
@@ -191,8 +202,8 @@ export default {
         flex-direction: column;
         align-items: flex-end;
       }
-      .position-fees{
-        align-items: flex-end
+      .position-fees {
+        align-items: flex-end;
       }
     }
   }
