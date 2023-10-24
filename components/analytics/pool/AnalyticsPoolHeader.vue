@@ -6,11 +6,11 @@
       PairIcons.pair-icons(
         size="22"
         offset="20%"
-        :token1="{contract: 'usdt.alcor', symbol: 'USDT'}"
-        :token2="{contract: 'usdt.alcor', symbol: 'USDT'}"
+        :token1="{contract: pool.tokenA.contract, symbol: pool.tokenA.symbol}"
+        :token2="{contract: pool.tokenB.contract, symbol: pool.tokenB.symbol}"
       )
-      .name.fs-32 USDT / USDT
-    Tag 0.3%
+      .name.fs-32 {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
+    Tag.ml-1 {{ pool.fee / 10000 }}%
   .end
     AlcorButton(tag="nuxt-link" to="/swap") Swap
     AlcorButton(tag="nuxt-link" to="/markets") Trade on Spot
@@ -24,6 +24,9 @@ import Tag from '~/components/elements/Tag.vue'
 import ReturnLink from '~/components/ReturnLink.vue'
 export default {
   name: 'AnalyticsTokenHeader',
+
+  props: ['pool'],
+
   components: {
     AlcorButton,
     PairIcons,

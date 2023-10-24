@@ -1,6 +1,6 @@
 <template lang="pug">
-div.analytics-pool-detail-page
-  AnalyticsPoolHeader
+div(v-if="pool && stats").analytics-pool-detail-page
+  AnalyticsPoolHeader(:pool="pool")
 
   .analytics-stats-and-chart.mb-3
     // TODO: make stats dynamic
@@ -107,6 +107,10 @@ export default {
       if (!_pool) return
 
       return constructPoolInstance(_pool)
+    },
+
+    stats() {
+      return this.$store.state.amm.poolsStats.find((p) => p.id == this.id)
     },
 
     positions() {
