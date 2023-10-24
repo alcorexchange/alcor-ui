@@ -60,7 +60,8 @@ export async function makeAllTokensWithPrices(network: Network) {
       continue
     }
 
-    const pool = pools.find(p => (
+    // Get pool for fetch price sorted by number of ticks(means more liquidity)
+    const pool = pools.sort((a, b) => b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length).find(p => (
       p.tokenA.id == (t.symbol + '-' + t.contract).toLowerCase() &&
       p.tokenB.id == system_token
     ) || (
