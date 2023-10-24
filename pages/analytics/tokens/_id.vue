@@ -2,13 +2,14 @@
 .analytics-page
   ReturnLink Back
   AnalyticsTokenHeader
-  AlcorContainer.p-3
-    .title.muted.mb-1 Description
-    .content Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography,
   .analytics-stats-and-chart
     AnalyticsStats
     AnalyticsChartLayout
       div price chart here
+
+  AlcorContainer.p-3
+    .title.muted.mb-1 Description
+    .content Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography,
 </template>
 
 <script>
@@ -26,5 +27,14 @@ export default {
     ReturnLink,
     AlcorContainer,
   },
+
+  computed: {
+    contract() {
+      console.log('this.$route.params', this.$route.params)
+      return 'asdf'
+    },
+
+
+  }
 }
 </script>
