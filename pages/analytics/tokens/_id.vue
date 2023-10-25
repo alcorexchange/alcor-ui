@@ -11,10 +11,10 @@
   .analytics-stats-and-chart
     AnalyticsStats(:items="columnStats")
     AnalyticsChartLayout
-      LineChart(
-        :series="series"
-        height="400px"
-        style="min-height: 400px")
+      //- LineChart(
+      //-   :series="series"
+      //-   height="400px"
+      //-   style="min-height: 400px")
 
 </template>
 
