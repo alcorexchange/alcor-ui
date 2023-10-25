@@ -25,7 +25,6 @@ export async function getPoolInstance(chain: string, id): Promise<Pool> {
 }
 
 export async function getPools(chain: string, fetchTicks = true) {
-  // Based on swap only, right now
   const mongoPools = await SwapPool.find({ chain }).lean()
 
   const pools = []

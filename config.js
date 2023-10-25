@@ -358,7 +358,7 @@ const networks = {
       precision: 8,
     },
 
-    farmCreationFee: { amount: 5, token: 'usdt-usdt.alcor' },
+    farmCreationFee: { amount: 10, token: 'usdt-usdt.alcor' },
     marketCreationFee: '1000.00000000 WAX',
     feeAccount: 'fees.alcor',
 

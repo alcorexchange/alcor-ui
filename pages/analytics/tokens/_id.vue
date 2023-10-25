@@ -4,7 +4,7 @@
 
   AnalyticsTokenHeader(:token="token" :fundamental="fundamental")
 
-  AlcorContainer.p-3
+  AlcorContainer.p-3(v-if="fundamental")
     .title.muted.mb-1 Description
     .content {{ fundamental.description }}
 
