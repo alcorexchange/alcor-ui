@@ -9,7 +9,7 @@ AlcorContainer.analytics-chart
         .mode(v-for="item in resolutions" :class="{active: selectedResolution === item.value}" @click="selectedResolution = item.value") {{ item.title }}
   .chart-container
     client-only
-      component(:is="renderChart" width='100%' height="100%" :series='series' ref="chart" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :prependDollorSign="selectedMode === 'TVL'")
+      component(:is="renderChart" width='100%' height="100%" :series='series' ref="chart" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :prependDollorSign="selectedMode === 'TVL'" :tooltipFormatter="tooltipFormatter")
 </template>
 
 <script>
@@ -170,6 +170,12 @@ export default {
     this.getChart()
   },
   methods: {
+    tooltipFormatter(value) {
+      if (this.selectedMode === 'TVL' || this.selectedMode === 'Fees') {
+        return `$${value}`
+      }
+      return value
+    },
     async getChart() {
       this.isLoading = true
       try {

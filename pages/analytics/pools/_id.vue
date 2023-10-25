@@ -10,7 +10,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
       :selectedMode.sync="selectedMode"
       :selectedResolution.sync="selectedResolution"
     )
-      component(:is="renderChart" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined")
+      component(:is="renderChart" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
 
   VirtualTable.virtual-table(
     :table="tableData"
@@ -68,7 +68,7 @@ export default {
     return {
       loading: true,
       loadedPositions: [],
-      selectedResolution: '1w',
+      selectedResolution: '1W',
       selectedMode: 'TVL',
 
       chart: [],
@@ -205,6 +205,12 @@ export default {
   },
 
   methods: {
+    tooltipFormatter(value) {
+      if (this.selectedMode === 'TVL') {
+        return `$${value}`
+      }
+      return value
+    },
     async fetchPositions() {
       const { data } = await this.$axios.get(
         `/v2/swap/pools/${this.id}/positions`

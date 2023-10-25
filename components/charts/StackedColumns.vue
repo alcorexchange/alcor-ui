@@ -107,7 +107,7 @@ export default {
           color: 'var(--border-color)',
           height: 4
         },
-        //type: 'datetime',
+        type: 'datetime',
         labels: {
           show: true,
           style: {
