@@ -1,15 +1,22 @@
 <template lang="pug">
-.analytics-page
+.analytics-page(v-if="token")
   ReturnLink Back
-  AnalyticsTokenHeader
+
+  AnalyticsTokenHeader(:token="token" :fundamental="fundamental")
+
+  AlcorContainer.p-3
+    .title.muted.mb-1 Description
+    .content {{ fundamental.description }}
+
   .analytics-stats-and-chart
     AnalyticsStats
     AnalyticsChartLayout
       div price chart here
 
   AlcorContainer.p-3
-    .title.muted.mb-1 Description
-    .content Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography,
+    .title.muted.mb-1 Description {{ token }}
+    .content {{ stats }}
+
 </template>
 
 <script>
@@ -29,12 +36,40 @@ export default {
   },
 
   computed: {
-    contract() {
-      console.log('this.$route.params', this.$route.params)
-      return 'asdf'
+    token() {
+      return this.$getToken(this.$route.params.id)
     },
 
+    fundamental() {
+      if (!this.$fundamentals[this.$store.state.network.name]) return null
 
+      return this.$fundamentals[this.$store.state.network.name][
+        this.token.symbol + '@' + this.token.contract
+      ]
+    }
+  },
+
+  data() {
+    return {
+      stats: {}
+    }
+  },
+
+  mounted() {
+    this.fetchStats()
+  },
+
+  methods: {
+    async fetchStats() {
+      const { rows } = await this.$rpc.get_table_rows({
+        code: this.token.contract,
+        table: 'stat',
+        limit: 1,
+        scope: this.token.symbol
+      })
+
+      this.stats = rows[0]
+    }
   }
 }
 </script>

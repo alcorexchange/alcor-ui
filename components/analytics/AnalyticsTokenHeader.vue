@@ -1,30 +1,42 @@
 <template lang="pug">
 .header-container
-  .analytics-token-header.mb-4
+  .analytics-token-header
     .name-and-image
-      img.image(:src="$tokenLogo('USDT', 'usdt.alcor')" )
-      .name.fs-32 USDT
-    .contract.fs-20 (usdt.alcor)
-    .price.fs-24 $12,010
-    .change.fs-14 +8.40%
-  .actions
-    AlcorButton Website
-    el-select(placeholder="Explorers")
-     el-option(:value="0")
-    el-select(placeholder="Networks")
-     el-option(:value="0")
-    el-select(placeholder="Socials")
-     el-option(:value="0")
-    AlcorButton Source Code
+      img.image(:src="$tokenLogo(token.symbol, token.contract)" )
+      .name.fs-32 {{ token.symbol }}
+
+    a(:href='monitorAccount(token.contract)' target='_blank').contract.fs-20 ({{ token.contract }})
+
+    .price.fs-24 ${{ token.usd_price }}
+    .change.fs-14 +todo%
+
+  .actions.mt-3
+    AlcorButton(v-if="fundamental && fundamental.website" @click="openInNewTab(fundamental.website.link)") Website
+
+    //a(tag="AlcorButton").value.link(v-if="fundamental && fundamental.website" :href="fundamental.website.link") {{ fundamental.website.name }}
+
+    el-select(v-if="fundamental && fundamental.socials" @change="openSocial" placeholder="Socials" :value="null")
+     el-option(v-for="social in fundamental.socials" :value="social") {{ social }}
+
+    AlcorButton(v-if="fundamental && fundamental.github" @click="openInNewTab(fundamental.github)") Source Code
 </template>
 
 <script>
 import AlcorButton from '@/components/AlcorButton'
 export default {
   name: 'AnalyticsTokenHeader',
+
   components: {
     AlcorButton,
   },
+
+  props: ['token', 'fundamental'],
+
+  methods: {
+    openSocial(social) {
+      this.openInNewTab(social)
+    }
+  }
 }
 </script>
 
