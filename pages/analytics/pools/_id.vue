@@ -85,7 +85,6 @@ export default {
         if (this.selectedMode === 'TVL')
           return (item.usdReserveA + item.usdReserveB).toFixed(0)
         if (this.selectedMode === 'Volume') return item.volumeUSD
-        if (this.selectedMode === 'Fees') return 1
       }
 
       return [
@@ -104,12 +103,7 @@ export default {
       return 'LineChart'
     },
     chartModes() {
-      return [
-        { value: 'TVL' },
-        { value: 'Volume' },
-        { value: 'Fees' },
-        { value: 'Ticks' },
-      ]
+      return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
     },
     id() {
       return this.$route.params.id
