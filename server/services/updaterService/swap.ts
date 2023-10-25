@@ -25,13 +25,27 @@ export async function newSwapAction(action, network: Network) {
 }
 
 export async function getFieldSumFrom(field, date, pool, chain) {
-  // FIXME Need absolute sum!!
   const volume: { total_volume: number }[] = await Swap.aggregate([
     { $match: { chain, pool, time: { $gte: new Date(date) } } },
-    { $group: { _id: '$pool', total_volume: { $sum: `$${field}` } } }
+    { $group: { _id: '$pool', total_volume: { $sum: { $abs: `$${field}` } } } }
   ])
 
   return volume.length == 1 ? volume[0].total_volume : 0
+}
+
+// Date.now() - ONEDAY
+export async function getChangeFrom(date, pool, chain) {
+  const date_deal = await Swap.findOne({ chain, pool, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
+  const last_deal = await Swap.findOne({ chain, pool }, {}, { sort: { time: -1 } })
+
+  if (date_deal) {
+    const price_before = parseInt(date_deal.sqrtPriceX64)
+    const price_after = parseInt(last_deal.sqrtPriceX64)
+
+    return (((price_after - price_before) / price_before) * 100).toFixed(2)
+  } else {
+    return 0
+  }
 }
 
 export async function updatePoolsStats(chain: string) {
@@ -50,6 +64,9 @@ export async function updatePoolsStats(chain: string) {
       pool.volumeB24 = await getFieldSumFrom('tokenB', Date.now() - (ONEDAY), pool.id, chain)
       pool.volumeBWeek = await getFieldSumFrom('tokenB', Date.now() - (WEEK), pool.id, chain)
       pool.volumeBMonth = await getFieldSumFrom('tokenB', Date.now() - (ONEDAY * 30), pool.id, chain)
+
+      pool.change24 = await getChangeFrom(Date.now() - ONEDAY, pool.id, chain)
+      pool.changeWeek = await getChangeFrom(Date.now() - WEEK, pool.id, chain)
 
       await pool.save()
     }

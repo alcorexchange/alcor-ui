@@ -236,10 +236,10 @@ const SwapPoolSchema = new mongoose.Schema({
   volumeUSDWeek: { type: Number, default: 0 },
   volumeUSDMonth: { type: Number, default: 0 },
 
-  // change24: { type: Number },
-  // changeWeek: { type: Number },
-  // high24: { type: Number },
-  // low24: { type: Number }
+  change24: { type: Number, default: 0 },
+  changeWeek: { type: Number, default: 0 },
+  high24: { type: Number, default: 0 },
+  low24: { type: Number, default: 0 }
 })
 SwapPoolSchema.index({ chain: 1, id: 1 }, { unique: true })
 
