@@ -35,6 +35,12 @@ export default {
     AlcorContainer,
   },
 
+  watch: {
+    token() {
+      this.fetchStats()
+    }
+  },
+
   computed: {
     token() {
       return this.$getToken(this.$route.params.id)
@@ -61,6 +67,8 @@ export default {
 
   methods: {
     async fetchStats() {
+      if (!this.token) return
+
       const { rows } = await this.$rpc.get_table_rows({
         code: this.token.contract,
         table: 'stat',
