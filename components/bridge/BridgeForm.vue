@@ -97,11 +97,11 @@
         .small.muted.text-center Chose Send & Receive
 
       template(slot="prefix" v-if="this.asset")
-        TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="20")
+        TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract, sourceName)" height="20")
 
       AlcorOptionTwo(:value="asset" :label="asset.symbol" v-for="asset in availableAssets")
         .d-flex.align-items-center.w-100
-          TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract)" height="25")
+          TokenImage(:src="$tokenLogo(asset.symbol, asset.sourceTokenContract, sourceName)" height="25")
           .ml-2 {{ asset.symbol}}
 
   .d-flex.justify-content-center.mt-4
