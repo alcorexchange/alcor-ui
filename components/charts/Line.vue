@@ -6,7 +6,15 @@
 
 <script>
 export default {
-  props: ['series', 'color', 'width', 'height', 'events', 'prependDollorSign'],
+  props: [
+    'series',
+    'color',
+    'width',
+    'height',
+    'events',
+    'prependDollorSign',
+    'tooltipFormatter',
+  ],
 
   watch: {
     series() {
@@ -82,6 +90,9 @@ export default {
         },
         tooltip: {
           x: { show: false },
+          y: {
+            formatter: this.tooltipFormatter || undefined,
+          },
         },
         yaxis: {
           tickAmount: 6,

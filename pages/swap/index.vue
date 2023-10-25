@@ -70,6 +70,7 @@ export default {
   display: grid;
   align-items: flex-start;
   grid-template-columns: 1fr;
+  grid-template-areas: 'widget chart';
   gap: var(--amm-space-1);
   justify-items: center;
   &.showChart {
@@ -79,15 +80,20 @@ export default {
 .swap-widget-container {
   max-width: 450px;
   width: 100%;
+  grid-area: widget;
 }
 .chart-container {
   width: 100%;
   position: relative;
   z-index: 2;
+  grid-area: chart;
 }
 @media only screen and (max-width: 1080px) {
   #swap-page {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'chart'
+      'widget';
     &.showChart {
       grid-template-columns: 1fr;
     }

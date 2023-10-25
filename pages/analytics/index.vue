@@ -1,7 +1,8 @@
 <template lang="pug">
 .analytics-page
+  AnalyticsHeader
   .analytics-stats-and-chart
-    AnalyticsStats
+    AnalyticsStats(:items="globalStatsItems" :loading="isLoadingStats")
     AnalyticsChart.analytics-chart
 
   // TODO
@@ -10,7 +11,7 @@
   //-     AlcorButton Explore
   //- AnalyticsTokensTable(:tableData="tokens" @pageChange="getTokens")
 
-  AnalyticsPoolsTable(:tableData="pools" @pageChange="getPools")
+  AnalyticsPoolsTable()
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
       AlcorButton Explore
@@ -41,9 +42,9 @@ export default {
     AnalyticsSpotPairsTable,
   },
   data: () => ({
-    tokens: Array.from({ length: 10 }),
-    pools: Array.from({ length: 10 }),
     spotsPage: 1,
+    stats: {},
+    isLoadingStats: true,
   }),
   computed: {
     ...mapState(['markets']),
@@ -53,14 +54,79 @@ export default {
       const highestItem = this.spotsPage * PER_PAGE
       return this.markets.filter((_, i) => lowestItem <= i && i < highestItem)
     },
+    globalStatsItems() {
+      return [
+        {
+          title: 'Total value locked',
+          value: this.stats.totalValueLocked,
+          formatter: 'usd',
+        },
+        {
+          title: 'Swap Trading Volume (30d)',
+          value: this.stats.swapTradingVolume,
+          formatter: 'usd',
+        },
+        {
+          title: 'Spot Trading Volume (30d)',
+          value: this.stats.spotTradingVolume,
+          formatter: 'usd',
+        },
+        {
+          title: 'Swap Fees (30d)',
+          value: this.stats.swapFees,
+          formatter: 'usd',
+        },
+        {
+          title: 'Spot Fees (30d)',
+          value: this.stats.spotFees,
+          formatter: 'usd',
+        },
+        {
+          title: 'Spot Transactions',
+          value: this.stats.spotTransactions,
+        },
+        {
+          title: 'Swap Transactions',
+          value: this.stats.swapTransactions,
+        },
+        {
+          title: 'Daily active users (30d avg.)',
+          value: this.stats.dailyActiveUsers,
+        },
+        {
+          title: 'Total Liquidity Pools',
+          value: this.stats.totalLiquidityPools,
+        },
+        {
+          title: 'Total Spot Pairs',
+          value: this.stats.totalSpotPairs,
+        },
+      ]
+    },
   },
+
+  mounted() {
+    this.getGlobalStats()
+  },
+
   methods: {
+    async getGlobalStats() {
+      this.isLoadingStats = true
+      try {
+        const { data } = await this.$axios.get('/v2/analytics/global', {
+          params: {
+            resolution: '1M',
+          },
+        })
+        this.stats = data[0]
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.isLoadingStats = false
+      }
+    },
     getTokens(page = 1) {
       // get tokens from API
-      console.log(page)
-    },
-    getPools(page = 1) {
-      // get pools from API
       console.log(page)
     },
     getSpots(page = 1) {

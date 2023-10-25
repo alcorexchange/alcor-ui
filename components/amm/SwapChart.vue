@@ -27,20 +27,28 @@ alcor-container.p-3.w-100.chart-container-inner
         size="18"
       )
       .name-container
-        .names {{ sortedA.symbol }}/{{ sortedB.symbol }}
+        .names {{ tokenA.symbol }}/{{ tokenB.symbol }}
     .both-prices(v-if="price && charts.length")
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ sortedB.symbol }} = {{ (1 / price).toFixed(8) }} {{ sortedA.symbol }}
+        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ (1 / price).toFixed(8) }} {{ tokenA.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ sortedA.symbol }} = {{ price }} {{ sortedB.symbol }}
+        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ price }} {{ tokenB.symbol }}
     .price-container(v-if="price && charts.length")
       .price {{ price }}
       //- .change()
       //-   i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
       //-   span.text 10%
-  component(:is="activeTab" :series="series" height="400px" :color="activeTab === 'Tvl' ? '#723de4' : undefined" style="min-height: 400px" :events="chartEvents" :prependDollorSign="activeTab === 'Tvl'")
+  component(
+    :is="activeTab"
+    :series="series"
+    height="400px"
+    :color="activeTab === 'Tvl' ? '#723de4' : undefined"
+    style="min-height: 400px"
+    :events="chartEvents"
+    :tooltipFormatter="activeTab === 'Tvl' ? (v) => `$${v}`: undefined"
+  )
 </template>
 
 <script>
@@ -96,8 +104,7 @@ export default {
     ...mapGetters('amm/swap', [
       'tokenA',
       'tokenB',
-      // 'tokens',
-      // 'isSorted',
+      'isSorted',
       'sortedA',
       'sortedB',
     ]),
@@ -145,7 +152,7 @@ export default {
 
           return {
             x: c._id,
-            y: parseFloat(price.toSignificant()),
+            y: parseFloat(this.isSorted ? price.toSignificant() : price.invert().toSignificant()),
           }
         })
       }
@@ -222,6 +229,7 @@ export default {
   methods: {
     async fetchCharts() {
       if (!this.tokenA || !this.tokenB) return
+
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
           params: {

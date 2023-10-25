@@ -297,6 +297,11 @@ export default {
 
 <style lang="scss">
 .markets-bar {
+  display: flex;
+  flex-direction: column;
+  .market-table {
+    flex: 1;
+  }
   .vue-recycle-scroller {
     background-color: var(--bg-big-card);
   }

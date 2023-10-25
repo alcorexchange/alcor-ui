@@ -364,7 +364,7 @@ export default {
           isCompleted: true,
         }
         : {
-          icon: 'el-icon-error',
+          icon: 'el-icon-refresh-right',
           text: 'Not Completed',
           isCompleted: false,
         }

@@ -172,7 +172,7 @@ export default {
     // white-space: nowrap;
     display: inline-flex;
     gap: 4px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
     flex-wrap: wrap;
     span {

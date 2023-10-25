@@ -58,24 +58,20 @@ export default {
 
 <style scoped lang="scss">
 .wallet-tab-bar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 16px;
   top: 0;
   z-index: 4;
-  overflow: auto;
   padding: 4px 0;
-  background: var(--background-color-base);
 
   &::-webkit-scrollbar {
-    height: 4px;
-    width: 4px;
+    height: 2px;
+    width: 2px;
     display: block;
   }
 
   &::-webkit-scrollbar-thumb {
-    // background: rgba(gray, 0.3);
-    border-radius: 5px;
   }
 }
 
@@ -84,6 +80,7 @@ export default {
   border-radius: 8px;
   padding: 12px;
   white-space: nowrap;
+  min-width: 120px;
 
   &.nft-tab {
     width: 100%;
@@ -111,11 +108,15 @@ export default {
 }
 
 @media only screen and (max-width: 940px) {
+  .wallet-tab-bar {
+    gap: 4px;
+  }
   .tab-bar-item {
-    border-radius: 4px;
-    margin: 2px;
     padding: 6px 12px;
     font-size: 0.86rem;
+    &::v-deep .inner {
+      justify-content: flex-start !important;
+    }
   }
 }
 </style>

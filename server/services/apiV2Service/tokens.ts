@@ -10,7 +10,11 @@ tokens.get('/tokens/:id', cacheSeconds(2, (req, res) => {
   const network: Network = req.app.get('network')
 
   const tokens = await getTokens(network.name)
-  res.json(tokens.find(t => t.id == req.params.id))
+  const token = tokens.find(t => t.id == req.params.id.toLowerCase())
+
+  if (!token) return res.status(403).send('Token with this ID is not found')
+
+  res.json(token)
 })
 
 tokens.get('/tokens', cacheSeconds(2, (req, res) => {

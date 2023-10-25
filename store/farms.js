@@ -67,7 +67,7 @@ export const actions = {
   },
 
   async loadIncentives({ rootState, commit }) {
-    if (!['eos', 'wax'].includes(rootState.network.name)) return
+    if (!['eos', 'wax', 'proton'].includes(rootState.network.name)) return
 
     const incentives = await fetchAllRows(this.$rpc, {
       code: rootState.network.amm.contract,
