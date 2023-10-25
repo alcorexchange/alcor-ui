@@ -196,8 +196,9 @@ export default {
   watch: {
     // because chart needs pool tokens so we should get it once pool ( tokens ) are available.
     pool: {
-      handler(pool) {
-        if (!pool) return
+      handler(pool, oldPool) {
+        // only fetch once chart on pool having value
+        if (!pool || oldPool) return
         this.getChart()
       },
       immediate: true,
