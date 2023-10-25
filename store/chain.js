@@ -41,6 +41,9 @@ export const actions = {
       commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
       dispatch('autoLogin')
     }
+
+    // For tests
+    if (rootState?.user?.name) dispatch('afterLoginHook')
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {

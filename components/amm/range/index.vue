@@ -156,14 +156,14 @@ export default {
         (!ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] || mode === 'handle' || mode === 'reset') &&
         leftRangeValue > 0
       ) {
-        this.$emit('onLeftRangeInput', leftRangeValue.toFixed(6))
+        this.$emit('onLeftRangeInput', leftRangeValue.toFixed(20))
       }
 
       if ((!ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] || mode === 'reset') && rightRangeValue > 0) {
         // todo: remove this check. Upper bound for large numbers
         // sometimes fails to parse to tick.
         if (rightRangeValue < 1e35) {
-          this.$emit('onRightRangeInput', rightRangeValue.toFixed(6))
+          this.$emit('onRightRangeInput', rightRangeValue.toFixed(20))
         }
       }
     }

@@ -36,8 +36,11 @@
 
     .fs-18.disable.mt-2 Increase
 
-    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
-    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB").mt-2
+    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA"
+      @input="onAmountAInput" v-model="amountA" :disabled="depositADisabled" :disabledMessage="disabledMessage")
+
+    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB"
+      @input="onAmountBInput" v-model="amountB" :disabled="depositBDisabled" :disabledMessage="disabledMessage").mt-2
 
     AlcorButton.claim-fees-button.submit.w-100(big @click="submit").mt-2 Add Liquidity
 
@@ -77,6 +80,18 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
     ...mapGetters('amm', ['slippage']),
+
+    depositADisabled() {
+      return this.position.pool.tickCurrent >= this.position.tickUpper
+    },
+
+    depositBDisabled() {
+      return this.position.pool.tickCurrent <= this.position.tickLower
+    },
+
+    disabledMessage() {
+      return this.$t('The market price is outside your specified price range. Single-asset deposit only.')
+    },
   },
 
   methods: {

@@ -63,7 +63,7 @@
             :priceLower="priceLower"
             :priceUpper="priceUpper"
             :ticksAtLimit="ticksAtLimit"
-            :price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(6)) : undefined"
+            :price="price ? (invertPrice ? price.invert() : price).toSignificant(6) : undefined"
             @onLeftRangeInput="onLeftRangeInput"
             @onRightRangeInput="onRightRangeInput"
             :chartTitle="$t('Set Price Range')"

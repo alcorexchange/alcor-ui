@@ -95,15 +95,11 @@ Vue.prototype.$getToken = function(id) {
   return this.$store.state.tokens.find(t => t.id == id)
 }
 
-Vue.prototype.$tokenLogo = function(symbol, contract) {
-  const network = this.$store.state.network.name
+Vue.prototype.$tokenLogo = function(symbol, contract, chain = null) {
+  const network = chain || this.$store.state.network.name
 
   try {
-    if (contract == 'bosibc.io') {
-      return require(`@/assets/tokens/bosibc.io/${symbol.toLowerCase()}.png`)
-    } else {
-      return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
-    }
+    return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
   } catch {
     const tokens = this.$store.state.eosAirdropTokens
 
@@ -122,7 +118,7 @@ Vue.prototype.$percentColor = function(percent, zeroColor = 'var(--text-default)
   percent = parseFloat(percent)
 
   if (isNaN(percent)) return zeroColor
-  if (percent > 0) return `var(--main-green)`
-  if (percent < 0) return `var(--main-red)`
+  if (percent > 0) return 'var(--main-green)'
+  if (percent < 0) return 'var(--main-red)'
   return zeroColor
 }
