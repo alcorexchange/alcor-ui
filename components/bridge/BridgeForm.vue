@@ -1,6 +1,6 @@
 <template lang="pug">
 #bridge-form-component.form
-  .p-3
+  //.p-3
     el-alert(
       title="Bridge UI BETA Version"
       type="warning"
