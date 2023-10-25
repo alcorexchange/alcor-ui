@@ -244,7 +244,6 @@ export default {
     async getChart() {
       const tokenA = this.pool.tokenA.id
       const tokenB = this.pool.tokenB.id
-      console.log({ tokenA, tokenB })
       if (!tokenA || !tokenB) return
       const period = undefined
       const params = {
