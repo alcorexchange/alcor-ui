@@ -5,7 +5,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
   .analytics-stats-and-chart.mb-3
     // TODO: make stats dynamic
     AnalyticsStats
-    AnalyticsChartLayout(
+    AnalyticsChartLayout.chart-layout(
       :modes="chartModes"
       :selectedMode.sync="selectedMode"
       :selectedResolution.sync="selectedResolution"
@@ -71,6 +71,8 @@ export default {
       selectedResolution: '1w',
       selectedMode: 'TVL',
 
+      chart: [],
+
       liquiditySeries: [{ name: 'lol', data: [], type: 'area' }],
     }
   },
@@ -78,9 +80,44 @@ export default {
   computed: {
     renderSeries() {
       if (this.selectedMode === 'Ticks') return this.liquiditySeries
+      if (this.selectedMode === 'TVL') {
+        return [
+          {
+            name: 'TVL',
+            data: this.chart.map((c) => {
+              return {
+                x: c._id,
+                y: (c.usdReserveA + c.usdReserveB).toFixed(0),
+              }
+            }),
+          },
+        ]
+      }
+      if (this.selectedMode === 'Volume') {
+        return [
+          {
+            name: 'TVL',
+            data: this.chart.map((c) => {
+              return {
+                x: c._id,
+                y: c.volumeUSD,
+              }
+            }),
+          },
+        ]
+      }
+      if (this.selectedMode === 'Fees') {
+        return [
+          {
+            name: 'TVL',
+            // TODO: implement
+            data: [],
+          },
+        ]
+      }
       return [
         {
-          name: 'lol',
+          name: 'EMPTY',
           data: [],
         },
       ]
@@ -180,6 +217,17 @@ export default {
     },
   },
 
+  watch: {
+    // because chart needs pool tokens so we should get it once pool ( tokens ) are available.
+    pool: {
+      handler(pool) {
+        if (!pool) return
+        this.getChart()
+      },
+      immediate: true,
+    },
+  },
+
   mounted() {
     this.fetchPositions()
     this.fetchLiquidityChart()
@@ -214,6 +262,29 @@ export default {
       ]
 
       console.log(this.liquiditySeries)
+    },
+
+    async getChart() {
+      const tokenA = this.pool.tokenA.id
+      const tokenB = this.pool.tokenB.id
+      console.log({ tokenA, tokenB })
+      if (!tokenA || !tokenB) return
+      const period = undefined
+      const params = {
+        tokenA,
+        tokenB,
+        period,
+      }
+
+      try {
+        const { data } = await this.$axios.get('/v2/swap/charts', {
+          params,
+        })
+
+        this.chart = data
+      } catch (e) {
+        console.log('chart get error')
+      }
     },
 
     showPosition(position) {
@@ -283,6 +354,9 @@ export default {
 </style>
 
 <style scoped lang="scss">
+.chart-layout {
+  min-height: 400px;
+}
 .position-table {
   border-radius: 12px;
   .el-table__header {
