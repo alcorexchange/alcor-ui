@@ -80,45 +80,21 @@ export default {
   computed: {
     renderSeries() {
       if (this.selectedMode === 'Ticks') return this.liquiditySeries
-      if (this.selectedMode === 'TVL') {
-        return [
-          {
-            name: 'TVL',
-            data: this.chart.map((c) => {
-              return {
-                x: c._id,
-                y: (c.usdReserveA + c.usdReserveB).toFixed(0),
-              }
-            }),
-          },
-        ]
+
+      const getY = (item) => {
+        if (this.selectedMode === 'TVL')
+          return (item.usdReserveA + item.usdReserveB).toFixed(0)
+        if (this.selectedMode === 'Volume') return item.volumeUSD
+        if (this.selectedMode === 'Fees') return 1
       }
-      if (this.selectedMode === 'Volume') {
-        return [
-          {
-            name: 'TVL',
-            data: this.chart.map((c) => {
-              return {
-                x: c._id,
-                y: c.volumeUSD,
-              }
-            }),
-          },
-        ]
-      }
-      if (this.selectedMode === 'Fees') {
-        return [
-          {
-            name: 'TVL',
-            // TODO: implement
-            data: [],
-          },
-        ]
-      }
+
       return [
         {
-          name: 'EMPTY',
-          data: [],
+          name: this.selectedMode,
+          data: this.chart.map((item) => ({
+            x: item._id,
+            y: getY(item),
+          })),
         },
       ]
     },
