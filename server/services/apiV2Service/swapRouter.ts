@@ -68,30 +68,21 @@ swapRouter.get('/getRoute', async (req, res) => {
   const startTime = performance.now()
 
   let trade: any
-  if (exactIn) {
-    // Doing with v2 function + caching routes
+
+  try {
     if (!v1) {
-      try {
-        const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
-        ;[trade] = await Trade.bestTradeExactIn2(routes, POOLS, amount, Math.min(3, maxHops))
-      } catch (e) {
-        console.log('getCachedRoutes', e, { input, output })
-      }
+      const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
+
+      ;[trade] = exactIn
+        ? await Trade.bestTradeExactIn2(routes, POOLS, amount)
+        : await Trade.bestTradeExactOut2(routes, POOLS, amount)
     } else {
-      [trade] = await Trade.bestTradeExactIn(
-        POOLS,
-        amount,
-        outputToken,
-        { maxNumResults: 1, maxHops }
-      )
+      [trade] = exactIn
+        ? await Trade.bestTradeExactIn(POOLS, amount, outputToken, { maxNumResults: 1, maxHops })
+        : await Trade.bestTradeExactOut(POOLS, inputToken, amount, { maxNumResults: 1, maxHops })
     }
-  } else {
-    [trade] = await Trade.bestTradeExactOut(
-      POOLS,
-      inputToken,
-      amount,
-      { maxNumResults: 1, maxHops }
-    )
+  } catch (e) {
+    console.error('GET ROUTE ERROR')
   }
 
   const endTime = performance.now()
