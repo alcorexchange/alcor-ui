@@ -406,8 +406,8 @@ const networks = {
     ibc: {
       name: 'wax',
       returnValueEnabled: true,
-      proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
-      //proofSocket: 'wss://wax.eosusa.io/ibc',
+      //proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
+      proofSocket: 'wss://wax.eosusa.io/ibc',
       //proofSocket: 'wss://wax.ibc.animus.is',
 
       wrapLockContracts: {
