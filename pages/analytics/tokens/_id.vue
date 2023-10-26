@@ -10,17 +10,17 @@
 
   .analytics-stats-and-chart
     AnalyticsStats(:items="columnStats")
-    AnalyticsChartLayout(:modes="chartModes" :selectedMode.sync="selectedMode")
-      //- LineChart(
-      //-   :series="series"
-      //-   height="400px"
-      //-   style="min-height: 400px")
+    AnalyticsChartLayout(:modes="quoteTokens" :selectedMode.sync="quoteToken")
+      LineChart(
+        :series="series"
+        height="400px"
+        style="min-height: 400px")
 
 </template>
 
 <script>
 import JSBI from 'jsbi'
-import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
+import { Token, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
 import AnalyticsStats from '@/components/analytics/AnalyticsStats'
 import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout.vue'
@@ -41,12 +41,22 @@ export default {
   data() {
     return {
       stats: {},
-      selectedMode: null,
+      quoteToken: null,
       charts: [],
     }
   },
 
   computed: {
+    tokenA() {
+      return this.token.id
+    },
+
+    tokenB() {
+      const { baseToken } = this.$store.state.network
+
+      return this.quoteToken == this.usd_token.symbol ? this.usd_token.id : `${baseToken.symbol}-${baseToken.contract}`.toLowerCase()
+    },
+
     token() {
       return this.$getToken(this.$route.params.id)
     },
@@ -69,34 +79,25 @@ export default {
 
     columnStats() {
       const volume24 = this.pools.reduce((total, a) => {
-        return total + a.tokenA.id == this.token.id ? a.volumeA24 : a.volumeB24
+        return total + (a.tokenA.id == this.token.id ? a.volumeA24 : a.volumeB24)
       }, 0)
 
       const volumeWeek = this.pools.reduce((total, a) => {
-        return total + a.tokenA.id == this.token.id ? a.volumeAWeek : a.volumeBWeek
+        return total + (a.tokenA.id == this.token.id ? a.volumeAWeek : a.volumeBWeek)
       }, 0)
 
       return [
         {
-          title: 'Circulating Supply',
-          value: this.stats.supply,
-        },
-        {
-          title: 'Max Supply',
-          value: this.stats.max_supply,
-        },
-        {
-          title: 'Market Cap',
-          value: this.$tokenToUSD(parseFloat(this.stats.supply) ?? 0, this.token.symbol, this.token.contract),
-          formatter: 'usd'
+          title: 'Swap Volume USD 24H',
+          value: '$' + this.$tokenToUSD(parseFloat(volume24) ?? 0, this.token.symbol, this.token.contract),
         },
         {
           title: 'Swap Volume 24H',
-          value: volume24 + ' ' + this.token.symbol,
+          value: this.$options.filters.commaFloat(volume24, this.token.decimals) + ' ' + this.token.symbol,
         },
         {
           title: 'Swap Volume Week',
-          value: volumeWeek + ' ' + this.token.symbol,
+          value: this.$options.filters.commaFloat(volumeWeek, this.token.decimals) + ' ' + this.token.symbol,
         },
         {
           title: 'Swap pairs',
@@ -106,45 +107,65 @@ export default {
           title: 'Spot pairs',
           value: this.markets.length,
         },
+        {
+          title: 'Circulating Supply',
+          value: this.$options.filters.commaFloat(this.stats.supply),
+        },
+        {
+          title: 'Max Supply',
+          value: this.$options.filters.commaFloat(this.stats.max_supply),
+        },
+        {
+          title: 'Market Cap',
+          value: '$' + this.$tokenToUSD(parseFloat(this.stats.supply) ?? 0, this.token.symbol, this.token.contract),
+        },
       ]
     },
 
-    networkToken() {
-      return this.$store.state.network.baseToken
-    },
-    networkTokenId() {
-      return (this.networkToken.symbol + '-' + this.networkToken.contract).toLowerCase()
-    },
-    networkUSDTId() {
-      return this.$store.state.network.USD_TOKEN
+    usd_token() {
+      return this.$getToken(this.$store.state.network.USD_TOKEN)
     },
 
-    baseTokenId() {
-      return this.selectedMode == 'USDT' ? this.networkUSDTId : this.networkTokenId
-    },
+    quoteTokens() {
+      const { baseToken } = this.$store.state.network
 
-    chartModes() {
-      return [
-        { value: this.networkToken.symbol }, { value: 'USDT' }
-      ]
+      const quotes = []
+
+      if (`${baseToken.symbol}-${baseToken.contract}`.toLowerCase() != this.token.id) {
+        quotes.push({ value: this.$store.state.network.baseToken.symbol })
+      }
+
+      // if (this.token.id != this.usd_token.id) {
+      //   quotes.push({ value: this.usd_token.symbol })
+      // }
+
+      console.log({ quotes })
+
+      return quotes
     },
 
     series() {
       let data = []
 
-      // data = this.charts.map((c) => {
-      //   const price = new Price(
-      //     sortedA,
-      //     sortedB,
-      //     Q128,
-      //     JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
-      //   )
+      const _tokenA = this.$getToken(this.tokenA)
+      const _tokenB = this.$getToken(this.tokenB)
 
-      //   return {
-      //     x: c._id,
-      //     y: parseFloat(price.toSignificant()),
-      //   }
-      // })
+      const tokenA = new Token(_tokenA.contract, _tokenA.decimals, _tokenA.symbol)
+      const tokenB = new Token(_tokenB.contract, _tokenB.decimals, _tokenB.symbol)
+
+      data = this.charts.map((c) => {
+        const price = new Price(
+          tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
+          tokenB.sortsBefore(tokenA) ? tokenA : tokenB,
+          Q128,
+          JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
+        )
+
+        return {
+          x: c._id,
+          y: parseFloat(price.toSignificant()),
+        }
+      })
 
       return [
         {
@@ -160,14 +181,15 @@ export default {
       this.fetchStats()
       this.fetchCharts()
     },
-    baseTokenId() {
+
+    quoteToken() {
       this.fetchCharts()
     }
   },
 
   mounted() {
     this.fetchStats()
-    this.selectedMode = this.networkToken.symbol
+    this.quoteToken = this.$store.state.network.baseToken.symbol
   },
 
   methods: {
@@ -185,10 +207,9 @@ export default {
     },
 
     async fetchCharts() {
-      //const usdPool = jk
-      const tokenA = this.token?.id
-      const tokenB = this.baseTokenId
-      if (!tokenA || !tokenB) return
+      if (!this.token) return
+
+      const { tokenA, tokenB } = this
 
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {

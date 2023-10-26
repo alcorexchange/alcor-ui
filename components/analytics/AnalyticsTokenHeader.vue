@@ -8,7 +8,7 @@
     a(:href='monitorAccount(token.contract)' target='_blank').contract.fs-20 ({{ token.contract }})
 
     .price.fs-24 ${{ token.usd_price }}
-    .change.fs-14 +todo%
+    //.change.fs-14 +todo% TODO
 
   .actions.mt-3
     AlcorButton(v-if="fundamental && fundamental.website" @click="openInNewTab(fundamental.website.link)") Website

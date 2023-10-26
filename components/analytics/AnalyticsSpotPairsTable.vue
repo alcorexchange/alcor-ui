@@ -58,7 +58,7 @@ export default {
     basePairs() {
       return this.markets.filter(
         i => i.base_token.symbol.name == this.network.baseToken.symbol ||
-        this.network.USD_TOKEN == i.base_token.str
+        this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
       ).sort((a, b) => b.volumeMonth - a.volumeMonth)
     },
 
