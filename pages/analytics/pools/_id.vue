@@ -107,10 +107,13 @@ export default {
           title: 'Change 24H',
           value: this.stats.change24 > 0 ? '+' + this.stats.change24 : this.stats.change24,
         },
-
         {
           title: 'Change Week',
           value: this.stats.changeWeek > 0 ? '+' + this.stats.changeWeek : this.stats.changeWeek,
+        },
+        {
+          title: 'Total positions',
+          value: this.loadedPositions.length
         }
       ]
     },
