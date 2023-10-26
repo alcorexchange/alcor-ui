@@ -10,7 +10,7 @@
 
   .analytics-stats-and-chart
     AnalyticsStats(:items="columnStats")
-    AnalyticsChartLayout
+    AnalyticsChartLayout(:modes="chartModes" :selectedMode.sync="selectedMode")
       //- LineChart(
       //-   :series="series"
       //-   height="400px"
@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import JSBI from 'jsbi'
+import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
 import AnalyticsStats from '@/components/analytics/AnalyticsStats'
 import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout.vue'
@@ -36,9 +38,11 @@ export default {
     LineChart
   },
 
-  watch: {
-    token() {
-      this.fetchStats()
+  data() {
+    return {
+      stats: {},
+      selectedMode: null,
+      charts: [],
     }
   },
 
@@ -105,45 +109,65 @@ export default {
       ]
     },
 
-    // series() {
-    //   const { sortedA, sortedB } = this
+    networkToken() {
+      return this.$store.state.network.baseToken
+    },
+    networkTokenId() {
+      return (this.networkToken.symbol + '-' + this.networkToken.contract).toLowerCase()
+    },
+    networkUSDTId() {
+      return this.$store.state.network.USD_TOKEN
+    },
 
-    //   let data = []
+    baseTokenId() {
+      return this.selectedMode == 'USDT' ? this.networkUSDTId : this.networkTokenId
+    },
 
-    //   if (sortedA && sortedB) {
-    //     data = this.charts.map((c) => {
-    //       const price = new Price(
-    //         sortedA,
-    //         sortedB,
-    //         Q128,
-    //         JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
-    //       )
+    chartModes() {
+      return [
+        { value: this.networkToken.symbol }, { value: 'USDT' }
+      ]
+    },
 
-    //       return {
-    //         x: c._id,
-    //         y: parseFloat(price.toSignificant()),
-    //       }
-    //     })
-    //   }
+    series() {
+      let data = []
 
-    //   return [
-    //     {
-    //       name: 'Price',
-    //       data,
-    //     },
-    //   ]
-    // },
+      // data = this.charts.map((c) => {
+      //   const price = new Price(
+      //     sortedA,
+      //     sortedB,
+      //     Q128,
+      //     JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
+      //   )
+
+      //   return {
+      //     x: c._id,
+      //     y: parseFloat(price.toSignificant()),
+      //   }
+      // })
+
+      return [
+        {
+          name: 'Price',
+          data,
+        },
+      ]
+    },
   },
 
-  data() {
-    return {
-      stats: {}
+  watch: {
+    token() {
+      this.fetchStats()
+      this.fetchCharts()
+    },
+    baseTokenId() {
+      this.fetchCharts()
     }
   },
 
   mounted() {
     this.fetchStats()
-    this.fetchCharts()
+    this.selectedMode = this.networkToken.symbol
   },
 
   methods: {
@@ -162,19 +186,20 @@ export default {
 
     async fetchCharts() {
       //const usdPool = jk
-      if (!this.tokenA || !this.tokenB) return
+      const tokenA = this.token?.id
+      const tokenB = this.baseTokenId
+      if (!tokenA || !tokenB) return
 
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
           params: {
-            period: this.activeTime,
-            tokenA: this.tokenA.id,
-            tokenB: this.tokenB.id,
+            // period: this.activeTime,
+            tokenA,
+            tokenB,
           },
         })
 
         this.charts = data
-        this.setCurrentPrice()
       } catch (e) {
         console.log('Getting Chart E', e)
       }
