@@ -23,9 +23,9 @@ export default {
   methods: {
     format(item) {
       if (item.formatter === 'usd')
-        return `$${this.$options.filters.commaFloat(item.value, 0)}`
+        return `$${this.$options.filters.commaFloat(parseFloat(item.value), 2)}`
 
-      return this.$options.filters.commaFloat(item.value, 0)
+      return item.value
     },
   },
 }

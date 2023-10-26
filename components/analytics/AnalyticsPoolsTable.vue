@@ -97,7 +97,7 @@ export default {
 
   methods: {
     openPool(row) {
-      //this.$router.push('/analytics/pools/' + row.id)
+      this.$router.push('/analytics/pools/' + row.id)
     }
   }
 }

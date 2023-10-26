@@ -3,8 +3,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
   AnalyticsPoolHeader(:pool="pool")
 
   .analytics-stats-and-chart.mb-3
-    // TODO: make stats dynamic
-    AnalyticsStats
+    AnalyticsStats(:items="columnStats")
     AnalyticsChartLayout.chart-layout(
       :modes="chartModes"
       :selectedMode.sync="selectedMode"
@@ -78,6 +77,44 @@ export default {
   },
 
   computed: {
+    columnStats() {
+      return [
+        {
+          title: 'Volume 24H',
+          value: this.stats.volumeUSD24,
+          formatter: 'usd'
+        },
+
+        {
+          title: 'Volume Week',
+          value: this.stats.volumeUSDWeek,
+          formatter: 'usd'
+        },
+
+        {
+          title: 'Volume Month',
+          value: this.stats.volumeUSDMonth,
+          formatter: 'usd'
+        },
+
+        {
+          title: 'Total Value Locked',
+          value: this.stats.tvlUSD,
+          formatter: 'usd'
+        },
+
+        {
+          title: 'Change 24H',
+          value: this.stats.change24 > 0 ? '+' + this.stats.change24 : this.stats.change24,
+        },
+
+        {
+          title: 'Change Week',
+          value: this.stats.changeWeek > 0 ? '+' + this.stats.changeWeek : this.stats.changeWeek,
+        }
+      ]
+    },
+
     renderSeries() {
       if (this.selectedMode === 'Ticks') return this.liquiditySeries
 
@@ -97,14 +134,18 @@ export default {
         },
       ]
     },
+
     renderChart() {
       if (this.selectedMode === 'Volume') return 'Volume'
       if (this.selectedMode === 'Ticks') return 'Bars'
       return 'LineChart'
     },
+
     chartModes() {
-      return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
+      //return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
+      return [{ value: 'TVL' }, { value: 'Volume' }]
     },
+
     id() {
       return this.$route.params.id
     },
@@ -231,10 +272,9 @@ export default {
 
       this.liquiditySeries = [
         {
-          name: 'lol',
+          name: 'liquidity',
           type: 'area',
-          data, // TEMP FIX
-          //data: [{ x: 1, y: 4 }, { x: 2, y: 10 }]
+          data,
         },
       ]
 
