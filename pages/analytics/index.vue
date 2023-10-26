@@ -91,7 +91,7 @@ export default {
         },
         {
           title: 'Daily active users (30d avg.)',
-          value: this.stats.dailyActiveUsers,
+          value: Math.round(this.stats.dailyActiveUsers),
         },
         {
           title: 'Total Liquidity Pools',
