@@ -12,9 +12,8 @@
       .name.fs-32 {{ pool.tokenA.symbol }} / {{ pool.tokenB.symbol }}
     Tag.ml-1 {{ pool.fee / 10000 }}%
   .end
-    AlcorButton(tag="nuxt-link" to="/swap") Swap
-    AlcorButton(tag="nuxt-link" to="/markets") Trade on Spot
-    AlcorButton(tag="nuxt-link" to="/positions/new") Add Liquidity
+    AlcorButton(tag="nuxt-link" :to="toSwap") Swap
+    AlcorButton(tag="nuxt-link" :to="toAddLiquidity") Add Liquidity
 </template>
 
 <script>
@@ -32,6 +31,27 @@ export default {
     PairIcons,
     ReturnLink,
     Tag,
+  },
+
+  computed: {
+    toSwap() {
+      return this.localeRoute({
+        path: '/swap',
+        query: {
+          input: this.pool.tokenA.id,
+          output: this.pool.tokenB.id,
+        },
+      })
+    },
+    toAddLiquidity() {
+      return this.localeRoute({
+        path: '/positions/new',
+        query: {
+          left: this.pool.tokenA.id,
+          right: this.pool.tokenB.id,
+        },
+      })
+    },
   },
 }
 </script>
