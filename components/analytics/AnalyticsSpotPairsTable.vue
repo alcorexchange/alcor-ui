@@ -1,9 +1,9 @@
 <template lang="pug">
 el-table(:data="paginatedPairs").analytics-table.analytics-spot-pairs-table
   el-table-column(label="Pair" min-width="140")
-    template(#default="{ row }")
+    template(#default="{ row, $index }")
       .token-container(v-if="row")
-        span.rank #1
+        span.rank # {{ (page - 1) * 10 + $index + 1 }}
         PairIcons.pair-icons(
           size="18"
           :token1="{contract: row.base_token.contract, symbol: row.base_token.symbol.name}"
