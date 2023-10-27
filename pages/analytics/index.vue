@@ -15,7 +15,7 @@
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
       AlcorButton Explore
-  AnalyticsSpotPairsTable(:tableData="paginatedMarkets" :length="markets.length" @pageChange="getSpots")
+  AnalyticsSpotPairsTable()
 </template>
 
 <script>
