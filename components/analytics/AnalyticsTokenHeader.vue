@@ -35,8 +35,8 @@ export default {
   methods: {
     openSocial(social) {
       this.openInNewTab(social)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -56,6 +56,10 @@ export default {
   .contract {
     color: var(--text-disable);
     margin: 0 4px;
+    transition: all 0.2s;
+    &:hover {
+      color: var(--text-default);
+    }
   }
   .name,
   .price {
