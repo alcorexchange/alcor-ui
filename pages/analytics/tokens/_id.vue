@@ -16,6 +16,7 @@
         height="400px"
         style="min-height: 400px")
 
+  AnalyticsPoolsTable(:pools="pools" title="Pools")
 </template>
 
 <script>
@@ -27,6 +28,7 @@ import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout.vu
 import ReturnLink from '~/components/ReturnLink.vue'
 import AlcorContainer from '~/components/AlcorContainer.vue'
 import LineChart from '~/components/charts/Line.vue'
+import AnalyticsPoolsTable from '~/components/analytics/AnalyticsPoolsTable'
 
 export default {
   components: {
@@ -35,7 +37,8 @@ export default {
     AnalyticsChartLayout,
     ReturnLink,
     AlcorContainer,
-    LineChart
+    LineChart,
+    AnalyticsPoolsTable,
   },
 
   data() {
@@ -54,7 +57,9 @@ export default {
     tokenB() {
       const { baseToken } = this.$store.state.network
 
-      return this.quoteToken == this.usd_token.symbol ? this.usd_token.id : `${baseToken.symbol}-${baseToken.contract}`.toLowerCase()
+      return this.quoteToken == this.usd_token.symbol
+        ? this.usd_token.id
+        : `${baseToken.symbol}-${baseToken.contract}`.toLowerCase()
     },
 
     token() {
@@ -64,17 +69,17 @@ export default {
     fundamental() {
       if (!this.$fundamentals[this.$store.state.network.name]) return null
 
-      return this.$fundamentals[this.$store.state.network.name][
-        this.token.symbol + '@' + this.token.contract
-      ]
+      return this.$fundamentals[this.$store.state.network.name][this.token.symbol + '@' + this.token.contract]
     },
 
     pools() {
-      return this.$store.state.amm.poolsStats.filter(p => p.tokenA.id == this.token.id || p.tokenB.id == this.token.id)
+      return this.$store.state.amm.poolsStats.filter(
+        (p) => p.tokenA.id == this.token.id || p.tokenB.id == this.token.id
+      )
     },
 
     markets() {
-      return this.$store.state.markets.filter(m => m.slug.includes(this.token.id))
+      return this.$store.state.markets.filter((m) => m.slug.includes(this.token.id))
     },
 
     columnStats() {
@@ -184,7 +189,7 @@ export default {
 
     quoteToken() {
       this.fetchCharts()
-    }
+    },
   },
 
   mounted() {
@@ -200,7 +205,7 @@ export default {
         code: this.token.contract,
         table: 'stat',
         limit: 1,
-        scope: this.token.symbol
+        scope: this.token.symbol,
       })
 
       this.stats = rows[0]
@@ -225,6 +230,6 @@ export default {
         console.log('Getting Chart E', e)
       }
     },
-  }
+  },
 }
 </script>
