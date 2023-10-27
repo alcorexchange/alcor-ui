@@ -17,6 +17,12 @@
         style="min-height: 400px")
 
   AnalyticsPoolsTable(:pools="pools" title="Pools")
+
+  AnalyticsSectionHeader(title="Spot Pairs")
+    template(#action)
+      AlcorButton Explore
+
+  AnalyticsSpotPairsTable(:pairs="markets")
 </template>
 
 <script>
@@ -29,6 +35,9 @@ import ReturnLink from '~/components/ReturnLink.vue'
 import AlcorContainer from '~/components/AlcorContainer.vue'
 import LineChart from '~/components/charts/Line.vue'
 import AnalyticsPoolsTable from '~/components/analytics/AnalyticsPoolsTable'
+import AnalyticsSectionHeader from '~/components/analytics/AnalyticsSectionHeader'
+import AnalyticsSpotPairsTable from '~/components/analytics/AnalyticsSpotPairsTable'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   components: {
@@ -38,7 +47,10 @@ export default {
     ReturnLink,
     AlcorContainer,
     LineChart,
+    AlcorButton,
     AnalyticsPoolsTable,
+    AnalyticsSpotPairsTable,
+    AnalyticsSectionHeader,
   },
 
   data() {
