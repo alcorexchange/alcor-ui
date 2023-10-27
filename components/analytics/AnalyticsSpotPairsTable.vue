@@ -60,7 +60,7 @@ export default {
     paginatedPairs() {
       const chunk = [...this.pairs]
 
-      chunk.sort((a, b) => b.volumeUSDMonth - a.volumeUSDMonth)
+      chunk.sort((a, b) => b.volumeMonth - a.volumeMonth)
       const offset = (this.page - 1) * 10
 
       return chunk.slice(offset, offset + 10)
