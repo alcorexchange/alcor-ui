@@ -11,7 +11,7 @@
   //-     AlcorButton Explore
   //- AnalyticsTokensTable(:tableData="tokens" @pageChange="getTokens")
 
-  AnalyticsPoolsTable()
+  AnalyticsPoolsTable(:pools="pools" title="Top Pools")
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
       AlcorButton Explore
@@ -48,6 +48,9 @@ export default {
   }),
   computed: {
     ...mapState(['markets']),
+    pools() {
+      return this.$store.state.amm.poolsStats
+    },
     paginatedMarkets() {
       const PER_PAGE = 10
       const lowestItem = (this.spotsPage - 1) * PER_PAGE

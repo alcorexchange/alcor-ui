@@ -1,12 +1,12 @@
 <template lang="pug">
 div
-  AnalyticsSectionHeader.mb-2(title="Top Pools")
+  AnalyticsSectionHeader.mb-2(:title="title")
     template(#action)
       AlcorButton Explore
     template(#afterTitle)
       el-input.search-input(size='small' placeholder='Search' v-model="search" prefix-icon='el-icon-search')
   div.table-container
-    el-table(:data="pools" @row-click="openPool" row-class-name="pointer").analytics-table.analytics-pools-table
+    el-table(:data="paginatedPools" @row-click="openPool" row-class-name="pointer").analytics-table.analytics-pools-table
       el-table-column(label="Pool" width="300")
         template(slot-scope='scope')
           .token-container
@@ -64,6 +64,8 @@ export default {
     AnalyticsSectionHeader,
   },
 
+  props: ['title', 'pools'],
+
   data: () => ({
     page: 1,
     search: '',
@@ -75,13 +77,12 @@ export default {
     },
 
     filteredPools() {
-      const chunk = this.$store.state.amm.poolsStats
-      return chunk.filter(({ tokenA, tokenB }) => {
+      return this.pools?.filter(({ tokenA, tokenB }) => {
         return `${tokenA.id}${tokenB.id}`.includes(this.search.toLowerCase())
       })
     },
 
-    pools() {
+    paginatedPools() {
       const chunk = [...this.filteredPools]
       chunk.sort((a, b) => b.volumeUSDMonth - a.volumeUSDMonth)
       const offset = (this.page - 1) * 10
@@ -98,8 +99,8 @@ export default {
   methods: {
     openPool(row) {
       this.$router.push('/analytics/pools/' + row.id)
-    }
-  }
+    },
+  },
 }
 </script>
 
