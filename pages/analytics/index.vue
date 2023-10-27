@@ -15,7 +15,7 @@
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
       AlcorButton Explore
-  AnalyticsSpotPairsTable()
+  AnalyticsSpotPairsTable(:pairs="spotPairs")
 </template>
 
 <script>
@@ -47,15 +47,18 @@ export default {
     isLoadingStats: true,
   }),
   computed: {
-    ...mapState(['markets']),
+    ...mapState(['markets', 'network']),
     pools() {
       return this.$store.state.amm.poolsStats
     },
-    paginatedMarkets() {
-      const PER_PAGE = 10
-      const lowestItem = (this.spotsPage - 1) * PER_PAGE
-      const highestItem = this.spotsPage * PER_PAGE
-      return this.markets.filter((_, i) => lowestItem <= i && i < highestItem)
+    spotPairs() {
+      return this.markets
+        .filter(
+          (i) =>
+            i.base_token.symbol.name == this.network.baseToken.symbol ||
+            this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
+        )
+        .sort((a, b) => b.volumeMonth - a.volumeMonth)
     },
     globalStatsItems() {
       return [

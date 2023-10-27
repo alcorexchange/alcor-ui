@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table(:data="spotPairs").analytics-table.analytics-spot-pairs-table
+el-table(:data="paginatedPairs").analytics-table.analytics-spot-pairs-table
   el-table-column(label="Pair" min-width="140")
     template(#default="{ row }")
       .token-container(v-if="row")
@@ -32,7 +32,7 @@ el-table(:data="spotPairs").analytics-table.analytics-spot-pairs-table
 
   template(#append)
     .d-flex.justify-content-center.p-2
-      el-pagination.pagination(:total="basePairs.length" :page-size="10" layout="prev, pager, next" :current-page.sync="page")
+      el-pagination.pagination(:total="pairs.length" :page-size="10" layout="prev, pager, next" :current-page.sync="page")
 </template>
 
 <script>
@@ -45,32 +45,27 @@ export default {
 
   components: {
     AlcorButton,
-    PairIcons
+    PairIcons,
   },
 
+  props: ['pairs'],
+
   data: () => ({
-    page: 1
+    page: 1,
   }),
 
   computed: {
     ...mapState(['network', 'markets']),
 
-    basePairs() {
-      return this.markets.filter(
-        i => i.base_token.symbol.name == this.network.baseToken.symbol ||
-        this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
-      ).sort((a, b) => b.volumeMonth - a.volumeMonth)
-    },
-
-    spotPairs() {
-      const chunk = this.basePairs
+    paginatedPairs() {
+      const chunk = [...this.pairs]
 
       chunk.sort((a, b) => b.volumeUSDMonth - a.volumeUSDMonth)
       const offset = (this.page - 1) * 10
 
       return chunk.slice(offset, offset + 10)
-    }
-  }
+    },
+  },
 }
 </script>
 
