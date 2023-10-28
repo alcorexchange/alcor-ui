@@ -68,4 +68,13 @@ export default {
     height: 14px;
   }
 }
+
+@media only screen and (max-width: 800px) {
+  .analytics-header {
+    flex-direction: column;
+  }
+  .right {
+    align-self: flex-end;
+  }
+}
 </style>
