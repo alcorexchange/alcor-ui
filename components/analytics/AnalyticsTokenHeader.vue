@@ -45,6 +45,7 @@ export default {
   display: flex;
   gap: 8px;
   align-items: flex-end;
+  flex-wrap: wrap;
   .name-and-image {
     display: flex;
     align-items: center;
