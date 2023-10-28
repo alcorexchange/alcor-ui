@@ -1,6 +1,6 @@
 <template lang="pug">
 el-table(:data="paginatedPairs").analytics-table.analytics-spot-pairs-table
-  el-table-column(label="Pair" min-width="140")
+  el-table-column(label="Pair" width="300")
     template(#default="{ row, $index }")
       .token-container(v-if="row")
         span.rank # {{ (page - 1) * 10 + $index + 1 }}
@@ -11,14 +11,14 @@ el-table(:data="paginatedPairs").analytics-table.analytics-spot-pairs-table
         )
         span.name {{ row.quote_token.symbol.name }}/{{ row.base_token.symbol.name }}
         span.tag.fs-12 0.3%
-  el-table-column(label="Price")
+  el-table-column(label="Price" min-width="120")
     template(slot-scope="{ row }") $ {{ $systemToUSD(row.last_price, 8, 8, row.base_name == 'USDT') }}
 
-  el-table-column(label="Volume 24h")
+  el-table-column(label="Volume 24h" min-width="120")
     template(slot-scope="{row}") $ {{ $systemToUSD(row.volume24) }}
-  el-table-column(label="Volume 7d")
+  el-table-column(label="Volume 7d" min-width="100")
     template(slot-scope="{row}") $ {{ $systemToUSD(row.volumeWeek) }}
-  el-table-column(label="Volume 30D")
+  el-table-column(label="Volume 30D" min-width="120")
     template(slot-scope="{row}") $ {{ $systemToUSD(row.volumeMonth) }}
 
   el-table-column(label="Spread" width="80")
@@ -32,7 +32,7 @@ el-table(:data="paginatedPairs").analytics-table.analytics-spot-pairs-table
 
   template(#append)
     .d-flex.justify-content-center.p-2
-      el-pagination.pagination(:total="pairs.length" :page-size="10" layout="prev, pager, next" :current-page.sync="page")
+      el-pagination.pagination(:total="pairs.length" :pager-count="5" :page-size="10" layout="prev, pager, next" :current-page.sync="page")
 </template>
 
 <script>
@@ -74,7 +74,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-  // white-space: nowrap;
   .rank {
     color: var(--text-disable);
     white-space: nowrap;
