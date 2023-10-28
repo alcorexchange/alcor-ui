@@ -68,7 +68,7 @@ export default {
     return {
       loading: true,
       loadedPositions: [],
-      selectedResolution: '1W',
+      selectedResolution: 'All',
       selectedMode: 'TVL',
 
       chart: [],
@@ -254,6 +254,9 @@ export default {
       },
       immediate: true,
     },
+    selectedResolution() {
+      this.getChart()
+    },
   },
 
   mounted() {
@@ -298,7 +301,7 @@ export default {
       const tokenA = this.pool.tokenA.id
       const tokenB = this.pool.tokenB.id
       if (!tokenA || !tokenB) return
-      const period = undefined
+      const period = this.selectedResolution
       const params = {
         tokenA,
         tokenB,
