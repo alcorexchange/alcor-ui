@@ -57,7 +57,7 @@ export default {
     return {
       stats: {},
       quoteToken: null,
-      selectedResolution: 'ALL',
+      selectedResolution: 'All',
       charts: [],
     }
   },

@@ -26,9 +26,9 @@ export default {
   data() {
     return {
       resolutions: [
-        { title: '7D', value: '1W' },
-        { title: '1M', value: '1M' },
-        { title: 'All', value: 'ALL' },
+        { title: '7D', value: '7D' },
+        { title: '1M', value: '30D' },
+        { title: 'All', value: 'All' },
       ],
     }
   },
