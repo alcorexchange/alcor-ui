@@ -10,7 +10,7 @@
 
   .analytics-stats-and-chart
     AnalyticsStats(:items="columnStats")
-    AnalyticsChartLayout(:modes="quoteTokens" :selectedMode.sync="quoteToken")
+    AnalyticsChartLayout(:modes="quoteTokens" :selectedMode.sync="quoteToken" :selectedResolution.sync="selectedResolution")
       LineChart(
         :series="series"
         height="400px"
@@ -57,6 +57,7 @@ export default {
     return {
       stats: {},
       quoteToken: null,
+      selectedResolution: 'ALL',
       charts: [],
     }
   },
@@ -202,6 +203,10 @@ export default {
     quoteToken() {
       this.fetchCharts()
     },
+
+    selectedResolution() {
+      this.fetchCharts()
+    },
   },
 
   mounted() {
@@ -231,7 +236,7 @@ export default {
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
           params: {
-            // period: this.activeTime,
+            period: this.selectedResolution,
             tokenA,
             tokenB,
           },
