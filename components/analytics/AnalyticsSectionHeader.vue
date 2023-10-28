@@ -19,10 +19,13 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   .title {
+    flex: 1;
     display: flex;
     align-items: center;
     gap: 12px;
+    white-space: nowrap;
     h2 {
       font-size: 1.18rem;
       font-weight: 500;
@@ -33,6 +36,11 @@ export default {
     .alcor-button {
       padding: 4px 8px;
     }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .analytics-section-header {
   }
 }
 </style>
