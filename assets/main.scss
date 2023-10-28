@@ -1418,4 +1418,8 @@ body
   grid-template-columns: 1fr 2fr;
   gap: 10px;
   align-items: start;
+
+  @media only screen and (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 }
