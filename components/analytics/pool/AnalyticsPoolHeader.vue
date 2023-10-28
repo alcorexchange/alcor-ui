@@ -85,4 +85,15 @@ export default {
   align-items: center;
   gap: 6px;
 }
+
+@media only screen and (max-width: 600px) {
+  .analytics-pool-header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    .end {
+      align-self: flex-end;
+    }
+  }
+}
 </style>
