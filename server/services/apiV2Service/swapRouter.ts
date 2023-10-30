@@ -27,6 +27,10 @@ function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   const input = POOLS.find(p => p.tokenA.id == inputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == inputTokenID)?.tokenB
   const output = POOLS.find(p => p.tokenA.id == outputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == outputTokenID)?.tokenB
 
+  if (!input || !output) {
+    console.log('ROUTE NOT FOUND: ', chain, { cache_key })
+  }
+
   const routes = computeAllRoutes(input, output, POOLS, maxHops)
 
   // Caching
