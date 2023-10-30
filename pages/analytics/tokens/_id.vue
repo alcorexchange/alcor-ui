@@ -212,6 +212,7 @@ export default {
   mounted() {
     this.fetchStats()
     this.quoteToken = this.$store.state.network.baseToken.symbol
+    console.log('this', this.$route)
   },
 
   methods: {
