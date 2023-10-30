@@ -44,7 +44,7 @@
     span $ {{ position.totalValue && position.totalValue.toFixed(2) }}
   .p-n-L.fs-14.desktopOnly
     span(:style="{color: $percentColor(position.pNl)}") $ {{ position.pNl && position.pNl.toFixed(2) }}
-  .actions.desktopOnly
+  .actions.desktopOnly(v-if="$store.state.user && position.owner == $store.state.user.name")
     AlcorButton(compact) {{ $t('Manage') }}
 </template>
 

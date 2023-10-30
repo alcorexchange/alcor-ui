@@ -179,7 +179,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'USDT@tethertether',
+    USD_TOKEN: 'usdt-tethertether',
 
     popularTokens: [
       'eos-eosio.token',
@@ -260,7 +260,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'XUSDC@xtokens',
+    USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
   },
@@ -459,7 +459,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'USDT@usdt.alcor',
+    USD_TOKEN: 'usdt-usdt.alcor',
 
     popularTokens: [
       'wax-eosio.token',
@@ -580,7 +580,7 @@ const networks = {
       },
     },
 
-    USD_TOKEN: 'XUSDC@xtokens',
+    USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: [],
   },

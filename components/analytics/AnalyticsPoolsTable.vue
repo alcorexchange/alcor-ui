@@ -1,12 +1,12 @@
 <template lang="pug">
 div
-  AnalyticsSectionHeader.mb-2(title="Top Pools")
+  AnalyticsSectionHeader.mb-2(:title="title")
     template(#action)
       AlcorButton Explore
     template(#afterTitle)
       el-input.search-input(size='small' placeholder='Search' v-model="search" prefix-icon='el-icon-search')
   div.table-container
-    el-table(:data="pools" @row-click="openPool" row-class-name="pointer").analytics-table.analytics-pools-table
+    el-table(:data="paginatedPools" @row-click="openPool" row-class-name="pointer").analytics-table.analytics-pools-table
       el-table-column(label="Pool" width="300")
         template(slot-scope='scope')
           .token-container
@@ -19,10 +19,10 @@ div
             span.name {{ scope.row.tokenA.symbol }} / {{ scope.row.tokenB.symbol }}
             span.tag.fs-12 {{ scope.row.fee / 10000 }}%
 
-      el-table-column(label="Liquidity A")
+      el-table-column(label="Liquidity A" minWidth="140")
         template(slot-scope="{row}") {{ row.tokenA.quantity | commaFloat(0) }} {{ row.tokenA.symbol }}
 
-      el-table-column(label="Liquidity B")
+      el-table-column(label="Liquidity B" minWidth="140")
         template(slot-scope="{row}") {{ row.tokenB.quantity | commaFloat(0) }} {{ row.tokenB.symbol }}
 
       el-table-column(label="Volume 24h" width=150)
@@ -48,7 +48,7 @@ div
       //-     AlcorButton Details
       template(#append)
         .d-flex.justify-content-center.p-2
-          el-pagination.pagination(:total="total" :page-size="10" layout="prev, pager, next" :current-page.sync="page")
+          el-pagination.pagination(:total="total" :pager-count="5" :page-size="10" layout="prev, pager, next" :current-page.sync="page")
 </template>
 
 <script>
@@ -64,6 +64,8 @@ export default {
     AnalyticsSectionHeader,
   },
 
+  props: ['title', 'pools'],
+
   data: () => ({
     page: 1,
     search: '',
@@ -75,13 +77,12 @@ export default {
     },
 
     filteredPools() {
-      const chunk = this.$store.state.amm.poolsStats
-      return chunk.filter(({ tokenA, tokenB }) => {
+      return this.pools?.filter(({ tokenA, tokenB }) => {
         return `${tokenA.id}${tokenB.id}`.includes(this.search.toLowerCase())
       })
     },
 
-    pools() {
+    paginatedPools() {
       const chunk = [...this.filteredPools]
       chunk.sort((a, b) => b.volumeUSDMonth - a.volumeUSDMonth)
       const offset = (this.page - 1) * 10
@@ -97,9 +98,9 @@ export default {
 
   methods: {
     openPool(row) {
-      //this.$router.push('/analytics/pools/' + row.id)
-    }
-  }
+      this.$router.push('/analytics/pools/' + row.id)
+    },
+  },
 }
 </script>
 
@@ -119,6 +120,10 @@ export default {
     display: flex;
     line-height: 1rem;
   }
+}
+.search-input {
+  width: 100% !important;
+  max-width: 280px;
 }
 .network-img {
   width: 24px;
