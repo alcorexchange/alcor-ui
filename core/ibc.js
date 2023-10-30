@@ -5,6 +5,22 @@ import { Api } from 'eosjs'
 import { captureException } from '@sentry/browser'
 import { getProveContract } from '../utils/ibc'
 
+class WsQueue {
+  current = 0
+
+  constructor(sockets) {
+    this.sockets = sockets
+  }
+
+  getNextSocket() {
+    const next_socket = this.sockets[this.current]
+    this.current = this.sockets.length == this.current + 1 ? 0 : this.current + 1
+
+    return next_socket
+  }
+}
+
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const arrayToHex = (data) => {
@@ -31,6 +47,8 @@ export class IBCTransfer {
     this.sourceWallet = sourceWallet
     this.destinationWallet = destinationWallet
     this.onProgress = onProgress
+
+    this.socketsQueue = new WsQueue(source.ibc.proofSockets)
   }
 
   getTransferAction({ wrapLockContract, quantity, nativeTokenContract }) {
@@ -228,7 +246,7 @@ export class IBCTransfer {
     if (retry_trx_num_blocks) return tx //return tx if we dont need to worry about correct global action
 
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(this.source.ibc.proofSocket)
+      const ws = new WebSocket(this.socketsQueue.getNextSocket())
 
       console.log('getBlockActions', tx.processed.block_num)
       ws.addEventListener('open', (event) =>
@@ -272,10 +290,10 @@ export class IBCTransfer {
 
   getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
     //console.log('get proof txID: ', action?.trx_id)
-    console.log('get proof txID: ', action)
+    //console.log('get proof txID: ', action)
     return new Promise((resolve, reject) => {
       //initialize socket to proof server
-      const ws = new WebSocket(this.source.ibc.proofSocket)
+      const ws = new WebSocket(this.socketsQueue.getNextSocket())
       ws.addEventListener('open', (event) => {
         // connected to websocket server
         const query = { type, block_to_prove }
