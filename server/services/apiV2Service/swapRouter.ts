@@ -82,7 +82,7 @@ swapRouter.get('/getRoute', async (req, res) => {
         : await Trade.bestTradeExactOut(POOLS, inputToken, amount, { maxNumResults: 1, maxHops })
     }
   } catch (e) {
-    console.error('GET ROUTE ERROR')
+    console.error('GET ROUTE ERROR', e)
   }
 
   const endTime = performance.now()
