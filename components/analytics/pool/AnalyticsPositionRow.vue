@@ -4,9 +4,7 @@
     span(@click.stop="monitorOwner") {{ position.owner }}
   .range.desktopOnly
     .d-flex.flex-column
-      .d-flex.align-items-center.gap-4
-        .indicator(:class="{ 'in-range': position.inRange }")
-        .fs-10 {{ position.inRange ? 'In Range': 'Out of Range' }}
+      RangeIndicator(:inRange="position.inRange")
       .d-flex.align-items-center.gap-6.flex-wrap
         .d-flex.gap-4
           .fs-12.disable MIN
@@ -50,12 +48,14 @@
 
 <script>
 import AlcorButton from '~/components/AlcorButton'
+import RangeIndicator from '~/components/amm/RangeIndicator.vue'
 import TokenImage from '~/components/elements/TokenImage'
 export default {
   name: 'AnalyticsPositionRow',
   components: {
     AlcorButton,
     TokenImage,
+    RangeIndicator,
   },
   props: ['position'],
   computed: {},
