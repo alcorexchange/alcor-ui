@@ -205,12 +205,12 @@ export default {
         ],
       },
       {
-        link: 'https://nfthive.io/drop/6411',
+        link: 'https://shop.nftdraft.io/basketball',
         image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(25,201,254,0.2)',
-          'rgba(63,102,180,1)',
-          'rgba(197,3,14, 1)',
+          'rgba(7,108,204,0.2)',
+          'rgba(221,0,0,1)',
+          'rgba(62,169,245, 1)',
         ],
       },
     ]
