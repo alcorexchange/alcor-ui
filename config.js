@@ -425,7 +425,6 @@ const networks = {
     PINNED_MARKETS: [
       /* USDT put others after */ 763,
       679,
-      134
     ],
     BANNER_MARKETS: [],
 

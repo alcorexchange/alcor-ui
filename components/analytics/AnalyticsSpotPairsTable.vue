@@ -1,5 +1,5 @@
 <template lang="pug">
-el-table(:data="paginatedPairs").analytics-table.analytics-spot-pairs-table
+el-table(:data="paginatedPairs" @row-click="onRowClick" row-class-name="pointer").analytics-table.analytics-spot-pairs-table
   el-table-column(label="Pair" width="300")
     template(#default="{ row, $index }")
       .token-container(v-if="row")
@@ -64,6 +64,13 @@ export default {
       const offset = (this.page - 1) * 10
 
       return chunk.slice(offset, offset + 10)
+    },
+  },
+
+  methods: {
+    onRowClick(row) {
+      console.log(row)
+      this.$router.push(this.localeRoute(`/trade/${row.slug}`))
     },
   },
 }
