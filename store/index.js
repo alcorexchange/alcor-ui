@@ -8,8 +8,8 @@ import { parseAsset, make256key, nameToUint64 } from '~/utils'
 export const strict = false
 
 export const state = () => ({
-  //user: null,
-  user: { name: 'eosplaywithx' },
+  user: null,
+  //user: { name: 'eosplaywithx' },
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
