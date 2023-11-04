@@ -101,6 +101,7 @@ async function updateOrders(side, chain, market_id) {
 
   if (orders.size == 0) {
     console.log('Empty orderbook update: ', { chain, side, market_id })
+    await setOrderbook(chain, side, market_id, orders)
     return
   }
 
