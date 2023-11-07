@@ -3,8 +3,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
   AnalyticsPoolHeader(:pool="pool")
 
   .analytics-stats-and-chart.mb-3
-    // TODO: make stats dynamic
-    AnalyticsStats
+    AnalyticsStats(:items="columnStats")
     AnalyticsChartLayout.chart-layout(
       :modes="chartModes"
       :selectedMode.sync="selectedMode"
@@ -21,7 +20,8 @@ div(v-if="pool && stats").analytics-pool-detail-page
 </template>
 
 <script>
-import { tickToPrice } from '@alcorexchange/alcor-swap-sdk'
+import JSBI from 'jsbi'
+import { Token, tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
 import PairIcons from '~/components/PairIcons'
@@ -68,7 +68,7 @@ export default {
     return {
       loading: true,
       loadedPositions: [],
-      selectedResolution: '1W',
+      selectedResolution: 'All',
       selectedMode: 'TVL',
 
       chart: [],
@@ -78,13 +78,67 @@ export default {
   },
 
   computed: {
+    columnStats() {
+      return [
+        {
+          title: 'Volume 24H',
+          value: this.stats.volumeUSD24,
+          formatter: 'usd',
+        },
+
+        {
+          title: 'Volume Week',
+          value: this.stats.volumeUSDWeek,
+          formatter: 'usd',
+        },
+
+        {
+          title: 'Volume Month',
+          value: this.stats.volumeUSDMonth,
+          formatter: 'usd',
+        },
+
+        {
+          title: 'Total Value Locked',
+          value: this.stats.tvlUSD,
+          formatter: 'usd',
+        },
+
+        {
+          title: 'Change 24H',
+          value: this.stats.change24 > 0 ? '+' + this.stats.change24 : this.stats.change24,
+          color: true,
+        },
+        {
+          title: 'Change Week',
+          value: this.stats.changeWeek > 0 ? '+' + this.stats.changeWeek : this.stats.changeWeek,
+          color: true,
+        },
+        {
+          title: 'Total positions',
+          value: this.loadedPositions.length,
+        },
+      ]
+    },
+
     renderSeries() {
       if (this.selectedMode === 'Ticks') return this.liquiditySeries
 
       const getY = (item) => {
-        if (this.selectedMode === 'TVL')
-          return (item.usdReserveA + item.usdReserveB).toFixed(0)
+        if (this.selectedMode === 'TVL') return (item.usdReserveA + item.usdReserveB).toFixed(0)
         if (this.selectedMode === 'Volume') return item.volumeUSD
+        if (this.selectedMode === 'Price') {
+          const tokenA = this.pool.tokenA
+          const tokenB = this.pool.tokenB
+          const price = new Price(
+            tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
+            tokenB.sortsBefore(tokenA) ? tokenA : tokenB,
+            Q128,
+            JSBI.multiply(JSBI.BigInt(item.price), JSBI.BigInt(item.price))
+          )
+
+          return parseFloat(price.toSignificant())
+        }
       }
 
       return [
@@ -97,14 +151,19 @@ export default {
         },
       ]
     },
+
     renderChart() {
       if (this.selectedMode === 'Volume') return 'Volume'
       if (this.selectedMode === 'Ticks') return 'Bars'
+      if (this.selectedMode === 'Price') return 'LineChart'
       return 'LineChart'
     },
+
     chartModes() {
-      return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
+      //return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
+      return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Price' }]
     },
+
     id() {
       return this.$route.params.id
     },
@@ -197,6 +256,9 @@ export default {
       },
       immediate: true,
     },
+    selectedResolution() {
+      this.getChart()
+    },
   },
 
   mounted() {
@@ -212,18 +274,15 @@ export default {
       return value
     },
     async fetchPositions() {
-      const { data } = await this.$axios.get(
-        `/v2/swap/pools/${this.id}/positions`
-      )
+      const { data } = await this.$axios.get(`/v2/swap/pools/${this.id}/positions`)
       this.loading = false
       this.loadedPositions = data
     },
 
     async fetchLiquidityChart() {
-      let { data } = await this.$axios.get(
-        '/v2/swap/pools/' + this.id + '/liquidityChartSeries',
-        { params: { inverted: false } }
-      )
+      let { data } = await this.$axios.get('/v2/swap/pools/' + this.id + '/liquidityChartSeries', {
+        params: { inverted: false },
+      })
 
       data = data.filter((s) => Math.max(s.x, s.y) <= 1247497401346422)
 
@@ -231,10 +290,9 @@ export default {
 
       this.liquiditySeries = [
         {
-          name: 'lol',
+          name: 'liquidity',
           type: 'area',
-          data, // TEMP FIX
-          //data: [{ x: 1, y: 4 }, { x: 2, y: 10 }]
+          data,
         },
       ]
 
@@ -245,7 +303,7 @@ export default {
       const tokenA = this.pool.tokenA.id
       const tokenB = this.pool.tokenB.id
       if (!tokenA || !tokenB) return
-      const period = undefined
+      const period = this.selectedResolution
       const params = {
         tokenA,
         tokenB,

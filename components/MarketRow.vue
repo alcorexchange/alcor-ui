@@ -12,7 +12,6 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
       span {{ item.quote_name }}
       .text-muted(v-if='!isMobile') {{ item.contract }}
       span /
-      //token-image.token(v-if="network.USD_TOKEN.includes(item.base_contract)" :src='$tokenLogo(item.base_name, item.base_contract)' height="23")
       span {{ item.base_name }}
       span.promo-label(v-if="isMobile && item.promoted") top
   .promoted

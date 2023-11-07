@@ -152,6 +152,8 @@ export default {
         return index == '/markets'
       }
 
+      if (path.includes('/wallet/farms')) return index == '/wallet/farms'
+
       return path.includes(index)
     },
 
@@ -242,7 +244,7 @@ export default {
     color: var(--text-disable);
     position: relative;
     &:hover {
-      color: var(--text-default)
+      color: var(--text-default);
     }
 
     .badge {

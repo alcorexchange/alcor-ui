@@ -3,7 +3,7 @@ AlcorContainer.analytics-stats.fs-14
   .item(v-for="item in items")
     .key {{ item.title }}
     VueSkeletonLoader(variant="p" width="40px" height="1rem" rounded animation="wave" v-if="loading")
-    .value(v-else) {{ format(item) }}
+    .value(v-else :style="{color: renderColor(item)}") {{ format(item) }}
 </template>
 
 <script>
@@ -22,10 +22,15 @@ export default {
   computed: {},
   methods: {
     format(item) {
-      if (item.formatter === 'usd')
-        return `$${this.$options.filters.commaFloat(item.value, 0)}`
+      if (item.formatter === 'usd') return `$${this.$options.filters.commaFloat(parseFloat(item.value), 2)}`
 
-      return this.$options.filters.commaFloat(item.value, 0)
+      return item.value
+    },
+    renderColor(item) {
+      if (!item.color) return 'var(--text-default)'
+      if (item.value > 0) return 'var(--main-action-green)'
+      if (item.value < 0) return 'var(--main-action-red)'
+      return 'var(--text-default)'
     },
   },
 }

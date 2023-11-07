@@ -8,7 +8,7 @@
     a(:href='monitorAccount(token.contract)' target='_blank').contract.fs-20 ({{ token.contract }})
 
     .price.fs-24 ${{ token.usd_price }}
-    .change.fs-14 +todo%
+    //.change.fs-14 +todo% TODO
 
   .actions.mt-3
     AlcorButton(v-if="fundamental && fundamental.website" @click="openInNewTab(fundamental.website.link)") Website
@@ -35,8 +35,8 @@ export default {
   methods: {
     openSocial(social) {
       this.openInNewTab(social)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -45,6 +45,7 @@ export default {
   display: flex;
   gap: 8px;
   align-items: flex-end;
+  flex-wrap: wrap;
   .name-and-image {
     display: flex;
     align-items: center;
@@ -56,6 +57,10 @@ export default {
   .contract {
     color: var(--text-disable);
     margin: 0 4px;
+    transition: all 0.2s;
+    &:hover {
+      color: var(--text-default);
+    }
   }
   .name,
   .price {

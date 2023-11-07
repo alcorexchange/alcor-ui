@@ -11,11 +11,11 @@
   //-     AlcorButton Explore
   //- AnalyticsTokensTable(:tableData="tokens" @pageChange="getTokens")
 
-  AnalyticsPoolsTable()
+  AnalyticsPoolsTable(:pools="pools" title="Top Pools")
   AnalyticsSectionHeader(title="Top Spot Pairs")
     template(#action)
       AlcorButton Explore
-  AnalyticsSpotPairsTable(:tableData="paginatedMarkets" :length="markets.length" @pageChange="getSpots")
+  AnalyticsSpotPairsTable(:pairs="spotPairs")
 </template>
 
 <script>
@@ -47,12 +47,18 @@ export default {
     isLoadingStats: true,
   }),
   computed: {
-    ...mapState(['markets']),
-    paginatedMarkets() {
-      const PER_PAGE = 10
-      const lowestItem = (this.spotsPage - 1) * PER_PAGE
-      const highestItem = this.spotsPage * PER_PAGE
-      return this.markets.filter((_, i) => lowestItem <= i && i < highestItem)
+    ...mapState(['markets', 'network']),
+    pools() {
+      return this.$store.state.amm.poolsStats
+    },
+    spotPairs() {
+      return this.markets
+        .filter(
+          (i) =>
+            i.base_token.symbol.name == this.network.baseToken.symbol ||
+            this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
+        )
+        .sort((a, b) => b.volumeMonth - a.volumeMonth)
     },
     globalStatsItems() {
       return [
@@ -91,7 +97,7 @@ export default {
         },
         {
           title: 'Daily active users (30d avg.)',
-          value: this.stats.dailyActiveUsers,
+          value: Math.round(this.stats.dailyActiveUsers),
         },
         {
           title: 'Total Liquidity Pools',

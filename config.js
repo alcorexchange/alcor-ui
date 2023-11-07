@@ -72,7 +72,7 @@ const networks = {
     ibc: {
       name: 'eos',
       returnValueEnabled: true,
-      proofSocket: 'wss://ibc-server.uxnetwork.io/eos',
+      proofSockets: ['wss://ibc-server.uxnetwork.io/eos'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
@@ -179,7 +179,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'USDT@tethertether',
+    USD_TOKEN: 'usdt-tethertether',
 
     popularTokens: [
       'eos-eosio.token',
@@ -260,7 +260,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'XUSDC@xtokens',
+    USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
   },
@@ -316,7 +316,7 @@ const networks = {
     ibc: {
       name: 'ux',
       returnValueEnabled: false,
-      proofSocket: 'wss://ibc-server.uxnetwork.io/ux',
+      proofSockets: ['wss://ibc-server.uxnetwork.io/ux'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
@@ -378,6 +378,7 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
+      'https://wax-api2.alcor.exchange': 'Alcor API2',
       'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
       //'https://waxnode02.alcor.exchange': 'WAX Alcor - Germany',
       'https://wax.greymass.com': 'Greymass - Canada',
@@ -406,9 +407,9 @@ const networks = {
     ibc: {
       name: 'wax',
       returnValueEnabled: true,
-      //proofSocket: 'wss://ibc-server.uxnetwork.io/wax',
-      proofSocket: 'wss://wax.eosusa.io/ibc',
-      //proofSocket: 'wss://wax.ibc.animus.is',
+      proofSockets: ['wss://ibc-server.uxnetwork.io/wax'],
+      //proofSockets: 'wss://wax.eosusa.io/ibc',
+      //proofSockets: 'wss://wax.ibc.animus.is',
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.ux', 'ibc.wl.tlos'],
@@ -425,7 +426,6 @@ const networks = {
     PINNED_MARKETS: [
       /* USDT put others after */ 763,
       679,
-      134
     ],
     BANNER_MARKETS: [],
 
@@ -459,7 +459,7 @@ const networks = {
       contract: 'alcornftswap',
     },
 
-    USD_TOKEN: 'USDT@usdt.alcor',
+    USD_TOKEN: 'usdt-usdt.alcor',
 
     popularTokens: [
       'wax-eosio.token',
@@ -531,7 +531,7 @@ const networks = {
     ibc: {
       name: 'tlos',
       returnValueEnabled: true,
-      proofSocket: 'wss://ibc-server.uxnetwork.io/telos',
+      proofSockets: ['wss://ibc-server.uxnetwork.io/telos'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.eos'],
@@ -580,7 +580,7 @@ const networks = {
       },
     },
 
-    USD_TOKEN: 'XUSDC@xtokens',
+    USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: [],
   },
