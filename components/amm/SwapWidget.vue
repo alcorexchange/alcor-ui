@@ -205,12 +205,12 @@ export default {
         ],
       },
       {
-        link: 'https://shop.nftdraft.io/basketball',
+        link: 'https://discord.gg/AGwb4FTd',
         image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(7,108,204,0.2)',
-          'rgba(221,0,0,1)',
-          'rgba(62,169,245, 1)',
+          'rgba(132,116,204,0.2)',
+          'rgba(74,70,96,1)',
+          'rgba(20,19,104, 1)',
         ],
       },
     ]
