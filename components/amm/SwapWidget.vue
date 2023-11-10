@@ -196,12 +196,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://wax.alcor.exchange/farm/',
+        link: 'https://nfthive.io/',
         image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(103, 194, 58,0.2)',
-          'rgba(28,28,29, 1)',
-          'rgba(20,56,21,1)',
+          'rgba(254,213,27,0.2)',
+          'rgba(238,225,206, 1)',
+          'rgba(87,62,10,1)',
         ],
       },
       {
