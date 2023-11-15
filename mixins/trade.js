@@ -87,6 +87,7 @@ export const trade = {
     setAmount(bid) {
       if (bid == 'buy') {
         this.changeTotal({ total: this.baseBalance, type: 'buy' })
+        setTimeout(() => this.calcAndSetTotal(), 0)
       } else {
         this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
       }
