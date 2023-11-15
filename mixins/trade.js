@@ -96,6 +96,8 @@ export const trade = {
           const prec = this.quote_token.symbol.precision
           const amount = Big(this.amount_buy).minus(1 / (10 ** prec))
           this.$store.commit('market/SET_AMOUNT_BUY', amount.toString())
+
+          this.calcAndSetTotal()
         }, 0)
       } else {
         this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
