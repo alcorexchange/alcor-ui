@@ -205,7 +205,7 @@ export default {
         ],
       },
       {
-        link: 'https://discord.gg/AGwb4FTd',
+        link: 'https://discord.gg/jp4RKpaBuV',
         image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
           'rgba(132,116,204,0.2)',
