@@ -438,43 +438,56 @@ export const actions = {
   },
   async setPrecisionAmountBuy({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
-    if (state.amount_buy) {
-      const amount = Big(state.amount_buy).round(prec, 0).toString()
-      commit('SET_AMOUNT_BUY', amount)
 
-      await dispatch('changeAmount', { amount, type: 'buy' })
-    } else {
-      commit('SET_AMOUNT_BUY', null)
-    }
+    // if (state.amount_buy) {
+    //   const amount = Big(state.amount_buy).round(prec, 0).toString()
+    //   commit('SET_AMOUNT_BUY', amount)
+
+    //   await dispatch('changeAmount', { amount, type: 'buy' })
+    // } else {
+    //   commit('SET_AMOUNT_BUY', null)
+    // }
   },
   async setPrecisionAmountSell({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
-    if (state.amount_sell) {
-      const amount = Big(state.amount_sell).round(prec, 0).toString()
-      commit('SET_AMOUNT_SELL', amount)
 
-      await dispatch('changeAmount', { amount, type: 'sell' })
-    } else {
-      commit('SET_AMOUNT_SELL', null)
-    }
+    // if (state.amount_sell) {
+    //   const amount = Big(state.amount_sell).round(prec, 0).toString()
+    //   commit('SET_AMOUNT_SELL', amount)
+
+    //   await dispatch('changeAmount', { amount, type: 'sell' })
+    // } else {
+    //   commit('SET_AMOUNT_SELL', null)
+    // }
   },
-  setPrecisionTotalBuy({ state, commit }) {
-    const prec = state.base_token.symbol.precision
-    if (state.total_buy) {
-      const total = Big(state.total_buy).round(prec, 0).toString()
-      commit('SET_TOTAL_BUY', total)
-    } else {
-      commit('SET_TOTAL_BUY', null)
-    }
+
+  setPrecisionTotalBuy({ state, commit, dispatch }) {
+    // On total @change
+    dispatch('calcAndSetTotal')
+
+    //this.changeTotal({ total: state.total_buy, type: 'buy' })
+
+    // const prec = state.base_token.symbol.precision
+    // if (state.total_buy) {
+    //   const total = Big(state.total_buy).round(prec, 0).toString()
+    //   commit('SET_TOTAL_BUY', total)
+    // } else {
+    //   commit('SET_TOTAL_BUY', null)
+    // }
   },
-  setPrecisionTotalSell({ state, commit }) {
-    const prec = state.base_token.symbol.precision
-    if (state.total_sell) {
-      const total = Big(state.total_sell).round(prec, 0).toString()
-      commit('SET_TOTAL_SELL', total)
-    } else {
-      commit('SET_TOTAL_SELL', null)
-    }
+
+  setPrecisionTotalSell({ state, commit, dispatch }) {
+    // On amount @change
+    dispatch('calcAndSetTotal')
+
+    // const prec = state.base_token.symbol.precision
+
+    // if (state.total_sell) {
+    //   const total = Big(state.total_sell).round(prec, 0).toString()
+    //   commit('SET_TOTAL_SELL', total)
+    // } else {
+    //   commit('SET_TOTAL_SELL', null)
+    // }
   },
 
   calculatePercent({ state }, params) {

@@ -9,7 +9,7 @@
 
     main
       div.pool-select-container
-        Note(class="fs-14") You can only create a farm for a pool that you are owner of one of token.
+        Note(class="fs-14") You can only create a farm for a pool that you are issuer of one of token.
         el-select.pool-select(v-model='poolId' placeholder='Select pool' filterable)
           el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' ' + pool.tokenA.contract + ' / ' + pool.tokenB.symbol + ' ' + pool.tokenB.contract + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
             span(style='float: left') {{ pool.tokenA.symbol }} {{ pool.tokenA.contract }} / {{ pool.tokenB.symbol }} {{ pool.tokenB.contract }}

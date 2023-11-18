@@ -2,6 +2,7 @@ import bigInt from 'big-integer'
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '~/utils/eosjs'
+import { parseAsset } from '~/utils'
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
@@ -10,6 +11,8 @@ function formatIncentive(incentive) {
   incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
   incentive.daysRemain = Math.ceil(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
   incentive.rewardPerDay = parseFloat(incentive.reward.quantity) / incentive.durationInDays
+
+  incentive.reward = { ...incentive.reward, ...parseAsset(incentive.reward.quantity) }
 
   return incentive
 }

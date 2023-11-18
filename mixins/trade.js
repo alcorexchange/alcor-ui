@@ -1,5 +1,5 @@
 import { mapActions, mapState, mapGetters } from 'vuex'
-
+import { Big } from 'big.js'
 import { popup } from '~/mixins/popup'
 
 export const trade = {
@@ -86,7 +86,19 @@ export const trade = {
     ]),
     setAmount(bid) {
       if (bid == 'buy') {
+        if (parseFloat(this.price_bid) == 0 || this.price_bid == null || isNaN(this.price_bid)) return
+
         this.changeTotal({ total: this.baseBalance, type: 'buy' })
+
+        setTimeout(() => {
+          // Doing this to get lower total (because it rounds up when corrected price happen)
+          // we do this because user want to buy for his balance amount, so round up will exeed balance
+          const prec = this.quote_token.symbol.precision
+          const amount = Big(this.amount_buy).minus(1 / (10 ** prec))
+          this.$store.commit('market/SET_AMOUNT_BUY', amount.toString())
+
+          this.calcAndSetTotal()
+        }, 0)
       } else {
         this.changeAmount({ amount: this.tokenBalance, type: 'sell' })
       }

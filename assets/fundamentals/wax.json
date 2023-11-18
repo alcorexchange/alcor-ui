@@ -449,5 +449,22 @@
             "https://peakd.com/@currentxchange",
             "https://www.reddit.com/r/cXcMusic"
         ]
+    },
+    "SCRAP@token.gene": {
+        "name": "Scrap",
+        "website": {
+            "link": "https://playforge.gg/",
+            "name": "playforge.gg"
+        },
+        "tags": [
+            "Gaming",
+            "Skins",
+            "Esport",
+            "FPS"
+        ],
+        "description": "The Forge Arenas main utility token.",
+        "socials": [
+            "https://twitter.com/TheForgeArena"
+        ]
     }
 }
