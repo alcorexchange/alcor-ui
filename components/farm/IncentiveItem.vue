@@ -6,7 +6,7 @@
         span.key.muted.fs-14 Daily Reward
         .icon-and-value
           TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-          span {{ incentive.rewardPerDay | commaFloat }} {{ incentive.reward.quantity.split(' ')[1] }}
+          span {{ incentive.rewardPerDay | commaFloat(incentive.reward.symbol.precision) }} {{ incentive.reward.symbol.symbol }}
       span.muted •
       .key-value
         //- span.muted Remaining Time
