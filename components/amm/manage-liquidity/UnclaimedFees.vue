@@ -13,14 +13,14 @@
     .d-flex.align-items-center.gap-8
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ position.feesA }}
+      .fs-18.lh-12 {{ position.feesA | commaFloat(position.pool.tokenA.decimals) }}
       .fs-14.color-action (${{ $tokenToUSD(parseFloat(position.feesA), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ position.feesB }}
+      .fs-18.lh-12 {{ position.feesB | commaFloat(position.pool.tokenB.decimals) }}
       .fs-14.color-action (${{ $tokenToUSD(parseFloat(position.feesB), position.pool.tokenB.symbol, position.pool.tokenB.contract) }})
 
 </template>

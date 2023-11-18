@@ -13,7 +13,7 @@
     @mouseup.native="dialogMouseup"
 
   )
-    PositionInfo(:noPL="true" v-bind="$props" :composedPercent="composedPercent")
+    PositionInfo(:noPL="true" v-bind="$props")
     .separator.my-2
     .d-flex.justify-content-between.gap-8
       .fs-18.current-price
@@ -69,7 +69,7 @@ export default {
     ManageLiquidityMinMaxPrices
   },
 
-  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower', 'composedPercent'],
+  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower'],
 
   data: () => ({
     amountA: null,

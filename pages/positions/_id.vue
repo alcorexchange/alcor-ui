@@ -4,7 +4,7 @@ div(v-loading="!position && !this.positionNotFound")
     PageHeader(:title="title")
     .main.gap-16.pt-3
       .left
-        PositionInfo(:position="position" :tokensInverted="tokensInverted" :composedPercent="composedPercent")
+        PositionInfo(:position="position" :tokensInverted="tokensInverted")
           template(#action)
             IncreaseLiquidity(
               v-if="isMyPosition"
@@ -13,7 +13,6 @@ div(v-loading="!position && !this.positionNotFound")
               :priceLower="priceLower"
               :priceUpper="priceUpper"
               @toggleTokens="toggleTokens"
-              :composedPercent="composedPercent"
             )
 
             AlcorButton.increase-button(v-else @click="openInNewTab(monitorAccount(position.owner))")
@@ -171,16 +170,6 @@ export default {
       } catch (e) {
         this.positionNotFound = true
       }
-    },
-
-    composedPercent(side) {
-      const tokenA = parseFloat(this.position.amountA.toFixed())
-      const tokenB = parseFloat(this.position.amountB.toFixed())
-
-      return (side == (this.tokensInverted ? 'e' : 'w')
-        ? (tokenA * 100) / (tokenA + tokenB)
-        : (tokenB * 100) / (tokenA + tokenB)
-      ).toFixed(0)
     },
 
     toggleTokens() {
