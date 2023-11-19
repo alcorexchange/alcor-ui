@@ -100,7 +100,7 @@ export async function makeAllTokensWithPrices(network: Network) {
     const t = {
       contract: token.contract,
       decimals: token.symbol.precision,
-      symbol: token.symbol,
+      symbol: token.symbol.name,
       id: token.id,
       usd_price: 0.0,
       system_price: 0.0
