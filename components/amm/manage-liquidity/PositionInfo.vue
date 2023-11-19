@@ -1,7 +1,7 @@
 <template lang="pug">
 .pool-info
   .pool-info-header
-    .pool-info-header-main.d-flex.gap-8.align-items-center
+    .pool-info-header-main.d-flex.gap-8.align-items-center.pointer(@click="$router.push('/analytics/pools/' + position.pool.id)")
       PairIcons.pair-icons(v-if="!isMobile" :token1="position.pool[tokensInverted ? 'tokenB' : 'tokenA']" :token2="position.pool[tokensInverted ? 'tokenA' : 'tokenB']")
       .pairs(v-if="tokensInverted")
         span {{ position.pool.tokenB.symbol }}
@@ -139,7 +139,6 @@ export default {
         : (tokenB * 100) / (tokenA + tokenB)
       ).toFixed(0)
     },
-
   }
 }
 </script>
