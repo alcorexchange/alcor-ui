@@ -144,7 +144,7 @@ export default {
       const tvlUSD = poolStats.tvlUSD
       const dayRewardInUSD = parseFloat(this.$tokenToUSD(
         parseFloat(incentive.rewardPerDay),
-        incentive.reward.quantity.split(' ')[1],
+        incentive.reward.symbol.symbol,
         incentive.reward.contract)
       )
 
