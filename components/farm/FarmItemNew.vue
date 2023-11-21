@@ -81,6 +81,8 @@
 </template>
 
 <script>
+import { Big } from 'big.js'
+
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
@@ -91,6 +93,9 @@ import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemExpandSimple from '~/components/farm/FarmItemExpandSimple.vue'
 import FarmItemExpandAdvanced from '~/components/farm/FarmItemExpandAdvanced.vue'
 import Tag from '~/components/elements/Tag.vue'
+
+import { assetToAmount } from '~/utils'
+
 export default {
   name: 'FarmsTable',
   components: {
@@ -138,10 +143,17 @@ export default {
 
   methods: {
     getAPR(incentive) {
+      console.time('GET APR')
+      // TODO Move to farms store
       const poolStats = this.farm.poolStats
       if (!poolStats) return null
 
-      const tvlUSD = poolStats.tvlUSD
+      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity,
+        poolStats.tokenA.decimals).times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals)).sqrt().round(0)
+
+      const stakedPercent = Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
+
+      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
       const dayRewardInUSD = parseFloat(this.$tokenToUSD(
         parseFloat(incentive.rewardPerDay),
         incentive.reward.symbol.symbol,

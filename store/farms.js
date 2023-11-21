@@ -2,7 +2,7 @@ import bigInt from 'big-integer'
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '~/utils/eosjs'
-import { parseAsset } from '~/utils'
+import { assetToAmount, parseAsset } from '~/utils'
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
