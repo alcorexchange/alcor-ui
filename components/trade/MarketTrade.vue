@@ -6,7 +6,7 @@
       span(
         @click="setAmount('buy')"
         class="text-mutted small align-self-end ml-auto cursor-pointer"
-      ) {{ baseBalance | commaFloat }}
+      ) {{ baseBalance | commaFloat(base_token.symbol.precision) }}
         i.el-icon-wallet.ml-1
 
     el-form
@@ -53,7 +53,7 @@
       span(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
         @click="setAmount('sell')"
-      ) {{ tokenBalance | commaFloat }}
+      ) {{ tokenBalance | commaFloat(quote_token.symbol.precision) }}
         i.el-icon-wallet.ml-1
 
     el-form
@@ -105,7 +105,7 @@ export default {
   computed: {
     percentBuy: {
       get() { return this.percent_buy },
-      set(val) { this.changePercentBuy({ percent: val, trade: 'market' }) }
+      set(val) { this.changePercentBuy({ percent: val }) }
     }
   }
 }
