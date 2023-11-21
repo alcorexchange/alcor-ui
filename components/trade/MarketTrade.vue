@@ -105,7 +105,14 @@ export default {
   computed: {
     percentBuy: {
       get() { return this.percent_buy },
-      set(val) { this.changePercentBuy({ percent: val }) }
+      set(val) {
+        if (val == 100) {
+          this.$store.commit('market/SET_PERCENT_BUY', 100)
+          this.$store.commit('market/SET_TOTAL_BUY', parseFloat(this.baseBalance))
+        } else {
+          this.changePercentBuy({ percent: val })
+        }
+      }
     }
   }
 }
