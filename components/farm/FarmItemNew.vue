@@ -143,7 +143,6 @@ export default {
 
   methods: {
     getAPR(incentive) {
-      console.time('GET APR')
       // TODO Move to farms store
       const poolStats = this.farm.poolStats
       if (!poolStats) return null
