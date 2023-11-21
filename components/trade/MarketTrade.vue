@@ -34,7 +34,7 @@
       .px-3
         el-slider(
           :step="1"
-          v-model="percentBuy"
+          v-model="percentBuy2"
           :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
         ).slider-buy
@@ -102,12 +102,19 @@ import { trade } from '~/mixins/trade'
 export default {
   mixins: [trade],
 
+  data() {
+    return {
+      percentBuyLocal: 0
+    }
+  },
+
   computed: {
-    percentBuy: {
-      get() { return this.percent_buy },
+    percentBuy2: {
+      get() { return this.percentBuyLocal },
       set(val) {
+        this.percentBuyLocal = val
+
         if (val == 100) {
-          this.$store.commit('market/SET_PERCENT_BUY', 100)
           this.$store.commit('market/SET_TOTAL_BUY', parseFloat(this.baseBalance))
         } else {
           this.changePercentBuy({ percent: val })
