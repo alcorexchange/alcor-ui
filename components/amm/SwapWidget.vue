@@ -196,8 +196,8 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://nfthive.io/',
-        image: require('@/assets/images/swap-banner-1.jpg'),
+        link: 'https://go.spinnia.io/AlcorfreeSPNbanner',
+        image: require('@/assets/images/swap-banner-1.gif'),
         colors: [
           'rgba(254,213,27,0.2)',
           'rgba(238,225,206, 1)',
