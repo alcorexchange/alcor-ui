@@ -23,6 +23,7 @@ export default {
   methods: {
     format(item) {
       if (item.formatter === 'usd') return `$${this.$options.filters.commaFloat(parseFloat(item.value), 2)}`
+      if (item.formatter === 'percentage') return `${item.value}%`
 
       return item.value
     },
