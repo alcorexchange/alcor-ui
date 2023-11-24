@@ -1,8 +1,9 @@
+import { Big } from 'big.js'
 import bigInt from 'big-integer'
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '~/utils/eosjs'
-import { assetToAmount, parseAsset } from '~/utils'
+import { parseAsset, assetToAmount } from '~/utils'
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
@@ -134,39 +135,6 @@ export const actions = {
     commit('setUserStakes', userStakes)
   },
 
-  calculateFarmPools({ state, commit, dispatch, rootState, getters }) {
-    const { userStakes, incentives } = state
-
-    const pools = []
-    for (const pool of rootState.amm.pools) {
-      const positions = rootState.amm.positions.filter(p => p.pool == pool.id)
-
-      const farmIncentives = []
-      for (const incentive of incentives.filter(i => i.poolId == pool.id)) {
-        const incentiveStats = []
-
-        for (const position of positions) {
-          const stake = userStakes.find(s => s.incentiveId == incentive.id && s.pool == pool.id && s.posId == position.id)
-
-          if (!stake) {
-            incentiveStats.push({ staked: false, incentive, incentiveId: incentive.id, posId: position.id })
-          } else {
-            incentiveStats.push({ staked: true, incentive, ...stake, incentiveId: incentive.id, posId: position.id })
-          }
-        }
-
-        farmIncentives.push({ ...incentive, incentiveStats })
-      }
-
-      pools.push({
-        ...pool,
-        incentives: farmIncentives
-      })
-    }
-
-    commit('setFarmPools', pools)
-  },
-
   async updateStakesAfterAction({ dispatch }) {
     await dispatch('loadIncentives')
     await dispatch('loadUserStakes')
@@ -283,9 +251,38 @@ export const getters = {
         farmIncentives.push({ ...incentive, incentiveStats, stakeStatus })
       }
 
+      // let stakedUsdValue = 0
+
+      if (poolStats) {
+        // _incentives.forEach(i => {
+        //   const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity,
+        //     poolStats.tokenA.decimals).times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals)).sqrt().round(0)
+
+        //   const stakedPercent = Math.min(100, parseFloat(new Big(i.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
+        // })
+        // console.log({ _incentives })
+        //const price = rootState.tokens.find(t => t.id == id)
+        //return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
+
+        // const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity,
+        //   poolStats.tokenA.decimals).times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals)).sqrt().round(0)
+
+        // const stakedPercent = Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
+
+        // const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
+        // const dayRewardInUSD = parseFloat(this.$tokenToUSD(
+        //   parseFloat(incentive.rewardPerDay),
+        //   incentive.reward.symbol.symbol,
+        //   incentive.reward.contract)
+        // )
+
+        // return (dayRewardInUSD / tvlUSD * 365 * 100).toFixed()
+      }
+
       pools.push({
         ...pool,
         poolStats,
+        //APR,
         incentives: farmIncentives
       })
     }
