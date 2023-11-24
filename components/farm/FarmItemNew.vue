@@ -150,7 +150,7 @@ export default {
       const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity,
         poolStats.tokenA.decimals).times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals)).sqrt().round(0)
 
-      const stakedPercent = Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
+      const stakedPercent = Math.max(1, Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString())))
 
       const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
       const dayRewardInUSD = parseFloat(this.$tokenToUSD(
