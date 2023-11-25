@@ -21,7 +21,6 @@ div(v-if="pool && stats").analytics-pool-detail-page
 
 <script>
 import JSBI from 'jsbi'
-import { mapActions, mapState } from 'vuex'
 import { Token, tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
@@ -68,6 +67,7 @@ export default {
   data() {
     return {
       loading: true,
+      loadedPositions: [],
       selectedResolution: 'All',
       selectedMode: 'TVL',
 
@@ -118,7 +118,7 @@ export default {
         },
         {
           title: 'Total positions',
-          value: this.loadedPositions?.length,
+          value: this.loadedPositions.length,
         },
       ]
     },
@@ -246,10 +246,6 @@ export default {
 
       return { header, data, itemSize, pageMode }
     },
-
-    loadedPositions() {
-      return this.$store.state.analytics.positions
-    },
   },
 
   watch: {
@@ -280,9 +276,9 @@ export default {
       return value
     },
     async fetchPositions() {
-      this.loading = true
-      await this.getPositions({ id: this.id })
+      const { data } = await this.$axios.get(`/v2/swap/pools/${this.id}/positions`)
       this.loading = false
+      this.loadedPositions = data
     },
 
     async fetchLiquidityChart() {
@@ -330,10 +326,6 @@ export default {
     showPosition(position) {
       this.$router.push(position.link)
     },
-
-    ...mapActions({
-      getPositions: 'analytics/getPositions',
-    }),
   },
 }
 </script>
