@@ -23,13 +23,4 @@ export const actions = {
 }
 
 export const getters = {
-  pool(state, getters, rootState) {
-    const _pool = rootState.amm.pools.find((p) => p.id == state.poolId)
-    if (!_pool) return
-
-    return constructPoolInstance(_pool)
-  },
-  stats(state, getters, rootState) {
-    return rootState.amm.poolsStats.find((p) => p.id == state.poolId)
-  },
 }
