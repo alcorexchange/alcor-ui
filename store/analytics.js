@@ -1,5 +1,3 @@
-import { constructPoolInstance } from '~/utils/amm'
-
 export const state = () => ({
   poolId: undefined,
   positions: [],
@@ -22,5 +20,4 @@ export const actions = {
   },
 }
 
-export const getters = {
-}
+export const getters = {}
