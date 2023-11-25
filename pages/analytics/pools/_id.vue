@@ -21,7 +21,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
 
 <script>
 import JSBI from 'jsbi'
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
 import { Token, tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
