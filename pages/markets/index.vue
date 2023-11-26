@@ -17,6 +17,9 @@ no-ssr
         el-radio-button(:label='network.baseToken.symbol')
           span {{ network.baseToken.symbol }}
 
+        el-radio-button(:label="network.USD_TOKEN.split('-')[0].toUpperCase()")
+          span {{ network.USD_TOKEN.split('-')[0].toUpperCase() }}
+
         el-radio-button(v-if='network.name == "eos"', label='USDT')
           span {{ $t('USDT') }}
 
@@ -201,16 +204,17 @@ export default {
           )
           break
 
-        case 'USDT':
-          markets = this.markets.filter(
-            i => i.base_token.contract == 'tethertether'
-          )
-          break
-
         case 'fav':
           markets = this.markets.filter(
             i => this.favMarkets.includes(i.id)
           )
+          break
+
+        case this.network.USD_TOKEN.split('-')[0].toUpperCase():
+          markets = this.markets.filter((i) => {
+            return this.network.USD_TOKEN.includes(i.base_token.contract) ||
+              this.network.USD_TOKEN.includes(i.quote_token.contract)
+          })
           break
 
         case 'Cross-Chain': {
