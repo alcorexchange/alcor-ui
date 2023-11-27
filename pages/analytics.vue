@@ -8,6 +8,20 @@
 export default {
   name: 'AnalyticsPage',
   components: {},
+
+  head() {
+    return {
+      title: 'Alcor | Analytics',
+
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'TVl, Volumes, Profitability and many other analytics.'
+        }
+      ]
+    }
+  }
 }
 </script>
 

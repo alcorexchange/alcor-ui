@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import { createClient } from 'redis'
 import { getPools } from '../swapV2Service/utils'
+import { Market, Match } from '../../models'
 
 
 const redis = createClient()
@@ -81,6 +82,40 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
 
     t.usd_price = parseFloat(t.usd_price.toFixed(6))
+  }
+
+  const market_tokens = []
+  const markets = await Market.find({ chain: network.name })
+
+  markets.forEach(m => {
+    const { base_token, quote_token } = m
+    if (!tokens.find(t => t.id == base_token.id) && !market_tokens.find(t => t[0].id == base_token.id)) market_tokens.push([base_token, m])
+    if (!tokens.find(t => t.id == quote_token.id) && !market_tokens.find(t => t[0].id == quote_token.id)) market_tokens.push([quote_token, m])
+  })
+
+  // fetching prices
+  for (const i of market_tokens) {
+    const [token, market] = i
+
+    const t = {
+      contract: token.contract,
+      decimals: token.symbol.precision,
+      symbol: token.symbol.name,
+      id: token.id,
+      usd_price: 0.0,
+      system_price: 0.0
+    }
+
+    if (market.base_token.id == system_token) {
+      const last_deal = await Match.findOne({ chain: network.name, market: market.id }, {}, { sort: { time: -1 } })
+
+      if (last_deal) {
+        t.system_price = last_deal.unit_price
+        t.usd_price = t.system_price * systemPrice
+      }
+    }
+
+    tokens.push(t)
   }
 
   return tokens

@@ -35,10 +35,24 @@ export const trade = {
       get() { return this.amount_sell },
       set(val) { this.changeAmount({ amount: val, type: 'sell' }) }
     },
+
+    percentBuy: {
+      get() { return this.percent_buy },
+      set(val) {
+        if (val == 100) {
+          this.$store.commit('market/SET_PERCENT_BUY', 100)
+          this.setAmount('buy')
+        } else {
+          this.changePercentBuy({ percent: val })
+        }
+      }
+    },
+
     percentSell: {
       get() { return this.percent_sell },
       set(val) { this.changePercentSell(val) }
     },
+
     totalBuy: {
       get() { return this.total_buy },
       set(val) { this.changeTotal({ total: val, type: 'buy' }) }
