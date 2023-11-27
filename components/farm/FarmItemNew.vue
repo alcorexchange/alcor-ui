@@ -78,7 +78,7 @@
       )
     .add-liquidity(v-if="!finished && !hasPosition")
       span Establish a Liquidity Pool position to start staking and earning rewards.
-      AlcorButton(access @click="addLiquidity") Add Liquidity
+      AlcorButton.fw-bold(access @click="addLiquidity") Add Liquidity
 </template>
 
 <script>
