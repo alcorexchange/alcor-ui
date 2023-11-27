@@ -77,6 +77,7 @@
         v-else
       )
     .add-liquidity(v-if="!finished && !hasPosition")
+      span Establish a Liquidity Pool position to start staking and earning rewards.
       AlcorButton(access @click="addLiquidity") Add Liquidity
 </template>
 
@@ -266,14 +267,10 @@ export default {
 .add-liquidity {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 14px;
-  ::v-deep {
-    .alcor-button .inner {
-      font-weight: 500;
-      font-size: 16px !important;
-    }
-  }
 }
 
 .mobile-only {
