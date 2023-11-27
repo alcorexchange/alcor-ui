@@ -6,7 +6,7 @@
     .header-item APR
     .header-item Total Reward
     .header-item Daily Rewards
-    .header-item Remaining Time
+    .header-item Rem. Time
     .header-item
     .header-item
   .table-items
