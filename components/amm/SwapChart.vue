@@ -13,7 +13,7 @@ alcor-container.p-3.w-100.chart-container-inner
     )
       el-radio-button.pointer(v-for="{ label, value } in times" :label='value') {{ label }}
 
-  //- .p-absolute
+  //.p-absolute
     .d-flex.gap-6.align-items-center.p-relative.t-15
       .indicator.primary
       .fs-20 Swap $2.5 B
@@ -27,19 +27,20 @@ alcor-container.p-3.w-100.chart-container-inner
         size="18"
       )
       .name-container
-        .names {{ tokenA.symbol }}/{{ tokenB.symbol }}
+        .names {{ tokenB.symbol }}/{{ tokenA.symbol }}
     .both-prices(v-if="price && charts.length")
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ (1 / price).toFixed(8) }} {{ tokenA.symbol }}
+        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ (1 / price).toFixed(8) }} {{ tokenB.symbol }}
       .item
         TokenImage(:src="$tokenLogo()" height="15")
-        span.text.muted.ml-1 1 {{ tokenA.symbol }} = {{ price }} {{ tokenB.symbol }}
+        span.text.muted.ml-1 1 {{ tokenB.symbol }} = {{ price }} {{ tokenA.symbol }}
     .price-container(v-if="price && charts.length")
       .price {{ price }}
-      //- .change()
-      //-   i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
-      //-   span.text 10%
+      // TODO
+      //.change()
+        i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
+        span.text 10%
   component(
     :is="activeTab"
     :series="series"
@@ -152,7 +153,7 @@ export default {
 
           return {
             x: c._id,
-            y: parseFloat(this.isSorted ? price.toSignificant() : price.invert().toSignificant()),
+            y: parseFloat(this.isSorted ? price.invert().toSignificant() : price.toSignificant()),
           }
         })
       }

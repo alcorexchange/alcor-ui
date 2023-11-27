@@ -2,12 +2,17 @@
 .analytics-header
   .left
     AlcorLink(to="/analytics/" exact flat) Overview
-    AlcorButton.wax-tools-link(v-if="$store.state.network.name == 'wax'" tag="a" href="https://grafana.waxtools.net/d/ae1f479a-9dd0-40f2-b35b-59b7fb91deac/swap-stats?orgId=2&refresh=5m" target="_blank")
+    //AlcorButton.wax-tools-link(v-if="$store.state.network.name == 'wax'" tag="a" href="https://grafana.waxtools.net/d/ae1f479a-9dd0-40f2-b35b-59b7fb91deac/swap-stats?orgId=2&refresh=5m" target="_blank")
+      img(src="@/assets/images/waxtools.png")
+      span.text WAXTools Analytics
+
+    AlcorLink.wax-tools-link(to="/analytics/wax-tools" v-if="$store.state.network.name == 'wax'")
       img(src="@/assets/images/waxtools.png")
       span.text WAXTools Analytics
     //- AlcorLink(to="/analytics/tokens" flat) Tokens
     //- AlcorLink(to="/analytics/pools" flat) Pools
     //- AlcorLink(to="/analytics/spots" flat) Spot Pairs
+    //AlcorLink(to="/analytics/wax-tools" flat) Wax Tools
   .right
     //- el-select(v-model="selectedNetwork").select
     //-   el-option(v-for="item in networks" :value="item.id" :label="item.name")

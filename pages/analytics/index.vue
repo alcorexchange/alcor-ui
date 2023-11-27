@@ -1,6 +1,7 @@
 <template lang="pug">
 .analytics-page
   AnalyticsHeader
+
   .analytics-stats-and-chart
     AnalyticsStats(:items="globalStatsItems" :loading="isLoadingStats")
     AnalyticsChart.analytics-chart

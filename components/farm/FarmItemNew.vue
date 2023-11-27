@@ -17,11 +17,11 @@
       span.mobile-only.muted.fs-14 Total Staked
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenA.quantity.split(' ')[1], farm.tokenA.contract)" width="14px" height="14px")
-        span {{ farm.tokenA.quantity | commaFloat }}
+        span {{ farm.tokenA.quantity | nFormat }}
 
       .icon-and-value
         TokenImage(:src="$tokenLogo(farm.tokenB.quantity.split(' ')[1], farm.tokenB.contract)" width="14px" height="14px")
-        span {{ farm.tokenB.quantity | commaFloat }}
+        span {{ farm.tokenB.quantity | nFormat }}
 
     .total-reward-section
       span.mobile-only.muted.fs-14 APR
@@ -33,13 +33,13 @@
       span.mobile-only.muted.fs-14 Total Reward
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.reward.quantity | commaFloat(item.reward.symbol.precision) }}
+        span {{ item.reward.quantity | nFormat(item.reward.symbol.precision) }}
 
     .daily-rewards-section
       span.mobile-only.muted.fs-14 Daily Rewards
       .icon-and-value(v-for="item in farm.incentives")
         TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.rewardPerDay | commaFloat(item.reward.symbol.precision) }} {{ item.reward.symbol.symbol }}
+        span {{ item.rewardPerDay | nFormat(3) }} {{ item.reward.symbol.symbol }}
 
     .remaining-time-section
       span.mobile-only.muted.fs-14 Remaining Time
@@ -81,6 +81,8 @@
 </template>
 
 <script>
+import { Big } from 'big.js'
+
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
@@ -91,6 +93,9 @@ import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemExpandSimple from '~/components/farm/FarmItemExpandSimple.vue'
 import FarmItemExpandAdvanced from '~/components/farm/FarmItemExpandAdvanced.vue'
 import Tag from '~/components/elements/Tag.vue'
+
+import { assetToAmount } from '~/utils'
+
 export default {
   name: 'FarmsTable',
   components: {
@@ -138,13 +143,19 @@ export default {
 
   methods: {
     getAPR(incentive) {
+      // TODO Move to farms store
       const poolStats = this.farm.poolStats
       if (!poolStats) return null
 
-      const tvlUSD = poolStats.tvlUSD
+      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity,
+        poolStats.tokenA.decimals).times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals)).sqrt().round(0)
+
+      const stakedPercent = Math.max(1, Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString())))
+
+      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
       const dayRewardInUSD = parseFloat(this.$tokenToUSD(
         parseFloat(incentive.rewardPerDay),
-        incentive.reward.quantity.split(' ')[1],
+        incentive.reward.symbol.symbol,
         incentive.reward.contract)
       )
 

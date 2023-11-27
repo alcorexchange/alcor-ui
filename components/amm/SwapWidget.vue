@@ -509,8 +509,8 @@ export default {
 
       const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      this.priceInverted = price.invert().toSignificant(6)
-      this.price = price.toSignificant(6)
+      this.priceInverted = executionPrice.numerator == 0 ? '0' : price.invert().toSignificant(6)
+      this.price = executionPrice.numerator == 0 ? '0' : price.toSignificant(6)
 
       this.memo = memo
       this.amountA = input
@@ -561,8 +561,8 @@ export default {
 
       const price = new Price(tokenA, tokenB, executionPrice.denominator, executionPrice.numerator)
 
-      this.priceInverted = price.invert().toSignificant(6)
-      this.price = price.toSignificant(6)
+      this.priceInverted = executionPrice.numerator == 0 ? '0' : price.invert().toSignificant(6)
+      this.price = executionPrice.numerator == 0 ? '0' : price.toSignificant(6)
 
       this.memo = memo
       this.amountB = output

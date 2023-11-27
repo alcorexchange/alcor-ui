@@ -29,8 +29,16 @@ export default {
     RecommendedMarkets,
     Partners,
     Promoted
+  },
+
+  head() {
+    const chain = this.$store.state.network.name.toUpperCase()
+    return {
+      title: `Alcor Exchange | The first ${chain} self-listing DEX`
+    }
   }
 }
+
 </script>
 
 <style lang="scss">

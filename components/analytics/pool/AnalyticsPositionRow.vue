@@ -19,24 +19,24 @@
         token-image(:src='$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)' height="12")
 
         .fs-12.d-flex.gap-4
-          span {{ position.amountA }}
+          span {{ position.amountA | commaFloat(position.pool.tokenA.decimals) }}
       .d-flex.align-items-center.gap-4
         token-image(:src='$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)' height="12")
 
         .fs-12.d-flex.gap-4(:class="{ red: false }")
-          span {{ position.amountB }}
+          span {{ position.amountB | commaFloat(position.pool.tokenB.decimals) }}
   .unclaimed-fees.desktopOnly
     .d-flex.flex-column
       .d-flex.align-items-center.gap-4
         token-image(:src='$tokenLogo(position.pool.tokenA.symbol, position.pool.tokenA.contract)' height="12")
 
         .fs-12.earn.d-flex.gap-4
-          span {{ position.feesA }}
+          span {{ position.feesA | commaFloat(position.pool.tokenA.decimals) }}
       .d-flex.align-items-center.gap-4
         token-image(:src='$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)' height="12")
 
         .fs-12.earn.d-flex.gap-4
-          span {{ position.feesB }}
+          span {{ position.feesB | commaFloat(position.pool.tokenB.decimals) }}
 
   .total-value.fs-14.desktopOnly
     span $ {{ position.totalValue && position.totalValue.toFixed(2) }}

@@ -134,16 +134,16 @@
       el-dropdown-menu.bridge-setting-dropdown.p-2
         AlcorButton(@click="resetState") ⚠️ {{ $t('Reset State') }}
 
-  // TODO Bridge banner here
-  //.d-flex.justify-content-center.mt-2(v-if="step === 4")
-    a(href="#")
-      img(src="https://placehold.co/600x150")
+  .d-flex.justify-content-center.mt-3(v-if="step === 4")
+    nuxt-link(to='/farm')
+      img(src="~/assets/promo/bridge_banner.png")
 
   BridgeHistory(:sourceWallet="sourceWallet" :destinationWallet="destinationWallet" :connectToWallet="connectToWallet")
 </template>
 
 <script>
 // TODO Implement list of wallets
+// TODO CHECK RAM DESTINATION
 import { mapGetters, mapState, mapMutations } from 'vuex'
 import { IBCTransfer } from '~/core/ibc.js'
 

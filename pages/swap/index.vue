@@ -5,7 +5,7 @@
 
     client-only
       .chart-container(v-if="showChart")
-        SwapChart()
+        SwapChart
 </template>
 
 <script>

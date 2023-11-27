@@ -46,6 +46,33 @@ Vue.filter('commaFloat', function(num, precision = 4) {
   return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + (dec ? '.' + dec : '') + sym
 })
 
+Vue.filter('nFormat', function(num, digits = 1) {
+  let sym = ''
+
+  if (typeof num === 'string' && num.includes(' ')) {
+    sym = ' ' + num.split(' ')[1]
+    num = num.split(' ')[0]
+  }
+
+  const lookup = [
+    { value: 1, symbol: '' },
+    { value: 1e3, symbol: 'k' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e9, symbol: 'B' },
+    { value: 1e12, symbol: 'T' },
+    { value: 1e15, symbol: 'P' },
+    { value: 1e18, symbol: 'E' },
+  ]
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
+  const item = lookup
+    .slice()
+    .reverse()
+    .find(function (item) {
+      return num >= item.value
+    })
+  return (item ? (num / item.value).toFixed(digits).replace(rx, '$1') + item.symbol : '0') + sym
+})
+
 Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
   let result = parseFloat(amount)
   result *= this.$store.state.wallet.systemPrice
