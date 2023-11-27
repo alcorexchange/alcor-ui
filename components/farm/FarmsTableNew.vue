@@ -195,18 +195,17 @@ export default {
 
 .farm-stake-button {
   color: var(--main-action-green) !important;
+  border: 1px solid var(--btn-default) !important;
   &:hover {
     background: var(--main-action-green) !important;
     color: black !important;
   }
 }
-.farm-unstake-button {
-  color: var(--main-action-red);
-  &:hover {
-    background: var(--main-action-red) !important;
-    color: black !important;
-  }
-}
+// .farm-unstake-button {
+//   &:hover {
+//     background: var(--main-action-red) !important;
+//   }
+// }
 .farm-claim-button {
   color: var(--text-theme) !important;
   &:hover {

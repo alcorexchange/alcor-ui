@@ -16,34 +16,40 @@
       thead
         tr
           th Your Stake
-          th Estimated Daily Reward
-          th Farmed Reward
+          th Reward Share
+          th Daily Earned
+          th Total Earned
           th Pool Position
           th
             .right(v-if="incentive.incentiveStats.length > 0")
               AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished").farm-claim-button Claim All
-              AlcorButton(access bordered compact @click="$emit('stakeAll', incentive)" v-if="!finished").farm-stake-button Stake All
+              AlcorButton(compact @click="$emit('stakeAll', incentive)" v-if="!finished").farm-stake-button Stake All
               AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)").farm-unstake-button {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
       tbody
         template(v-for="stat in incentive.incentiveStats")
           tr(v-if="stat.staked")
             td
+              .d-flex.flex-column
+                span 10k WAX
+                span 20.5k TLM
+            td 0.2%
             td
               .icon-and-value
-                TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+                //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
                 span {{ stat.dailyRewards }}
             td
               .icon-and-value
-                TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+                //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
                 span {{ stat.farmedReward | commaFloat }}
             td
               .d-flex.flex-column.gap-2
-                NuxtLink.position-link(:to="localeRoute(`/positions/${stat.posId}`)") # {{ stat.posId }}
+                NuxtLink.position-link(:to="localeRoute(`/positions/${stat.posId}`)") \#{{ stat.posId }}
                 span Pool Share {{ stat.userSharePercent }}%
             td
               slot(name="actions" :stat="stat")
           tr(v-else)
             td Not Staked
+            td
             td
             td
             td
@@ -66,7 +72,7 @@ export default {
 
 <style lang="scss" scoped>
 .incentive-item {
-  padding: var(--amm-space-3);
+  padding: 0 var(--amm-space-3);
 }
 .right {
   display: flex;
@@ -109,26 +115,8 @@ export default {
 
 .position-link {
   color: var(--main-green);
-}
-
-.farm-stake-button::v-deep {
-  color: var(--main-action-green) !important;
   &:hover {
-    background: var(--main-action-green) !important;
-    color: black !important;
-  }
-}
-.farm-unstake-button::v-deep {
-  color: var(--main-action-red);
-  &:hover {
-    background: var(--main-action-red) !important;
-    color: black !important;
-  }
-}
-.farm-claim-button::v-deep {
-  color: var(--text-theme) !important;
-  &:hover {
-    background: var(--main-green) !important;
+    opacity: 0.8;
   }
 }
 
