@@ -250,7 +250,6 @@ export default {
 
 .farm-item-expand {
   background: var(--hover);
-  padding: 14px;
   border-radius: 8px;
 }
 

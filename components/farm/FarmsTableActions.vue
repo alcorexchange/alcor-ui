@@ -2,7 +2,7 @@
 .actions-container
   .detail-table-actions.fs-12(v-if="!finished")
     template(v-if="staked")
-      AlcorButton(compact @click="$emit('claim', row)") Claim Rewards
+      AlcorButton(compact @click="$emit('claim', row)") Claim
       .space
       AlcorButton(bordered danger compact @click="$emit('unstake', row)").farm-unstake-button Unstake
     template(v-else)

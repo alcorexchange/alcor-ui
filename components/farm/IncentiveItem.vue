@@ -12,7 +12,7 @@
         //- span.muted Remaining Time
         span.fs-14 {{ incentive.daysRemain }} Days
     .right(v-if="incentive.incentiveStats.length > 0")
-      AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished").farm-claim-button Claim All Rewards
+      AlcorButton(access compact @click="$emit('claimAll', incentive)" v-if="!finished").farm-claim-button Claim All
       AlcorButton(access bordered compact @click="$emit('stakeAll', incentive)" v-if="!finished").farm-stake-button Stake All
       AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)").farm-unstake-button {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
   .incentive-content
@@ -64,9 +64,7 @@ export default {
 
 <style lang="scss" scoped>
 .incentive-item {
-  border-radius: var(--radius);
   padding: var(--amm-space-3);
-  border: 1px solid var(--light-border-color);
 }
 
 .incentive-header {
