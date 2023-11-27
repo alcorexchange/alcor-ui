@@ -67,14 +67,8 @@ export default {
       this.$router.push({
         path: '/positions/new',
         query: {
-          left:
-            row.tokenA.quantity.split(' ')[1].toLowerCase() +
-            '-' +
-            row.tokenA.contract,
-          right:
-            row.tokenB.quantity.split(' ')[1].toLowerCase() +
-            '-' +
-            row.tokenB.contract,
+          left: row.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenA.contract,
+          right: row.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenB.contract,
         },
       })
     },
@@ -86,10 +80,7 @@ export default {
           stakes,
           action: 'getreward',
         })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -106,10 +97,7 @@ export default {
           stakes,
           action: 'stake',
         })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -126,10 +114,7 @@ export default {
           stakes,
           action: 'unstake',
         })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -145,10 +130,7 @@ export default {
           stakes: [stake],
           action: 'getreward',
         })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -164,10 +146,7 @@ export default {
           stakes: [stake],
           action: 'unstake',
         })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -183,10 +162,7 @@ export default {
           stakes: [stake],
           action: 'stake',
         })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          1000
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 1000)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -241,8 +217,9 @@ export default {
 
 <style scoped lang="scss">
 .farms-table {
+  display: flex;
   flex-direction: column;
-  background: var(--table-background);
+  // background: var(--table-background);
   margin-top: 12px;
   border-radius: 6px;
   overflow: hidden;
@@ -251,6 +228,12 @@ export default {
   color: #909399;
   font-weight: 500;
   font-size: 14px;
+}
+
+.table-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 @media only screen and (max-width: 900px) {

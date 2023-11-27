@@ -147,33 +147,30 @@ export default {
       const poolStats = this.farm.poolStats
       if (!poolStats) return null
 
-      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity,
-        poolStats.tokenA.decimals).times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals)).sqrt().round(0)
+      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
+        .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
+        .sqrt()
+        .round(0)
 
-      const stakedPercent = Math.max(1, Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString())))
-
-      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
-      const dayRewardInUSD = parseFloat(this.$tokenToUSD(
-        parseFloat(incentive.rewardPerDay),
-        incentive.reward.symbol.symbol,
-        incentive.reward.contract)
+      const stakedPercent = Math.max(
+        1,
+        Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
       )
 
-      return (dayRewardInUSD / tvlUSD * 365 * 100).toFixed()
+      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
+      const dayRewardInUSD = parseFloat(
+        this.$tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract)
+      )
+
+      return ((dayRewardInUSD / tvlUSD) * 365 * 100).toFixed()
     },
 
     addLiquidity() {
       this.$router.push({
         path: '/positions/new',
         query: {
-          left:
-            this.farm.tokenA.quantity.split(' ')[1].toLowerCase() +
-            '-' +
-            this.farm.tokenA.contract,
-          right:
-            this.farm.tokenB.quantity.split(' ')[1].toLowerCase() +
-            '-' +
-            this.farm.tokenB.contract,
+          left: this.farm.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + this.farm.tokenA.contract,
+          right: this.farm.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + this.farm.tokenB.contract,
         },
       })
     },
@@ -188,6 +185,9 @@ export default {
 
 <style scoped lang="scss">
 .farm-item-container {
+  background: var(--table-background);
+  border-radius: 8px;
+  overflow: hidden;
   &:not(:last-child) {
     border-bottom: 1px solid var(--background-color-base);
   }
@@ -251,6 +251,7 @@ export default {
 .farm-item-expand {
   background: var(--hover);
   padding: 14px;
+  border-radius: 8px;
 }
 
 .auth-only::v-deep {
