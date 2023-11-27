@@ -143,6 +143,7 @@
 
 <script>
 // TODO Implement list of wallets
+// TODO CHECK RAM DESTINATION
 import { mapGetters, mapState, mapMutations } from 'vuex'
 import { IBCTransfer } from '~/core/ibc.js'
 
