@@ -1,6 +1,36 @@
 <template lang="pug">
 .farm-item-expand-simple
-  .left
+  table.fs-14
+    thead
+      tr
+        th Your Total Stake
+        th Reward Share
+        th Daily Earned
+        th Total Earned
+        th
+    tbody
+      tr
+        td
+          .d-flex.flex-column
+            span 10k WAX
+            span 20.5k TLM
+        td
+          span {{ aggregatedPoolShare }}%
+        td Daily Earned
+        td
+          .d-flex.flex-column.gap-2
+            .icon-and-value(v-for="reward in farmedRewards")
+              TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
+              span {{ reward.amount | commaFloat }} {{ reward.symbol }}
+        td
+          .actions
+            template(v-if="!finished")
+              AlcorButton(compact access @click="claimAllIncentives" v-if="canClaim").farm-claim-button Claim
+              AlcorButton(compact @click="stakeAllIncentives" v-if="canStake").farm-stake-button Stake
+              AlcorButton(bordered danger compact @click="unstakeAllIncentives" v-if="canUnstake || finished").danger.farm-unstake-button Unstake
+
+            AlcorButton(compact access @click="unstakeAllIncentives" v-else).farm-claim-button Claim And Unstake
+  //.left
     .item
       .title.muted.fs-14.mb-1 Farmed Rewards
       .rewards
@@ -10,13 +40,6 @@
     .item.fs-14
       .muted.mb-1 Reward Share
       span {{ aggregatedPoolShare }}%
-  .actions
-    template(v-if="!finished")
-      AlcorButton(access @click="claimAllIncentives" v-if="canClaim").farm-claim-button Claim
-      AlcorButton(bordered access @click="stakeAllIncentives" v-if="canStake").farm-stake-button Stake
-      AlcorButton(bordered danger @click="unstakeAllIncentives" v-if="canUnstake || finished").farm-unstake-button Unstake
-
-    AlcorButton(access @click="unstakeAllIncentives" v-else).farm-claim-button Claim And Unstake
 </template>
 
 <script>
@@ -58,9 +81,7 @@ export default {
           .filter((s) => s.staked)
           .forEach((s) => {
             const [amount, symbol] = s.farmedReward.split(' ')
-            precisions[symbol] = getPrecision(
-              incentive.reward.quantity.split(' ')[0]
-            )
+            precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
 
             if (reward[symbol]) {
               reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
@@ -123,42 +144,40 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.farm-item-expand-simple {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.left {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-}
 .actions {
   display: flex;
   align-items: center;
   gap: 4px;
 }
+table {
+  width: 100%;
+  min-width: 600px;
+  th,
+  td {
+    padding: 8px;
+    border-bottom: none;
 
-.farm-stake-button {
-  color: var(--main-action-green) !important;
-  &:hover {
-    background: var(--main-action-green) !important;
-    color: black !important;
+    &:first-child {
+      padding-left: 0;
+    }
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+  tr,
+  td {
+    background: transparent !important;
+    &:hover {
+      background: transparent !important;
+    }
+  }
+
+  th {
+    font-weight: 400;
+    white-space: nowrap;
   }
 }
-.farm-unstake-button {
-  color: var(--main-action-red);
-  &:hover {
-    background: var(--main-action-red) !important;
-    color: black !important;
-  }
-}
-.farm-claim-button {
-  color: var(--text-theme) !important;
-  &:hover {
-    background: var(--main-green) !important;
-  }
-}
+
 @media only screen and(max-width: 640px) {
   .farm-item-expand-simple {
     align-items: flex-start;
