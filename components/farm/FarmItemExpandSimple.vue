@@ -16,7 +16,12 @@
             span 20.5k TLM
         td
           span {{ aggregatedPoolShare }}%
-        td Daily Earned
+        //- TODO: daily earned or incentives
+        td
+          .d-flex.flex-column.gap-2
+            .icon-and-value(v-for="reward in dailyRewards")
+              TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
+              span {{ reward.amount | commaFloat }} {{ reward.symbol }}
         td
           .d-flex.flex-column.gap-2
             .icon-and-value(v-for="reward in farmedRewards")
@@ -73,35 +78,12 @@ export default {
 
     farmedRewards() {
       // Aggregated reward
-      const reward = {}
+      return this.getReward('farmed')
+    },
 
-      const precisions = {}
-      this.farm.incentives.forEach((incentive) => {
-        incentive.incentiveStats
-          .filter((s) => s.staked)
-          .forEach((s) => {
-            const [amount, symbol] = s.farmedReward.split(' ')
-            precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
-
-            if (reward[symbol]) {
-              reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
-            } else {
-              reward[symbol] = {
-                symbol,
-                amount: parseFloat(amount),
-                precision: precisions[symbol],
-                contract: incentive.reward.contract,
-              }
-            }
-          })
-      })
-
-      return Object.values(reward).map((r) => {
-        return {
-          ...r,
-          amount: r.amount?.toFixed(r.precision),
-        }
-      })
+    dailyRewards() {
+      // Aggregated reward
+      return this.getReward('daily')
     },
 
     aggregatedStakes() {
@@ -130,6 +112,37 @@ export default {
   },
 
   methods: {
+    getReward(mode) {
+      const reward = {}
+
+      const precisions = {}
+      this.farm.incentives.forEach((incentive) => {
+        incentive.incentiveStats
+          .filter((s) => s.staked)
+          .forEach((s) => {
+            const [amount, symbol] = s[mode === 'daily' ? 'dailyRewards' : 'farmedReward'].split(' ')
+            precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
+
+            if (reward[symbol]) {
+              reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
+            } else {
+              reward[symbol] = {
+                symbol,
+                amount: parseFloat(amount),
+                precision: precisions[symbol],
+                contract: incentive.reward.contract,
+              }
+            }
+          })
+      })
+
+      return Object.values(reward).map((r) => {
+        return {
+          ...r,
+          amount: r.amount?.toFixed(r.precision),
+        }
+      })
+    },
     claimAllIncentives() {
       this.$emit('claimAll', { incentiveStats: this.aggregatedStakes })
     },
@@ -144,9 +157,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.farm-item-expand-simple {
+  padding: 0 var(--amm-space-3);
+}
 .actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
 }
 table {
