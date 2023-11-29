@@ -12,21 +12,25 @@
       tr
         td
           .d-flex.flex-column
-            span 10k WAX
-            span 20.5k TLM
+            .icon-and-value
+              span 10k
+              span.color-grey-thirdly WAX
+            .icon-and-value
+              span 20.5k
+              span.color-grey-thirdly TLM
         td
           span {{ aggregatedPoolShare }}%
         //- TODO: daily earned or incentives
         td
           .d-flex.flex-column.gap-2
             .icon-and-value(v-for="reward in dailyRewards")
-              TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
-              span {{ reward.amount | commaFloat }} {{ reward.symbol }}
+              span {{ reward.amount | commaFloat }}
+              span.color-grey-thirdly {{ reward.symbol }}
         td
           .d-flex.flex-column.gap-2
             .icon-and-value(v-for="reward in farmedRewards")
-              TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
-              span {{ reward.amount | commaFloat }} {{ reward.symbol }}
+              span {{ reward.amount | commaFloat }}
+              span.color-grey-thirdly {{ reward.symbol }}
         td
           .actions
             template(v-if="!finished")
