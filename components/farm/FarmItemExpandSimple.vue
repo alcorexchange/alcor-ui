@@ -173,6 +173,9 @@ export default {
 table {
   width: 100%;
   min-width: 600px;
+  thead tr {
+    border-bottom: 1px solid var(--border-1-color);
+  }
   th,
   td {
     padding: 8px;
