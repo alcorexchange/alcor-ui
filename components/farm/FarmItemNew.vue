@@ -56,9 +56,9 @@
         StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
     .detail-toggle-section
       template(v-if="isExpandable")
-        span.mobile-only.fs-14.details-text View Details
-        .arrow
-          i.el-icon-arrow-down
+        .toggle-button(:class="{ expanded }")
+          span.fs-14.color-green Details
+          i.fs-12(:class="expanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'")
   AuthOnly.auth-only.farm-item-expand(v-if="expanded")
     template(v-if="hasPosition")
       FarmItemExpandSimple(
@@ -231,13 +231,6 @@ export default {
   justify-content: center;
   align-items: flex-start;
 }
-.detail-toggle-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
 .actions-section {
   display: flex;
   align-items: center;
@@ -247,6 +240,22 @@ export default {
   .statuses {
     display: flex;
     flex-direction: column;
+  }
+}
+
+.detail-toggle-section {
+  display: flex;
+  align-items: center;
+  .toggle-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--btn-active);
+    border-radius: 6px;
+    padding: 4px;
+    &.expanded {
+      box-shadow: 0 0 0 1px var(--border-2-color);
+    }
   }
 }
 
