@@ -9,8 +9,7 @@
 
 @font-face {
   font-family: element-icons;
-  src: url(fonts/element-icons.woff) format('woff'),
-    url(fonts/element-icons.ttf) format('truetype');
+  src: url(fonts/element-icons.woff) format('woff'), url(fonts/element-icons.ttf) format('truetype');
 }
 
 html,
@@ -238,20 +237,11 @@ pre {
 }
 
 .max-buymatch-deal {
-  background: linear-gradient(
-    180deg,
-    rgba(105, 255, 88, 0.1) 0%,
-    rgba(4, 134, 33, 0.1) 100%
-  );
+  background: linear-gradient(180deg, rgba(105, 255, 88, 0.1) 0%, rgba(4, 134, 33, 0.1) 100%);
 }
 
 .max-sellmatch-deal {
-  background: linear-gradient(
-      180deg,
-      rgba(237, 66, 69, 0.1) 0%,
-      rgba(255, 0, 4, 0.1) 100%
-    ),
-    #212121;
+  background: linear-gradient(180deg, rgba(237, 66, 69, 0.1) 0%, rgba(255, 0, 4, 0.1) 100%), #212121;
 
   span {
     color: #ffffff;
@@ -829,13 +819,8 @@ a {
 
   background-image: 
 	
-    /* Shadows */ linear-gradient(
-      to right,
-      #212121,
-      #212121
-    ),
-    linear-gradient(to right, #212121, #212121),
-    /* Shadow covers */ linear-gradient(to right, black, #212124),
+    /* Shadows */ linear-gradient(to right, #212121, #212121),
+    linear-gradient(to right, #212121, #212121), /* Shadow covers */ linear-gradient(to right, black, #212124),
     linear-gradient(to left, black, #212124);
 
   //linear-gradient(to right, green, red),
@@ -1131,6 +1116,9 @@ a {
 .color-danger {
   color: var(--main-red);
 }
+.color-gray-thirdly {
+  color: var(--text-grey-thirdly);
+}
 
 .bg-green {
   background: var(--main-green);
@@ -1369,10 +1357,7 @@ a {
 }
 
 // we need styling from parent so it overtakes default style specified in dark.css L: 3265
-body
-  .custom-responsive-table.el-table--enable-row-hover
-  .el-table__body
-  tr:hover {
+body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hover {
   .el-table__cell {
     background-color: transparent !important;
   }
