@@ -5,7 +5,7 @@
       tr
         th Your Total Stake
         th Reward Share
-        th Daily Earned
+        th Daily Earn
         th Total Earned
         th
     tbody
@@ -13,13 +13,13 @@
         td
           .d-flex.flex-column
             .icon-and-value
-              span 10k
-              span.color-grey-thirdly WAX
+              span {{ row.amountA | nFormat }}
+              span.color-grey-thirdly {{ farm.tokenA.quantity.split(' ')[1] }}
             .icon-and-value
-              span 20.5k
-              span.color-grey-thirdly TLM
+              span {{ row.amountB | nFormat }}
+              span.color-grey-thirdly {{ farm.tokenB.quantity.split(' ')[1] }}
         td
-          span {{ aggregatedPoolShare }}%
+          span {{ row.aggregatedPoolShare }}%
         //- TODO: daily earned or incentives
         td
           .d-flex.flex-column.gap-2
@@ -100,19 +100,35 @@ export default {
     },
 
     // TODO Estimated reward
-    aggregatedPoolShare() {
+    row () {
       // AVG Share by staked to incentive
+      const row = {}
+
       const sharesByIncentive = []
+      let amountA = 0
+      let amountB = 0
+
+      this.farm.positions.forEach(p => {
+        amountA += parseFloat(p.amountA)
+        amountB += parseFloat(p.amountB)
+      })
+
       this.farm.incentives.forEach((incentive) => {
         let poolShare = 0
+
         incentive.incentiveStats.forEach((stat) => {
           if (stat.userSharePercent) poolShare += stat.userSharePercent
         })
         sharesByIncentive.push(poolShare)
       })
 
-      return Math.round((sharesByIncentive.reduce((a, b) => a + b) / sharesByIncentive.length) * 100) / 100
-    },
+
+      return {
+        aggregatedPoolShare: Math.round((sharesByIncentive.reduce((a, b) => a + b) / sharesByIncentive.length) * 100) / 100,
+        amountA,
+        amountB
+      }
+    }
   },
 
   methods: {

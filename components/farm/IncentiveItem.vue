@@ -17,7 +17,7 @@
         tr
           th Your Stake
           th Reward Share
-          th Daily Earned
+          th Daily Earn
           th Total Earned
           th Pool Position
           th

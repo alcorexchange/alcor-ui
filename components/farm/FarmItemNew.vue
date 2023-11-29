@@ -22,7 +22,7 @@
 
       .icon-and-value
         //- TokenImage(:src="$tokenLogo(farm.tokenB.quantity.split(' ')[1], farm.tokenB.contract)" width="14px" height="14px")
-        span {{ farm.tokenA.quantity.split(' ')[0] | nFormat }}
+        span {{ farm.tokenB.quantity.split(' ')[0] | nFormat }}
         span.color-grey-thirdly {{ farm.tokenB.quantity.split(' ')[1] }}
 
     .total-reward-section

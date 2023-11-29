@@ -282,8 +282,9 @@ export const getters = {
       pools.push({
         ...pool,
         poolStats,
-        //APR,
-        incentives: farmIncentives
+        // TODO APR,
+        incentives: farmIncentives,
+        positions
       })
     }
 
