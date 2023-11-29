@@ -188,8 +188,9 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-  span {
-    font-size: 0.8rem;
+  font-size: 14px;
+  .symbol {
+    color: var(--text-grey-thirdly);
   }
 }
 
