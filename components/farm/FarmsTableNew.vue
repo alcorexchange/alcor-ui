@@ -178,20 +178,17 @@ export default {
 <style lang="scss">
 .farm-item {
   display: grid;
-  grid-template-columns: 21% 16% 8% 15% 15% 10% 1fr auto;
+  grid-template-columns: 21% 16% 8% 14% 14% 10% 1fr auto;
   & > * {
     padding: 14px 10px;
   }
 }
 
 .icon-and-value {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 14px;
-  .symbol {
-    color: var(--text-grey-thirdly);
-  }
 }
 
 .farm-stake-button {

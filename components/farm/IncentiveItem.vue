@@ -30,17 +30,23 @@
           tr(v-if="stat.staked")
             td
               .d-flex.flex-column
-                span 10k WAX
-                span 20.5k TLM
+                .icon-and-value
+                  span 10k
+                  span.color-grey-thirdly WAX
+                .icon-and-value
+                  span 20.5k
+                  span.color-grey-thirdly TLM
             td 0.2%
             td
               .icon-and-value
                 //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.dailyRewards }}
+                span {{ stat.dailyRewards.split(' ')[0] }}
+                span.color-grey-thirdly {{ stat.dailyRewards.split(' ')[1] }}
             td
               .icon-and-value
                 //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.farmedReward | commaFloat }}
+                span {{ stat.farmedReward.split(' ')[0] | commaFloat }}
+                span.color-grey-thirdly {{ stat.farmedReward.split(' ')[1] }}
             td
               .d-flex.flex-column.gap-2
                 NuxtLink.position-link(:to="localeRoute(`/positions/${stat.posId}`)") \#{{ stat.posId }}
