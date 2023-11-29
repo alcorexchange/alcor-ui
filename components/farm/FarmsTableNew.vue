@@ -180,7 +180,7 @@ export default {
   display: grid;
   grid-template-columns: 21% 16% 8% 15% 15% 10% 1fr auto;
   & > * {
-    padding: 10px;
+    padding: 14px 10px;
   }
 }
 
