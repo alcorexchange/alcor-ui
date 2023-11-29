@@ -11,7 +11,7 @@
           span {{ farm.tokenA.quantity.split(' ')[1] }}/{{ farm.tokenB.quantity.split(' ')[1] }}
           Tag {{ farm.fee / 10000 }} %
           //span {{ farm.poolStats.tvlUSD }}
-        .token-contracts.muted {{ farm.tokenA.contract }}/{{ farm.tokenB.contract }}
+        .fs-12.muted {{ farm.tokenA.contract }}/{{ farm.tokenB.contract }}
 
     .total-staked-section
       span.mobile-only.muted.fs-14 Total Staked
@@ -218,9 +218,6 @@ export default {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-  .token-contracts {
-    font-size: 0.8rem;
   }
 }
 
