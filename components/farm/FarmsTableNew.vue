@@ -8,7 +8,7 @@
     .header-item Daily Rewards
     .header-item Rem. Time
     .header-item
-    .header-item.stake-actions
+    .header-item.all-stake-actions
       el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
         el-tooltip(content="Unstake your finished farms to free account RAM")
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
@@ -303,7 +303,11 @@ export default {
 
 @media only screen and (max-width: 900px) {
   .table-header {
-    display: none;
+    display: flex;
+    justify-content: flex-end;
+    .header-item:not(.all-stake-actions) {
+      display: none;
+    }
   }
 }
 
