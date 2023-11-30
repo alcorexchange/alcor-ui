@@ -66,7 +66,7 @@ export default {
 
   computed: {
     canClaim() {
-      return !this.finished
+      return !this.finished && this.canUnstake
     },
     canStake() {
       if (this.finished) return false
