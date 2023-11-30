@@ -8,11 +8,13 @@
     .header-item Daily Rewards
     .header-item Rem. Time
     .header-item
-    .header-item
-      el-badge(type="success" :value="2")
+    .header-item.stake-actions
+      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
         el-tooltip(content="Unstake your finished farms to free account RAM")
-          AlcorButton.pulse-animation Claim & Unstake All
-
+          AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
+      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+        GradientBorder.gradient-border
+          AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
   .table-items
     FarmItemNew(
       v-for="farm in farmPools"
@@ -64,6 +66,44 @@ export default {
 
       return pool.incentives
     },
+
+    stakedStakes() {
+      const stakes = []
+      this.$store.getters['farms/farmPools']
+        // pools
+        .forEach((p) =>
+          p.incentives
+            .filter((i) => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => i.staked)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
+        )
+
+      return stakes
+    },
+
+    unstakedStakes() {
+      const stakes = []
+      this.$store.getters['farms/farmPools']
+        // pools
+        .forEach((p) =>
+          p.incentives
+            .filter((i) => !i.isFinished && i.stakeStatus != 'staked' && i.incentiveStats.length > 0)
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => !i.staked)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
+        )
+
+      return stakes
+    },
   },
 
   methods: {
@@ -75,6 +115,30 @@ export default {
           right: row.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + row.tokenB.contract,
         },
       })
+    },
+
+    async unstakeAllFarms() {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.stakedStakes,
+          action: 'unstake',
+        })
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
+    },
+
+    async stakeAllFarms() {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.unstakedStakes,
+          action: 'stake',
+        })
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
     },
 
     async claimAll(incentive) {

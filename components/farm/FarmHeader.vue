@@ -27,14 +27,14 @@
           i.el-icon-circle-plus-outline
           span Open New Farm
 
-        el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-          el-tooltip(content="Unstake your finished farms to free account RAM")
-            GradientBorder.gradient-border
-              AlcorButton(@click="unstakeAll") Claim & Unstake All
+        //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+        //-   el-tooltip(content="Unstake your finished farms to free account RAM")
+        //-     GradientBorder.gradient-border
+        //-       AlcorButton(@click="unstakeAll") Claim & Unstake All
 
-        el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
-          GradientBorder.gradient-border
-            AlcorButton(@click="stakeAll") Stake All Positions
+        //- el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
+        //-   GradientBorder.gradient-border
+        //-     AlcorButton(@click="stakeAll") Stake All Positions
       //- .right
 </template>
 
@@ -72,57 +72,8 @@ export default {
     //           count += 1
     //         }
     //       }))
-
     //   return count
     // },
-
-    stakedStakes() {
-      const stakes = []
-      this.$store.getters['farms/farmPools']
-        // pools
-        .forEach((p) =>
-          p.incentives
-            .filter(
-              (i) =>
-                i.isFinished &&
-                i.stakeStatus != 'notStaked' &&
-                i.incentiveStats.length > 0
-            )
-            //incentives
-            .forEach((i) =>
-              i.incentiveStats
-                .filter((i) => i.staked)
-                // staked stats
-                .forEach((s) => stakes.push(s))
-            )
-        )
-
-      return stakes
-    },
-
-    unstakedStakes() {
-      const stakes = []
-      this.$store.getters['farms/farmPools']
-        // pools
-        .forEach((p) =>
-          p.incentives
-            .filter(
-              (i) =>
-                !i.isFinished &&
-                i.stakeStatus != 'staked' &&
-                i.incentiveStats.length > 0
-            )
-            //incentives
-            .forEach((i) =>
-              i.incentiveStats
-                .filter((i) => !i.staked)
-                // staked stats
-                .forEach((s) => stakes.push(s))
-            )
-        )
-
-      return stakes
-    },
   },
 
   watch: {
@@ -134,36 +85,6 @@ export default {
   methods: {
     toggle() {
       this.$emit('update:finished', !this.finished)
-    },
-
-    async unstakeAll() {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: this.stakedStakes,
-          action: 'unstake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
-      }
-    },
-
-    async stakeAll() {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: this.unstakedStakes,
-          action: 'stake',
-        })
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
-      } catch (e) {
-        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
-      }
     },
   },
 }
