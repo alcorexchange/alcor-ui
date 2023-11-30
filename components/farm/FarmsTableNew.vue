@@ -13,8 +13,7 @@
         el-tooltip(content="Unstake your finished farms to free account RAM")
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
       el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
-        GradientBorder.gradient-border
-          AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
+        AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
   .table-items
     FarmItemNew(
       v-for="farm in farmPools"
