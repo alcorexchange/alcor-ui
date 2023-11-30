@@ -81,7 +81,9 @@
         v-else
       )
     .add-liquidity(v-if="!finished && !hasPosition")
-      span Establish a Liquidity Pool position to start staking and earning rewards.
+      .d-flex.gap-8
+        img(src="@/assets/icons/farmer.svg")
+        span Establish a Liquidity Pool position to start staking and earning rewards.
       AlcorButton.fw-bold(access @click="addLiquidity") Add Liquidity
 </template>
 
@@ -281,6 +283,9 @@ export default {
   flex-wrap: wrap;
   gap: 8px;
   padding: 14px;
+  .alcor-button {
+    margin-left: auto;
+  }
 }
 
 .mobile-only {
