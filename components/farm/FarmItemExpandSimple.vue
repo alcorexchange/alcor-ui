@@ -100,7 +100,7 @@ export default {
     },
 
     // TODO Estimated reward
-    row () {
+    row() {
       // AVG Share by staked to incentive
       const row = {}
 
@@ -108,7 +108,7 @@ export default {
       let amountA = 0
       let amountB = 0
 
-      this.farm.positions.forEach(p => {
+      this.farm.positions.forEach((p) => {
         amountA += parseFloat(p.amountA)
         amountB += parseFloat(p.amountB)
       })
@@ -122,13 +122,13 @@ export default {
         sharesByIncentive.push(poolShare)
       })
 
-
       return {
-        aggregatedPoolShare: Math.round((sharesByIncentive.reduce((a, b) => a + b) / sharesByIncentive.length) * 100) / 100,
+        aggregatedPoolShare:
+          Math.round((sharesByIncentive.reduce((a, b) => a + b) / sharesByIncentive.length) * 100) / 100,
         amountA,
-        amountB
+        amountB,
       }
-    }
+    },
   },
 
   methods: {
@@ -179,6 +179,10 @@ export default {
 <style scoped lang="scss">
 .farm-item-expand-simple {
   padding: 0 var(--amm-space-3);
+  overflow: auto;
+  &::-webkit-scrollbar {
+    height: 2px;
+  }
 }
 .actions {
   display: flex;
@@ -219,19 +223,5 @@ table {
 }
 
 @media only screen and(max-width: 640px) {
-  .farm-item-expand-simple {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .left {
-    width: 100%;
-    & > * {
-      flex: 1;
-    }
-  }
-  .actions {
-    align-self: flex-end;
-  }
 }
 </style>
