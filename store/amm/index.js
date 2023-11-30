@@ -242,4 +242,20 @@ export const getters = {
 
     return positions
   },
+
+  poolsPlainWithStatsAndUserData(state) {
+    const _poolStats = new Map(state.poolsStats.map(p => [p.id, p]))
+    const positions = state.positions
+
+    const pools = []
+    for (const pool of state.pools) {
+      pools.push({
+        ...pool,
+        poolStats: _poolStats.get(pool.id),
+        positions: positions.filter(p => p.pool == pool.id)
+      })
+    }
+
+    return pools
+  },
 }

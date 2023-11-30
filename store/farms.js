@@ -209,18 +209,19 @@ export const actions = {
 }
 
 export const getters = {
-  farmPools(state, getters, rootState) {
-    //console.log('farmPools triggered')
+  farmPools(state, getters, rootState, rootGetters) {
     const incentives = state.incentives
     const userStakes = state.userStakes
 
+    const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
+
     const pools = []
-    for (const pool of rootState.amm.pools) {
+    for (const pool of poolsPlainWithStatsAndUserData) {
       const _incentives = incentives.filter(i => i.poolId == pool.id)
       if (!_incentives) continue
 
-      const poolStats = rootState.amm.poolsStats.find(p => p.id == pool.id)
-      const positions = rootState.amm.positions.filter(p => p.pool == pool.id)
+      const poolStats = pool.poolStats
+      const positions = pool.positions
 
       const farmIncentives = []
       for (const incentive of _incentives) {
