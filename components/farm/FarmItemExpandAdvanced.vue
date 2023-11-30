@@ -3,7 +3,6 @@
   IncentiveItem(
     v-for="incentive in farm.incentives"
     :incentive="incentive"
-    :poolFee="farm.fee"
     :finished="finished"
     @stakeAll="$emit('stakeAll', incentive)"
     @claimAll="$emit('claimAll', incentive)"

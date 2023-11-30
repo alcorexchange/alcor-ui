@@ -231,9 +231,9 @@ export const getters = {
           const stake = userStakes.find(s => s.incentiveId == incentive.id && s.pool == pool.id && s.posId == position.id)
 
           if (!stake) {
-            incentiveStats.push({ staked: false, incentive, incentiveId: incentive.id, posId: position.id })
+            incentiveStats.push({ staked: false, incentive, incentiveId: incentive.id, posId: position.id, position })
           } else {
-            incentiveStats.push({ staked: true, incentive, ...stake, incentiveId: incentive.id, posId: position.id })
+            incentiveStats.push({ staked: true, incentive, ...stake, incentiveId: incentive.id, posId: position.id, position })
           }
         }
 
