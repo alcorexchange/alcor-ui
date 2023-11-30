@@ -96,9 +96,12 @@ export default {
 
 .incentive-content {
   overflow: auto;
+  &::-webkit-scrollbar {
+    height: 2px;
+  }
   table {
     width: 100%;
-    min-width: 600px;
+    min-width: 800px;
     thead tr {
       border-bottom: 1px solid var(--border-1-color);
     }
