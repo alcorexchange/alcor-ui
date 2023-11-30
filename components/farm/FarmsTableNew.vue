@@ -308,15 +308,15 @@ export default {
 }
 
 .pulse-animation {
-  animation: pulse 2s infinite;
+  animation: pulse 1.8s infinite;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 1px var(--main-action-green);
+    box-shadow: 0 0 0 0px var(--main-action-green);
   }
   70% {
-    box-shadow: 0 0 2px 6px transparent;
+    box-shadow: 0 0 0 6px transparent;
   }
   100% {
     box-shadow: 0 0 0 transparent;
