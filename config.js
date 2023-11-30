@@ -210,7 +210,7 @@ const networks = {
     host: 'proton.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'https://protonscan.io',
+    monitor: 'https://explorer.xprnetwork.org',
     monitor_params: '',
     lightapi: 'https://proton.light-api.net',
     hyperion: 'https://proton.eu.eosamsterdam.net',
