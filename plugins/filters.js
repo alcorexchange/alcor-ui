@@ -54,6 +54,8 @@ Vue.filter('nFormat', function(num, digits = 1) {
     num = num.split(' ')[0]
   }
 
+  if (num <= 1) return num + sym
+
   const lookup = [
     { value: 1, symbol: '' },
     { value: 1e3, symbol: 'k' },

@@ -31,12 +31,12 @@
             td
               .d-flex.flex-column
                 .icon-and-value
-                  span 10k
-                  span.color-grey-thirdly WAX
+                  span {{ parseFloat(stat.position.amountA) | nFormat }}
+                  span.color-grey-thirdly {{ stat.position.amountA.split(' ')[1] }}
                 .icon-and-value
-                  span 20.5k
-                  span.color-grey-thirdly TLM
-            td 0.2%
+                  span {{ parseFloat(stat.position.amountB) | nFormat }}
+                  span.color-grey-thirdly {{ stat.position.amountB.split(' ')[1] }}
+            td {{ stat.userSharePercent }}%
             td
               .icon-and-value
                 //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
@@ -50,12 +50,19 @@
             td
               .d-flex.flex-column.gap-2
                 NuxtLink.position-link(:to="localeRoute(`/positions/${stat.posId}`)") \#{{ stat.posId }}
-                span Pool Share {{ stat.userSharePercent }}%
+                //TODO span Pool Share {{ stat.userSharePercent }}%
             td
               slot(name="actions" :stat="stat")
           tr(v-else)
-            td Not Staked
             td
+              .d-flex.flex-column
+                .icon-and-value
+                  span {{ parseFloat(stat.position.amountA) | nFormat }}
+                  span.color-grey-thirdly {{ stat.position.amountA.split(' ')[1] }}
+                .icon-and-value
+                  span {{ parseFloat(stat.position.amountB) | nFormat }}
+                  span.color-grey-thirdly {{ stat.position.amountB.split(' ')[1] }}
+            td Not Staked
             td
             td
             td
@@ -72,7 +79,7 @@ export default {
     TokenImage,
     AlcorButton,
   },
-  props: ['incentive', 'finished', 'poolFee'],
+  props: ['incentive', 'finished'],
 }
 </script>
 
