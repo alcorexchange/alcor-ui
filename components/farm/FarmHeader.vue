@@ -2,7 +2,7 @@
   .farm-header-container
     .farm-header
       .left
-        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
+        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" size="medium" prefix-icon='el-icon-search' clearable)
         AlcorSwitch.alcor-switch(
           one="All Farms"
           two="My Farms"
@@ -147,7 +147,7 @@ export default {
   }
 }
 .farms-search-input::v-deep {
-  max-width: 240px;
+  max-width: 200px;
   .el-input__inner {
     background: var(--select-color);
   }
