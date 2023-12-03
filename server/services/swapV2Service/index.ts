@@ -326,7 +326,7 @@ export async function updatePools(chain) {
     }
   }
 
-  console.log('updated pools for updatePools')
+  console.log('updated pools for ', chain)
   await SwapPool.insertMany(to_create)
 }
 
@@ -500,6 +500,9 @@ export async function main() {
   await connectAll()
 
   // const command = process.argv[2]
+
+  // FIXME HOTFIX for greymass not fall
+  setInterval(() => updatePools('wax'), 60 * 5 * 1000)
 
   // if (command == 'initial') {
   //   await initialUpdate(process.argv[3])
