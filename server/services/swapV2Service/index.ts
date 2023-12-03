@@ -503,7 +503,7 @@ export async function main() {
   // const command = process.argv[2]
 
   // FIXME HOTFIX for greymass not fall
-  setInterval(() => initialUpdate('wax'), 60 * 30 * 1000)
+  //setInterval(() => initialUpdate('wax'), 60 * 30 * 1000)
 
   // if (command == 'initial') {
   //   await initialUpdate(process.argv[3])
