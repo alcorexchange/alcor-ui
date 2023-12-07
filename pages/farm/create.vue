@@ -83,6 +83,8 @@ export default {
     ...mapState(['network', 'user']),
 
     feeToken() {
+      if (this.user.name == 'liquid.mars') return null
+
       const feeToken = this.$getToken(this.network?.farmCreationFee?.token)
 
       if (!feeToken) return null
