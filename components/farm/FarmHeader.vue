@@ -2,27 +2,27 @@
   .farm-header-container
     .farm-header
       .left
-        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" clearable)
-        .stacked-only(v-if="!hideStakedOnly")
-          el-switch.staked-only-switch(
-            active-color="var(--main-action-green)"
-            active-text="Staked only"
-            :value="$store.state.farms.stakedOnly"
-            @change="$store.commit('farms/setStakedOnly', $event)"
-          )
+        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" size="medium" prefix-icon='el-icon-search' clearable)
         AlcorSwitch.alcor-switch(
-          one="Active"
-          two="Finished"
-          :active="finished ? 'two' : 'one'"
-          @toggle="toggle"
+          one="All Farms"
+          two="My Farms"
+          :active="$store.state.farms.stakedOnly ? 'two' : 'one'"
+          @toggle="$store.commit('farms/setStakedOnly', $store.state.farms.stakedOnly ? false : true)"
         )
-        AlcorSwitch.alcor-switch(
-          one="Simple"
-          two="Advanced"
-          :active="$store.state.farms.view === 'SIMPLE' ? 'one' : 'two'"
-          @toggle="$store.commit('farms/toggleView')"
+        el-switch.farm-switch(
+          v-if="!hideStakedOnly"
+          active-color="var(--main-action-green)"
+          active-text="Show Finished"
+          :value="finished"
+          @change="toggle"
         )
       .right
+        el-switch.farm-switch(
+          active-color="var(--main-action-green)"
+          active-text="Advanced Mode"
+          :value="$store.state.farms.view === 'ADVANCED'"
+          @change="$store.commit('farms/toggleView')"
+        )
         AlcorLink(class="new-farm" to="/farm/create" v-if="!hideCreateNew")
           i.el-icon-circle-plus-outline
           span Open New Farm
@@ -91,7 +91,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.staked-only-switch::v-deep {
+.farm-switch::v-deep {
   .el-switch__core {
     height: 22px;
     border-radius: 40px;
@@ -147,7 +147,7 @@ export default {
   }
 }
 .farms-search-input::v-deep {
-  max-width: 240px;
+  max-width: 200px;
   .el-input__inner {
     background: var(--select-color);
   }
