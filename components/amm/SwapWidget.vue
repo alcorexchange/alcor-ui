@@ -206,7 +206,7 @@ export default {
       },
       {
         link: 'https://machiavellic.io/',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
           'rgba(235,97,55,0.2)',
           'rgba(154,4,2,1)',
