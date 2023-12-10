@@ -9,15 +9,35 @@
 
     main
       div.pool-select-container
-        Note(class="fs-14") You can only create a farm for a pool that you are issuer of one of token.
-        el-select.pool-select(v-model='poolId' placeholder='Select pool' filterable)
-          el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' ' + pool.tokenA.contract + ' / ' + pool.tokenB.symbol + ' ' + pool.tokenB.contract + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
-            span(style='float: left') {{ pool.tokenA.symbol }} {{ pool.tokenA.contract }} / {{ pool.tokenB.symbol }} {{ pool.tokenB.contract }}
-            span.ml-1 {{ pool.fee / 10000 }}%
+        Note(class="fs-14") You need to be the issuer of one of the tokens.
+        //- el-select.pool-select(v-model='poolId' placeholder='Select pool' filterable)
+        //-   el-option(v-for='pool in pools' :key='pool.id' :label="pool.tokenA.symbol + ' ' + pool.tokenA.contract + ' / ' + pool.tokenB.symbol + ' ' + pool.tokenB.contract + ' ' + pool.fee / 10000 + '%'" :value='pool.id')
+        //-     span(style='float: left') {{ pool.tokenA.symbol }} {{ pool.tokenA.contract }} / {{ pool.tokenB.symbol }} {{ pool.tokenB.contract }}
+        //-     span.ml-1 {{ pool.fee / 10000 }}%
 
-      //TokenSelection(class="")
-      //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
-      //FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier")
+        //TokenSelection(class="")
+
+        .token-selection.mt-1
+          .item
+            .farm-create-section-title Select Base Token
+
+            SelectToken(
+              :token='tokenA',
+              :tokens='tokens',
+              @selected='selectA'
+              w100
+            )
+
+          .item
+            .farm-create-section-title Select Quote Token
+            SelectToken(
+              :token='tokenB',
+              :tokens='tokens',
+              @selected='selectB'
+              w100
+            )
+
+        FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier").mt-2
 
       RewardList(class="")
         FarmTokenInput(
@@ -48,20 +68,21 @@ import { mapState } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import PageHeader from '@/components/amm/PageHeader'
 import Note from '@/components/farm/Note'
-import TokenSelection from '@/components/farm/TokenSelection'
 import FeeTierSelection from '@/components/farm/FeeTierSelection'
 import DistributionSelection from '@/components/farm/DistributionSelection'
 import RewardList from '@/components/farm/RewardList'
 import FarmTokenInput from '@/components/farm/FarmTokenInput'
 import AlcorButton from '@/components/AlcorButton'
+import SelectToken from '@/components/modals/amm/SelectToken2'
 import { parseToken } from '~/utils/amm'
+
 export default {
   name: 'CreateFarm',
   components: {
+    SelectToken,
     AlcorContainer,
     PageHeader,
     Note,
-    TokenSelection,
     FeeTierSelection,
     RewardList,
     FarmTokenInput,
@@ -70,6 +91,9 @@ export default {
   },
 
   data: () => ({
+    tokenA: null,
+    tokenB: null,
+
     poolId: null,
     feeOptions: [{ value: 0.05 }, { value: 0.3 }, { value: 1 }],
     rewardList: [{ token: undefined, amount: 0 }],
@@ -95,6 +119,49 @@ export default {
       }
     },
 
+    tokens() {
+      const tokens = []
+
+      this.$store.state.amm.pools.forEach(p => {
+        const tokenA = parseToken(p.tokenA)
+        const tokenB = parseToken(p.tokenB)
+
+        if (
+          this.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
+          this.network.SCAM_CONTRACTS.includes(tokenB.contract)
+        ) { return }
+
+        if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+        if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
+      })
+
+      return tokens
+    },
+
+    // tokensB() {
+    //   const tokens = []
+
+    //   this.$store.state.amm.pools.forEach(p => {
+    //     const tokenA = parseToken(p.tokenA)
+    //     const tokenB = parseToken(p.tokenB)
+
+    //     if (
+    //       this.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
+    //       this.network.SCAM_CONTRACTS.includes(tokenB.contract)
+    //     ) { return }
+
+    //     if (this.tokenA) {
+    //       if (!tokens.find(t => t.id == tokenA.id) && tokenB.id == this.tokenA.id) tokens.push(tokenA)
+    //       if (!tokens.find(t => t.id == tokenB.id) && tokenA.id == this.tokenA.id) tokens.push(tokenB)
+    //     } else {
+    //       if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+    //       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
+    //     }
+    //   })
+
+    //   return tokens
+    // },
+
     pools() {
       const pools = [...this.$store.state.amm.poolsStats]
       return (
@@ -118,29 +185,6 @@ export default {
 
     rewardTokens() {
       return this.$store.getters['wallet/balances']
-
-      // .filter((b) => {
-      //   if (parseFloat(b.amount) == 0) return false
-
-      //   return b.id.toLowerCase().includes(this.search.toLowerCase())
-      // })
-      // .sort((a, b) => {
-      //   if (a.contract == this.network.baseToken.contract) return -1
-
-      //   if (a.usd_value > b.usd_value) return -1
-      //   if (a.usd_value < b.usd_value) return 1
-
-      //   return 0
-      // })
-
-      // return this.rewardTokensWhitelist.map(({ token }) => {
-      // return {
-      //   id: parseToken(token).id,
-      //   contract: token.contract,
-      //   symbol: token.quantity.split(' ')[1],
-      //   currency: token.quantity.split(' ')[1]
-      // }
-      // })
     },
 
     distributionOptions() {
@@ -168,6 +212,14 @@ export default {
   },
 
   methods: {
+    selectA(token) {
+      this.tokenA = token
+    },
+
+    selectB(token) {
+      this.tokenB = token
+    },
+
     buyFeeToken() {
       this.$router.push(
         this.localeRoute({
@@ -299,6 +351,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.token-selection {
+  display: flex;
+  gap: 10px;
+  .item {
+    flex: 1;
+  }
+}
 .farm-create-page {
   padding-top: 60px;
   .alcor-container {
@@ -342,7 +401,7 @@ main {
 
 <style lang="scss">
 .farm-create-section-title {
-  font-size: 18px;
+  font-size: 14px;
   color: var(--disabled-indicator);
 }
 
