@@ -17,7 +17,7 @@
 
       //TokenSelection(class="")
       //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
-      //FeeTierSelection(:options="feeOptions" class=""  v-model="selectedFeeTier")
+      //FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier")
 
       RewardList(class="")
         FarmTokenInput(
@@ -83,7 +83,7 @@ export default {
     ...mapState(['network', 'user']),
 
     feeToken() {
-      if (this.user.name == 'liquid.mars') return null
+      if (this.user?.name == 'liquid.mars') return null
 
       const feeToken = this.$getToken(this.network?.farmCreationFee?.token)
 
