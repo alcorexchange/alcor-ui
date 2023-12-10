@@ -425,7 +425,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
       /* USDT put others after */ 763,
-      737,
+      231,
     ],
     BANNER_MARKETS: [],
 

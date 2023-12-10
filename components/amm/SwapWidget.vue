@@ -205,12 +205,12 @@ export default {
         ],
       },
       {
-        link: 'https://discord.gg/jp4RKpaBuV',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        link: 'https://machiavellic.io/',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(132,116,204,0.2)',
-          'rgba(74,70,96,1)',
-          'rgba(20,19,104, 1)',
+          'rgba(235,97,55,0.2)',
+          'rgba(154,4,2,1)',
+          'rgba(134,92,35, 1)',
         ],
       },
     ]
