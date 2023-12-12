@@ -37,28 +37,31 @@
               w100
             )
 
+      template(v-if="feeOptions.length > 0")
         FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier").mt-2
 
-      RewardList(class="")
-        FarmTokenInput(
-          v-for="reward, index in rewardList"
-          label="Amount"
-          :canRemove="index > 0"
-          @remove="() => onRemoveReward(index)"
-          @tokenSelected="onRewardTokenSelect($event, index)"
-          :tokens="rewardTokens"
-          :token="reward.token"
-          v-model="reward.amount"
-        )
+        RewardList(class="")
+          FarmTokenInput(
+            v-for="reward, index in rewardList"
+            label="Amount"
+            :canRemove="index > 0"
+            @remove="() => onRemoveReward(index)"
+            @tokenSelected="onRewardTokenSelect($event, index)"
+            :tokens="rewardTokens"
+            :token="reward.token"
+            v-model="reward.amount"
+          )
 
-      DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
+        DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
-      el-tag(v-if="feeToken" size="big" @click="buyFeeToken").pointer
-        | Farm creation fee
-        | {{ feeToken.quantity }}
-        //img(:src="$tokenLogo(feeToken.symbol, feeToken.contract)" height="12").ml-1
+        el-tag(v-if="feeToken" size="big" @click="buyFeeToken").pointer
+          | Farm creation fee
+          | {{ feeToken.quantity }}
+          //img(:src="$tokenLogo(feeToken.symbol, feeToken.contract)" height="12").ml-1
 
-      AlcorButton(class="submit" access @click="create") Create Farm
+        AlcorButton(class="submit" access @click="create") Create Farm
+      template(v-else)
+        .farm-create-section-title No Pool Found
 
 </template>
 
@@ -94,17 +97,41 @@ export default {
     tokenA: null,
     tokenB: null,
 
-    poolId: null,
-    feeOptions: [{ value: 0.05 }, { value: 0.3 }, { value: 1 }],
     rewardList: [{ token: undefined, amount: 0 }],
 
-    selectedFeeTier: 1,
+    selectedFeeTier: null,
     selectedDistribution: 86400,
     rewardTokensWhitelist: [],
   }),
 
   computed: {
     ...mapState(['network', 'user']),
+
+    feeOptions() {
+      const pools = this.$store.state.amm.pools.filter(p => {
+        return (
+          (parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
+          (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)
+        )
+      })
+
+      return pools.map(p => {
+        return { value: p.fee / 10000 }
+      })
+    },
+
+    poolId() {
+      if (!this.selectedFeeTier) return null
+
+      const pool = this.$store.state.amm.pools.find(p => {
+        return (
+          (parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
+          (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)
+        ) && p.fee == this.selectedFeeTier * 10000
+      })
+
+      return pool.id
+    },
 
     feeToken() {
       if (this.user?.name == 'liquid.mars') return null
