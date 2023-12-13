@@ -73,8 +73,8 @@ const networks = {
       name: 'eos',
       returnValueEnabled: true,
       //proofSockets: ['wss://eos.eosusa.io/ibc', 'wss://ibc-server.uxnetwork.io/eos'],
-      //proofSockets: ['wss://ibc-server.uxnetwork.io/eos'],
-      proofSockets: ['wss://eos.eosusa.io/ibc'],
+      proofSockets: ['wss://ibc-server.uxnetwork.io/eos'],
+      //proofSockets: ['wss://eos.eosusa.io/ibc'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
