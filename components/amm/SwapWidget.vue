@@ -196,12 +196,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://go.spinnia.io/AlcorfreeSPNbanner',
-        image: require('@/assets/images/swap-banner-1.gif'),
+        link: 'https://bit.ly/40VOERT',
+        image: 'https://media.discordapp.net/attachments/853763607992598559/1179147539514146877/Alcor_PReview_Final.gif?ex=658b2eb8&is=6578b9b8&hm=f06ae8dc388ee5612cfd347356b003362b1a6b4a0b3c5ed4d9650db5efe3e81e&',
         colors: [
-          'rgba(254,213,27,0.2)',
-          'rgba(238,225,206, 1)',
-          'rgba(87,62,10,1)',
+          'rgba(21,102,139,0.2)',
+          'rgba(83,169,203, 1)',
+          'rgba(58,158,165,1)',
         ],
       },
       {
