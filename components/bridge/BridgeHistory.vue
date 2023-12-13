@@ -248,7 +248,7 @@ export default {
 
       const history = []
 
-      //this.sourceWallet.name = 'waxwaxdepot1'
+      //this.sourceWallet.name = 'eosplaywithx'
 
       try {
         const wrapLockContracts = []
