@@ -326,7 +326,7 @@ export async function updatePools(chain) {
     }
   }
 
-  console.log('updated pools for updatePools')
+  console.log('updated pools for ', chain)
   await SwapPool.insertMany(to_create)
 }
 
@@ -343,7 +343,8 @@ export async function initialUpdate(chain: string, poolId?: number) {
   const markets = await SwapPool.find({ chain })
 
   for (const { chain, id } of markets) {
-    await updateTicks(chain, id)
+    //await updateTicks(chain, id)
+    await updatePool(chain, id)
 
     // Chain that we have our own nodes
     //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
@@ -500,6 +501,9 @@ export async function main() {
   await connectAll()
 
   // const command = process.argv[2]
+
+  // FIXME HOTFIX for greymass not fall
+  //setInterval(() => initialUpdate('wax'), 60 * 30 * 1000)
 
   // if (command == 'initial') {
   //   await initialUpdate(process.argv[3])
