@@ -1,111 +1,123 @@
-import { SymbolCode } from 'eos-common'
+import { getChainsWithLockContracts } from './ibcChains'
+import { getReceiptDigest } from './digest'
+import { fetchAllRows } from '../../../utils/eosjs'
 
-import { networks } from '../../../config'
+// function getDestinationDetails(sourceName, isNative, contract, quantity) {
+//   // Find dest chain details by lock contract
+//   let wrapLockContractDetails = {}
 
-import { getMultyEndRpc } from '../../../utils/eosjs'
-//import { IBC_NETWORKS } from '~/config'
-import { nameToUint64 } from '../../../utils'
-import { getAllLockContracts } from '../../../utils/ibc'
+//   for (const chain of Object.values(chains) as any) {
+//     for (const details of chain.wrapLockContracts) {
+//       if (isNative &&
+//         details.wrapLockContract == contract &&
+//         details.symbols.includes(quantity.split(' ')[1]) &&
+//         details.chain == sourceName
+//       ) {
+//         wrapLockContractDetails = details
+//       }
 
-//const supportedNetworks = ['eos', 'wax', 'proton', 'ux']
-const supportedNetworks = ['eos']
+//       if (!isNative &&
+//         details.pairedWrapTokenContract == contract &&
+//         details.symbols.includes(quantity.split(' ')[1]) &&
+//         details.pairedChain == sourceName
+//       ) {
+//         wrapLockContractDetails = details
+//       }
+//     }
+//   }
 
-const chains = {}
+//   return wrapLockContractDetails
+// }
 
-for (const network of Object.values(networks).filter((v: any) =>
-  supportedNetworks.includes(v.name)
-) as any[]) {
-  const nodes = Object.keys(network.client_nodes)
-  nodes.sort((a, b) => (a.includes('alcor') ? -1 : 1))
+async function fetchProvenList(chain, contract) {
+  console.log('fetchProvenList', chain.name, contract)
+  // Add chache
+  const rows = await fetchAllRows(chain.rpc, {
+    code: contract,
+    scope: contract,
+    table: 'processed'
+  })
 
-  chains[network.name] = {
-    network,
-    rpc: getMultyEndRpc(nodes),
-  }
+  return rows.map(i => i.receipt_digest)
 }
 
-async function loadTokens(chainName: string) {
-  const rpc = chains[chainName].rpc
+const sequences = {}
+async function getSequince(chain, contract, id) {
+  const cache_id = chain.name + contract
 
-  const wrapLockContracts = []
+  if (sequences[cache_id]) return sequences[cache_id]
 
-  for (const lockContract of getAllLockContracts(chains[chainName])) {
-    const {
-      rows: [global],
-    } = await rpc.get_table_rows({
-      code: lockContract,
-      scope: lockContract,
-      table: 'global',
+  console.log('query sequences')
+  const { data: { actions } } = await chain.hyperion.get('v2/history/get_transaction', {
+    params: { id }
+  })
+
+  const { code_sequence, abi_sequence } = actions.find(a => a.act.name === 'emitxfer')
+
+  sequences[cache_id] = { code_sequence, abi_sequence }
+  return { code_sequence, abi_sequence }
+}
+
+// const { data: { actions } } = await chain.hyperion.get(
+//   'https://eos.eosusa.io/v2/history/get_transaction?id=37458eaae20217eb0901c74b91a51189ad79ce3743d8a0186bf6c81795f1af1c'
+// )
+// const _xfer = actions.find(action => action.act.name === 'emitxfer')
+// const digest = await getReceiptDigest(chain, _xfer.receipts[0], _xfer, true)
+
+// console.log({ digest })
+
+async function getXfers(chain, account) {
+  const xfers = []
+
+  while (true) {
+    const { data: { total, actions } } = await chain.hyperion.get('v2/history/get_actions', {
+      params: {
+        account,
+        'act.name': 'emitxfer',
+        limit: 1000,
+        skip: xfers.length,
+        sort: -1
+      }
     })
 
-    const { rows: tokens } = await rpc.get_table_rows({
-      code: lockContract,
-      scope: lockContract,
-      table: 'contractmap',
-    })
+    xfers.push(...actions)
 
-    for (const token of tokens) {
-      const chain: any = Object.values(chains).find(
-        (c: any) => c.network.chainId === global.chain_id
-      )
-
-      if (!chain) continue
-
-      const { rows } = await chain.rpc.get_table_by_scope({
-        code: token.native_token_contract,
-        table: 'stat',
-      })
-
-      const symbols = rows.map((r) =>
-        new SymbolCode(Number(nameToUint64(r.scope))).toString()
-      )
-
-      wrapLockContracts.push({
-        chain_id: global.chain_id,
-        wrapLockContract: lockContract,
-        nativeTokenContract: token.native_token_contract,
-        pairedChainId: global.paired_chain_id,
-        pairedWrapTokenContract: token.paired_wraptoken_contract,
-        symbols,
-      })
+    if (xfers.length == total.value) {
+      break
     }
   }
 
-  chains[chainName].wrapLockContracts = wrapLockContracts
+  return xfers
 }
-
-async function streamTransfer() {}
-
-
-function stream(contracts) {
-  // url = f'{self.api_endpoint}/v2/history/get_actions'
-  // params = {
-  //     'sort': 'asc',
-  //     'after': self.last_irreversible_action_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-  //     'skip': qi * self.row_limit,
-  //     'limit': self.row_limit,
-  //     'checkLib': 'true'
-  // }
-  // if self.filter_param:
-  //     params['filter'] = self.filter_param
-  // response = requests.get(url, params=params, timeout=20)
-  // response = response.json()
-}
-
 
 async function main() {
-  for (const chain of supportedNetworks) {
-    await loadTokens(chain)
-  }
+  const chains = await getChainsWithLockContracts()
 
-  for (const chain of Object.values(chains) as any[]) {
-    console.log(chain.network.ibc, chain.wrapLockContracts)
-  }
+  for (const chain of chains) {
+    for (const lockContract of chain.wrapLockContracts) {
+      if (lockContract.wrapLockContract !== 'w.ibc.alcor') continue // FIXME dev only
 
-  // if (tokenRow.native)
-  //   url = `${sourceChain.hyperion}/v2/history/get_actions?account=${tokenRow.wrapLockContract}&filter=${tokenRow.nativeTokenContract}:transfer&transfer.from=${sourceChain.auth.actor}&transfer.memo=${destinationChain.auth.actor}&limit=15`
-  // else
-  //   url = `${sourceChain.hyperion}/v2/history/get_actions?account=${sourceChain.auth.actor}&filter=${tokenRow.pairedWrapTokenContract}:retire&limit=15`
+      const actions = await getXfers(chain, lockContract.wrapLockContract)
+
+      const sequences = await getSequince(chain, lockContract.wrapLockContract, actions[0].trx_id)
+      const provenList = await fetchProvenList(chains.find(c => c.name == lockContract.pairedChain), lockContract.pairedWrapTokenContract)
+
+      for (const action of actions) {
+        //if (action.trx_id !== '37458eaae20217eb0901c74b91a51189ad79ce3743d8a0186bf6c81795f1af1c') continue
+
+        Object.assign(action, sequences)
+        const digest = await getReceiptDigest(chain, action.receipts[0], action, true)
+        const proven = provenList.includes(digest)
+
+        if (!proven) {
+          // TODO Prove function
+          console.log(action.trx_id, action.act.data)
+        }
+      }
+    }
+
+    break
+  }
 }
 
 main()
