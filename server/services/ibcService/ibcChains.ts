@@ -1,34 +1,14 @@
-import axios from 'axios'
 import { SymbolCode } from 'eos-common'
 
-import { networks } from '../../../config'
-
-import { getMultyEndRpc } from '../../../utils/eosjs'
 import { nameToUint64 } from '../../../utils'
 import { getAllLockContracts } from '../../../utils/ibc'
 
-const supportedNetworks = ['eos', 'wax', 'telos', 'ux']
-//const supportedNetworks = ['eos']
-
-const chains = []
-
-for (const network of Object.values(networks).filter((n: any) => supportedNetworks.includes(n.name)) as any) {
-  const nodes = Object.keys(network.client_nodes)
-  nodes.sort((a, b) => (a.includes('alcor') ? -1 : 1))
-
-  chains.push({
-    ...network,
-    hyperion: axios.create({ baseURL: network.hyperion }),
-    rpc: getMultyEndRpc(nodes),
-    wrapLockContracts: []
-  })
-}
-
-async function fetchTokens() {
+export async function getWrapLockContracts(chains) {
   const promises = []
   const tokenPromises = []
   const groupedResults = []
   const allWraplockContracts = []
+  const wrapLockContracts = []
 
   for (const chain of chains) for (const wrapLockContract of getAllLockContracts(chain)) {
     allWraplockContracts.push(wrapLockContract)
@@ -71,8 +51,7 @@ async function fetchTokens() {
 
       const symbols = symbolsres.rows.map(r => new SymbolCode(Number(nameToUint64(r.scope))).toString())
 
-      //console.log(`${chain.name} -> ${pairedChain.name} tokens: ${symbols}`)
-      chain.wrapLockContracts.push({
+      wrapLockContracts.push({
         chain: chain.name,
         pairedChain: pairedChain.name,
         chain_id: global.chain_id,
@@ -87,10 +66,6 @@ async function fetchTokens() {
       tokenResultsIndex++
     }
   }
-}
 
-export async function getChainsWithLockContracts() {
-  await fetchTokens()
-
-  return chains
+  return wrapLockContracts
 }

@@ -1,33 +1,12 @@
-import { getChainsWithLockContracts } from './ibcChains'
+require('dotenv').config()
+
+import axios from 'axios'
+import { networks } from '../../../config'
+import { fetchAllRows, getMultyEndRpc } from '../../../utils/eosjs'
+import { getWrapLockContracts } from './ibcChains'
 import { getReceiptDigest } from './digest'
-import { fetchAllRows } from '../../../utils/eosjs'
+import { prove } from './prove'
 
-// function getDestinationDetails(sourceName, isNative, contract, quantity) {
-//   // Find dest chain details by lock contract
-//   let wrapLockContractDetails = {}
-
-//   for (const chain of Object.values(chains) as any) {
-//     for (const details of chain.wrapLockContracts) {
-//       if (isNative &&
-//         details.wrapLockContract == contract &&
-//         details.symbols.includes(quantity.split(' ')[1]) &&
-//         details.chain == sourceName
-//       ) {
-//         wrapLockContractDetails = details
-//       }
-
-//       if (!isNative &&
-//         details.pairedWrapTokenContract == contract &&
-//         details.symbols.includes(quantity.split(' ')[1]) &&
-//         details.pairedChain == sourceName
-//       ) {
-//         wrapLockContractDetails = details
-//       }
-//     }
-//   }
-
-//   return wrapLockContractDetails
-// }
 
 async function fetchProvenList(chain, contract) {
   console.log('fetchProvenList', chain.name, contract)
@@ -58,15 +37,7 @@ async function getSequince(chain, contract, id) {
   return { code_sequence, abi_sequence }
 }
 
-// const { data: { actions } } = await chain.hyperion.get(
-//   'https://eos.eosusa.io/v2/history/get_transaction?id=37458eaae20217eb0901c74b91a51189ad79ce3743d8a0186bf6c81795f1af1c'
-// )
-// const _xfer = actions.find(action => action.act.name === 'emitxfer')
-// const digest = await getReceiptDigest(chain, _xfer.receipts[0], _xfer, true)
-
-// console.log({ digest })
-
-async function getXfers(chain, account) {
+async function getActions(chain, account) {
   const xfers = []
 
   while (true) {
@@ -90,33 +61,71 @@ async function getXfers(chain, account) {
   return xfers
 }
 
+async function fetchXfers(chains, lockContract, _native) {
+  const contract = _native ? lockContract.wrapLockContract : lockContract.pairedWrapTokenContract
+  const paired_contract = _native ? lockContract.pairedWrapTokenContract : lockContract.wrapLockContract
+
+  const sourceChain = _native ? chains.find(c => c.name == lockContract.chain) : chains.find(c => c.name == lockContract.pairedChain)
+  const destinationChain = _native ? chains.find(c => c.name == lockContract.pairedChain) : chains.find(c => c.name == lockContract.chain)
+
+  const actions = await getActions(sourceChain, contract)
+
+  if (actions.length == 0) return []
+
+  const sequences = await getSequince(sourceChain, contract, actions[0].trx_id)
+  const provenList = await fetchProvenList(destinationChain, paired_contract)
+
+  for (const action of actions) {
+    Object.assign(action, sequences)
+
+    action.digest = await getReceiptDigest(sourceChain, action.receipts[0], action, true)
+    action.proven = provenList.includes(action.digest)
+  }
+
+  return actions
+}
+
+const supportedNetworks = ['eos', 'wax', 'telos', 'ux']
+//const supportedNetworks = ['eos']
+
+const chains = []
+
+for (const network of Object.values(networks).filter((n: any) => supportedNetworks.includes(n.name)) as any) {
+  const nodes = Object.keys(network.client_nodes)
+  nodes.sort((a, b) => (a.includes('alcor') ? -1 : 1))
+
+  chains.push({
+    ...network,
+    hyperion: axios.create({ baseURL: network.hyperion }),
+    rpc: getMultyEndRpc(nodes),
+    wrapLockContracts: []
+  })
+}
+
+//async function completeTrnasfer(sour) {
+//  const destinationChain = chains.find(c => c.name == lockContract.pairedChain)
+//  const proved = await prove(chain, destinationChain, action, lockContract, true)
+//  console.log(proved)
+//}
+
 async function main() {
-  const chains = await getChainsWithLockContracts()
+  const ibcTokens = await getWrapLockContracts(chains)
 
-  for (const chain of chains) {
-    for (const lockContract of chain.wrapLockContracts) {
-      if (lockContract.wrapLockContract !== 'w.ibc.alcor') continue // FIXME dev only
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
 
-      const actions = await getXfers(chain, lockContract.wrapLockContract)
+  const _native = false
 
-      const sequences = await getSequince(chain, lockContract.wrapLockContract, actions[0].trx_id)
-      const provenList = await fetchProvenList(chains.find(c => c.name == lockContract.pairedChain), lockContract.pairedWrapTokenContract)
+  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
+  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
 
-      for (const action of actions) {
-        //if (action.trx_id !== '37458eaae20217eb0901c74b91a51189ad79ce3743d8a0186bf6c81795f1af1c') continue
+  const actions = await fetchXfers(chains, USDT_ALCOR, _native)
 
-        Object.assign(action, sequences)
-        const digest = await getReceiptDigest(chain, action.receipts[0], action, true)
-        const proven = provenList.includes(digest)
-
-        if (!proven) {
-          // TODO Prove function
-          console.log(action.trx_id, action.act.data)
-        }
-      }
+  for (const action of actions) {
+    if (!action.proven) {
+      const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
+      console.log(proved)
+      return
     }
-
-    break
   }
 }
 
