@@ -73,7 +73,8 @@ export class IBCTransfer {
       data: {
         owner: this.sourceWallet.name,
         quantity,
-        beneficiary: this.destinationWallet.name
+        beneficiary: this.destinationWallet.name,
+        memo: '' // TODO with memo
       }
     }
   }
@@ -510,7 +511,7 @@ export class IBCTransfer {
 const abis = {}
 export async function getReceiptDigest(source, receipt, action, returnValueEnabled) {
   const eosApi = new Api({ rpc: source.rpc })
-  const cache = source.name + action.act.name
+  const cache = source.name + action.act.account
 
   const lockAbi = cache in abis ? abis[cache] : await eosApi.getAbi(action.act.account)
   abis[cache] = lockAbi
@@ -567,10 +568,25 @@ export async function getReceiptDigest(source, receipt, action, returnValueEnabl
   //if act_digest and hex_data is not part of receipt (hyperion) then calculate them
   if (!receipt.act_digest) {
     const buff = new SerialBuffer({ TextEncoder, TextDecoder })
-    abiTypes.get('emitxfer').serialize(buff, action.act.data)
+
+    // For old USDT transfers
+    if (action.act.data.xfer.memo === undefined && abiTypes.get('xfer').fields.map(f => f.name).includes('memo')) {
+      // Old transfer with new emitxfer
+      const abiTypes = getTypesFromAbi(createInitialTypes(), lockAbi)
+      const emitxfer = abiTypes.get('emitxfer')
+
+      // We serialize it without memo
+      emitxfer.fields[0].type.fields = emitxfer.fields[0].type.fields.filter(f => f.name != 'memo')
+
+      emitxfer.serialize(buff, action.act.data)
+    } else {
+      abiTypes.get('emitxfer').serialize(buff, action.act.data)
+    }
+
     const serializedTransferData = Buffer.from(buff.asUint8Array()).toString(
       'hex'
     )
+
     action.act.hex_data = serializedTransferData
 
     receipt.abi_sequence = action.abi_sequence
