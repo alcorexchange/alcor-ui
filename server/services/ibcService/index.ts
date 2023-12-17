@@ -124,7 +124,6 @@ async function main() {
     if (!action.proven) {
       const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
       console.log(proved)
-      return
     }
   }
 }
