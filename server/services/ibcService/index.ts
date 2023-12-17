@@ -111,9 +111,9 @@ for (const network of Object.values(networks).filter((n: any) => supportedNetwor
 async function main() {
   const ibcTokens = await getWrapLockContracts(chains)
 
-  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'usdtlocktest' && i.chain == 'eos')
 
-  const _native = false
+  const _native = true
 
   const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
   const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)

@@ -78,7 +78,8 @@ const networks = {
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.tlos', 'ibc.wl.wax'],
-        'ibc.alcor': ['w.ibc.alcor'],
+        //'ibc.alcor': ['w.ibc.alcor'],
+        'ibc.alcor': ['usdtlocktest'],
       },
 
       wrapTokenContracts: {
@@ -421,7 +422,8 @@ const networks = {
 
       wrapTokenContracts: {
         'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.eos'],
-        'ibc.alcor': ['usdt.alcor'],
+        //'ibc.alcor': ['usdt.alcor'],
+        'ibc.alcor': ['wrapusdttest'],
       },
     },
 

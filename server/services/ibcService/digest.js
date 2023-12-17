@@ -13,7 +13,7 @@ const char_to_symbol = c => {
 const abis = {}
 export async function getReceiptDigest(source, receipt, action, returnValueEnabled) {
   const eosApi = new Api({ rpc: source.rpc })
-  const cache = source.name + action.act.name
+  const cache = source.name + action.act.account
 
   const lockAbi = cache in abis ? abis[cache] : await eosApi.getAbi(action.act.account)
   abis[cache] = lockAbi
