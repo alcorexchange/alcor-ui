@@ -122,8 +122,10 @@ async function main() {
 
   for (const action of actions) {
     if (!action.proven) {
+      //console.log(action.timestamp, action.act.data)
+      console.log(action.hex_data)
       const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
-      console.log(proved)
+      console.log({ proved })
     }
   }
 }
