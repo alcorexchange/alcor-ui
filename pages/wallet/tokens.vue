@@ -74,21 +74,35 @@ export default {
       if (!this.user) return []
       if (!this.user.balances) return []
 
-      return this.$store.getters['wallet/balances']
+      const balances = this.$store.getters['wallet/balances']
         .filter((b) => {
           if (parseFloat(b.amount) == 0) return false
 
           return b.id.toLowerCase().includes(this.search.toLowerCase())
         })
-        .sort((a, b) => {
-          if (this.network.name == 'wax' && a.contract == 'usdt.alcor') return -2
-          if (a.contract == this.network.baseToken.contract) return -1
 
-          if (a.usd_value > b.usd_value) return -1
-          if (a.usd_value < b.usd_value) return 1
-
-          return 0
+      if (this.network.name == 'wax' && !balances.find(b => b.currency == 'USDT' && b.contract == 'usdt.alcor')) {
+        balances.push({
+          currency: 'USDT',
+          contract: 'usdt.alcor',
+          decimals: 4,
+          amount: 0,
+          id: 'USDT@usdt.alcor',
+          usd_value: 0
         })
+      }
+
+      balances.sort((a, b) => {
+        if (this.network.name == 'wax' && a.contract == 'usdt.alcor') return -2
+        if (a.contract == this.network.baseToken.contract) return -1
+
+        if (a.usd_value > b.usd_value) return -1
+        if (a.usd_value < b.usd_value) return 1
+
+        return 0
+      })
+
+      return balances
     }
   },
 

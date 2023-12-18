@@ -413,15 +413,6 @@ export const actions = {
     const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
     commit('setLihgHistoryBlock', r.data.chain.block_num)
 
-    if (state.network.name == 'wax' && !balances.find(b => b.currency == 'USDT' && b.contract == 'usdt.alcor')) {
-      balances.push({
-        currency: 'USDT',
-        contract: 'usdt.alcor',
-        decimals: '4',
-        amount: '0',
-      })
-    }
-
     // TODO Refactor this and make separate filter/computed for getting token in USD
     // Calc USD value
     balances.map(token => {
