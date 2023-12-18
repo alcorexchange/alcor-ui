@@ -9,7 +9,6 @@ import { prove } from './prove'
 
 
 async function fetchProvenList(chain, contract) {
-  console.log('fetchProvenList', chain.name, contract)
   // Add chache
   const rows = await fetchAllRows(chain.rpc, {
     code: contract,
