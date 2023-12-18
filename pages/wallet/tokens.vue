@@ -8,6 +8,7 @@
       WalletRow(:item="item" :useActions="true" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
 
   DepositPopup(ref="depositPopup")
+  WaxUSDTDepositPopup(ref="waxUSDTdepositPopup")
   TransferPopup(ref="transferPopup")
 </template>
 
@@ -15,6 +16,7 @@
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 import DepositPopup from '@/components/wallet/DepositPopup'
+import WaxUSDTDepositPopup from '@/components/wallet/WaxUSDTDepositPopup'
 import TransferPopup from '@/components/wallet/TransferPopup'
 import VirtualTable from '@/components/VirtualTable'
 import WalletRow from '@/components/wallet/WalletRow'
@@ -26,7 +28,8 @@ export default {
     DepositPopup,
     TransferPopup,
     VirtualTable,
-    WalletRow
+    WalletRow,
+    WaxUSDTDepositPopup
   },
   data: () => ({
     search: ''
@@ -78,6 +81,7 @@ export default {
           return b.id.toLowerCase().includes(this.search.toLowerCase())
         })
         .sort((a, b) => {
+          if (this.network.name == 'wax' && a.contract == 'usdt.alcor') return -2
           if (a.contract == this.network.baseToken.contract) return -1
 
           if (a.usd_value > b.usd_value) return -1
@@ -118,8 +122,12 @@ export default {
       )
     },
 
-    openDeposit() {
-      this.$refs.depositPopup.openPopup({})
+    openDeposit(item) {
+      if (this.network.name == 'wax' && item.contract == 'usdt.alcor') {
+        this.$refs.waxUSDTdepositPopup.openPopup({})
+      } else {
+        this.$refs.depositPopup.openPopup({})
+      }
     },
 
     openWithdraw(row) {
