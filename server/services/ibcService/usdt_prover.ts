@@ -37,7 +37,7 @@ async function getSequince(chain, contract, id) {
   return { code_sequence, abi_sequence }
 }
 
-async function getActions(chain, account) {
+async function getActions(chain, account, params = {}) {
   const xfers = []
 
   while (true) {
@@ -47,7 +47,8 @@ async function getActions(chain, account) {
         'act.name': 'emitxfer',
         limit: 1000,
         skip: xfers.length,
-        sort: -1
+        sort: -1,
+        ...params
       }
     })
 
@@ -68,7 +69,12 @@ async function fetchXfers(chains, lockContract, _native) {
   const sourceChain = _native ? chains.find(c => c.name == lockContract.chain) : chains.find(c => c.name == lockContract.pairedChain)
   const destinationChain = _native ? chains.find(c => c.name == lockContract.pairedChain) : chains.find(c => c.name == lockContract.chain)
 
-  const actions = await getActions(sourceChain, contract)
+  const getActionsParams: any = {}
+
+  // Protocol updated
+  if (sourceChain.name == 'eos' && contract == 'w.ibc.alcor') getActionsParams.after = '2023-12-18T14:25:14.500'
+
+  const actions = await getActions(sourceChain, contract, getActionsParams)
 
   if (actions.length == 0) return []
 
@@ -105,6 +111,7 @@ for (const network of Object.values(networks).filter((n: any) => supportedNetwor
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function main() {
+  console.log('EOS USDT.ALCOR -> WAX WORKER STARTED')
   const ibcTokens = await getWrapLockContracts(chains)
 
   const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')

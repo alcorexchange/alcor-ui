@@ -37,7 +37,7 @@ async function getSequince(chain, contract, id) {
   return { code_sequence, abi_sequence }
 }
 
-async function getActions(chain, account) {
+async function getActions(chain, account, params = {}) {
   const xfers = []
 
   while (true) {
@@ -47,7 +47,8 @@ async function getActions(chain, account) {
         'act.name': 'emitxfer',
         limit: 1000,
         skip: xfers.length,
-        sort: -1
+        sort: -1,
+        ...params
       }
     })
 
@@ -68,7 +69,12 @@ async function fetchXfers(chains, lockContract, _native) {
   const sourceChain = _native ? chains.find(c => c.name == lockContract.chain) : chains.find(c => c.name == lockContract.pairedChain)
   const destinationChain = _native ? chains.find(c => c.name == lockContract.pairedChain) : chains.find(c => c.name == lockContract.chain)
 
-  const actions = await getActions(sourceChain, contract)
+  const getActionsParams: any = {}
+
+  // Protocol updated
+  if (sourceChain.name == 'eos' && contract == 'w.ibc.alcor') getActionsParams.after = '2023-12-18T14:25:14.500'
+
+  const actions = await getActions(sourceChain, contract, getActionsParams)
 
   if (actions.length == 0) return []
 
@@ -150,12 +156,13 @@ async function main() {
     // Proving USDT every minute
     try {
       const actions = await fetchXfers(chains, USDT_ALCOR, _native)
+      console.log('actions.i', actions.length)
 
       for (const action of actions) {
         if (!action.proven) {
           console.log(action.timestamp, action.act.data)
-          const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
-          console.log({ proved })
+          // const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
+          // console.log({ proved })
         }
       }
     } catch (e) {
