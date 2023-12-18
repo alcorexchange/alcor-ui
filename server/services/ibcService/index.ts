@@ -111,7 +111,7 @@ for (const network of Object.values(networks).filter((n: any) => supportedNetwor
 async function main() {
   const ibcTokens = await getWrapLockContracts(chains)
 
-  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'usdtlocktest' && i.chain == 'eos')
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
 
   const _native = true
 
@@ -120,14 +120,15 @@ async function main() {
 
   const actions = await fetchXfers(chains, USDT_ALCOR, _native)
 
+  console.log('actions fetched')
   for (const action of actions) {
     if (!action.proven) {
-      //console.log(action.timestamp, action.act.data)
-      console.log(action.hex_data)
+      console.log(action.timestamp, action.act.data)
       const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
       console.log({ proved })
     }
   }
+  console.log('all actions proved')
 }
 
 main()
