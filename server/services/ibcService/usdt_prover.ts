@@ -129,15 +129,15 @@ async function main() {
       for (const action of actions) {
         if (!action.proven) {
           console.log(action.timestamp, action.act.data)
-          const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
-          console.log({ proved })
+          // const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
+          // console.log({ proved })
         }
       }
     } catch (e) {
       console.error('IBC WORKER ERROR', e)
     }
 
-    await sleep(60 * 10000)
+    await sleep(60 * 1000)
   }
 }
 

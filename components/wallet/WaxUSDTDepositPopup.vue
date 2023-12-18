@@ -26,6 +26,11 @@
             span.name {{ memo }}
             i.el-icon-copy-document
 
+      h6.mb-3.red
+        | Fill in the fields on the exchange exactly as above
+        br
+        | An incorrectly filled MEMO can lead to loss of funds
+
       AlcorButton.done(@click="closePopup") {{$t('Done')}}
     .main(v-else)
       you need log in
