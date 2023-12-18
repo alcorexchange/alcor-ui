@@ -102,37 +102,6 @@ for (const network of Object.values(networks).filter((n: any) => supportedNetwor
   })
 }
 
-//async function completeTrnasfer(sour) {
-//  const destinationChain = chains.find(c => c.name == lockContract.pairedChain)
-//  const proved = await prove(chain, destinationChain, action, lockContract, true)
-//  console.log(proved)
-//}
-
-// We do only eos -> wax USDT from binance for now
-// async function test() {
-//   const ibcTokens = await getWrapLockContracts(chains)
-
-//   const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
-
-//   const _native = true
-
-//   const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
-//   const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
-
-//   const actions = await fetchXfers(chains, USDT_ALCOR, _native)
-
-//   console.log('actions fetched')
-//   for (const action of actions) {
-//     if (!action.proven) {
-//       console.log(action.timestamp, action.act.data)
-//       const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
-//       console.log({ proved })
-//     }
-//   }
-//   console.log('all actions proved')
-// }
-
-// test()
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function main() {
@@ -144,7 +113,6 @@ async function main() {
 
   const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
   const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
-
 
   while (true) {
     // Proving USDT every minute

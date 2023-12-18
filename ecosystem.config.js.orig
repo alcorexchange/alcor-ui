@@ -62,6 +62,13 @@ module.exports = {
     },
 
     {
+      name: 'Alcor-ibc-usdt-wax-worker',
+      script: './lib/server/services/ibcService/usdt_prover.ts',
+      node_args: '-r esm',
+      cron_restart: '0 * * * *'
+    },
+
+    {
       name: 'Alcor-orderbook-service',
       script: './lib/server/services/orderbookService/index.js',
       node_args: '-r esm',
