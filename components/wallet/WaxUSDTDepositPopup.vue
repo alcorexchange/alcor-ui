@@ -9,7 +9,9 @@
         p.text-wrap.mb-0
           | We use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
         footer.blockquote-footer.mt-1
-          | Carefully read the instructions before making a deposit. We support USDT deposits with Binance/KuCoin/Other CEX's.
+          | Carefully read the instructions before making a deposit.
+        footer.blockquote-footer.mt-1
+          | We support USDT deposits with Binance/KuCoin/Other CEX's.
 
       img(width="100%" src="~/assets/images/binance-usdt-deposit.jpg")
 
