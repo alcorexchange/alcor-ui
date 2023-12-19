@@ -40,7 +40,7 @@
       template(v-if="feeOptions.length > 0")
         FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier").mt-2
 
-        RewardList(class="")
+        RewardList(@newReward="onNewReward")
           FarmTokenInput(
             v-for="reward, index in rewardList"
             label="Amount"
@@ -370,7 +370,9 @@ export default {
         })
       }
 
+      console.log({ actions })
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
+      setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
       console.log({ r })
     },
   },

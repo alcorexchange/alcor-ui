@@ -5,9 +5,10 @@
     Note.fs-14 You can only select whitelisted tokens
   .inputs
     slot
-  //- AlcorButton(class="add-button" @click="$emit('newReward')" bordered)
-  //-   i.el-icon-plus
-  //-   span Add Another Reward
+
+  AlcorButton(class="add-button" @click="$emit('newReward')" bordered)
+    i.el-icon-plus
+    span Add Another Reward
 </template>
 
 <script>
