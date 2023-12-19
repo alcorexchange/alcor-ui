@@ -7,7 +7,7 @@
         .value {{ option.display }}
         .check(v-if="value == option.value")
           i.el-icon-circle-check
-      .daily.fs-12
+      //.daily.fs-12 TODO FIXME
         .left {{ option.daily }}
         .right Daily
 </template>

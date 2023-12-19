@@ -1,7 +1,7 @@
 <template lang="pug">
 .fee-tier-selection
   .farm-create-section-title Select Fee Tier
-  .items(class="mt-2")
+  .items.mt-1
     .item(v-for="option in options" :class="{active: value == option.value}" @click="onItemClick(option)")
       .value {{ option.value }}%
       .check(v-if="value == option.value")
@@ -40,15 +40,16 @@ export default {
   }
 }
 .item {
-  flex: 1;
+  /* flex: 1; */
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--light-border-color);
-  padding: 10px 18px;
+  padding: 8px 20px;
+  width: 33%;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
