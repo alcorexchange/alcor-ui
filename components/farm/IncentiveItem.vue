@@ -1,16 +1,5 @@
 <template lang="pug">
 .incentive-item
-  //.incentive-header
-    .left
-      .key-value
-        span.key.muted.fs-14 Daily Reward
-        .icon-and-value
-          TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-          span {{ incentive.rewardPerDay | commaFloat(incentive.reward.symbol.precision) }} {{ incentive.reward.symbol.symbol }}
-      span.muted •
-      .key-value
-        //- span.muted Remaining Time
-        span.fs-14 {{ incentive.daysRemain }} Days
   .incentive-content
     table.fs-14
       thead

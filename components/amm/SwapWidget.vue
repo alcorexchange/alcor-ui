@@ -197,7 +197,7 @@ export default {
     banners: [
       {
         link: 'https://bit.ly/40VOERT',
-        image: 'https://media.discordapp.net/attachments/853763607992598559/1179147539514146877/Alcor_PReview_Final.gif?ex=658b2eb8&is=6578b9b8&hm=f06ae8dc388ee5612cfd347356b003362b1a6b4a0b3c5ed4d9650db5efe3e81e&',
+        image: require('@/assets/images/swap-banner-1.png'),
         colors: [
           'rgba(21,102,139,0.2)',
           'rgba(83,169,203, 1)',

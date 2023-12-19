@@ -81,7 +81,7 @@ export async function makeAllTokensWithPrices(network: Network) {
       t.usd_price = t.system_price * systemPrice
     }
 
-    t.usd_price = parseFloat(t.usd_price.toFixed(6))
+    t.usd_price = parseFloat(t.usd_price)
   }
 
   const market_tokens = []
