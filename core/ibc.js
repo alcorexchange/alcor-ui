@@ -12,11 +12,21 @@ class WsQueue {
     this.sockets = sockets
   }
 
-  getNextSocket() {
-    const next_socket = this.sockets[this.current]
-    this.current = this.sockets.length == this.current + 1 ? 0 : this.current + 1
+  getSocket() {
+    return this.sockets[this.current]
+  }
 
-    return next_socket
+  nextSocket() {
+    this.current += 1
+
+    if (this.current > this.sockets.length - 1) this.current = 0
+
+    console.warn('IBC NEXT SOCKET ->', this.getSocket())
+  }
+
+  getNextSocket() {
+    this.nextSocket()
+    return this.getSocket()
   }
 }
 
@@ -181,7 +191,7 @@ export class IBCTransfer {
     //return await this.pushGurantee(chain, tx, retry_trx_num_blocks) // if waiting for lib
   }
 
-  async waitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
+  async tryWaitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
     let tx = JSON.parse(JSON.stringify(_tx))
 
     const transaction_id = tx.processed.id
@@ -247,7 +257,15 @@ export class IBCTransfer {
     if (retry_trx_num_blocks) return tx //return tx if we dont need to worry about correct global action
 
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(this.socketsQueue.getNextSocket())
+      const ws = new WebSocket(this.socketsQueue.getSocket())
+
+      ws.addEventListener('error', e => {
+        reject(e)
+      })
+
+      const timeout = setTimeout(() => {
+        reject(new Error('IBC request TIMEOUT'))
+      }, 3000)
 
       console.log('getBlockActions', tx.processed.block_num)
       ws.addEventListener('open', (event) =>
@@ -260,6 +278,8 @@ export class IBCTransfer {
       )
 
       ws.addEventListener('message', (event) => {
+        clearTimeout(timeout)
+
         const res = JSON.parse(event.data)
         console.log('res', res)
         const firhoseTx = res.txs.find((r) =>
@@ -289,12 +309,53 @@ export class IBCTransfer {
     })
   }
 
-  getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
-    //console.log('get proof txID: ', action?.trx_id)
-    //console.log('get proof txID: ', action)
+  async waitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
+    let retries = 3
+
+    while (retries != 0) {
+      try {
+        return await this.tryWaitForLIB(chain, _tx, packedTx, retry_trx_num_blocks)
+      } catch (e) {
+        console.log('ibc wait for LIB, retrying', e)
+        this.socketsQueue.nextSocket()
+      }
+
+      retries--
+    }
+
+    throw new Error('IBC wait for LIB error after retries')
+  }
+
+  async getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
+    let retries = 3
+
+    while (retries != 0) {
+      try {
+        return await this.fetchProof({ type, block_to_prove, action, last_proven_block })
+      } catch (e) {
+        console.log('ibc get proof err, retrying', e)
+        this.socketsQueue.nextSocket()
+      }
+
+      retries--
+    }
+
+    throw new Error('IBC get proof error after retries')
+  }
+
+  fetchProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
     return new Promise((resolve, reject) => {
       //initialize socket to proof server
-      const ws = new WebSocket(this.socketsQueue.getNextSocket())
+      const ws = new WebSocket(this.socketsQueue.getSocket())
+
+      ws.addEventListener('error', e => {
+        reject(e)
+      })
+
+      const timeout = setTimeout(() => {
+        reject(new Error('IBC request TIMEOUT'))
+      }, 3000)
+
       ws.addEventListener('open', (event) => {
         // connected to websocket server
         const query = { type, block_to_prove }
@@ -305,6 +366,8 @@ export class IBCTransfer {
 
       //messages from websocket server
       ws.addEventListener('message', (event) => {
+        clearTimeout(timeout)
+
         const res = JSON.parse(event.data)
         //log non-progress messages from ibc server
         if (res.type == 'error') return reject(res.error)
