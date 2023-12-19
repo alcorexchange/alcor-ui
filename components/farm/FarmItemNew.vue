@@ -34,15 +34,15 @@
     .total-reward-section
       span.mobile-only.muted.fs-14 Total Reward
       .icon-and-value(v-for="item in farm.incentives")
-        //- TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
+        TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
         span {{ item.reward.quantity.split(' ')[0] | nFormat(item.reward.symbol.precision) }}
         span.color-grey-thirdly {{ item.reward.quantity.split(' ')[1] }}
 
     .daily-rewards-section
       span.mobile-only.muted.fs-14 Daily Rewards
       .icon-and-value(v-for="item in farm.incentives")
-        //- TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.rewardPerDay | nFormat(3) }}
+        //TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
+        span {{ item.rewardPerDay | commaFloat(item.reward.symbol.precision) | nFormat(item.reward.symbol.precision) }}
         span.color-grey-thirdly {{ item.reward.symbol.symbol }}
 
     .remaining-time-section

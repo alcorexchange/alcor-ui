@@ -126,7 +126,7 @@ export const actions = {
       //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
       r.userSharePercent = Math.round(parseFloat(stakingWeight) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
       r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
-      r.dailyRewards = this._vm.$options.filters.commaFloat(r.dailyRewards, rewardToken.symbol.precision())
+      r.dailyRewards = this._vm.$options.filters.commaFloat(r.dailyRewards, Math.min(rewardToken.symbol.precision(), 8))
       r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
       userStakes.push(r)
