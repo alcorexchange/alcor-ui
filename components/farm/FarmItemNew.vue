@@ -42,7 +42,7 @@
       span.mobile-only.muted.fs-14 Daily Rewards
       .icon-and-value(v-for="item in farm.incentives")
         //TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.rewardPerDay | commaFloat(item.reward.symbol.precision) | nFormat(item.reward.symbol.precision) }}
+        span {{ item.rewardPerDay | nFormat(3) }}
         span.color-grey-thirdly {{ item.reward.symbol.symbol }}
 
     .remaining-time-section
