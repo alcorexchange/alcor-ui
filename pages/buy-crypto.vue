@@ -1,7 +1,10 @@
 <template lang="pug">
   no-ssr
-    .buy-crypto-widget
-      iframe#iframe-widget(:src='widgetSrc' style='height: 356px; width: 100%; border: none')
+    .buy-crypto-widget.d-flex.justify-content-center(v-loading="loading")
+      iframe(id="simpleswap-frame" name="SimpleSwap Widget" width="700px" height="500px"
+        src="https://simpleswap.io/widget/f3468c8a-b48b-4cbc-a3da-401d6adce21f" frameborder="0")
+
+      //iframe#iframe-widget(:src='widgetSrc' style='height: 356px; width: 100%; border: none')
 </template>
 
 <script>
@@ -10,6 +13,18 @@ export default {
     if (!['eos', 'wax'].includes(store.state.network.name)) {
       return error({ statusCode: 404, type: 'PAGE_NOT_FOUND', message: 'This network are not supported' })
     }
+  },
+
+  data() {
+    return {
+      loading: true
+    }
+  },
+
+  mounted() {
+    setTimeout(() => {
+      this.loading = false
+    }, 2000)
   },
 
   computed: {
