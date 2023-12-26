@@ -246,7 +246,6 @@ export const getters = {
   },
 }
 
-
 function getStakeStatus(stakingStatuses) {
   if (stakingStatuses.length === 0) return null
   if (stakingStatuses.every(Boolean)) return 'staked'
