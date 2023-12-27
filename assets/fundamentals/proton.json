@@ -1,1 +1,20 @@
-{}
+{
+"BLPAD@blastpad": {
+    "name": "BlastPad",
+    "website": {
+      "link": "https://blastpad.io/",
+      "name": "blastpad.io"
+    },
+    "tags": [
+      "launch",
+      "deployment",
+      "airdrop",
+      "XPR"
+    ],
+    "socials": [
+      "https://t.me/HOMEblok",
+      "https://twitter.com/homebloks"
+    ],
+    "description": "The BlastPad platform is the easiest way to launch your project on the XPR Network Blockchain. With our platform, projects can get started quickly, launch a token, airdrop it to selected accounts, and also offer staking pools.  No coding skills required"
+  }
+}
