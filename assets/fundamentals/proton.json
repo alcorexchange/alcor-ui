@@ -16,5 +16,22 @@
       "https://twitter.com/homebloks"
     ],
     "description": "The BlastPad platform is the easiest way to launch your project on the XPR Network Blockchain. With our platform, projects can get started quickly, launch a token, airdrop it to selected accounts, and also offer staking pools.  No coding skills required"
+  },
+"MESSAGE@realestatese": {
+    "name": "MESSAGE",
+    "website": {
+      "link": "https://homebloks.com/",
+      "name": "homebloks.com"
+    },
+    "tags": [
+      "message",
+      "alert",
+      "XPR"
+    ],
+    "socials": [
+      "https://t.me/HOMEblok",
+      "https://twitter.com/homebloks"
+    ],
+    "description": "The MESSAGE token is a simple token that can be used as an indicator token to send messages over the blockchain. The receiver will see the token with the Message name and icon and realize they have a written message that needs to be read."
   }
 }
