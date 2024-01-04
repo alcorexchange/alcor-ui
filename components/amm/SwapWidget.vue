@@ -196,12 +196,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://bit.ly/40VOERT',
-        image: require('@/assets/images/swap-banner-1.png'),
+        link: 'https://discord.gg/elementerra',
+        image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(21,102,139,0.2)',
-          'rgba(83,169,203, 1)',
-          'rgba(58,158,165,1)',
+          'rgba(120,88,12,0.2)',
+          'rgba(69,98,42, 1)',
+          'rgba(115,117,139,1)',
         ],
       },
       {
