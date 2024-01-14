@@ -33,7 +33,7 @@ function positionIdHandler(req, res, next) {
 swap.get('/pools', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const pools = await SwapPool.find({ chain: network.name }).lean()
+  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
   res.json(pools)
 })
 
