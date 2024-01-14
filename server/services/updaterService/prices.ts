@@ -3,9 +3,25 @@ import axios from 'axios'
 import { createClient } from 'redis'
 import { getPools } from '../swapV2Service/utils'
 import { Market, Match } from '../../models'
-
+import { getTokens } from '../../utils'
 
 const redis = createClient()
+
+export async function updateCMSucid() {
+  //https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY=UNIFIED-CRYPTOASSET-INDEX
+  if (!redis.isOpen) await redis.connect()
+
+  try {
+    const { data: { data } } = await axios.get(
+      'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY=UNIFIED-CRYPTOASSET-INDEX'
+    )
+
+    redis.set('CMC_UCIDS', JSON.stringify(data))
+    console.log('Updated CMC_UCIDS')
+  } catch (e) {
+    console.error('CMS ucid PRICE UPDATE FAILED!', e)
+  }
+}
 
 export async function updateSystemPrice(network: Network) {
   if (!redis.isOpen) await redis.connect()
@@ -33,8 +49,17 @@ export async function updateSystemPrice(network: Network) {
 export async function updateTokensPrices(network: Network) {
   if (!redis.isOpen) await redis.connect()
   const tokens = await makeAllTokensWithPrices(network)
+
+  const cmc_ucids = JSON.parse((await redis.get('CMC_UCIDS')) || '[]')
+
+  tokens.forEach(t => {
+    const cmc_id = cmc_ucids.find(c => c.symbol == t.symbol)
+    console.log(network.CMC_UCIDS, t.id)
+    if (cmc_id && network.CMC_UCIDS.includes(t.id)) t.cmc_id = cmc_id.id
+  })
+
   await redis.set(`${network.name}_token_prices`, JSON.stringify(tokens))
-  console.log(network.name, 'token prices updated!')
+  console.log(network.name, 'token prices & cmc_ucids updated!')
 }
 
 export async function makeAllTokensWithPrices(network: Network) {
