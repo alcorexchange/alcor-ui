@@ -205,12 +205,12 @@ export default {
         ],
       },
       {
-        link: 'https://machiavellic.io/',
+        link: 'https://musicmogul.io/',
         image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(235,97,55,0.2)',
-          'rgba(154,4,2,1)',
-          'rgba(134,92,35, 1)',
+          'rgba(235,83,230,0.2)',
+          'rgba(0,222,255,1)',
+          'rgba(59,33,86, 1)',
         ],
       },
     ]
