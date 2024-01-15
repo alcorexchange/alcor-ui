@@ -54,7 +54,6 @@ export async function updateTokensPrices(network: Network) {
 
   tokens.forEach(t => {
     const cmc_id = cmc_ucids.find(c => c.symbol == t.symbol)
-    console.log(network.CMC_UCIDS, t.id)
     if (cmc_id && network.CMC_UCIDS.includes(t.id)) t.cmc_id = cmc_id.id
   })
 

@@ -4,13 +4,15 @@ import lodash from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
+import JSBI from "jsbi"
+import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
 import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
-import { getRedisTicks } from './utils'
+import { getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
 
 const redis = createClient()
@@ -230,8 +232,18 @@ async function updatePool(chain: string, poolId: number) {
 
   const tvlUSD = parsedPool.tokenA.quantity * tokenAUSDPrice + parsedPool.tokenB.quantity * tokenBUSDPrice
 
+  const price = new Price(
+    parseToken(pool.tokenA),
+    parseToken(pool.tokenB),
+    Q128,
+    JSBI.multiply(JSBI.BigInt(parsedPool.sqrtPriceX64), JSBI.BigInt(parsedPool.sqrtPriceX64))
+  )
+
+  const priceA = price.toSignificant()
+  const priceB = price.invert().toSignificant()
+
   // TODO FIX DEPRECATED
-  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, tvlUSD }, { upsert: true, new: true })
+  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, priceA, priceB, tvlUSD }, { upsert: true, new: true })
 }
 
 async function updateTicks(chain: string, poolId: number) {
@@ -320,7 +332,16 @@ export async function updatePools(chain) {
 
   for (const pool of pools) {
     if (!current_pools.includes(pool.id)) {
-      to_create.push({ ...parsePool(pool), chain })
+      const parsed_pool = parsePool(pool)
+
+      const p = {
+        ...parsed_pool,
+        priceA: getPoolPriceA(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
+        priceB: getPoolPriceB(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
+        chain
+      }
+
+      to_create.push(p)
     } else {
       await updatePool(chain, pool.id)
     }
@@ -499,15 +520,6 @@ export async function onSwapAction(message: string) {
 
 export async function main() {
   await connectAll()
-
-  // const command = process.argv[2]
-
-  // FIXME HOTFIX for greymass not fall
-  //setInterval(() => initialUpdate('wax'), 60 * 30 * 1000)
-
-  // if (command == 'initial') {
-  //   await initialUpdate(process.argv[3])
-  // }
 
   //updatePool('wax', 1095)
   //updatePositions
