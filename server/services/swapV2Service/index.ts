@@ -363,13 +363,13 @@ export async function initialUpdate(chain: string, poolId?: number) {
 
   const markets = await SwapPool.find({ chain })
 
-  for (const { chain, id } of markets) {
-    //await updateTicks(chain, id)
-    await updatePool(chain, id)
+  //for (const { chain, id } of markets) {
+  //  //await updateTicks(chain, id)
+  //  await updatePool(chain, id)
 
-    // Chain that we have our own nodes
-    //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
-  }
+  //  // Chain that we have our own nodes
+  //  //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
+  //}
 }
 
 async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
