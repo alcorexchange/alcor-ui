@@ -474,9 +474,9 @@ const networks = {
     ],
 
     CMC_UCIDS: [
-      'usdt-tethertether',
-      'eos-eosio.token',
-      'wax-ibc.wt.wax',
+      'usdt-usdt.alcor',
+      'eos-ibc.wt.eos',
+      'wax-eosio.token',
       'tlos-ibc.wt.tlos',
       'pgl-prospectorsg',
       'tlm-alien.worlds',

@@ -8,7 +8,6 @@ import { getTokens } from '../../utils'
 const redis = createClient()
 
 export async function updateCMSucid() {
-  //https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY=UNIFIED-CRYPTOASSET-INDEX
   if (!redis.isOpen) await redis.connect()
 
   try {
@@ -53,7 +52,10 @@ export async function updateTokensPrices(network: Network) {
   const cmc_ucids = JSON.parse((await redis.get('CMC_UCIDS')) || '[]')
 
   tokens.forEach(t => {
-    const cmc_id = cmc_ucids.find(c => c.symbol == t.symbol)
+    const cmc_id = cmc_ucids.find(c => {
+      return c.slug == t.symbol.toLowerCase() || c.symbol == t.symbol
+    })
+
     if (cmc_id && network.CMC_UCIDS.includes(t.id)) t.cmc_id = cmc_id.id
   })
 

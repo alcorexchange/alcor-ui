@@ -3,6 +3,7 @@ import { cacheSeconds } from 'route-cache'
 import { write_decimal } from 'eos-common'
 
 import { Bar, Match, Market } from '../../models'
+import { getTokens } from '../../utils'
 
 const depthHandler = (req, res, next) => {
   if (req.query.depth && isNaN(parseInt(req.query.depth))) return res.status(403).send('Invalid depth')
@@ -33,12 +34,18 @@ function formatToken(token) {
   }
 }
 
-function formatTicker(m) {
+function formatTicker(m, tokens = []) {
   const [base, target] = m.ticker_id.split('_')
 
   m.market_id = m.id
   m.target_currency = target.toLowerCase()
   m.base_currency = base.toLowerCase()
+
+  const target_token = tokens.find(t => t.id == m.target_currency)
+  const base_token = tokens.find(t => t.id == m.base_currency)
+
+  m.target_cmc_ucid = target_token?.cmc_id || null
+  m.base_cmc_ucid = base_token?.cmc_id || null
 
   delete m.id
 }
@@ -73,10 +80,12 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
 
+  const tokens = await getTokens(network.name)
+
   const markets = await Market.find({ chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
-  markets.map(m => formatTicker(m))
+  markets.map(m => formatTicker(m, tokens))
 
   res.json(markets)
 })
