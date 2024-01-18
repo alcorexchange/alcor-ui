@@ -1,12 +1,51 @@
 <template lang="pug">
 .farms-page
-  FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
-  FarmsTableNew(:farmPools="farmPools" :finished="finished")
+  //- FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
+  //- FarmsTableNew(:farmPools="farmPools" :finished="finished")
+
+  .fs-20 My Owned Farms
+  | {{ myOwnedFarms.length }}
+  div(v-for="pool of myOwnedFarms").mt-4
+    span {{ pool.tokenA.quantity.split(' ')[1] }}/{{ pool.tokenB.quantity.split(' ')[1] }}
+    span.ml-2 {{ pool.fee / 10000 }} %
+
+    .bordered
+      table
+        tbody
+          tr
+            th id
+            th reward
+            th finished
+            th lastUpdateTime
+            th numberOfStakes
+            th durationInDays
+            th daysRemain
+            th rewardPerDay
+            th Action
+
+          tr(v-for="incentive of pool.incentives")
+            td {{ incentive.id }}
+            td {{ incentive.reward.quantity }}
+            td {{ incentive.isFinished }}
+            td {{ incentive.lastUpdateTime | moment('YYYY-MM-DD HH:mm') }}
+            td {{ incentive.numberOfStakes }}
+            td {{ incentive.durationInDays }}
+            td {{ incentive.daysRemain }}
+            td {{ incentive.rewardPerDay }}
+            td
+              el-button(@click="extend(incentive)" size="small") Extend
+
+    //div(v-for)
+
+    //FarmsTableNew(:farmPools="myOwnedFarms" :finished="finished")
+
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import FarmHeader from '@/components/farm/FarmHeader'
 import FarmsTableNew from '@/components/farm/FarmsTableNew'
+
 export default {
   name: 'WalletFarms',
   components: {
@@ -20,7 +59,38 @@ export default {
       finished: false,
     }
   },
+
+  methods: {
+    extend(incentive) {
+      this.$prompt(`Amount of ${incentive.reward.quantity.split(' ')[1]} for reward`, 'Extend Farm', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        inputPattern: /^[0-9]*$/,
+        inputErrorMessage: 'Invalid reward amount'
+      }).then(async ({ value }) => {
+        console.log('zzz', this.network)
+        const actions = [{
+          account: incentive.reward.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: parseFloat(value).toFixed(incentive.reward.symbol.precision) + ' ' + incentive.reward.symbol.symbol,
+            memo: 'incentreward#' + incentive.id,
+          },
+        }]
+
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+        console.log({ r })
+      })
+    }
+  },
+
   computed: {
+    ...mapState(['user', 'network']),
+
     pools() {
       return this.$store.getters['farms/farmPools']
         .map((p) => {
@@ -58,6 +128,16 @@ export default {
 
       return pools
     },
+
+    myOwnedFarms() {
+      return this.$store.getters['farms/farmPools'].filter(f => {
+        if (f.incentives.length == 0) return false
+
+        return f.incentives.some(i => {
+          return i.creator == this.$store.state.user?.name
+        })
+      })
+    }
   },
 }
 </script>

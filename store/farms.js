@@ -79,6 +79,7 @@ export const actions = {
       table: 'incentives',
     })
 
+    console.log('setIncentives', incentives)
     commit('setIncentives', incentives.map(i => formatIncentive(i)))
   },
 
