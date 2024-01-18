@@ -143,11 +143,16 @@ export default {
       return price ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : ''
     },
 
-    onBrushDomainChangeEnded({ domain, mode }) {
+    onBrushDomainChangeEnded({ domain, mode, initialInfinty }) {
       const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])
       const rightRangeValue = Number(domain[1])
+
+      if (initialInfinty) {
+        this.$emit('onPreDefinedRangeSelect', { lowerValue: 'infinity' })
+        return
+      }
 
       if (leftRangeValue <= 0) leftRangeValue = 1 / 10 ** 6
 

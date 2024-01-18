@@ -212,10 +212,11 @@ export default {
       this.$emit('onBrushDomainChange', data)
     },
 
-    resetBrush() {
+    resetBrush(initial = false) {
       const { current, zoomLevels } = this
 
       this.$emit('onBrushDomainChange', {
+        initialInfinty: initial,
         domain: [current * zoomLevels.initialMin, current * zoomLevels.initialMax],
         mode: 'reset'
       })
@@ -252,7 +253,7 @@ export default {
       this.zoomReset()
       this.installZoom()
       this.zoomInitial()
-      this.resetBrush()
+      this.resetBrush(true)
     },
 
     zoomReset() {
