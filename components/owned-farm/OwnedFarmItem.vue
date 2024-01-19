@@ -30,7 +30,7 @@
         span.fs-14.color-green Details
         i.fs-12(:class="expanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'")
   .farm-item-expand(v-if="expanded")
-    OwnedFarmExpand(:farm="farm")
+    OwnedFarmExpand(:farm="farm" @extend="$emit('extend', $event)")
 </template>
 
 <script>

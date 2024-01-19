@@ -10,6 +10,7 @@
     OwnedFarmItem(
       v-for="farm in myOwnedFarms"
       :farm="farm"
+      @extend="extend($event)"
     )
 
   div(v-for="pool of myOwnedFarms").mt-4
@@ -156,5 +157,13 @@ export default {
   align-items: center;
   gap: 4px;
   font-size: 14px;
+}
+</style>
+
+<style lang="scss" scoped>
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 </style>

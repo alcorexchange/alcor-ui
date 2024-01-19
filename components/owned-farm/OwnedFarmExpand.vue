@@ -28,19 +28,20 @@
           td {{ incentive.daysRemain }}
           td {{ incentive.rewardPerDay }}
           td
-            span action
+            .action
+              AlcorButton(@click="$emit('extend', incentive)" access) Extend
 </template>
 
 <script>
-import OwnedIncentiveItem from '~/components/owned-farm/OwnedIncentiveItem.vue'
 import TokenImage from '~/components/elements/TokenImage'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   name: 'OwnedFarmExpand',
 
   components: {
-    OwnedIncentiveItem,
     TokenImage,
+    AlcorButton,
   },
 
   props: ['farm'],
@@ -56,5 +57,9 @@ export default {
       padding: 4px 2px;
     }
   }
+}
+.action {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
