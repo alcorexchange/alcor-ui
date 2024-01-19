@@ -7,12 +7,17 @@ import { parseAsset } from '~/utils'
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
 function formatIncentive(incentive) {
+  const rewardAsset = parseAsset(incentive.reward.quantity)
+
   incentive.durationInDays = incentive.rewardsDuration / 86400
   incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
   incentive.daysRemain = Math.ceil(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
-  incentive.rewardPerDay = parseFloat(incentive.reward.quantity) / incentive.durationInDays
 
-  incentive.reward = { ...incentive.reward, ...parseAsset(incentive.reward.quantity) }
+  incentive.rewardPerDay = bigInt(incentive.rewardRateE18).times(60 * 60 * 24).divide(bigInt(10).pow(18).minus(1)).toJSNumber() / 10 ** rewardAsset.symbol.precision
+
+  const totalReward = (incentive.rewardPerDay * incentive.durationInDays).toFixed(rewardAsset.symbol.precision) + ' ' + rewardAsset.symbol.symbol
+
+  incentive.reward = { ...incentive.reward, ...parseAsset(totalReward) }
 
   return incentive
 }
