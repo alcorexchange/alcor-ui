@@ -14,36 +14,6 @@
     )
     .muted(v-if="!myOwnedFarms.length") You don't own any farms.
 
-  // div(v-for="pool of myOwnedFarms").mt-4
-    span {{ pool.tokenA.quantity.split(' ')[1] }}/{{ pool.tokenB.quantity.split(' ')[1] }}
-    span.ml-2 {{ pool.fee / 10000 }} %
-
-    .bordered
-      table
-        tbody
-          tr
-            th id
-            th reward
-            th finished
-            th lastUpdateTime
-            th numberOfStakes
-            th durationInDays
-            th daysRemain
-            th rewardPerDay
-            th Action
-
-          tr(v-for="incentive of pool.incentives")
-            td {{ incentive.id }}
-            td {{ incentive.reward.quantity }}
-            td {{ incentive.isFinished }}
-            td {{ incentive.lastUpdateTime | moment('YYYY-MM-DD HH:mm') }}
-            td {{ incentive.numberOfStakes }}
-            td {{ incentive.durationInDays }}
-            td {{ incentive.daysRemain }}
-            td {{ incentive.rewardPerDay }}
-            td
-              el-button(@click="extend(incentive)" size="small") Extend
-
   .fs-20.mb-3.mt-5.fw-medium Staked Farms
 
   FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
@@ -56,7 +26,7 @@ import { mapState } from 'vuex'
 import FarmHeader from '@/components/farm/FarmHeader'
 import AlcorLink from '@/components/AlcorLink'
 import FarmsTableNew from '@/components/farm/FarmsTableNew'
-import OwnedFarmItem from '~/components/owned-farm/OwnedFarmItem.vue'
+import OwnedFarmItem from '~/components/owned-farm/OwnedFarmItem'
 
 export default {
   name: 'WalletFarms',
@@ -79,10 +49,9 @@ export default {
       this.$prompt(`Amount of ${incentive.reward.quantity.split(' ')[1]} for reward`, 'Extend Farm', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
-        inputPattern: /^[0-9]*$/,
+        inputPattern: /^\d*\.?\d*$/,
         inputErrorMessage: 'Invalid reward amount',
       }).then(async ({ value }) => {
-        console.log('zzz', this.network)
         const actions = [
           {
             account: incentive.reward.contract,
@@ -99,8 +68,8 @@ export default {
           },
         ]
 
-        const r = await this.$store.dispatch('chain/sendTransaction', actions)
-        console.log({ r })
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.$store.dispatch('farms/loadIncentives')
       })
     },
   },

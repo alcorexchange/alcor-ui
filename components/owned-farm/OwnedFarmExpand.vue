@@ -26,10 +26,10 @@
           td {{ incentive.numberOfStakes }}
           td {{ incentive.durationInDays }}
           td {{ incentive.daysRemain }}
-          td {{ incentive.rewardPerDay }}
+          td {{ incentive.rewardPerDay | nFormat(3) }} {{ incentive.reward.quantity.split(' ')[1] }}
           td
             .action
-              AlcorButton(@click="$emit('extend', incentive)" access) Extend
+              AlcorButton(@click="$emit('extend', incentive)" access) Top up
 </template>
 
 <script>

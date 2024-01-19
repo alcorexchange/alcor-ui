@@ -8,8 +8,8 @@ import { parseAsset, make256key, nameToUint64 } from '~/utils'
 export const strict = false
 
 export const state = () => ({
-  // user: null,
-  user: { name: 'admin.alcor' },
+  user: null,
+  //user: { name: 'admin.alcor' },
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -59,7 +59,7 @@ export const mutations = {
     state.user = { ...state.user, balances }
   },
 
-  setUser: (state, user) => state.user = { name: 'admin.alcor' },
+  setUser: (state, user) => state.user = user,
   setUserBalances: (state, balances) => {
     if (state.user) state.user.balances = balances
   },
