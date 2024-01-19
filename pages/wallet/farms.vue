@@ -5,6 +5,13 @@
 
   .fs-20 My Owned Farms
   | {{ myOwnedFarms.length }}
+
+  .items
+    OwnedFarmItem(
+      v-for="farm in myOwnedFarms"
+      :farm="farm"
+    )
+
   div(v-for="pool of myOwnedFarms").mt-4
     span {{ pool.tokenA.quantity.split(' ')[1] }}/{{ pool.tokenB.quantity.split(' ')[1] }}
     span.ml-2 {{ pool.fee / 10000 }} %
@@ -35,22 +42,16 @@
             td
               el-button(@click="extend(incentive)" size="small") Extend
 
-    //div(v-for)
-
-    //FarmsTableNew(:farmPools="myOwnedFarms" :finished="finished")
-
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import FarmHeader from '@/components/farm/FarmHeader'
-import FarmsTableNew from '@/components/farm/FarmsTableNew'
+import OwnedFarmItem from '~/components/owned-farm/OwnedFarmItem.vue'
 
 export default {
   name: 'WalletFarms',
   components: {
-    FarmHeader,
-    FarmsTableNew,
+    OwnedFarmItem,
   },
 
   data: () => {
@@ -66,26 +67,29 @@ export default {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         inputPattern: /^[0-9]*$/,
-        inputErrorMessage: 'Invalid reward amount'
+        inputErrorMessage: 'Invalid reward amount',
       }).then(async ({ value }) => {
         console.log('zzz', this.network)
-        const actions = [{
-          account: incentive.reward.contract,
-          name: 'transfer',
-          authorization: [this.user.authorization],
+        const actions = [
+          {
+            account: incentive.reward.contract,
+            name: 'transfer',
+            authorization: [this.user.authorization],
 
-          data: {
-            from: this.user.name,
-            to: this.network.amm.contract,
-            quantity: parseFloat(value).toFixed(incentive.reward.symbol.precision) + ' ' + incentive.reward.symbol.symbol,
-            memo: 'incentreward#' + incentive.id,
+            data: {
+              from: this.user.name,
+              to: this.network.amm.contract,
+              quantity:
+                parseFloat(value).toFixed(incentive.reward.symbol.precision) + ' ' + incentive.reward.symbol.symbol,
+              memo: 'incentreward#' + incentive.id,
+            },
           },
-        }]
+        ]
 
         const r = await this.$store.dispatch('chain/sendTransaction', actions)
         console.log({ r })
       })
-    }
+    },
   },
 
   computed: {
@@ -119,10 +123,7 @@ export default {
 
       pools = pools.filter((p) => {
         const slug =
-          p.tokenA.contract +
-          p.tokenA.quantity.split(' ')[1] +
-          p.tokenB.contract +
-          p.tokenB.quantity.split(' ')[1]
+          p.tokenA.contract + p.tokenA.quantity.split(' ')[1] + p.tokenB.contract + p.tokenB.quantity.split(' ')[1]
         return slug.toLowerCase().includes(this.search.toLowerCase())
       })
 
@@ -130,14 +131,14 @@ export default {
     },
 
     myOwnedFarms() {
-      return this.$store.getters['farms/farmPools'].filter(f => {
+      return this.$store.getters['farms/farmPools'].filter((f) => {
         if (f.incentives.length == 0) return false
 
-        return f.incentives.some(i => {
+        return f.incentives.some((i) => {
           return i.creator == this.$store.state.user?.name
         })
       })
-    }
+    },
   },
 }
 </script>
