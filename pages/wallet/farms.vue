@@ -46,7 +46,9 @@ export default {
 
   methods: {
     extend(incentive) {
-      this.$prompt(`Amount of ${incentive.reward.quantity.split(' ')[1]} for reward`, 'Extend Farm', {
+      this.$prompt(`The farm duration will be reset to the one originally assigned upon creation.
+        (${incentive.durationInDays} Days)`, `Amount of
+        ${incentive.reward.quantity.split(' ')[1]} for reward.`, 'Extend Farm', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         inputPattern: /^\d*\.?\d*$/,
