@@ -1,6 +1,6 @@
 <template lang="pug">
 .farm-item-container
-  .farm-item(@click="onItemClick")
+  .owned-farm-item(@click="onItemClick")
     .token-container
       PairIcons(
         :token1="{contract: farm.tokenA.contract, symbol: farm.tokenA.quantity.split(' ')[1]}"
@@ -25,34 +25,6 @@
         span {{ farm.tokenB.quantity.split(' ')[0] | nFormat }}
         span.color-grey-thirdly {{ farm.tokenB.quantity.split(' ')[1] }}
 
-    .total-reward-section
-      span.mobile-only.muted.fs-14 APR
-      .icon-and-value(v-for="item in farm.incentives")
-        //- TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ getAPR(item) }}%
-
-    .total-reward-section
-      span.mobile-only.muted.fs-14 Total Reward
-      .icon-and-value(v-for="item in farm.incentives")
-        TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.reward.quantity.split(' ')[0] | nFormat(item.reward.symbol.precision) }}
-        span.color-grey-thirdly {{ item.reward.quantity.split(' ')[1] }}
-
-    .daily-rewards-section
-      span.mobile-only.muted.fs-14 Daily Rewards
-      .icon-and-value(v-for="item in farm.incentives")
-        //TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.rewardPerDay | commaFloat(item.reward.symbol.precision) | nFormat(item.reward.symbol.precision) }}
-        span.color-grey-thirdly {{ item.reward.symbol.symbol }}
-
-    .remaining-time-section
-      span.mobile-only.muted.fs-14 Remaining Time
-      .icon-and-value(v-for="item in farm.incentives")
-        //- TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ item.daysRemain }} Days
-
-    .actions-section
-      .statuses.fs-14
     .detail-toggle-section
       .toggle-button(:class="{ expanded }")
         span.fs-14.color-green Details
@@ -62,15 +34,11 @@
 </template>
 
 <script>
-import { Big } from 'big.js'
-
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
 import Tag from '~/components/elements/Tag.vue'
 import OwnedFarmExpand from '~/components/owned-farm/OwnedFarmExpand.vue'
-
-import { assetToAmount } from '~/utils'
 
 export default {
   name: 'FarmsTable',
@@ -93,29 +61,6 @@ export default {
   computed: {},
 
   methods: {
-    getAPR(incentive) {
-      // TODO Move to farms store
-      const poolStats = this.farm.poolStats
-      if (!poolStats) return null
-
-      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
-        .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
-        .sqrt()
-        .round(0)
-
-      const stakedPercent = Math.max(
-        1,
-        Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
-      )
-
-      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
-      const dayRewardInUSD = parseFloat(
-        this.$tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract)
-      )
-
-      return ((dayRewardInUSD / tvlUSD) * 365 * 100).toFixed()
-    },
-
     onItemClick() {
       this.expanded = !this.expanded
     },
@@ -132,7 +77,7 @@ export default {
     border-bottom: 1px solid var(--background-color-base);
   }
 }
-.farm-item {
+.owned-farm-item {
   cursor: pointer;
   &:hover {
     background: var(--hover);
@@ -197,6 +142,7 @@ export default {
 .farm-item-expand {
   background: var(--hover);
   border-radius: 8px;
+  padding: 6px;
 }
 
 .auth-only::v-deep {

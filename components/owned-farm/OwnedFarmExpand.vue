@@ -21,7 +21,6 @@
               TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
               span {{ incentive.reward.quantity.split(' ')[0] | nFormat(incentive.reward.symbol.precision) }}
               span.color-grey-thirdly {{ incentive.reward.quantity.split(' ')[1] }}
-          td
           td {{ incentive.isFinished ? 'Finished' : 'Active' }}
           td {{ incentive.lastUpdateTime | moment('YYYY-MM-DD HH:mm') }}
           td {{ incentive.numberOfStakes }}
@@ -50,8 +49,12 @@ export default {
 
 <style scoped lang="scss">
 .owned-farm-expand {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  min-width: 100%;
+  table {
+    width: 100%;
+    td {
+      padding: 4px 2px;
+    }
+  }
 }
 </style>

@@ -143,4 +143,18 @@ export default {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style lang="scss">
+.owned-farm-item {
+  display: grid;
+  grid-template-columns: 21% 1fr auto;
+  & > * {
+    padding: 14px 10px;
+  }
+}
+.icon-and-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+</style>
