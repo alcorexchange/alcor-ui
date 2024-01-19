@@ -190,6 +190,8 @@ const networks = {
       'utx-ibc.wt.ux',
       'pgl-prospectorsg',
     ],
+
+    CMC_UCIDS: []
   },
 
   proton: {
@@ -264,6 +266,7 @@ const networks = {
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
+    CMC_UCIDS: [],
   },
 
   ux: {
@@ -346,6 +349,7 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: [],
+    CMC_UCIDS: [],
   },
 
   wax: {
@@ -468,6 +472,18 @@ const networks = {
       //'wombat-wombattokens',
       'tlm-alien.worlds',
     ],
+
+    CMC_UCIDS: [
+      'usdt-usdt.alcor',
+      'eos-ibc.wt.eos',
+      'wax-eosio.token',
+      'tlos-ibc.wt.tlos',
+      'pgl-prospectorsg',
+      'tlm-alien.worlds',
+      'brwl-brawlertoken',
+      'wombat-wombattokens',
+      'martia-martia',
+    ],
   },
 
   telos: {
@@ -583,6 +599,7 @@ const networks = {
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: [],
+    CMC_UCIDS: [],
   },
 
   waxtest: {
@@ -638,6 +655,7 @@ const networks = {
     },
 
     popularTokens: [],
+    CMC_UCIDS: [],
   },
 
   jungle: {
@@ -687,6 +705,7 @@ const networks = {
     },
 
     popularTokens: [],
+    CMC_UCIDS: [],
   },
 
   local: {
@@ -740,6 +759,7 @@ const networks = {
   },
 
   popularTokens: [],
+  CMC_UCIDS: [],
 }
 
 // Default markes layouts

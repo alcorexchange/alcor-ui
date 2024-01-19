@@ -20,7 +20,7 @@
                   ChangePercent(:change="market.changeWeek").float-right
 
       .col-lg-2.col-md-4.col-sm-6
-        el-button(@click="openInNewTab('https://t.me/avral')" type="text" icon="el-icon-circle-plus-outline") Token promotion
+        el-button(@click="openInNewTab('https://t.me/zzullerr')" type="text" icon="el-icon-circle-plus-outline") Token promotion
 
 </template>
 

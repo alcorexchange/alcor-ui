@@ -4,13 +4,13 @@ nav.nav(v-if='!isMobile')
     nuxt-link(:to='localePath("index", $i18n.locale)')
       img.logo(
         v-if='$colorMode.value == "light"',
-        src='~/assets/logos/xmas-alcor-logo.svg',
+        src='~/assets/logos/alcorblack.svg',
         height='32'
       )
       img.logo(
         v-else='',
         height='32',
-        src='~/assets/logos/xmas-alcor-logo.svg',
+        src='~/assets/logos/alcorwhite.svg',
         alt=''
       )
     ul.nav-items
@@ -31,13 +31,13 @@ nav.nav(v-if='!isMobile')
       nuxt-link(:to='localePath("index", $i18n.locale)')
         img.logo(
           v-if='$colorMode.value == "light"',
-          src='~/assets/logos/xmas-alcor-logo.svg',
+          src='~/assets/logos/alcorblack.svg',
           height='34'
         )
         img.logo(
           v-else='',
           height='34',
-          src='~/assets/logos/xmas-alcor-logo.svg',
+          src='~/assets/logos/alcorwhite.svg',
           alt=''
         )
 
@@ -55,13 +55,13 @@ nav.nav(v-if='!isMobile')
       .logo
         img(
           v-if='$colorMode.value == "light"',
-          src='~/assets/logos/xmas-alcor-logo.svg',
+          src='~/assets/logos/alcorblack.svg',
           height='50'
         )
         img(
           v-else='',
           height='50',
-          src='~/assets/logos/xmas-alcor-logo.svg',
+          src='~/assets/logos/alcorwhite.svg',
           alt=''
         )
       ul.menu-items

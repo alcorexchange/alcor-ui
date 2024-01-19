@@ -54,7 +54,7 @@ Vue.filter('nFormat', function(num, digits = 1) {
     num = num.split(' ')[0]
   }
 
-  if (num <= 1) return num + sym
+  if (num <= 0.001) return parseFloat(num).toFixed(8) + sym
 
   const lookup = [
     { value: 1, symbol: '' },

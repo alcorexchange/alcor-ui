@@ -397,32 +397,38 @@ export const actions = {
       return token
     })
   },
-  async loadUserBalancesLightAPI({ state, rootState, commit }) {
+
+  async loadUserBalancesLightAPI({ state, commit }) {
     if (!state.user) return
 
-    //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
-    // FIXME Почему то нукстовский аксиос не работает для телефонов
-    const r = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`)
+    try {
+      const response = await axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`)
+      const data = response.data
+      const blockTime = new Date(data.chain.block_time + ' UTC')
+      const timeDiff = (new Date().getTime() - blockTime.getTime()) / 1000
 
-    // Check sync is correct
-    const block_time = new Date(r.data.chain.block_time + ' UTC')
-    const diff = (new Date().getTime() - block_time.getTime()) / 1000
+      if (timeDiff > 60) {
+        throw new Error('LightAPI sync is more than one minute out.')
+      }
 
-    if (diff > 60) throw new Error('LightAPI sync is more the one minute out.')
+      if (Array.isArray(data.balances)) {
+        const balances = data.balances.filter(b => parseFloat(b.amount) > 0)
 
-    const balances = r.data.balances.filter(b => parseFloat(b.amount) > 0)
-    commit('setLihgHistoryBlock', r.data.chain.block_num)
+        balances.forEach(token => {
+          token.id = `${token.currency}@${token.contract}`
+          const tokenKey = token.id.replace('@', '-').toLowerCase()
+          const price = state.tokens.find(t => t.id === tokenKey)?.usd_price || 0
 
-    // TODO Refactor this and make separate filter/computed for getting token in USD
-    // Calc USD value
-    balances.map(token => {
-      token.id = token.currency + '@' + token.contract
-      const price = state.tokens.find(t => t.id == token.id.replace('@', '-').toLowerCase())?.usd_price || 0
+          token.usd_value = parseFloat(token.amount) * price
+        })
 
-      token.usd_value = parseFloat(token.amount) * price
-    })
-
-    commit('setUserBalances', balances)
+        commit('setLihgHistoryBlock', data.chain.block_num)
+        commit('setUserBalances', balances)
+      }
+    } catch (error) {
+      console.error('Error loading user balances:', error)
+      // Обработка ошибок или диспетчеризация действий обработки ошибок
+    }
   },
 
   // Using Hyperion

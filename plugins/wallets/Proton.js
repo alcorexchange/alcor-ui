@@ -27,7 +27,7 @@ export default class AnchoWallet extends WalletBase {
 
       transportOptions: {
         //requestAccount: this.network.contract,
-        requestAccount: 'alcor',
+        requestAccount: 'swap.alcor',
       },
 
       selectorOptions: {
@@ -80,7 +80,7 @@ export default class AnchoWallet extends WalletBase {
 
       transportOptions: {
         //requestAccount: this.network.contract,
-        requestAccount: 'alcor',
+        requestAccount: 'swap.alcor',
       },
 
       selectorOptions: {
