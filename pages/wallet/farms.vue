@@ -1,9 +1,10 @@
 <template lang="pug">
 .farms-page
-  //- FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
-  //- FarmsTableNew(:farmPools="farmPools" :finished="finished")
-
-  .fs-20.mb-3.fw-medium My Owned Farms
+  .header.mb-3
+    .fs-20.fw-medium Owned Farms
+    AlcorLink(class="new-farm" to="/farm/create" )
+      i.el-icon-circle-plus-outline
+      span Open New Farm
 
   .items
     OwnedFarmItem(
@@ -11,6 +12,7 @@
       :farm="farm"
       @extend="extend($event)"
     )
+    .muted(v-if="!myOwnedFarms.length") You don't own any farms.
 
   // div(v-for="pool of myOwnedFarms").mt-4
     span {{ pool.tokenA.quantity.split(' ')[1] }}/{{ pool.tokenB.quantity.split(' ')[1] }}
@@ -42,16 +44,27 @@
             td
               el-button(@click="extend(incentive)" size="small") Extend
 
+  .fs-20.mb-3.mt-5.fw-medium Staked Farms
+
+  FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
+  FarmsTableNew(:farmPools="farmPools" :finished="finished")
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import FarmHeader from '@/components/farm/FarmHeader'
+import AlcorLink from '@/components/AlcorLink'
+import FarmsTableNew from '@/components/farm/FarmsTableNew'
 import OwnedFarmItem from '~/components/owned-farm/OwnedFarmItem.vue'
 
 export default {
   name: 'WalletFarms',
   components: {
     OwnedFarmItem,
+    FarmHeader,
+    FarmsTableNew,
+    AlcorLink,
   },
 
   data: () => {
@@ -164,5 +177,10 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>

@@ -23,10 +23,6 @@
           :value="$store.state.farms.view === 'ADVANCED'"
           @change="$store.commit('farms/toggleView')"
         )
-        AlcorLink(class="new-farm" to="/farm/create" v-if="!hideCreateNew")
-          i.el-icon-circle-plus-outline
-          span Open New Farm
-
         //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
         //-   el-tooltip(content="Unstake your finished farms to free account RAM")
         //-     GradientBorder.gradient-border
@@ -53,7 +49,7 @@ export default {
     GradientBorder,
   },
 
-  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll', 'hideCreateNew'],
+  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll'],
 
   data: () => {
     return {
