@@ -17,13 +17,10 @@
         tr()
           td {{ incentive.id }}
           td
-            //- .d-flex.flex-column
-            //-   .icon-and-value
-            //-     span {{ parseFloat(stat.position.amountA) | nFormat }}
-            //-     span.color-grey-thirdly {{ stat.position.amountA.split(' ')[1] }}
-            //-   .icon-and-value
-            //-     span {{ parseFloat(stat.position.amountB) | nFormat }}
-            //-     span.color-grey-thirdly {{ stat.position.amountB.split(' ')[1] }}
+            .icon-and-value
+              TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
+              span {{ incentive.reward.quantity.split(' ')[0] | nFormat(incentive.reward.symbol.precision) }}
+              span.color-grey-thirdly {{ incentive.reward.quantity.split(' ')[1] }}
           td
           td {{ incentive.isFinished ? 'Finished' : 'Active' }}
           td {{ incentive.lastUpdateTime | moment('YYYY-MM-DD HH:mm') }}
@@ -37,11 +34,14 @@
 
 <script>
 import OwnedIncentiveItem from '~/components/owned-farm/OwnedIncentiveItem.vue'
+import TokenImage from '~/components/elements/TokenImage'
+
 export default {
   name: 'OwnedFarmExpand',
 
   components: {
     OwnedIncentiveItem,
+    TokenImage,
   },
 
   props: ['farm'],
