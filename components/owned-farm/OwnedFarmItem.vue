@@ -142,7 +142,6 @@ export default {
 .farm-item-expand {
   background: var(--hover);
   border-radius: 8px;
-  padding: 6px;
 }
 
 .auth-only::v-deep {

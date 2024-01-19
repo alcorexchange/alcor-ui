@@ -8,9 +8,9 @@
         th Status
         th Last Update
         th Stakes
-        th Duration (d.)
-        th Remaining (d.)
-        th Daily Reward (d.)
+        th Duration ( Days )
+        th Remaining ( Days )
+        th Daily Reward
         th
     tbody
       template(v-for="incentive in farm.incentives")
@@ -50,11 +50,21 @@ export default {
 
 <style scoped lang="scss">
 .owned-farm-expand {
+  padding: 8px;
   min-width: 100%;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    height: 2px;
+  }
   table {
     width: 100%;
+    min-width: 900px;
     td {
       padding: 4px 2px;
+    }
+    th {
+      padding-bottom: 4px;
+      font-weight: 400;
     }
   }
 }
