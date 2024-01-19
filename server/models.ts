@@ -203,6 +203,8 @@ const SwapPoolSchema = new mongoose.Schema({
   },
 
   sqrtPriceX64: { type: String },
+  priceA: { type: Number },
+  priceB: { type: Number },
   tick: { type: Number },
 
   feeProtocol: { type: Number, index: true },

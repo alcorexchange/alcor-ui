@@ -45,6 +45,18 @@
           span.name API
           span.desc {{ $t('Alcor API Docs') }}
 
+        a.item(href="https://alcor.featurebase.app" target="_blank")
+          .icon
+            img(src='~/assets/icons/feature-request.webp')
+          span.name Feature request
+          span.desc Participate in development
+
+        a.item(href="https://status.alcor.exchange" target="_blank")
+          .icon
+            img(src='~/assets/icons/health-check.png')
+          span.name Status Page
+          span.desc Check services health
+
       span.title {{ $t('PARTNERS_PROVIDERS') }}
       .items
         a.item(v-for="{ image, lightImage, url, padding } in items" :href="url" target="_blank" :style="{ padding }")

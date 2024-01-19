@@ -9,7 +9,7 @@ import { updateGlobalStats } from './analytics'
 import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
-import { updateSystemPrice, updateTokensPrices } from './prices'
+import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 
 import { streamHyperion, streamByNode } from './streamers'
 
@@ -55,7 +55,8 @@ export async function updater(chain, provider, services) {
   if (services.includes('prices')) {
     console.log('Start price updater for', chain)
 
-    await updateSystemPrice(network)
+    await Promise.all([updateSystemPrice(network), updateCMSucid()])
+
     updateTokensPrices(network)
 
     setInterval(() => updateSystemPrice(network), 1 * 60 * 1000)

@@ -165,30 +165,6 @@ export default {
       return tokens
     },
 
-    // tokensB() {
-    //   const tokens = []
-
-    //   this.$store.state.amm.pools.forEach(p => {
-    //     const tokenA = parseToken(p.tokenA)
-    //     const tokenB = parseToken(p.tokenB)
-
-    //     if (
-    //       this.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
-    //       this.network.SCAM_CONTRACTS.includes(tokenB.contract)
-    //     ) { return }
-
-    //     if (this.tokenA) {
-    //       if (!tokens.find(t => t.id == tokenA.id) && tokenB.id == this.tokenA.id) tokens.push(tokenA)
-    //       if (!tokens.find(t => t.id == tokenB.id) && tokenA.id == this.tokenA.id) tokens.push(tokenB)
-    //     } else {
-    //       if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-    //       if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
-    //     }
-    //   })
-
-    //   return tokens
-    // },
-
     pools() {
       const pools = [...this.$store.state.amm.poolsStats]
       return (
@@ -225,6 +201,18 @@ export default {
           : '-',
       }))
     },
+  },
+
+  watch: {
+    // feeOptions() {
+    //   if (!this.selectedFeeTier) {
+    //     if (this.feeOptions.find(f => f.value == 0.3)) {
+    //       this.selectedFeeTier = 0.3
+    //     } else {
+    //       this.selectedFeeTier = this.feeOptions[this.feeOptions.length - 1]
+    //     }
+    //   }
+    // }
   },
 
   async mounted() {
@@ -277,6 +265,14 @@ export default {
     },
 
     async create() {
+      if (!this.selectedFeeTier) {
+        return this.$notify({
+          type: 'warning',
+          title: 'Create Farm',
+          message: 'Select pool fee tier!',
+        })
+      }
+
       try {
         await this.submit()
         setTimeout(

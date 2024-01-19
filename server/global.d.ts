@@ -5,7 +5,8 @@ declare global {
       symbol: string,
       contract: string,
       precision: number
-    }
+    },
+    CMC_UCIDS: string[]
   }
 }
 export {}
