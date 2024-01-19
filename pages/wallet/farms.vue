@@ -4,7 +4,6 @@
   //- FarmsTableNew(:farmPools="farmPools" :finished="finished")
 
   .fs-20 My Owned Farms
-  | {{ myOwnedFarms.length }}
 
   .items
     OwnedFarmItem(
