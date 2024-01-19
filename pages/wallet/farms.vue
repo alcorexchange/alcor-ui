@@ -3,7 +3,7 @@
   //- FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
   //- FarmsTableNew(:farmPools="farmPools" :finished="finished")
 
-  .fs-20 My Owned Farms
+  .fs-20.mb-3.fw-medium My Owned Farms
 
   .items
     OwnedFarmItem(
@@ -12,7 +12,7 @@
       @extend="extend($event)"
     )
 
-  div(v-for="pool of myOwnedFarms").mt-4
+  // div(v-for="pool of myOwnedFarms").mt-4
     span {{ pool.tokenA.quantity.split(' ')[1] }}/{{ pool.tokenB.quantity.split(' ')[1] }}
     span.ml-2 {{ pool.fee / 10000 }} %
 
