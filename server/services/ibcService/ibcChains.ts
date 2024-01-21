@@ -29,7 +29,7 @@ export async function getWrapLockContracts(chains) {
     for (const map of contractMaps) {
       const chain = chains.find(c => c.chainId === global.chain_id)
       if (!chain) continue
-      tokenPromises.push(chain.rpc.get_table_by_scope({ code: map.native_token_contract, table: 'stat' }))
+      tokenPromises.push(chain.rpc.get_table_by_scope({ code: map.native_token_contract, table: 'stat', limit: 1000 }))
     }
   }
 

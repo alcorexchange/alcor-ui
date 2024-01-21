@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 import axios from 'axios'
+import { createClient } from 'redis'
 import { networks } from '../../../config'
 import { fetchAllRows, getMultyEndRpc } from '../../../utils/eosjs'
 import { getWrapLockContracts } from './ibcChains'
@@ -92,7 +93,6 @@ async function fetchXfers(chains, lockContract, _native) {
 }
 
 const supportedNetworks = ['eos', 'wax', 'telos', 'ux']
-//const supportedNetworks = ['eos']
 
 const chains = []
 
@@ -108,40 +108,21 @@ for (const network of Object.values(networks).filter((n: any) => supportedNetwor
   })
 }
 
-//async function completeTrnasfer(sour) {
-//  const destinationChain = chains.find(c => c.name == lockContract.pairedChain)
-//  const proved = await prove(chain, destinationChain, action, lockContract, true)
-//  console.log(proved)
-//}
-
-// We do only eos -> wax USDT from binance for now
-// async function test() {
-//   const ibcTokens = await getWrapLockContracts(chains)
-
-//   const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
-
-//   const _native = true
-
-//   const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
-//   const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
-
-//   const actions = await fetchXfers(chains, USDT_ALCOR, _native)
-
-//   console.log('actions fetched')
-//   for (const action of actions) {
-//     if (!action.proven) {
-//       console.log(action.timestamp, action.act.data)
-//       const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
-//       console.log({ proved })
-//     }
-//   }
-//   console.log('all actions proved')
-// }
-
-// test()
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+async function updateWrapLockContracts(chains, redis) {
+  const ibcTokens = await getWrapLockContracts(chains)
+
+  redis.set('IBC_WRAP_LOCK_CONTRACTS', JSON.stringify(ibcTokens))
+}
+
 async function main() {
+  const redis = createClient()
+  await redis.connect()
+
+  updateWrapLockContracts(chains, redis)
+  setInterval(() => updateWrapLockContracts(chains, redis), 60 * 60 * 1000)
+
   const ibcTokens = await getWrapLockContracts(chains)
 
   const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
