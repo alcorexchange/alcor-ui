@@ -221,6 +221,7 @@ const networks = {
 
     client_nodes: {
       'https://proton-api.alcor.exchange': 'Alcor Proton node',
+      'https://proton.eosusa.io': 'EOS USA',
 
       //'https://nodeproton.alcor.exchange': 'Alcor Proton node',
       'https://proton.greymass.com': 'Greymass',
