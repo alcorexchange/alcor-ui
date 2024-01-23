@@ -74,6 +74,18 @@ module.exports = {
       node_args: '-r esm',
       restart_delay: 10000,
       kill_timeout: 10000,
+    },
+    {
+      name: 'Alcor-ibc-usdt-wax-withdraw-worker',
+      script: './lib/server/services/ibcService/usdt_prover.js',
+      node_args: '-r esm',
+      cron_restart: '0 * * * *'
+    },
+    {
+      name: 'Alcor-ibc-usdt-wax-deposit-worker',
+      script: './lib/server/services/ibcService/eosCexDepsitsWorker.js',
+      node_args: '-r esm',
+      cron_restart: '0 * * * *'
     }
   ]
 }

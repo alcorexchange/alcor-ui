@@ -1,9 +1,7 @@
 require('dotenv').config()
 
-import axios from 'axios'
-import { networks } from '../../../config'
-import { fetchAllRows, getMultyEndRpc } from '../../../utils/eosjs'
-import { getWrapLockContracts } from './ibcChains'
+import { fetchAllRows } from '../../../utils/eosjs'
+import { chains, getWrapLockContracts } from './ibcChains'
 import { getReceiptDigest } from './digest'
 import { prove } from './prove'
 
@@ -88,23 +86,6 @@ async function fetchXfers(chains, lockContract, _native) {
   }
 
   return actions
-}
-
-const supportedNetworks = ['eos', 'wax', 'telos', 'ux']
-//const supportedNetworks = ['eos']
-
-const chains = []
-
-for (const network of Object.values(networks).filter((n: any) => supportedNetworks.includes(n.name)) as any) {
-  const nodes = Object.keys(network.client_nodes)
-  nodes.sort((a, b) => (a.includes('alcor') ? -1 : 1))
-
-  chains.push({
-    ...network,
-    hyperion: axios.create({ baseURL: network.hyperion }),
-    rpc: getMultyEndRpc(nodes),
-    wrapLockContracts: []
-  })
 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
