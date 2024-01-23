@@ -331,21 +331,23 @@ export async function updatePools(chain) {
   const current_pools = await SwapPool.distinct('id', { chain })
 
   for (const pool of pools) {
-    // console.log('get pool', pool.id)
-    // await getPoolInstance(chain, pool.id)
-
-    // // FIXME DEV
-    // continue
-
-
-
     if (!current_pools.includes(pool.id)) {
       const parsed_pool = parsePool(pool)
 
+      const price = new Price(
+        parseToken(pool.tokenA),
+        parseToken(pool.tokenB),
+        Q128,
+        JSBI.multiply(JSBI.BigInt(parsed_pool.sqrtPriceX64), JSBI.BigInt(parsed_pool.sqrtPriceX64))
+      )
+
+      const priceA = price.toSignificant()
+      const priceB = price.invert().toSignificant()
+
       const p = {
         ...parsed_pool,
-        // priceA: getPoolPriceA(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
-        // priceB: getPoolPriceB(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
+        priceA,
+        priceB,
         chain
       }
 
