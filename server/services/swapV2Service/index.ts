@@ -12,7 +12,7 @@ import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
-import { getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
+import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
 
 const redis = createClient()
@@ -331,13 +331,21 @@ export async function updatePools(chain) {
   const current_pools = await SwapPool.distinct('id', { chain })
 
   for (const pool of pools) {
+    // console.log('get pool', pool.id)
+    // await getPoolInstance(chain, pool.id)
+
+    // // FIXME DEV
+    // continue
+
+
+
     if (!current_pools.includes(pool.id)) {
       const parsed_pool = parsePool(pool)
 
       const p = {
         ...parsed_pool,
-        priceA: getPoolPriceA(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
-        priceB: getPoolPriceB(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
+        // priceA: getPoolPriceA(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
+        // priceB: getPoolPriceB(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
         chain
       }
 
