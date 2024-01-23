@@ -9,6 +9,7 @@
 
   DepositPopup(ref="depositPopup")
   WaxUSDTDepositPopup(ref="waxUSDTdepositPopup")
+  WaxUSDTWithdrewPopup(ref="WaxUSDTWithdrewPopup")
   TransferPopup(ref="transferPopup")
 </template>
 
@@ -17,6 +18,7 @@ import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 import DepositPopup from '@/components/wallet/DepositPopup'
 import WaxUSDTDepositPopup from '@/components/wallet/WaxUSDTDepositPopup'
+import WaxUSDTWithdrewPopup from '@/components/wallet/WaxUSDTWithdrewPopup'
 import TransferPopup from '@/components/wallet/TransferPopup'
 import VirtualTable from '@/components/VirtualTable'
 import WalletRow from '@/components/wallet/WalletRow'
@@ -29,7 +31,8 @@ export default {
     TransferPopup,
     VirtualTable,
     WalletRow,
-    WaxUSDTDepositPopup
+    WaxUSDTDepositPopup,
+    WaxUSDTWithdrewPopup
   },
   data: () => ({
     search: ''
@@ -116,16 +119,6 @@ export default {
           },
         })
       )
-      // this.$router.push({
-      //   //query: { input: token.id.replace('@', '-') }
-      //   name: `swap___${this.$i18n.locale}`
-      // })
-
-      // this.$store.commit('swap/setInput', {
-      //   contract: token.contract,
-      //   symbol: token.currency,
-      //   precision: parseFloat(token.decimals)
-      // })
     },
 
     trade(token) {
@@ -145,13 +138,18 @@ export default {
     },
 
     openWithdraw(row) {
-      this.$refs.transferPopup.openPopup({
-        token: {
-          contract: row.contract,
-          currency: row.currency,
-          decimals: Number(row.decimals)
-        }
-      })
+      if (this.network.name == 'wax' && row.contract == 'usdt.alcor') {
+        this.$refs.waxUSDTdepositPopup.openPopup({})
+      } else {
+        // TODO might unreacheble code
+        this.$refs.transferPopup.openPopup({
+          token: {
+            contract: row.contract,
+            currency: row.currency,
+            decimals: Number(row.decimals)
+          }
+        })
+      }
     }
   }
 }
