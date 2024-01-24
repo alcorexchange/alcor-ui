@@ -4,6 +4,7 @@ import { fetchAllRows } from '../../../utils/eosjs'
 import { chains, getWrapLockContracts } from './ibcChains'
 import { getReceiptDigest } from './digest'
 import { prove } from './prove'
+import { eosCexDepsitsWorker } from './eosCexDepositProver'
 
 const EOS_CEX_ACCOUNTS = [
   'kucoindoteos',
@@ -159,7 +160,8 @@ async function WaxToEosWorker() {
 async function main() {
   await Promise.all([
     eosToWaxWorker(),
-    WaxToEosWorker()
+    WaxToEosWorker(),
+    eosCexDepsitsWorker()
   ])
 }
 

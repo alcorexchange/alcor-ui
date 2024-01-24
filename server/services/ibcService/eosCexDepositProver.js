@@ -78,5 +78,3 @@ export async function eosCexDepsitsWorker() {
     }
   }
 }
-
-eosCexDepsitsWorker()
