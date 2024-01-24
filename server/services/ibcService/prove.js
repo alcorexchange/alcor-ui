@@ -239,11 +239,11 @@ export class IBCTransfer {
         return reject(e)
       })
 
-      const timeout = setTimeout(() => {
-        console.log('REJECT: IBC request TIMEOUT')
+      const initialCallTimeout = setTimeout(() => {
+        console.log('REJECT: IBC request INITIAL_CALL_TIMEOUT')
         // возможно после этого код выполняется
         ws.close()
-        return reject(new Error('IBC request TIMEOUT'))
+        return reject(new Error('IBC request INITIAL_CALL_TIMEOUT'))
       }, 3000)
 
       // TODO catch ibc is whole down
@@ -255,12 +255,24 @@ export class IBCTransfer {
         ws.send(JSON.stringify(query))
       })
 
+      let inProcessCallTimeout
       //messages from websocket server
       ws.addEventListener('message', (event) => {
-        // Clearing request timeout
-        clearTimeout(timeout)
-        const res = JSON.parse(event.data)
+        clearTimeout(initialCallTimeout)
+        const res = JSON.parse(event.data) // TODO Might be cath JSON parse error
         console.log('proov server message: ', res)
+
+        if (inProcessCallTimeout) {
+          clearTimeout(inProcessCallTimeout)
+        }
+
+        inProcessCallTimeout = setTimeout(() => {
+          console.log('REJECT: IBC request IN_PROCESS_TIMEOUT')
+          // If IBC not responding for half minute
+          ws.close()
+          return reject(new Error('IBC request IN_PROCESS_TIMEOUT'))
+        }, 30 * 1000)
+
         //log non-progress messages from ibc server
         if (res.type == 'error') {
           console.log('res error...')
@@ -325,7 +337,7 @@ export class IBCTransfer {
   }
 
   async getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
-    let retries = 3
+    let retries = 5
 
     console.log('get proof start')
     while (retries != 0) {
