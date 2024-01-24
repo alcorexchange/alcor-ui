@@ -233,7 +233,7 @@ export class IBCTransfer {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.socketsQueue.getSocket())
 
-      ws.on('error', e => {
+      ws.addEventListener('error', e => {
         console.log('on ws error', e)
         ws.close()
         return reject(e)
