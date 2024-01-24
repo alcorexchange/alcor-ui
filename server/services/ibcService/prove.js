@@ -314,7 +314,10 @@ export class IBCTransfer {
             receipt: { ...action.receipt, auth_sequence }
           }
         }
+
+        console.log('fetchProof finish, resolving..', actionToSubmit)
         resolve(actionToSubmit)
+        console.log('after resolve', actionToSubmit)
       })
     })
   }
@@ -325,6 +328,7 @@ export class IBCTransfer {
     console.log('get proof start')
     while (retries != 0) {
       try {
+        console.log('call fetchProof from while')
         const proof = await this.fetchProof({ type, block_to_prove, action, last_proven_block })
         console.log('getProof retrun', proof)
         return proof
