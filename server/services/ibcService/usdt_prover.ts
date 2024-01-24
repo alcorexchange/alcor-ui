@@ -113,6 +113,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) {
   while (true) {
+    console.log('prove transfers while.. ', sourceChain.name, destinationChain.name)
     try {
       const actions = await fetchXfers(chains, ibcToken, _native)
 
@@ -131,10 +132,8 @@ async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) 
   }
 }
 
-async function eosToWaxWorker() {
+async function eosToWaxWorker(ibcTokens) {
   console.log('EOS USDT.ALCOR -> WAX WORKER STARTED')
-  const ibcTokens = await getWrapLockContracts(chains)
-
   const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
 
   const _native = true
@@ -144,9 +143,8 @@ async function eosToWaxWorker() {
   await proveTransfers(USDT_ALCOR, sourceChain, destinationChain, _native)
 }
 
-async function WaxToEosWorker() {
+async function WaxToEosWorker(ibcTokens) {
   console.log('WAX USDT.ALCOR -> EOS WORKER STARTED')
-  const ibcTokens = await getWrapLockContracts(chains)
 
   const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
 
@@ -158,9 +156,11 @@ async function WaxToEosWorker() {
 }
 
 async function main() {
+  const ibcTokens = await getWrapLockContracts(chains)
+
   await Promise.all([
-    eosToWaxWorker(),
-    WaxToEosWorker(),
+    WaxToEosWorker(ibcTokens),
+    eosToWaxWorker(ibcTokens),
     eosCexDepsitsWorker()
   ])
 }

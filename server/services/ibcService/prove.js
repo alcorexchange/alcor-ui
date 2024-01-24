@@ -465,10 +465,12 @@ export async function prove(sourceChain, destinationChain, action, lockContract,
 
   const last_proven_block = await ibcTransfer.getLastProvenBlock()
 
+  console.log('getScheduleProofs')
   const scheduleProofs =
     (await ibcTransfer.getScheduleProofs(action.trx_id)) || []
 
   // TODO Popup
+  console.log('submitScheduleProofs')
   for (const proof of scheduleProofs) {
     await ibcTransfer.submitProofs([proof])
   }
@@ -501,11 +503,13 @@ export async function prove(sourceChain, destinationChain, action, lockContract,
 
   if (light) query.last_proven_block = last_proven_block.block_height
 
+  console.log('getProof')
   const emitxferProof = await ibcTransfer.getProof(query)
 
   if (light)
     emitxferProof.data.blockproof.root =
       last_proven_block.block_merkle_root
 
+  console.log('submitProofs')
   return await ibcTransfer.submitProofs([emitxferProof])
 }
