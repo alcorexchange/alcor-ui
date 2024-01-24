@@ -9,7 +9,7 @@
 
   DepositPopup(ref="depositPopup")
   WaxUSDTDepositPopup(ref="waxUSDTdepositPopup")
-  WaxUSDTWithdrewPopup(ref="WaxUSDTWithdrewPopup")
+  WaxUSDTWithdrewPopup(ref="waxUSDTWithdrewPopup")
   TransferPopup(ref="transferPopup")
 </template>
 
@@ -139,7 +139,7 @@ export default {
 
     openWithdraw(row) {
       if (this.network.name == 'wax' && row.contract == 'usdt.alcor') {
-        this.$refs.waxUSDTdepositPopup.openPopup({})
+        this.$refs.waxUSDTWithdrewPopup.openPopup({})
       } else {
         // TODO might unreacheble code
         this.$refs.transferPopup.openPopup({

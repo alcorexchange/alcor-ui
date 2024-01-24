@@ -3,51 +3,60 @@
     template(#title)
       .title-container
         i.el-icon-wallet
-        .text Deposit USDT to WAX
+        .text Withdraw USDT from WAX
     .main(v-if="this.$store.state.user && this.$store.state.user.name")
       blockquote.blockquote.text-left
         p.text-wrap.mb-0
-          | We use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
+          | We use the EOS network as a USDT provider. When depositing, you must select the EOS network.
         footer.blockquote-footer.mt-1
           | Carefully read the instructions before making a deposit.
         footer.blockquote-footer.mt-1
-          | We support USDT deposits with Binance/KuCoin/Other CEX's.
+          | Deposit Fee is 0.05 USDT
 
-      img(width="100%" src="~/assets/images/binance-usdt-deposit.jpg")
+      img(width="100%" src="~/assets/images/wax-usdt-withdraw.png")
 
-      .d-flex.mt-2.mb-2
-        .account-name
-          .lead Address:
-          div.copy-container.pointer(@click="copyAddress").hover-opacity
-            span.name w.ibc.alcor
-            i.el-icon-copy-document
-
-        .account-name.ml-3
-          .lead MEMO:
-          div.copy-container.pointer(@click="copyMemo").hover-opacity
-            span.name {{ memo }}
-            i.el-icon-copy-document
-
-      h6.mb-3.red
-        | Fill in the fields on the exchange exactly as above
+      h6.mt-3.mb-2.red
+        | Fill in the MEMO on the exchange exactly as above
         br
         | An incorrectly filled MEMO can lead to loss of funds
 
-      AlcorButton.done(@click="closePopup") {{$t('Done')}}
+      .mt-3.mb-2.w-100
+        b.mt-1 CEX Deposit Address
+        el-input(placeholder="Address" v-model="cex")
+
+      .mt-2.mb-2.w-100
+        b.mt-1 CEX Memo
+        el-input(placeholder="MEMO" v-model="memo")
+
+      .mt-2.mb-2.w-100
+        b.mt-1 Amount
+        PoolTokenInput(label="Deposit Amount" :locked="true" :token="{ decimals: 4, contract: 'usdt.alcor', symbol: 'USDT' }" v-model="amount")
+
+      AlcorButton.w-100(outline @click="submit") {{ $t('Withdraw')}}
     .main(v-else)
       you need log in
 </template>
 
 <script>
 import AlcorButton from '@/components/AlcorButton.vue'
+
+import PoolTokenInput from '~/components/amm/PoolTokenInput'
+
 export default {
   name: 'DepositPopup',
+
   components: {
-    AlcorButton
+    AlcorButton,
+    PoolTokenInput
   },
+
   data: () => ({
-    visible: false
+    visible: false,
+    amount: null,
+    cex: null,
+    memo: null
   }),
+
   computed: {
     memo() {
       return this.$store.state.user.name.replaceAll('.', '0')
@@ -55,23 +64,46 @@ export default {
   },
 
   methods: {
-    copyAddress() {
-      navigator.clipboard.writeText('w.ibc.alcor')
-      this.$notify({
-        title: 'Clipboard',
-        message: 'Address name copyed to Clipboard',
-        type: 'info'
-      })
+    submit() {
+      if (!this.amount) return this.$notify({ type: 'warning', message: 'Fill Amount' })
+      if (parseFloat(this.amount) < 1) return this.$notify({ type: 'warning', message: 'Minimum amount 1 USDT' })
+
+      // TODO Memo regexp
+      if (!this.memo) return this.$notify({ type: 'warning', message: 'Fill CEX MEMO' })
+      if (!/^[0-9]*$/.test(this.memo)) return this.$notify({ type: 'warning', message: 'Invalid CEX MEMO' })
+
+      if (!this.cex) return this.$notify({ type: 'warning', message: 'Invalid CEX ACCOUNT' })
+
+      const cexRegExp = new RegExp('(^[a-z1-5.]{1,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)')
+      if (!cexRegExp.test(this.cex)) return this.$notify({ type: 'warning', message: 'Invalid CEX ACCOUNT' })
+
+      this.withdraw()
     },
 
-    copyMemo() {
-      navigator.clipboard.writeText(this.memo)
-      this.$notify({
-        title: 'Clipboard',
-        message: 'Account name copyed to Clipboard',
-        type: 'info'
-      })
+    async withdraw() {
+      const quantity = parseFloat(this.amount).toFixed(4) + ' USDT'
+
+      const actions = [{
+        account: 'usdt.alcor',
+        name: 'retire',
+        authorization: [this.$store.state.user.authorization],
+        data: {
+          owner: this.$store.state.user.name,
+          quantity,
+          beneficiary: 'cexdep.alcor',
+          memo: this.cex + '#' + this.memo
+        }
+      }]
+
+      try {
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        this.closePopup()
+        this.$notify({ type: 'success', title: 'Withdraw', message: 'Withdraw will take about 3 minutes' })
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'Withdraw', message: 'Fill CEX MEMO' })
+      }
     },
+
     openPopup() {
       this.visible = true
     },

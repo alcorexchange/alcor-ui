@@ -24,11 +24,11 @@ const signatureProvider = new JsSignatureProvider([
 const api = new Api({ rpc: eos_chain.rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() })
 
 async function sendTransaction(actions) {
-  const signedDestinationTx = await api.transact({
+  const result = await api.transact({
     actions
   }, { broadcast: true, expireSeconds: 360, blocksBehind: 3 })
 
-  return await this.submitTx(signedDestinationTx, this.destination, 6)
+  return result
 }
 
 async function transferDeposits() {
@@ -38,20 +38,26 @@ async function transferDeposits() {
     table: 'deposits',
   })
 
-  if (isObjectEmpty(deposits) || deposits.rows.length == 0) {
-    console.info('No deposits found at ', new Date().toJSON())
+  if (deposits.length == 0) {
+    //console.info('No deposits found at ', new Date().toJSON())
     return
   }
 
-  for (const deposit of deposits.rows) {
+  for (const deposit of deposits) {
     const actions = [{
       account: deposit.deposit_token.contract,
       name: 'transfer',
       authorization: [{
-        CONTRACT_ACCOUNT,
+        actor: CONTRACT_ACCOUNT,
         permission: 'active'
       }],
-      data: [CONTRACT_ACCOUNT, deposit.cex_account, deposit.deposit_token.quantity, deposit.deposit_memo]
+
+      data: {
+        from: CONTRACT_ACCOUNT,
+        to: deposit.cex_account,
+        quantity: deposit.deposit_token.quantity,
+        memo: deposit.deposit_memo
+      }
     }]
 
     const r = await sendTransaction(actions)
