@@ -235,12 +235,15 @@ export class IBCTransfer {
 
       ws.on('error', e => {
         console.log('on ws error', e)
-        reject(e)
+        ws.close()
+        return reject(e)
       })
 
       const timeout = setTimeout(() => {
         console.log('REJECT: IBC request TIMEOUT')
-        reject(new Error('IBC request TIMEOUT'))
+        // возможно после этого код выполняется
+        ws.close()
+        return reject(new Error('IBC request TIMEOUT'))
       }, 3000)
 
       // TODO catch ibc is whole down
@@ -316,8 +319,7 @@ export class IBCTransfer {
         }
 
         console.log('fetchProof finish, resolving..', actionToSubmit)
-        resolve(actionToSubmit)
-        console.log('after resolve', actionToSubmit)
+        return resolve(actionToSubmit)
       })
     })
   }
