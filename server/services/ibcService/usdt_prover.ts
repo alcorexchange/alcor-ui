@@ -5,6 +5,15 @@ import { chains, getWrapLockContracts } from './ibcChains'
 import { getReceiptDigest } from './digest'
 import { prove } from './prove'
 
+const EOS_CEX_ACCOUNTS = [
+  'kucoindoteos',
+  'binancecleos',
+  'huobideposit',
+  'okbtothemoon',
+  'eosdididada3',
+  'bitfinexcw55',
+  'bitfinexdep1',
+]
 
 async function fetchProvenList(chain, contract) {
   // Add chache
@@ -70,8 +79,19 @@ async function fetchXfers(chains, lockContract, _native) {
 
   // Protocol updated
   if (sourceChain.name == 'eos' && contract == 'w.ibc.alcor') getActionsParams.after = '2023-12-18T14:25:14.500'
+  if (sourceChain.name == 'wax' && contract == 'usdt.alcor') getActionsParams.after = '2023-12-18T14:25:14.500'
 
-  const actions = await getActions(sourceChain, contract, getActionsParams)
+  let actions = await getActions(sourceChain, contract, getActionsParams)
+
+  // Prove only trnasfers to CEX's
+  if (sourceChain.name == 'wax' && contract == 'usdt.alcor') {
+    actions = actions.filter(a => {
+      const memo = a.act.data.xfer.memo || ''
+      const cex_account = memo.split('#')[0]
+
+      return EOS_CEX_ACCOUNTS.includes(cex_account)
+    })
+  }
 
   if (actions.length == 0) return []
 
@@ -90,26 +110,15 @@ async function fetchXfers(chains, lockContract, _native) {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-async function main() {
-  console.log('EOS USDT.ALCOR -> WAX WORKER STARTED')
-  const ibcTokens = await getWrapLockContracts(chains)
-
-  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
-
-  const _native = true
-
-  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
-  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
-
+async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) {
   while (true) {
-    // Proving USDT every minute
     try {
-      const actions = await fetchXfers(chains, USDT_ALCOR, _native)
+      const actions = await fetchXfers(chains, ibcToken, _native)
 
       for (const action of actions) {
         if (!action.proven) {
-          console.log(action.timestamp, action.act.data)
-          const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
+          console.log(action.timestamp, action)
+          const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
           console.log({ proved })
         }
       }
@@ -117,8 +126,41 @@ async function main() {
       console.error('IBC WORKER ERROR', e)
     }
 
-    await sleep(60 * 1000)
+    await sleep(6 * 1000)
   }
+}
+
+async function eosToWaxWorker() {
+  console.log('EOS USDT.ALCOR -> WAX WORKER STARTED')
+  const ibcTokens = await getWrapLockContracts(chains)
+
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
+
+  const _native = true
+  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
+  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
+
+  await proveTransfers(USDT_ALCOR, sourceChain, destinationChain, _native)
+}
+
+async function WaxToEosWorker() {
+  console.log('WAX USDT.ALCOR -> EOS WORKER STARTED')
+  const ibcTokens = await getWrapLockContracts(chains)
+
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
+
+  const _native = false
+  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
+  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
+
+  await proveTransfers(USDT_ALCOR, sourceChain, destinationChain, _native)
+}
+
+async function main() {
+  await Promise.all([
+    eosToWaxWorker(),
+    WaxToEosWorker()
+  ])
 }
 
 main()
