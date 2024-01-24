@@ -330,7 +330,7 @@ export class IBCTransfer {
           }
         }
 
-        console.log('fetchProof finish, resolving..', actionToSubmit)
+        clearTimeout(inProcessCallTimeout)
         return resolve(actionToSubmit)
       })
     })
