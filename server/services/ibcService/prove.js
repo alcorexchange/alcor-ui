@@ -255,8 +255,13 @@ export class IBCTransfer {
         // Clearing request timeout
         clearTimeout(timeout)
         const res = JSON.parse(event.data)
+        console.log('proov server message: ', res)
         //log non-progress messages from ibc server
-        if (res.type == 'error') return reject(res.error)
+        if (res.type == 'error') {
+          console.log('res error...')
+          return reject(res.error)
+        }
+
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
@@ -264,9 +269,13 @@ export class IBCTransfer {
           console.log('progress', res.progress)
         }
 
-        if (res.type !== 'proof') return
+        if (res.type !== 'proof') {
+          console.log('not a prove return')
+          return
+        }
 
         ws.close()
+        console.log('ws connection closed')
 
         let name
         if (type === 'lightProof') name = this.native ? 'issueb' : 'withdrawb'
@@ -460,7 +469,7 @@ export async function prove(sourceChain, destinationChain, action, lockContract,
     destinationChain,
     lockContract,
     native,
-    (p) => console.log(p)
+    (p) => {}
   )
 
   const last_proven_block = await ibcTransfer.getLastProvenBlock()
