@@ -347,7 +347,7 @@ export class IBCTransfer {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.socketsQueue.getSocket())
 
-      ws.on('error', e => {
+      ws.addEventListener('error', e => {
         console.log('on ws error', e)
         ws.close()
         return reject(e)
@@ -406,32 +406,38 @@ export class IBCTransfer {
         }
 
         ws.close()
-        console.log('ws connection closed')
 
         let name
-        if (type === 'lightProof') name = this.native ? 'issueb' : 'withdrawb'
-        else name = !action ? 'checkproofd' : this.native ? 'issuea' : 'withdrawa'
+        if (type === 'lightProof') name = this.asset.native ? 'issueb' : 'withdrawb'
+        else name = !action ? 'checkproofd' : this.asset.native ? 'issuea' : 'withdrawa'
 
         //handle issue/withdraw if proving transfer/retire 's emitxfer action, else submit block proof to bridge directly (for schedules)
         const actionToSubmit = {
-          authorization: [{ actor: IBC_WORKS_ACCOUNTS[this.destination.name], permission: 'active' }],
+          authorization: [this.destinationWallet.authorization],
           name,
-          account: this.native
-            ? this.lockContract.pairedWrapTokenContract
-            : this.lockContract.wrapLockContract,
-          data: { ...res.proof, prover: IBC_WORKS_ACCOUNTS[this.destination.name] }
+          account: !action
+            //? this.destination.ibc.bridgeContracts[this.source.ibc.name]
+            ? this.asset.bridgeContract
+            : this.asset.native
+              ? this.asset.pairedWrapTokenContract
+              : this.asset.wrapLockContract,
+          data: { ...res.proof, prover: this.destinationWallet.name }
         }
+
+        console.log('actionToSubmit', actionToSubmit)
 
         //if proving an action, add action and formatted receipt to actionproof object
         if (action) {
           const auth_sequence = []
 
+          console.log('1')
           for (const authSequence of action.receipt.auth_sequence)
             auth_sequence.push({
               account: authSequence[0],
               sequence: authSequence[1]
             })
 
+          console.log('2')
           actionToSubmit.data.actionproof = {
             ...res.proof.actionproof,
             action: {
@@ -443,9 +449,8 @@ export class IBCTransfer {
             receipt: { ...action.receipt, auth_sequence }
           }
         }
-
-        console.log('fetchProof finish, resolving..', actionToSubmit)
-        return resolve(actionToSubmit)
+        console.log('3')
+        resolve(actionToSubmit)
       })
     })
   }
