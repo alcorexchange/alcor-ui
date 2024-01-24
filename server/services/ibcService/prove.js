@@ -234,10 +234,12 @@ export class IBCTransfer {
       const ws = new WebSocket(this.socketsQueue.getSocket())
 
       ws.on('error', e => {
+        console.log('on ws error', e)
         reject(e)
       })
 
       const timeout = setTimeout(() => {
+        console.log('REJECT: IBC request TIMEOUT')
         reject(new Error('IBC request TIMEOUT'))
       }, 3000)
 
@@ -320,9 +322,12 @@ export class IBCTransfer {
   async getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
     let retries = 3
 
+    console.log('get proof start')
     while (retries != 0) {
       try {
-        return await this.fetchProof({ type, block_to_prove, action, last_proven_block })
+        const proof = await this.fetchProof({ type, block_to_prove, action, last_proven_block })
+        console.log('getProof retrun', proof)
+        return proof
       } catch (e) {
         console.log('ibc get proof err, retrying', e)
         this.socketsQueue.nextSocket()
