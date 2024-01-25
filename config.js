@@ -451,6 +451,7 @@ const networks = {
       'superruncoin',
       'bosibc.io',
       'junkoqwertyu',
+      'orderofomnis'
     ],
 
     CEX_CONTRACTS: [
