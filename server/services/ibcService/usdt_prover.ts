@@ -14,6 +14,7 @@ const EOS_CEX_ACCOUNTS = [
   'eosdididada3',
   'bitfinexcw55',
   'bitfinexdep1',
+  'eosbndeposit'
 ]
 
 async function fetchProvenList(chain, contract) {
