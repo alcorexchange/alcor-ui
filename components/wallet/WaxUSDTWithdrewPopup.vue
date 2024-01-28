@@ -57,12 +57,6 @@ export default {
     memo: null
   }),
 
-  computed: {
-    memo() {
-      return this.$store.state.user.name.replaceAll('.', '0')
-    }
-  },
-
   methods: {
     submit() {
       if (!this.amount) return this.$notify({ type: 'warning', message: 'Fill Amount' })
