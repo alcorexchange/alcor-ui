@@ -1,12 +1,14 @@
 require('dotenv').config()
 
-import axios from 'axios'
-import { networks } from '../../../config'
-import { fetchAllRows, getMultyEndRpc } from '../../../utils/eosjs'
-import { getWrapLockContracts } from './ibcChains'
+import { fetchAllRows } from '../../../utils/eosjs'
+import { chains, getWrapLockContracts } from './ibcChains'
 import { getReceiptDigest } from './digest'
 import { prove } from './prove'
+import { eosCexDepsitsWorker } from './eosCexDepositProver'
 
+const EOS_CEX_ACCOUNTS = [
+  'kucoindoteos', 'binancecleos', 'huobideposit', 'okbtothemoon', 'eosdididada3', 'bitfinexcw55', 'bitfinexdep1', 'eosbndeposit'
+]
 
 async function fetchProvenList(chain, contract) {
   // Add chache
@@ -72,8 +74,19 @@ async function fetchXfers(chains, lockContract, _native) {
 
   // Protocol updated
   if (sourceChain.name == 'eos' && contract == 'w.ibc.alcor') getActionsParams.after = '2023-12-18T14:25:14.500'
+  if (sourceChain.name == 'wax' && contract == 'usdt.alcor') getActionsParams.after = '2023-12-18T14:25:14.500'
 
-  const actions = await getActions(sourceChain, contract, getActionsParams)
+  let actions = await getActions(sourceChain, contract, getActionsParams)
+
+  // Prove only trnasfers to CEX's
+  if (sourceChain.name == 'wax' && contract == 'usdt.alcor') {
+    actions = actions.filter(a => {
+      const memo = a.act.data.xfer.memo || ''
+      const cex_account = memo.split('#')[0]
+
+      return EOS_CEX_ACCOUNTS.includes(cex_account)
+    })
+  }
 
   if (actions.length == 0) return []
 
@@ -90,45 +103,18 @@ async function fetchXfers(chains, lockContract, _native) {
   return actions
 }
 
-const supportedNetworks = ['eos', 'wax', 'telos', 'ux']
-//const supportedNetworks = ['eos']
-
-const chains = []
-
-for (const network of Object.values(networks).filter((n: any) => supportedNetworks.includes(n.name)) as any) {
-  const nodes = Object.keys(network.client_nodes)
-  nodes.sort((a, b) => (a.includes('alcor') ? -1 : 1))
-
-  chains.push({
-    ...network,
-    hyperion: axios.create({ baseURL: network.hyperion }),
-    rpc: getMultyEndRpc(nodes),
-    wrapLockContracts: []
-  })
-}
-
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-async function main() {
-  console.log('EOS USDT.ALCOR -> WAX WORKER STARTED')
-  const ibcTokens = await getWrapLockContracts(chains)
-
-  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
-
-  const _native = true
-
-  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
-  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
-
+async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) {
   while (true) {
-    // Proving USDT every minute
+    console.log('prove transfers while.. ', sourceChain.name, destinationChain.name)
     try {
-      const actions = await fetchXfers(chains, USDT_ALCOR, _native)
+      const actions = await fetchXfers(chains, ibcToken, _native)
 
       for (const action of actions) {
         if (!action.proven) {
-          console.log(action.timestamp, action.act.data)
-          const proved = await prove(sourceChain, destinationChain, action, USDT_ALCOR, _native)
+          console.log(action.timestamp, action)
+          const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
           console.log({ proved })
         }
       }
@@ -136,8 +122,41 @@ async function main() {
       console.error('IBC WORKER ERROR', e)
     }
 
-    await sleep(60 * 1000)
+    await sleep(6 * 1000)
   }
+}
+
+async function eosToWaxWorker(ibcTokens) {
+  console.log('EOS USDT.ALCOR -> WAX WORKER STARTED')
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
+
+  const _native = true
+  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
+  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
+
+  await proveTransfers(USDT_ALCOR, sourceChain, destinationChain, _native)
+}
+
+async function WaxToEosWorker(ibcTokens) {
+  console.log('WAX USDT.ALCOR -> EOS WORKER STARTED')
+
+  const USDT_ALCOR = ibcTokens.find(i => i.wrapLockContract == 'w.ibc.alcor' && i.chain == 'eos')
+
+  const _native = false
+  const sourceChain = _native ? chains.find(c => c.name == USDT_ALCOR.chain) : chains.find(c => c.name == USDT_ALCOR.pairedChain)
+  const destinationChain = _native ? chains.find(c => c.name == USDT_ALCOR.pairedChain) : chains.find(c => c.name == USDT_ALCOR.chain)
+
+  await proveTransfers(USDT_ALCOR, sourceChain, destinationChain, _native)
+}
+
+async function main() {
+  const ibcTokens = await getWrapLockContracts(chains)
+
+  await Promise.all([
+    WaxToEosWorker(ibcTokens),
+    eosToWaxWorker(ibcTokens),
+    eosCexDepsitsWorker()
+  ])
 }
 
 main()

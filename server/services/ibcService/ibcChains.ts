@@ -1,7 +1,25 @@
+import axios from 'axios'
 import { SymbolCode } from 'eos-common'
 
 import { nameToUint64 } from '../../../utils'
+import { getMultyEndRpc } from '../../../utils/eosjs'
 import { getAllLockContracts } from '../../../utils/ibc'
+import { networks } from '../../../config'
+
+export const chains = []
+
+const supportedNetworks = ['eos', 'wax', 'telos', 'ux']
+for (const network of Object.values(networks).filter((n: any) => supportedNetworks.includes(n.name)) as any) {
+  const nodes = Object.keys(network.client_nodes)
+  nodes.sort((a, b) => (a.includes('alcor') ? -1 : 1))
+
+  chains.push({
+    ...network,
+    hyperion: axios.create({ baseURL: network.hyperion }),
+    rpc: getMultyEndRpc(nodes),
+    wrapLockContracts: []
+  })
+}
 
 export async function getWrapLockContracts(chains) {
   const promises = []

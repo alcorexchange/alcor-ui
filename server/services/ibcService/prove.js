@@ -233,12 +233,17 @@ export class IBCTransfer {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.socketsQueue.getSocket())
 
-      ws.on('error', e => {
-        reject(e)
+      ws.addEventListener('error', e => {
+        console.log('on ws error', e)
+        ws.close()
+        return reject(e)
       })
 
-      const timeout = setTimeout(() => {
-        reject(new Error('IBC request TIMEOUT'))
+      const initialCallTimeout = setTimeout(() => {
+        console.log('REJECT: IBC request INITIAL_CALL_TIMEOUT')
+        // возможно после этого код выполняется
+        ws.close()
+        return reject(new Error('IBC request INITIAL_CALL_TIMEOUT'))
       }, 3000)
 
       // TODO catch ibc is whole down
@@ -250,13 +255,30 @@ export class IBCTransfer {
         ws.send(JSON.stringify(query))
       })
 
+      let inProcessCallTimeout
       //messages from websocket server
       ws.addEventListener('message', (event) => {
-        // Clearing request timeout
-        clearTimeout(timeout)
-        const res = JSON.parse(event.data)
+        clearTimeout(initialCallTimeout)
+        const res = JSON.parse(event.data) // TODO Might be cath JSON parse error
+        console.log('proov server message: ', res)
+
+        if (inProcessCallTimeout) {
+          clearTimeout(inProcessCallTimeout)
+        }
+
+        inProcessCallTimeout = setTimeout(() => {
+          console.log('REJECT: IBC request IN_PROCESS_TIMEOUT')
+          // If IBC not responding for half minute
+          ws.close()
+          return reject(new Error('IBC request IN_PROCESS_TIMEOUT'))
+        }, 30 * 1000)
+
         //log non-progress messages from ibc server
-        if (res.type == 'error') return reject(res.error)
+        if (res.type == 'error') {
+          console.log('res error...')
+          return reject(res.error)
+        }
+
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
@@ -264,9 +286,13 @@ export class IBCTransfer {
           console.log('progress', res.progress)
         }
 
-        if (res.type !== 'proof') return
+        if (res.type !== 'proof') {
+          console.log('not a prove return')
+          return
+        }
 
         ws.close()
+        console.log('ws connection closed')
 
         let name
         if (type === 'lightProof') name = this.native ? 'issueb' : 'withdrawb'
@@ -303,17 +329,23 @@ export class IBCTransfer {
             receipt: { ...action.receipt, auth_sequence }
           }
         }
-        resolve(actionToSubmit)
+
+        clearTimeout(inProcessCallTimeout)
+        return resolve(actionToSubmit)
       })
     })
   }
 
   async getProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
-    let retries = 3
+    let retries = 5
 
+    console.log('get proof start')
     while (retries != 0) {
       try {
-        return await this.fetchProof({ type, block_to_prove, action, last_proven_block })
+        console.log('call fetchProof from while')
+        const proof = await this.fetchProof({ type, block_to_prove, action, last_proven_block })
+        console.log('getProof retrun', proof)
+        return proof
       } catch (e) {
         console.log('ibc get proof err, retrying', e)
         this.socketsQueue.nextSocket()
@@ -460,15 +492,17 @@ export async function prove(sourceChain, destinationChain, action, lockContract,
     destinationChain,
     lockContract,
     native,
-    (p) => console.log(p)
+    (p) => {}
   )
 
   const last_proven_block = await ibcTransfer.getLastProvenBlock()
 
+  console.log('getScheduleProofs')
   const scheduleProofs =
     (await ibcTransfer.getScheduleProofs(action.trx_id)) || []
 
   // TODO Popup
+  console.log('submitScheduleProofs')
   for (const proof of scheduleProofs) {
     await ibcTransfer.submitProofs([proof])
   }
@@ -501,11 +535,13 @@ export async function prove(sourceChain, destinationChain, action, lockContract,
 
   if (light) query.last_proven_block = last_proven_block.block_height
 
+  console.log('getProof')
   const emitxferProof = await ibcTransfer.getProof(query)
 
   if (light)
     emitxferProof.data.blockproof.root =
       last_proven_block.block_merkle_root
 
+  console.log('submitProofs')
   return await ibcTransfer.submitProofs([emitxferProof])
 }

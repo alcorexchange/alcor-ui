@@ -7,13 +7,13 @@ import { SwapPool } from '../../models'
 const redis = createClient()
 
 export function getPoolPriceA(sqrtPriceX64, precisionA, precisionB) {
-  console.log(sqrtPriceX64, precisionA, precisionB)
-  console.log(Big(sqrtPriceX64).pow(2).toString(), Big(2).pow(128).times(10).toString())
-  return Big(sqrtPriceX64).pow(2).div(Big(2).pow(128).times(10).pow(precisionA - precisionB)).toNumber()
+  // console.log(sqrtPriceX64, precisionA, precisionB)
+  // console.log(Big(sqrtPriceX64).pow(2).toString(), Big(2).pow(128).times(10).toString())
+  return Big(sqrtPriceX64).pow(2).div(Big(2).pow(128).times(10).pow(precisionA - precisionB)).toString()
 }
 
 export function getPoolPriceB(sqrtPriceX64, precisionA, precisionB) {
-  return Big(2).pow(128).div(Big(sqrtPriceX64).pow(2).times(10).pow(precisionB - precisionA)).toNumber()
+  return Big(2).pow(128).div(Big(sqrtPriceX64).pow(2).times(10).pow(precisionB - precisionA)).toString()
 }
 
 export async function getPoolInstance(chain: string, id): Promise<Pool> {

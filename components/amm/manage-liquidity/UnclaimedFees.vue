@@ -29,6 +29,8 @@
 import { mapState } from 'vuex'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorButton from '~/components/AlcorButton.vue'
+import { getCollectActions } from '~/utils/amm'
+
 export default {
   components: {
     RangeIndicator,
@@ -55,43 +57,10 @@ export default {
     async collect() {
       if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
 
-      const { tokenA, tokenB } = this.position.pool
-      const { owner, tickLower, tickUpper } = this.position
-
-      const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
-      const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
-
-      const actions = [{
-        account: this.network.amm.contract,
-        name: 'subliquid',
-        authorization: [this.user.authorization],
-        data: {
-          poolId: this.position.pool.id,
-          owner,
-          liquidity: 0,
-          tickLower,
-          tickUpper,
-          tokenAMin: tokenAZero,
-          tokenBMin: tokenBZero,
-          deadline: 0
-        }
-      }, {
-        account: this.network.amm.contract,
-        name: 'collect',
-        authorization: [this.user.authorization],
-        data: {
-          poolId: this.position.pool.id,
-          owner,
-          recipient: owner,
-          tickLower,
-          tickUpper,
-          tokenAMax: tokenAZero,
-          tokenBMax: tokenBZero,
-        }
-      }]
+      const actions = getCollectActions(this.network, this.user, this.position)
 
       const result = await this.$store.dispatch('chain/sendTransaction', actions)
-      console.log({ result })
+      console.log('result', result)
     }
   }
 }

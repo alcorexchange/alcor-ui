@@ -12,7 +12,7 @@ import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
-import { getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
+import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
 
 const redis = createClient()
@@ -334,10 +334,20 @@ export async function updatePools(chain) {
     if (!current_pools.includes(pool.id)) {
       const parsed_pool = parsePool(pool)
 
+      const price = new Price(
+        parseToken(pool.tokenA),
+        parseToken(pool.tokenB),
+        Q128,
+        JSBI.multiply(JSBI.BigInt(parsed_pool.sqrtPriceX64), JSBI.BigInt(parsed_pool.sqrtPriceX64))
+      )
+
+      const priceA = price.toSignificant()
+      const priceB = price.invert().toSignificant()
+
       const p = {
         ...parsed_pool,
-        priceA: getPoolPriceA(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
-        priceB: getPoolPriceB(parsed_pool.sqrtPriceX64, parsed_pool.tokenA.decimals, parsed_pool.tokenB.decimals),
+        priceA,
+        priceB,
         chain
       }
 

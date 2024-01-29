@@ -29,10 +29,14 @@
   .actions(v-if="!isMobile && useActions")
     template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
       .p4.mr-3
-        alcor-button(outline @click="$emit('openDeposit', item)")
+        alcor-button(@click="$emit('openWithdraw', item)")
+          i.el-icon-upload2
+          | Withdraw
+
+      .p4.mr-3
+        alcor-button(@click="$emit('openDeposit', item)")
           i.el-icon-download
           | Deposit
-      //el-button(type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
 
     el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
     el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Swap') }}

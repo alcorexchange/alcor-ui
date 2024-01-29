@@ -196,12 +196,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.gg/elementerra',
+        link: 'https://discord.com/invite/brixsociety',
         image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(120,88,12,0.2)',
-          'rgba(69,98,42, 1)',
-          'rgba(115,117,139,1)',
+          'rgba(251,227,121,0.2)',
+          'rgba(139,50,100, 1)',
+          'rgba(72,89,107,1)',
         ],
       },
       {

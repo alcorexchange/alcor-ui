@@ -345,17 +345,22 @@ export class IBCTransfer {
 
   fetchProof({ type = 'heavyProof', block_to_prove, action, last_proven_block }) {
     return new Promise((resolve, reject) => {
-      //initialize socket to proof server
       const ws = new WebSocket(this.socketsQueue.getSocket())
 
       ws.addEventListener('error', e => {
-        reject(e)
+        console.log('on ws error', e)
+        ws.close()
+        return reject(e)
       })
 
-      const timeout = setTimeout(() => {
-        reject(new Error('IBC request TIMEOUT'))
+      const initialCallTimeout = setTimeout(() => {
+        console.log('REJECT: IBC request INITIAL_CALL_TIMEOUT')
+        // возможно после этого код выполняется
+        ws.close()
+        return reject(new Error('IBC request INITIAL_CALL_TIMEOUT'))
       }, 3000)
 
+      // TODO catch ibc is whole down
       ws.addEventListener('open', (event) => {
         // connected to websocket server
         const query = { type, block_to_prove }
@@ -364,13 +369,30 @@ export class IBCTransfer {
         ws.send(JSON.stringify(query))
       })
 
+      let inProcessCallTimeout
       //messages from websocket server
       ws.addEventListener('message', (event) => {
-        clearTimeout(timeout)
+        clearTimeout(initialCallTimeout)
+        const res = JSON.parse(event.data) // TODO Might be cath JSON parse error
+        console.log('proov server message: ', res)
 
-        const res = JSON.parse(event.data)
+        if (inProcessCallTimeout) {
+          clearTimeout(inProcessCallTimeout)
+        }
+
+        inProcessCallTimeout = setTimeout(() => {
+          console.log('REJECT: IBC request IN_PROCESS_TIMEOUT')
+          // If IBC not responding for half minute
+          ws.close()
+          return reject(new Error('IBC request IN_PROCESS_TIMEOUT'))
+        }, 30 * 1000)
+
         //log non-progress messages from ibc server
-        if (res.type == 'error') return reject(res.error)
+        if (res.type == 'error') {
+          console.log('res error...')
+          return reject(res.error)
+        }
+
         if (res.type !== 'progress')
           console.log('Received message from ibc proof server', res)
         if (res.type == 'progress') {
@@ -378,7 +400,10 @@ export class IBCTransfer {
           console.log('progress', res.progress)
         }
 
-        if (res.type !== 'proof') return
+        if (res.type !== 'proof') {
+          console.log('not a prove return')
+          return
+        }
 
         ws.close()
 

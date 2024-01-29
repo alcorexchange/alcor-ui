@@ -451,6 +451,7 @@ const networks = {
       'superruncoin',
       'bosibc.io',
       'junkoqwertyu',
+      'orderofomnis'
     ],
 
     CEX_CONTRACTS: [
@@ -471,6 +472,7 @@ const networks = {
       'usdt-usdt.alcor',
       //'eos-ibc.wt.eos',
       //'wombat-wombattokens',
+      'cred-musictoken',
       'tlm-alien.worlds',
     ],
 
