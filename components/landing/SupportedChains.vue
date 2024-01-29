@@ -57,6 +57,12 @@
           span.name Status Page
           span.desc Check services health
 
+        //- a.item(href="https://status.alcor.exchange" target="_blank")
+        //-   .icon
+        //-     img(src='~/assets/icons/health-check.png')
+        //-   span.name Email
+        //-   span.desc support@alcor.exchange
+
       span.title {{ $t('PARTNERS_PROVIDERS') }}
       .items
         a.item(v-for="{ image, lightImage, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
