@@ -7,14 +7,7 @@ import { prove } from './prove'
 import { eosCexDepsitsWorker } from './eosCexDepositProver'
 
 const EOS_CEX_ACCOUNTS = [
-  'kucoindoteos',
-  'binancecleos',
-  'huobideposit',
-  'okbtothemoon',
-  'eosdididada3',
-  'bitfinexcw55',
-  'bitfinexdep1',
-  'eosbndeposit'
+  'kucoindoteos', 'binancecleos', 'huobideposit', 'okbtothemoon', 'eosdididada3', 'bitfinexcw55', 'bitfinexdep1', 'eosbndeposit'
 ]
 
 async function fetchProvenList(chain, contract) {
