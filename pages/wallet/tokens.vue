@@ -5,7 +5,7 @@
     el-checkbox() {{ $t('Hide small balances') }}
   virtual-table(:table="virtualTableData")
     template(#row="{ item }")
-      WalletRow(:item="item" :useActions="true" @openDeposit="openDeposit", @openWithdraw="openWithdraw", @trade="trade", @pools="pools")
+      WalletRow(:item="item" :useActions="true" @openDeposit="openDeposit", @openWithdraw="openWithdraw" @openTransfer="openTransfer" @trade="trade", @pools="pools")
 
   DepositPopup(ref="depositPopup")
   WaxUSDTDepositPopup(ref="waxUSDTdepositPopup")
@@ -140,16 +140,18 @@ export default {
     openWithdraw(row) {
       if (this.network.name == 'wax' && row.contract == 'usdt.alcor') {
         this.$refs.waxUSDTWithdrewPopup.openPopup({})
-      } else {
-        // TODO might unreacheble code
-        this.$refs.transferPopup.openPopup({
-          token: {
-            contract: row.contract,
-            currency: row.currency,
-            decimals: Number(row.decimals)
-          }
-        })
       }
+    },
+
+    openTransfer(row) {
+      console.log('open transfer')
+      this.$refs.transferPopup.openPopup({
+        token: {
+          contract: row.contract,
+          currency: row.currency,
+          decimals: Number(row.decimals)
+        }
+      })
     }
   }
 }
