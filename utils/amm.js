@@ -273,3 +273,42 @@ export function constructPosition(pool, position) {
 
   return tempPosition
 }
+
+export function getCollectActions(network, user, position) {
+  const { tokenA, tokenB } = position.pool
+  const { owner, tickLower, tickUpper } = position
+
+  const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
+  const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+
+  const actions = [{
+    account: network.amm.contract,
+    name: 'subliquid',
+    authorization: [user.authorization],
+    data: {
+      poolId: position.pool.id,
+      owner,
+      liquidity: 0,
+      tickLower,
+      tickUpper,
+      tokenAMin: tokenAZero,
+      tokenBMin: tokenBZero,
+      deadline: 0
+    }
+  }, {
+    account: network.amm.contract,
+    name: 'collect',
+    authorization: [user.authorization],
+    data: {
+      poolId: position.pool.id,
+      owner,
+      recipient: owner,
+      tickLower,
+      tickUpper,
+      tokenAMax: tokenAZero,
+      tokenBMax: tokenBZero,
+    }
+  }]
+
+  return actions
+}
