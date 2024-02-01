@@ -205,12 +205,12 @@ export default {
         ],
       },
       {
-        link: 'https://musicmogul.io/',
+        link: 'https://creditmetaverse.io/',
         image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(235,83,230,0.2)',
-          'rgba(0,222,255,1)',
-          'rgba(59,33,86, 1)',
+          'rgba(243,179,7,0.2)',
+          'rgba(54,40,96,1)',
+          'rgba(213,202,229, 1)',
         ],
       },
     ]
