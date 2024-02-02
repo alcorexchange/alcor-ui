@@ -2,7 +2,7 @@
 #bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-2
   .greet
     h1.fs-20.md-fs-36.text-center Alcor IBC Bridge
-    .fs-16.md-fs-24 Bridge assets from different chains
+    .fs-16.md-fs-24 Bridge assets between Antelope chains
 
   client-only
     BridgeForm.mt-2

@@ -24,7 +24,7 @@ export const actions = {
 export const getters = {
   balances(state, getters, rootState) {
     const tokens = rootState.tokens
-    const balances = rootState.user?.balances ?? []
+    const balances = rootState.userBalances
 
     return balances.map(token => {
       const id = (token.currency + '-' + token.contract).toLowerCase()

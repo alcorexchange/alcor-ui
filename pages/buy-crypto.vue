@@ -1,5 +1,9 @@
 <template lang="pug">
-  no-ssr
+no-ssr
+  .mt-2
+    h1.fs-20.md-fs-36.text-center Cross Chain Bridges
+    .fs-16.md-fs-24.text-center Bridge assets between any chains
+
     .buy-crypto-widget.d-flex.justify-content-center(v-loading="loading")
       iframe(id="simpleswap-frame" name="SimpleSwap Widget" width="700px" height="500px"
         src="https://simpleswap.io/widget/f3468c8a-b48b-4cbc-a3da-401d6adce21f" frameborder="0")
@@ -75,6 +79,6 @@ export default {
 <style>
 
 .buy-crypto-widget {
-  margin-top: 50px;
+  margin-top: 20px;
 }
 </style>

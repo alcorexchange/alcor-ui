@@ -3,7 +3,7 @@
     template(#title)
       .title-container
         i.el-icon-wallet
-        .text Deposit USDT to WAX
+        .text Deposit USDT to WAX from CEX
     .main(v-if="this.$store.state.user && this.$store.state.user.name")
       blockquote.blockquote.text-left
         p.text-wrap.mb-0
