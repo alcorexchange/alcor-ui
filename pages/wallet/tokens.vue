@@ -34,12 +34,15 @@ export default {
     WaxUSDTDepositPopup,
     WaxUSDTWithdrewPopup
   },
+
   data: () => ({
     search: ''
   }),
+
   computed: {
     ...mapGetters(['user']),
     ...mapState(['network', 'markets']),
+
     virtualTableData() {
       const header = [
         {
@@ -75,7 +78,7 @@ export default {
 
     balances() {
       if (!this.user) return []
-      if (!this.user.balances) return []
+      //if (!this.user.balances) return []
 
       const balances = this.$store.getters['wallet/balances']
         .filter((b) => {
