@@ -450,6 +450,32 @@
             "https://www.reddit.com/r/cXcMusic"
         ]
     },
+    "TETRA@tetra": {
+        "name": "Tetra",
+        "website": {
+            "link": "https://tetra.earth/",
+            "name": "Tetra.earth"
+        },
+        "tags": [
+            "dgov",
+            "web4",
+            "NFT",
+            "Social",
+            "fundraising"
+        ],
+        "description": "",
+        "github": "https://github.com/TetraGrids",
+        "socials": [
+            "https://know.tetra.earth/",
+            "https://linktr.ee/tetra.earth",
+            "https://twitter.com/tetragrids",
+            "https://www.youtube.com/@tetragrids",
+            "https://discord.gg/ZSU5BgGTAY",
+            "https://t.me/tetragrids",
+            "https://www.facebook.com/tetra.earth",
+            "https://www.reddit.com/r/cXcMusic"
+        ]
+    },
     "SCRAP@token.gene": {
         "name": "Scrap",
         "website": {
