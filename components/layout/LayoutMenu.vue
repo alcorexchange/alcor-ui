@@ -1,20 +1,24 @@
 <template lang="pug">
-.layout-menu
+.layout-menu(@keydown="handleKeydown" @focusout="handleFocusout" ref="menu")
   .main
     .start
       .logo LOGO
       .menu-items
         button.menu-item
           span Swap
-        button.menu-item(@mouseenter="handleItemMouseEnter($event, 'trade')" @mouseleave="handleItemMouseLeave")
-          span Trade
-        button.menu-item(@mouseenter="handleItemMouseEnter($event, 'earn')" @mouseleave="handleItemMouseLeave")
-          span Earn
+        button.menu-item(
+          v-for="item in items"
+          @mouseenter="handleItemMouseEnter($event, item.contentKey)"
+          @mouseleave="handleItemMouseLeave"
+          @click="handleItemClick($event, item.contentKey)"
+        )
+          span {{ item.name }}
     .end END
   .content-wrapper
     Transition(name="content-container")
       .menu-content-container(
         v-if="isOpen"
+        tabindex="-1"
         @mouseenter="handleContentMouseEnter"
         @mouseleave="handleContentMouseLeave"
         ref="contentContainer"
@@ -45,6 +49,11 @@ export default {
       resizeObserver: null,
       currentContent: null, // 'trade' | 'earn'
       contentOffset: null,
+      // These are the items that have dropdown content
+      items: [
+        { name: 'Trade', contentKey: 'trade' },
+        { name: 'Earn', contentKey: 'earn' },
+      ],
     }
   },
 
@@ -77,6 +86,16 @@ export default {
       this.closeTimeout = setTimeout(() => this.close(), 300)
     },
 
+    handleItemClick(event, content) {
+      if (this.isOpen && content === this.currentContent) {
+        this.close()
+        return
+      }
+      this.open()
+      this.contentOffset = event.currentTarget.offsetLeft
+      this.currentContent = content
+    },
+
     handleItemMouseEnter(event, content) {
       this.open()
       this.contentOffset = event.target.offsetLeft
@@ -86,8 +105,6 @@ export default {
     handleItemMouseLeave(event) {
       this.delayedClose()
     },
-
-    onItemClick() {},
 
     handleContentMouseEnter() {
       clearTimeout(this.closeTimeout)
@@ -103,6 +120,23 @@ export default {
         width: rect.width,
         height: rect.height,
       }
+    },
+
+    handleKeydown(event) {
+      const key = event.key
+
+      if (key === 'Escape') {
+        this.close()
+      }
+
+      // handle focus of sub menu
+    },
+
+    handleFocusout(event) {
+      if (this.$refs.menu.contains(event.relatedTarget)) {
+        return
+      }
+      this.close()
     },
 
     runResizeObserver() {
@@ -141,7 +175,8 @@ export default {
       color: inherit;
       transition: all 0.3s;
 
-      &:hover {
+      &:hover,
+      &:focus {
         background: var(--btn-active);
       }
     }
