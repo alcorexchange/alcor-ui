@@ -6,7 +6,8 @@ declare global {
       contract: string,
       precision: number
     },
-    CMC_UCIDS: string[]
+    CMC_UCIDS: string[],
+    client_nodes: string[]
   }
 }
 export {}

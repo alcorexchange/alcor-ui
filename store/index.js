@@ -9,7 +9,8 @@ export const strict = false
 
 export const state = () => ({
   user: null,
-  //user: { name: 'admin.alcor' },
+  //user: { name: 'unobe.wam' },
+  userBalances: [],
   userDeals: [],
   userOrders: [],
   userOrdersLoading: true,
@@ -57,16 +58,29 @@ export const mutations = {
     else balances.splice(index, 1, { ...balances[index], ...balance })
 
     state.user = { ...state.user, balances }
+
+    // New balances logic
+    state.userBalances = balances
+    // TODO Transit to new userBalances property
   },
 
-  setUser: (state, user) => state.user = user,
+  setUser: (state, user) => {
+    state.user = user
+    if (user.balances) {
+      state.userBalances = user.balances
+    }
+  },
+
   setUserBalances: (state, balances) => {
     if (state.user) state.user.balances = balances
+    state.userBalances = balances
   },
+
   setMarkets: (state, markets) => {
     state.markets_obj = markets.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {})
     state.markets = markets
   },
+
   setUserDeals: (state, deals) => state.userDeals = deals,
   setLiquidityPositions: (state, positions) => state.liquidityPositions = positions,
 
@@ -102,7 +116,7 @@ export const actions = {
   //   }
   // },
 
-  init({ dispatch, state, getters }) {
+  init({ dispatch, state, getters, commit }) {
     dispatch('addIBCTokens')
 
     dispatch('loadAllTokens')
