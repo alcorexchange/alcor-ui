@@ -1,5 +1,6 @@
 <template lang="pug">
-nav.nav(v-if='!isMobile')
+LayoutMenu(v-if="!isMobile")
+//nav.nav(v-if='!isMobile')
   .nav-side.nav-left
     nuxt-link(:to='localePath("index", $i18n.locale)')
       img.logo(
@@ -77,6 +78,7 @@ nav.nav(v-if='!isMobile')
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav'
+import LayoutMenu from '~/components/layout/LayoutMenu'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Settings from '~/components/layout/Settings'
 import NewBadge from '~/components/svg-icons/NewBadge.vue'
@@ -89,6 +91,7 @@ export default {
     ChainSelect,
     Settings,
     NewBadge,
+    LayoutMenu,
   },
 
   data() {
