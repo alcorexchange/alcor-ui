@@ -4,15 +4,20 @@
     .start
       .logo LOGO
       .menu-items
-        button.menu-item
-          span Swap
-        button.menu-item(
+        template(
           v-for="item in items"
-          @mouseenter="handleItemMouseEnter($event, item.contentKey)"
-          @mouseleave="handleItemMouseLeave"
-          @click="handleItemClick($event, item.contentKey)"
         )
-          span {{ item.name }}
+          button.menu-item(
+            v-if="item.contentKey"
+            @mouseenter="handleItemMouseEnter($event, item.contentKey)"
+            @mouseleave="handleItemMouseLeave"
+            @click="handleItemClick($event, item.contentKey)"
+            :class="{ active: isOpen && currentContent == item.contentKey }"
+          )
+            span {{ item.name }}
+            i.el-icon-caret-bottom
+          button.menu-item(v-else)
+            span {{ item.name }}
     .end END
   .content-wrapper
     Transition(name="content-container")
@@ -25,11 +30,25 @@
         :style="renderContainerStyle"
       )
         Transition(name="content" @enter="handleContentEnter" appear)
-          .menu-content.trade-content(v-if="currentContent === 'trade'" key="trade") TRADE CONTENT
+
+          .menu-content.trade-content(v-if="currentContent === 'trade'" key="trade")
+            LayoutSubMenuItem(title="Spot Markets" description="Trade tokens with advanced orderbooks")
+            LayoutSubMenuItem(title="OTC" description="Trade tokens in bulk")
+            LayoutSubMenuItem(title="NFT" description="Trade, Explore and create NFTs")
+
           .menu-content.earn-content(v-if="currentContent === 'earn'" key="earn")
-            .d-flex
-              LayoutSubMenuItem(title="Pools" description="Manage liquidity pools")
-              LayoutSubMenuItem(title="Farms" description="Stake your liquidity positions in farms")
+            LayoutSubMenuItem(title="Pools" description="Manage liquidity pools")
+            LayoutSubMenuItem(title="Farms" description="Stake your liquidity positions in farms")
+
+          .menu-content.earn-content(v-if="currentContent === 'bridge'" key="bridge")
+            LayoutSubMenuItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network")
+            LayoutSubMenuItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto")
+
+          .menu-content.earn-content(v-if="currentContent === 'docs'" key="docs")
+            LayoutSubMenuItem(title="Docs" description="Alcor Documentation")
+            LayoutSubMenuItem(title="API" description="Alcor API documentation")
+            LayoutSubMenuItem(title="Github" description="Code & Contribution")
+            LayoutSubMenuItem(title="Analytics" description="Alcor Statistics")
 </template>
 
 <script>
@@ -51,8 +70,12 @@ export default {
       contentOffset: null,
       // These are the items that have dropdown content
       items: [
+        { name: 'Swap', contentKey: null },
         { name: 'Trade', contentKey: 'trade' },
         { name: 'Earn', contentKey: 'earn' },
+        { name: 'Wallet', contentKey: null },
+        { name: 'Bridge', contentKey: 'bridge' },
+        { name: 'Docs & Socials', contentKey: 'docs' },
       ],
     }
   },
@@ -153,6 +176,7 @@ export default {
 <style scoped lang="scss">
 .layout-menu {
   position: relative;
+  z-index: 100;
   background: var(--background-color-third);
   .main {
     display: flex;
@@ -174,6 +198,18 @@ export default {
       cursor: pointer;
       color: inherit;
       transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      i {
+        transition: transform 0.3s;
+      }
+
+      &.active {
+        i {
+          transform: rotate(180deg);
+        }
+      }
 
       &:hover,
       &:focus {
