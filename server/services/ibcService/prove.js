@@ -294,17 +294,22 @@ export class IBCTransfer {
         ws.close()
         console.log('ws connection closed')
 
+        console.log('zzz', { type }, action)
         let name
         if (type === 'lightProof') name = this.native ? 'issueb' : 'withdrawb'
         else name = !action ? 'checkproofd' : this.native ? 'issuea' : 'withdrawa'
 
         //handle issue/withdraw if proving transfer/retire 's emitxfer action, else submit block proof to bridge directly (for schedules)
+        //
+        //
         const actionToSubmit = {
           authorization: [{ actor: IBC_WORKS_ACCOUNTS[this.destination.name], permission: 'active' }],
           name,
-          account: this.native
-            ? this.lockContract.pairedWrapTokenContract
-            : this.lockContract.wrapLockContract,
+          account: !action
+            ? this.asset.bridgeContract
+            : this.asset.native
+              ? this.asset.pairedWrapTokenContract
+              : this.asset.wrapLockContract,
           data: { ...res.proof, prover: IBC_WORKS_ACCOUNTS[this.destination.name] }
         }
 
