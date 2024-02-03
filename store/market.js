@@ -395,6 +395,8 @@ export const actions = {
     }
   },
   async calcAndSetTotal({ state, commit, dispatch }) {
+    console.log('calcAndSetTotal', state.amount_buy)
+
     if (state.amount_buy > 0) {
       const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
       commit('SET_TOTAL_BUY', totalBuy)
