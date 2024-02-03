@@ -19,7 +19,7 @@
           td
             .icon-and-value
               TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-              span {{ incentive.reward.quantity.split(' ')[0] | nFormat(incentive.reward.symbol.precision) }}
+              span {{ incentive.reward.quantity.split(' ')[0] | nFormat(3) }}
               span.color-grey-thirdly {{ incentive.reward.quantity.split(' ')[1] }}
           td(:class="incentive.isFinished ? 'red': 'green'") {{ incentive.isFinished ? 'Finished' : 'Active' }}
           td {{ incentive.lastUpdateTime | moment('YYYY-MM-DD HH:mm') }}
