@@ -12,7 +12,7 @@
       :use-css-transforms='true'
       @layout-updated="layoutUpdatedEvent"
       @breakpoint-changed="layoutUpdatedEvent"
-      v-if="layouts.length > 0")
+      v-if="layouts.filter(i => i.status).length > 0")
 
       grid-item.overflowbox(
         v-for='item in layouts.filter(i => i.status)',

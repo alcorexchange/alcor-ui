@@ -167,7 +167,8 @@ export default {
     },
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
-      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme') || 'default']
+
       const isFundamentalPage = this.$route.name.startsWith('fundamentals-slug')
 
       this.widget.onChartReady(() => {
@@ -450,7 +451,7 @@ export default {
       const { $TVChart: { Widget } } = this
 
       const theme = this.chartThemes[this.$colorMode.value]
-      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme') || 'default']
 
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
