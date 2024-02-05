@@ -302,9 +302,11 @@ export class IBCTransfer {
         const actionToSubmit = {
           authorization: [{ actor: IBC_WORKS_ACCOUNTS[this.destination.name], permission: 'active' }],
           name,
-          account: this.native
-            ? this.lockContract.pairedWrapTokenContract
-            : this.lockContract.wrapLockContract,
+          account: !action
+            ? this.lockContract.bridgeContract // Chedule prove
+            : this.native
+              ? this.lockContract.pairedWrapTokenContract
+              : this.lockContract.wrapLockContract,
           data: { ...res.proof, prover: IBC_WORKS_ACCOUNTS[this.destination.name] }
         }
 

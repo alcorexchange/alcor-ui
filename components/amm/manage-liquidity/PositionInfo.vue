@@ -54,6 +54,11 @@
     .d-flex.justify-content-between.mt-1
       .fs-16 24H Estimated Fees
       .fs-16 ${{ estimatedFees }}
+
+    // TODO
+    //- .d-flex.justify-content-between.mt-1
+    //-   .fs-16 Total Claimed Fees
+    //-   .fs-16 ${{ estimatedFees }}
     //.d-flex.justify-content-between.mt-1
       .fs-16 Estimated APY
       .fs-16 ${{ APY }}

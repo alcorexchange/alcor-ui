@@ -66,7 +66,7 @@ export const mutations = {
 
   setUser: (state, user) => {
     state.user = user
-    if (user.balances) {
+    if (user?.balances) {
       state.userBalances = user.balances
     }
   },

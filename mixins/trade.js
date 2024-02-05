@@ -139,10 +139,10 @@ export const trade = {
         return
       }
 
-      if (bid == 'buy' && (parseFloat(this.total_buy) == 0 || this.total_buy == null || isNaN(this.total_buy))) {
+      if (trade !== 'market' && bid == 'buy' && (parseFloat(this.total_buy) == 0 || this.total_buy == null || isNaN(this.total_buy))) {
         this.$notify({ title: 'Place order', message: 'Specify the number and total amount of', type: 'error' })
         return
-      } else if (bid == 'sell' && (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell))) {
+      } else if (trade !== 'market' && bid == 'sell' && (parseFloat(this.amount_sell) == 0 || this.amount_sell == null || isNaN(this.amount_sell))) {
         this.$notify({ title: 'Place order', message: 'Specify the number of', type: 'error' })
         return
       }

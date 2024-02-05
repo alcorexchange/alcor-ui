@@ -68,16 +68,16 @@ export default {
   },
 
   head() {
-    const { symbol, quote_token, base_token } = this.$store.state.market
+    const { symbol, quote_token, stats: { last_price } } = this.$store.state.market
 
     return {
-      title: `Alcor Exchange | Market ${symbol}`,
+      title: `${last_price.toFixed(5)} | ${symbol} | Alcor Exchange (Spot)`,
 
       meta: [
         {
           hid: 'description',
           name: 'description',
-          content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain!`,
+          content: `Trade ${symbol} on Bitget's DEX at ${this.network.desc} blockchain. No KYC, no limits.`,
         },
         {
           // Will fail for non local images (ie. from eos-airdrops)

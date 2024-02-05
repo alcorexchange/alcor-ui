@@ -121,7 +121,7 @@ export default {
 
       items.push({ index: '/wallet', name: 'Wallet' })
 
-      if (['wax', 'eos'].includes(this.$store.state.network.name)) {
+      if (['wax', 'eos', 'proton', 'telos'].includes(this.$store.state.network.name)) {
         items.push({ index: '/buy-crypto', name: 'Cross Chain' })
       }
 
