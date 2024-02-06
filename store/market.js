@@ -564,6 +564,8 @@ export const actions = {
           }, 1000)
         })
 
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
+
       return { err: false, desc: res }
     } catch (e) {
       captureException(e, { extra: { order: this.order } })
@@ -625,6 +627,8 @@ export const actions = {
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
+
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
 
       return { err: false, desc: res }
     } catch (e) {

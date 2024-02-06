@@ -42,7 +42,7 @@ export const actions = {
       dispatch('autoLogin')
     }
 
-    // For tests
+    // FIXME For tests
     if (rootState?.user?.name) dispatch('afterLoginHook')
   },
 
@@ -55,6 +55,7 @@ export const actions = {
       const { name, authorization, chainId } = loginned
       if (chainId !== rootState.network.chainId) return console.log('autoLogin chain mismatch')
       commit('setUser', { name, authorization }, { root: true })
+      commit('setLastWallet', state.wallet.name)
       dispatch('afterLoginHook')
 
       return true
@@ -62,7 +63,8 @@ export const actions = {
     return false
   },
 
-  afterLoginHook({ dispatch, rootState }) {
+  afterLoginHook({ state, dispatch, rootState }) {
+    this._vm.$gtag.event('login', { wallet: state.lastWallet })
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 
@@ -123,7 +125,7 @@ export const actions = {
       commit('setWallet', wallet)
 
       const wasAutoLoginned = await dispatch('autoLogin')
-      if (wasAutoLoginned) return commit('setLastWallet', wallet.name)
+      if (wasAutoLoginned) return
 
       commit('setUser', { name, authorization }, { root: true })
       dispatch('afterLoginHook')

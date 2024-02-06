@@ -451,6 +451,9 @@ export default {
         })
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
+
+      this.$gtag.event('swap', { chain: this.network.name })
+
       console.log('SWAP: ', r)
     },
 
