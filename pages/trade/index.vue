@@ -77,7 +77,7 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: `Trade ${symbol} on Bitget's DEX at ${this.network.desc} blockchain. No KYC, no limits.`,
+          content: `Trade ${symbol} on Biggest DEX at ${this.network.desc} blockchain. No KYC, no limits.`,
         },
         {
           // Will fail for non local images (ie. from eos-airdrops)
