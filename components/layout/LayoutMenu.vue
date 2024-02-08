@@ -27,33 +27,41 @@
   .content-wrapper
     Transition(name="content-container")
       .menu-content-container(
-        v-if="isOpen"
+        v-show="isOpen"
         tabindex="-1"
         @mouseenter="handleContentMouseEnter"
         @mouseleave="handleContentMouseLeave"
         ref="contentContainer"
         :style="renderContainerStyle"
       )
-        Transition(name="content" @enter="handleContentEnter" appear)
+        TransitionGroup(name="content" @enter="handleContentEnter" appear)
 
-          .menu-content.trade-content(v-if="currentContent === 'trade'" key="trade")
-            LayoutMenuContentItem(title="Spot Markets" description="Trade tokens with advanced orderbooks" :icon="require('~/assets/icons/menu-spot.svg')")
-            LayoutMenuContentItem(title="OTC" description="Trade tokens in bulk" :icon="require('~/assets/icons/menu-otc.svg')")
-            LayoutMenuContentItem(title="NFT" description="Trade, Explore and create NFTs" :icon="require('~/assets/icons/menu-nft.svg')")
+          .menu-content.trade-content(v-show="currentContent === 'trade'" key="trade")
+            ul.content-items
+              LayoutMenuContentItem(title="Spot Markets" description="Trade tokens with advanced orderbooks" :icon="require('~/assets/icons/menu-spot.svg')")
+              LayoutMenuContentItem(title="OTC" description="Trade tokens in bulk" :icon="require('~/assets/icons/menu-otc.svg')")
+              LayoutMenuContentItem(title="NFT" description="Trade, Explore and create NFTs" :icon="require('~/assets/icons/menu-nft.svg')")
 
-          .menu-content.earn-content(v-if="currentContent === 'earn'" key="earn")
-            LayoutMenuContentItem(title="Pools" description="Manage liquidity pools" :icon="require('~/assets/icons/menu-pools.svg')")
-            LayoutMenuContentItem(title="Farms" description="Stake your liquidity positions in farms" :icon="require('~/assets/icons/menu-farms.svg')")
+          .menu-content.earn-content(v-show="currentContent === 'earn'" key="earn")
+            ul.content-items
+              LayoutMenuContentItem(title="Pools" description="Manage liquidity pools" :icon="require('~/assets/icons/menu-pools.svg')")
+              LayoutMenuContentItem(title="Farms" description="Stake your liquidity positions in farms" :icon="require('~/assets/icons/menu-farms.svg')")
 
-          .menu-content.bridge-content(v-if="currentContent === 'bridge'" key="bridge")
-            LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" :icon="require('~/assets/icons/menu-ibc.svg')")
-            LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
+          .menu-content.bridge-content(v-show="currentContent === 'bridge'" key="bridge")
+            ul.content-items
+              LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" :icon="require('~/assets/icons/menu-ibc.svg')")
+              LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
 
-          .menu-content.docs-content(v-if="currentContent === 'docs'" key="docs")
-            LayoutMenuContentItem(title="Docs" description="Alcor Documentation" :icon="require('~/assets/icons/menu-docs.svg')")
-            LayoutMenuContentItem(title="API" description="Alcor API documentation" :icon="require('~/assets/icons/menu-api.svg')")
-            LayoutMenuContentItem(title="Github" description="Code & Contribution" :icon="require('~/assets/icons/menu-git.svg')")
-            LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" :icon="require('~/assets/icons/menu-analytics.svg')")
+          .menu-content.docs-content(v-show="currentContent === 'docs'" key="docs")
+            ul.content-items
+              LayoutMenuContentItem(title="Docs" description="Alcor Documentation" :external="true" :icon="require('~/assets/icons/menu-docs.svg')")
+              LayoutMenuContentItem(title="API" description="Alcor API documentation" :external="true" :icon="require('~/assets/icons/menu-api.svg')")
+              LayoutMenuContentItem(title="Github" description="Code & Contribution" :external="true" :icon="require('~/assets/icons/menu-git.svg')")
+              LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" :external="true" :icon="require('~/assets/icons/menu-analytics.svg')")
+            ul.content-items
+              LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :external="true" :social="true" :icon="require('~/assets/icons/Telegram.svg')")
+              LayoutMenuContentItem(title="Twitter" description="Announcements" :external="true" :social="true" :icon="require('~/assets/icons/Twitter.svg')")
+              LayoutMenuContentItem(title="Discord" description="General Chatting" :external="true" :social="true" :icon="require('~/assets/icons/Discord.svg')")
 </template>
 
 <script>
@@ -249,6 +257,16 @@ export default {
   left: 0;
   width: auto;
   padding: 16px;
+
+  &.docs-content {
+    display: flex;
+    gap: 40px;
+  }
+}
+.content-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .content-container-enter,

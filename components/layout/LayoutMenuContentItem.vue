@@ -1,5 +1,5 @@
 <template lang="pug">
-nuxt-link(to="/" :style="renderStyle").layout-menu-content-item
+component(:is="renderTag" to="/" :style="renderStyle").layout-menu-content-item
   .icon
     img(:src="icon")
   .content
@@ -10,13 +10,13 @@ nuxt-link(to="/" :style="renderStyle").layout-menu-content-item
 <script>
 export default {
   name: 'LayoutContentItem',
-  props: ['title', 'description', 'icon', 'isSocial', 'isExternal'],
+  props: ['title', 'description', 'icon', 'social', 'external'],
   computed: {
     renderTag() {
-      return this.isExternal ? 'a' : 'nuxt-link'
+      return this.external ? 'a' : 'nuxt-link'
     },
     renderStyle() {
-      return this.isSocial ? { '--hover-rgb': '55, 174, 226' } : { '--hover-rgb': '50, 215, 75' }
+      return `--hover-rgb: ${this.social ? '55, 174, 226' : '50, 215, 75'}`
     },
   },
 }
@@ -30,6 +30,7 @@ export default {
   gap: 24px;
   padding: 8px;
   border-radius: var(--radius-2);
+  cursor: pointer;
   .icon {
     img {
       width: 32px;
