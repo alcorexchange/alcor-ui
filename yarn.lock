@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@alcorexchange/alcor-swap-sdk@^1.0.20":
-  version "1.0.20"
-  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.0.20.tgz#42460799339f73672523558607f028d6a8236a6f"
-  integrity sha512-1KJWPv2upILqOTiCJc2Z5duSrcqTvV/CdTowJ1OBIcoevsJSurvt+tLmivIR3EMyfFnhSyHu8Lq3yGqp52bglQ==
+"@alcorexchange/alcor-swap-sdk@^1.0.21":
+  version "1.0.21"
+  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.0.21.tgz#503d06a9a8f977a8a5ea0696dc703b8dba2cb946"
+  integrity sha512-8vWasu6ZcnCxpxyTxn+GM3LFV5zmV3l6DTlZwBiVhRm64KHSJF05pLAzUT239h9l5r9XsIxgxFs7snL94BZ+WA==
   dependencies:
     "@wharfkit/antelope" "^0.10.0"
     "@wharfkit/contract" "^0.4.3"
