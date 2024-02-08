@@ -17,11 +17,11 @@
             @mouseenter="handleItemMouseEnter($event, item.contentKey)"
             @mouseleave="handleItemMouseLeave"
             @click="handleItemClick($event, item.contentKey)"
-            :class="{ active: isOpen && currentContent == item.contentKey }"
+            :class="{ 'content-active': isOpen && currentContent == item.contentKey }"
           )
             span {{ item.name }}
             i.el-icon-caret-bottom
-          button.menu-item(v-else)
+          nuxt-link.menu-item(v-else :to="localePath(item.to)")
             span {{ item.name }}
     .end END
   .content-wrapper
@@ -34,7 +34,7 @@
         ref="contentContainer"
         :style="renderContainerStyle"
       )
-        TransitionGroup(name="content" @enter="handleContentEnter" appear)
+        TransitionGroup(:name="`content-${transitionDirection}`" @enter="handleContentEnter" appear)
 
           .menu-content.trade-content(v-show="currentContent === 'trade'" key="trade")
             ul.content-items
@@ -79,14 +79,15 @@ export default {
       closeTimeout: null,
       size: null,
       resizeObserver: null,
-      currentContent: null, // 'trade' | 'earn'
+      currentContent: null, // 'trade' | 'earn' | 'bridge' | 'docs'
       contentOffset: null,
+      transitionDirection: 'forward', // 'backward'
       // These are the items that have dropdown content
       items: [
-        { name: 'Swap', contentKey: null },
+        { name: 'Swap', contentKey: null, to: '/swap' },
         { name: 'Trade', contentKey: 'trade' },
         { name: 'Earn', contentKey: 'earn' },
-        { name: 'Wallet', contentKey: null },
+        { name: 'Wallet', contentKey: null, to: '/wallet' },
         { name: 'Bridge', contentKey: 'bridge' },
         { name: 'Docs & Socials', contentKey: 'docs' },
       ],
@@ -106,6 +107,24 @@ export default {
   watch: {
     $route() {
       this.close()
+    },
+    currentContent(current, previous) {
+      if (!current || !previous) {
+        console.log('some item not found')
+        this.transitionDirection = 'forward'
+        return
+      }
+      const currentIndex = this.items.findIndex(({ contentKey }) => contentKey === current)
+      const previousIndex = this.items.findIndex(({ contentKey }) => contentKey === previous)
+
+      if (currentIndex == -1 || previousIndex == -1) {
+        console.log('some index not found', { currentIndex, previousIndex }, { current, previous })
+        this.transitionDirection = 'forward'
+        return
+      }
+
+      if (currentIndex > previousIndex) this.transitionDirection = 'forward'
+      else this.transitionDirection = 'backward'
     },
   },
 
@@ -221,18 +240,21 @@ export default {
       display: flex;
       align-items: center;
       gap: 4px;
+      &.active {
+        color: var(--main-action-green);
+      }
       i {
         transition: transform 0.3s;
       }
 
-      &.active {
+      &.content-active {
+        background: var(--btn-active);
         i {
           transform: rotate(180deg);
         }
       }
 
-      &:hover,
-      &:focus {
+      &:hover {
         background: var(--btn-active);
       }
     }
@@ -253,7 +275,7 @@ export default {
   width: var(--content-width);
   height: var(--content-height);
   left: var(--content-offset);
-  transition: all 0.3s;
+  transition: all 0.4s;
   white-space: nowrap;
 }
 
@@ -280,12 +302,35 @@ export default {
   opacity: 0;
 }
 
-.content-enter-active,
-.content-leave-active {
-  transition: opacity 0.5s ease;
-}
-.content-enter,
-.content-leave-to {
-  opacity: 0;
+.content {
+  // foward transition
+  &-forward-enter-active,
+  &-forward-leave-active {
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  &-forward-enter {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  &-forward-leave-to {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+
+  // backward transition
+  &-backward-enter-active,
+  &-backward-leave-active {
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  &-backward-enter {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  &-backward-leave-to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
 }
 </style>
