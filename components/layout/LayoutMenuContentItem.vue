@@ -1,5 +1,5 @@
 <template lang="pug">
-component(:is="renderTag" v-bind="linkAttrs" :style="renderStyle").layout-menu-content-item
+component.layout-menu-content-item(:is="renderTag" v-bind="linkAttrs" :style="renderStyle")
   .icon
     img(:src="icon")
   .content
@@ -10,7 +10,7 @@ component(:is="renderTag" v-bind="linkAttrs" :style="renderStyle").layout-menu-c
 <script>
 export default {
   name: 'LayoutContentItem',
-  props: ['title', 'description', 'icon', 'social', 'to', 'href'],
+  props: ['title', 'description', 'icon', 'social', 'to', 'href', 'target'],
   computed: {
     renderTag() {
       return this.to ? 'nuxt-link' : 'a'
@@ -19,7 +19,7 @@ export default {
       return `--hover-rgb: ${this.social ? '55, 174, 226' : '50, 215, 75'}`
     },
     linkAttrs() {
-      return this.to ? { to: this.localePath(this.to) } : { href: this.href }
+      return this.to ? { to: this.localePath(this.to) } : { href: this.href, target: '_blank' }
     },
   },
 }

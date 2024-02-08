@@ -56,13 +56,13 @@
           .menu-content.docs-content(v-show="currentContent === 'docs'" key="docs")
             ul.content-items
               LayoutMenuContentItem(title="Docs" description="Alcor Documentation" to="/docs" :icon="require('~/assets/icons/menu-docs.svg')")
-              LayoutMenuContentItem(title="API" description="Alcor API documentation" :icon="require('~/assets/icons/menu-api.svg')")
-              LayoutMenuContentItem(title="Github" description="Code & Contribution" :icon="require('~/assets/icons/menu-git.svg')")
+              LayoutMenuContentItem(title="API" description="Alcor API documentation" href="http://api.alcor.exchange" :icon="require('~/assets/icons/menu-api.svg')")
+              LayoutMenuContentItem(title="Github" description="Code & Contribution" href="https://github.com/avral/alcor-ui" :icon="require('~/assets/icons/menu-git.svg')")
               LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" to="/analytics" :icon="require('~/assets/icons/menu-analytics.svg')")
             ul.content-items
-              LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :social="true" :icon="require('~/assets/icons/Telegram.svg')")
-              LayoutMenuContentItem(title="Twitter" description="Announcements" :social="true" :icon="require('~/assets/icons/Twitter.svg')")
-              LayoutMenuContentItem(title="Discord" description="General Chatting" :social="true" :icon="require('~/assets/icons/Discord.svg')")
+              LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :social="true" href="https://t.me/alcorexchange" :icon="require('~/assets/icons/Telegram.svg')")
+              LayoutMenuContentItem(title="Twitter" description="Announcements" :social="true" href="https://twitter.com/alcorexchange" :icon="require('~/assets/icons/Twitter.svg')")
+              LayoutMenuContentItem(title="Discord" description="General Chatting" :social="true" href="https://discord.gg/Sxum2ETSzq" :icon="require('~/assets/icons/Discord.svg')")
 </template>
 
 <script>
