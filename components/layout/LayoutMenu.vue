@@ -275,7 +275,7 @@ export default {
   width: var(--content-width);
   height: var(--content-height);
   left: var(--content-offset);
-  transition: all 0.4s;
+  transition: all 0.3s;
   white-space: nowrap;
 }
 
@@ -306,7 +306,7 @@ export default {
   // foward transition
   &-forward-enter-active,
   &-forward-leave-active {
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.3s, transform 0.3s;
   }
 
   &-forward-enter {
@@ -321,7 +321,7 @@ export default {
   // backward transition
   &-backward-enter-active,
   &-backward-leave-active {
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.3s, transform 0.3s;
   }
 
   &-backward-enter {
