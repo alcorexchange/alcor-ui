@@ -277,6 +277,8 @@ export default {
   left: var(--content-offset);
   transition: all 0.3s;
   white-space: nowrap;
+  // box-shadow: 0 4px 8px rgba(black, 0.5);
+  box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1), var(--dropdown-shadow);
 }
 
 .menu-content {
@@ -297,6 +299,7 @@ export default {
   gap: 8px;
 }
 
+// show transition
 .content-container-enter,
 .content-container-leave-to {
   opacity: 0;

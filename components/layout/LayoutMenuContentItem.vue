@@ -31,7 +31,7 @@ export default {
   align-items: center;
   color: var(--text-default);
   gap: 24px;
-  padding: 8px;
+  padding: 8px 16px;
   border-radius: var(--radius-2);
   cursor: pointer;
   .icon {
