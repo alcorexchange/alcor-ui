@@ -1,6 +1,7 @@
 <template lang="pug">
 .layout-sub-menu-item
   .icon
+    img(:src="icon")
   .content
     .title {{ title }}
     .description.fs-12 {{ description }}
@@ -8,7 +9,7 @@
 
 <script>
 export default {
-  name: 'LayoutSubMenuItem',
+  name: 'LayoutContentItem',
   props: ['title', 'description', 'icon'],
 }
 </script>
@@ -17,6 +18,12 @@ export default {
 .layout-sub-menu-item {
   display: flex;
   align-items: center;
+  .icon {
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
   .content {
     display: flex;
     flex-direction: column;

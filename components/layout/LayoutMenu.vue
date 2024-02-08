@@ -2,7 +2,12 @@
 .layout-menu(@keydown="handleKeydown" @focusout="handleFocusout" ref="menu")
   .main
     .start
-      .logo LOGO
+      .logo
+        nuxt-link(:to='localePath("index", $i18n.locale)')
+          img.logo(
+            :src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)",
+            height='32'
+          )
       .menu-items
         template(
           v-for="item in items"
@@ -32,32 +37,32 @@
         Transition(name="content" @enter="handleContentEnter" appear)
 
           .menu-content.trade-content(v-if="currentContent === 'trade'" key="trade")
-            LayoutSubMenuItem(title="Spot Markets" description="Trade tokens with advanced orderbooks")
-            LayoutSubMenuItem(title="OTC" description="Trade tokens in bulk")
-            LayoutSubMenuItem(title="NFT" description="Trade, Explore and create NFTs")
+            LayoutMenuContentItem(title="Spot Markets" description="Trade tokens with advanced orderbooks" :icon="require('~/assets/icons/menu-spot.svg')")
+            LayoutMenuContentItem(title="OTC" description="Trade tokens in bulk" :icon="require('~/assets/icons/menu-otc.svg')")
+            LayoutMenuContentItem(title="NFT" description="Trade, Explore and create NFTs" :icon="require('~/assets/icons/menu-nft.svg')")
 
           .menu-content.earn-content(v-if="currentContent === 'earn'" key="earn")
-            LayoutSubMenuItem(title="Pools" description="Manage liquidity pools")
-            LayoutSubMenuItem(title="Farms" description="Stake your liquidity positions in farms")
+            LayoutMenuContentItem(title="Pools" description="Manage liquidity pools" :icon="require('~/assets/icons/menu-pools.svg')")
+            LayoutMenuContentItem(title="Farms" description="Stake your liquidity positions in farms" :icon="require('~/assets/icons/menu-farms.svg')")
 
-          .menu-content.earn-content(v-if="currentContent === 'bridge'" key="bridge")
-            LayoutSubMenuItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network")
-            LayoutSubMenuItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto")
+          .menu-content.bridge-content(v-if="currentContent === 'bridge'" key="bridge")
+            LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" :icon="require('~/assets/icons/menu-ibc.svg')")
+            LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
 
-          .menu-content.earn-content(v-if="currentContent === 'docs'" key="docs")
-            LayoutSubMenuItem(title="Docs" description="Alcor Documentation")
-            LayoutSubMenuItem(title="API" description="Alcor API documentation")
-            LayoutSubMenuItem(title="Github" description="Code & Contribution")
-            LayoutSubMenuItem(title="Analytics" description="Alcor Statistics")
+          .menu-content.docs-content(v-if="currentContent === 'docs'" key="docs")
+            LayoutMenuContentItem(title="Docs" description="Alcor Documentation" :icon="require('~/assets/icons/menu-docs.svg')")
+            LayoutMenuContentItem(title="API" description="Alcor API documentation" :icon="require('~/assets/icons/menu-api.svg')")
+            LayoutMenuContentItem(title="Github" description="Code & Contribution" :icon="require('~/assets/icons/menu-git.svg')")
+            LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" :icon="require('~/assets/icons/menu-analytics.svg')")
 </template>
 
 <script>
-import LayoutSubMenuItem from '~/components/layout/LayoutSubMenuItem.vue'
+import LayoutMenuContentItem from '~/components/layout/LayoutMenuContentItem.vue'
 export default {
   name: 'LayoutMenu',
 
   components: {
-    LayoutSubMenuItem,
+    LayoutMenuContentItem,
   },
 
   data() {
@@ -101,7 +106,7 @@ export default {
     },
 
     close() {
-      this.isOpen = false
+      // this.isOpen = false
     },
 
     delayedClose() {
@@ -194,6 +199,7 @@ export default {
       background: transparent;
       border: none;
       padding: 6px 12px;
+      font-size: 14px;
       border-radius: var(--radius);
       cursor: pointer;
       color: inherit;
