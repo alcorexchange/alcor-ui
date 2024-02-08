@@ -248,7 +248,7 @@ export default {
   top: 0;
   left: 0;
   width: auto;
-  padding: 10px;
+  padding: 16px;
 }
 
 .content-container-enter,
