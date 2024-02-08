@@ -38,30 +38,30 @@
 
           .menu-content.trade-content(v-show="currentContent === 'trade'" key="trade")
             ul.content-items
-              LayoutMenuContentItem(title="Spot Markets" description="Trade tokens with advanced orderbooks" :icon="require('~/assets/icons/menu-spot.svg')")
-              LayoutMenuContentItem(title="OTC" description="Trade tokens in bulk" :icon="require('~/assets/icons/menu-otc.svg')")
-              LayoutMenuContentItem(title="NFT" description="Trade, Explore and create NFTs" :icon="require('~/assets/icons/menu-nft.svg')")
+              LayoutMenuContentItem(title="Spot Markets" description="Trade tokens with advanced orderbooks" to="/markets" :icon="require('~/assets/icons/menu-spot.svg')")
+              LayoutMenuContentItem(title="OTC" description="Trade tokens in bulk" to="/otc" :icon="require('~/assets/icons/menu-otc.svg')")
+              LayoutMenuContentItem(title="NFT" description="Trade, Explore and create NFTs" to="/nft-market" :icon="require('~/assets/icons/menu-nft.svg')")
 
           .menu-content.earn-content(v-show="currentContent === 'earn'" key="earn")
             ul.content-items
-              LayoutMenuContentItem(title="Pools" description="Manage liquidity pools" :icon="require('~/assets/icons/menu-pools.svg')")
-              LayoutMenuContentItem(title="Farms" description="Stake your liquidity positions in farms" :icon="require('~/assets/icons/menu-farms.svg')")
+              LayoutMenuContentItem(title="Pools" description="Manage liquidity pools" to="/positions" :icon="require('~/assets/icons/menu-pools.svg')")
+              LayoutMenuContentItem(title="Farms" description="Stake your liquidity positions in farms" to="/farm" :icon="require('~/assets/icons/menu-farms.svg')")
 
           .menu-content.bridge-content(v-show="currentContent === 'bridge'" key="bridge")
             ul.content-items
-              LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" :icon="require('~/assets/icons/menu-ibc.svg')")
-              LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
+              LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" to="/bridge" :icon="require('~/assets/icons/menu-ibc.svg')")
+              LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto" to="/buy-crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
 
           .menu-content.docs-content(v-show="currentContent === 'docs'" key="docs")
             ul.content-items
-              LayoutMenuContentItem(title="Docs" description="Alcor Documentation" :external="true" :icon="require('~/assets/icons/menu-docs.svg')")
-              LayoutMenuContentItem(title="API" description="Alcor API documentation" :external="true" :icon="require('~/assets/icons/menu-api.svg')")
-              LayoutMenuContentItem(title="Github" description="Code & Contribution" :external="true" :icon="require('~/assets/icons/menu-git.svg')")
-              LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" :external="true" :icon="require('~/assets/icons/menu-analytics.svg')")
+              LayoutMenuContentItem(title="Docs" description="Alcor Documentation" to="/docs" :icon="require('~/assets/icons/menu-docs.svg')")
+              LayoutMenuContentItem(title="API" description="Alcor API documentation" :icon="require('~/assets/icons/menu-api.svg')")
+              LayoutMenuContentItem(title="Github" description="Code & Contribution" :icon="require('~/assets/icons/menu-git.svg')")
+              LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" to="/analytics" :icon="require('~/assets/icons/menu-analytics.svg')")
             ul.content-items
-              LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :external="true" :social="true" :icon="require('~/assets/icons/Telegram.svg')")
-              LayoutMenuContentItem(title="Twitter" description="Announcements" :external="true" :social="true" :icon="require('~/assets/icons/Twitter.svg')")
-              LayoutMenuContentItem(title="Discord" description="General Chatting" :external="true" :social="true" :icon="require('~/assets/icons/Discord.svg')")
+              LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :social="true" :icon="require('~/assets/icons/Telegram.svg')")
+              LayoutMenuContentItem(title="Twitter" description="Announcements" :social="true" :icon="require('~/assets/icons/Twitter.svg')")
+              LayoutMenuContentItem(title="Discord" description="General Chatting" :social="true" :icon="require('~/assets/icons/Discord.svg')")
 </template>
 
 <script>
@@ -103,6 +103,12 @@ export default {
     },
   },
 
+  watch: {
+    $route() {
+      this.close()
+    },
+  },
+
   mounted() {
     this.runResizeObserver()
   },
@@ -114,7 +120,7 @@ export default {
     },
 
     close() {
-      // this.isOpen = false
+      this.isOpen = false
     },
 
     delayedClose() {
@@ -189,7 +195,7 @@ export default {
 <style scoped lang="scss">
 .layout-menu {
   position: relative;
-  z-index: 100;
+  z-index: 1000;
   background: var(--background-color-third);
   .main {
     display: flex;
