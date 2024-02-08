@@ -23,7 +23,8 @@
             i.el-icon-caret-bottom
           nuxt-link.menu-item(v-else :to="localePath(item.to)")
             span {{ item.name }}
-    .end END
+    .end
+      ConnectNav
   .content-wrapper
     Transition(name="content-container")
       .menu-content-container(
@@ -66,11 +67,13 @@
 
 <script>
 import LayoutMenuContentItem from '~/components/layout/LayoutMenuContentItem.vue'
+import ConnectNav from '~/components/layout/ConnectNav'
 export default {
   name: 'LayoutMenu',
 
   components: {
     LayoutMenuContentItem,
+    ConnectNav,
   },
 
   data() {
@@ -215,7 +218,7 @@ export default {
 .layout-menu {
   position: relative;
   z-index: 1000;
-  background: var(--background-color-third);
+  // background: var(--background-color-third);
   .main {
     display: flex;
     justify-content: space-between;
