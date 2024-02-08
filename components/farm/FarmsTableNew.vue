@@ -95,12 +95,13 @@ export default {
             //incentives
             .forEach((i) =>
               i.incentiveStats
-                .filter((i) => !i.staked)
+                .filter((i) => !i.staked && i.position.inRange)
                 // staked stats
                 .forEach((s) => stakes.push(s))
             )
         )
 
+      console.log('stakes', stakes)
       return stakes
     },
   },

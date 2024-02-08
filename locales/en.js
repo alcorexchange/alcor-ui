@@ -1,6 +1,6 @@
 export default {
-  META_DESCRIPTION: 'Alcor Exchange is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!',
-  META_TITLE: 'The first self-listing DEX',
+  META_DESCRIPTION: 'Alcor Exchange is the Order Book DEX | Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!',
+  META_TITLE: 'The first self-listing Order Book DEX',
   META_NFT_MARKET_TITLE: 'Alcor NFT Market | Trustless NFT market on WAX chain',
   META_NFT_MARKET_DESCRIPTION: 'Atomic, no fee, NFT marketplace.',
   HERO_DESCRIPTION: 'Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.',

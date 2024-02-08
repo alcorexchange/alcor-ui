@@ -187,6 +187,7 @@ export default {
     route: null,
 
     memo: '', // Used for swap
+    market: null,
     routerCollapse: ['1'],
     lastField: 'input', // might be input/output
 
@@ -218,7 +219,7 @@ export default {
 
   fetch() {
     // fetch has access to `this`
-    const { input, output, only } = this.$route.query
+    const { input, output, only, market } = this.$route.query
 
     if (input) {
       this.$store.commit('amm/swap/setInput', input.toLowerCase())
@@ -231,6 +232,10 @@ export default {
     if (only) {
       const tokens = only.toLowerCase().split(',')
       this.$store.commit('amm/swap/setOnly', tokens)
+    }
+
+    if (market) {
+      this.market = market
     }
 
     this.$store.dispatch('amm/swap/setDefaultInputOutput')
@@ -423,7 +428,7 @@ export default {
     },
 
     async swap() {
-      const { amountA, amountB, tokenA, tokenB } = this
+      const { amountA, amountB, tokenA, tokenB, market } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const exactIn = this.lastField == 'input'
@@ -436,6 +441,12 @@ export default {
 
       const actions = []
 
+      let memo = this.memo.replace('<receiver>', this.user.name)
+
+      if (market) {
+        memo += `#${market}`
+      }
+
       // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
       if (parseFloat(amountA) > 0)
         actions.push({
@@ -446,11 +457,14 @@ export default {
             from: this.user.name,
             to: this.network.amm.contract,
             quantity: currencyAmountIn.toAsset(),
-            memo: this.memo.replace('<receiver>', this.user.name) // In case we got route without login
+            memo
           }
         })
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
+
+      this.$gtag.event('swap', { chain: this.network.name })
+
       console.log('SWAP: ', r)
     },
 
@@ -514,6 +528,7 @@ export default {
 
       this.memo = memo
       this.amountA = input
+      this.amountB = output
       this.expectedOutput = output
       this.priceImpact = priceImpact
       this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
@@ -546,7 +561,7 @@ export default {
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
       if (!currencyAmountIn) return this.amountB = null
 
-      const { data: { executionPrice, minReceived, memo, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
+      const { data: { executionPrice, minReceived, memo, input, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
         params: {
           trade_type: 'EXACT_INPUT',
           input: tokenA.id,
@@ -565,6 +580,7 @@ export default {
       this.price = executionPrice.numerator == 0 ? '0' : price.toSignificant(6)
 
       this.memo = memo
+      this.amountA = input
       this.amountB = output
       this.expectedOutput = output
       this.priceImpact = priceImpact

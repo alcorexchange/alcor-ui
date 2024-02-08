@@ -14,7 +14,7 @@
             alcor-button
             //el-button(type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
 
-          el-button(type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
+          el-button(type="text" @click="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
           el-button(type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
           el-button.hover-opacity(type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
 
@@ -26,19 +26,29 @@
   .amount(:class="{'acc': !useActions}")
     .amount__base {{ item.amount | commaFloat(4) }}
     .amount__usd.cancel ${{ item.usd_value | commaFloat }}
+  //.actions(v-if="!isMobile && useActions")
   .actions(v-if="!isMobile && useActions")
+    // OLD CEX DEPOSIT BUTTONS
+    //- template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
+    //-   .p4.mr-3
+    //-     alcor-button(@click="$emit('openWithdraw', item)")
+    //-       i.el-icon-upload2
+    //-       | Withdraw
+
+    //-   .p4.mr-3
+    //-     alcor-button(@click="$emit('openDeposit', item)")
+    //-       i.el-icon-download
+    //-       | Deposit
+
+    // USDT CEX DEPOSIT BUTTONS
     template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
-      .p4.mr-3
-        alcor-button(@click="$emit('openWithdraw', item)")
-          i.el-icon-upload2
-          | Withdraw
+      el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity Withdraw
+      el-button(size="medium" type="text" @click="$emit('openDeposit', item)").hover-opacity Deposit
 
-      .p4.mr-3
-        alcor-button(@click="$emit('openDeposit', item)")
-          i.el-icon-download
-          | Deposit
+    template(v-if="item.contract.includes('ibc.')")
+      el-button(size="medium" type="text" @click="$router.push('/bridge')").hover-opacity Bridge
 
-    el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity {{ $t('Transfer') }}
+    el-button(size="medium" type="text" @click="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
     el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Swap') }}
     el-button.hover-opacity(size="medium" type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
 </template>

@@ -34,7 +34,7 @@ export default {
   head() {
     const chain = this.$store.state.network.name.toUpperCase()
     return {
-      title: `Alcor Exchange | The first ${chain} self-listing DEX`
+      title: `Alcor Exchange | ${chain} | The first self-listing Order Book DEX`
     }
   }
 }

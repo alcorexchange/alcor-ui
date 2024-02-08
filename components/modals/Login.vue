@@ -86,7 +86,7 @@ export default {
           name: 'Wax Cloud Wallet',
           logo: require('@/assets/logos/wax.svg'),
           index: 'wax',
-          create: 'https://all-access.wax.io/'
+          create: 'https://www.mycloudwallet.com/signin#create-account'
         })
         wallets.push({
           id: 'wombat',

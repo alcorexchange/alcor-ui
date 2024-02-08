@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import { Trade, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
+import { Trade, Percent, computeAllRoutes, callReadOnlySwapCalculation } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 
 import { tryParseCurrencyAmount } from '../../../utils/amm'
@@ -43,7 +43,7 @@ function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
 swapRouter.get('/getRoute', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  let { v1, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
+  let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
 
   if (!trade_type || !input || !output || !amount)
     return res.status(403).send('Invalid request')
@@ -73,17 +73,19 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   let trade: any
 
+  const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
+
   try {
-    if (!v1) {
-      const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
+    if (v2) {
+      const nodes = Object.keys(network.client_nodes)
 
       ;[trade] = exactIn
-        ? await Trade.bestTradeExactIn2(routes, POOLS, amount)
-        : await Trade.bestTradeExactOut2(routes, POOLS, amount)
+        ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
+        : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
     } else {
       [trade] = exactIn
-        ? await Trade.bestTradeExactIn(POOLS, amount, outputToken, { maxNumResults: 1, maxHops })
-        : await Trade.bestTradeExactOut(POOLS, inputToken, amount, { maxNumResults: 1, maxHops })
+        ? await Trade.bestTradeExactIn2(routes, POOLS, amount)
+        : await Trade.bestTradeExactOut2(routes, POOLS, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
@@ -91,7 +93,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const endTime = performance.now()
 
-  console.log(network.name, `find route took maxHops('${maxHops}') ${endTime - startTime} milliseconds v1: ${Boolean(v1)}`)
+  console.log(network.name, `find route took maxHops('${maxHops}') ${endTime - startTime} milliseconds v2: ${Boolean(v2)}`)
 
   if (!trade) return res.status(403).send('No route found')
 

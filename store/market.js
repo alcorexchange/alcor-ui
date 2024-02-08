@@ -44,7 +44,7 @@ export const state = () => ({
   total_sell: null,
 
   markets_active_tab: null,
-  current_market_layout: 'classic',
+  current_market_layout: 'advanced',
   markets_layout: config.TRADE_LAYOUTS.advanced,
 
   orderbook_settings: {
@@ -395,6 +395,8 @@ export const actions = {
     }
   },
   async calcAndSetTotal({ state, commit, dispatch }) {
+    console.log('calcAndSetTotal', state.amount_buy)
+
     if (state.amount_buy > 0) {
       const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
       commit('SET_TOTAL_BUY', totalBuy)
@@ -562,6 +564,8 @@ export const actions = {
           }, 1000)
         })
 
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
+
       return { err: false, desc: res }
     } catch (e) {
       captureException(e, { extra: { order: this.order } })
@@ -623,6 +627,8 @@ export const actions = {
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
+
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
 
       return { err: false, desc: res }
     } catch (e) {

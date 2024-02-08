@@ -115,7 +115,6 @@ export default {
 
     zoomLevels: {
       handler() {
-        console.log('zoomLevels changed, reseting')
         this.reset()
       },
       deep: true
@@ -203,7 +202,6 @@ export default {
     },
 
     emitDefaultBrush() {
-      console.log('emitDefaultBrush()')
       // if (!this.brushDomain) this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
       this.$emit('onBrushDomainChange', { domain: this.xScale.domain(), mode: undefined })
     },

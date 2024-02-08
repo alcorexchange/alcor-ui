@@ -23,7 +23,6 @@
         el-input(
           type="number"
           v-model="totalBuy"
-          @change="setPrecisionTotalBuy()"
           size="medium"
           placeholder="0"
           clearable
@@ -70,7 +69,6 @@
         el-input(
           type="number"
           v-model="amountSell"
-          @change="setPrecisionAmountSell()"
           size="medium"
           placeholder="0"
           clearable

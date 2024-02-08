@@ -219,7 +219,9 @@ export default {
         return { ...item, value: `${item.higherValue}-${item.lowerValue}` }
       }),
 
-      positionLiquidity: '0'
+      positionLiquidity: '0',
+
+      defaultFeeSetted: false
     }
   },
 
@@ -878,6 +880,8 @@ export default {
 
   watch: {
     tokenA(token) {
+      this.defaultFeeSetted = false
+
       setTimeout(() => {
         const currentQuery = this.$route.query
         this.$router.replace(
@@ -892,6 +896,8 @@ export default {
       }, 0)
     },
     tokenB(token) {
+      this.defaultFeeSetted = false
+
       setTimeout(() => {
         const currentQuery = this.$route.query
         this.$router.replace(
@@ -904,6 +910,18 @@ export default {
         ).catch((e) => {})
       }, 0)
     },
+
+    fees() {
+      if (!this.defaultFeeSetted) {
+        const maxFeeStaked = this.fees.filter(f => !isNaN(f.selectedPercent)).reduce((prev, current) => {
+          return (prev && prev.selectedPercent > current.selectedPercent) ? prev : current
+        })
+
+        this.defaultFeeSetted = true
+        console.log('set max fee', maxFeeStaked)
+        this.feeAmount = maxFeeStaked.value
+      }
+    }
   }
 }
 </script>
