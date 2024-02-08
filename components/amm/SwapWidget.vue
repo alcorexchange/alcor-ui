@@ -528,6 +528,7 @@ export default {
 
       this.memo = memo
       this.amountA = input
+      this.amountB = output
       this.expectedOutput = output
       this.priceImpact = priceImpact
       this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
@@ -560,7 +561,7 @@ export default {
       const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
       if (!currencyAmountIn) return this.amountB = null
 
-      const { data: { executionPrice, minReceived, memo, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
+      const { data: { executionPrice, minReceived, memo, input, output, priceImpact, route } } = await this.$axios('/v2/swapRouter/getRoute', {
         params: {
           trade_type: 'EXACT_INPUT',
           input: tokenA.id,
@@ -579,6 +580,7 @@ export default {
       this.price = executionPrice.numerator == 0 ? '0' : price.toSignificant(6)
 
       this.memo = memo
+      this.amountA = input
       this.amountB = output
       this.expectedOutput = output
       this.priceImpact = priceImpact
