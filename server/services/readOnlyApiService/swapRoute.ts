@@ -11,7 +11,7 @@ export const swapRouter = Router()
 
 // In seconds
 const POOLS_CACHE_TIMEOUT = 10
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 30
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 5 }
 
 // storing pools globally for access by getRoute(for cache)
