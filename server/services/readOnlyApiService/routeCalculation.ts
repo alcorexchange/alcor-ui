@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks'
+
 import fetch from 'node-fetch'
 
 import { ABI, APIClient, Action, Transaction } from '@wharfkit/antelope'
@@ -90,7 +92,7 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
 
   console.log('getBestTradeByReadOnly, first node: ', nodes[0])
 
-  console.time('REQUEST READ ONLY ROUTES COMPUTATIONS')
+  const startTime = performance.now()
   for (const route of routes) {
     requests.push(
       getTradeByReadOnly(
@@ -103,8 +105,9 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
   }
 
   await Promise.allSettled(requests)
+  const endTime = performance.now()
 
-  console.timeEnd('REQUEST READ ONLY ROUTES COMPUTATIONS')
+  console.log(`REQUEST READ ONLY ROUTES COMPUTATIONS ${endTime - startTime} milliseconds`)
 
   const trades: any[] = []
 
