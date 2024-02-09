@@ -125,7 +125,6 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
       )
     } catch (e) {
       if (e.message.includes('10000000000000000000')) continue
-
       console.log('err in call get route', e.message)
     }
   }
