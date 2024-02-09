@@ -18,7 +18,7 @@
     "analyze": "nuxt build --analyze"
   },
   "dependencies": {
-    "@alcorexchange/alcor-swap-sdk": "^1.0.23",
+    "@alcorexchange/alcor-swap-sdk": "^1.0.24",
     "@azukisiromochi/vue-mo.js": "^1.0.2",
     "@eosrio/hyperion-stream-client": "^1.0.3",
     "@ethersproject/units": "^5.7.0",
@@ -34,6 +34,7 @@
     "@types/node": "^18.15.9",
     "@vue/eslint-config-standard": "^5.0.0",
     "@waxio/waxjs": "^1.4.0-beta-1",
+    "@wharfkit/antelope": "^1.0.7",
     "anchor-link": "^3.5.1",
     "anchor-link-browser-transport": "^3.5.1",
     "apexcharts": "^3.25.0",
