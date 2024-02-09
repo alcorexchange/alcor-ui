@@ -35,7 +35,7 @@ export async function getPools(rpc) {
   return pools
 }
 
-export async function getTradeByReadOnly(nodes, tradeType, route, quantity) {
+export async function getTradeByReadOnly(nodes, tradeType, route, quantity, header) {
   const name = tradeType == TradeType.EXACT_INPUT ? 'swapexactin' : 'swapexactout'
 
   // TODO add failover
@@ -43,11 +43,6 @@ export async function getTradeByReadOnly(nodes, tradeType, route, quantity) {
 
   let inputAmount
   let outputAmount
-
-  // TODO Retry logic
-  const rpc = new APIClient({ url: node, fetch })
-  const info = await rpc.v1.chain.get_info()
-  const header = info.getTransactionHeader()
 
   const inToken = name == 'swapexactin' ? quantity : CurrencyAmount.fromRawAmount(route.input, 0)
   const outToken = name == 'swapexactin' ? CurrencyAmount.fromRawAmount(route.output, 0) : quantity
@@ -68,6 +63,7 @@ export async function getTradeByReadOnly(nodes, tradeType, route, quantity) {
     actions: [action],
   })
 
+  const rpc = new APIClient({ url: nodes[0], fetch })
   const { processed }: any = await rpc.v1.chain.send_read_only_transaction(transaction)
 
   if (processed.error_code) {
@@ -92,6 +88,11 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
 
   console.log('getBestTradeByReadOnly, first node: ', nodes[0])
 
+  // TODO Retry logic
+  const rpc = new APIClient({ url: nodes[0], fetch })
+  const info = await rpc.v1.chain.get_info()
+  const header = info.getTransactionHeader()
+
   const startTime = performance.now()
   for (const route of routes) {
     requests.push(
@@ -99,7 +100,8 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
         nodes,
         tradeType,
         route,
-        amount
+        amount,
+        header
       )
     )
   }
