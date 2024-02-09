@@ -90,6 +90,7 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
 
   console.log('getBestTradeByReadOnly, first node: ', nodes[0])
 
+  console.time('REQUEST READ ONLY ROUTES COMPUTATIONS')
   for (const route of routes) {
     requests.push(
       getTradeByReadOnly(
@@ -102,6 +103,8 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
   }
 
   await Promise.allSettled(requests)
+
+  console.timeEnd('REQUEST READ ONLY ROUTES COMPUTATIONS')
 
   const trades: any[] = []
 
