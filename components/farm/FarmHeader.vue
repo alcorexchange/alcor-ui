@@ -1,37 +1,41 @@
 <template lang="pug">
-  .farm-header-container
-    .farm-header
-      .left
-        el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" size="medium" prefix-icon='el-icon-search' clearable)
-        AlcorSwitch.alcor-switch(
-          one="All Farms"
-          two="My Farms"
-          :active="$store.state.farms.stakedOnly ? 'two' : 'one'"
-          @toggle="$store.commit('farms/setStakedOnly', $store.state.farms.stakedOnly ? false : true)"
-        )
-        el-switch.farm-switch(
-          v-if="!hideStakedOnly"
-          active-color="var(--main-action-green)"
-          active-text="Show Finished"
-          :value="finished"
-          @change="toggle"
-        )
-      .right
-        el-switch.farm-switch(
-          active-color="var(--main-action-green)"
-          active-text="Advanced Mode"
-          :value="$store.state.farms.view === 'ADVANCED'"
-          @change="$store.commit('farms/toggleView')"
-        )
-        //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-        //-   el-tooltip(content="Unstake your finished farms to free account RAM")
-        //-     GradientBorder.gradient-border
-        //-       AlcorButton(@click="unstakeAll") Claim & Unstake All
+.farm-header-container
+  .farm-header
+    .left
+      el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" size="medium" prefix-icon='el-icon-search' clearable)
+      AlcorSwitch.alcor-switch(
+        one="All Farms"
+        two="My Farms"
+        :active="$store.state.farms.stakedOnly ? 'two' : 'one'"
+        @toggle="$store.commit('farms/setStakedOnly', $store.state.farms.stakedOnly ? false : true)"
+      )
+      el-switch.farm-switch(
+        v-if="!hideStakedOnly"
+        active-color="var(--main-action-green)"
+        active-text="Show Finished"
+        :value="finished"
+        @change="toggle"
+      )
 
-        //- el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
-        //-   GradientBorder.gradient-border
-        //-     AlcorButton(@click="stakeAll") Stake All Positions
-      //- .right
+      el-switch.farm-switch(
+        active-color="var(--main-action-green)"
+        active-text="Advanced Mode"
+        :value="$store.state.farms.view === 'ADVANCED'"
+        @change="$store.commit('farms/toggleView')"
+      )
+
+    .right
+      el-button.mr-auto(size="small" outline @click="$router.push('/farm/create')").hover-opacity Create farm
+
+      //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+      //-   el-tooltip(content="Unstake your finished farms to free account RAM")
+      //-     GradientBorder.gradient-border
+      //-       AlcorButton(@click="unstakeAll") Claim & Unstake All
+
+      //- el-badge(v-if="!finished && unstakedStakes.length != 0 && !hideStakeAll" type="warning" :value="unstakedStakes.length")
+      //-   GradientBorder.gradient-border
+      //-     AlcorButton(@click="stakeAll") Stake All Positions
+    //- .right
 </template>
 
 <script>
