@@ -101,7 +101,6 @@ export default {
             )
         )
 
-      console.log('stakes', stakes)
       return stakes
     },
   },

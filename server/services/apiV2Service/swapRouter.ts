@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import { Trade, Percent, computeAllRoutes, callReadOnlySwapCalculation } from '@alcorexchange/alcor-swap-sdk'
+import { Trade, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 
 import { tryParseCurrencyAmount } from '../../../utils/amm'
@@ -28,7 +28,8 @@ function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   const output = POOLS.find(p => p.tokenA.id == outputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == outputTokenID)?.tokenB
 
   if (!input || !output) {
-    console.log('ROUTE NOT FOUND: ', chain, { cache_key })
+    console.log('getCachedPools: INVALID input/output: ', chain, { cache_key })
+    return []
   }
 
   const routes = computeAllRoutes(input, output, POOLS, maxHops)
@@ -77,18 +78,20 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   try {
     if (v2) {
-      const nodes = Object.keys(network.client_nodes)
+      return res.status(403).send('')
+      // const nodes = Object.keys(network.client_nodes)
 
-      ;[trade] = exactIn
-        ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
-        : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
+      // ;[trade] = exactIn
+      //   ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
+      //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
     } else {
       [trade] = exactIn
-        ? await Trade.bestTradeExactIn2(routes, POOLS, amount)
-        : await Trade.bestTradeExactOut2(routes, POOLS, amount)
+        ? Trade.bestTradeExactIn(routes, POOLS, amount)
+        : Trade.bestTradeExactOut(routes, POOLS, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
+    return res.status(403).send('Get Route error: ' + e.message)
   }
 
   const endTime = performance.now()
