@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import { Trade, Percent, computeAllRoutes, callReadOnlySwapCalculation } from '@alcorexchange/alcor-swap-sdk'
+import { Trade, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 
 import { tryParseCurrencyAmount } from '../../../utils/amm'
