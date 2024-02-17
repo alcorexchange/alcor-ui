@@ -197,12 +197,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.com/invite/brixsociety',
-        image: require('@/assets/images/swap-banner-1.jpg'),
+        link: 'https://magicbeast.io',
+        image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgba(251,227,121,0.2)',
-          'rgba(139,50,100, 1)',
-          'rgba(72,89,107,1)',
+          'rgba(212,150,164,0.2)',
+          'rgba(195,195,195, 1)',
+          'rgba(107,224,238,1)',
         ],
       },
       {

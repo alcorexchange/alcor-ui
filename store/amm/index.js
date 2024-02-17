@@ -243,12 +243,17 @@ export const getters = {
     return positions
   },
 
-  poolsPlainWithStatsAndUserData(state) {
+  poolsPlainWithStatsAndUserData(state, getters, rootState) {
     const _poolStats = new Map(state.poolsStats.map(p => [p.id, p]))
     const positions = state.positions
 
     const pools = []
     for (const pool of state.pools) {
+      if (
+        rootState.network.SCAM_CONTRACTS.includes(pool.tokenA.contract) ||
+        rootState.network.SCAM_CONTRACTS.includes(pool.tokenB.contract)
+      ) continue
+
       pools.push({
         ...pool,
         poolStats: _poolStats.get(pool.id),

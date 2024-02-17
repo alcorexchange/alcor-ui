@@ -41,6 +41,21 @@ module.exports = {
         PORT: 7001
       }
     },
+
+    {
+      name: 'Alcor-api-server',
+      script: './lib/server/services/readOnlyApiService/index.js',
+      max_memory_restart: '1000M',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 7001,
+
+        // LOCAL NODES HERE
+        //WAX_LOCAL_NODE: ''
+        //EOS_LOCAL_NODE: ''
+        //TELOS_LOCAL_NODE: ''
+      }
+    },
     {
       name: 'Alcor-ws-server',
       script: './lib/server/services/socketService/index.js',

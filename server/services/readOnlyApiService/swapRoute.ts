@@ -1,21 +1,33 @@
 import { performance } from 'perf_hooks'
 
-import { Trade, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 
+import { getMultyEndRpc } from '../../../utils/eosjs'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
-
-import { getPools } from '../swapV2Service/utils'
+import { getPools, getBestTradeByReadOnly } from './routeCalculation'
 
 export const swapRouter = Router()
 
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // In seconds
-const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
+// In seconds
+const POOLS_CACHE_TIMEOUT = 10
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 30
+const TRADE_LIMITS = { maxNumResults: 1, maxHops: 5 }
 
 // storing pools globally for access by getRoute(for cache)
 let POOLS = []
-
 const ROUTES = {}
+
+function getNodes(network) {
+  const nodes = Object.keys(network.client_nodes)
+
+  if (process.env[`${network.name.toUpperCase()}_LOCAL_NODE`]) {
+    nodes.unshift(process.env[`${network.name.toUpperCase()}_LOCAL_NODE`])
+  }
+
+  return nodes
+}
+
 function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   const cache_key = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
 
@@ -28,8 +40,7 @@ function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   const output = POOLS.find(p => p.tokenA.id == outputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == outputTokenID)?.tokenB
 
   if (!input || !output) {
-    console.log('getCachedPools: INVALID input/output: ', chain, { cache_key })
-    return []
+    console.log('ROUTE NOT FOUND: ', chain, { cache_key })
   }
 
   const routes = computeAllRoutes(input, output, POOLS, maxHops)
@@ -39,6 +50,17 @@ function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   setTimeout(() => delete ROUTES[cache_key], ROUTES_CACHE_TIMEOUT * 1000)
 
   return routes
+}
+
+async function getCachedPools(rpc, chain) {
+  if (POOLS[chain]) {
+    return POOLS[chain]
+  }
+
+  POOLS[chain] = await getPools(rpc)
+  setTimeout(() => delete POOLS[chain], POOLS_CACHE_TIMEOUT * 1000)
+
+  return await getCachedPools(rpc, chain)
 }
 
 swapRouter.get('/getRoute', async (req, res) => {
@@ -57,42 +79,35 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const exactIn = trade_type == 'EXACT_INPUT'
 
-  // Updating global pools
-  const allPools = await getPools(network.name)
+  console.log('getRoute call', network.name, trade_type, input, output, amount)
 
+  //const rpc = getMultyEndRpc(network.client_nodes)
+  const rpc = getMultyEndRpc(getNodes(network))
+
+  // Updating global pools
+  const allPools = await getCachedPools(rpc, network.name)
+
+  // TODO Might take much time
   const inputToken = allPools.find(p => p.tokenA.id == input)?.tokenA || allPools.find(p => p.tokenB.id == input)?.tokenB
   const outputToken = allPools.find(p => p.tokenA.id == output)?.tokenA || allPools.find(p => p.tokenB.id == output)?.tokenB
 
   if (!inputToken || !outputToken) return res.status(403).send('Invalid input/output')
 
-  POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
+  POOLS = allPools
 
   amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
   if (!amount) return res.status(403).send('Invalid amount')
 
   const startTime = performance.now()
 
-  let trade: any
+  const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 5))
 
-  const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
-
-  try {
-    if (v2) {
-      return res.status(403).send('')
-      // const nodes = Object.keys(network.client_nodes)
-
-      // ;[trade] = exactIn
-      //   ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
-      //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
-    } else {
-      [trade] = exactIn
-        ? Trade.bestTradeExactIn(routes, POOLS, amount)
-        : Trade.bestTradeExactOut(routes, POOLS, amount)
-    }
-  } catch (e) {
-    console.error('GET ROUTE ERROR', e)
-    return res.status(403).send('Get Route error: ' + e.message)
-  }
+  const [trade] = await getBestTradeByReadOnly(
+    amount,
+    routes,
+    exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+    getNodes(network)
+  )
 
   const endTime = performance.now()
 
