@@ -35,8 +35,6 @@ export default {
   border-radius: var(--radius-2);
   cursor: pointer;
   .icon {
-    transition: all 0.2s;
-    filter: saturate(0);
     img {
       width: 32px;
       height: 32px;
@@ -46,22 +44,13 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    .title {
-      opacity: 0.8;
-    }
   }
   &:hover {
     // TODO: Add transition for background
     background: linear-gradient(to bottom, rgba(var(--hover-rgb), 0.12), rgba(var(--hover-rgb), 0.04));
   }
-  &.active,
-  &:hover {
-    .icon {
-      filter: saturate(1);
-    }
-    .title {
-      opacity: 1;
-    }
+  &.active {
+    background: var(--btn-active);
   }
 }
 </style>

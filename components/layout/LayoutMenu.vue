@@ -113,7 +113,6 @@ export default {
     },
     currentContent(current, previous) {
       if (!current || !previous) {
-        console.log('some item not found')
         this.transitionDirection = 'forward'
         return
       }
