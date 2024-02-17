@@ -17,7 +17,7 @@
             @mouseenter="handleItemMouseEnter($event, item.contentKey)"
             @mouseleave="handleItemMouseLeave"
             @click="handleItemClick($event, item.contentKey)"
-            :class="{ 'content-active': isOpen && currentContent == item.contentKey }"
+            :class="{ 'content-active': isOpen && currentContent == item.contentKey, 'active': hasActiveLink(item.contentKey) }"
           )
             span {{ item.name }}
             i.el-icon-caret-bottom
@@ -135,6 +135,24 @@ export default {
   },
 
   methods: {
+    hasActiveLink(contentKey) {
+      const { path } = this.$route
+      if (contentKey == 'trade') {
+        return (
+          path.includes('/markets') || path.includes('/trade') || path.includes('/otc') || path.includes('/nft-market')
+        )
+      }
+      if (contentKey == 'earn') {
+        return path.includes('/positions') || path.includes('/farm')
+      }
+      if (contentKey == 'bridge') {
+        return path.includes('/bridge') || path.includes('/buy-crypto')
+      }
+      if (contentKey == 'docs') {
+        return path.includes('/docs') || path.includes('/analytics')
+      }
+    },
+
     open() {
       clearTimeout(this.closeTimeout)
       this.isOpen = true
