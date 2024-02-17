@@ -84,7 +84,6 @@ export default {
       currentContent: null, // 'trade' | 'earn' | 'bridge' | 'docs'
       contentOffset: null,
       transitionDirection: 'forward', // 'backward'
-      // These are the items that have dropdown content
       items: [
         { name: 'Swap', contentKey: null, to: '/swap' },
         { name: 'Trade', contentKey: 'trade' },
