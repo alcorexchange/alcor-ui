@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import JSBI from 'jsbi'
 import { Token, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
@@ -63,6 +65,8 @@ export default {
   },
 
   computed: {
+    ...mapState(['network']),
+
     tokenA() {
       return this.token.id
     },
@@ -81,8 +85,9 @@ export default {
 
     fundamental() {
       if (!this.$fundamentals[this.$store.state.network.name]) return null
+      const [symbol, contract] = this.$route.params.id.split('-')
 
-      return this.$fundamentals[this.$store.state.network.name][this.token.symbol + '@' + this.token.contract]
+      return this.$fundamentals[this.$store.state.network.name][symbol.toUpperCase() + '@' + contract]
     },
 
     pools() {
@@ -248,6 +253,28 @@ export default {
         console.log('Getting Chart E', e)
       }
     },
+  },
+
+  head() {
+    const [symbol, contract] = this.$route.params.id.split('-')
+
+    const name = this.fundamental ? this.fundamental.name : symbol.toUpperCase()
+
+    return {
+      title: `${symbol.toUpperCase()} | Info | Spot & AMM Pairs | Alcor Exchange (${this.network.desc})`,
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: `Explore ${name} token information: Supply, Spot pairs, Volume. Trade/Swap on ${this.network.desc} Alcor Exchange`,
+        },
+        {
+          hid: 'og:image',
+          name: 'og:image',
+          content: this.$tokenLogo(symbol, contract),
+        },
+      ],
+    }
   },
 }
 </script>
