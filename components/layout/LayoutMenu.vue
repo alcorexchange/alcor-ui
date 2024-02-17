@@ -243,8 +243,9 @@ export default {
       display: flex;
       align-items: center;
       gap: 4px;
+      color: var(--text-disable);
       &.active {
-        color: var(--main-action-green);
+        color: var(--text-default);
       }
       i {
         transition: transform 0.3s;
