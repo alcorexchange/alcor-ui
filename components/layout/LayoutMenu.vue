@@ -137,6 +137,10 @@ export default {
   methods: {
     hasActiveLink(contentKey) {
       const { path } = this.$route
+
+      // When on /wallet/farms it shows Earn tab as active, this prevents it.
+      if (path.includes('/wallet/farms')) return false
+
       if (contentKey == 'trade') {
         return (
           path.includes('/markets') || path.includes('/trade') || path.includes('/otc') || path.includes('/nft-market')
