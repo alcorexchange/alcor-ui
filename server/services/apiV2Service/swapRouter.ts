@@ -77,18 +77,20 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   try {
     if (v2) {
-      const nodes = Object.keys(network.client_nodes)
+      return res.status(403).send('')
+      // const nodes = Object.keys(network.client_nodes)
 
-      ;[trade] = exactIn
-        ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
-        : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
+      // ;[trade] = exactIn
+      //   ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
+      //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
     } else {
       [trade] = exactIn
-        ? await Trade.bestTradeExactIn2(routes, POOLS, amount)
-        : await Trade.bestTradeExactOut2(routes, POOLS, amount)
+        ? Trade.bestTradeExactIn(routes, POOLS, amount)
+        : Trade.bestTradeExactOut(routes, POOLS, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
+    return res.status(403).send('Get Route error: ' + e.message)
   }
 
   const endTime = performance.now()
