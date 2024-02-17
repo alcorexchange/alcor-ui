@@ -58,7 +58,6 @@
               LayoutMenuContentItem(title="Docs" description="Alcor Documentation" to="/docs" :icon="require('~/assets/icons/menu-docs.svg')")
               LayoutMenuContentItem(title="API" description="Alcor API documentation" href="http://api.alcor.exchange" :icon="require('~/assets/icons/menu-api.svg')")
               LayoutMenuContentItem(title="Github" description="Code & Contribution" href="https://github.com/avral/alcor-ui" :icon="require('~/assets/icons/menu-git.svg')")
-              LayoutMenuContentItem(title="Analytics" description="Alcor Statistics" to="/analytics" :icon="require('~/assets/icons/menu-analytics.svg')")
             ul.content-items
               LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :social="true" href="https://t.me/alcorexchange" :icon="require('~/assets/icons/Telegram.svg')")
               LayoutMenuContentItem(title="Twitter" description="Announcements" :social="true" href="https://twitter.com/alcorexchange" :icon="require('~/assets/icons/Twitter.svg')")
@@ -90,6 +89,7 @@ export default {
         { name: 'Swap', contentKey: null, to: '/swap' },
         { name: 'Trade', contentKey: 'trade' },
         { name: 'Earn', contentKey: 'earn' },
+        { name: 'Analytics', contentKey: null, to: '/analytics' },
         { name: 'Wallet', contentKey: null, to: '/wallet' },
         { name: 'Bridge', contentKey: 'bridge' },
         { name: 'Docs & Socials', contentKey: 'docs' },
@@ -151,9 +151,6 @@ export default {
       }
       if (contentKey == 'bridge') {
         return path.includes('/bridge') || path.includes('/buy-crypto')
-      }
-      if (contentKey == 'docs') {
-        return path.includes('/docs') || path.includes('/analytics')
       }
     },
 
