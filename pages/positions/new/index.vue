@@ -687,7 +687,7 @@ export default {
           return this.$notify({ title: 'Position Create', message: 'Fetch new pool ID error: ' + e.message, type: 'error' })
         }
 
-        if (this.network.name == 'wax') {
+        if (parseFloat(creationFee) > 0) {
           try {
             await this.$confirm('Fee is: ' + creationFee + ' Continue?', 'New pool creation fee', {
               confirmButtonText: 'OK',

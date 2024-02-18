@@ -335,6 +335,20 @@ export default {
       getPositions: 'analytics/getPositions',
     }),
   },
+
+  // head() {
+  //   return {
+  //     title: 'Alcor | Analytics',
+
+  //     meta: [
+  //       {
+  //         hid: 'description',
+  //         name: 'description',
+  //         content: 'TVl, Volumes, Profitability and many other analytics.'
+  //       }
+  //     ]
+  //   }
+  // }
 }
 </script>
 

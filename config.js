@@ -364,7 +364,7 @@ const networks = {
       precision: 8,
     },
 
-    farmCreationFee: { amount: 5, token: 'usdt-usdt.alcor' },
+    //farmCreationFee: { amount: 5, token: 'usdt-usdt.alcor' },
     marketCreationFee: '500.00000000 WAX',
     feeAccount: 'fees.alcor',
 
@@ -405,7 +405,8 @@ const networks = {
     amm: {
       //contract: 'ammcontract4'
       contract: process.env.WAX_SWAP_CONTRACT || 'swap.alcor',
-      creationFee: '150.00000000 WAX',
+      //creationFee: '150.00000000 WAX',
+      creationFee: '0.00000000 WAX',
     },
 
     withdraw: {},
