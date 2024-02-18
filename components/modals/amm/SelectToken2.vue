@@ -136,7 +136,6 @@ export default {
       })
     },
     selectAsset(v) {
-      console.log('selectAsset', v)
       this.$emit('selected', v)
       this.visible = false
     },

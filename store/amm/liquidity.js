@@ -32,7 +32,6 @@ export const actions = {
     }
   },
 
-
   toggleTokens({ state, commit }) {
     const tokenA = Object.assign({}, state.tokenA)
     const tokenB = Object.assign({}, state.tokenB)

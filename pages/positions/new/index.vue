@@ -616,10 +616,12 @@ export default {
     },
 
     setTokenA(token) {
+      this.defaultFeeSetted = false
       this.$store.dispatch('amm/liquidity/setTokenA', token)
     },
 
     setTokenB(token) {
+      this.defaultFeeSetted = false
       this.$store.dispatch('amm/liquidity/setTokenB', token)
     },
 
@@ -670,7 +672,7 @@ export default {
             fee: this.feeAmount
           }
         })
-        const creationFee = this.network.amm?.creationFee || this.network.marketCreationFee
+        const creationFee = this.network.amm?.creationFee
 
         // Fetch last pool just to predict new created pool id
         try {
@@ -880,8 +882,6 @@ export default {
 
   watch: {
     tokenA(token) {
-      this.defaultFeeSetted = false
-
       setTimeout(() => {
         const currentQuery = this.$route.query
         this.$router.replace(
@@ -895,9 +895,8 @@ export default {
         ).catch((e) => {})
       }, 0)
     },
-    tokenB(token) {
-      this.defaultFeeSetted = false
 
+    tokenB(token) {
       setTimeout(() => {
         const currentQuery = this.$route.query
         this.$router.replace(
@@ -912,13 +911,12 @@ export default {
     },
 
     fees() {
-      if (!this.defaultFeeSetted) {
+      if (!this.defaultFeeSetted && this.fees.filter(f => !isNaN(f.selectedPercent)).length > 0) {
         const maxFeeStaked = this.fees.filter(f => !isNaN(f.selectedPercent)).reduce((prev, current) => {
           return (prev && prev.selectedPercent > current.selectedPercent) ? prev : current
         })
 
         this.defaultFeeSetted = true
-        console.log('set max fee', maxFeeStaked)
         this.feeAmount = maxFeeStaked.value
       }
     }
