@@ -34,6 +34,7 @@ export default {
   padding: 8px 16px;
   border-radius: var(--radius-2);
   cursor: pointer;
+  transition: background 0.2s;
   .icon {
     img {
       width: 32px;
@@ -45,7 +46,9 @@ export default {
     flex-direction: column;
     gap: 4px;
   }
-  &:hover,
+  &:hover {
+    background: var(--hover);
+  }
   &.active {
     background: var(--btn-active);
   }
