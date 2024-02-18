@@ -51,7 +51,7 @@
           .menu-content.bridge-content(v-show="currentContent === 'bridge'" key="bridge")
             ul.content-items
               LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" to="/bridge" :icon="require('~/assets/icons/menu-ibc.svg')")
-              LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy crypto" to="/buy-crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
+              LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy & swap crypto" to="/buy-crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
 
           .menu-content.docs-content(v-show="currentContent === 'docs'" key="docs")
             ul.content-items
