@@ -45,10 +45,7 @@ export default {
     flex-direction: column;
     gap: 4px;
   }
-  &:hover {
-    // TODO: Add transition for background
-    background: linear-gradient(to bottom, rgba(var(--hover-rgb), 0.12), rgba(var(--hover-rgb), 0.04));
-  }
+  &:hover,
   &.active {
     background: var(--btn-active);
   }
