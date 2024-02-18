@@ -10,9 +10,9 @@
         :token2="{contract: pool.tokenB.contract, symbol: pool.tokenB.symbol}"
       )
       .name.fs-32
-        nuxt-link(tag="span" :to="'/analytics/tokens/' + pool.tokenA.id").token-link {{ pool.tokenA.symbol }}
+        nuxt-link(:to="'/analytics/tokens/' + pool.tokenA.id").token-link {{ pool.tokenA.symbol }}
         |  /
-        nuxt-link(tag="span" :to="'/analytics/tokens/' + pool.tokenB.id").token-link  {{ pool.tokenB.symbol }}
+        nuxt-link(:to="'/analytics/tokens/' + pool.tokenB.id").token-link  {{ pool.tokenB.symbol }}
     Tag.ml-1 {{ pool.fee / 10000 }}%
   .end
     AlcorButton(tag="nuxt-link" :to="toSwap") Swap
@@ -62,6 +62,7 @@ export default {
 <style scoped lang="scss">
 .token-link {
   cursor: pointer;
+  color: inherit;
 
   &:hover {
     color: var(--text-disable);

@@ -9,15 +9,16 @@ div
     el-table(:data="paginatedPools" @row-click="openPool" row-class-name="pointer").analytics-table.analytics-pools-table
       el-table-column(label="Pool" width="300")
         template(slot-scope='scope')
-          .token-container
-            span.rank # {{ (page - 1) * 10 + scope.$index + 1 }}
-            PairIcons.pair-icons(
-              size="18"
-              :token1="{contract: scope.row.tokenA.contract, symbol: scope.row.tokenA.symbol}"
-              :token2="{contract: scope.row.tokenB.contract, symbol: scope.row.tokenB.symbol}"
-            )
-            span.name {{ scope.row.tokenA.symbol }} / {{ scope.row.tokenB.symbol }}
-            span.tag.fs-12 {{ scope.row.fee / 10000 }}%
+          nuxt-link.a-reset(:to="'/analytics/pools/' + scope.row.id")
+            .token-container
+              span.rank # {{ (page - 1) * 10 + scope.$index + 1 }}
+              PairIcons.pair-icons(
+                size="18"
+                :token1="{contract: scope.row.tokenA.contract, symbol: scope.row.tokenA.symbol}"
+                :token2="{contract: scope.row.tokenB.contract, symbol: scope.row.tokenB.symbol}"
+              )
+              span.name {{ scope.row.tokenA.symbol }} / {{ scope.row.tokenB.symbol }}
+              span.tag.fs-12 {{ scope.row.fee / 10000 }}%
 
       el-table-column(label="Liquidity A" minWidth="140")
         template(slot-scope="{row}") {{ row.tokenA.quantity | commaFloat(0) }} {{ row.tokenA.symbol }}
