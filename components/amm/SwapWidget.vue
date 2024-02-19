@@ -180,6 +180,8 @@ export default {
     priceInverted: '0.00',
     price: '0.00',
 
+    _requested_amountA: null,
+    _requested_amountB: null,
     priceImpact: '0.00',
     minReceived: 0,
     maximumSend: 0,
@@ -428,16 +430,14 @@ export default {
     },
 
     async swap() {
-      const { amountA, amountB, tokenA, tokenB, market } = this
+      const { expectedInput, tokenA, tokenB, market } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const exactIn = this.lastField == 'input'
 
-      const currencyAmountIn = tryParseCurrencyAmount((exactIn ? parseFloat(amountA) : parseFloat(this.maximumSend)).toFixed(tokenA.decimals), tokenA)
-      const currencyAmountOut = tryParseCurrencyAmount(parseFloat(amountB).toFixed(tokenB.decimals), tokenB)
+      const currencyAmountIn = tryParseCurrencyAmount((exactIn ? parseFloat(expectedInput) : parseFloat(this.maximumSend)).toFixed(tokenA.decimals), tokenA)
 
-      if (!currencyAmountIn) return console.log({ currencyAmountIn })
-      if (!currencyAmountOut) return console.log({ currencyAmountIn })
+      if (!currencyAmountIn) throw new Error('Ivalid currency in: ', currencyAmountIn?.toAsset())
 
       const actions = []
 
@@ -448,18 +448,31 @@ export default {
       }
 
       // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
-      if (parseFloat(amountA) > 0)
-        actions.push({
-          account: tokenA.contract,
-          name: 'transfer',
-          authorization: [this.user.authorization],
-          data: {
-            from: this.user.name,
-            to: this.network.amm.contract,
-            quantity: currencyAmountIn.toAsset(),
-            memo
-          }
-        })
+      // if (parseFloat(amountA) > 0) {
+      //   actions.push({
+      //     account: tokenA.contract,
+      //     name: 'transfer',
+      //     authorization: [this.user.authorization],
+      //     data: {
+      //       from: this.user.name,
+      //       to: this.network.amm.contract,
+      //       quantity: currencyAmountIn.toAsset(),
+      //       memo
+      //     }
+      //   })
+      // }
+
+      actions.push({
+        account: tokenA.contract,
+        name: 'transfer',
+        authorization: [this.user.authorization],
+        data: {
+          from: this.user.name,
+          to: this.network.amm.contract,
+          quantity: currencyAmountIn.toAsset(),
+          memo
+        }
+      })
 
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
 
@@ -528,7 +541,7 @@ export default {
 
       this.memo = memo
       this.amountA = input
-      //this.amountB = output
+      this.expectedInput = input
       this.expectedOutput = output
       this.priceImpact = priceImpact
       this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
@@ -580,8 +593,8 @@ export default {
       this.price = executionPrice.numerator == 0 ? '0' : price.toSignificant(6)
 
       this.memo = memo
-      //this.amountA = input
       this.amountB = output
+      this.expectedInput = input
       this.expectedOutput = output
       this.priceImpact = priceImpact
       this.minReceived = minReceived
