@@ -90,6 +90,12 @@ export async function makeAllTokensWithPrices(network: Network) {
       continue
     }
 
+    if (t.id == USD_TOKEN) {
+      t.system_price = (1 / systemPrice)
+      t.usd_price = 1
+      continue
+    }
+
     // Get pool for fetch price sorted by number of ticks(means more liquidity)
     const pool = pools.find(p => (
       (p.tokenA.id === t.id && (p.tokenB.id === system_token || (USD_TOKEN && p.tokenB.id === USD_TOKEN))) ||
