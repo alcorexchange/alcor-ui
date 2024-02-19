@@ -196,7 +196,7 @@ const networks = {
 
   proton: {
     name: 'proton',
-    desc: 'Proton',
+    desc: 'XPR',
     contract: 'alcor',
 
     baseToken: {

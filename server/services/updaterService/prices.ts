@@ -67,12 +67,15 @@ export async function makeAllTokensWithPrices(network: Network) {
   if (!redis.isOpen) await redis.connect()
   // Based on swap only, right now
   const tokens = []
-  const { baseToken } = network
+  const { baseToken, USD_TOKEN } = network
 
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await redis.get(`${network.name}_price`)) || 0
 
   const pools = await getPools(network.name)
+
+  // Sorting by more ticks means more liquidity
+  pools.sort((a, b) => b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length)
 
   pools.map(p => {
     const { tokenA, tokenB } = p
@@ -88,26 +91,25 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
 
     // Get pool for fetch price sorted by number of ticks(means more liquidity)
-    const pool = pools.sort((a, b) => b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length).find(p => (
-      p.tokenA.id == (t.symbol + '-' + t.contract).toLowerCase() &&
-      p.tokenB.id == system_token
-    ) || (
-      p.tokenB.id == (t.symbol + '-' + t.contract).toLowerCase() &&
-      p.tokenA.id == system_token
+    const pool = pools.find(p => (
+      (p.tokenA.id === t.id && (p.tokenB.id === system_token || (USD_TOKEN && p.tokenB.id === USD_TOKEN))) ||
+      (p.tokenB.id === t.id && (p.tokenA.id === system_token || (USD_TOKEN && p.tokenA.id === USD_TOKEN)))
     ))
 
     if (!pool) {
       t.usd_price = 0.0
       t.system_price = 0.0
     } else {
-      t.system_price = parseFloat((pool.tokenA.id == system_token ? pool.tokenBPrice : pool.tokenAPrice)
-        .toSignificant(6)
-      )
+      const isUsdtPool = (pool.tokenA.id === USD_TOKEN || pool.tokenB.id === USD_TOKEN)
 
-      t.usd_price = t.system_price * systemPrice
+      if (isUsdtPool) {
+        t.usd_price = parseFloat((pool.tokenA.id == USD_TOKEN ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(6))
+        t.systemPrice = (1 / systemPrice) * t.usd_price
+      } else {
+        t.system_price = parseFloat((pool.tokenA.id == system_token ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(6))
+        t.usd_price = t.system_price * systemPrice
+      }
     }
-
-    t.usd_price = parseFloat(t.usd_price)
   }
 
   const market_tokens = []
