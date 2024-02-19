@@ -125,7 +125,7 @@
                 .p-1
                   SwapRoute(:route="route")
     AuthOnly.w-100.mt-2
-      AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
+      AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit || loading" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
   RandomBanner(
     v-if="!hideBanner"
     :banners="banners"
