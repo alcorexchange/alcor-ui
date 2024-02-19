@@ -528,7 +528,7 @@ export default {
 
       this.memo = memo
       this.amountA = input
-      this.amountB = output
+      //this.amountB = output
       this.expectedOutput = output
       this.priceImpact = priceImpact
       this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
@@ -580,7 +580,7 @@ export default {
       this.price = executionPrice.numerator == 0 ? '0' : price.toSignificant(6)
 
       this.memo = memo
-      this.amountA = input
+      //this.amountA = input
       this.amountB = output
       this.expectedOutput = output
       this.priceImpact = priceImpact
