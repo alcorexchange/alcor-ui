@@ -12,6 +12,7 @@ class WalletBase {
 }
 
 export default class AnchoWallet extends WalletBase {
+  name = 'anchor'
   link = null
   session = null
 
@@ -21,16 +22,18 @@ export default class AnchoWallet extends WalletBase {
 
     this.createLink()
 
-    window.addEventListener('eosjsRpcSwitched', async e => {
-      this.createLink()
+    // TODO Manage changing RPC
+    // TODO Broke IBC Logic
+    // window.addEventListener('eosjsRpcSwitched', async e => {
+    //   this.createLink()
 
-      const session = await this.link.restoreSession('Alcor Exchange')
+    //   const session = await this.link.restoreSession('Alcor Exchange')
 
-      if (session) {
-        this.session = session
-        console.log('Anchor Provider session updated during rpc change')
-      }
-    })
+    //   if (session) {
+    //     this.session = session
+    //     console.log('Anchor Provider session updated during rpc change')
+    //   }
+    // })
   }
 
   logout() {
@@ -55,9 +58,10 @@ export default class AnchoWallet extends WalletBase {
 
     if (session) {
       this.session = session
-      const { actor, permission } = session.auth
+      const { auth: { actor, permission }, chainId: { hexString } } = session
 
       return {
+        chainId: hexString,
         name: actor.toString(),
         authorization: { actor: actor.toString(), permission: permission.toString() }
       }
@@ -79,7 +83,8 @@ export default class AnchoWallet extends WalletBase {
     }
   }
 
-  transact(actions) {
-    return this.session.transact({ actions })
+  transact(...args) {
+    console.log('anchor seeion in transact: ', this.session)
+    return this.session.transact(...args)
   }
 }

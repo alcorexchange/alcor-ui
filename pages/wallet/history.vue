@@ -1,6 +1,6 @@
 <template lang="pug">
 .wallet
-  virtual-table(v-if="loaded" :table="virtualTableData")
+  virtual-table(v-if="loaded" :table="virtualTableData" @update="update")
     template(#row="{ item }")
       .history-row(@touch="() => redirect(item)" @click="() => redirect(item)")
         .type
@@ -26,13 +26,14 @@ export default {
   components: { VirtualTable },
   data() {
     return {
-      deals: [],
-      skip: 0
+      userDeals: [],
+      skip: 0,
+      limit: 25
     }
   },
 
   computed: {
-    ...mapState(['user', 'markets_obj', 'userDeals']),
+    ...mapState(['user', 'markets_obj']),
     ...mapState('market', ['base_token', 'quote_token', 'id']),
     loaded() {
       return this.markets_obj[0] && this.userDeals.length
@@ -84,15 +85,20 @@ export default {
         }
       ]
 
-      const data = this.userDeals
-        .map(deal => ({
-          ...deal,
-          id: deal._id,
-          side: this.user.name == deal.bidder ? 'buy' : 'sell',
-          market_symbol: this.markets_obj[deal.market].symbol,
-          amount: (deal.type == 'sellmatch' ? deal.bid : deal.ask) + ' ' + this.markets_obj[deal.market].quote_token.symbol.name,
-          total: (deal.type == 'sellmatch' ? deal.ask : deal.bid) + ' ' + this.markets_obj[deal.market].base_token.symbol.name
-        }))
+      const data = this.userDeals.map((deal) => ({
+        ...deal,
+        id: deal._id,
+        side: this.user.name == deal.bidder ? 'buy' : 'sell',
+        market_symbol: this.markets_obj[deal.market].symbol,
+        amount:
+          (deal.type == 'sellmatch' ? deal.bid : deal.ask) +
+          ' ' +
+          this.markets_obj[deal.market].quote_token.symbol.name,
+        total:
+          (deal.type == 'sellmatch' ? deal.ask : deal.bid) +
+          ' ' +
+          this.markets_obj[deal.market].base_token.symbol.name
+      }))
 
       const itemSize = 59
       const pageMode = true
@@ -101,16 +107,31 @@ export default {
     }
   },
 
-  watch: {
-    '$store.state.user'() {
-      this.$store.dispatch('fetchUserDeals')
-    }
+  mounted() {
+    this.userDeals = []
+    this.fetchDealsChank()
   },
 
   methods: {
+    update([start, end]) {
+      if (end === this.skip + this.limit) {
+        this.skip += this.limit
+        this.fetchDealsChank()
+      }
+    },
+    async fetchDealsChank() {
+      const { skip, limit } = this
+      const params = { skip, limit }
+
+      const { data: chank } = await this.$axios.get(
+        `/account/${this.$store.state.user.name}/deals`,
+        { params }
+      )
+
+      if (chank.length) this.userDeals.push(...chank)
+    },
     redirect(item) {
-      if (this.isMobile)
-        window.location.href = this.monitorTx(item.trx_id)
+      if (this.isMobile) window.location.href = this.monitorTx(item.trx_id)
     },
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
@@ -134,7 +155,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .asset {
@@ -146,7 +166,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .date {
@@ -170,7 +189,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .unit-price {
@@ -181,7 +199,6 @@ export default {
     @media only screen and (max-width: 1176px) {
       width: 33%;
     }
-
   }
 
   .action {
@@ -250,10 +267,10 @@ td.el-table__expanded-cell {
 }
 
 .success {
-  color: var(--main-green) !important
+  color: var(--main-green) !important;
 }
 
 .danger {
-  color: var(--main-red)
+  color: var(--main-red);
 }
 </style>

@@ -26,6 +26,8 @@ async function updateBidAsk(chain, side, market_id, orders) {
 }
 
 export async function getOrderbook(chain, side, market) {
+  if (!client.isOpen) await client.connect()
+
   const entries = await client.get(`orderbook_${chain}_${side}_${market}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }
@@ -97,6 +99,12 @@ async function updateOrders(side, chain, market_id) {
     }
   })
 
+  if (orders.size == 0) {
+    console.log('Empty orderbook update: ', { chain, side, market_id })
+    await setOrderbook(chain, side, market_id, orders)
+    return
+  }
+
   await setOrderbook(chain, side, market_id, orders)
   updateBidAsk(chain, side, market_id, orders)
 
@@ -120,6 +128,16 @@ function getRpc(network) {
   return rpc
 }
 
+async function connectAll() {
+  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
+  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+
+  // Redis
+  await client.connect()
+  await publisher.connect()
+  await subscriber.connect()
+}
+
 async function getOrders({ chain, market_id, side }) {
   const network = networks[chain]
   const rpc = getRpc(network)
@@ -139,41 +157,30 @@ async function getOrders({ chain, market_id, side }) {
   })
 }
 
-async function initialUpdate() {
-  console.log('Start markets orderbooks update..')
+export async function initialUpdate(chain, market_id) {
+  await connectAll()
 
-  const markets = await Market.find()
+  if (market_id) {
+    await updateOrders('buy', chain, market_id)
+    await updateOrders('sell', chain, market_id)
+    return
+  }
+
+  const markets = await Market.find({ chain })
+
   for (const { chain, id: market } of markets) {
-    updateOrders('buy', chain, market)
-    updateOrders('sell', chain, market)
+    await updateOrders('buy', chain, market)
+    await updateOrders('sell', chain, market)
+
+    console.log('updated orderbook: ', chain, market)
 
     // Chain that we have our own nodes
-    if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
+    //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
   }
 }
 
 export async function main() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
-
-  // Redis
-  await client.connect()
-  await publisher.connect()
-  await subscriber.connect()
-
-  // FOR PM2
-  //process.send('ready')
-  //process.on('SIGINT', async () => {
-  //  await mongoose.connection.close()
-
-  //  await client.quit()
-  //  process.exit(0)
-  //})
-
-  //initialUpdate()
-  // FIXME JUST FOR TEST
-  //updateOrders('sell', 'wax', 0)
-  //updateOrders('buy', 'wax', 0)
+  await connectAll()
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')

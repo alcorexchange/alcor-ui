@@ -24,6 +24,7 @@ export default {
   gap: 8px;
   font-size: 12px;
   justify-content: space-between;
+  width: 235px;
 
   &__pickers {
     display: flex;

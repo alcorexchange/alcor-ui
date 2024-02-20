@@ -87,3 +87,6 @@ dist
 deploy.sh
 data/
 ecosystem.config.js
+
+.vscode
+.sentryclirc

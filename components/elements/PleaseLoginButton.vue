@@ -15,7 +15,7 @@ export default {
 
   methods: {
     login() {
-      this.$store.dispatch('modal/login')
+      this.$store.dispatch('chain/mainLogin')
     }
   }
 }

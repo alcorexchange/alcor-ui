@@ -120,7 +120,7 @@ export default {
 
   .el-tabs__item,
   .el-table {
-    font-size: 11px !important;
+    font-size: 10px !important;
   }
 
   .module-name {

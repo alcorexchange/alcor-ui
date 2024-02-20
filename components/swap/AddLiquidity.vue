@@ -238,11 +238,6 @@ export default {
       this.amount1 = amount1.to_string().split(' ')[0]
     },
 
-    async open() {
-      if (!(await this.$store.dispatch('chain/asyncLogin'))) return
-      this.amountChange()
-    },
-
     amountChange() {
       this.amount1 = (parseFloat(this.amount1) || 0).toFixed(
         this.poolOne.quantity.symbol.precision()

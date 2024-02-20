@@ -1,32 +1,35 @@
 <template lang="pug">
-nav.nav(v-if='!isMobile')
+LayoutMenu(v-if="!isMobile")
+//nav.nav(v-if='!isMobile')
   .nav-side.nav-left
-    nuxt-link(:to="localePath('index', $i18n.locale)")
+    nuxt-link(:to='localePath("index", $i18n.locale)')
       img.logo(
         v-if='$colorMode.value == "light"',
         src='~/assets/logos/alcorblack.svg',
-        height='44'
+        height='32'
       )
       img.logo(
         v-else='',
-        height='44',
+        height='32',
         src='~/assets/logos/alcorwhite.svg',
         alt=''
       )
     ul.nav-items
       li(v-for='item in menuItems', :key='item.index')
         AlcorLink.item(
-          :to="localePath(item.index, $i18n.locale)",
+          :to='localePath(item.index, $i18n.locale)',
           flat,
           :class='{ active: isActive(item.index) }'
         )
-          | {{ $t(item.name) }}
+          span {{ $t(item.name) }}
+          new-badge.badge(v-if='item.new', width='44', height='32')
+
   .nav-side.nav-right
     ConnectNav
 .menu-and-menu-header(v-else)
   .menu-header
     .logo
-      nuxt-link(:to="localePath('index', $i18n.locale)")
+      nuxt-link(:to='localePath("index", $i18n.locale)')
         img.logo(
           v-if='$colorMode.value == "light"',
           src='~/assets/logos/alcorblack.svg',
@@ -42,16 +45,12 @@ nav.nav(v-if='!isMobile')
     .mobile-chain-select
       chain-select
 
-    AlcorButton(
-      :icon-only-alt='true',
-      @click='showSetting = !showSetting'
-    )
+    AlcorButton(:icon-only-alt='true', @click='showSetting = !showSetting')
       i.el-icon-setting.show-settings
 
     settings.settings(v-if='showSetting', v-click-outside='onClickOutside')
 
-
-    AlcorButton(@click='openMenu', :icon-only-alt='true')
+    AlcorButton(@click='openMenu', :icon-only-alt='true' v-if="!$route.path.includes('swap-widget')")
       i.el-icon-more
     nav(:class='["menu", { menuActive }]')
       .logo
@@ -79,8 +78,10 @@ nav.nav(v-if='!isMobile')
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav'
+import LayoutMenu from '~/components/layout/LayoutMenu'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Settings from '~/components/layout/Settings'
+import NewBadge from '~/components/svg-icons/NewBadge.vue'
 
 export default {
   components: {
@@ -88,13 +89,15 @@ export default {
     AlcorButton,
     ConnectNav,
     ChainSelect,
-    Settings
+    Settings,
+    NewBadge,
+    LayoutMenu,
   },
 
   data() {
     return {
       menuActive: false,
-      showSetting: false
+      showSetting: false,
     }
   },
 
@@ -102,27 +105,34 @@ export default {
     menuItems() {
       const items = []
 
-      if (
-        ['eos', 'wax', 'jungle', 'telos', 'local'].includes(
-          this.$store.state.network.name
-        )
-      ) {
-        items.push({ index: '/swap', name: 'Swap' })
-      }
+      items.push({ index: '/swap', name: 'Swap' })
+      items.push({ index: '/positions', name: 'Pool' })
 
-      items.push({ index: '/markets', name: 'Markets' })
+      items.push({ index: '/markets', name: 'Spot' })
+      items.push({ index: '/bridge', name: 'Bridge' })
+
+      if (['wax', 'eos', 'proton'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/farm', name: 'Farm', new: true })
+      }
 
       items.push({ index: '/otc', name: 'OTC' })
 
-      if (['wax', 'eos', 'telos'].includes(this.$store.state.network.name)) {
+      if (['wax'].includes(this.$store.state.network.name)) {
+        // TODO Add atomic on eos
         items.push({ index: '/nft-market', name: 'NFT' })
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
+
+      if (['wax', 'eos', 'proton', 'telos'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/buy-crypto', name: 'Cross Chain' })
+      }
+
+      items.push({ index: '/analytics', name: 'Analytics' })
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
-    }
+    },
   },
 
   watch: {
@@ -145,6 +155,8 @@ export default {
         return index == '/markets'
       }
 
+      if (path.includes('/wallet/farms')) return index == '/wallet/farms'
+
       return path.includes(index)
     },
 
@@ -154,8 +166,8 @@ export default {
 
     closeMenu() {
       this.menuActive = false
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -196,6 +208,17 @@ export default {
     display: flex;
     align-items: center;
   }
+
+  .nav-left {
+    width: 100%;
+    max-width: 60%;
+  }
+
+  @media only screen and (max-width: 1300px) {
+    .nav-left {
+      max-width: 620px;
+    }
+  }
 }
 
 .full-width {
@@ -213,16 +236,30 @@ export default {
   padding: 0;
   margin-left: 14px;
   display: flex;
+  justify-content: space-around;
+  width: 100%;
 
   .item {
-    padding: 4px 14px;
+    padding: 4px 10px;
     margin-right: 4px;
     display: flex;
     align-items: center;
+    color: var(--text-disable);
+    position: relative;
+    &:hover {
+      color: var(--text-default);
+    }
+
+    .badge {
+      position: absolute;
+      bottom: 12px;
+      left: 28px;
+      z-index: 1;
+    }
 
     &.active {
       background: var(--btn-active);
-      color: var(--text-default) !important;
+      color: var(--text-contrast) !important;
     }
   }
 }
@@ -389,7 +426,6 @@ ul {
   }
 
   @media only screen and (max-width: 600px) {
-
     .el-dialog,
     .el-message-box,
     .el-notification {

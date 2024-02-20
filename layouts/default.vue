@@ -1,14 +1,15 @@
 <template lang="pug">
-.alcor-inner(:class="{ 'full-width': fullWidth }")
-  top-nav(:class="{ 'alcor-inner': $route.name == `index___${$i18n.locale}` }")
+.unlim-width.default-layout
+  .not-footer
+    TopNav.px-3.py-2
 
-  AlcorLoading
-  ResourcesModal
-  ModalsDialog
+    AlcorLoading
+    ResourcesModal
+    ModalsDialog
 
-  .main
-    nuxt
-  FooterBlock
+    .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
+      nuxt
+  FooterBlock.footer-block
 </template>
 
 <script>
@@ -147,7 +148,16 @@ export default {
   margin-left: auto;
   margin-right: 10px;
 }
-
+.default-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  .footer-block {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
 .nav {
   display: flex;
   align-items: center;
@@ -162,7 +172,7 @@ export default {
 }
 
 .full-width {
-  max-width: 100%;
+  max-width: 1920px;
   padding: 0px;
 
   .nav {
@@ -288,8 +298,8 @@ ul {
 
 .el-popper[x-placement^='bottom'] .popper__arrow::after,
 .el-popper[x-placement^='top'] .popper__arrow::after {
-  border-bottom-color: var(--bg-big-card);
-  border-top-color: var(--bg-big-card);
+  border-bottom-color: transparent;
+  border-top-color: transparent;
 }
 
 .el-dropdown-selfdefine {

@@ -12,7 +12,7 @@
       :use-css-transforms='true'
       @layout-updated="layoutUpdatedEvent"
       @breakpoint-changed="layoutUpdatedEvent"
-      v-if="layouts.length > 0")
+      v-if="layouts.filter(i => i.status).length > 0")
 
       grid-item.overflowbox(
         v-for='item in layouts.filter(i => i.status)',
@@ -33,7 +33,7 @@
         @container-resized='itemUpdatedEvent(item)'
         drag-ignore-from='.el-tabs__item, .depth-chart, a, button, .orders-list, .desktop',
         drag-allow-from='.el-tabs__header, .times-and-sales, .trade-top-line, .top-favorite-markets'
-        :is-resizable="item.i === 'favorites-top-line' ? false : true"
+        :is-resizable="item.i === 'favorites-top-line' || item.i === 'time-sale' ? false : true"
       )
         .right-icons
           .d-flex.align-items-center.mr-2(v-if="item.i == 'open-order'")
@@ -79,7 +79,7 @@
               :use-css-transforms='false',
             )
 
-        el-tabs.h-100.trade-tab(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab" ref="timeSale")
+        el-tabs.h-100.trade-tab(v-if='item.i == "time-sale"' type="border-card" v-model="markets_timesale_tab")
           el-tab-pane.trade-tab(:label='$t("Markets")')
             Markets.mt-1
           el-tab-pane.trade-header(:label='$t("Times & Sales")')
@@ -290,7 +290,7 @@ export default {
   watch: {
     '$store.state.market.markets_layout'() {
       if (this.current_market_layout != 'advanced') {
-        document.querySelector('.full-width').classList.add('unlim-width')
+        document.querySelector('.main').classList.add('unlim-width')
         return
       }
       this.layouts = this.$store.state.market.markets_layout
@@ -302,7 +302,6 @@ export default {
 
     layouts: {
       handler(newValue) {
-        console.log('layouts: ', JSON.stringify(newValue))
         // We update only for advanced mode
         if (this.current_market_layout != 'advanced') return
 
@@ -317,7 +316,7 @@ export default {
 
   mounted() {
     if (this.$store.state.market.current_market_layout === 'advanced') {
-      document.querySelector('.full-width').classList.add('unlim-width')
+      document.querySelector('.main').classList.add('unlim-width')
     }
 
     //if (this.markets_timesale_tab == null) this.markets_timesale_tab = 0
@@ -378,11 +377,6 @@ export default {
       // prevent resizing favorite line
       if (item.i === 'favorites-top-line') return
       //if (isEqual(this.markets_layout, this.$store.state.market.markets_layout)) return
-
-      if (item.i === 'time-sale') {
-        this.markets_layout.find(({ i }) => i === 'time-sale')
-          .height = this.$refs.timeSale[0].$el.offsetHeight - 140 + 'px'
-      }
 
       this.$store.commit('market/setMarketLayout', this.markets_layout)
     }

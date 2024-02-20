@@ -7,7 +7,7 @@
 
         br
 
-        p {{ $t('By selecting a token from the list below, you will be offered to sign a transaction that instantly opens a new market that will immediately be ready for placing orders') }}.
+        span {{ $t('By selecting a token from the list below, you will be offered to sign a transaction that instantly opens a new market that will immediately be ready for placing orders') }}.
           br
           | {{ $t('This happens on smart contract, without the participation of third parties') }}.
 

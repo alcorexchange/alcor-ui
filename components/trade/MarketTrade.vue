@@ -6,7 +6,7 @@
       span(
         @click="setAmount('buy')"
         class="text-mutted small align-self-end ml-auto cursor-pointer"
-      ) {{ baseBalance | commaFloat }}
+      ) {{ baseBalance | commaFloat(base_token.symbol.precision) }}
         i.el-icon-wallet.ml-1
 
     el-form
@@ -23,7 +23,6 @@
         el-input(
           type="number"
           v-model="totalBuy"
-          @change="setPrecisionTotalBuy()"
           size="medium"
           placeholder="0"
           clearable
@@ -34,7 +33,7 @@
       .px-3
         el-slider(
           :step="1"
-          v-model="percentBuy"
+          v-model="percentBuy2"
           :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }"
           :show-tooltip="false"
         ).slider-buy
@@ -53,7 +52,7 @@
       span(
         class="text-mutted small align-self-end ml-auto cursor-pointer"
         @click="setAmount('sell')"
-      ) {{ tokenBalance | commaFloat }}
+      ) {{ tokenBalance | commaFloat(quote_token.symbol.precision) }}
         i.el-icon-wallet.ml-1
 
     el-form
@@ -70,7 +69,6 @@
         el-input(
           type="number"
           v-model="amountSell"
-          @change="setPrecisionAmountSell()"
           size="medium"
           placeholder="0"
           clearable
@@ -102,10 +100,24 @@ import { trade } from '~/mixins/trade'
 export default {
   mixins: [trade],
 
+  data() {
+    return {
+      percentBuyLocal: 0
+    }
+  },
+
   computed: {
-    percentBuy: {
-      get() { return this.percent_buy },
-      set(val) { this.changePercentBuy({ percent: val, trade: 'market' }) }
+    percentBuy2: {
+      get() { return this.percentBuyLocal },
+      set(val) {
+        this.percentBuyLocal = val
+
+        if (val == 100) {
+          this.$store.commit('market/SET_TOTAL_BUY', parseFloat(this.baseBalance))
+        } else {
+          this.changePercentBuy({ percent: val })
+        }
+      }
     }
   }
 }
@@ -121,6 +133,6 @@ export default {
 }
 
 .red {
-  color: var(--color-primary)
+  color: var(--main-red)
 }
 </style>

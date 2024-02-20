@@ -19,7 +19,7 @@
         el-button {{ $t('Socials') }}
           i(class="el-icon-arrow-down el-icon--right")
         el-dropdown-menu(slot="dropdown")
-          el-dropdown-item(v-for="social in fundamental.socials")
+          el-dropdown-item(v-for="social in fundamental.socials" :key="social")
             a.link.disable(:href="social") {{ social }}
 
       swap-button.swap-button(v-if="relatedPool && currentMarket.base_token.symbol.name" :pool="relatedPool.id")
@@ -29,7 +29,7 @@
         el-button {{ $t('Markets') }}
           i(class="el-icon-arrow-down el-icon--right")
         el-dropdown-menu(slot="dropdown")
-          el-dropdown-item(v-for="market in contractMarkets")
+          el-dropdown-item(v-for="market in contractMarkets" :key="market")
             .market(@click="() => $router.push({ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } })")
               .market__name
                 token-image(:src='$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)')
@@ -51,7 +51,7 @@
       .label.disable
         img(src="~/assets/icons/contract.svg")
         span {{ $t('Contract') }}
-      a.value.link(v-if="currentMarket" :href='monitorAccount(currentMarket.quote_token.contract)', target='_blank') {{ currentMarket.quote_token.contract }}
+      a.value.link(:href='monitorAccount(contract)', target='_blank') {{ contract }}
 
     .column
       .label.disable
@@ -177,34 +177,59 @@ export default {
     ...mapState(['markets']),
     ...mapGetters('market', ['relatedPool']),
     ...mapState(['network']),
+
+    contract() {
+      return this.$route.params.slug.split('@')[1]
+    },
+
     contractMarkets() {
-      return this.markets
-        .filter(market => market.quote_token.contract == this.$route.params.slug.split('@')[1])
+      return this.markets.filter(
+        (market) =>
+          market.quote_token.contract == this.contract ||
+          market.base_token.contract == this.contract
+      )
     },
+
     contractDayVolume() {
-      return this.contractMarkets.reduce((sum, { volume24 }) => sum + volume24, 0)
+      return this.contractMarkets.reduce(
+        (sum, { volume24 }) => sum + volume24,
+        0
+      )
     },
+
     currentMarket() {
-      return this.contractMarkets.find(({ quote_token }) => quote_token.symbol.name === this.$route.params.slug.split('@')[0])
+      return this.contractMarkets.find(
+        ({ quote_token, base_token }) =>
+          quote_token.symbol.name === this.contract ||
+          base_token.symbol.name === this.contract
+      )
     },
+
     fundamental() {
       if (!this.$fundamentals[this.$store.state.network.name]) return null
-      return this.$fundamentals[this.$store.state.network.name][this.$route.params.slug]
+
+      return this.$fundamentals[this.$store.state.network.name][
+        this.$route.params.slug
+      ]
     }
   },
+
   watch: {
     currentMarket(market) {
       this.$store.dispatch('market/setMarket', market)
     }
   },
+
   mounted() {
     const [scope, contract] = this.$route.params.slug.split('@')
-    this.$rpc.get_table_rows({
-      code: contract,
-      table: 'stat',
-      limit: 1,
-      scope
-    }).then(({ rows }) => this.stat = rows[0])
+    this.$rpc
+      .get_table_rows({
+        code: contract,
+        table: 'stat',
+        limit: 1,
+        scope
+      })
+      .then(({ rows }) => (this.stat = rows[0]))
       .catch((e) => console.error('fetchDataError', e))
   }
 }
@@ -212,11 +237,11 @@ export default {
 
 <style scoped lang="scss">
 .disable {
-  color: var(--text-disable)
+  color: var(--text-disable);
 }
 
 .green {
-  color: var(--main-green)
+  color: var(--main-green);
 }
 
 .market,
@@ -243,7 +268,6 @@ export default {
   }
 
   &__header {
-
     display: flex;
     justify-content: space-between;
     margin-top: 40px;
@@ -270,7 +294,6 @@ export default {
       @media only screen and (max-width: 600px) {
         gap: 8px;
       }
-
     }
 
     .value {
@@ -299,7 +322,6 @@ export default {
     .link {
       text-decoration: none;
     }
-
   }
 
   &__info {
@@ -324,7 +346,6 @@ export default {
       @media only screen and (max-width: 600px) {
         gap: 0px;
       }
-
     }
 
     .label {
@@ -335,7 +356,6 @@ export default {
       img {
         height: 14px;
       }
-
     }
 
     .bold {
@@ -352,7 +372,7 @@ export default {
       text-decoration: underline !important;
       cursor: pointer;
       font-weight: 700;
-      color: #80A1C5;
+      color: #80a1c5;
     }
   }
 
@@ -402,7 +422,7 @@ export default {
     .bold {
       font-weight: 600;
       font-size: 18px;
-      color: var(--text-default)
+      color: var(--text-default);
     }
   }
 
@@ -413,7 +433,6 @@ export default {
     @media only screen and (max-width: 600px) {
       margin-top: 32px;
     }
-
   }
 
   &__description {

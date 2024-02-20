@@ -1,6 +1,5 @@
 <template lang="pug">
 .ibc-withdraw
-  el-button(type="text" plain size="mini" icon="el-icon-s-promotion" @click="open").hover-opacity Transfer
 
   el-dialog(title="Token transfer", :visible.sync="visible" width="25%" v-if="user").text-left
     el-alert(v-if="token.contract == 'bosibc.io'" type="warning" show-icon title="This is IBC token!")
@@ -150,8 +149,7 @@ export default {
       )
     },
 
-    async open() {
-      if (!(await this.$store.dispatch('chain/asyncLogin'))) return
+    open() {
       this.visible = true
     },
 
@@ -184,7 +182,7 @@ export default {
         this.visible = false
 
         this.$alert(
-          `<a href="${this.network.monitor}/tx/${r.transaction_id}" target="_blank">Transaction id</a>`,
+          `<a class="pointer" href="${this.monitorTx(r.transaction_id)}" target="_blank">Transaction id</a>`,
           'Transaction complete!',
           {
             dangerouslyUseHTMLString: true,

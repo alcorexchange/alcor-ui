@@ -33,6 +33,14 @@ export function subscribe(io, socket, client) {
       socket.join(`orders:${params.chain}.${params.market}`)
     }
 
+    if (room == 'swap') {
+      if (params.allPools) {
+        socket.join(`swap:${params.chain}`)
+      } else {
+        socket.join(`swap:${params.chain}.${params.poolId}`)
+      }
+    }
+
     if (room == 'pools') {
       socket.join(`pools:${params.chain}`)
     }
@@ -47,11 +55,17 @@ export function subscribe(io, socket, client) {
       const data = await client.get(`orderbook_${chain}_${side}_${market}`)
 
       let entries
-      try {
-        entries = JSON.parse(data || [])
-      } catch (e) {
-        console.log('Error in orderbook data: ', { chain, side, market }, data)
-        throw e
+
+      if (!data) {
+        entries = []
+        console.log('Empty orderbook: ', { chain, side, market })
+      } else {
+        try {
+          entries = JSON.parse(data)
+        } catch (e) {
+          console.log('Error in orderbook data: ', { chain, side, market }, data)
+          throw e
+        }
       }
 
       // TODO Implement with http query (with limit by user)
@@ -60,6 +74,11 @@ export function subscribe(io, socket, client) {
       socket.emit(`orderbook_${side}`, orderbook)
       socket.join(`orderbook:${chain}.${side}.${market}`)
     }
+
+    // TODO Swap WS
+    // if (room == 'swap') {
+    //   socket.join(`account:${params.chain}.${params.name}`)
+    // }
   })
 }
 
@@ -92,6 +111,14 @@ export function unsubscribe(io, socket) {
 
       socket.leave(`orderbook:${chain}.buy.${market}`)
       socket.leave(`orderbook:${chain}.sell.${market}`)
+    }
+
+    if (room == 'swap') {
+      if (params.allPools) {
+        socket.leave(`swap:${params.chain}`)
+      } else {
+        socket.leave(`swap:${params.chain}.${params.poolId}`)
+      }
     }
   })
 }

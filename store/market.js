@@ -217,6 +217,7 @@ export const actions = {
     })
 
     this.$socket.io.on('reconnect', () => {
+      console.warn('SOCKETIO RECONNECTED')
       commit('setBids', [])
       commit('setAsks', [])
 
@@ -394,6 +395,8 @@ export const actions = {
     }
   },
   async calcAndSetTotal({ state, commit, dispatch }) {
+    console.log('calcAndSetTotal', state.amount_buy)
+
     if (state.amount_buy > 0) {
       const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
       commit('SET_TOTAL_BUY', totalBuy)
@@ -437,43 +440,56 @@ export const actions = {
   },
   async setPrecisionAmountBuy({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
-    if (state.amount_buy) {
-      const amount = Big(state.amount_buy).round(prec, 0).toString()
-      commit('SET_AMOUNT_BUY', amount)
 
-      await dispatch('changeAmount', { amount, type: 'buy' })
-    } else {
-      commit('SET_AMOUNT_BUY', null)
-    }
+    // if (state.amount_buy) {
+    //   const amount = Big(state.amount_buy).round(prec, 0).toString()
+    //   commit('SET_AMOUNT_BUY', amount)
+
+    //   await dispatch('changeAmount', { amount, type: 'buy' })
+    // } else {
+    //   commit('SET_AMOUNT_BUY', null)
+    // }
   },
   async setPrecisionAmountSell({ state, commit, dispatch }) {
     const prec = state.quote_token.symbol.precision
-    if (state.amount_sell) {
-      const amount = Big(state.amount_sell).round(prec, 0).toString()
-      commit('SET_AMOUNT_SELL', amount)
 
-      await dispatch('changeAmount', { amount, type: 'sell' })
-    } else {
-      commit('SET_AMOUNT_SELL', null)
-    }
+    // if (state.amount_sell) {
+    //   const amount = Big(state.amount_sell).round(prec, 0).toString()
+    //   commit('SET_AMOUNT_SELL', amount)
+
+    //   await dispatch('changeAmount', { amount, type: 'sell' })
+    // } else {
+    //   commit('SET_AMOUNT_SELL', null)
+    // }
   },
-  setPrecisionTotalBuy({ state, commit }) {
-    const prec = state.base_token.symbol.precision
-    if (state.total_buy) {
-      const total = Big(state.total_buy).round(prec, 0).toString()
-      commit('SET_TOTAL_BUY', total)
-    } else {
-      commit('SET_TOTAL_BUY', null)
-    }
+
+  setPrecisionTotalBuy({ state, commit, dispatch }) {
+    // On total @change
+    dispatch('calcAndSetTotal')
+
+    //this.changeTotal({ total: state.total_buy, type: 'buy' })
+
+    // const prec = state.base_token.symbol.precision
+    // if (state.total_buy) {
+    //   const total = Big(state.total_buy).round(prec, 0).toString()
+    //   commit('SET_TOTAL_BUY', total)
+    // } else {
+    //   commit('SET_TOTAL_BUY', null)
+    // }
   },
-  setPrecisionTotalSell({ state, commit }) {
-    const prec = state.base_token.symbol.precision
-    if (state.total_sell) {
-      const total = Big(state.total_sell).round(prec, 0).toString()
-      commit('SET_TOTAL_SELL', total)
-    } else {
-      commit('SET_TOTAL_SELL', null)
-    }
+
+  setPrecisionTotalSell({ state, commit, dispatch }) {
+    // On amount @change
+    dispatch('calcAndSetTotal')
+
+    // const prec = state.base_token.symbol.precision
+
+    // if (state.total_sell) {
+    //   const total = Big(state.total_sell).round(prec, 0).toString()
+    //   commit('SET_TOTAL_SELL', total)
+    // } else {
+    //   commit('SET_TOTAL_SELL', null)
+    // }
   },
 
   calculatePercent({ state }, params) {
@@ -514,9 +530,8 @@ export const actions = {
   },
 
   async fetchBuy({ state, dispatch, rootState }, trade) {
-    if (!await dispatch('chain/asyncLogin', null, { root: true })) return
-
     const { user, network } = rootState
+
     let amount = null
     let total = null
 
@@ -549,6 +564,8 @@ export const actions = {
           }, 1000)
         })
 
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
+
       return { err: false, desc: res }
     } catch (e) {
       captureException(e, { extra: { order: this.order } })
@@ -559,18 +576,20 @@ export const actions = {
   updateBalanceAfterOrderCancel({ state, dispatch, rootState }, { marketId, orderType }) {
     const market = rootState.markets.find(({ id }) => id === marketId)
 
-    dispatch('updateBalance', {
-      contract: market.base_token.contract,
-      symbol: market.base_token.symbol.name
-    }, { root: true })
-
-    dispatch('updateBalance', {
-      contract: market.quote_token.contract,
-      symbol: market.quote_token.symbol.name
-    }, { root: true })
+    orderType === 'buy'
+      ? dispatch('updateBalance', {
+        contract: market.base_token.contract,
+        symbol: market.base_token.symbol.name
+      }, { root: true })
+      : dispatch('updateBalance', {
+        contract: market.quote_token.contract,
+        symbol: market.quote_token.symbol.name
+      }, { root: true })
   },
 
-  updatePairBalances({ state, dispatch, rootState }) {
+  updatePairBalances({ state, dispatch }) {
+    if (!state.base_token?.symbol?.name || !state.quote_token?.symbol?.name) return
+
     dispatch('updateBalance', {
       contract: state.base_token.contract,
       symbol: state.base_token.symbol.name
@@ -583,8 +602,6 @@ export const actions = {
   },
 
   async fetchSell({ state, dispatch, rootState }, trade) {
-    if (!await dispatch('chain/asyncLogin', null, { root: true })) return
-
     const { user } = rootState
     const amount = parseFloat(state.amount_sell).toFixed(state.quote_token.symbol.precision)
     let total = null
@@ -610,6 +627,8 @@ export const actions = {
             dispatch('loadOrders', state.id, { root: true })
           }, 1000)
         })
+
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
 
       return { err: false, desc: res }
     } catch (e) {
@@ -671,8 +690,6 @@ export const getters = {
     } else {
       pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
     }
-
-    console.log('new pool price:', pool.pool2.quantity.to_string())
 
     return pool
   },

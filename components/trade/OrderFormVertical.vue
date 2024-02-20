@@ -136,7 +136,7 @@ el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order
       el-slider(
         v-if='side == "buy"',
         :step='25',
-        v-model='percentBuyMarket',
+        v-model='percentBuy',
         show-stops
         :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
         :show-tooltip="false"
@@ -179,23 +179,6 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapGetters('market', ['relatedPool']),
-
-    percentBuy: {
-      get() {
-        return this.percent_buy
-      },
-      set(val) {
-        this.changePercentBuy({ percent: val, trade: 'limit' })
-      }
-    },
-    percentBuyMarket: {
-      get() {
-        return this.percent_buy
-      },
-      set(val) {
-        this.changePercentBuy({ percent: val, trade: 'market' })
-      }
-    }
   },
 
   mounted() {

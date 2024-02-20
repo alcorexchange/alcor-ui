@@ -1,45 +1,49 @@
 <template lang="pug">
-.markets
-  market-top(v-if="!isMobile" :newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
-  .table-intro
-    el-radio-group.radio-chain-select.custom-radio(
-      v-model='markets_active_tab',
-      size='small'
-    ).mr-3
-      el-radio-button(label='fav')
-        i.el-icon-star-on
-        span {{ $t('Fav') }}
+no-ssr
+  .markets
+    market-top(v-if="!isMobile" :newListings="newListings", :topGainers="topGainers", :topVolume="topVolume")
+    .table-intro
+      el-radio-group.radio-chain-select.custom-radio(
+        v-model='markets_active_tab',
+        size='small'
+      ).mr-3
+        el-radio-button(label='fav')
+          i.el-icon-star-on
+          span {{ $t('Fav') }}
 
-      el-radio-button(label='all')
-        span {{ $t('All') }}
+        el-radio-button(label='all')
+          span {{ $t('All') }}
 
-      el-radio-button(:label='network.baseToken.symbol')
-        span {{ network.baseToken.symbol }}
+        el-radio-button(:label='network.baseToken.symbol')
+          span {{ network.baseToken.symbol }}
 
-      el-radio-button(v-if='network.name == "eos"', label='USDT')
-        span {{ $t('USDT') }}
+        el-radio-button(:label="network.USD_TOKEN.split('-')[0].toUpperCase()")
+          span {{ network.USD_TOKEN.split('-')[0].toUpperCase() }}
 
-      el-radio-button(value='cross-chain', label='Cross-Chain')
-        span {{ $t('Cross-Chain') }}
+        el-radio-button(v-if='network.name == "eos"', label='USDT')
+          span {{ $t('USDT') }}
 
-    .search-container
-      el-input(
-        v-model='search',
-        :placeholder='$t("Search market")',
-        size='small',
-        prefix-icon='el-icon-search'
-        clearable
-      )
+        el-radio-button(value='cross-chain', label='Cross-Chain')
+          span {{ $t('Cross-Chain') }}
 
-    el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
+      .search-container
+        el-input(
+          v-model='search',
+          :placeholder='$t("Search market")',
+          size='small',
+          prefix-icon='el-icon-search'
+          clearable
+        )
 
-    .ml-auto(v-if="!isMobile")
-      nuxt-link(:to="localePath('new_market', $i18n.locale)")
-        el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
+      el-switch(v-if="markets_active_tab == network.baseToken.symbol" v-model='showVolumeInUSD' active-text='USD').ml-auto
 
-  virtual-table(:table="virtualTableData")
-    template(#row="{ item }")
-      market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
+      .ml-auto(v-if="!isMobile")
+        nuxt-link(:to="localePath('new_market', $i18n.locale)")
+          el-button(tag="el-button" size="small" icon="el-icon-circle-plus-outline") {{ $t('Open new market') }}
+
+    virtual-table(:table="virtualTableData")
+      template(#row="{ item }")
+        market-row(:item="item" :showVolumeInUSD="showVolumeInUSD" :marketsActiveTab="markets_active_tab")
 </template>
 
 <script>
@@ -68,8 +72,6 @@ export default {
   data() {
     return {
       search: '',
-      newListingIDs: [495, 455, 173],
-      topGaindersIDs: [475, 422, 416]
     }
   },
 
@@ -80,7 +82,8 @@ export default {
 
     markets_active_tab: {
       get() {
-        return this.$store.state.market.markets_active_tab || this.network.baseToken.symbol
+        const def = this.network.name == 'proton' ? 'all' : this.network.baseToken.symbol
+        return this.$store.state.market.markets_active_tab || def
       },
 
       set(value) {
@@ -169,6 +172,7 @@ export default {
         quote_name: market.quote_token.symbol.name,
         contract: market.quote_token.contract,
         base_name: market.base_token.symbol.name,
+        base_contract: market.base_token.contract,
         promoted: market.promoted,
         change_week: market.changeWeek,
         volume_week: market.volumeWeek,
@@ -195,12 +199,8 @@ export default {
 
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
-            i => i.base_token.symbol.name == this.network.baseToken.symbol)
-          break
-
-        case 'USDT':
-          markets = this.markets.filter(
-            i => i.base_token.contract == 'tethertether'
+            i => i.base_token.symbol.name == this.network.baseToken.symbol ||
+            this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
           )
           break
 
@@ -210,20 +210,24 @@ export default {
           )
           break
 
-        case 'Terraformers':
-          markets = this.markets.filter(
-            i => i.quote_token.contract == 'unboundtoken'
-          )
+        case this.network.USD_TOKEN.split('-')[0].toUpperCase():
+          markets = this.markets.filter((i) => {
+            return this.network.USD_TOKEN.includes(i.base_token.contract) ||
+              this.network.USD_TOKEN.includes(i.quote_token.contract)
+          })
           break
 
-        default: {
+        case 'Cross-Chain': {
+          // Cross Chain
           const ibcTokens = this.$store.state.ibcTokens.filter(
             i => i != this.network.baseToken.contract
           )
           markets = this.markets.filter((i) => {
             return (
+              this.network.USD_TOKEN.includes(i.base_token.contract) ||
               ibcTokens.includes(i.base_token.contract) ||
               ibcTokens.includes(i.quote_token.contract) ||
+
               Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
               Object.keys(this.network.withdraw).includes(i.base_token.str)
             )
@@ -242,7 +246,13 @@ export default {
         .reduce((res, subArr) => {
           res.push(...subArr)
           return res
-        }, [])
+        }, []).sort((a, b) => {
+          if (a.promoted && b.promoted) {
+            return this.network.PINNED_MARKETS.indexOf(a.id) - this.network.PINNED_MARKETS.indexOf(b.id)
+          }
+
+          return 0
+        })
 
       return markets
     }
@@ -264,7 +274,13 @@ export default {
     if (search) {
       this.search = search
     }
-  }
+  },
+
+  head() {
+    return {
+      title: `Alcor Exchange | Trade tokens on ${this.$store.state.network.name.toUpperCase()}`,
+    }
+  },
 }
 </script>
 

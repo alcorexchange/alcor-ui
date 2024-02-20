@@ -4,7 +4,7 @@
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile" max-height="350")
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(v-else type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
@@ -33,7 +33,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-else)
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(v-else type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Time")', width='110')
     template(slot-scope='scope')
@@ -88,7 +88,7 @@ export default {
       user: 'user',
       allOrders: 'wallet/allOrders',
     }),
-    ...mapGetters(['network', 'userOrders']),
+    ...mapGetters(['userOrders']),
     ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'quote_token']),
 
     orders() {
@@ -152,7 +152,6 @@ export default {
       ).then(async () => {
         try {
           await this.$store.dispatch('market/cancelAll', ordersToCalcel)
-          this.$store.dispatch('loadUserBalances')
           this.$notify({ type: 'success', message: 'Orders canceled' })
         } catch (e) {
           this.$notify({ type: 'error', message: 'Orders cancelation error: ' + e })
@@ -184,12 +183,11 @@ export default {
           type: 'success',
         })
 
-        setTimeout(() => {
-          this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
-        }, 500)
+        await this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
 
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
+          //this.$store.dispatch('loadUserBalances')
         }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
@@ -203,7 +201,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .market-row div {
   font-size: 13px;
 }
@@ -218,5 +216,14 @@ export default {
 
 .text-primary {
   color: var(--color-primary) !important;
+}
+
+</style>
+
+<style lang="scss">
+.my-orders {
+  .el-table__body-wrapper.is-scrolling-left {
+    overflow-x: hidden;
+  }
 }
 </style>

@@ -96,7 +96,9 @@ var JsonRpc = /** @class */ (function () {
             if (this.currentEndpoint) {
                 var removed = this.endpoints.shift();
                 this.endpoints = this.endpoints.concat(removed || []);
+                console.log('Switched to API:', this.endpoints[0]);
             }
+
             this.currentEndpoint = this.endpoints[0];
 
             // Dispatch the event.
@@ -105,7 +107,6 @@ var JsonRpc = /** @class */ (function () {
               window.dispatchEvent(event);
             }
 
-            console.log('Switched to API:', this.currentEndpoint);
         }
     };
     /** Post `body` to `endpoint + path`. Throws detailed error information in `RpcError` when available. */
@@ -127,7 +128,7 @@ var JsonRpc = /** @class */ (function () {
                     case 2:
                         json = _a.sent();
                         if (json.processed && json.processed.except) {
-                            throw new eosjs_rpcerror_1.RpcError(json);
+                            throw new eosjs_rpcerror_1.RpcError(this.currentEndpoint + ': ' + json);
                         }
                         return [3 /*break*/, 4];
                     case 3:

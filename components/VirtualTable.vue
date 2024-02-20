@@ -1,36 +1,50 @@
 <template lang="pug">
-table.wrapper
-  tr.header(:class="{ 'mobile': isMobile }")
-    th.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
-      span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
-      sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
-  recycle-scroller(v-if="sortedData.length" :emit-update="true" class="scroller" :style="{ height: table.pageMode ? '100%' : table.height || '450px' }" :items="sortedData" :item-size="table.itemSize" :pageMode="table.pageMode")
-    template(v-slot="{ item }")
-      slot(name="row" :item="item")
-  span.no-data(v-else) {{ $t('No Data') }}
+recycle-scroller(
+  :emit-update="true"
+  @update="(...args) => $emit('update', (args))"
+  class="scroller wrapper"
+  :class="{ window: !table.pageMode }"
+  :items="sortedData"
+  :item-size="table.itemSize"
+  :pageMode="table.pageMode"
+  :buffer="buffer || 450"
+  list-tag="div"
+)
+  template(#before)
+    div.header(:class="{ 'mobile': isMobile }")
+      div.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
+        span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
+        sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
+  template(v-slot="{ item }")
+    slot(name="row" :item="item")
 </template>
 
 <script>
+import { RecycleScroller } from 'vue-virtual-scroller'
 import Sorter from '~/components/Sorter'
 
 export default {
-  components: { Sorter },
-  props: ['table'],
+  components: { Sorter, RecycleScroller },
+  props: ['table', 'buffer', 'defaultSortKey'],
   data: () => ({ sortKey: null, route: 1 }),
+
   computed: {
     sortedData() {
       if (!this.sortKey) return this.table.data
       const data = [...this.table.data]
-      data.sort((a, b) => a[this.sortKey] > b[this.sortKey] ? -1 : 1)
+      data.sort((a, b) => (a[this.sortKey] > b[this.sortKey] ? -1 : 1))
       return this.route ? data.reverse() : data
     },
     activeSort() {
       return { key: this.sortKey, route: this.route }
-    }
+    },
+  },
+  mounted() {
+    if (this.defaultSortKey) this.sort({ key: this.defaultSortKey, route: 0 })
   },
   methods: {
     sort(updated) {
-      console.log(updated)
+      console.log('updated', updated.key)
       if (this.sortKey == updated.key && this.route == updated.route) {
         this.sortKey = null
         this.route = null
@@ -38,10 +52,16 @@ export default {
       }
       this.sortKey = updated.key
       this.route = updated.route
-    }
-  }
+    },
+  },
 }
 </script>
+
+<style>
+.scroller .vue-recycle-scroller__item-view.hover {
+  background: var(--hover);
+}
+</style>
 
 <style scoped>
 .wrapper {
@@ -55,7 +75,9 @@ export default {
   color: var(--text-secondary);
 }
 
-.scroller.window {}
+.scroller.window {
+  height: 450px;
+}
 
 .mobile-trade-inner .scroller.window {
   height: 274px;
@@ -85,7 +107,7 @@ export default {
   text-overflow: ellipsis;
 }
 
-.header__column>span {
+.header__column > span {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

@@ -15,7 +15,7 @@ client-only
           .contract-info(:href='monitorAccount(quote_token.contract)', target='_blank')
             a.underline(:href='monitorAccount(quote_token.contract)', target='_blank') {{ quote_token.contract }}
             el-dropdown(placement="bottom")
-              nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
+              nuxt-link.token-info(:to="{ name: `analytics-tokens-id___${$i18n.locale}`, params: { id:`${quote_token.symbol.name.toLowerCase()}-${quote_token.contract}` } }") ?
               el-dropdown-menu(slot='dropdown')
                 .token-info-box
                   .info-box-row
@@ -354,11 +354,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 
   a.underline {
     text-decoration: underline !important;
-    color: var(--cancel);
+    color: var(--cancel) !important;
   }
 }
 
@@ -373,7 +373,7 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   text-decoration: none;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 }
 
 .token-info-box {

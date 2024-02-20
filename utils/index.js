@@ -1,3 +1,4 @@
+import { BigInt } from 'jsbi'
 import { Name, SymbolCode } from 'eos-common'
 import { Serialize } from 'eosjs'
 import { Big } from 'big.js'
@@ -15,6 +16,17 @@ export const isToday = (someDate) => {
   return someDate.getDate() == today.getDate() &&
     someDate.getMonth() == today.getMonth() &&
     someDate.getFullYear() == today.getFullYear()
+}
+
+export const toName = value => {
+  let v = Big.asUintN(64, value), result = ''
+
+  while (v > 0) {
+    const c = v & Big('0xff')
+    result += String.fromCharCode(Number(c.toString()))
+    v >>= 8n
+  }
+  return result
 }
 
 export const nameToUint64 = (name) => {
@@ -45,6 +57,25 @@ export function e_asset_to_token(easset) {
     symbol: easset.quantity.symbol.code().to_string(),
     precision: easset.quantity.symbol.precision()
   }
+}
+
+export function littleEndianToDesimalString(string) {
+  if (typeof string === 'string' && string.startsWith('0x')) {
+    const boundary = string.length / 2
+    const lengthMinusTwo = string.length - 2
+    const littleEndian = []
+
+    for (let i = 0; i < boundary; i++) {
+      const readIndex = lengthMinusTwo - 2 * i
+      littleEndian[i] = string.substring(readIndex, readIndex + 2)
+    }
+
+    const bigEndian = littleEndian.join('').substring(0, lengthMinusTwo)
+
+    return BigInt('0x' + bigEndian).toString()
+  }
+
+  return string
 }
 
 export function littleEndianToDesimal(string) {
@@ -134,6 +165,8 @@ export function parseExtendedAsset(asset) {
   const symbol = Serialize.stringToSymbol(sym)
 
   return {
+    id: (symbol.name + '-' + asset.contract).toLowerCase(),
+
     contract: asset.contract,
     symbol,
 
@@ -141,11 +174,15 @@ export function parseExtendedAsset(asset) {
   }
 }
 
+export function getPrecision(amount) {
+  return amount.split('.')[1] ? amount.split('.')[1].length : 0
+}
+
 export function parseAsset(asset) {
   if (Object.prototype.hasOwnProperty.call(asset, 'symbol')) return asset
 
   const [amount, symbol] = asset.split(' ')
-  const precision = amount.split('.')[1] ? amount.split('.')[1].length : 0
+  const precision = getPrecision(amount)
 
   const scale = new Big(10).pow(precision)
 
@@ -251,5 +288,25 @@ export function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]]
+  }
+}
+
+export function parseExtendedAssetPlain(asset) {
+  const symbol = asset.quantity.split(' ')[1]
+
+  return {
+    amount: parseFloat(asset.quantity),
+    id: symbol.toLowerCase() + '-' + asset.contract,
+    contract: asset.contract,
+    symbol,
+  }
+}
+
+export function parseAssetPlain(quantity) {
+  const [amount, symbol] = quantity.split(' ')
+
+  return {
+    amount: parseFloat(amount),
+    symbol,
   }
 }
