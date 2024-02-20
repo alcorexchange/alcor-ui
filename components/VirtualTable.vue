@@ -25,8 +25,9 @@ import Sorter from '~/components/Sorter'
 
 export default {
   components: { Sorter, RecycleScroller },
-  props: ['table', 'buffer'],
+  props: ['table', 'buffer', 'defaultSortKey'],
   data: () => ({ sortKey: null, route: 1 }),
+
   computed: {
     sortedData() {
       if (!this.sortKey) return this.table.data
@@ -38,8 +39,12 @@ export default {
       return { key: this.sortKey, route: this.route }
     },
   },
+  mounted() {
+    if (this.defaultSortKey) this.sort({ key: this.defaultSortKey, route: 0 })
+  },
   methods: {
     sort(updated) {
+      console.log('updated', updated.key)
       if (this.sortKey == updated.key && this.route == updated.route) {
         this.sortKey = null
         this.route = null

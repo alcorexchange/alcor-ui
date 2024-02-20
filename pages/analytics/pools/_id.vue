@@ -13,6 +13,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
 
   VirtualTable.virtual-table(
     :table="tableData"
+    defaultSortKey="totalValue"
     v-loading="loading"
   )
     template(#row="{ item }")
