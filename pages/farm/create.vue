@@ -193,7 +193,7 @@ export default {
     distributionOptions() {
       const amount = this.rewardList[0].amount || 0
       const token = this.rewardList[0].token
-      return [1, 7, 30, 90, 180, 360].map((number) => ({
+      return [1, 7, 30, 60, 90, 180, 240, 360].map((number) => ({
         value: number * 86400,
         display: `${number} Days`,
         daily: token
