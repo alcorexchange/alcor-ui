@@ -3,6 +3,7 @@
   ReturnLink.start.fs-20
   slot
     span.title {{ title }}
+    slot(name='afterTitile')
   .end
     slot(name='end')
       .d-flex.gap-2.align-items-center

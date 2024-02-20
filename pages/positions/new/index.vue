@@ -4,6 +4,12 @@
 .row.justify-content-center
   AlcorContainer.add-liquidity-component.w-100
     PageHeader(title="Add Liquidity")
+      template(#afterTitile)
+        el-popover(placement='bottom-start' width='300' trigger='hover')
+          template
+            .text
+              p Click to see FAQ Page.
+          .el-icon-info(slot="reference" @click="openInNewTab('https://docs.alcor.exchange/alcor-swap/liquidity-provider-faq')").ml-2.pointer
     .main-section.mt-2
       //- 1 start
       .section-1
@@ -80,11 +86,15 @@
               )
 
         .pre-defined-ranges.mt-2(v-mutted="!price")
-          AlcorButton.item(bordered v-for="range in priceRangeItems" @click="onPreDefinedRangeSelect(range)") {{ range.text }}
+          AlcorButton.item(
+            v-for="range in priceRangeItems" @click="onPreDefinedRangeSelect(range)"
+            :bordered="!isIninityRange || range.higherValue != 'infinity'"
+            :outline="isIninityRange && range.higherValue == 'infinity'"
+            ) {{ range.text }}
 
         PositionFeeAndShare(:positionLiquidity="positionLiquidity" :pool="pool").mt-3.mb-3
 
-        .min-max-price.d-flex.gap-8.mt-2.justify-content-center
+        .min-max-price.d-flex.gap-8.mt-2.justify-content-center(v-mutted="isIninityRange")
           InputStepCounter(
             :value="leftRangeValue"
             @change="onLeftRangeInput"
@@ -239,6 +249,12 @@ export default {
       'sortedB',
       'currnetPools',
     ]),
+
+    isIninityRange() {
+      const { ticksAtLimit } = this
+
+      return ticksAtLimit.LOWER && this.ticksAtLimit.UPPER
+    },
 
     existingPosition() {
       const { positions, tickLower, tickUpper, pool } = this
