@@ -43,6 +43,13 @@ export default {
 
     farmPools() {
       let pools = this.pools
+      const onlyContracts = this.$route.query?.contracts?.split(',') || []
+
+      if (onlyContracts.length > 0) {
+        pools = pools.filter(p => {
+          return onlyContracts.includes(p.tokenA.contract) || onlyContracts.includes(p.tokenB.contract)
+        })
+      }
 
       if (this.stakedOnly) {
         pools = pools.filter((p) => {
