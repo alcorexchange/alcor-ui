@@ -209,7 +209,7 @@ export default {
       },
       {
         link: 'https://creditmetaverse.io/',
-        image: require('@/assets/images/swap-banner-2.png'),
+        image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
           'rgba(243,179,7,0.2)',
           'rgba(54,40,96,1)',
