@@ -42,7 +42,7 @@ export default {
       const volume24 = poolStats.volumeUSD24 || 0
       const poolFee = pool.fee / 10000
 
-      return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
+      return ((volume24 / 2) * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
     },
   }
 }
