@@ -488,5 +488,24 @@
             "https://twitter.com/PixelJourney_ES",
             "https://uncut.network/user/4295809399"
         ]
+    },
+    "PAGE@pixeltbanker": {
+        "name": "Pixel Anima Genesis",
+        "website": {
+            "link": "https://pixeltycoonswax.gitbook.io/pt/",
+            "name": "pixeltycoons.com"
+        },
+        "tags": [
+            "Gaming",
+            "DeFi",
+            "NFT"
+        ],
+        "socials": [
+            "https://t.me/pixeltycoons",
+            "https://twitter.com/pixeltycoons",
+            "https://discord.com/invite/NzJJB2tU",
+            "https://medium.com/@pixeltycoons"
+        ],
+        "description": "PAGE is a Fair-Launch token with a unique distribution model. The maximum supply is determined by whitelisted accounts through a secret event. We've airdropped 50% of the supply equally among all participants. The remaining 50% will be vested over 3 years, with DeFi incentives enhancing the long-term value for holders. Join us on this journey as we redefine tokenomics and create a sustainable ecosystem."
     }
 }
