@@ -24,7 +24,7 @@
     .w-100.position-relative
       .d-flex.align-items-center.justify-content-center.position-absolute.w-100.z-1.arrow-pos
         .bottom-icon(@click="toggleTokens")
-          i.el-icon-bottom.text-center.fs-20.pointer
+          i.el-icon-bottom.text-center.fs-20.pointer(v-mutted="loading")
 
     PoolTokenInput.mt-1(
       :label="$t('Buy')"
@@ -180,11 +180,10 @@ export default {
     priceInverted: '0.00',
     price: '0.00',
 
-    _requested_amountA: null,
-    _requested_amountB: null,
     priceImpact: '0.00',
     minReceived: 0,
     maximumSend: 0,
+    expectedInput: null,
     expectedOutput: null,
     route: null,
 
@@ -367,13 +366,18 @@ export default {
     },
 
     toggleTokens() {
-      const [amountA, amountB] = [this.amountB, this.amountA]
-
-      this.amountA = amountA
-      this.amountB = amountB
-      this.$store.dispatch('amm/swap/flipTokens')
+      if (this.loading) return
 
       this.loading = true
+
+      const amountB_before = this.amountB
+
+      this.reset()
+
+      this.lastField = 'input'
+      this.$store.dispatch('amm/swap/flipTokens')
+      this.amountA = amountB_before
+
       this.calcOutput(this.amountA)
     },
 
@@ -406,12 +410,27 @@ export default {
       if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
+    reset({ amountA = null, amountB = null } = {}) {
+      this.amountA = amountA
+      this.amountB = amountB
+
+      this.priceInverted = '0.00'
+      this.price = '0.00'
+
+      this.priceImpact = '0.00'
+      this.minReceived = 0
+      this.maximumSend = 0
+      this.expectedInput = null
+      this.expectedOutput = null
+      this.route = null
+
+      this.memo = ''
+    },
+
     async submit() {
       try {
         await this.swap()
-        this.amountA = null
-        this.amountB = null
-
+        this.reset()
         this.updateBalances()
         return this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
       } catch (e) {
@@ -430,14 +449,15 @@ export default {
     },
 
     async swap() {
-      const { expectedInput, tokenA, tokenB, market } = this
+      const { expectedInput, maximumSend, tokenA, tokenB, market } = this
       if (!tokenA || !tokenB) return console.log('no tokens selected')
 
       const exactIn = this.lastField == 'input'
 
-      const currencyAmountIn = tryParseCurrencyAmount((exactIn ? parseFloat(expectedInput) : parseFloat(this.maximumSend)).toFixed(tokenA.decimals), tokenA)
+      console.log({ exactIn, expectedInput, maximumSend, tokenA })
+      const currencyAmountIn = tryParseCurrencyAmount((exactIn ? parseFloat(expectedInput) : parseFloat(maximumSend)).toFixed(tokenA.decimals), tokenA)
 
-      if (!currencyAmountIn) throw new Error('Ivalid currency in: ', currencyAmountIn?.toAsset())
+      if (!currencyAmountIn) throw new Error('Invalid currency in: ', currencyAmountIn?.toAsset())
 
       const actions = []
 
@@ -481,25 +501,33 @@ export default {
       console.log('SWAP: ', r)
     },
 
-    onTokenBInput(val) {
-      this.loading = true
-      this.lastField = 'output'
-      this.calcInputDebounced(val)
-    },
-
     onTokenAInput(val) {
+      this.amountB = null
       this.loading = true
       this.lastField = 'input'
       this.calcOutputDebounced(val)
     },
 
-    calcInputDebounced: debounce(function(value) { this.calcInput(value) }, 500),
-    calcOutputDebounced: debounce(function(value) { this.calcOutput(value) }, 500),
+    onTokenBInput(val) {
+      this.amountA = null
+      this.loading = true
+      this.lastField = 'output'
+      this.calcInputDebounced(val)
+    },
+
+    calcInputDebounced: debounce(function(value) {
+      this.calcInput(value)
+    }, 500),
+
+    calcOutputDebounced: debounce(function(value) {
+      this.calcOutput(value)
+    }, 500),
 
     async calcInput(value) {
       try {
         await this.tryCalcInput(value)
       } catch (e) {
+        this.reset({ amountB: this.amountB })
         console.error('calcInput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Input Calculation', message: reason })
@@ -552,8 +580,8 @@ export default {
       try {
         await this.tryCalcOutput(value)
       } catch (e) {
+        this.reset({ amountA: this.amountA })
         console.error('calcOutput', e)
-        console.log({ e })
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
       } finally {
