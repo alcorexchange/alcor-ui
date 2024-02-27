@@ -507,5 +507,26 @@
             "https://medium.com/@pixeltycoons"
         ],
         "description": "PAGE is a Fair-Launch token with a unique distribution model. The maximum supply is determined by whitelisted accounts through a secret event. We've airdropped 50% of the supply equally among all participants. The remaining 50% will be vested over 3 years, with DeFi incentives enhancing the long-term value for holders. Join us on this journey as we redefine tokenomics and create a sustainable ecosystem."
+    },
+  "SOUL@soulcontract": {
+        "name": "Magic Beast",
+        "website": {
+            "link": "https://magicbeast.io/",
+            "name": "magicbeast.io"
+        },
+        "tags": [
+            "Gaming",
+            "P2E",
+            "NFTS",
+            "Staking"
+        ],
+        "github": "https://github.com/magicbeastio",
+        "description": "🧬Evolve, 💪Upgrade,⚔️ Battle and explore the Magical Gaming Ecosystem with Magic beast an exciting play-to-earn game in Wax gaming ecosystem.",
+        "socials": [
+            "https://t.me/+o_XnQM8ngqllMmM1",
+            "https://twitter.com/magicbeastio",
+            "https://discord.gg/vHxxqUNFBe",
+            "https://medium.com/@magicbeast"
+        ]
     }
 }
