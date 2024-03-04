@@ -394,7 +394,7 @@ export class IBCTransfer {
           }
         }
 
-        if (blocknum > 500) blocknum -= 500
+        if (blocknum > 1000) blocknum -= 1000
 
         //search before active schedule change for new_producer_schedule
         while (
