@@ -199,12 +199,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://magicbeast.io',
-        image: require('@/assets/images/swap-banner-1.png'),
+        link: 'https://aphelium.io/',
+        image: require('@/assets/images/swap-banner-1.gif'),
         colors: [
-          'rgba(212,150,164,0.2)',
-          'rgba(195,195,195, 1)',
-          'rgba(107,224,238,1)',
+          'rgba(81,75,87,0.2)',
+          'rgba(130,125,138, 1)',
+          'rgba(127,122,130,1)',
         ],
       },
       {
