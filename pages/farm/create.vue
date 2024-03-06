@@ -117,7 +117,7 @@ export default {
 
       return pools.map(p => {
         return { value: p.fee / 10000 }
-      })
+      }).sort((a, b) => a.value - b.value)
     },
 
     poolId() {
