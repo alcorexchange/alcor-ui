@@ -1,9 +1,9 @@
 {
-"BLPAD@blastpad": {
-    "name": "BlastPad",
+"GBX@tokencreate": {
+    "name": "Gift Box",
     "website": {
-      "link": "https://blastpad.io/",
-      "name": "blastpad.io"
+      "link": "",
+      "name": ""
     },
     "tags": [
       "launch",
@@ -12,9 +12,11 @@
       "XPR"
     ],
     "socials": [
-      "https://t.me/HOMEblok",
-      "https://twitter.com/homebloks"
+      "https://t.me/giftboxio",
+      "https://twitter.com/GiftBoxio"
     ],
-    "description": "The BlastPad platform is the easiest way to launch your project on the XPR Network Blockchain. With our platform, projects can get started quickly, launch a token, airdrop it to selected accounts, and also offer staking pools.  No coding skills required"
+    "description": "Gift Box is like a digital treasure chest, filled
+with chances to win through lotteries and generous giveaways, offering
+token holders exclusive access to exciting rewards and opportunities"
   }
 }
