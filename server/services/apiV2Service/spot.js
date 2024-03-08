@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { write_decimal } from 'eos-common'
 
-import { Bar, Match, Market } from '../../models'
+import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
 
 const depthHandler = (req, res, next) => {
@@ -89,6 +89,47 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 
   res.json(markets)
 })
+
+// Tickers with merged volumes from pools
+spot.get('/tickers_cmc', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network = req.app.get('network')
+
+  const tokens = await getTokens(network.name)
+
+  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
+
+  const markets = await Market.find({ chain: network.name })
+    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
+
+  markets.forEach(m => {
+    formatTicker(m, tokens)
+
+    const market_pools = pools.filter(p => {
+      return (
+        (p.tokenA.id == m.target_currency) && (p.tokenB.id == m.base_currency)
+      ) || (
+        (p.tokenA.id == m.base_currency) && (p.tokenB.id == m.target_currency)
+      )
+    })
+
+    market_pools.forEach(p => {
+      if (p.tokenA.id == m.target_currency && p.tokenB.id == m.base_currency) {
+        m.target_volume += p.volumeA24
+        m.base_volume += p.volumeB24
+      }
+
+      if (p.tokenA.id == m.base_currency && p.tokenB.id == m.target_currency) {
+        m.base_volume += p.volumeA24
+        m.target_volume += p.volumeB24
+      }
+    })
+  })
+
+  res.json(markets)
+})
+
 
 spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
