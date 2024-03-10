@@ -125,7 +125,7 @@ export default {
             resolution: '1M',
           },
         })
-        this.stats = data[0]
+        this.stats = data
       } catch (error) {
         console.log(error)
       } finally {

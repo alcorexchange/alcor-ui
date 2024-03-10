@@ -16,7 +16,7 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const resolution = resolutions[req.query.resolution]
+  const resolution = resolutions[req.query.resolution] || resolutions['1D']
   if (!resolution) return res.status(404).send('Invalid resolution')
 
   const $match = { chain: network.name, time: { $gte: new Date(Date.now() - resolution * 1000) } }
@@ -44,9 +44,12 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const stats = await GlobalStats.aggregate([{ $match }, { $group }])
+  const [stats] = await GlobalStats.aggregate([{ $match }, { $group }])
 
-  res.json(stats)
+  res.json({
+    ...stats,
+    totalTradingVolume: stats.swapTradingVolume + stats.spotTradingVolume
+  })
 })
 
 analytics.get('/charts', cacheSeconds(360, (req, res) => {
