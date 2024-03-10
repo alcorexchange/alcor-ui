@@ -86,7 +86,32 @@ export default {
       transitionDirection: 'forward', // 'backward'
       items: [
         { name: 'Swap', contentKey: null, to: '/swap' },
-        { name: 'Trade', contentKey: 'trade' },
+        {
+          name: 'Trade',
+          contentKey: 'trade',
+          content: [
+            [
+              {
+                title: 'Spot Market',
+                description: 'Trade tokens with advanced orderbooks',
+                to: '/markets',
+                icon: 'menu-spot',
+              },
+              {
+                title: 'OTC',
+                description: 'Trade tokens in bulk',
+                to: '/otc',
+                icon: 'menu-otc',
+              },
+              {
+                title: 'NFT',
+                description: 'Trade, Explore and create NFTs',
+                to: '/nft-market',
+                icon: 'menu-nft',
+              },
+            ],
+          ],
+        },
         { name: 'Earn', contentKey: 'earn' },
         { name: 'Analytics', contentKey: null, to: '/analytics' },
         { name: 'Wallet', contentKey: null, to: '/wallet' },
