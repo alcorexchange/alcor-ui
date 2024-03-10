@@ -68,6 +68,7 @@ export default {
         {
           name: 'Trade',
           contentKey: 'trade',
+          // first array is for columns, nested array is for items in each column.
           content: [
             [
               {
