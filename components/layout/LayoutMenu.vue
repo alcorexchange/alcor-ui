@@ -161,9 +161,9 @@ export default {
             [
               {
                 title: 'Telegram',
-                description: 'Alcor Documentation',
-                to: '/docs',
-                icon: 'menu-docs',
+                description: 'Support & Trading Talks',
+                href: 'https://t.me/alcorexchange',
+                icon: 'Telegram',
                 isSocial: true,
               },
               {
