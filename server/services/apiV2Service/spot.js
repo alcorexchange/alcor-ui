@@ -75,26 +75,14 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   res.json(pairs)
 })
 
+// Tickers with merged volumes from pools
 spot.get('/tickers', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network = req.app.get('network')
+  const { merge_volume } = req.query
 
-  const tokens = await getTokens(network.name)
-
-  const markets = await Market.find({ chain: network.name })
-    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
-
-  markets.map(m => formatTicker(m, tokens))
-
-  res.json(markets)
-})
-
-// Tickers with merged volumes from pools
-spot.get('/tickers_cmc', cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
-  const network = req.app.get('network')
+  console.log({ merge_volume })
 
   const tokens = await getTokens(network.name)
 
