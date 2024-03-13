@@ -95,7 +95,8 @@ export async function makeAllTokensWithPrices(network: Network) {
     return false
   }
 
-  const pools = await getPools(network.name, true, filterOutPoolsWithLowLiquidity)
+  const pools = await getPools(network.name)
+  const enough_liquidity_pools = (await getPools(network.name, false, filterOutPoolsWithLowLiquidity)).map(p => p.id)
 
   // Sorting by more ticks means more liquidity
   pools.sort((a, b) => b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length)
@@ -128,7 +129,7 @@ export async function makeAllTokensWithPrices(network: Network) {
     t.usd_price = 0.0
     t.system_price = 0.0
 
-    if (pool) {
+    if (pool && enough_liquidity_pools.includes(pool.id)) {
       const isUsdtPool = (pool.tokenA.id === USD_TOKEN || pool.tokenB.id === USD_TOKEN)
 
       if (isUsdtPool) {
