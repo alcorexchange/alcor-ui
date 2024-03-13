@@ -72,7 +72,30 @@ export async function makeAllTokensWithPrices(network: Network) {
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await redis.get(`${network.name}_price`)) || 0
 
-  const pools = await getPools(network.name)
+  const minimumUSDAmount = 1 // 1 USD
+  const minimumSystemAmount = (1 / systemPrice) * minimumUSDAmount
+
+  const filterOutPoolsWithLowLiquidity = (p) => {
+    if (p.tokenA.id === system_token) {
+      return p.tokenA.quantity >= minimumSystemAmount
+    }
+
+    if (p.tokenB.id === system_token) {
+      return p.tokenB.quantity >= minimumSystemAmount
+    }
+
+    if (p.tokenA.id === USD_TOKEN) {
+      return p.tokenA.id >= minimumUSDAmount
+    }
+
+    if (p.tokenB.id === USD_TOKEN) {
+      return p.tokenB.id >= minimumUSDAmount
+    }
+
+    return false
+  }
+
+  const pools = await getPools(network.name, true, filterOutPoolsWithLowLiquidity)
 
   // Sorting by more ticks means more liquidity
   pools.sort((a, b) => b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length)
@@ -102,10 +125,10 @@ export async function makeAllTokensWithPrices(network: Network) {
       (p.tokenB.id === t.id && (p.tokenA.id === system_token || (USD_TOKEN && p.tokenA.id === USD_TOKEN)))
     ))
 
-    if (!pool) {
-      t.usd_price = 0.0
-      t.system_price = 0.0
-    } else {
+    t.usd_price = 0.0
+    t.system_price = 0.0
+
+    if (pool) {
       const isUsdtPool = (pool.tokenA.id === USD_TOKEN || pool.tokenB.id === USD_TOKEN)
 
       if (isUsdtPool) {

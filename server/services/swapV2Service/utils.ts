@@ -35,11 +35,11 @@ export async function getPoolInstance(chain: string, id): Promise<Pool> {
   })
 }
 
-export async function getPools(chain: string, fetchTicks = true) {
+export async function getPools(chain: string, fetchTicks = true, filterFunc = (p: any) => true) {
   const mongoPools = await SwapPool.find({ chain }).lean()
 
   const pools = []
-  for (const p of mongoPools) {
+  for (const p of mongoPools.filter(filterFunc)) {
     const ticks = fetchTicks ? await getRedisTicks(chain, p.id) : []
 
     pools.push(new Pool({
