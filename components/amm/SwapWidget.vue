@@ -198,7 +198,7 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://aphelium.io/',
+        link: 'https://discord.gg/WjWeHejW2h',
         image: require('@/assets/images/swap-banner-1.gif'),
         colors: [
           'rgba(81,75,87,0.2)',
