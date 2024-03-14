@@ -15,11 +15,11 @@ footer(:class="{isMobile}").alcor-inner
       a.avral-link.footer-link(href="https://t.me/avral" target="_blank") @avral
       .title.muted Socials
       .social-items
-        a
+        a(href="https://t.me/alcorexchange" target="_blank")
           img(src="@/assets/icons/Telegram.svg")
-        a
+        a(href="https://twitter.com/alcorexchange" target="_blank")
           img(src="@/assets/icons/Twitter.svg")
-        a
+        a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
           img(src="@/assets/icons/Discord.svg")
   span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
   //.items
