@@ -1,5 +1,17 @@
 <template lang="pug">
 footer(:class="{isMobile}").alcor-inner
+  .detailed-footer(v-if="showDetailedFooter")
+    section.logo-section
+      img.logo(:src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)" height="38")
+      span.bottom.muted © {{ new Date().getFullYear()  }} Alcor
+
+    section.general-section(v-for="section in sections")
+      .title.muted {{section.title}}
+      .items
+        .item(v-for="item in section.items")
+          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 link" :to="item.to" :href="item.href") {{ item.title }}
+    section.contact-section Contact section
+  span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
   //.items
     .item
       a(href="https://github.com/eosrio/Hyperion-History-API" target="_blank").img
@@ -27,7 +39,6 @@ footer(:class="{isMobile}").alcor-inner
         | Is very useful eosio chains explorer.
         br
         | It uses for show all deals history and token contracts.
-  span.bottom.muted © {{ new Date().getFullYear()  }} Alcor
   //- .mt-3
   //-   .row.mt-5
   //-     .col-lg-5(v-if="!isMobile")
@@ -86,19 +97,51 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      lastCommit: {}
+      lastCommit: {},
     }
+  },
+
+  computed: {
+    sections() {
+      return [
+        {
+          title: 'About Us',
+          items: [
+            { title: 'About', to: '/' },
+            { title: 'Blog', to: '/' },
+            { title: 'Careers', to: '/' },
+          ],
+        },
+        {
+          title: 'Products',
+          items: [
+            { title: 'Alcor Swap V2', to: '/' },
+            { title: 'Alcor Markets', to: '/' },
+            { title: 'IBC Bridge', to: '/' },
+            { title: 'NFT Marketplace', to: '/' },
+            { title: 'Alcor Farms', to: '/' },
+          ],
+        },
+        {
+          title: 'Learn',
+          items: [
+            { title: 'Docs', to: '/' },
+            { title: 'Youtube', to: '/' },
+            { title: 'Block Producer', to: '/' },
+          ],
+        },
+      ]
+    },
+    showDetailedFooter() {
+      return this.$route.path == '/' && !this.isMobile
+    },
   },
 
   async mounted() {
     try {
-      this.lastCommit = (
-        await axios.get(
-          'https://api.github.com/repos/avral/alcor-ui/commits/master'
-        )
-      ).data
+      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
     } catch {}
-  }
+  },
 }
 </script>
 
@@ -113,27 +156,29 @@ footer {
     padding-bottom: 84px;
   }
 }
-.items {
-  display: flex;
-  .item {
+.detailed-footer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 100%;
+  section {
     display: flex;
     flex-direction: column;
-    align-self: start;
-    flex: 1;
-    padding: 8px;
-    .img,
-    .lead {
+    align-items: flex-start;
+    .title {
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .items {
       display: flex;
-      justify-content: center;
-      margin-bottom: 4px;
+      flex-direction: column;
+      gap: 10px;
     }
-    img {
-      height: 28px;
-      object-fit: contain;
-    }
-    .description {
-      text-align: center;
-      font-size: 0.86rem;
+    .link {
+      color: var(--text-default);
+      transition: color 0.2s;
+      &:hover {
+        color: var(--text-disable);
+      }
     }
   }
 }
@@ -147,14 +192,5 @@ footer {
   right: 0;
   left: 0;
   padding-right: 5px;
-}
-@media only screen and (max-width: 840px) {
-  .items {
-    flex-direction: column;
-    .item {
-      width: 100%;
-      margin-top: 14px;
-    }
-  }
 }
 </style>
