@@ -528,5 +528,23 @@
             "https://discord.gg/vHxxqUNFBe",
             "https://medium.com/@magicbeast"
         ]
-    }
+   }
+         "KEK@waxpepetoken": {
+    "name": "Wax Pepe",
+    "website": {
+      "link": "https://wax-pepe.vip/",
+      "name": "wax-pepe.vip"
+    },
+    "tags": [
+      "Meme Coin",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://t.me/wax_pepe_official",
+      "https://twitter.com/WAX_PEPE",
+      "marketing@wax-pepe.vip"
+    ],
+    "description": "in a world saturated with transient meme tokens, $KEK distinguishes itself as a deflationary powerhouse. Each transaction fortifies the ecosystem, burning 3% to ensure perpetual scarcity and redistributing 2% to holders, fostering a thriving community of growth and prosperity"
+  }
 }
