@@ -9,8 +9,18 @@ footer(:class="{isMobile}").alcor-inner
       .title.muted {{section.title}}
       .items
         .item(v-for="item in section.items")
-          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 link" :to="item.to" :href="item.href") {{ item.title }}
-    section.contact-section Contact section
+          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href") {{ item.title }}
+    section.contact-section
+      .title.muted Contact
+      a.avral-link.footer-link(href="https://t.me/avral" target="_blank") @avral
+      .title.muted Socials
+      .social-items
+        a
+          img(src="@/assets/icons/Telegram.svg")
+        a
+          img(src="@/assets/icons/Twitter.svg")
+        a
+          img(src="@/assets/icons/Discord.svg")
   span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
   //.items
     .item
@@ -156,6 +166,16 @@ footer {
     padding-bottom: 84px;
   }
 }
+
+.footer-link {
+  color: var(--text-default);
+  transition: color 0.2s;
+  cursor: pointer;
+  &:hover {
+    color: var(--text-disable);
+  }
+}
+
 .detailed-footer {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -173,17 +193,23 @@ footer {
       flex-direction: column;
       gap: 10px;
     }
-    .link {
-      color: var(--text-default);
-      transition: color 0.2s;
-      &:hover {
-        color: var(--text-disable);
-      }
-    }
   }
 }
 .bottom {
   margin-top: 14px;
+}
+.avral-link {
+  margin-bottom: 28px;
+}
+
+.social-items {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  img {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .avral {
