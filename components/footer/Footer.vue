@@ -125,19 +125,19 @@ export default {
         {
           title: 'Products',
           items: [
-            { title: 'Alcor Swap V2', to: '/' },
-            { title: 'Alcor Markets', to: '/' },
-            { title: 'IBC Bridge', to: '/' },
-            { title: 'NFT Marketplace', to: '/' },
-            { title: 'Alcor Farms', to: '/' },
+            { title: 'Alcor Swap V2', to: '/swap' },
+            { title: 'Alcor Markets', to: '/markets' },
+            { title: 'IBC Bridge', to: '/bridge' },
+            { title: 'NFT Marketplace', to: '/nft-market' },
+            { title: 'Alcor Farms', to: '/farm' },
           ],
         },
         {
           title: 'Learn',
           items: [
-            { title: 'Docs', to: '/' },
+            { title: 'Docs', to: '/docs' },
             { title: 'Youtube', to: '/' },
-            { title: 'Block Producer', to: '/' },
+            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
           ],
         },
       ]
