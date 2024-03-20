@@ -162,6 +162,7 @@ footer {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 980px;
   &.isMobile {
     padding-bottom: 84px;
   }
