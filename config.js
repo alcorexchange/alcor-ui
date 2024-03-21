@@ -555,6 +555,10 @@ const networks = {
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.ux', 'ibc.wl.eos'],
       },
+
+      wrapTokenContracts: {
+        'ibc.prove': ['ibc.wt.ux', 'ibc.wt.eos'],
+      },
     },
 
     withdraw: {
