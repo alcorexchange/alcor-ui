@@ -34,7 +34,7 @@ function formatToken(token) {
   }
 }
 
-function formatTicker(m, tokens = []) {
+function formatTicker(m, tokens = [], global_tokens = []) {
   const [base, target] = m.ticker_id.split('_')
 
   m.market_id = m.id
@@ -48,6 +48,10 @@ function formatTicker(m, tokens = []) {
   m.base_cmc_ucid = base_token?.cmc_id || null
 
   delete m.id
+
+  if (global_tokens.includes(m.target_currency) && global_tokens.includes(m.base_currency)) {
+    m.global_ticker_id = m.base_currency.split('-')[0].toUpperCase() + '_' + m.target_currency.split('-')[0].toUpperCase()
+  }
 }
 
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
@@ -92,7 +96,7 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
   markets.forEach(m => {
-    formatTicker(m, tokens)
+    formatTicker(m, tokens, network.GLOBAL_TOKENS)
 
     const market_pools = pools.filter(p => {
       return (

@@ -56,7 +56,7 @@ export async function updateTokensPrices(network: Network) {
       return c.slug == t.symbol.toLowerCase() || c.symbol == t.symbol
     })
 
-    if (cmc_id && network.CMC_UCIDS.includes(t.id)) t.cmc_id = cmc_id.id
+    if (cmc_id && network.GLOBAL_TOKENS.includes(t.id)) t.cmc_id = cmc_id.id
   })
 
   await redis.set(`${network.name}_token_prices`, JSON.stringify(tokens))

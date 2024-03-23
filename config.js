@@ -191,7 +191,7 @@ const networks = {
       'pgl-prospectorsg',
     ],
 
-    CMC_UCIDS: []
+    GLOBAL_TOKENS: []
   },
 
   proton: {
@@ -267,7 +267,7 @@ const networks = {
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
-    CMC_UCIDS: [],
+    GLOBAL_TOKENS: [],
   },
 
   ux: {
@@ -350,7 +350,7 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: [],
-    CMC_UCIDS: [],
+    GLOBAL_TOKENS: [],
   },
 
   wax: {
@@ -476,7 +476,7 @@ const networks = {
       'tlm-alien.worlds',
     ],
 
-    CMC_UCIDS: [
+    GLOBAL_TOKENS: [
       'usdt-usdt.alcor',
       'eos-ibc.wt.eos',
       'wax-eosio.token',
@@ -606,7 +606,7 @@ const networks = {
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: [],
-    CMC_UCIDS: [],
+    GLOBAL_TOKENS: [],
   },
 
   waxtest: {
@@ -662,7 +662,7 @@ const networks = {
     },
 
     popularTokens: [],
-    CMC_UCIDS: [],
+    GLOBAL_TOKENS: [],
   },
 
   jungle: {
@@ -712,7 +712,7 @@ const networks = {
     },
 
     popularTokens: [],
-    CMC_UCIDS: [],
+    GLOBAL_TOKENS: [],
   },
 
   local: {
@@ -766,7 +766,7 @@ const networks = {
   },
 
   popularTokens: [],
-  CMC_UCIDS: [],
+  GLOBAL_TOKENS: [],
 }
 
 // Default markes layouts
