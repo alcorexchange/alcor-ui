@@ -51,6 +51,8 @@ function formatTicker(m, tokens = [], global_tokens = []) {
 
   if (global_tokens.includes(m.target_currency) && global_tokens.includes(m.base_currency)) {
     m.global_ticker_id = m.base_currency.split('-')[0].toUpperCase() + '_' + m.target_currency.split('-')[0].toUpperCase()
+  } else {
+    m.global_ticker_id = null
   }
 }
 
