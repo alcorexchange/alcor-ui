@@ -12,7 +12,11 @@ footer(:class="{isMobile}").alcor-inner
           component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href") {{ item.title }}
     section.contact-section
       .title.muted Contact
-      a.avral-link.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
+      a.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
+
+      .title.muted Request
+      a.footer-link(href="https://alcor.featurebase.app/" target="_blank") Feature Request
+
       .title.muted Socials
       .social-items
         a(href="https://t.me/alcorexchange" target="_blank")
@@ -117,8 +121,8 @@ export default {
         {
           title: 'About Us',
           items: [
-            { title: 'About', to: '/' },
-            { title: 'Blog', to: '/' },
+            { title: 'About', to: '/docs' },
+            { title: 'Blog', href: 'https://medium.com/@alcorexchange' },
             { title: 'Careers', to: '/' },
           ],
         },
