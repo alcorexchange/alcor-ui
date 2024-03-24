@@ -13,11 +13,14 @@ footer(:class="{isMobile}").alcor-inner
     section.contact-section
       .contact-section-item
         .title.muted Contact
-        a.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
+        a.footer-link(href="https://t.me/alcorexchange" target="_blank") tg:alcorexchange
+        a.footer-link(href="mailto:admin@alcor.exchange" target="_blank") admin@alcor.exchange
 
       .contact-section-item
         .title.muted Request
         a.footer-link(href="https://alcor.featurebase.app/" target="_blank") Feature Request
+        a.footer-link(href="https://t.me/Zzullerr" target="_blank") Banner/Ad Request
+        a.footer-link(href="https://t.me/Zzullerr" target="_blank") Business offer
 
       .contact-section-item
         .title.muted Socials
@@ -126,25 +129,22 @@ export default {
           items: [
             { title: 'About', to: '/docs' },
             { title: 'Blog', href: 'https://medium.com/@alcorexchange' },
-            { title: 'Careers', to: '/' },
+            { title: 'Careers', to: '/careers' },
           ],
         },
         {
           title: 'Products',
           items: [
-            { title: 'Alcor Swap V2', to: '/swap' },
-            { title: 'Alcor Markets', to: '/markets' },
             { title: 'IBC Bridge', to: '/bridge' },
-            { title: 'NFT Marketplace', to: '/nft-market' },
-            { title: 'Alcor Farms', to: '/farm' },
+            { title: 'Wax Defi Analytics', href: 'https://grafana.waxtools.net' },
+            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
           ],
         },
         {
           title: 'Learn',
           items: [
+            { title: 'Api', href: 'http://api.alcor.exchange' },
             { title: 'Docs', to: '/docs' },
-            { title: 'Youtube', to: '/' },
-            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
           ],
         },
       ]
