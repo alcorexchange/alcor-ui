@@ -11,20 +11,23 @@ footer(:class="{isMobile}").alcor-inner
         .item(v-for="item in section.items")
           component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href") {{ item.title }}
     section.contact-section
-      .title.muted Contact
-      a.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
+      .contact-section-item
+        .title.muted Contact
+        a.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
 
-      .title.muted Request
-      a.footer-link(href="https://alcor.featurebase.app/" target="_blank") Feature Request
+      .contact-section-item
+        .title.muted Request
+        a.footer-link(href="https://alcor.featurebase.app/" target="_blank") Feature Request
 
-      .title.muted Socials
-      .social-items
-        a(href="https://t.me/alcorexchange" target="_blank")
-          img(src="@/assets/icons/Telegram.svg")
-        a(href="https://twitter.com/alcorexchange" target="_blank")
-          img(src="@/assets/icons/Twitter.svg")
-        a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
-          img(src="@/assets/icons/Discord.svg")
+      .contact-section-item
+        .title.muted Socials
+        .social-items
+          a(href="https://t.me/alcorexchange" target="_blank")
+            img(src="@/assets/icons/Telegram.svg")
+          a(href="https://twitter.com/alcorexchange" target="_blank")
+            img(src="@/assets/icons/Twitter.svg")
+          a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+            img(src="@/assets/icons/Discord.svg")
   span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
   //.items
     .item
@@ -203,7 +206,8 @@ footer {
 .bottom {
   margin-top: 14px;
 }
-.avral-link {
+
+.contact-section-item {
   margin-bottom: 28px;
 }
 
