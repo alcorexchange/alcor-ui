@@ -169,11 +169,11 @@ footer {
 }
 
 .footer-link {
-  color: var(--text-default);
+  color: var(--text-disable);
   transition: color 0.2s;
   cursor: pointer;
   &:hover {
-    color: var(--text-disable);
+    color: var(--text-default);
   }
 }
 
