@@ -1,5 +1,27 @@
 <template lang="pug">
 footer(:class="{isMobile}").alcor-inner
+  .detailed-footer(v-if="showDetailedFooter")
+    section.logo-section
+      img.logo(:src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)" height="38")
+      span.bottom.muted © {{ new Date().getFullYear()  }} Alcor
+
+    section.general-section(v-for="section in sections")
+      .title.muted {{section.title}}
+      .items
+        .item(v-for="item in section.items")
+          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href") {{ item.title }}
+    section.contact-section
+      .title.muted Contact
+      a.avral-link.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
+      .title.muted Socials
+      .social-items
+        a(href="https://t.me/alcorexchange" target="_blank")
+          img(src="@/assets/icons/Telegram.svg")
+        a(href="https://twitter.com/alcorexchange" target="_blank")
+          img(src="@/assets/icons/Twitter.svg")
+        a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+          img(src="@/assets/icons/Discord.svg")
+  span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
   //.items
     .item
       a(href="https://github.com/eosrio/Hyperion-History-API" target="_blank").img
@@ -27,7 +49,6 @@ footer(:class="{isMobile}").alcor-inner
         | Is very useful eosio chains explorer.
         br
         | It uses for show all deals history and token contracts.
-  span.bottom.muted © {{ new Date().getFullYear()  }} Alcor
   //- .mt-3
   //-   .row.mt-5
   //-     .col-lg-5(v-if="!isMobile")
@@ -86,19 +107,51 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      lastCommit: {}
+      lastCommit: {},
     }
+  },
+
+  computed: {
+    sections() {
+      return [
+        {
+          title: 'About Us',
+          items: [
+            { title: 'About', to: '/' },
+            { title: 'Blog', to: '/' },
+            { title: 'Careers', to: '/' },
+          ],
+        },
+        {
+          title: 'Products',
+          items: [
+            { title: 'Alcor Swap V2', to: '/swap' },
+            { title: 'Alcor Markets', to: '/markets' },
+            { title: 'IBC Bridge', to: '/bridge' },
+            { title: 'NFT Marketplace', to: '/nft-market' },
+            { title: 'Alcor Farms', to: '/farm' },
+          ],
+        },
+        {
+          title: 'Learn',
+          items: [
+            { title: 'Docs', to: '/docs' },
+            { title: 'Youtube', to: '/' },
+            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
+          ],
+        },
+      ]
+    },
+    showDetailedFooter() {
+      return this.$route.path == '/' && !this.isMobile
+    },
   },
 
   async mounted() {
     try {
-      this.lastCommit = (
-        await axios.get(
-          'https://api.github.com/repos/avral/alcor-ui/commits/master'
-        )
-      ).data
+      this.lastCommit = (await axios.get('https://api.github.com/repos/avral/alcor-ui/commits/master')).data
     } catch {}
-  }
+  },
 }
 </script>
 
@@ -109,36 +162,55 @@ footer {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 980px;
   &.isMobile {
     padding-bottom: 84px;
   }
 }
-.items {
-  display: flex;
-  .item {
+
+.footer-link {
+  color: var(--text-default);
+  transition: color 0.2s;
+  cursor: pointer;
+  &:hover {
+    color: var(--text-disable);
+  }
+}
+
+.detailed-footer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 100%;
+  section {
     display: flex;
     flex-direction: column;
-    align-self: start;
-    flex: 1;
-    padding: 8px;
-    .img,
-    .lead {
+    align-items: flex-start;
+    .title {
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .items {
       display: flex;
-      justify-content: center;
-      margin-bottom: 4px;
-    }
-    img {
-      height: 28px;
-      object-fit: contain;
-    }
-    .description {
-      text-align: center;
-      font-size: 0.86rem;
+      flex-direction: column;
+      gap: 10px;
     }
   }
 }
 .bottom {
   margin-top: 14px;
+}
+.avral-link {
+  margin-bottom: 28px;
+}
+
+.social-items {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  img {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .avral {
@@ -147,14 +219,5 @@ footer {
   right: 0;
   left: 0;
   padding-right: 5px;
-}
-@media only screen and (max-width: 840px) {
-  .items {
-    flex-direction: column;
-    .item {
-      width: 100%;
-      margin-top: 14px;
-    }
-  }
 }
 </style>
