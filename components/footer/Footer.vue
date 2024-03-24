@@ -13,14 +13,16 @@ footer(:class="{isMobile}").alcor-inner
     section.contact-section
       .contact-section-item
         .title.muted Contact
-        a.footer-link(href="https://t.me/alcorexchange" target="_blank") tg:alcorexchange
-        a.footer-link(href="mailto:admin@alcor.exchange" target="_blank") admin@alcor.exchange
+        .items
+          a.item.footer-link.fs-14(href="https://t.me/alcorexchange" target="_blank") tg:alcorexchange
+          a.item.footer-link.fs-14(href="mailto:admin@alcor.exchange" target="_blank") admin@alcor.exchange
 
       .contact-section-item
         .title.muted Request
-        a.footer-link(href="https://alcor.featurebase.app/" target="_blank") Feature Request
-        a.footer-link(href="https://t.me/Zzullerr" target="_blank") Banner/Ad Request
-        a.footer-link(href="https://t.me/Zzullerr" target="_blank") Business offer
+        .items
+          a.item.footer-link.fs-14(href="https://alcor.featurebase.app/" target="_blank") Feature Request
+          a.item.footer-link.fs-14(href="https://t.me/Zzullerr" target="_blank") Banner/Ad Request
+          a.item.footer-link.fs-14(href="https://t.me/Zzullerr" target="_blank") Business offer
 
       .contact-section-item
         .title.muted Socials
@@ -209,6 +211,8 @@ footer {
 
 .contact-section-item {
   margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
 }
 
 .social-items {
