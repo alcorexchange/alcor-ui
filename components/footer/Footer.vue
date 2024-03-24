@@ -12,7 +12,7 @@ footer(:class="{isMobile}").alcor-inner
           component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href") {{ item.title }}
     section.contact-section
       .title.muted Contact
-      a.avral-link.footer-link(href="https://t.me/avral" target="_blank") @avral
+      a.avral-link.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
       .title.muted Socials
       .social-items
         a(href="https://t.me/alcorexchange" target="_blank")
