@@ -11,16 +11,28 @@ footer(:class="{isMobile}").alcor-inner
         .item(v-for="item in section.items")
           component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href") {{ item.title }}
     section.contact-section
-      .title.muted Contact
-      a.avral-link.footer-link(href="https://t.me/alcorexchange" target="_blank") @alcorexchange
-      .title.muted Socials
-      .social-items
-        a(href="https://t.me/alcorexchange" target="_blank")
-          img(src="@/assets/icons/Telegram.svg")
-        a(href="https://twitter.com/alcorexchange" target="_blank")
-          img(src="@/assets/icons/Twitter.svg")
-        a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
-          img(src="@/assets/icons/Discord.svg")
+      .contact-section-item
+        .title.muted Contact
+        .items
+          a.item.footer-link.fs-14(href="https://t.me/alcorexchange" target="_blank") tg:alcorexchange
+          a.item.footer-link.fs-14(href="mailto:admin@alcor.exchange" target="_blank") admin@alcor.exchange
+
+      .contact-section-item
+        .title.muted Request
+        .items
+          a.item.footer-link.fs-14(href="https://alcor.featurebase.app/" target="_blank") Feature Request
+          a.item.footer-link.fs-14(href="https://t.me/Zzullerr" target="_blank") Banner/Ad Request
+          a.item.footer-link.fs-14(href="https://t.me/Zzullerr" target="_blank") Business offer
+
+      .contact-section-item
+        .title.muted Socials
+        .social-items
+          a(href="https://t.me/alcorexchange" target="_blank")
+            img(src="@/assets/icons/Telegram.svg")
+          a(href="https://twitter.com/alcorexchange" target="_blank")
+            img(src="@/assets/icons/Twitter.svg")
+          a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+            img(src="@/assets/icons/Discord.svg")
   span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
   //.items
     .item
@@ -117,27 +129,24 @@ export default {
         {
           title: 'About Us',
           items: [
-            { title: 'About', to: '/' },
-            { title: 'Blog', to: '/' },
-            { title: 'Careers', to: '/' },
+            { title: 'About', to: '/docs' },
+            { title: 'Blog', href: 'https://medium.com/@alcorexchange' },
+            { title: 'Careers', to: '/careers' },
           ],
         },
         {
           title: 'Products',
           items: [
-            { title: 'Alcor Swap V2', to: '/swap' },
-            { title: 'Alcor Markets', to: '/markets' },
             { title: 'IBC Bridge', to: '/bridge' },
-            { title: 'NFT Marketplace', to: '/nft-market' },
-            { title: 'Alcor Farms', to: '/farm' },
+            { title: 'Wax Defi Analytics', href: 'https://grafana.waxtools.net' },
+            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
           ],
         },
         {
           title: 'Learn',
           items: [
+            { title: 'Api', href: 'http://api.alcor.exchange' },
             { title: 'Docs', to: '/docs' },
-            { title: 'Youtube', to: '/' },
-            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
           ],
         },
       ]
@@ -169,11 +178,11 @@ footer {
 }
 
 .footer-link {
-  color: var(--text-default);
+  color: var(--text-disable);
   transition: color 0.2s;
   cursor: pointer;
   &:hover {
-    color: var(--text-disable);
+    color: var(--text-default);
   }
 }
 
@@ -199,8 +208,11 @@ footer {
 .bottom {
   margin-top: 14px;
 }
-.avral-link {
+
+.contact-section-item {
   margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
 }
 
 .social-items {
