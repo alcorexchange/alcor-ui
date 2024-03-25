@@ -13,7 +13,7 @@ div.careers-page
           span {{ item.location }}
         p.description.muted {{ item.description }}
       .career-item-action
-        AlcorButton(access) Apply
+        AlcorButton(access @click="openInNewTab('https://t.me/avral')") Apply
 </template>
 
 <script>
@@ -26,18 +26,27 @@ export default {
     careers() {
       return [
         {
-          title: 'BlockChain Developer',
+          title: 'UI/UX Expert & Designer',
           location: 'Remote',
           type: 'Part Time',
           description:
-            'This is the job description This is the job description This is the job description This is the job description.',
+            `We looking for someone who are ready to evaluate the current UI and suggest improvements
+              that will increase the convenience for our users.`,
         },
         {
-          title: 'BlockChain Developer',
+          title: 'Lead Front-End developer',
           location: 'Remote',
           type: 'Part Time',
           description:
-            'This is the job description This is the job description This is the job description This is the job description.',
+            `Someone who is ready to take over the development, refactoring and design of new web interfaces for our
+              products.`,
+        },
+        {
+          title: 'Marketing Officer',
+          location: 'Remote',
+          type: 'Part Time',
+          description:
+            `Everything is still ahead and we are looking for someone who is ready to promote Alcor to mass use.`,
         },
       ]
     },
