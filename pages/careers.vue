@@ -43,7 +43,8 @@ export default {
           title: 'Marketing Officer',
           location: 'Remote',
           type: 'Part Time',
-          description: `Everything is still ahead and we are looking for someone who is ready to promote Alcor to mass use.`,
+          description:
+            'Everything is still ahead and we are looking for someone who is ready to promote Alcor to mass use.',
         },
       ]
     },
