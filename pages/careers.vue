@@ -29,24 +29,21 @@ export default {
           title: 'UI/UX Expert & Designer',
           location: 'Remote',
           type: 'Part Time',
-          description:
-            `We looking for someone who are ready to evaluate the current UI and suggest improvements
+          description: `We looking for someone who are ready to evaluate the current UI and suggest improvements
               that will increase the convenience for our users.`,
         },
         {
           title: 'Lead Front-End developer',
           location: 'Remote',
           type: 'Part Time',
-          description:
-            `Someone who is ready to take over the development, refactoring and design of new web interfaces for our
+          description: `Someone who is ready to take over the development, refactoring and design of new web interfaces for our
               products.`,
         },
         {
           title: 'Marketing Officer',
           location: 'Remote',
           type: 'Part Time',
-          description:
-            `Everything is still ahead and we are looking for someone who is ready to promote Alcor to mass use.`,
+          description: `Everything is still ahead and we are looking for someone who is ready to promote Alcor to mass use.`,
         },
       ]
     },
@@ -88,10 +85,14 @@ export default {
       color: var(--text-disable);
     }
 
+    .description {
+      padding-bottom: 10px;
+    }
+
     &-action {
       display: flex;
       justify-content: flex-end;
-      margin-top: 10px;
+      margin-top: auto;
     }
   }
 }
