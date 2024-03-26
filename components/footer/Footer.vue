@@ -9,7 +9,7 @@ footer(:class="{isMobile}").alcor-inner
       .title.muted {{section.title}}
       .items
         .item(v-for="item in section.items")
-          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" :to="item.to" :href="item.href" :target="item.href ? '_blank' : undefined") {{ item.title }}
+          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" v-bind="item.to ? { to: localePath(item.to) } : { href: item.href }" :target="item.href ? '_blank' : undefined") {{ item.title }}
     section.contact-section
       .contact-section-item
         .title.muted Contact
