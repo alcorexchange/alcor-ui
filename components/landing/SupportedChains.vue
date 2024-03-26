@@ -47,13 +47,13 @@
 
         a.item(href="https://alcor.featurebase.app" target="_blank")
           .icon
-            img(src='~/assets/icons/feature-request.webp')
+            img(src='~/assets/icons/FeatureRequest.svg')
           span.name Feature request
           span.desc Participate in development
 
         a.item(href="https://status.alcor.exchange" target="_blank")
           .icon
-            img(src='~/assets/icons/health-check.png')
+            img(src='~/assets/icons/Status.svg')
           span.name Status Page
           span.desc Check services health
 
@@ -82,30 +82,32 @@ export default {
   components: {
     SectionTitle,
     SSpacer,
-    EOS
+    EOS,
   },
   data: () => ({
     items: [
       {
         image: require('@/assets/icons/Graymass_white.svg'),
         lightImage: require('@/assets/icons/Graymass.svg'),
-        url: 'https://greymass.com/en/'
+        url: 'https://greymass.com/en/',
       },
-    ]
-  })
+    ],
+  }),
 }
 </script>
 
 <style scoped lang="scss">
 .supported-chains {
-  background: linear-gradient(181.03deg,
-      rgba(255, 255, 255, 0) 0%,
+  background: linear-gradient(
+    181.03deg,
+    rgba(255, 255, 255, 0) 0%,
 
-      rgba(57, 255, 136, 0.02) 15%,
-      rgba(57, 255, 136, 0.1) 50%,
-      rgba(57, 255, 136, 0.02) 85%,
+    rgba(57, 255, 136, 0.02) 15%,
+    rgba(57, 255, 136, 0.1) 50%,
+    rgba(57, 255, 136, 0.02) 85%,
 
-      rgba(255, 255, 255, 0) 100%);
+    rgba(255, 255, 255, 0) 100%
+  );
   padding: 20px 0;
   min-height: 300px;
 }
@@ -229,14 +231,12 @@ export default {
     max-width: 90%;
     fill: red;
     color: red;
-
   }
 
   .more {
     margin-top: 15px;
   }
 }
-
 
 .items {
   margin-top: 40px;
@@ -248,7 +248,6 @@ export default {
     gap: 36px;
   }
 
-
   .item {
     display: flex;
 
@@ -258,7 +257,6 @@ export default {
       @media only screen and (max-width: 600px) {
         height: 26px;
       }
-
     }
   }
 }
