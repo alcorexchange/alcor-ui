@@ -53,7 +53,7 @@ export default {
           location: 'Remote',
           type: 'Part Time',
           description:
-            `We looking for an EOS blockchain guru, to promote our products there.`,
+            `We looking for an EOS blockchain guru, to promote and manage our products there.`,
         },
       ]
     },
