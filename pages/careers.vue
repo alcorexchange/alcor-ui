@@ -48,6 +48,13 @@ export default {
           description:
             `Everything is still ahead and we are looking for someone who is ready to promote Alcor to mass use.`,
         },
+        {
+          title: 'EOS Project Manager',
+          location: 'Remote',
+          type: 'Part Time',
+          description:
+            `We looking for an EOS blockchain guru, to promote our products there.`,
+        },
       ]
     },
   },
