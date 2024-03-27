@@ -2,7 +2,14 @@ const MAX_PAGINATION_FETCHES = 10
 
 import fetch from 'node-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
+
+import config from '../config'
 import { shuffleArray } from './index'
+
+export function getChainRpc(chain) {
+  const nodes = Object.keys(config.networks[chain].client_nodes)
+  return getMultyEndRpc(nodes)
+}
 
 export function getMultyEndRpc(nodes) {
   shuffleArray(nodes)

@@ -9,6 +9,9 @@ declare global {
     GLOBAL_TOKENS: string[],
     client_nodes: string[],
     USD_TOKEN: string,
+    amm: {
+      contract: string
+    }
   }
 }
 export {}

@@ -19,6 +19,7 @@ import { tokens } from './tokens'
 import { account } from './account'
 import { swapRouter } from './swapRouter'
 import { analytics } from './analytics'
+import { farms } from './farms'
 
 const app = express()
 
@@ -55,7 +56,7 @@ async function start () {
   app.use('/api/v2/swap', swap)
   app.use('/api/v2/swapRouter', swapRouter)
   app.use('/api/v2/account/', account)
-
+  app.use('/api/v2/farms/', farms)
 
   // Listen the server
   const PORT = process.env.PORT || 8000
