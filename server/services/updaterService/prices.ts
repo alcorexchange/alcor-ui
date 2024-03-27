@@ -85,11 +85,11 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
 
     if (p.tokenA.id === USD_TOKEN) {
-      return p.tokenA.id >= minimumUSDAmount
+      return p.tokenA.quantity >= minimumUSDAmount
     }
 
     if (p.tokenB.id === USD_TOKEN) {
-      return p.tokenB.id >= minimumUSDAmount
+      return p.tokenB.quantity >= minimumUSDAmount
     }
 
     return false
