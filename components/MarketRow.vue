@@ -3,6 +3,7 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
   .label
     PairIcons(
       v-if="isUSDTbase"
+      :size="isMobile ? '16' : undefined"
       :token1="{ symbol: item.quote_name, contract: item.contract }"
       :token2="{ symbol: item.base_name, contract: item.base_contract }")
 
@@ -51,16 +52,16 @@ export default {
 
     isUSDTbase() {
       return this.network.USD_TOKEN.includes(this.item.base_contract)
-    }
+    },
   },
   methods: {
     redirect() {
       this.$router.push({
         name: `trade-index-id___${this.$i18n.locale}`,
-        params: { id: this.item.slug }
+        params: { id: this.item.slug },
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

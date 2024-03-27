@@ -119,6 +119,12 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
         m.target_volume += p.volumeB24
       }
     })
+
+    // FIXME If we will need volumes in USD
+    // const target_token = tokens.find(t => t.id == m.target_currency)
+    // const base_token = tokens.find(t => t.id == m.base_currency)
+
+    // m.volumeInUSD
   })
 
   res.json(markets)

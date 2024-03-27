@@ -1,5 +1,5 @@
 <template lang="pug">
-.pair-icons(:style="`width: ${size}px; height: ${size}px; --offset: ${offset}`" :class="direction")
+.pair-icons(:style="`min-width: ${size}px; height: ${size}px; --offset: ${offset}`" :class="direction")
   TokenImage(:src="$tokenLogo(token1.symbol || token1.currency, token1.contract)" :height="size" :width="size").pair-icon.icon-1
   TokenImage(:src="$tokenLogo(token2.symbol || token2.currency, token2.contract)" :height="size" :width="size").pair-icon.icon-2
 </template>

@@ -207,8 +207,8 @@ export default {
         ],
       },
       {
-        link: 'https://discord.com/channels/@me/1126018647085830155/1219836114546856009',
-        image: require('@/assets/images/swap-banner-2.gif'),
+        link: 'https://discord.gg/thehustle',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
           'rgba(243,179,7,0.2)',
           'rgba(54,40,96,1)',
