@@ -1,4 +1,22 @@
 {
+	"GLX@galacticsagatoken": {
+		"name": "Galactic Saga",
+		"website": {
+			"link": "https://www.galacticsaga.io/",
+			"name": "www.galacticsaga.io"
+		},
+		"tags": [
+			"Gaming",
+			"P2E",
+			"NFT"
+		],
+		"socials": [
+			"https://discord.gg/c2FvEjcv2b",
+			"https://twitter.com/GalacticSaga",
+		],
+		"github": "https://github.com/",
+		"description": "Space strategy NFT game on WAX blockchain"
+	},
     "INDEX@stabletokens": {
         "name": "INDEX token",
         "website": {
