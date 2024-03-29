@@ -647,7 +647,17 @@ const networks = {
     },
 
     amm: {
-      contract: 'ammcontract3',
+      contract: 'swap.alcor',
+    },
+
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        id: 'lsw-lsw.alcor'
+      }
     },
 
     withdraw: {},
