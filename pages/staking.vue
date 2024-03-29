@@ -1,10 +1,11 @@
 <template lang="pug">
 div
   h1 staking
-  div APR: {{ apr }}
+  div APR: {{ apr }}%
 
-  div(v-if="stakeTokenBalance") Current stake tokens: {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
-  div(v-if="receive") Unstake available: {{ receive }}
+  div(v-if="stakeTokenBalance") Current stake balance: {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
+  div(v-if="receive" @click="unstake") Unstake available: {{ receive }} {{ network.baseToken.symbol }}
+    el-button(size="mini" type="success").ml-2 unstake
 
   hr
   div stake amount
@@ -99,18 +100,21 @@ export default {
         quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
         memo: 'stake'
       })
-
-      // refresh after
       this.amount = 0
-      // TODO notify success
+    },
 
-      // await this.$store.dispatch('chain/transfer', {
-      //   to: contract,
-      //   contract: token.contract,
-      //   actor: this.user.name,
-      //   quantity: parseFloat(this.amount).toFixed(token.precision) + ' ' + token.symbol,
-      //   memo: 'staking'
-      // })
+    async unstake() {
+      console.log('stake')
+      const { contract, token } = this.network.staking
+
+      await this.$store.dispatch('chain/transfer', {
+        to: contract,
+        contract: token.contract,
+        actor: this.user.name,
+        quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
+        memo: 'withdraw'
+      })
+      this.amount = 0
     }
   }
 }
