@@ -29,7 +29,7 @@ export default {
           title: 'UI/UX Expert & Designer',
           location: 'Remote',
           type: 'Part Time',
-          description: `We looking for someone who are ready to evaluate the current UI and suggest improvements
+          description: `We are looking for someone who are ready to evaluate the current UI and suggest improvements
               that will increase the convenience for our users.`,
         },
         {
@@ -50,8 +50,7 @@ export default {
           title: 'EOS Project Manager',
           location: 'Remote',
           type: 'Part Time',
-          description:
-            'We are looking for an EOS blockchain guru, to promote and manage our products there.',
+          description: 'We are looking for an EOS blockchain guru, to promote and manage our products there.',
         },
       ]
     },
