@@ -5,12 +5,26 @@ import { Router } from 'express'
 import { createClient } from 'redis'
 import { Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
+import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 
 // TODO Account validation
 export const account = Router()
 
 const redis = createClient()
 
+export async function getAccountPoolPositions(chain: string, account: string) {
+  if (!redis.isOpen) await redis.connect()
+  const positions = JSON.parse(await redis.get(`positions_${chain}`))
+
+  const result = []
+  for (const position of positions.filter(p => p.owner == account)) {
+    const stats = await getPositionStats(chain, position)
+
+    result.push({ ...position, ...stats })
+  }
+
+  return result
+}
 
 async function getCurrentPositionState(chain, plainPosition) {
   const pool = await getPoolInstance(chain, plainPosition.pool)
@@ -100,6 +114,70 @@ export async function getPositionStats(chain, redisPosition) {
   return { ...stats, ...current }
 }
 
+async function loadUserFarms(network: Network, account: string) {
+  const rpc = getChainRpc(network.name)
+  const positions = await getAccountPoolPositions(network.name, account)
+
+  const positionIds = positions.map(p => Number(p.id))
+
+  const stakingpos_requests = positionIds.map(posId => {
+    return fetchAllRows(rpc, {
+      code: network.amm.contract,
+      scope: network.amm.contract,
+      table: 'stakingpos',
+      lower_bound: posId,
+      upper_bound: posId
+    })
+  })
+
+  const rows = (await Promise.all(stakingpos_requests)).flat(1)
+
+  //const rows = stakingpos_requests.flat(2)
+  //console.log({ rows })
+  // const rows = await fetchAllRows(this.$rpc, {
+  //   code: rootState.network.amm.contract,
+  //   scope: rootState.network.amm.contract,
+  //   table: 'stakingpos',
+  //   lower_bound: Math.min(positionIds),
+  //   upper_bound: Math.max(positionIds)
+  // })
+
+  const farmPositions = []
+  const stakedPositions = rows.filter(i => positionIds.includes(i.posId))
+
+  for (const sp of stakedPositions) {
+    const position = positions.find(p => p.id == sp.posId)
+    position.incentiveIds = sp.incentiveIds
+
+    farmPositions.push(position)
+  }
+
+  const userUnicueIncentives = [...new Set(farmPositions.map(p => p.incentiveIds).flat(1))]
+
+  // Fetching stakes amounts of positions
+  const userStakes = []
+  for (const incentiveScope of userUnicueIncentives) {
+    const rows = await fetchAllRows(rpc, {
+      code: network.amm.contract,
+      scope: incentiveScope,
+      table: 'stakes',
+      lower_bound: Math.min(...positionIds),
+      upper_bound: Math.max(...positionIds)
+    })
+
+    const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {
+      r.incentiveId = incentiveScope
+      r.incentive = incentiveScope
+      r.pool = positions.find(p => p.id == r.posId).pool
+      r.poolStats = positions.find(p => p.id == r.posId).pool
+      return r
+    })
+
+    userStakes.push(...stakes)
+  }
+
+  return userStakes
+}
 
 account.get('/:account', async (req, res) => {
   const network: Network = req.app.get('network')
@@ -122,16 +200,16 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
 
 account.get('/:account/positions', async (req, res) => {
   const network: Network = req.app.get('network')
-  const redis = req.app.get('redisClient')
 
-  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
+  const result = await getAccountPoolPositions(network.name, req.params.account)
 
-  const result = []
-  for (const position of positions.filter(p => p.owner == req.params.account)) {
-    const stats = await getPositionStats(network.name, position)
+  res.json(result)
+})
 
-    result.push({ ...position, ...stats })
-  }
+account.get('/:account/farms', async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const result = await loadUserFarms(network, req.params.account)
 
   res.json(result)
 })
