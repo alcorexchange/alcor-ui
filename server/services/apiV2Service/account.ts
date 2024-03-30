@@ -1,7 +1,10 @@
 import JSBI from 'jsbi'
+import bigInt from 'big-integer'
+import { asset } from 'eos-common'
 import { cacheSeconds } from 'route-cache'
 import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
+import { getIncentives } from './farms'
 import { Router } from 'express'
 import { createClient } from 'redis'
 import { Swap, PositionHistory, Position } from '../../models'
@@ -12,6 +15,8 @@ import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 export const account = Router()
 
 const redis = createClient()
+
+const PrecisionMultiplier = bigInt('1000000000000000000')
 
 export async function getAccountPoolPositions(chain: string, account: string) {
   if (!redis.isOpen) await redis.connect()
@@ -180,6 +185,60 @@ async function loadUserFarms(network: Network, account: string) {
   return userStakes
 }
 
+const getLastTimeRewardApplicable = periodFinish => {
+  const currentTime = Math.floor(Date.now() / 1000)
+  return currentTime < periodFinish ? currentTime : periodFinish
+}
+
+const getRewardPerToken = incentive => {
+  const totalStakingWeight = bigInt(incentive.totalStakingWeight)
+  const rewardPerTokenStored = bigInt(incentive.rewardPerTokenStored)
+  const periodFinish = incentive.periodFinish
+  const lastUpdateTime = bigInt(incentive.lastUpdateTime)
+  const rewardRateE18 = bigInt(incentive.rewardRateE18)
+
+  if (totalStakingWeight.eq(0)) {
+    return rewardPerTokenStored
+  }
+
+  return rewardPerTokenStored.add(
+    bigInt(getLastTimeRewardApplicable(periodFinish)).subtract(lastUpdateTime)
+      .multiply(rewardRateE18).divide(totalStakingWeight)
+  )
+}
+
+function calculateUserFarms(incentives, plainUserStakes) {
+  const userStakes = []
+
+  for (const r of plainUserStakes) {
+    r.incentive = incentives.find(i => i.id = r.incentive)
+    const totalStakingWeight = r.incentive.totalStakingWeight
+    const stakingWeight = bigInt(r.stakingWeight)
+    const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
+    const rewards = bigInt(r.rewards)
+
+    //console.log(stakingWeight.toString(), totalStakingWeight.toString())
+
+    const reward = stakingWeight.multiply(
+      getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+
+    const rewardToken = asset(r.incentive.reward.quantity)
+
+    rewardToken.set_amount(reward)
+    r.farmedReward = rewardToken.to_string()
+
+    //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
+    r.userSharePercent = Math.round(parseFloat(stakingWeight.toString()) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
+    r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
+    r.dailyRewards = r.dailyRewards, Math.min(rewardToken.symbol.precision(), 8)
+    r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
+
+    userStakes.push(r)
+  }
+
+  return userStakes
+},
+
 account.get('/:account', async (req, res) => {
   const network: Network = req.app.get('network')
 
@@ -212,9 +271,11 @@ account.get('/:account/farms', cacheSeconds(2, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const result = await loadUserFarms(network, req.params.account)
+  const incentives = await getIncentives(network)
+  const plainFarms = await loadUserFarms(network, req.params.account)
+  const stakes = calculateUserFarms(incentives, plainFarms)
 
-  res.json(result)
+  res.json(stakes)
 })
 
 account.get('/:account/positions-stats', async (req, res) => {

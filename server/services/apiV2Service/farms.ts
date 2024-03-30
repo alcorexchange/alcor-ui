@@ -32,7 +32,7 @@ function formatIncentive(incentive) {
   return incentive
 }
 
-async function getIncentives(network) {
+export async function getIncentives(network) {
   const rpc = getChainRpc(network.name)
 
   const incentives = await fetchAllRows(rpc, {
