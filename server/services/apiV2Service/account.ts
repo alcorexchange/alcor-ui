@@ -1,4 +1,5 @@
 import JSBI from 'jsbi'
+import { cacheSeconds } from 'route-cache'
 import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
 import { Router } from 'express'
@@ -206,7 +207,9 @@ account.get('/:account/positions', async (req, res) => {
   res.json(result)
 })
 
-account.get('/:account/farms', async (req, res) => {
+account.get('/:account/farms', cacheSeconds(2, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
   const network: Network = req.app.get('network')
 
   const result = await loadUserFarms(network, req.params.account)
