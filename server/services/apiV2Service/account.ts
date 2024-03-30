@@ -233,6 +233,8 @@ function calculateUserFarms(incentives, plainUserStakes) {
     r.dailyRewards = r.dailyRewards
     r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
+    r.incentive = r.incentive.id
+
     userStakes.push(r)
   }
 

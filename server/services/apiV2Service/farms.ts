@@ -46,6 +46,7 @@ export async function getIncentives(network) {
   return incentives
 }
 
+// TODO add filter by finished
 farms.get('/incentives', cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
