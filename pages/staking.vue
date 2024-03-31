@@ -242,5 +242,11 @@ export default {
       width: 100%;
     }
   }
+
+  @media only screen and (max-width: 600px) {
+    .stats {
+      grid-template-columns: 1fr;
+    }
+  }
 }
 </style>
