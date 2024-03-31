@@ -234,9 +234,9 @@ export default {
   }
   .action {
     display: flex;
-    justify-content: flex-end;
     .alcor-button {
-      padding: 8px 10px;
+      --main-action-green: var(--main-green);
+      padding: 8px 20px;
       font-weight: bold;
     }
   }
