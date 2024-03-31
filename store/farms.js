@@ -192,8 +192,8 @@ export const actions = {
         code: rootState.network.amm.contract,
         scope: incentiveScope,
         table: 'stakes',
-        lower_bound: Math.min(positionIds),
-        upper_bound: Math.max(positionIds)
+        lower_bound: Math.min(...positionIds),
+        upper_bound: Math.max(...positionIds)
       })
 
       const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {

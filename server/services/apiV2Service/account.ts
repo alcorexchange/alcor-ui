@@ -1,16 +1,36 @@
 import JSBI from 'jsbi'
+import bigInt from 'big-integer'
+import { asset } from 'eos-common'
+import { cacheSeconds } from 'route-cache'
 import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
+import { getIncentives } from './farms'
 import { Router } from 'express'
 import { createClient } from 'redis'
 import { Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
+import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 
 // TODO Account validation
 export const account = Router()
 
 const redis = createClient()
 
+const PrecisionMultiplier = bigInt('1000000000000000000')
+
+export async function getAccountPoolPositions(chain: string, account: string) {
+  if (!redis.isOpen) await redis.connect()
+  const positions = JSON.parse(await redis.get(`positions_${chain}`))
+
+  const result = []
+  for (const position of positions.filter(p => p.owner == account)) {
+    const stats = await getPositionStats(chain, position)
+
+    result.push({ ...position, ...stats })
+  }
+
+  return result
+}
 
 async function getCurrentPositionState(chain, plainPosition) {
   const pool = await getPoolInstance(chain, plainPosition.pool)
@@ -100,6 +120,126 @@ export async function getPositionStats(chain, redisPosition) {
   return { ...stats, ...current }
 }
 
+async function loadUserFarms(network: Network, account: string) {
+  const rpc = getChainRpc(network.name)
+  const positions = await getAccountPoolPositions(network.name, account)
+
+  const positionIds = positions.map(p => Number(p.id))
+
+  const stakingpos_requests = positionIds.map(posId => {
+    return fetchAllRows(rpc, {
+      code: network.amm.contract,
+      scope: network.amm.contract,
+      table: 'stakingpos',
+      lower_bound: posId,
+      upper_bound: posId
+    })
+  })
+
+  const rows = (await Promise.all(stakingpos_requests)).flat(1)
+
+  //const rows = stakingpos_requests.flat(2)
+  //console.log({ rows })
+  // const rows = await fetchAllRows(this.$rpc, {
+  //   code: rootState.network.amm.contract,
+  //   scope: rootState.network.amm.contract,
+  //   table: 'stakingpos',
+  //   lower_bound: Math.min(positionIds),
+  //   upper_bound: Math.max(positionIds)
+  // })
+
+  const farmPositions = []
+  const stakedPositions = rows.filter(i => positionIds.includes(i.posId))
+
+  for (const sp of stakedPositions) {
+    const position = positions.find(p => p.id == sp.posId)
+    position.incentiveIds = sp.incentiveIds
+
+    farmPositions.push(position)
+  }
+
+  const userUnicueIncentives = [...new Set(farmPositions.map(p => p.incentiveIds).flat(1))]
+
+  // Fetching stakes amounts of positions
+  const userStakes = []
+  for (const incentiveScope of userUnicueIncentives) {
+    const rows = await fetchAllRows(rpc, {
+      code: network.amm.contract,
+      scope: incentiveScope,
+      table: 'stakes',
+      lower_bound: Math.min(...positionIds),
+      upper_bound: Math.max(...positionIds)
+    })
+
+    const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {
+      r.incentiveId = incentiveScope
+      r.incentive = incentiveScope
+      r.pool = positions.find(p => p.id == r.posId).pool
+      r.poolStats = positions.find(p => p.id == r.posId).pool
+      return r
+    })
+
+    userStakes.push(...stakes)
+  }
+
+  return userStakes
+}
+
+const getLastTimeRewardApplicable = periodFinish => {
+  const currentTime = Math.floor(Date.now() / 1000)
+  return currentTime < periodFinish ? currentTime : periodFinish
+}
+
+const getRewardPerToken = incentive => {
+  const totalStakingWeight = bigInt(incentive.totalStakingWeight)
+  const rewardPerTokenStored = bigInt(incentive.rewardPerTokenStored)
+  const periodFinish = incentive.periodFinish
+  const lastUpdateTime = bigInt(incentive.lastUpdateTime)
+  const rewardRateE18 = bigInt(incentive.rewardRateE18)
+
+  if (totalStakingWeight.eq(0)) {
+    return rewardPerTokenStored
+  }
+
+  return rewardPerTokenStored.add(
+    bigInt(getLastTimeRewardApplicable(periodFinish)).subtract(lastUpdateTime)
+      .multiply(rewardRateE18).divide(totalStakingWeight)
+  )
+}
+
+function calculateUserFarms(incentives, plainUserStakes) {
+  const userStakes = []
+
+  for (const r of plainUserStakes) {
+    r.incentive = incentives.find(i => i.id = r.incentive)
+    const totalStakingWeight = r.incentive.totalStakingWeight
+    const stakingWeight = bigInt(r.stakingWeight)
+    const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
+    const rewards = bigInt(r.rewards)
+
+    //console.log(stakingWeight.toString(), totalStakingWeight.toString())
+
+    const reward = stakingWeight.multiply(
+      getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+
+    const rewardToken = asset(r.incentive.reward.quantity)
+
+    rewardToken.set_amount(reward)
+    r.farmedReward = rewardToken.to_string()
+
+    //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
+    r.userSharePercent = Math.round(parseFloat(stakingWeight.toString()) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
+    r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
+    r.dailyRewards = r.dailyRewards
+    r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
+
+    r.incentive = r.incentive.id
+
+    userStakes.push(r)
+  }
+
+  return userStakes
+},
 
 account.get('/:account', async (req, res) => {
   const network: Network = req.app.get('network')
@@ -122,18 +262,22 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
 
 account.get('/:account/positions', async (req, res) => {
   const network: Network = req.app.get('network')
-  const redis = req.app.get('redisClient')
 
-  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
-
-  const result = []
-  for (const position of positions.filter(p => p.owner == req.params.account)) {
-    const stats = await getPositionStats(network.name, position)
-
-    result.push({ ...position, ...stats })
-  }
+  const result = await getAccountPoolPositions(network.name, req.params.account)
 
   res.json(result)
+})
+
+account.get('/:account/farms', cacheSeconds(2, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const incentives = await getIncentives(network)
+  const plainFarms = await loadUserFarms(network, req.params.account)
+  const stakes = calculateUserFarms(incentives, plainFarms)
+
+  res.json(stakes)
 })
 
 account.get('/:account/positions-stats', async (req, res) => {

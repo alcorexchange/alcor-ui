@@ -32,7 +32,7 @@ function formatIncentive(incentive) {
   return incentive
 }
 
-async function getIncentives(network) {
+export async function getIncentives(network) {
   const rpc = getChainRpc(network.name)
 
   const incentives = await fetchAllRows(rpc, {
@@ -46,72 +46,7 @@ async function getIncentives(network) {
   return incentives
 }
 
-//async function loadUserStakes() {
-//  const positions = rootState.amm.positions
-
-//  const positionIds = rootState.amm.positions.map(p => Number(p.id))
-
-//  const stakingpos_requests = positionIds.map(posId => {
-//    return fetchAllRows(this.$rpc, {
-//      code: rootState.network.amm.contract,
-//      scope: rootState.network.amm.contract,
-//      table: 'stakingpos',
-//      lower_bound: posId,
-//      upper_bound: posId
-//    })
-//  })
-
-//  const rows = (await Promise.all(stakingpos_requests)).flat(1)
-
-//  //const rows = stakingpos_requests.flat(2)
-//  //console.log({ rows })
-//  // const rows = await fetchAllRows(this.$rpc, {
-//  //   code: rootState.network.amm.contract,
-//  //   scope: rootState.network.amm.contract,
-//  //   table: 'stakingpos',
-//  //   lower_bound: Math.min(positionIds),
-//  //   upper_bound: Math.max(positionIds)
-//  // })
-
-//  const farmPositions = []
-//  const stakedPositions = rows.filter(i => positionIds.includes(i.posId))
-
-//  for (const sp of stakedPositions) {
-//    const position = positions.find(p => p.id == sp.posId)
-//    position.incentiveIds = sp.incentiveIds
-
-//    farmPositions.push(position)
-//  }
-
-//  const userUnicueIncentives = [...new Set(farmPositions.map(p => p.incentiveIds).flat(1))]
-
-//  // Fetching stakes amounts of positions
-//  const userStakes = []
-//  for (const incentiveScope of userUnicueIncentives) {
-//    const rows = await fetchAllRows(this.$rpc, {
-//      code: rootState.network.amm.contract,
-//      scope: incentiveScope,
-//      table: 'stakes',
-//      lower_bound: Math.min(positionIds),
-//      upper_bound: Math.max(positionIds)
-//    })
-
-//    const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {
-//      r.incentiveId = incentiveScope
-//      r.incentive = state.incentives.find(i => i.id == incentiveScope)
-//      r.pool = positions.find(p => p.id == r.posId).pool
-//      r.poolStats = positions.find(p => p.id == r.posId).pool
-//      return r
-//    })
-
-//    userStakes.push(...stakes)
-//  }
-
-//  commit('setPlainUserStakes', userStakes)
-//  dispatch('calculateUserStakes')
-//}
-
-
+// TODO add filter by finished
 farms.get('/incentives', cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
