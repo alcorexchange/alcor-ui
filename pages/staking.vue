@@ -23,7 +23,7 @@
         .stat-value {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
 
       .recieve.mt-5(v-if="receive")
-        .muted Available to Unstake
+        .muted Available to Unstake:
         .end
           div {{ receive }} {{ network.baseToken.symbol }}
           AlcorButton(@click="stake") Unstake
@@ -56,7 +56,7 @@ export default {
 
   data() {
     return {
-      amount: 0,
+      amount: null,
       stakemints: null,
     }
   },
@@ -125,6 +125,8 @@ export default {
       const { contract, token } = this.network.staking
       const { baseToken } = this.network
 
+      if (!this.amount) return
+
       try {
         await this.$store.dispatch('chain/transfer', {
           to: contract,
@@ -133,7 +135,7 @@ export default {
           quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
           memo: 'stake',
         })
-        this.amount = 0
+        this.amount = null
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
@@ -151,7 +153,7 @@ export default {
           quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
-        this.amount = 0
+        this.amount = null
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
