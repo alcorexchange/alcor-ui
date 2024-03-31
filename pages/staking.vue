@@ -1,10 +1,10 @@
 <template lang="pug">
-.staking-page
+.staking-page.pt-5
   AlcorContainer
     PageHeader(title="Staking")
       template(#end) &nbsp;
     .page-content
-      h1
+      h1.pt-3
         | Stake
         span.symbol  WAX
         |  to earn
@@ -34,7 +34,7 @@
 
       label(for="stake-amount") Stake Amount
       .input-and-button.mb-3
-        el-input(v-model="amount" type="number"  id="stake-amount")
+        el-input(v-model="amount" type="number"  id="stake-amount" placeholder="0.00")
         AlcorButton(@click="stake" access) Stake
 </template>
 
@@ -166,7 +166,6 @@ export default {
 .staking-page {
   max-width: 600px;
   margin: auto;
-  margin-top: 80px;
 
   .page-content {
     padding: 0 8px;
@@ -174,7 +173,6 @@ export default {
 
   h1 {
     font-size: 24px;
-    padding-top: 10px;
     span {
       color: var(--main-green);
       padding: 0;
@@ -187,14 +185,13 @@ export default {
     grid-template-columns: 1fr 1fr;
   }
   .stat-container {
-    // background: var(--);
-    box-shadow: 0 0 0 1px var(--border-color);
+    box-shadow: 0 0 0 1px var(--bg-alter-2);
     border-radius: 6px;
     padding: 8px 12px;
     display: flex;
     flex-direction: column;
     flex: 1;
-    // gap: 6px;
+    // background: var(--background-color-base);
     .stat-title {
       font-size: 16px;
     }
