@@ -1,33 +1,63 @@
 <template lang="pug">
-div
-  h1 staking
-  div APR: {{ apr }}%
+.staking-page
+  AlcorContainer
+    PageHeader(title="Staking")
+      template(#end) &nbsp;
+    .page-content
+      h1
+        | Stake
+        span.symbol  WAX
+        |  to earn
+        span.symbol  LSW
 
-  div(v-if="stakeTokenBalance") Current stake balance: {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
-  div(v-if="receive" @click="unstake") Unstake available: {{ receive }} {{ network.baseToken.symbol }}
-    el-button(size="mini" type="success").ml-2 unstake
+      .stats.mt-3
+        .stat-container
+          .stat-title.muted APR
+          .stat-value {{ apr }}%
+        .stat-container
+          .stat-title.muted TVL
+          .stat-value Avral TVL
 
-  hr
-  div stake amount
-  input(v-model="amount" type="number")
-  el-button(@click="stake" type="success" size="small").ml-2 Stake
+      .stat-container.mt-3(v-if="stakeTokenBalance")
+        .stat-title.muted Current Stake Balance
+        .stat-value {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
+
+      .recieve.mt-5(v-if="receive")
+        .muted Available to Unstake
+        .end
+          div {{ receive }} {{ network.baseToken.symbol }}
+          AlcorButton(@click="stake") Unstake
+      //- div( @click="unstake") Available to Unstake: {{ receive }} {{ network.baseToken.symbol }}
+      //-   el-button(size="mini" type="success").ml-2 unstake
+
+      .divider
+
+      label(for="stake-amount") Stake Amount
+      .input-and-button.mb-3
+        el-input(v-model="amount" type="number"  id="stake-amount")
+        AlcorButton(@click="stake" access) Stake
 </template>
 
 <script>
 import bigInt from 'big-integer'
 import { mapState, mapGetters } from 'vuex'
+import PageHeader from '@/components/amm/PageHeader'
+import AlcorContainer from '@/components/AlcorContainer'
+import AlcorButton from '@/components/AlcorButton'
 
 const multiplier = bigInt(100000000)
 
 export default {
   components: {
-
+    PageHeader,
+    AlcorContainer,
+    AlcorButton,
   },
 
   data() {
     return {
       amount: 0,
-      stakemints: null
+      stakemints: null,
     }
   },
 
@@ -45,7 +75,7 @@ export default {
     },
 
     stakeTokenBalance() {
-      return this.$store.getters['wallet/balances'].find(b => b.id == 'lsw-lsw.alcor')
+      return this.$store.getters['wallet/balances'].find((b) => b.id == 'lsw-lsw.alcor')
     },
 
     receive() {
@@ -57,15 +87,17 @@ export default {
 
       // getnativeamt
       return receive.toJSNumber() / 10 ** this.network.baseToken.precision
-    }
+    },
   },
 
   async mounted() {
-    const { rows: [stakemints] } = await this.$rpc.get_table_rows({
+    const {
+      rows: [stakemints],
+    } = await this.$rpc.get_table_rows({
       code: this.network.staking.contract,
       scope: this.network.staking.contract,
       table: 'stakemints',
-      limit: 1
+      limit: 1,
     })
 
     this.stakemints = stakemints
@@ -93,32 +125,108 @@ export default {
       const { contract, token } = this.network.staking
       const { baseToken } = this.network
 
-      await this.$store.dispatch('chain/transfer', {
-        to: contract,
-        contract: baseToken.contract,
-        actor: this.user.name,
-        quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
-        memo: 'stake'
-      })
-      this.amount = 0
+      try {
+        await this.$store.dispatch('chain/transfer', {
+          to: contract,
+          contract: baseToken.contract,
+          actor: this.user.name,
+          quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
+          memo: 'stake',
+        })
+        this.amount = 0
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
+      }
     },
 
     async unstake() {
       console.log('stake')
       const { contract, token } = this.network.staking
 
-      await this.$store.dispatch('chain/transfer', {
-        to: contract,
-        contract: token.contract,
-        actor: this.user.name,
-        quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
-        memo: 'withdraw'
-      })
-      this.amount = 0
-    }
-  }
+      try {
+        await this.$store.dispatch('chain/transfer', {
+          to: contract,
+          contract: token.contract,
+          actor: this.user.name,
+          quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
+          memo: 'withdraw',
+        })
+        this.amount = 0
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
+      }
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
+.staking-page {
+  max-width: 600px;
+  margin: auto;
+  margin-top: 80px;
+
+  .page-content {
+    padding: 0 8px;
+  }
+
+  h1 {
+    font-size: 24px;
+    padding-top: 10px;
+    span {
+      color: var(--main-green);
+      padding: 0;
+    }
+  }
+
+  .stats {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat-container {
+    // background: var(--);
+    box-shadow: 0 0 0 1px var(--border-color);
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    // gap: 6px;
+    .stat-title {
+      font-size: 16px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  }
+
+  .recieve {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    .end {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  .input-and-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    .alcor-button {
+      padding: 8px 10px;
+    }
+  }
+  .divider {
+    border-bottom: 1px solid var(--border-color);
+    margin: 20px 0;
+    display: flex;
+    width: 100%;
+  }
+}
 </style>
