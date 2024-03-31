@@ -16,7 +16,8 @@
           .stat-value {{ apr }}%
         .stat-container
           .stat-title.muted TVL
-          .stat-value Avral TVL
+          .stat-value {{ tvl }}
+          .muted.small {{ $systemToUSD(tvl) }}$
 
       .stat-container.mt-3(v-if="stakeTokenBalance")
         .stat-title.muted Current Stake Balance
@@ -88,24 +89,31 @@ export default {
       // getnativeamt
       return receive.toJSNumber() / 10 ** this.network.baseToken.precision
     },
+
+    tvl() {
+      if (!this.stakemints) return 0
+      return this.stakemints.totalNativeToken.quantity
+    },
   },
 
-  async mounted() {
-    const {
-      rows: [stakemints],
-    } = await this.$rpc.get_table_rows({
-      code: this.network.staking.contract,
-      scope: this.network.staking.contract,
-      table: 'stakemints',
-      limit: 1,
-    })
-
-    this.stakemints = stakemints
-
-    console.log('balances', this.$store.getters['wallet/balances'])
+  mounted() {
+    this.fetchStakeMints()
   },
 
   methods: {
+    async fetchStakeMints() {
+      const {
+        rows: [stakemints],
+      } = await this.$rpc.get_table_rows({
+        code: this.network.staking.contract,
+        scope: this.network.staking.contract,
+        table: 'stakemints',
+        limit: 1,
+      })
+
+      this.stakemints = stakemints
+    },
+
     getExchangeRateX8() {
       let rateX4 = bigInt(1).multiply(multiplier)
 
@@ -136,6 +144,7 @@ export default {
           memo: 'stake',
         })
         this.amount = null
+        this.fetchStakeMints()
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
@@ -154,6 +163,7 @@ export default {
           memo: 'withdraw',
         })
         this.amount = null
+        this.fetchStakeMints()
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
