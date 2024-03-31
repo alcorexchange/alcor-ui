@@ -24,7 +24,7 @@
         .stat-title.muted Current Stake Balance
         .stat-value {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
 
-      .recieve.mt-5(v-if="receive")
+      .recieve.mt-5.mb-4(v-if="receive")
         .muted Available to Unstake:
         .end
           div {{ receive }} {{ network.baseToken.symbol }}
@@ -32,10 +32,8 @@
       //- div( @click="unstake") Available to Unstake: {{ receive }} {{ network.baseToken.symbol }}
       //-   el-button(size="mini" type="success").ml-2 unstake
 
-      .divider
-
       TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount")
-      .action.pt-2
+      .action.pt-2.pb-2
         AlcorButton(@click="stake" access) Stake
 </template>
 
