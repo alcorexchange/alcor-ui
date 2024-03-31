@@ -43,27 +43,18 @@ export default {
     WarnMessage,
   },
 
-  props: [
-    'token',
-    'tokens',
-    'disabled',
-    'value',
-    'showMaxButton',
-    'locked',
-    'label',
-    'disabledMessage'
-  ], // TODO Disabled
+  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked', 'label', 'disabledMessage'], // TODO Disabled
 
   data: () => ({
     localValue: null,
     search: '',
-    focused: false
+    focused: false,
   }),
 
   watch: {
     value(value) {
       this.localValue = value
-    }
+    },
   },
 
   methods: {
@@ -86,17 +77,17 @@ export default {
     },
     onBalanceClick() {
       if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol, this.token.contract))
-    }
+    },
   },
 
   computed: {
     renderLabel() {
-      return this.token ? (this.label || '') : ''
+      return this.token ? this.label || '' : ''
     },
     renderBottom() {
       return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
     },
-    ...mapState(['user'])
+    ...mapState(['user']),
   },
 }
 </script>
@@ -131,10 +122,11 @@ export default {
       color: var(--text-default);
     }
   }
-  .bottom{
+  .bottom {
     min-height: 18px;
     font-size: 0.8rem;
-    display: flex; align-items: center;
+    display: flex;
+    align-items: center;
   }
   .main {
     display: flex;
@@ -150,7 +142,7 @@ export default {
       padding: 0;
       height: auto;
       line-height: 1;
-      &::placeholder{
+      &::placeholder {
         opacity: 0.6;
       }
     }
@@ -189,12 +181,15 @@ export default {
   input {
     background-color: var(--selector-bg);
   }
-  .max-bage{
+  .max-bage {
     font-size: 0.9rem;
   }
-  .disabled-overlay{
+  .disabled-overlay {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: var(--selector-bg);
     padding: 8px;
     gap: 4px;
@@ -203,10 +198,10 @@ export default {
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    .icon{
+    .icon {
       font-size: 1.4rem;
     }
-    .message{
+    .message {
       font-size: 0.86rem;
       text-align: center;
     }

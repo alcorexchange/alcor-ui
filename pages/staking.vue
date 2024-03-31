@@ -16,8 +16,8 @@
           .stat-value {{ apr }}%
         .stat-container
           .stat-title.muted
-            span TVL &nbsp;
-            span.muted.small ( {{ $systemToUSD(tvl) }}$ )
+            div TVL &nbsp;
+            div.muted.small ( {{ $systemToUSD(tvl) }}$ )
           .stat-value {{ tvl }}
 
       .stat-container.mt-3(v-if="stakeTokenBalance")
@@ -34,9 +34,8 @@
 
       .divider
 
-      label(for="stake-amount") Stake Amount
-      .input-and-button.mb-3
-        el-input(v-model="amount" type="number"  id="stake-amount" placeholder="0.00")
+      TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount")
+      .action.pt-2
         AlcorButton(@click="stake" access) Stake
 </template>
 
@@ -46,6 +45,7 @@ import { mapState, mapGetters } from 'vuex'
 import PageHeader from '@/components/amm/PageHeader'
 import AlcorContainer from '@/components/AlcorContainer'
 import AlcorButton from '@/components/AlcorButton'
+import TokenInput from '@/components/amm/PoolTokenInput'
 
 const multiplier = bigInt(100000000)
 
@@ -54,6 +54,7 @@ export default {
     PageHeader,
     AlcorContainer,
     AlcorButton,
+    TokenInput,
   },
 
   data() {
@@ -227,19 +228,19 @@ export default {
       gap: 8px;
     }
   }
-  .input-and-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    .alcor-button {
-      padding: 8px 10px;
-    }
-  }
   .divider {
     border-bottom: 1px solid var(--border-color);
     margin: 20px 0;
     display: flex;
     width: 100%;
+  }
+  .action {
+    display: flex;
+    justify-content: flex-end;
+    .alcor-button {
+      padding: 8px 10px;
+      font-weight: bold;
+    }
   }
 }
 </style>
