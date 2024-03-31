@@ -15,9 +15,10 @@
           .stat-title.muted APR
           .stat-value {{ apr }}%
         .stat-container
-          .stat-title.muted TVL
+          .stat-title.muted
+            span TVL &nbsp;
+            span.muted.small ( {{ $systemToUSD(tvl) }}$ )
           .stat-value {{ tvl }}
-          .muted.small {{ $systemToUSD(tvl) }}$
 
       .stat-container.mt-3(v-if="stakeTokenBalance")
         .stat-title.muted Current Stake Balance
@@ -201,9 +202,12 @@ export default {
     display: flex;
     flex-direction: column;
     flex: 1;
+    justify-content: space-between;
     // background: var(--background-color-base);
     .stat-title {
       font-size: 16px;
+      display: flex;
+      align-items: center;
     }
     .stat-value {
       font-size: 24px;
