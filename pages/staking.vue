@@ -34,7 +34,8 @@
 
       TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount")
       .action.pt-2.pb-2
-        AlcorButton(@click="stake" access) Stake
+        AlcorButton(@click="stake" access)
+          span.fs-18 Stake
 </template>
 
 <script>
@@ -174,7 +175,7 @@ export default {
 
 <style scoped lang="scss">
 .staking-page {
-  max-width: 600px;
+  max-width: 540px;
   margin: auto;
 
   .page-content {
@@ -238,6 +239,7 @@ export default {
       --main-action-green: var(--main-green);
       padding: 8px 20px;
       font-weight: bold;
+      width: 100%;
     }
   }
 }
