@@ -198,12 +198,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.gg/WjWeHejW2h',
-        image: require('@/assets/images/swap-banner-1.gif'),
+        link: 'https://www.armsworld.xyz/',
+        image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(81,75,87,0.2)',
-          'rgba(130,125,138, 1)',
-          'rgba(127,122,130,1)',
+          'rgba(112,1,228,0.2)',
+          'rgba(72,56,100, 1)',
+          'rgba(71,54,32,1)',
         ],
       },
       {
