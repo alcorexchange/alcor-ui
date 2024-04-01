@@ -12,6 +12,9 @@
 
       .stats.mt-3
         .stat-container
+          .stat-title.muted Rate
+          .stat-value {{ rate }} WAX per LSW
+        .stat-container
           .stat-title.muted APR
           .stat-value {{ apr }}%
         .stat-container
@@ -95,6 +98,14 @@ export default {
       if (!this.stakemints) return 0
       return this.stakemints.totalNativeToken.quantity
     },
+
+    rate() {
+      if (!this.stakemints) return null
+
+      const { totalNativeToken, totalLiquidStakedToken } = this.stakemints
+
+      return Math.round(parseFloat(totalNativeToken.quantity) / parseFloat(totalLiquidStakedToken.quantity) * 1000) / 1000
+    }
   },
 
   mounted() {
