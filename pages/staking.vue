@@ -12,17 +12,14 @@
 
       StakingTabs(v-model="activeTab").mt-3
 
-      .recieve.mt-5.mb-4(v-if="receive")
-        .muted Available to Unstake:
+      .recieve.mt-4.mb-4(v-if="receive")
+        .muted Your Staked Amount:
         .end
           div {{ receive }} {{ network.baseToken.symbol }}
-          AlcorButton(@click="stake") Unstake
-      //- div( @click="unstake") Available to Unstake: {{ receive }} {{ network.baseToken.symbol }}
-      //-   el-button(size="mini" type="success").ml-2 unstake
+          //- AlcorButton(@click="stake") Unstake
 
       TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
-      //- TODO: Avral set it to LSW
-      TokenInput(:locked="true" label="Recieve" :token="{symbol: 'LSW', contract: 'lsw.alcor'}" v-model="amount" :readonly="true").mt-2
+      TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" v-model="amount").mt-2
 
       .action.pt-2.pb-2
         AuthOnly
@@ -36,6 +33,11 @@
         .stat-item
           .muted APR
           .value {{ apr }}%
+        .stat-item
+          .muted TVL
+          .value
+            span.muted.small ( {{ $systemToUSD(tvl) }}$ )
+            span &nbsp; {{ tvl }}
 
 </template>
 
