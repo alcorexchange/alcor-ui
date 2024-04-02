@@ -4,11 +4,14 @@
     PageHeader(title="Staking")
       template(#end) &nbsp;
     .page-content
-      h1.pt-3
+
+      h1.pt-4
         | Stake
         span.symbol  WAX
         |  to earn
         span.symbol  LSW
+
+      StakingTabs(v-model="activeTab").mt-3
 
       .stats.mt-3
         .stat-container
@@ -48,6 +51,7 @@ import PageHeader from '@/components/amm/PageHeader'
 import AlcorContainer from '@/components/AlcorContainer'
 import AlcorButton from '@/components/AlcorButton'
 import TokenInput from '@/components/amm/PoolTokenInput'
+import StakingTabs from '@/components/staking/StakingTabs.vue'
 
 const multiplier = bigInt(100000000)
 
@@ -57,12 +61,14 @@ export default {
     AlcorContainer,
     AlcorButton,
     TokenInput,
+    StakingTabs,
   },
 
   data() {
     return {
       amount: null,
       stakemints: null,
+      activeTab: 'stake', // possible values: stake, unstake
     }
   },
 
@@ -104,8 +110,10 @@ export default {
 
       const { totalNativeToken, totalLiquidStakedToken } = this.stakemints
 
-      return Math.round(parseFloat(totalNativeToken.quantity) / parseFloat(totalLiquidStakedToken.quantity) * 1000) / 1000
-    }
+      return (
+        Math.round((parseFloat(totalNativeToken.quantity) / parseFloat(totalLiquidStakedToken.quantity)) * 1000) / 1000
+      )
+    },
   },
 
   mounted() {
