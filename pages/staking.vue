@@ -16,7 +16,6 @@
         .muted Your Current Stake:
         .end
           div {{ receive }} {{ network.baseToken.symbol }}
-          //- AlcorButton(@click="stake") Unstake
       div(v-if="activeTab === 'stake'" key="stake")
         TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
         TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount * rate").mt-2
@@ -28,6 +27,9 @@
 
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
+
+        //- TODO: Update the description
+        ElAlert.mt-4(title="Your stake will be available at the next epoch boundary, meaning you will get them in maximum 2 days Your stake will be available at the next epoch boundary, meaning you will get them in maximum 2 days" type="info" :closable="false")
 
         .action.pt-2.pb-2
           AuthOnly
