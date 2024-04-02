@@ -1,34 +1,16 @@
 <template lang="pug">
 .staking-page.pt-5
+  .left
+    StakingContent(:apr="apr" :rate="rate" :tvl="tvl" :stakeTokenBalance="stakeTokenBalance")
+
   AlcorContainer
-    PageHeader(title="Staking")
-      template(#end) &nbsp;
+    //- PageHeader(title="Staking")
+    //-   template(#end) &nbsp;
     .page-content
 
-      h1.pt-4
-        | Stake
-        span.symbol  WAX
-        |  to earn
-        span.symbol  LSW
+      h2.pt-3 Earn LSW
 
       StakingTabs(v-model="activeTab").mt-3
-
-      .stats.mt-3
-        .stat-container
-          .stat-title.muted Rate
-          .stat-value {{ rate }} WAX per LSW
-        .stat-container
-          .stat-title.muted APR
-          .stat-value {{ apr }}%
-        .stat-container
-          .stat-title.muted
-            div TVL &nbsp;
-            div.muted.small ( {{ $systemToUSD(tvl) }}$ )
-          .stat-value {{ tvl }}
-
-      .stat-container.mt-3(v-if="stakeTokenBalance")
-        .stat-title.muted Current Stake Balance
-        .stat-value {{ stakeTokenBalance.amount }} {{ stakeTokenBalance.symbol }}
 
       .recieve.mt-5.mb-4(v-if="receive")
         .muted Available to Unstake:
@@ -41,9 +23,20 @@
       TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
       //- TODO: Avral set it to LSW
       TokenInput(:locked="true" label="Recieve" :token="{symbol: 'LSW', contract: 'lsw.alcor'}" v-model="amount" :readonly="true").mt-2
+
       .action.pt-2.pb-2
-        AlcorButton(@click="stake" access)
-          span.fs-18 Stake
+        AuthOnly
+          AlcorButton(@click="stake" access class="action-button")
+            span.fs-18 Stake
+
+      .stats.my-2.fs-14
+        .stat-item
+          .muted Rate
+          .value {{ rate }} WAX per LSW
+        .stat-item
+          .muted APR
+          .value {{ apr }}%
+
 </template>
 
 <script>
@@ -53,7 +46,9 @@ import PageHeader from '@/components/amm/PageHeader'
 import AlcorContainer from '@/components/AlcorContainer'
 import AlcorButton from '@/components/AlcorButton'
 import TokenInput from '@/components/amm/PoolTokenInput'
-import StakingTabs from '@/components/staking/StakingTabs.vue'
+import StakingTabs from '@/components/staking/StakingTabs'
+import StakingContent from '@/components/staking/StakingContent'
+import AuthOnly from '@/components/AuthOnly'
 
 const multiplier = bigInt(100000000)
 
@@ -64,6 +59,8 @@ export default {
     AlcorButton,
     TokenInput,
     StakingTabs,
+    StakingContent,
+    AuthOnly,
   },
 
   data() {
@@ -196,7 +193,9 @@ export default {
 
 <style scoped lang="scss">
 .staking-page {
-  max-width: 540px;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 80px;
   margin: auto;
 
   .page-content {
@@ -212,27 +211,12 @@ export default {
   }
 
   .stats {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr 1fr;
-  }
-  .stat-container {
-    box-shadow: 0 0 0 1px var(--bg-alter-2);
-    border-radius: 6px;
-    padding: 8px 12px;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    justify-content: space-between;
-    // background: var(--background-color-base);
-    .stat-title {
-      font-size: 16px;
+    gap: 8px;
+    .stat-item {
       display: flex;
-      align-items: center;
-    }
-    .stat-value {
-      font-size: 24px;
-      font-weight: bold;
+      justify-content: space-between;
     }
   }
 
@@ -261,6 +245,9 @@ export default {
       padding: 8px 20px;
       font-weight: bold;
       width: 100%;
+    }
+    .auth-only {
+      flex: 1;
     }
   }
 
