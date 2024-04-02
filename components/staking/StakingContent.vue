@@ -8,11 +8,17 @@
 
   p.muted Choose how much you want to stake and earn rewards.
 
+  StakingFAQ.pt-4
+
 </template>
 
 <script>
+import StakingFAQ from './StakingFAQ.vue'
 export default {
   name: 'StakingContent',
+  components: {
+    StakingFAQ,
+  },
 }
 </script>
 
