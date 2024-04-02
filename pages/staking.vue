@@ -28,11 +28,6 @@
 
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
-          //- template(#balance)
-            span(@click="unstakeAmount = stakeTokenBalance.amount" v-show="stakeTokenBalance") Available: {{ stakeTokenBalance.amount }}
-          //- template(#max)
-            AlcorButton.mr-1(style="background: transparent;" v-show="receive" @click="unstakeAmount = receive")
-              span MAX
 
         .action.pt-2.pb-2
           AuthOnly
