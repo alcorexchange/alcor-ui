@@ -184,11 +184,14 @@ export default {
       console.log('stake')
       const { contract, token } = this.network.staking
 
+      console.log('Receive ---->', this.receive, 'Unstake Amount ---->', this.unstakeAmount)
+
       try {
         await this.$store.dispatch('chain/transfer', {
           to: contract,
           contract: token.contract,
           actor: this.user.name,
+          // TODO: Should we use `receive` or `stakeTokenBalance.amount` ?
           quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
