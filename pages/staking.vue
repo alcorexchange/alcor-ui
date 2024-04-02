@@ -188,6 +188,8 @@ export default {
 
       console.log('Receive ---->', this.receive, 'Unstake Amount ---->', this.unstakeAmount)
 
+      if (!this.unstakeAmount) return
+
       try {
         await this.$store.dispatch('chain/transfer', {
           to: contract,
