@@ -193,7 +193,7 @@ export default {
           to: contract,
           contract: token.contract,
           actor: this.user.name,
-          // TODO: Should we use `receive` or `stakeTokenBalance.amount` ?
+          // TODO: Should we use `receive` or `stakeTokenBalance.amount` ? We are supposed to use `this.unstakeAmount`.
           quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
