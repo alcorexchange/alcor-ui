@@ -19,7 +19,7 @@
           //- AlcorButton(@click="stake") Unstake
       div(v-if="activeTab === 'stake'" key="stake")
         TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
-        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount").mt-2
+        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount * rate").mt-2
 
         .action.pt-2.pb-2
           AuthOnly
@@ -27,7 +27,7 @@
               span.fs-18 Stake
 
       div(v-else key="unstake")
-        TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
+        TokenInput(:locked="true" label="Unstake Amount" :token="network.baseToken" v-model="unstakeAmount").mt-4
           template(#balance)
             //- custom balance template to show available instead of balance of staking token
             span(@click="unstakeAmount = receive" v-show="receive") Available: {{ receive }}
@@ -190,6 +190,8 @@ export default {
     async unstake() {
       console.log('stake')
       const { contract, token } = this.network.staking
+
+      if (!this.unstakeAmount) return
 
       try {
         await this.$store.dispatch('chain/transfer', {
