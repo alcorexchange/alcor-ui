@@ -1,7 +1,7 @@
 <template lang="pug">
 .staking-page.pt-5
   .left
-    StakingContent(:apr="apr" :rate="rate" :tvl="tvl" :stakeTokenBalance="stakeTokenBalance")
+    StakingContent
 
   AlcorContainer
     //- PageHeader(title="Staking")
@@ -12,8 +12,8 @@
 
       StakingTabs(v-model="activeTab").mt-3
 
-      .recieve.mt-4.mb-4(v-if="receive")
-        .muted Your Staked Amount:
+      .recieve.fs-14.mt-4.mb-4(v-if="receive")
+        .muted Your Current Stake:
         .end
           div {{ receive }} {{ network.baseToken.symbol }}
           //- AlcorButton(@click="stake") Unstake
