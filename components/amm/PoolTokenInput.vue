@@ -1,5 +1,5 @@
 <template lang="pug">
-.pool-token-input(:class="{focused, notSelected: !!token}")
+.pool-token-input(:class="{focused, notSelected: !!token, readonly}")
   .label-and-balance
     .label {{ renderLabel }}
     .balance.disable(v-if="token" @click="onBalanceClick" :class="{clickable: !!user}") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
@@ -9,6 +9,8 @@
       placeholder='0.0',
       v-if='!disabled',
       :value='localValue',
+      :readonly="readonly"
+      :tabindex="readonly ? '-1': '0'"
       @input='input',
       @blur='onBlur',
       @focus="onFocus"
@@ -43,7 +45,7 @@ export default {
     WarnMessage,
   },
 
-  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked', 'label', 'disabledMessage'], // TODO Disabled
+  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked', 'label', 'disabledMessage', 'readonly'], // TODO Disabled
 
   data: () => ({
     localValue: null,
@@ -115,8 +117,12 @@ export default {
     min-height: 18px;
     align-items: center;
   }
+  .balance {
+    pointer-events: none;
+  }
   .balance.clickable {
     cursor: pointer;
+    pointer-events: auto;
     transition: color 0.2s;
     &:hover {
       color: var(--text-default);

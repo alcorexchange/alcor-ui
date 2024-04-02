@@ -38,7 +38,9 @@
       //- div( @click="unstake") Available to Unstake: {{ receive }} {{ network.baseToken.symbol }}
       //-   el-button(size="mini" type="success").ml-2 unstake
 
-      TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount")
+      TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
+      //- TODO: Avral set it to LSW
+      TokenInput(:locked="true" label="Recieve" :token="{symbol: 'LSW', contract: 'lsw.alcor'}" v-model="amount" :readonly="true").mt-2
       .action.pt-2.pb-2
         AlcorButton(@click="stake" access)
           span.fs-18 Stake
