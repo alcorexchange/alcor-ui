@@ -2,8 +2,9 @@
 .pool-token-input(:class="{focused, notSelected: !!token, readonly}")
   .label-and-balance
     .label {{ renderLabel }}
-    slot(name="balance")
-      .balance.disable(v-if="token" @click="onBalanceClick" :class="{clickable: !!user && !readonly}") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
+    .balance.disable(v-if="token" :class="{clickable: !!user && !readonly}")
+      slot(name="balance")
+        span(@click="onBalanceClick") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(

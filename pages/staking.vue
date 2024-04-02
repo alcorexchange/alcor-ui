@@ -17,14 +17,29 @@
         .end
           div {{ receive }} {{ network.baseToken.symbol }}
           //- AlcorButton(@click="stake") Unstake
+      div(v-if="activeTab === 'stake'" key="stake")
+        TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
+        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount").mt-2
 
-      TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
-      TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" v-model="amount").mt-2
+        .action.pt-2.pb-2
+          AuthOnly
+            AlcorButton(@click="stake" access class="action-button")
+              span.fs-18 Stake
 
-      .action.pt-2.pb-2
-        AuthOnly
-          AlcorButton(@click="stake" access class="action-button")
-            span.fs-18 Stake
+      div(v-else key="unstake")
+        TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
+          template(#balance)
+            //- custom balance template to show available instead of balance of staking token
+            span(@click="unstakeAmount = receive" v-show="receive") Available: {{ receive }}
+          template(#max)
+            //- custom max button instead of max of token balance
+            AlcorButton.mr-1(style="background: transparent;" v-show="receive" @click="unstakeAmount = receive")
+              span MAX
+
+        .action.pt-2.pb-2
+          AuthOnly
+            AlcorButton(@click="unstake" access class="action-button")
+              span.fs-18 Unstake
 
       .stats.my-2.fs-14
         .stat-item
@@ -68,6 +83,7 @@ export default {
   data() {
     return {
       amount: null,
+      unstakeAmount: null,
       stakemints: null,
       activeTab: 'stake', // possible values: stake, unstake
     }
