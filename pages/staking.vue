@@ -12,13 +12,13 @@
 
       StakingTabs(v-model="activeTab").mt-3
 
-      .recieve.fs-14.mt-4.mb-4(v-if="receive")
-        .muted Your Current Stake:
-        .end
-          div {{ receive }} {{ network.baseToken.symbol }}
+      //- .recieve.fs-14.mt-4.mb-4(v-if="receive")
+      //-   .muted Your Current Stake:
+      //-   .end
+      //-     div {{ receive }} {{ network.baseToken.symbol }}
       div(v-if="activeTab === 'stake'" key="stake")
         TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
-        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount * rate").mt-2
+        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount / rate").mt-2
 
         .action.pt-2.pb-2
           AuthOnly
@@ -37,6 +37,9 @@
               span.fs-18 Unstake
 
       .stats.my-2.fs-14
+        .stat-item
+          .muted Receive
+          .value {{ receive }} WAX
         .stat-item
           .muted Rate
           .value {{ rate }} WAX per LSW
@@ -102,9 +105,9 @@ export default {
     },
 
     receive() {
-      if (!this.stakeTokenBalance) return 0
+      if (!this.unstakeAmount) return 0
 
-      const liquidAmount = bigInt(this.stakeTokenBalance.amount.replace('.', ''))
+      const liquidAmount = bigInt(parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.precision).replace('.', ''))
 
       const receive = multiplier.times(liquidAmount).divide(this.getExchangeRateX8())
 
@@ -196,7 +199,7 @@ export default {
           contract: token.contract,
           actor: this.user.name,
           // TODO: Should we use `receive` or `stakeTokenBalance.amount` ? We are supposed to use `this.unstakeAmount`.
-          quantity: parseFloat(this.receive).toFixed(token.precision) + ' ' + token.symbol,
+          quantity: parseFloat(this.unstakeAmount).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
         this.amount = null
