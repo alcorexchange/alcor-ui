@@ -73,6 +73,13 @@ export default {
     },
 
     input(value) {
+      // keep only number and dot
+      value = value.replaceAll('[^\\d.]', '')
+
+      // remove comma ","
+      value = value.replaceAll(',', '')
+
+      console.log(value)
       if (isNaN(value)) return
 
       if (this.token && getPrecision(value) > this.token.decimals) return
