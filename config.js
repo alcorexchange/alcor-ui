@@ -487,6 +487,7 @@ const networks = {
       'brwl-brawlertoken',
       'wombat-wombattokens',
       'martia-martia',
+      'wuf-wuffi'
     ],
   },
 
