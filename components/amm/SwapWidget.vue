@@ -207,12 +207,12 @@ export default {
         ],
       },
       {
-        link: 'https://discord.gg/thehustle',
-        image: require('@/assets/images/swap-banner-2.png'),
+        link: 'https://game.nftbattleminers.com/?src=alcor',
+        image: require('@/assets/images/swap-banner-2.gif'),
         colors: [
-          'rgba(243,179,7,0.2)',
-          'rgba(54,40,96,1)',
-          'rgba(213,202,229, 1)',
+          'rgba(28,221,121,0.2)',
+          'rgba(66,30,29,1)',
+          'rgba(103,161,125, 1)',
         ],
       },
     ]
