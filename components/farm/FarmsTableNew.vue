@@ -62,6 +62,7 @@ export default {
   data: () => {
     return {
       extendedRow: null,
+      // Currently only 'apr' is supported.
       sortKey: 'apr',
       sortDirection: null,
     }
@@ -132,7 +133,7 @@ export default {
       this.sortDirection = sort.route
     },
 
-    // This function is being duplicated in FarmItemNew and here. Need to reuse.
+    // TODO: This function is being duplicated in FarmItemNew and here. Need to reuse.
     getAPR(incentive, farm) {
       // TODO Move to farms store
       const poolStats = farm.poolStats
