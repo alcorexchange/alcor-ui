@@ -3,7 +3,9 @@
   .table-header.farm-item
     .header-item Pair
     .header-item Total Staked
-    .header-item APR
+    .header-item
+      span APR
+      Sorter(:sortBy="sortKey" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item Total Reward
     .header-item Daily Rewards
     .header-item Rem. Time
@@ -16,7 +18,7 @@
         AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
   .table-items
     FarmItemNew(
-      v-for="farm in farmPools"
+      v-for="farm in sortedItems"
       :farm="farm"
       :finished="finished"
       @claimAll="claimAll"
@@ -29,6 +31,7 @@
 </template>
 
 <script>
+import { Big } from 'big.js'
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
@@ -37,6 +40,9 @@ import FarmsTableActions from '~/components/farm/FarmsTableActions'
 import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemNew from '~/components/farm/FarmItemNew.vue'
+import Sorter from '~/components/Sorter.vue'
+
+import { assetToAmount } from '~/utils'
 export default {
   name: 'FarmsTable',
   components: {
@@ -48,6 +54,7 @@ export default {
     AuthOnly,
     IncentiveItem,
     FarmItemNew,
+    Sorter,
   },
 
   props: ['noClaim', 'finished', 'farmPools'],
@@ -55,10 +62,19 @@ export default {
   data: () => {
     return {
       extendedRow: null,
+      sortKey: 'apr',
+      sortDirection: null,
     }
   },
 
   computed: {
+    sortedItems() {
+      const farms = [...(this.farmPools || [])]
+      const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
+      if (this.sortDirection === 1) return sorted
+      if (this.sortDirection === 0) return sorted.reverse()
+      return farms
+    },
     userStakes() {
       // TODO что то теперь состояние стейкед не обновляет
       const pool = this.farmPools.find((fp) => fp.id == this.extendedRow.id)
@@ -106,6 +122,43 @@ export default {
   },
 
   methods: {
+    handleSort(sort) {
+      console.log(sort)
+      this.sortDirection = sort.route
+    },
+
+    getAPR(incentive, farm) {
+      // TODO Move to farms store
+      const poolStats = farm.poolStats
+      if (!poolStats) return null
+
+      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
+        .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
+        .sqrt()
+        .round(0)
+
+      const stakedPercent = Math.max(
+        1,
+        Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
+      )
+
+      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
+      const dayRewardInUSD = parseFloat(
+        this.$tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract)
+      )
+
+      return ((dayRewardInUSD / tvlUSD) * 365 * 100).toFixed()
+    },
+
+    getAverageAPR(farm) {
+      const aprList = farm.incentives
+        .map((incentive) => this.getAPR(incentive, farm))
+        .filter((apr) => apr !== null)
+        .map((apr) => parseInt(apr))
+
+      return aprList.reduce((a, b) => a + b, 0) / aprList.length
+    },
+
     addLiquidity(row) {
       this.$router.push({
         path: '/positions/new',
@@ -287,6 +340,11 @@ export default {
   margin-top: 12px;
   border-radius: 6px;
   overflow: hidden;
+  .header-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
 }
 .table-header {
   color: #909399;
