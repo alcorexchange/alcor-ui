@@ -3,8 +3,8 @@
   .table-header.farm-item
     .header-item Pair
     .header-item Total Staked
-    .header-item
-      span APR
+    .header-item.sortable
+      span(@click="handleSort()") APR
       Sorter(:sortBy="sortKey" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item Total Reward
     .header-item Daily Rewards
@@ -70,7 +70,7 @@ export default {
   computed: {
     sortedItems() {
       const farms = [...(this.farmPools || [])]
-      const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
+      const sorted = farms.toSorted((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
       if (this.sortDirection === 1) return sorted
       if (this.sortDirection === 0) return sorted.reverse()
       return farms
@@ -123,7 +123,12 @@ export default {
 
   methods: {
     handleSort(sort) {
-      console.log(sort)
+      if (!sort) {
+        if (this.sortDirection === null) this.sortDirection = 1
+        else if (this.sortDirection === 1) this.sortDirection = 0
+        else this.sortDirection = null
+        return
+      }
       this.sortDirection = sort.route
     },
 
@@ -344,6 +349,9 @@ export default {
     display: flex;
     align-items: center;
     gap: 4px;
+    &.sortable {
+      cursor: pointer;
+    }
   }
 }
 .table-header {
