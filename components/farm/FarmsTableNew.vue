@@ -73,7 +73,7 @@ export default {
       const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
       if (this.sortDirection === 1) return sorted
       if (this.sortDirection === 0) return sorted.reverse()
-      return farms
+      return this.farmPools
     },
     userStakes() {
       // TODO что то теперь состояние стейкед не обновляет
