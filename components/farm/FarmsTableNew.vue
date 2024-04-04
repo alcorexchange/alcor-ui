@@ -70,7 +70,7 @@ export default {
   computed: {
     sortedItems() {
       const farms = [...(this.farmPools || [])]
-      const sorted = farms.toSorted((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
+      const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
       if (this.sortDirection === 1) return sorted
       if (this.sortDirection === 0) return sorted.reverse()
       return farms
@@ -132,6 +132,7 @@ export default {
       this.sortDirection = sort.route
     },
 
+    // This function is being duplicated in FarmItemNew and here. Need to reuse.
     getAPR(incentive, farm) {
       // TODO Move to farms store
       const poolStats = farm.poolStats
@@ -158,7 +159,9 @@ export default {
     getAverageAPR(farm) {
       const aprList = farm.incentives
         .map((incentive) => this.getAPR(incentive, farm))
+        // remove nulls
         .filter((apr) => apr !== null)
+        // convert to number
         .map((apr) => parseInt(apr))
 
       return aprList.reduce((a, b) => a + b, 0) / aprList.length
