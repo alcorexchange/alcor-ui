@@ -79,7 +79,6 @@ export default {
       // remove comma ","
       value = value.replaceAll(',', '')
 
-      console.log(value)
       if (isNaN(value)) return
 
       if (this.token && getPrecision(value) > this.token.decimals) return
