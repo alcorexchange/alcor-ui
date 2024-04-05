@@ -252,7 +252,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [495],
+    PINNED_MARKETS: [493],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
