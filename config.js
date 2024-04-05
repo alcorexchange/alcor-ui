@@ -451,8 +451,8 @@ const networks = {
       'bosibc.io',
       'junkoqwertyu',
       'orderofomnis',
-      'bmpm.gm',
-      'bobocoin.gm'
+      // 'bmpm.gm',
+      // 'bobocoin.gm'
     ],
 
     CEX_CONTRACTS: [
