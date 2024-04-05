@@ -3,7 +3,7 @@
   ElCollapse(v-model="active" accordion)
     ElCollapseItem(v-for="item in items"  :name="item.name")
       template(#title)
-        span.p-3 {{ item.title }}
+        div.p-3 {{ item.title }}
       p.p-3 {{ item.description }}
 </template>
 
@@ -78,6 +78,11 @@ export default {
       overflow: hidden;
     }
     .el-collapse-item__header {
+      line-height: 1.5;
+      height: auto;
+    }
+    .el-collapse-item__content {
+      border-left: 1px solid var(--main-action-green);
     }
   }
 }
