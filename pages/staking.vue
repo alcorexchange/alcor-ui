@@ -3,12 +3,12 @@
   .left
     StakingContent
 
-  AlcorContainer
+  .page-content
     //- PageHeader(title="Staking")
     //-   template(#end) &nbsp;
-    .page-content
+    AlcorContainer.alcor-container
 
-      h2.pt-3 Earn LSW
+      h2.pt-1 Earn LSW
 
       StakingTabs(v-model="activeTab").mt-3
 
@@ -107,7 +107,9 @@ export default {
     receive() {
       if (!this.unstakeAmount) return 0
 
-      const liquidAmount = bigInt(parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.precision).replace('.', ''))
+      const liquidAmount = bigInt(
+        parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.precision).replace('.', '')
+      )
 
       const receive = multiplier.times(liquidAmount).divide(this.getExchangeRateX8())
 
@@ -219,8 +221,8 @@ export default {
   gap: 80px;
   margin: auto;
 
-  .page-content {
-    padding: 0 8px;
+  .alcor-container {
+    padding: 14px !important;
   }
 
   h1 {
@@ -275,6 +277,15 @@ export default {
   @media only screen and (max-width: 600px) {
     .stats {
       grid-template-columns: 1fr;
+    }
+  }
+  @media only screen and (max-width: 980px) {
+    display: flex;
+    flex-direction: column-reverse;
+    .page-content {
+      width: 100%;
+      max-width: 480px;
+      margin: auto;
     }
   }
 }
