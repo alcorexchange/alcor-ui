@@ -29,7 +29,7 @@
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
 
         //- TODO: Update the description
-        ElAlert.mt-4(title="Your stake will be available at the next epoch boundary, meaning you will get them in maximum 2 days Your stake will be available at the next epoch boundary, meaning you will get them in maximum 2 days" type="info" :closable="false")
+        ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
 
         .action.pt-2.pb-2
           AuthOnly
