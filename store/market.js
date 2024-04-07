@@ -502,6 +502,7 @@ export const actions = {
     const calc = balance.times(percent).div(100).round(prec, 0)
     return calc.toString()
   },
+
   async changePercentBuy({ state, commit, dispatch, getters }, params) {
     commit('SET_PERCENT_BUY', params.percent)
     const balance = getters.baseBalance
@@ -564,7 +565,7 @@ export const actions = {
           }, 1000)
         })
 
-      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name, ticker: state.symbol })
 
       return { err: false, desc: res }
     } catch (e) {
@@ -628,7 +629,7 @@ export const actions = {
           }, 1000)
         })
 
-      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name })
+      this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name, ticker: state.symbol })
 
       return { err: false, desc: res }
     } catch (e) {
