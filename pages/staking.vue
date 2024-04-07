@@ -37,7 +37,7 @@
               span.fs-18 Unstake
 
       .stats.my-2.fs-14
-        .stat-item
+        .stat-item(v-if="activeTab === 'unstake'")
           .muted Receive
           .value {{ receive }} WAX
         .stat-item
