@@ -81,7 +81,11 @@ export default {
 
       if (isNaN(value)) return
 
-      if (this.token && getPrecision(value) > this.token.decimals) return
+      if (this.token && getPrecision(value) > this.token.decimals) {
+        // TO fixed precision
+        const [num, fraction] = value.split('.')
+        value = num + '.' + fraction.slice(0, this.token.decimals)
+      }
 
       this.localValue = value
       this.$emit('input', value)

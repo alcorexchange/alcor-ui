@@ -1,5 +1,6 @@
 import { createClient } from 'redis'
 import fetch from 'node-fetch'
+import { fetchAllRows, getChainRpc } from '../../../utils/eosjs'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
 import { Match, Market } from '../../models'
@@ -143,13 +144,11 @@ export async function getMarketStats(network, market_id) {
 export async function updateMarkets(network) {
   console.log('update market for ', network.name)
 
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
+  const rpc = getChainRpc(network.name)
 
-  const rpc = new JsonRpc(nodes, { fetch })
-
-  let r
+  let rows
   try {
-    r = await rpc.get_table_rows({
+    rows = await fetchAllRows(rpc, {
       code: network.contract,
       scope: network.contract,
       table: 'markets',
@@ -165,7 +164,6 @@ export async function updateMarkets(network) {
     return
   }
 
-  const { rows } = r
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)

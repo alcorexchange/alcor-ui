@@ -23,6 +23,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'EOS',
       precision: 4,
+      id: 'eos-eosio.token'
     },
 
     marketCreationFee: '10.0000 EOS',
@@ -203,6 +204,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'XPR',
       precision: 4,
+      id: 'xpr-eosio.token'
     },
 
     marketCreationFee: '1000.0000 XPR',
@@ -279,6 +281,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'UTX',
       precision: 4,
+      id: 'utx-eosio.token'
     },
 
     marketCreationFee: '1000.0000 UTX',
@@ -362,6 +365,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'WAX',
       precision: 8,
+      id: 'wax-eosio.token'
     },
 
     //farmCreationFee: { amount: 5, token: 'usdt-usdt.alcor' },
@@ -500,6 +504,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'TLOS',
       precision: 4,
+      id: 'tlos-eosio.token'
     },
 
     marketCreationFee: '100.0000 TLOS',
@@ -620,6 +625,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'WAX',
       precision: 8,
+      id: 'wax-eosio.token'
     },
     marketCreationFee: '3.00000000 WAX',
     feeAccount: '',
@@ -686,6 +692,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'EOS',
       precision: 4,
+      id: 'eos-eosio.token'
     },
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'evodextester',
@@ -736,6 +743,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'EOS',
       precision: 4,
+      id: 'eos-eosio.token'
     },
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'avral.pro',
