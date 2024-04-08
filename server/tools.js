@@ -11,7 +11,7 @@ import { fetchAllRows } from '../utils/eosjs'
 import { Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
-import { initialUpdate as swapInitialUpdate } from './services/swapV2Service'
+import { initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
 
 
 const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
@@ -64,11 +64,15 @@ async function main() {
   }
 
   if (command == 'updatePools') {
-    const market_id = process.argv[4]
+    const poolId = process.argv[4]
     const network = config.networks[process.argv[3]]
     if (!network) { console.log('No network provided!'); process.exit() }
 
-    await swapInitialUpdate(network.name)
+    if (poolId) {
+      await updatePool(network.name, poolId)
+    } else {
+      await swapInitialUpdate(network.name)
+    }
   }
 
   if (command == 'load_global_analytics') {

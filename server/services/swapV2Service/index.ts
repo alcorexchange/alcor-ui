@@ -199,7 +199,7 @@ async function updatePositions(chain: string, poolId: number) {
   //return await Position.bulkWrite(bulkOps)
 }
 
-async function updatePool(chain: string, poolId: number) {
+export async function updatePool(chain: string, poolId: number) {
   console.log('update pool', poolId)
   const network = networks[chain]
   const rpc = getFailOverRpc(network)

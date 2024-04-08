@@ -239,7 +239,7 @@ function calculateUserFarms(incentives, plainUserStakes) {
   }
 
   return userStakes
-},
+}
 
 account.get('/:account', async (req, res) => {
   const network: Network = req.app.get('network')
