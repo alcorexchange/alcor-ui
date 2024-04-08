@@ -564,5 +564,23 @@
         "marketing@wax-pepe.vip"
       ],
       "description": "in a world saturated with transient meme tokens, $KEK distinguishes itself as a deflationary powerhouse. Each transaction fortifies the ecosystem, burning 3% to ensure perpetual scarcity and redistributing 2% to holders, fostering a thriving community of growth and prosperity"
+  },
+  "WUF@wuffi": {
+      "name": "WUFFI",
+      "website": {
+          "link": "https://www.wuffi.io/",
+          "name": "WUFFI"
+      },
+      "tags": [
+          "Meme Coin",
+          "Gaming",
+          "NFT"
+      ],
+      "socials": [
+          "https://t.me/wuffi_token",
+          "https://twitter.com/WUFFI_Inu",
+          "https://discord.com/invite/Xtsde6p9m7"
+      ],
+      "description": "Next-gen meme & cross-chain coin on Solana & wax_io. Bark Loud, Bark Proud! 🦴"
   }
 }
