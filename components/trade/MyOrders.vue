@@ -61,10 +61,9 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
     template(slot-scope='{ row }')
       span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
 
-  el-table-column(:label='$t("Action")', align='right' width="160")
+  el-table-column(:label='$t("Action")', align='right' width="70")
     template(v-if="!isMobile" slot="header")
-      span.mr-1 {{ $t('Action') }}
-      span(@click="cancelAll").cancel.pointer.hoverable ({{ $t('cancel all') }})
+      div(@click="cancelAll").cancel.pointer.hoverable {{ $t('cancel all') }}
 
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').cancel {{ $t('Cancel') }}
