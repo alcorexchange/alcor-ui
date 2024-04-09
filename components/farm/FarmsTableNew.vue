@@ -10,12 +10,7 @@
     .header-item Daily Rewards
     .header-item Rem. Time
     .header-item
-    .header-item.all-stake-actions
-      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-        el-tooltip(content="Unstake your finished farms to free account RAM")
-          AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
-      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
-        AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
+    .header-item
   .table-items
     FarmItemNew(
       v-for="farm in sortedItems"
@@ -81,44 +76,6 @@ export default {
       const pool = this.farmPools.find((fp) => fp.id == this.extendedRow.id)
 
       return pool.incentives
-    },
-
-    stakedStakes() {
-      const stakes = []
-      this.$store.getters['farms/farmPools']
-        // pools
-        .forEach((p) =>
-          p.incentives
-            .filter((i) => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
-            //incentives
-            .forEach((i) =>
-              i.incentiveStats
-                .filter((i) => i.staked)
-                // staked stats
-                .forEach((s) => stakes.push(s))
-            )
-        )
-
-      return stakes
-    },
-
-    unstakedStakes() {
-      const stakes = []
-      this.$store.getters['farms/farmPools']
-        // pools
-        .forEach((p) =>
-          p.incentives
-            .filter((i) => !i.isFinished && i.stakeStatus != 'staked' && i.incentiveStats.length > 0)
-            //incentives
-            .forEach((i) =>
-              i.incentiveStats
-                .filter((i) => !i.staked && i.position.inRange)
-                // staked stats
-                .forEach((s) => stakes.push(s))
-            )
-        )
-
-      return stakes
     },
   },
 

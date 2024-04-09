@@ -27,6 +27,12 @@
 
     .right
       el-button.mr-auto(size="small" outline @click="$router.push('/farm/create')").hover-opacity Create farm
+      .all-stake-actions
+        el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+          el-tooltip(content="Unstake your finished farms to free account RAM")
+            AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
+        el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+          AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
 
       //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
       //-   el-tooltip(content="Unstake your finished farms to free account RAM")
@@ -75,6 +81,44 @@ export default {
     //       }))
     //   return count
     // },
+
+    stakedStakes() {
+      const stakes = []
+      this.$store.getters['farms/farmPools']
+        // pools
+        .forEach((p) =>
+          p.incentives
+            .filter((i) => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => i.staked)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
+        )
+
+      return stakes
+    },
+
+    unstakedStakes() {
+      const stakes = []
+      this.$store.getters['farms/farmPools']
+        // pools
+        .forEach((p) =>
+          p.incentives
+            .filter((i) => !i.isFinished && i.stakeStatus != 'staked' && i.incentiveStats.length > 0)
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => !i.staked && i.position.inRange)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
+        )
+
+      return stakes
+    },
   },
 
   watch: {
