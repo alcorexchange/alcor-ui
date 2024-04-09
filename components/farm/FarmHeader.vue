@@ -4,17 +4,18 @@
     .left
       el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" size="medium" prefix-icon='el-icon-search' clearable)
       AlcorSwitch.alcor-switch(
-        one="All Farms"
-        two="My Farms"
-        :active="$store.state.farms.stakedOnly ? 'two' : 'one'"
-        @toggle="$store.commit('farms/setStakedOnly', $store.state.farms.stakedOnly ? false : true)"
-      )
-      el-switch.farm-switch(
         v-if="!hideStakedOnly"
+        one="Active"
+        two="Finished"
+        :active="finished ? 'two' : 'one'"
+        @toggle="toggle"
+      )
+
+      el-switch.farm-switch(
         active-color="var(--main-action-green)"
-        active-text="Show Finished"
-        :value="finished"
-        @change="toggle"
+        active-text="Staked Only"
+        :value="$store.state.farms.stakedOnly"
+        @change="$store.commit('farms/setStakedOnly', $event)"
       )
 
       el-switch.farm-switch(
