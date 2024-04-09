@@ -23,6 +23,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'EOS',
       precision: 4,
+      id: 'eos-eosio.token'
     },
 
     marketCreationFee: '10.0000 EOS',
@@ -203,6 +204,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'XPR',
       precision: 4,
+      id: 'xpr-eosio.token'
     },
 
     marketCreationFee: '1000.0000 XPR',
@@ -252,7 +254,7 @@ const networks = {
     withdraw: {},
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [282],
+    PINNED_MARKETS: [493],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
@@ -279,6 +281,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'UTX',
       precision: 4,
+      id: 'utx-eosio.token'
     },
 
     marketCreationFee: '1000.0000 UTX',
@@ -362,6 +365,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'WAX',
       precision: 8,
+      id: 'wax-eosio.token'
     },
 
     //farmCreationFee: { amount: 5, token: 'usdt-usdt.alcor' },
@@ -452,8 +456,8 @@ const networks = {
       'bosibc.io',
       'junkoqwertyu',
       'orderofomnis',
-      'bmpm.gm',
-      'bobocoin.gm'
+      // 'bmpm.gm',
+      // 'bobocoin.gm'
     ],
 
     CEX_CONTRACTS: [
@@ -488,6 +492,7 @@ const networks = {
       'brwl-brawlertoken',
       'wombat-wombattokens',
       'martia-martia',
+      'wuf-wuffi'
     ],
   },
 
@@ -500,6 +505,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'TLOS',
       precision: 4,
+      id: 'tlos-eosio.token'
     },
 
     marketCreationFee: '100.0000 TLOS',
@@ -620,6 +626,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'WAX',
       precision: 8,
+      id: 'wax-eosio.token'
     },
     marketCreationFee: '3.00000000 WAX',
     feeAccount: '',
@@ -686,6 +693,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'EOS',
       precision: 4,
+      id: 'eos-eosio.token'
     },
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'evodextester',
@@ -736,6 +744,7 @@ const networks = {
       contract: 'eosio.token',
       symbol: 'EOS',
       precision: 4,
+      id: 'eos-eosio.token'
     },
     marketCreationFee: '3.0000 EOS',
     feeAccount: 'avral.pro',
