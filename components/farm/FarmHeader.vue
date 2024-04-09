@@ -45,7 +45,7 @@
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
       el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
         AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
-      el-badge(v-if="totalRewards.length" type="success" :value="totalRewards.length")
+      el-badge(v-if="totalRewards.length && !finished" type="success" :value="totalRewards.length")
         el-tooltip
           AlcorButton.farm-claim-button(access @click="claimTotal") Claim All Rewards
           template(#content)
@@ -301,6 +301,7 @@ export default {
 .right {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   .gradient-border {
     &:hover {
