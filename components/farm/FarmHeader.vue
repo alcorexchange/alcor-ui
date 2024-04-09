@@ -45,6 +45,10 @@
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
       el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
         AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
+      el-badge(type="success" :value="stakedStakes.length")
+        el-tooltip()
+          AlcorButton.farm-claim-button(access) Claim All Rewards
+          template(#content) Content of claim all
 
       //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
       //-   el-tooltip(content="Unstake your finished farms to free account RAM")
