@@ -28,6 +28,7 @@ export default {
   },
   methods: {
     calcDimentions() {
+      console.log('calculating dimention')
       this.$nextTick(() => {
         this.oneWidth = this.$refs.one.getBoundingClientRect().width
         this.twoWidth = this.$refs.two.getBoundingClientRect().width
@@ -45,6 +46,12 @@ export default {
     },
     two() {
       this.calcDimentions()
+    },
+    active: {
+      handler() {
+        this.calcDimentions()
+      },
+      immediate: true,
     },
   },
 }
