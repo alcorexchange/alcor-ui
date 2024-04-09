@@ -278,8 +278,8 @@ export const actions = {
     try {
       const sellOrders = state.accountLimits.sellorders
       const buyOrders = state.accountLimits.buyorders
-      const sellOrdersMarkets = Array.isArray(sellOrders) ? sellOrders.map(o => o.key) : []
-      const buyOrdersMarkets = Array.isArray(buyOrders) ? buyOrders.map(o => o.key) : []
+      const sellOrdersMarkets = Array.isArray(sellOrders) ? sellOrders.map(o => o.key ?? o.first) : []
+      const buyOrdersMarkets = Array.isArray(buyOrders) ? buyOrders.map(o => o.key ?? o.first) : []
 
       const markets = new Set([...sellOrdersMarkets, ...buyOrdersMarkets])
 

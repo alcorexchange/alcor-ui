@@ -89,7 +89,7 @@ export const getters = {
       }
     }
 
-    return orders
+    return orders.sort((a, b) => b.unit_price - a.unit_price)
   },
 
   pairsCount(state, getters, rootState) {

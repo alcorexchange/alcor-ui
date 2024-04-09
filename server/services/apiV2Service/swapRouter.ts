@@ -9,14 +9,11 @@ import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // In seconds
+const ROUTES_CACHE_TIMEOUT = 60 * 1 // In seconds
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 
-// storing pools globally for access by getRoute(for cache)
-let POOLS = []
-
 const ROUTES = {}
-function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
+function getCachedRoutes(chain, POOLS, inputTokenID, outputTokenID, maxHops = 2) {
   const cache_key = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
 
   if (ROUTES[cache_key]) {
@@ -58,14 +55,13 @@ swapRouter.get('/getRoute', async (req, res) => {
   const exactIn = trade_type == 'EXACT_INPUT'
 
   // Updating global pools
-  const allPools = await getPools(network.name)
+  const allPools = (await getPools(network.name, true))
+  const POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
 
   const inputToken = allPools.find(p => p.tokenA.id == input)?.tokenA || allPools.find(p => p.tokenB.id == input)?.tokenB
   const outputToken = allPools.find(p => p.tokenA.id == output)?.tokenA || allPools.find(p => p.tokenB.id == output)?.tokenB
 
   if (!inputToken || !outputToken) return res.status(403).send('Invalid input/output')
-
-  POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
 
   amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
   if (!amount) return res.status(403).send('Invalid amount')
@@ -74,7 +70,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   let trade: any
 
-  const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
+  const routes = getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
 
   try {
     if (v2) {

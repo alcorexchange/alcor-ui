@@ -478,7 +478,8 @@ const networks = {
       'usdt-usdt.alcor',
       //'eos-ibc.wt.eos',
       //'wombat-wombattokens',
-      'cred-musictoken',
+      //'cred-musictoken',
+      'wuf-wuffi',
       'tlm-alien.worlds',
     ],
 
