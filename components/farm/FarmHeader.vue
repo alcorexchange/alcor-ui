@@ -164,6 +164,7 @@ export default {
       return stakes
     },
 
+    // None Finished total rewards
     totalRewards() {
       const reward = {}
 
