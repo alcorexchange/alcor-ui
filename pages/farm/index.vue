@@ -1,6 +1,6 @@
 <template lang="pug">
   .farms-page
-    FarmHeader(:search.sync="search" :finished.sync="finished" :hideCreateNew="true").mb-2.mt-4
+    FarmHeader(:search.sync="search" :finished.sync="finished" :hideCreateNew="true" :farmPools="farmPools").mb-2.mt-4
     FarmsTableNew(:farmPools="farmPools" :finished="finished")
 </template>
 
@@ -46,7 +46,7 @@ export default {
       const onlyContracts = this.$route.query?.contracts?.split(',') || []
 
       if (onlyContracts.length > 0) {
-        pools = pools.filter(p => {
+        pools = pools.filter((p) => {
           return onlyContracts.includes(p.tokenA.contract) || onlyContracts.includes(p.tokenB.contract)
         })
       }
@@ -63,10 +63,7 @@ export default {
 
       pools = pools.filter((p) => {
         const slug =
-          p.tokenA.contract +
-          p.tokenA.quantity.split(' ')[1] +
-          p.tokenB.contract +
-          p.tokenB.quantity.split(' ')[1]
+          p.tokenA.contract + p.tokenA.quantity.split(' ')[1] + p.tokenB.contract + p.tokenB.quantity.split(' ')[1]
         return slug.toLowerCase().includes(this.search.toLowerCase())
       })
 

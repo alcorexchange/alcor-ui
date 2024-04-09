@@ -45,11 +45,17 @@
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
       el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
         AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
-      el-badge(type="success" :value="stakedStakes.length")
-        el-tooltip()
-          AlcorButton.farm-claim-button(access) Claim All Rewards
-          template(#content) Content of claim all
-
+      el-badge(v-if="totalRewards.length" type="success" :value="totalRewards.length")
+        el-tooltip
+          AlcorButton.farm-claim-button(access @click="claimTotal") Claim All Rewards
+          template(#content)
+            .mb-2 Total Rewards
+            .farm-total-rewards
+              .reward(v-for="reward in totalRewards")
+                TokenImage.icon(:src="$tokenLogo(reward.symbol, reward.contract)" height="16")
+                .d-flex.gap-4
+                  span {{ reward.amount }}
+                  span.muted {{ reward.symbol }}
       //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
       //-   el-tooltip(content="Unstake your finished farms to free account RAM")
       //-     GradientBorder.gradient-border
@@ -66,6 +72,8 @@ import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
 import AlcorButton from '@/components/AlcorButton'
 import GradientBorder from '@/components/alcor-element/GradientBorder'
+import TokenImage from '~/components/elements/TokenImage'
+import { getPrecision } from '~/utils'
 export default {
   name: 'FarmHeader',
 
@@ -74,9 +82,10 @@ export default {
     AlcorLink,
     AlcorButton,
     GradientBorder,
+    TokenImage,
   },
 
-  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll'],
+  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll', 'farmPools'],
 
   data: () => {
     return {
@@ -100,6 +109,7 @@ export default {
     //   return count
     // },
 
+    // The finished stakes that should be unstaked
     stakedStakes() {
       const stakes = []
       this.$store.getters['farms/farmPools']
@@ -119,6 +129,7 @@ export default {
       return stakes
     },
 
+    // None finished incentives that should be staked
     unstakedStakes() {
       const stakes = []
       this.$store.getters['farms/farmPools']
@@ -137,6 +148,56 @@ export default {
 
       return stakes
     },
+
+    // None finished stakes that can be claimed
+    noneFinishedStakes() {
+      const stakes = []
+
+      this.farmPools.forEach((pool) => {
+        pool.incentives
+          .filter((incentive) => !incentive.isFinished && incentive.stakeStatus != 'notStaked')
+          .forEach((incentive) => {
+            incentive.incentiveStats.filter((s) => s.staked).forEach((s) => stakes.push(s))
+          })
+      })
+
+      return stakes
+    },
+
+    totalRewards() {
+      const reward = {}
+
+      const precisions = {}
+
+      this.farmPools.forEach((farm) => {
+        farm.incentives.forEach((incentive) => {
+          incentive.incentiveStats
+            .filter((s) => s.staked)
+            .forEach((s) => {
+              const [amount, symbol] = s.farmedReward.split(' ')
+              precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
+
+              if (reward[symbol]) {
+                reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
+              } else {
+                reward[symbol] = {
+                  symbol,
+                  amount: parseFloat(amount),
+                  precision: precisions[symbol],
+                  contract: incentive.reward.contract,
+                }
+              }
+            })
+        })
+      })
+
+      return Object.values(reward).map((r) => {
+        return {
+          ...r,
+          amount: r.amount?.toFixed(r.precision),
+        }
+      })
+    },
   },
 
   watch: {
@@ -146,6 +207,23 @@ export default {
   },
 
   methods: {
+    async claimTotal() {
+      const stakes = this.noneFinishedStakes
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'getreward',
+        })
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
+    },
+
     toggle() {
       this.$emit('update:finished', !this.finished)
     },
@@ -275,6 +353,20 @@ export default {
   .farms-search-input {
     width: 100%;
     max-width: 100%;
+  }
+}
+</style>
+
+<style lang="scss">
+// this element is on the body, style is global
+.farm-total-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  .reward {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }
 </style>
