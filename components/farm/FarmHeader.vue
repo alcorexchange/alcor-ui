@@ -85,7 +85,7 @@ export default {
     TokenImage,
   },
 
-  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll', 'farmPools'],
+  props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll'],
 
   data: () => {
     return {
@@ -153,7 +153,7 @@ export default {
     noneFinishedStakes() {
       const stakes = []
 
-      this.farmPools.forEach((pool) => {
+      this.$store.getters['farms/farmPools'].forEach((pool) => {
         pool.incentives
           .filter((incentive) => !incentive.isFinished && incentive.stakeStatus != 'notStaked')
           .forEach((incentive) => {
@@ -169,7 +169,7 @@ export default {
 
       const precisions = {}
 
-      this.farmPools.forEach((farm) => {
+      this.$store.getters['farms/farmPools'].forEach((farm) => {
         farm.incentives.forEach((incentive) => {
           incentive.incentiveStats
             .filter((s) => s.staked)
