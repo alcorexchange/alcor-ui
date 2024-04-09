@@ -18,21 +18,33 @@
         @change="$store.commit('farms/setStakedOnly', $event)"
       )
 
-      el-switch.farm-switch(
-        active-color="var(--main-action-green)"
-        active-text="Advanced Mode"
-        :value="$store.state.farms.view === 'ADVANCED'"
-        @change="$store.commit('farms/toggleView')"
-      )
+      //- el-switch.farm-switch(
+      //-   active-color="var(--main-action-green)"
+      //-   active-text="Advanced Mode"
+      //-   :value="$store.state.farms.view === 'ADVANCED'"
+      //-   @change="$store.commit('farms/toggleView')"
+      //- )
 
     .right
-      el-button.mr-auto(size="small" outline @click="$router.push('/farm/create')").hover-opacity Create farm
-      .all-stake-actions
-        el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-          el-tooltip(content="Unstake your finished farms to free account RAM")
-            AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
-        el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
-          AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
+      el-popover(trigger="click" placement="bottom")
+        template(#reference)
+          AlcorButton(iconOnly)
+            i.el-icon-s-tools
+        .advanced-mode-container
+          span View Mode
+          div
+            AlcorSwitch.alcor-switch(
+              one="Simple View"
+              two="Advanced View"
+              :active="$store.state.farms.view === 'ADVANCED' ? 'two' : 'one'"
+              @toggle="$store.commit('farms/toggleView')"
+            )
+      AlcorButton(@click="$router.push('/farm/create')") Create farm
+      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+        el-tooltip(content="Unstake your finished farms to free account RAM")
+          AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
+      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+        AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
 
       //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
       //-   el-tooltip(content="Unstake your finished farms to free account RAM")
