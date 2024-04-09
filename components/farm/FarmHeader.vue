@@ -170,25 +170,27 @@ export default {
       const precisions = {}
 
       this.$store.getters['farms/farmPools'].forEach((farm) => {
-        farm.incentives.forEach((incentive) => {
-          incentive.incentiveStats
-            .filter((s) => s.staked)
-            .forEach((s) => {
-              const [amount, symbol] = s.farmedReward.split(' ')
-              precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
+        farm.incentives
+          .filter((i) => !i.isFinished)
+          .forEach((incentive) => {
+            incentive.incentiveStats
+              .filter((s) => s.staked)
+              .forEach((s) => {
+                const [amount, symbol] = s.farmedReward.split(' ')
+                precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
 
-              if (reward[symbol]) {
-                reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
-              } else {
-                reward[symbol] = {
-                  symbol,
-                  amount: parseFloat(amount),
-                  precision: precisions[symbol],
-                  contract: incentive.reward.contract,
+                if (reward[symbol]) {
+                  reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
+                } else {
+                  reward[symbol] = {
+                    symbol,
+                    amount: parseFloat(amount),
+                    precision: precisions[symbol],
+                    contract: incentive.reward.contract,
+                  }
                 }
-              }
-            })
-        })
+              })
+          })
       })
 
       return Object.values(reward).map((r) => {
