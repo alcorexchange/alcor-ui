@@ -26,13 +26,13 @@
       //- )
 
     .right
-      el-popover(trigger="click" placement="bottom")
+      el-popover(trigger="click" placement="bottom" v-model="advancedSettingActive")
         template(#reference)
           AlcorButton(iconOnly)
             i.el-icon-s-tools
         .advanced-mode-container
           span View Mode
-          div
+          div(v-if="advancedSettingActive")
             AlcorSwitch.alcor-switch(
               one="Simple View"
               two="Advanced View"
@@ -77,6 +77,8 @@ export default {
   data: () => {
     return {
       search: '',
+      // this data is added to hide the AlcorSwitch component when closed, the popover keeps the content in render causing width calculations of switch not work.
+      advancedSettingActive: false,
     }
   },
 

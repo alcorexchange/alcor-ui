@@ -28,10 +28,9 @@ export default {
   },
   methods: {
     calcDimentions() {
-      console.log('calculating dimention')
       this.$nextTick(() => {
-        this.oneWidth = this.$refs.one.getBoundingClientRect().width
-        this.twoWidth = this.$refs.two.getBoundingClientRect().width
+        this.oneWidth = this.$refs.one?.getBoundingClientRect().width || 0
+        this.twoWidth = this.$refs.two?.getBoundingClientRect().width || 0
       })
     },
   },
