@@ -21,8 +21,10 @@
 
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
+        UnstakeModeSelect(:selected="unstakeMode"  :delayedReceive="receive" :swapReceive="0" @change="unstakeMode = $event")
+        //- TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.baseToken" :value="receive").mt-2
 
-        ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
+        //- ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
 
         .action.pt-2.pb-2
           AuthOnly
@@ -30,9 +32,6 @@
               span.fs-18 Unstake
 
       .stats.my-2.fs-14
-        .stat-item(v-if="activeTab === 'unstake'")
-          .muted Receive
-          .value {{ receive }} WAX
         .stat-item
           .muted Rate
           .value {{ rate }} WAX per LSW
@@ -56,6 +55,7 @@ import AlcorButton from '@/components/AlcorButton'
 import TokenInput from '@/components/amm/PoolTokenInput'
 import StakingTabs from '@/components/staking/StakingTabs'
 import StakingContent from '@/components/staking/StakingContent'
+import UnstakeModeSelect from '@/components/staking/UnstakeModeSelect'
 import AuthOnly from '@/components/AuthOnly'
 
 const multiplier = bigInt(100000000)
@@ -68,6 +68,7 @@ export default {
     TokenInput,
     StakingTabs,
     StakingContent,
+    UnstakeModeSelect,
     AuthOnly,
   },
 
@@ -77,6 +78,7 @@ export default {
       unstakeAmount: null,
       stakemints: null,
       activeTab: 'stake', // possible values: stake, unstake
+      unstakeMode: 'instant', // delayed
     }
   },
 
