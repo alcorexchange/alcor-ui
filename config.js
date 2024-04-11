@@ -666,6 +666,7 @@ const networks = {
         contract: 'lsw.alcor',
         symbol: 'LSW',
         precision: 8,
+        decimals: 8,
         id: 'lsw-lsw.alcor'
       }
     },

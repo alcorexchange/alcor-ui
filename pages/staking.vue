@@ -20,8 +20,15 @@
               span.fs-18 Stake
 
       div(v-else key="unstake")
-        TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
-        UnstakeModeSelect(:selected="unstakeMode"  :delayedReceive="receive" :swapReceive="0" @change="unstakeMode = $event")
+        TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount" @input="onUnstakeAmountInput").mt-4
+        UnstakeModeSelect(
+          :selected="unstakeMode"
+          :delayedReceive="receive"
+          :swapReceive="swapReceiveAmount"
+          :loading="loading"
+          :priceImpact="priceImpact"
+          @change="unstakeMode = $event"
+        )
         //- TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.baseToken" :value="receive").mt-2
 
         //- ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
@@ -48,6 +55,7 @@
 
 <script>
 import bigInt from 'big-integer'
+import { debounce } from 'lodash'
 import { mapState, mapGetters } from 'vuex'
 import PageHeader from '@/components/amm/PageHeader'
 import AlcorContainer from '@/components/AlcorContainer'
@@ -57,6 +65,8 @@ import StakingTabs from '@/components/staking/StakingTabs'
 import StakingContent from '@/components/staking/StakingContent'
 import UnstakeModeSelect from '@/components/staking/UnstakeModeSelect'
 import AuthOnly from '@/components/AuthOnly'
+import { tryParseCurrencyAmount } from '~/utils/amm'
+import { getPrecision } from '~/utils'
 
 const multiplier = bigInt(100000000)
 
@@ -76,15 +86,20 @@ export default {
     return {
       amount: null,
       unstakeAmount: null,
+      swapReceiveAmount: null,
       stakemints: null,
+      priceImpact: '0.00',
       activeTab: 'stake', // possible values: stake, unstake
       unstakeMode: 'instant', // delayed
+      loading: false,
     }
   },
 
   computed: {
     ...mapGetters(['user']),
     ...mapState(['network']),
+    ...mapState('amm', ['maxHops']),
+    ...mapGetters('amm', ['slippage']),
 
     apr() {
       if (!this.stakemints) return 0
@@ -187,6 +202,66 @@ export default {
       }
     },
 
+    onUnstakeAmountInput(val) {
+      this.swapReceiveAmount = null
+      this.loading = true
+      this.calcOutputDebounced(val)
+    },
+
+    calcOutputDebounced: debounce(function (value) {
+      this.calcOutput(value)
+    }, 500),
+
+    async calcOutput(value) {
+      try {
+        await this.tryCalcOutput(value)
+      } catch (e) {
+        // this.reset({ amountA: this.amountA })
+        console.error('calcOutput', e)
+        const reason = e?.response?.data ? e?.response?.data : e.message
+        this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async tryCalcOutput(value) {
+      const { slippage } = this
+      const { token: tokenA } = this.network.staking
+      const { baseToken: tokenB } = this.network
+
+      if (!value || isNaN(value) || !tokenA || !tokenB) return (this.swapReceiveAmount = null)
+
+      if (getPrecision(value) > tokenA.decimals) {
+        const [num, fraction] = value.split('.')
+        value = `${num}.${fraction.slice(0, tokenA.decimals)}`
+      }
+
+      const currencyAmountIn = tryParseCurrencyAmount(value, tokenA)
+
+      if (!currencyAmountIn) return (this.swapReceiveAmount = null)
+
+      const {
+        data: { minReceived, memo, output, priceImpact },
+      } = await this.$axios('/v2/swapRouter/getRoute', {
+        params: {
+          trade_type: 'EXACT_INPUT',
+          input: tokenA.id,
+          output: tokenB.id,
+          amount: currencyAmountIn.toFixed(),
+          slippage: slippage.toFixed(),
+          receiver: this.user?.name,
+          maxHops: this.maxHops,
+          //v1: true
+        },
+      })
+
+      this.memo = memo
+      this.swapReceiveAmount = output
+      this.priceImpact = priceImpact
+      // this.minReceived = minReceived
+    },
+
     async unstake() {
       console.log('stake')
       const { contract, token } = this.network.staking
@@ -210,6 +285,10 @@ export default {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
     },
+
+    async swap() {},
+
+    async delayedUnstake() {},
   },
 }
 </script>

@@ -1,7 +1,8 @@
 <template lang="pug">
 el-dropdown(trigger="click")
-  AlcorButton.action.p-0(iconOnly flat)
-    i.el-icon-s-operation.pointer.fs-18
+  slot
+    AlcorButton.action.p-0(iconOnly flat)
+      i.el-icon-s-operation.pointer.fs-18
   el-dropdown-menu.dropdown(slot="dropdown")
     .px-2.d-flex.flex-column.gap-8
       label {{ $t('Transaction Setting') }}
@@ -35,7 +36,7 @@ export default {
 
       get() {
         return this.$store.state.amm.maxHops
-      }
+      },
     },
 
     slippage: {
@@ -45,8 +46,8 @@ export default {
 
       get() {
         return this.$store.state.amm.slippage
-      }
-    }
-  }
+      },
+    },
+  },
 }
 </script>
