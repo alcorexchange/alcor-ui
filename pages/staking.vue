@@ -12,7 +12,7 @@
 
       div(v-if="activeTab === 'stake'" key="stake")
         TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
-        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="stakeReceive").mt-2
+        TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.staking.token" :value="stakeReceive").mt-2
 
         .action.pt-2.pb-2
           AuthOnly
