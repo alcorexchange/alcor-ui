@@ -1,12 +1,10 @@
 <template lang="pug">
 .staking-content
   h1.pt-4
-    | Stake
-    span.symbol  WAX
-    |  to earn
-    span.symbol  LSW
+    span.symbol LSW
+    |  - Alcor Liquid Staked Token
 
-  p.muted Choose how much you want to stake and earn rewards.
+  p.muted The highest natural yield mechanism available for DeFi on Wax. By a lot.
 
   StakingFAQ.pt-4
 
@@ -22,4 +20,8 @@ export default {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.symbol {
+  color: var(--main-action-green);
+}
+</style>
