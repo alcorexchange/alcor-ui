@@ -1,8 +1,9 @@
+import { Big } from 'big.js'
 import bigInt from 'big-integer'
 import { asset } from 'eos-common'
 
 import { fetchAllRows } from '~/utils/eosjs'
-import { parseAsset } from '~/utils'
+import { assetToAmount, parseAsset } from '~/utils'
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
@@ -107,7 +108,6 @@ export const actions = {
   },
 
   calculateUserStakes({ state, commit, dispatch, rootState, getters }) {
-    //console.log('calculateUserStakes..')
     // We need this method to trigger to recalculate user rewards (that depends on time)
     const userStakes = []
 
@@ -212,32 +212,70 @@ export const actions = {
   }
 }
 
+
+function tokenToUSD(amount, symbol, contract, tokens) {
+  const parsed = parseFloat(amount)
+  amount = (!amount || isNaN(parsed)) ? 0 : parsed
+  const id = symbol.toLowerCase() + '-' + contract
+
+  const price = tokens.find(t => t.id == id)
+  return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
+}
+
+// TODO: This function is being duplicated in FarmItemNew and here. Need to reuse.
+function getAPR(incentive, poolStats, tokens) {
+  if (!poolStats) return null
+
+  const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
+    .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
+    .sqrt()
+    .round(0)
+
+  const stakedPercent = Math.max(
+    1,
+    Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
+  )
+
+  const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
+  const dayRewardInUSD = parseFloat(
+    tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract, tokens)
+  )
+
+  const r = ((dayRewardInUSD / tvlUSD) * 365 * 100)
+
+  return isNaN(r) ? 0 : r.toFixed()
+}
+
+function getAverageAPR(incentives) {
+  const result = incentives.reduce(
+    (acc, incentive) => {
+      const apr = incentive.apr
+      if (apr !== null) {
+        const parsedApr = parseInt(apr)
+        acc.sum += parsedApr
+        acc.count++
+      }
+      return acc
+    },
+    { sum: 0, count: 0 }
+  )
+
+  // Handling division by zero case
+  if (result.count === 0) return 0
+
+  return result.sum / result.count
+}
+
 export const getters = {
-  farmPools(state, getters, rootState, rootGetters) {
-    const { incentives, userStakes } = state
+  farmPoolsWithAPR(state, getters, rootState, rootGetters) {
+    const { incentives } = state
     const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
 
     return poolsPlainWithStatsAndUserData.map((pool) => {
       const poolIncentives = incentives
         .filter((incentive) => incentive.poolId === pool.id)
         .map((incentive) => {
-          const incentiveStats = pool.positions.map((position) => {
-            const stake = userStakes.find(
-              (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
-            )
-            return {
-              staked: Boolean(stake),
-              incentive,
-              ...stake,
-              incentiveId: incentive.id,
-              posId: position.id,
-              position,
-            }
-          })
-
-          const stakeStatus = getStakeStatus(incentiveStats.map((i) => i.staked))
-
-          return { ...incentive, incentiveStats, stakeStatus }
+          return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
         })
 
       return {
@@ -245,7 +283,40 @@ export const getters = {
         poolStats: pool.poolStats,
         incentives: poolIncentives,
         positions: pool.positions,
-        // TODO: Add APR calculation here if needed
+        avgAPR: getAverageAPR(poolIncentives)
+      }
+    })
+  },
+
+  farmPools(state, getters, rootState, rootGetters) {
+    console.log('farmPools call')
+    const { userStakes } = state
+
+    return getters.farmPoolsWithAPR.map((pool) => {
+      const poolIncentives = pool.incentives.map((incentive) => {
+        const incentiveStats = pool.positions.map((position) => {
+          const stake = userStakes.find(
+            (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
+          )
+
+          return {
+            staked: Boolean(stake),
+            incentive,
+            ...stake,
+            incentiveId: incentive.id,
+            posId: position.id,
+            position,
+          }
+        })
+
+        const stakeStatus = getStakeStatus(incentiveStats.map((i) => i.staked))
+
+        return { ...incentive, incentiveStats, stakeStatus }
+      })
+
+      return {
+        ...pool,
+        incentives: poolIncentives,
       }
     })
   },

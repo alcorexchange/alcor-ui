@@ -65,10 +65,12 @@ export default {
 
   computed: {
     sortedItems() {
-      // const farms = [...(this.farmPools || [])]
-      // const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
-      // if (this.sortDirection === 1) return sorted
-      // if (this.sortDirection === 0) return sorted.reverse()
+      const farms = [...(this.farmPools || [])]
+      const sorted = farms.sort((a, b) => {
+        return (a.avgAPR > b.avgAPR ? -1 : 1)
+      })
+      if (this.sortDirection === 1) return sorted
+      if (this.sortDirection === 0) return sorted.reverse()
       return this.farmPools
     },
     userStakes() {
@@ -88,41 +90,6 @@ export default {
         return
       }
       this.sortDirection = sort.route
-    },
-
-    // TODO: This function is being duplicated in FarmItemNew and here. Need to reuse.
-    getAPR(incentive, farm) {
-      // TODO Move to farms store
-      const poolStats = farm.poolStats
-      if (!poolStats) return null
-
-      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
-        .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
-        .sqrt()
-        .round(0)
-
-      const stakedPercent = Math.max(
-        1,
-        Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
-      )
-
-      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
-      const dayRewardInUSD = parseFloat(
-        this.$tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract)
-      )
-
-      return ((dayRewardInUSD / tvlUSD) * 365 * 100).toFixed()
-    },
-
-    getAverageAPR(farm) {
-      const aprList = farm.incentives
-        .map((incentive) => this.getAPR(incentive, farm))
-        // remove nulls
-        .filter((apr) => apr !== null)
-        // convert to number
-        .map((apr) => parseInt(apr))
-
-      return aprList.reduce((a, b) => a + b, 0) / aprList.length
     },
 
     addLiquidity(row) {

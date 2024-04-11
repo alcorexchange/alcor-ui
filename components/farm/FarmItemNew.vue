@@ -29,7 +29,7 @@
       span.mobile-only.muted.fs-14 APR
       .icon-and-value(v-for="item in farm.incentives")
         //- TokenImage(:src="$tokenLogo(item.reward.quantity.split(' ')[1], item.reward.contract)" width="14px" height="14px")
-        span {{ getAPR(item) }}%
+        span {{ item.apr }}%
 
     .total-reward-section
       span.mobile-only.muted.fs-14 Total Reward
@@ -149,29 +149,6 @@ export default {
   },
 
   methods: {
-    getAPR(incentive) {
-      // TODO Move to farms store
-      const poolStats = this.farm.poolStats
-      if (!poolStats) return null
-
-      const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
-        .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
-        .sqrt()
-        .round(0)
-
-      const stakedPercent = Math.max(
-        1,
-        Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
-      )
-
-      const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
-      const dayRewardInUSD = parseFloat(
-        this.$tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract)
-      )
-
-      return ((dayRewardInUSD / tvlUSD) * 365 * 100).toFixed()
-    },
-
     addLiquidity() {
       this.$router.push({
         path: '/positions/new',
