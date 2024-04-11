@@ -65,10 +65,10 @@ export default {
 
   computed: {
     sortedItems() {
-      const farms = [...(this.farmPools || [])]
-      const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
-      if (this.sortDirection === 1) return sorted
-      if (this.sortDirection === 0) return sorted.reverse()
+      // const farms = [...(this.farmPools || [])]
+      // const sorted = farms.sort((a, b) => (this.getAverageAPR(a) > this.getAverageAPR(b) ? -1 : 1))
+      // if (this.sortDirection === 1) return sorted
+      // if (this.sortDirection === 0) return sorted.reverse()
       return this.farmPools
     },
     userStakes() {
