@@ -44,7 +44,7 @@ export default {
           descriptions: [
             'Users can withdraw their WAX, subject to a 3-day unbonding period, or swap their $LSW for WAX instantly on Alcor or other listed DEXes for immediate access to their assets.',
           ],
-          name: '3',
+          name: '4',
         },
       ]
     },
