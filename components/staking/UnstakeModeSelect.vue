@@ -13,7 +13,7 @@
       .fs-12.disable.text-break
         //- price impact warning goes here
       i.el-icon-refresh.rotate-reverse.h-fit(v-if="loading")
-      .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }}
+      .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }} {{ network.baseToken.symbol }}
 
   .item.d-flex.flex-column.align-items-start.p-2.br-8.border-hover(
     :class="{ 'border-active': selected == 'delayed' }"
@@ -28,7 +28,7 @@
           div(style="max-width: 400px") Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction.
     div.mt-auto
     .fs-12.disable.text-break Normal Unstake
-    .d-flex.gap-4 {{ delayedReceive }}
+    .d-flex.gap-4 {{ delayedReceive }} {{ network.baseToken.symbol }}
 </template>
 
 <script>
@@ -37,7 +37,7 @@ export default {
   components: {
     Settings,
   },
-  props: ['selected', 'delayedReceive', 'swapReceive', 'loading', 'priceImpact'],
+  props: ['selected', 'delayedReceive', 'swapReceive', 'loading', 'priceImpact', 'network'],
   methods: {
     onItemClick(mode) {
       if (this.selected != mode) this.$emit('change', mode)

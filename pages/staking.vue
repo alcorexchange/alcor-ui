@@ -27,6 +27,7 @@
           :swapReceive="swapReceiveAmount"
           :loading="loading"
           :priceImpact="priceImpact"
+          :network="network"
           @change="unstakeMode = $event"
         )
         //- TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.baseToken" :value="receive").mt-2
