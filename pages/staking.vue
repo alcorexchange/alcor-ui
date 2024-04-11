@@ -151,13 +151,13 @@ export default {
 
   watch: {
     slippage() {
-      this.recalculateDelayed()
+      this.onUnstakeAmountInput(this.unstakeAmount)
     },
     'user.name'() {
-      this.recalculate()
+      this.calcOutput(this.unstakeAmount)
     },
     maxHops() {
-      this.recalculate()
+      this.calcOutput(this.unstakeAmount)
     },
   },
 
@@ -348,8 +348,6 @@ export default {
         return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
       }
     },
-
-    async delayedUnstake() {},
   },
 }
 </script>
