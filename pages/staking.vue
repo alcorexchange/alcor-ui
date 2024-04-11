@@ -149,6 +149,18 @@ export default {
     },
   },
 
+  watch: {
+    slippage() {
+      this.recalculateDelayed()
+    },
+    'user.name'() {
+      this.recalculate()
+    },
+    maxHops() {
+      this.recalculate()
+    },
+  },
+
   mounted() {
     this.fetchStakeMints()
   },
@@ -297,7 +309,7 @@ export default {
 
     async swap() {
       try {
-        const { expectedInput, market } = this
+        const { expectedInput } = this
 
         const { token: tokenA } = this.network.staking
         const { baseToken: tokenB } = this.network
@@ -310,11 +322,7 @@ export default {
 
         const actions = []
 
-        let memo = 'MEMO'.replace('<receiver>', this.user.name)
-
-        if (market) {
-          memo += `#${market}`
-        }
+        const memo = 'memo'
 
         actions.push({
           account: tokenA.contract,
