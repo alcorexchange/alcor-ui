@@ -35,7 +35,7 @@
 
         .action.pt-2.pb-2
           AuthOnly
-            AlcorButton(@click="unstake" access class="action-button")
+            AlcorButton(access class="action-button" @click="handleUnstakeClick")
               span.fs-18 Unstake
 
       .stats.my-2.fs-14
@@ -87,6 +87,7 @@ export default {
       amount: null,
       unstakeAmount: null,
       swapReceiveAmount: null,
+      expectedInput: null,
       stakemints: null,
       priceImpact: '0.00',
       activeTab: 'stake', // possible values: stake, unstake
@@ -242,12 +243,14 @@ export default {
       if (!currencyAmountIn) return (this.swapReceiveAmount = null)
 
       const {
-        data: { minReceived, memo, output, priceImpact },
-      } = await this.$axios('/v2/swapRouter/getRoute', {
+        data: { minReceived, memo, input, output, priceImpact },
+      } = await this.$axios('https://alcor.exchange/api/v2/swapRouter/getRoute', {
         params: {
           trade_type: 'EXACT_INPUT',
-          input: tokenA.id,
-          output: tokenB.id,
+          // input: tokenA.id,
+          input: 'wax-eosio.token',
+          // output: tokenB.id,
+          output: 'usdt-usdt.alcor',
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
@@ -259,7 +262,13 @@ export default {
       this.memo = memo
       this.swapReceiveAmount = output
       this.priceImpact = priceImpact
+      this.expectedInput = input
       // this.minReceived = minReceived
+    },
+
+    handleUnstakeClick() {
+      if (this.unstakeMode === 'instant') this.swap()
+      else this.unstake()
     },
 
     async unstake() {
@@ -286,7 +295,51 @@ export default {
       }
     },
 
-    async swap() {},
+    async swap() {
+      try {
+        const { expectedInput, market } = this
+
+        const { token: tokenA } = this.network.staking
+        const { baseToken: tokenB } = this.network
+        if (!tokenA || !tokenB) return console.log('no tokens selected')
+
+        console.log({ expectedInput, tokenA })
+        const currencyAmountIn = tryParseCurrencyAmount(parseFloat(expectedInput).toFixed(tokenA.decimals), tokenA)
+
+        if (!currencyAmountIn) throw new Error('Invalid currency in: ', currencyAmountIn?.toAsset())
+
+        const actions = []
+
+        let memo = 'MEMO'.replace('<receiver>', this.user.name)
+
+        if (market) {
+          memo += `#${market}`
+        }
+
+        actions.push({
+          account: tokenA.contract,
+          name: 'transfer',
+          authorization: [this.user.authorization],
+          data: {
+            from: this.user.name,
+            to: this.network.amm.contract,
+            quantity: currencyAmountIn.toAsset(),
+            memo,
+          },
+        })
+
+        const r = await this.$store.dispatch('chain/sendTransaction', actions)
+
+        console.log('swap success', r)
+
+        // do reset
+        // add gtag event
+        this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
+      } catch (e) {
+        console.log(e)
+        return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
+      }
+    },
 
     async delayedUnstake() {},
   },
