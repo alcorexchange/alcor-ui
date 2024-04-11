@@ -4,21 +4,15 @@
     StakingContent
 
   .page-content
-    //- PageHeader(title="Staking")
-    //-   template(#end) &nbsp;
     AlcorContainer.alcor-container
 
       h2.pt-1 Earn LSW
 
       StakingTabs(v-model="activeTab").mt-3
 
-      //- .recieve.fs-14.mt-4.mb-4(v-if="receive")
-      //-   .muted Your Current Stake:
-      //-   .end
-      //-     div {{ receive }} {{ network.baseToken.symbol }}
       div(v-if="activeTab === 'stake'" key="stake")
         TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
-        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="amount / rate").mt-2
+        TokenInput(:locked="true" :readonly="true" label="Recieve" :token="network.staking.token" :value="stakeReceive").mt-2
 
         .action.pt-2.pb-2
           AuthOnly
@@ -28,7 +22,6 @@
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount").mt-4
 
-        //- TODO: Update the description
         ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
 
         .action.pt-2.pb-2
@@ -130,6 +123,11 @@ export default {
       return (
         Math.round((parseFloat(totalNativeToken.quantity) / parseFloat(totalLiquidStakedToken.quantity)) * 1000) / 1000
       )
+    },
+
+    stakeReceive() {
+      if (!this.amount) return ''
+      return (this.amount / this.rate).toFixed(this.network.staking.token.precision)
     },
   },
 
