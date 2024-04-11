@@ -63,9 +63,7 @@ export default {
   }
   &.border-active {
     border: 1px solid var(--border-active-color);
-    .disable {
-      color: var(--text-default);
-    }
+
     i.check-icon {
       position: absolute;
       color: var(--border-active-color);
