@@ -10,8 +10,7 @@
       Settings
         i.el-icon-s-operation.pointer.muted.settings-icon
     div.mt-auto
-      .fs-12.disable.text-break
-        //- price impact warning goes here
+      .price-impact-warning.fs-12(v-if="showPriceImpactWarning") {{ priceImpact }}% Price Impace
       i.el-icon-refresh.rotate-reverse.h-fit(v-if="loading")
       .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }} {{ network.baseToken.symbol }}
 
@@ -38,6 +37,13 @@ export default {
     Settings,
   },
   props: ['selected', 'delayedReceive', 'swapReceive', 'loading', 'priceImpact', 'network'],
+  computed: {
+    showPriceImpactWarning() {
+      const value = parseFloat(this.priceImpact)
+      if (!value) return false
+      return value >= 5
+    },
+  },
   methods: {
     onItemClick(mode) {
       if (this.selected != mode) this.$emit('change', mode)
@@ -70,6 +76,9 @@ export default {
       font-size: 18px;
       right: 7px;
     }
+  }
+  .price-impact-warning {
+    color: var(--main-red);
   }
 }
 </style>
