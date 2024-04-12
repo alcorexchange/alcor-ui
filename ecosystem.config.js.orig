@@ -104,7 +104,7 @@ module.exports = {
     },
     {
       name: 'Alcor-LSW-WAX-worker',
-      script: './lib/server/server/services/lswBotService/index.js',
+      script: './lib/server/services/lswBotService/index.js',
       node_args: '-r esm',
       //cron_restart: '0 * * * *'
     }
