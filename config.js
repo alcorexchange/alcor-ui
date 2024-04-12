@@ -411,6 +411,17 @@ const networks = {
       //creationFee: '150.00000000 WAX',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     withdraw: {},
 
     ibc: {

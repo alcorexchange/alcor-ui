@@ -73,6 +73,7 @@
     "redis": "^4.0.0-rc.3",
     "remove": "^0.1.5",
     "route-cache": "^0.4.5",
+    "simple-node-logger": "^21.8.12",
     "skeleton-loader-vue": "^1.0.10",
     "socket.io": "^4.3.2",
     "socket.io-client": "^4.7.2",
