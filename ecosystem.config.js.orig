@@ -101,6 +101,12 @@ module.exports = {
       script: './lib/server/services/ibcService/eosCexDepsitsWorker.js',
       node_args: '-r esm',
       cron_restart: '0 * * * *'
+    },
+    {
+      name: 'Alcor-LSW-WAX-worker',
+      script: './lib/server/server/services/lswBotService/index.js',
+      node_args: '-r esm',
+      //cron_restart: '0 * * * *'
     }
   ]
 }
