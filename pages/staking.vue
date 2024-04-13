@@ -42,7 +42,7 @@
       .stats.my-2.fs-14
         .stat-item
           .muted Rate
-          .value {{ rate }} WAX per LSW
+          .value {{ rate }} LSW per WAX
         .stat-item
           .muted APR
           .value {{ apr }}%
@@ -140,13 +140,13 @@ export default {
       const { totalNativeToken, totalLiquidStakedToken } = this.stakemints
 
       return (
-        Math.round((parseFloat(totalNativeToken.quantity) / parseFloat(totalLiquidStakedToken.quantity)) * 1000) / 1000
+        Math.round((parseFloat(totalLiquidStakedToken.quantity) / parseFloat(totalNativeToken.quantity)) * 1000) / 1000
       )
     },
 
     stakeReceive() {
       if (!this.amount) return ''
-      return (this.amount / this.rate).toFixed(this.network.staking.token.precision)
+      return (this.amount * this.rate).toFixed(this.network.staking.token.precision)
     },
 
     tokenA() {
