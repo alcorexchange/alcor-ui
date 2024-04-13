@@ -218,6 +218,7 @@ export default {
         this.amount = null
         this.fetchStakeMints()
         this.updateBalances()
+        this.$notify({ type: 'success', title: 'Staking', message: 'Staking Successful' })
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
