@@ -211,27 +211,6 @@ export default {
       return rateX4
     },
 
-    async stake() {
-      const { contract } = this.network.staking
-      const { baseToken } = this.network
-
-      if (!this.amount) return
-
-      try {
-        await this.$store.dispatch('chain/transfer', {
-          to: contract,
-          contract: baseToken.contract,
-          actor: this.user.name,
-          quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
-          memo: 'stake',
-        })
-        this.afterTransactionHook()
-        this.$notify({ type: 'success', title: 'Staking', message: 'Staking Successful' })
-      } catch (e) {
-        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
-      }
-    },
-
     onUnstakeAmountInput(val) {
       this.swapReceiveAmount = null
       this.loading = true
@@ -296,6 +275,27 @@ export default {
       else this.unstake()
     },
 
+    async stake() {
+      const { contract } = this.network.staking
+      const { baseToken } = this.network
+
+      if (!this.amount) return
+
+      try {
+        await this.$store.dispatch('chain/transfer', {
+          to: contract,
+          contract: baseToken.contract,
+          actor: this.user.name,
+          quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
+          memo: 'stake',
+        })
+        this.afterTransactionHook()
+        this.$notify({ type: 'success', title: 'Staking', message: 'Staking Successful' })
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
+      }
+    },
+
     async unstake() {
       const { contract, token } = this.network.staking
 
@@ -315,7 +315,7 @@ export default {
         this.afterTransactionHook()
         this.$notify({ type: 'success', title: 'Delayed Unstake', message: 'Unstake Successful' })
       } catch (e) {
-        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
+        this.$notify({ type: 'error', title: 'Delayed Unstake Error', message: e.message })
       }
     },
 
@@ -352,10 +352,10 @@ export default {
 
         // do reset
         // add gtag event
-        this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
+        this.$notify({ type: 'success', title: 'Instant Unstake', message: 'Instant unstake successful' })
       } catch (e) {
         console.log(e)
-        return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
+        return this.$notify({ type: 'error', title: 'Instant Unstake Error', message: e.message })
       }
     },
 
