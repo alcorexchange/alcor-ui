@@ -24,7 +24,7 @@
       ElTooltip()
         i.el-icon-info.muted
         template(#content)
-          div(style="max-width: 400px") Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction.
+          div(style="max-width: 400px") Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance.
     div.mt-auto
     .fs-12.disable.text-break Normal Unstake
     .d-flex.gap-4 {{ delayedReceive }} {{ network.baseToken.symbol }}

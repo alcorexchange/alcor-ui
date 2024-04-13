@@ -36,8 +36,8 @@
 
         .action.pt-2.pb-2
           AuthOnly
-            AlcorButton(access class="action-button" @click="handleUnstakeClick")
-              span.fs-18 Unstake
+            AlcorButton(access class="action-button" @click="handleUnstakeClick" :disabled="unstakeSubmitDisabled")
+              span.fs-18 {{ renderUnstakeSubmitText }}
 
       .stats.my-2.fs-14
         .stat-item
@@ -92,7 +92,7 @@ export default {
       stakemints: null,
       priceImpact: '0.00',
       activeTab: 'stake', // possible values: stake, unstake
-      unstakeMode: 'delayed', // delayed
+      unstakeMode: 'delayed', // instant ,delayed
       loading: false,
     }
   },
@@ -154,6 +154,16 @@ export default {
     },
     tokenB() {
       return this.network.baseToken
+    },
+
+    renderUnstakeSubmitText() {
+      // if (this.unstakeMode === 'instant' && this.loading) {
+      //   return 'Getting Route'
+      // }
+      return 'Unstake'
+    },
+    unstakeSubmitDisabled() {
+      return this.unstakeMode === 'instant' && this.loading
     },
   },
 
