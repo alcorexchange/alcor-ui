@@ -71,7 +71,7 @@ export default {
     const { symbol, quote_token, stats: { last_price } } = this.$store.state.market
 
     return {
-      title: `${last_price.toFixed(5)} | ${symbol} | Alcor Exchange (Spot)`,
+      title: `${last_price.toFixed(8)} | ${symbol} | Alcor Exchange (Spot)`,
 
       meta: [
         {
