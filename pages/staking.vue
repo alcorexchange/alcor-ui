@@ -225,9 +225,7 @@ export default {
           quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
           memo: 'stake',
         })
-        this.amount = null
-        this.fetchStakeMints()
-        this.updateBalances()
+        this.afterTransactionHook()
         this.$notify({ type: 'success', title: 'Staking', message: 'Staking Successful' })
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
@@ -317,9 +315,8 @@ export default {
           quantity: parseFloat(this.unstakeAmount).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
-        this.unstakeAmount = null
-        this.fetchStakeMints()
-        this.updateBalances()
+
+        this.afterTransactionHook()
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
@@ -363,6 +360,13 @@ export default {
         console.log(e)
         return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
       }
+    },
+
+    afterTransactionHook() {
+      this.amount = null
+      this.unstakeAmount = null
+      this.fetchStakeMints()
+      this.updateBalances()
     },
 
     updateBalances() {
