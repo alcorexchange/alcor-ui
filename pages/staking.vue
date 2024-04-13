@@ -148,6 +148,13 @@ export default {
       if (!this.amount) return ''
       return (this.amount / this.rate).toFixed(this.network.staking.token.precision)
     },
+
+    tokenA() {
+      return this.network.staking.token
+    },
+    tokenB() {
+      return this.network.baseToken
+    },
   },
 
   watch: {
@@ -195,8 +202,7 @@ export default {
     },
 
     async stake() {
-      console.log('stake')
-      const { contract, token } = this.network.staking
+      const { contract } = this.network.staking
       const { baseToken } = this.network
 
       if (!this.amount) return
@@ -211,6 +217,7 @@ export default {
         })
         this.amount = null
         this.fetchStakeMints()
+        this.updateBalances()
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
@@ -240,9 +247,7 @@ export default {
     },
 
     async tryCalcOutput(value) {
-      const { slippage } = this
-      const { token: tokenA } = this.network.staking
-      const { baseToken: tokenB } = this.network
+      const { slippage, tokenA, tokenB } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return (this.swapReceiveAmount = null)
 
@@ -260,10 +265,10 @@ export default {
       } = await this.$axios('https://alcor.exchange/api/v2/swapRouter/getRoute', {
         params: {
           trade_type: 'EXACT_INPUT',
-          // input: tokenA.id,
-          input: 'wax-eosio.token',
-          // output: tokenB.id,
-          output: 'usdt-usdt.alcor',
+          input: tokenA.id,
+          // input: 'wax-eosio.token',
+          output: tokenB.id,
+          // output: 'usdt-usdt.alcor',
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
@@ -310,10 +315,8 @@ export default {
 
     async swap() {
       try {
-        const { expectedInput } = this
+        const { expectedInput, tokenA, tokenB } = this
 
-        const { token: tokenA } = this.network.staking
-        const { baseToken: tokenB } = this.network
         if (!tokenA || !tokenB) return console.log('no tokens selected')
 
         console.log({ expectedInput, tokenA })
@@ -348,6 +351,15 @@ export default {
         console.log(e)
         return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
       }
+    },
+
+    updateBalances() {
+      const { tokenA, tokenB } = this
+
+      setTimeout(() => {
+        this.$store.dispatch('updateBalance', tokenA, { root: true })
+        this.$store.dispatch('updateBalance', tokenB, { root: true })
+      }, 1000)
     },
   },
 }
