@@ -92,7 +92,7 @@ export default {
       stakemints: null,
       priceImpact: '0.00',
       activeTab: 'stake', // possible values: stake, unstake
-      unstakeMode: 'instant', // delayed
+      unstakeMode: 'delayed', // delayed
       loading: false,
     }
   },
