@@ -306,8 +306,9 @@ export default {
           quantity: parseFloat(this.unstakeAmount).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
-        this.amount = null
+        this.unstakeAmount = null
         this.fetchStakeMints()
+        this.updateBalances()
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
