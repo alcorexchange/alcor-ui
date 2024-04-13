@@ -225,7 +225,7 @@ export default {
       try {
         await this.tryCalcOutput(value)
       } catch (e) {
-        // this.reset({ amountA: this.amountA })
+        this.swapReset()
         console.error('calcOutput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
@@ -373,6 +373,12 @@ export default {
         this.$store.dispatch('updateBalance', tokenA, { root: true })
         this.$store.dispatch('updateBalance', tokenB, { root: true })
       }, 1000)
+    },
+
+    swapReset() {
+      this.expectedInput = null
+      this.swapReceiveAmount = null
+      this.priceImpact = '0.00'
     },
   },
 }
