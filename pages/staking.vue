@@ -275,9 +275,7 @@ export default {
         params: {
           trade_type: 'EXACT_INPUT',
           input: tokenA.id,
-          // input: 'wax-eosio.token',
           output: tokenB.id,
-          // output: 'usdt-usdt.alcor',
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
@@ -299,7 +297,6 @@ export default {
     },
 
     async unstake() {
-      console.log('stake')
       const { contract, token } = this.network.staking
 
       console.log('Receive ---->', this.receive, 'Unstake Amount ---->', this.unstakeAmount)
@@ -316,6 +313,7 @@ export default {
         })
 
         this.afterTransactionHook()
+        this.$notify({ type: 'success', title: 'Delayed Unstake', message: 'Unstake Successful' })
       } catch (e) {
         this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
       }
