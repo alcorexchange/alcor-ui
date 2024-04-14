@@ -2,7 +2,7 @@
 .pool-token-input(:class="{focused, notSelected: !!token, readonly}")
   .label-and-balance
     .label {{ renderLabel }}
-    .balance.disable(v-if="token" :class="{clickable: !!user && !readonly}" @click="onBalanceClick") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
+    .balance.disable(v-if="token" :class="{clickable: !!user && !readonly}" @click="onBalanceClick") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol || token.currency, token.contract) | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(
@@ -81,17 +81,17 @@ export default {
 
       if (isNaN(value)) return
 
-      if (this.token && getPrecision(value) > this.token.decimals) {
+      if (this.token && getPrecision(value) > (this.token.decimals ?? this.token.precision)) {
         // TO fixed precision
         const [num, fraction] = value.split('.')
-        value = num + '.' + fraction.slice(0, this.token.decimals)
+        value = num + '.' + fraction.slice(0, (this.token.decimals ?? this.token.precision))
       }
 
       this.localValue = value
       this.$emit('input', value)
     },
     onBalanceClick() {
-      if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol, this.token.contract))
+      if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract))
     },
   },
 
@@ -100,7 +100,7 @@ export default {
       return this.token ? this.label || '' : ''
     },
     renderBottom() {
-      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
+      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol ?? this.token.currency, this.token.contract)}` : ''
     },
     ...mapState(['user']),
   },

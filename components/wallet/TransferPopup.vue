@@ -16,9 +16,9 @@
       el-form-item(prop="amount")
         .label {{$t('Amount') }}
         span {{$t('Balance') }}
-          el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
+          el-button(type="text" @click="fullAmount").ml-1.hoverable  {{ tokenBalance | commaFloat }}
 
-        el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
+        el-input(type="number" v-model="form.amount" clearable @change="amountChange" placeholder="amount").w-100
           span(slot="suffix").mr-1 {{ token.currency }}
         .text ~${{ usdValue }}
 
@@ -57,9 +57,9 @@ export default {
       visible: false,
 
       form: {
-        address: '',
-        amount: 0.0,
-        memo: ''
+        address: null,
+        amount: null,
+        memo: null
       },
 
       addressValid: false,
@@ -132,12 +132,22 @@ export default {
   },
 
   methods: {
+    clean() {
+      this.form = {
+        address: null,
+        amount: null,
+        memo: null
+      }
+    },
+
     openPopup({ token }) {
       this.token = token
       this.visible = true
     },
+
     closePopup() {
       this.visible = false
+      this.clean()
     },
 
     fullAmount() {
@@ -153,6 +163,8 @@ export default {
     },
 
     amountChange() {
+      if (!this.form.amount) return
+
       this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(
         this.token.decimals
       )
@@ -164,7 +176,7 @@ export default {
     },
 
     async submit() {
-      const memo = this.form.memo.trim()
+      const memo = this.form.memo?.trim() || ''
 
       try {
         if (this.network.CEX_CONTRACTS.includes(this.form.address) && memo == '') {
@@ -199,6 +211,7 @@ export default {
         })
         this.$store.dispatch('loadUserBalances')
 
+        this.clean()
         this.visible = false
 
         const txid = r.transaction_id || r.transaction.id.toString()

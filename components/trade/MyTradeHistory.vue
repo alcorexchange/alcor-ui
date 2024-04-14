@@ -9,7 +9,7 @@ el-table.my-trade-history(
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
   el-table-column(:label='$t("Pair")')
     template(slot-scope='{ row }')
-      span {{ row.market_symbol }}
+      span.hover.pointer.unerline {{ row.market_symbol }}
   el-table-column(:label='$t("Side")', width='80')
     template.text-success(slot-scope='scope')
       span.text-primary(v-if='scope.row.side == "buy"') {{ $t('BUY') }}
