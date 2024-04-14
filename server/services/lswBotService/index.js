@@ -143,7 +143,8 @@ async function botClaim() {
   }
 }
 
-// Every day
+// Every day and initially
+claimAndUpdateVotingReward()
 setInterval(function () {
   claimAndUpdateVotingReward()
 }, 24 * 60 * 60 * 1000)
