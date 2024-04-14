@@ -61,6 +61,7 @@ async function claimAndUpdateVotingReward() {
 }
 
 async function refundUnstakingToken() {
+  console.log('refundUnstakingToken..')
   try {
     const eosInfo = await eosAction.getInfo()
     let current_date = new Date(eosInfo.head_block_time + 'Z')
@@ -110,6 +111,7 @@ async function balanceOf(tokenAccount, user, sym) {
 }
 
 async function botClaim() {
+  console.log('botClaim..')
   try {
     const eosInfo = await eosAction.getInfo()
     let current_date = new Date(eosInfo.head_block_time + 'Z')
