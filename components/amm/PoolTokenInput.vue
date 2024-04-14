@@ -228,6 +228,14 @@ export default {
   &.focused {
     border-color: var(--border-2-color);
   }
+
+  &.readonly {
+    cursor: not-allowed;
+    // for some reason input is not respecting not-allowed
+    input {
+      cursor: not-allowed;
+    }
+  }
 }
 
 .token-input {

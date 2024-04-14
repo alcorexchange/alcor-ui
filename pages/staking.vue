@@ -36,13 +36,13 @@
 
         .action.pt-2.pb-2
           AuthOnly
-            AlcorButton(access class="action-button" @click="handleUnstakeClick")
-              span.fs-18 Unstake
+            AlcorButton(access class="action-button" @click="handleUnstakeClick" :disabled="unstakeSubmitDisabled")
+              span.fs-18 {{ renderUnstakeSubmitText }}
 
       .stats.my-2.fs-14
         .stat-item
           .muted Rate
-          .value {{ rate }} WAX per LSW
+          .value {{ rate }} LSW per WAX
         .stat-item
           .muted APR
           .value {{ apr }}%
@@ -92,7 +92,7 @@ export default {
       stakemints: null,
       priceImpact: '0.00',
       activeTab: 'stake', // possible values: stake, unstake
-      unstakeMode: 'instant', // delayed
+      unstakeMode: 'delayed', // instant ,delayed
       loading: false,
     }
   },
@@ -140,13 +140,30 @@ export default {
       const { totalNativeToken, totalLiquidStakedToken } = this.stakemints
 
       return (
-        Math.round((parseFloat(totalNativeToken.quantity) / parseFloat(totalLiquidStakedToken.quantity)) * 1000) / 1000
+        Math.round((parseFloat(totalLiquidStakedToken.quantity) / parseFloat(totalNativeToken.quantity)) * 1000) / 1000
       )
     },
 
     stakeReceive() {
       if (!this.amount) return ''
-      return (this.amount / this.rate).toFixed(this.network.staking.token.precision)
+      return (this.amount * this.rate).toFixed(this.network.staking.token.precision)
+    },
+
+    tokenA() {
+      return this.network.staking.token
+    },
+    tokenB() {
+      return this.network.baseToken
+    },
+
+    renderUnstakeSubmitText() {
+      // if (this.unstakeMode === 'instant' && this.loading) {
+      //   return 'Getting Route'
+      // }
+      return 'Unstake'
+    },
+    unstakeSubmitDisabled() {
+      return this.unstakeMode === 'instant' && this.loading
     },
   },
 
@@ -194,28 +211,6 @@ export default {
       return rateX4
     },
 
-    async stake() {
-      console.log('stake')
-      const { contract, token } = this.network.staking
-      const { baseToken } = this.network
-
-      if (!this.amount) return
-
-      try {
-        await this.$store.dispatch('chain/transfer', {
-          to: contract,
-          contract: baseToken.contract,
-          actor: this.user.name,
-          quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
-          memo: 'stake',
-        })
-        this.amount = null
-        this.fetchStakeMints()
-      } catch (e) {
-        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
-      }
-    },
-
     onUnstakeAmountInput(val) {
       this.swapReceiveAmount = null
       this.loading = true
@@ -230,7 +225,7 @@ export default {
       try {
         await this.tryCalcOutput(value)
       } catch (e) {
-        // this.reset({ amountA: this.amountA })
+        this.swapReset()
         console.error('calcOutput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
@@ -240,9 +235,7 @@ export default {
     },
 
     async tryCalcOutput(value) {
-      const { slippage } = this
-      const { token: tokenA } = this.network.staking
-      const { baseToken: tokenB } = this.network
+      const { slippage, tokenA, tokenB } = this
 
       if (!value || isNaN(value) || !tokenA || !tokenB) return (this.swapReceiveAmount = null)
 
@@ -260,10 +253,8 @@ export default {
       } = await this.$axios('https://alcor.exchange/api/v2/swapRouter/getRoute', {
         params: {
           trade_type: 'EXACT_INPUT',
-          // input: tokenA.id,
-          input: 'wax-eosio.token',
-          // output: tokenB.id,
-          output: 'usdt-usdt.alcor',
+          input: tokenA.id,
+          output: tokenB.id,
           amount: currencyAmountIn.toFixed(),
           slippage: slippage.toFixed(),
           receiver: this.user?.name,
@@ -284,8 +275,28 @@ export default {
       else this.unstake()
     },
 
+    async stake() {
+      const { contract } = this.network.staking
+      const { baseToken } = this.network
+
+      if (!this.amount) return
+
+      try {
+        await this.$store.dispatch('chain/transfer', {
+          to: contract,
+          contract: baseToken.contract,
+          actor: this.user.name,
+          quantity: parseFloat(this.amount).toFixed(baseToken.precision) + ' ' + baseToken.symbol,
+          memo: 'stake',
+        })
+        this.afterTransactionHook()
+        this.$notify({ type: 'success', title: 'Staking', message: 'Staking Successful' })
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
+      }
+    },
+
     async unstake() {
-      console.log('stake')
       const { contract, token } = this.network.staking
 
       console.log('Receive ---->', this.receive, 'Unstake Amount ---->', this.unstakeAmount)
@@ -297,23 +308,21 @@ export default {
           to: contract,
           contract: token.contract,
           actor: this.user.name,
-          // TODO: Should we use `receive` or `stakeTokenBalance.amount` ? We are supposed to use `this.unstakeAmount`.
           quantity: parseFloat(this.unstakeAmount).toFixed(token.precision) + ' ' + token.symbol,
           memo: 'withdraw',
         })
-        this.amount = null
-        this.fetchStakeMints()
+
+        this.afterTransactionHook()
+        this.$notify({ type: 'success', title: 'Delayed Unstake', message: 'Unstake Successful' })
       } catch (e) {
-        this.$notify({ type: 'error', title: 'Stake Error', message: e.message })
+        this.$notify({ type: 'error', title: 'Delayed Unstake Error', message: e.message })
       }
     },
 
     async swap() {
       try {
-        const { expectedInput } = this
+        const { expectedInput, tokenA, tokenB } = this
 
-        const { token: tokenA } = this.network.staking
-        const { baseToken: tokenB } = this.network
         if (!tokenA || !tokenB) return console.log('no tokens selected')
 
         console.log({ expectedInput, tokenA })
@@ -343,11 +352,33 @@ export default {
 
         // do reset
         // add gtag event
-        this.$notify({ type: 'success', title: 'Swap', message: 'Swap completed successfully' })
+        this.$notify({ type: 'success', title: 'Instant Unstake', message: 'Instant unstake successful' })
       } catch (e) {
         console.log(e)
-        return this.$notify({ type: 'error', title: 'Swap Error', message: e.message })
+        return this.$notify({ type: 'error', title: 'Instant Unstake Error', message: e.message })
       }
+    },
+
+    afterTransactionHook() {
+      this.amount = null
+      this.unstakeAmount = null
+      this.fetchStakeMints()
+      this.updateBalances()
+    },
+
+    updateBalances() {
+      const { tokenA, tokenB } = this
+
+      setTimeout(() => {
+        this.$store.dispatch('updateBalance', tokenA, { root: true })
+        this.$store.dispatch('updateBalance', tokenB, { root: true })
+      }, 1000)
+    },
+
+    swapReset() {
+      this.expectedInput = null
+      this.swapReceiveAmount = null
+      this.priceImpact = '0.00'
     },
   },
 }
