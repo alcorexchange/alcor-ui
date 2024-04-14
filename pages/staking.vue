@@ -94,6 +94,8 @@ export default {
       activeTab: 'stake', // possible values: stake, unstake
       unstakeMode: 'delayed', // instant ,delayed
       loading: false,
+      memo: '',
+      market: null,
     }
   },
 
@@ -332,7 +334,9 @@ export default {
 
         const actions = []
 
-        const memo = 'memo'
+        const memo = this.memo.replace('<receiver>', this.user.name)
+
+        // TODO: add market on memo
 
         actions.push({
           account: tokenA.contract,
