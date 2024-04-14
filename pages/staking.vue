@@ -354,7 +354,8 @@ export default {
 
         console.log('swap success', r)
 
-        // do reset
+        this.swapReset()
+        this.afterTransactionHook()
         // add gtag event
         this.$notify({ type: 'success', title: 'Instant Unstake', message: 'Instant unstake successful' })
       } catch (e) {
