@@ -1,6 +1,6 @@
 <template lang="pug">
 .wallet-row
-  .token
+  .token.pointer(@click="$router.push('/analytics/tokens/' + item.id)").hoverable
     .token-image
       token-image(:src='$tokenLogo(item.currency, item.contract)', :height="isMobile ? '20' : '30'")
     .asset

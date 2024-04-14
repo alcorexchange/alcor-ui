@@ -73,12 +73,6 @@ export default {
     }
   },
 
-  watch: {
-    position() {
-      this.percent = 100
-    }
-  },
-
   methods: {
     selectAsset(v) {
       this.$emit('selected', v)
@@ -90,12 +84,8 @@ export default {
 
         setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
 
-        if (this.percent == 100) this.$router.push('/positions')
-
-        // setTimeout(() => {
-        //   this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-        //   this.$store.dispatch('amm/fetchPositions')
-        // }, 1000)
+        if (this.percent == 100) return this.$router.push('/positions')
+        this.percent = 100
       } catch (e) {
         console.error('remove liquidity', e)
         return this.$notify({ type: 'error', title: 'Remove Liquidity Error', message: e.message })
