@@ -155,13 +155,21 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
-  const bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
-  const asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
+  const _bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
+  const _asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
+
+  const bids = _bids
+    .sort((a, b) => b[0] - a[0])
+    .map(b => [write_decimal(b[0], 8, false), write_decimal(b[1][1], market.base_token.symbol.precision, false)])
+
+  const asks = _asks
+    .sort((a, b) => a[0] - b[0])
+    .map(a => [write_decimal(a[0], 8, false), write_decimal(a[1][1], market.quote_token.symbol.precision, false)])
 
   return res.json({
     ticker_id,
-    bids: bids.map(b => [write_decimal(b[0], 8, false), write_decimal(b[1][1], market.base_token.symbol.precision, false)]),
-    asks: asks.map(a => [write_decimal(a[0], 8, false), write_decimal(a[1][1], market.quote_token.symbol.precision, false)])
+    bids,
+    asks
   })
 })
 

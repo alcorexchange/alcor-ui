@@ -163,6 +163,7 @@ export async function initialUpdate(chain, market_id) {
   if (market_id) {
     await updateOrders('buy', chain, market_id)
     await updateOrders('sell', chain, market_id)
+    console.log('updated orderbook', market_id)
     return
   }
 
