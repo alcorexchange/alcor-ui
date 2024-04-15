@@ -81,15 +81,39 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   res.json(pairs)
 })
 
+function formatMarket(m, pools) {
+  const market_pools = pools.filter(p => {
+    return (
+      (p.tokenA.id == m.target_currency) && (p.tokenB.id == m.base_currency)
+    ) || (
+      (p.tokenA.id == m.base_currency) && (p.tokenB.id == m.target_currency)
+    )
+  })
+
+  market_pools.forEach(p => {
+    if (p.tokenA.id == m.target_currency && p.tokenB.id == m.base_currency) {
+      m.target_amm_liquidity = p.tokenA.quantity
+      m.base_amm_liquidity = p.tokenB.quantity
+
+      m.target_volume += p.volumeA24
+      m.base_volume += p.volumeB24
+    }
+
+    if (p.tokenA.id == m.base_currency && p.tokenB.id == m.target_currency) {
+      m.base_amm_liquidity = p.tokenA.quantity
+      m.target_amm_liquidity = p.tokenB.quantity
+
+      m.base_volume += p.volumeA24
+      m.target_volume += p.volumeB24
+    }
+  })
+}
+
 // Tickers with merged volumes from pools
 spot.get('/tickers', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network = req.app.get('network')
-  const { merge_volume } = req.query
-
-  console.log({ merge_volume })
-
   const tokens = await getTokens(network.name)
 
   const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
@@ -97,33 +121,17 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
   const markets = await Market.find({ chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
+  // Depth 2/-2%
+  // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
+  // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
+
   markets.forEach(m => {
     formatTicker(m, tokens, network.GLOBAL_TOKENS)
-
-    const market_pools = pools.filter(p => {
-      return (
-        (p.tokenA.id == m.target_currency) && (p.tokenB.id == m.base_currency)
-      ) || (
-        (p.tokenA.id == m.base_currency) && (p.tokenB.id == m.target_currency)
-      )
-    })
-
-    market_pools.forEach(p => {
-      if (p.tokenA.id == m.target_currency && p.tokenB.id == m.base_currency) {
-        m.target_volume += p.volumeA24
-        m.base_volume += p.volumeB24
-      }
-
-      if (p.tokenA.id == m.base_currency && p.tokenB.id == m.target_currency) {
-        m.base_volume += p.volumeA24
-        m.target_volume += p.volumeB24
-      }
-    })
+    formatMarket(m, pools)
 
     // FIXME If we will need volumes in USD
     // const target_token = tokens.find(t => t.id == m.target_currency)
     // const base_token = tokens.find(t => t.id == m.base_currency)
-
     // m.volumeInUSD
   })
 
@@ -137,11 +145,13 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
+  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
   const tokens = await getTokens(network.name)
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
   formatTicker(m, tokens, network.GLOBAL_TOKENS)
+  formatMarket(m, pools)
 
   res.json(m)
 })
