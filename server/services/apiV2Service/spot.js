@@ -90,18 +90,20 @@ function formatMarket(m, pools) {
     )
   })
 
+  m.target_amm_liquidity = 0
+  m.base_amm_liquidity = 0
   market_pools.forEach(p => {
     if (p.tokenA.id == m.target_currency && p.tokenB.id == m.base_currency) {
-      m.target_amm_liquidity = p.tokenA.quantity
-      m.base_amm_liquidity = p.tokenB.quantity
+      m.target_amm_liquidity += p.tokenA.quantity
+      m.base_amm_liquidity += p.tokenB.quantity
 
       m.target_volume += p.volumeA24
       m.base_volume += p.volumeB24
     }
 
     if (p.tokenA.id == m.base_currency && p.tokenB.id == m.target_currency) {
-      m.base_amm_liquidity = p.tokenA.quantity
-      m.target_amm_liquidity = p.tokenB.quantity
+      m.base_amm_liquidity += p.tokenA.quantity
+      m.target_amm_liquidity += p.tokenB.quantity
 
       m.base_volume += p.volumeA24
       m.target_volume += p.volumeB24
