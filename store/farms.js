@@ -289,7 +289,6 @@ export const getters = {
   },
 
   farmPools(state, getters, rootState, rootGetters) {
-    console.log('farmPools call')
     const { userStakes } = state
 
     return getters.farmPoolsWithAPR.map((pool) => {

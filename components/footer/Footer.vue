@@ -147,6 +147,7 @@ export default {
           items: [
             { title: 'Api', href: 'http://api.alcor.exchange' },
             { title: 'Docs', to: '/docs' },
+            { title: 'Affilate Program', href: 'https://docs.alcor.exchange/alcor-swap/referral-custom-market-fee' },
             { title: 'Orderbook Audit', href: 'https://t.me/alcorexchange/38987' },
             { title: 'AMM Audit', href: 'https://sentnl.io/audits/alcor-0' },
           ],
