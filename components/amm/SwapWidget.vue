@@ -198,8 +198,8 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://www.armsworld.xyz/',
-        image: require('@/assets/images/swap-banner-1.jpg'),
+        link: 'https://x.com/wuffi_inu?s=21&t=sO-kM7q-vvCVrele3HyH8Q',
+        image: require('@/assets/images/swap-banner-1.png'),
         colors: [
           'rgba(112,1,228,0.2)',
           'rgba(72,56,100, 1)',
