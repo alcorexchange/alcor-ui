@@ -21,7 +21,6 @@ class EosAction {
   }
 
   async voteproducer(voter, proxy, producers = []) {
-    console.log('voteproducer...')
     return await this.pushAction(
       'eosio',
       'voteproducer',

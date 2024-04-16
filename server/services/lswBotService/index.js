@@ -61,13 +61,12 @@ async function claimAndUpdateVotingReward() {
 }
 
 async function refundUnstakingToken() {
-  console.log('refundUnstakingToken..')
   try {
     const eosInfo = await eosAction.getInfo()
     let current_date = new Date(eosInfo.head_block_time + 'Z')
     let current_date_sec_since_epoch = parseInt(current_date.getTime() / 1000)
 
-    const response = await eosAction.fetchTable('eosio', config.contractName, 'refunds', '', '', 1)
+    const response = await eosAction.fetchTable('eosio', config.contractName, 'refunds', '', '', 1000)
     const refunds = await response.json()
     if (isObjectEmpty(refunds) || refunds.rows.length == 0) {
       // log.info('[refundUnstakingToken] No refunds table found at ', new Date().toJSON());
@@ -93,7 +92,7 @@ async function refundUnstakingToken() {
 }
 
 async function balanceOf(tokenAccount, user, sym) {
-  const response = await eosAction.fetchTable(tokenAccount, user, 'accounts', '', '', 1)
+  const response = await eosAction.fetchTable(tokenAccount, user, 'accounts', '', '', 1000)
   const accounts = await response.json()
   if (isObjectEmpty(accounts) || accounts.rows.length == 0) {
     log.info('No accounts balance table found at ', new Date().toJSON())
@@ -111,13 +110,12 @@ async function balanceOf(tokenAccount, user, sym) {
 }
 
 async function botClaim() {
-  console.log('botClaim..')
   try {
     const eosInfo = await eosAction.getInfo()
     let current_date = new Date(eosInfo.head_block_time + 'Z')
     let current_date_sec_since_epoch = parseInt(current_date.getTime() / 1000)
 
-    const response = await eosAction.fetchTable(config.contractName, config.contractName, 'withdraws', '', '', 1)
+    const response = await eosAction.fetchTable(config.contractName, config.contractName, 'withdraws', '', '', 1000)
     const withdraws = await response.json()
     if (isObjectEmpty(withdraws) || withdraws.rows.length == 0) {
       // log.info('[botClaim] No withdraws table found at ', new Date().toJSON());
@@ -152,6 +150,7 @@ setInterval(function () {
 }, 24 * 60 * 60 * 1000)
 
 // Check every 10 seconds
+refundUnstakingToken()
 setInterval(function () {
   refundUnstakingToken()
 }, 10000)
