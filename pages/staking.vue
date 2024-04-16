@@ -17,7 +17,7 @@
         .action.pt-2.pb-2
           AuthOnly
             AlcorButton(@click="stake" access class="action-button")
-              span.fs-18 Stake
+              span.fs-16 Stake
 
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount" @input="onUnstakeAmountInput").mt-4
@@ -37,7 +37,7 @@
         .action.pt-2.pb-2
           AuthOnly
             AlcorButton(access class="action-button" @click="handleUnstakeClick" :disabled="unstakeSubmitDisabled")
-              span.fs-18 {{ renderUnstakeSubmitText }}
+              span.fs-16 {{ renderUnstakeSubmitText }}
 
       .stats.my-2.fs-14
         .stat-item
@@ -443,7 +443,6 @@ export default {
     .alcor-button {
       --main-action-green: var(--main-green);
       padding: 8px 20px;
-      font-weight: bold;
       width: 100%;
     }
     .auth-only {
