@@ -106,12 +106,14 @@ export default {
     ...mapGetters('amm', ['slippage']),
 
     apr() {
-      if (!this.stakemints) return 0
+      // Fixed APR
+      return 8
+      // if (!this.stakemints) return 0
 
-      const { totalNativeToken, totalLiquidStakedToken } = this.stakemints
-      const apr = (parseFloat(totalNativeToken.quantity) - parseFloat(totalLiquidStakedToken.quantity)) / 100
+      // const { totalNativeToken, totalLiquidStakedToken } = this.stakemints
+      // const apr = (parseFloat(totalNativeToken.quantity) - parseFloat(totalLiquidStakedToken.quantity)) / 100
 
-      return Math.round(apr * 100) / 100
+      // return Math.round(apr * 100) / 100
     },
 
     stakeTokenBalance() {
