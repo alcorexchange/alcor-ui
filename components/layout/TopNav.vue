@@ -115,6 +115,8 @@ export default {
         items.push({ index: '/farm', name: 'Farm', new: true })
       }
 
+      items.push({ index: '/staking', name: 'Staking' })
+
       items.push({ index: '/otc', name: 'OTC' })
 
       if (['wax'].includes(this.$store.state.network.name)) {
