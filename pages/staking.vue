@@ -122,7 +122,7 @@ export default {
       if (!this.unstakeAmount) return 0
 
       const liquidAmount = bigInt(
-        parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.precision).replace('.', '')
+        parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.decimals).replace('.', '')
       )
 
       const receive = multiplier.times(liquidAmount).divide(this.getExchangeRateX8())
@@ -148,7 +148,7 @@ export default {
 
     stakeReceive() {
       if (!this.amount) return ''
-      return (this.amount * this.rate).toFixed(this.network.staking.token.precision)
+      return (this.amount * this.rate).toFixed(this.network.staking.token.decimals)
     },
 
     tokenA() {
@@ -310,7 +310,7 @@ export default {
           to: contract,
           contract: token.contract,
           actor: this.user.name,
-          quantity: parseFloat(this.unstakeAmount).toFixed(token.precision) + ' ' + token.symbol,
+          quantity: parseFloat(this.unstakeAmount).toFixed(token.decimals) + ' ' + token.symbol,
           memo: 'withdraw',
         })
 
