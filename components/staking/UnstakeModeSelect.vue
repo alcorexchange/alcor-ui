@@ -1,20 +1,6 @@
 <template lang="pug">
 .d-flex.gap-10.flex-wrap.justify-content-center.mt-2
   .item.d-flex.flex-column.align-items-start.p-2.br-8.border-hover(
-    :class="{ 'border-active': selected == 'instant' }"
-    @click="onItemClick('instant')"
-  )
-    i.check-icon.el-icon-circle-check(v-if="selected == 'instant'")
-    .fs-18.d-flex.gap-4.align-items-center.pb-1
-      span Instant Swap
-      Settings
-        i.el-icon-s-operation.pointer.muted.settings-icon
-    div.mt-auto
-      .price-impact-warning.fs-12(v-if="showPriceImpactWarning") {{ priceImpact }}% Price Impace
-      i.el-icon-refresh.rotate-reverse.h-fit(v-if="loading")
-      .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }} {{ network.baseToken.symbol }}
-
-  .item.d-flex.flex-column.align-items-start.p-2.br-8.border-hover(
     :class="{ 'border-active': selected == 'delayed' }"
     @click="onItemClick('delayed')"
   )
@@ -28,6 +14,20 @@
     div.mt-auto
     .fs-12.disable.text-break Normal Unstake
     .d-flex.gap-4 {{ delayedReceive }} {{ network.baseToken.symbol }}
+
+  .item.d-flex.flex-column.align-items-start.p-2.br-8.border-hover(
+    :class="{ 'border-active': selected == 'instant' }"
+    @click="onItemClick('instant')"
+  )
+    i.check-icon.el-icon-circle-check(v-if="selected == 'instant'")
+    .fs-18.d-flex.gap-4.align-items-center.pb-1
+      span Instant Swap
+      Settings
+        i.el-icon-s-operation.pointer.muted.settings-icon
+    div.mt-auto
+      .price-impact-warning.fs-12(v-if="showPriceImpactWarning") {{ priceImpact }}% Price Impace
+      i.el-icon-refresh.rotate-reverse.h-fit(v-if="loading")
+      .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }} {{ network.baseToken.symbol }}
 </template>
 
 <script>
