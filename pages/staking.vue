@@ -83,6 +83,22 @@ export default {
     AuthOnly,
   },
 
+  head() {
+    const network = this.network.name.toUpperCase()
+    const stakingSymbol = this.tokenA.symbol
+    return {
+      title: `Alcor Exchange | ${network} | Earn crypto rewards with on-chain staking with ${stakingSymbol}`,
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content:
+            'Earn hourly interests by depositing assets to Alcor staking fun. Alcor On-chain Earn provides diverse DeFi products to earn juicy on-chain rewards.',
+        },
+      ],
+    }
+  },
+
   data() {
     return {
       amount: null,
