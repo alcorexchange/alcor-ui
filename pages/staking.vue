@@ -84,10 +84,10 @@ export default {
   },
 
   head() {
-    const networkToken = this.tokenB.symbol
-    const stakingToken = this.tokenA.symbol
+    const network = this.network.name.toUpperCase()
+    const stakingSymbol = this.tokenA.symbol
     return {
-      title: `Alcor Exchange | Stake ${networkToken} and earn ${stakingToken}`,
+      title: `Alcor Exchange | ${network} | Earn crypto rewards with on-chain staking with ${stakingSymbol}`,
     }
   },
 
