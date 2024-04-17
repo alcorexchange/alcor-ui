@@ -83,6 +83,14 @@ export default {
     AuthOnly,
   },
 
+  head() {
+    const networkToken = this.tokenB.symbol
+    const stakingToken = this.tokenA.symbol
+    return {
+      title: `Alcor Exchange | Stake ${networkToken} and earn ${stakingToken}`,
+    }
+  },
+
   data() {
     return {
       amount: null,
