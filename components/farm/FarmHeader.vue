@@ -40,12 +40,12 @@
               @toggle="$store.commit('farms/toggleView')"
             )
       AlcorButton(@click="$router.push('/farm/create')") Create farm
-      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+      el-badge.header-action-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
         el-tooltip(content="Unstake your finished farms to free account RAM")
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
-      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+      el-badge.header-action-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
         AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
-      el-badge(v-if="totalRewards.length && !finished" type="success" :value="totalRewards.length")
+      el-badge(v-if="totalRewards.length && !finished" type="success"  :value="totalRewards.length")
         el-tooltip
           AlcorButton.farm-claim-button(access @click="claimTotal") Claim All Rewards
           template(#content)
@@ -371,6 +371,12 @@ export default {
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+}
+// Accessing internal style, better be global
+.header-action-badge {
+  .el-badge__content {
+    z-index: 2;
   }
 }
 </style>
