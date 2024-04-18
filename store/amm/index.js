@@ -25,6 +25,7 @@ export const state = () => ({
   selectedTokenB: null,
   slippage: DEFAULT_SLIPPAGE,
   maxHops: 2,
+  autoPriceUpdate: true,
 
   last_pool_subscribed: null
 })

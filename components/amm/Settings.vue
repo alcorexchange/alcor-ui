@@ -18,6 +18,9 @@ el-dropdown(trigger="click")
             el-radio-button(label='1')
             el-radio-button(label='2')
             el-radio-button(label='3')
+        .mt-2.d-flex.gap-4
+          ElSwitch.styled-el-switch()
+          span.disable.fs-14 Auto Price Update
 </template>
 
 <script>

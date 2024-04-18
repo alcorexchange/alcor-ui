@@ -1408,3 +1408,26 @@ body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hove
     grid-template-columns: 1fr;
   }
 }
+
+.styled-el-switch {
+  .el-switch__core {
+    height: 22px !important;
+    border-radius: 40px !important;
+    &::after {
+      left: 2px !important;
+      height: 16px !important;
+      width: 16px !important;
+      top: 2px !important;
+      border-radius: 50% !important;
+    }
+  }
+  &.is-checked .el-switch__core::after {
+    margin-left: -18px !important;
+  }
+  // &.is-checked {
+  //   .el-switch__core {
+  //     background-color: var(--main-action-green);
+  //     border-color: var(--main-action-green);
+  //   }
+  // }
+}
