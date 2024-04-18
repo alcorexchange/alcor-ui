@@ -94,7 +94,8 @@ export default {
 
   computed: {
     renderTooltipFormatter() {
-      return this.activeTab === 'TVL' ? (v) => `$${this.$options.filters.commaFloat(v, 2)}` : undefined
+      const TVLFormatter = (v) => `$${this.$options.filters.commaFloat(v, 2)}`
+      return this.activeTab === 'Tvl' ? TVLFormatter : undefined
     },
     tabs() {
       return [
