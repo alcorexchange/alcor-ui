@@ -37,6 +37,7 @@ export const mutations = {
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
   setMaxHops: (state, maxHops) => state.maxHops = maxHops,
+  setAutoPriceUpdate: (state, autoPriceUpdate) => state.autoPriceUpdate = autoPriceUpdate,
   setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,

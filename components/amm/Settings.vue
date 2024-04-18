@@ -19,7 +19,7 @@ el-dropdown(trigger="click")
             el-radio-button(label='2')
             el-radio-button(label='3')
         .mt-2.d-flex.gap-4
-          ElSwitch.styled-el-switch()
+          ElSwitch.styled-el-switch(v-model="autoPriceUpdate")
           span.disable.fs-14 Auto Price Update
 </template>
 
@@ -49,6 +49,16 @@ export default {
 
       get() {
         return this.$store.state.amm.slippage
+      },
+    },
+
+    autoPriceUpdate: {
+      set(value) {
+        this.$store.commit('amm/setAutoPriceUpdate', value)
+      },
+
+      get() {
+        return this.$store.state.amm.autoPriceUpdate
       },
     },
   },
