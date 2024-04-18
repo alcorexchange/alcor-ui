@@ -11,18 +11,23 @@
     .header-item Rem. Time
     .header-item
     .header-item
-  .table-items
-    FarmItemNew(
-      v-for="farm in sortedItems"
-      :farm="farm"
-      :finished="finished"
-      @claimAll="claimAll"
-      @stakeAll="stakeAll"
-      @unstakeAll="unstakeAll"
-      @claim="claim"
-      @stake="stake"
-      @unstake="unstake"
-    )
+  DynamicScroller(:pageMode="true" class="recycle-scroller table-items" :minItemSize="80" listTag="div" :items="sortedItems")
+    template(#default="{ item: farm, index, active }")
+      DynamicScrollerItem(
+        :item="farm"
+        :active="active"
+        :data-index="index"
+      )
+        FarmItemNew(
+          :farm="farm"
+          :finished="finished"
+          @claimAll="claimAll"
+          @stakeAll="stakeAll"
+          @unstakeAll="unstakeAll"
+          @claim="claim"
+          @stake="stake"
+          @unstake="unstake"
+      )
 </template>
 
 <script>
@@ -67,7 +72,7 @@ export default {
     sortedItems() {
       const farms = [...(this.farmPools || [])]
       const sorted = farms.sort((a, b) => {
-        return (a.avgAPR > b.avgAPR ? -1 : 1)
+        return a.avgAPR > b.avgAPR ? -1 : 1
       })
       if (this.sortDirection === 1) return sorted
       if (this.sortDirection === 0) return sorted.reverse()
@@ -268,6 +273,10 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.recycle-scroller {
+  height: 100%;
 }
 
 @media only screen and (max-width: 900px) {

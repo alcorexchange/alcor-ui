@@ -56,10 +56,10 @@
         StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
     .detail-toggle-section
       template(v-if="isExpandable")
-        .toggle-button(:class="{ expanded }")
+        .toggle-button(:class="{ expanded: idState.expanded }")
           span.fs-14.color-green Details
-          i.fs-12(:class="expanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'")
-  AuthOnly.auth-only.farm-item-expand(v-if="expanded")
+          i.fs-12(:class="idState.expanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'")
+  AuthOnly.auth-only.farm-item-expand(v-if="idState.expanded")
     template(v-if="hasPosition")
       FarmItemExpandSimple(
         :farm="farm"
@@ -89,6 +89,7 @@
 
 <script>
 import { Big } from 'big.js'
+import { IdState } from 'vue-virtual-scroller'
 
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -117,10 +118,15 @@ export default {
     FarmItemExpandAdvanced,
     Tag,
   },
+  mixins: [
+    IdState({
+      idProp: (vm) => vm.farm.id,
+    }),
+  ],
 
   props: ['farm', 'finished'],
 
-  data: () => {
+  idState() {
     return {
       expanded: false,
     }
@@ -161,7 +167,7 @@ export default {
 
     onItemClick() {
       if (!this.isExpandable) return
-      this.expanded = !this.expanded
+      this.idState.expanded = !this.idState.expanded
     },
   },
 }
