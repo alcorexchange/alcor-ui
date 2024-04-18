@@ -244,7 +244,7 @@ export default {
 
   mounted() {
     this.swapListener = this.$socket.on('swap:pool:update', data => {
-      if (!this.tokenA || !this.tokenB) return
+      if (!this.tokenA || !this.tokenB || !this.autoPriceUpdate) return
 
       for (const pool of data) {
         const tokenA = parseToken(pool.tokenA)
@@ -289,7 +289,7 @@ export default {
       return this.tokenA && this.tokenB && this.amountA && this.amountB
     },
     ...mapState(['user', 'network']),
-    ...mapState('amm', ['maxHops', 'pools']),
+    ...mapState('amm', ['maxHops', 'pools', 'autoPriceUpdate']),
     ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/swap', [
       'tokenA',
