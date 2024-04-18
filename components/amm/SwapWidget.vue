@@ -261,7 +261,7 @@ export default {
   },
 
   beforeDestroy() {
-    this.$socket.off('swap:pool:update', this.listener)
+    this.$socket.off('swap:pool:update', this.swapListener)
   },
 
   computed: {
