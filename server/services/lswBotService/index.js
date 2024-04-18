@@ -119,9 +119,8 @@ async function botClaim() {
       return;
     }
     if (withdraws.rows && withdraws.rows.length > 0) {
-+      for (let i = withdraws.rows.length - 1; i >= 0; i--) {
-+       const withdraw = withdraws.rows[i];
-
+      for (let i = withdraws.rows.length - 1; i >= 0; i--) {
+        const withdraw = withdraws.rows[i];
         const [amount, symbol] = withdraw.withdrawToken.quantity.split(' ');
         let withdraw_amount = parseFloat(amount);
         const accountBalance = await balanceOf('eosio.token', config.contractName, 'WAX');
