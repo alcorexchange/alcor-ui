@@ -11,7 +11,7 @@
     .header-item Rem. Time
     .header-item
     .header-item
-  DynamicScroller(:pageMode="true" class="recycle-scroller table-items" :minItemSize="80" listTag="div" :items="sortedItems")
+  DynamicScroller(:pageMode="true" class="recycle-scroller table-items" :minItemSize="75" listTag="div" :items="sortedItems")
     template(#default="{ item: farm, index, active }")
       DynamicScrollerItem(
         :item="farm"
