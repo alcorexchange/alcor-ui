@@ -1409,6 +1409,7 @@ body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hove
   }
 }
 
+// Element switch is does not look as expected, all important to override.
 .styled-el-switch {
   .el-switch__core {
     height: 22px !important;
@@ -1422,6 +1423,7 @@ body .custom-responsive-table.el-table--enable-row-hover .el-table__body tr:hove
     }
   }
   &.is-checked .el-switch__core::after {
+    left: 100% !important;
     margin-left: -18px !important;
   }
   // &.is-checked {

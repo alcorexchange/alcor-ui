@@ -19,7 +19,7 @@ el-dropdown(trigger="click")
             el-radio-button(label='2')
             el-radio-button(label='3')
         .mt-2.d-flex.gap-4
-          ElSwitch.styled-el-switch(v-model="autoPriceUpdate")
+          ElSwitch.styled-el-switch(v-model="autoPriceUpdate" active-color="var(--main-action-green)" activeText="")
           span.disable.fs-14 Auto Price Update
 </template>
 
