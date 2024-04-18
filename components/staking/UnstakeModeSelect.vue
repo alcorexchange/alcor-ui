@@ -27,7 +27,7 @@
       Settings
         i.el-icon-s-operation.pointer.muted.settings-icon
     div.mt-auto
-      .price-impact-warning.fs-12(v-if="showPriceImpactWarning") {{ priceImpact }}% Price Impace
+      .price-impact-warning.fs-12(v-if="showPriceImpactWarning") {{ priceImpact }}% Price Impact
       i.el-icon-refresh.rotate-reverse.h-fit(v-if="loading")
       .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }} {{ network.baseToken.symbol }}
 </template>
