@@ -111,35 +111,28 @@ async function balanceOf(tokenAccount, user, sym) {
 
 async function botClaim() {
   try {
-    const eosInfo = await eosAction.getInfo()
-    let current_date = new Date(eosInfo.head_block_time + 'Z')
-    let current_date_sec_since_epoch = parseInt(current_date.getTime() / 1000)
-
-    const response = await eosAction.fetchTable(config.contractName, config.contractName, 'withdraws', '', '', 1000)
-    const withdraws = await response.json()
+    // get the latest withdraw
+    const response = await eosAction.fetchTable(config.contractName, config.contractName, "withdraws", "", "", 10);
+    const withdraws = await response.json();
     if (isObjectEmpty(withdraws) || withdraws.rows.length == 0) {
       // log.info('[botClaim] No withdraws table found at ', new Date().toJSON());
-      return
+      return;
     }
-
     if (withdraws.rows && withdraws.rows.length > 0) {
       for (const withdraw of withdraws.rows) {
-        let request_date = new Date(withdraw.request_time + 'Z')
-        let request_date_sec_since_epoch = parseInt(request_date.getTime() / 1000)
-        const [amount, symbol] = withdraw.withdrawToken.quantity.split(' ')
-        let withdraw_amount = parseFloat(amount)
-        const accountBalance = await balanceOf('eosio.token', config.contractName, 'WAX')
-        if (
-          current_date_sec_since_epoch >= request_date_sec_since_epoch + refund_delay_sec &&
-          accountBalance > withdraw_amount
-        ) {
-          const receipt = await eosAction.botclaim()
-          log.info('[botClaim] Call refund at transaction_id: ' + receipt.transaction_id + ' at ', new Date().toJSON())
+        const [amount, symbol] = withdraw.withdrawToken.quantity.split(' ');
+        let withdraw_amount = parseFloat(amount);
+        const accountBalance = await balanceOf('eosio.token', config.contractName, 'WAX');
+        // bot can claim as long as there are enough available token for withdrawal
+        if (accountBalance >= withdraw_amount) {
+
+          const receipt = await eosAction.botclaim();
+          log.info('[botClaim] Call refund at transaction_id: ' + receipt.transaction_id + ' at ', new Date().toJSON());
         }
       }
     }
   } catch (error) {
-    log.error('[botClaim] ' + error.message, ' at ', new Date().toJSON())
+    log.error('[botClaim] ' + error.message, ' at ', new Date().toJSON());
   }
 }
 
