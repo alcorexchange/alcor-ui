@@ -48,7 +48,7 @@ alcor-container.p-3.w-100.chart-container-inner
     :color="activeTab === 'Tvl' ? '#723de4' : undefined"
     style="min-height: 400px"
     :events="chartEvents"
-    :tooltipFormatter="activeTab === 'Tvl' ? (v) => `$${v}`: undefined"
+    :tooltipFormatter="renderTooltipFormatter"
   )
 </template>
 
@@ -93,6 +93,10 @@ export default {
   }),
 
   computed: {
+    renderTooltipFormatter() {
+      const TVLFormatter = (v) => `$${this.$options.filters.commaFloat(v, 2)}`
+      return this.activeTab === 'Tvl' ? TVLFormatter : undefined
+    },
     tabs() {
       return [
         { label: this.$t('Price'), value: 'Price' },
@@ -102,13 +106,7 @@ export default {
         // { label: 'Depth', value: 'Depth' }
       ]
     },
-    ...mapGetters('amm/swap', [
-      'tokenA',
-      'tokenB',
-      'isSorted',
-      'sortedA',
-      'sortedB',
-    ]),
+    ...mapGetters('amm/swap', ['tokenA', 'tokenB', 'isSorted', 'sortedA', 'sortedB']),
     ...mapState('amm', ['pools']),
 
     series() {
@@ -144,12 +142,7 @@ export default {
 
       if (sortedA && sortedB) {
         data = this.charts.map((c) => {
-          const price = new Price(
-            sortedA,
-            sortedB,
-            Q128,
-            JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
-          )
+          const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
 
           return {
             x: c._id,
