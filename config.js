@@ -187,9 +187,10 @@ const networks = {
       'eos-eosio.token',
       'usdt-tethertether',
       'wax-ibc.wt.wax',
-      'tlos-ibc.wt.tlos',
-      'utx-ibc.wt.ux',
+      //'tlos-ibc.wt.tlos',
+      //'utx-ibc.wt.ux',
       'pgl-prospectorsg',
+      'wram-eosio.wram',
     ],
 
     GLOBAL_TOKENS: []
