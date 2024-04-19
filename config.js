@@ -87,79 +87,6 @@ const networks = {
       },
     },
 
-    withdraw: {
-      // TODO Устарел формат, обновить
-      'TLOSP@steemenginex': {
-        desc: 'Telos peged token. You can buy it for EOS and withdraw to Telos 1:1',
-        network: {
-          name: 'Telos',
-          symbol: 'TLOS',
-        },
-        withdrawMemo: 'TLOS {account}',
-        gateway: 'steemenginex',
-      },
-
-      'BTCP@steemenginex': {
-        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address. 1% fee and 0.0001 BTCP Minimum requirement!',
-        network: {
-          name: 'Bitcoin',
-          symbol: 'BTC',
-        },
-        withdrawMemo: 'BTC {account}',
-        gateway: 'steemenginex',
-      },
-
-      'SAND@sandiegocoin': {
-        desc: 'SAND peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin',
-      },
-
-      'WEED@weedcashntwk': {
-        desc: 'WEED peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'WEED {account}',
-        gateway: 'weedcashntwk',
-      },
-
-      'PBTC@btc.ptokens': {
-        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address 1:1',
-        network: {
-          name: 'Bitcoin',
-          symbol: 'BTC',
-        },
-        withdrawMemo: '{account}',
-        gateway: 'cross.chain',
-      },
-
-      'TLOS@ibc.wt.tlos': {
-        desc: 'Telos wrapped token. You can trade it and transfer between chains with no fee',
-        network: {
-          name: 'Telos',
-          symbol: 'TLOS',
-        },
-        withdrawMemo: '{account}',
-        gateway: 'cross.chain',
-      },
-
-      //'PETH@eth.ptokens': {
-      //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
-      //  network: {
-      //    name: 'Ethereum',
-      //    symbol: 'ETH'
-      //  },
-      //  withdrawMemo: '{account}',
-      //  gateway: 'cross.chain'
-      //},
-    },
-
     RECOMMENDED_MARKETS: [
       'SAND@sandiegocoin',
       'TCN@capitaltatch',
@@ -264,8 +191,6 @@ const networks = {
       contract: 'swap.alcor',
     },
 
-    withdraw: {},
-
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
     PINNED_MARKETS: [493],
     BANNER_MARKETS: [],
@@ -347,8 +272,6 @@ const networks = {
         'ibc.prove': ['ibc.wt.wax', 'ibc.wt.tlos', 'ibc.wt.eos'],
       },
     },
-
-    withdraw: {},
 
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
@@ -434,8 +357,6 @@ const networks = {
         id: 'lsw-lsw.alcor'
       }
     },
-
-    withdraw: {},
 
     ibc: {
       name: 'wax',
@@ -594,48 +515,6 @@ const networks = {
       },
     },
 
-    withdraw: {
-      'EOSP@steemenginex': {
-        desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1. Gateway fee will be 1%(Steem-engine)',
-        withdrawMemo: 'TLOS {account}',
-        gateway: 'steemenginex',
-        network: {
-          name: 'EOS',
-          symbol: 'EOS',
-        },
-      },
-
-      'KANDA@telokandaone': {
-        desc: 'KANDA peged token. You can buy it for TLOS and withdraw to Hive-Engine. Gateway fee will be 1%(Hive-engine)',
-        withdrawMemo: 'KANDA {account}',
-        gateway: 'telokandaone',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-      },
-
-      'SAND@sandiegocoin': {
-        desc: 'SAND peged token. You can buy it for TLOS and withdraw to Hive-Engine address 1:1',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin',
-      },
-
-      'EOS@ibc.wt.eos': {
-        desc: 'EOS wrapped token. You can buy it for TLOS and transfer between chains with no fee',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin',
-      },
-    },
-
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: [],
@@ -694,7 +573,6 @@ const networks = {
       }
     },
 
-    withdraw: {},
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
@@ -745,7 +623,6 @@ const networks = {
       fee: 'evodextester',
     },
 
-    withdraw: {},
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
@@ -799,7 +676,6 @@ const networks = {
       contract: 'ammcontract1',
     },
 
-    withdraw: {},
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
