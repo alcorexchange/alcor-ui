@@ -92,13 +92,14 @@ async function main() {
   }
 
   if (command == 'create_swap_candles') {
-    const swaps = await Swap.find()
+    const total = await Swap.count({})
+    const cursor = Swap.find().cursor()
 
     let i = 0
-    for (const swap of swaps) {
+    for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
       await markeSwapBars(swap)
       i++
-      process.stdout.write(i + '/' + swaps.length + '\r')
+      process.stdout.write(`${i}/${total}\r`)
     }
   }
 
