@@ -112,28 +112,28 @@ async function balanceOf(tokenAccount, user, sym) {
 async function botClaim() {
   try {
     // get the latest withdraw
-    const response = await eosAction.fetchTable(config.contractName, config.contractName, "withdraws", "", "", 10);
-    const withdraws = await response.json();
+    const response = await eosAction.fetchTable(config.contractName, config.contractName, 'withdraws', '', '', 10)
+    const withdraws = await response.json()
     if (isObjectEmpty(withdraws) || withdraws.rows.length == 0) {
       // log.info('[botClaim] No withdraws table found at ', new Date().toJSON());
-      return;
+      return
     }
     if (withdraws.rows && withdraws.rows.length > 0) {
       for (let i = withdraws.rows.length - 1; i >= 0; i--) {
-        const withdraw = withdraws.rows[i];
-        const [amount, symbol] = withdraw.withdrawToken.quantity.split(' ');
-        let withdraw_amount = parseFloat(amount);
-        const accountBalance = await balanceOf('eosio.token', config.contractName, 'WAX');
+        const withdraw = withdraws.rows[i]
+        const [amount, symbol] = withdraw.withdrawToken.quantity.split(' ')
+        let withdraw_amount = parseFloat(amount)
+        const accountBalance = await balanceOf('eosio.token', config.contractName, 'WAX')
         // bot can claim as long as there are enough available token for withdrawal
-        if (accountBalance >= withdraw_amount) {
-
-          const receipt = await eosAction.botclaim();
-          log.info('[botClaim] Call refund at transaction_id: ' + receipt.transaction_id + ' at ', new Date().toJSON());
+        if (accountBalance < withdraw_amount) {
+          break
         }
+        const receipt = await eosAction.botclaim()
+        log.info('[botClaim] Call refund at transaction_id: ' + receipt.transaction_id + ' at ', new Date().toJSON())
       }
     }
   } catch (error) {
-    log.error('[botClaim] ' + error.message, ' at ', new Date().toJSON());
+    log.error('[botClaim] ' + error.message, ' at ', new Date().toJSON())
   }
 }
 
@@ -152,4 +152,4 @@ setInterval(function () {
 // Check every 10 seconds
 setInterval(function () {
   botClaim()
-}, 10000)
+}, 1000)
