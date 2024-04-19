@@ -93,7 +93,7 @@ async function main() {
 
   if (command == 'create_swap_candles') {
     const total = await Swap.count({})
-    const cursor = Swap.find().cursor()
+    const cursor = Swap.find().sort({ time: 1 }).cursor()
 
     let i = 0
     for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
