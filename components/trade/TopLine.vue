@@ -91,7 +91,6 @@ import { mapState, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-import Withdraw from '~/components/withdraw/Withdraw'
 import Markets from '~/components/trade/Markets'
 
 
@@ -99,7 +98,6 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    Withdraw,
     Markets
   },
 
@@ -169,10 +167,6 @@ export default {
     fundamental() {
       if (!this.$fundamentals[this.$store.state.network.name]) return null
       return this.$fundamentals[this.$store.state.network.name][this.quote_token.str]
-    },
-
-    hasWithdraw() {
-      return Object.keys(this.network.withdraw).includes(this.quote_token.str)
     },
 
     isFavorite() {
