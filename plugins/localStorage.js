@@ -20,7 +20,7 @@ export default ({ store }) => {
       'ibcBridge.step', 'ibcBridge.tx', 'ibcBridge.packedTx', 'ibcBridge.error', 'ibcBridge.result',
       'ibcBridge.sourceName', 'ibcBridge.destinationName', 'ibcBridge.proofs', 'ibcBridge.asset',
 
-      'amm.swap.showChart', 'amm.maxHops', 'amm.slippage', 'amm.autoPriceUpdate',
+      'amm.swap.showChart', 'amm.maxHops', 'amm.slippage', 'amm.recalculateOnPriceChange',
 
       'farms.stakedOnly', 'farms.view'
     ]

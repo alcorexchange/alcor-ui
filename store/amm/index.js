@@ -25,7 +25,7 @@ export const state = () => ({
   selectedTokenB: null,
   slippage: DEFAULT_SLIPPAGE,
   maxHops: 2,
-  autoPriceUpdate: true,
+  recalculateOnPriceChange: true,
 
   last_pool_subscribed: null
 })
@@ -37,7 +37,7 @@ export const mutations = {
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
   setMaxHops: (state, maxHops) => state.maxHops = maxHops,
-  setAutoPriceUpdate: (state, autoPriceUpdate) => state.autoPriceUpdate = autoPriceUpdate,
+  setRecalculateOnPriceChange: (state, recalculateOnPriceChange) => state.recalculateOnPriceChange = recalculateOnPriceChange,
   setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,
