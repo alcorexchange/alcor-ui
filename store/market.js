@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { captureException } from '@sentry/browser'
 import { Big } from 'big.js'
 import { percentage } from '~/utils'
+import { parseToken, constructPoolInstance } from '~/utils/amm'
 
 import config from '~/config'
 
@@ -682,17 +683,18 @@ export const getters = {
   relatedPool(state, getters, rootState, rootGetters) {
     const current = rootState.markets.filter(m => m.id == state.id)[0]
     if (!current) return null
-    const pool = rootGetters['swap/pairs'].filter(p => p.i256 == current.i256)[0]
-    if (!pool) return null
 
-    if (pool.pool1.contract == current.quote_token.contract &&
-      pool.pool1.quantity.symbol.code().to_string() == current.quote_token.symbol.name) {
-      pool.rate = (parseFloat(pool.pool2.quantity) / parseFloat(pool.pool1.quantity)).toFixed(6)
-    } else {
-      pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
-    }
+    const _pool = rootGetters['amm/poolsPlainWithStatsAndUserData'].filter(p => {
+      const tokenA = parseToken(p.tokenA)
+      const tokenB = parseToken(p.tokenB)
 
-    return pool
+      return (current.base_token.id == tokenA.id && current.quote_token.id == tokenB.id) ||
+        (current.base_token.id == tokenB.id && current.quote_token.id == tokenA.id)
+    }).sort((a, b) => b?.poolStats?.tvlUSD - a?.poolStats?.tvlUSD)[0]
+
+    if (!_pool) return null
+
+    return constructPoolInstance(_pool)
   },
 
   token(state) {
