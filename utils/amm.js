@@ -2,9 +2,14 @@
 import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
 
-import { Pool, Position, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
+import { Q128, Pool, Position, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
 const PRICE_FIXED_DIGITS = 8
+
+
+export function sqrtRatioToPrice(sqrtRatio, tokenA, tokenB) {
+  return new Price(tokenA, tokenB, Q128, JSBI.multiply(JSBI.BigInt(sqrtRatio), JSBI.BigInt(sqrtRatio)))
+}
 
 export function parseToken(token) {
   const [amount, symbol] = token.quantity.split(' ')

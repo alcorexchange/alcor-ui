@@ -1,4 +1,4 @@
-import { Bar, Match } from '../../models'
+import { SwapBar, Bar, Match } from '../../models'
 
 export const resolutions = {
   1: 1 * 60,
@@ -95,6 +95,73 @@ export async function markeBar(timeframe, match) {
 
     last_bar.close = match.unit_price
     await last_bar.save()
+  }
+}
+
+export async function markeSwapBars(swap) {
+  const dbOperations = []
+
+  Object.keys(resolutions).forEach(timeframe => {
+    dbOperations.push(markeSwapBar(timeframe, swap))
+  })
+
+  await Promise.all(dbOperations)
+}
+
+function getBarTimes(matchTime, resolutionInSeconds) {
+  const resolutionMilliseconds = resolutionInSeconds * 1000 // Преобразование секунд в миллисекунды
+  const matchTimeMilliseconds = matchTime.getTime() // Получаем время сделки в миллисекундах
+  const barStartTime = Math.floor(matchTimeMilliseconds / resolutionMilliseconds) * resolutionMilliseconds
+  const nextBarStartTime = barStartTime + resolutionMilliseconds // Добавляем один интервал к началу текущего бара
+
+  return {
+    currentBarStart: new Date(barStartTime), // Возвращаем объект Date для текущего бара
+    nextBarStart: new Date(nextBarStartTime), // Возвращаем объект Date для следующего бара
+  }
+}
+
+export async function markeSwapBar(timeframe, swap) {
+  const frame = resolutions[timeframe]
+  const { currentBarStart, nextBarStart } = getBarTimes(swap.time, frame)
+
+  const bar = await SwapBar.findOne({
+    chain: swap.chain,
+    pool: swap.pool,
+    timeframe,
+    time: {
+      $gte: currentBarStart,
+      $lt: nextBarStart
+    }
+  })
+
+  if (!bar) {
+    await SwapBar.create({
+      timeframe,
+      chain: swap.chain,
+      pool: swap.pool,
+      time: currentBarStart,
+      open: swap.sqrtPriceX64,
+      high: swap.sqrtPriceX64,
+      low: swap.sqrtPriceX64,
+      close: swap.sqrtPriceX64,
+
+      volumeA: Math.abs(swap.tokenA),
+      volumeB: Math.abs(swap.tokenB),
+      volumeUSD: swap.totalUSDVolume,
+    })
+  } else {
+    if (BigInt(bar.high) < BigInt(swap.sqrtPriceX64)) {
+      bar.high = swap.sqrtPriceX64
+    } else if (BigInt(bar.low) > BigInt(swap.sqrtPriceX64)) {
+      bar.low = swap.sqrtPriceX64
+    }
+
+    bar.close = swap.sqrtPriceX64
+
+    bar.volumeA += Math.abs(swap.tokenA)
+    bar.volumeB += Math.abs(swap.tokenB)
+    bar.volumeUSD += swap.totalUSDVolume
+    await bar.save()
   }
 }
 
