@@ -18,6 +18,9 @@ el-dropdown(trigger="click")
             el-radio-button(label='1')
             el-radio-button(label='2')
             el-radio-button(label='3')
+        .mt-2.d-flex.gap-4
+          ElSwitch.styled-el-switch(v-model="recalculateOnPriceChange" active-color="var(--main-action-green)" activeText="")
+          span.disable.fs-14 Recalculate On Price Change
 </template>
 
 <script>
@@ -46,6 +49,16 @@ export default {
 
       get() {
         return this.$store.state.amm.slippage
+      },
+    },
+
+    recalculateOnPriceChange: {
+      set(value) {
+        this.$store.commit('amm/setRecalculateOnPriceChange', value)
+      },
+
+      get() {
+        return this.$store.state.amm.recalculateOnPriceChange
       },
     },
   },
