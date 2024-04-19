@@ -140,7 +140,6 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
   res.json(markets)
 })
 
-
 spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
