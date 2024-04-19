@@ -193,7 +193,19 @@ const networks = {
       'wram-eosio.wram',
     ],
 
-    GLOBAL_TOKENS: []
+    GLOBAL_TOKENS: [
+      'eos-eosio.token',
+      'usdt-tethertether',
+      'wram-eosio.wram',
+      'pgl-prospectorsg',
+      'wax-ibc.wt.wax',
+      'chex-chexchexchex',
+      'iq-everipediaiq',
+      'box-token.defi',
+      'efx-effecttokens',
+      'wombat-wombatbridge',
+      'mlnk-swap.pcash',
+    ]
   },
 
   proton: {
