@@ -60,7 +60,7 @@ export async function updater(chain, provider, services) {
 
     updateTokensPrices(network)
 
-    setInterval(() => updateSystemPrice(network), 1 * 60 * 1000)
+    setInterval(() => updateSystemPrice(network), 3 * 60 * 1000)
     setInterval(() => updateTokensPrices(network), 1 * 60 * 1000)
   }
 
