@@ -210,7 +210,7 @@ swap.get('/pools/:id/candles', async (req, res) => {
   try {
     const network: Network = req.app.get('network')
     const { id } = req.params
-    const { from, to, resolution, limit, reverse, volumeField }: any = req.query
+    const { from, to, resolution, limit, reverse, volumeField = 'volumeUSD' }: any = req.query
 
     // Validations for parameters
     if (!resolution) return res.status(400).send('Resolution is required.')
@@ -235,11 +235,7 @@ swap.get('/pools/:id/candles', async (req, res) => {
       close: 1,
     }
 
-    if (volumeField) {
-      $project[volumeField] = 1
-    } else {
-      $project.volumeUSD = 1
-    }
+    $project[volumeField] = 1
 
     const q: any = [
       { $match: where },
@@ -252,7 +248,11 @@ swap.get('/pools/:id/candles', async (req, res) => {
     const _candles = await SwapBar.aggregate(q)
 
     const result = _candles.map(candle => {
+      candle.volume = candle[volumeField]
+
       delete candle._id
+      delete candle[volumeField]
+
       const prices = [candle.close, candle.high, candle.low, candle.open].map(c => {
         let price = sqrtRatioToPrice(c, pool.tokenA, pool.tokenB)
         if (reverse === 'true') price = price.invert()
