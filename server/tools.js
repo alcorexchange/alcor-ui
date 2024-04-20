@@ -8,10 +8,11 @@ import fetch from 'node-fetch'
 import config from '../config'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { fetchAllRows } from '../utils/eosjs'
-import { Match, Market, Bar, GlobalStats } from './models'
+import { Swap, SwapBar, Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
 import { initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
+import { markeSwapBars } from './services/updaterService/charts'
 
 
 const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
@@ -90,6 +91,19 @@ async function main() {
     }
   }
 
+  if (command == 'create_swap_candles') {
+    const total = await Swap.count({})
+    const cursor = Swap.find().sort({ time: 1 }).cursor()
+
+    let i = 0
+    for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
+      await markeSwapBars(swap)
+      i++
+      process.stdout.write(`${i}/${total}\r`)
+    }
+  }
+
+  //markeSwapBar
   // TODO
   // if (command == 'fix_fees') {
   //   const network = config.networks[process.argv[3]]

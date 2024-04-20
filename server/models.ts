@@ -158,6 +158,22 @@ const BarSchema = new mongoose.Schema({
 })
 BarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
 
+const SwapBarSchema = new mongoose.Schema({
+  timeframe: { type: String, index: true },
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  open: String,
+  high: String,
+  low: String,
+  close: String,
+  volumeA: { type: Number, default: 0 },
+  volumeB: { type: Number, default: 0 },
+  volumeUSD: { type: Number, default: 0 },
+  time: { type: Date, index: true }
+})
+SwapBarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
+
 const PoolChartPointSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
@@ -339,6 +355,7 @@ export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)
 export const Match = mongoose.model('Match', MatchSchema)
 export const Bar = mongoose.model('Bar', BarSchema)
+export const SwapBar = mongoose.model('SwapBar', SwapBarSchema)
 export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)
 export const Swap = mongoose.model('Swap', SwapSchema)

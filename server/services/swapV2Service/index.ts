@@ -14,6 +14,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
+import { markeSwapBars } from '../updaterService/charts'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -470,7 +471,8 @@ export async function onSwapAction(message: string) {
   }
 
   if (name == 'logswap') {
-    await handleSwap({ chain, trx_id, data, block_time })
+    const swap = await handleSwap({ chain, trx_id, data, block_time })
+    markeSwapBars(swap)
 
     handlePoolChart(
       chain,

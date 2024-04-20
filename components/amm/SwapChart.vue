@@ -64,7 +64,6 @@ import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
-import { constructPoolInstance } from '~/utils/amm'
 
 export default {
   components: {

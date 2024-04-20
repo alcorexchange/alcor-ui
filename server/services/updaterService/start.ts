@@ -21,7 +21,8 @@ const providers = {
 export function startUpdaters() {
   if (process.env.NETWORK) {
     console.log('NETWORK=', process.env.NETWORK)
-    updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
+    //updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
+    updater(process.env.NETWORK, 'node', ['prices'])
   } else {
     updater('eos', 'node', ['markets', 'prices', 'swap'])
     updater('wax', 'node', ['markets', 'prices', 'swap'])
@@ -59,7 +60,7 @@ export async function updater(chain, provider, services) {
 
     updateTokensPrices(network)
 
-    setInterval(() => updateSystemPrice(network), 1 * 60 * 1000)
+    setInterval(() => updateSystemPrice(network), 3 * 60 * 1000)
     setInterval(() => updateTokensPrices(network), 1 * 60 * 1000)
   }
 

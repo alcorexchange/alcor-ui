@@ -149,9 +149,7 @@ export default {
           markets = this.markets.filter((i) => {
             return (
               ibcTokens.includes(i.base_token.contract) ||
-              ibcTokens.includes(i.quote_token.contract) ||
-              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-              Object.keys(this.network.withdraw).includes(i.base_token.str)
+              ibcTokens.includes(i.quote_token.contract)
             )
           })
           break

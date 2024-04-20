@@ -9,12 +9,10 @@ export default {
 
   methods: {
     goToPool() {
-      const pair = this.$store.state.swap.pairs.filter(p => p.id == this.pool)[0]
+      const isReverted = this.$store.state.market.base_token.id == this.pool.tokenA.id
 
-      if (!pair) return
-
-      const input = `${pair.pool1.quantity.symbol.code().to_string()}-${pair.pool1.contract}`
-      const output = `${pair.pool2.quantity.symbol.code().to_string()}-${pair.pool2.contract}`
+      const input = isReverted ? this.pool.tokenA.id : this.pool.tokenB.id
+      const output = isReverted ? this.pool.tokenB.id : this.pool.tokenA.id
 
       const q = new URLSearchParams({ input, output })
       this.openInNewTab(`${this.$i18n.locale === 'en' ? '' : '/' + this.$i18n.locale}/swap/?` + q)

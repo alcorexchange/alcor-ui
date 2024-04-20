@@ -226,10 +226,7 @@ export default {
             return (
               this.network.USD_TOKEN.includes(i.base_token.contract) ||
               ibcTokens.includes(i.base_token.contract) ||
-              ibcTokens.includes(i.quote_token.contract) ||
-
-              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-              Object.keys(this.network.withdraw).includes(i.base_token.str)
+              ibcTokens.includes(i.quote_token.contract)
             )
           })
           break

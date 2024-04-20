@@ -280,7 +280,21 @@ export class IBCTransfer {
       ws.addEventListener('message', (event) => {
         clearTimeout(timeout)
 
-        const res = JSON.parse(event.data)
+        let res
+        try {
+          res = JSON.parse(event.data)
+        } catch (e) {
+          return reject('IBC SERVER JSON ERROR')
+        }
+
+        if (res.type == 'error') {
+          return reject(res.error)
+        }
+
+        if (!res.txs) {
+          return reject('IBC SERVER INVALID RESPONCE')
+        }
+
         console.log('res', res)
         const firhoseTx = res.txs.find((r) =>
           r.find((s) => s.transactionId.toLowerCase() === transaction_id.toLowerCase())

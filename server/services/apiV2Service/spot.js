@@ -140,7 +140,6 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
   res.json(markets)
 })
 
-
 spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
@@ -151,6 +150,8 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   const tokens = await getTokens(network.name)
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
+
+  if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   formatTicker(m, tokens, network.GLOBAL_TOKENS)
   formatMarket(m, pools)

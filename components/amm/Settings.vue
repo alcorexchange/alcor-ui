@@ -19,8 +19,7 @@ el-dropdown(trigger="click")
             el-radio-button(label='2')
             el-radio-button(label='3')
         .mt-2.d-flex.gap-4
-          ElSwitch.styled-el-switch(v-model="recalculateOnPriceChange" active-color="var(--main-action-green)" activeText="")
-          span.disable.fs-14 Recalculate On Price Change
+          el-checkbox(v-model="recalculateOnPriceChange") Recalculate On Price Change
 </template>
 
 <script>

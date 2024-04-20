@@ -5,9 +5,10 @@ import { Position } from '@alcorexchange/alcor-swap-sdk'
 
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { Swap, SwapPool, SwapChartPoint } from '../../models'
+import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
+import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
-import { getLiquidityRangeChart } from '../../../utils/amm.js'
+import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
 import { getPositionStats } from './account'
 
 
@@ -204,6 +205,70 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
   //res.header('Access-Control-Allow-Origin', '*')
   res.json(result)
 })
+
+swap.get('/pools/:id/candles', async (req, res) => {
+  try {
+    const network: Network = req.app.get('network')
+    const { id } = req.params
+    const { from, to, resolution, limit, reverse, volumeField }: any = req.query
+
+    // Validations for parameters
+    if (!resolution) return res.status(400).send('Resolution is required.')
+    if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
+
+    const pool = await SwapPool.findOne({ id, chain: network.name })
+    if (!pool) return res.status(404).send(`Pool ${id} is not found`)
+
+    const where: any = { chain: network.name, timeframe: resolution.toString(), pool: parseInt(pool.id) }
+    if (from && to) {
+      where.time = {
+        $gte: new Date(parseInt(from)),
+        $lte: new Date(parseInt(to))
+      }
+    }
+
+    const $project: any = {
+      time: { $toLong: '$time' },
+      open: 1,
+      high: 1,
+      low: 1,
+      close: 1,
+    }
+
+    if (volumeField) {
+      $project[volumeField] = 1
+    } else {
+      $project.volumeUSD = 1
+    }
+
+    const q: any = [
+      { $match: where },
+      { $sort: { time: 1 } },
+      { $project }
+    ]
+
+    if (limit) q.push({ $limit: parseInt(limit) })
+
+    const _candles = await SwapBar.aggregate(q)
+
+    const result = _candles.map(candle => {
+      delete candle._id
+      const prices = [candle.close, candle.high, candle.low, candle.open].map(c => {
+        let price = sqrtRatioToPrice(c, pool.tokenA, pool.tokenB)
+        if (reverse === 'true') price = price.invert()
+        return price.toSignificant()
+      })
+
+      const [close, high, low, open] = prices
+      return { ...candle, close, high, low, open }
+    })
+
+    res.json(result)
+  } catch (error) {
+    res.status(500).send('An unexpected error occurred.')
+  }
+})
+
 
 swap.get('/pools/:id/swaps', async (req, res) => {
   const network: Network = req.app.get('network')
