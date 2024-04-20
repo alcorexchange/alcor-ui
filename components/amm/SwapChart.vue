@@ -8,18 +8,19 @@ alcor-container.p-3.w-100.chart-container-inner
       el-radio-button.pointer(v-for="{ label, value } in tabs" :label='value') {{ label }}
 
     el-radio-group.custom-radio.p-1.bg-base.br-4(
+      v-mutted="activeTab == 'Price'"
       v-model='activeTime',
       size='small'
     )
       el-radio-button.pointer(v-for="{ label, value } in times" :label='value') {{ label }}
 
-  //.p-absolute
-    .d-flex.gap-6.align-items-center.p-relative.t-15
-      .indicator.primary
-      .fs-20 Swap $2.5 B
-      .indicator.secondary
-      .fs-20 Spot $2.5 B
-  .header(v-if="sortedA && sortedB")
+  //- .p-absolute
+  //-   .d-flex.gap-6.align-items-center.p-relative.t-15
+  //-     .indicator.primary
+  //-     .fs-20 Swap $2.5 B
+  //-     .indicator.secondary
+  //-     .fs-20 Spot $2.5 B
+  .header(v-if="sortedA && sortedB && activeTab !== 'Price'")
     .pair-container
       PairIcons(
         :token1="sortedA"
@@ -41,6 +42,8 @@ alcor-container.p-3.w-100.chart-container-inner
       //.change()
         i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
         span.text 10%
+  .mt-2(v-else)
+
   component(
     :is="activeTab"
     :series="series"
@@ -49,7 +52,10 @@ alcor-container.p-3.w-100.chart-container-inner
     style="min-height: 400px"
     :events="chartEvents"
     :tooltipFormatter="renderTooltipFormatter"
+    :tokenA="$store.getters['amm/swap/tokenA']"
+    :tokenB="$store.getters['amm/swap/tokenB']"
   )
+    #swap_tv_chart_container
 </template>
 
 <script>
@@ -57,6 +63,8 @@ import JSBI from 'jsbi'
 import { mapGetters, mapState } from 'vuex'
 
 import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
+
+import SwapTwChart from '~/components/swap/TwChart'
 
 import Line from '~/components/charts/Line.vue'
 import StackedColumns from '~/components/charts/StackedColumns'
@@ -67,8 +75,7 @@ import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
-    Price: Line,
-    //Tvl: MultiLine,
+    Price: SwapTwChart,
     Tvl: Line,
     Depth: StepLine,
     Volume: StackedColumns,
@@ -355,4 +362,17 @@ export default {
     }
   }
 }
+</style>
+<style>
+#swap_tv_chart_container {
+  height: 400px;
+  width: 100%;
+}
+
+@media only screen and (max-width: 1000px) {
+  #swap_tv_chart_container {
+    height: 360px;
+  }
+}
+
 </style>
