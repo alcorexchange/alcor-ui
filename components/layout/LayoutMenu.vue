@@ -41,7 +41,7 @@
           template(v-for="section in items.filter((item) => item.contentKey)")
             .menu-content(v-show="currentContent === section.contentKey" :key="section.contentKey")
               ul.content-items(v-for="column in section.content")
-                LayoutMenuContentItem(v-for="item in column" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="require(`~/assets/icons/${item.icon}.svg`)")
+                LayoutMenuContentItem(v-for="item in column" :isNew="item.isNew" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="require(`~/assets/icons/${item.icon}.svg`)")
 </template>
 
 <script>
@@ -365,7 +365,7 @@ export default {
       position: relative;
       .new-badge {
         position: absolute;
-        background: var(--main-green);
+        background: var(--main-action-green);
         padding: 2px 4px;
         line-height: 1;
         border-radius: 4px;
