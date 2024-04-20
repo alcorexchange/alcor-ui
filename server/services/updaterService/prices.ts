@@ -96,10 +96,12 @@ export async function makeAllTokensWithPrices(network: Network) {
   }
 
   const pools = await getPools(network.name)
-  const enough_liquidity_pools = (await getPools(network.name, false, filterOutPoolsWithLowLiquidity)).map(p => p.id)
+  const enough_liquidity_pools = await getPools(network.name, false, filterOutPoolsWithLowLiquidity)
 
   // Sorting by more ticks means more liquidity
-  pools.sort((a, b) => b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length)
+  // pools.sort((a, b) => {
+  //   return b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length
+  // })
 
   pools.map(p => {
     const { tokenA, tokenB } = p
@@ -120,8 +122,8 @@ export async function makeAllTokensWithPrices(network: Network) {
       continue
     }
 
-    // Get pool for fetch price sorted by number of ticks(means more liquidity)
-    const pool = pools.find(p => (
+    // Get pool with best TVL
+    const pool = enough_liquidity_pools.find(p => (
       (p.tokenA.id === t.id && (p.tokenB.id === system_token || (USD_TOKEN && p.tokenB.id === USD_TOKEN))) ||
       (p.tokenB.id === t.id && (p.tokenA.id === system_token || (USD_TOKEN && p.tokenA.id === USD_TOKEN)))
     ))
@@ -129,7 +131,7 @@ export async function makeAllTokensWithPrices(network: Network) {
     t.usd_price = 0.0
     t.system_price = 0.0
 
-    if (pool && enough_liquidity_pools.includes(pool.id)) {
+    if (pool) {
       const isUsdtPool = (pool.tokenA.id === USD_TOKEN || pool.tokenB.id === USD_TOKEN)
 
       if (isUsdtPool) {
@@ -140,6 +142,11 @@ export async function makeAllTokensWithPrices(network: Network) {
         t.usd_price = t.system_price * systemPrice
       }
     }
+
+    // if (t.id.includes('pasta-aquascapeart')) {
+    //   console.log(t)
+    //   console.log(pool)
+    // }
   }
 
   const market_tokens = []
