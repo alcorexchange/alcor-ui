@@ -109,6 +109,13 @@ export default {
                 to: '/farm',
                 icon: 'menu-farms',
               },
+              // TODO: Add this item if only WAX network or make symbol based on network
+              {
+                title: 'Staking',
+                description: 'Stake your WAX to earn interest and rewards',
+                to: '/staking',
+                icon: 'Treasure',
+              },
             ],
           ],
         },
