@@ -50,7 +50,7 @@
           .muted TVL
           .value
             span.muted.small ( {{ $systemToUSD(tvl) }}$ )
-            span &nbsp; {{ tvl }}
+            span &nbsp; {{ tvl | commaFloat }}
 
 </template>
 
