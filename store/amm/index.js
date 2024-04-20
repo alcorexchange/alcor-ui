@@ -228,41 +228,24 @@ export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
   positions(state) {
-    const positions = []
-
-    for (const position of state.positions) {
-      const pool = state.pools.find(p => p.id == position.pool)
-      if (!pool) continue
-
-      const positionInstance = constructPosition(
-        constructPoolInstance(pool),
-        position
-      )
-
-      if (positionInstance) positions.push(positionInstance)
-    }
-
-    return positions
+    return state.positions
+      .map((position) => {
+        const pool = state.pools.find((p) => p.id === position.pool)
+        return pool ? constructPosition(constructPoolInstance(pool), position) : null
+      })
+      .filter((position) => position !== null)
   },
 
   poolsPlainWithStatsAndUserData(state, getters, rootState) {
-    const _poolStats = new Map(state.poolsStats.map(p => [p.id, p]))
-    const positions = state.positions
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const poolStatsMap = new Map(state.poolsStats.map((p) => [p.id, p]))
 
-    const pools = []
-    for (const pool of state.pools) {
-      if (
-        rootState.network.SCAM_CONTRACTS.includes(pool.tokenA.contract) ||
-        rootState.network.SCAM_CONTRACTS.includes(pool.tokenB.contract)
-      ) continue
-
-      pools.push({
+    return state.pools
+      .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+      .map((pool) => ({
         ...pool,
-        poolStats: _poolStats.get(pool.id),
-        positions: positions.filter(p => p.pool == pool.id)
-      })
-    }
-
-    return pools
+        poolStats: poolStatsMap.get(pool.id),
+        positions: state.positions.filter((p) => p.pool === pool.id),
+      }))
   },
 }

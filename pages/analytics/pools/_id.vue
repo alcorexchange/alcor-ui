@@ -9,7 +9,8 @@ div(v-if="pool && stats").analytics-pool-detail-page
       :selectedMode.sync="selectedMode"
       :selectedResolution.sync="selectedResolution"
     )
-      component(:is="renderChart" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
+      component(:is="renderChart" :pool="pool" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
+        #swap_tv_chart_container
 
   VirtualTable.virtual-table(
     :table="tableData"
@@ -26,6 +27,7 @@ import { mapActions } from 'vuex'
 import { Token, tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
+import SwapTwChart from '~/components/swap/TwChart'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
@@ -60,6 +62,7 @@ export default {
     Volume: StackedColumns,
     Bars,
     ReturnLink,
+    SwapTwChart
   },
 
   fetch({ params, error }) {
@@ -70,7 +73,7 @@ export default {
     return {
       loading: true,
       selectedResolution: 'All',
-      selectedMode: 'TVL',
+      selectedMode: 'Price',
 
       chart: [],
 
@@ -158,13 +161,12 @@ export default {
     renderChart() {
       if (this.selectedMode === 'Volume') return 'Volume'
       if (this.selectedMode === 'Ticks') return 'Bars'
-      if (this.selectedMode === 'Price') return 'LineChart'
+      if (this.selectedMode === 'Price') return 'SwapTwChart'
       return 'LineChart'
     },
 
     chartModes() {
-      //return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
-      return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Price' }]
+      return [{ value: 'Price' }, { value: 'Volume' }, { value: 'TVL' }]
     },
 
     id() {

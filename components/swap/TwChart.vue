@@ -1,13 +1,14 @@
 <template lang="pug">
 .h-100
-  //| {{ chartForPoolId }}, isSorted {{ isSorted }}
+  //| {{ chartForPool }}, isSorted {{ isSorted }}
+  //| tickerSymbol {{ tickerSymbol }}
   slot
 </template>
 
 <script>
 import { debounce } from 'lodash'
 import { mapState } from 'vuex'
-import { parseToken } from '~/utils/amm'
+import { constructPoolInstance, parseToken } from '~/utils/amm'
 
 export default {
   props: ['tokenA', 'tokenB', 'pool'],
@@ -59,7 +60,10 @@ export default {
     ...mapState(['user', 'network']),
 
     tickerSymbol() {
-      return this.tokenA?.symbol + '_' + this.tokenB?.symbol
+      const tokenA = this.tokenA ?? this.pool?.tokenA
+      const tokenB = this.tokenB ?? this.pool?.tokenB
+
+      return tokenA?.symbol + '_' + tokenB?.symbol
     },
 
     isSorted() {
@@ -68,7 +72,9 @@ export default {
       return this.tokenA.sortsBefore(this.tokenB)
     },
 
-    chartForPoolId() {
+    chartForPool() {
+      if (!isNaN(this.pool?.id)) return this.pool
+
       if (!this.tokenA || !this.tokenB) return null
 
       const pool = this.$store.getters['amm/poolsPlainWithStatsAndUserData'].filter(p => {
@@ -79,7 +85,7 @@ export default {
           (this.tokenA.id == tokenB.id && this.tokenB.id == tokenA.id)
       }).sort((a, b) => b?.poolStats?.tvlUSD - a?.poolStats?.tvlUSD)[0]
 
-      return pool?.id ?? null
+      return constructPoolInstance(pool) ?? null
     }
   },
 
@@ -96,8 +102,8 @@ export default {
       this.resetDebounced()
     },
 
-    chartForPoolId(from, to) {
-      if (from == to) return
+    chartForPool(from, to) {
+      if (from?.id == to?.id) return
 
       this.resetDebounced()
     },
@@ -198,9 +204,7 @@ export default {
     },
 
     mountChart() {
-      // console.log('mountChart..', this.$slots.default[0].elm)
-      // console.log('this.$slots', this.$slots, this.$slots.default[0], this.$slots.default[0].elm.id)
-      if (!this.tokenA || !this.tokenB) return // TODO hint to select pair
+      if (isNaN(this.chartForPool?.id)) return
 
       const { $TVChart: { Widget } } = this
 
@@ -234,6 +238,15 @@ export default {
           //},
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
+            //const curr_price = (this.isSorted ? this.chartForPool.tokenAPrice : this.chartForPool.tokenBPrice).toSignificant()
+            //const precision = (curr_price.split('.')[1] ?? '').length * 10
+            //const precision = Math.pow(10, curr_price.split('.')[1]?.length ?? 1)
+            //console.log(curr_price.split('.')[1]?.length ?? 1, { curr_price })
+
+            // console.log('curr_price', curr_price.toSignificant())
+
+            // console.log('resolveSymbol', this.chartForPool)
+
             const symbolInfo = {
               name: this.tickerSymbol,
               //description: 'ololol', TODO
@@ -241,7 +254,7 @@ export default {
               timezone: 'UTC',
               session: '24x7',
               minmov: 1,
-              pricescale: 100000000,
+              pricescale: 1000000000, // TODO Make dynamic
               has_intraday: true,
               has_no_volume: false,
               has_weekly_and_monthly: true,
@@ -258,14 +271,14 @@ export default {
 
             this.widget.activeChart().setSymbol(this.tickerSymbol)
 
-            this.$axios.get(`/v2/swap/pools/${this.chartForPoolId}/candles`,
+            this.$axios.get(`/v2/swap/pools/${this.chartForPool?.id}/candles`,
               { params: { resolution, from: from * 1000, to: to * 1000, reverse: !this.isSorted } })
               .then(({ data: charts }) => {
                 onHistoryCallback(charts, { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
                   //this.widget.activeChart().removeAllShapes()
-                  //this.widget.activeChart().resetData()
+                  this.widget.activeChart().resetData()
 
                   //setTimeout(() => this.drawOrders(), 1000)
                 }
