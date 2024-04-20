@@ -21,6 +21,7 @@
           )
             span {{ item.name }}
             i.el-icon-caret-bottom
+            .new-badge(v-if="item.isNew") New
           nuxt-link.menu-item(v-else :to="localePath(item.to)")
             span {{ item.name }}
     .end
@@ -40,7 +41,7 @@
           template(v-for="section in items.filter((item) => item.contentKey)")
             .menu-content(v-show="currentContent === section.contentKey" :key="section.contentKey")
               ul.content-items(v-for="column in section.content")
-                LayoutMenuContentItem(v-for="item in column" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="require(`~/assets/icons/${item.icon}.svg`)")
+                LayoutMenuContentItem(v-for="item in column" :isNew="item.isNew" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="require(`~/assets/icons/${item.icon}.svg`)")
 </template>
 
 <script>
@@ -95,6 +96,7 @@ export default {
         {
           name: 'Earn',
           contentKey: 'earn',
+          isNew: true,
           content: [
             [
               {
@@ -115,6 +117,7 @@ export default {
                 description: 'Stake your WAX to earn interest and rewards',
                 to: '/staking',
                 icon: 'Treasure',
+                isNew: true,
               },
             ],
           ],
@@ -359,6 +362,21 @@ export default {
       align-items: center;
       gap: 4px;
       color: var(--text-disable);
+      position: relative;
+      .new-badge {
+        position: absolute;
+        background: var(--main-action-green);
+        padding: 2px 4px;
+        line-height: 1;
+        border-radius: 4px;
+        color: black;
+        top: 0;
+        right: 0;
+        font-size: 0.6rem;
+        pointer-events: none;
+        transform: translate(20%, -40%);
+        z-index: 1;
+      }
       &.active {
         color: var(--text-default);
       }

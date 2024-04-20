@@ -19,6 +19,7 @@ export default {
     SwapWidget,
     SwapChart,
   },
+
   data: () => ({
     colors: [
       { name: 'eos', color: '50, 215, 75' },
@@ -28,7 +29,18 @@ export default {
       { name: 'bos', color: '34, 139, 233' },
     ]
   }),
+
   computed: {
+    ...mapGetters('amm/swap', [
+      'tokenA',
+      'tokenB',
+      'tokens',
+      'isSorted',
+      'sortedA',
+      'sortedB'
+    ]),
+
+
     currentColor() {
       const item = this.colors.find(({ name }) => this.$store.state.network.name === name)
       return item ? item.color : this.colors[0].color

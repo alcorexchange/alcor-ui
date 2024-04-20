@@ -276,7 +276,7 @@ export default {
   methods: {
     tooltipFormatter(value) {
       if (this.selectedMode === 'TVL') {
-        return `$${value}`
+        return `$${this.$options.filters.commaFloat(value, 2)}`
       }
       return value
     },
