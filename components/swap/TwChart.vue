@@ -462,7 +462,7 @@ export default {
               cb({
                 //exchanges: [{ value: 'asdfasdf', name: 'aaaa', desc: 'df' }],
                 //symbols_types: [{ value: 'asdfasdf', name: 'aaaa' }],
-                supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
+                supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
                 //currency_codes: [{ id: 'asdf', code: 'SDF', logoUrl: 'asdf', description: 'asdfasdf' }]
                 // TODO https://github.com/tradingview/charting_library/wiki/JS-Api do more
                 supports_time: false
@@ -490,7 +490,7 @@ export default {
               has_intraday: true,
               has_no_volume: false,
               has_weekly_and_monthly: true,
-              supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
+              supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
               volume_precision: 5,
               data_status: 'streaming'
             }
@@ -569,7 +569,7 @@ export default {
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: this.isMobile ? ['4'] : ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
+          intervals: this.isMobile ? ['4'] : ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
           //chartTypes: ["Area", "Line"]
         },
         locale: 'en', // TODO Change lang

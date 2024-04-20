@@ -26,9 +26,8 @@ import TokenImage from '~/components/elements/TokenImage'
 import PairIcons from '~/components/PairIcons'
 
 export default {
-  props: ['route'],
-
-  components: { TokenImage, PairIcons }
+  components: { TokenImage, PairIcons },
+  props: ['route']
 }
 </script>
 

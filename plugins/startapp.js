@@ -13,7 +13,6 @@ export default ({ app: { store, $axios } }, inject) => {
 
     store.dispatch('init')
 
-    store.dispatch('swap/init')
     store.dispatch('farms/init')
     store.dispatch('chain/init')
     store.dispatch('market/init')
