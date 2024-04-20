@@ -1,10 +1,12 @@
 <template lang="pug">
 .h-100
+  | {{ chartForPoolId }}, isSorted {{ isSorted }}
   slot
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+import { parseToken } from '~/utils/amm'
 
 export default {
   props: ['tokenA', 'tokenB', 'pool'],
@@ -58,6 +60,24 @@ export default {
 
     tickerSymbol() {
       return this.tokenA?.symbol + '_' + this.tokenB?.symbol
+    },
+
+    isSorted() {
+      return this.tokenA?.sortsBefore(this.tokenB) || true
+    },
+
+    chartForPoolId() {
+      if (!this.tokenA || !this.tokenB) return null
+
+      const pool = this.$store.getters['amm/poolsPlainWithStatsAndUserData'].filter(p => {
+        const tokenA = parseToken(p.tokenA)
+        const tokenB = parseToken(p.tokenB)
+
+        return (this.tokenA.id == tokenA.id && this.tokenB.id == tokenB.id) ||
+          (this.tokenA.id == tokenB.id && this.tokenB.id == tokenA.id)
+      }).sort((a, b) => b?.poolStats?.tvlUSD - a?.poolStats?.tvlUSD)[0]
+
+      return pool?.id || null
     }
   },
 
@@ -73,13 +93,13 @@ export default {
     tokenA(from, to) {
       if (from?.id == to?.id) return
 
-      this.mountChart()
+      this.reset()
     },
 
     tokenB(from, to) {
       if (from?.id == to?.id) return
 
-      this.mountChart()
+      this.reset()
     }
   },
 
@@ -125,6 +145,8 @@ export default {
 
           'paneProperties.vertGridProperties.color': theme.gridColor,
           'paneProperties.horzGridProperties.color': theme.gridColor,
+
+          'paneProperties.legendProperties.showSeriesOHLC': false,
 
           'mainSeriesProperties.style': 1, // TODO play with
 
@@ -218,7 +240,8 @@ export default {
 
             this.widget.activeChart().setSymbol(this.tickerSymbol)
 
-            this.$axios.get('https://alcor.exchange/api/v2/swap/pools/1095/candles', { params: { resolution, from: from * 1000, to: to * 1000 } })
+            this.$axios.get(`/v2/swap/pools/${this.chartForPoolId}/candles`,
+              { params: { resolution, from: from * 1000, to: to * 1000, reverse: !this.isSorted } })
               .then(({ data: charts }) => {
                 onHistoryCallback(charts, { noData: charts.length == 0 })
 
@@ -293,6 +316,7 @@ export default {
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
+          'show_ohlc',
           'status_line',
           'hide_last_value_on_legend',
           'show_prices_on_chart',
@@ -391,14 +415,15 @@ export default {
 
         this.applyTheme()
 
-        // this.widget.subscribe('onAutoSaveNeeded', () => {
-        //   this.save()
-        // })
+        this.widget.subscribe('onAutoSaveNeeded', () => {
+          //this.save()
+        })
 
-        // // Save on indicators update
-        // this.widget.subscribe('study_event', () => {
-        //   this.save()
-        // })
+        // Save on indicators update
+        this.widget.subscribe('study_event', (e) => {
+          console.log('event', e)
+          //this.save()
+        })
       })
     }
   }

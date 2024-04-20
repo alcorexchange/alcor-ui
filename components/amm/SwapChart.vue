@@ -8,6 +8,7 @@ alcor-container.p-3.w-100.chart-container-inner
       el-radio-button.pointer(v-for="{ label, value } in tabs" :label='value') {{ label }}
 
     el-radio-group.custom-radio.p-1.bg-base.br-4(
+      v-mutted="activeTab == 'Price'"
       v-model='activeTime',
       size='small'
     )
