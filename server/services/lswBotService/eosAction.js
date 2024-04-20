@@ -38,6 +38,17 @@ class EosAction {
     return await this.pushAction('eosio', 'refund', this.config.contractName, { owner: owner }, this.config.permission)
   }
 
+  async unstakebatch() {
+    return await this.pushAction(
+            this.config.contractName,
+            'unstakebatch',
+            this.config.contractName,
+            {},
+            this.config.permission
+
+    )
+  }
+
   async botclaim() {
     return await this.pushAction(this.config.contractName, 'botclaim', this.config.contractName, {}, this.config.permission)
   }

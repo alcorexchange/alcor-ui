@@ -55,6 +55,13 @@ async function claimAndUpdateVotingReward() {
       '[claimAndUpdateVotingReward] Claim Vote Reward at transaction_id: ' + receipt.transaction_id + ' at ',
       new Date().toJSON()
     )
+
+    // trigger unstakeBatch
+    receipt = await eosAction.unstakebatch()
+    log.info(
+      '[claimAndUpdateVotingReward] Call unstakeBatch at transaction_id: ' + receipt.transaction_id + ' at ',
+      new Date().toJSON()
+    )
   } catch (error) {
     log.error('[claimAndUpdateVotingReward] ' + error.message, ' at ', new Date().toJSON())
   }
@@ -144,7 +151,6 @@ setInterval(function () {
 }, 24 * 60 * 60 * 1000)
 
 // Check every 10 seconds
-refundUnstakingToken()
 setInterval(function () {
   refundUnstakingToken()
 }, 10000)
