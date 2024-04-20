@@ -21,6 +21,7 @@
           )
             span {{ item.name }}
             i.el-icon-caret-bottom
+            .new-badge(v-if="item.isNew") New
           nuxt-link.menu-item(v-else :to="localePath(item.to)")
             span {{ item.name }}
     .end
@@ -95,6 +96,7 @@ export default {
         {
           name: 'Earn',
           contentKey: 'earn',
+          isNew: true,
           content: [
             [
               {
@@ -115,6 +117,7 @@ export default {
                 description: 'Stake your WAX to earn interest and rewards',
                 to: '/staking',
                 icon: 'Treasure',
+                isNew: true,
               },
             ],
           ],
@@ -359,6 +362,21 @@ export default {
       align-items: center;
       gap: 4px;
       color: var(--text-disable);
+      position: relative;
+      .new-badge {
+        position: absolute;
+        background: var(--main-green);
+        padding: 2px 4px;
+        line-height: 1;
+        border-radius: 4px;
+        color: black;
+        top: 0;
+        right: 0;
+        font-size: 0.6rem;
+        pointer-events: none;
+        transform: translate(20%, -40%);
+        z-index: 1;
+      }
       &.active {
         color: var(--text-default);
       }
