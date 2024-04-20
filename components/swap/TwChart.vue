@@ -4,12 +4,11 @@
 </template>
 
 <script>
-import { Big } from 'big.js'
-
 import { mapState, mapGetters } from 'vuex'
 
 export default {
-  props: ['blank'],
+  props: ['tokenA', 'tokenB', 'pool'],
+
   data() {
     return {
       resolution: 240,
@@ -18,11 +17,7 @@ export default {
       widget: null,
       onResetCacheNeededCallback: null,
       executionshape: '',
-      order_lines: [],
       isReady: false,
-      orderLines: [],
-      gridExecutions: [],
-      deals: [],
       chartThemes: {
         light: {
           background: '#F0F2F5',
@@ -60,84 +55,44 @@ export default {
 
   computed: {
     ...mapState(['user', 'network']),
-    ...mapGetters(['userOrders']),
-    ...mapState('market', [
-      'base_token',
-      'id',
-      'quote_token',
-      'chart_orders_settings',
-      'orderdata',
-      'slug'
-    ]),
 
-    orders() {
-      if (!this.user) return []
-
-      return this.userOrders
-        .filter((a) => a.account === this.user.name && a.market_id == this.id)
-        .sort((a, b) => b.timestamp - a.timestamp)
-    },
+    tickerSymbol() {
+      return this.tokenA?.symbol + '_' + this.tokenB?.symbol
+    }
   },
 
   watch: {
-    '$colorMode.value'() {
+    // '$colorMode.value'() {
+    //   this.mountChart()
+    // },
+
+    '$store.state.settings.tradeColor'() {
+      //this.applyTheme()
+    },
+
+    tokenA(from, to) {
+      if (from?.id == to?.id) return
+
       this.mountChart()
     },
-    '$store.state.settings.tradeColor'() {
-      this.applyTheme()
-    },
 
-    userOrders() {
-      this.drawOrders()
-    },
+    tokenB(from, to) {
+      if (from?.id == to?.id) return
 
-    deals(to, from, x) {
-      if (to.length > from.length) this.gridExecution()
-    },
-
-    id(to, from) {
-      this.isReady = false
-      this.reset()
-      //this.load()
-    },
-
-    'chart_orders_settings.chart_order_interactivity'() {
-      this.drawOrders()
-    },
-
-    'chart_orders_settings.show_labels'() {
-      this.drawOrders()
-    },
-    'chart_orders_settings.show_open_orders'() {
-      this.drawOrders()
-    },
-    'chart_orders_settings.show_trade_execution_amount'() {
-      this.widget.activeChart().removeAllShapes()
-      this.gridExecution()
-    },
-    'chart_orders_settings.show_trade_executions_price'() {
-      this.widget.activeChart().removeAllShapes()
-      this.gridExecution()
-    },
-    'chart_orders_settings.show_trade_executions'(to) {
-      if (to == false) {
-        this.widget.activeChart().removeAllShapes()
-      } else {
-        this.reset()
-      }
+      this.mountChart()
     }
   },
 
   mounted() {
     this.mountChart()
 
-    this.$socket.on('tick', (candle) => {
-      this.onRealtimeCallback(candle)
-    })
+    // this.$socket.on('tick', (candle) => {
+    //   this.onRealtimeCallback(candle)
+    // })
 
-    this.$socket.io.on('reconnect', () => {
-      this.reset()
-    })
+    // this.$socket.io.on('reconnect', () => {
+    //   this.reset()
+    // })
   },
 
   methods: {
@@ -147,29 +102,20 @@ export default {
       )
       this.widget.save((o) => {
         twChart[this.id] = o
-        this.$store.commit('settings/setTwChart', twChart)
+        this.$store.commit('settings/setSwapTwChart', twChart)
       })
     },
 
     load() {
       // FIXME Not workin in production
-      const twChart = this.$store.state.settings.twChart[this.id]
+      const twChart = this.$store.state.settings.swapTwChart[this.id] // FIXME no id
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
     },
-    applySettings() {
-      if (this.blank) {
-        this.$store.commit('market/backupChartOrdersSettings')
-        this.$store.commit('market/setChartOrdersSettingsDefault')
-      } else {
-        this.$store.commit('market/setChartOrdersSettingsFromBackup')
-      }
-    },
+
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme') || 'default']
-
-      const isFundamentalPage = this.$route.name.startsWith('fundamentals-slug')
 
       this.widget.onChartReady(() => {
         this.widget.applyOverrides({
@@ -180,7 +126,7 @@ export default {
           'paneProperties.vertGridProperties.color': theme.gridColor,
           'paneProperties.horzGridProperties.color': theme.gridColor,
 
-          'mainSeriesProperties.style': isFundamentalPage ? 3 : 1,
+          'mainSeriesProperties.style': 1, // TODO play with
 
           'mainSeriesProperties.areaStyle.color1': 'rgba(88, 177, 75, .28)',
           'mainSeriesProperties.areaStyle.color2': 'rgba(88, 177, 75, 0)',
@@ -202,267 +148,36 @@ export default {
     },
 
     reset() {
+      console.log('reset called')
+
       if (this.widget && this.onResetCacheNeededCallback) {
-        this.cleanOrders()
         this.onResetCacheNeededCallback()
       } else {
         this.mountChart()
       }
     },
 
-    cleanOrders() {
-      // Clean all orders
-      while (this.orderLines.length != 0) {
-        const order = this.orderLines.pop()
-        order.remove()
-      }
-    },
-
-    drawOrders() {
-      this.cleanOrders() // Just in case
-      if (!this.isReady) return
-
-      // TODO Get current from CSS by JS
-      const green = '#66C167'
-      const red = '#F96C6C'
-
-      if (this.chart_orders_settings.show_open_orders) {
-        this.orders.map(o => {
-          const order = this.widget
-            .activeChart()
-            .createOrderLine() // FIXME Value is none how to fix? (seems was fixed)
-            .setPrice(this.$options.filters.humanPrice(o.unit_price).replaceAll(',', ''))
-            .setText(o.type == 'sell' ? 'Sell' : 'Buy')
-            .setLineColor(o.type == 'buy' ? green : red)
-            .setBodyBackgroundColor(o.type == 'buy' ? '#212121' : '#212121')
-            .setBodyBorderColor(o.type == 'buy' ? green : red)
-            .setQuantityBackgroundColor(o.type == 'buy' ? green : red)
-            .setBodyTextColor('#f2fff2')
-            .setQuantityTextColor('#161617')
-            .setQuantityBorderColor(o.type == 'buy' ? green : red)
-            .setCancelButtonBorderColor(o.type == 'buy' ? green : red)
-            .setCancelButtonBackgroundColor('#212121')
-            .setCancelButtonIconColor('#f2fff2')
-          if (this.chart_orders_settings.show_labels) {
-            order
-              .setQuantity(o.type !== 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
-              .setLineLength(3)
-          } else {
-            order
-              .setQuantity('')
-          }
-
-          if (this.chart_orders_settings.chart_order_interactivity) {
-            order
-              .onCancel(() => this.cancelOrder(order, o))
-              .onMove(() => this.moveOrder(order, o))
-          }
-
-          this.orderLines.push(order)
-        })
-      }
-    },
-
-    async moveOrder(order, orderdata) {
-      // FIXME Не добавляет нулей для мемо при отправкe
-      // TODO При перемещении менять динамически тотал текст, будет удобно
-      const actions = [
-        { // Cancel current order
-          account: this.network.contract,
-          name: ['buy', 'bid'].includes(orderdata.type) ? 'cancelbuy' : 'cancelsell',
-          authorization: [this.user.authorization],
-          data: { executor: this.user.name, market_id: this.id, order_id: orderdata.id }
-        }
-      ]
-
-      const new_unit_price = Big(order.getPrice() * 100000000)
-
-      if (['buy', 'bid'].includes(orderdata.type)) {
-        // buy order
-        const bp = this.base_token.symbol.precision
-        const qp = this.quote_token.symbol.precision
-        const new_ask = Big(orderdata.bid.amount)
-          .mul(-1).mul(Big(-100000000))
-          .div(new_unit_price).abs()
-          .div(Big(10).pow(bp))
-          .round(qp, 0)
-
-        actions.push({
-          account: this.base_token.contract,
-          name: 'transfer',
-          authorization: [this.user.authorization],
-          data: {
-            from: this.user.name,
-            to: this.network.contract,
-            quantity: `${orderdata.bid.quantity}`,
-            memo: `${new_ask} ${this.quote_token.str}`
-          }
-        })
-      } else {
-        const bp = this.base_token.symbol.precision
-        const qp = this.quote_token.symbol.precision
-        const new_ask = Big(orderdata.bid.amount)
-          .mul(new_unit_price).div(Big(100000000))
-          .div(Big(10).pow(qp))
-          .round(bp, 0)
-
-        actions.push({
-          account: this.quote_token.contract,
-          name: 'transfer',
-          authorization: [this.user.authorization],
-          data: {
-            from: this.user.name,
-            to: this.network.contract,
-            quantity: `${orderdata.bid.quantity}`,
-            memo: `${new_ask} ${this.base_token.str}`
-          }
-        })
-      }
-
-      try {
-        await this.$store.dispatch('chain/sendTransaction', actions, { root: true })
-        setTimeout(() => {
-          this.$store.dispatch('updatePairBalances')
-          this.$store.dispatch('loadOrders', this.id, { root: true })
-        }, 1000)
-      } catch (e) {
-        this.$notify({ title: 'Move order', message: e, type: 'error' })
-        this.drawOrders()
-      }
-    },
-
-    async cancelOrder(position, order) {
-      try {
-        await this.$store.dispatch('chain/cancelorder', {
-          account: this.user.name,
-          market_id: this.id,
-          type: order.type,
-          order_id: order.id
-        })
-
-        this.$notify({
-          title: 'Success',
-          message: `Order canceled ${order.id}`,
-          type: 'success'
-        })
-        setTimeout(() => {
-          this.$store.dispatch('loadOrders', this.id)
-          this.$store.dispatch('loadUserBalances')
-        }, 3000)
-      } catch (e) {
-        this.$notify({ title: 'Place order', message: e, type: 'error' })
-        console.log(e)
-      } finally {
-      }
-    },
-
-    async loadHistory({ from, to }) {
-      if (!this.user || !this.user.name) return
-
-      const { data: deals } = await this.$axios.get(
-        `/account/${this.user.name}/deals`,
-        {
-          params: {
-            from,
-            to,
-            market: this.id
-          }
-        }
-      )
-
-      deals.map((d) => {
-        d.type = this.user.name == d.bidder ? 'buy' : 'sell'
-      })
-
-      this.deals = [].concat(this.deals, deals)
-    },
-
-    gridExecution() {
-      if (!this.user || !this.widget || !this.chart_orders_settings.show_trade_executions) return
-
-      //this.gridExecutions.map(e => e.remove())
-      //this.gridExecutions = []
-
-      if (this.chart_orders_settings.show_trade_executions) {
-        const _deals = []
-
-        const compressed = {}
-        for (const deal of this.deals) {
-          if (compressed[deal.trx_id]) {
-            compressed[deal.trx_id].push(deal)
-          } else {
-            compressed[deal.trx_id] = [deal]
-          }
-        }
-
-        for (const pack of Object.values(compressed)) {
-          const byPrice = {}
-
-          for (const d of pack) {
-            if (byPrice[d.unit_price]) {
-              byPrice[d.unit_price].bid += d.bid
-              byPrice[d.unit_price].ask += d.ask
-            } else {
-              byPrice[d.unit_price] = d
-            }
-          }
-
-          _deals.push(...Object.values(byPrice))
-        }
-
-        for (const deal of _deals) {
-          const options = {
-            shape: deal.type == 'buy' ? 'arrow_up' : 'arrow_down',
-            overrides: { color: deal.type == 'sell' ? '#f96c6c' : '#009688', fontsize: 12, fixedSize: false, wordWrapWidth: 200 },
-            zOrder: 'top',
-            disableSelection: false,
-            disableSave: true
-          }
-
-          const text = `${deal.type == 'buy' ? deal.bid : deal.ask} ${this.quote_token.symbol.name}`
-          if (this.chart_orders_settings.show_trade_execution_amount) {
-            options.text = text
-          }
-
-          const execution = this.widget
-            .activeChart()
-            .createShape({ time: new Date(deal.time).getTime() / 1000, price: deal.unit_price }, options)
-
-          //.createExecutionShape()
-          //.setTooltip('@1,320.75 Limit Buy 1')
-          //.setTooltip(`${deal.unit_price} ` + deal.type == 'buy' ? `@${deal.bid}` : `@${deal.ask}` + ' WAX')
-          //.setTooltip(deal.buy)
-          //.setText(deal.unit_price)
-          //.setTextColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
-          //.setArrowColor(deal.type == 'buy' ? '#66C167' : '#F96C6C')
-          //.setDirection(deal.type)
-          //.setTime(new Date(deal.time).getTime() / 1000)
-          //.setPrice(deal.unit_price)
-          //.setArrowHeight(10)
-          //.setArrowSpacing(10)
-          //.setFont('bold 15pt Verdana')
-
-          this.gridExecutions.push(execution)
-        }
-      }
-    },
-
     mountChart() {
+      // console.log('mountChart..', this.$slots.default[0].elm)
+      // console.log('this.$slots', this.$slots, this.$slots.default[0], this.$slots.default[0].elm.id)
+      if (!this.tokenA || !this.tokenB) return // TODO hint to select pair
+
       const { $TVChart: { Widget } } = this
 
       const theme = this.chartThemes[this.$colorMode.value]
       const colors = this.chartColors[window.localStorage.getItem('trade-theme') || 'default']
 
       const widgetOptions = {
-        symbol: this.quote_token.symbol.name,
+        symbol: this.tickerSymbol,
 
         datafeed: {
           onReady: (cb) => {
             setTimeout(() => {
               cb({
+                // TODO might be put all pools here and aggregated
                 //exchanges: [{ value: 'asdfasdf', name: 'aaaa', desc: 'df' }],
                 //symbols_types: [{ value: 'asdfasdf', name: 'aaaa' }],
-                supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+                supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
                 //currency_codes: [{ id: 'asdf', code: 'SDF', logoUrl: 'asdf', description: 'asdfasdf' }]
                 // TODO https://github.com/tradingview/charting_library/wiki/JS-Api do more
                 supports_time: false
@@ -480,7 +195,7 @@ export default {
 
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
             const symbolInfo = {
-              name: this.quote_token.symbol.name,
+              name: this.tickerSymbol,
               //description: 'ololol', TODO
               type: 'crypto',
               timezone: 'UTC',
@@ -490,32 +205,30 @@ export default {
               has_intraday: true,
               has_no_volume: false,
               has_weekly_and_monthly: true,
-              supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+              supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
               volume_precision: 5,
               data_status: 'streaming'
             }
 
             setTimeout(() => onSymbolResolvedCallback(symbolInfo), 0)
           },
+
           getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
 
-            this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-            this.$axios.get(`/v2/tickers/${this.slug}/charts`, { params: { resolution, from: from * 1000, to: to * 1000 } })
+            this.widget.activeChart().setSymbol(this.tickerSymbol)
+
+            this.$axios.get('https://alcor.exchange/api/v2/swap/pools/1095/candles', { params: { resolution, from: from * 1000, to: to * 1000 } })
               .then(({ data: charts }) => {
                 onHistoryCallback(charts, { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
-                  this.widget.activeChart().removeAllShapes()
+                  //this.widget.activeChart().removeAllShapes()
                   this.widget.activeChart().resetData()
-                  this.deals = []
 
                   this.isReady = true
-
-                  setTimeout(() => this.drawOrders(), 1000)
+                  //setTimeout(() => this.drawOrders(), 1000)
                 }
-
-                if (this.user) this.loadHistory({ from, to })
               }).catch(e => onErrorCallback('Charts loading error..', e))
           },
 
@@ -523,14 +236,14 @@ export default {
             console.log('subscribeBars called...')
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
-            this.$socket.emit('subscribe', {
-              room: 'ticker',
-              params: {
-                chain: this.network.name,
-                market: this.id,
-                resolution: this.resolution
-              }
-            })
+            // this.$socket.emit('subscribe', {
+            //   room: 'ticker',
+            //   params: {
+            //     chain: this.network.name,
+            //     market: this.id,
+            //     resolution: this.resolution
+            //   }
+            // })
 
             this.onRealtimeCallback = onRealtimeCallback
             this.resolution = resolution
@@ -538,14 +251,14 @@ export default {
 
           unsubscribeBars: (subscriberUID) => {
             console.log('unsubscribeBars called...')
-            this.$socket.emit('unsubscribe', {
-              room: 'ticker',
-              params: {
-                chain: this.network.name,
-                market: this.id,
-                resolution: this.resolution
-              }
-            })
+            // this.$socket.emit('unsubscribe', {
+            //   room: 'ticker',
+            //   params: {
+            //     chain: this.network.name,
+            //     market: this.id,
+            //     resolution: this.resolution
+            //   }
+            // })
           },
 
           getMarks: (symbolInfo, from, to, onDataCallback, resolution) => {
@@ -565,15 +278,28 @@ export default {
           }
         },
         interval: '240',
-        container_id: this.$slots.default[0].elm.id,
+        container_id: this.$slots?.default[0]?.elm?.id || 'swap_tv_chart_container',
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: this.isMobile ? ['4'] : ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+          intervals: this.isMobile ? ['4'] : ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
           //chartTypes: ["Area", "Line"]
+        },
+        tooltip: {
+          enabled: false // Отключает отображение тултипа
+        },
+        scales: {
+          showValues: false // Отключает отображение значений O H L C на графике
         },
         locale: 'en', // TODO Change lang
         disabled_features: [
+          'status_line',
+          'hide_last_value_on_legend',
+          'show_prices_on_chart',
+          'legend_context_menu',
+          'main_series_scale_menu',
+          'left_toolbar',
+          //'header_widget',
           'symbol_search_hot_key',
           'header_symbol_search',
           //'header_chart_type',
@@ -661,18 +387,18 @@ export default {
 
       this.widget = new Widget(widgetOptions)
       this.widget.onChartReady(() => {
-        this.load()
+        //this.load()
+
         this.applyTheme()
-        this.applySettings()
 
-        this.widget.subscribe('onAutoSaveNeeded', () => {
-          this.save()
-        })
+        // this.widget.subscribe('onAutoSaveNeeded', () => {
+        //   this.save()
+        // })
 
-        // Save on indicators update
-        this.widget.subscribe('study_event', () => {
-          this.save()
-        })
+        // // Save on indicators update
+        // this.widget.subscribe('study_event', () => {
+        //   this.save()
+        // })
       })
     }
   }
@@ -680,13 +406,4 @@ export default {
 </script>
 
 <style>
-#tv_chart_container {
-  height: calc(100%) !important;
-}
-
-@media only screen and (max-width: 1000px) {
-  #tv_chart_container {
-    height: 360px;
-  }
-}
 </style>

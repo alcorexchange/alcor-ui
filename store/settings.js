@@ -26,6 +26,7 @@ export const mutations = {
   setFavMarkets: (state, markets) => state.favMarkets = markets,
   setSideMaretsTab: (state, tab) => state.sideMaretsTab = tab,
   setTwChart: (state, config) => state.twChart = config,
+  setSwapTwChart: (state, config) => state.swapTwChart = config,
   setHideOtherPairs: (state, value) => state.hideOtherPairs = value,
   setTimesAndSales: (state, value) => state.timesAndSales = value,
   setTradeColor: (state, value) => state.tradeColor = value,
