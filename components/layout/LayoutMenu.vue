@@ -64,136 +64,6 @@ export default {
       currentContent: null, // 'trade' | 'earn' | 'bridge' | 'docs'
       contentOffset: null,
       transitionDirection: 'forward', // 'backward'
-      items: [
-        { name: 'Swap', contentKey: null, to: '/swap' },
-        {
-          name: 'Trade',
-          contentKey: 'trade',
-          // first array is for columns, nested array is for items in each column.
-          content: [
-            [
-              {
-                title: 'Spot Market',
-                description: 'Trade tokens with advanced orderbooks',
-                to: '/markets',
-                icon: 'menu-spot',
-              },
-              {
-                title: 'OTC',
-                description: 'Trade tokens in bulk',
-                to: '/otc',
-                icon: 'menu-otc',
-              },
-              {
-                title: 'NFT',
-                description: 'Trade, Explore and create NFTs',
-                to: '/nft-market',
-                icon: 'menu-nft',
-              },
-            ],
-          ],
-        },
-        {
-          name: 'Earn',
-          contentKey: 'earn',
-          isNew: true,
-          content: [
-            [
-              {
-                title: 'Pools',
-                description: 'Manage liquidity pools',
-                to: '/positions',
-                icon: 'menu-pools',
-              },
-              {
-                title: 'Farms',
-                description: 'Stake your liquidity positions in farms',
-                to: '/farm',
-                icon: 'menu-farms',
-              },
-              // TODO: Add this item if only WAX network or make symbol based on network
-              {
-                title: 'Staking',
-                description: 'Stake your WAX to earn interest and rewards',
-                to: '/staking',
-                icon: 'Treasure',
-                isNew: true,
-              },
-            ],
-          ],
-        },
-        { name: 'Analytics', contentKey: null, to: '/analytics' },
-        { name: 'Wallet', contentKey: null, to: '/wallet' },
-        {
-          name: 'Bridge',
-          contentKey: 'bridge',
-          content: [
-            [
-              {
-                title: 'IBC Bridge',
-                description: 'Bridge from EOS, WAX, Telos and UX Network',
-                to: '/bridge',
-                icon: 'menu-ibc',
-              },
-              {
-                title: 'Simple Bridge',
-                description: 'Use SimpleSwap to buy & swap crypto',
-                to: '/buy-crypto',
-                icon: 'menu-bridge',
-              },
-            ],
-          ],
-        },
-        {
-          name: 'Docs & Socials',
-          contentKey: 'docs',
-          content: [
-            [
-              {
-                title: 'Docs',
-                description: 'Alcor Documentation',
-                to: '/docs',
-                icon: 'menu-docs',
-              },
-              {
-                title: 'API',
-                description: 'Alcor API documentation',
-                href: 'http://api.alcor.exchange',
-                icon: 'menu-api',
-              },
-              {
-                title: 'Github',
-                description: 'Code & Contribution',
-                href: 'https://github.com/avral/alcor-ui',
-                icon: 'menu-git',
-              },
-            ],
-            [
-              {
-                title: 'Telegram',
-                description: 'Support & Trading Talks',
-                href: 'https://t.me/alcorexchange',
-                icon: 'Telegram',
-                isSocial: true,
-              },
-              {
-                title: 'Twitter',
-                description: 'Announcements',
-                href: 'https://twitter.com/alcorexchange',
-                icon: 'Twitter',
-                isSocial: true,
-              },
-              {
-                title: 'Discord',
-                description: 'General Chatting',
-                href: 'https://discord.gg/Sxum2ETSzq',
-                icon: 'Discord',
-                isSocial: true,
-              },
-            ],
-          ],
-        },
-      ],
     }
   },
 
@@ -204,6 +74,147 @@ export default {
         '--content-height': this.size ? `${this.size?.height}px` : 'auto',
         '--content-offset': `${this.contentOffset}px`,
       }
+    },
+    items() {
+      const swap = { name: 'Swap', contentKey: null, to: '/swap' }
+      const trade = {
+        name: 'Trade',
+        contentKey: 'trade',
+        // first array is for columns, nested array is for items in each column.
+        content: [
+          [
+            {
+              title: 'Spot Market',
+              description: 'Trade tokens with advanced orderbooks',
+              to: '/markets',
+              icon: 'menu-spot',
+            },
+            {
+              title: 'OTC',
+              description: 'Trade tokens in bulk',
+              to: '/otc',
+              icon: 'menu-otc',
+            },
+            {
+              title: 'NFT',
+              description: 'Trade, Explore and create NFTs',
+              to: '/nft-market',
+              icon: 'menu-nft',
+            },
+          ],
+        ],
+      }
+      const earn = {
+        name: 'Earn',
+        contentKey: 'earn',
+        isNew: true,
+        content: [
+          [
+            {
+              title: 'Pools',
+              description: 'Manage liquidity pools',
+              to: '/positions',
+              icon: 'menu-pools',
+            },
+            {
+              title: 'Farms',
+              description: 'Stake your liquidity positions in farms',
+              to: '/farm',
+              icon: 'menu-farms',
+            },
+          ],
+        ],
+      }
+
+      // TODO: make symbol based on network
+      if (this.$store.state.network.name === 'wax') {
+        earn.content[0].push({
+          title: 'Staking',
+          description: 'Stake your WAX to earn interest and rewards',
+          to: '/staking',
+          icon: 'Treasure',
+          isNew: true,
+        })
+      }
+
+      const bridge = {
+        name: 'Bridge',
+        contentKey: 'bridge',
+        content: [
+          [
+            {
+              title: 'IBC Bridge',
+              description: 'Bridge from EOS, WAX, Telos and UX Network',
+              to: '/bridge',
+              icon: 'menu-ibc',
+            },
+            {
+              title: 'Simple Bridge',
+              description: 'Use SimpleSwap to buy & swap crypto',
+              to: '/buy-crypto',
+              icon: 'menu-bridge',
+            },
+          ],
+        ],
+      }
+      const docs = {
+        name: 'Docs & Socials',
+        contentKey: 'docs',
+        content: [
+          [
+            {
+              title: 'Docs',
+              description: 'Alcor Documentation',
+              to: '/docs',
+              icon: 'menu-docs',
+            },
+            {
+              title: 'API',
+              description: 'Alcor API documentation',
+              href: 'http://api.alcor.exchange',
+              icon: 'menu-api',
+            },
+            {
+              title: 'Github',
+              description: 'Code & Contribution',
+              href: 'https://github.com/avral/alcor-ui',
+              icon: 'menu-git',
+            },
+          ],
+          [
+            {
+              title: 'Telegram',
+              description: 'Support & Trading Talks',
+              href: 'https://t.me/alcorexchange',
+              icon: 'Telegram',
+              isSocial: true,
+            },
+            {
+              title: 'Twitter',
+              description: 'Announcements',
+              href: 'https://twitter.com/alcorexchange',
+              icon: 'Twitter',
+              isSocial: true,
+            },
+            {
+              title: 'Discord',
+              description: 'General Chatting',
+              href: 'https://discord.gg/Sxum2ETSzq',
+              icon: 'Discord',
+              isSocial: true,
+            },
+          ],
+        ],
+      }
+      return [
+        swap,
+        trade,
+        earn,
+        { name: 'Analytics', contentKey: null, to: '/analytics' },
+        { name: 'Wallet', contentKey: null, to: '/wallet' },
+        bridge,
+        docs,
+      ]
     },
   },
 
