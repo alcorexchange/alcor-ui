@@ -1,10 +1,11 @@
 <template lang="pug">
 .h-100
-  | {{ chartForPoolId }}, isSorted {{ isSorted }}
+  //| {{ chartForPoolId }}, isSorted {{ isSorted }}
   slot
 </template>
 
 <script>
+import { debounce } from 'lodash'
 import { mapState } from 'vuex'
 import { parseToken } from '~/utils/amm'
 
@@ -19,7 +20,6 @@ export default {
       widget: null,
       onResetCacheNeededCallback: null,
       executionshape: '',
-      isReady: false,
       chartThemes: {
         light: {
           background: '#F0F2F5',
@@ -63,7 +63,9 @@ export default {
     },
 
     isSorted() {
-      return this.tokenA?.sortsBefore(this.tokenB) || true
+      if (!this.tokenA || !this.tokenB) return true
+
+      return this.tokenA.sortsBefore(this.tokenB)
     },
 
     chartForPoolId() {
@@ -77,7 +79,7 @@ export default {
           (this.tokenA.id == tokenB.id && this.tokenB.id == tokenA.id)
       }).sort((a, b) => b?.poolStats?.tvlUSD - a?.poolStats?.tvlUSD)[0]
 
-      return pool?.id || null
+      return pool?.id ?? null
     }
   },
 
@@ -90,17 +92,27 @@ export default {
       //this.applyTheme()
     },
 
-    tokenA(from, to) {
-      if (from?.id == to?.id) return
-
-      this.reset()
+    isSorted() {
+      this.resetDebounced()
     },
 
-    tokenB(from, to) {
-      if (from?.id == to?.id) return
+    chartForPoolId(from, to) {
+      if (from == to) return
 
-      this.reset()
-    }
+      this.resetDebounced()
+    },
+
+    // tokenA(from, to) {
+    //   if (from?.id == to?.id) return
+
+    //   this.resetDebounced()
+    // },
+
+    // tokenB(from, to) {
+    //   if (from?.id == to?.id) return
+
+    //   this.resetDebounced()
+    // }
   },
 
   mounted() {
@@ -169,11 +181,17 @@ export default {
       })
     },
 
+
+    resetDebounced: debounce(function () {
+      this.reset()
+    }, 500),
+
     reset() {
       console.log('reset called')
 
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
+        this.widget.activeChart().resetData()
       } else {
         this.mountChart()
       }
@@ -247,9 +265,8 @@ export default {
 
                 if (firstDataRequest) {
                   //this.widget.activeChart().removeAllShapes()
-                  this.widget.activeChart().resetData()
+                  //this.widget.activeChart().resetData()
 
-                  this.isReady = true
                   //setTimeout(() => this.drawOrders(), 1000)
                 }
               }).catch(e => onErrorCallback('Charts loading error..', e))

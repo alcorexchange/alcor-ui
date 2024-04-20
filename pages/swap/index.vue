@@ -19,6 +19,7 @@ export default {
     SwapWidget,
     SwapChart,
   },
+
   data: () => ({
     colors: [
       { name: 'eos', color: '50, 215, 75' },
@@ -28,6 +29,7 @@ export default {
       { name: 'bos', color: '34, 139, 233' },
     ]
   }),
+
   computed: {
     ...mapGetters('amm/swap', [
       'tokenA',
