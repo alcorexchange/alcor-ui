@@ -472,7 +472,7 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logswap') {
     const swap = await handleSwap({ chain, trx_id, data, block_time })
-    markeSwapBars(swap)
+    await markeSwapBars(swap)
 
     handlePoolChart(
       chain,
