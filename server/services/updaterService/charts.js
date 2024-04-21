@@ -99,13 +99,16 @@ export async function markeBar(timeframe, match) {
 }
 
 export async function markeSwapBars(swap) {
+  for (const timeframe of Object.keys(resolutions)) {
+    await markeSwapBar(timeframe, swap)
+  }
+
   const dbOperations = []
+  // Object.keys(resolutions).forEach(timeframe => {
+  //   dbOperations.push(markeSwapBar(timeframe, swap))
+  // })
 
-  Object.keys(resolutions).forEach(timeframe => {
-    dbOperations.push(markeSwapBar(timeframe, swap))
-  })
-
-  await Promise.all(dbOperations)
+  // await Promise.all(dbOperations)
 }
 
 function getBarTimes(matchTime, resolutionInSeconds) {
