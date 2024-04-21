@@ -220,17 +220,23 @@ export default {
         this.visible = false
 
         const txid = r.transaction_id || r.transaction.id.toString()
-        this.$alert(
-          `<a class="pointer" href="${this.monitorTx(txid)}" target="_blank">Transaction id</a>`,
-          'Transaction complete!',
-          {
-            dangerouslyUseHTMLString: true,
-            confirmButtonText: 'OK',
-            callback: (action) => {
-              this.$notify({ title: 'Token transfered!', type: 'success' })
-            }
-          }
-        )
+        this.$notify({
+          title: 'Token sent',
+          message: `Tx id: ${txid}`,
+          type: 'success'
+        })
+
+        // this.$alert(
+        //   `<a class="pointer" href="${this.monitorTx(txid)}" target="_blank">Transaction id</a>`,
+        //   'Transaction complete!',
+        //   {
+        //     dangerouslyUseHTMLString: true,
+        //     confirmButtonText: 'OK',
+        //     callback: (action) => {
+        //       this.$notify({ title: 'Token transfered!', type: 'success' })
+        //     }
+        //   }
+        // )
       } catch (e) {
         captureException(e)
         this.$notify({
