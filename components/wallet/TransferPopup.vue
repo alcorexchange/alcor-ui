@@ -19,7 +19,7 @@
         span {{$t('Balance') }}
           el-button(type="text" @click="fullAmount").ml-1.hoverable  {{ tokenBalance | commaFloat }}
 
-        el-input(type="number" v-model="form.amount" clearable @change="amountChange" placeholder="amount").w-100
+        el-input(type="number" v-model="form.amount" clearable placeholder="amount").w-100
           span(slot="suffix").mr-1 {{ token.currency }}
         .text ~${{ usdValue }}
 
@@ -178,6 +178,10 @@ export default {
 
     async submit() {
       const memo = this.form.memo?.trim() || ''
+
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(
+        this.token.decimals
+      )
 
       try {
         if (this.network.CEX_CONTRACTS.includes(this.form.address) && memo == '') {
