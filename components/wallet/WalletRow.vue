@@ -4,7 +4,7 @@
     .token-image
       token-image(:src='$tokenLogo(item.currency, item.contract)', :height="isMobile ? '20' : '30'")
     .asset
-      el-dropdown(v-if="isMobile" trigger="click")
+      el-dropdown(v-if="isMobile" trigger="click" @command="handleDropdownClick")
         .asset__drop(v-if="isMobile" @click.stop)
           .asset__name {{ item.currency }}
           i.el-icon-caret-bottom
@@ -14,9 +14,9 @@
             alcor-button
             //el-button(type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
 
-          el-button(type="text" @click="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
-          el-button(type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
-          el-button.hover-opacity(type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
+          el-dropdown-item(command="openTransfer") {{ $t('Transfer') }}
+          el-dropdown-item(command="pools") {{ $t('Pools') }}
+          el-dropdown-item(command="trade") {{ $t('Trade') }}
 
       .asset__name(v-else) {{ item.currency }}
       .asset__contract.cancel {{ item.contract }}
@@ -64,6 +64,12 @@ export default {
 
   computed: {
     ...mapState(['network']),
+  },
+
+  methods: {
+    handleDropdownClick(action) {
+      this.$emit(action, this.item)
+    },
   },
 }
 </script>
