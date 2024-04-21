@@ -45,7 +45,7 @@
           .value {{ rate }} LSW per WAX
         .stat-item
           .muted APR
-          .value {{ apr }}%
+          .value ~{{ apr }}%
         .stat-item
           .muted TVL
           .value

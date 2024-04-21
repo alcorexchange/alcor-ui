@@ -15,7 +15,7 @@
           replenish the balance.
     div.mt-auto
     .fs-12.disable.text-break Normal Unstake
-    .d-flex.gap-4 {{ delayedReceive }} {{ network.baseToken.symbol }}
+    .d-flex.gap-4 {{ delayedReceive | commaFloat }} {{ network.baseToken.symbol }}
 
   .item.d-flex.flex-column.align-items-start.p-2.br-8.border-hover(
     :class="{ 'border-active': selected == 'instant' }"
@@ -29,7 +29,7 @@
     div.mt-auto
       .price-impact-warning.fs-12(v-if="showPriceImpactWarning") {{ priceImpact }}% Price Impact
       i.el-icon-refresh.rotate-reverse.h-fit(v-if="loading")
-      .d-flex.gap-4(v-else) {{ swapReceive || 0.00 }} {{ network.baseToken.symbol }}
+      .d-flex.gap-4(v-else) {{ (swapReceive || 0.00) | commaFloat }} {{ network.baseToken.symbol }}
 </template>
 
 <script>

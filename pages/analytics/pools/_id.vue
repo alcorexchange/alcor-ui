@@ -24,7 +24,7 @@ div(v-if="pool && stats").analytics-pool-detail-page
 <script>
 import JSBI from 'jsbi'
 import { mapActions } from 'vuex'
-import { Token, tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
+import { tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
 import SwapTwChart from '~/components/swap/TwChart'
@@ -71,6 +71,7 @@ export default {
 
   data() {
     return {
+      pool: null,
       loading: true,
       selectedResolution: 'All',
       selectedMode: 'Price',
@@ -122,7 +123,7 @@ export default {
         },
         {
           title: 'Total positions',
-          value: this.loadedPositions?.length,
+          value: this.positions?.length,
         },
       ]
     },
@@ -173,18 +174,12 @@ export default {
       return this.$route.params.id
     },
 
-    pool() {
-      const _pool = this.$store.state.amm.pools.find((p) => p.id == this.id)
-      if (!_pool) return
-
-      return constructPoolInstance(_pool)
-    },
-
     stats() {
       return this.$store.state.amm.poolsStats.find((p) => p.id == this.id)
     },
 
     positions() {
+      console.log('positions computed')
       return this.loadedPositions
         .map((p) => {
           if (!this.pool) return {}
@@ -207,6 +202,7 @@ export default {
         })
         .filter((p) => p.pool)
     },
+
     tableData() {
       const header = [
         {
@@ -265,17 +261,33 @@ export default {
       },
       immediate: true,
     },
+
+    '$store.state.amm.pools'() {
+      this.setPool()
+    },
+
     selectedResolution() {
       this.getChart()
     },
   },
 
   mounted() {
+    this.setPool()
     this.fetchPositions()
     this.fetchLiquidityChart()
   },
 
   methods: {
+    setPool() {
+      console.log('SET POOL')
+      if (this.pool) return
+
+      const _pool = this.$store.state.amm.pools.find((p) => p.id == this.id)
+      if (!_pool) return
+
+      this.pool = constructPoolInstance(_pool)
+    },
+
     tooltipFormatter(value) {
       if (this.selectedMode === 'TVL') {
         return `$${this.$options.filters.commaFloat(value, 2)}`

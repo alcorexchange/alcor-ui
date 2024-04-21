@@ -120,7 +120,7 @@ export default {
 
       console.log({ actions })
       const result = await this.$store.dispatch('chain/sendTransaction', actions)
-      setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 2000)
+      setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
       console.log('result', result)
     }
   }
