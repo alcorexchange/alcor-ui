@@ -5,6 +5,7 @@
       token-image(:src='$tokenLogo(item.currency, item.contract)', :height="isMobile ? '20' : '30'")
     .asset
       el-dropdown(v-if="isMobile" trigger="click" @command="handleDropdownClick")
+        //- click.stop prevents the click event to being sent to .wallet-row so navigation does not happen
         .asset__drop(v-if="isMobile" @click.stop)
           .asset__name {{ item.currency }}
           i.el-icon-caret-bottom
