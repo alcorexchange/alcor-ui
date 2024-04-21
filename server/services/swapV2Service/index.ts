@@ -421,6 +421,7 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
 }
 
 export async function handleSwap({ chain, data, trx_id, block_time }) {
+  console.log('handleSwap', chain, block_time)
   const { poolId, recipient, sender, sqrtPriceX64 } = data
 
   const tokenAamount = parseFloat(data.tokenA)

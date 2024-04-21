@@ -99,11 +99,13 @@ export async function markeBar(timeframe, match) {
 }
 
 export async function markeSwapBars(swap) {
+  console.log('markeSwapBars', swap.chain, swap.time)
   for (const timeframe of Object.keys(resolutions)) {
     await markeSwapBar(timeframe, swap)
   }
 
-  const dbOperations = []
+  console.log('markeSwapBars done', swap.chain, swap.time)
+  //const dbOperations = []
   // Object.keys(resolutions).forEach(timeframe => {
   //   dbOperations.push(markeSwapBar(timeframe, swap))
   // })
