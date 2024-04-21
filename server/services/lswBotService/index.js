@@ -1,7 +1,15 @@
-//process.env['NTBA_FIX_319'] = 1
+process.env.NTBA_FIX_319 = 1
 require('dotenv').config()
 const log = require('simple-node-logger').createSimpleLogger('project.log')
 const { EosAction } = require('./eosAction')
+
+// Constants for time intervals
+const ONE_SECOND = 1000 // milliseconds
+const TEN_SECONDS = 10 * ONE_SECOND
+const ONE_HOUR = 60 * 60 * ONE_SECOND
+const ONE_DAY = 24 * ONE_HOUR
+const ONE_DAY_AND_TEN_SECONDS = 24 * ONE_HOUR + TEN_SECONDS
+
 // required params
 if (!process.env.LSW_NODEOS_ENDPOINT) throw new Error('NODEOS_ENDPOINT is required')
 if (!process.env.LSW_CHAIN_ID) throw new Error('CHAIN_ID is required')
@@ -14,6 +22,7 @@ const config = {
   endpoint: process.env.LSW_NODEOS_ENDPOINT,
   chainId: process.env.LSW_CHAIN_ID,
   contractName: process.env.LSW_CONTRACT_ACCOUNT,
+  account: process.env.LSW_CONTRACT_ACCOUNT,
   permission: process.env.LSW_PERMISSION,
   privateKey: process.env.LSW_PRIVATE_KEYS,
   proxyName: process.env.LSW_PROXY_NAME,
@@ -26,6 +35,19 @@ const eosAction = new EosAction(config)
 
 const isObjectEmpty = (objectName) => {
   return Object.keys(objectName).length === 0
+}
+
+async function triggerUnstakeBatch() {
+  try {
+    // trigger unstakeBatch
+    const receipt = await eosAction.unstakebatch()
+    log.info(
+      '[triggerUnstakeBatch] Call unstakeBatch at transaction_id: ' + receipt.transaction_id + ' at ',
+      new Date().toJSON()
+    )
+  } catch (error) {
+    log.error('[triggerUnstakeBatch] ' + error.message, ' at ', new Date().toJSON())
+  }
 }
 
 async function claimAndUpdateVotingReward() {
@@ -55,13 +77,6 @@ async function claimAndUpdateVotingReward() {
       '[claimAndUpdateVotingReward] Claim Vote Reward at transaction_id: ' + receipt.transaction_id + ' at ',
       new Date().toJSON()
     )
-
-    // trigger unstakeBatch
-    receipt = await eosAction.unstakebatch()
-    log.info(
-      '[claimAndUpdateVotingReward] Call unstakeBatch at transaction_id: ' + receipt.transaction_id + ' at ',
-      new Date().toJSON()
-    )
   } catch (error) {
     log.error('[claimAndUpdateVotingReward] ' + error.message, ' at ', new Date().toJSON())
   }
@@ -73,7 +88,7 @@ async function refundUnstakingToken() {
     let current_date = new Date(eosInfo.head_block_time + 'Z')
     let current_date_sec_since_epoch = parseInt(current_date.getTime() / 1000)
 
-    const response = await eosAction.fetchTable('eosio', config.contractName, 'refunds', '', '', 1000)
+    const response = await eosAction.fetchTable('eosio', config.contractName, 'refunds', '', '', 1)
     const refunds = await response.json()
     if (isObjectEmpty(refunds) || refunds.rows.length == 0) {
       // log.info('[refundUnstakingToken] No refunds table found at ', new Date().toJSON());
@@ -99,7 +114,7 @@ async function refundUnstakingToken() {
 }
 
 async function balanceOf(tokenAccount, user, sym) {
-  const response = await eosAction.fetchTable(tokenAccount, user, 'accounts', '', '', 1000)
+  const response = await eosAction.fetchTable(tokenAccount, user, 'accounts', '', '', 1)
   const accounts = await response.json()
   if (isObjectEmpty(accounts) || accounts.rows.length == 0) {
     log.info('No accounts balance table found at ', new Date().toJSON())
@@ -144,18 +159,26 @@ async function botClaim() {
   }
 }
 
-// Every day and initially
+// Initial call
 claimAndUpdateVotingReward()
-setInterval(function () {
-  claimAndUpdateVotingReward()
-}, 24 * 60 * 60 * 1000)
 
-// Check every 10 seconds
+// call again after 1 day
+setTimeout(async function run() {
+  await claimAndUpdateVotingReward()
+  setTimeout(run, ONE_DAY_AND_TEN_SECONDS)
+}, ONE_DAY_AND_TEN_SECONDS)
+
+// Every hour
+setInterval(function () {
+  triggerUnstakeBatch()
+}, ONE_HOUR)
+
+// Every 10 seconds
 setInterval(function () {
   refundUnstakingToken()
-}, 10000)
+}, TEN_SECONDS)
 
-// Check every 10 seconds
+// Every 10 seconds
 setInterval(function () {
   botClaim()
-}, 1000)
+}, TEN_SECONDS)
