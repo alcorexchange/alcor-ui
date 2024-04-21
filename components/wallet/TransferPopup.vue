@@ -1,5 +1,6 @@
 <template lang="pug">
-  el-dialog(:visible.sync="visible" width="25%" v-if="user").text-left.dialog
+.small-dialog-wrapper
+  el-dialog(:visible.sync="visible" v-if="user").text-left.dialog
     template(#title)
       .title-container
         i.el-icon-wallet

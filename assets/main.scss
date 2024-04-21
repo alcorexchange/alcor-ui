@@ -546,6 +546,24 @@ a {
   border-radius: 8px !important;
 }
 
+.small-dialog-wrapper {
+  border-radius: 1rem !important;
+  .el-dialog__header {
+    padding: 15px;
+  }
+  .el-dialog__headerbtn {
+    top: 16px !important;
+  }
+
+  .el-dialog {
+    width: 90%;
+    max-width: 400px;
+  }
+  .el-dialog__body {
+    padding: 0px;
+  }
+}
+
 .trading-page-dialog.el-dialog {
   background: var(--dialog-background) !important;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
@@ -817,8 +835,8 @@ a {
   max-height: 200px;
   margin: 50px auto;
 
-  background-image: 
-	
+  background-image:
+
     /* Shadows */ linear-gradient(to right, #212121, #212121),
     linear-gradient(to right, #212121, #212121), /* Shadow covers */ linear-gradient(to right, black, #212124),
     linear-gradient(to left, black, #212124);
