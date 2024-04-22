@@ -2,8 +2,8 @@
 .wallet
   virtual-table(v-if="loaded" :table="virtualTableData" @update="update")
     template(#row="{ item }")
-      .history-row(@touch="() => redirect(item)" @click="() => redirect(item)")
-        .type
+      .history-row.pointer(@click="() => handleClick(item)")
+        .type.fs-14
           span.success(v-if="item.side == 'buy'") {{ $t('BUY') }}
           span.danger(v-else) {{ $t('SELL') }}
         .asset {{ getSymbol(item.market) }}
@@ -12,8 +12,7 @@
         .total {{ item.total | commaFloat }}
         .unit-price {{ item.unit_price }}
         .action(v-if="!isMobile")
-          el-button.success(size="medium" type="text")
-            a(:href="monitorTx(item.trx_id)" target="_blank").a-reset {{ $t('view') }}
+          el-button.success.hover-opacity(size="medium" type="text" @click.stop="trade(item)") {{ $t('Trade') }}
   .row.justify-content-center(v-else)
     i.el-icon-loading
 </template>
@@ -28,7 +27,7 @@ export default {
     return {
       userDeals: [],
       skip: 0,
-      limit: 25
+      limit: 25,
     }
   },
 
@@ -45,44 +44,44 @@ export default {
           label: 'Side',
           value: 'side',
           width: '100px',
-          sortable: true
+          sortable: true,
         },
         {
           label: 'Asset',
           value: 'market',
           width: '105px',
-          sortable: true
+          sortable: true,
         },
         {
           label: 'Date',
           value: 'time',
           width: '170px',
           sortable: true,
-          desktopOnly: true
+          desktopOnly: true,
         },
         {
           label: 'Amount',
           value: 'amount',
           width: '180px',
-          desktopOnly: true
+          desktopOnly: true,
         },
         {
           label: 'Total',
           value: 'total',
-          width: '175px'
+          width: '175px',
         },
         {
           label: 'Price',
           value: 'unit_price',
           width: '155px',
-          sortable: true
+          sortable: true,
         },
         {
           label: 'Manage',
           value: 'change24',
           width: '195px',
-          desktopOnly: true
-        }
+          desktopOnly: true,
+        },
       ]
 
       const data = this.userDeals.map((deal) => ({
@@ -95,16 +94,15 @@ export default {
           ' ' +
           this.markets_obj[deal.market].quote_token.symbol.name,
         total:
-          (deal.type == 'sellmatch' ? deal.ask : deal.bid) +
-          ' ' +
-          this.markets_obj[deal.market].base_token.symbol.name
+          (deal.type == 'sellmatch' ? deal.ask : deal.bid) + ' ' + this.markets_obj[deal.market].base_token.symbol.name,
+        marketSlug: this.markets_obj[deal.market].slug,
       }))
 
-      const itemSize = 59
+      const itemSize = 56
       const pageMode = true
 
       return { pageMode, itemSize, header, data }
-    }
+    },
   },
 
   mounted() {
@@ -123,20 +121,20 @@ export default {
       const { skip, limit } = this
       const params = { skip, limit }
 
-      const { data: chank } = await this.$axios.get(
-        `/account/${this.$store.state.user.name}/deals`,
-        { params }
-      )
+      const { data: chank } = await this.$axios.get(`/account/${this.$store.state.user.name}/deals`, { params })
 
       if (chank.length) this.userDeals.push(...chank)
     },
-    redirect(item) {
-      if (this.isMobile) window.location.href = this.monitorTx(item.trx_id)
+    handleClick(item) {
+      this.openInNewTab(this.monitorTx(item.trx_id))
+    },
+    trade(item) {
+      this.$router.push(this.localeRoute(`/trade/${item.marketSlug}`))
     },
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -144,6 +142,7 @@ export default {
 .history-row {
   padding: 10px 20px;
   display: flex;
+  align-items: center;
 
   @media only screen and (max-width: 1176px) {
     font-size: 12px;

@@ -107,7 +107,7 @@ export default {
       const earn = {
         name: 'Earn',
         contentKey: 'earn',
-        isNew: true,
+        isNew: false,
         content: [
           [
             {
@@ -128,6 +128,7 @@ export default {
 
       // TODO: make symbol based on network
       if (this.$store.state.network.name === 'wax') {
+        earn.isNew = true
         earn.content[0].push({
           title: 'Staking',
           description: 'Stake your WAX to earn interest and rewards',
