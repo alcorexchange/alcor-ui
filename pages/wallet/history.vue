@@ -2,7 +2,7 @@
 .wallet
   virtual-table(v-if="loaded" :table="virtualTableData" @update="update")
     template(#row="{ item }")
-      .history-row(@touch="() => redirect(item)" @click="() => redirect(item)")
+      .history-row.pointer(@click="() => handleClick(item)")
         .type.fs-14
           span.success(v-if="item.side == 'buy'") {{ $t('BUY') }}
           span.danger(v-else) {{ $t('SELL') }}
@@ -12,11 +12,7 @@
         .total {{ item.total | commaFloat }}
         .unit-price {{ item.unit_price }}
         .action(v-if="!isMobile")
-          .action-items
-            el-button.success(size="medium" type="text")
-              a(:href="monitorTx(item.trx_id)" target="_blank").a-reset {{ $t('View') }}
-            el-button.success(size="medium" type="text")
-              a(:href="monitorTx(item.trx_id)" target="_blank").a-reset {{ $t('Market') }}
+          el-button.success.hover-opacity(size="medium" type="text" @click.stop="trade(item)") {{ $t('Trade') }}
   .row.justify-content-center(v-else)
     i.el-icon-loading
 </template>
@@ -99,6 +95,7 @@ export default {
           this.markets_obj[deal.market].quote_token.symbol.name,
         total:
           (deal.type == 'sellmatch' ? deal.ask : deal.bid) + ' ' + this.markets_obj[deal.market].base_token.symbol.name,
+        marketSlug: this.markets_obj[deal.market].slug,
       }))
 
       const itemSize = 56
@@ -128,8 +125,11 @@ export default {
 
       if (chank.length) this.userDeals.push(...chank)
     },
-    redirect(item) {
-      if (this.isMobile) window.location.href = this.monitorTx(item.trx_id)
+    handleClick(item) {
+      this.openInNewTab(this.monitorTx(item.trx_id))
+    },
+    trade(item) {
+      this.$router.push(this.localeRoute(`/trade/${item.marketSlug}`))
     },
     getSymbol(market) {
       return this.markets_obj[market] ? this.markets_obj[market].symbol : ''
