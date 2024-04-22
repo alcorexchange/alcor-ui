@@ -379,6 +379,7 @@ export default {
   justify-content: center;
   gap: 10px;
   font-weight: 500;
+  text-align: center;
   img {
     width: 48px;
     font-size: 2rem;
