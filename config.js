@@ -70,6 +70,17 @@ const networks = {
       contract: 'swap.alcor',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     ibc: {
       name: 'eos',
       returnValueEnabled: true,
@@ -191,6 +202,17 @@ const networks = {
       contract: 'swap.alcor',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
     PINNED_MARKETS: [493],
     BANNER_MARKETS: [],
@@ -257,6 +279,17 @@ const networks = {
 
     amm: {
       contract: 'swap.alcor',
+    },
+
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
     },
 
     ibc: {
@@ -490,6 +523,17 @@ const networks = {
       contract: 'swap.alcor',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     RECOMMENDED_MARKETS: ['KANDA@telokandaone', 'GUX@vapaeetokens'],
 
     PINNED_MARKETS: [],
@@ -674,6 +718,17 @@ const networks = {
 
     amm: {
       contract: 'ammcontract1',
+    },
+
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
     },
 
     RECOMMENDED_MARKETS: [],

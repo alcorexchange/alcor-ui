@@ -60,79 +60,78 @@ export const actions = {
 }
 
 export const getters = {
-  // TODO Check for optimisation
-  tokenA: (state, getters) => getters.tokens.find(t => t.id == state.tokenA?.id),
-  tokenB: (state, getters) => getters.tokens.find(t => t.id == state.tokenB?.id),
+  tokenA: (state, getters) => getters.tokensMap.get(state.tokenA?.id),
+  tokenB: (state, getters) => getters.tokensMap.get(state.tokenB?.id),
   isSorted: (state, getters) => getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB),
-  sortedA: (state, getters) => getters.isSorted ? getters.tokenA : getters.tokenB,
-  sortedB: (state, getters) => getters.isSorted ? getters.tokenB : getters.tokenA,
-  invertPrice: (state, getters) => Boolean(getters.tokenA && getters.sortedA && !getters.tokenA.equals(getters.sortedA)),
+  sortedA: (state, getters) => (getters.isSorted ? getters.tokenA : getters.tokenB),
+  sortedB: (state, getters) => (getters.isSorted ? getters.tokenB : getters.tokenA),
+  invertPrice: (state, getters) =>
+    Boolean(getters.tokenA && getters.sortedA && !getters.tokenA.equals(getters.sortedA)),
 
-  tokens(state, getters, rootState, rootGetters) {
-    // Тут вообще все
-    const tokens = []
+  tokensMap(state, getters, rootState) {
+    const tokens = new Map()
 
-    rootState.amm.pools.forEach(p => {
+    rootState.amm.pools.forEach((p) => {
       const tokenA = parseToken(p.tokenA)
       const tokenB = parseToken(p.tokenB)
 
-      if (
-        rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
-        rootState.network.SCAM_CONTRACTS.includes(tokenB.contract)
-      ) {
-        return
+      if (!rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) && !tokens.has(tokenA.id)) {
+        tokens.set(tokenA.id, tokenA)
       }
-
-      if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-      if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
+      if (!rootState.network.SCAM_CONTRACTS.includes(tokenB.contract) && !tokens.has(tokenB.id)) {
+        tokens.set(tokenB.id, tokenB)
+      }
     })
 
-    if (rootState.user?.balances)
-      rootState.user?.balances.map(b => {
-        const token = new Token(
-          b.contract,
-          parseInt(b.decimals),
-          b.currency
-        )
-
-        if (rootState.network.SCAM_CONTRACTS.includes(token.contract)) {
-          return
+    if (rootState.user?.balances) {
+      rootState.user.balances.forEach((b) => {
+        const token = new Token(b.contract, parseInt(b.decimals), b.currency)
+        if (!rootState.network.SCAM_CONTRACTS.includes(token.contract) && !tokens.has(token.id)) {
+          tokens.set(token.id, token)
         }
-
-        if (tokens.filter(t => t.id == token.id).length == 0) tokens.push(token)
       })
+    }
 
     return tokens
   },
 
-  pool(state, getters, rootState, rootGetters) {
+  tokens(state, getters) {
+    return Array.from(getters.tokensMap.values())
+  },
+
+  pool(state, getters, rootState) {
     if (!state.tokenA || !state.tokenB) return null
 
-    const pool = rootState.amm.pools.find(p => {
+    const pool = rootState.amm.pools.find((p) => {
+      const tokenA = parseToken(p.tokenA)
+      const tokenB = parseToken(p.tokenB)
       return (
-        (parseToken(p.tokenA).id == state.tokenA?.id && parseToken(p.tokenB).id == state.tokenB?.id) ||
-        (parseToken(p.tokenA).id == state.tokenB?.id && parseToken(p.tokenB).id == state.tokenA?.id)
-      ) && p.fee == state.feeAmount
+        ((tokenA.id == state.tokenA?.id && tokenB.id == state.tokenB?.id) ||
+          (tokenA.id == state.tokenB?.id && tokenB.id == state.tokenA?.id)) &&
+        p.fee == state.feeAmount
+      )
     })
 
     return pool ? constructPoolInstance(pool) : undefined
   },
 
-  currnetPools(state, getters, rootState, rootGetters) {
+  currnetPools(state, getters, rootState) {
     if (!state.tokenA || !state.tokenB) return []
 
-    return rootState.amm.pools.filter(p => {
-      return (
-        (parseToken(p.tokenA).id == state.tokenA?.id && parseToken(p.tokenB).id == state.tokenB?.id) ||
-        (parseToken(p.tokenA).id == state.tokenB?.id && parseToken(p.tokenB).id == state.tokenA?.id)
-      )
-    }).map(p => constructPoolInstance(p))
+    return rootState.amm.pools
+      .filter((p) => {
+        const tokenA = parseToken(p.tokenA)
+        const tokenB = parseToken(p.tokenB)
+        return (
+          (tokenA.id == state.tokenA?.id && tokenB.id == state.tokenB?.id) ||
+          (tokenA.id == state.tokenB?.id && tokenB.id == state.tokenA?.id)
+        )
+      })
+      .map((p) => constructPoolInstance(p))
   },
 
   routes(state, getters, rootState) {
-    const [tokenA, tokenB, feeAmountFromUrl] = rootState
-      .route.fullPath.replace('/add-liquidity/', '').split('/')
-
+    const [tokenA, tokenB, feeAmountFromUrl] = rootState.route.fullPath.replace('/add-liquidity/', '').split('/')
     return { tokenA, tokenB, feeAmountFromUrl }
-  }
+  },
 }

@@ -45,12 +45,12 @@
           .value {{ rate }} LSW per WAX
         .stat-item
           .muted APR
-          .value {{ apr }}%
+          .value ~{{ apr }}%
         .stat-item
           .muted TVL
           .value
             span.muted.small ( {{ $systemToUSD(tvl) }}$ )
-            span &nbsp; {{ tvl }}
+            span &nbsp; {{ tvl | commaFloat }}
 
 </template>
 

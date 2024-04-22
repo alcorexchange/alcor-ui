@@ -645,7 +645,7 @@ export default {
       try {
         await this.addLiquidity()
         this.updateBalances()
-        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 2000)
+        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
       } catch (e) {
         console.error(e)
         this.$notify({ title: 'Add Position', message: e.message, type: 'error' })

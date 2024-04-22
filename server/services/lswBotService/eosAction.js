@@ -11,85 +11,85 @@ class EosAction {
     this.rpc = rpc
     const defaultPrivateKey = config.privateKey
     const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
-    this.eos = new eosjs.Api({
-      chainId: config.chainId,
-      rpc,
-      signatureProvider,
-      textEncoder: new TextEncoder(),
-      textDecoder: new TextDecoder(),
-    })
+    this.eos = new eosjs.Api({ chainId: config.chainId, rpc, signatureProvider, textEncoder: new TextEncoder(), textDecoder: new TextDecoder() })
+
   }
 
-  async voteproducer(voter, proxy, producers = []) {
+  async voteproducer(voter, proxy, producers=[]) {
     return await this.pushAction(
       'eosio',
       'voteproducer',
-      this.config.contractName,
+      this.config.account,
       { voter: voter, proxy: proxy, producers: producers },
       this.config.permission
-    )
+    );
   }
 
   async claimgbmvote(owner) {
-    return await this.pushAction('eosio', 'claimgbmvote', this.config.contractName, { owner: owner }, this.config.permission)
+    return await this.pushAction(
+      'eosio',
+      'claimgbmvote',
+      this.config.account,
+      { owner: owner},
+      this.config.permission
+    );
   }
 
   async refund(owner) {
-    return await this.pushAction('eosio', 'refund', this.config.contractName, { owner: owner }, this.config.permission)
+    return await this.pushAction(
+      'eosio',
+      'refund',
+      this.config.account,
+      { owner: owner},
+      this.config.permission
+    );
   }
 
   async unstakebatch() {
     return await this.pushAction(
-            this.config.contractName,
-            'unstakebatch',
-            this.config.contractName,
-            {},
-            this.config.permission
-
-    )
+      this.config.contractName,
+      'unstakebatch',
+      this.config.account,
+      {},
+      this.config.permission
+    );
   }
 
   async botclaim() {
-    return await this.pushAction(this.config.contractName, 'botclaim', this.config.contractName, {}, this.config.permission)
+    return await this.pushAction(
+      this.config.contractName,
+      'botclaim',
+      this.config.account,
+      {},
+      this.config.permission
+    );
   }
 
   async pushAction(account, action, actor, data, permission = 'active') {
     const actionParams = {
-      actions: [
-        {
-          account,
-          name: action,
-          authorization: [
-            {
-              actor,
-              permission,
-            },
-          ],
-          data,
-        },
-      ],
+      actions: [{
+        account,
+        name: action,
+        authorization: [{
+          actor,
+          permission
+        }],
+        data
+      }]
     }
-    return await this.eos.transact(actionParams, {
-      blocksBehind: 3,
-      expireSeconds: 30,
-    })
+    return await this.eos.transact(
+      actionParams,
+      {
+        blocksBehind: 3,
+        expireSeconds: 30
+      })
   }
 
   async getInfo() {
     return await this.eos.rpc.get_info({})
   }
 
-  async fetchTable(
-    account,
-    scope,
-    table,
-    lower_bound,
-    upper_bound,
-    limit,
-    index = '1',
-    key_type = 'i64',
-    reverse = 'true'
-  ) {
+  async fetchTable(account, scope, table, lower_bound, upper_bound, limit, index = "1", key_type = "i64", reverse = "true") {
     return await fetch(this.config.endpoint + `/v1/chain/get_table_rows`, {
       method: 'POST',
       body: JSON.stringify({
@@ -101,13 +101,13 @@ class EosAction {
         index_position: index,
         key_type: key_type,
         reverse: reverse,
-        json: 'true',
+        json: "true",
         limit: limit,
       }),
-    })
+    });
   }
 }
 
 module.exports = {
-  EosAction,
+  EosAction
 }
