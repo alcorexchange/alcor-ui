@@ -1,6 +1,6 @@
 <template lang="pug">
 alcor-container.p-3.w-100.chart-container-inner
-  .d-flex.justify-content-between(v-if="shouldShowCharts")
+  .d-flex.justify-content-between
     el-radio-group.custom-radio.p-1.bg-base.br-4(
       v-model='activeTab',
       size='small'
