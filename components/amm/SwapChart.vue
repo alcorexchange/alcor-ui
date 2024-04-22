@@ -47,7 +47,7 @@ alcor-container.p-3.w-100.chart-container-inner
   .no-chart.disable(v-if="!shouldShowCharts")
     img(src="@/assets/icons/candle-icon.svg")
     //- i.el-icon-data-analysis
-    span  Select both tokens to show the graph.
+    span  Select both tokens to show the graph
   component(
     v-else
     :is="activeTab"
