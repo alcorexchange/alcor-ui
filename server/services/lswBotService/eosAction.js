@@ -1,6 +1,6 @@
 const { TextDecoder, TextEncoder } = require('util') // node only
-const eosjs = require('eosjs')
-const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig') // development only
+const eosjs = require('enf-eosjs')
+const { JsSignatureProvider } = require('enf-eosjs/dist/eosjs-jssig') // development only
 const fetch = require('node-fetch')
 
 /* eslint-disable */

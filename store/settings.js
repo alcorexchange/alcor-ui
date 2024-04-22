@@ -1,12 +1,5 @@
-import Ping from 'ping.js'
-
-import fetch from 'node-fetch'
-import { JsonRpc } from 'eosjs'
-
-import { shuffleArray } from '../utils'
-import { JsonRpc as JsonRpcMultiEnds } from '~/assets/libs/eosjs-jsonrpc'
-
-const ping = new Ping()
+// import Ping from 'ping.js'
+// const ping = new Ping()
 
 export const state = () => ({
   hideOtherPairs: false,
@@ -57,8 +50,6 @@ export const actions = {
     //const all_nodes = [...]
     //const ping_requests = []
 
-
-
     //Object.keys(state.rpc_nodes).map(n => {
     //  ping.ping(n + '/v1/chain/get_info', (err, data) => {
     //    if (err) return console.log('RPC PING FALIING: ', n, err)
@@ -66,11 +57,7 @@ export const actions = {
     //  })
     //})
 
-
-
     //const nodes_updated = {}
-
-
 
     //for (let [key, value] of Object.entries(state.rpc_nodes)) {
     //  console.log('node: ', node)

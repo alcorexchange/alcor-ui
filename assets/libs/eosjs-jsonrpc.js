@@ -1,5 +1,5 @@
-import { base64ToBinary, convertLegacyPublicKeys } from "./eosjs-numeric"
-import { RpcError } from "./eosjs-rpcerror"
+import { base64ToBinary, convertLegacyPublicKeys } from "enf-eosjs/dist/eosjs-numeric"
+import { RpcError } from "enf-eosjs/dist/eosjs-rpcerror"
 
 function arrayToHex(data) {
   let result = ""
@@ -12,8 +12,8 @@ function arrayToHex(data) {
 /** Make RPC calls */
 export class JsonRpc {
   maxRetries = 3
-
   /**
+   * @param endpoints
    * @param args
    *    * `fetch`:
    *    * browsers: leave `null` or `undefined`
@@ -81,31 +81,12 @@ export class JsonRpc {
           throw e
         }
       }
+
+      throw e
     }
-    if (!(response && response.ok)) {
+    if (!response.ok) {
       throw new RpcError(json)
     }
-
-    // Check for synced
-    if (json && json.head_block_time) {
-      const headTime = new Date(json.head_block_time + "Z").getTime()
-      const ct = new Date().getTime()
-      const secondsBehind = (ct - headTime) / 1000
-
-      if (secondsBehind > 20 && this.endpoints.length > 1) {
-        console.log("API is SYNCING (behind)", this.currentEndpoint)
-        console.log(
-          `Current Time: ${ct}, Head Time: ${headTime}, Seconds Behind: ${secondsBehind}`
-        )
-
-        this.nextEndpoint()
-        if (currentRetries < this.maxRetries) {
-          console.log("Retrying at try:", currentRetries)
-          return this.fetch(path, body, ++currentRetries)
-        }
-      }
-    }
-
     return json
   }
 
@@ -137,10 +118,7 @@ export class JsonRpc {
 
   /** Raw call to `/v1/chain/get_code` */
   async get_code(accountName) {
-    return await this.fetch("/v1/chain/get_code", {
-      account_name: accountName,
-      code_as_wasm: true
-    })
+    return await this.fetch("/v1/chain/get_code", { account_name: accountName })
   }
 
   /** Raw call to `/v1/chain/get_currency_balance` */
@@ -183,16 +161,10 @@ export class JsonRpc {
     })
   }
 
-  /** Raw call to `/v1/chain/get_raw_abi` */
-  async get_raw_abi(accountName) {
-    return await this.fetch("/v1/chain/get_raw_abi", {
-      account_name: accountName
-    })
-  }
-
-  /** calls `/v1/chain/get_raw_abi` and pulls out unneeded raw wasm code */
+  /** calls `/v1/chain/get_raw_code_and_abi` and pulls out unneeded raw wasm code */
+  // TODO: use `/v1/chain/get_raw_abi` directly when it becomes available
   async getRawAbi(accountName) {
-    const rawCodeAndAbi = await this.get_raw_abi(accountName)
+    const rawCodeAndAbi = await this.get_raw_code_and_abi(accountName)
     const abi = base64ToBinary(rawCodeAndAbi.abi)
     return { accountName: rawCodeAndAbi.account_name, abi }
   }
@@ -202,13 +174,6 @@ export class JsonRpc {
     return await this.fetch("/v1/chain/get_scheduled_transactions", {
       json,
       lower_bound: lowerBound,
-      limit
-    })
-  }
-
-  /** Raw call to `/v1/chain/get_activated_protocol_features` */
-  async get_activated_protocol_features(limit = 100) {
-    return await this.fetch("/v1/chain/get_activated_protocol_features", {
       limit
     })
   }
@@ -263,13 +228,17 @@ export class JsonRpc {
 
   /** Get subset of `availableKeys` needed to meet authorities in `transaction`. Implements `AuthorityProvider` */
   async getRequiredKeys(args) {
-    const { required_keys } = await this.fetch("/v1/chain/get_required_keys", {
-      transaction: args.transaction,
-      available_keys: args.availableKeys
-    })
-    return convertLegacyPublicKeys(required_keys)
+    return convertLegacyPublicKeys(
+      (
+        await this.fetch("/v1/chain/get_required_keys", {
+          transaction: args.transaction,
+          available_keys: args.availableKeys
+        })
+      ).required_keys
+    )
   }
 
+  /** Push a serialized transaction (replaced by send_transaction, but returned format has changed) */
   async push_transaction({
     signatures,
     serializedTransaction,
@@ -310,8 +279,49 @@ export class JsonRpc {
     })
   }
 
+  /** Send a serialized transaction2 */
+  async send_transaction2({
+    return_failure_trace,
+    retry_trx,
+    retry_trx_num_blocks,
+    transaction: {
+      signatures,
+      serializedTransaction,
+      serializedContextFreeData
+    }
+  }) {
+    return await this.fetch("/v1/chain/send_transaction2", {
+      return_failure_trace,
+      retry_trx,
+      retry_trx_num_blocks,
+      transaction: {
+        signatures,
+        compression: 0,
+        packed_context_free_data: arrayToHex(
+          serializedContextFreeData || new Uint8Array(0)
+        ),
+        packed_trx: arrayToHex(serializedTransaction)
+      }
+    })
+  }
 
-
+  /** Send readonly transaction */
+  async send_readonly_transaction({
+    signatures,
+    serializedTransaction,
+    serializedContextFreeData
+  }) {
+    return await this.fetch("/v1/chain/send_read_only_transaction", {
+      transaction: {
+        signatures,
+        compression: 0,
+        packed_context_free_data: arrayToHex(
+          serializedContextFreeData || new Uint8Array(0)
+        ),
+        packed_trx: arrayToHex(serializedTransaction)
+      }
+    })
+  }
 
   /** Raw call to `/v1/db_size/get` */
   async db_size_get() {
@@ -348,6 +358,4 @@ export class JsonRpc {
       controlling_account: controllingAccount
     })
   }
-
-
 } // JsonRpc

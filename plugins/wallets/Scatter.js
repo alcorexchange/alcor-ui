@@ -1,4 +1,4 @@
-import { JsonRpc, Api } from 'eosjs'
+import { JsonRpc, Api } from 'enf-eosjs'
 
 import ScatterEOS from '@scatterjs/eosjs2'
 import ScatterJS from '@scatterjs/core'

@@ -1,6 +1,6 @@
 import { BigInt } from 'jsbi'
 import { Name, SymbolCode } from 'eos-common'
-import { Serialize } from 'eosjs'
+import { Serialize } from 'enf-eosjs'
 import { Big } from 'big.js'
 
 import config from '../config'
