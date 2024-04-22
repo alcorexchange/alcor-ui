@@ -1,4 +1,7 @@
-import { getMultyEndRpc } from '../utils/eosjs'
+import { Api } from 'enf-eosjs'
+import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
+
+
 
 import config from '~/config'
 
@@ -659,6 +662,15 @@ export const actions = {
       dispatch('update', {}, { root: true })
       commit('loading/CLOSE', {}, { root: true })
     }
+  },
+
+  async sendReadOnlyTransaction(
+    { state, rootState, dispatch, getters, commit },
+    actions
+  ) {
+    const api = new Api({ rpc: this.$rpc, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() })
+
+    return await api.transact({ actions }, { broadcast: true, readOnly: true, blocksBehind: 3, expireSeconds: 72 })
   }
 }
 
