@@ -13,8 +13,8 @@ import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
-import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
 import { markeSwapBars } from '../updaterService/charts'
+import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -271,9 +271,11 @@ async function updateTicks(chain: string, poolId: number) {
     }
   })
 
+  console.log('update ticks:', poolId, 3, "BEFORE REDIS")
   await setRedisTicks(chain, poolId, Array.from(chainTicks))
+  console.log('update ticks:', poolId, 4, "AFTER REDIS")
 
-  if (update.length == 0) return
+  if (update.length == 0) return console.log('update ticks: ', poolId, ' updated!')
 
   const push = JSON.stringify({ chain, poolId, update })
   publisher.publish('swap:ticks:update', push)
