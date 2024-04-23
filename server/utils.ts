@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { createClient } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'

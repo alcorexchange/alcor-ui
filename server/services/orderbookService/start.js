@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 import lodash from 'lodash'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'

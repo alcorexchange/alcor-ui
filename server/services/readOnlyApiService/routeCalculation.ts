@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 
 import { ABI, APIClient, Action, Transaction } from '@wharfkit/antelope'
 

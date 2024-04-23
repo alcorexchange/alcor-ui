@@ -4,7 +4,7 @@ import Confirm from 'prompt-confirm'
 import mongoose from 'mongoose'
 
 import { createClient } from 'redis'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import config from '../config'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { fetchAllRows } from '../utils/eosjs'

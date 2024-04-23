@@ -1,5 +1,5 @@
 import { createClient } from 'redis'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { fetchAllRows, getChainRpc } from '../../../utils/eosjs'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
