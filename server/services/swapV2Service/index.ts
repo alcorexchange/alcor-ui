@@ -244,7 +244,9 @@ export async function updatePool(chain: string, poolId: number) {
   const priceB = price.invert().toSignificant()
 
   // TODO FIX DEPRECATED
-  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, priceA, priceB, tvlUSD }, { upsert: true, new: true })
+  const r = await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, priceA, priceB, tvlUSD }, { upsert: true, new: true })
+  console.log('update pool', poolId, "UPDATED")
+  return r
 }
 
 async function updateTicks(chain: string, poolId: number) {
