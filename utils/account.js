@@ -1,4 +1,4 @@
-import { JsonRpc } from 'eosjs'
+import { JsonRpc } from 'enf-eosjs'
 
 export async function isAccountExists(account, chain) {
   const rpc = new JsonRpc(`${chain.protocol}://${chain.host}:${chain.port}`, { fetch })

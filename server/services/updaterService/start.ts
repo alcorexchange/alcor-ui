@@ -4,9 +4,7 @@ import config from '../../../config'
 import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
-import { updatePools } from '../swapV2Service'
 import { updateGlobalStats } from './analytics'
-import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
@@ -73,12 +71,6 @@ export async function updater(chain, provider, services) {
     streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
       // Production PM2 should restart updater after it
       .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`, e); process.exit(1) })
-  }
-
-  if (services.includes('pools')) {
-    console.log('start pools updater for', chain)
-    streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
-      .catch(e => { console.log(`${network.name} (${network.pools.contract}) Updater Error!`, e); process.exit(1) })
   }
 
   if (services.includes('swap')) {

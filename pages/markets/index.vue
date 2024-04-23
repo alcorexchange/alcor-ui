@@ -20,9 +20,6 @@ no-ssr
         el-radio-button(:label="network.USD_TOKEN.split('-')[0].toUpperCase()")
           span {{ network.USD_TOKEN.split('-')[0].toUpperCase() }}
 
-        el-radio-button(v-if='network.name == "eos"', label='USDT')
-          span {{ $t('USDT') }}
-
         el-radio-button(value='cross-chain', label='Cross-Chain')
           span {{ $t('Cross-Chain') }}
 

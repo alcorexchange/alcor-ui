@@ -1,7 +1,7 @@
 import WebSocket from 'ws'
 
-import { Api } from 'eosjs'
-import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig'
+import { Api } from 'enf-eosjs'
+import { JsSignatureProvider } from 'enf-eosjs/dist/eosjs-jssig'
 
 
 const IBC_WORKS_ACCOUNTS = {

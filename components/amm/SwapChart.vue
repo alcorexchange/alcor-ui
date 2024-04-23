@@ -44,7 +44,12 @@ alcor-container.p-3.w-100.chart-container-inner
         span.text 10%
   .mt-2(v-else)
 
+  .no-chart.disable(v-if="!shouldShowCharts")
+    img(src="@/assets/icons/candle-icon.svg")
+    //- i.el-icon-data-analysis
+    span  Select both tokens to show the graph
   component(
+    v-else
     :is="activeTab"
     :series="series"
     height="400px"
@@ -99,6 +104,10 @@ export default {
   }),
 
   computed: {
+    shouldShowCharts() {
+      return this.sortedA && this.sortedB
+    },
+
     renderTooltipFormatter() {
       const TVLFormatter = (v) => `$${this.$options.filters.commaFloat(v, 2)}`
       return this.activeTab === 'Tvl' ? TVLFormatter : undefined
@@ -362,6 +371,20 @@ export default {
     }
   }
 }
+.no-chart {
+  display: flex;
+  min-height: 400px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  text-align: center;
+  img {
+    width: 48px;
+    font-size: 2rem;
+  }
+}
 </style>
 <style>
 #swap_tv_chart_container {
@@ -374,5 +397,4 @@ export default {
     height: 360px;
   }
 }
-
 </style>

@@ -11,7 +11,7 @@
       StakingTabs(v-model="activeTab").mt-3
 
       div(v-if="activeTab === 'stake'" key="stake")
-        TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount").mt-4
+        TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount" @input="onInputInAmount").mt-4
         TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.staking.token" :value="stakeReceive").mt-2
 
         .action.pt-2.pb-2
@@ -55,6 +55,8 @@
 </template>
 
 <script>
+import { Token, CurrencyAmount } from '@alcorexchange/alcor-swap-sdk'
+
 import bigInt from 'big-integer'
 import { debounce } from 'lodash'
 import { mapState, mapGetters } from 'vuex'
@@ -204,6 +206,32 @@ export default {
   },
 
   methods: {
+    async onInputInAmount(input) {
+      // TODO Finish this logic
+      console.log('input', input)
+
+      const actions = [{
+        account: 'liquid.alcor',
+        name: 'getliquidamt', // use  getnativeamt  to calc WAX from LSW
+        authorization: [],
+        data: {
+          nativeAmount: parseFloat(input).toFixed(8).replace('.', '')
+        }
+      }]
+
+      console.log({ actions })
+
+      const { processed } = await this.$store.dispatch('chain/sendReadOnlyTransaction', actions)
+
+      const output = processed?.action_traces[0]?.return_value_data
+
+      if (!output) return console.log('NO OUTPUT!!!')
+
+      const o = CurrencyAmount.fromRawAmount(new Token('liquid.alcor', 8, 'LSW'), output)
+
+      console.log(o.toFixed()) // ---> Should be output
+    },
+
     async fetchStakeMints() {
       const {
         rows: [stakemints],

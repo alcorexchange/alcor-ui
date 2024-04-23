@@ -344,7 +344,7 @@ export default {
         scales: {
           showValues: false // Отключает отображение значений O H L C на графике
         },
-        locale: 'en', // TODO Change lang
+        locale: 'en', // TODO Change lang `this.$i18n.locale`
         disabled_features: [
           'show_ohlc',
           'status_line',

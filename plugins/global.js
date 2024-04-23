@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { io } from 'socket.io-client'
 
-import { JsonRpc } from 'eosjs'
+import { JsonRpc } from 'enf-eosjs'
 import { getMultyEndRpc } from '../utils/eosjs'
 
 import config from '~/config'

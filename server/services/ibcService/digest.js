@@ -1,6 +1,6 @@
 import createHash from 'create-hash'
-import { SerialBuffer, createInitialTypes, getTypesFromAbi } from 'eosjs/dist/eosjs-serialize'
-import { Api } from 'eosjs'
+import { SerialBuffer, createInitialTypes, getTypesFromAbi } from 'enf-eosjs/dist/eosjs-serialize'
+import { Api } from 'enf-eosjs'
 
 //eosio name helper functions
 const char_to_symbol = c => {

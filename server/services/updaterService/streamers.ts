@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 import fetch from 'node-fetch'
-import { JsonRpc } from 'eosjs'
+import { JsonRpc } from 'enf-eosjs'
 import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 
 import { Match, Settings } from '../../models'
@@ -14,7 +14,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
   console.info(`Start NODE updater for ${network.name} (${account})...`)
 
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
-  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`, { fetch })
+  const rpc = new JsonRpc(`${network.protocol}://${network.host}:${network.port}`)
   const settings = await getSettings(network)
 
   let offset = settings.actions_stream_offset[getAccountAsKey(account)] || 0
@@ -54,7 +54,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
     await Settings.updateOne({ chain: network.name }, { $set })
 
     if (r.actions.length < 100) {
-      //console.log(`waitForNewActions(${network.name}, ${account})...`)
+      console.log(`waitForNewActions(${network.name}, ${account})...`)
       await new Promise((resolve, reject) => setTimeout(resolve, delay))
     }
   }
