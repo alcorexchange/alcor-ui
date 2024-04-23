@@ -250,7 +250,9 @@ export async function updatePool(chain: string, poolId: number) {
 async function updateTicks(chain: string, poolId: number) {
   console.log('update ticks:', poolId)
   const chainTicks = await getChianTicks(chain, poolId)
+  console.log('update ticks:', poolId, 1)
   const redisTicks = await getRedisTicks(chain, poolId)
+  console.log('update ticks:', poolId, 2)
 
   const update = []
 
@@ -275,6 +277,7 @@ async function updateTicks(chain: string, poolId: number) {
 
   const push = JSON.stringify({ chain, poolId, update })
   publisher.publish('swap:ticks:update', push)
+  console.log('update ticks: ', poolId, ' updated!')
 }
 
 export async function connectAll() {
@@ -290,9 +293,11 @@ export async function connectAll() {
 }
 
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
+  console.log('getChianTicks', poolId)
   const network = networks[chain]
   const rpc = getSingleEndpointRpc(network)
 
+  console.log('getChianTicks', poolId, 1)
   const rows = await fetchAllRows(rpc, {
     code: network.amm.contract,
     scope: poolId,
@@ -302,6 +307,7 @@ async function getChianTicks(chain: string, poolId: number): Promise<TicksList> 
 
   rows.forEach(i => { i.id = parseFloat(i.id) })
 
+  console.log('getChianTicks', poolId, 'fetched!!')
   return new Map(rows.map(r => [r.id, r]))
 }
 
