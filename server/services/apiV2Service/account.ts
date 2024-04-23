@@ -37,6 +37,9 @@ async function getCurrentPositionState(chain, plainPosition) {
 
   const position = new PositionClass({ ...plainPosition, pool })
 
+  // console.log(pool.tickDataProvider)
+  // console.log(position)
+
   const inRange = position.inRange
   const amountA = position.amountA.toAsset()
   const amountB = position.amountB.toAsset()

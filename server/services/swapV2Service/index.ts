@@ -364,6 +364,7 @@ export async function updatePools(chain) {
       to_create.push(p)
     } else {
       await updatePool(chain, pool.id)
+      await updatePositions(chain, pool.id)
     }
   }
 
@@ -377,7 +378,9 @@ export async function initialUpdate(chain: string, poolId?: number) {
   await updatePools(chain)
 
   if (poolId) {
-    await updateTicks(chain, poolId)
+    updatePool(chain, poolId)
+    updatePositions(chain, poolId)
+    //await updateTicks(chain, poolId)
     return
   }
 
