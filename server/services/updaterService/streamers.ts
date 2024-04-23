@@ -54,7 +54,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
     await Settings.updateOne({ chain: network.name }, { $set })
 
     if (r.actions.length < 100) {
-      //console.log(`waitForNewActions(${network.name}, ${account})...`)
+      console.log(`waitForNewActions(${network.name}, ${account})...`)
       await new Promise((resolve, reject) => setTimeout(resolve, delay))
     }
   }
