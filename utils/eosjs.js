@@ -32,39 +32,14 @@ export const fetchAllRows = async (
     ...options,
   }
 
-  const bigNumberFix = options.bigNumberFix ?? false
-
-  if (bigNumberFix) {
-    delete mergedOptions.bigNumberFix
-  }
-
   let rows = []
   let lowerBound = mergedOptions.lower_bound
 
   for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
-    let result
-
-    if (bigNumberFix) {
-      const response = await fetch((rpc.endpoint ?? rpc.currentEndpoint) + '/v1/chain/get_table_rows', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...mergedOptions,
-          lower_bound: lowerBound,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      })
-
-      result = JSON.parse(
-        (await response.text()).replace(/:(-?\d+),/g, ': "$1",')
-      )
-    } else {
-      result = await rpc.get_table_rows({
-        ...mergedOptions,
-        lower_bound: lowerBound,
-      })
-    }
+    const result = await rpc.get_table_rows({
+      ...mergedOptions,
+      lower_bound: lowerBound,
+    })
 
     rows = rows.concat(result.rows)
 

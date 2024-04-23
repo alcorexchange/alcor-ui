@@ -63,7 +63,16 @@ export class JsonRpc {
         body: JSON.stringify(body),
         method: "POST"
       })
-      json = await response.json()
+
+      if (path.includes('get_table_rows')) {
+        // BIG Number FIX
+        json = JSON.parse(
+          (await response.text()).replace(/:(-?\d+),/g, ': "$1",')
+        )
+      } else {
+        json = await response.json()
+      }
+
       if (json.processed && json.processed.except) {
         throw new RpcError(json)
       }

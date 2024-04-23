@@ -4,21 +4,14 @@
       .title-container
         i.el-icon-wallet
         .text Withdraw USDT from WAX
+
     .main(v-if="this.$store.state.user && this.$store.state.user.name")
-      blockquote.blockquote.text-left
-        p.text-wrap.mb-0
-          | We use the EOS network as a USDT provider. When depositing, you must select the EOS network.
-        footer.blockquote-footer.mt-1
-          | Carefully read the instructions before making a deposit.
-        footer.blockquote-footer.mt-1
-          | Deposit Fee is 0.05 USDT
+      h6.mb-2.red
+        | USE ONLY ALCOR UI FOR USDT Withdrawal on WAX
 
-      img(width="100%" src="~/assets/images/wax-usdt-withdraw.png")
-
-      h6.mt-3.mb-2.red
-        | Fill in the MEMO on the exchange exactly as above
-        br
-        | An incorrectly filled MEMO can lead to loss of funds
+      blockquote.blockquote.text-left.mt-2
+        footer.blockquote-footer.mt-1
+          | Carefully read the instructions below before making a deposit.
 
       .mt-3.mb-2.w-100
         b.mt-1 CEX Deposit Address
@@ -33,6 +26,19 @@
         PoolTokenInput(label="Deposit Amount" :locked="true" :token="{ decimals: 4, contract: 'usdt.alcor', symbol: 'USDT' }" v-model="amount")
 
       AlcorButton.w-100(outline @click="submit") {{ $t('Withdraw')}}
+
+      blockquote.blockquote.text-left.mt-3
+        p.text-wrap.mb-0
+          | Alcor use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
+        footer.blockquote-footer.mt-1
+          | Alcor using IBC technology to sent your USDT: WAX -> EOS -> CEX
+        footer.blockquote-footer.mt-1
+          | Carefully read the instructions before making a deposit.
+        footer.blockquote-footer.mt-1
+          | Deposit Fee is 0.05 USDT
+
+      img(width="100%" src="~/assets/images/wax-usdt-withdraw.png")
+
     .main(v-else)
       you need log in
 </template>
