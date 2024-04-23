@@ -65,9 +65,9 @@ export class JsonRpc {
       })
 
       if (path.includes('get_table_rows')) {
-        // BIG Number FIX
+        // BIG negative Number FIX
         json = JSON.parse(
-          (await response.text()).replace(/:(-?\d+),/g, ': "$1",')
+          (await response.text()).replace(/:(-?\d{16,}),/g, ': "$1",')
         )
       } else {
         json = await response.json()
