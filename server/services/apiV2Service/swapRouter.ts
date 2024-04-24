@@ -98,7 +98,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   console.log(
     network.name,
-    `find route ${inputToken.symbol} -> ${outputToken.symbol} took maxHops('${maxHops}') ${endTime - startTime} milliseconds v2: ${Boolean(v2)}`
+    `find route ${inputToken.symbol} -> ${outputToken.symbol} took maxHops('${maxHops}') ${Math.round(endTime - startTime)} ms v2: ${Boolean(v2)}`
   )
 
   if (!trade) return res.status(403).send('No route found')

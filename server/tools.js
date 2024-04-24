@@ -103,19 +103,51 @@ async function main() {
     }
   }
 
-  //markeSwapBar
-  // TODO
-  // if (command == 'fix_fees') {
-  //   const network = config.networks[process.argv[3]]
-  //   if (!network) { console.log('No network provided!'); process.exit() }
+  if (command == 'fix_swap_vol') {
+    const total = await Swap.count({})
+    const bulkOps = []
+    const cursor = Swap.find().sort({ time: 1 }).batchSize(500).cursor()
 
-  //   const globals = await GlobalStats.find({
-  //     chain: network.name,
-  //     time: {
-  //       $gte: new Date('')
-  //     }
-  //   })
-  // }
+    let i = 0
+    for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: swap._id },
+          update: { $set: { totalUSDVolume: swap.totalUSDVolume / 2 } },
+        },
+      })
+
+      if (bulkOps.length === 500) {
+        await Swap.bulkWrite(bulkOps)
+        bulkOps.length = 0 // очистка массива для следующего пакета
+        process.stdout.write(`${i}/${total}\r`)
+      }
+
+      i++
+    }
+
+    if (bulkOps.length > 0) {
+      await Swap.bulkWrite(bulkOps) // обработка последнего пакета
+      process.stdout.write(`${i}/${total}\r`)
+    }
+  }
+
+  if (command == 'fix_global') {
+    const total = await GlobalStats.count({})
+    const network = config.networks[process.argv[3]]
+    if (!network) { console.log('No network provided!'); process.exit() }
+
+    const cursor = GlobalStats.find().sort({ time: 1 }).cursor()
+
+    let i = 0
+    for (let glob = await cursor.next(); glob != null; glob = await cursor.next()) {
+      glob.swapTradingVolume = glob.swapTradingVolume / 2
+      glob.swapFees = glob.swapFees / 2
+      await glob.save()
+      i++
+      process.stdout.write(`${i}/${total}\r`)
+    }
+  }
 }
 
 main()

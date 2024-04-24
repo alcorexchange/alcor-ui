@@ -301,6 +301,7 @@ const SwapSchema = new mongoose.Schema({
 
   time: { type: Date, index: true },
 })
+SwapSchema.index({ time: 1 }, { background: true })
 SwapSchema.index({ recipient: 1 }, { background: true })
 SwapSchema.index({ sender: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, recipient: 1 }, { background: true })
