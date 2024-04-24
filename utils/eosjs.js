@@ -11,9 +11,9 @@ export function getChainRpc(chain) {
   return getMultyEndRpc(nodes)
 }
 
-export function getMultyEndRpc(nodes) {
-  shuffleArray(nodes)
-  nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+export function getMultyEndRpc(nodes, alcorSorted = true) {
+  //shuffleArray(nodes)
+  if (alcorSorted) nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
   const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 
   return rpc
