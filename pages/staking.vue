@@ -16,8 +16,8 @@
 
         .action.pt-2.pb-2
           AuthOnly
-            AlcorButton.action-button(@click="stake" access :class="{disabled: stakeLoading}" :disabled="stakeLoading")
-              span.fs-16 {{ stakeLoading ? 'Calculating' : 'Stake' }}
+            AlcorButton.action-button(@click="stake" access :class="{disabled: stakeSubmitDisabled}" :disabled="stakeSubmitDisabled")
+              span.fs-16 {{ renderStakeSubmitText }}
 
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount" @input="onUnstakeAmountInput").mt-4
@@ -183,6 +183,16 @@ export default {
       return this.network.baseToken
     },
 
+    stakeSubmitDisabled() {
+      return this.stakeLoading || !this.amount
+    },
+
+    renderStakeSubmitText() {
+      if (!this.amount) return 'Enter Amount'
+      if (this.stakeLoading) return 'Calculating'
+      return 'Stake'
+    },
+
     renderUnstakeSubmitText() {
       // if (this.unstakeMode === 'instant' && this.loading) {
       //   return 'Getting Route'
@@ -221,12 +231,12 @@ export default {
     }, 500),
 
     async calcStakingAmount(input) {
-      // TODO Finish this logic
-
-      this.stakeReceiveAmount = null
       console.log('input', input)
 
-      if (!input || isNaN(input)) return
+      if (!input || isNaN(input)) {
+        this.stakeLoading = false
+        return
+      }
 
       try {
         const actions = [
