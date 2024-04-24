@@ -360,8 +360,15 @@ const networks = {
       'https://wax-api2.alcor.exchange': 'Alcor API2',
       'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
       'https://wax.greymass.com': 'Greymass - Canada',
-      'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
-      'https://wax.pink.gg': 'Pink GG - Germany',
+      'https://api-wax-mainnet.wecan.dev': 'WeCan',
+      'https://wax.cryptolions.io': 'CryptoLions',
+      'https://wax.eosdac.io': 'EosDac',
+      'https://wax.eosusa.io': 'EosUSA',
+      'https://wax.api.eosnation.io': 'EosNation',
+      'https://hyperion6.sentnl.io': 'Sentnl',
+
+      // 'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
+      // 'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
     otc: {
