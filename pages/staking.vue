@@ -110,7 +110,8 @@ export default {
       // loading state of stake
       stakeLoading: false,
 
-      exchangerate: null,
+      exchangerateUp: null,
+      exchangerateDown: null,
 
       // amount of unstake
       unstakeAmount: null,
@@ -153,24 +154,24 @@ export default {
     stakeReceiveAmount() {
       const amount = tryParseCurrencyAmount(this.amount, new Token('wax-eosio.token', 8, 'WAX'))
 
-      if (!amount || !this.exchangerate) {
+      if (!amount || !this.exchangerateDown) {
         return 0
       }
 
       return CurrencyAmount.fromRawAmount(
         new Token('liquid.alcor', 8, 'LSW'),
-        (this.exchangerate * BigInt(amount.numerator.toString()) / multiplier).toString()
+        (this.exchangerateDown * BigInt(amount.numerator.toString()) / multiplier).toString()
       ).toFixed()
     },
 
     receive() {
-      if (!this.unstakeAmount || !this.exchangerate) return 0
+      if (!this.unstakeAmount || !this.exchangerateUp) return 0
 
       const liquidAmount = BigInt(
         parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.decimals).replace('.', '')
       )
 
-      const receive = multiplier * liquidAmount / (this.exchangerate + BigInt(1))
+      const receive = multiplier * liquidAmount / (this.exchangerateUp + BigInt(1))
 
       return CurrencyAmount.fromRawAmount(new Token('wax-eosio.token', 8, 'WAX'), receive.toString()).toFixed()
     },
@@ -232,24 +233,29 @@ export default {
 
   mounted() {
     this.fetchStakeMints()
-    this.fetchExchangeRate()
+
+    this.fetchExchangeRate(true)
+    this.fetchExchangeRate(false)
   },
 
   methods: {
-    async fetchExchangeRate() {
+    async fetchExchangeRate(isRoundUp) {
       const actions = [
         {
           account: 'liquid.alcor',
           name: 'exchangerate',
           authorization: [],
-          data: { isRoundUp: true }
+          data: { isRoundUp }
         },
       ]
 
       const { processed } = await this.$store.dispatch('chain/sendReadOnlyTransaction', actions)
 
-      this.exchangerate = BigInt(processed?.action_traces[0]?.return_value_data)
-      console.log('this.exchangerate', this.exchangerate)
+      if (isRoundUp) {
+        this.exchangerateUp = BigInt(processed?.action_traces[0]?.return_value_data)
+      } else {
+        this.exchangerateDown = BigInt(processed?.action_traces[0]?.return_value_data)
+      }
     },
 
     onInputInAmount(value) {
