@@ -107,6 +107,7 @@
     "@types/d3": "^7.4.0",
     "@types/express": "^4.17.17",
     "@types/imagemin-svgo": "^10.0.2",
+    "@types/lodash": "^4.17.0",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.56.0",
     "awesome-typescript-loader": "^5.2.1",
