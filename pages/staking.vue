@@ -16,8 +16,8 @@
 
         .action.pt-2.pb-2
           AuthOnly
-            AlcorButton(@click="stake" access class="action-button")
-              span.fs-16 Stake
+            AlcorButton.action-button(@click="stake" access :class="{disabled: stakeLoading}" :disabled="stakeLoading")
+              span.fs-16 {{ stakeLoading ? 'Calculating' : 'Stake' }}
 
       div(v-else key="unstake")
         TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount" @input="onUnstakeAmountInput").mt-4
@@ -211,30 +211,53 @@ export default {
   },
 
   methods: {
-    async onInputInAmount(input) {
+    onInputInAmount(value) {
+      this.stakeReceiveAmount = null
+      this.stakeLoading = true
+      this.calcStakingAmountDebounced(value)
+    },
+    calcStakingAmountDebounced: debounce(function (value) {
+      this.calcStakingAmount(value)
+    }, 500),
+
+    async calcStakingAmount(input) {
       // TODO Finish this logic
+
+      this.stakeReceiveAmount = null
       console.log('input', input)
 
-      const actions = [{
-        account: 'liquid.alcor',
-        name: 'getliquidamt', // use  getnativeamt  to calc WAX from LSW
-        authorization: [],
-        data: {
-          nativeAmount: parseFloat(input).toFixed(8).replace('.', '')
-        }
-      }]
+      if (!input || isNaN(input)) return
 
-      console.log({ actions })
+      try {
+        const actions = [
+          {
+            account: 'liquid.alcor',
+            name: 'getliquidamt', // use  getnativeamt  to calc WAX from LSW
+            authorization: [],
+            data: {
+              nativeAmount: parseFloat(input).toFixed(8).replace('.', ''),
+            },
+          },
+        ]
 
-      const { processed } = await this.$store.dispatch('chain/sendReadOnlyTransaction', actions)
+        console.log({ actions })
 
-      const output = processed?.action_traces[0]?.return_value_data
+        const { processed } = await this.$store.dispatch('chain/sendReadOnlyTransaction', actions)
 
-      if (!output) return console.log('NO OUTPUT!!!')
+        const output = processed?.action_traces[0]?.return_value_data
 
-      const o = CurrencyAmount.fromRawAmount(new Token('liquid.alcor', 8, 'LSW'), output)
+        if (!output) return console.log('NO OUTPUT!!!')
 
-      console.log(o.toFixed()) // ---> Should be output
+        const o = CurrencyAmount.fromRawAmount(new Token('liquid.alcor', 8, 'LSW'), output)
+
+        console.log(o.toFixed()) // ---> Should be output
+
+        this.stakeReceiveAmount = o.toFixed()
+      } catch (e) {
+        this.$notify({ type: 'error', title: 'LSW Receive Error', message: e?.response?.data || e.message })
+      } finally {
+        this.stakeLoading = false
+      }
     },
 
     async fetchStakeMints() {
@@ -489,6 +512,16 @@ export default {
   }
   .action {
     display: flex;
+    .action-button {
+      font-weight: 500;
+      &.disabled {
+        background: var(--btn-default) !important;
+        color: #636366 !important;
+        border-color: var(--btn-default) !important;
+        opacity: 0.8;
+        filter: none !important;
+      }
+    }
     .alcor-button {
       --main-action-green: var(--main-green);
       padding: 8px 20px;
