@@ -76,9 +76,8 @@ export async function updater(chain, provider, services) {
   if (services.includes('swap')) {
     console.log('start swap updater for', chain)
 
-    //await updatePools(chain)
     await updatePoolsStats(chain)
-    setInterval(() => updatePoolsStats(chain), 1 * 60 * 1000)
+    setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
 
     streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
       .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })
