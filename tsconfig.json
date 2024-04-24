@@ -21,7 +21,8 @@
         "moduleResolution": "node",
         "esModuleInterop": true,
         "module": "commonjs",
-        "lib": ["DOM"]
+        "lib": ["DOM"],
+        "sourceMap": true
     },
 
     "include": [
