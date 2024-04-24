@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import lodash from 'lodash'
+import { isEqual, throttle } from 'lodash'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
@@ -115,7 +115,7 @@ async function getPool(filter) {
 
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
-    pool = await updatePool(filter.chain, filter.id)
+    pool = await throttledPoolUpdate(filter.chain, filter.id)
 
     // It might be first position of just created pool
     // Update token prices in that case
@@ -131,19 +131,19 @@ async function getPool(filter) {
 }
 
 const throttles = {}
-function throttledPoolUpdate(chain: string, poolId: number) {
+async function throttledPoolUpdate(chain: string, poolId: number) {
   if (`${chain}_${poolId}` in throttles) {
     // Second call in throttle time
     throttles[`${chain}_${poolId}`] = true
     return
   }
 
-  updatePool(chain, poolId)
+  await updatePool(chain, poolId)
 
   throttles[`${chain}_${poolId}`] = false
-  setTimeout(function() {
+  setTimeout(async function() {
     if (throttles[`${chain}_${poolId}`] === true) {
-      updatePool(chain, poolId)
+      await updatePool(chain, poolId)
     }
 
     delete throttles[`${chain}_${poolId}`]
@@ -168,35 +168,7 @@ async function updatePositions(chain: string, poolId: number) {
 
   const to_set = [...keep, ...positions]
   await redis.set(`positions_${chain}`, JSON.stringify(to_set))
-
-
-  // Find removed/added positions for push
-  // const changed = []
-
-  // const oldPositions = current.filter(p => p.pool == poolId)
-  // for (const old of oldPositions) {
-  //   if (positions.find(p => p.id == old.id))
-  // }
-
-
-  //const push = JSON.stringify({ chain, account, positions })
-
-  // Merging
-
-  // JUST BULK EXAMPLE
-  // FIXME Remove it's old, storing positions in mongo
-  // const bulkOps = positions.map(p => {
-  //   const { owner, id } = p
-
-  //   return {
-  //     updateOne: {
-  //         filter: { chain, pool: poolId, owner, id },
-  //         update: p,
-  //         upsert: true,
-  //     }
-  //   }
-  // })
-  //return await Position.bulkWrite(bulkOps)
+  console.log('updated position: ', poolId)
 }
 
 export async function updatePool(chain: string, poolId: number) {
@@ -256,7 +228,7 @@ async function updateTicks(chain: string, poolId: number) {
   chainTicks.forEach((tick, id) => {
     const tick_old = redisTicks.get(id)
 
-    if (!lodash.isEqual(tick_old, tick)) {
+    if (!isEqual(tick_old, tick)) {
       update.push(tick)
     }
   })
@@ -460,7 +432,7 @@ export async function onSwapAction(message: string) {
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
 
   if (name == 'logpool') {
-    await updatePool(chain, data.poolId)
+    throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
     // poolCreationLock = new Promise(async (resolve, reject) => {

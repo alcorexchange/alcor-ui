@@ -135,7 +135,6 @@ async function main() {
   if (command == 'fix_global') {
     const total = await GlobalStats.count({})
     const network = config.networks[process.argv[3]]
-    if (!network) { console.log('No network provided!'); process.exit() }
 
     const cursor = GlobalStats.find().sort({ time: 1 }).cursor()
 
