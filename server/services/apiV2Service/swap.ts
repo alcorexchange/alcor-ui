@@ -121,7 +121,9 @@ swap.get('/charts', async (req, res) => {
 
 swap.get('/pools/:id', async (req, res) => {
   const network: Network = req.app.get('network')
-  const { id } = req.params
+  const { id }: { id: string } = req.params
+
+  if (isNaN(parseInt(id))) return res.status(403).send('Invalid pool id')
 
   const filter: { chain: string, id?: number } = { chain: network.name }
 
