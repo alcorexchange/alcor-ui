@@ -25,7 +25,6 @@ export class JsonRpc {
 
     if (this.endpoints.length) {
       this.currentEndpoint = this.endpoints[0]
-      console.log('RPC created: ', this.currentEndpoint)
     }
 
     if (args.fetch) {
