@@ -65,7 +65,11 @@ export async function updater(chain, provider, services) {
   if (services.includes('markets')) {
     console.log('Start market updater for', chain)
 
+
+    console.time('update markets for ' + network.name)
     await updateMarkets(network)
+    console.timeEnd('update markets for ' + network.name)
+
     setInterval(() => updateMarkets(network), 1 * 60 * 1000)
 
     streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
