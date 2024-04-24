@@ -58,7 +58,6 @@
 <script>
 import { Token, CurrencyAmount } from '@alcorexchange/alcor-swap-sdk'
 
-import bigInt from 'big-integer'
 import { debounce } from 'lodash'
 import { mapState, mapGetters } from 'vuex'
 import PageHeader from '@/components/amm/PageHeader'
@@ -72,7 +71,7 @@ import AuthOnly from '@/components/AuthOnly'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { getPrecision } from '~/utils'
 
-const multiplier = bigInt(100000000)
+const multiplier = BigInt(100000000)
 
 export default {
   components: {
@@ -107,9 +106,11 @@ export default {
       // amount of stake
       amount: null,
       // calculated amount of unstake
-      stakeReceiveAmount: null,
+      //stakeReceiveAmount: null,
       // loading state of stake
       stakeLoading: false,
+
+      exchangerate: null,
 
       // amount of unstake
       unstakeAmount: null,
@@ -149,17 +150,29 @@ export default {
       return this.$store.getters['wallet/balances'].find((b) => b.id == 'lsw-lsw.alcor')
     },
 
-    receive() {
-      if (!this.unstakeAmount) return 0
+    stakeReceiveAmount() {
+      const amount = tryParseCurrencyAmount(this.amount, new Token('wax-eosio.token', 8, 'WAX'))
 
-      const liquidAmount = bigInt(
+      if (!amount || !this.exchangerate) {
+        return 0
+      }
+
+      return CurrencyAmount.fromRawAmount(
+        new Token('liquid.alcor', 8, 'LSW'),
+        (this.exchangerate * BigInt(amount.numerator.toString()) / multiplier).toString()
+      ).toFixed()
+    },
+
+    receive() {
+      if (!this.unstakeAmount || !this.exchangerate) return 0
+
+      const liquidAmount = BigInt(
         parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.decimals).replace('.', '')
       )
 
-      const receive = multiplier.times(liquidAmount).divide(this.getExchangeRateX8())
+      const receive = multiplier * liquidAmount / (this.exchangerate + BigInt(1))
 
-      // getnativeamt
-      return receive.toJSNumber() / 10 ** this.network.baseToken.precision
+      return CurrencyAmount.fromRawAmount(new Token('wax-eosio.token', 8, 'WAX'), receive.toString()).toFixed()
     },
 
     tvl() {
@@ -219,14 +232,31 @@ export default {
 
   mounted() {
     this.fetchStakeMints()
+    this.fetchExchangeRate()
   },
 
   methods: {
+    async fetchExchangeRate() {
+      const actions = [
+        {
+          account: 'liquid.alcor',
+          name: 'exchangerate',
+          authorization: [],
+          data: { isRoundUp: true }
+        },
+      ]
+
+      const { processed } = await this.$store.dispatch('chain/sendReadOnlyTransaction', actions)
+
+      this.exchangerate = BigInt(processed?.action_traces[0]?.return_value_data)
+      console.log('this.exchangerate', this.exchangerate)
+    },
+
     onInputInAmount(value) {
-      this.stakeReceiveAmount = null
-      if (!value || isNaN(value)) return
-      this.stakeLoading = true
-      this.calcStakingAmountDebounced(value)
+      // this.stakeReceiveAmount = null
+      // if (!value || isNaN(value)) return
+      // this.stakeLoading = true
+      // this.calcStakingAmountDebounced(value)
     },
     calcStakingAmountDebounced: debounce(function (value) {
       this.calcStakingAmount(value)
@@ -281,20 +311,6 @@ export default {
       })
 
       this.stakemints = stakemints
-    },
-
-    getExchangeRateX8() {
-      let rateX4 = bigInt(1).multiply(multiplier)
-
-      if (this.stakemints) {
-        const { totalLiquidStakedToken, totalNativeToken } = this.stakemints
-        const amount = bigInt(totalLiquidStakedToken.quantity.split(' ')[0].replace('.', ''))
-        const nativeAmount = bigInt(totalNativeToken.quantity.split(' ')[0].replace('.', ''))
-
-        rateX4 = amount.multiply(multiplier).divide(nativeAmount).add(1)
-      }
-
-      return rateX4
     },
 
     onUnstakeAmountInput(val) {
@@ -450,7 +466,7 @@ export default {
 
     afterTransactionHook() {
       this.amount = null
-      this.stakeReceiveAmount = null
+      //this.stakeReceiveAmount = null
       this.unstakeAmount = null
       setTimeout(() => {
         this.fetchStakeMints()
