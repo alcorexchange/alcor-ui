@@ -37,7 +37,7 @@ export class JsonRpc {
     return Promise.race([
       f(url, options),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), timeout)
+        setTimeout(() => reject(new Error('timeout(' + timeout + ')')), timeout)
       )
     ])
   }
