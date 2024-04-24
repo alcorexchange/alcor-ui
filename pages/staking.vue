@@ -223,7 +223,6 @@ export default {
   methods: {
     onInputInAmount(value) {
       this.stakeReceiveAmount = null
-      this.stakeLoading = true
       this.calcStakingAmountDebounced(value)
     },
     calcStakingAmountDebounced: debounce(function (value) {
@@ -239,6 +238,7 @@ export default {
       }
 
       try {
+        this.stakeLoading = true
         const actions = [
           {
             account: 'liquid.alcor',
