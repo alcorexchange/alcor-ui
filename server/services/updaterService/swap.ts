@@ -49,14 +49,20 @@ export async function getChangeFrom(date, pool, chain) {
 }
 
 export async function updatePoolsStats(chain: string) {
+  console.time(chain + ' pools updated')
   try {
+    console.time(chain + ' findChain')
     const pools = await SwapPool.find({ chain })
+    console.timeEnd(chain + ' findChain')
 
     for (const pool of pools) {
+      console.time(chain + ' getSumUSDVolume')
       pool.volumeUSD24 = await getFieldSumFrom('totalUSDVolume', Date.now() - (ONEDAY), pool.id, chain)
       pool.volumeUSDWeek = await getFieldSumFrom('totalUSDVolume', Date.now() - (WEEK), pool.id, chain)
       pool.volumeUSDMonth = await getFieldSumFrom('totalUSDVolume', Date.now() - (ONEDAY * 30), pool.id, chain)
+      console.timeEnd(chain + ' getSumUSDVolume')
 
+      console.time(chain + ' getSumTokenVolume')
       pool.volumeA24 = await getFieldSumFrom('tokenA', Date.now() - (ONEDAY), pool.id, chain)
       pool.volumeAWeek = await getFieldSumFrom('tokenA', Date.now() - (WEEK), pool.id, chain)
       pool.volumeAMonth = await getFieldSumFrom('tokenA', Date.now() - (ONEDAY * 30), pool.id, chain)
@@ -64,16 +70,21 @@ export async function updatePoolsStats(chain: string) {
       pool.volumeB24 = await getFieldSumFrom('tokenB', Date.now() - (ONEDAY), pool.id, chain)
       pool.volumeBWeek = await getFieldSumFrom('tokenB', Date.now() - (WEEK), pool.id, chain)
       pool.volumeBMonth = await getFieldSumFrom('tokenB', Date.now() - (ONEDAY * 30), pool.id, chain)
+      console.timeEnd(chain + ' getSumTokenVolume')
 
+      console.time(chain + ' getChange')
       pool.change24 = await getChangeFrom(Date.now() - ONEDAY, pool.id, chain)
       pool.changeWeek = await getChangeFrom(Date.now() - WEEK, pool.id, chain)
+      console.timeEnd(chain + ' getChange')
 
+      console.time(chain + ' save')
       await pool.save()
+      console.timeEnd(chain + ' save')
     }
 
-    console.log(chain, 'pools updated')
+    console.timeEnd(chain + ' pools updated')
   } catch (e) {
-    console.error(' UPDATE POOL STATS ERR', chain, e)
+    console.error('UPDATE POOL STATS ERR', chain, e)
   }
 }
 
