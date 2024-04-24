@@ -1,15 +1,14 @@
 require('dotenv').config()
 
 import lodash from 'lodash'
-import fetch from 'cross-fetch'
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
-import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 
 import { Market } from '../../models'
 import { networks } from '../../../config'
 import { littleEndianToDesimal, parseAsset } from '../../../utils'
 import { fetchAllRows } from '../../../utils/eosjs'
+import { getFailOverAlcorOnlyRpc } from './../../utils'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -114,20 +113,6 @@ async function updateOrders(side, chain, market_id) {
   publisher.publish('orderbook_update', push)
 }
 
-const rpcs = {}
-function getRpc(network) {
-  if (network.name in rpcs) return rpcs[network.name]
-
-  // Try alcore's node first for updating orderbook
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
-  nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
-
-  const rpc = new JsonRpc(nodes, { fetch })
-  rpcs[network.name] = rpc
-
-  return rpc
-}
-
 async function connectAll() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
   await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
@@ -140,7 +125,7 @@ async function connectAll() {
 
 async function getOrders({ chain, market_id, side }) {
   const network = networks[chain]
-  const rpc = getRpc(network)
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   const rows = await fetchAllRows(rpc, {
     code: network.contract,
@@ -174,9 +159,6 @@ export async function initialUpdate(chain, market_id) {
     await updateOrders('sell', chain, market)
 
     console.log('updated orderbook: ', chain, market)
-
-    // Chain that we have our own nodes
-    //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
   }
 }
 
