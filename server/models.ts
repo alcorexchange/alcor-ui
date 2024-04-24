@@ -47,8 +47,8 @@ const MarketSchema = new mongoose.Schema({
   high24: { type: Number },
   low24: { type: Number }
 })
-MarketSchema.index({ chain: 1, id: 1 })
-MarketSchema.index({ chain: 1, ticker_id: 1 })
+MarketSchema.index({ chain: 1, id: 1 }, { unique: true })
+MarketSchema.index({ chain: 1, ticker_id: 1 }, { unique: true  })
 
 const PoolPairSchema = new mongoose.Schema({
   chain: { type: String, index: true },

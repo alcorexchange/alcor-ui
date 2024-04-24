@@ -14,7 +14,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { markeSwapBars } from '../updaterService/charts'
-import { getSingleEndpointRpc, getFailOverRpc, getToken } from './../../utils'
+import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -153,7 +153,7 @@ function throttledPoolUpdate(chain: string, poolId: number) {
 async function updatePositions(chain: string, poolId: number) {
   console.log('updatePositions', poolId)
   const network = networks[chain]
-  const rpc = getFailOverRpc(network)
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   const positions = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -203,7 +203,7 @@ async function updatePositions(chain: string, poolId: number) {
 export async function updatePool(chain: string, poolId: number) {
   console.log('update pool', poolId)
   const network = networks[chain]
-  const rpc = getFailOverRpc(network)
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   const [pool] = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -250,11 +250,8 @@ export async function updatePool(chain: string, poolId: number) {
 }
 
 async function updateTicks(chain: string, poolId: number) {
-  console.log('update ticks:', poolId)
   const chainTicks = await getChianTicks(chain, poolId)
-  console.log('update ticks:', poolId, 1)
   const redisTicks = await getRedisTicks(chain, poolId)
-  console.log('update ticks:', poolId, 2)
 
   const update = []
 
@@ -273,15 +270,13 @@ async function updateTicks(chain: string, poolId: number) {
     }
   })
 
-  console.log('update ticks:', poolId, 3, "BEFORE REDIS")
   await setRedisTicks(chain, poolId, Array.from(chainTicks))
-  console.log('update ticks:', poolId, 4, "AFTER REDIS")
 
   if (update.length == 0) return console.log('update ticks: ', poolId, ' updated!')
 
   const push = JSON.stringify({ chain, poolId, update })
   publisher.publish('swap:ticks:update', push)
-  console.log('update ticks: ', poolId, ' updated!')
+  console.log('updated ticks: ', poolId)
 }
 
 export async function connectAll() {
@@ -299,7 +294,9 @@ export async function connectAll() {
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
   console.log('getChianTicks', poolId)
   const network = networks[chain]
-  const rpc = getSingleEndpointRpc(network)
+
+  // ONLY ALCOR NODES
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   console.log('getChianTicks', poolId, 1)
   const rows = await fetchAllRows(rpc, {
@@ -329,7 +326,7 @@ function parsePool(pool: { [key: string]: any }) {
 
 export async function updatePools(chain) {
   const network = networks[chain]
-  const rpc = getFailOverRpc(network)
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   const pools = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -381,10 +378,9 @@ export async function initialUpdate(chain: string, poolId?: number) {
     updatePool(chain, poolId)
     updatePositions(chain, poolId)
     //await updateTicks(chain, poolId)
-    return
   }
 
-  const markets = await SwapPool.find({ chain })
+  //const markets = await SwapPool.find({ chain })
 
   //for (const { chain, id } of markets) {
   //  //await updateTicks(chain, id)

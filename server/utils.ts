@@ -18,6 +18,12 @@ export async function getToken(chain: string, id: string) {
   return tokens.find(t => t.id == id)
 }
 
+export function getFailOverAlcorOnlyRpc(network) {
+  // Try alcore's node first for updating orderbook
+  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
+  return getMultyEndRpc(nodes.filter(n => n.includes('alcor')))
+}
+
 export function getFailOverRpc(network) {
   // Try alcore's node first for updating orderbook
   const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))

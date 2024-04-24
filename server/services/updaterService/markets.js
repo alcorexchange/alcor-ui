@@ -142,7 +142,7 @@ export async function getMarketStats(network, market_id) {
 }
 
 export async function updateMarkets(network) {
-  console.log('update market for ', network.name)
+  console.time('update markets for ' + network.name)
 
   const rpc = getChainRpc(network.name)
 
@@ -203,4 +203,6 @@ export async function updateMarkets(network) {
     await Market.insertMany(rows)
     console.log('Markets for', network.name, 'updated without stats')
   }
+
+  console.timeEnd('update markets for ' + network.name)
 }

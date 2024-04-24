@@ -43,8 +43,12 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
 
-  if (!trade_type || !input || !output || !amount)
+  if (!trade_type || !input || !output)
     return res.status(403).send('Invalid request')
+
+  if (isNaN(amount)) {
+    return res.status(403).send('Invalid amount')
+  }
 
   if (!slippage) slippage = 0.3
   slippage = new Percent(slippage * 100, 10000)
