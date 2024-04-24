@@ -269,49 +269,6 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   res.json(matches)
 })
 
-spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
-  const { ticker_id } = req.params
-  const network = req.app.get('network')
-
-  const market = await Market.findOne({ ticker_id, chain: network.name })
-  if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
-
-  const { from, to, resolution, limit } = req.query
-  if (!resolution) return res.status(404).send('Incorrect resolution..')
-
-  const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market.id) }
-
-  if (from && to) {
-    where.time = {
-      $gte: new Date(parseInt(from)),
-      $lte: new Date(parseInt(to))
-    }
-  }
-
-  const q = [
-    { $match: where },
-    { $sort: { time: 1 } },
-    {
-      $project: {
-        time: { $toLong: '$time' },
-        open: 1,
-        high: 1,
-        low: 1,
-        close: 1,
-        volume: 1
-      }
-    }
-  ]
-
-  if (limit) q.push({ $limit: parseInt(limit) })
-
-  const charts = await Bar.aggregate(q)
-  charts.map(c => { delete c._id })
-
-  res.json(charts)
-})
-
-// TODO время в UTC стартовое надо
 // spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 //   const { ticker_id } = req.params
 //   const network = req.app.get('network')
@@ -320,27 +277,14 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 //   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
 //   const { from, to, resolution, limit } = req.query
-//   if (!resolution || !resolutions[resolution]) return res.status(404).send('Incorrect or unsupported resolution.')
+//   if (!resolution) return res.status(404).send('Incorrect resolution..')
 
-//   const intervalMillis = resolutions[resolution] * 1000 // Преобразование секунд в миллисекунды
-
-//   // Получаем последнюю доступную свечу для установки цены на пустые свечи
-//   const lastBar = await Bar.findOne({
-//     chain: network.name,
-//     market: parseInt(market.id),
-//     timeframe: resolution,
-//   }).sort({ time: -1 })
-
-//   if (!lastBar) return []
-
-//   const lastPrice = lastBar ? lastBar.close : 0
-
-//   const where = { chain: network.name, timeframe: resolution, market: parseInt(market.id) }
+//   const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market.id) }
 
 //   if (from && to) {
 //     where.time = {
 //       $gte: new Date(parseInt(from)),
-//       $lte: new Date(parseInt(to)),
+//       $lte: new Date(parseInt(to))
 //     }
 //   }
 
@@ -354,57 +298,91 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 //         high: 1,
 //         low: 1,
 //         close: 1,
-//         volume: 1,
-//       },
-//     },
+//         volume: 1
+//       }
+//     }
 //   ]
 
 //   if (limit) q.push({ $limit: parseInt(limit) })
 
-//   let charts = await Bar.aggregate(q)
-//   charts = charts.map((c) => {
-//     delete c._id
-//     return c
-//   })
-
-//   // Если нет данных, создаем пустые свечи для всего диапазона
-//   if (charts.length === 0 && from && to) {
-//     let currentTime = parseInt(from)
-//     const endTime = parseInt(to)
-
-//     while (currentTime <= endTime) {
-//       charts.push({
-//         time: currentTime,
-//         open: lastPrice,
-//         high: lastPrice,
-//         low: lastPrice,
-//         close: lastPrice,
-//         volume: 0,
-//       })
-//       currentTime += intervalMillis
-//     }
-//   } else {
-//     // Добавляем пустые свечи, если есть промежутки
-//     for (let i = 0; i < charts.length - 1; i++) {
-//       const current = charts[i]
-//       const next = charts[i + 1]
-//       let currentTime = current.time
-//       const nextTime = next.time
-
-//       while (currentTime + intervalMillis < nextTime) {
-//         currentTime += intervalMillis
-//         charts.splice(i + 1, 0, {
-//           time: currentTime,
-//           open: lastPrice,
-//           high: lastPrice,
-//           low: lastPrice,
-//           close: lastPrice,
-//           volume: 0,
-//         })
-//         i++ // Увеличиваем индекс, чтобы учитывать вставленную свечу
-//       }
-//     }
-//   }
+//   const charts = await Bar.aggregate(q)
+//   charts.map(c => { delete c._id })
 
 //   res.json(charts)
 // })
+
+// TODO время в UTC стартовое надо
+spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
+  const { ticker_id } = req.params
+  const network = req.app.get('network')
+
+  const market = await Market.findOne({ ticker_id, chain: network.name })
+  if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
+
+  const { from, to, resolution, limit } = req.query
+  if (!resolution || !resolutions[resolution]) return res.status(404).send('Incorrect or unsupported resolution.')
+
+  const intervalMillis = resolutions[resolution] * 1000 // Преобразование секунд в миллисекунды
+
+  const where = { chain: network.name, timeframe: resolution, market: parseInt(market.id) }
+
+  if (from && to) {
+    where.time = {
+      $gte: new Date(parseInt(from)),
+      $lte: new Date(parseInt(to)),
+    }
+  }
+
+  const q = [
+    { $match: where },
+    { $sort: { time: 1 } },
+    {
+      $project: {
+        time: { $toLong: '$time' },
+        open: 1,
+        high: 1,
+        low: 1,
+        close: 1,
+        volume: 1,
+      },
+    },
+  ]
+
+  if (limit) q.push({ $limit: parseInt(limit) })
+
+  let charts = await Bar.aggregate(q)
+
+  if (charts.length == 0) return []
+
+  charts = charts.map((c) => {
+    delete c._id
+    return c
+  })
+
+  const currentTime = new Date().getTime()
+  const endTime = parseInt(to)
+  const startTime = parseInt(from)
+
+  // Добавляем пустые свечи, если есть промежутки
+  for (let i = 0; i < charts.length - 1; i++) {
+    const current = charts[i]
+    const next = charts[i + 1]
+    let currentTime = current.time
+    const nextTime = next.time
+
+    while (currentTime + intervalMillis < nextTime) {
+      currentTime += intervalMillis
+      charts.splice(i + 1, 0, {
+        time: currentTime,
+        open: 0,
+        high: 0,
+        low: 0,
+        close: 0,
+        volume: 0,
+      })
+      i++ // Увеличиваем индекс, чтобы учитывать вставленную свечу
+    }
+  }
+
+  res.json(charts)
+})
