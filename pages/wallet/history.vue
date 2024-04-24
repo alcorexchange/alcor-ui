@@ -2,17 +2,17 @@
 .wallet
   virtual-table(v-if="loaded" :table="virtualTableData" @update="update")
     template(#row="{ item }")
-      .history-row.pointer(@click="() => handleClick(item)")
+      .history-row
         .type.fs-14
           span.success(v-if="item.side == 'buy'") {{ $t('BUY') }}
           span.danger(v-else) {{ $t('SELL') }}
-        .asset {{ getSymbol(item.market) }}
+        .asset.underline.pointer(@click="trade(item)") {{ getSymbol(item.market) }}
         .date(v-if="!isMobile") {{ item.time | moment('YYYY-MM-DD HH:mm') }}
         .amount(v-if="!isMobile") {{ item.amount | commaFloat }}
         .total {{ item.total | commaFloat }}
         .unit-price {{ item.unit_price }}
         .action(v-if="!isMobile")
-          el-button.success.hover-opacity(size="medium" type="text" @click.stop="trade(item)") {{ $t('Trade') }}
+          el-button.success.hover-opacity(size="medium" type="text" @click.stop="toExplore(item)") {{ $t('Explore') }}
   .row.justify-content-center(v-else)
     i.el-icon-loading
 </template>
@@ -125,7 +125,7 @@ export default {
 
       if (chank.length) this.userDeals.push(...chank)
     },
-    handleClick(item) {
+    toExplore(item) {
       this.openInNewTab(this.monitorTx(item.trx_id))
     },
     trade(item) {
@@ -161,6 +161,10 @@ export default {
     display: flex;
     justify-content: flex-end;
     text-align: right;
+    transition: color 0.2s;
+    &:hover {
+      color: var(--main-green);
+    }
 
     @media only screen and (max-width: 1176px) {
       width: 33%;
