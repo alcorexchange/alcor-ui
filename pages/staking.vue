@@ -17,6 +17,7 @@
         .action.pt-2.pb-2
           AuthOnly
             AlcorButton.action-button(@click="stake" access :class="{disabled: stakeSubmitDisabled}" :disabled="stakeSubmitDisabled")
+              i.el-icon-refresh.rotate-reverse.h-fit.fs-20(v-if="stakeLoading")
               span.fs-16 {{ renderStakeSubmitText }}
 
       div(v-else key="unstake")
@@ -37,7 +38,7 @@
         .action.pt-2.pb-2
           AuthOnly
             AlcorButton(access class="action-button" @click="handleUnstakeClick" :disabled="unstakeSubmitDisabled")
-              span.fs-16 {{ renderUnstakeSubmitText }}
+              span.fs-16  {{ renderUnstakeSubmitText }}
 
       .stats.my-2.fs-14
         .stat-item
@@ -222,8 +223,9 @@ export default {
 
   methods: {
     onInputInAmount(value) {
-      this.stakeLoading = true
       this.stakeReceiveAmount = null
+      if (!value || isNaN(value)) return
+      this.stakeLoading = true
       this.calcStakingAmountDebounced(value)
     },
     calcStakingAmountDebounced: debounce(function (value) {
@@ -233,10 +235,8 @@ export default {
     async calcStakingAmount(input) {
       console.log('input', input)
 
-      if (!input || isNaN(input)) {
-        this.stakeLoading = false
-        return
-      }
+      // this is also being checked in `onInputInAmount` function but should be ok to duplicate
+      if (!input || isNaN(input)) return
 
       try {
         const actions = [
