@@ -151,7 +151,6 @@ function throttledPoolUpdate(chain: string, poolId: number) {
 }
 
 async function updatePositions(chain: string, poolId: number) {
-  console.log('updatePositions', poolId)
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
 
@@ -245,7 +244,6 @@ export async function updatePool(chain: string, poolId: number) {
 
   // TODO FIX DEPRECATED
   const r = await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, priceA, priceB, tvlUSD }, { upsert: true, new: true })
-  console.log('update pool', poolId, "UPDATED")
   return r
 }
 
@@ -272,7 +270,7 @@ async function updateTicks(chain: string, poolId: number) {
 
   await setRedisTicks(chain, poolId, Array.from(chainTicks))
 
-  if (update.length == 0) return console.log('update ticks: ', poolId, ' updated!')
+  if (update.length == 0) return
 
   const push = JSON.stringify({ chain, poolId, update })
   publisher.publish('swap:ticks:update', push)
@@ -292,13 +290,11 @@ export async function connectAll() {
 }
 
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
-  console.log('getChianTicks', poolId)
   const network = networks[chain]
 
   // ONLY ALCOR NODES
   const rpc = getFailOverAlcorOnlyRpc(network)
 
-  console.log('getChianTicks', poolId, 1)
   const rows = await fetchAllRows(rpc, {
     code: network.amm.contract,
     scope: poolId,
@@ -307,7 +303,6 @@ async function getChianTicks(chain: string, poolId: number): Promise<TicksList> 
 
   rows.forEach(i => { i.id = parseFloat(i.id) })
 
-  console.log('getChianTicks', poolId, 'fetched!!')
   return new Map(rows.map(r => [r.id, r]))
 }
 
@@ -464,8 +459,6 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
 export async function onSwapAction(message: string) {
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
 
-  console.log('swap action', name)
-
   if (name == 'logpool') {
     await updatePool(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
@@ -522,7 +515,6 @@ export async function onSwapAction(message: string) {
     const { posId, owner } = data
     const push = { chain, account: owner, positions: [posId] }
 
-    console.log('account:update-positions', owner)
     publisher.publish('account:update-positions', JSON.stringify(push))
   }
 
