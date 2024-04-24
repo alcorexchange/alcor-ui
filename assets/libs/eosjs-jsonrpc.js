@@ -22,7 +22,11 @@ export class JsonRpc {
   constructor(endpoints, args = {}) {
     endpoints = Array.isArray(endpoints) ? endpoints : [endpoints]
     this.endpoints = endpoints.map(endpoint => endpoint.replace(/\/$/, ""))
-    this.nextEndpoint()
+
+    if (this.endpoints.length) {
+      this.currentEndpoint = this.endpoints[0]
+      console.log('RPC created: ', this.currentEndpoint)
+    }
 
     if (args.fetch) {
       this.fetchBuiltin = args.fetch
