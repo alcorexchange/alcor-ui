@@ -12,7 +12,7 @@
 
       div(v-if="activeTab === 'stake'" key="stake")
         TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount" @input="onInputInAmount").mt-4
-        TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.staking.token" :value="stakeReceive").mt-2
+        TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.staking.token" :value="stakeReceiveAmount").mt-2
 
         .action.pt-2.pb-2
           AuthOnly
@@ -103,15 +103,25 @@ export default {
 
   data() {
     return {
+      // amount of stake
       amount: null,
+      // calculated amount of unstake
+      stakeReceiveAmount: null,
+      // loading state of stake
+      stakeLoading: false,
+
+      // amount of unstake
       unstakeAmount: null,
+      // calculated amount of swap unstake
       swapReceiveAmount: null,
+      // loading of unstake
+      loading: false,
       expectedInput: null,
+
       stakemints: null,
       priceImpact: '0.00',
       activeTab: 'stake', // possible values: stake, unstake
       unstakeMode: 'delayed', // instant ,delayed
-      loading: false,
       memo: '',
       market: null,
     }
@@ -164,11 +174,6 @@ export default {
       return (
         Math.round((parseFloat(totalLiquidStakedToken.quantity) / parseFloat(totalNativeToken.quantity)) * 1000) / 1000
       )
-    },
-
-    stakeReceive() {
-      if (!this.amount) return ''
-      return (this.amount * this.rate).toFixed(this.network.staking.token.decimals)
     },
 
     tokenA() {
