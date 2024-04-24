@@ -96,9 +96,23 @@ async function main() {
     const cursor = Swap.find().sort({ time: 1 }).cursor()
 
     let i = 0
+    const batchSize = 100
+    let swapsBatch = []
+
     for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
-      await markeSwapBars(swap)
-      i++
+      swapsBatch.push(swap)
+
+      if (swapsBatch.length >= batchSize) {
+        await Promise.all(swapsBatch.map((swap) => markeSwapBars(swap)))
+        i += swapsBatch.length
+        process.stdout.write(`${i}/${total}\r`)
+        swapsBatch = []
+      }
+    }
+
+    if (swapsBatch.length > 0) {
+      await Promise.all(swapsBatch.map((swap) => markeSwapBars(swap)))
+      i += swapsBatch.length
       process.stdout.write(`${i}/${total}\r`)
     }
   }
