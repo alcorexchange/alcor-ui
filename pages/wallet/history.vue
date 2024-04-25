@@ -4,11 +4,12 @@
     template(#row="{ item }")
       .history-row
         .type.fs-14
-          div.type-content.pointer.hover-opacity(v-if="isMobile" :class="item.side == 'buy' ? 'success' : 'danger'" @click="toExplore(item)")
-            span.underline {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
+          div.type-content
+            span(:class="item.side == 'buy' ? 'success' : 'danger'") {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
+            .pointer.hover-opacity.underline.fs-12(v-if="isMobile" @click="toExplore(item)") {{ item.trx_id.slice(0, 5) }}...
+          //- div.type-content.pointer.hover-opacity(v-if="isMobile" :class="item.side == 'buy' ? 'success' : 'danger'")
+          //-   span.underline {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
 
-          div.type-content(v-else :class="item.side == 'buy' ? 'success' : 'danger'")
-            span {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
 
         .asset.underline.pointer(@click="trade(item)") {{ getSymbol(item.market) }}
         .date(v-if="!isMobile") {{ item.time | moment('YYYY-MM-DD HH:mm') }}
@@ -156,7 +157,7 @@ export default {
     width: 75px;
     .type-content {
       display: flex;
-      gap: 2px;
+      gap: 4px;
       align-items: center;
     }
 
