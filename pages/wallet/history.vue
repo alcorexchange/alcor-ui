@@ -4,15 +4,19 @@
     template(#row="{ item }")
       .history-row
         .type.fs-14
-          span.success(v-if="item.side == 'buy'") {{ $t('BUY') }}
-          span.danger(v-else) {{ $t('SELL') }}
+          div.type-content.pointer.hover-opacity(v-if="isMobile" :class="item.side == 'buy' ? 'success' : 'danger'" @click="toExplore(item)")
+            span.underline {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
+
+          div.type-content.pointer.hover-opacity(v-else :class="item.side == 'buy' ? 'success' : 'danger'")
+            span {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
+
         .asset.underline.pointer(@click="trade(item)") {{ getSymbol(item.market) }}
         .date(v-if="!isMobile") {{ item.time | moment('YYYY-MM-DD HH:mm') }}
         .amount(v-if="!isMobile") {{ item.amount | commaFloat }}
         .total {{ item.total | commaFloat }}
         .unit-price {{ item.unit_price }}
         .action(v-if="!isMobile")
-          el-button.success.hover-opacity(size="medium" type="text" @click.stop="toExplore(item)") {{ $t('Explore') }}
+          el-button.success.hover-opacity(size="medium" type="text" @click="toExplore(item)") {{ $t('Explore') }}
   .row.justify-content-center(v-else)
     i.el-icon-loading
 </template>
@@ -150,6 +154,11 @@ export default {
 
   .type {
     width: 75px;
+    .type-content {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
 
     @media only screen and (max-width: 1176px) {
       width: 33%;
