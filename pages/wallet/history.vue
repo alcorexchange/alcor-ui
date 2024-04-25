@@ -7,7 +7,7 @@
           div.type-content.pointer.hover-opacity(v-if="isMobile" :class="item.side == 'buy' ? 'success' : 'danger'" @click="toExplore(item)")
             span.underline {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
 
-          div.type-content.pointer.hover-opacity(v-else :class="item.side == 'buy' ? 'success' : 'danger'")
+          div.type-content(v-else :class="item.side == 'buy' ? 'success' : 'danger'")
             span {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
 
         .asset.underline.pointer(@click="trade(item)") {{ getSymbol(item.market) }}
