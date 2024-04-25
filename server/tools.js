@@ -93,27 +93,12 @@ async function main() {
 
   if (command == 'create_swap_candles') {
     const total = await Swap.count({})
-    const cursor = Swap.find().sort({ time: 1 }).batchSize(100).cursor()
+    const cursor = Swap.find().sort({ time: 1 }).cursor()
 
     let i = 0
-    let swapBatch = []
-
     for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
-      swapBatch.push(swap)
-
-      // Обработка пакета когда он достигает заданного размера
-      if (swapBatch.length === 100) {
-        await Promise.all(swapBatch.map((swap) => markeSwapBars(swap)))
-        i += swapBatch.length
-        process.stdout.write(`${i}/${total}\r`)
-        swapBatch = [] // Сбрасываем пакет после обработки
-      }
-    }
-
-    // Обработка оставшихся элементов, если они есть
-    if (swapBatch.length > 0) {
-      await Promise.all(swapBatch.map((swap) => markeSwapBars(swap)))
-      i += swapBatch.length
+      await markeSwapBars(swap)
+      i++
       process.stdout.write(`${i}/${total}\r`)
     }
   }
