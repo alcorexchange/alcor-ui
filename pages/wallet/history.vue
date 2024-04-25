@@ -3,21 +3,22 @@
   virtual-table(v-if="loaded" :table="virtualTableData" @update="update")
     template(#row="{ item }")
       .history-row
-        .type.fs-14
+        .type
           div.type-content
             span(:class="item.side == 'buy' ? 'success' : 'danger'") {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
-            .pointer.hover-opacity.underline.fs-12(v-if="isMobile" @click="toExplore(item)") {{ item.trx_id.slice(0, 5) }}...
+            //- .pointer.hover-opacity.underline.fs-12(v-if="isMobile" @click="toExplore(item)") {{ item.trx_id.slice(0, 5) }}...
           //- div.type-content.pointer.hover-opacity(v-if="isMobile" :class="item.side == 'buy' ? 'success' : 'danger'")
           //-   span.underline {{ item.side == 'buy' ? $t('BUY') : $t('SELL') }}
-
 
         .asset.underline.pointer(@click="trade(item)") {{ getSymbol(item.market) }}
         .date(v-if="!isMobile") {{ item.time | moment('YYYY-MM-DD HH:mm') }}
         .amount(v-if="!isMobile") {{ item.amount | commaFloat }}
         .total {{ item.total | commaFloat }}
-        .unit-price {{ item.unit_price }}
-        .action(v-if="!isMobile")
-          el-button.success.hover-opacity(size="medium" type="text" @click="toExplore(item)") {{ $t('Explore') }}
+        .unit-price(v-if="!isMobile") {{ item.unit_price }}
+        .action()
+          el-button.success.hover-opacity(size="medium" type="text" @click="toExplore(item)")
+            span.fs-12(v-if="isMobile") {{ $t('Explore') }}
+            span(v-else) {{ $t('Explore') }}
   .row.justify-content-center(v-else)
     i.el-icon-loading
 </template>
@@ -80,12 +81,12 @@ export default {
           value: 'unit_price',
           width: '155px',
           sortable: true,
+          desktopOnly: true,
         },
         {
           label: 'Manage',
           value: 'change24',
           width: '195px',
-          desktopOnly: true,
         },
       ]
 
@@ -218,6 +219,10 @@ export default {
     width: 200px;
     display: flex;
     justify-content: flex-end;
+
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
   }
 }
 
