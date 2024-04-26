@@ -48,41 +48,66 @@ export async function getChangeFrom(date, pool, chain) {
   }
 }
 
-export async function updatePoolsStats(chain: string) {
-  console.time(chain + ' pools updated')
+export async function updatePoolsStats(chain) {
+  console.time(`${chain} pools updated`)
   try {
     const pools = await SwapPool.find({ chain })
+    const promises = pools.map((pool) => updatePoolData(pool, chain))
+    await Promise.all(promises)
+  } catch (error) {
+    console.error('UPDATE POOL STATS ERR', chain, error)
+  }
+  console.timeEnd(`${chain} pools updated`)
+}
 
-    for (const pool of pools) {
-      //console.time(chain + ' getSumUSDVolume')
-      pool.volumeUSD24 = await getFieldSumFrom('totalUSDVolume', Date.now() - (ONEDAY), pool.id, chain)
-      pool.volumeUSDWeek = await getFieldSumFrom('totalUSDVolume', Date.now() - (WEEK), pool.id, chain)
-      pool.volumeUSDMonth = await getFieldSumFrom('totalUSDVolume', Date.now() - (ONEDAY * 30), pool.id, chain)
-      //console.timeEnd(chain + ' getSumUSDVolume')
+async function updatePoolData(pool, chain) {
+  const now = Date.now()
+  const dayAgo = now - ONEDAY
+  const weekAgo = now - WEEK
+  const monthAgo = now - ONEDAY * 30
 
-      //console.time(chain + ' getSumTokenVolume')
-      pool.volumeA24 = await getFieldSumFrom('tokenA', Date.now() - (ONEDAY), pool.id, chain)
-      pool.volumeAWeek = await getFieldSumFrom('tokenA', Date.now() - (WEEK), pool.id, chain)
-      pool.volumeAMonth = await getFieldSumFrom('tokenA', Date.now() - (ONEDAY * 30), pool.id, chain)
+  try {
+    const [
+      volumeUSD24,
+      volumeUSDWeek,
+      volumeUSDMonth,
+      volumeA24,
+      volumeAWeek,
+      volumeAMonth,
+      volumeB24,
+      volumeBWeek,
+      volumeBMonth,
+      change24,
+      changeWeek,
+    ] = await Promise.all([
+      getFieldSumFrom('totalUSDVolume', dayAgo, pool.id, chain),
+      getFieldSumFrom('totalUSDVolume', weekAgo, pool.id, chain),
+      getFieldSumFrom('totalUSDVolume', monthAgo, pool.id, chain),
+      getFieldSumFrom('tokenA', dayAgo, pool.id, chain),
+      getFieldSumFrom('tokenA', weekAgo, pool.id, chain),
+      getFieldSumFrom('tokenA', monthAgo, pool.id, chain),
+      getFieldSumFrom('tokenB', dayAgo, pool.id, chain),
+      getFieldSumFrom('tokenB', weekAgo, pool.id, chain),
+      getFieldSumFrom('tokenB', monthAgo, pool.id, chain),
+      getChangeFrom(dayAgo, pool.id, chain),
+      getChangeFrom(weekAgo, pool.id, chain),
+    ])
 
-      pool.volumeB24 = await getFieldSumFrom('tokenB', Date.now() - (ONEDAY), pool.id, chain)
-      pool.volumeBWeek = await getFieldSumFrom('tokenB', Date.now() - (WEEK), pool.id, chain)
-      pool.volumeBMonth = await getFieldSumFrom('tokenB', Date.now() - (ONEDAY * 30), pool.id, chain)
-      //console.timeEnd(chain + ' getSumTokenVolume')
+    pool.volumeUSD24 = volumeUSD24
+    pool.volumeUSDWeek = volumeUSDWeek
+    pool.volumeUSDMonth = volumeUSDMonth
+    pool.volumeA24 = volumeA24
+    pool.volumeAWeek = volumeAWeek
+    pool.volumeAMonth = volumeAMonth
+    pool.volumeB24 = volumeB24
+    pool.volumeBWeek = volumeBWeek
+    pool.volumeBMonth = volumeBMonth
+    pool.change24 = change24
+    pool.changeWeek = changeWeek
 
-      //console.time(chain + ' getChange')
-      pool.change24 = await getChangeFrom(Date.now() - ONEDAY, pool.id, chain)
-      pool.changeWeek = await getChangeFrom(Date.now() - WEEK, pool.id, chain)
-      //console.timeEnd(chain + ' getChange')
-
-      ///console.time(chain + ' save')
-      await pool.save()
-      //console.timeEnd(chain + ' save')
-    }
-
-    console.timeEnd(chain + ' pools updated')
-  } catch (e) {
-    console.error('UPDATE POOL STATS ERR', chain, e)
+    await pool.save()
+  } catch (error) {
+    console.error(`Error updating pool ${pool.id} stats:`, error)
   }
 }
 

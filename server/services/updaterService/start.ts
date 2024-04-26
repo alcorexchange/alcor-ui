@@ -80,7 +80,7 @@ export async function updater(chain, provider, services) {
   if (services.includes('swap')) {
     console.log('start swap updater for', chain)
 
-    //await updatePoolsStats(chain)
+    await updatePoolsStats(chain)
     setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
 
     streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
