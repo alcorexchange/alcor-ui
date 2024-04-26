@@ -1,43 +1,15 @@
-import { Asset, Symbol } from '@wharfkit/antelope'
+import { Asset } from '@wharfkit/antelope'
 
 import { fetchAllRows } from '~/utils/eosjs'
-import { assetToAmount, parseAsset } from '~/utils'
+import { parseAsset } from '~/utils'
 import { sqrt } from '~/utils/bigInt'
 
-const PrecisionMultiplier = BigInt('1000000000000000000')
 
-// function formatIncentive(incentive) {
-//   const rewardAsset = Asset.fromString(incentive.reward.quantity)
-
-//   incentive.durationInDays = incentive.rewardsDuration / 86400
-//   incentive.isFinished = incentive.periodFinish <= Math.floor(Date.now() / 1000)
-
-//   incentive.daysRemain = Math.ceil(
-//     incentive.isFinished ? 0 : (incentive.periodFinish - Math.floor(Date.now() / 1000)) / 86400
-//   )
-//   console.log(1)
-//   BigInt(2) ** BigInt(3)
-//   console.log(2)
-
-//   const rewardPerDay = BigInt(incentive.rewardRateE18) * BigInt(60 * 60 * 24) / ((BigInt(10) ** BigInt(18)) - BigInt(1))
-//   console.log({ rewardPerDay })
-//   const totalReward = rewardPerDay * BigInt(incentive.durationInDays)
-
-//   incentive.reward = {
-//     ...incentive.reward,
-
-//     rewardPerDay: Asset.fromUnits(rewardPerDay, rewardAsset.symbol),
-//     totalReward: Asset.fromUnits(totalReward, rewardAsset.symbol),
-
-//     ...parseAsset(Asset.fromUnits(totalReward, rewardAsset.symbol).toString()),
-//   }
-
-//   return incentive
-// }
+const PRECISION_MULTIPLIER = BigInt('1000000000000000000')
 
 
 function formatIncentive(incentive) {
-  const rewardAsset = parseAsset(incentive.reward.quantity)
+  const rewardAsset = Asset.fromString(incentive.reward.quantity)
 
   incentive.durationInDays = incentive.rewardsDuration / 86400
   incentive.isFinished = incentive.periodFinish <= Math.floor(Date.now() / 1000)
@@ -46,22 +18,15 @@ function formatIncentive(incentive) {
     incentive.isFinished ? 0 : (incentive.periodFinish - Math.floor(Date.now() / 1000)) / 86400
   )
 
-  // Use BigInt for reward per day calculation to handle large numbers
-  const rewardRateE18 = BigInt(incentive.rewardRateE18)
-  const secondsPerDay = BigInt(86400)
-  const precisionPow = BigInt(10 ** (18 + rewardAsset.symbol.precision))
+  const rewardPerDay = (BigInt(incentive.rewardRateE18) * BigInt(60 * 60 * 24)) / (PRECISION_MULTIPLIER - BigInt(1))
+  const totalReward = rewardPerDay * BigInt(incentive.durationInDays)
 
-  // Calculate reward per day using BigInt, convert to Number for further calculations with small scale numbers
-  incentive.rewardPerDay = Number((rewardRateE18 * secondsPerDay) / (precisionPow - BigInt(1)))
+  incentive.rewardPerDay = Asset.fromUnits(rewardPerDay, rewardAsset.symbol).toString().split(' ')[0]
 
-  // Calculate total reward, ensure it's formatted to the token's precision
-  const totalReward =
-    (incentive.rewardPerDay * incentive.durationInDays).toFixed(rewardAsset.symbol.precision) +
-    ' ' +
-    rewardAsset.symbol.symbol
-
-  // Merge parsed total reward back into incentive reward structure
-  incentive.reward = { ...incentive.reward, ...parseAsset(totalReward) }
+  incentive.reward = {
+    ...incentive.reward,
+    ...parseAsset(Asset.fromUnits(totalReward, rewardAsset.symbol).toString()),
+  }
 
   return incentive
 }
@@ -169,7 +134,7 @@ export const actions = {
       const rewardPerToken = getRewardPerToken(userStake.incentive)
 
       const earnedAmount = stakingWeight * (rewardPerToken - userRewardPerTokenPaid)
-      const reward = earnedAmount / PrecisionMultiplier + rewards
+      const reward = earnedAmount / PRECISION_MULTIPLIER + rewards
 
       const rewardToken = Asset.fromUnits(reward, Asset.fromString(userStake.incentive.reward.quantity).symbol)
 
@@ -177,8 +142,6 @@ export const actions = {
 
       const userSharePercent = (stakingWeight * BigInt(100) * BigInt(1000)) / totalStakingWeight
       userStake.userSharePercent = Number(userSharePercent) / 1000
-
-      console.log('userStake.userSharePercent', userStake.userSharePercent)
 
       userStake.dailyRewards = userStake.incentive.isFinished ? 0 : (userStake.incentive.rewardPerDay * userStake.userSharePercent) / 100
       userStake.dailyRewards = this._vm.$options.filters.commaFloat(userStake.dailyRewards, Math.min(rewardToken.symbol.precision), 8)

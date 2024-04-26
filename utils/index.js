@@ -1,4 +1,3 @@
-import { BigInt } from 'jsbi'
 import { Name, SymbolCode } from 'eos-common'
 import { Serialize } from 'enf-eosjs'
 import { Big } from 'big.js'
