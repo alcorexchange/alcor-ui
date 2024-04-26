@@ -1,48 +1,94 @@
-import { Big } from 'big.js'
-import bigInt from 'big-integer'
-import { asset } from 'eos-common'
+import { Asset, Symbol } from '@wharfkit/antelope'
 
 import { fetchAllRows } from '~/utils/eosjs'
 import { assetToAmount, parseAsset } from '~/utils'
+import { sqrt } from '~/utils/bigInt'
 
-const PrecisionMultiplier = bigInt('1000000000000000000')
+const PrecisionMultiplier = BigInt('1000000000000000000')
+
+// function formatIncentive(incentive) {
+//   const rewardAsset = Asset.fromString(incentive.reward.quantity)
+
+//   incentive.durationInDays = incentive.rewardsDuration / 86400
+//   incentive.isFinished = incentive.periodFinish <= Math.floor(Date.now() / 1000)
+
+//   incentive.daysRemain = Math.ceil(
+//     incentive.isFinished ? 0 : (incentive.periodFinish - Math.floor(Date.now() / 1000)) / 86400
+//   )
+//   console.log(1)
+//   BigInt(2) ** BigInt(3)
+//   console.log(2)
+
+//   const rewardPerDay = BigInt(incentive.rewardRateE18) * BigInt(60 * 60 * 24) / ((BigInt(10) ** BigInt(18)) - BigInt(1))
+//   console.log({ rewardPerDay })
+//   const totalReward = rewardPerDay * BigInt(incentive.durationInDays)
+
+//   incentive.reward = {
+//     ...incentive.reward,
+
+//     rewardPerDay: Asset.fromUnits(rewardPerDay, rewardAsset.symbol),
+//     totalReward: Asset.fromUnits(totalReward, rewardAsset.symbol),
+
+//     ...parseAsset(Asset.fromUnits(totalReward, rewardAsset.symbol).toString()),
+//   }
+
+//   return incentive
+// }
+
 
 function formatIncentive(incentive) {
   const rewardAsset = parseAsset(incentive.reward.quantity)
 
   incentive.durationInDays = incentive.rewardsDuration / 86400
-  incentive.isFinished = incentive.periodFinish <= new Date().getTime() / 1000
-  incentive.daysRemain = Math.ceil(incentive.isFinished ? 0 : (incentive.periodFinish - new Date().getTime() / 1000) / 86400)
+  incentive.isFinished = incentive.periodFinish <= Math.floor(Date.now() / 1000)
 
-  incentive.rewardPerDay = bigInt(incentive.rewardRateE18).times(60 * 60 * 24).divide(bigInt(10).pow(18).minus(1)).toJSNumber() / 10 ** rewardAsset.symbol.precision
+  incentive.daysRemain = Math.ceil(
+    incentive.isFinished ? 0 : (incentive.periodFinish - Math.floor(Date.now() / 1000)) / 86400
+  )
 
-  const totalReward = (incentive.rewardPerDay * incentive.durationInDays).toFixed(rewardAsset.symbol.precision) + ' ' + rewardAsset.symbol.symbol
+  // Use BigInt for reward per day calculation to handle large numbers
+  const rewardRateE18 = BigInt(incentive.rewardRateE18)
+  const secondsPerDay = BigInt(86400)
+  const precisionPow = BigInt(10 ** (18 + rewardAsset.symbol.precision))
 
+  // Calculate reward per day using BigInt, convert to Number for further calculations with small scale numbers
+  incentive.rewardPerDay = Number((rewardRateE18 * secondsPerDay) / (precisionPow - BigInt(1)))
+
+  // Calculate total reward, ensure it's formatted to the token's precision
+  const totalReward =
+    (incentive.rewardPerDay * incentive.durationInDays).toFixed(rewardAsset.symbol.precision) +
+    ' ' +
+    rewardAsset.symbol.symbol
+
+  // Merge parsed total reward back into incentive reward structure
   incentive.reward = { ...incentive.reward, ...parseAsset(totalReward) }
 
   return incentive
 }
 
-const getLastTimeRewardApplicable = periodFinish => {
-  const currentTime = Math.floor(Date.now() / 1000)
-  return currentTime < periodFinish ? currentTime : periodFinish
-}
-
-const getRewardPerToken = incentive => {
-  const totalStakingWeight = bigInt(incentive.totalStakingWeight)
-  const rewardPerTokenStored = bigInt(incentive.rewardPerTokenStored)
-  const periodFinish = incentive.periodFinish
-  const lastUpdateTime = bigInt(incentive.lastUpdateTime)
-  const rewardRateE18 = bigInt(incentive.rewardRateE18)
-
-  if (totalStakingWeight.eq(0)) {
-    return rewardPerTokenStored
+function getRewardPerToken(incentive) {
+  // Helper function to get the current or period finish time as applicable
+  function lastTimeRewardApplicable(periodFinish) {
+    const currentTime = Math.floor(Date.now() / 1000) // Get current time in seconds
+    return currentTime < periodFinish ? currentTime : periodFinish
   }
 
-  return rewardPerTokenStored.add(
-    bigInt(getLastTimeRewardApplicable(periodFinish)).subtract(lastUpdateTime)
-      .multiply(rewardRateE18).divide(totalStakingWeight)
-  )
+  if (incentive.totalStakingWeight === 0) {
+    return BigInt(incentive.rewardPerTokenStored) // Return early if no staking weight
+  }
+
+  const periodFinish = parseInt(incentive.periodFinish)
+  const lastUpdateTime = BigInt(incentive.lastUpdateTime)
+  const rewardRateE18 = BigInt(incentive.rewardRateE18)
+  const totalStakingWeight = BigInt(incentive.totalStakingWeight)
+
+  // Calculate the difference in time applicable for the reward calculation
+  const timeDifference = BigInt(lastTimeRewardApplicable(periodFinish)) - lastUpdateTime
+
+  // Calculate the reward per token
+  const rewardPerToken = BigInt(incentive.rewardPerTokenStored) + (timeDifference * rewardRateE18) / totalStakingWeight
+
+  return rewardPerToken
 }
 
 export const state = () => ({
@@ -84,11 +130,14 @@ export const actions = {
       table: 'incentives',
     })
 
-    commit('setIncentives', incentives.map(i => formatIncentive(i)))
+    commit(
+      'setIncentives',
+      incentives.map((i) => formatIncentive(i))
+    )
   },
 
   async stakeAction({ dispatch, rootState }, { stakes, action }) {
-    const actions = stakes.map(s => {
+    const actions = stakes.map((s) => {
       const { incentiveId, posId } = s
 
       return {
@@ -97,8 +146,8 @@ export const actions = {
         authorization: [rootState.user.authorization],
         data: {
           incentiveId,
-          posId
-        }
+          posId,
+        },
       }
     })
 
@@ -111,29 +160,31 @@ export const actions = {
     // We need this method to trigger to recalculate user rewards (that depends on time)
     const userStakes = []
 
-    for (const r of state.plainUserStakes) {
-      const totalStakingWeight = r.incentive.totalStakingWeight
-      const stakingWeight = bigInt(r.stakingWeight)
-      const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
-      const rewards = bigInt(r.rewards)
+    for (const userStake of state.plainUserStakes) {
+      const totalStakingWeight = BigInt(userStake.incentive.totalStakingWeight)
+      const stakingWeight = BigInt(userStake.stakingWeight)
+      const userRewardPerTokenPaid = BigInt(userStake.userRewardPerTokenPaid)
+      const rewards = BigInt(userStake.rewards)
 
-      //console.log(stakingWeight.toString(), totalStakingWeight.toString())
+      const rewardPerToken = getRewardPerToken(userStake.incentive)
 
-      const reward = stakingWeight.multiply(
-        getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+      const earnedAmount = stakingWeight * (rewardPerToken - userRewardPerTokenPaid)
+      const reward = earnedAmount / PrecisionMultiplier + rewards
 
-      const rewardToken = asset(r.incentive.reward.quantity)
+      const rewardToken = Asset.fromUnits(reward, Asset.fromString(userStake.incentive.reward.quantity).symbol)
 
-      rewardToken.set_amount(reward)
-      r.farmedReward = rewardToken.to_string()
+      userStake.farmedReward = rewardToken.toString()
 
-      //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
-      r.userSharePercent = Math.round(parseFloat(stakingWeight) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
-      r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
-      r.dailyRewards = this._vm.$options.filters.commaFloat(r.dailyRewards, Math.min(rewardToken.symbol.precision(), 8))
-      r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
+      const userSharePercent = (stakingWeight * BigInt(100) * BigInt(1000)) / totalStakingWeight
+      userStake.userSharePercent = Number(userSharePercent) / 1000
 
-      userStakes.push(r)
+      console.log('userStake.userSharePercent', userStake.userSharePercent)
+
+      userStake.dailyRewards = userStake.incentive.isFinished ? 0 : (userStake.incentive.rewardPerDay * userStake.userSharePercent) / 100
+      userStake.dailyRewards = this._vm.$options.filters.commaFloat(userStake.dailyRewards, Math.min(rewardToken.symbol.precision), 8)
+      userStake.dailyRewards += ' ' + userStake.incentive.reward.quantity.split(' ')[1]
+
+      userStakes.push(userStake)
     }
 
     commit('setUserStakes', userStakes)
@@ -144,74 +195,55 @@ export const actions = {
     await dispatch('loadUserStakes')
   },
 
-  async loadUserStakes({ state, commit, dispatch, rootState, getters }) {
-    // console.log('loadUserStakes...')
-    // TODO Refactor table calls
-    const positions = rootState.amm.positions
+  async loadUserStakes({ state, commit, dispatch, rootState }) {
+    const { positions } = rootState.amm
+    const positionIds = positions.map((p) => Number(p.id))
 
-    const positionIds = rootState.amm.positions.map(p => Number(p.id))
-
-    const stakingpos_requests = positionIds.map(posId => {
-      return fetchAllRows(this.$rpc, {
+    // Fetch staking positions for each position ID and flatten the responses
+    const stakingposRequests = positionIds.map(async (posId) => {
+      const response = await fetchAllRows(this.$rpc, {
         code: rootState.network.amm.contract,
         scope: rootState.network.amm.contract,
         table: 'stakingpos',
         lower_bound: posId,
-        upper_bound: posId
+        upper_bound: posId,
       })
+      return response.flat()
     })
+    const stakedPositions = (await Promise.all(stakingposRequests)).flat()
 
-    const rows = (await Promise.all(stakingpos_requests)).flat(1)
+    // Extract unique incentive IDs
+    const userUniqueIncentives = [...new Set(stakedPositions.map((sp) => sp.incentiveIds).flat())]
 
-    //const rows = stakingpos_requests.flat(2)
-    //console.log({ rows })
-    // const rows = await fetchAllRows(this.$rpc, {
-    //   code: rootState.network.amm.contract,
-    //   scope: rootState.network.amm.contract,
-    //   table: 'stakingpos',
-    //   lower_bound: Math.min(positionIds),
-    //   upper_bound: Math.max(positionIds)
-    // })
-
-    const farmPositions = []
-    const stakedPositions = rows.filter(i => positionIds.includes(i.posId))
-
-    for (const sp of stakedPositions) {
-      const position = positions.find(p => p.id == sp.posId)
-      position.incentiveIds = sp.incentiveIds
-
-      farmPositions.push(position)
-    }
-
-    const userUnicueIncentives = [...new Set(farmPositions.map(p => p.incentiveIds).flat(1))]
-
-    // Fetching stakes amounts of positions
+    // Fetch stakes amounts of positions for each unique incentive
     const userStakes = []
-    for (const incentiveScope of userUnicueIncentives) {
+    for (const incentiveScope of userUniqueIncentives) {
       const rows = await fetchAllRows(this.$rpc, {
         code: rootState.network.amm.contract,
         scope: incentiveScope,
         table: 'stakes',
         lower_bound: Math.min(...positionIds),
-        upper_bound: Math.max(...positionIds)
+        upper_bound: Math.max(...positionIds),
       })
 
-      const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {
-        r.incentiveId = incentiveScope
-        r.incentive = state.incentives.find(i => i.id == incentiveScope)
-        r.pool = positions.find(p => p.id == r.posId).pool
-        r.poolStats = positions.find(p => p.id == r.posId).pool
-        return r
-      })
+      const stakes = rows
+        .filter((r) => positionIds.includes(r.posId))
+        .map((r) => ({
+          ...r,
+          incentiveId: incentiveScope,
+          incentive: state.incentives.find((i) => i.id == incentiveScope),
+          pool: positions.find((p) => p.id == r.posId).pool,
+          poolStats: positions.find((p) => p.id == r.posId).poolStats,
+        }))
 
       userStakes.push(...stakes)
     }
 
+    // Commit user stakes and calculate
     commit('setPlainUserStakes', userStakes)
     dispatch('calculateUserStakes')
-  }
+  },
 }
-
 
 function tokenToUSD(amount, symbol, contract, tokens) {
   const parsed = parseFloat(amount)
@@ -226,15 +258,13 @@ function tokenToUSD(amount, symbol, contract, tokens) {
 function getAPR(incentive, poolStats, tokens) {
   if (!poolStats) return null
 
-  const absoluteTotalStaked = assetToAmount(poolStats.tokenA.quantity, poolStats.tokenA.decimals)
-    .times(assetToAmount(poolStats.tokenB.quantity, poolStats.tokenB.decimals))
-    .sqrt()
-    .round(0)
+  const tokenA = Asset.fromFloat(poolStats.tokenA.quantity, Asset.Symbol.fromParts(poolStats.tokenA.symbol, poolStats.tokenA.decimals))
+  const tokenB = Asset.fromFloat(poolStats.tokenB.quantity, Asset.Symbol.fromParts(poolStats.tokenB.symbol, poolStats.tokenB.decimals))
 
-  const stakedPercent = Math.max(
-    1,
-    Math.min(100, parseFloat(new Big(incentive.totalStakingWeight).div(absoluteTotalStaked.div(100)).toString()))
-  )
+  const absoluteTotalStaked = sqrt(BigInt(tokenA.units.toString()) * BigInt(tokenB.units.toString()))
+
+  const stakedPercent_bn = (BigInt(incentive.totalStakingWeight) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
+  const stakedPercent = Number(stakedPercent_bn) / 1000
 
   const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
   const dayRewardInUSD = parseFloat(
