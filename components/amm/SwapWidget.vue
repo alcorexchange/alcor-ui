@@ -207,12 +207,12 @@ export default {
         ],
       },
       {
-        link: 'https://game.nftbattleminers.com/?src=alcor',
+        link: 'https://neftyblocks.com/collection/castlesnftgo/drops/217897+217898+217914',
         image: require('@/assets/images/swap-banner-2.gif'),
         colors: [
-          'rgba(28,221,121,0.2)',
-          'rgba(66,30,29,1)',
-          'rgba(103,161,125, 1)',
+          'rgba(138,132,115,0.2)',
+          'rgba(46,99,137,1)',
+          'rgba(248,224,117, 1)',
         ],
       },
     ]
