@@ -4,7 +4,7 @@
   template(v-if="unstakes?.length")
     ElAlert.mb-4(:closable="false")
       template(#title) Requests are typically processed within one day. If the contract lacks sufficient funds, please allow 3 to 6
-        | days for replenishment. Funds will automatically be sent to {{ user?.name ?? 'your account' }}; no need to claim them.
+        |  days for replenishment. Funds will automatically be sent to {{ user?.name ?? 'your account' }}; no need to claim them.
     .items.px-1
       .item(v-for="item in unstakes")
         .header.pb-1.fs-14.disable
