@@ -8,11 +8,15 @@
 
       .stake-title
         h2.pt-1 Earn LSW
-        .history-button.pale.hover-opacity.pointer.disable.fs-14(@click="showPending")
-          i.el-icon-time
-          span Pending Unstakes
+        .history-button.pale.hover-opacity.pointer.disable.fs-14(@click="togglePending")
+          template(v-if="isOnPending")
+            i.el-icon-back
+            span Back
+          template(v-else)
+            i.el-icon-time
+            span Pending Unstakes
 
-      PendingUnstake(v-if="$route.query.pending")
+      PendingUnstake(v-if="$route.query.pending" :unstakes="pendingUnstakes")
 
       template(v-else)
 
@@ -230,6 +234,10 @@ export default {
     unstakeSubmitDisabled() {
       return this.unstakeMode === 'instant' && this.loading
     },
+
+    isOnPending() {
+      return this.$route.query.pending
+    },
   },
 
   watch: {
@@ -252,13 +260,21 @@ export default {
   },
 
   methods: {
+    togglePending() {
+      if (this.isOnPending) {
+        this.hidePending()
+      } else {
+        this.showPending()
+      }
+    },
     showPending() {
+      // take this to mounted instead
       this.fetchPendingUnstakes()
-      // this.$router.push({
-      //   query: {
-      //     pending: '1',
-      //   },
-      // })
+      this.$router.push({
+        query: {
+          pending: '1',
+        },
+      })
     },
     hidePending() {
       this.$router.push({
