@@ -8,54 +8,58 @@
 
       .stake-title
         h2.pt-1 Earn LSW
-        .history-button.pale.hover-opacity.pointer.disable
+        .history-button.pale.hover-opacity.pointer.disable.fs-14(@click="showPending")
           i.el-icon-time
-          span Pending
+          span Pending Unstakes
 
-      StakingTabs(v-model="activeTab").mt-3
+      PendingUnstake(v-if="$route.query.pending")
 
-      div(v-if="activeTab === 'stake'" key="stake")
-        TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount" @input="onInputInAmount").mt-4
-        TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.staking.token" :value="stakeReceiveAmount").mt-2
+      template(v-else)
 
-        .action.pt-2.pb-2
-          AuthOnly
-            AlcorButton.action-button(@click="stake" access :class="{disabled: stakeSubmitDisabled}" :disabled="stakeSubmitDisabled")
-              i.el-icon-refresh.rotate-reverse.h-fit.fs-20(v-if="stakeLoading")
-              span.fs-16 {{ renderStakeSubmitText }}
+        StakingTabs(v-model="activeTab").mt-3
 
-      div(v-else key="unstake")
-        TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount" @input="onUnstakeAmountInput").mt-4
-        UnstakeModeSelect(
-          :selected="unstakeMode"
-          :delayedReceive="receive"
-          :swapReceive="swapReceiveAmount"
-          :loading="loading"
-          :priceImpact="priceImpact"
-          :network="network"
-          @change="unstakeMode = $event"
-        )
-        //- TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.baseToken" :value="receive").mt-2
+        div(v-if="activeTab === 'stake'" key="stake")
+          TokenInput(:locked="true" label="Stake Amount" :token="network.baseToken" v-model="amount" @input="onInputInAmount").mt-4
+          TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.staking.token" :value="stakeReceiveAmount").mt-2
 
-        //- ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
+          .action.pt-2.pb-2
+            AuthOnly
+              AlcorButton.action-button(@click="stake" access :class="{disabled: stakeSubmitDisabled}" :disabled="stakeSubmitDisabled")
+                i.el-icon-refresh.rotate-reverse.h-fit.fs-20(v-if="stakeLoading")
+                span.fs-16 {{ renderStakeSubmitText }}
 
-        .action.pt-2.pb-2
-          AuthOnly
-            AlcorButton(access class="action-button" @click="handleUnstakeClick" :disabled="unstakeSubmitDisabled")
-              span.fs-16  {{ renderUnstakeSubmitText }}
+        div(v-else key="unstake")
+          TokenInput(:locked="true" label="Unstake Amount" :token="network.staking.token" v-model="unstakeAmount" @input="onUnstakeAmountInput").mt-4
+          UnstakeModeSelect(
+            :selected="unstakeMode"
+            :delayedReceive="receive"
+            :swapReceive="swapReceiveAmount"
+            :loading="loading"
+            :priceImpact="priceImpact"
+            :network="network"
+            @change="unstakeMode = $event"
+          )
+          //- TokenInput(:locked="true" :readonly="true" label="Receive" :token="network.baseToken" :value="receive").mt-2
 
-      .stats.my-2.fs-14
-        .stat-item
-          .muted Rate
-          .value {{ rate }} LSW per WAX
-        .stat-item
-          .muted APR
-          .value ~{{ apr }}%
-        .stat-item
-          .muted TVL
-          .value
-            span.muted.small ( {{ $systemToUSD(tvl) }}$ )
-            span &nbsp; {{ tvl | commaFloat }}
+          //- ElAlert.mt-4(title="Withdrawals require a minimum of 3 days to process. If the contract lacks sufficient funds at the time of your request, please allow 3 to 6 days for the completion of batch unstakes to replenish the balance. We're continuously working on enhancing this process for efficiency. In instances where additional funds are staked during your withdrawal period, these may be utilized to expedite your transaction." type="info" :closable="false")
+
+          .action.pt-2.pb-2
+            AuthOnly
+              AlcorButton(access class="action-button" @click="handleUnstakeClick" :disabled="unstakeSubmitDisabled")
+                span.fs-16  {{ renderUnstakeSubmitText }}
+
+        .stats.my-2.fs-14
+          .stat-item
+            .muted Rate
+            .value {{ rate }} LSW per WAX
+          .stat-item
+            .muted APR
+            .value ~{{ apr }}%
+          .stat-item
+            .muted TVL
+            .value
+              span.muted.small ( {{ $systemToUSD(tvl) }}$ )
+              span &nbsp; {{ tvl | commaFloat }}
 
 </template>
 
@@ -71,9 +75,11 @@ import TokenInput from '@/components/amm/PoolTokenInput'
 import StakingTabs from '@/components/staking/StakingTabs'
 import StakingContent from '@/components/staking/StakingContent'
 import UnstakeModeSelect from '@/components/staking/UnstakeModeSelect'
+import PendingUnstake from '@/components/staking/PendingUnstake'
 import AuthOnly from '@/components/AuthOnly'
 import { tryParseCurrencyAmount } from '~/utils/amm'
 import { getPrecision } from '~/utils'
+import { fetchAllRows } from '~/utils/eosjs'
 
 const multiplier = BigInt(100000000)
 
@@ -86,6 +92,7 @@ export default {
     StakingTabs,
     StakingContent,
     UnstakeModeSelect,
+    PendingUnstake,
     AuthOnly,
   },
 
@@ -131,6 +138,8 @@ export default {
       unstakeMode: 'delayed', // instant ,delayed
       memo: '',
       market: null,
+
+      pendingUnstakes: [],
     }
   },
 
@@ -243,6 +252,37 @@ export default {
   },
 
   methods: {
+    showPending() {
+      this.fetchPendingUnstakes()
+      // this.$router.push({
+      //   query: {
+      //     pending: '1',
+      //   },
+      // })
+    },
+    hidePending() {
+      this.$router.push({
+        query: { pending: undefined },
+      })
+    },
+
+    async fetchPendingUnstakes() {
+      if (!this.user.name) return
+
+      const rows = await fetchAllRows(this.$rpc, {
+        code: this.network.staking.contract,
+        scope: this.network.staking.contract,
+        table: 'withdraws',
+        lower_bound: this.user.name, // user account
+        upper_bound: this.user.name, // user account
+        key_type: 'i64',
+        index_position: 2,
+        limit: 1000,
+      })
+
+      this.pendingUnstakes = rows
+    },
+
     async fetchExchangeRate(isRoundUp) {
       const actions = [
         {
