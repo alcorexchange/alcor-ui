@@ -6,7 +6,7 @@
         template(#title) The requests can be proccessed within one day. It will automatically be sent to [Account Name], you don't need to claim them.
       .items.px-1
         .item(v-for="item in unstakes")
-          .header.pb-1.fs-12.disable
+          .header.pb-1.fs-14.disable
             .date {{ item.request_time | moment('MM-DD HH:mm') }}
             .id # {{ item.id }}
           .content
