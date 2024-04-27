@@ -90,19 +90,25 @@ export default {
         },
       ]
 
-      const data = this.userDeals.map((deal) => ({
-        ...deal,
-        id: deal._id,
-        side: this.user.name == deal.bidder ? 'buy' : 'sell',
-        market_symbol: this.markets_obj[deal.market].symbol,
-        amount:
-          (deal.type == 'sellmatch' ? deal.bid : deal.ask) +
-          ' ' +
-          this.markets_obj[deal.market].quote_token.symbol.name,
-        total:
-          (deal.type == 'sellmatch' ? deal.ask : deal.bid) + ' ' + this.markets_obj[deal.market].base_token.symbol.name,
-        marketSlug: this.markets_obj[deal.market].slug,
-      }))
+      const data = this.userDeals.reduce((acc, deal) => {
+        const market = this.markets_obj[deal.market]
+
+        if (market) {
+          acc.push({
+            ...deal,
+            id: deal._id,
+            side: this.user.name === deal.bidder ? 'buy' : 'sell',
+            market_symbol: market.symbol,
+            amount: `${deal.type === 'sellmatch' ? deal.bid : deal.ask} ${market.quote_token.symbol.name}`,
+            total: `${deal.type === 'sellmatch' ? deal.ask : deal.bid} ${market.base_token.symbol.name}`,
+            marketSlug: market.slug,
+          })
+        } else {
+          console.error(`Market not found for deal with ID: ${deal._id}`)
+        }
+
+        return acc
+      }, [])
 
       const itemSize = 56
       const pageMode = true
