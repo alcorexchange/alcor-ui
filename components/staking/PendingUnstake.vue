@@ -3,7 +3,7 @@
     .fs-18.pt-3.pb-2.disable My Pending Unstakes
     template(v-if="unstakes?.length")
       ElAlert.mb-4(:closable="false")
-        template(#title) The requests can be proccessed within one day. It will automatically be sent to [Account Name], you don't need to claim them.
+        template(#title) The requests can be proccessed within one day. It will automatically be sent to {{ user?.name || 'your account' }}, you don't need to claim them.
       .items.px-1
         .item(v-for="item in unstakes")
           .header.pb-1.fs-14.disable
@@ -29,6 +29,7 @@
 
 <script>
 import TokenImage from '@/components/elements/TokenImage'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'PendingUnstake',
@@ -36,6 +37,9 @@ export default {
     TokenImage,
   },
   props: ['unstakes'],
+  computed: {
+    ...mapGetters(['user']),
+  },
 }
 </script>
 
