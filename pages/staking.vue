@@ -8,13 +8,13 @@
 
       .stake-title
         h2.pt-1 Earn LSW
-        .history-button.pale.hover-opacity.pointer.disable.fs-14(@click="togglePending")
-          template(v-if="isOnPending")
+        .pale.hover-opacity.pointer.disable.fs-14(v-if="pendingUnstakes.length" @click="togglePending")
+          .history-button.p-1(v-if="isOnPending")
             i.el-icon-back
             span Back
-          template(v-else)
-            i.el-icon-time
-            span Pending Unstakes
+          ElBadge(v-else :value="pendingUnstakes.length")
+            .history-button.p-1
+              span Unstakes
 
       PendingUnstake(v-if="$route.query.pending" :unstakes="pendingUnstakes")
 
@@ -244,8 +244,9 @@ export default {
     slippage() {
       this.onUnstakeAmountInput(this.unstakeAmount)
     },
-    'user.name'() {
+    'user.name'(name) {
       this.calcOutput(this.unstakeAmount)
+      if (name) this.fetchPendingUnstakes()
     },
     maxHops() {
       this.calcOutput(this.unstakeAmount)
@@ -257,6 +258,8 @@ export default {
 
     this.fetchExchangeRate(true)
     this.fetchExchangeRate(false)
+
+    this.fetchPendingUnstakes()
   },
 
   methods: {
@@ -481,6 +484,7 @@ export default {
         })
 
         this.afterTransactionHook()
+        this.fetchPendingUnstakes()
         this.$notify({ type: 'success', title: 'Delayed Unstake', message: 'Unstake Successful' })
       } catch (e) {
         this.$notify({ type: 'error', title: 'Delayed Unstake Error', message: e.message })
