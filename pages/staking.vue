@@ -14,7 +14,7 @@
             span Back
           ElBadge(v-else :value="pendingUnstakes.length")
             .history-button.p-1
-              span Unstakes
+              span Pending Unstakes
 
       PendingUnstake(v-if="$route.query.pending" :unstakes="pendingUnstakes")
 
