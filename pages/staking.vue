@@ -8,11 +8,11 @@
 
       .stake-title
         h2.pt-1 Earn LSW
-        .pale.hover-opacity.pointer.disable.fs-14(v-if="pendingUnstakes.length" @click="togglePending")
+        .pale.hover-opacity.pointer.disable.fs-14(@click="togglePending")
           .history-button.p-1(v-if="isOnPending")
             i.el-icon-back
             span Back
-          ElBadge(v-else :value="pendingUnstakes.length")
+          ElBadge(v-else-if="pendingUnstakes.length" :value="pendingUnstakes.length")
             .history-button.p-1
               span Pending Unstakes
 
