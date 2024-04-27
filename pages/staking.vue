@@ -6,7 +6,11 @@
   .page-content
     AlcorContainer.alcor-container
 
-      h2.pt-1 Earn LSW
+      .stake-title
+        h2.pt-1 Earn LSW
+        .history-button.pale.hover-opacity.pointer.disable
+          i.el-icon-time
+          span Pending
 
       StakingTabs(v-model="activeTab").mt-3
 
@@ -160,7 +164,7 @@ export default {
 
       return CurrencyAmount.fromRawAmount(
         new Token('liquid.alcor', 8, 'LSW'),
-        (this.exchangerateDown * BigInt(amount.numerator.toString()) / multiplier).toString()
+        ((this.exchangerateDown * BigInt(amount.numerator.toString())) / multiplier).toString()
       ).toFixed()
     },
 
@@ -171,7 +175,7 @@ export default {
         parseFloat(this.unstakeAmount).toFixed(this.network.staking.token.decimals).replace('.', '')
       )
 
-      const receive = multiplier * liquidAmount / (this.exchangerateUp + BigInt(1))
+      const receive = (multiplier * liquidAmount) / (this.exchangerateUp + BigInt(1))
 
       return CurrencyAmount.fromRawAmount(new Token('wax-eosio.token', 8, 'WAX'), receive.toString()).toFixed()
     },
@@ -245,7 +249,7 @@ export default {
           account: 'liquid.alcor',
           name: 'exchangerate',
           authorization: [],
-          data: { isRoundUp }
+          data: { isRoundUp },
         },
       ]
 
@@ -507,6 +511,16 @@ export default {
 
   .alcor-container {
     padding: 14px !important;
+  }
+  .stake-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .history-button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
   }
 
   h1 {
