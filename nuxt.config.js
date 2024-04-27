@@ -220,15 +220,19 @@ module.exports = {
   build: {
     standalone: true,
 
-    extend(config, ctx) {
+    extend(config, { isDev, isClient }) {
       config.resolve.alias.jsbi = path.resolve(__dirname, 'node_modules', 'jsbi', 'dist', 'jsbi-cjs.js')
 
       config.node = {
         fs: 'empty'
       }
 
+      if (isClient) {
+        config.devtool = 'source-map'
+      }
+
       // Run ESLint on save
-      if (ctx.isDev && ctx.isClient) {
+      if (isDev && isClient) {
         config.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,

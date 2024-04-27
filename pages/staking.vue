@@ -12,7 +12,7 @@
           .history-button.p-1(v-if="isOnPending")
             i.el-icon-back
             span Back
-          ElBadge(v-else-if="pendingUnstakes.length" :value="pendingUnstakes.length")
+          ElBadge(v-else-if="pendingUnstakes.length" type="warning" :value="pendingUnstakes.length")
             .history-button.p-1
               span Pending Unstakes
 
@@ -286,7 +286,7 @@ export default {
     },
 
     async fetchPendingUnstakes() {
-      if (!this.user.name) return
+      if (!this.user?.name) return
 
       const rows = await fetchAllRows(this.$rpc, {
         code: this.network.staking.contract,
@@ -484,7 +484,7 @@ export default {
         })
 
         this.afterTransactionHook()
-        this.fetchPendingUnstakes()
+        setTimeout(() => this.fetchPendingUnstakes(), 1000)
         this.$notify({ type: 'success', title: 'Delayed Unstake', message: 'Unstake Successful' })
       } catch (e) {
         this.$notify({ type: 'error', title: 'Delayed Unstake Error', message: e.message })
