@@ -163,7 +163,8 @@ module.exports = {
     //'vue-github-buttons/nuxt',
     'vue-scrollto/nuxt',
     '@nuxtjs/i18n',
-    'cookie-universal-nuxt'
+    'cookie-universal-nuxt',
+    '@nuxt/image'
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
   i18n: {
@@ -211,9 +212,7 @@ module.exports = {
   buildModules: [
     '@nuxtjs/color-mode',
     '@nuxtjs/device',
-    '@nuxtjs/imagemin'
   ],
-
   /*
    ** Build configuration
    */
