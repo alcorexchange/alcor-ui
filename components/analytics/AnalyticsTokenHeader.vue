@@ -7,7 +7,7 @@
 
     a(:href='monitorAccount(token.contract)' target='_blank').contract.fs-20 ({{ token.contract }})
 
-    .price.fs-24 ${{ token.usd_price }}
+    .price.fs-24 ${{ token.usd_price.toFixed(4) }}
     //.change.fs-14 +todo% TODO
 
   .actions.mt-3
