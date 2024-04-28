@@ -2,7 +2,7 @@ import { Asset } from '@wharfkit/antelope'
 
 import { fetchAllRows } from '~/utils/eosjs'
 import { parseAsset } from '~/utils'
-import { sqrt } from '~/utils/bigInt'
+import { sqrt } from '~/utils/bigint'
 
 
 const PRECISION_MULTIPLIER = BigInt('1000000000000000000')
