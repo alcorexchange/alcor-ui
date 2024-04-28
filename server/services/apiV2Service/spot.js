@@ -321,7 +321,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   const { from, to, resolution, limit } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
-  const frame = resolutions[resolution]
+  const frame = resolutions[resolution] * 1000
 
   const where = {
     chain: network.name,
