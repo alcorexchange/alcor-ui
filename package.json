@@ -30,7 +30,6 @@
     "@scatterjs/eosjs2": "^1.5.36",
     "@socket.io/cluster-adapter": "^0.2.0",
     "@socket.io/sticky": "^1.0.1",
-    "@types/imagemin-svgo": "^10.0.5",
     "@types/node": "^18.15.9",
     "@vue/eslint-config-standard": "^5.0.0",
     "@waxio/waxjs": "^1.7.1",
