@@ -9884,7 +9884,7 @@ nuxt-highcharts@^2.0.3:
     "@highcharts/map-collection" "^2.0.0"
     proj4 "^2.8.0"
 
-nuxt@^2.15.8:
+nuxt@^2.17.3:
   version "2.17.3"
   resolved "https://registry.yarnpkg.com/nuxt/-/nuxt-2.17.3.tgz#68e9bef3287f7f6fa58aed7e753c14167593f631"
   integrity sha512-mQUy0J2DYYxHZvgBX8YvrrM8sKUhBqBxcQ0ePjy7cdyTaDAN8QeOLrizINm7NVPMrFGLYurhp5rbX3/qyQcKyg==
