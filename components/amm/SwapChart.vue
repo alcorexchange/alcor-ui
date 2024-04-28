@@ -44,10 +44,11 @@ alcor-container.p-3.w-100.chart-container-inner
         span.text 10%
   .mt-2(v-else)
 
-  .no-chart.disable(v-if="!shouldShowCharts")
+  .no-chart.disable(v-if="!shouldShowCharts || !chartForPool")
     img(src="@/assets/icons/candle-icon.svg")
     //- i.el-icon-data-analysis
-    span  Select both tokens to show the graph
+    span(v-if="!shouldShowCharts")  Select both tokens to show the graph
+    span(v-else)  No pool between tokens to pull chart data from
   component(
     v-else
     :is="activeTab"
@@ -57,8 +58,8 @@ alcor-container.p-3.w-100.chart-container-inner
     style="min-height: 400px"
     :events="chartEvents"
     :tooltipFormatter="renderTooltipFormatter"
-    :tokenA="$store.getters['amm/swap/tokenA']"
-    :tokenB="$store.getters['amm/swap/tokenB']"
+    :pool="chartForPool"
+    :isSorted="isSorted"
   )
     #swap_tv_chart_container
 </template>
@@ -77,6 +78,7 @@ import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
+import { constructPoolInstance, parseToken } from '~/utils/amm'
 
 export default {
   components: {
@@ -101,6 +103,7 @@ export default {
       { label: 'All', value: 'All' },
     ],
     price: undefined,
+    chartForPool: null,
   }),
 
   computed: {
@@ -236,8 +239,23 @@ export default {
   },
 
   methods: {
+    findChartForPool() {
+      if (!this.tokenA || !this.tokenB) return null
+
+      const pool = this.$store.getters['amm/poolsPlainWithStatsAndUserData'].filter(p => {
+        const tokenA = parseToken(p.tokenA)
+        const tokenB = parseToken(p.tokenB)
+
+        return (this.tokenA.id == tokenA.id && this.tokenB.id == tokenB.id) ||
+          (this.tokenA.id == tokenB.id && this.tokenB.id == tokenA.id)
+      }).sort((a, b) => b?.poolStats?.tvlUSD - a?.poolStats?.tvlUSD)[0]
+
+      this.chartForPool = pool ? constructPoolInstance(pool) : null
+    },
+
     async fetchCharts() {
       if (!this.tokenA || !this.tokenB) return
+      this.findChartForPool()
 
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
