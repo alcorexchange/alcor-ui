@@ -321,7 +321,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   const { from, to, resolution, limit } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
-  console.log(1)
+  const frame = resolutions[resolution]
 
   const where = {
     chain: network.name,
@@ -388,11 +388,11 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
         close: lastKnownPrice,
         volume: 0,
       })
-      expectedTime += parseInt(resolution)
+      expectedTime += parseInt(frame)
     }
     filledCharts.push(chart)
     lastKnownPrice = chart.close
-    expectedTime += parseInt(resolution)
+    expectedTime += parseInt(frame)
   })
 
   console.log(6)
@@ -406,7 +406,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
       close: lastKnownPrice,
       volume: 0,
     })
-    expectedTime += parseInt(resolution)
+    expectedTime += parseInt(frame)
   }
 
   console.log(7)
