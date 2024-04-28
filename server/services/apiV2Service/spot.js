@@ -332,7 +332,6 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
       $lte: new Date(parseInt(to)),
     },
   }
-  console.log(2)
 
   const q = [
     { $match: where },
@@ -349,13 +348,11 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     },
   ]
 
-  console.log(3)
   if (limit) q.push({ $limit: parseInt(limit) })
 
   let lastKnownPrice = null
   const charts = await Bar.aggregate(q)
 
-  console.log(4)
   if (charts.length === 0 && from) {
     const lastPriceQuery = await Bar.findOne({
       chain: network.name,
@@ -372,14 +369,12 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     lastKnownPrice = charts[0].close
   }
 
-  console.log(5)
   // Заполнение пустых свечей между данными
   const filledCharts = []
   let expectedTime = parseInt(from)
 
   charts.forEach((chart, index) => {
     while (chart.time > expectedTime) {
-      console.log(chart.time, expectedTime)
       filledCharts.push({
         time: expectedTime,
         open: lastKnownPrice,
@@ -395,7 +390,6 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     expectedTime += parseInt(frame)
   })
 
-  console.log(6)
   // Добавление пустых свечей после последней полученной свечи до конца периода
   while (expectedTime <= parseInt(to)) {
     filledCharts.push({
@@ -409,6 +403,5 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     expectedTime += parseInt(frame)
   }
 
-  console.log(7)
   res.json(filledCharts)
 })
