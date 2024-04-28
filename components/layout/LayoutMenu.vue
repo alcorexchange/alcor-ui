@@ -259,7 +259,7 @@ export default {
         )
       }
       if (contentKey == 'earn') {
-        return path.includes('/positions') || path.includes('/farm')
+        return path.includes('/positions') || path.includes('/farm') || path.includes('/staking')
       }
       if (contentKey == 'bridge') {
         return path.includes('/bridge') || path.includes('/buy-crypto')
