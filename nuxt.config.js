@@ -161,7 +161,6 @@ module.exports = {
     '@nuxtjs/sentry',
     'nuxt-highcharts',
     //'vue-github-buttons/nuxt',
-    'nuxt-imagemin',
     'vue-scrollto/nuxt',
     '@nuxtjs/i18n',
     'cookie-universal-nuxt'
@@ -211,7 +210,8 @@ module.exports = {
 
   buildModules: [
     '@nuxtjs/color-mode',
-    '@nuxtjs/device'
+    '@nuxtjs/device',
+    '@nuxtjs/imagemin'
   ],
 
   /*
