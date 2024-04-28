@@ -379,6 +379,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   charts.forEach((chart, index) => {
     while (chart.time > expectedTime) {
+      console.log(chart.time, expectedTime)
       filledCharts.push({
         time: expectedTime,
         open: lastKnownPrice,
