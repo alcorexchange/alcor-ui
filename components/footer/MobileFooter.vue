@@ -40,11 +40,12 @@ export default {
     gap: 8px;
   }
   .other {
+    padding: 0 8px;
     padding-top: 18px;
     display: flex;
     flex-direction: column;
     gap: 24px;
-    align-items: center;
+    align-items: flex-start;
   }
 }
 </style>
