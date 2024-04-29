@@ -1,5 +1,5 @@
 <template lang="pug">
-footer(:class="{isMobile}").alcor-inner
+footer(:class="{ isMobile }").alcor-inner
   template(v-if="showDetailedFooter")
 
     MobileFooter(v-if="isMobile" :sections="sections")
@@ -9,19 +9,13 @@ footer(:class="{isMobile}").alcor-inner
         img.logo(:src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)" height="38")
         .contact-section-item
           .title.muted Socials
-          .social-items
-            a(href="https://t.me/alcorexchange" target="_blank")
-              img(src="@/assets/icons/Telegram.svg")
-            a(href="https://twitter.com/alcorexchange" target="_blank")
-              img(src="@/assets/icons/Twitter.svg")
-            a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
-              img(src="@/assets/icons/Discord.svg")
+          FooterSocialIcons
 
         span.muted © {{ new Date().getFullYear()  }} Alcor
 
       .column(v-for="col in sections")
         section.footer-section(v-for="section in col")
-          .title.muted {{section.title}}
+          .title.muted {{ section.title }}
           .items
             .item(v-for="item in section.items")
               component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" v-bind="item.to ? { to: localePath(item.to) } : { href: item.href }" :target="item.href ? '_blank' : undefined") {{ item.title }}
@@ -131,10 +125,12 @@ footer(:class="{isMobile}").alcor-inner
 <script>
 import axios from 'axios'
 import MobileFooter from './MobileFooter.vue'
+import FooterSocialIcons from './FooterSocialIcons.vue'
 
 export default {
   components: {
     MobileFooter,
+    FooterSocialIcons,
   },
   data() {
     return {

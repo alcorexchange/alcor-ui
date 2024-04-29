@@ -29,6 +29,7 @@ export default {
   justify-content: space-between;
   color: var(--text-disable);
   transition: color 0.2s;
+  font-weight: bold;
   &:hover {
     color: var(--text-default);
   }
