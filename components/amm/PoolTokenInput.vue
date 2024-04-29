@@ -11,6 +11,7 @@
       :value='localValue',
       :readonly="readonly"
       :tabindex="readonly ? '-1': '0'"
+      type="number"
       @input='input',
       @blur='onBlur',
       @focus="onFocus"
