@@ -1,16 +1,28 @@
 <template lang="pug">
 footer(:class="{isMobile}").alcor-inner
   .detailed-footer(v-if="showDetailedFooter")
-    section.logo-section
+    section.footer-section
       img.logo(:src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)" height="38")
-      span.bottom.muted © {{ new Date().getFullYear()  }} Alcor
+      .contact-section-item
+        .title.muted Socials
+        .social-items
+          a(href="https://t.me/alcorexchange" target="_blank")
+            img(src="@/assets/icons/Telegram.svg")
+          a(href="https://twitter.com/alcorexchange" target="_blank")
+            img(src="@/assets/icons/Twitter.svg")
+          a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+            img(src="@/assets/icons/Discord.svg")
 
-    section.general-section(v-for="section in sections")
-      .title.muted {{section.title}}
-      .items
-        .item(v-for="item in section.items")
-          component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" v-bind="item.to ? { to: localePath(item.to) } : { href: item.href }" :target="item.href ? '_blank' : undefined") {{ item.title }}
-    section.contact-section
+      span.muted © {{ new Date().getFullYear()  }} Alcor
+
+    .column(v-for="col in sections")
+      section.footer-section(v-for="section in col")
+        .title.muted {{section.title}}
+        .items
+          .item(v-for="item in section.items")
+            component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" v-bind="item.to ? { to: localePath(item.to) } : { href: item.href }" :target="item.href ? '_blank' : undefined") {{ item.title }}
+
+    //- section.contact-section
       .contact-section-item
         .title.muted Contact
         .items
@@ -126,31 +138,54 @@ export default {
   computed: {
     sections() {
       return [
-        {
-          title: 'About Us',
-          items: [
-            { title: 'About', to: '/docs' },
-            { title: 'Blog', href: 'https://medium.com/@alcorexchange' },
-            { title: 'Careers', to: '/careers' },
-          ],
-        },
-        {
-          title: 'Products',
-          items: [
-            { title: 'IBC Bridge', to: '/bridge' },
-            { title: 'Wax Defi Analytics', href: 'https://grafana.waxtools.net' },
-            { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
-          ],
-        },
-        {
-          title: 'Learn',
-          items: [
-            { title: 'Api', href: 'http://api.alcor.exchange' },
-            { title: 'Docs', to: '/docs' },
-            { title: 'Affilate Program', href: 'https://docs.alcor.exchange/alcor-swap/referral-custom-market-fee' },
-            { title: 'Contract Audits', href: 'https://www.sentnl.io/audits/alcor-1' },
-          ],
-        },
+        [
+          {
+            title: 'About Us',
+            items: [
+              { title: 'About', to: '/docs' },
+              { title: 'Blog', href: 'https://medium.com/@alcorexchange' },
+              { title: 'Careers', to: '/careers' },
+            ],
+          },
+        ],
+        [
+          {
+            title: 'Products',
+            items: [
+              { title: 'IBC Bridge', to: '/bridge' },
+              { title: 'Wax Defi Analytics', href: 'https://grafana.waxtools.net' },
+              { title: 'Block Producer', href: 'https://bp.alcor.exchange/' },
+            ],
+          },
+        ],
+        [
+          {
+            title: 'Learn',
+            items: [
+              { title: 'Api', href: 'http://api.alcor.exchange' },
+              { title: 'Docs', to: '/docs' },
+              { title: 'Affilate Program', href: 'https://docs.alcor.exchange/alcor-swap/referral-custom-market-fee' },
+              { title: 'Contract Audits', href: 'https://www.sentnl.io/audits/alcor-1' },
+            ],
+          },
+        ],
+        [
+          {
+            title: 'Contact',
+            items: [
+              { title: 'tg:alcorexchange', href: 'https://t.me/alcorexchange' },
+              { title: 'admin@alcor.exchange', href: 'mailto:admin@alcor.exchange' },
+            ],
+          },
+          {
+            title: 'Request',
+            items: [
+              { title: 'Feature Request', href: 'https://alcor.featurebase.app/' },
+              { title: 'Banner/Ad Request', href: 'https://t.me/Zzullerr' },
+              { title: 'Business offer', href: 'https://t.me/Zzullerr' },
+            ],
+          },
+        ],
       ]
     },
     showDetailedFooter() {
@@ -192,7 +227,9 @@ footer {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   width: 100%;
-  section {
+
+  .footer-section {
+    padding-bottom: 16px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -212,7 +249,7 @@ footer {
 }
 
 .contact-section-item {
-  margin-bottom: 28px;
+  margin: 20px 0;
   display: flex;
   flex-direction: column;
 }
