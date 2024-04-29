@@ -193,7 +193,7 @@ export default {
       ]
     },
     showDetailedFooter() {
-      return this.$route.path == '/'
+      return this.$route.path == this.localePath('/')
     },
   },
 
