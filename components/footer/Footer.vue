@@ -1,27 +1,30 @@
 <template lang="pug">
 footer(:class="{isMobile}").alcor-inner
-  .detailed-footer(v-if="showDetailedFooter")
-    section.footer-section
-      img.logo(:src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)" height="38")
-      .contact-section-item
-        .title.muted Socials
-        .social-items
-          a(href="https://t.me/alcorexchange" target="_blank")
-            img(src="@/assets/icons/Telegram.svg")
-          a(href="https://twitter.com/alcorexchange" target="_blank")
-            img(src="@/assets/icons/Twitter.svg")
-          a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
-            img(src="@/assets/icons/Discord.svg")
+  template(v-if="showDetailedFooter")
 
-      span.muted © {{ new Date().getFullYear()  }} Alcor
+    MobileFooter(v-if="isMobile" :sections="sections")
 
-    .column(v-for="col in sections")
-      section.footer-section(v-for="section in col")
-        .title.muted {{section.title}}
-        .items
-          .item(v-for="item in section.items")
-            component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" v-bind="item.to ? { to: localePath(item.to) } : { href: item.href }" :target="item.href ? '_blank' : undefined") {{ item.title }}
+    .detailed-footer(v-else)
+      section.footer-section
+        img.logo(:src="require(`~/assets/logos/${$colorMode.value == 'light' ? 'alcorblack' : 'alcorwhite'}.svg`)" height="38")
+        .contact-section-item
+          .title.muted Socials
+          .social-items
+            a(href="https://t.me/alcorexchange" target="_blank")
+              img(src="@/assets/icons/Telegram.svg")
+            a(href="https://twitter.com/alcorexchange" target="_blank")
+              img(src="@/assets/icons/Twitter.svg")
+            a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+              img(src="@/assets/icons/Discord.svg")
 
+        span.muted © {{ new Date().getFullYear()  }} Alcor
+
+      .column(v-for="col in sections")
+        section.footer-section(v-for="section in col")
+          .title.muted {{section.title}}
+          .items
+            .item(v-for="item in section.items")
+              component(:is="item.to ? 'nuxt-link' : 'a'" class="fs-14 footer-link" v-bind="item.to ? { to: localePath(item.to) } : { href: item.href }" :target="item.href ? '_blank' : undefined") {{ item.title }}
     //- section.contact-section
       .contact-section-item
         .title.muted Contact
@@ -127,8 +130,12 @@ footer(:class="{isMobile}").alcor-inner
 
 <script>
 import axios from 'axios'
+import MobileFooter from './MobileFooter.vue'
 
 export default {
+  components: {
+    MobileFooter,
+  },
   data() {
     return {
       lastCommit: {},
@@ -189,7 +196,7 @@ export default {
       ]
     },
     showDetailedFooter() {
-      return this.$route.path == '/' && !this.isMobile
+      return this.$route.path == '/'
     },
   },
 
