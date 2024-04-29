@@ -24,9 +24,9 @@ function getBarTimes(matchTime, resolutionInSeconds) {
   }
 }
 
-export async function makeSpotBars(swap) {
+export async function makeSpotBars(match) {
   const timeframes = Object.keys(resolutions)
-  const promises = timeframes.map((timeframe) => makeSpotBar(timeframe, swap))
+  const promises = timeframes.map((timeframe) => makeSpotBar(timeframe, match))
 
   await Promise.all(promises)
 }
