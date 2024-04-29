@@ -13,7 +13,7 @@ import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
-import { markeSwapBars } from '../updaterService/charts'
+import { makeSwapBars } from '../updaterService/charts'
 import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
 
 const redis = createClient()
@@ -446,7 +446,7 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logswap') {
     const swap = await handleSwap({ chain, trx_id, data, block_time })
-    await markeSwapBars(swap)
+    await makeSwapBars(swap)
 
     handlePoolChart(
       chain,
