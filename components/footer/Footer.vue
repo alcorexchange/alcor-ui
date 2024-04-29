@@ -139,6 +139,7 @@ export default {
   },
 
   computed: {
+    // Each item is a column, each item of that is the array of sections
     sections() {
       return [
         [

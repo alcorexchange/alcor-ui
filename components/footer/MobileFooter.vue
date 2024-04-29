@@ -23,6 +23,7 @@ export default {
   props: ['sections'],
 
   computed: {
+    // Flat sections because we need only sections
     flatSections() {
       return this.sections.flat()
     },
