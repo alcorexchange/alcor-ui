@@ -5,7 +5,7 @@ import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
 import { Match, Market } from '../../models'
 import config from '../../../config'
-import { markeBars } from './charts'
+import { makeSpotBars } from './charts'
 
 // TODO Тут от докера прокидываем
 let redisClient
@@ -51,7 +51,8 @@ export async function newMatch(match, network) {
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
         block_num
       })
-      await markeBars(m)
+
+      await makeSpotBars(m)
       redisClient.publish('market_action', `${network.name}_${market.id}_${name}`)
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')

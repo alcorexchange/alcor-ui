@@ -12,7 +12,7 @@ import { Swap, SwapBar, Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
 import { initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
-import { markeSwapBars } from './services/updaterService/charts'
+import { makeSwapBars, makeSpotBar } from './services/updaterService/charts'
 
 
 const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
@@ -97,7 +97,19 @@ async function main() {
 
     let i = 0
     for (let swap = await cursor.next(); swap != null; swap = await cursor.next()) {
-      await markeSwapBars(swap)
+      await makeSwapBars(swap)
+      i++
+      process.stdout.write(`${i}/${total}\r`)
+    }
+  }
+
+  if (command == 'create_match_candles') {
+    const total = await Match.count({})
+    const cursor = Match.find().sort({ time: 1 }).cursor()
+
+    let i = 0
+    for (let match = await cursor.next(); match != null; match = await cursor.next()) {
+      await makeSpotBar(match)
       i++
       process.stdout.write(`${i}/${total}\r`)
     }
